@@ -53,8 +53,7 @@ bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_Pre
   const ezDocumentObject* pObject = GetObjectManager()->GetObject(object);
 
   ezHybridArray<ezVariant, 16> values;
-  ezPropertyPath componentPath = "Components";
-  pObject->GetTypeAccessor().GetValues(componentPath, values);
+  pObject->GetTypeAccessor().GetValues("Components", values);
 
   for (ezVariant& value : values)
   {
@@ -121,19 +120,19 @@ ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
     ezSetObjectPropertyCommand setCmd;
     setCmd.m_Object = newGuid;
 
-    setCmd.m_sPropertyPath = "LocalPosition";
+    setCmd.m_sProperty = "LocalPosition";
     setCmd.m_NewValue = vLocalPos;
     pHistory->AddCommand(setCmd);
 
-    setCmd.m_sPropertyPath = "LocalRotation";
+    setCmd.m_sProperty = "LocalRotation";
     setCmd.m_NewValue = vLocalRot;
     pHistory->AddCommand(setCmd);
 
-    setCmd.m_sPropertyPath = "LocalScaling";
+    setCmd.m_sProperty = "LocalScaling";
     setCmd.m_NewValue = vLocalScale;
     pHistory->AddCommand(setCmd);
 
-    setCmd.m_sPropertyPath = "LocalUniformScaling";
+    setCmd.m_sProperty = "LocalUniformScaling";
     setCmd.m_NewValue = fLocalUniformScale;
     pHistory->AddCommand(setCmd);
   }
@@ -215,7 +214,7 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
 
       ezSetObjectPropertyCommand cmd2;
       cmd2.m_Object = CmpGuid;
-      cmd2.SetPropertyPath("Prefab");
+      cmd2.m_sProperty = "Prefab";
       cmd2.m_NewValue = ezConversionUtils::ToString(assetGuid);
       EZ_VERIFY(pHistory->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
 

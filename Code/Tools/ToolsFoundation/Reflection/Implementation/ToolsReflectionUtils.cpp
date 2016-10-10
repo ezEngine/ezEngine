@@ -117,11 +117,11 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
     
     return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
   }
-  else if (pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer | ezPropertyFlags::EmbeddedClass))
   {
     return ezUuid();
   }
-  EZ_REPORT_FAILURE("Cannot provide a default variant for a member struct / class reference.");
+ 
   return ezVariant();
 }
 
@@ -179,115 +179,6 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   }
 
   out_desc.m_ReferenceAttributes = pRtti->GetAttributes();
-}
-
-ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
-{
-  ezPropertyPath path;
-  const ezUInt32 uiMaxParams = 6;
-  const char* pStrings[uiMaxParams] = { pData1, pData2, pData3, pData4, pData5, pData6 };
-  ezUInt32 uiUsedParams = 0;
-  for (ezUInt32 i = 0; i < uiMaxParams; ++i)
-  {
-    if (ezStringUtils::IsNullOrEmpty(pStrings[i]))
-      break;
-
-    path.PushBack(pStrings[i]);
-  }
-
-  return path;
-}
-
-ezAbstractProperty* ezToolsReflectionUtils::GetPropertyByPath(const ezRTTI* pRtti, const ezPropertyPath& path)
-{
-  if (path.IsEmpty())
-    return nullptr;
-  ezAbstractProperty* pCurrentProp = pRtti->FindPropertyByName(path[0]);
-  if (path.GetCount() == 1)
-    return pCurrentProp;
-
-  ezPropertyPath pathCopy = path;
-  pathCopy.RemoveAt(0);
-
-  return GetPropertyByPath(pCurrentProp->GetSpecificType(), pathCopy);
-}
-
-ezVariant ezToolsReflectionUtils::GetMemberPropertyValueByPath(const ezRTTI* pRtti, void* pObject, const ezPropertyPath& path)
-{
-  EZ_ASSERT_DEV(path.GetCount() > 0, "ezReflectedTypeDirectAccessor: the given property path is empty!");
-
-  ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(pRtti, path[0]);
-
-  if (pCurrentProp == nullptr)
-    return ezVariant();
-
-  if (path.GetCount() == 1)
-    return ezReflectionUtils::GetMemberPropertyValue(pCurrentProp, pObject);
-
-  if (pCurrentProp->GetPropertyPointer(pObject) != nullptr)
-  {
-    ezPropertyPath pathCopy = path;
-    pathCopy.RemoveAt(0);
-
-    return GetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy);
-  }
-  else if (pCurrentProp->GetSpecificType()->GetAllocator()->CanAllocate())
-  {
-    void* pValue = pCurrentProp->GetSpecificType()->GetAllocator()->Allocate();
-    pCurrentProp->GetValuePtr(pObject, pValue);
-
-    ezPropertyPath pathCopy = path;
-    pathCopy.RemoveAt(0);
-
-    ezVariant res = GetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pValue, pathCopy);
-
-    pCurrentProp->GetSpecificType()->GetAllocator()->Deallocate(pValue);
-
-    return res;
-  }
-
-  return ezVariant();
-}
-
-bool ezToolsReflectionUtils::SetMemberPropertyValueByPath(const ezRTTI* pRtti, void* pObject, const ezPropertyPath& path, const ezVariant& value)
-{
-  EZ_ASSERT_DEV(path.GetCount() > 0, "ezReflectedTypeDirectAccessor: the given property path is empty!");
-
-  ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(pRtti, path[0]);
-
-  if (pCurrentProp == nullptr)
-    return false;
-
-  if (path.GetCount() == 1)
-  {
-    ezReflectionUtils::SetMemberPropertyValue(pCurrentProp, pObject, value);
-    return true;
-  }
-
-  if (pCurrentProp->GetPropertyPointer(pObject) != nullptr)
-  {
-    ezPropertyPath pathCopy = path;
-    pathCopy.RemoveAt(0);
-
-    return SetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy, value);
-  }
-  else if (pCurrentProp->GetSpecificType()->GetAllocator()->CanAllocate())
-  {
-    void* pValue = pCurrentProp->GetSpecificType()->GetAllocator()->Allocate();
-    pCurrentProp->GetValuePtr(pObject, pValue);
-
-    ezPropertyPath pathCopy = path;
-    pathCopy.RemoveAt(0);
-
-    const bool res = SetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pValue, pathCopy, value);
-
-    pCurrentProp->SetValuePtr(pObject, pValue);
-    pCurrentProp->GetSpecificType()->GetAllocator()->Deallocate(pValue);
-
-    return res;
-  }
-
-  return false;
 }
 
 void ezToolsReflectionUtils::WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriter& stream, const ezDocumentObject* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)

@@ -50,11 +50,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_INT(ezGetStaticRTTI<ezMat4>()->GetTypeFlags().GetValue(), ezTypeFlags::StandardType);
     EZ_TEST_INT(ezGetStaticRTTI<ezVariant>()->GetTypeFlags().GetValue(), ezTypeFlags::StandardType);
 
-    EZ_TEST_INT(ezGetStaticRTTI<ezAbstractTestClass>()->GetTypeFlags().GetValue(), ezTypeFlags::Abstract);
-    EZ_TEST_INT(ezGetStaticRTTI<ezAbstractTestStruct>()->GetTypeFlags().GetValue(), ezTypeFlags::Abstract);
+    EZ_TEST_INT(ezGetStaticRTTI<ezAbstractTestClass>()->GetTypeFlags().GetValue(), (ezTypeFlags::Class | ezTypeFlags::Abstract).GetValue());
+    EZ_TEST_INT(ezGetStaticRTTI<ezAbstractTestStruct>()->GetTypeFlags().GetValue(), (ezTypeFlags::Class | ezTypeFlags::Abstract).GetValue());
 
-    EZ_TEST_INT(ezGetStaticRTTI<ezTestStruct3>()->GetTypeFlags().GetValue(), ezTypeFlags::Default);
-    EZ_TEST_INT(ezGetStaticRTTI<ezTestClass2>()->GetTypeFlags().GetValue(), ezTypeFlags::Default);
+    EZ_TEST_INT(ezGetStaticRTTI<ezTestStruct3>()->GetTypeFlags().GetValue(), ezTypeFlags::Class);
+    EZ_TEST_INT(ezGetStaticRTTI<ezTestClass2>()->GetTypeFlags().GetValue(), ezTypeFlags::Class);
 
     EZ_TEST_INT(ezGetStaticRTTI<ezExampleEnum>()->GetTypeFlags().GetValue(), ezTypeFlags::IsEnum);
     EZ_TEST_INT(ezGetStaticRTTI<ezExampleBitflags>()->GetTypeFlags().GetValue(), ezTypeFlags::Bitflags);

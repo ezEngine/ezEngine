@@ -54,6 +54,8 @@ public:
   ezCommandHistory(ezDocument* pDocument);
   ~ezCommandHistory();
    
+  const ezDocument* GetDocument() const { return m_pDocument; }
+
   ezStatus Undo();
   ezStatus Redo();
 

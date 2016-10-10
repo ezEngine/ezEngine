@@ -46,7 +46,7 @@ public:
     };
 
     Type m_Type;
-    const ezPropertyPath* m_pPropertyPath;
+    const ezAbstractProperty* m_pProperty;
     const ezHybridArray<Selection, 8>* m_pItems;
     ezVariant m_Value;
   };
@@ -57,9 +57,8 @@ public:
   explicit ezQtPropertyWidget();
   virtual ~ezQtPropertyWidget();
 
-  void Init(ezQtPropertyGridWidget* pGrid, const ezAbstractProperty* pProp, const ezPropertyPath& path);
+  void Init(ezQtPropertyGridWidget* pGrid, const ezAbstractProperty* pProp);
   const ezAbstractProperty* GetProperty() const { return m_pProp; }
-  const ezPropertyPath& GetPropertyPath() const { return m_PropertyPath; }
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items);
   const ezHybridArray<Selection, 8>& GetSelection() const { return m_Items; }
@@ -88,7 +87,6 @@ protected:
 
   ezQtPropertyGridWidget* m_pGrid;
   const ezAbstractProperty* m_pProp;
-  ezPropertyPath m_PropertyPath;
   ezHybridArray<Selection, 8> m_Items;
 
 private:
@@ -222,8 +220,8 @@ protected:
   void Clear();
   virtual void OnInit() override;
   
-  void DeleteItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path);
-  void MoveItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, ezInt32 iMove);
+  void DeleteItems(ezHybridArray<Selection, 8>& items);
+  void MoveItems(ezHybridArray<Selection, 8>& items, ezInt32 iMove);
   virtual void DoPrepareToDie() override;
 
 protected:

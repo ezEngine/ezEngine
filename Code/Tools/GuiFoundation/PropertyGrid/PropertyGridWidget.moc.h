@@ -20,6 +20,7 @@ class ezDocumentObjectManager;
 class ezCommandHistory;
 struct ezDocumentObjectPropertyEvent;
 struct ezPropertyMetaStateEvent;
+struct ezObjectAccessorChangeEvent;
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyGridWidget : public QWidget
 {
@@ -35,6 +36,7 @@ public:
   const ezDocument* GetDocument() const;
   const ezDocumentObjectManager* GetObjectManager() const;
   ezCommandHistory* GetCommandHistory() const;
+  ezObjectAccessorBase* GetObjectAccessor() const;
 
   static ezRttiMappedObjectFactory<ezQtPropertyWidget>& GetFactory();
   static ezQtPropertyWidget* CreateMemberPropertyWidget(const ezAbstractProperty* pProp);
@@ -52,6 +54,7 @@ private:
 private:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
+  void ObjectAccessorChangeEventHandler(const ezObjectAccessorChangeEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e);
   void TypeEventHandler(const ezPhantomRttiManagerEvent& e);

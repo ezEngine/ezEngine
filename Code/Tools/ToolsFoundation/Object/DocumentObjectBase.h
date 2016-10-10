@@ -1,9 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Basics.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeSubObjectAccessor.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Uuid.h>
 
@@ -21,7 +19,8 @@ public:
 
   // Accessors
   const ezUuid& GetGuid() const { return m_Guid; }
-  
+  const ezRTTI* GetType() const { return GetTypeAccessor().GetType(); }
+
   const ezDocumentObjectManager* GetDocumentObjectManager() const { return m_pDocumentObjectManager; }
   ezDocumentObjectManager* GetDocumentObjectManager() { return m_pDocumentObjectManager; }
 
@@ -37,13 +36,16 @@ public:
   // Helper
   void ComputeObjectHash(ezUInt64& uiHash) const;
   const ezHybridArray<ezDocumentObject*, 8>& GetChildren() const { return m_Children; }
+  ezDocumentObject* GetChild(const ezUuid& guid);
+  const ezDocumentObject* GetChild(const ezUuid& guid) const;
   const char* GetParentProperty() const { return m_sParentProperty; }
+  ezAbstractProperty* GetParentPropertyType() const;
   ezVariant GetPropertyIndex() const;
   bool IsOnHeap() const;
 
 private:
   friend class ezDocumentObjectManager;
-  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const;
+  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType) const;
   ezUInt32 GetChildIndex(ezDocumentObject* pChild) const;
 
 protected:
@@ -73,17 +75,3 @@ public:
 protected:
   ezReflectedTypeStorageAccessor m_ObjectPropertiesAccessor;
 };
-
-class EZ_TOOLSFOUNDATION_DLL ezDocumentSubObject : public ezDocumentObject
-{
-public:
-  ezDocumentSubObject(const ezRTTI* pRtti);
-  void SetObject(ezDocumentObject* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid = ezUuid());
-
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_Accessor; }
-
-public:
-  ezReflectedTypeSubObjectAccessor m_Accessor;
-  ezPropertyPath m_SubPath;
-};
-

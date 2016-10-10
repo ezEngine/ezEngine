@@ -2,6 +2,7 @@
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezDirectionVisualizerAdapter::ezDirectionVisualizerAdapter()
 {
@@ -28,12 +29,13 @@ void ezDirectionVisualizerAdapter::Finalize()
 void ezDirectionVisualizerAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
-
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetColorProperty()));
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezDirectionVisualizerAttribute 'color'");
     m_Gizmo.SetColor(value.ConvertTo<ezColor>());

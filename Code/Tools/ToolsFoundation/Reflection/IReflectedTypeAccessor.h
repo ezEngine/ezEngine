@@ -20,23 +20,23 @@ public:
   const ezRTTI* GetType() const { return m_pRtti; } // [tested]
 
   /// \brief Returns the value of the property defined by its path. Return value is invalid iff the path was invalid.
-  virtual const ezVariant GetValue(const ezPropertyPath& path, ezVariant index = ezVariant()) const = 0;
+  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant()) const = 0;
 
   /// \brief Sets a property defined by its path to the given value. Returns whether the operation was successful.
-  virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value, ezVariant index = ezVariant()) = 0;
+  virtual bool SetValue(const char* szProperty, const ezVariant& value, ezVariant index = ezVariant()) = 0;
 
-  virtual ezInt32 GetCount(const ezPropertyPath& path) const = 0;
-  virtual bool GetKeys(const ezPropertyPath& path, ezHybridArray<ezVariant, 16>& out_keys) const = 0;
+  virtual ezInt32 GetCount(const char* szProperty) const = 0;
+  virtual bool GetKeys(const char* szProperty, ezHybridArray<ezVariant, 16>& out_keys) const = 0;
 
-  virtual bool InsertValue(const ezPropertyPath& path, ezVariant index, const ezVariant& value) = 0;
-  virtual bool RemoveValue(const ezPropertyPath& path, ezVariant index) = 0;
-  virtual bool MoveValue(const ezPropertyPath& path, ezVariant oldIndex, ezVariant newIndex) = 0;
+  virtual bool InsertValue(const char* szProperty, ezVariant index, const ezVariant& value) = 0;
+  virtual bool RemoveValue(const char* szProperty, ezVariant index) = 0;
+  virtual bool MoveValue(const char* szProperty, ezVariant oldIndex, ezVariant newIndex) = 0;
 
-  virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const = 0;
+  virtual ezVariant GetPropertyChildIndex(const char* szProperty, const ezVariant& value) const = 0;
 
   const ezDocumentObject* GetOwner() const { return m_pOwner; }
 
-  bool GetValues(const ezPropertyPath& path, ezHybridArray<ezVariant, 16>& out_values) const;
+  bool GetValues(const char* szProperty, ezHybridArray<ezVariant, 16>& out_values) const;
 
 
 private:

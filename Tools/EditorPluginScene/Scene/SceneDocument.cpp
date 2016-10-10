@@ -435,7 +435,7 @@ void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPositi
     ezSetObjectPropertyCommand cmdSet;
     cmdSet.m_NewValue = ctxt.m_pLastPickingResult->m_vPickedPosition;
     cmdSet.m_Object = NewNode;
-    cmdSet.SetPropertyPath("LocalPosition");
+    cmdSet.m_sProperty = "LocalPosition";
 
     history->AddCommand(cmdSet);
   }
@@ -871,10 +871,10 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstr
 
 void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_sPropertyPath == "LocalPosition" ||
-      e.m_sPropertyPath == "LocalRotation" ||
-      e.m_sPropertyPath == "LocalScaling" ||
-      e.m_sPropertyPath == "LocalUniformScaling")
+  if (e.m_sProperty == "LocalPosition" ||
+      e.m_sProperty == "LocalRotation" ||
+      e.m_sProperty == "LocalScaling" ||
+      e.m_sProperty == "LocalUniformScaling")
   {
     InvalidateGlobalTransformValue(e.m_pObject);
   }
@@ -1109,7 +1109,7 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   //if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
   if ((transformationChanges & TransformationChanges::Translation) != 0)
   {
-    cmd.SetPropertyPath("LocalPosition");
+    cmd.m_sProperty = "LocalPosition";
     cmd.m_NewValue = vLocalPos;
     pHistory->AddCommand(cmd);
   }
@@ -1117,7 +1117,7 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   //if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
   if ((transformationChanges & TransformationChanges::Rotation) != 0)
   {
-    cmd.SetPropertyPath("LocalRotation");
+    cmd.m_sProperty = "LocalRotation";
     cmd.m_NewValue = qLocalRot;
     pHistory->AddCommand(cmd);
   }
@@ -1125,7 +1125,7 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   //if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
   if ((transformationChanges & TransformationChanges::Scale) != 0)
   {
-    cmd.SetPropertyPath("LocalScaling");
+    cmd.m_sProperty = "LocalScaling";
     cmd.m_NewValue = vLocalScale;
     pHistory->AddCommand(cmd);
   }
@@ -1133,7 +1133,7 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   //if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
   if ((transformationChanges & TransformationChanges::UniformScale) != 0)
   {
-    cmd.SetPropertyPath("LocalUniformScaling");
+    cmd.m_sProperty = "LocalUniformScaling";
     cmd.m_NewValue = fUniformScale;
     pHistory->AddCommand(cmd);
   }

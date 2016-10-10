@@ -87,7 +87,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
     EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
     EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
+    EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
   EZ_END_PROPERTIES
 }
@@ -100,7 +100,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResizeAndSetObjectPropertyCommand, 1, ezRTTIDe
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
     EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
     EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
+    EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
   EZ_END_PROPERTIES
 }
@@ -113,7 +113,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, 1, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
     EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
     EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
+    EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
   EZ_END_PROPERTIES
 }
@@ -125,7 +125,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, 1, ezRTTIDefaultA
   {
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
     EZ_MEMBER_PROPERTY("Index", m_Index),
-    EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
+    EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
   EZ_END_PROPERTIES
 }
@@ -138,7 +138,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
     EZ_MEMBER_PROPERTY("OldIndex", m_OldIndex),
     EZ_MEMBER_PROPERTY("NewIndex", m_NewIndex),
-    EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
+    EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
   EZ_END_PROPERTIES
 }
@@ -715,7 +715,6 @@ ezSetObjectPropertyCommand::ezSetObjectPropertyCommand()
 ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
   {
@@ -730,21 +729,21 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
-    m_OldValue = accessor0.GetValue(path, m_Index);
-    ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(accessor0.GetType(), path);
+    m_OldValue = accessor0.GetValue(m_sProperty, m_Index);
+    ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
     if (pProp == nullptr || !m_OldValue.IsValid())
-      return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+      return ezStatus("Set Property: The property '%s' does not exist", m_sProperty.GetData());
 
     if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
-      return ezStatus("Set Property: The property '%s' is a PointerOwner, use ezAddObjectCommand instead", m_sPropertyPath.GetData());
+      return ezStatus("Set Property: The property '%s' is a PointerOwner, use ezAddObjectCommand instead", m_sProperty.GetData());
     }
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.SetValue(path, m_NewValue, m_Index))
+  if (!accessor.SetValue(m_sProperty, m_NewValue, m_Index))
   {
-    return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+    return ezStatus("Set Property: The property '%s' does not exist", m_sProperty.GetData());
   }
 
   ezDocumentObjectPropertyEvent e;
@@ -752,7 +751,7 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
   e.m_pObject = m_pObject;
   e.m_OldValue = m_OldValue;
   e.m_NewValue = m_NewValue;
-  e.m_sPropertyPath = m_sPropertyPath;
+  e.m_sProperty = m_sProperty;
   e.m_NewIndex = m_Index;
 
   // Allow a recursion depth of 2 for property setters. This allowed for two levels of side-effects on property setters.
@@ -764,11 +763,10 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  ezPropertyPath path(m_sPropertyPath);
 
-  if (!accessor.SetValue(path, m_OldValue, m_Index))
+  if (!accessor.SetValue(m_sProperty, m_OldValue, m_Index))
   {
-    return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+    return ezStatus("Set Property: The property '%s' does not exist", m_sProperty.GetData());
   }
 
   if (bFireEvents)
@@ -778,7 +776,7 @@ ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
     e.m_pObject = m_pObject;
     e.m_OldValue = m_NewValue;
     e.m_NewValue = m_OldValue;
-    e.m_sPropertyPath = m_sPropertyPath;
+    e.m_sProperty = m_sProperty;
     e.m_NewIndex = m_Index;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
@@ -799,7 +797,6 @@ ezResizeAndSetObjectPropertyCommand::ezResizeAndSetObjectPropertyCommand()
 ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
   {
@@ -816,13 +813,13 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
 
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
-    const ezInt32 iCount = accessor0.GetCount(path);
+    const ezInt32 iCount = accessor0.GetCount(m_sProperty);
 
     for (ezInt32 i = iCount; i <= uiIndex; ++i)
     {
       ezInsertObjectPropertyCommand ins;
       ins.m_Object = m_Object;
-      ins.m_sPropertyPath = m_sPropertyPath;
+      ins.m_sProperty = m_sProperty;
       ins.m_Index = i;
       ins.m_NewValue = ezToolsReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
 
@@ -830,7 +827,7 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
     }
 
     ezSetObjectPropertyCommand set;
-    set.m_sPropertyPath = m_sPropertyPath;
+    set.m_sProperty = m_sProperty;
     set.m_Index = m_Index;
     set.m_NewValue = m_NewValue;
     set.m_Object = m_Object;
@@ -853,7 +850,6 @@ ezInsertObjectPropertyCommand::ezInsertObjectPropertyCommand()
 ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
   {
@@ -869,14 +865,14 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
     if (m_Index.CanConvertTo<ezInt32>() && m_Index.ConvertTo<ezInt32>() == -1)
     {
       ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-      m_Index = accessor.GetCount(m_sPropertyPath.GetData());
+      m_Index = accessor.GetCount(m_sProperty.GetData());
     }
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.InsertValue(path, m_Index, m_NewValue))
+  if (!accessor.InsertValue(m_sProperty, m_Index, m_NewValue))
   {
-    return ezStatus("Insert Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+    return ezStatus("Insert Property: The property '%s' does not exist", m_sProperty.GetData());
   }
 
   ezDocumentObjectPropertyEvent e;
@@ -884,7 +880,7 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
   e.m_pObject = m_pObject;
   e.m_NewValue = m_NewValue;
   e.m_NewIndex = m_Index;
-  e.m_sPropertyPath = m_sPropertyPath;
+  e.m_sProperty = m_sProperty;
 
   pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
 
@@ -894,11 +890,10 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
 ezStatus ezInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  ezPropertyPath path(m_sPropertyPath);
 
-  if (!accessor.RemoveValue(path, m_Index))
+  if (!accessor.RemoveValue(m_sProperty, m_Index))
   {
-    return ezStatus("Insert Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+    return ezStatus("Insert Property: The property '%s' does not exist", m_sProperty.GetData());
   }
 
   if (bFireEvents)
@@ -908,7 +903,7 @@ ezStatus ezInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
     e.m_pObject = m_pObject;
     e.m_OldValue = m_NewValue;
     e.m_OldIndex = m_Index;
-    e.m_sPropertyPath = m_sPropertyPath;
+    e.m_sProperty = m_sProperty;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }
@@ -929,7 +924,6 @@ ezRemoveObjectPropertyCommand::ezRemoveObjectPropertyCommand()
 ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
   {
@@ -944,13 +938,13 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  m_OldValue = accessor.GetValue(path, m_Index);
+  m_OldValue = accessor.GetValue(m_sProperty, m_Index);
   if (!m_OldValue.IsValid())
-    return ezStatus("Remove Property: The index '%s' in property '%s' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sPropertyPath.GetData());
+    return ezStatus("Remove Property: The index '%s' in property '%s' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData());
 
-  if (!accessor.RemoveValue(path, m_Index))
+  if (!accessor.RemoveValue(m_sProperty, m_Index))
   {
-    return ezStatus("Remove Property: The index '%s' in property '%s' does not exist!", m_Index.ConvertTo<ezString>().GetData(), m_sPropertyPath.GetData());
+    return ezStatus("Remove Property: The index '%s' in property '%s' does not exist!", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData());
   }
 
   ezDocumentObjectPropertyEvent e;
@@ -958,7 +952,7 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
   e.m_pObject = m_pObject;
   e.m_OldValue = m_OldValue;
   e.m_OldIndex = m_Index;
-  e.m_sPropertyPath = m_sPropertyPath;
+  e.m_sProperty = m_sProperty;
 
   pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
 
@@ -968,11 +962,10 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
 ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  ezPropertyPath path(m_sPropertyPath);
 
-  if (!accessor.InsertValue(path, m_Index, m_OldValue))
+  if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
   {
-    return ezStatus("Remove Property: Undo failed! The index '%s' in property '%s' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sPropertyPath.GetData());
+    return ezStatus("Remove Property: Undo failed! The index '%s' in property '%s' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData());
   }
 
   if (bFireEvents)
@@ -982,7 +975,7 @@ ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     e.m_pObject = m_pObject;
     e.m_NewValue = m_OldValue;
     e.m_NewIndex = m_Index;
-    e.m_sPropertyPath = m_sPropertyPath;
+    e.m_sProperty = m_sProperty;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }
@@ -1006,7 +999,6 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
   if (!m_OldIndex.CanConvertTo<ezInt32>() || !m_OldIndex.CanConvertTo<ezInt32>())
     return ezStatus(EZ_FAILURE, "Move Property: Invalid indices provided.");
 
-  ezPropertyPath path(m_sPropertyPath.GetData());
   if (!bRedo)
   {
     {
@@ -1016,7 +1008,7 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
     }
 
     const ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-    ezInt32 iCount = accessor.GetCount(path);
+    ezInt32 iCount = accessor.GetCount(m_sProperty);
     if (iCount < 0)
       return ezStatus("Move Property: Invalid property.");
     if (m_OldIndex.ConvertTo<ezInt32>() < 0 || m_OldIndex.ConvertTo<ezInt32>() >= iCount)
@@ -1026,7 +1018,7 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.MoveValue(path, m_OldIndex, m_NewIndex))
+  if (!accessor.MoveValue(m_sProperty, m_OldIndex, m_NewIndex))
     return ezStatus("Move Property: Move value failed.");
 
   {
@@ -1035,9 +1027,9 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
     e.m_pObject = m_pObject;
     e.m_OldIndex = m_OldIndex;
     e.m_NewIndex = m_NewIndex;
-    e.m_NewValue = accessor.GetValue(path, m_NewIndex);
+    e.m_NewValue = accessor.GetValue(m_sProperty, m_NewIndex);
 
-    e.m_sPropertyPath = m_sPropertyPath;
+    e.m_sProperty = m_sProperty;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }
@@ -1076,9 +1068,8 @@ ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     }
   }
 
-  ezPropertyPath path(m_sPropertyPath.GetData());
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.MoveValue(path, FinalNewPosition, FinalOldPosition))
+  if (!accessor.MoveValue(m_sProperty, FinalNewPosition, FinalOldPosition))
     return ezStatus("Move Property: Move value failed.");
 
   {
@@ -1087,7 +1078,7 @@ ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     e.m_pObject = m_pObject;
     e.m_OldIndex = FinalNewPosition;
     e.m_NewIndex = FinalOldPosition;
-    e.m_sPropertyPath = m_sPropertyPath;
+    e.m_sProperty = m_sProperty;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }

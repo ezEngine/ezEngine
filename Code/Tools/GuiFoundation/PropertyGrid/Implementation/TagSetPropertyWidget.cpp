@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -111,13 +112,14 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
 void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
 {
   ezMap<ezString, ezUInt32> tags;
+  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
 
   // Count used tags of each object in the selection.
   for (auto& item : m_Items)
   {
     ezHybridArray<ezVariant, 16> currentSetValues;
-    bool bRes = item.m_pObject->GetTypeAccessor().GetValues(m_PropertyPath, currentSetValues);
-    EZ_ASSERT_DEV(bRes, "Failed to get tag keys!");
+    ezStatus status = pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
+    EZ_ASSERT_DEV(status.m_Result.Succeeded(), "Failed to get tag keys!");
     for (const ezVariant& key : currentSetValues)
     {
       EZ_ASSERT_DEV(key.GetType() == ezVariantType::String, "Tags are supposed to be of type string!");
@@ -172,28 +174,22 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
   QCheckBox* pCheckBox = qobject_cast<QCheckBox*>(sender());
   ezVariant value = pCheckBox->property("Tag").toString().toUtf8().data();
 
-  ezCommandHistory* history = m_pGrid->GetCommandHistory();
+  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
 
   if (pCheckBox->isChecked())
   {
-    history->StartTransaction("Add Tag");
-
-    ezInsertObjectPropertyCommand cmd;
-    cmd.SetPropertyPath(m_PropertyPath.GetPathString());
+    pObjectAccessor->StartTransaction("Add Tag");
 
     // Add tag to all objects in selection that don't have it yet.
     for (auto& item : m_Items)
     {
       ezHybridArray<ezVariant, 16> currentSetValues;
-      bool bRes = item.m_pObject->GetTypeAccessor().GetValues(m_PropertyPath, currentSetValues);
-      EZ_ASSERT_DEV(bRes, "Failed to get tag keys!");
+      
+      ezStatus status = pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
+      EZ_ASSERT_DEV(status.m_Result.Succeeded(), "Failed to get tag keys!");
       if (!currentSetValues.Contains(value))
       {
-        cmd.m_Object = item.m_pObject->GetGuid();
-        cmd.m_NewValue = value;
-        cmd.m_Index = -1;
-
-        auto res = history->AddCommand(cmd);
+        auto res = pObjectAccessor->InsertValue(item.m_pObject, m_pProp, value, -1);
         if (res.m_Result.Failed())
         {
           EZ_REPORT_FAILURE("Failed to add '%s' tag to tag set", value.Get<ezString>().GetData());
@@ -203,24 +199,21 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
   }
   else
   {
-    history->StartTransaction("Remove Tag");
+    pObjectAccessor->StartTransaction("Remove Tag");
 
     ezRemoveObjectPropertyCommand cmd;
-    cmd.SetPropertyPath(m_PropertyPath.GetPathString());
+    cmd.m_sProperty = m_pProp->GetPropertyName();
 
     // Remove tag from all objects in selection that have it.
     for (auto& item : m_Items)
     {
       ezHybridArray<ezVariant, 16> currentSetValues;
-      bool bRes = item.m_pObject->GetTypeAccessor().GetValues(m_PropertyPath, currentSetValues);
-      EZ_ASSERT_DEV(bRes, "Failed to get tag keys!");
+      ezStatus status = pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
+      EZ_ASSERT_DEV(status.m_Result.Succeeded(), "Failed to get tag keys!");
       ezUInt32 uiIndex = currentSetValues.IndexOf(value);
       if (uiIndex != -1)
       {
-        cmd.m_Object = item.m_pObject->GetGuid();
-        cmd.m_Index = uiIndex;
-
-        auto res = history->AddCommand(cmd);
+        auto res = pObjectAccessor->RemoveValue(item.m_pObject, m_pProp, uiIndex);
         if (res.m_Result.Failed())
         {
           EZ_REPORT_FAILURE("Failed to remove '%s' tag from tag set", value.Get<ezString>().GetData());
@@ -229,5 +222,5 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
     }
   }
 
-  history->FinishTransaction();
+  pObjectAccessor->FinishTransaction();
 }

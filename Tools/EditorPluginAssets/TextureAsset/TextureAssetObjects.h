@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
 struct ezPropertyMetaStateEvent;

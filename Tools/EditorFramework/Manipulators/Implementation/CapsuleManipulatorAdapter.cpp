@@ -3,6 +3,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezCapsuleManipulatorAdapter::ezCapsuleManipulatorAdapter()
 {
@@ -32,19 +33,19 @@ void ezCapsuleManipulatorAdapter::Finalize()
 void ezCapsuleManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezCapsuleManipulatorAttribute* pAttr = static_cast<const ezCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetLengthProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetLengthProperty()));
-    m_Gizmo.SetLength(value.ConvertTo<float>());
+    float fValue = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetLengthProperty()));
+    m_Gizmo.SetLength(fValue);
   }
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetRadiusProperty()));
-    m_Gizmo.SetRadius(value.ConvertTo<float>());
+    float fValue = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetRadiusProperty()));
+    m_Gizmo.SetRadius(fValue);
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());

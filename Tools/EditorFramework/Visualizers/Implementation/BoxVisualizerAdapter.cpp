@@ -2,6 +2,7 @@
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezBoxVisualizerAdapter::ezBoxVisualizerAdapter()
 {
@@ -28,21 +29,22 @@ void ezBoxVisualizerAdapter::Finalize()
 void ezBoxVisualizerAdapter::Update()
 {
   const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
-
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 
   m_Scale.SetIdentity();
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetSizeProperty()));
-    m_Scale.SetScalingMatrix(value.ConvertTo<ezVec3>());
+
+    ezVec3 vValue = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
+    m_Scale.SetScalingMatrix(vValue);
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetColorProperty()));
-
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezBoxVisualizerAttribute 'color'");
     m_Gizmo.SetColor(value.ConvertTo<ezColor>());
   }

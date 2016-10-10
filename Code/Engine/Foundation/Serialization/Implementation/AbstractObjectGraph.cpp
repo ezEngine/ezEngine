@@ -211,6 +211,100 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
 }
 
 
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot)
+{
+  ezMap<ezUuid, ezUuid> guidMap;
+  EZ_ASSERT_DEV(ezStringUtils::IsEqual(root->GetType(), rhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
+
+  ReMapNodeGuidsToMatchGraphRecursive(guidMap, root, rhsGraph, rhsRoot);
+
+  // go through all nodes to remap remaining occurrences of remapped guids
+  for (auto* pNode : m_Nodes)
+  {
+    // check every property
+    for (auto& prop : pNode->m_Properties)
+    {
+      RemapVariant(prop.m_Value, guidMap);
+    }
+    m_Nodes[pNode->m_Guid] = pNode;
+  }
+}
+
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
+{
+  if (!ezStringUtils::IsEqual(lhs->GetType(), rhs->GetType()))
+  {
+    // Types differ, remapping ends as this is a removal and add of a new object.
+    return;
+  }
+
+  if (lhs->GetGuid() != rhs->GetGuid())
+  {
+    guidMap[lhs->GetGuid()] = rhs->GetGuid();
+    m_Nodes.Remove(lhs->GetGuid());
+    lhs->m_Guid = rhs->GetGuid();
+    m_Nodes.Insert(rhs->GetGuid(), lhs);
+  }
+
+  for (ezAbstractObjectNode::Property& prop : lhs->m_Properties)
+  {
+    if (prop.m_Value.IsA<ezUuid>() && prop.m_Value.Get<ezUuid>().IsValid())
+    {
+      // if the guid is an owned object in the graph, remap to rhs.
+      auto it = m_Nodes.Find(prop.m_Value.Get<ezUuid>());
+      if (it.IsValid())
+      {
+        if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_szPropertyName))
+        {
+          if (rhsProp->m_Value.IsA<ezUuid>() && rhsProp->m_Value.Get<ezUuid>().IsValid())
+          {
+            if (const ezAbstractObjectNode* rhsPropNode = rhsGraph.GetNode(rhsProp->m_Value.Get<ezUuid>()))
+            {
+              ReMapNodeGuidsToMatchGraphRecursive(guidMap, it.Value(), rhsGraph, rhsPropNode);
+            }
+          }
+        }
+      }
+    }
+    // Arrays may be of owner guids and could be remapped.
+    else if (prop.m_Value.IsA<ezVariantArray>())
+    {
+      const ezVariantArray& values = prop.m_Value.Get<ezVariantArray>();
+      for (ezUInt32 i = 0; i < values.GetCount(); i++)
+      {
+        auto& subValue = values[i];
+        if (subValue.IsA<ezUuid>() && subValue.Get<ezUuid>().IsValid())
+        {
+          // if the guid is an owned object in the graph, remap to array element.
+          auto it = m_Nodes.Find(subValue.Get<ezUuid>());
+          if (it.IsValid())
+          {
+            if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_szPropertyName))
+            {
+              if (rhsProp->m_Value.IsA<ezVariantArray>())
+              {
+                const ezVariantArray& rhsValues = rhsProp->m_Value.Get<ezVariantArray>();
+                if (i < rhsValues.GetCount())
+                {
+                  const auto& rhsElemValue = rhsValues[i];
+                  if (rhsElemValue.IsA<ezUuid>() && rhsElemValue.Get<ezUuid>().IsValid())
+                  {
+                    if (const ezAbstractObjectNode* rhsPropNode = rhsGraph.GetNode(rhsElemValue.Get<ezUuid>()))
+                    {
+                      ReMapNodeGuidsToMatchGraphRecursive(guidMap, it.Value(), rhsGraph, rhsPropNode);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
 void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
 {
   ezSet<ezUuid> reachableNodes;

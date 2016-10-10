@@ -177,7 +177,7 @@ void ezQtDocumentWindow::SlotRedraw()
   m_bRedrawIsTriggered = false;
 
   // if our window is not visible, interrupt the redrawing, and do nothing
-  if (!m_bIsVisibleInContainer)
+  if (!m_bIsVisibleInContainer /*|| window()->isMinimized() || !window()->isVisible()*/)
     return;
 
   m_bIsDrawingATM = true;

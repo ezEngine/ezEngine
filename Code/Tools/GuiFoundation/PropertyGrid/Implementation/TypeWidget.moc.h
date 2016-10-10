@@ -16,17 +16,16 @@ class EZ_GUIFOUNDATION_DLL ezQtTypeWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath);
+  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType);
   ~ezQtTypeWidget();
   void SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
   const ezHybridArray<ezQtPropertyWidget::Selection, 8>& GetSelection() const { return m_Items; }
   const ezRTTI* GetType() const { return m_pType; }
-  const ezPropertyPath& GetPropertyPath() const { return m_ParentPath; }
   void PrepareToDie();
 
 private:
-  void BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath);
-  void BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap);
+  void BuildUI(const ezRTTI* pType);
+  void BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap);
 
   void PropertyChangedHandler(const ezQtPropertyWidget::Event& ed);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
@@ -41,7 +40,6 @@ private:
   bool m_bUndead;
   ezQtPropertyGridWidget* m_pGrid;
   const ezRTTI* m_pType;
-  ezPropertyPath m_ParentPath;
   ezHybridArray<ezQtPropertyWidget::Selection, 8> m_Items;
 
   struct PropertyWidgetData

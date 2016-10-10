@@ -16,17 +16,17 @@ public:
   ezReflectedTypeStorageAccessor(const ezRTTI* hReflectedType, ezDocumentObject* pOwner); // [tested]
   ~ezReflectedTypeStorageAccessor();
  
-  virtual const ezVariant GetValue(const ezPropertyPath& path, ezVariant index = ezVariant()) const override; // [tested]
-  virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value, ezVariant index = ezVariant()) override; // [tested]
+  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant()) const override; // [tested]
+  virtual bool SetValue(const char* szProperty, const ezVariant& value, ezVariant index = ezVariant()) override; // [tested]
 
-  virtual ezInt32 GetCount(const ezPropertyPath& path) const override;
-  virtual bool GetKeys(const ezPropertyPath& path, ezHybridArray<ezVariant, 16>& out_keys) const override;
+  virtual ezInt32 GetCount(const char* szProperty) const override;
+  virtual bool GetKeys(const char* szProperty, ezHybridArray<ezVariant, 16>& out_keys) const override;
 
-  virtual bool InsertValue(const ezPropertyPath& path, ezVariant index, const ezVariant& value) override;
-  virtual bool RemoveValue(const ezPropertyPath& path, ezVariant index) override;
-  virtual bool MoveValue(const ezPropertyPath& path, ezVariant oldIndex, ezVariant newIndex) override;
+  virtual bool InsertValue(const char* szProperty, ezVariant index, const ezVariant& value) override;
+  virtual bool RemoveValue(const char* szProperty, ezVariant index) override;
+  virtual bool MoveValue(const char* szProperty, ezVariant oldIndex, ezVariant newIndex) override;
 
-  virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const override;
+  virtual ezVariant GetPropertyChildIndex(const char* szProperty, const ezVariant& value) const override;
 
 private:
   ezDynamicArray<ezVariant> m_Data;

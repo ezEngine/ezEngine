@@ -13,16 +13,6 @@ class ezRTTI;
 class ezPhantomRttiManager;
 class ezReflectedTypeStorageManager;
 
-/// \brief A path of property names to the data type that is to be set / get inside ezIReflectedTypeAccessor.
-class EZ_TOOLSFOUNDATION_DLL ezPropertyPath : public ezHybridArray<ezString, 6>
-{
-public:
-  ezPropertyPath();
-  ezPropertyPath(const char* szPath);
-
-  ezStringBuilder GetPathString() const;
-};
-
 /// \brief Event message used by the ezPhantomRttiManager.
 struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
 {

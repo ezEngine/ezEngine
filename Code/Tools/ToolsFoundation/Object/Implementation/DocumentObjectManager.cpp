@@ -55,6 +55,8 @@ ezDocumentObject* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezU
   else
     pObject->m_Guid.CreateNewUuid();
 
+  PatchEmbeddedClassObjectsInternal(pObject, pRtti, false);
+
   ezDocumentObjectEvent e;
   e.m_pObject = pObject;
   e.m_EventType = ezDocumentObjectEvent::Type::AfterObjectCreated;
@@ -89,6 +91,12 @@ void ezDocumentObjectManager::DestroyAllObjects()
   m_GuidToObject.Clear();
 }
 
+void ezDocumentObjectManager::PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const
+{
+  // Functional should be callable from anywhere but will of course have side effects.
+  const_cast<ezDocumentObjectManager*>(this)->PatchEmbeddedClassObjectsInternal(const_cast<ezDocumentObject*>(pObject), pObject->GetTypeAccessor().GetType(), true);
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentObjectManager Structure Change
 ////////////////////////////////////////////////////////////////////////
@@ -103,85 +111,20 @@ void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObj
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
   EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, szParentProperty, index).m_Result.Succeeded(), "Trying to execute invalid add!");
 
-  ezDocumentObjectStructureEvent e;
-  e.m_pDocument = m_pDocument;
-  e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectAdded;
-  e.m_pObject = pObject;
-  e.m_pPreviousParent = nullptr;
-  e.m_pNewParent = pParent;
-  e.m_sParentProperty = szParentProperty;
-  e.m_NewPropertyIndex = index;
-
-  if (e.m_NewPropertyIndex.CanConvertTo<ezInt32>() && e.m_NewPropertyIndex.ConvertTo<ezInt32>() == -1)
-  {
-    ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
-    e.m_NewPropertyIndex = accessor.GetCount(szParentProperty);
-  }
-  m_StructureEvents.Broadcast(e);
-
-  pParent->InsertSubObject(pObject, szParentProperty, e.m_NewPropertyIndex);
-  RecursiveAddGuids(pObject);
-
-  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectAdded;
-  m_StructureEvents.Broadcast(e);
+  InternalAddObject(pObject, pParent, szParentProperty, index);
 }
 
 void ezDocumentObjectManager::RemoveObject(ezDocumentObject* pObject)
 {
   EZ_ASSERT_DEV(CanRemove(pObject).m_Result.Succeeded(), "Trying to execute invalid remove!");
-  ezPropertyPath path(pObject->m_sParentProperty);
-
-  ezDocumentObjectStructureEvent e;
-  e.m_pDocument = m_pDocument;
-  e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved;
-  e.m_pObject = pObject;
-  e.m_pPreviousParent = pObject->m_pParent;
-  e.m_pNewParent = nullptr;
-  e.m_sParentProperty = pObject->m_sParentProperty;
-  e.m_OldPropertyIndex = pObject->GetPropertyIndex();
-  m_StructureEvents.Broadcast(e);
-
-  pObject->m_pParent->RemoveSubObject(pObject);
-  RecursiveRemoveGuids(pObject);
-
-  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectRemoved;
-  m_StructureEvents.Broadcast(e);
+  InternalRemoveObject(pObject);
 }
 
 void ezDocumentObjectManager::MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index)
 {
   EZ_ASSERT_DEV(CanMove(pObject, pNewParent, szParentProperty, index).m_Result.Succeeded(), "Trying to execute invalid move!");
 
-  if (pNewParent == nullptr)
-    pNewParent = &m_RootObject;
-
-  ezDocumentObjectStructureEvent e;
-  e.m_pDocument = m_pDocument;
-  e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectMoved;
-  e.m_pObject = pObject;
-  e.m_pPreviousParent = pObject->m_pParent;
-  e.m_pNewParent = pNewParent;
-  e.m_sParentProperty = szParentProperty;
-  e.m_OldPropertyIndex = pObject->GetPropertyIndex();
-  e.m_NewPropertyIndex = index;
-  if (e.m_NewPropertyIndex.CanConvertTo<ezInt32>() && e.m_NewPropertyIndex.ConvertTo<ezInt32>() == -1)
-  {
-    ezIReflectedTypeAccessor& accessor = pNewParent->GetTypeAccessor();
-    e.m_NewPropertyIndex = accessor.GetCount(szParentProperty);
-  }
-
-  m_StructureEvents.Broadcast(e);
-
-  ezVariant newIndex = e.getInsertIndex();
-  
-  pObject->m_pParent->RemoveSubObject(pObject);
-  pNewParent->InsertSubObject(pObject, szParentProperty, newIndex);
-
-  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved;
-  m_StructureEvents.Broadcast(e);
-
-  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved2;
-  m_StructureEvents.Broadcast(e);
+  InternalMoveObject(pNewParent, pObject, szParentProperty, index);
 }
 
 const ezDocumentObject* ezDocumentObjectManager::GetObject(const ezUuid& guid) const
@@ -220,7 +163,7 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
 
     const ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, szParentProperty);
+    auto* pProp = pType->FindPropertyByName(szParentProperty);
     if (pProp == nullptr)
       return ezStatus("Property '%s' could not be found in type '%s'", szParentProperty, pType->GetTypeName());
 
@@ -246,8 +189,7 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
 
     if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
     {
-      ezPropertyPath path(szParentProperty);
-      ezInt32 iCount = accessor.GetCount(path);
+      ezInt32 iCount = accessor.GetCount(szParentProperty);
       ezInt32 iNewIndex = index.ConvertTo<ezInt32>();
       if (iNewIndex >(ezInt32)iCount)
         return ezStatus("Cannot add object to its new location '%i' is out of the bounds of the parent's property range '%i'!"
@@ -255,8 +197,10 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
     }
     else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ezPropertyPath path(szParentProperty);
-      ezVariant value = accessor.GetValue(path);
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+        return ezStatus("Embedded classes cannot be changed manually.");
+
+      ezVariant value = accessor.GetValue(szParentProperty);
       if (!value.IsA<ezUuid>())
         return ezStatus("Property is not a pointer and thus can't be added to.");
  
@@ -275,6 +219,13 @@ ezStatus ezDocumentObjectManager::CanRemove(const ezDocumentObject* pObject) con
   if (pObjectInTree == nullptr)
     return ezStatus("Object is not part of the object manager!");
 
+  if (pObject->GetParent())
+  {
+    ezAbstractProperty* pProp = pObject->GetParent()->GetTypeAccessor().GetType()->FindPropertyByName(pObject->GetParentProperty());
+    EZ_ASSERT_DEV(pProp != nullptr, "Parent property should always be valid!");
+    if (pProp->GetCategory() == ezPropertyCategory::Member && pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+      return ezStatus("Embedded member class can't be deleted!");
+  }
   EZ_ASSERT_DEV(pObjectInTree == pObject, "Tree Corruption!!!");
 
   return InternalCanRemove(pObject);
@@ -326,8 +277,7 @@ ezStatus ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const
   const ezIReflectedTypeAccessor& accessor = pNewParent->GetTypeAccessor();
   const ezRTTI* pType = accessor.GetType();
 
-  ezPropertyPath path(szParentProperty);
-  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
+  auto* pProp = pType->FindPropertyByName(szParentProperty);
 
   if (pProp == nullptr)
     return ezStatus("Property '%s' could not be found in type '%s'", szParentProperty, pType->GetTypeName());
@@ -372,6 +322,84 @@ ezStatus ezDocumentObjectManager::CanSelect(const ezDocumentObject* pObject) con
 // ezDocumentObjectManager Private Functions
 ////////////////////////////////////////////////////////////////////////
 
+void ezDocumentObjectManager::InternalAddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
+{
+  ezDocumentObjectStructureEvent e;
+  e.m_pDocument = m_pDocument;
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectAdded;
+  e.m_pObject = pObject;
+  e.m_pPreviousParent = nullptr;
+  e.m_pNewParent = pParent;
+  e.m_sParentProperty = szParentProperty;
+  e.m_NewPropertyIndex = index;
+
+  if (e.m_NewPropertyIndex.CanConvertTo<ezInt32>() && e.m_NewPropertyIndex.ConvertTo<ezInt32>() == -1)
+  {
+    ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
+    e.m_NewPropertyIndex = accessor.GetCount(szParentProperty);
+  }
+  m_StructureEvents.Broadcast(e);
+
+  pParent->InsertSubObject(pObject, szParentProperty, e.m_NewPropertyIndex);
+  RecursiveAddGuids(pObject);
+
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectAdded;
+  m_StructureEvents.Broadcast(e);
+}
+
+void ezDocumentObjectManager::InternalRemoveObject(ezDocumentObject* pObject)
+{
+  ezDocumentObjectStructureEvent e;
+  e.m_pDocument = m_pDocument;
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved;
+  e.m_pObject = pObject;
+  e.m_pPreviousParent = pObject->m_pParent;
+  e.m_pNewParent = nullptr;
+  e.m_sParentProperty = pObject->m_sParentProperty;
+  e.m_OldPropertyIndex = pObject->GetPropertyIndex();
+  m_StructureEvents.Broadcast(e);
+
+  pObject->m_pParent->RemoveSubObject(pObject);
+  RecursiveRemoveGuids(pObject);
+
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectRemoved;
+  m_StructureEvents.Broadcast(e);
+}
+
+void ezDocumentObjectManager::InternalMoveObject(ezDocumentObject* pNewParent, ezDocumentObject* pObject, const char* szParentProperty, ezVariant index)
+{
+  if (pNewParent == nullptr)
+    pNewParent = &m_RootObject;
+
+  ezDocumentObjectStructureEvent e;
+  e.m_pDocument = m_pDocument;
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectMoved;
+  e.m_pObject = pObject;
+  e.m_pPreviousParent = pObject->m_pParent;
+  e.m_pNewParent = pNewParent;
+  e.m_sParentProperty = szParentProperty;
+  e.m_OldPropertyIndex = pObject->GetPropertyIndex();
+  e.m_NewPropertyIndex = index;
+  if (e.m_NewPropertyIndex.CanConvertTo<ezInt32>() && e.m_NewPropertyIndex.ConvertTo<ezInt32>() == -1)
+  {
+    ezIReflectedTypeAccessor& accessor = pNewParent->GetTypeAccessor();
+    e.m_NewPropertyIndex = accessor.GetCount(szParentProperty);
+  }
+
+  m_StructureEvents.Broadcast(e);
+
+  ezVariant newIndex = e.getInsertIndex();
+
+  pObject->m_pParent->RemoveSubObject(pObject);
+  pNewParent->InsertSubObject(pObject, szParentProperty, newIndex);
+
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved;
+  m_StructureEvents.Broadcast(e);
+
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved2;
+  m_StructureEvents.Broadcast(e);
+}
+
 void ezDocumentObjectManager::RecursiveAddGuids(ezDocumentObject* pObject)
 {
   m_GuidToObject[pObject->m_Guid] = pObject;
@@ -388,14 +416,62 @@ void ezDocumentObjectManager::RecursiveRemoveGuids(ezDocumentObject* pObject)
     RecursiveRemoveGuids(pObject->GetChildren()[c]);
 }
 
+void ezDocumentObjectManager::PatchEmbeddedClassObjectsInternal(ezDocumentObject* pObject, const ezRTTI* pType, bool addToDoc)
+{
+  const ezRTTI* pParent = pType->GetParentType();
+  if (pParent != nullptr)
+    PatchEmbeddedClassObjectsInternal(pObject, pParent, addToDoc);
+
+  ezIReflectedTypeAccessor& accessor = pObject->GetTypeAccessor();
+  const ezUInt32 uiPropertyCount = pType->GetProperties().GetCount();
+  for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
+  {
+    const ezAbstractProperty* pProperty = pType->GetProperties()[i];
+    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+    {
+      bool bConstruct = false;
+      bool bDestroy = false;
+      ezUuid value = accessor.GetValue(pProperty->GetPropertyName()).Get<ezUuid>();
+      EZ_ASSERT_DEV(addToDoc || !value.IsValid(), "If addToDoc is false, the current value must be invalid!");
+      if (value.IsValid())
+      {
+        ezDocumentObject* pEmbeddedObject = GetObject(value);
+        if (pEmbeddedObject)
+        {
+          if (pEmbeddedObject->GetTypeAccessor().GetType() == pProperty->GetSpecificType())
+            continue;
+          else
+          {
+            // Type mismatch, delete old.
+            InternalRemoveObject(pEmbeddedObject);
+          }
+        }
+      }
+
+      // Create new
+      ezStringBuilder sTemp = ezConversionUtils::ToString(pObject->GetGuid());
+      sTemp.Append("/", pProperty->GetPropertyName());
+      const ezUuid subObjectGuid = ezUuid::StableUuidForString(sTemp);
+      ezDocumentObject* pEmbeddedObject = CreateObject(pProperty->GetSpecificType(), subObjectGuid);
+      if (addToDoc)
+      {
+        InternalAddObject(pEmbeddedObject, pObject, pProperty->GetPropertyName(), ezVariant());
+      }
+      else
+      {
+        pObject->InsertSubObject(pEmbeddedObject, pProperty->GetPropertyName(), ezVariant());
+      }
+    }
+  }
+}
+
 ezVariant ezDocumentObjectStructureEvent::getInsertIndex() const
 {
   if ((m_EventType == Type::BeforeObjectMoved || m_EventType == Type::AfterObjectMoved || m_EventType == Type::AfterObjectMoved2) && m_pNewParent == m_pPreviousParent)
   {
     const ezIReflectedTypeAccessor& accessor = m_pPreviousParent->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    ezPropertyPath path(m_sParentProperty);
-    auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
+    auto* pProp = pType->FindPropertyByName(m_sParentProperty);
     if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
     {
       ezInt32 iCurrentIndex = m_OldPropertyIndex.ConvertTo<ezInt32>();

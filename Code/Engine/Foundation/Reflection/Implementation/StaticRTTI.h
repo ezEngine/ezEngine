@@ -18,19 +18,22 @@ struct ezTypeFlags
   enum Enum
   {
     StandardType = EZ_BIT(0), ///< Anything that can be stored inside an ezVariant except for pointers and containers.
-    Abstract = EZ_BIT(1),     ///< Type is abstract.
-    IsEnum = EZ_BIT(2),       ///< enum struct used for ezEnum.
-    Bitflags = EZ_BIT(3),     ///< bitflags struct used for ezBitflags.
-    Phantom = EZ_BIT(4),
+    IsEnum = EZ_BIT(1),       ///< enum struct used for ezEnum.
+    Bitflags = EZ_BIT(2),     ///< bitflags struct used for ezBitflags.
+    Class = EZ_BIT(3),        ///< A class or struct. The above flags are mutually exclusive.
+
+    Abstract = EZ_BIT(4),     ///< Type is abstract.
+    Phantom = EZ_BIT(5),
     Default = 0
   };
 
   struct Bits
   {
     StorageType StandardType   : 1;
-    StorageType Abstract  : 1;
-    StorageType IsEnum   : 1;
-    StorageType Bitflags   : 1;
+    StorageType IsEnum : 1;
+    StorageType Bitflags : 1;
+    StorageType Class : 1;
+    StorageType Abstract : 1;
     StorageType Phantom : 1;
   };
 };
@@ -82,6 +85,8 @@ namespace ezInternal
     ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
     if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
       flags.Add(ezTypeFlags::StandardType);
+    else
+      flags.Add(ezTypeFlags::Class);
 
     if (std::is_abstract<Type>::value)
       flags.Add(ezTypeFlags::Abstract);
@@ -494,7 +499,8 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
   }                                                                           \
   EZ_END_PROPERTIES                                                           \
   flags |= ezTypeFlags::IsEnum;                                               \
-  EZ_END_STATIC_REFLECTED_TYPE                                             \
+  flags.Remove(ezTypeFlags::Class);                                       \
+  EZ_END_STATIC_REFLECTED_TYPE                                                \
 
 
 /// \brief Implements the necessary functionality for bitflags to be statically reflectable.
@@ -514,7 +520,8 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
   }                                                                           \
   EZ_END_PROPERTIES                                                           \
   flags |= ezTypeFlags::Bitflags;                                             \
-  EZ_END_STATIC_REFLECTED_TYPE                                             \
+  flags.Remove(ezTypeFlags::Class);                                       \
+  EZ_END_STATIC_REFLECTED_TYPE                                                \
 
 
 

@@ -21,27 +21,26 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* sz
 
   // Property patching
   const ezRTTI* pType = accessor.GetType();
-  ezPropertyPath path(szProperty);
-  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
+  auto* pProp = pType->FindPropertyByName(szProperty);
   EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner), "");
   
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     if (!index.IsValid() || (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1))
     {
-      ezVariant newIndex = accessor.GetCount(path);
-      bool bRes = accessor.InsertValue(path, newIndex, pObject->GetGuid());
+      ezVariant newIndex = accessor.GetCount(szProperty);
+      bool bRes = accessor.InsertValue(szProperty, newIndex, pObject->GetGuid());
       EZ_ASSERT_DEV(bRes, "");
     }
     else
     {
-      bool bRes = accessor.InsertValue(path, index, pObject->GetGuid());
+      bool bRes = accessor.InsertValue(szProperty, index, pObject->GetGuid());
       EZ_ASSERT_DEV(bRes, "");
     }
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Member)
   {
-    bool bRes = accessor.SetValue(path, pObject->GetGuid());
+    bool bRes = accessor.SetValue(szProperty, pObject->GetGuid());
     EZ_ASSERT_DEV(bRes, "");
   }
 
@@ -60,17 +59,16 @@ void ezDocumentObject::RemoveSubObject(ezDocumentObject* pObject)
 
   // Property patching
   const ezRTTI* pType = accessor.GetType();
-  ezPropertyPath path(pObject->m_sParentProperty);
-  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
+  auto* pProp = pType->FindPropertyByName(pObject->m_sParentProperty);
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
-    ezVariant index = accessor.GetPropertyChildIndex(path, pObject->GetGuid());
-    bool bRes = accessor.RemoveValue(path, index);
+    ezVariant index = accessor.GetPropertyChildIndex(pObject->m_sParentProperty, pObject->GetGuid());
+    bool bRes = accessor.RemoveValue(pObject->m_sParentProperty, index);
     EZ_ASSERT_DEV(bRes, "");
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Member)
   {
-    bool bRes = accessor.SetValue(path, ezUuid());
+    bool bRes = accessor.SetValue(pObject->m_sParentProperty, ezUuid());
     EZ_ASSERT_DEV(bRes, "");
   }
 
@@ -82,10 +80,40 @@ void ezDocumentObject::ComputeObjectHash(ezUInt64& uiHash) const
 {
   const ezIReflectedTypeAccessor& acc = GetTypeAccessor();
   auto pType = acc.GetType();
-  ezPropertyPath path;
 
   uiHash = ezHashing::MurmurHash64(&m_Guid, sizeof(ezUuid), uiHash);
-  HashPropertiesRecursive(acc, uiHash, pType, path);
+  HashPropertiesRecursive(acc, uiHash, pType);
+}
+
+
+ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid)
+{
+  for (auto* pChild : m_Children)
+  {
+    if (pChild->GetGuid() == guid)
+      return pChild;
+  }
+  return nullptr;
+}
+
+
+const ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid) const
+{
+  for (auto* pChild : m_Children)
+  {
+    if (pChild->GetGuid() == guid)
+      return pChild;
+  }
+  return nullptr;
+}
+
+ezAbstractProperty* ezDocumentObject::GetParentPropertyType() const
+{
+  if (!m_pParent)
+    return nullptr;
+  const ezIReflectedTypeAccessor& accessor = m_pParent->GetTypeAccessor();
+  const ezRTTI* pType = accessor.GetType();
+  return pType->FindPropertyByName(m_sParentProperty);
 }
 
 ezVariant ezDocumentObject::GetPropertyIndex() const
@@ -105,20 +133,17 @@ bool ezDocumentObject::IsOnHeap() const
   if (GetParent() == GetDocumentObjectManager()->GetRootObject())
     return true;
 
-  const ezRTTI* pRtti = GetParent()->GetTypeAccessor().GetType();
-
-  ezPropertyPath path(m_sParentProperty);
-  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pRtti, path);
+  auto* pProp = GetParentPropertyType();
   return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
 }
 
 
-void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const
+void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType) const
 {
   // Parse parent class
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
-    HashPropertiesRecursive(acc, uiHash, pParentType, path);
+    HashPropertiesRecursive(acc, uiHash, pParentType);
 
   // Parse properties
   ezUInt32 uiPropertyCount = pType->GetProperties().GetCount();
@@ -129,54 +154,20 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
     if (pProperty->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       continue;
 
-    // Build property path
-    path.PushBack(pProperty->GetPropertyName());
-
-    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    if (pProperty->GetCategory() == ezPropertyCategory::Member)
     {
-      const ezVariant var = acc.GetValue(path);
+      const ezVariant var = acc.GetValue(pProperty->GetPropertyName());
       uiHash = var.ComputeHash(uiHash);
-    }
-    else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
-    {
-      const ezVariant var = acc.GetValue(path);
-      uiHash = var.ComputeHash(uiHash);
-    }
-    else if (pProperty->GetCategory() == ezPropertyCategory::Member)
-    {
-      const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProperty);
-
-      // Not POD type, recurse further
-      HashPropertiesRecursive(acc, uiHash, pMember->GetSpecificType(), path);
     }
     else if (pProperty->GetCategory() == ezPropertyCategory::Array || pProperty->GetCategory() == ezPropertyCategory::Set)
     {
       ezHybridArray<ezVariant, 16> keys;
-      acc.GetValues(path, keys);
+      acc.GetValues(pProperty->GetPropertyName(), keys);
       for (const ezVariant& var : keys)
       {
         uiHash = var.ComputeHash(uiHash);
       }
     }
-
-    path.PopBack();
   }
 }
 
-
-ezDocumentSubObject::ezDocumentSubObject(const ezRTTI* pRtti)
-  : m_Accessor(pRtti, this)
-{
-}
-
-void ezDocumentSubObject::SetObject(ezDocumentObject* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid)
-{
-  ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(pOwnerObject->GetTypeAccessor().GetType(), subPath);
-  EZ_ASSERT_DEV(pProp != nullptr && pProp->GetSpecificType() == m_Accessor.GetType(), "ezDocumentSubObject was created for a different type it is mapped to!");
-
-  m_Guid = guid;
-  m_pParent = pOwnerObject;
-  m_SubPath = subPath;
-  m_pDocumentObjectManager = pOwnerObject->GetDocumentObjectManager();
-  m_Accessor.SetSubAccessor(&pOwnerObject->GetTypeAccessor(), subPath);
-}

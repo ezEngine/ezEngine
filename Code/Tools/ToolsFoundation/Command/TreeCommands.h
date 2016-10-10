@@ -205,10 +205,7 @@ public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
   ezVariant m_Index;
-  ezString m_sPropertyPath;
-
-  const char* GetPropertyPath() const { return m_sPropertyPath; }
-  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+  ezString m_sProperty;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -235,10 +232,7 @@ public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
   ezVariant m_Index;
-  ezString m_sPropertyPath;
-
-  const char* GetPropertyPath() const { return m_sPropertyPath; }
-  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+  ezString m_sProperty;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -263,10 +257,7 @@ public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
   ezVariant m_Index;
-  ezString m_sPropertyPath;
-
-  const char* GetPropertyPath() const { return m_sPropertyPath; }
-  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+  ezString m_sProperty;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -291,10 +282,7 @@ public:
 public: // Properties
   ezUuid m_Object;
   ezVariant m_Index;
-  ezString m_sPropertyPath;
-
-  const char* GetPropertyPath() const { return m_sPropertyPath; }
-  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+  ezString m_sProperty;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -321,10 +309,7 @@ public: // Properties
   ezUuid m_Object;
   ezVariant m_OldIndex;
   ezVariant m_NewIndex;
-  ezString m_sPropertyPath;
-
-  const char* GetPropertyPath() const { return m_sPropertyPath; }
-  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+  ezString m_sProperty;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;

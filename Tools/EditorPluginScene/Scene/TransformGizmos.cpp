@@ -246,7 +246,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
 
         if (vScale.x == vScale.y && vScale.x == vScale.z)
         {
-          cmd.SetPropertyPath("LocalUniformScaling");
+          cmd.m_sProperty = "LocalUniformScaling";
 
           for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
           {
@@ -264,7 +264,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
         }
         else
         {
-          cmd.SetPropertyPath("LocalScaling");
+          cmd.m_sProperty = "LocalScaling";
 
           for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
           {
@@ -358,7 +358,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
         if (m_ScaleGizmo.IsVisible())
         {
           ezSetObjectPropertyCommand cmd;
-          cmd.SetPropertyPath("LocalUniformScaling");
+          cmd.m_sProperty = "LocalUniformScaling";
 
           const float fScale = pOrtho->GetScalingResult();
 

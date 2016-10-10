@@ -107,15 +107,6 @@ EZ_CREATE_SIMPLE_TEST(DocumentObjectManager, DocumentObjectManager)
     EZ_TEST_BOOL(value.IsA<ezUuid>() && value.Get<ezUuid>() == pSubElementObject[1]->GetGuid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DocumentSubObject")
-  {
-    // Temp object to limit accessor scope.
-    ezDocumentSubObject* pSubObject = EZ_DEFAULT_NEW(ezDocumentSubObject, OuterClass::GetStaticRTTI());
-    pSubObject->SetObject(pObject, "MemberClass");
-
-    EZ_DEFAULT_DELETE(pSubObject);
-  }
-
   manager.DestroyAllObjects();
 }
 

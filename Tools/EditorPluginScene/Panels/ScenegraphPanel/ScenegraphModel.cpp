@@ -46,8 +46,8 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
   bool bHasChildren = false;
 
   ezHybridArray<ezVariant, 16> values;
-  ezPropertyPath componentPath = "Components";
-  pObject->GetTypeAccessor().GetValues(componentPath, values);
+  ezStringBuilder componentProp = "Components";
+  pObject->GetTypeAccessor().GetValues(componentProp, values);
   for (ezVariant& value : values)
   {
     auto pChild = m_pSceneDocument->GetObjectManager()->GetObject(value.Get<ezUuid>());
@@ -91,7 +91,7 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
              pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
             pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
         {
-          ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath(pProperty->GetPropertyName())).ConvertTo<ezString>();
+          ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
 
           // if the property is a full asset guid reference, convert it to a file name
           if (ezConversionUtils::IsStringUuid(sValue))
@@ -140,7 +140,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
   {
   case Qt::DisplayRole:
     {
-      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
+      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
       auto pMetaScene = m_pSceneDocument->m_SceneObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       auto pMetaDoc = m_pSceneDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
@@ -188,7 +188,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
   case Qt::EditRole:
     {
-      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
+      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
       if (sName.IsEmpty())
       {
@@ -226,7 +226,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
       const bool bHidden = pMeta->m_bHidden;
       m_pSceneDocument->m_DocumentObjectMetaData.EndReadMetaData();
 
-      const bool bHasName = !pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().IsEmpty();
+      const bool bHasName = !pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>().IsEmpty();
 
       if (bHidden || bHasName)
       {
@@ -244,7 +244,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
   case Qt::ForegroundRole:
     {
-      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
+      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
       
       auto pMeta = m_pSceneDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const bool bPrefab = pMeta->m_CreateFromPrefab.IsValid();

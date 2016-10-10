@@ -39,7 +39,7 @@ public:
   ezDiffOperation m_Change; //< Change at the target.
 
   ezUuid m_Root; //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
-  ezHybridArray<ezObjectChangeStep, 2> m_Steps; //< Path from root to target of change plus splitting of ezPropertyPath into separate steps.
+  ezHybridArray<ezObjectChangeStep, 2> m_Steps; //< Path from root to target of change.
   ezDataBuffer m_GraphData; //< In case of ObjectAdded, this holds the binary serialized object graph.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChange);
@@ -67,10 +67,9 @@ public:
 protected:
   bool IsRootObject(const ezDocumentObject* pParent);
   bool IsHeapAllocated(const ezDocumentObject* pParent, const char* szParentProperty);
-  static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const ezPropertyPath& propertyPath);
+  static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const char* szProperty);
   static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezHybridArray<const ezDocumentObject*, 8>& path);
   static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 2>& out_steps);
-  static void AddPathToSteps(const char* szPropertyPath, const ezVariant& index, ezHybridArray<ezObjectChangeStep, 2>& out_steps, bool bAddLastProperty = true);
 
   virtual void ApplyOp(ezObjectChange& change);
   void ApplyOp(ezRttiConverterObject object, const ezObjectChange& change);

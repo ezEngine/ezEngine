@@ -39,6 +39,11 @@ public:
     : ezTypedConstantProperty<Type>(szPropertyName)
     , m_Value(value)
   {
+    ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
+    if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
+      m_Flags.Add(ezPropertyFlags::StandardType);
+    else
+      EZ_REPORT_FAILURE("Only constants that can be put in an ezVariant are currently suppoted!");
   }
 
   /// \brief Returns a pointer to the member property.

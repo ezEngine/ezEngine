@@ -9,6 +9,7 @@ class ezVisualizerAttribute;
 class ezDocumentObject;
 struct ezDocumentObjectPropertyEvent;
 struct ezQtDocumentWindowEvent;
+class ezObjectAccessorBase;
 
 class EZ_EDITORFRAMEWORK_DLL ezVisualizerAdapter
 {
@@ -25,6 +26,8 @@ private:
 
 protected:
   virtual ezTransform GetObjectTransform() const;
+  ezObjectAccessorBase* GetObjectAccessor() const;
+  const ezAbstractProperty* GetProperty(const char* szProperty) const;
 
   virtual void Finalize() = 0;
   virtual void Update() = 0;

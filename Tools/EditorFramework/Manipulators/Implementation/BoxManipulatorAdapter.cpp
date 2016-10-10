@@ -3,6 +3,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezBoxManipulatorAdapter::ezBoxManipulatorAdapter()
 {
@@ -32,13 +33,13 @@ void ezBoxManipulatorAdapter::Finalize()
 void ezBoxManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezBoxManipulatorAttribute* pAttr = static_cast<const ezBoxManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetSizeProperty()));
-    m_Gizmo.SetSize(value.ConvertTo<ezVec3>());
+    ezVec3 vSize = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
+    m_Gizmo.SetSize(vSize);
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());

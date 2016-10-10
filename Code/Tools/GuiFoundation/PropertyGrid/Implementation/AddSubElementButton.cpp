@@ -8,6 +8,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
@@ -205,49 +206,34 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
 
-  ezCommandHistory* history = m_pGrid->GetCommandHistory();
-  history->StartTransaction("Add Element");
+  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+  pObjectAccessor->StartTransaction("Add Element");
 
   ezStatus res;
   if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::StandardType))
   {
-    ezInsertObjectPropertyCommand cmd;
-    cmd.SetPropertyPath(m_PropertyPath.GetPathString());
-    cmd.m_Index = -1;
-
     for (auto& item : m_Items)
     {
-      cmd.m_Object = item.m_pObject->GetGuid();
-      cmd.m_NewValue = ezToolsReflectionUtils::GetDefaultValue(GetProperty());
-
-      res = history->AddCommand(cmd);
+      res = pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultValue(GetProperty()), -1);
       if (res.m_Result.Failed())
         break;
     }
   }
   else
   {
-    ezAddObjectCommand cmd;
-    cmd.m_pType = pRtti;
-    cmd.m_sParentProperty = m_PropertyPath.GetPathString();
-    // We don't set the index field for member pointers
-    if (GetProperty()->GetCategory() != ezPropertyCategory::Member)
-      cmd.m_Index = -1;
-
     for (auto& item : m_Items)
     {
-      cmd.m_NewObjectGuid = ezUuid();
-      cmd.m_Parent = item.m_pObject->GetGuid();
-      res = history->AddCommand(cmd);
+      ezUuid guid;
+      res = pObjectAccessor->AddObject(item.m_pObject, m_pProp, -1, pRtti, guid);
       if (res.m_Result.Failed())
         break;
     }
   }
 
   if (res.m_Result.Failed())
-    history->CancelTransaction();
+    pObjectAccessor->CancelTransaction();
   else
-    history->FinishTransaction();
+    pObjectAccessor->FinishTransaction();
 
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }

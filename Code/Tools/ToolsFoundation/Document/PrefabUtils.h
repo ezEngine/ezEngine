@@ -17,7 +17,7 @@ public:
 
   static ezUuid GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData);
 
-  static ezVariant GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const ezPropertyPath& path, ezVariant index = ezVariant());
+  static ezVariant GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index = ezVariant());
 
   static void WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& mergedDiff, ezStringBuilder& out_sText);
 

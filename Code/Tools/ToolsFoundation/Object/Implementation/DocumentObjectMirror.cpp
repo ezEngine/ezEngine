@@ -169,8 +169,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
           break;
         }
         ezObjectChange change;
-        ezPropertyPath propPath = e.m_sParentProperty.GetData();
-        CreatePath(change, e.m_pNewParent, propPath);
+        CreatePath(change, e.m_pNewParent, e.m_sParentProperty);
 
         change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
         change.m_Change.m_Index = e.getInsertIndex();
@@ -185,8 +184,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
   case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
       ezObjectChange change;
-      ezPropertyPath propPath = e.m_sParentProperty.GetData();
-      CreatePath(change, e.m_pNewParent, propPath);
+      CreatePath(change, e.m_pNewParent, e.m_sParentProperty);
 
       change.m_Change.m_Operation = ezObjectChangeType::NodeAdded;
       change.m_Change.m_Index = e.getInsertIndex();
@@ -212,8 +210,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         }
 
         ezObjectChange change;
-        ezPropertyPath propPath = e.m_sParentProperty.GetData();
-        CreatePath(change, e.m_pPreviousParent, propPath);
+        CreatePath(change, e.m_pPreviousParent, e.m_sParentProperty);
 
         // Do not delete heap object, just remove it from its owner.
         change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
@@ -226,8 +223,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       else
       {
         ezObjectChange change;
-        ezPropertyPath propPath = e.m_sParentProperty.GetData();
-        CreatePath(change, e.m_pPreviousParent, propPath);
+        CreatePath(change, e.m_pPreviousParent, e.m_sParentProperty);
 
         change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = e.m_OldPropertyIndex;
@@ -241,8 +237,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
   case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
       ezObjectChange change;
-      ezPropertyPath propPath = e.m_sParentProperty.GetData();
-      CreatePath(change, e.m_pPreviousParent, propPath);
+      CreatePath(change, e.m_pPreviousParent, e.m_sParentProperty);
 
       change.m_Change.m_Operation = ezObjectChangeType::NodeRemoved;
       change.m_Change.m_Index = e.m_OldPropertyIndex;
@@ -256,14 +251,12 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
 
 void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  const ezPropertyPath propPath = e.m_sPropertyPath.GetData();
-
   switch (e.m_EventType)
   {
   case ezDocumentObjectPropertyEvent::Type::PropertySet:
     {
       ezObjectChange change;
-      CreatePath(change, e.m_pObject, propPath);
+      CreatePath(change, e.m_pObject, e.m_sProperty);
 
       change.m_Change.m_Operation = ezObjectChangeType::PropertySet;
       change.m_Change.m_Index = e.m_NewIndex;
@@ -274,7 +267,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
   case ezDocumentObjectPropertyEvent::Type::PropertyInserted:
     {
       ezObjectChange change;
-      CreatePath(change, e.m_pObject, propPath);
+      CreatePath(change, e.m_pObject, e.m_sProperty);
 
       change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
       change.m_Change.m_Index = e.m_NewIndex;
@@ -285,7 +278,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
   case ezDocumentObjectPropertyEvent::Type::PropertyRemoved:
     {
       ezObjectChange change;
-      CreatePath(change, e.m_pObject, propPath);
+      CreatePath(change, e.m_pObject, e.m_sProperty);
 
       change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
       change.m_Change.m_Index = e.m_OldIndex;
@@ -300,7 +293,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
 
       {
         ezObjectChange change;
-        CreatePath(change, e.m_pObject, propPath);
+        CreatePath(change, e.m_pObject, e.m_sProperty);
 
         change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = uiOldIndex;
@@ -316,7 +309,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
 
       {
         ezObjectChange change;
-        CreatePath(change, e.m_pObject, propPath);
+        CreatePath(change, e.m_pObject, e.m_sProperty);
 
         change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
         change.m_Change.m_Index = uiNewIndex;
@@ -353,12 +346,11 @@ bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObject* pParent, co
 
   const ezRTTI* pRtti = pParent->GetTypeAccessor().GetType();
 
-  ezPropertyPath path(szParentProperty);
-  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pRtti, path);
+  auto* pProp = pRtti->FindPropertyByName(szParentProperty);
   return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
 }
 
-void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const ezPropertyPath& propPath)
+void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const char* szProperty)
 {
   if (pRoot && pRoot->GetDocumentObjectManager()->GetRootObject() != pRoot)
   {
@@ -367,14 +359,7 @@ void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocu
     FlattenSteps(path, out_change.m_Steps);
   }
 
-  if (!propPath.IsEmpty())
-  {
-    for (ezUInt32 j = 0; j < propPath.GetCount() - 1; ++j)
-    {
-      out_change.m_Steps.PushBack(ezObjectChangeStep(propPath[j], ezVariant()));
-    }
-    out_change.m_Change.m_sProperty = propPath.PeekBack();
-  }
+  out_change.m_Change.m_sProperty = szProperty;
 }
 
 ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent, ezHybridArray<const ezDocumentObject*, 8>& path)
@@ -404,20 +389,8 @@ void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObjec
   for (ezInt32 i = (ezInt32)uiCount - 2; i >= 0; --i)
   {
     const ezDocumentObject* pObject = path[i];
-    AddPathToSteps(pObject->GetParentProperty(), pObject->GetPropertyIndex(), out_steps);
+    out_steps.PushBack(ezObjectChangeStep(pObject->GetParentProperty(), pObject->GetPropertyIndex()));
   }
-}
-
-void ezDocumentObjectMirror::AddPathToSteps(const char* szPropertyPath, const ezVariant& index, ezHybridArray<ezObjectChangeStep, 2>& out_steps, bool bAddLastProperty)
-{
-  ezPropertyPath propPath = szPropertyPath;
-  for (ezUInt32 j = 0; j < propPath.GetCount() - 1; ++j)
-  {
-    out_steps.PushBack(ezObjectChangeStep(propPath[j], ezVariant()));
-  }
-
-  if (bAddLastProperty)
-    out_steps.PushBack(ezObjectChangeStep(propPath.PeekBack(), index));
 }
 
 void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)

@@ -283,9 +283,16 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
 
 void ezRTTI::SanityCheckType(ezRTTI* pType)
 {
+  EZ_ASSERT_DEV(pType->GetTypeFlags().IsSet(ezTypeFlags::StandardType) + pType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum)
+    + pType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags) + pType->GetTypeFlags().IsSet(ezTypeFlags::Class) == 1, "Types are mutually exclusive!");
+
   for (auto pProp : pType->m_Properties)
   {
     const ezRTTI* pSpecificType = pProp->GetSpecificType();
+
+    EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) + pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum)
+      + pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) + pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) == 1, "Types are mutually exclusive!");
+
     switch (pProp->GetCategory())
     {
     case ezPropertyCategory::Constant:
@@ -300,6 +307,8 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
           "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_ENUM_MEMBER_PROPERTY / EZ_ENUM_ACCESSOR_PROPERTY for property.");
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags),
           "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_BITFLAGS_MEMBER_PROPERTY / EZ_BITFLAGS_ACCESSOR_PROPERTY for property.");
+        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) || pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Class),
+          "If ezPropertyFlags::EmbeddedClass is set, the property type must be ezTypeFlags::Class.");
       }
       break;
     case ezPropertyCategory::Array:

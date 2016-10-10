@@ -576,16 +576,18 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
         return res;
     }
   }
-
+  
+  ezStatus resReferences(EZ_SUCCESS);
   for (const auto& ref : pAssetInfo->m_Info.m_FileReferences)
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
     {
-      ezStatus res = ProcessAsset(pInfo, szPlatform);
-      if (res.m_Result.Failed())
-        return res;
+      resReferences = ProcessAsset(pInfo, szPlatform);
+      if (resReferences.m_Result.Failed())
+        break;
     }
   }
+
 
 
   // Find the descriptor for the asset.
@@ -600,6 +602,12 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
   if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
     return ezStatus(EZ_SUCCESS);
+
+  // If references are not complete and we generate thumbnails on transform we can cancel right away.
+  if (assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && resReferences.m_Result.Failed())
+  {
+    return resReferences;
+  } 
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
@@ -635,7 +643,8 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
     return ezStatus("Missing reference for asset '%s', can't create thumbnail.", pAssetInfo->m_sAbsolutePath.GetData());
   }
 
-  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform))
+  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)
+    && !resReferences.m_Result.Failed())
   {
     if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
     {

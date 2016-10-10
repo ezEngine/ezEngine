@@ -75,7 +75,7 @@ struct ezDocumentObjectPropertyEvent
   const ezDocumentObject* m_pObject;
   ezVariant m_OldValue;
   ezVariant m_NewValue;
-  ezString m_sPropertyPath;
+  ezString m_sProperty;
   ezVariant m_OldIndex;
   ezVariant m_NewIndex;
 };
@@ -114,7 +114,8 @@ public:
 
   void DestroyObject(ezDocumentObject* pObject);
   virtual void DestroyAllObjects();
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const = 0;
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const {};
+  void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
 
   // Structure Change
   const ezDocumentObject* GetRootObject() const { return &m_RootObject; }
@@ -123,8 +124,7 @@ public:
   void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
   void RemoveObject(ezDocumentObject* pObject);
   void MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index);
-  
-  
+
   const ezDocumentObject* GetObject(const ezUuid& guid) const;
   ezDocumentObject* GetObject(const ezUuid& guid);
   const ezDocument* GetDocument() const { return m_pDocument; }
@@ -138,6 +138,11 @@ public:
 private:
   virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
   virtual void InternalDestroyObject(ezDocumentObject* pObject) { EZ_DEFAULT_DELETE(pObject); }
+
+  void InternalAddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  void InternalRemoveObject(ezDocumentObject* pObject);
+  void InternalMoveObject(ezDocumentObject* pNewParent, ezDocumentObject* pObject, const char* szParentProperty, ezVariant index);
+
   virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
   virtual ezStatus InternalCanRemove(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
   virtual ezStatus InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
@@ -145,8 +150,11 @@ private:
 
   void RecursiveAddGuids(ezDocumentObject* pObject);
   void RecursiveRemoveGuids(ezDocumentObject* pObject);
+  void PatchEmbeddedClassObjectsInternal(ezDocumentObject* pObject, const ezRTTI* pType, bool addToDoc);
 
 private:
+  friend class ezObjectAccessorBase;
+
   const ezDocument* m_pDocument;
   ezDocumentRootObject m_RootObject;
 

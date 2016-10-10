@@ -13,7 +13,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
 
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "SoundEventAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -22,7 +22,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "SoundEventAssetToolBar";
     context.m_pDocument = pDocument;
@@ -32,12 +32,12 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
   }
 
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("SoundEventAssetDockWidget");
     pPropertyPanel->setWindowTitle("Sound Event Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);

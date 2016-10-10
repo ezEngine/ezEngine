@@ -81,7 +81,7 @@ void ezQtTextureAssetDocumentWindow::UpdatePreview()
 
 void ezQtTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_sPropertyPath == "Texture File")
+  if (e.m_sProperty == "Texture File")
   {
     UpdatePreview();
   }

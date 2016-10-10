@@ -43,7 +43,7 @@ void ezFmodSceneModule::InternalAfterWorldDestruction()
   }
 }
 
-void ezFmodSceneModule::InternalUpdate()
+void ezFmodSceneModule::InternalUpdateBefore()
 {
   ezFmod::GetSingleton()->GetSystem()->update();
 

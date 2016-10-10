@@ -198,15 +198,14 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         {
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
-            ezPropertyPath path(pProp->GetPropertyName());
-            if (bInsidePrefab && IsDefaultValue(pObject, path, false))
+            if (bInsidePrefab && IsDefaultValue(pObject, pProp->GetPropertyName(), false))
             {
               continue;
             }
             if (bIsDependency)
-              pInfo->m_FileDependencies.Insert(pObject->GetTypeAccessor().GetValue(path).Get<ezString>());
+              pInfo->m_FileDependencies.Insert(pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezString>());
             else
-              pInfo->m_FileReferences.Insert(pObject->GetTypeAccessor().GetValue(path).Get<ezString>());
+              pInfo->m_FileReferences.Insert(pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezString>());
           }
         }
         break;
@@ -215,13 +214,12 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         {
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
-            ezPropertyPath path(pProp->GetPropertyName());
-            const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(path);
+            const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
 
             for (ezInt32 i = 0; i < iCount; ++i)
             {
-              ezVariant value = pObject->GetTypeAccessor().GetValue(path, i);
-              if (bInsidePrefab && IsDefaultValue(pObject, path, false, i))
+              ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
+              if (bInsidePrefab && IsDefaultValue(pObject, pProp->GetPropertyName(), false, i))
               {
                 continue;
               }
@@ -235,18 +233,6 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         }
         break;
       }
-    }
-
-    if (pProp->GetCategory() == ezPropertyCategory::Member && !pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
-    {
-      ezPropertyPath path(pProp->GetPropertyName());
-      ezStringBuilder sTemp = ezConversionUtils::ToString(pObject->GetGuid());
-      sTemp.Append("/", pProp->GetPropertyName());
-      const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
-
-      ezDocumentSubObject SubObj(pProp->GetSpecificType());
-      SubObj.SetObject(const_cast<ezDocumentObject*>(pObject), path, SubObjectGuid);
-      AddReferences(&SubObj, pInfo, bInsidePrefab);
     }
   }
 

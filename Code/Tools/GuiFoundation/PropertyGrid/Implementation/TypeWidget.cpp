@@ -6,22 +6,21 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-
-#include <QGridLayout>
-#include <QLabel>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <QGridLayout>
+#include <QLabel>
 
-ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath)
+ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType)
   : QWidget(pParent)
 {
   m_bUndead = false;
   m_pGrid = pGrid;
   m_pType = pType;
-  m_ParentPath = parentPath;
   m_pLayout = new QGridLayout(this);
   m_pLayout->setColumnStretch(0, 1);
   m_pLayout->setColumnStretch(1, 0);
@@ -35,9 +34,7 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
 
-  ezPropertyPath ParentPath = m_ParentPath;
-
-  BuildUI(pType, ParentPath);
+  BuildUI(pType);
 }
 
 ezQtTypeWidget::~ezQtTypeWidget()
@@ -92,13 +89,13 @@ void ezQtTypeWidget::PrepareToDie()
   }
 }
 
-void ezQtTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
+void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
 {
   QtScopedUpdatesDisabled _(this);
 
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
-    BuildUI(pParentType, ParentPath, manipulatorMap);
+    BuildUI(pParentType, manipulatorMap);
 
   ezUInt32 iRows = m_pLayout->rowCount();
   for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
@@ -114,15 +111,13 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, co
     if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
       continue;
 
-    ParentPath.PushBack(pProp->GetPropertyName());
-
     ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
     EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '%s'", pProp->GetPropertyName());
     pNewWidget->setParent(this);
-    pNewWidget->Init(m_pGrid, pProp, ParentPath);
+    pNewWidget->Init(m_pGrid, pProp);
 
     pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyChangedHandler, this));
-    auto& ref = m_PropertyWidgets[ParentPath.GetPathString()];
+    auto& ref = m_PropertyWidgets[pProp->GetPropertyName()];
 
     ref.m_pWidget = pNewWidget;
     ref.m_pLabel = nullptr;
@@ -153,13 +148,11 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, co
     {
       m_pLayout->addWidget(pNewWidget, iRows + i, 0, 1, 3);
     }
-
-    ParentPath.PopBack();
   }
 }
 
 
-void ezQtTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
+void ezQtTypeWidget::BuildUI(const ezRTTI* pType)
 {
   ezMap<ezString, const ezManipulatorAttribute*> manipulatorMap;
 
@@ -188,7 +181,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
     pParentType = pParentType->GetParentType();
   }
 
-  BuildUI(pType, ParentPath, manipulatorMap);
+  BuildUI(pType, manipulatorMap);
 }
 
 void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
@@ -196,35 +189,25 @@ void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
   if (m_bUndead)
     return;
 
+  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
   switch (ed.m_Type)
   {
   case  ezQtPropertyWidget::Event::Type::ValueChanged:
     {
-      auto history = m_pGrid->GetDocument()->GetCommandHistory();
-
-      ezSetObjectPropertyCommand cmd;
-      cmd.m_NewValue = ed.m_Value;
-      cmd.SetPropertyPath(ed.m_pPropertyPath->GetPathString());
-
-      history->StartTransaction("Change Property");
+      pObjectAccessor->StartTransaction("Change Property");
 
       ezStatus res;
-
       for (const auto& sel : *ed.m_pItems)
       {
-        cmd.m_Object = sel.m_pObject->GetGuid();
-        cmd.m_Index = sel.m_Index;
-
-        res = history->AddCommand(cmd);
-
+        res = pObjectAccessor->SetValue(sel.m_pObject, ed.m_pProperty, ed.m_Value, sel.m_Index);
         if (res.m_Result.Failed())
           break;
       }
 
       if (res.m_Result.Failed())
-        history->CancelTransaction();
+        pObjectAccessor->CancelTransaction();
       else
-        history->FinishTransaction();
+        pObjectAccessor->FinishTransaction();
 
       ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Changing the property failed.");
 
@@ -233,19 +216,19 @@ void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 
   case  ezQtPropertyWidget::Event::Type::BeginTemporary:
     {
-      m_pGrid->GetDocument()->GetCommandHistory()->BeginTemporaryCommands("Adjust Property");
+      pObjectAccessor->BeginTemporaryCommands("Adjust Property");
     }
     break;
 
   case  ezQtPropertyWidget::Event::Type::EndTemporary:
     {
-      m_pGrid->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
+      pObjectAccessor->FinishTemporaryCommands();
     }
     break;
 
   case  ezQtPropertyWidget::Event::Type::CancelTemporary:
     {
-      m_pGrid->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
+      pObjectAccessor->CancelTemporaryCommands();
     }
     break;
   }
@@ -256,7 +239,7 @@ void ezQtTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e
   if (m_bUndead)
     return;
 
-  UpdateProperty(e.m_pObject, e.m_sPropertyPath);
+  UpdateProperty(e.m_pObject, e.m_sProperty);
 }
 
 void ezQtTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)

@@ -24,6 +24,7 @@
 
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 2, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -352,7 +353,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   // Materials/Submeshes.
   static const char* defaultMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
-  const char* defaultMaterialAssetId = ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindAssetInfo(defaultMaterialAssetPath)->m_Info.m_DocumentID);
+  ezString defaultMaterialAssetId = ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindAssetInfo(defaultMaterialAssetPath)->m_Info.m_DocumentID);
 
   for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
   {
@@ -413,6 +414,16 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       ezStringBuilder newResourcePathAbs;
       newResourcePathAbs.Format("%s_data/%s.ezMaterialAsset", GetDocumentPath(), material->m_Name.GetData());
 
+      // Does the generated path already exist? Use it.
+      {
+        const auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(newResourcePathAbs);
+        if (assetInfo != nullptr)
+        {
+          pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Info.m_DocumentID);
+          continue;
+        }
+      }
+
       ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
       if (!materialDocument)
       {
@@ -424,13 +435,13 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       history->StartTransaction("Apply Materials");
       ezUuid propertySetterTarget = materialDocument->GetPropertyObject()->GetGuid();
 
-      auto setProperty = [material, materialDocument, history, &propertySetterTarget](const char* propertyPath, const ezVariant& newValue) -> ezResult
+      auto setProperty = [material, materialDocument, history, &propertySetterTarget](const char* szProperty, const ezVariant& newValue) -> ezResult
       {
         ezSetObjectPropertyCommand cmd;
         cmd.m_Object = propertySetterTarget;
         cmd.m_NewValue = newValue;
         cmd.m_Index = 0;
-        cmd.m_sPropertyPath = propertyPath;
+        cmd.m_sProperty = szProperty;
         ezStatus status = history->AddCommand(cmd);
         if (status.m_Result.Failed())
         {
@@ -448,14 +459,18 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
         absPath.AppendPath(texture->m_FileName);
         ezStringBuilder absAssetPath = absPath;
         absAssetPath.ChangeFileExtension("ezTextureAsset");
-
+        absAssetPath.MakeCleanPath();
         // Todo: Import texture if not existing?
 
         auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(absAssetPath);
         if (textureAssetInfo)
           return ezConversionUtils::ToString(textureAssetInfo->m_Info.m_DocumentID);
         else
-          return absAssetPath;
+        {
+          ezString sRelativePath = absPath;
+          ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sRelativePath);
+          return sRelativePath;
+        }
       };
 
       // Set base material.
@@ -524,7 +539,6 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
   ezMeshAssetProperties* pProp = GetProperties();
   ezDocumentObject* pPropObj = GetPropertyObject();
 
-
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
     ezString sMeshFileAbs = pProp->m_sMeshFile;
@@ -560,6 +574,8 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
     ezLog::Info("Number of Triangles: %u", uiTriangles);
 
 
+    GetObjectAccessor()->StartTransaction("Update Mesh Asset Info");
+
     pProp->m_Slots.SetCount(mesh->GetNumSubMeshes());
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
     {
@@ -579,20 +595,15 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
   }
   else
   {
+    GetObjectAccessor()->StartTransaction("Update Mesh Asset Info");
+
     pProp->m_Slots.SetCount(1);
     pProp->m_Slots[0].m_sLabel = "Default";
   }
 
-  {
-    ezAbstractObjectGraph graph;
-    ezRttiConverterContext context;
-    ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
-    context.RegisterObject(pPropObj->GetGuid(), pPropObj->GetTypeAccessor().GetType(), pProp);
-    auto* pNode = rttiConverter.AddObjectToGraph(pProp, "Object");
+  ApplyNativePropertyChangesToObjectManager();
 
-    ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
-    objectConverter.ApplyPropertiesToObject(pNode, pPropObj);
-  }
+  GetObjectAccessor()->FinishTransaction();
 
   GetSelectionManager()->Clear();
   GetSelectionManager()->AddObject(pPropObj);

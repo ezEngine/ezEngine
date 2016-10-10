@@ -48,6 +48,5 @@ protected:
   const ezDocumentObjectManager* m_pDocumentTree;
   const ezRTTI* m_pBaseClass;
   ezString m_sChildProperty;
-  ezPropertyPath m_ChildPropertyPath;
 };
 

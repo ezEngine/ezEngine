@@ -28,6 +28,9 @@ public:
 
     if (type == ezVariant::Type::VoidPointer || type == ezVariant::Type::ReflectedPointer)
       m_Flags.Add(ezPropertyFlags::Pointer);
+
+    if (!m_Flags.IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
+      m_Flags.Add(ezPropertyFlags::EmbeddedClass);
   }
 
   /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>() to see whether this is an int property.

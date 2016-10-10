@@ -86,44 +86,26 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
 }
 
 
-ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const ezPropertyPath& path, ezVariant index)
+ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index)
 {
   const ezAbstractObjectNode* pNode = graph.GetNode(objectGuid);
   ezUInt32 uiIndex = 0;
-  while (pNode && uiIndex < path.GetCount())
+  const ezAbstractObjectNode::Property* pProp = pNode->FindProperty(szProperty);
+  if (pProp)
   {
-    const ezAbstractObjectNode::Property* pProp = pNode->FindProperty(path[uiIndex]);
-    if (pProp)
+    const ezVariant& value = pProp->m_Value;
+
+    if (value.IsA<ezVariantArray>() && index.CanConvertTo<ezUInt32>())
     {
-      const ezVariant& value = pProp->m_Value;
-      if (uiIndex + 1 == path.GetCount())
+      ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
+      const ezVariantArray& valueArray = value.Get<ezVariantArray>();
+      if (uiIndex < valueArray.GetCount())
       {
-        if (value.IsA<ezVariantArray>() && index.CanConvertTo<ezUInt32>())
-        {
-          ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
-          const ezVariantArray& valueArray = value.Get<ezVariantArray>();
-          if (uiIndex < valueArray.GetCount())
-          {
-            return valueArray[uiIndex];
-          }
-          return ezVariant();
-        }
-        return value;
+        return valueArray[uiIndex];
       }
-      else if (value.IsA<ezUuid>())
-      {
-        pNode = graph.GetNode(value.Get<ezUuid>());
-      }
-      else
-      {
-        // In the middle of the path we should only encounter ezUuid, TODO: Arrays?
-        return ezVariant();
-      }
-    }
-    else
-    {
       return ezVariant();
     }
+    return value;
   }
 
   return ezVariant();

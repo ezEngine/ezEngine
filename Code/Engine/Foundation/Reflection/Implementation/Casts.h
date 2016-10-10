@@ -34,12 +34,14 @@ EZ_FORCE_INLINE T ezStaticCast(const ezReflectedClass* pObject)
 template <typename T>
 EZ_FORCE_INLINE T ezDynamicCast(ezReflectedClass* pObject)
 {
-  typedef typename ezTypeTraits<T>::NonPointerType NonPointerT;
-  if (pObject->IsInstanceOf< NonPointerT >())
+  if (pObject)
   {
-    return static_cast<T>(pObject);
+    typedef typename ezTypeTraits<T>::NonPointerType NonPointerT;
+    if (pObject->IsInstanceOf< NonPointerT >())
+    {
+      return static_cast<T>(pObject);
+    }
   }
-
   return nullptr;
 }
 
@@ -49,12 +51,14 @@ EZ_FORCE_INLINE T ezDynamicCast(ezReflectedClass* pObject)
 template <typename T>
 EZ_FORCE_INLINE T ezDynamicCast(const ezReflectedClass* pObject)
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
-  if (pObject->IsInstanceOf< NonPointerT >())
+  if (pObject)
   {
-    return static_cast<T>(pObject);
+    typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
+    if (pObject->IsInstanceOf< NonPointerT >())
+    {
+      return static_cast<T>(pObject);
+    }
   }
-
   return nullptr;
 }
 

@@ -2,7 +2,6 @@
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 
 class ezDocument;
 

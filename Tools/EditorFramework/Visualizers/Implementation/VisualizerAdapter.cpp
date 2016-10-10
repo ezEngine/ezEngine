@@ -5,6 +5,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Math/Transform.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezVisualizerAdapter::ezVisualizerAdapter()
 {
@@ -53,10 +54,10 @@ void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObj
   {
     if (e.m_pObject == m_pObject)
     {
-      if (e.m_sPropertyPath == m_pVisualizerAttr->m_sProperty1 ||
-          e.m_sPropertyPath == m_pVisualizerAttr->m_sProperty2 ||
-          e.m_sPropertyPath == m_pVisualizerAttr->m_sProperty3 ||
-          e.m_sPropertyPath == m_pVisualizerAttr->m_sProperty4)
+      if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 ||
+          e.m_sProperty == m_pVisualizerAttr->m_sProperty2 ||
+          e.m_sProperty == m_pVisualizerAttr->m_sProperty3 ||
+          e.m_sProperty == m_pVisualizerAttr->m_sProperty4)
       {
         Update();
       }
@@ -91,6 +92,14 @@ ezTransform ezVisualizerAdapter::GetObjectTransform() const
   return t;
 }
 
+ezObjectAccessorBase* ezVisualizerAdapter::GetObjectAccessor() const
+{
+  return m_pObject->GetDocumentObjectManager()->GetDocument()->GetObjectAccessor();
+}
 
+const ezAbstractProperty* ezVisualizerAdapter::GetProperty(const char* szProperty) const
+{
+  return m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
+}
 
 

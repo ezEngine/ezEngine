@@ -4,37 +4,6 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezPropertyPath functions
-////////////////////////////////////////////////////////////////////////
-
-ezPropertyPath::ezPropertyPath()
-{
-}
-
-ezPropertyPath::ezPropertyPath(const char* szPath)
-{
-  ezStringBuilder temp = szPath;
-  temp.Split(false, *this, "/");
-}
-
-ezStringBuilder ezPropertyPath::GetPathString() const
-{
-  ezStringBuilder sPath;
-  EZ_ASSERT_DEV(GetCount() > 0, "Path must not be empty");
-
-  sPath = (*this)[0];
-
-  const ezUInt32 uiPathLength = GetCount();
-  for (ezUInt32 i = 1; i < uiPathLength; ++i)
-  {
-    sPath.Append("/", (*this)[i]);
-  }
-  return sPath;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////
 // ezReflectedPropertyDescriptor
 ////////////////////////////////////////////////////////////////////////
 

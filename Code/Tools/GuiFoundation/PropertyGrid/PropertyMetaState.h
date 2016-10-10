@@ -35,7 +35,7 @@ struct ezPropertyMetaStateEvent
   const ezDocumentObject* m_pObject;
 
   /// The map into which event handlers should write their information about the state of each property.
-  /// The string is the ezPropertyPath that identifies the property in m_pObject.
+  /// The string is the property name that identifies the property in m_pObject.
   ezMap<ezString, ezPropertyUiState>* m_pPropertyStates;
 };
 

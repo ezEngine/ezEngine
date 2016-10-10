@@ -3,6 +3,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezConeManipulatorAdapter::ezConeManipulatorAdapter()
 {
@@ -32,13 +33,13 @@ void ezConeManipulatorAdapter::Finalize()
 void ezConeManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezConeManipulatorAttribute* pAttr = static_cast<const ezConeManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetRadiusProperty()));
-    m_Gizmo.SetRadius(value.ConvertTo<float>());
+    float fValue = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetRadiusProperty()));
+    m_Gizmo.SetRadius(fValue);
   }
   else
   {
@@ -46,13 +47,10 @@ void ezConeManipulatorAdapter::Update()
     m_Gizmo.SetEnableRadiusHandle(false);
   }
 
-
-  
-
   if (!pAttr->GetAngleProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetAngleProperty()));
-    m_Gizmo.SetAngle(value.ConvertTo<ezAngle>());
+    ezAngle value = pObjectAccessor->Get<ezAngle>(m_pObject, GetProperty(pAttr->GetAngleProperty()));
+    m_Gizmo.SetAngle(value);
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());

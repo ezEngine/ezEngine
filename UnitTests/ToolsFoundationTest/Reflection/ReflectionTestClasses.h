@@ -210,6 +210,7 @@ private:
 
 struct InnerStruct
 {
+  EZ_DECLARE_POD_TYPE();
 public:
   float m_fP1;
 };
@@ -248,7 +249,18 @@ public:
 
   ezDynamicArray<ezString> m_StandardTypeSet;
   ezSet<ezObjectTest*> m_SubObjectSet;
+};
 
 
+class ezMirrorTest : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMirrorTest, ezReflectedClass);
 
+public:
+  ezMirrorTest()
+  {
+  }
+
+  ezMathClass m_math;
+  ezObjectTest m_object;
 };

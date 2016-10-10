@@ -11,6 +11,16 @@
 #include <CoreUtils/DataStructures/ObjectMetaData.h>
 #include <Foundation/Types/UniquePtr.h>
 
+class ezObjectAccessorBase;
+class ezObjectCommandAccessor;
+
+struct EZ_TOOLSFOUNDATION_DLL ezObjectAccessorChangeEvent
+{
+  ezDocument* m_pDocument;
+  ezObjectAccessorBase* m_pOldObjectAccessor;
+  ezObjectAccessorBase* m_pNewObjectAccessor;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectMetaData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObjectMetaData, ezReflectedClass);
@@ -56,9 +66,10 @@ public:
   ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager; }
   ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
   ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
+  virtual ezObjectAccessorBase* GetObjectAccessor() const;
 
-  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path, ezVariant index = ezVariant()) const;
-  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path, bool bReturnOnInvalid, ezVariant index = ezVariant()) const;
+  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const char* szProperty, ezVariant index = ezVariant()) const;
+  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const char* szProperty, bool bReturnOnInvalid, ezVariant index = ezVariant()) const;
 
   ///@}
   /// \name Document Management Functions
@@ -150,6 +161,8 @@ public:
   mutable ezEvent<const ezDocumentEvent&> m_EventsOne;
   static ezEvent<const ezDocumentEvent&> s_EventsAny;
 
+  mutable ezEvent<const ezObjectAccessorChangeEvent&> m_ObjectAccessorChangeEvents;
+
 protected:
   void SetModified(bool b);
   void SetReadOnly(bool b);
@@ -182,6 +195,7 @@ protected:
   mutable ezCommandHistory m_CommandHistory;
   ezDocumentInfo* m_pDocumentInfo;
   const ezDocumentTypeDescriptor* m_pTypeDescriptor;
+  mutable ezObjectCommandAccessor* m_ObjectAccessor; ///< Default object accessor used by every doc.
 
 private:
   friend class ezDocumentManager;

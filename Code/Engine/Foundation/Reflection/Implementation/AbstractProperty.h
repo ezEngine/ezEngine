@@ -19,28 +19,31 @@ struct ezPropertyFlags
   enum Enum
   {
     StandardType = EZ_BIT(0), ///< Anything that can be stored inside an ezVariant except for pointers and containers.
-    ReadOnly = EZ_BIT(1),     ///< Can only be read but not modified.
-    Pointer = EZ_BIT(2),      ///< Is a pointer to a type.
-    PointerOwner = EZ_BIT(3), ///< This pointer property takes ownership of the passed pointer.
-    IsEnum = EZ_BIT(4),       ///< enum property, cast to ezAbstractEnumerationProperty.
-    Bitflags = EZ_BIT(5),     ///< bitflags property, cast to ezAbstractEnumerationProperty.
-    Constant = EZ_BIT(6),     ///< Property is a constant.
-    Phantom = EZ_BIT(7),
+    IsEnum = EZ_BIT(1),       ///< enum property, cast to ezAbstractEnumerationProperty.
+    Bitflags = EZ_BIT(2),     ///< bitflags property, cast to ezAbstractEnumerationProperty.
+    Pointer = EZ_BIT(3),      ///< Is a pointer to a type.
+    EmbeddedClass = EZ_BIT(4),///< An embedded struct or class. All of the above are mutually exclusive.
+
+    Constant = EZ_BIT(5),     ///< Property is a constant.
+    PointerOwner = EZ_BIT(6), ///< This pointer property takes ownership of the passed pointer.
+    ReadOnly = EZ_BIT(7),     ///< Can only be read but not modified.
     Hidden = EZ_BIT(8),
+    Phantom = EZ_BIT(9),
     Default = 0
   };
 
   struct Bits
   {
     StorageType StandardType : 1;
-    StorageType ReadOnly : 1;
-    StorageType Pointer : 1;
-    StorageType PointerOwner : 1;
     StorageType IsEnum : 1;
     StorageType Bitflags : 1;
+    StorageType Pointer : 1;
+    StorageType EmbeddedClass : 1;
     StorageType Constant : 1;
-    StorageType Phantom : 1;
+    StorageType PointerOwner : 1;
+    StorageType ReadOnly : 1;
     StorageType Hidden : 1;
+    StorageType Phantom : 1;
   };
 };
 

@@ -2,6 +2,7 @@
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezConeVisualizerAdapter::ezConeVisualizerAdapter()
 {
@@ -28,13 +29,14 @@ void ezConeVisualizerAdapter::Finalize()
 void ezConeVisualizerAdapter::Update()
 {
   const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
-
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 
   m_fAngleScale = 1.0f;
   if (!pAttr->GetAngleProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetAngleProperty()));
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAngleProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezAngle>(), "Invalid property bound to ezConeVisualizerAttribute 'angle'");
     m_fAngleScale = ezMath::Tan(value.ConvertTo<ezAngle>() * 0.5f);
@@ -42,7 +44,8 @@ void ezConeVisualizerAdapter::Update()
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetColorProperty()));
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezConeVisualizerAttribute 'color'");
     m_Gizmo.SetColor(value.ConvertTo<ezColor>());
@@ -51,7 +54,8 @@ void ezConeVisualizerAdapter::Update()
   m_fFinalScale = pAttr->m_fScale;
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetRadiusProperty()));
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRadiusProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezConeVisualizerAttribute 'radius'");
     m_fFinalScale *= value.ConvertTo<float>();

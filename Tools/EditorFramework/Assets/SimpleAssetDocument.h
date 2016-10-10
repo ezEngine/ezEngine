@@ -57,6 +57,45 @@ protected:
     return ret;
   }
 
+  void ApplyNativePropertyChangesToObjectManager()
+  {
+    // Create native object graph
+    ezAbstractObjectGraph graph;
+    ezAbstractObjectNode* pRootNode = nullptr;
+    {
+      ezRttiConverterWriter rttiConverter(&graph, &m_Context, true, true);
+      pRootNode = rttiConverter.AddObjectToGraph(GetProperties(), "Object");
+    }
+
+    // Create object manager graph
+    ezAbstractObjectGraph origGraph;
+    ezAbstractObjectNode* pOrigRootNode = nullptr;
+    {
+      ezDocumentObjectConverterWriter writer(&origGraph, GetObjectManager(), true, true);
+      pOrigRootNode = writer.AddObjectToGraph(GetPropertyObject());
+    }
+
+    // Remap native guids so they match the object manager (stuff like embedded classes will not have a guid on the native side).
+    graph.ReMapNodeGuidsToMatchGraph(pRootNode, origGraph, pOrigRootNode);
+    ezDeque<ezAbstractGraphDiffOperation> diffResult;
+
+    graph.CreateDiffWithBaseGraph(origGraph, diffResult);
+
+    // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
+    m_ObjectMirror.Clear();
+    m_ObjectMirror.DeInit();
+
+    // Apply diff while object mirror is down.
+    GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
+    ezDocumentObjectConverterReader::ApplyDiffToObject(GetObjectAccessor(), GetPropertyObject(), diffResult);
+    GetObjectAccessor()->FinishTransaction();
+
+    // Restart mirror from scratch.
+    m_ObjectMirror.InitSender(GetObjectManager());
+    m_ObjectMirror.InitReceiver(&m_Context);
+    m_ObjectMirror.SendDocument();
+  }
+
 private:
   void EnsureSettingsObjectExist()
   {
@@ -73,11 +112,10 @@ private:
     return EZ_DEFAULT_NEW(ezAssetDocumentInfo); 
   }
 
+private:
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
 };
-
-
 
 
 template<typename ObjectProperties>

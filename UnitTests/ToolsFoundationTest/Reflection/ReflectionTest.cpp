@@ -2,9 +2,9 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
+#include <ToolsFoundationTest/Object/TestObjectManager.h>
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 
@@ -129,23 +129,23 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   }
 }
 
-void AccessorPropertyTest(ezIReflectedTypeAccessor& accessor, const ezPropertyPath& path, ezVariant::Type::Enum type)
+void AccessorPropertyTest(ezIReflectedTypeAccessor& accessor, const char* szProperty, ezVariant::Type::Enum type)
 {
-  ezVariant oldValue = accessor.GetValue(path);
+  ezVariant oldValue = accessor.GetValue(szProperty);
   EZ_TEST_BOOL(oldValue.IsValid());
   EZ_TEST_BOOL(oldValue.GetType() == type);
 
   ezVariant defaultValue = ezToolsReflectionUtils::GetDefaultVariantFromType(type);
-  bool bSetSuccess = accessor.SetValue(path, defaultValue);
+  bool bSetSuccess = accessor.SetValue(szProperty, defaultValue);
   EZ_TEST_BOOL(bSetSuccess);
 
-  ezVariant newValue = accessor.GetValue(path);
+  ezVariant newValue = accessor.GetValue(szProperty);
   EZ_TEST_BOOL(newValue.IsValid());
   EZ_TEST_BOOL(newValue.GetType() == type);
   EZ_TEST_BOOL(newValue == defaultValue);
 }
 
-ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI* pType, ezPropertyPath& path)
+ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI* pType)
 {
   ezUInt32 uiPropertiesSet = 0;
   EZ_TEST_BOOL(pType != nullptr);
@@ -153,7 +153,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
   // Call for base class
   if (pType->GetParentType() != nullptr)
   {
-    uiPropertiesSet += AccessorPropertiesTest(accessor, pType->GetParentType(), path);
+    uiPropertiesSet += AccessorPropertiesTest(accessor, pType->GetParentType());
   }
 
   // Test properties
@@ -161,10 +161,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
   for (ezUInt32 i = 0; i < uiPropCount; ++i)
   {
     ezAbstractProperty* pProp = pType->GetProperties()[i];
-    // Build path to property
-    ezPropertyPath propPath = path;
-    propPath.PushBack(pProp->GetPropertyName());
-
+ 
     switch (pProp->GetCategory())
     {
     case ezPropertyCategory::Member:
@@ -172,23 +169,25 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
         ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum))
         {
-          AccessorPropertyTest(accessor, propPath, ezVariant::Type::Int64);
+          AccessorPropertyTest(accessor, pProp->GetPropertyName(), ezVariant::Type::Int64);
           uiPropertiesSet++;
         }
         else if (pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags))
         {
-          AccessorPropertyTest(accessor, propPath, ezVariant::Type::Int64);
+          AccessorPropertyTest(accessor, pProp->GetPropertyName(), ezVariant::Type::Int64);
           uiPropertiesSet++;
         }
         else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
         {
-          AccessorPropertyTest(accessor, propPath, pProp3->GetSpecificType()->GetVariantType());
+          AccessorPropertyTest(accessor, pProp->GetPropertyName(), pProp3->GetSpecificType()->GetVariantType());
           uiPropertiesSet++;
         }
-        else
+        else // ezPropertyFlags::EmbeddedClass
         {
           // Recurs into sub-classes
-          uiPropertiesSet += AccessorPropertiesTest(accessor, pProp3->GetSpecificType(), propPath);
+          const ezUuid& subObjectGuid = accessor.GetValue(pProp->GetPropertyName()).Get<ezUuid>();
+          ezDocumentObject* pEmbeddedClassObject = const_cast<ezDocumentObject*>(accessor.GetOwner()->GetChild(subObjectGuid));
+          uiPropertiesSet += AccessorPropertiesTest(pEmbeddedClassObject->GetTypeAccessor(), pProp3->GetSpecificType());
         }
       }
       break;
@@ -210,8 +209,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
 ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor)
 {
   const ezRTTI* handle = accessor.GetType();
-  ezPropertyPath path = ezPropertyPath();
-  return AccessorPropertiesTest(accessor, handle, path);
+  return AccessorPropertiesTest(accessor, handle);
 }
 
 static ezUInt32 GetTypeCount()
@@ -238,6 +236,8 @@ static const ezRTTI* RegisterType(const char* szTypeName)
 
 EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
 {
+  ezTestDocumentObjectManager manager;
+
   /*const ezRTTI* pRttiBase =*/ RegisterType("ezReflectedClass");
   /*const ezRTTI* pRttiEnumBase =*/ RegisterType("ezEnumBase");
   /*const ezRTTI* pRttiBitflagsBase =*/ RegisterType("ezBitflagsBase");
@@ -250,56 +250,41 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
   /*const ezRTTI* pRttiFlags =*/ RegisterType("ezExampleBitflags");
   const ezRTTI* pRttiEnumerations = RegisterType("ezEnumerationsClass");
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedTypeDirectAccessor")
-  {
-    ezIntegerStruct intStruct;
-    ezReflectedTypeDirectAccessor intAccessor(&intStruct, pRttiInt, nullptr);
-    EZ_TEST_BOOL(intAccessor.GetType() == pRttiInt);
-    EZ_TEST_INT(AccessorPropertiesTest(intAccessor), 8);
-
-    ezFloatStruct floatStruct;
-    ezReflectedTypeDirectAccessor floatAccessor(&floatStruct, pRttiFloat, nullptr);
-    EZ_TEST_BOOL(floatAccessor.GetType() == pRttiFloat);
-    EZ_TEST_INT(AccessorPropertiesTest(floatAccessor), 4);
-
-    ezPODClass podClass;
-    ezReflectedTypeDirectAccessor podAccessor(&podClass, nullptr);
-    EZ_TEST_BOOL(podAccessor.GetType() == pRttiPOD);
-    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 16);
-
-    ezMathClass mathClass;
-    ezReflectedTypeDirectAccessor mathAccessor(&mathClass, nullptr);
-    EZ_TEST_BOOL(mathAccessor.GetType() == pRttiMath);
-    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 25);
-
-    ezEnumerationsClass enumerationsClass;
-    ezReflectedTypeDirectAccessor enumerationsAccessor(&enumerationsClass, nullptr);
-    EZ_TEST_BOOL(enumerationsAccessor.GetType() == pRttiEnumerations);
-    EZ_TEST_INT(AccessorPropertiesTest(enumerationsAccessor), 2);
-  }
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedTypeStorageAccessor")
   {
-    ezReflectedTypeStorageAccessor intAccessor(pRttiInt, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(intAccessor), 8);
-
-    ezReflectedTypeStorageAccessor floatAccessor(pRttiFloat, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(floatAccessor), 4);
-
-    ezReflectedTypeStorageAccessor podAccessor(pRttiPOD, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 16);
-
-    ezReflectedTypeStorageAccessor mathAccessor(pRttiMath, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 25);
-
-    ezReflectedTypeStorageAccessor enumerationsAccessor(pRttiEnumerations, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(enumerationsAccessor), 2);
+    {
+      ezDocumentObject* pObject = manager.CreateObject(pRttiInt);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 8);
+      manager.DestroyObject(pObject);
+    }
+    {
+      ezDocumentObject* pObject = manager.CreateObject(pRttiFloat);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 4);
+      manager.DestroyObject(pObject);
+    }
+    {
+      ezDocumentObject* pObject = manager.CreateObject(pRttiPOD);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 16);
+      manager.DestroyObject(pObject);
+    }
+    {
+      ezDocumentObject* pObject = manager.CreateObject(pRttiMath);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 25);
+      manager.DestroyObject(pObject);
+    }
+    {
+      ezDocumentObject* pObject = manager.CreateObject(pRttiEnumerations);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 2);
+      manager.DestroyObject(pObject);
+    }
   }
 }
 
 
 EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
 {
+  ezTestDocumentObjectManager manager;
+
   const ezRTTI* pRttiInner = ezRTTI::FindTypeByName("InnerStruct");
   const ezRTTI* pRttiInnerP = nullptr;
   ezReflectedTypeDescriptor descInner;
@@ -328,19 +313,24 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
   }
 
   {
-    ezReflectedTypeStorageAccessor innerAccessor(pRttiInnerP, nullptr);
-    ezReflectedTypeStorageAccessor outerAccessor(pRttiOuterP, nullptr);
+    ezDocumentObject* pInnerObject = manager.CreateObject(pRttiInnerP);
+    manager.AddObject(pInnerObject, nullptr, "Children", -1);
+    ezIReflectedTypeAccessor& innerAccessor = pInnerObject->GetTypeAccessor();
+
+    ezDocumentObject* pOuterObject = manager.CreateObject(pRttiOuterP);
+    manager.AddObject(pOuterObject, nullptr, "Children", -1);
+    ezIReflectedTypeAccessor& outerAccessor = pOuterObject->GetTypeAccessor();
+
+    ezUuid innerGuid = outerAccessor.GetValue("Inner").Get<ezUuid>();
+    ezDocumentObject* pEmbeddedInnerObject = manager.GetObject(innerGuid);
+    ezIReflectedTypeAccessor& embeddedInnerAccessor = pEmbeddedInnerObject->GetTypeAccessor();
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetValues")
     {
       // Just set a few values to make sure they don't get messed up by the following operations.
-      ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
-      EZ_TEST_BOOL(innerAccessor.SetValue(path, 1.4f));
-
-      path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
-      EZ_TEST_BOOL(outerAccessor.SetValue(path, 0.9f));
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
-      EZ_TEST_BOOL(outerAccessor.SetValue(path, 1.4f));
+      EZ_TEST_BOOL(innerAccessor.SetValue("IP1", 1.4f));
+      EZ_TEST_BOOL(outerAccessor.SetValue("OP1", 0.9f));
+      EZ_TEST_BOOL(embeddedInnerAccessor.SetValue("IP1", 1.4f));
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddProperty")
@@ -351,20 +341,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
       EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 
       // Check that the new property is present.
-      ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP2");
-      AccessorPropertyTest(innerAccessor, path, ezVariant::Type::Vector4);
+      AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
 
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP2");
-      AccessorPropertyTest(outerAccessor, path, ezVariant::Type::Vector4);
+      ezDocumentObject* pEmbeddedInnerObject = manager.GetObject(innerGuid);
+      AccessorPropertyTest(embeddedInnerAccessor, "IP2", ezVariant::Type::Vector4);
 
       // Test that the old properties are still valid.
-      path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
-      EZ_TEST_BOOL(innerAccessor.GetValue(path) == 1.4f);
-
-      path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
-      EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
-      EZ_TEST_BOOL(outerAccessor.GetValue(path) == 1.4f);
+      EZ_TEST_BOOL(innerAccessor.GetValue("IP1") == 1.4f);
+      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
+      EZ_TEST_BOOL(embeddedInnerAccessor.GetValue("IP1") == 1.4f);
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeProperty")
@@ -375,27 +360,21 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
       EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 
       // Test if the previous value was converted correctly to its new type.
-      ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
-      ezVariant innerValue = innerAccessor.GetValue(path);
+      ezVariant innerValue = innerAccessor.GetValue("IP1");
       EZ_TEST_BOOL(innerValue.IsValid());
       EZ_TEST_BOOL(innerValue.GetType() == ezVariant::Type::Int32);
       EZ_TEST_INT(innerValue.Get<ezInt32>(), 1);
 
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
-      ezVariant outerValue = outerAccessor.GetValue(path);
+      ezVariant outerValue = embeddedInnerAccessor.GetValue("IP1");
       EZ_TEST_BOOL(outerValue.IsValid());
       EZ_TEST_BOOL(outerValue.GetType() == ezVariant::Type::Int32);
       EZ_TEST_INT(outerValue.Get<ezInt32>(), 1);
 
       // Test that the old properties are still valid.
-      path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
-      EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
+      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
 
-      path = ezToolsReflectionUtils::CreatePropertyPath("IP2");
-      AccessorPropertyTest(innerAccessor, path, ezVariant::Type::Vector4);
-
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP2");
-      AccessorPropertyTest(outerAccessor, path, ezVariant::Type::Vector4);
+      AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
+      AccessorPropertyTest(embeddedInnerAccessor, "IP2", ezVariant::Type::Vector4);
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeleteProperty")
@@ -406,21 +385,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
       EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 
       // Check that IP1 is really gone.
-      ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
-      EZ_TEST_BOOL(!innerAccessor.GetValue(path).IsValid());
-
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
-      EZ_TEST_BOOL(!outerAccessor.GetValue(path).IsValid());
+      EZ_TEST_BOOL(!innerAccessor.GetValue("IP1").IsValid());
+      EZ_TEST_BOOL(!embeddedInnerAccessor.GetValue("IP1").IsValid());
 
       // Test that the old properties are still valid.
-      path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
-      EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
+      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
 
-      path = ezToolsReflectionUtils::CreatePropertyPath("IP2");
-      AccessorPropertyTest(innerAccessor, path, ezVariant::Type::Vector4);
-
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP2");
-      AccessorPropertyTest(outerAccessor, path, ezVariant::Type::Vector4);
+      AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
+      AccessorPropertyTest(embeddedInnerAccessor, "IP2", ezVariant::Type::Vector4);
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "RevertProperties")
@@ -436,21 +408,24 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
       ezPhantomRttiManager::RegisterType(descOuter);
 
       // Test that the old properties are back again.
-      ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
+      ezStringBuilder path = "IP1";
       ezVariant innerValue = innerAccessor.GetValue(path);
       EZ_TEST_BOOL(innerValue.IsValid());
       EZ_TEST_BOOL(innerValue.GetType() == ezVariant::Type::Float);
       EZ_TEST_FLOAT(innerValue.Get<float>(), 1.0f, 0.0f);
 
-      path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
-      ezVariant outerValue = outerAccessor.GetValue(path);
+      ezVariant outerValue = embeddedInnerAccessor.GetValue("IP1");
       EZ_TEST_BOOL(outerValue.IsValid());
       EZ_TEST_BOOL(outerValue.GetType() == ezVariant::Type::Float);
       EZ_TEST_FLOAT(outerValue.Get<float>(), 1.0f, 0.0f);
-
-      path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
-      EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
+      EZ_TEST_BOOL(outerAccessor.GetValue("OP1") == 0.9f);
     }
+
+    manager.RemoveObject(pInnerObject);
+    manager.DestroyObject(pInnerObject);
+
+    manager.RemoveObject(pOuterObject);
+    manager.DestroyObject(pOuterObject);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "UnregisterType")

@@ -37,7 +37,7 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
   ezSetObjectPropertyCommand cmd2;
   cmd2.m_Object = ObjectGuid;
 
-  cmd2.SetPropertyPath("LocalPosition");
+  cmd2.m_sProperty = "LocalPosition";
   cmd2.m_NewValue = vPos;
   EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
 
@@ -49,7 +49,7 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
   EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
 
   cmd2.m_Object = CmpGuid;
-  cmd2.SetPropertyPath(szProperty);
+  cmd2.m_sProperty = szProperty;
   cmd2.m_NewValue = szValue;
   EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
 
@@ -63,7 +63,7 @@ void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const 
   ezSetObjectPropertyCommand cmd2;
   cmd2.m_Object = guid;
 
-  cmd2.SetPropertyPath("LocalPosition");
+  cmd2.m_sProperty = "LocalPosition";
   cmd2.m_NewValue = vPosition;
   history->AddCommand(cmd2);
 }

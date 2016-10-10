@@ -197,6 +197,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   QProcess proc;
   proc.start(QString::fromUtf8(FindTexConvTool().GetData()), arguments);
+  auto stat = proc.exitStatus();
+
   if (!proc.waitForFinished(60000))
     return ezStatus("TexConv.exe timed out");
 

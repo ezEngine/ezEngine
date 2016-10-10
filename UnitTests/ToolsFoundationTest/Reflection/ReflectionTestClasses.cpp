@@ -2,7 +2,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, 1, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezIntegerStruct>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -20,7 +20,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFloatStruct, ezNoBase, 1, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFloatStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezFloatStruct>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -93,7 +93,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationsClass, 1, ezRTTIDefaultAllocator<e
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(InnerStruct, ezNoBase, 1, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(InnerStruct, ezNoBase, 1, ezRTTIDefaultAllocator<InnerStruct>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -146,3 +146,15 @@ void ezObjectTest::StandardTypeSetRemove(const ezString& value)
 {
   m_StandardTypeSet.Remove(value);
 }
+
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMirrorTest, 1, ezRTTIDefaultAllocator<ezMirrorTest>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Math", m_math),
+    EZ_MEMBER_PROPERTY("Object", m_object),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE

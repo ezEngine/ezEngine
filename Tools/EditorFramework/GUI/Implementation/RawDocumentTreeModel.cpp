@@ -18,7 +18,6 @@ ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTre
   m_pDocumentTree = pTree;
   m_pBaseClass = pBaseClass;
   m_sChildProperty = szChildProperty;
-  m_ChildPropertyPath = szChildProperty;
 
   if (!m_sChildProperty.IsEmpty())
   {
@@ -41,7 +40,7 @@ ezQtDocumentTreeModel::~ezQtDocumentTreeModel()
 
 void ezQtDocumentTreeModel::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_sPropertyPath != "Name")
+  if (e.m_sProperty != "Name")
     return;
 
   auto index = ComputeModelIndex(e.m_pObject);
@@ -117,7 +116,7 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
   }
 
   const ezDocumentObject* pParent = (const ezDocumentObject*) parent.internalPointer();
-  ezVariant value = pParent->GetTypeAccessor().GetValue(m_ChildPropertyPath, row);
+  ezVariant value = pParent->GetTypeAccessor().GetValue(m_sChildProperty, row);
   EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
   const ezDocumentObject* pChild = m_pDocumentTree->GetObject(value.Get<ezUuid>());
 
@@ -177,8 +176,8 @@ int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
   {
     const ezDocumentObject* pObject = (const ezDocumentObject*) parent.internalPointer();
   
-    if (!m_ChildPropertyPath.IsEmpty())
-      iCount = pObject->GetTypeAccessor().GetCount(m_ChildPropertyPath);
+    if (!m_sChildProperty.IsEmpty())
+      iCount = pObject->GetTypeAccessor().GetCount(m_sChildProperty);
   }
 
   return iCount;
@@ -200,7 +199,7 @@ QVariant ezQtDocumentTreeModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
     case Qt::EditRole:
       {
-        return QString::fromUtf8(pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().GetData());
+        return QString::fromUtf8(pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>().GetData());
       }
       break;
     }
@@ -413,7 +412,7 @@ bool ezQtDocumentTreeModel::setData(const QModelIndex& index, const QVariant& va
     ezSetObjectPropertyCommand cmd;
     cmd.m_NewValue = value.toString().toUtf8().data();
     cmd.m_Object = pObject->GetGuid();
-    cmd.SetPropertyPath("Name");
+    cmd.m_sProperty = "Name";
 
     pHistory->AddCommand(cmd);
 

@@ -3,6 +3,8 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
+class ezObjectAccessorBase;
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectConverterWriter
 {
 public:
@@ -38,7 +40,6 @@ public:
   {
     CreateOnly,
     CreateAndAddToDocument,
-    CreateAndAddToDocumentUndoable
   };
   ezDocumentObjectConverterReader(const ezAbstractObjectGraph* pGraph, ezDocumentObjectManager* pManager, Mode mode);
 
@@ -48,8 +49,11 @@ public:
   ezUInt32 GetNumUnknownObjectCreations() const { return m_uiUnknownTypeInstances; }
   const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownTypes; }
 
+  static void ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& diff);
+
 private:
-  void ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProperty, const ezAbstractObjectNode::Property* pSource);
+  void ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource);
+  static void ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp, ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff);
 
   Mode m_Mode;
   ezDocumentObjectManager* m_pManager;

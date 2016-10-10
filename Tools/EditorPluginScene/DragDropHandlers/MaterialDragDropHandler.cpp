@@ -56,7 +56,7 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   ezResizeAndSetObjectPropertyCommand cmd;
   cmd.m_Object = pInfo->m_TargetComponent;
   cmd.m_Index = pInfo->m_iTargetObjectSubID;
-  cmd.SetPropertyPath("Materials");
+  cmd.m_sProperty = "Materials";
   cmd.m_NewValue = GetAssetGuidString(pInfo);
 
   m_pDocument->GetCommandHistory()->StartTransaction("Assign Material");

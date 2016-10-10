@@ -145,7 +145,7 @@ ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezQtPropertyGridWidget::GetFactor
 ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument)
   : QWidget(pParent)
 {
-  m_pDocument = pDocument;
+  m_pDocument = nullptr;
 
   m_pScroll = new QScrollArea(this);
   m_pScroll->setContentsMargins(0, 0, 0, 0);
@@ -175,7 +175,6 @@ ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDo
   s_Factory.m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::FactoryEventHandler, this));
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::TypeEventHandler, this));
 
-  m_pDocument = nullptr;
   SetDocument(pDocument);
 }
 
@@ -186,7 +185,8 @@ ezQtPropertyGridWidget::~ezQtPropertyGridWidget()
 
   if (m_pDocument)
   {
-    m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
+    m_pDocument->m_ObjectAccessorChangeEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
+    m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
 
@@ -195,6 +195,7 @@ void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument)
 {
   if (m_pDocument)
   {
+    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 
@@ -202,6 +203,7 @@ void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument)
 
   if (m_pDocument)
   {
+    m_pDocument->m_ObjectAccessorChangeEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
@@ -245,9 +247,8 @@ void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>
       Items.PushBack(s);
     }
 
-    ezPropertyPath path;
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(Items);
-    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, pCommonType, path);
+    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, pCommonType);
     m_pTypeWidget->SetSelection(Items);
 
     m_pContentLayout->insertWidget(0, m_pTypeWidget, 0);
@@ -267,6 +268,12 @@ const ezDocumentObjectManager* ezQtPropertyGridWidget::GetObjectManager() const
 ezCommandHistory* ezQtPropertyGridWidget::GetCommandHistory() const
 {
   return m_pDocument->GetCommandHistory();
+}
+
+
+ezObjectAccessorBase* ezQtPropertyGridWidget::GetObjectAccessor() const
+{
+  return m_pDocument->GetObjectAccessor();
 }
 
 ezQtPropertyWidget* ezQtPropertyGridWidget::CreateMemberPropertyWidget(const ezAbstractProperty* pProp)
@@ -376,11 +383,11 @@ void ezQtPropertyGridWidget::OnCollapseStateChanged(bool bCollapsed)
 }
 
 
-void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezDocument* pDocument, ezPropertyMetaStateEvent& e)
+void GetDefaultValues(const ezRTTI* pType, const ezDocument* pDocument, ezPropertyMetaStateEvent& e)
 {
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
-    GetDefaultValues(pParentType, ParentPath, pDocument, e);
+    GetDefaultValues(pParentType, pDocument, e);
 
   for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
   {
@@ -394,21 +401,13 @@ void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezD
     if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
       continue;
 
-    ParentPath.PushBack(pProp->GetPropertyName());
-
     switch (pProp->GetCategory())
     {
     case ezPropertyCategory::Member:
       {
-        if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        if (!pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
         {
-          // Member struct / class
-          GetDefaultValues(pProp->GetSpecificType(), ParentPath, pDocument, e);
-        }
-        else
-        {
-          ezString sPath = ParentPath.GetPathString();
-          (*e.m_pPropertyStates)[sPath].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, ParentPath, true);
+          (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
         }
       }
       break;
@@ -416,8 +415,6 @@ void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezD
     default:
       break;
     }
-
-    ParentPath.PopBack();
   }
 }
 
@@ -425,8 +422,13 @@ void ezQtPropertyGridWidget::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 {
   const ezDocument* pDocument = e.m_pObject->GetDocumentObjectManager()->GetDocument();
   const ezRTTI* pType = e.m_pObject->GetTypeAccessor().GetType();
-  ezPropertyPath ParentPath;
-  GetDefaultValues(pType, ParentPath, pDocument, e);
+  GetDefaultValues(pType, pDocument, e);
+}
+
+
+void ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler(const ezObjectAccessorChangeEvent& e)
+{
+  SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
 }
 
 void ezQtPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)

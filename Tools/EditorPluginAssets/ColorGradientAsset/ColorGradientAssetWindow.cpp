@@ -115,19 +115,19 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, co
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sPropertyPath = "Position";
+  cmdSet.m_sProperty = "Position";
   cmdSet.m_NewValue = posX;
   history->AddCommand(cmdSet);
 
-  cmdSet.m_sPropertyPath = "Red";
+  cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
   history->AddCommand(cmdSet);
 
-  cmdSet.m_sPropertyPath = "Green";
+  cmdSet.m_sProperty = "Green";
   cmdSet.m_NewValue = color.g;
   history->AddCommand(cmdSet);
 
-  cmdSet.m_sPropertyPath = "Blue";
+  cmdSet.m_sProperty = "Blue";
   cmdSet.m_NewValue = color.b;
   history->AddCommand(cmdSet);
 
@@ -154,11 +154,11 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ez
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sPropertyPath = "Position";
+  cmdSet.m_sProperty = "Position";
   cmdSet.m_NewValue = posX;
   history->AddCommand(cmdSet);
 
-  cmdSet.m_sPropertyPath = "Alpha";
+  cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
   history->AddCommand(cmdSet);
 
@@ -185,11 +185,11 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sPropertyPath = "Position";
+  cmdSet.m_sProperty = "Position";
   cmdSet.m_NewValue = posX;
   history->AddCommand(cmdSet);
 
-  cmdSet.m_sPropertyPath = "Intensity";
+  cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
   history->AddCommand(cmdSet);
 
@@ -210,7 +210,7 @@ void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, co
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
-  cmdSet.m_sPropertyPath = "Position";
+  cmdSet.m_sProperty = "Position";
   cmdSet.m_NewValue = newPosX;
   history->AddCommand(cmdSet);
 
@@ -282,15 +282,15 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx,
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
-  cmdSet.m_sPropertyPath = "Red";
+  cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
   history->AddCommand(cmdSet);
 
-  cmdSet.m_sPropertyPath = "Green";
+  cmdSet.m_sProperty = "Green";
   cmdSet.m_NewValue = color.g;
   history->AddCommand(cmdSet);
 
-  cmdSet.m_sPropertyPath = "Blue";
+  cmdSet.m_sProperty = "Blue";
   cmdSet.m_NewValue = color.b;
   history->AddCommand(cmdSet);
 
@@ -311,7 +311,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx,
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
-  cmdSet.m_sPropertyPath = "Alpha";
+  cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
   history->AddCommand(cmdSet);
 
@@ -331,7 +331,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
-  cmdSet.m_sPropertyPath = "Intensity";
+  cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
   history->AddCommand(cmdSet);
 

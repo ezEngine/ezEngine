@@ -225,19 +225,21 @@ EZ_END_STATIC_REFLECTED_TYPE
 // ***** Various RTTI infos that can't be put next to their classes *****
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezTypeFlags, 1)
-EZ_BITFLAGS_CONSTANTS(ezTypeFlags::StandardType, ezTypeFlags::Abstract, ezTypeFlags::IsEnum, ezTypeFlags::Bitflags)
+EZ_BITFLAGS_CONSTANTS(ezTypeFlags::StandardType, ezTypeFlags::IsEnum, ezTypeFlags::Bitflags, ezTypeFlags::Class, ezTypeFlags::Abstract, ezTypeFlags::Phantom)
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPropertyFlags, 1)
-EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::StandardType, ezPropertyFlags::ReadOnly, ezPropertyFlags::Pointer, ezPropertyFlags::PointerOwner)
-EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::IsEnum, ezPropertyFlags::Bitflags, ezPropertyFlags::Constant)
+EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::StandardType, ezPropertyFlags::IsEnum, ezPropertyFlags::Bitflags, ezPropertyFlags::Pointer, ezPropertyFlags::EmbeddedClass)
+EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::Constant, ezPropertyFlags::PointerOwner, ezPropertyFlags::ReadOnly, ezPropertyFlags::Hidden, ezPropertyFlags::Phantom)
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVariantType, 1)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::Invalid, ezVariantType::Bool, ezVariantType::Int8, ezVariantType::UInt8, ezVariantType::Int16, ezVariantType::UInt16)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::Int32, ezVariantType::UInt32, ezVariantType::Int64, ezVariantType::UInt64, ezVariantType::Float, ezVariantType::Double)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::Color, ezVariantType::Vector2, ezVariantType::Vector3, ezVariantType::Vector4, ezVariantType::Quaternion)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::String, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle)
+EZ_BITFLAGS_CONSTANTS(ezVariantType::Color, ezVariantType::Vector2, ezVariantType::Vector3, ezVariantType::Vector4)
+EZ_BITFLAGS_CONSTANTS(ezVariantType::Vector2I, ezVariantType::Vector3I, ezVariantType::Vector4I, ezVariantType::Vector2U, ezVariantType::Vector3U, ezVariantType::Vector4U)
+EZ_BITFLAGS_CONSTANTS(ezVariantType::Quaternion, ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::Transform)
+EZ_BITFLAGS_CONSTANTS(ezVariantType::String, ezVariantType::StringView, ezVariantType::DataBuffer, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::VariantArray, ezVariantType::VariantDictionary, ezVariantType::ReflectedPointer, ezVariantType::VoidPointer)
 EZ_END_STATIC_REFLECTED_ENUM();
 

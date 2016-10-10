@@ -3,6 +3,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezSphereManipulatorAdapter::ezSphereManipulatorAdapter()
 {
@@ -32,19 +33,19 @@ void ezSphereManipulatorAdapter::Finalize()
 void ezSphereManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
-
+  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezSphereManipulatorAttribute* pAttr = static_cast<const ezSphereManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetInnerRadiusProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetInnerRadiusProperty()));
-    m_Gizmo.SetInnerSphere(true, value.ConvertTo<float>());
+    float fValue = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetInnerRadiusProperty()));
+    m_Gizmo.SetInnerSphere(true, fValue);
   }
 
   if (!pAttr->GetOuterRadiusProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetOuterRadiusProperty()));
-    m_Gizmo.SetOuterSphere(value.ConvertTo<float>());
+    float fValue = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetOuterRadiusProperty()));
+    m_Gizmo.SetOuterSphere(fValue);
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());

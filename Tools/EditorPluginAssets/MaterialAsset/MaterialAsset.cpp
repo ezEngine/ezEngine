@@ -397,7 +397,7 @@ void ezMaterialAssetProperties::LoadOldValues()
           {
             ezSetObjectPropertyCommand cmd;
             cmd.m_Object = pPropObject->GetGuid();
-            cmd.m_sPropertyPath = sPropName;
+            cmd.m_sProperty = sPropName;
             cmd.m_NewValue = it.Value();
 
             // Do not check for success, if a cached value failed to apply, simply ignore it.
@@ -638,7 +638,7 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
       cmd.m_Object = op.m_Node;
       cmd.m_Object.CombineWithSeed(PrefabSeed);
       cmd.m_NewValue = op.m_Value;
-      cmd.m_sPropertyPath = op.m_sProperty;
+      cmd.m_sProperty = op.m_sProperty;
       GetCommandHistory()->AddCommand(cmd);
     }
   }

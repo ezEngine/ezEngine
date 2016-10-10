@@ -19,6 +19,9 @@ public:
 
     if (type == ezVariant::Type::VoidPointer || type == ezVariant::Type::ReflectedPointer)
       m_Flags.Add(ezPropertyFlags::Pointer);
+
+    if (!m_Flags.IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
+      m_Flags.Add(ezPropertyFlags::EmbeddedClass);
   }
 
   virtual const ezRTTI* GetSpecificType() const override
