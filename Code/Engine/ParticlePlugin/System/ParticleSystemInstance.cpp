@@ -1,6 +1,5 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <GameUtils/Interfaces/PhysicsWorldModule.h>
@@ -17,12 +16,74 @@ bool ezParticleSystemInstance::HasActiveParticles() const
   return m_StreamGroup.GetNumActiveElements() > 0;
 }
 
+bool ezParticleSystemInstance::IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+{
+  const auto& factories = pTemplate->GetEmitterFactories();
+
+  if (factories.GetCount() != m_Emitters.GetCount())
+    return false;
+
+  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  {
+    if (factories[i]->GetEmitterType() != m_Emitters[i]->GetDynamicRTTI())
+      return false;
+  }
+
+  return true;
+}
+
+bool ezParticleSystemInstance::IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+{
+  const auto& factories = pTemplate->GetInitializerFactories();
+
+  if (factories.GetCount() != m_Initializers.GetCount())
+    return false;
+
+  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  {
+    if (factories[i]->GetInitializerType() != m_Initializers[i]->GetDynamicRTTI())
+      return false;
+  }
+
+  return true;
+}
+
+bool ezParticleSystemInstance::IsBehaviorConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+{
+  const auto& factories = pTemplate->GetBehaviorFactories();
+
+  if (factories.GetCount() != m_Behaviors.GetCount())
+    return false;
+
+  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  {
+    if (factories[i]->GetBehaviorType() != m_Behaviors[i]->GetDynamicRTTI())
+      return false;
+  }
+
+  return true;
+}
+
+bool ezParticleSystemInstance::IsTypeConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+{
+  const auto& factories = pTemplate->GetTypeFactories();
+
+  if (factories.GetCount() != m_Types.GetCount())
+    return false;
+
+  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  {
+    if (factories[i]->GetTypeType() != m_Types[i]->GetDynamicRTTI())
+      return false;
+  }
+
+  return true;
+}
+
+
 void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate)
 {
   m_bVisible = pTemplate->m_bVisible;
-
-  bool allSpawnersEqual = true;
-  bool allProcessorsEqual = true;
 
   for (auto& info : m_StreamInfo)
   {
@@ -30,226 +91,143 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
     info.m_bInUse = false;
   }
 
-  // emitters
-  if (allSpawnersEqual)
-  {
-    const auto& factories = pTemplate->GetEmitterFactories();
+  const bool allProcessorsEqual =
+    IsEmitterConfigEqual(pTemplate) &&
+    IsInitializerConfigEqual(pTemplate) &&
+    IsBehaviorConfigEqual(pTemplate) &&
+    IsTypeConfigEqual(pTemplate);
 
-    if (factories.GetCount() == m_Emitters.GetCount())
-    {
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        if (factories[i]->GetEmitterType() != m_Emitters[i]->GetDynamicRTTI())
-        {
-          allSpawnersEqual = false;
-          break;
-        }
-      }
-    }
-    else
-    {
-      allSpawnersEqual = false;
-    }
-  }
-
-  // initializers
-  if (allSpawnersEqual)
-  {
-    const auto& factories = pTemplate->GetInitializerFactories();
-
-    if (factories.GetCount() == m_Initializers.GetCount())
-    {
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        if (factories[i]->GetInitializerType() != m_Initializers[i]->GetDynamicRTTI())
-        {
-          allSpawnersEqual = false;
-          break;
-        }
-      }
-    }
-    else
-    {
-      allSpawnersEqual = false;
-    }
-  }
-
-  // behaviors
-  if (allProcessorsEqual)
-  {
-    const auto& factories = pTemplate->GetBehaviorFactories();
-
-    if (factories.GetCount() == m_Behaviors.GetCount())
-    {
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        if (factories[i]->GetBehaviorType() != m_Behaviors[i]->GetDynamicRTTI())
-        {
-          allProcessorsEqual = false;
-          break;
-        }
-      }
-    }
-    else
-    {
-      allProcessorsEqual = false;
-    }
-  }
-
-  // types
-  if (allProcessorsEqual)
-  {
-    const auto& factories = pTemplate->GetTypeFactories();
-
-    if (factories.GetCount() == m_Types.GetCount())
-    {
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        if (factories[i]->GetTypeType() != m_Types[i]->GetDynamicRTTI())
-        {
-          allProcessorsEqual = false;
-          break;
-        }
-      }
-    }
-    else
-    {
-      allProcessorsEqual = false;
-    }
-  }
-
-  if (!allSpawnersEqual)
-  {
-    // all spawners get cleared, so clear this as well
-    // this has to be done before any streams get created
-    for (auto& info : m_StreamInfo)
-    {
-      info.m_pInitializer = nullptr;
-    }
-  }
-
-  if (!allSpawnersEqual)
+  if (!allProcessorsEqual)
   {
     // recreate emitters, initializers and behaviors
-
-    // deletes everything that is referenced by m_Emitters, m_Initializers
-    m_StreamGroup.ClearSpawners();
-
-    // emitters
-    {
-      m_Emitters.Clear();
-
-      for (const auto pFactory : pTemplate->GetEmitterFactories())
-      {
-        ezParticleEmitter* pEmitter = pFactory->CreateEmitter(this);
-        m_StreamGroup.AddSpawner(pEmitter);
-        m_Emitters.PushBack(pEmitter);
-      }
-    }
-
-    // initializers
-    {
-      m_Initializers.Clear();
-
-      for (const auto pFactory : pTemplate->GetInitializerFactories())
-      {
-        ezParticleInitializer* pInitializer = pFactory->CreateInitializer(this);
-        m_StreamGroup.AddSpawner(pInitializer);
-        m_Initializers.PushBack(pInitializer);
-      }
-    }
+    CreateStreamProcessors(pTemplate);
   }
   else
   {
     // just re-initialize the emitters with the new properties
-
-    // emitters
-    {
-      const auto& factories = pTemplate->GetEmitterFactories();
-
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        m_Emitters[i]->Reset(this);
-        factories[i]->CopyEmitterProperties(m_Emitters[i]);
-        m_Emitters[i]->AfterPropertiesConfigured(false);
-        m_Emitters[i]->CreateRequiredStreams();
-      }
-    }
-
-    // initializers
-    {
-      const auto& factories = pTemplate->GetInitializerFactories();
-
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        m_Initializers[i]->Reset(this);
-        factories[i]->CopyInitializerProperties(m_Initializers[i]);
-        m_Initializers[i]->AfterPropertiesConfigured(false);
-        m_Initializers[i]->CreateRequiredStreams();
-      }
-    }
-  }
-
-  if (!allProcessorsEqual)
-  {
-    // deletes everything that is referenced by m_Behaviors, m_Types
-    m_StreamGroup.ClearProcessors();
-
-    // behaviors
-    {
-      m_Behaviors.Clear();
-
-      for (const auto pFactory : pTemplate->GetBehaviorFactories())
-      {
-        ezParticleBehavior* pBehavior = pFactory->CreateBehavior(this);
-        m_StreamGroup.AddProcessor(pBehavior);
-        m_Behaviors.PushBack(pBehavior);
-      }
-    }
-
-    // types
-    {
-      m_Types.Clear();
-
-      for (const auto pFactory : pTemplate->GetTypeFactories())
-      {
-        ezParticleType* pType = pFactory->CreateType(this);
-        m_StreamGroup.AddProcessor(pType);
-        m_Types.PushBack(pType);
-      }
-    }
-  }
-  else
-  {
-    // behaviors
-    {
-      const auto& factories = pTemplate->GetBehaviorFactories();
-
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        m_Behaviors[i]->Reset(this);
-        factories[i]->CopyBehaviorProperties(m_Behaviors[i]);
-        m_Behaviors[i]->AfterPropertiesConfigured(false);
-        m_Behaviors[i]->CreateRequiredStreams();
-      }
-    }
-
-    // types
-    {
-      const auto& factories = pTemplate->GetTypeFactories();
-
-      for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
-      {
-        m_Types[i]->Reset(this);
-        factories[i]->CopyTypeProperties(m_Types[i]);
-        m_Types[i]->AfterPropertiesConfigured(false);
-        m_Types[i]->CreateRequiredStreams();
-      }
-    }
+    ReinitializeStreamProcessors(pTemplate);
   }
 
   // setup stream initializers for all streams that have none yet
   CreateStreamZeroInitializers();
+}
+
+void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
+{
+  // all spawners get cleared, so clear this as well
+  // this has to be done before any streams get created
+  for (auto& info : m_StreamInfo)
+  {
+    info.m_pZeroInitializer = nullptr;
+  }
+
+
+
+  // deletes everything that is referenced by m_Emitters, m_Initializers
+  m_StreamGroup.ClearProcessors();
+
+  // emitters
+  {
+    m_Emitters.Clear();
+
+    for (const auto pFactory : pTemplate->GetEmitterFactories())
+    {
+      ezParticleEmitter* pEmitter = pFactory->CreateEmitter(this);
+      m_StreamGroup.AddProcessor(pEmitter);
+      m_Emitters.PushBack(pEmitter);
+    }
+  }
+
+  // initializers
+  {
+    m_Initializers.Clear();
+
+    for (const auto pFactory : pTemplate->GetInitializerFactories())
+    {
+      ezParticleInitializer* pInitializer = pFactory->CreateInitializer(this);
+      m_StreamGroup.AddProcessor(pInitializer);
+      m_Initializers.PushBack(pInitializer);
+    }
+  }
+
+  // behaviors
+  {
+    m_Behaviors.Clear();
+
+    for (const auto pFactory : pTemplate->GetBehaviorFactories())
+    {
+      ezParticleBehavior* pBehavior = pFactory->CreateBehavior(this);
+      m_StreamGroup.AddProcessor(pBehavior);
+      m_Behaviors.PushBack(pBehavior);
+    }
+  }
+
+  // types
+  {
+    m_Types.Clear();
+
+    for (const auto pFactory : pTemplate->GetTypeFactories())
+    {
+      ezParticleType* pType = pFactory->CreateType(this);
+      m_StreamGroup.AddProcessor(pType);
+      m_Types.PushBack(pType);
+    }
+  }
+}
+
+void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
+{
+  // emitters
+  {
+    const auto& factories = pTemplate->GetEmitterFactories();
+
+    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    {
+      m_Emitters[i]->Reset(this);
+      factories[i]->CopyEmitterProperties(m_Emitters[i]);
+      m_Emitters[i]->AfterPropertiesConfigured(false);
+      m_Emitters[i]->CreateRequiredStreams();
+    }
+  }
+
+  // initializers
+  {
+    const auto& factories = pTemplate->GetInitializerFactories();
+
+    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    {
+      m_Initializers[i]->Reset(this);
+      factories[i]->CopyInitializerProperties(m_Initializers[i]);
+      m_Initializers[i]->AfterPropertiesConfigured(false);
+      m_Initializers[i]->CreateRequiredStreams();
+    }
+  }
+
+  // behaviors
+  {
+    const auto& factories = pTemplate->GetBehaviorFactories();
+
+    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    {
+      m_Behaviors[i]->Reset(this);
+      factories[i]->CopyBehaviorProperties(m_Behaviors[i]);
+      m_Behaviors[i]->AfterPropertiesConfigured(false);
+      m_Behaviors[i]->CreateRequiredStreams();
+    }
+  }
+
+  // types
+  {
+    const auto& factories = pTemplate->GetTypeFactories();
+
+    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    {
+      m_Types[i]->Reset(this);
+      factories[i]->CopyTypeProperties(m_Types[i]);
+      m_Types[i]->AfterPropertiesConfigured(false);
+      m_Types[i]->CreateRequiredStreams();
+    }
+  }
 }
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
@@ -295,7 +273,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
         if (uiSpawn > 0)
         {
-          m_StreamGroup.SpawnElements(uiSpawn);
+          m_StreamGroup.InitializeElements(uiSpawn);
         }
       }
     }
@@ -315,7 +293,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
         if (uiSpawn > 0)
         {
-          m_StreamGroup.SpawnElements(uiSpawn);
+          m_StreamGroup.InitializeElements(uiSpawn);
         }
       }
     }
@@ -351,7 +329,7 @@ const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szNa
   return m_StreamGroup.GetStreamByName(fullName);
 }
 
-void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue)
+void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
@@ -383,7 +361,7 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   }
 
   pInfo->m_bInUse = true;
-  if (!bExpectInitializedValue)
+  if (bWillInitializeElements)
     pInfo->m_bGetsInitialized = true;
 
   EZ_ASSERT_DEV(pStream != nullptr, "Stream creation failed ('%s' -> '%s')", szName, fullName.GetData());
@@ -400,10 +378,10 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
   {
     auto& info = m_StreamInfo[i];
 
-    if ((!info.m_bInUse || info.m_bGetsInitialized) && info.m_pInitializer)
+    if ((!info.m_bInUse || info.m_bGetsInitialized) && info.m_pZeroInitializer)
     {
-      m_StreamGroup.RemoveSpawner(info.m_pInitializer);
-      info.m_pInitializer = nullptr;
+      m_StreamGroup.RemoveProcessor(info.m_pZeroInitializer);
+      info.m_pZeroInitializer = nullptr;
     }
 
     if (!info.m_bInUse)
@@ -424,15 +402,15 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     EZ_ASSERT_DEV(info.m_bInUse, "Invalid state");
 
-    //ezLog::Warning("Particle stream '%s' is zero-initialized.", info.m_sName.GetData());
-
-    if (info.m_pInitializer == nullptr)
+    if (info.m_pZeroInitializer == nullptr)
     {
+      //ezLog::Warning("Particle stream '%s' is zero-initialized.", info.m_sName.GetData());
+
       ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
       pZeroInit->SetStreamName(info.m_sName);
 
-      info.m_pInitializer = pZeroInit;
-      m_StreamGroup.AddSpawner(info.m_pInitializer);
+      info.m_pZeroInitializer = pZeroInit;
+      m_StreamGroup.AddProcessor(info.m_pZeroInitializer);
     }
   }
 }
@@ -450,7 +428,7 @@ void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGro
 
 ezParticleSystemInstance::StreamInfo::StreamInfo()
 {
-  m_pInitializer = nullptr;
+  m_pZeroInitializer = nullptr;
   m_bGetsInitialized = false;
   m_bInUse = false;
 }

@@ -63,10 +63,10 @@ void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_VelocityCone::CreateRequiredStreams()
 {
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
+  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, true);
 }
 
-void ezParticleInitializer_VelocityCone::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
 

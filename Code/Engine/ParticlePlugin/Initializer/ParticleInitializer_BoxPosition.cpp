@@ -53,10 +53,10 @@ void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_BoxPosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, true);
 }
 
-void ezParticleInitializer_BoxPosition::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
 

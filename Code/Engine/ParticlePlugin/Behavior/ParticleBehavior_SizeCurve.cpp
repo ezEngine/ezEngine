@@ -76,8 +76,8 @@ const char* ezParticleBehaviorFactory_SizeCurve::GetSizeCurveFile() const
 
 void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime);
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
+  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
 }
 
 void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)

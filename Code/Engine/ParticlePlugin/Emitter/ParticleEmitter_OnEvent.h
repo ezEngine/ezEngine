@@ -35,7 +35,7 @@ public:
   virtual void AfterPropertiesConfigured(bool bFirstTime) override {}
 
 protected:
-  virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
   virtual ezParticleEmitterState IsFinished() override;
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;

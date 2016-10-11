@@ -3,7 +3,6 @@
 #include <CoreUtils/Basics.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
@@ -20,7 +19,6 @@ ezProcessingStreamGroup::~ezProcessingStreamGroup()
 void ezProcessingStreamGroup::Clear()
 {
   ClearProcessors();
-  ClearSpawners();
 
   m_uiPendingNumberOfElementsToSpawn = 0;
   m_uiNumElements = 0;
@@ -69,41 +67,6 @@ void ezProcessingStreamGroup::ClearProcessors()
   }
 
   m_Processors.Clear();
-}
-
-void ezProcessingStreamGroup::AddSpawner(ezProcessingStreamSpawner* pSpawner)
-{
-  EZ_ASSERT_DEV(pSpawner != nullptr, "Stream element spawner may not be null!");
-
-  if (pSpawner->m_pStreamGroup != nullptr)
-  {
-    ezLog::Debug("Stream element spawner is already assigned to a stream group!");
-    return;
-  }
-
-  m_Spawners.PushBack(pSpawner);
-
-  pSpawner->m_pStreamGroup = this;
-
-  m_bStreamAssignmentDirty = true;
-}
-
-void ezProcessingStreamGroup::RemoveSpawner(ezProcessingStreamSpawner* pSpawner)
-{
-  EZ_VERIFY(m_Spawners.Remove(pSpawner), "Invalid spawner, not part of this group");
-  pSpawner->GetDynamicRTTI()->GetAllocator()->Deallocate(pSpawner);
-}
-
-void ezProcessingStreamGroup::ClearSpawners()
-{
-  m_bStreamAssignmentDirty = true;
-
-  for (ezProcessingStreamSpawner* pSpawner : m_Spawners)
-  {
-    pSpawner->GetDynamicRTTI()->GetAllocator()->Deallocate(pSpawner);
-  }
-
-  m_Spawners.Clear();
 }
 
 ezProcessingStream* ezProcessingStreamGroup::AddStream(const char* szName, ezProcessingStream::DataType Type)
@@ -184,7 +147,7 @@ void ezProcessingStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
 }
 
 /// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the spawning will be queued.
-void ezProcessingStreamGroup::SpawnElements(ezUInt64 uiNumElements)
+void ezProcessingStreamGroup::InitializeElements(ezUInt64 uiNumElements)
 {
   m_uiPendingNumberOfElementsToSpawn += uiNumElements;
 }
@@ -288,11 +251,6 @@ void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
       pStreamProcessor->UpdateStreamBindings();
     }
 
-    for (ezProcessingStreamSpawner* pSpawner : m_Spawners)
-    {
-      pSpawner->UpdateStreamBindings();
-    }
-
     m_bStreamAssignmentDirty = false;
   }
 }
@@ -306,9 +264,9 @@ void ezProcessingStreamGroup::RunPendingSpawns()
 
     if (m_uiPendingNumberOfElementsToSpawn)
     {
-      for (ezProcessingStreamSpawner* pSpawner : m_Spawners)
+      for (ezProcessingStreamProcessor* pSpawner : m_Processors)
       {
-        pSpawner->SpawnElements(m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn);
+        pSpawner->InitializeElements(m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn);
       }
     }
 

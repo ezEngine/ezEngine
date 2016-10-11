@@ -150,8 +150,15 @@
     "Message" : "",
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x9ED631EE90DDDAECFC96E7CB90E691D8" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(9.0000, -274.0000)", "$b" : "0x00001041000089C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4651B0110A4A5949A6B9476F10776C66" }, { "$t" : "uuid", "$b" : "0x66259E24D0F3C0419D3197A25AF6933E" } ]
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(9.0000, -273.0000)", "$b" : "0x00001041008088C3" },
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4651B0110A4A5949A6B9476F10776C66" }, { "$t" : "uuid", "$b" : "0x66259E24D0F3C0419D3197A25AF6933E" }, { "$t" : "uuid", "$b" : "0x0AF22333D9108B48A007A1E193A8A384" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0AF22333D9108B48A007A1E193A8A384" },
+   "t" : "ezParticleSpriteRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -236,7 +243,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x13E133C54C2A424FA546653C78F5E8A7" },
-    "Hash" : { "$t" : "uint64", "$v" : "7596515023857781100", "$b" : "0x6C09F6872A3E6C69" },
+    "Hash" : { "$t" : "uint64", "$v" : "3858862978139437439", "$b" : "0x7F39E8F86E6F8D35" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },

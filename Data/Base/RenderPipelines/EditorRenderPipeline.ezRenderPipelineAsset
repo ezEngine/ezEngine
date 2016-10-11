@@ -216,7 +216,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x0A24F3C23E8055C5485F2974F9861957" }, { "$t" : "uuid", "$b" : "0x222FE151A91CC302238E66956E391846" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-23.0000, -286.0000)", "$b" : "0x0000B8C100008FC3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" }, { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" }, { "$t" : "uuid", "$b" : "0xBDE3415F4D17A94694FBFFC4BCB94EEA" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" }, { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" }, { "$t" : "uuid", "$b" : "0xBDE3415F4D17A94694FBFFC4BCB94EEA" }, { "$t" : "uuid", "$b" : "0xE4F67305B0DC94488245356C6A1445DF" } ]
    }
   },
   {
@@ -251,6 +251,13 @@
     "Renderers" : [  ],
     "Saturation" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "VignettingTexture" : "{ 3edf10b3-36d2-434f-9683-c653909abe7e }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE4F67305B0DC94488245356C6A1445DF" },
+   "t" : "ezParticleSpriteRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -290,7 +297,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "1008560563076715805", "$b" : "0x1DD5A7107D20FF0D" },
+    "Hash" : { "$t" : "uint64", "$v" : "14473421773449411277", "$b" : "0xCD3ADB626BECDBC8" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
@@ -480,7 +487,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Constant",
     "ConstantValue" : "ezScene;ezPrefab",
-    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly|ezPropertyFlags::Constant",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly",
     "Name" : "DocumentType",
     "Type" : "ezString"
    }
@@ -492,7 +499,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::Pointer",
+    "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
     "Name" : "SceneContext",
     "Type" : "ezSceneContext"
    }
@@ -504,7 +511,7 @@
     "Attributes" : [ { "$t" : "uuid", "$b" : "0x289D49BF6C031BA8DE8B7E686959DD5F" }, { "$t" : "uuid", "$b" : "0xECB5A630E5F401A48B6792ABF0EE8F7D" }, { "$t" : "uuid", "$b" : "0x0AA2FD0F2B38D94D6F82AABACF6E27B5" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "Max Screen Size",
     "Type" : "float"
    }
@@ -516,7 +523,7 @@
     "Attributes" : [ { "$t" : "uuid", "$b" : "0xA278B7F8A83D39BB67FFDAB17A9FDC38" }, { "$t" : "uuid", "$b" : "0x6691146A212F20B714DBEEF401358F56" }, { "$t" : "uuid", "$b" : "0x847D6B496772F760F8F50604E1B4268E" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "Size",
     "Type" : "float"
    }
@@ -528,7 +535,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::Pointer",
+    "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
     "Name" : "SceneContext",
     "Type" : "ezSceneContext"
    }
@@ -545,7 +552,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezSelectedObjectsExtractor",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x9E042B3DD767BF0CBF4EB6F4D2CF60F5" } ],
@@ -561,7 +568,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::IsEnum",
+    "Flags" : "ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom",
     "Name" : "ViewRenderMode",
     "Type" : "ezViewRenderMode"
    }
@@ -578,7 +585,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezForwardRenderPass",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x50AE9088ECF80AE0781DBA6C046A7CF1" } ],
@@ -592,7 +599,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezRenderPipelinePass",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x421A939D63D78DF8551A29F2AB2D1537" }, { "$t" : "uuid", "$b" : "0x409EE2AE73A452C515BFB1E5906893F7" }, { "$t" : "uuid", "$b" : "0x18AA0CBB7CA0345A2E4F785A81178315" }, { "$t" : "uuid", "$b" : "0xC590FCEDD1639C2BDA0B61BC20FE2036" } ],
@@ -606,7 +613,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezEngineProcessDocumentContext",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x4F8038A9ED1F4303F31177F3958685E7" } ],
@@ -652,7 +659,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "PickingPosition",
     "Type" : "ezVec2"
    }
@@ -662,7 +669,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezExtractor",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x85725B636C264722306389B9688890F3" }, { "$t" : "uuid", "$b" : "0x0B97ED2930EC280FA7EF2C705742911A" }, { "$t" : "uuid", "$b" : "0x87C2431F907A6AD942DED8901CB05D87" } ],
@@ -678,7 +685,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::Pointer",
+    "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
     "Name" : "SceneContext",
     "Type" : "ezSceneContext"
    }
@@ -690,7 +697,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::IsEnum",
+    "Flags" : "ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom",
     "Name" : "ViewRenderMode",
     "Type" : "ezViewRenderMode"
    }
@@ -702,7 +709,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "PickSelected",
     "Type" : "bool"
    }

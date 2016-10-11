@@ -77,15 +77,15 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, true);
 
   if (m_bSetVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
+    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, true);
   }
 }
 
-void ezParticleInitializer_CylinderPosition::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
   ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;

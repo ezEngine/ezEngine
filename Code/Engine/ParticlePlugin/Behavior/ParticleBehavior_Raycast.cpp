@@ -97,9 +97,9 @@ void ezParticleBehavior_Raycast::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Raycast::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition);
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition, false);
+  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 }
 
 void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)

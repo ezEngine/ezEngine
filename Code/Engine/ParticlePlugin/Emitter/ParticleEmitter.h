@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
 
 class ezParticleSystemInstance;
@@ -32,14 +32,15 @@ enum ezParticleEmitterState
 };
 
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule<ezProcessingStreamSpawner, true>
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter, ezProcessingStreamSpawner);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter, ezParticleModule);
 
   friend class ezParticleSystemInstance;
   friend class ezParticleEmitterFactory;
 
 protected:
+  virtual void Process(ezUInt64 uiNumElements) final override {}
 
   /// \brief Called once per update. Must return how many new particles are to be spawned.
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) = 0;

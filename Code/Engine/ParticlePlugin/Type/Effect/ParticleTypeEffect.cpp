@@ -96,8 +96,8 @@ ezParticleTypeEffect::~ezParticleTypeEffect()
 
 void ezParticleTypeEffect::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID, false);
 }
 
 void ezParticleTypeEffect::AfterPropertiesConfigured(bool bFirstTime)

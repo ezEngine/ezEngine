@@ -1,0 +1,90 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+BlendingEnabled0 = true
+DestBlend0 = Blend_One
+SourceBlend0 = Blend_InvSrcAlpha
+
+DepthTest = true
+DepthWrite = false
+CullMode = CullMode_None
+
+
+[VERTEXSHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Particles/FragmentShaderData.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+VS_OUT main(uint VertexID : SV_VertexID)
+{
+  float2 texCoords[6] =
+  {
+    float2(0.0, 0.0),
+    float2(1.0, 0.0),
+    float2(1.0, 1.0),
+    float2(0.0, 0.0),
+    float2(1.0, 1.0),
+    float2(0.0, 1.0),
+  };
+
+  uint index = VertexID / 6;
+  uint vertexIndex = VertexID % 6;
+
+  ezFragmentParticleData particle = particleData[index];
+
+  float4 position = float4(particle.Position.xyz, 1);
+
+  float4 tangentX = float4(particle.TangentX, 0);
+  float4 tangentZ = float4(particle.TangentZ, 0);
+
+  float4 offsetRight = tangentX * (texCoords[vertexIndex].x - 0.5) * particle.Size;
+  float4 offsetUp = tangentZ * (texCoords[vertexIndex].y - 0.5) * -particle.Size;
+
+  float4 worldPosition = mul(ObjectToWorldMatrix, position + offsetRight + offsetUp);
+  float4 screenPosition = mul(WorldToScreenMatrix, worldPosition);
+
+
+  VS_OUT ret;
+  ret.Position = screenPosition;
+  ret.TexCoords = texCoords[vertexIndex];
+  ret.Color = RGBA8ToFloat4(particle.Color);
+
+  return ret;
+}
+
+#endif
+
+
+[PIXELSHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR
+
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D ParticleTexture;
+SamplerState ParticleTexture_AutoSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+
+  clip(color.r + color.g + color.b - 0.1);
+
+  return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
+}
+
+#endif
+

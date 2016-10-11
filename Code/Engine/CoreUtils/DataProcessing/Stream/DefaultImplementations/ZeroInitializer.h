@@ -2,16 +2,16 @@
 #pragma once
 
 #include <CoreUtils/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Reflection/Reflection.h>
 
 class ezProcessingStream;
 
 /// \brief This element spawner initializes new elements with 0 (by writing 0 bytes into the whole element)
-class EZ_COREUTILS_DLL ezProcessingStreamSpawnerZeroInitialized : public ezProcessingStreamSpawner
+class EZ_COREUTILS_DLL ezProcessingStreamSpawnerZeroInitialized : public ezProcessingStreamProcessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessingStreamSpawnerZeroInitialized, ezProcessingStreamSpawner);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessingStreamSpawnerZeroInitialized, ezProcessingStreamProcessor);
 
 public:
 
@@ -24,7 +24,8 @@ protected:
 
   virtual ezResult UpdateStreamBindings() override;
 
-  virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void Process(ezUInt64 uiNumElements) override {}
 
   ezHashedString m_StreamName;
 

@@ -437,7 +437,7 @@ void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent&
 {
   // If any resource has changed we assume it's not a good idea to take a screenshot now,
   // so we restart the counter.
-  // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with 
+  // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with
   // broken thumbnails :-/
 
   //ezLog::Debug("Resource changed, resetting counter");

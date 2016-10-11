@@ -27,6 +27,10 @@ public:
 
   void ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate);
 
+  void ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate);
+
+  void CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate);
+
   void SetTransform(const ezTransform& transform) { m_Transform = transform; }
   const ezTransform& GetTransform() const { return m_Transform; }
 
@@ -57,6 +61,11 @@ public:
   void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);
 
 private:
+  bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
+  bool IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
+  bool IsBehaviorConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
+  bool IsTypeConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
+
   void CreateStreamZeroInitializers();
 
   ezHybridArray<ezParticleEmitter*, 2> m_Emitters;
@@ -79,7 +88,7 @@ private:
     ezString m_sName;
     bool m_bGetsInitialized;
     bool m_bInUse;
-    ezProcessingStreamSpawner* m_pInitializer;
+    ezProcessingStreamProcessor* m_pZeroInitializer;
   };
 
   ezHybridArray<StreamInfo, 16> m_StreamInfo;

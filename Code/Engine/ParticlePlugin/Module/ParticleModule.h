@@ -4,11 +4,11 @@
 #include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
 
 class ezProcessingStream;
 
-template<class DerivedFrom, bool StreamInitializer>
-class ezParticleModule : public DerivedFrom
+class EZ_PARTICLEPLUGIN_DLL ezParticleModule : public ezProcessingStreamProcessor
 {
   friend class ezParticleSystemInstance;
 
@@ -45,9 +45,9 @@ protected:
   /// \brief Called by Reset()
   virtual void OnReset() {}
 
-  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream)
+  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, bool bWillInitializeStream)
   {
-    m_pOwnerSystem->CreateStream(szName, Type, ppStream, m_StreamBinding, !StreamInitializer);
+    m_pOwnerSystem->CreateStream(szName, Type, ppStream, m_StreamBinding, bWillInitializeStream);
   }
 
   virtual ezResult UpdateStreamBindings() final override

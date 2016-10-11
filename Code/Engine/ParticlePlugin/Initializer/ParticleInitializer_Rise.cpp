@@ -69,7 +69,7 @@
 //  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
 //}
 //
-//void ezParticleInitializer_Rise::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+//void ezParticleInitializer_Rise::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 //{
 //  const ezVec3 vGravity = m_pPhysicsModule->GetGravity();
 //

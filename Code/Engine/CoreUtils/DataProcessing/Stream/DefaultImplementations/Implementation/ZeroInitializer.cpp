@@ -28,7 +28,7 @@ ezResult ezProcessingStreamSpawnerZeroInitialized::UpdateStreamBindings()
 }
 
 
-void ezProcessingStreamSpawnerZeroInitialized::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezProcessingStreamSpawnerZeroInitialized::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   const ezUInt64 uiElementSize = m_pStream->GetElementSize();
   const ezUInt64 uiElementStride = m_pStream->GetElementStride();
@@ -38,4 +38,3 @@ void ezProcessingStreamSpawnerZeroInitialized::SpawnElements(ezUInt64 uiStartInd
     ezMemoryUtils::ZeroFill<ezUInt8>(static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))), static_cast<size_t>(uiElementSize));
   }
 }
-

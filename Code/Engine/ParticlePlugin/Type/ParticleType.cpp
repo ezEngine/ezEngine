@@ -20,3 +20,4 @@ ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwn
 
   return pType;
 }
+

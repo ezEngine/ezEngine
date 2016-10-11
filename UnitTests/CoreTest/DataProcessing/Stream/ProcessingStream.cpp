@@ -34,6 +34,8 @@ protected:
     return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
   }
 
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override { }
+
   virtual void Process(ezUInt64 uiNumElements) override
   {
     ezProcessingStreamIterator<float> streamIterator(m_pStream, uiNumElements);
@@ -68,15 +70,15 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
   pSpawner1->SetStreamName(pStream1->GetName());
   pSpawner2->SetStreamName(pStream2->GetName());
 
-  Group.AddSpawner(pSpawner1);
-  Group.AddSpawner(pSpawner2);
+  Group.AddProcessor(pSpawner1);
+  Group.AddProcessor(pSpawner2);
 
   Group.SetSize(128);
 
   EZ_TEST_INT(Group.GetNumElements(), 128);
   EZ_TEST_INT(Group.GetNumActiveElements(), 0);
 
-  Group.SpawnElements(3);
+  Group.InitializeElements(3);
 
   Group.Process();
 
@@ -98,7 +100,7 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
     EZ_TEST_INT(iElementsVisited, 3);
   }
 
-  Group.SpawnElements(7);
+  Group.InitializeElements(7);
 
   Group.Process();
 

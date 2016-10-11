@@ -40,7 +40,7 @@ public:
   virtual void CreateRequiredStreams() override;
 
 protected:
-  virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamVelocity;

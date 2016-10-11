@@ -1,5 +1,5 @@
 #include <ParticlePlugin/PCH.h>
-#include <ParticlePlugin/Type/Fragment/ParticleTypeFragment.h>
+#include <ParticlePlugin/Type/Sprite/ParticleTypeSprite.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/Device.h>
@@ -12,33 +12,33 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFragmentAxis, 1)
-EZ_ENUM_CONSTANTS(ezFragmentAxis::OrthogonalEmitterDirection, ezFragmentAxis::EmitterDirection)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteAxis, 1)
+EZ_ENUM_CONSTANTS(ezSpriteAxis::Random, ezSpriteAxis::EmitterX, ezSpriteAxis::EmitterY, ezSpriteAxis::EmitterZ, ezSpriteAxis::WorldX, ezSpriteAxis::WorldY, ezSpriteAxis::WorldZ)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragmentFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeFragmentFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSpriteFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeSpriteFactory>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ENUM_MEMBER_PROPERTY("Rotation Axis", ezFragmentAxis, m_RotationAxis),
+    EZ_ENUM_MEMBER_PROPERTY("Rotation Axis", ezSpriteAxis, m_RotationAxis),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragment, 1, ezRTTIDefaultAllocator<ezParticleTypeFragment>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSprite, 1, ezRTTIDefaultAllocator<ezParticleTypeSprite>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-const ezRTTI* ezParticleTypeFragmentFactory::GetTypeType() const
+const ezRTTI* ezParticleTypeSpriteFactory::GetTypeType() const
 {
-  return ezGetStaticRTTI<ezParticleTypeFragment>();
+  return ezGetStaticRTTI<ezParticleTypeSprite>();
 }
 
 
-void ezParticleTypeFragmentFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypeSpriteFactory::CopyTypeProperties(ezParticleType* pObject) const
 {
-  ezParticleTypeFragment* pType = static_cast<ezParticleTypeFragment*>(pObject);
+  ezParticleTypeSprite* pType = static_cast<ezParticleTypeSprite*>(pObject);
 
   pType->m_RotationAxis = m_RotationAxis;
   pType->m_hTexture.Invalidate();
@@ -47,33 +47,33 @@ void ezParticleTypeFragmentFactory::CopyTypeProperties(ezParticleType* pObject) 
     pType->m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(m_sTexture);
 }
 
-enum class TypeFragmentVersion
+enum class TypeSpriteVersion
 {
   Version_0 = 0,
   Version_1,
   Version_2, // added texture
-  Version_3, // added fragment rotation mode
+  Version_3, // added Sprite rotation mode
 
   // insert new version numbers above
   Version_Count,
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeFragmentFactory::Save(ezStreamWriter& stream) const
+void ezParticleTypeSpriteFactory::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = (int)TypeFragmentVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)TypeSpriteVersion::Version_Current;
   stream << uiVersion;
 
   stream << m_sTexture;
   stream << m_RotationAxis.GetValue();
 }
 
-void ezParticleTypeFragmentFactory::Load(ezStreamReader& stream)
+void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)TypeFragmentVersion::Version_Current, "Invalid version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)TypeSpriteVersion::Version_Current, "Invalid version %u", uiVersion);
 
   if (uiVersion >= 2)
   {
@@ -82,19 +82,19 @@ void ezParticleTypeFragmentFactory::Load(ezStreamReader& stream)
 
   if (uiVersion >= 3)
   {
-    ezFragmentAxis::StorageType val;
+    ezSpriteAxis::StorageType val;
     stream >> val;
     m_RotationAxis.SetValue(val);
   }
 }
 
 
-ezParticleTypeFragment::ezParticleTypeFragment()
+ezParticleTypeSprite::ezParticleTypeSprite()
 {
   m_uiLastExtractedFrame = 0;
 }
 
-void ezParticleTypeFragment::CreateRequiredStreams()
+void ezParticleTypeSprite::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
@@ -102,7 +102,7 @@ void ezParticleTypeFragment::CreateRequiredStreams()
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
 }
 
-void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   if (!m_hTexture.IsValid())
     return;
@@ -127,11 +127,11 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
 
     if (m_GpuData == nullptr)
     {
-      m_GpuData = EZ_DEFAULT_NEW(ezFragmentParticleDataContainer);
+      m_GpuData = EZ_DEFAULT_NEW(ezSpriteParticleDataContainer);
       m_GpuData->m_Content.SetCountUninitialized((ezUInt32)GetOwnerSystem()->GetMaxParticles());
     }
 
-    ezFragmentParticleData* TempData = m_GpuData->m_Content.GetData();
+    ezSpriteParticleData* TempData = m_GpuData->m_Content.GetData();
 
     ezTransform t;
 
@@ -141,7 +141,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
       TempData[p].Color = pColor[p];
     }
 
-    if (m_RotationAxis == ezFragmentAxis::EmitterDirection)
+    if (m_RotationAxis == ezSpriteAxis::EmitterZ)
     {
       const ezVec3 vTangentZ = vEmitterDir;
       const ezVec3 vTangentX = vEmitterDir.GetOrthogonalVector();
@@ -156,7 +156,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
         TempData[p].TangentZ = vTangentZ;
       }
     }
-    else if (m_RotationAxis == ezFragmentAxis::OrthogonalEmitterDirection)
+    else if (m_RotationAxis == ezSpriteAxis::WorldZ)
     {
       const ezVec3 vTangentZ = vEmitterDir;
       const ezVec3 vTangentX = vEmitterDir.GetOrthogonalVector();
@@ -178,7 +178,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
 
   /// \todo Is this batch ID correct?
   const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash();
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleFragmentRenderData>(nullptr, uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleSpriteRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_uiNumParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();

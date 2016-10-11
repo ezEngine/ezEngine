@@ -61,7 +61,7 @@ void ezParticleBehavior_Gravity::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Gravity::CreateRequiredStreams()
 {
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
+  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 }
 
 void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)

@@ -68,8 +68,8 @@ const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() cons
 
 void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
+  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
 }
 
 void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)

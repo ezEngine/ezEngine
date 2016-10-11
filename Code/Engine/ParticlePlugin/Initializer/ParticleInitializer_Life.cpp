@@ -59,10 +59,10 @@ void ezParticleInitializerFactory_Life::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_Life::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, true);
 }
 
-void ezParticleInitializer_Life::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_Life::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
 

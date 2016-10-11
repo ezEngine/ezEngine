@@ -78,8 +78,8 @@ void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Velocity::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 }
 
 void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)

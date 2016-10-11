@@ -55,10 +55,10 @@ void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& stre
 
 void ezParticleInitializer_RandomRotationSpeed::CreateRequiredStreams()
 {
-  CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed);
+  CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, true);
 }
 
-void ezParticleInitializer_RandomRotationSpeed::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   float* pSpeed = m_pStreamRotationSpeed->GetWritableData<float>();
 

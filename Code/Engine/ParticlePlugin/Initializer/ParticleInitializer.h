@@ -2,7 +2,6 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
@@ -28,14 +27,16 @@ public:
 };
 
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer : public ezParticleModule<ezProcessingStreamSpawner, true>
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer : public ezParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer, ezProcessingStreamSpawner);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer, ezParticleModule);
 
   friend class ezParticleSystemInstance;
   friend class ezParticleInitializerFactory;
 
 protected:
   ezParticleInitializer() {}
+
+  virtual void Process(ezUInt64 uiNumElements) final override {}
 
 };

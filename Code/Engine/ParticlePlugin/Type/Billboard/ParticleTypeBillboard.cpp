@@ -81,10 +81,10 @@ ezParticleTypeBillboard::ezParticleTypeBillboard()
 
 void ezParticleTypeBillboard::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
-  CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
+  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+  CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
 }
 
 void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const

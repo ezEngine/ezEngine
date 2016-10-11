@@ -7,7 +7,6 @@
 #include <Foundation/Communication/Event.h>
 
 class ezProcessingStreamProcessor;
-class ezProcessingStreamSpawner;
 class ezProcessingStreamGroup;
 
 struct ezStreamGroupElementRemovedEvent
@@ -45,17 +44,6 @@ public:
   /// \brief Removes all stream processors from the group.
   void ClearProcessors();
 
-  /// \brief Adds a stream element spawner to the stream group.
-  /// Ownership is transferred to the stream group and the spawner will be deallocated using the RTTI deallocator on destruction.
-  /// Spawners are executed in the order they are added to the stream group.
-  void AddSpawner(ezProcessingStreamSpawner* pSpawner);
-
-  /// \brief Removes the given spawner from the group.
-  void RemoveSpawner(ezProcessingStreamSpawner* pSpawner);
-
-  /// \brief Removes all spawners from the group.
-  void ClearSpawners();
-
   /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second attempt to signal an error.
   ezProcessingStream* AddStream(const char* szName, ezProcessingStream::DataType Type);
 
@@ -72,7 +60,7 @@ public:
   void RemoveElement(ezUInt64 uiElementIndex);
 
   /// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the spawning will be queued.
-  void SpawnElements(ezUInt64 uiNumElements);
+  void InitializeElements(ezUInt64 uiNumElements);
 
   /// \brief Runs the stream processors which have been added to the stream group.
   void Process();
@@ -108,8 +96,6 @@ protected:
   void RunPendingSpawns();
 
   ezHybridArray<ezProcessingStreamProcessor*, 8> m_Processors;
-
-  ezHybridArray<ezProcessingStreamSpawner*, 8> m_Spawners;
 
   ezHybridArray<ezProcessingStream*, 8> m_DataStreams;
 

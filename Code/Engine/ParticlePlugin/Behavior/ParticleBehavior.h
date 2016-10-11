@@ -24,14 +24,15 @@ public:
   virtual void Load(ezStreamReader& stream) = 0;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule<ezProcessingStreamProcessor, false>
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezProcessingStreamProcessor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezParticleModule);
 
   friend class ezParticleSystemInstance;
 
 protected:
 
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
   virtual void StepParticleSystem(const ezTime& tDiff) { m_TimeDiff = tDiff; }
 
   ezTime m_TimeDiff;
