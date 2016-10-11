@@ -18,6 +18,7 @@ class ezQtCollapsibleGroupBox;
 class ezDocument;
 class ezDocumentObjectManager;
 class ezCommandHistory;
+class ezObjectAccessorBase;
 struct ezDocumentObjectPropertyEvent;
 struct ezPropertyMetaStateEvent;
 struct ezObjectAccessorChangeEvent;

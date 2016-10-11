@@ -243,7 +243,7 @@ public:
 
   OuterClass m_MemberClass;
 
-  ezHybridArray<double, 5> m_StandardTypeArray;
+  ezDynamicArray<double> m_StandardTypeArray;
   ezDynamicArray<OuterClass> m_ClassArray;
   ezDeque<ezReflectedClass*> m_ClassPtrArray;
 
