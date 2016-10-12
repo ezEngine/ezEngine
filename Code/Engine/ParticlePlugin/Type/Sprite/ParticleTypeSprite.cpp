@@ -1,4 +1,8 @@
 #include <ParticlePlugin/PCH.h>
+#include <Foundation/Math/Angle.h>
+#include <Foundation/Math/Random.h>
+#include <Foundation/Math/Vec3.h>
+
 #include <ParticlePlugin/Type/Sprite/ParticleTypeSprite.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -13,7 +17,7 @@
 #include <Core/World/World.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteAxis, 1)
-EZ_ENUM_CONSTANTS(ezSpriteAxis::Random, ezSpriteAxis::EmitterX, ezSpriteAxis::EmitterY, ezSpriteAxis::EmitterZ, ezSpriteAxis::WorldX, ezSpriteAxis::WorldY, ezSpriteAxis::WorldZ)
+EZ_ENUM_CONSTANTS(ezSpriteAxis::EmitterDirection, ezSpriteAxis::WorldUp, ezSpriteAxis::Random)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSpriteFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeSpriteFactory>)
@@ -22,6 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSpriteFactory, 1, ezRTTIDefaultAll
   {
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_ENUM_MEMBER_PROPERTY("Rotation Axis", ezSpriteAxis, m_RotationAxis),
+    EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
   }
   EZ_END_PROPERTIES
 }
@@ -41,6 +46,7 @@ void ezParticleTypeSpriteFactory::CopyTypeProperties(ezParticleType* pObject) co
   ezParticleTypeSprite* pType = static_cast<ezParticleTypeSprite*>(pObject);
 
   pType->m_RotationAxis = m_RotationAxis;
+  pType->m_MaxDeviation = m_MaxDeviation;
   pType->m_hTexture.Invalidate();
 
   if (!m_sTexture.IsEmpty())
@@ -51,8 +57,6 @@ enum class TypeSpriteVersion
 {
   Version_0 = 0,
   Version_1,
-  Version_2, // added texture
-  Version_3, // added Sprite rotation mode
 
   // insert new version numbers above
   Version_Count,
@@ -66,6 +70,7 @@ void ezParticleTypeSpriteFactory::Save(ezStreamWriter& stream) const
 
   stream << m_sTexture;
   stream << m_RotationAxis.GetValue();
+  stream << m_MaxDeviation;
 }
 
 void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
@@ -75,17 +80,13 @@ void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
 
   EZ_ASSERT_DEV(uiVersion <= (int)TypeSpriteVersion::Version_Current, "Invalid version %u", uiVersion);
 
-  if (uiVersion >= 2)
-  {
-    stream >> m_sTexture;
-  }
+  stream >> m_sTexture;
 
-  if (uiVersion >= 3)
-  {
-    ezSpriteAxis::StorageType val;
-    stream >> val;
-    m_RotationAxis.SetValue(val);
-  }
+  ezSpriteAxis::StorageType val;
+  stream >> val;
+  m_RotationAxis.SetValue(val);
+
+  stream >> m_MaxDeviation;
 }
 
 
@@ -100,6 +101,62 @@ void ezParticleTypeSprite::CreateRequiredStreams()
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
+  CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
+}
+
+void ezParticleTypeSprite::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+{
+  ezVec3* pAxis = m_pStreamAxis->GetWritableData<ezVec3>();
+  ezRandom& rng = GetRNG();
+
+  if (m_RotationAxis == ezSpriteAxis::Random)
+  {
+    for (ezUInt32 i = 0; i < uiNumElements; ++i)
+    {
+      const ezUInt64 uiElementIdx = uiStartIndex + i;
+
+      pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
+    }
+  }
+  else
+  {
+    ezVec3 vNormal;
+
+    if (m_RotationAxis == ezSpriteAxis::EmitterDirection)
+    {
+      vNormal = GetOwnerSystem()->GetTransform().m_Rotation.GetColumn(2).GetNormalized(); // Z axis
+    }
+    else if (m_RotationAxis == ezSpriteAxis::WorldUp)
+    {
+      ezCoordinateSystem coord;
+      GetOwnerSystem()->GetWorld()->GetCoordinateSystem(GetOwnerSystem()->GetTransform().m_vPosition, coord);
+
+      vNormal = coord.m_vUpDir;
+    }
+
+    if (m_MaxDeviation > ezAngle::Degree(1.0f))
+    {
+      // how to get from the X axis to the desired normal
+      ezQuat qRotToDir;
+      qRotToDir.SetShortestRotation(ezVec3(1, 0, 0), vNormal);
+
+      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      {
+        const ezUInt64 uiElementIdx = uiStartIndex + i;
+        const ezVec3 vRandomX = ezVec3::CreateRandomDeviationX(rng, m_MaxDeviation);
+
+        pAxis[uiElementIdx] = qRotToDir * vRandomX;
+      }
+    }
+    else
+    {
+      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      {
+        const ezUInt64 uiElementIdx = uiStartIndex + i;
+        pAxis[uiElementIdx] = vNormal;
+      }
+    }
+  }
 }
 
 void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
@@ -110,20 +167,18 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
   if (GetOwnerSystem()->GetNumActiveParticles() == 0)
     return;
 
-  const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
-
-  const ezVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
-  const ezVec3 vEmitterDir = ezVec3(0, 0, 1);// GetOwnerSystem()->GetTransform().m_Rotation.GetColumn(2).GetNormalized(); // Z axis
-
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if (m_uiLastExtractedFrame != uiExtractedFrame)
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
+    const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+
     const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
+    const ezVec3* pAxis = m_pStreamAxis->GetData<ezVec3>();
 
     if (m_GpuData == nullptr)
     {
@@ -141,38 +196,19 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
       TempData[p].Color = pColor[p];
     }
 
-    if (m_RotationAxis == ezSpriteAxis::EmitterZ)
+    for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
     {
-      const ezVec3 vTangentZ = vEmitterDir;
-      const ezVec3 vTangentX = vEmitterDir.GetOrthogonalVector();
+      const ezVec3 vNormal = pAxis[p];
+      const ezVec3 vTangentStart = vNormal.GetOrthogonalVector().GetNormalized();
 
-      for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
-      {
-        ezMat3 mRotation;
-        mRotation.SetRotationMatrix(vEmitterDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
+      ezMat3 mRotation;
+      mRotation.SetRotationMatrix(vNormal, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
 
-        TempData[p].Position = pPosition[p];
-        TempData[p].TangentX = mRotation * vTangentX;
-        TempData[p].TangentZ = vTangentZ;
-      }
-    }
-    else if (m_RotationAxis == ezSpriteAxis::WorldZ)
-    {
-      const ezVec3 vTangentZ = vEmitterDir;
-      const ezVec3 vTangentX = vEmitterDir.GetOrthogonalVector();
+      const ezVec3 vTangentX = mRotation * vTangentStart;
 
-      for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
-      {
-        const ezVec3 vDirToParticle = (pPosition[p] - vEmitterPos);
-        const ezVec3 vOrthoDir = vEmitterDir.Cross(vDirToParticle).GetNormalized();
-
-        ezMat3 mRotation;
-        mRotation.SetRotationMatrix(vOrthoDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
-
-        TempData[p].Position = pPosition[p];
-        TempData[p].TangentX = vOrthoDir;
-        TempData[p].TangentZ = mRotation * vTangentZ;
-      }
+      TempData[p].Position = pPosition[p];
+      TempData[p].TangentX = vTangentX;
+      TempData[p].TangentZ = vTangentX.Cross(vNormal);
     }
   }
 

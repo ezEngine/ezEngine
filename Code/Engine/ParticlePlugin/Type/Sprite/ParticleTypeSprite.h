@@ -15,15 +15,11 @@ struct EZ_PARTICLEPLUGIN_DLL ezSpriteAxis
 
   enum Enum
   {
-    EmitterX,
-    EmitterY,
-    EmitterZ,
-    WorldX,
-    WorldY,
-    WorldZ,
+    EmitterDirection,
+    WorldUp,
     Random,
 
-    Default = EmitterZ
+    Default = EmitterDirection
   };
 };
 
@@ -43,7 +39,6 @@ public:
   ezString m_sTexture;
   ezEnum<ezSpriteAxis> m_RotationAxis;
   ezAngle m_MaxDeviation;
-  ezAngle m_SpinPerSecond;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeSprite : public ezParticleType
@@ -58,17 +53,18 @@ public:
   ezTextureResourceHandle m_hTexture;
   ezEnum<ezSpriteAxis> m_RotationAxis;
   ezAngle m_MaxDeviation;
-  ezAngle m_SpinPerSecond;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
 protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override {}
 
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamSize;
   ezProcessingStream* m_pStreamColor;
   ezProcessingStream* m_pStreamRotationSpeed;
+  ezProcessingStream* m_pStreamAxis;
 
   mutable ezUInt64 m_uiLastExtractedFrame;
   mutable ezSharedPtr<ezSpriteParticleDataContainer> m_GpuData;

@@ -167,4 +167,5 @@ class ezColor;
 class ezColorLinearUB;
 class ezColorGammaUB;
 
+class ezRandom;
 

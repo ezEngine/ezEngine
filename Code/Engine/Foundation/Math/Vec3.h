@@ -97,7 +97,7 @@ public:
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given fallback value.
   ezResult NormalizeIfNotZero(const ezVec3Template& vFallback = ezVec3Template(1, 0, 0), Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
-    
+
   /// \brief Returns, whether this vector is (0, 0, 0).
   bool IsZero() const; // [tested]
 
@@ -166,7 +166,7 @@ public:
 
 
 // *** Other common operations ***
-public:			
+public:
 
   /// \brief Calculates the normal of the triangle defined by the three vertices. Vertices are assumed to be ordered counter-clockwise.
   ezResult CalculateNormal(const ezVec3Template& v1, const ezVec3Template& v2, const ezVec3Template& v3); // [tested]
@@ -186,9 +186,30 @@ public:
   /// \brief Returns this vector, refracted at vNormal, using the refraction index of the current medium and the medium it enters.
   const ezVec3Template GetRefractedVector(const ezVec3Template& vNormal, Type fRefIndex1, Type fRefIndex2) const;
 
+  /// \brief Sets the vector to a random point inside a unit sphere (radius 1).
+  static ezVec3Template CreateRandomPointInSphere(ezRandom& rng);
+
+  /// \brief Creates a random direction vector. The vector is normalized.
+  static ezVec3Template CreateRandomDirection(ezRandom& rng);
+
+  /// \brief Creates a random vector around the x axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
+  /// The deviation angle must be larger than zero.
+  static ezVec3Template CreateRandomDeviationX(ezRandom& rng, const ezAngle& maxDeviation);
+
+  /// \brief Creates a random vector around the y axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
+  /// The deviation angle must be larger than zero.
+  static ezVec3Template CreateRandomDeviationY(ezRandom& rng, const ezAngle& maxDeviation);
+
+  /// \brief Creates a random vector around the z axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
+  /// The deviation angle must be larger than zero.
+  static ezVec3Template CreateRandomDeviationZ(ezRandom& rng, const ezAngle& maxDeviation);
+
+  /// \brief Creates a random vector around the given normal with a maximum deviation.
+  /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
+  /// do what this function does (see inline code) and only compute the quaternion once.
+  static ezVec3Template CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3& vNormal);
+
 };
-
-
 
 // *** Operators ***
 

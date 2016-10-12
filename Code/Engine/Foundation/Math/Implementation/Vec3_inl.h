@@ -237,12 +237,12 @@ const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
   Type fDot = ezMath::Abs(this->Dot (ezVec3Template<Type> (0, 1, 0)));
   if (fDot < 0.999f)
     return this->Cross(ezVec3Template<Type> (0, 1, 0));
-   
+
   return this->Cross(ezVec3Template<Type> (1, 0, 0));
 }
 
 template<typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::GetReflectedVector(const ezVec3Template<Type>& vNormal) const 
+const ezVec3Template<Type> ezVec3Template<Type>::GetReflectedVector(const ezVec3Template<Type>& vNormal) const
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
@@ -373,8 +373,8 @@ bool ezVec3Template<Type>::IsEqual(const ezVec3Template<Type>& rhs, Type fEpsilo
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && 
-          ezMath::IsEqual(y, rhs.y, fEpsilon) && 
+  return (ezMath::IsEqual(x, rhs.x, fEpsilon) &&
+          ezMath::IsEqual(y, rhs.y, fEpsilon) &&
           ezMath::IsEqual(z, rhs.z, fEpsilon));
 }
 

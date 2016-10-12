@@ -92,18 +92,8 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 pos;
-    float len = 0.0f;
-
-    do
-    {
-      pos.x = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
-      pos.y = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
-      pos.z = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
-
-      len = pos.GetLengthSquared();
-    }
-    while (len > fRadiusSqr || len <= 0.000001f); // prevent spawning at the exact center (note: this has to be smaller than the minimum allowed radius sqr)
+    ezVec3 pos = ezVec3::CreateRandomPointInSphere(rng);
+    pos *= m_fRadius;
 
     ezVec3 normalPos = pos;
 
