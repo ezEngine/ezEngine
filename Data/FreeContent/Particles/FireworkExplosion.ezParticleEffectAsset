@@ -13,7 +13,7 @@
    "p" : {
     "Behaviors" : [ { "$t" : "uuid", "$b" : "0x73B7B88F3B5453469D3E81BA55975769" }, { "$t" : "uuid", "$b" : "0xB366D4B02FBF8C41BA45462122F4AC1A" }, { "$t" : "uuid", "$b" : "0x947C0184647DB84C9E28C6F02C5E169B" }, { "$t" : "uuid", "$b" : "0x9B63960596AB6347BA431333EC0D6BD5" } ],
     "Emitters" : [ { "$t" : "uuid", "$b" : "0xF72F030199AFC948A4E17127AC1B9D84" } ],
-    "Initializers" : [ { "$t" : "uuid", "$b" : "0x116FE9C49DDCEF44927592855C58FC86" }, { "$t" : "uuid", "$b" : "0xE3973744CDC0814AB41EB6F6C34E5486" }, { "$t" : "uuid", "$b" : "0xBFBBF2F5E156CC4FB069786823D1CCD7" } ],
+    "Initializers" : [ { "$t" : "uuid", "$b" : "0x116FE9C49DDCEF44927592855C58FC86" }, { "$t" : "uuid", "$b" : "0xE3973744CDC0814AB41EB6F6C34E5486" }, { "$t" : "uuid", "$b" : "0xBFBBF2F5E156CC4FB069786823D1CCD7" }, { "$t" : "uuid", "$b" : "0x04954B9B71AF4645BB52C9EA93F5FFE4" } ],
     "Max Particles" : { "$t" : "uint32", "$v" : "300", "$b" : "0x2C010000" },
     "Name" : "",
     "Types" : [ { "$t" : "uuid", "$b" : "0x65D8591F1B9AEC4F9E4A1A4A96A12EA5" } ],
@@ -36,6 +36,14 @@
     "Radius" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
     "Set Velocity" : true,
     "Speed Range" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x04954B9B71AF4645BB52C9EA93F5FFE4" },
+   "t" : "ezParticleInitializerFactory_RandomRotationSpeed",
+   "p" : {
+    "Rotation Speed" : { "$t" : "angle", "$v" : "360.0000", "$b" : "0xDB0FC940" },
+    "Rotation Variance" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" }
    }
   },
   {
@@ -166,7 +174,7 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x51769F3394FDE24BB5A130C98B838960" },
-    "Hash" : { "$t" : "uint64", "$v" : "9722546170372067753", "$b" : "0xA9915CCD3A6CED86" },
+    "Hash" : { "$t" : "uint64", "$v" : "2587593093983362397", "$b" : "0x5DDD219635FAE823" },
     "References" : [ "{ 736eb11f-dca5-4db4-83ec-21e6636a41ee }", "{ 935e1236-35a1-4670-a87c-657e77cd7029 }", "{ a335e880-cb30-4573-b0e8-f1e6ff2d0358 }", "{ e00262e8-58f5-42f5-880d-569257047201 }" ]
    }
   },

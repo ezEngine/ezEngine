@@ -101,7 +101,7 @@
    "t" : "ezParticleInitializerFactory_Life",
    "p" : {
     "Life Time Range" : { "$t" : "time", "$v" : "0.5000", "$b" : "0x000000000000E03F" },
-    "Min Life Time" : { "$t" : "time", "$v" : "0.7000", "$b" : "0x666666666666E63F" }
+    "Min Life Time" : { "$t" : "time", "$v" : "0.7000", "$b" : "0x000000606666E63F" }
    }
   },
   {
@@ -199,7 +199,7 @@
    "p" : {
     "Count Curve" : "",
     "Curve Duration" : { "$t" : "time", "$v" : "10.0000", "$b" : "0x0000000000002440" },
-    "Duration" : { "$t" : "time", "$v" : "0.2000", "$b" : "0x9A9999999999C93F" },
+    "Duration" : { "$t" : "time", "$v" : "0.2000", "$b" : "0x000000A09999C93F" },
     "Interval Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Min Interval" : { "$t" : "time", "$v" : "0.1000", "$b" : "0x000000A09999B93F" },
     "Min Spawn Count" : { "$t" : "uint32", "$v" : "10", "$b" : "0x0A000000" },
@@ -238,7 +238,7 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xA05B692FB6F669479256F2778A00C199" },
-    "Hash" : { "$t" : "uint64", "$v" : "5402603243509927354", "$b" : "0xBA4DC89706E7F94A" },
+    "Hash" : { "$t" : "uint64", "$v" : "17278318754465970826", "$b" : "0x8AFAE9DB5CEBC8EF" },
     "References" : [ "{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }", "{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }", "{ a1f3f932-460e-405a-8512-a0f3ce341d1b }", "{ a335e880-cb30-4573-b0e8-f1e6ff2d0358 }", "{ e00262e8-58f5-42f5-880d-569257047201 }" ]
    }
   },

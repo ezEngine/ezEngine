@@ -1,5 +1,6 @@
+#include <Core/World/GameObject.h>
 
-//static 
+//static
 EZ_FORCE_INLINE const char* ezRenderData::GetCategoryName(Category category)
 {
   return s_CategoryData[category].m_sName.GetString().GetData();

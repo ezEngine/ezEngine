@@ -4,6 +4,8 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Strings/HashedString.h>
 
 /// \brief Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
@@ -32,7 +34,7 @@ public:
 #endif
 
   ezTransform m_GlobalTransform;
-  ezBoundingBoxSphere m_GlobalBounds;
+  ezBoundingBoxSphere m_GlobalBounds; ///< Used for culling. Use invalid bounds to always render an object
 
 private:
   struct CategoryData

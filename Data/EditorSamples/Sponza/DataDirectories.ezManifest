@@ -13,5 +13,10 @@
       "Path" : "Data/EditorSamples/Sponza/",
       "RootName" : "project",
       "Writable" : true
+    },
+    {
+      "Path" : "Data/TempContent",
+      "RootName" : "",
+      "Writable" : false
     } ]
 }

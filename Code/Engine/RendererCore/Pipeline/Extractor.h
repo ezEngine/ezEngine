@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Pipeline/RenderData.h>
+#include <Foundation/Strings/HashedString.h>
 
 class ezExtractedRenderData;
 

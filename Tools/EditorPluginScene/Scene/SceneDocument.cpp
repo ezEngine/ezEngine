@@ -335,7 +335,11 @@ void ezSceneDocument::MoveCameraHere()
 
   const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
-  const ezVec3 vPos = ctxt.m_pLastPickingResult->m_vPickedPosition;
+  const ezVec3 vCurPos = pCamera->GetCenterPosition();
+  const ezVec3 vDirToPos = ctxt.m_pLastPickingResult->m_vPickedPosition - vCurPos;
+
+  // don't move the entire distance, keep some distance to the target position
+  const ezVec3 vPos = vCurPos + 0.9f * vDirToPos;
   const ezVec3 vForward = pCamera->GetCenterDirForwards();
   const ezVec3 vUp = pCamera->GetCenterDirUp();
 
