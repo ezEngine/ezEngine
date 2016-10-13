@@ -111,12 +111,7 @@ void ezQtMeshAssetDocumentWindow::SendRedrawMsg()
 
   {
     ezSceneSettingsMsgToEngine msg;
-    msg.m_bSimulateWorld = false;
-    msg.m_fSimulationSpeed = 1.0f;
     msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
-    msg.m_bRenderOverlay = false;
-    msg.m_bRenderShapeIcons = false;
-    msg.m_bRenderSelectionBoxes = false;
     msg.m_bAddAmbientLight = true; // not implemented yet
     GetEditorEngineConnection()->SendMessage(&msg);
   }

@@ -8,7 +8,7 @@
 #include <Core/Application/Config/PluginConfig.h>
 #include <RendererCore/Components/Declarations.h>
 
-///////////////////////////////////// ezProcessMessages ///////////////////////////////////// 
+///////////////////////////////////// ezProcessMessages /////////////////////////////////////
 
 
 class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
@@ -21,7 +21,7 @@ class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMess
   EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezProcessMessage);
 };
 
-///////////////////////////////////// Curator ///////////////////////////////////// 
+///////////////////////////////////// Curator /////////////////////////////////////
 
 
 class EZ_EDITORFRAMEWORK_DLL ezProcessAsset : public ezProcessMessage
@@ -39,7 +39,7 @@ public:
   bool m_bSuccess;
 };
 
-///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
+///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 
 /// \brief Base class for all messages between editor and engine that are not bound to any document
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMessage
@@ -88,7 +88,7 @@ public:
 
 };
 
-///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
+///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 /// \brief Base class for all messages that are tied to some document.
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
@@ -275,7 +275,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngine
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg);
 
 public:
-  
+
   ezUuid m_ObjectGuid;
   ezString m_sObjectType;
   ezDataBuffer m_ObjectData;
@@ -315,6 +315,17 @@ class EZ_EDITORFRAMEWORK_DLL ezSceneSettingsMsgToEngine : public ezEditorEngineD
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneSettingsMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
+  ezSceneSettingsMsgToEngine()
+  {
+    m_bSimulateWorld = false;
+    m_fSimulationSpeed = 1.0f;
+    m_bRenderOverlay = false;
+    m_bRenderShapeIcons = false;
+    m_bRenderSelectionBoxes = false;
+    m_bAddAmbientLight = false;
+    m_fGizmoScale = 0.0f;
+    m_fGridDensity = 0.0f;
+  }
 
   bool m_bSimulateWorld;
   float m_fSimulationSpeed;
@@ -323,6 +334,7 @@ public:
   bool m_bRenderSelectionBoxes;
   bool m_bAddAmbientLight;
   float m_fGizmoScale;
+  float m_fGridDensity;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEditorEngineDocumentMsg

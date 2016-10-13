@@ -122,6 +122,7 @@ ezView* ezSceneViewContext::CreateView()
   pView->SetRenderPassProperty("EditorPickingPass", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorSelectedObjectsExtractor", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorShapeIconsExtractor", "SceneContext", m_pSceneContext);
+  pView->SetExtractorProperty("EditorGrid", "SceneContext", m_pSceneContext);
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());

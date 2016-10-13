@@ -10,7 +10,7 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
-ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument) 
+ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
@@ -191,10 +191,6 @@ void ezQtParticleEffectAssetDocumentWindow::SendRedrawMsg()
     ezSceneSettingsMsgToEngine msg;
     msg.m_bSimulateWorld = true;
     msg.m_fSimulationSpeed = GetParticleDocument()->GetSimulationSpeed();
-    msg.m_fGizmoScale = 0.0f;
-    msg.m_bRenderOverlay = false;
-    msg.m_bRenderShapeIcons = false;
-    msg.m_bRenderSelectionBoxes = false;
     msg.m_bAddAmbientLight = true; // not implemented yet
     GetEditorEngineConnection()->SendMessage(&msg);
   }

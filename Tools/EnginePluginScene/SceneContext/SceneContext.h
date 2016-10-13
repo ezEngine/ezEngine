@@ -20,7 +20,8 @@ public:
   const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
-  
+  float GetGridDensity() const { return m_fGridDensity; }
+
   ezGameState* GetGameState() const;
 
 protected:
@@ -39,7 +40,7 @@ private:
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
-  
+
   void DrawSelectionBounds();
 
   void InsertSelectedChildren(const ezGameObject* pObject);
@@ -51,6 +52,7 @@ private:
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;
+  float m_fGridDensity;
 
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;

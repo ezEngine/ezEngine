@@ -66,6 +66,7 @@ ezSceneContext::ezSceneContext()
   m_bRenderSelectionOverlay = true;
   m_bRenderSelectionBoxes = true;
   m_bRenderShapeIcons = true;
+  m_fGridDensity = 0;
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -82,6 +83,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
     m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
     m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
+    m_fGridDensity = msg->m_fGridDensity;
 
     ezGameState* pState = GetGameState();
     m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
@@ -109,7 +111,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       ezGameModeMsgToEditor msgToEd;
       msgToEd.m_DocumentGuid = pMsg->m_DocumentGuid;
       msgToEd.m_bRunningPTG = false;
-      
+
       SendProcessMessage(&msgToEd);
     }
 

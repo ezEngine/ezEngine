@@ -18,7 +18,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEditor, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEditor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
+///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAsset, 1, ezRTTIDefaultAllocator<ezProcessAsset>)
 {
@@ -42,7 +42,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponse, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
+///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineMsg, 1, ezRTTINoAllocator )
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -82,7 +82,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
+///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, 1, ezRTTINoAllocator)
 {
@@ -312,6 +312,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
     EZ_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),
     EZ_MEMBER_PROPERTY("AddAmbient", m_bAddAmbientLight),
+    EZ_MEMBER_PROPERTY("GridDensity", m_fGridDensity),
   }
   EZ_END_PROPERTIES
 }

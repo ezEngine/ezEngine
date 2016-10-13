@@ -322,6 +322,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     msg.m_bRenderShapeIcons = GetSceneDocument()->GetRenderShapeIcons();
     msg.m_bRenderSelectionBoxes = GetSceneDocument()->GetRenderVisualizers();
     msg.m_bAddAmbientLight = GetSceneDocument()->GetAddAmbientLight();
+    msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
     GetEditorEngineConnection()->SendMessage(&msg);
   }
 

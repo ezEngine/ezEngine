@@ -117,7 +117,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x3EEB1604C0694046BE5B77354E0E37D7" },
-    "Hash" : { "$t" : "uint64", "$v" : "16939041978654356416", "$b" : "0xC0731FC5EE9013EB" },
+    "Hash" : { "$t" : "uint64", "$v" : "11455845504063243484", "$b" : "0xDC04724FCA56FB9E" },
     "References" : [  ]
    }
   },
@@ -171,7 +171,7 @@
     "Name" : "EditorRenderPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x76E7EC5A137BBD062805167A27011F0D" }, { "$t" : "uuid", "$b" : "0x20DF51A2B06202DDF5C62353C249B651" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-502.0000, -579.0000)", "$b" : "0x0000FBC300C010C4" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" }, { "$t" : "uuid", "$b" : "0xAEACA231D141AC49B71411D549655F4E" } ],
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" }, { "$t" : "uuid", "$b" : "0xAEACA231D141AC49B71411D549655F4E" }, { "$t" : "uuid", "$b" : "0x8C21C38A903F0C4E9455D15E78190CB2" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
    }
   },
@@ -232,6 +232,13 @@
     "SourcePin" : "Output",
     "Target" : { "$t" : "uuid", "$b" : "0x5E8A709F13756749AD68BC95FF848E07" },
     "TargetPin" : "DepthStencil"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8C21C38A903F0C4E9455D15E78190CB2" },
+   "t" : "ezGridRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -425,7 +432,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Constant",
     "ConstantValue" : "ezScene;ezPrefab",
-    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly|ezPropertyFlags::Constant",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly",
     "Name" : "DocumentType",
     "Type" : "ezString"
    }
@@ -437,7 +444,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::Pointer",
+    "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
     "Name" : "SceneContext",
     "Type" : "ezSceneContext"
    }
@@ -449,7 +456,7 @@
     "Attributes" : [ { "$t" : "uuid", "$b" : "0x289D49BF6C031BA8DE8B7E686959DD5F" }, { "$t" : "uuid", "$b" : "0xECB5A630E5F401A48B6792ABF0EE8F7D" }, { "$t" : "uuid", "$b" : "0x0AA2FD0F2B38D94D6F82AABACF6E27B5" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "Max Screen Size",
     "Type" : "float"
    }
@@ -461,7 +468,7 @@
     "Attributes" : [ { "$t" : "uuid", "$b" : "0xA278B7F8A83D39BB67FFDAB17A9FDC38" }, { "$t" : "uuid", "$b" : "0x6691146A212F20B714DBEEF401358F56" }, { "$t" : "uuid", "$b" : "0x847D6B496772F760F8F50604E1B4268E" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "Size",
     "Type" : "float"
    }
@@ -473,7 +480,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::Pointer",
+    "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
     "Name" : "SceneContext",
     "Type" : "ezSceneContext"
    }
@@ -490,7 +497,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezSelectedObjectsExtractor",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x9E042B3DD767BF0CBF4EB6F4D2CF60F5" } ],
@@ -506,7 +513,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::IsEnum",
+    "Flags" : "ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom",
     "Name" : "ViewRenderMode",
     "Type" : "ezViewRenderMode"
    }
@@ -523,7 +530,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezForwardRenderPass",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x50AE9088ECF80AE0781DBA6C046A7CF1" } ],
@@ -537,7 +544,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezRenderPipelinePass",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x421A939D63D78DF8551A29F2AB2D1537" }, { "$t" : "uuid", "$b" : "0x409EE2AE73A452C515BFB1E5906893F7" }, { "$t" : "uuid", "$b" : "0x18AA0CBB7CA0345A2E4F785A81178315" }, { "$t" : "uuid", "$b" : "0xC590FCEDD1639C2BDA0B61BC20FE2036" } ],
@@ -547,11 +554,25 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x97610F29F081E88CF67291073C482BCD" },
+   "t" : "ezReflectedTypeDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
+    "ParentTypeName" : "ezRenderer",
+    "PluginName" : "ezEnginePluginScene",
+    "Properties" : [  ],
+    "TypeName" : "ezGridRenderer",
+    "TypeSize" : { "$t" : "uint32", "$v" : "176", "$b" : "0xB0000000" },
+    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x0F8F177B9B2C4A9F7E4310775B10A835" },
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezEngineProcessDocumentContext",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x4F8038A9ED1F4303F31177F3958685E7" } ],
@@ -597,7 +618,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "PickingPosition",
     "Type" : "ezVec2"
    }
@@ -607,7 +628,7 @@
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
     "Attributes" : [  ],
-    "Flags" : "",
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
     "ParentTypeName" : "ezExtractor",
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x85725B636C264722306389B9688890F3" }, { "$t" : "uuid", "$b" : "0x0B97ED2930EC280FA7EF2C705742911A" }, { "$t" : "uuid", "$b" : "0x87C2431F907A6AD942DED8901CB05D87" } ],
@@ -623,7 +644,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::Pointer",
+    "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
     "Name" : "SceneContext",
     "Type" : "ezSceneContext"
    }
@@ -635,7 +656,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::IsEnum",
+    "Flags" : "ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom",
     "Name" : "ViewRenderMode",
     "Type" : "ezViewRenderMode"
    }
@@ -647,7 +668,7 @@
     "Attributes" : [  ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "PickSelected",
     "Type" : "bool"
    }
