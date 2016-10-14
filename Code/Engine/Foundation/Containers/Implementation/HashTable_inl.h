@@ -107,6 +107,18 @@ ezHashTableBase<K, V, H>::ezHashTableBase(const ezHashTableBase<K, V, H>& other,
 }
 
 template <typename K, typename V, typename H>
+ezHashTableBase<K, V, H>::ezHashTableBase(ezHashTableBase<K, V, H>&& other, ezAllocatorBase* pAllocator)
+{
+  m_pEntries = nullptr;
+  m_pEntryFlags = nullptr;
+  m_uiCount = 0;
+  m_uiCapacity = 0;
+  m_pAllocator = pAllocator;
+
+  *this = std::move(other);
+}
+
+template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::~ezHashTableBase()
 {
   Clear();
@@ -131,6 +143,28 @@ void ezHashTableBase<K, V, H>::operator= (const ezHashTableBase<K, V, H>& rhs)
     }
   }
 }
+
+template <typename K, typename V, typename H>
+void ezHashTableBase<K, V, H>::operator= (ezHashTableBase<K, V, H>&& rhs)
+{
+  Clear();
+  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
+  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
+
+  // Move all data over.
+  m_pEntries = rhs.m_pEntries;
+  m_pEntryFlags = rhs.m_pEntryFlags;
+  m_uiCount = rhs.m_uiCount;
+  m_uiCapacity = rhs.m_uiCapacity;
+  m_pAllocator = rhs.m_pAllocator;
+
+  // Temp copy forgets all its state.
+  rhs.m_pEntries = nullptr;
+  rhs.m_pEntryFlags = nullptr;
+  rhs.m_uiCount = 0;
+  rhs.m_uiCapacity = 0;
+}
+
 
 template <typename K, typename V, typename H>
 bool ezHashTableBase<K, V, H>::operator== (const ezHashTableBase<K, V, H>& rhs) const
@@ -555,6 +589,16 @@ ezHashTable<K, V, H, A>::ezHashTable(const ezHashTableBase<K, V, H>& other) : ez
 }
 
 template <typename K, typename V, typename H, typename A>
+ezHashTable<K, V, H, A>::ezHashTable(ezHashTable<K, V, H, A>&& other) : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename K, typename V, typename H, typename A>
+ezHashTable<K, V, H, A>::ezHashTable(ezHashTableBase<K, V, H>&& other) : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename K, typename V, typename H, typename A>
 void ezHashTable<K, V, H, A>::operator=(const ezHashTable<K, V, H, A>& rhs)
 {
   ezHashTableBase<K, V, H>::operator=(rhs);
@@ -564,5 +608,17 @@ template <typename K, typename V, typename H, typename A>
 void ezHashTable<K, V, H, A>::operator=(const ezHashTableBase<K, V, H>& rhs)
 {
   ezHashTableBase<K, V, H>::operator=(rhs);
+}
+
+template <typename K, typename V, typename H, typename A>
+void ezHashTable<K, V, H, A>::operator=(ezHashTable<K, V, H, A>&& rhs)
+{
+  ezHashTableBase<K, V, H>::operator=(std::move(rhs));
+}
+
+template <typename K, typename V, typename H, typename A>
+void ezHashTable<K, V, H, A>::operator=(ezHashTableBase<K, V, H>&& rhs)
+{
+  ezHashTableBase<K, V, H>::operator=(std::move(rhs));
 }
 

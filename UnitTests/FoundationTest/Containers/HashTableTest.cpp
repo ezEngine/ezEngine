@@ -64,7 +64,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     for (ezInt32 i = 0; i < 64; ++i)
     {
       ezInt32 key;
-      
+
       do
       {
         key = rand() % 100000;
@@ -113,6 +113,32 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       EZ_TEST_BOOL(it.Value() == value);
       EZ_TEST_BOOL(value.m_iData == 42);
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Copy Constructor/Assignment")
+  {
+    ezHashTable<ezInt32, HashTableTestDetail::st> table1;
+    for (ezInt32 i = 0; i < 64; ++i)
+    {
+      table1.Insert(i, ezConstructionCounter(i));
+    }
+
+    ezUInt64 memoryUsage = table1.GetHeapMemoryUsage();
+
+    ezHashTable<ezInt32, HashTableTestDetail::st> table2;
+    table2 = std::move(table1);
+
+    EZ_TEST_INT(table1.GetCount(), 0);
+    EZ_TEST_INT(table1.GetHeapMemoryUsage(), 0);
+    EZ_TEST_INT(table2.GetCount(), 64);
+    EZ_TEST_INT(table2.GetHeapMemoryUsage(), memoryUsage);
+
+    ezHashTable<ezInt32, HashTableTestDetail::st> table3(std::move(table2));
+
+    EZ_TEST_INT(table2.GetCount(), 0);
+    EZ_TEST_INT(table2.GetHeapMemoryUsage(), 0);
+    EZ_TEST_INT(table3.GetCount(), 64);
+    EZ_TEST_INT(table3.GetHeapMemoryUsage(), memoryUsage);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Collision Tests")
@@ -290,7 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       EZ_TEST_BOOL(a.Remove(i, &oldValue));
       EZ_TEST_INT(oldValue.m_iData, i);
     }
-    
+
     a.Compact();
 
     for (ezInt32 i = 500; i < 1000; ++i)

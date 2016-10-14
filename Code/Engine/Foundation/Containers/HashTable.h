@@ -7,10 +7,10 @@
 
 /// \brief Implementation of a hashtable which stores key/value pairs.
 ///
-/// The hashtable maps keys to values by using the hash of the key as an index into the table. 
-/// This implementation uses linear-probing to resolve hash collisions which means all key/value pairs are stored 
+/// The hashtable maps keys to values by using the hash of the key as an index into the table.
+/// This implementation uses linear-probing to resolve hash collisions which means all key/value pairs are stored
 /// in a linear array.
-/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded, 
+/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded,
 /// which happens when the load gets greater than 60%.
 /// The hash function can be customized by providing a Hasher helper class like ezHashHelper.
 
@@ -73,15 +73,21 @@ public:
 protected:
   /// \brief Creates an empty hashtable. Does not allocate any data yet.
   ezHashTableBase(ezAllocatorBase* pAllocator); // [tested]
-  
+
   /// \brief Creates a copy of the given hashtable.
   ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
+
+  /// \brief Moves data from an existing hashtable into this one.
+  ezHashTableBase(ezHashTableBase<KeyType, ValueType, Hasher>&& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHashTableBase(); // [tested]
 
   /// \brief Copies the data from another hashtable into this one.
   void operator= (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs); // [tested]
+
+  /// \brief Moves data from an existing hashtable into this one.
+  void operator= (ezHashTableBase<KeyType, ValueType, Hasher>&& rhs); // [tested]
 
 public:
 
@@ -96,7 +102,7 @@ public:
 
   /// \brief Tries to compact the hashtable to avoid wasting memory.
   ///
-  /// The resulting capacity is at least 'GetCount' (no elements get removed). 
+  /// The resulting capacity is at least 'GetCount' (no elements get removed).
   /// Will deallocate all data, if the hashtable is empty.
   void Compact(); // [tested]
 
@@ -109,7 +115,7 @@ public:
   /// \brief Clears the table.
   void Clear(); // [tested]
 
-  /// \brief Inserts the key value pair or replaces value if an entry with the given key already exists. 
+  /// \brief Inserts the key value pair or replaces value if an entry with the given key already exists.
   ///
   /// Returns if an existing value was replaced and optionally writes out the old value to out_oldValue.
   bool Insert(const KeyType& key, const ValueType& value, ValueType* out_oldValue = nullptr); // [tested]
@@ -125,7 +131,7 @@ public:
   /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
   bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue) const; // [tested]
-  
+
   /// \brief Returns the value to the given key if found or creates a new entry with the given key and a default constructed value.
   ValueType& operator[](const KeyType& key); // [tested]
 
@@ -158,16 +164,16 @@ private:
 
   ezUInt32 m_uiCount;
   ezUInt32 m_uiCapacity;
-  
+
   ezAllocatorBase* m_pAllocator;
 
-  enum 
-  { 
+  enum
+  {
     FREE_ENTRY = 0,
     VALID_ENTRY = 1,
     DELETED_ENTRY = 2,
     FLAGS_MASK = 3,
-    CAPACITY_ALIGNMENT = 32 
+    CAPACITY_ALIGNMENT = 32
   };
 
   void SetCapacity(ezUInt32 uiCapacity);
@@ -202,8 +208,15 @@ public:
   ezHashTable(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& other);
   ezHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& other);
 
+  ezHashTable(ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>&& other);
+  ezHashTable(ezHashTableBase<KeyType, ValueType, Hasher>&& other);
+
+
   void operator=(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& rhs);
   void operator=(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs);
+
+  void operator=(ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>&& rhs);
+  void operator=(ezHashTableBase<KeyType, ValueType, Hasher>&& rhs);
 };
 
 #include <Foundation/Containers/Implementation/HashTable_inl.h>
