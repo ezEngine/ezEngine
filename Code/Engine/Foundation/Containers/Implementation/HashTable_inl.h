@@ -147,22 +147,26 @@ void ezHashTableBase<K, V, H>::operator= (const ezHashTableBase<K, V, H>& rhs)
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::operator= (ezHashTableBase<K, V, H>&& rhs)
 {
-  Clear();
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
-  EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
+  if (m_pAllocator != rhs.m_pAllocator)
+    operator=(static_cast<ezHashTableBase<K, V, H>&>(rhs));
+  else
+  {
+    Clear();
+    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
+    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
 
-  // Move all data over.
-  m_pEntries = rhs.m_pEntries;
-  m_pEntryFlags = rhs.m_pEntryFlags;
-  m_uiCount = rhs.m_uiCount;
-  m_uiCapacity = rhs.m_uiCapacity;
-  m_pAllocator = rhs.m_pAllocator;
+    // Move all data over.
+    m_pEntries = rhs.m_pEntries;
+    m_pEntryFlags = rhs.m_pEntryFlags;
+    m_uiCount = rhs.m_uiCount;
+    m_uiCapacity = rhs.m_uiCapacity;
 
-  // Temp copy forgets all its state.
-  rhs.m_pEntries = nullptr;
-  rhs.m_pEntryFlags = nullptr;
-  rhs.m_uiCount = 0;
-  rhs.m_uiCapacity = 0;
+    // Temp copy forgets all its state.
+    rhs.m_pEntries = nullptr;
+    rhs.m_pEntryFlags = nullptr;
+    rhs.m_uiCount = 0;
+    rhs.m_uiCapacity = 0;
+  }
 }
 
 
