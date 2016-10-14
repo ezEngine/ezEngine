@@ -14,6 +14,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezTranslateGizmo::ezTranslateGizmo()
 {
+  m_vStartPosition.SetZero();
+
   m_AxisX.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
   m_AxisY.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
   m_AxisZ.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
@@ -72,6 +74,12 @@ void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
 
   m.SetRotationMatrixX(ezAngle::Degree(90));
   m_PlaneXZ.SetTransformation(transform * m);
+
+  if (!IsActiveInputContext())
+  {
+    // if the gizmo is currently not being dragged, copy the translation into the start position
+    m_vStartPosition = GetTransformation().GetTranslationVector();
+  }
 }
 
 void ezTranslateGizmo::DoFocusLost(bool bCancel)
@@ -95,6 +103,8 @@ void ezTranslateGizmo::DoFocusLost(bool bCancel)
   m_Mode = TranslateMode::None;
   m_MovementMode = MovementMode::ScreenProjection;
   m_vLastMoveDiff.SetZero();
+
+  m_vStartPosition = GetTransformation().GetTranslationVector();
 }
 
 ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)

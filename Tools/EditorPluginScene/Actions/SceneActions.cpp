@@ -20,6 +20,7 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hRenderSelectionOverlay;
 ezActionDescriptorHandle ezSceneActions::s_hRenderVisualizers;
 ezActionDescriptorHandle ezSceneActions::s_hRenderShapeIcons;
+ezActionDescriptorHandle ezSceneActions::s_hRenderGrid;
 ezActionDescriptorHandle ezSceneActions::s_hAddAmbientLight;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeed[10];
@@ -36,6 +37,7 @@ void ezSceneActions::RegisterActions()
   s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
   s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::RenderVisualizers);
   s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Space", ezSceneAction, ezSceneAction::ActionType::RenderShapeIcons);
+  s_hRenderGrid = EZ_REGISTER_ACTION_1("Scene.Render.Grid", ezActionScope::Document, "Scene", "Home", ezSceneAction, ezSceneAction::ActionType::RenderGrid);
   s_hAddAmbientLight = EZ_REGISTER_ACTION_1("Scene.Render.AddAmbient", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::AddAmbientLight);
   s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
   s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
@@ -64,6 +66,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
   ezActionManager::UnregisterAction(s_hRenderVisualizers);
   ezActionManager::UnregisterAction(s_hRenderShapeIcons);
+  ezActionManager::UnregisterAction(s_hRenderGrid);
   ezActionManager::UnregisterAction(s_hAddAmbientLight);
   ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
   ezActionManager::UnregisterAction(s_hGameModePlay);
@@ -105,6 +108,7 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 1.0f);
     pMap->MapAction(s_hRenderVisualizers, szSubPath, 2.0f);
     pMap->MapAction(s_hRenderShapeIcons, szSubPath, 3.0f);
+    pMap->MapAction(s_hRenderGrid, szSubPath, 3.05f);
     pMap->MapAction(s_hAddAmbientLight, szSubPath, 3.1f);
     pMap->MapAction(s_hCameraSpeed, szSubPath, 4.0f);
   }
@@ -125,10 +129,11 @@ void ezSceneActions::MapToolbarActions()
     pMap->MapAction(s_hGameModeStop, szSubPath, 1.0f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 2.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 3.0f);
-    
+
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 4.0f);
     pMap->MapAction(s_hRenderVisualizers, szSubPath, 5.0f);
     pMap->MapAction(s_hRenderShapeIcons, szSubPath, 6.0f);
+    pMap->MapAction(s_hRenderGrid, szSubPath, 6.5f);
     pMap->MapAction(s_hCameraSpeed, szSubPath, 7.0f);
   }
 }
@@ -176,6 +181,17 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     SetChecked(m_pSceneDocument->GetRenderShapeIcons());
     break;
 
+  case ActionType::RenderGrid:
+    {
+      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezSceneAction::OnPreferenceChange, this));
+
+      SetCheckable(true);
+      SetIconPath(":/EditorPluginScene/Icons/Grid16.png");
+      SetChecked(pPreferences->GetShowGrid());
+    }
+    break;
+
   case ActionType::AddAmbientLight:
     SetCheckable(true);
     //SetIconPath(":/EditorPluginScene/Icons/ShapeIcons16.png"); // TODO icon
@@ -202,6 +218,17 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 ezSceneAction::~ezSceneAction()
 {
   m_pSceneDocument->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
+
+  switch (m_Type)
+  {
+  case ActionType::RenderGrid:
+    {
+      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+
+      pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneAction::OnPreferenceChange, this));
+    }
+    break;
+  }
 }
 
 void ezSceneAction::Execute(const ezVariant& value)
@@ -251,6 +278,13 @@ void ezSceneAction::Execute(const ezVariant& value)
 
   case ActionType::RenderShapeIcons:
     m_pSceneDocument->SetRenderShapeIcons(!m_pSceneDocument->GetRenderShapeIcons());
+    return;
+
+  case ActionType::RenderGrid:
+    {
+      auto pPref = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+      pPref->SetShowGrid(!pPref->GetShowGrid());
+    }
     return;
 
   case ActionType::AddAmbientLight:
@@ -334,6 +368,20 @@ void ezSceneAction::UpdateState()
   }
 }
 
+
+void ezSceneAction::OnPreferenceChange(ezPreferences* pref)
+{
+  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+
+  switch (m_Type)
+  {
+  case ActionType::RenderGrid:
+    {
+      SetChecked(pPreferences->GetShowGrid());
+    }
+    break;
+  }
+}
 
 ezSceneSliderAction::ezSceneSliderAction(const ezActionContext& context, const char* szName, ActionType type)
   : ezSliderAction(context, szName)

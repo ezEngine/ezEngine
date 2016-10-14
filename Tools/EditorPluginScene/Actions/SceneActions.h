@@ -24,6 +24,7 @@ public:
   static ezActionDescriptorHandle s_hRenderSelectionOverlay;
   static ezActionDescriptorHandle s_hRenderVisualizers;
   static ezActionDescriptorHandle s_hRenderShapeIcons;
+  static ezActionDescriptorHandle s_hRenderGrid;
   static ezActionDescriptorHandle s_hAddAmbientLight;
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
@@ -48,6 +49,7 @@ public:
     RenderSelectionOverlay,
     RenderVisualizers,
     RenderShapeIcons,
+    RenderGrid,
     AddAmbientLight,
     SimulationSpeed,
     StartGameModePlay,
@@ -62,6 +64,7 @@ public:
 private:
   void SceneEventHandler(const ezSceneDocumentEvent& e);
   void UpdateState();
+  void OnPreferenceChange(ezPreferences* pref);
 
   float m_fSimSpeed;
   ezSceneDocument* m_pSceneDocument;

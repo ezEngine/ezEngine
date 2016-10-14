@@ -12,6 +12,7 @@ class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmo
 public:
   ezTranslateGizmo();
 
+  const ezVec3 GetStartPosition() const { return m_vStartPosition; }
   const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
   const ezVec3 GetTranslationDiff() const { return m_vLastMoveDiff; }
 

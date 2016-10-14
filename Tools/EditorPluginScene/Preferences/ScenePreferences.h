@@ -24,6 +24,9 @@ public:
   void SetCameraSpeed(ezInt32 value);
   ezInt32 GetCameraSpeed() const { return m_iCameraSpeed; }
 
+  void SetShowGrid(bool show);
+  bool GetShowGrid() const { return m_bShowGrid; }
+
   bool m_bQuadView;
   ezSceneViewPreferences m_ViewSingle;
   ezSceneViewPreferences m_ViewQuad0;
@@ -32,5 +35,6 @@ public:
   ezSceneViewPreferences m_ViewQuad3;
 
 protected:
+  bool m_bShowGrid;
   int m_iCameraSpeed;
 };

@@ -335,6 +335,9 @@ public:
   bool m_bAddAmbientLight;
   float m_fGizmoScale;
   float m_fGridDensity;
+  ezVec3 m_vGridCenter;
+  ezVec3 m_vGridTangent1;
+  ezVec3 m_vGridTangent2;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEditorEngineDocumentMsg

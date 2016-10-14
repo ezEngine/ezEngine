@@ -313,20 +313,38 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
+  auto pSceneDoc = GetSceneDocument();
+
+  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
+
   {
     ezSceneSettingsMsgToEngine msg;
-    msg.m_bSimulateWorld = GetSceneDocument()->GetGameMode() != GameMode::Off;
-    msg.m_fSimulationSpeed = GetSceneDocument()->GetSimulationSpeed();
+    msg.m_bSimulateWorld = pSceneDoc->GetGameMode() != GameMode::Off;
+    msg.m_fSimulationSpeed = pSceneDoc->GetSimulationSpeed();
     msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
-    msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
-    msg.m_bRenderShapeIcons = GetSceneDocument()->GetRenderShapeIcons();
-    msg.m_bRenderSelectionBoxes = GetSceneDocument()->GetRenderVisualizers();
-    msg.m_bAddAmbientLight = GetSceneDocument()->GetAddAmbientLight();
+    msg.m_bRenderOverlay = pSceneDoc->GetRenderSelectionOverlay();
+    msg.m_bRenderShapeIcons = pSceneDoc->GetRenderShapeIcons();
+    msg.m_bRenderSelectionBoxes = pSceneDoc->GetRenderVisualizers();
+    msg.m_bAddAmbientLight = pSceneDoc->GetAddAmbientLight();
     msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
+    msg.m_vGridTangent1.SetZero(); // indicates that the grid is disabled
+    msg.m_vGridTangent2.SetZero(); // indicates that the grid is disabled
+
+    if (pPreferences->GetShowGrid() && m_TranslateGizmo.IsVisible())
+    {
+      msg.m_vGridCenter = m_TranslateGizmo.GetStartPosition();
+
+      if (pSceneDoc->GetGizmoWorldSpace())
+        ezSnapProvider::SnapTranslation(msg.m_vGridCenter);
+
+      msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(1, 0, 0));
+      msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 1, 0));
+    }
+
     GetEditorEngineConnection()->SendMessage(&msg);
   }
 
-  GetSceneDocument()->SendObjectSelection();
+  pSceneDoc->SendObjectSelection();
 
   auto pHoveredView = GetHoveredViewWidget();
 

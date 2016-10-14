@@ -108,7 +108,7 @@ public:
   void TriggerSnapPivotToGrid() const;
   void TriggerSnapEachObjectToGrid() const;
   void GroupSelection();
-  
+
   /// \brief Opens the Duplicate Special dialog
   void DuplicateSpecial();
 
@@ -217,7 +217,7 @@ public:
 
   /// \brief Traverses the pObject hierarchy up until it hits an ezGameObject, then computes the global transform of that.
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const override;
-  
+
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
   void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);

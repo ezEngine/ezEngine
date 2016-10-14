@@ -40,7 +40,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x48EAC743DBF87FADE6B61E5CF3A4C5DB" }, { "$t" : "uuid", "$b" : "0x5DF3B5C3112FC9DCBD36CCF95CFD3BCD" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-251.0000, -605.0000)", "$b" : "0x00007BC3004017C4" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0xA9E18D782BF5E645B642811C7940B2F0" }, { "$t" : "uuid", "$b" : "0x6CC12F70B4DBF34C808E33DEC4E35CC4" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0xA9E18D782BF5E645B642811C7940B2F0" }, { "$t" : "uuid", "$b" : "0x6CC12F70B4DBF34C808E33DEC4E35CC4" }, { "$t" : "uuid", "$b" : "0x66D4BA9AEF48834DAA219E0D91B95E2A" } ]
    }
   },
   {
@@ -117,7 +117,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x3EEB1604C0694046BE5B77354E0E37D7" },
-    "Hash" : { "$t" : "uint64", "$v" : "11455845504063243484", "$b" : "0xDC04724FCA56FB9E" },
+    "Hash" : { "$t" : "uint64", "$v" : "4611810271869455578", "$b" : "0xDACC460202710040" },
     "References" : [  ]
    }
   },
@@ -171,7 +171,7 @@
     "Name" : "EditorRenderPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x76E7EC5A137BBD062805167A27011F0D" }, { "$t" : "uuid", "$b" : "0x20DF51A2B06202DDF5C62353C249B651" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-502.0000, -579.0000)", "$b" : "0x0000FBC300C010C4" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" }, { "$t" : "uuid", "$b" : "0xAEACA231D141AC49B71411D549655F4E" }, { "$t" : "uuid", "$b" : "0x8C21C38A903F0C4E9455D15E78190CB2" } ],
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" }, { "$t" : "uuid", "$b" : "0xAEACA231D141AC49B71411D549655F4E" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
    }
   },
@@ -183,11 +183,22 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x4FEBE4E98DBFF349B2C062CACD37C0B7" },
+   "t" : "ezEditorGridExtractor",
+   "p" : {
+    "Active" : true,
+    "Name" : "EditorGrid",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(23.0000, -858.0000)", "$b" : "0x0000B841008056C4" },
+    "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x3C1FB67603A9594E921099D748B11E1A" }, { "$t" : "uuid", "$b" : "0x249E0C557415E043B74C0A91EBFC1E6D" }, { "$t" : "uuid", "$b" : "0x5E8A709F13756749AD68BC95FF848E07" }, { "$t" : "uuid", "$b" : "0x4E22B7CB82EBDD4A94D8CF769FD13EEF" }, { "$t" : "uuid", "$b" : "0x264289BA7372AF4082EB9433B67E76E1" }, { "$t" : "uuid", "$b" : "0x4BFF0B292B76BA419968C09561030851" }, { "$t" : "uuid", "$b" : "0xA1F50468F565F646B97CC40EE0819DF8" }, { "$t" : "uuid", "$b" : "0x8C5A442824DFD646A43FC3F3E42561B4" }, { "$t" : "uuid", "$b" : "0x6EF694E9E1EBD2449D6B318EA8C54680" }, { "$t" : "uuid", "$b" : "0x5861F25A9699194FA4D31154B1879A5A" }, { "$t" : "uuid", "$b" : "0xF1C18B02C4E93B4FBB1E3F143336CAAF" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x3C1FB67603A9594E921099D748B11E1A" }, { "$t" : "uuid", "$b" : "0x249E0C557415E043B74C0A91EBFC1E6D" }, { "$t" : "uuid", "$b" : "0x5E8A709F13756749AD68BC95FF848E07" }, { "$t" : "uuid", "$b" : "0x4E22B7CB82EBDD4A94D8CF769FD13EEF" }, { "$t" : "uuid", "$b" : "0x264289BA7372AF4082EB9433B67E76E1" }, { "$t" : "uuid", "$b" : "0x4BFF0B292B76BA419968C09561030851" }, { "$t" : "uuid", "$b" : "0xA1F50468F565F646B97CC40EE0819DF8" }, { "$t" : "uuid", "$b" : "0x8C5A442824DFD646A43FC3F3E42561B4" }, { "$t" : "uuid", "$b" : "0x6EF694E9E1EBD2449D6B318EA8C54680" }, { "$t" : "uuid", "$b" : "0x5861F25A9699194FA4D31154B1879A5A" }, { "$t" : "uuid", "$b" : "0xF1C18B02C4E93B4FBB1E3F143336CAAF" }, { "$t" : "uuid", "$b" : "0x4FEBE4E98DBFF349B2C062CACD37C0B7" } ]
    }
   },
   {
@@ -235,7 +246,7 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x8C21C38A903F0C4E9455D15E78190CB2" },
+   "#" : { "$t" : "uuid", "$b" : "0x66D4BA9AEF48834DAA219E0D91B95E2A" },
    "t" : "ezGridRenderer",
    "p" : {
     
@@ -248,7 +259,7 @@
     "Active" : true,
     "Name" : "EditorSelectedObjectsExtractor",
     "Node::Connections" : [  ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-468.0000, -853.0000)", "$b" : "0x0000EAC3004055C4" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-476.0000, -877.0000)", "$b" : "0x0000EEC300405BC4" },
     "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
    }
   },
@@ -462,6 +473,18 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xFA9C9A19B850A71E9D7AAA213A2125AE" },
+   "t" : "ezReflectedPropertyDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Category" : "ezPropertyCategory::Member",
+    "ConstantValue" : null,
+    "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
+    "Name" : "SceneContext",
+    "Type" : "ezSceneContext"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x85725B636C264722306389B9688890F3" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
@@ -483,6 +506,20 @@
     "Flags" : "ezPropertyFlags::Pointer|ezPropertyFlags::Phantom",
     "Name" : "SceneContext",
     "Type" : "ezSceneContext"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3925434085F72E330F5F8BE31C21C986" },
+   "t" : "ezReflectedTypeDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
+    "ParentTypeName" : "ezExtractor",
+    "PluginName" : "ezEnginePluginScene",
+    "Properties" : [ { "$t" : "uuid", "$b" : "0xFA9C9A19B850A71E9D7AAA213A2125AE" } ],
+    "TypeName" : "ezEditorGridExtractor",
+    "TypeSize" : { "$t" : "uint32", "$v" : "32", "$b" : "0x20000000" },
+    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },
   {
@@ -577,7 +614,7 @@
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x4F8038A9ED1F4303F31177F3958685E7" } ],
     "TypeName" : "ezSceneContext",
-    "TypeSize" : { "$t" : "uint32", "$v" : "1312", "$b" : "0x20050000" },
+    "TypeSize" : { "$t" : "uint32", "$v" : "1360", "$b" : "0x50050000" },
     "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },

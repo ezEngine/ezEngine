@@ -7,6 +7,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
+#include <RendererCore/Pipeline/View.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -88,22 +89,57 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd)
   m_Vertices.Clear();
   m_Vertices.Reserve(100);
 
-  const ezVec3 vCenter(0, 0, 2);
-  const ezVec3 vTangent1(1, 0, 0);
-  const ezVec3 vTangent2(0, 1, 0);
-  const ezInt32 lines = 20;
+  const ezVec3 vCenter = rd.m_GlobalTransform.m_vPosition;
+  const ezVec3 vTangent1 = rd.m_GlobalTransform.m_Rotation * ezVec3(1, 0, 0);
+  const ezVec3 vTangent2 = rd.m_GlobalTransform.m_Rotation * ezVec3(0, 1, 0);
+  const ezInt32 lines = rd.m_uiNumLines;
   const float maxExtent = lines * rd.m_fDensity;
+
+  const ezColor cCenter = ezColor::LightSkyBlue;// ezColor::GreenYellow;
+  const ezColor cTen = ezColor::LightSteelBlue;
+  const ezColor cOther = ezColor::LightSlateGray;
+
+  //static int color = 0;
+  //static ezTime tLast;
+
+  //const ezColor cols[] =
+  //{
+  //  // gut
+
+  //  ezColor::Silver,
+  //  ezColor::LightSteelBlue,
+  //  ezColor::LightSlateGray,
+  //  ezColor::DarkGray
+  //};
+
+  //if (ezTime::Now() - tLast > ezTime::Seconds(3.0))
+  //{
+  //  tLast = ezTime::Now();
+
+  //  color = (color + 1) % EZ_ARRAY_SIZE(cols);
+
+  //  ezLog::Info("New Color: %i", color);
+  //}
+
+  //cOther = cols[color];
 
   for (ezInt32 i = -lines; i <= lines; ++i)
   {
+    ezColor cCur = cOther;
+
+    if (i == 0)
+      cCur = cCenter;
+    else if (i % 10 == 0)
+      cCur = cTen;
+
     {
       auto& v1 = m_Vertices.ExpandAndGetRef();
       auto& v2 = m_Vertices.ExpandAndGetRef();
 
-      v1.m_color = ezColor::White;
+      v1.m_color = cCur;
       v1.m_position = vCenter + vTangent1 * rd.m_fDensity * (float)i - vTangent2 * maxExtent;
 
-      v2.m_color = ezColor::White;
+      v2.m_color = cCur;
       v2.m_position = vCenter + vTangent1 * rd.m_fDensity * (float)i + vTangent2 * maxExtent;
     }
 
@@ -111,10 +147,10 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd)
       auto& v1 = m_Vertices.ExpandAndGetRef();
       auto& v2 = m_Vertices.ExpandAndGetRef();
 
-      v1.m_color = ezColor::White;
+      v1.m_color = cCur;
       v1.m_position = vCenter + vTangent2 * rd.m_fDensity * (float)i - vTangent1 * maxExtent;
 
-      v2.m_color = ezColor::White;
+      v2.m_color = cCur;
       v2.m_position = vCenter + vTangent2 * rd.m_fDensity * (float)i + vTangent1 * maxExtent;
     }
   }
@@ -163,9 +199,43 @@ void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* p
 
   /// \todo Are these parameters correct?
   ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr, 0);
-  pRenderData->m_GlobalTransform.SetIdentity();
   pRenderData->m_GlobalBounds.SetInvalid();
   pRenderData->m_fDensity = m_pSceneContext->GetGridDensity();
+  pRenderData->m_uiNumLines = 30;
+
+  const ezCamera* cam = view.GetRenderCamera();
+
+  if (cam->IsOrthographic())
+  {
+    pRenderData->m_GlobalTransform.SetIdentity();
+    pRenderData->m_GlobalTransform.m_vPosition = cam->GetCenterPosition();
+    pRenderData->m_GlobalTransform.m_Rotation.SetColumn(0, cam->GetCenterDirRight());
+    pRenderData->m_GlobalTransform.m_Rotation.SetColumn(1, cam->GetCenterDirUp());
+    pRenderData->m_GlobalTransform.m_Rotation.SetColumn(2, cam->GetCenterDirForwards());
+
+    ezVec3& val = pRenderData->m_GlobalTransform.m_vPosition;
+    val.x = ezMath::Round(val.x, pRenderData->m_fDensity);
+    val.y = ezMath::Round(val.y, pRenderData->m_fDensity);
+    val.z = ezMath::Round(val.z, pRenderData->m_fDensity);
+  }
+  else
+  {
+    const auto& sel = m_pSceneContext->GetSelection();
+
+    if (sel.IsEmpty())
+      return;
+
+    pRenderData->m_GlobalTransform = m_pSceneContext->GetGridTransform();
+
+    // grid is disabled
+    if (pRenderData->m_GlobalTransform.m_Rotation.IsZero(0.001f))
+      return;
+  }
 
   pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleForeground, 0);
 }
+
+
+
+
+

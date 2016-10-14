@@ -313,6 +313,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),
     EZ_MEMBER_PROPERTY("AddAmbient", m_bAddAmbientLight),
     EZ_MEMBER_PROPERTY("GridDensity", m_fGridDensity),
+    EZ_MEMBER_PROPERTY("GridCenter", m_vGridCenter),
+    EZ_MEMBER_PROPERTY("GridTangent1", m_vGridTangent1),
+    EZ_MEMBER_PROPERTY("GridTangent2", m_vGridTangent2),
   }
   EZ_END_PROPERTIES
 }

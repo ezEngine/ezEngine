@@ -21,6 +21,7 @@ public:
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
   float GetGridDensity() const { return m_fGridDensity; }
+  ezTransform GetGridTransform() const { return m_GridTransform; }
 
   ezGameState* GetGameState() const;
 
@@ -53,6 +54,7 @@ private:
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;
   float m_fGridDensity;
+  ezTransform m_GridTransform;
 
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;

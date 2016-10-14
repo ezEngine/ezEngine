@@ -21,6 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScenePreferencesUser, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("ShowGrid", m_bShowGrid),
     EZ_MEMBER_PROPERTY("CameraSpeed", m_iCameraSpeed)->AddAttributes(new ezDefaultValueAttribute(15), new ezClampValueAttribute(1, 30)),
     EZ_MEMBER_PROPERTY("QuadView", m_bQuadView)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("ViewSingle", m_ViewSingle)->AddAttributes(new ezHiddenAttribute()),
@@ -83,5 +84,12 @@ void ezScenePreferencesUser::SetCameraSpeed(ezInt32 value)
   m_iCameraSpeed = ezMath::Clamp(value, 0, 24);
 
   // Kiff, inform the men!
+  TriggerPreferencesChangedEvent();
+}
+
+void ezScenePreferencesUser::SetShowGrid(bool show)
+{
+  m_bShowGrid = show;
+
   TriggerPreferencesChangedEvent();
 }

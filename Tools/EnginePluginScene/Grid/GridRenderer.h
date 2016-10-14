@@ -18,7 +18,7 @@ class ezGridRenderData : public ezRenderData
 
 public:
   float m_fDensity;
-
+  ezInt32 m_uiNumLines;
 };
 
 class ezEditorGridExtractor : public ezExtractor

@@ -67,6 +67,7 @@ ezSceneContext::ezSceneContext()
   m_bRenderSelectionBoxes = true;
   m_bRenderShapeIcons = true;
   m_fGridDensity = 0;
+  m_GridTransform.SetIdentity();
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -84,6 +85,22 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
     m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
     m_fGridDensity = msg->m_fGridDensity;
+
+    if (m_fGridDensity > 0.0f)
+    {
+      m_GridTransform.m_vPosition = msg->m_vGridCenter;
+
+      if (msg->m_vGridTangent1.IsZero())
+      {
+        m_GridTransform.m_Rotation.SetZero();
+      }
+      else
+      {
+        m_GridTransform.m_Rotation.SetColumn(0, msg->m_vGridTangent1);
+        m_GridTransform.m_Rotation.SetColumn(1, msg->m_vGridTangent2);
+        m_GridTransform.m_Rotation.SetColumn(2, msg->m_vGridTangent1.Cross(msg->m_vGridTangent2));
+      }
+    }
 
     ezGameState* pState = GetGameState();
     m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
