@@ -93,7 +93,6 @@ private:
   ezRandom m_Generator;
 };
 
-
-
+#include <Foundation/Math/Implementation/AllClassesRandom_inl.h>
 
 
