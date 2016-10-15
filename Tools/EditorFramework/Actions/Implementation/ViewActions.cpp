@@ -16,9 +16,9 @@ ezActionDescriptorHandle ezViewActions::s_hCameraUsageHint;
 
 void ezViewActions::RegisterActions()
 {
-  s_hRenderMode = EZ_REGISTER_LRU_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
-  s_hPerspective = EZ_REGISTER_LRU_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
-  s_hCameraUsageHint = EZ_REGISTER_LRU_MENU("View.CameraUsageHint", ezCameraUsageHintAction, ":/EditorFramework/Icons/Tag16.png");
+  s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
+  s_hCameraUsageHint = EZ_REGISTER_DYNAMIC_MENU("View.CameraUsageHint", ezCameraUsageHintAction, ":/EditorFramework/Icons/Tag16.png");
 }
 
 void ezViewActions::UnregisterActions()

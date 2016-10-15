@@ -87,6 +87,11 @@ public:
 
   void MergeLastTwoTransactions();
 
+  ezUInt32 GetUndoStackSize() const;
+  ezUInt32 GetRedoStackSize() const;
+  const ezCommandTransaction* GetUndoStackEntry(ezUInt32 iIndex) const;
+  const ezCommandTransaction* GetRedoStackEntry(ezUInt32 iIndex) const;
+
 private:
   friend class ezCommand;
 

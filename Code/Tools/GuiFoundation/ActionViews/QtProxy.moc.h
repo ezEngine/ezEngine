@@ -103,7 +103,7 @@ private:
 };
 
 
-class EZ_GUIFOUNDATION_DLL ezQtLRUMenuProxy : public ezQtMenuProxy
+class EZ_GUIFOUNDATION_DLL ezQtDynamicMenuProxy : public ezQtMenuProxy
 {
   Q_OBJECT
 
@@ -115,7 +115,7 @@ private slots:
   void SlotMenuEntryTriggered();
 
 private:
-  ezHybridArray<ezLRUMenuAction::Item, 16> m_Entries;
+  ezHybridArray<ezDynamicMenuAction::Item, 16> m_Entries;
 };
 
 

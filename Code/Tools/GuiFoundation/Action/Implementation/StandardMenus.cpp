@@ -16,7 +16,7 @@ void ezStandardMenus::RegisterActions()
 {
   s_hMenuFile = EZ_REGISTER_MENU("Menu.File");
   s_hMenuEdit = EZ_REGISTER_MENU("Menu.Edit");
-  s_hMenuPanels = EZ_REGISTER_LRU_MENU("Menu.Panels", ezApplicationPanelsMenuAction, "");
+  s_hMenuPanels = EZ_REGISTER_DYNAMIC_MENU("Menu.Panels", ezApplicationPanelsMenuAction, "");
   s_hMenuProject = EZ_REGISTER_MENU("Menu.Project");
   s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
   s_hMenuView = EZ_REGISTER_MENU("Menu.View");
@@ -74,30 +74,30 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 struct ezComparePanels
 {
   /// \brief Returns true if a is less than b
-  EZ_FORCE_INLINE bool Less(const ezLRUMenuAction::Item& p1, const ezLRUMenuAction::Item& p2) const
+  EZ_FORCE_INLINE bool Less(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
   {
     return p1.m_sDisplay < p2.m_sDisplay;
   }
 
   /// \brief Returns true if a is equal to b
-  EZ_FORCE_INLINE bool Equal(const ezLRUMenuAction::Item& p1, const ezLRUMenuAction::Item& p2) const
+  EZ_FORCE_INLINE bool Equal(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
   {
     return p1.m_sDisplay == p2.m_sDisplay;
   }
 };
 
 
-void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
+void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
 {
   out_Entries.Clear();
 
   for (auto* pPanel : ezQtApplicationPanel::GetAllApplicationPanels())
   {
-    ezLRUMenuAction::Item item;
+    ezDynamicMenuAction::Item item;
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
     item.m_UserValue = pPanel;
     item.m_Icon = pPanel->windowIcon();
-    item.m_CheckState = pPanel->isVisible() ? ezLRUMenuAction::Item::CheckMark::Checked : ezLRUMenuAction::Item::CheckMark::Unchecked;
+    item.m_CheckState = pPanel->isVisible() ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
     
     out_Entries.PushBack(item);
   }

@@ -44,22 +44,22 @@ public:
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezRecentDocumentsMenuAction : public ezLRUMenuAction
+class EZ_EDITORFRAMEWORK_DLL ezRecentDocumentsMenuAction : public ezDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRecentDocumentsMenuAction, ezLRUMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRecentDocumentsMenuAction, ezDynamicMenuAction);
 public:
-  ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath) {}
-  virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
+  ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath) {}
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
 
 ///
-class EZ_EDITORFRAMEWORK_DLL ezRecentProjectsMenuAction : public ezLRUMenuAction
+class EZ_EDITORFRAMEWORK_DLL ezRecentProjectsMenuAction : public ezDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRecentProjectsMenuAction, ezLRUMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRecentProjectsMenuAction, ezDynamicMenuAction);
 public:
-  ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath) {}
-  virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
+  ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath) {}
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
 

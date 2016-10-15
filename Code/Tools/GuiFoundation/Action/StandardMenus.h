@@ -53,11 +53,11 @@ public:
 };
 
 ///
-class EZ_GUIFOUNDATION_DLL ezApplicationPanelsMenuAction : public ezLRUMenuAction
+class EZ_GUIFOUNDATION_DLL ezApplicationPanelsMenuAction : public ezDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezApplicationPanelsMenuAction, ezLRUMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezApplicationPanelsMenuAction, ezDynamicMenuAction);
 public:
-  ezApplicationPanelsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath) {}
-  virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
+  ezApplicationPanelsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath) {}
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
 };

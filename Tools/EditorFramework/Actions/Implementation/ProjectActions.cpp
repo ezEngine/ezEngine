@@ -53,12 +53,12 @@ void ezProjectActions::RegisterActions()
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("DocumentCategory");
   s_hCreateDocument = EZ_REGISTER_ACTION_1("Document.Create", ezActionScope::Global, "Project", "Ctrl+N", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
   s_hOpenDocument = EZ_REGISTER_ACTION_1("Document.Open", ezActionScope::Global, "Project", "Ctrl+O", ezProjectAction, ezProjectAction::ButtonType::OpenDocument);
-  s_hRecentDocuments = EZ_REGISTER_LRU_MENU("Project.RecentDocuments.Menu", ezRecentDocumentsMenuAction, "");
+  s_hRecentDocuments = EZ_REGISTER_DYNAMIC_MENU("Project.RecentDocuments.Menu", ezRecentDocumentsMenuAction, "");
 
   s_hProjectCategory = EZ_REGISTER_CATEGORY("ProjectCategory");
   s_hCreateProject = EZ_REGISTER_ACTION_1("Project.Create", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
   s_hOpenProject = EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
-  s_hRecentProjects = EZ_REGISTER_LRU_MENU("Project.RecentProjects.Menu", ezRecentProjectsMenuAction, "");
+  s_hRecentProjects = EZ_REGISTER_DYNAMIC_MENU("Project.RecentProjects.Menu", ezRecentProjectsMenuAction, "");
   s_hCloseProject = EZ_REGISTER_ACTION_1("Project.Close", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
 
   s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
@@ -153,7 +153,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
+void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
 {
   out_Entries.Clear();
 
@@ -168,7 +168,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
     if (!ezOSFile::ExistsFile(file.m_File))
       continue;
 
-    ezLRUMenuAction::Item item;
+    ezDynamicMenuAction::Item item;
 
     const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
     if (ezDocumentManager::FindDocumentTypeFromPath(file.m_File, false, pTypeDesc).Failed())
@@ -215,7 +215,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
+void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
 {
   out_Entries.Clear();
 
@@ -233,7 +233,7 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
     sTemp.PathParentDirectory();
     sTemp.Trim("/");
 
-    ezLRUMenuAction::Item item;
+    ezDynamicMenuAction::Item item;
     item.m_sDisplay = sTemp;
     item.m_UserValue = file.m_File;
 

@@ -11,7 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMenuAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLRUMenuAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicMenuAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationMenuAction, 1, ezRTTINoAllocator);
@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSliderAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezEnumerationMenuAction::ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath)
+ezEnumerationMenuAction::ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath)
 {
   m_pEnumerationType = nullptr;
 }
@@ -34,7 +34,7 @@ void ezEnumerationMenuAction::InitEnumerationType(const ezRTTI* pEnumerationType
   
 }
 
-void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
+void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
 {
   out_Entries.Clear();
   out_Entries.Reserve(m_pEnumerationType->GetProperties().GetCount() - 1);
@@ -45,18 +45,18 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16
     if (pProp->GetCategory() == ezPropertyCategory::Constant)
     {
       ezInt64 iValue = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
-      ezLRUMenuAction::Item item;
+      ezDynamicMenuAction::Item item;
 
       item.m_sDisplay = ezTranslate(pProp->GetPropertyName());
 
       item.m_UserValue = iValue;
       if (m_pEnumerationType->IsDerivedFrom<ezEnumBase>())
       {
-        item.m_CheckState = (iCurrentValue == iValue) ? ezLRUMenuAction::Item::CheckMark::Checked : ezLRUMenuAction::Item::CheckMark::Unchecked;
+        item.m_CheckState = (iCurrentValue == iValue) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
       }
       else if (m_pEnumerationType->IsDerivedFrom<ezBitflagsBase>())
       {
-        item.m_CheckState = ((iCurrentValue & iValue) != 0) ? ezLRUMenuAction::Item::CheckMark::Checked : ezLRUMenuAction::Item::CheckMark::Unchecked;
+        item.m_CheckState = ((iCurrentValue & iValue) != 0) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
       }
       
       out_Entries.PushBack(item);

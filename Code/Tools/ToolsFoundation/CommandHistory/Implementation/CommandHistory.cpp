@@ -347,4 +347,24 @@ void ezCommandHistory::MergeLastTwoTransactions()
   pLast->GetDynamicRTTI()->GetAllocator()->Deallocate(pLast);
 }
 
+ezUInt32 ezCommandHistory::GetUndoStackSize() const
+{
+  return m_UndoHistory.GetCount();
+}
+
+ezUInt32 ezCommandHistory::GetRedoStackSize() const
+{
+  return m_RedoHistory.GetCount();
+}
+
+const ezCommandTransaction* ezCommandHistory::GetUndoStackEntry(ezUInt32 iIndex) const
+{
+  return m_UndoHistory[iIndex];
+}
+
+const ezCommandTransaction* ezCommandHistory::GetRedoStackEntry(ezUInt32 iIndex) const
+{
+  return m_RedoHistory[iIndex];
+}
+
 

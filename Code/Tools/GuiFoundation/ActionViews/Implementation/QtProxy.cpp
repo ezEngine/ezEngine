@@ -35,9 +35,9 @@ static ezQtProxy* QtButtonProxyCreator(const ezRTTI* pRtti)
   return new(ezQtButtonProxy);
 }
 
-static ezQtProxy* QtLRUMenuProxyCreator(const ezRTTI* pRtti)
+static ezQtProxy* QtDynamicMenuProxyCreator(const ezRTTI* pRtti)
 {
-  return new(ezQtLRUMenuProxy);
+  return new(ezQtDynamicMenuProxy);
 }
 
 static ezQtProxy* QtSliderProxyCreator(const ezRTTI* pRtti)
@@ -56,7 +56,7 @@ ON_CORE_STARTUP
 {
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
-  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
+  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>(), QtDynamicMenuProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator);
   ezQtProxy::s_pSignalProxy = new QObject;
@@ -317,18 +317,18 @@ void ezQtButtonProxy::OnTriggered()
   m_pAction->Execute(m_pQtAction->isChecked());
 }
 
-void ezQtLRUMenuProxy::SetAction(ezAction* pAction)
+void ezQtDynamicMenuProxy::SetAction(ezAction* pAction)
 {
   ezQtMenuProxy::SetAction(pAction);
 
   EZ_VERIFY(connect(m_pMenu, SIGNAL(aboutToShow()), this, SLOT(SlotMenuAboutToShow())) != nullptr, "signal/slot connection failed");
 }
 
-void ezQtLRUMenuProxy::SlotMenuAboutToShow()
+void ezQtDynamicMenuProxy::SlotMenuAboutToShow()
 {
   m_pMenu->clear();
 
-  static_cast<ezLRUMenuAction*>(m_pAction)->GetEntries(m_Entries);
+  static_cast<ezDynamicMenuAction*>(m_pAction)->GetEntries(m_Entries);
 
   if (m_Entries.IsEmpty())
   {
@@ -340,7 +340,7 @@ void ezQtLRUMenuProxy::SlotMenuAboutToShow()
     {
       const auto& p = m_Entries[i];
 
-      if (p.m_ItemFlags.IsSet(ezLRUMenuAction::Item::ItemFlags::Separator))
+      if (p.m_ItemFlags.IsSet(ezDynamicMenuAction::Item::ItemFlags::Separator))
       {
         m_pMenu->addSeparator();
       }
@@ -349,8 +349,8 @@ void ezQtLRUMenuProxy::SlotMenuAboutToShow()
         auto pAction = m_pMenu->addAction(QString::fromUtf8(p.m_sDisplay.GetData()));
         pAction->setData(i);
         pAction->setIcon(p.m_Icon);
-        pAction->setCheckable(p.m_CheckState != ezLRUMenuAction::Item::CheckMark::NotCheckable);
-        pAction->setChecked(p.m_CheckState == ezLRUMenuAction::Item::CheckMark::Checked);
+        pAction->setCheckable(p.m_CheckState != ezDynamicMenuAction::Item::CheckMark::NotCheckable);
+        pAction->setChecked(p.m_CheckState == ezDynamicMenuAction::Item::CheckMark::Checked);
 
         EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuEntryTriggered())) != nullptr, "signal/slot connection failed");
       }
@@ -358,7 +358,7 @@ void ezQtLRUMenuProxy::SlotMenuAboutToShow()
   }
 }
 
-void ezQtLRUMenuProxy::SlotMenuEntryTriggered()
+void ezQtDynamicMenuProxy::SlotMenuEntryTriggered()
 {
   QAction* pAction = qobject_cast<QAction*>(sender());
   if (!pAction)

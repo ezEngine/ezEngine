@@ -46,9 +46,9 @@ public:
 };
 
 ///
-class EZ_GUIFOUNDATION_DLL ezLRUMenuAction : public ezMenuAction
+class EZ_GUIFOUNDATION_DLL ezDynamicMenuAction : public ezMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLRUMenuAction, ezMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicMenuAction, ezMenuAction);
 public:
   struct Item
   {
@@ -85,18 +85,18 @@ public:
     ezVariant m_UserValue;
   };
 
-  ezLRUMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezMenuAction(context, szName, szIconPath) {}
+  ezDynamicMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezMenuAction(context, szName, szIconPath) {}
   virtual void GetEntries(ezHybridArray<Item, 16>& out_Entries) = 0;
 };
 
 ///
-class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezLRUMenuAction
+class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezDynamicMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction, ezLRUMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction, ezDynamicMenuAction);
 public:
   ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   void InitEnumerationType(const ezRTTI* pEnumerationType);
-  virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
   virtual ezInt64 GetValue() const = 0;
 
 protected:
