@@ -4,7 +4,6 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 
 /// \brief Blurs input and writes it to an output buffer of the same format.
 class EZ_RENDERERCORE_DLL ezBlurPass : public ezRenderPipelinePass
@@ -31,5 +30,4 @@ protected:
   ezInt32 m_iRadius;
   ezConstantBufferStorageHandle m_hBlurCB;
   ezShaderResourceHandle m_hShader;
-  ezMeshBufferResourceHandle m_hMesh;
 };

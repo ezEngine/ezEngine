@@ -67,6 +67,11 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
         }
 
         outputs[m_PinOutput.m_uiOutputIndex] = desc;
+        outputs[m_PinOutput.m_uiOutputIndex].m_bCreateRenderTarget = true;
+        outputs[m_PinOutput.m_uiOutputIndex].m_bAllowShaderResourceView = true;
+        outputs[m_PinOutput.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
+        outputs[m_PinOutput.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
+        outputs[m_PinOutput.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
       }
     }
     else

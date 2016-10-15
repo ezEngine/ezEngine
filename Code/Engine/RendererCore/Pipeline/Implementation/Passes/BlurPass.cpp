@@ -29,33 +29,6 @@ ezBlurPass::ezBlurPass() : ezRenderPipelinePass("BlurPass"), m_iRadius(15)
   {
     m_hBlurCB = ezRenderContext::CreateConstantBufferStorage<ezBlurConstants>();
   }
-
-  {
-    // TODO: Move my lovely quad somewhere else.
-    const char* szResourceName = "BlurFullscreenQuad";
-    m_hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
-    if (m_hMesh.IsValid())
-      return;
-
-    // Build geometry
-    ezGeometry geom;
-
-    ezUInt32 idx[4];
-    const ezVec2 halfSize = ezVec2(1.0f, 1.0f);
-    ezMat4 mTransform = ezMat4::IdentityMatrix();
-    idx[0] = geom.AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1), ezColor::CornflowerBlue, 0, mTransform);
-    idx[1] = geom.AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1), ezColor::CornflowerBlue, 0, mTransform);
-    idx[2] = geom.AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0), ezColor::CornflowerBlue, 0, mTransform);
-    idx[3] = geom.AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0), ezColor::CornflowerBlue, 0, mTransform);
-    geom.AddPolygon(idx, false);
-
-    ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
-    desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
-
-    m_hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szResourceName);
-  }
 }
 
 ezBlurPass::~ezBlurPass()
@@ -70,6 +43,12 @@ bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
   {
+    if (!inputs[m_PinInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+    {
+      ezLog::Error("Blur pass input must allow shader resoure view.");
+      return false;
+    }
+
     outputs[m_PinOutput.m_uiOutputIndex] = *inputs[m_PinInput.m_uiInputIndex];
   }
   else
@@ -92,11 +71,11 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     // Setup render target
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-        
+
     // Bind render target and viewport
     pGALContext->SetRenderTargetSetup(renderTargetSetup);
     pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
-   
+
     pGALContext->Clear(ezColor(1.0f, 0.0f, 0.0f));
     // Setup input view and sampler
     ezGALResourceViewCreationDescription rvcd;
@@ -105,7 +84,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(m_hMesh);  
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "Input", hResourceView);
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
 
@@ -116,7 +95,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 void ezBlurPass::SetRadius(ezInt32 iRadius)
 {
   m_iRadius = iRadius;
-  
+
   ezBlurConstants* cb = ezRenderContext::GetConstantBufferData<ezBlurConstants>(m_hBlurCB);
   cb->BlurRadius = m_iRadius;
 }
