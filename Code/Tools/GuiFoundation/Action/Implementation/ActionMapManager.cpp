@@ -1,6 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/Action/DocumentActions.h>
 
 ezMap<ezString, ezActionMap*> ezActionMapManager::s_Mappings;
 

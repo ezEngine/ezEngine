@@ -3,7 +3,9 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 #include <Foundation/IO/OSFile.h>
 #include <QProcess>
 #include <QDir>
