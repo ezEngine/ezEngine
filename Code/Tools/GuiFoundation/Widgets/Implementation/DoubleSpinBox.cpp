@@ -9,12 +9,14 @@
 
 inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode) : QDoubleSpinBox(pParent)
 {
+  m_fDefaultValue = 0.0;
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   m_bInvalid = false;
-  m_fDefaultValue = 0.0;
-  m_bDragging = false;
   m_bModified = false;
   m_bIntMode = bIntMode;
+  m_bDragging = false;
+  m_fStartDragValue = 0;
+  m_iDragDelta = 0;
 
   setSingleStep(0.1f);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -164,7 +166,9 @@ void ezQtDoubleSpinBox::mousePressEvent(QMouseEvent* event)
 
   if (event->button() == Qt::LeftButton && (hoverControl == QStyle::SC_SpinBoxUp || hoverControl == QStyle::SC_SpinBoxDown))
   {
+    m_fStartDragValue = value();
     m_bDragging = true;
+    m_iDragDelta = 0;
     m_bModified = false;
     m_LastDragPos = event->globalPos();
     grabMouse();
@@ -178,7 +182,9 @@ void ezQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
 {
   if (event->button() == Qt::LeftButton && m_bDragging)
   {
+    m_fStartDragValue = 0;
     m_bDragging = false;
+    m_iDragDelta = 0;
     if (m_bModified)
     {
       m_bModified = false;
@@ -213,6 +219,7 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
   if (m_bDragging)
   {
     int iDelta = m_LastDragPos.y() - event->globalPos().y();
+    m_iDragDelta += iDelta;
     {
       m_LastDragPos = event->globalPos();
       const QRect dsize = QApplication::desktop()->availableGeometry(m_LastDragPos);
@@ -227,8 +234,13 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
         QCursor::setPos(m_LastDragPos);
       }
     }
-    double fValue = m_bInvalid ? m_fDefaultValue : QDoubleSpinBox::value();
-    fValue += m_bIntMode ? (iDelta / 8.0) : (iDelta * 0.01);
+
+    double fValue = m_fStartDragValue;
+    if (m_bIntMode)
+      fValue += ((double)m_iDragDelta / 8.0);
+    else
+      fValue += ((double)m_iDragDelta * 0.01);
+
     setValue(fValue);
     m_bModified = true;
   }

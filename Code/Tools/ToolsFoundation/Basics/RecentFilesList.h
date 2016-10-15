@@ -2,17 +2,26 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 
-/// \brief Maintains a list of recently used files.
+/// \brief Maintains a list of recently used files and the container window ID they previously resided in.
 class EZ_TOOLSFOUNDATION_DLL ezRecentFilesList
 {
 public:
   ezRecentFilesList(ezUInt32 uiMaxElements) { m_uiMaxElements = uiMaxElements; }
 
-  /// \brief Moves the inserted file to the front.
-  void Insert(const char* szFile);
+  /// \brief Struct that defines the file and container window of the recent file list.
+  struct RecentFile
+  {
+    RecentFile() : m_iContainerWindow(0) {}
+    RecentFile(ezStringView sFile, ezInt32 iContainerWindow) : m_File(sFile), m_iContainerWindow(iContainerWindow) {}
+
+    ezString m_File;
+    ezInt32 m_iContainerWindow;
+  };
+  /// \brief Moves the inserted file to the front with the given container ID.
+  void Insert(const char* szFile, ezInt32 iContainerWindow);
 
   /// \brief Returns all files in the list.
-  const ezDeque<ezString>& GetFileList() const { return m_Files; }
+  const ezDeque<RecentFile>& GetFileList() const { return m_Files; }
 
   /// \brief Clears the list
   void Clear() { m_Files.Clear(); }
@@ -25,5 +34,5 @@ public:
 
 private:
   ezUInt32 m_uiMaxElements;
-  ezDeque<ezString> m_Files;
+  ezDeque<RecentFile> m_Files;
 };

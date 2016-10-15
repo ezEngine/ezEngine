@@ -22,12 +22,14 @@ public:
   static ezActionDescriptorHandle s_hClose;
   static ezActionDescriptorHandle s_hOpenContainingFolder;
   static ezActionDescriptorHandle s_hCopyAssetGuid;
+  static ezActionDescriptorHandle s_hMoveDocumentWindow;
+
   static ezActionDescriptorHandle s_hUpdatePrefabs;
   static ezActionDescriptorHandle s_hDocumentCategory;
 };
 
 
-///
+/// \brief Standard document actions.
 class EZ_GUIFOUNDATION_DLL ezDocumentAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentAction, ezButtonAction);
@@ -51,4 +53,14 @@ private:
   void DocumentEventHandler(const ezDocumentEvent& e);
 
   ButtonType m_ButtonType;
+};
+
+/// \brief Action to move document windows between containers.
+class EZ_GUIFOUNDATION_DLL ezContainerWindowMenuAction : public ezLRUMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezContainerWindowMenuAction, ezLRUMenuAction);
+public:
+  ezContainerWindowMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+  virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
+  virtual void Execute(const ezVariant& value) override;
 };

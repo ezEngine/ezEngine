@@ -24,9 +24,10 @@ ezActionDescriptorHandle ezDocumentActions::s_hSaveAll;
 ezActionDescriptorHandle ezDocumentActions::s_hCloseCategory;
 ezActionDescriptorHandle ezDocumentActions::s_hClose;
 ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
+ezActionDescriptorHandle ezDocumentActions::s_hCopyAssetGuid;
+ezActionDescriptorHandle ezDocumentActions::s_hMoveDocumentWindow;
 ezActionDescriptorHandle ezDocumentActions::s_hUpdatePrefabs;
 ezActionDescriptorHandle ezDocumentActions::s_hDocumentCategory;
-ezActionDescriptorHandle ezDocumentActions::s_hCopyAssetGuid;
 
 void ezDocumentActions::RegisterActions()
 {
@@ -38,6 +39,7 @@ void ezDocumentActions::RegisterActions()
   s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
   s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
+  s_hMoveDocumentWindow = EZ_REGISTER_LRU_MENU("Document.MoveWindow", ezContainerWindowMenuAction, ":/GuiFoundation/Icons/Window16.png");
 
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("Tools.DocumentCategory");
   s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
@@ -53,6 +55,7 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hClose);
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
   ezActionManager::UnregisterAction(s_hCopyAssetGuid);
+  ezActionManager::UnregisterAction(s_hMoveDocumentWindow);
   ezActionManager::UnregisterAction(s_hDocumentCategory);
   ezActionManager::UnregisterAction(s_hUpdatePrefabs);
 }
@@ -71,6 +74,7 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
 
   if (!bForToolbar)
   {
+    pMap->MapAction(s_hMoveDocumentWindow, sSubPath, 4.0f);
     sSubPath.Set(szPath, "/CloseCategory");
     pMap->MapAction(s_hCloseCategory, szPath, 2.0f);
     pMap->MapAction(s_hClose, sSubPath, 1.0f);
@@ -246,6 +250,69 @@ void ezDocumentAction::Execute(const ezVariant& value)
     // TODO const cast
     const_cast<ezDocument*>(m_Context.m_pDocument)->UpdatePrefabs();
     return;
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// ezContainerWindowMenuAction
+////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWindowMenuAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezContainerWindowMenuAction::ezContainerWindowMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezLRUMenuAction(context, szName, szIconPath)
+{
+}
+
+void ezContainerWindowMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
+{
+  ezQtDocumentWindow* pView = qobject_cast<ezQtDocumentWindow*>(m_Context.m_pWindow);
+
+  out_Entries.Clear();
+  {
+    ezLRUMenuAction::Item newContainer;
+    newContainer.m_sDisplay = ezTranslate("Document.NewWindow");
+    newContainer.m_CheckState = ezLRUMenuAction::Item::CheckMark::NotCheckable;
+    newContainer.m_UserValue = (ezInt32)-1;
+    newContainer.m_Icon = QIcon(QStringLiteral(":/GuiFoundation/Icons/Window16.png"));
+    out_Entries.PushBack(newContainer);
+  }
+  {
+    ezLRUMenuAction::Item separator;
+    separator.m_ItemFlags = ezLRUMenuAction::Item::ItemFlags::Separator;
+    out_Entries.PushBack(separator);
+  }
+  const auto& containers = ezQtContainerWindow::GetAllContainerWindows();
+  for (ezUInt32 i = 0; i < containers.GetCount(); i++)
+  {
+    ezQtContainerWindow* pContainer = containers[i];
+    ezLRUMenuAction::Item entryItem;
+    entryItem.m_sDisplay = i == 0 ? ezString("Main") : ezConversionUtils::ToString(i);
+
+    entryItem.m_CheckState = (pView->GetContainerWindow() == pContainer) ? ezLRUMenuAction::Item::CheckMark::Checked : ezLRUMenuAction::Item::CheckMark::Unchecked;
+    entryItem.m_UserValue = (ezInt32)i;
+    entryItem.m_Icon = QIcon(QStringLiteral(":/GuiFoundation/Icons/Window16.png"));
+    out_Entries.PushBack(entryItem);
+  }
+}
+
+void ezContainerWindowMenuAction::Execute(const ezVariant& value)
+{
+  ezQtDocumentWindow* pView = qobject_cast<ezQtDocumentWindow*>(m_Context.m_pWindow);
+  ezInt32 iIndex = value.ConvertTo<ezInt32>();
+  if (iIndex == -1)
+  {
+    ezQtContainerWindow* pContainer = ezQtContainerWindow::CreateNewContainerWindow();
+    pContainer->MoveDocumentWindowToContainer(pView);
+    pContainer->show();
+    pView->EnsureVisible();
+  }
+  else
+  {
+    ezQtContainerWindow::GetAllContainerWindows()[iIndex]->MoveDocumentWindowToContainer(pView);
+    pView->EnsureVisible();
   }
 }
 

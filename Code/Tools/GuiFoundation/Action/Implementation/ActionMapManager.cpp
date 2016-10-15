@@ -63,10 +63,14 @@ ezActionMap* ezActionMapManager::GetActionMap(const char* szMapping)
 
 void ezActionMapManager::Startup()
 {
+  ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
+  ezDocumentActions::MapActions("DocumentWindowTabMenu", "", false);
 }
 
 void ezActionMapManager::Shutdown()
 {
+  ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu");
+
   while (!s_Mappings.IsEmpty())
   {
     ezResult res = UnregisterActionMap(s_Mappings.GetIterator().Key());

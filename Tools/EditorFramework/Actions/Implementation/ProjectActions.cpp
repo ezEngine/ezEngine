@@ -161,26 +161,26 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
     return;
 
   ezInt32 iMaxDocumentsToAdd = 10;
-  for (ezString s : ezQtEditorApp::GetSingleton()->GetRecentDocumentsList().GetFileList())
+  for (auto file : ezQtEditorApp::GetSingleton()->GetRecentDocumentsList().GetFileList())
   {
     QAction* pAction = nullptr;
 
-    if (!ezOSFile::ExistsFile(s))
+    if (!ezOSFile::ExistsFile(file.m_File))
       continue;
 
     ezLRUMenuAction::Item item;
 
     const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-    if (ezDocumentManager::FindDocumentTypeFromPath(s, false, pTypeDesc).Failed())
+    if (ezDocumentManager::FindDocumentTypeFromPath(file.m_File, false, pTypeDesc).Failed())
       continue;
 
-    item.m_UserValue = s;
+    item.m_UserValue = file.m_File;
     item.m_Icon = ezQtUiServices::GetCachedIconResource(pTypeDesc->m_sIcon);
 
     if (ezToolsProject::IsProjectOpen())
     {
       ezString sRelativePath;
-      if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(s, &sRelativePath))
+      if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(file.m_File, &sRelativePath))
         continue;
 
       item.m_sDisplay = sRelativePath;
@@ -189,7 +189,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
     }
     else
     {
-      item.m_sDisplay = s;
+      item.m_sDisplay = file.m_File;
 
       out_Entries.PushBack(item);
     }
@@ -224,18 +224,18 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
 
   ezStringBuilder sTemp;
 
-  for (ezString s : ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList())
+  for (auto file : ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList())
   {
-    if (!ezOSFile::ExistsFile(s))
+    if (!ezOSFile::ExistsFile(file.m_File))
       continue;
 
-    sTemp = s;
+    sTemp = file.m_File;
     sTemp.PathParentDirectory();
     sTemp.Trim("/");
 
     ezLRUMenuAction::Item item;
     item.m_sDisplay = sTemp;
-    item.m_UserValue = s;
+    item.m_UserValue = file.m_File;
 
     out_Entries.PushBack(item);
   }

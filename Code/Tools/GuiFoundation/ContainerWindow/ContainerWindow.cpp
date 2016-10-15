@@ -17,17 +17,20 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezDynamicArray<ezQtContainerWindow*> ezQtContainerWindow::s_AllContainerWindows;
+bool ezQtContainerWindow::s_bForceClose = false;
 
-ezQtContainerWindow::ezQtContainerWindow()
+ezQtContainerWindow::ezQtContainerWindow(ezInt32 iUniqueIdentifier)
 {
+  m_iUniqueIdentifier = iUniqueIdentifier;
   m_bWindowLayoutRestored = false;
   m_pStatusBarLabel = nullptr;
   m_iWindowLayoutRestoreScheduled = 0;
 
-  setObjectName(QLatin1String(GetUniqueName())); // todo
-  setWindowIcon(QIcon(QLatin1String(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
-
   s_AllContainerWindows.PushBack(this);
+
+  setObjectName(GetUniqueName().GetData());
+  setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
+
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
@@ -45,6 +48,38 @@ ezQtContainerWindow::~ezQtContainerWindow()
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::UIServicesEventHandler, this));
+}
+
+ezQtContainerWindow* ezQtContainerWindow::CreateNewContainerWindow()
+{
+  ezInt32 iUniqueIdentifier = 0;
+  auto isIdInUse = [](ezInt32 iUniqueIdentifier)->bool
+  {
+    for (auto pContainer : s_AllContainerWindows)
+    {
+      if (pContainer->m_iUniqueIdentifier == iUniqueIdentifier)
+        return true;
+    }
+    return false;
+  };
+  while (isIdInUse(iUniqueIdentifier))
+  {
+    ++iUniqueIdentifier;
+  }
+
+  ezQtContainerWindow* pNewContainer = new ezQtContainerWindow(iUniqueIdentifier);
+  return pNewContainer;
+}
+
+ezQtContainerWindow* ezQtContainerWindow::GetOrCreateContainerWindow(ezInt32 iUniqueIdentifier)
+{
+  for (auto pContainer : s_AllContainerWindows)
+  {
+    if (pContainer->m_iUniqueIdentifier == iUniqueIdentifier)
+      return pContainer;
+  }
+
+  return new ezQtContainerWindow(iUniqueIdentifier);
 }
 
 QTabWidget* ezQtContainerWindow::GetTabWidget() const
@@ -87,13 +122,49 @@ void ezQtContainerWindow::SlotRestoreLayout()
 
 void ezQtContainerWindow::closeEvent(QCloseEvent* e)
 {
-  if (!ezToolsProject::CanCloseProject())
-  {
-    e->setAccepted(false);
-    return;
-  }
-
   SaveWindowLayout();
+
+  if (s_bForceClose)
+    return;
+
+  s_bForceClose = true;
+  if (IsMainContainer())
+  {
+    if (!ezToolsProject::CanCloseProject())
+    {
+      e->setAccepted(false);
+      return;
+    }
+
+    // Closing the main container should also close all other container windows.
+    ezDynamicArray<ezQtContainerWindow*> cntainerWindows = s_AllContainerWindows;
+    for (ezQtContainerWindow* pContainer : cntainerWindows)
+    {
+      if (pContainer != this)
+        pContainer->close();
+    }
+  }
+  else
+  {
+    ezHybridArray<ezDocument*, 32> docs;
+    docs.Reserve(m_DocumentWindows.GetCount());
+    for (ezQtDocumentWindow* pWindow : m_DocumentWindows)
+    {
+      docs.PushBack(pWindow->GetDocument());
+    }
+    if (!ezToolsProject::CanCloseDocuments(docs))
+    {
+      e->setAccepted(false);
+      return;
+    }
+
+    ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
+    for (ezQtDocumentWindow* pWindow : windows)
+    {
+      pWindow->CloseDocumentWindow();
+    }
+  }
+  s_bForceClose = false;
 }
 
 
@@ -128,7 +199,7 @@ void ezQtContainerWindow::SaveWindowLayout()
     showNormal();
 
   ezStringBuilder sGroup;
-  sGroup.Format("ContainerWnd_%s", GetUniqueName());
+  sGroup.Format("ContainerWnd_%s", GetUniqueName().GetData());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
@@ -153,8 +224,9 @@ void ezQtContainerWindow::RestoreWindowLayout()
   if (m_iWindowLayoutRestoreScheduled > 0)
     return;
 
+  show();
   ezStringBuilder sGroup;
-  sGroup.Format("ContainerWnd_%s", GetUniqueName());
+  sGroup.Format("ContainerWnd_%s", GetUniqueName().GetData());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
@@ -193,6 +265,18 @@ void ezQtContainerWindow::SetupDocumentTabArea()
   EZ_VERIFY(connect(pTabs, SIGNAL(currentChanged(int)), this, SLOT(SlotDocumentTabCurrentChanged(int))) != nullptr, "signal/slot connection failed");
 
   setCentralWidget(pTabs);
+}
+
+ezString ezQtContainerWindow::GetUniqueName() const
+{
+  if (IsMainContainer())
+  {
+    return "ezEditor";
+  }
+  else
+  {
+    return ezConversionUtils::ToString(m_iUniqueIdentifier);
+  }
 }
 
 void ezQtContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
@@ -234,6 +318,12 @@ void ezQtContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* 
   m_DocumentWindows.RemoveAtSwap(iListIndex);
 
   pDocWindow->m_pContainerWindow = nullptr;
+
+  if (m_DocumentWindows.IsEmpty() && m_ApplicationPanels.IsEmpty() && !IsMainContainer())
+  {
+    close();
+    deleteLater();
+  }
 }
 
 void ezQtContainerWindow::RemoveApplicationPanelFromContainer(ezQtApplicationPanel* pPanel)
@@ -293,6 +383,18 @@ void ezQtContainerWindow::MoveApplicationPanelToContainer(ezQtApplicationPanel* 
   addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
 
   ScheduleRestoreWindowLayout();
+}
+
+
+bool ezQtContainerWindow::IsMainContainer() const
+{
+  return m_iUniqueIdentifier == 0;
+}
+
+
+ezInt32 ezQtContainerWindow::GetUniqueIdentifier() const
+{
+  return m_iUniqueIdentifier;
 }
 
 ezResult ezQtContainerWindow::EnsureVisible(ezQtDocumentWindow* pDocWindow)

@@ -70,6 +70,7 @@ public:
   static const ezDynamicArray<ezQtDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
+  ezQtContainerWindow* GetContainerWindow() const;
 
   void ShowStatusBarMsgNoArgs(const char* szText);
   void ShowStatusBarMsg(const char* szText, ...);

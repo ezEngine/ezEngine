@@ -65,7 +65,7 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
     for (auto& doc : allDocs.GetFileList())
     {
-      OpenDocument(doc);
+      OpenDocument(doc.m_File);
     }
   }
 }
@@ -96,13 +96,13 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
 
-      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
+      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
     }
     break;
 
   case ezToolsProjectEvent::Type::ProjectClosing:
     {
-      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
+      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
 
       ezPreferences::ClearProjectPreferences();
@@ -132,16 +132,27 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
 {
   switch (r.m_Type)
   {
-  case ezToolsProjectRequest::Type::CanProjectClose:
+  case ezToolsProjectRequest::Type::CanCloseProject:
+  case ezToolsProjectRequest::Type::CanCloseDocuments:
     {
-      if (r.m_bProjectCanClose == false)
+      if (r.m_bCanClose == false)
         return;
 
       ezHybridArray<ezDocument*, 32> ModifiedDocs;
-
-      for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+      if (r.m_Type == ezToolsProjectRequest::Type::CanCloseProject)
       {
-        for (ezDocument* pDoc : pMan->GetAllDocuments())
+        for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+        {
+          for (ezDocument* pDoc : pMan->GetAllDocuments())
+          {
+            if (pDoc->IsModified())
+              ModifiedDocs.PushBack(pDoc);
+          }
+        }
+      }
+      else
+      {
+        for (ezDocument* pDoc : r.m_Documents)
         {
           if (pDoc->IsModified())
             ModifiedDocs.PushBack(pDoc);
@@ -152,10 +163,27 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       {
         ezQtModifiedDocumentsDlg dlg(QApplication::activeWindow(), ModifiedDocs);
         if (dlg.exec() == 0)
-          r.m_bProjectCanClose = false;
+          r.m_bCanClose = false;
       }
     }
-    return;
+    break;
+  case ezToolsProjectRequest::Type::SuggestContainerWindow:
+    {
+      const auto& docs = GetRecentDocumentsList();
+      ezStringBuilder sCleanPath = r.m_Documents[0]->GetDocumentPath();
+      sCleanPath.MakeCleanPath();
+
+      for (auto& file : docs.GetFileList())
+      {
+        if (file.m_File == sCleanPath)
+        {
+          r.m_iContainerWindowUniqueIdentifier = file.m_iContainerWindow;
+          break;
+        }
+
+      }
+    }
+    break;
   }
 }
 

@@ -18,6 +18,8 @@ Document.SaveAs;Save &As...
 Document.Close;Close
 Document.OpenContainingFolder;Open Containing &Folder
 Document.CopyAssetGuid;Copy Asset Guid
+Document.MoveWindow;Move to Container Window
+Document.NewWindow;New Container Window
 Selection.Copy;Copy
 Selection.Paste;Paste
 Selection.PasteAsChild;Paste as Child

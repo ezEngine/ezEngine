@@ -2,16 +2,24 @@
 #include <ToolsFoundation/Basics/RecentFilesList.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
-void ezRecentFilesList::Insert(const char* szFile)
+void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
 {
   ezStringBuilder sCleanPath = szFile;
   sCleanPath.MakeCleanPath();
 
   ezString s = sCleanPath;
 
-  m_Files.Remove(s);
-  m_Files.PushFront(s);
+  for (ezUInt32 i = 0; i < m_Files.GetCount(); i++)
+  {
+    if (m_Files[i].m_File == s)
+    {
+      m_Files.RemoveAt(i);
+      break;
+    }
+  }
+  m_Files.PushFront(RecentFile(s, iContainerWindow));
 
   if (m_Files.GetCount() > m_uiMaxElements)
     m_Files.SetCount(m_uiMaxElements);
@@ -23,9 +31,11 @@ void ezRecentFilesList::Save(const char* szFile)
   if (File.Open(szFile).Failed())
     return;
 
-  for (const ezString& s : m_Files)
+  for (const RecentFile& file : m_Files)
   {
-    File.WriteBytes(s.GetData(), s.GetElementCount());
+    ezStringBuilder sTemp;
+    sTemp.Format("%s|%i", file.m_File.GetData(), file.m_iContainerWindow);
+    File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
     File.WriteBytes("\n", sizeof(char));
   }
 }
@@ -46,6 +56,20 @@ void ezRecentFilesList::Load(const char* szFile)
 
   for (const ezStringView& sv : Lines)
   {
-    m_Files.PushBack(sv);
+    ezStringBuilder sTemp = sv;
+    ezHybridArray<ezStringView, 2> Parts;
+    sTemp.Split(false, Parts, "|");
+    if (Parts.GetCount() == 1)
+    {
+      m_Files.PushBack(RecentFile(Parts[0], 0));
+    }
+    else if (Parts.GetCount() == 2)
+    {
+      ezStringBuilder sContainer = Parts[1];
+      ezInt32 iContainerWindow = 0;
+      ezConversionUtils::StringToInt(sContainer, iContainerWindow);
+      m_Files.PushBack(RecentFile(Parts[0], iContainerWindow));
+    }
+    
   }
 }

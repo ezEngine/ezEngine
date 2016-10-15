@@ -41,7 +41,9 @@ void ezQtEditorApp::SaveOpenDocumentsList()
 
   for (auto it = Sorted.GetLastIterator(); it.IsValid(); --it)
   {
-    allDocs.Insert(it.Value()->GetDocument()->GetDocumentPath());
+    ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(it.Value()->GetDocument());
+    allDocs.Insert(it.Value()->GetDocument()->GetDocumentPath(),
+      (pWindow && pWindow->GetContainerWindow()) ? pWindow->GetContainerWindow()->GetUniqueIdentifier() : 0);
   }
 
   ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();

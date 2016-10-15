@@ -128,7 +128,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   {
     SetStyleSheet();
 
-    ezQtContainerWindow* pContainer = new ezQtContainerWindow();
+    ezQtContainerWindow* pContainer = new ezQtContainerWindow(0);
     pContainer->show();
   }
 
@@ -196,7 +196,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
     // first open the project, so that the data directory list is read
     if (!s_RecentProjects.GetFileList().IsEmpty())
     {
-      CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0]);
+      CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
     }
   }
 

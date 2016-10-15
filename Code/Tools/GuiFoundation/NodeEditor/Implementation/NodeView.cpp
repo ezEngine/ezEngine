@@ -9,6 +9,11 @@ ezQtNodeView::ezQtNodeView(QWidget* parent) : QGraphicsView(parent), m_pScene(nu
 {
   setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
   setDragMode(QGraphicsView::DragMode::RubberBandDrag);
+
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  m_ViewPos = QPointF(0, 0);
+  m_ViewScale = QPointF(1, 1);
 }
 
 ezQtNodeView::~ezQtNodeView()
@@ -20,6 +25,11 @@ void ezQtNodeView::SetScene(ezQtNodeScene* pScene)
 {
   m_pScene = pScene;
   setScene(pScene);
+
+  QRectF sceneRect = m_pScene->sceneRect();
+  m_ViewPos = sceneRect.topLeft();
+  m_ViewScale = QPointF(1, 1);
+  UpdateView();
 }
 
 ezQtNodeScene* ezQtNodeView::GetScene()
@@ -34,7 +44,8 @@ void ezQtNodeView::mousePressEvent(QMouseEvent* event)
   if (event->button() == Qt::RightButton)
   {
     setContextMenuPolicy(Qt::NoContextMenu);
-    m_vLastPos = event->pos();
+    m_vStartDragView = event->pos();
+    m_vStartDragScene = m_ViewPos;
     viewport()->setCursor(Qt::ClosedHandCursor);
     event->accept();
     m_bPanning = true;
@@ -49,13 +60,10 @@ void ezQtNodeView::mouseMoveEvent(QMouseEvent* event)
   if (m_bPanning)
   {
     m_iPanCounter++;
-    // Copied from QGraphicsView
-    QScrollBar* hBar = horizontalScrollBar();
-    QScrollBar* vBar = verticalScrollBar();
-    QPoint delta = event->pos() - m_vLastPos;
-    hBar->setValue(hBar->value() + (isRightToLeft() ? delta.x() : -delta.x()));
-    vBar->setValue(vBar->value() - delta.y());
-    m_vLastPos = event->pos();
+    QPoint vViewDelta = m_vStartDragView - event->pos();
+    QPointF vSceneDelta = QPointF(vViewDelta.x() / m_ViewScale.x(), vViewDelta.y() / m_ViewScale.y());
+    m_ViewPos = m_vStartDragScene + vSceneDelta;
+    UpdateView();
   }
 }
 
@@ -75,15 +83,22 @@ void ezQtNodeView::mouseReleaseEvent(QMouseEvent* event)
 
 void ezQtNodeView::wheelEvent(QWheelEvent* event)
 {
-  qreal fScaleFactor = 1.15;
-  if (event->delta() > 0)
-  {
-    scale(fScaleFactor, fScaleFactor);
-  }
-  else
-  {
-    scale(1.0 / fScaleFactor, 1.0 / fScaleFactor);
-  }
+  QPointF centerA(event->pos().x() / m_ViewScale.x(), event->pos().y() / m_ViewScale.y());
+
+  const qreal fScaleFactor = 1.15;
+  const qreal fScale = (event->delta() > 0) ? fScaleFactor : (1.0 / fScaleFactor);
+
+  m_ViewScale *= fScale;
+  m_ViewScale.setX(ezMath::Clamp(m_ViewScale.x(), 0.01, 2.0));
+  m_ViewScale.setY(ezMath::Clamp(m_ViewScale.y(), 0.01, 2.0));
+
+  QPointF centerB(event->pos().x() / m_ViewScale.x(), event->pos().y() / m_ViewScale.y());
+  m_ViewPos -= (centerB - centerA);
+
+  m_vStartDragView = event->pos();
+  m_vStartDragScene = m_ViewPos;
+
+  UpdateView();
 }
 
 void ezQtNodeView::contextMenuEvent(QContextMenuEvent* event)
@@ -94,5 +109,18 @@ void ezQtNodeView::contextMenuEvent(QContextMenuEvent* event)
     return;
   }
   QGraphicsView::contextMenuEvent(event);
+}
+
+void ezQtNodeView::resizeEvent(QResizeEvent* event)
+{
+  QGraphicsView::resizeEvent(event);
+  UpdateView();
+}
+
+void ezQtNodeView::UpdateView()
+{
+  QRectF sceneRect(m_ViewPos.x(), m_ViewPos.y(), width() / m_ViewScale.x(), height() / m_ViewScale.y());
+  setSceneRect(sceneRect);
+  fitInView(sceneRect, Qt::KeepAspectRatio);
 }
 

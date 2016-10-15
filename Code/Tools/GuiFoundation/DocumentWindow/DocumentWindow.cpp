@@ -18,12 +18,6 @@ ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
 
 void ezQtDocumentWindow::Constructor()
 {
-  if (s_AllDocumentWindows.IsEmpty())
-  {
-    ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
-    ezDocumentActions::MapActions("DocumentWindowTabMenu", "", false);
-  }
-
   s_AllDocumentWindows.PushBack(this);
 
   setStatusBar(new QStatusBar());
@@ -41,7 +35,9 @@ void ezQtDocumentWindow::Constructor()
   ezQtMenuBarActionMapView* pMenuBar = new ezQtMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
 
-  ezQtContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
+  ezInt32 iContainerWindowIndex = ezToolsProject::SuggestContainerWindow(m_pDocument);
+  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetOrCreateContainerWindow(iContainerWindowIndex);
+  pContainer->MoveDocumentWindowToContainer(this);
 
   ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 }
@@ -73,11 +69,6 @@ ezQtDocumentWindow::~ezQtDocumentWindow()
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 
   s_AllDocumentWindows.RemoveSwap(this);
-
-  if (s_AllDocumentWindows.IsEmpty())
-  {
-    ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu");
-  }
 
   if (m_pDocument)
   {
@@ -481,6 +472,11 @@ ezQtDocumentWindow* ezQtDocumentWindow::FindWindowByDocument(const ezDocument* p
   }
 
   return nullptr;
+}
+
+ezQtContainerWindow* ezQtDocumentWindow::GetContainerWindow() const
+{
+  return m_pContainerWindow;
 }
 
 ezString ezQtDocumentWindow::GetWindowIcon() const

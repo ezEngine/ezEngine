@@ -9,6 +9,14 @@ EZ_IMPLEMENT_SINGLETON(ezToolsProject);
 ezEvent<const ezToolsProjectEvent&> ezToolsProject::s_Events;
 ezEvent<ezToolsProjectRequest&> ezToolsProject::s_Requests;
 
+
+ezToolsProjectRequest::ezToolsProjectRequest()
+{
+  m_Type = Type::CanCloseProject;
+  m_bCanClose = true;
+  m_iContainerWindowUniqueIdentifier = 0;
+}
+
 ezToolsProject::ezToolsProject(const char* szProjectPath)
   : m_SingletonRegistrar(this)
 {
@@ -112,11 +120,39 @@ bool ezToolsProject::CanCloseProject()
     return true;
 
   ezToolsProjectRequest e;
-  e.m_Type = ezToolsProjectRequest::Type::CanProjectClose;
-  e.m_bProjectCanClose = true;
+  e.m_Type = ezToolsProjectRequest::Type::CanCloseProject;
+  e.m_bCanClose = true;
   s_Requests.Broadcast(e);
 
-  return e.m_bProjectCanClose;
+  return e.m_bCanClose;
+}
+
+bool ezToolsProject::CanCloseDocuments(ezArrayPtr<ezDocument*> documents)
+{
+  if (GetSingleton() == nullptr)
+    return true;
+
+  ezToolsProjectRequest e;
+  e.m_Type = ezToolsProjectRequest::Type::CanCloseDocuments;
+  e.m_bCanClose = true;
+  e.m_Documents = documents;
+  s_Requests.Broadcast(e);
+
+  return e.m_bCanClose;
+}
+
+ezInt32 ezToolsProject::SuggestContainerWindow(ezDocument* pDoc)
+{
+  if (pDoc == nullptr)
+  {
+    return 0;
+  }
+  ezToolsProjectRequest e;
+  e.m_Type = ezToolsProjectRequest::Type::SuggestContainerWindow;
+  e.m_Documents.PushBack(pDoc);
+  s_Requests.Broadcast(e);
+
+  return e.m_iContainerWindowUniqueIdentifier;
 }
 
 ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCreate)

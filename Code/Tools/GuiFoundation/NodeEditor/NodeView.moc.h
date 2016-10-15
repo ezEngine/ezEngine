@@ -22,10 +22,19 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void wheelEvent(QWheelEvent* event) override;
   virtual void contextMenuEvent(QContextMenuEvent* event) override;
+  virtual void resizeEvent(QResizeEvent *) override;
+
+private:
+  void UpdateView();
 
 private:
   ezQtNodeScene* m_pScene;
   bool m_bPanning;
   ezInt32 m_iPanCounter;
-  QPoint m_vLastPos;
+
+  QPointF m_ViewPos;
+  QPointF m_ViewScale;
+
+  QPoint m_vStartDragView;
+  QPointF m_vStartDragScene;
 };

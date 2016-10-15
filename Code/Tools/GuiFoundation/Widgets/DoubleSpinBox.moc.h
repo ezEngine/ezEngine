@@ -26,7 +26,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
 
-  private slots:
+private slots:
   void onCustomContextMenuRequested();
 
 private:
@@ -35,8 +35,10 @@ private:
   mutable double m_fDisplayedValue;
   mutable QString m_sDisplayedText;
   mutable bool m_bInvalid;
-  bool m_bDragging;
   bool m_bModified;
   bool m_bIntMode;
+  bool m_bDragging;
+  double m_fStartDragValue;
   QPoint m_LastDragPos;
+  ezInt32 m_iDragDelta;
 };
