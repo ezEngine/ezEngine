@@ -96,7 +96,7 @@ ezStatus ezCommandHistory::UndoInternal()
   }
 
   ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
-  
+
   ezStatus status(EZ_FAILURE);
   if (pTransaction->Undo(true).m_Result == EZ_SUCCESS)
   {
@@ -107,7 +107,7 @@ ezStatus ezCommandHistory::UndoInternal()
 
     status = ezStatus(EZ_SUCCESS);
   }
-  
+
   m_bIsInUndoRedo = false;
   {
     ezCommandHistoryEvent e;
@@ -145,7 +145,7 @@ ezStatus ezCommandHistory::RedoInternal()
   }
 
   ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();
-  
+
   ezStatus status(EZ_FAILURE);
   if (pTransaction->Do(true).m_Result == EZ_SUCCESS)
   {
@@ -156,7 +156,7 @@ ezStatus ezCommandHistory::RedoInternal()
 
     status = ezStatus(EZ_SUCCESS);
   }
-  
+
   m_bIsInUndoRedo = false;
   {
     ezCommandHistoryEvent e;
@@ -183,7 +183,7 @@ bool ezCommandHistory::CanUndo() const
 {
   if (!m_TransactionStack.IsEmpty())
     return false;
-  
+
   return !m_UndoHistory.IsEmpty();
 }
 
@@ -213,7 +213,7 @@ const char* ezCommandHistory::GetRedoDisplayString() const
   return m_RedoHistory.PeekBack()->m_sDisplayString;
 }
 
-void ezCommandHistory::StartTransaction(const char* szDisplayString)
+void ezCommandHistory::StartTransaction(const char* szDisplayString, ...)
 {
   /// \todo Allow to have a limited transaction history and clean up transactions after a while
 
@@ -229,9 +229,17 @@ void ezCommandHistory::StartTransaction(const char* szDisplayString)
     return;
   }
 
+  ezStringBuilder sDisplay;
+
+  va_list args;
+  va_start(args, szDisplayString);
+  sDisplay.FormatArgs(szDisplayString, args);
+  va_end(args);
+
+
   pTransaction = (ezCommandTransaction*) ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate();
   pTransaction->m_pDocument = m_pDocument;
-  pTransaction->m_sDisplayString = szDisplayString;
+  pTransaction->m_sDisplayString = sDisplay;
 
   if (!m_TransactionStack.IsEmpty())
   {
@@ -359,7 +367,7 @@ void ezCommandHistory::MergeLastTwoTransactions()
 
   EZ_ASSERT_DEV(m_RedoHistory.IsEmpty(), "This can only be called directly after EndTransaction, when the redo history is empty");
   EZ_ASSERT_DEV(m_UndoHistory.GetCount() >= 2, "Can only do this when at least two transcations are in the queue");
-  
+
   ezCommandTransaction* pLast = m_UndoHistory.PeekBack();
   m_UndoHistory.PopBack();
 

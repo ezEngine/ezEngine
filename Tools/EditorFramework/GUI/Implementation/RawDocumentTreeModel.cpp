@@ -126,7 +126,7 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
 ezInt32 ezQtDocumentTreeModel::ComputeIndex(const ezDocumentObject* pObject) const
 {
   const ezDocumentObject* pParent = pObject->GetParent();
- 
+
   ezInt32 iIndex = pObject->GetPropertyIndex().ConvertTo<ezInt32>();
   return iIndex;
 }
@@ -175,7 +175,7 @@ int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
   else
   {
     const ezDocumentObject* pObject = (const ezDocumentObject*) parent.internalPointer();
-  
+
     if (!m_sChildProperty.IsEmpty())
       iCount = pObject->GetTypeAccessor().GetCount(m_sChildProperty);
   }
@@ -407,7 +407,7 @@ bool ezQtDocumentTreeModel::setData(const QModelIndex& index, const QVariant& va
 
     auto pHistory = m_pDocumentTree->GetDocument()->GetCommandHistory();
 
-    pHistory->StartTransaction("Change Name");
+    pHistory->StartTransaction("Rename to '%s'", value.toString().toUtf8().data());
 
     ezSetObjectPropertyCommand cmd;
     cmd.m_NewValue = value.toString().toUtf8().data();

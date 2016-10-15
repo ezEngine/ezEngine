@@ -127,7 +127,7 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
 
     const ezRenderData* pRenderData = batch.GetData<ezRenderData>(0);
     const ezRTTI* pType = pRenderData->GetDynamicRTTI();
-    
+
     ezUInt32 uiRendererIndex = ezInvalidIndex;
     if (m_TypeToRendererIndex.TryGetValue(pType, uiRendererIndex))
     {
@@ -135,9 +135,10 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
     }
     else
     {
-      ezLog::Warning("Could not render object of type '%s' in render pass '%s'. No suitable renderer found.", pType->GetTypeName(), m_sName.GetString().GetData());  
+      /// \todo Clemens...
+      //ezLog::Warning("Could not render object of type '%s' in render pass '%s'. No suitable renderer found.", pType->GetTypeName(), m_sName.GetString().GetData());
     }
-  }  
+  }
 }
 
 

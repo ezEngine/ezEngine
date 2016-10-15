@@ -129,7 +129,7 @@ void ezComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   m_pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
   EZ_ASSERT_DEV(m_pDocument != nullptr, "Invalid document GUID in drag & drop operation");
 
-  m_pDocument->GetCommandHistory()->StartTransaction("Add Object");
+  m_pDocument->GetCommandHistory()->StartTransaction("Drag Object");
 }
 
 void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)

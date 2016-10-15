@@ -53,7 +53,7 @@ public:
 public:
   ezCommandHistory(ezDocument* pDocument);
   ~ezCommandHistory();
-   
+
   const ezDocument* GetDocument() const { return m_pDocument; }
 
   ezStatus Undo(ezUInt32 uiNumEntries = 1);
@@ -65,7 +65,7 @@ public:
   const char* GetUndoDisplayString() const;
   const char* GetRedoDisplayString() const;
 
-  void StartTransaction(const char* szDisplayString);
+  void StartTransaction(const char* szDisplayString, ...);
   void CancelTransaction() { EndTransaction(true); }
   void FinishTransaction() { EndTransaction(false); }
 
