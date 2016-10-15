@@ -21,9 +21,9 @@ public:
 
 
 ///
-class EZ_GUIFOUNDATION_DLL ezCommandHistoryAction : public ezButtonAction
+class EZ_GUIFOUNDATION_DLL ezCommandHistoryAction : public ezDynamicActionAndMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommandHistoryAction, ezButtonAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCommandHistoryAction, ezDynamicActionAndMenuAction);
 public:
 
   enum class ButtonType
@@ -36,6 +36,7 @@ public:
   ~ezCommandHistoryAction();
 
   virtual void Execute(const ezVariant& value) override;
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
 
 private:
   void UpdateState();

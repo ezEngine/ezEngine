@@ -90,6 +90,24 @@ public:
 };
 
 ///
+class EZ_GUIFOUNDATION_DLL ezDynamicActionAndMenuAction : public ezDynamicMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicActionAndMenuAction, ezDynamicMenuAction);
+public:
+  ezDynamicActionAndMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+
+  bool IsEnabled() const { return m_bEnabled; }
+  void SetEnabled(bool bEnable, bool bTriggerUpdate = true) { m_bEnabled = bEnable; if (bTriggerUpdate) TriggerUpdate(); }
+  
+  bool IsVisible() const { return m_bVisible; }
+  void SetVisible(bool bVisible, bool bTriggerUpdate = true) { m_bVisible = bVisible; if (bTriggerUpdate) TriggerUpdate(); }
+
+protected:
+  bool m_bEnabled;
+  bool m_bVisible;
+};
+
+///
 class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezDynamicMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction, ezDynamicMenuAction);

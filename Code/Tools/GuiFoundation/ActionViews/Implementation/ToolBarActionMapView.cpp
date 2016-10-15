@@ -102,6 +102,26 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         ezQtMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
+
+    case ezActionType::ActionAndMenu:
+      {
+        ezNamedAction* pNamed = static_cast<ezNamedAction*>(pProxy->GetAction());
+
+        QMenu* pQtMenu = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQMenu();
+        QAction* pQtAction = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQAction();
+        // TODO pButton leaks!
+        QToolButton* pButton = new QToolButton(this);
+        pButton->setDefaultAction(pQtAction);
+        pButton->setMenu(pQtMenu);
+        pButton->setPopupMode(QToolButton::ToolButtonPopupMode::MenuButtonPopup);
+
+        // TODO addWidget return value of QAction leaks!
+        QAction* pToolButtonAction = addWidget(pButton);
+        pToolButtonAction->setParent(pQtMenu);
+
+        ezQtMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
+      }
+      break;
     }
   }
 }

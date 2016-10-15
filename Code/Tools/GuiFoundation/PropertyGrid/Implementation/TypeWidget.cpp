@@ -194,7 +194,8 @@ void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
   {
   case  ezQtPropertyWidget::Event::Type::ValueChanged:
     {
-      pObjectAccessor->StartTransaction("Change Property");
+      ezStringBuilder sTemp; sTemp.Format("Change Property '%s'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      pObjectAccessor->StartTransaction(sTemp);
 
       ezStatus res;
       for (const auto& sel : *ed.m_pItems)
@@ -216,7 +217,8 @@ void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 
   case  ezQtPropertyWidget::Event::Type::BeginTemporary:
     {
-      pObjectAccessor->BeginTemporaryCommands("Adjust Property");
+      ezStringBuilder sTemp; sTemp.Format("Change Property '%s'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      pObjectAccessor->BeginTemporaryCommands(sTemp);
     }
     break;
 

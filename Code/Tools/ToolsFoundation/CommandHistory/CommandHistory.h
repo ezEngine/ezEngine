@@ -56,8 +56,8 @@ public:
    
   const ezDocument* GetDocument() const { return m_pDocument; }
 
-  ezStatus Undo();
-  ezStatus Redo();
+  ezStatus Undo(ezUInt32 uiNumEntries = 1);
+  ezStatus Redo(ezUInt32 uiNumEntries = 1);
 
   bool CanUndo() const;
   bool CanRedo() const;
@@ -94,6 +94,9 @@ public:
 
 private:
   friend class ezCommand;
+
+  ezStatus UndoInternal();
+  ezStatus RedoInternal();
 
   void EndTransaction(bool bCancel);
   void EndTemporaryCommands(bool bCancel);

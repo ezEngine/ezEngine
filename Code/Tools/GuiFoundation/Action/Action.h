@@ -54,6 +54,7 @@ struct ezActionType
     Action,
     Category,
     Menu,
+    ActionAndMenu,
     Default = Action
   };
   typedef ezUInt8 StorageType;

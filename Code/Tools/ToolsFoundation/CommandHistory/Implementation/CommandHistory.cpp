@@ -81,7 +81,7 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
   }
 }
 
-ezStatus ezCommandHistory::Undo()
+ezStatus ezCommandHistory::UndoInternal()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "invalidly nested undo/redo");
   EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't undo with active transaction!");
@@ -118,7 +118,19 @@ ezStatus ezCommandHistory::Undo()
   return status;
 }
 
-ezStatus ezCommandHistory::Redo()
+ezStatus ezCommandHistory::Undo(ezUInt32 uiNumEntries)
+{
+  ezStatus res;
+  for (ezUInt32 i = 0; i < uiNumEntries; i++)
+  {
+    res = UndoInternal();
+    if (res.m_Result.Failed())
+      return res;
+  }
+  return res;
+}
+
+ezStatus ezCommandHistory::RedoInternal()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "invalidly nested undo/redo");
   EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't redo with active transaction!");
@@ -153,6 +165,18 @@ ezStatus ezCommandHistory::Redo()
     m_Events.Broadcast(e);
   }
   return status;
+}
+
+ezStatus ezCommandHistory::Redo(ezUInt32 uiNumEntries)
+{
+  ezStatus res;
+  for (ezUInt32 i = 0; i < uiNumEntries; i++)
+  {
+    res = RedoInternal();
+    if (res.m_Result.Failed())
+      return res;
+  }
+  return res;
 }
 
 bool ezCommandHistory::CanUndo() const
@@ -359,12 +383,12 @@ ezUInt32 ezCommandHistory::GetRedoStackSize() const
 
 const ezCommandTransaction* ezCommandHistory::GetUndoStackEntry(ezUInt32 iIndex) const
 {
-  return m_UndoHistory[iIndex];
+  return m_UndoHistory[GetUndoStackSize() - 1 - iIndex];
 }
 
 const ezCommandTransaction* ezCommandHistory::GetRedoStackEntry(ezUInt32 iIndex) const
 {
-  return m_RedoHistory[iIndex];
+  return m_RedoHistory[GetRedoStackSize() - 1 - iIndex];
 }
 
 

@@ -19,6 +19,10 @@
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
     [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, IconPath); }));
 
+#define EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1) \
+  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::ActionAndMenu, Scope, ActionName, CategoryName, ShortCut, \
+    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
+
 #define EZ_REGISTER_MENU(ActionName) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
     [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, ""); }));

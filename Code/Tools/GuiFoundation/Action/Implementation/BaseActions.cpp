@@ -14,6 +14,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicMenuAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicActionAndMenuAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationMenuAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -22,6 +25,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSliderAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
+ezDynamicActionAndMenuAction::ezDynamicActionAndMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath)
+{
+  m_bEnabled = true;
+  m_bVisible = true;
+}
 
 ezEnumerationMenuAction::ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath)
 {

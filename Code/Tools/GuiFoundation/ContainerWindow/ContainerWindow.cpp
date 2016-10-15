@@ -84,7 +84,7 @@ ezQtContainerWindow* ezQtContainerWindow::GetOrCreateContainerWindow(ezInt32 iUn
 
 QTabWidget* ezQtContainerWindow::GetTabWidget() const
 {
-  QTabWidget* pTabs = (QTabWidget*)centralWidget();
+  QTabWidget* pTabs = qobject_cast<QTabWidget*>(centralWidget());
   EZ_ASSERT_DEV(pTabs != nullptr, "The central widget is nullptr");
 
   return pTabs;
@@ -441,6 +441,27 @@ ezResult ezQtContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
   }
 
   return EZ_FAILURE;
+}
+
+void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows)
+{
+  struct WindowComparer
+  {
+    WindowComparer(QTabWidget* pTabs) : m_pTabs(pTabs) {}
+    EZ_FORCE_INLINE bool Less(ezQtDocumentWindow* a, ezQtDocumentWindow* b) const
+    {
+      int iIndexA = m_pTabs->indexOf(a);
+      int iIndexB = m_pTabs->indexOf(b);
+      return iIndexA < iIndexB;
+    }
+    QTabWidget* m_pTabs;
+  };
+
+  if (QTabWidget* pTabs = qobject_cast<QTabWidget*>(centralWidget()))
+  {
+    windows = m_DocumentWindows;
+    windows.Sort(WindowComparer(pTabs));
+  }
 }
 
 void ezQtContainerWindow::SlotDocumentTabCloseRequested(int index)

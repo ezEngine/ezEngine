@@ -67,6 +67,16 @@ void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedP
         AddDocumentObjectToMenu(Proxies, Context, pActionMap, pQtMenu, pChild);
       }
       break;
+
+    case ezActionType::ActionAndMenu:
+      {
+        QAction* pQtAction = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQAction();
+        QMenu* pQtMenu = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQMenu();
+        pCurrentRoot->addAction(pQtAction);
+        pCurrentRoot->addMenu(pQtMenu);
+        AddDocumentObjectToMenu(Proxies, Context, pActionMap, pQtMenu, pChild);
+      }
+      break;
     }
   }
 }

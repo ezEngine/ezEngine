@@ -40,6 +40,11 @@ static ezQtProxy* QtDynamicMenuProxyCreator(const ezRTTI* pRtti)
   return new(ezQtDynamicMenuProxy);
 }
 
+static ezQtProxy* QtDynamicActionAndMenuProxyCreator(const ezRTTI* pRtti)
+{
+  return new(ezQtDynamicActionAndMenuProxy);
+}
+
 static ezQtProxy* QtSliderProxyCreator(const ezRTTI* pRtti)
 {
   return new(ezQtSliderProxy);
@@ -57,6 +62,7 @@ ON_CORE_STARTUP
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>(), QtDynamicMenuProxyCreator);
+  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>(), QtDynamicActionAndMenuProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator);
   ezQtProxy::s_pSignalProxy = new QObject;
@@ -254,27 +260,23 @@ void ezQtButtonProxy::Update()
   m_pQtAction->setVisible(pButton->IsVisible());
 }
 
-void ezQtButtonProxy::SetAction(ezAction* pAction)
+
+void SetupQAction(ezAction* pAction, QPointer<QAction>& pQtAction, QObject* pTarget)
 {
-  EZ_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
-
-  ezQtProxy::SetAction(pAction);
-  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
-
-  ezActionDescriptorHandle hDesc = m_pAction->GetDescriptorHandle();
+  ezActionDescriptorHandle hDesc = pAction->GetDescriptorHandle();
   const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
 
-  if (m_pQtAction == nullptr)
+  if (pQtAction == nullptr)
   {
-    m_pQtAction = new QAction(nullptr);
-    EZ_VERIFY(connect(m_pQtAction, SIGNAL(triggered(bool)), this, SLOT(OnTriggered())) != nullptr, "connection failed");
+    pQtAction = new QAction(nullptr);
+    EZ_VERIFY(QObject::connect(pQtAction, SIGNAL(triggered(bool)), pTarget, SLOT(OnTriggered())) != nullptr, "connection failed");
 
     switch (pDesc->m_Scope)
     {
     case ezActionScope::Global:
       {
         // Parent is null so the global actions don't get deleted.
-        m_pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
+        pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
       }
       break;
     case ezActionScope::Document:
@@ -282,18 +284,28 @@ void ezQtButtonProxy::SetAction(ezAction* pAction)
         // Parent is set to the window belonging to the document.
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
         EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
-        m_pQtAction->setParent(pWindow);
-        m_pQtAction->setShortcutContext(Qt::ShortcutContext::WindowShortcut);
+        pQtAction->setParent(pWindow);
+        pQtAction->setShortcutContext(Qt::ShortcutContext::WindowShortcut);
       }
       break;
     case ezActionScope::Window:
       {
-        m_pQtAction->setParent(pAction->GetContext().m_pWindow);
-        m_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+        pQtAction->setParent(pAction->GetContext().m_pWindow);
+        pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
       }
       break;
     }
   }
+}
+
+void ezQtButtonProxy::SetAction(ezAction* pAction)
+{
+  EZ_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
+
+  ezQtProxy::SetAction(pAction);
+  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
+
+  SetupQAction(m_pAction, m_pQtAction, this);
 
   Update();
 }
@@ -373,14 +385,90 @@ void ezQtDynamicMenuProxy::SlotMenuEntryTriggered()
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////// ezQtDynamicActionAndMenuProxy /////////////////////
+//////////////////////////////////////////////////////////////////////////
 
-ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent) : QWidgetAction(parent)
+ezQtDynamicActionAndMenuProxy::ezQtDynamicActionAndMenuProxy()
 {
+  m_pQtAction = nullptr;
 }
+
+ezQtDynamicActionAndMenuProxy::~ezQtDynamicActionAndMenuProxy()
+{
+  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler, this));
+
+  if (m_pQtAction != nullptr)
+  {
+    m_pQtAction->deleteLater();
+  }
+  m_pQtAction = nullptr;
+}
+
+
+void ezQtDynamicActionAndMenuProxy::Update()
+{
+  ezQtDynamicMenuProxy::Update();
+
+  if (m_pQtAction == nullptr)
+    return;
+
+  auto pButton = static_cast<ezDynamicActionAndMenuAction*>(m_pAction);
+
+  const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
+  m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
+
+  ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
+
+  if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
+    sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
+
+  m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
+  m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
+  m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
+  m_pQtAction->setEnabled(pButton->IsEnabled());
+  m_pQtAction->setVisible(pButton->IsVisible());
+}
+
+
+void ezQtDynamicActionAndMenuProxy::SetAction(ezAction* pAction)
+{
+  ezQtDynamicMenuProxy::SetAction(pAction);
+
+  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler, this));
+
+  SetupQAction(m_pAction, m_pQtAction, this);
+
+  Update();
+}
+
+QAction* ezQtDynamicActionAndMenuProxy::GetQAction()
+{
+  return m_pQtAction;
+}
+
+void ezQtDynamicActionAndMenuProxy::OnTriggered()
+{
+  // make sure all focus is lost, to trigger pending changes
+  if (QApplication::focusWidget())
+    QApplication::focusWidget()->clearFocus();
+
+  m_pAction->Execute(ezVariant());
+}
+
+void ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
+{
+  Update();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////// ezQtSliderProxy /////////////////////
 //////////////////////////////////////////////////////////////////////////
+
+ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent) : QWidgetAction(parent)
+{
+}
 
 ezQtLabeledSlider::ezQtLabeledSlider(QWidget* parent) : QWidget(parent)
 {

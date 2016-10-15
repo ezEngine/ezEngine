@@ -27,23 +27,28 @@ void ezQtEditorApp::SaveOpenDocumentsList()
   if (windows.IsEmpty())
     return;
 
-  ezRecentFilesList allDocs(10);
+  ezRecentFilesList allDocs(windows.GetCount());
 
-  ezMap<ezUInt32, ezQtDocumentWindow*> Sorted;
-
-  for (ezUInt32 w = 0; w < windows.GetCount(); ++w)
+  ezDynamicArray<ezQtDocumentWindow*> allWindows;
+  allWindows.Reserve(windows.GetCount());
+  const auto& containers = ezQtContainerWindow::GetAllContainerWindows();
+  for (auto* container : containers)
   {
-    if (windows[w]->GetDocument())
+    ezHybridArray<ezQtDocumentWindow*, 16> windows;
+    container->GetDocumentWindows(windows);
+    for (auto* pWindow : windows)
     {
-      Sorted[windows[w]->GetWindowIndex()] = windows[w];
+      allWindows.PushBack(pWindow);
     }
   }
 
-  for (auto it = Sorted.GetLastIterator(); it.IsValid(); --it)
+  for (ezInt32 w = (ezInt32)allWindows.GetCount() - 1; w >= 0; --w)
   {
-    ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(it.Value()->GetDocument());
-    allDocs.Insert(it.Value()->GetDocument()->GetDocumentPath(),
-      (pWindow && pWindow->GetContainerWindow()) ? pWindow->GetContainerWindow()->GetUniqueIdentifier() : 0);
+    if (allWindows[w]->GetDocument())
+    {
+      allDocs.Insert(allWindows[w]->GetDocument()->GetDocumentPath(),
+        allWindows[w]->GetContainerWindow()->GetUniqueIdentifier());
+    }
   }
 
   ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();

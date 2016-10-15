@@ -118,6 +118,27 @@ private:
   ezHybridArray<ezDynamicMenuAction::Item, 16> m_Entries;
 };
 
+class EZ_GUIFOUNDATION_DLL ezQtDynamicActionAndMenuProxy : public ezQtDynamicMenuProxy
+{
+  Q_OBJECT
+
+public:
+  ezQtDynamicActionAndMenuProxy();
+  ~ezQtDynamicActionAndMenuProxy();
+
+  virtual void Update() override;
+  virtual void SetAction(ezAction* pAction) override;
+  virtual QAction* GetQAction();
+
+private slots:
+  void OnTriggered();
+
+private:
+  void StatusUpdateEventHandler(ezAction* pAction);
+
+private:
+  QPointer<QAction> m_pQtAction;
+};
 
 
 class EZ_GUIFOUNDATION_DLL ezQtLabeledSlider : public QWidget
@@ -130,6 +151,7 @@ public:
   QLabel* m_pLabel;
   QSlider* m_pSlider;
 };
+
 
 class EZ_GUIFOUNDATION_DLL ezQtSliderWidgetAction : public QWidgetAction
 {

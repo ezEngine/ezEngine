@@ -65,6 +65,12 @@ void ezQtMenuBarActionMapView::CreateView()
         ezQtMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
+
+    case ezActionType::ActionAndMenu:
+      {
+        EZ_REPORT_FAILURE("Cannot map ActionAndMenu in a menubar view!");
+      }
+      break;
     }
   }
 }

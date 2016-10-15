@@ -45,6 +45,8 @@ public:
 
   static ezResult EnsureVisibleAnyContainer(ezDocument* pDocument);
 
+  void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows);
+
 private:
   friend class ezQtDocumentWindow;
   friend class ezQtApplicationPanel;
