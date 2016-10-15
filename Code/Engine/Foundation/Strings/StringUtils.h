@@ -39,7 +39,7 @@ public:
   /// \brief Copies the string from szSource into the given buffer, which can hold at least uiDstSize bytes.
   ///
   /// The string will always be \0 terminated.
-  /// Multi-byte UTF-8 characters will only be copied, if they can fit completely into szDest. 
+  /// Multi-byte UTF-8 characters will only be copied, if they can fit completely into szDest.
   /// I.e. they will be truncated at a character boundary.
   /// Returns the number of bytes that were copied into szDest, excluding the terminating \0
   static ezUInt32 Copy(char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd = ezMaxStringEnd); // [tested]
@@ -61,14 +61,14 @@ public:
   /// \brief Converts a (UTF-8) string in-place to upper case.
   ///
   /// Returns the new string length in bytes (it might shrink, but never grow), excluding the \0 terminator.
-  static ezUInt32 ToUpperString(char* szString); // [tested]
+  static ezUInt32 ToUpperString(char* szString, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Converts a (UTF-8) string in-place to lower case.
   ///
   /// Returns the new string length in bytes (it might shrink, but never grow), excluding the \0 terminator.
-  static ezUInt32 ToLowerString(char* szString); // [tested]
+  static ezUInt32 ToLowerString(char* szString, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Compares the two code points for equality. 
+  /// \brief Compares the two code points for equality.
   ///
   /// Returns a negative number, if uiCharacter1 is smaller than uiCharacter2.
   /// Returns a positive number, if uiCharacter1 is larger than uiCharacter2.
@@ -120,7 +120,7 @@ public:
   /// Works with UTF-8 strings as well.
   static ezInt32 Compare(const char* pString1, const char* pString2, const char* pString1End = ezMaxStringEnd, const char* pString2End = ezMaxStringEnd); // [tested]
 
-  /// \brief Compares the first uiCharsToCompare characters of the two strings for equality. 
+  /// \brief Compares the first uiCharsToCompare characters of the two strings for equality.
   ///
   /// Returns a negative number if the pString1 is 'smaller' or shorter than pString2.
   /// Returns a positive number, if pString1 is 'larger' or longer than pString1.
@@ -145,7 +145,7 @@ public:
   static ezInt32 CompareN_NoCase(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End = ezMaxStringEnd, const char* pString2End = ezMaxStringEnd); // [tested]
 
 
-  /// \brief Creates a formated string in szDst. uiDstSize defines how many bytes szDst can hold. 
+  /// \brief Creates a formated string in szDst. uiDstSize defines how many bytes szDst can hold.
   ///
   /// Returns the number of bytes that would have been required to output the entire string (excluding the 0 terminator).\n
   /// Returns -1 if an error occurred. In this case it might also write a more detailed error message to the destination string itself.
@@ -156,7 +156,7 @@ public:
   /// output float NaN and Infinity as proper text.
   static ezInt32 snprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, ...); // [tested]
 
-  /// \brief Creates a formated string in szDst. uiDstSize defines how many bytes szDst can hold. 
+  /// \brief Creates a formated string in szDst. uiDstSize defines how many bytes szDst can hold.
   ///
   /// Returns the number of bytes that would have been required to output the entire string (excluding the 0 terminator).\n
   /// Returns -1 if an error occurred. In this case it might also write a more detailed error message to the destination string itself.
@@ -180,7 +180,7 @@ public:
   static bool EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd = ezMaxStringEnd, const char* szEndsWithEnd = ezMaxStringEnd); // [tested]
 
 
-  /// \brief Searches for the first occurrence of szStringToFind in szSource. 
+  /// \brief Searches for the first occurrence of szStringToFind in szSource.
   static const char* FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource. Ignores case.
@@ -205,12 +205,12 @@ public:
 
   /// \brief Returns the position in szString at which \a IsDelimiterCB returns true.
   ///
-  /// This is basically the inverse of SkipCharacters. SkipCharacters advances over all characters that fulfill the filter, 
+  /// This is basically the inverse of SkipCharacters. SkipCharacters advances over all characters that fulfill the filter,
   /// FindWordEnd advances over all characters that do not fulfill it.
   static const char* FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst = true); // [tested]
 
   /// \brief Removes all characters at the start and end of the string that match the respective characters and updates the new start and end of the string.
-  /// 
+  ///
   /// \param pString The string to trim.
   /// \param pStringEnd The end pointer into pString, either the end pointer for the not zero terminated string or ezMaxStringEnd for zero terminated ones.
   /// \param szTrimCharsStart A string compromised of characters to trim from the start of the string.
@@ -223,7 +223,7 @@ public:
   /// \brief A default word delimiter function for English text.
   static bool IsWordDelimiter_English(ezUInt32 uiChar); // [tested]
 
-  /// \brief A default word delimiter function for identifiers in C code. 
+  /// \brief A default word delimiter function for identifiers in C code.
   static bool IsIdentifierDelimiter_C_Code(ezUInt32 uiChar); // [tested]
 
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr.

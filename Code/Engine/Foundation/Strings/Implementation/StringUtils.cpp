@@ -102,7 +102,7 @@ ezUInt32 ezStringUtils::ToUpperChar(ezUInt32 wc)
       wc = 0x0053; // 'S'
 
       // this one character means, that for case-insensitive comparisons we always need to use ToUpper
-      // and NOT ToLower, as ToLower will not convert this one character, such that two strings, one with 0x017f 
+      // and NOT ToLower, as ToLower will not convert this one character, such that two strings, one with 0x017f
       // and one with 0x0053, will not compare equal
     }
     else if (wc >= 0x0200 && wc <= 0x0217)
@@ -207,12 +207,12 @@ ezUInt32 ezStringUtils::ToLowerChar(ezUInt32 wc)
 }
 
 
-ezUInt32 ezStringUtils::ToUpperString(char* pString)
+ezUInt32 ezStringUtils::ToUpperString(char* pString, const char* pStringEnd)
 {
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
-  while (*pReadStart != '\0')
+  while (*pReadStart != '\0' && pReadStart < pStringEnd)
   {
     const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
     const ezUInt32 uiCharUpper = ezStringUtils::ToUpperChar(uiChar);
@@ -225,12 +225,12 @@ ezUInt32 ezStringUtils::ToUpperString(char* pString)
   return uiNewStringLength;
 }
 
-ezUInt32 ezStringUtils::ToLowerString(char* pString)
+ezUInt32 ezStringUtils::ToLowerString(char* pString, const char* pStringEnd)
 {
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
-  while (*pReadStart != '\0')
+  while (*pReadStart != '\0' && pReadStart < pStringEnd)
   {
     const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
     const ezUInt32 uiCharUpper = ezStringUtils::ToLowerChar(uiChar);
