@@ -15,6 +15,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezTranslateGizmo::ezTranslateGizmo()
 {
   m_vStartPosition.SetZero();
+  m_fCameraSpeed = 0.2f;
 
   m_AxisX.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
   m_AxisY.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
@@ -29,6 +30,7 @@ ezTranslateGizmo::ezTranslateGizmo()
 
   m_Mode = TranslateMode::None;
   m_MovementMode = MovementMode::ScreenProjection;
+  m_LastPlaneInteraction = PlaneInteraction::PlaneZ;
 }
 
 void ezTranslateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -138,6 +140,7 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
     m_vPlaneAxis[0] = m_PlaneXY.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
     m_vPlaneAxis[1] = m_PlaneXY.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Plane;
+    m_LastPlaneInteraction = PlaneInteraction::PlaneZ;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneXZ)
   {
@@ -145,6 +148,7 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
     m_vPlaneAxis[0] = m_PlaneXZ.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
     m_vPlaneAxis[1] = m_PlaneXZ.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Plane;
+    m_LastPlaneInteraction = PlaneInteraction::PlaneY;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneYZ)
   {
@@ -152,6 +156,7 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
     m_vPlaneAxis[0] = m_PlaneYZ.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
     m_vPlaneAxis[1] = m_PlaneYZ.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Plane;
+    m_LastPlaneInteraction = PlaneInteraction::PlaneX;
   }
   else
     return ezEditorInut::MayBeHandledByOthers;
@@ -159,15 +164,6 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
-
-  //m_AxisX.SetVisible(false);
-  //m_AxisY.SetVisible(false);
-  //m_AxisZ.SetVisible(false);
-  //m_PlaneXY.SetVisible(false);
-  //m_PlaneXZ.SetVisible(false);
-  //m_PlaneYZ.SetVisible(false);
-
-  //m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vStartPosition = GetTransformation().GetTranslationVector();
 
@@ -308,7 +304,7 @@ ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   }
   else
   {
-    const float fSpeed = 0.2f;
+    const float fSpeed = m_fCameraSpeed * 0.01f;
 
     const ezVec3 vMouseDir = m_pCamera->GetDirRight() * (float)(CurMousePos.x - m_LastMousePos.x) + -m_pCamera->GetDirUp() * (float)(CurMousePos.y - m_LastMousePos.y);
 
@@ -324,7 +320,9 @@ ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_LastMousePos = UpdateMouseMode(e);
 
-  ezSnapProvider::SnapTranslationInLocalSpace(mTrans.GetRotationalPart(), vTranslate);
+  // disable snapping when ALT is pressed
+  if (!e->modifiers().testFlag(Qt::AltModifier))
+    ezSnapProvider::SnapTranslationInLocalSpace(mTrans.GetRotationalPart(), vTranslate);
 
   const ezVec3 vLastPos = mTrans.GetTranslationVector();
 
@@ -360,5 +358,10 @@ void ezTranslateGizmo::SetMovementMode(MovementMode mode)
   {
     m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
   }
+}
+
+void ezTranslateGizmo::SetCameraSpeed(float fSpeed)
+{
+  m_fCameraSpeed = fSpeed;
 }
 

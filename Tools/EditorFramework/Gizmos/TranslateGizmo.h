@@ -22,7 +22,18 @@ public:
     MouseDiff
   };
 
+  enum class PlaneInteraction
+  {
+    PlaneX,
+    PlaneY,
+    PlaneZ
+  };
+
   void SetMovementMode(MovementMode mode);
+  PlaneInteraction GetLastPlaneInteraction() const { return m_LastPlaneInteraction; }
+
+  /// \brief Used when CTRL+drag moves the object AND the camera
+  void SetCameraSpeed(float fSpeed);
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
@@ -60,8 +71,10 @@ private:
   };
 
   TranslateMode m_Mode;
+  PlaneInteraction m_LastPlaneInteraction;
 
   float m_fStartScale;
+  float m_fCameraSpeed;
 
   ezTime m_LastInteraction;
   ezVec3 m_vMoveAxis;

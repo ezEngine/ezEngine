@@ -92,14 +92,20 @@ ezEditorInut ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
     m_vUnsnappedTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y * fDistPerPixel;
 
     m_vTranslationResult = m_vUnsnappedTranslationResult;
-    ezSnapProvider::SnapTranslation(m_vTranslationResult);
+
+    // disable snapping when ALT is pressed
+    if (!e->modifiers().testFlag(Qt::AltModifier))
+      ezSnapProvider::SnapTranslation(m_vTranslationResult);
 
     m_vTranslationDiff = m_vTranslationResult - vLastTranslationResult;
 
     m_UnsnappedRotationResult += ezAngle::Degree(-diff.x);
 
     ezAngle snappedRotation = m_UnsnappedRotationResult;
-    ezSnapProvider::SnapRotation(snappedRotation);
+
+    // disable snapping when ALT is pressed
+    if (!e->modifiers().testFlag(Qt::AltModifier))
+      ezSnapProvider::SnapRotation(snappedRotation);
 
     m_qRotationResult.SetFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
 
@@ -115,7 +121,10 @@ ezEditorInut ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
         m_fUnsnappedScalingResult = 1.0f / (1.0f - m_fScaleMouseMove * fScaleSpeed);
 
       m_fScalingResult = m_fUnsnappedScalingResult;
-      ezSnapProvider::SnapScale(m_fScalingResult);
+
+      // disable snapping when ALT is pressed
+      if (!e->modifiers().testFlag(Qt::AltModifier))
+        ezSnapProvider::SnapScale(m_fScalingResult);
     }
 
     m_LastMousePos = UpdateMouseMode(e);

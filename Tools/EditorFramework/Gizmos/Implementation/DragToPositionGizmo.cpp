@@ -175,7 +175,10 @@ ezEditorInut ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
   const ezVec3 vBiTangent = res.m_vPickedNormal.Cross(vTangent).GetNormalized();
 
   ezVec3 vSnappedPosition = res.m_vPickedPosition;
-  ezSnapProvider::SnapTranslation(vSnappedPosition);
+
+  // disable snapping when ALT is pressed
+  if (!e->modifiers().testFlag(Qt::AltModifier))
+    ezSnapProvider::SnapTranslation(vSnappedPosition);
 
   ezMat3 mRot;
   ezMat4 mTrans = GetTransformation();

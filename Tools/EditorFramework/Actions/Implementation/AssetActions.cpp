@@ -95,8 +95,18 @@ void ezAssetAction::Execute(const ezVariant& value)
   {
   case ezAssetAction::ButtonType::TransformAsset:
     {
+      if (m_Context.m_pDocument->IsModified())
+      {
+        ezStatus res = const_cast<ezDocument*>(m_Context.m_pDocument)->SaveDocument();
+        if (res.m_Result.Failed())
+        {
+          ezLog::Error("Failed to save document '%s': %s", m_Context.m_pDocument->GetDocumentPath(), res.m_sMessage.GetData());
+          break;
+        }
+      }
+
       auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid());
-     
+
       if (ret.m_Result.Failed())
       {
         ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), m_Context.m_pDocument->GetDocumentPath());

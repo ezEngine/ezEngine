@@ -76,6 +76,11 @@ ezCameraMoveContext::ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow,
   SetOwner(pOwnerWindow, pOwnerView);
 }
 
+float ezCameraMoveContext::ConvertCameraSpeed(ezUInt32 uiSpeedIdx)
+{
+  return s_fMoveSpeed[ezMath::Clamp<ezUInt32>(uiSpeedIdx, 0, EZ_ARRAY_SIZE(s_fMoveSpeed) - 1)];
+}
+
 void ezCameraMoveContext::DoFocusLost(bool bCancel)
 {
   m_bRotateCamera = false;
@@ -113,7 +118,7 @@ void ezCameraMoveContext::UpdateContext()
   const double TimeDiff = ezMath::Min(diff.GetSeconds(), 0.1);
 
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
-  float fSpeedFactor = s_fMoveSpeed[pPreferences->GetCameraSpeed()] * TimeDiff;
+  float fSpeedFactor = ConvertCameraSpeed(pPreferences->GetCameraSpeed()) * TimeDiff;
 
   if (m_bRun)
     fSpeedFactor *= 5.0f;
@@ -158,7 +163,7 @@ ezEditorInut ezCameraMoveContext::DoKeyReleaseEvent(QKeyEvent* e)
     return ezEditorInut::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
-  m_bSlowDown = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
+  m_bSlowDown = false;
 
   switch (e->key())
   {
@@ -206,7 +211,7 @@ ezEditorInut ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
     return ezEditorInut::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
-  //m_bSlowDown = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
+  //m_bSlowDown = false;
 
   switch (e->key())
   {
@@ -499,7 +504,7 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
     if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().height();
-    
+
     if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().width();
 
@@ -528,7 +533,7 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
     const float fMouseScale = 4.0f;
 
-    const float fMouseMoveSensitivity = 0.002f * s_fMoveSpeed[pPreferences->GetCameraSpeed()] * fBoost;
+    const float fMouseMoveSensitivity = 0.002f * ConvertCameraSpeed(pPreferences->GetCameraSpeed()) * fBoost;
     const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)GetOwnerView()->size().width()) * fRotateBoost * fMouseScale;
     const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)GetOwnerView()->size().height()) * fRotateBoost * fMouseScale;
 
@@ -638,7 +643,7 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
         }
       }
-    
+
       m_LastMousePos = UpdateMouseMode(e);
       return ezEditorInut::WasExclusivelyHandled;
     }
@@ -669,10 +674,9 @@ ezEditorInut ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
     const float fTick = 1.4f;
     const float fBoostFactor = 1.5f;
 
+    /// \todo Keep this ?
     if (e->modifiers() == Qt::KeyboardModifier::ShiftModifier)
       fBoost *= fBoostFactor;
-    //if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
-    //  fBoost *= 1.0f / fBoostFactor;
 
     float fNewDim = 20.0f;
 
@@ -709,16 +713,14 @@ ezEditorInut ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
 
       if (e->modifiers() == Qt::KeyboardModifier::ShiftModifier)
         fBoost *= 5.0f;
-      //if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
-      //  fBoost *= 0.1f;
 
       if (e->delta() > 0)
       {
-        m_pCamera->MoveLocally(s_fMoveSpeed[pPreferences->GetCameraSpeed()] * fBoost, 0, 0);
+        m_pCamera->MoveLocally(ConvertCameraSpeed(pPreferences->GetCameraSpeed()) * fBoost, 0, 0);
       }
       else
       {
-        m_pCamera->MoveLocally(-s_fMoveSpeed[pPreferences->GetCameraSpeed()] * fBoost, 0, 0);
+        m_pCamera->MoveLocally(-ConvertCameraSpeed(pPreferences->GetCameraSpeed()) * fBoost, 0, 0);
       }
 
       // handled, independent of whether we are the active context or not

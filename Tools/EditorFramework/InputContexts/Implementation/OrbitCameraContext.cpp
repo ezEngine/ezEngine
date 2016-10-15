@@ -118,6 +118,7 @@ ezEditorInut ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
   float fBoost = 1.0f;
 
+  /// \todo Keep this ?
   if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
     fBoost *= 0.2f;
 
@@ -173,6 +174,7 @@ ezEditorInut ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
 
   float fScale = 1.1f;
 
+  /// \todo Keep this ?
   if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
     fScale = 1.01f;
 

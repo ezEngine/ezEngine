@@ -28,6 +28,8 @@ public:
   const ezVec3& GetOrbitPoint() const;
   void SetOrbitPoint(const ezVec3& vPos);
 
+  static float ConvertCameraSpeed(ezUInt32 uiSpeedIdx);
+
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 

@@ -18,6 +18,7 @@ class ezQtViewWidgetContainer;
 class ezQtSceneViewWidget;
 class QSettings;
 struct ezManipulatorManagerEvent;
+class ezPreferences;
 
 Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
 
@@ -46,7 +47,7 @@ private:
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 
   void DocumentEventHandler(const ezSceneDocumentEvent& e);
-
+  void OnPreferenceChange(ezPreferences* pref);
 
   void FocusOnSelectionAllViews();
 

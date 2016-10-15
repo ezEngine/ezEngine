@@ -15,6 +15,7 @@
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <EditorFramework/Preferences/Preferences.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -73,6 +74,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezAssetDocument* pDocument)
 
   ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SnapProviderEventHandler, this));
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ManipulatorManagerEventHandler, this));
+  ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::OnPreferenceChange, this));
 
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
@@ -106,6 +108,7 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
   m_DragToPosGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   pSceneDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ObjectStructureEventHandler, this));
   pSceneDoc->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::CommandHistoryEventHandler, this));
+  ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::OnPreferenceChange, this));
 
   ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SnapProviderEventHandler, this));
   ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ManipulatorManagerEventHandler, this));
@@ -263,6 +266,13 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e
   }
 }
 
+void ezQtSceneDocumentWindow::OnPreferenceChange(ezPreferences* pref)
+{
+  ezScenePreferencesUser* pPref = ezDynamicCast<ezScenePreferencesUser*>(pref);
+
+  m_TranslateGizmo.SetCameraSpeed(ezCameraMoveContext::ConvertCameraSpeed(pPref->GetCameraSpeed()));
+}
+
 void ezQtSceneDocumentWindow::FocusOnSelectionAllViews()
 {
   const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
@@ -337,8 +347,21 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
       if (pSceneDoc->GetGizmoWorldSpace())
         ezSnapProvider::SnapTranslation(msg.m_vGridCenter);
 
-      msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(1, 0, 0));
-      msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 1, 0));
+      switch (m_TranslateGizmo.GetLastPlaneInteraction())
+      {
+      case ezTranslateGizmo::PlaneInteraction::PlaneX:
+        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 1, 0));
+        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 0, 1));
+        break;
+      case ezTranslateGizmo::PlaneInteraction::PlaneY:
+        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(1, 0, 0));
+        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 0, 1));
+        break;
+      case ezTranslateGizmo::PlaneInteraction::PlaneZ:
+        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(1, 0, 0));
+        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 1, 0));
+        break;
+      }
     }
 
     GetEditorEngineConnection()->SendMessage(&msg);

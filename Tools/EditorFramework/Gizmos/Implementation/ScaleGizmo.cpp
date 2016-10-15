@@ -188,7 +188,9 @@ ezEditorInut ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (m_vScaleMouseMove.z < 0.0f)
     m_vScalingResult.z = 1.0f / (1.0f - m_vScaleMouseMove.z * fScaleSpeed);
 
-  ezSnapProvider::SnapScale(m_vScalingResult);
+  // disable snapping when ALT is pressed
+  if (!e->modifiers().testFlag(Qt::AltModifier))
+    ezSnapProvider::SnapScale(m_vScalingResult);
 
   ezGizmoEvent ev;
   ev.m_pGizmo = this;

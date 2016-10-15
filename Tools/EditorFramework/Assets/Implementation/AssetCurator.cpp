@@ -576,7 +576,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
         return res;
     }
   }
-  
+
   ezStatus resReferences(EZ_SUCCESS);
   for (const auto& ref : pAssetInfo->m_Info.m_FileReferences)
   {
@@ -607,7 +607,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   if (assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && resReferences.m_Result.Failed())
   {
     return resReferences;
-  } 
+  }
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
@@ -637,7 +637,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   {
     ret = pAsset->TransformAsset(szPlatform);
   }
-  
+
   if (state == ezAssetInfo::TransformState::MissingReference)
   {
     return ezStatus("Missing reference for asset '%s', can't create thumbnail.", pAssetInfo->m_sAbsolutePath.GetData());
@@ -663,7 +663,7 @@ ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid)
 {
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
-    return pAssetInfo; 
+    return pAssetInfo;
   return nullptr;
 }
 
@@ -784,7 +784,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
 
   ezDeferredFileWriter file;
-  file.SetOutput(sFinalPath); 
+  file.SetOutput(sFinalPath);
 
   ezStringBuilder sTemp;
   ezString sResourcePath;
@@ -938,7 +938,7 @@ bool ezAssetCurator::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid,
     }
     return nullptr;
   };
-  
+
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_FileDependencies))
   {
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
@@ -1005,7 +1005,7 @@ void ezAssetCurator::RunNextProcessTask()
     return;
 
   if (m_ProcessTasks.IsEmpty())
-  { 
+  {
     m_ProcessTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunning);
 
     const ezUInt32 uiWorkerCount = 1;// ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
