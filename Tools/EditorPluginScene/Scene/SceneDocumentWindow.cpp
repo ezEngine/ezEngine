@@ -344,6 +344,9 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     {
       msg.m_vGridCenter = m_TranslateGizmo.GetStartPosition();
 
+      if (m_TranslateGizmo.GetTranslateMode() == ezTranslateGizmo::TranslateMode::Axis)
+        msg.m_vGridCenter = m_TranslateGizmo.GetTransformation().GetTranslationVector();
+
       if (pSceneDoc->GetGizmoWorldSpace())
         ezSnapProvider::SnapTranslation(msg.m_vGridCenter);
 

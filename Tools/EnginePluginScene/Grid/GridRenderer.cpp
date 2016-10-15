@@ -92,67 +92,65 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd)
   const ezVec3 vCenter = rd.m_GlobalTransform.m_vPosition;
   const ezVec3 vTangent1 = rd.m_GlobalTransform.m_Rotation * ezVec3(1, 0, 0);
   const ezVec3 vTangent2 = rd.m_GlobalTransform.m_Rotation * ezVec3(0, 1, 0);
-  const ezInt32 lines = rd.m_uiNumLines;
-  const float maxExtent = lines * rd.m_fDensity;
+  const ezInt32 iNumLines1 = rd.m_iLastLine1 - rd.m_iFirstLine1;
+  const ezInt32 iNumLines2 = rd.m_iLastLine2 - rd.m_iFirstLine2;
+  const float maxExtent1 = iNumLines1 * rd.m_fDensity;
+  const float maxExtent2 = iNumLines2 * rd.m_fDensity;
 
-  const ezColor cCenter = ezColor::LightSkyBlue;// ezColor::GreenYellow;
-  const ezColor cTen = ezColor::LightSteelBlue;
-  const ezColor cOther = ezColor::LightSlateGray;
+  ezColor cCenter = ezColor::LightSkyBlue;
+  ezColor cTen = ezColor::LightSteelBlue;
+  ezColor cOther = ezColor::LightSlateGray;
 
-  //static int color = 0;
-  //static ezTime tLast;
-
-  //const ezColor cols[] =
-  //{
-  //  // gut
-
-  //  ezColor::Silver,
-  //  ezColor::LightSteelBlue,
-  //  ezColor::LightSlateGray,
-  //  ezColor::DarkGray
-  //};
-
-  //if (ezTime::Now() - tLast > ezTime::Seconds(3.0))
-  //{
-  //  tLast = ezTime::Now();
-
-  //  color = (color + 1) % EZ_ARRAY_SIZE(cols);
-
-  //  ezLog::Info("New Color: %i", color);
-  //}
-
-  //cOther = cols[color];
-
-  for (ezInt32 i = -lines; i <= lines; ++i)
+  if (rd.m_bOrthoMode)
   {
+    // dimmer colors in ortho mode, to be more in the background
+    cCenter = ezColorGammaUB(85, 120, 20);
+    cTen = ezColorGammaUB(50, 90, 128);
+    cOther = ezColorGammaUB(80, 80, 80);
+  }
+
+  const ezVec3 vCorner = vCenter + rd.m_iFirstLine1 * rd.m_fDensity * vTangent1 + rd.m_iFirstLine2 * rd.m_fDensity * vTangent2;
+
+  for (ezInt32 i = 0; i <= iNumLines1; ++i)
+  {
+    const ezInt32 iLineIdx = rd.m_iFirstLine1 + i;
+
     ezColor cCur = cOther;
 
-    if (i == 0)
+    if (iLineIdx == 0)
       cCur = cCenter;
-    else if (i % 10 == 0)
+    else if (iLineIdx % 10 == 0)
       cCur = cTen;
 
-    {
-      auto& v1 = m_Vertices.ExpandAndGetRef();
-      auto& v2 = m_Vertices.ExpandAndGetRef();
+    auto& v1 = m_Vertices.ExpandAndGetRef();
+    auto& v2 = m_Vertices.ExpandAndGetRef();
 
-      v1.m_color = cCur;
-      v1.m_position = vCenter + vTangent1 * rd.m_fDensity * (float)i - vTangent2 * maxExtent;
+    v1.m_color = cCur;
+    v1.m_position = vCorner + vTangent1 * rd.m_fDensity * (float)i;
 
-      v2.m_color = cCur;
-      v2.m_position = vCenter + vTangent1 * rd.m_fDensity * (float)i + vTangent2 * maxExtent;
-    }
+    v2.m_color = cCur;
+    v2.m_position = vCorner + vTangent1 * rd.m_fDensity * (float)i + vTangent2 * maxExtent2;
+  }
 
-    {
-      auto& v1 = m_Vertices.ExpandAndGetRef();
-      auto& v2 = m_Vertices.ExpandAndGetRef();
+  for (ezInt32 i = 0; i <= iNumLines2; ++i)
+  {
+    const ezInt32 iLineIdx = rd.m_iFirstLine2 + i;
 
-      v1.m_color = cCur;
-      v1.m_position = vCenter + vTangent2 * rd.m_fDensity * (float)i - vTangent1 * maxExtent;
+    ezColor cCur = cOther;
 
-      v2.m_color = cCur;
-      v2.m_position = vCenter + vTangent2 * rd.m_fDensity * (float)i + vTangent1 * maxExtent;
-    }
+    if (iLineIdx == 0)
+      cCur = cCenter;
+    else if (iLineIdx % 10 == 0)
+      cCur = cTen;
+
+    auto& v1 = m_Vertices.ExpandAndGetRef();
+    auto& v2 = m_Vertices.ExpandAndGetRef();
+
+    v1.m_color = cCur;
+    v1.m_position = vCorner + vTangent2 * rd.m_fDensity * (float)i;
+
+    v2.m_color = cCur;
+    v2.m_position = vCorner + vTangent2 * rd.m_fDensity * (float)i + vTangent1 * maxExtent1;
   }
 }
 
@@ -192,31 +190,78 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   }
 }
 
+float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX, ezUInt32 uiMinPixelsDist)
+{
+  ezInt32 iFactor = 1;
+  float fNewDensity = fDensity;
+
+  while (true)
+  {
+    const float stepsAtDensity = fOrthoDimX / fNewDensity;
+    const float minPixelsAtDensity = stepsAtDensity* uiMinPixelsDist;
+
+    if (minPixelsAtDensity < uiWindowWidth)
+      break;
+
+    iFactor *= 10;
+    fNewDensity = fDensity * iFactor;
+  }
+
+  return fNewDensity;
+}
+
 void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
   if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() <= 0.0f)
     return;
 
+  const ezCamera* cam = view.GetRenderCamera();
+  float fDensity = m_pSceneContext->GetGridDensity();
+
   /// \todo Are these parameters correct?
   ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr, 0);
   pRenderData->m_GlobalBounds.SetInvalid();
-  pRenderData->m_fDensity = m_pSceneContext->GetGridDensity();
-  pRenderData->m_uiNumLines = 30;
-
-  const ezCamera* cam = view.GetRenderCamera();
+  pRenderData->m_bOrthoMode = cam->IsOrthographic();
 
   if (cam->IsOrthographic())
   {
+    const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
+    const float fDimX = cam->GetDimensionX(fAspectRatio) * 0.5f;
+    const float fDimY = cam->GetDimensionY(fAspectRatio) * 0.5f;
+
+    fDensity = AdjustGridDensity(fDensity, (ezUInt32)view.GetViewport().width, fDimX, 10);
+    pRenderData->m_fDensity = fDensity;
+
     pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition = cam->GetCenterPosition();
+    pRenderData->m_GlobalTransform.m_vPosition.SetZero();
     pRenderData->m_GlobalTransform.m_Rotation.SetColumn(0, cam->GetCenterDirRight());
     pRenderData->m_GlobalTransform.m_Rotation.SetColumn(1, cam->GetCenterDirUp());
     pRenderData->m_GlobalTransform.m_Rotation.SetColumn(2, cam->GetCenterDirForwards());
+
+    const ezVec3 vBottomLeft = cam->GetCenterPosition() - cam->GetCenterDirRight() * fDimX - cam->GetCenterDirUp() * fDimY;
+    const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;
+
+    ezPlane plane1, plane2;
+    plane1.SetFromNormalAndPoint(cam->GetCenterDirRight(), ezVec3(0));
+    plane2.SetFromNormalAndPoint(cam->GetCenterDirUp(), ezVec3(0));
+
+    const float fFirstDist1 = plane1.GetDistanceTo(vBottomLeft) - fDensity;
+    const float fLastDist1 = plane1.GetDistanceTo(vTopRight) + fDensity;
+
+    const float fFirstDist2 = plane2.GetDistanceTo(vBottomLeft) - fDensity;
+    const float fLastDist2 = plane2.GetDistanceTo(vTopRight) + fDensity;
+
 
     ezVec3& val = pRenderData->m_GlobalTransform.m_vPosition;
     val.x = ezMath::Round(val.x, pRenderData->m_fDensity);
     val.y = ezMath::Round(val.y, pRenderData->m_fDensity);
     val.z = ezMath::Round(val.z, pRenderData->m_fDensity);
+
+    const ezInt32 iNumLines = 30;
+    pRenderData->m_iFirstLine1 = (ezInt32)ezMath::Trunc(fFirstDist1 / fDensity);
+    pRenderData->m_iLastLine1 = (ezInt32)ezMath::Trunc(fLastDist1 / fDensity);
+    pRenderData->m_iFirstLine2 = (ezInt32)ezMath::Trunc(fFirstDist2 / fDensity);
+    pRenderData->m_iLastLine2 = (ezInt32)ezMath::Trunc(fLastDist2 / fDensity);
   }
   else
   {
@@ -230,6 +275,14 @@ void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* p
     // grid is disabled
     if (pRenderData->m_GlobalTransform.m_Rotation.IsZero(0.001f))
       return;
+
+    pRenderData->m_fDensity = fDensity;
+
+    const ezInt32 iNumLines = 30;
+    pRenderData->m_iFirstLine1 = -iNumLines;
+    pRenderData->m_iLastLine1 = iNumLines;
+    pRenderData->m_iFirstLine2 = -iNumLines;
+    pRenderData->m_iLastLine2 = iNumLines;
   }
 
   pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleForeground, 0);

@@ -18,7 +18,11 @@ class ezGridRenderData : public ezRenderData
 
 public:
   float m_fDensity;
-  ezInt32 m_uiNumLines;
+  ezInt32 m_iFirstLine1;
+  ezInt32 m_iLastLine1;
+  ezInt32 m_iFirstLine2;
+  ezInt32 m_iLastLine2;
+  bool m_bOrthoMode;
 };
 
 class ezEditorGridExtractor : public ezExtractor

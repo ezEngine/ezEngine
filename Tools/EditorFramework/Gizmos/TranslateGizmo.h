@@ -29,8 +29,16 @@ public:
     PlaneZ
   };
 
+  enum class TranslateMode
+  {
+    None,
+    Axis,
+    Plane
+  };
+
   void SetMovementMode(MovementMode mode);
   PlaneInteraction GetLastPlaneInteraction() const { return m_LastPlaneInteraction; }
+  TranslateMode GetTranslateMode() const { return m_Mode; }
 
   /// \brief Used when CTRL+drag moves the object AND the camera
   void SetCameraSpeed(float fSpeed);
@@ -62,13 +70,6 @@ private:
   ezEngineGizmoHandle m_PlaneXY;
   ezEngineGizmoHandle m_PlaneXZ;
   ezEngineGizmoHandle m_PlaneYZ;
-
-  enum class TranslateMode
-  {
-    None,
-    Axis,
-    Plane
-  };
 
   TranslateMode m_Mode;
   PlaneInteraction m_LastPlaneInteraction;

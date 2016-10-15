@@ -50,6 +50,32 @@ ezAngle ezCamera::GetFovY(float fAspectRatioWidthDivHeight) const
   return ezAngle();
 }
 
+
+float ezCamera::GetDimensionX(float fAspectRatioWidthDivHeight) const
+{
+  if (m_Mode == ezCameraMode::OrthoFixedWidth)
+    return m_fFovOrDim;
+
+  if (m_Mode == ezCameraMode::OrthoFixedHeight)
+    return m_fFovOrDim * fAspectRatioWidthDivHeight;
+
+  EZ_REPORT_FAILURE("You cannot get the camera dimensions when it is not an orthographic camera.");
+  return 0;
+}
+
+
+float ezCamera::GetDimensionY(float fAspectRatioWidthDivHeight) const
+{
+  if (m_Mode == ezCameraMode::OrthoFixedWidth)
+    return m_fFovOrDim / fAspectRatioWidthDivHeight;
+
+  if (m_Mode == ezCameraMode::OrthoFixedHeight)
+    return m_fFovOrDim;
+
+  EZ_REPORT_FAILURE("You cannot get the camera dimensions when it is not an orthographic camera.");
+  return 0;
+}
+
 void ezCamera::SetCameraMode(ezCameraMode::Enum Mode, float fFovOrDim, float fNearPlane, float fFarPlane)
 {
   // early out if no change
@@ -157,7 +183,7 @@ void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& X, ezAngle& Y, ezA
   {
     if (Y.GetRadian() != 0.0f)
     {
-      // Limit how much the camera can look up and down, to prevent it from overturning 
+      // Limit how much the camera can look up and down, to prevent it from overturning
 
       const float fDot = m_vDirForwards.Dot(ezVec3(0, 0, 1));
       ezAngle fCurAngle = ezMath::ACos(fDot) - ezAngle::Degree(90.0f);

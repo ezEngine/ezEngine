@@ -50,6 +50,12 @@ public:
   /// \brief Returns the vertical FOV.
   ezAngle GetFovY(float fAspectRatioWidthDivHeight) const;
 
+  /// \brief Returns the horizontal dimension for an orthographic view.
+  float GetDimensionX(float fAspectRatioWidthDivHeight) const;
+
+  /// \brief Returns the vertical dimension for an orthographic view.
+  float GetDimensionY(float fAspectRatioWidthDivHeight) const;
+
   /// \brief Returns the actual camera position.
   const ezVec3& GetCenterPosition() const;
 
