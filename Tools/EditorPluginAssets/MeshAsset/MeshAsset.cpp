@@ -128,7 +128,7 @@ namespace ImportHelper
         DataIndexBundle<NumStreams> dataIndices;
         for (int stream = 0; stream < NumStreams; ++stream)
         {
-          dataIndices[stream] = dataStreams[stream]->GetDataIndex(triangles[t].m_Vertices[v]);
+          dataIndices[stream] = dataStreams[stream] ? dataStreams[stream]->GetDataIndex(triangles[t].m_Vertices[v]) : 0;
         }
 
         ezUInt32 gpuVertexIndex = nextVertexIndex;
@@ -235,7 +235,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp,
   desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
-  
+
 }
 
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation)
@@ -272,28 +272,38 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   mesh->ComputeTangents();
 
   // Prepare streams.
-  const static int numReadMeshStreams = 5;
-  const ezModelImporter::VertexDataStream* dataStreams[numReadMeshStreams];
-  dataStreams[0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
-  dataStreams[1] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
-  dataStreams[2] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
-  dataStreams[3] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
-  dataStreams[4] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
-  for (int i = 0; i < numReadMeshStreams; ++i)
+  const static int maxNumMeshStreams = 5;
+  enum Streams
   {
-    if (dataStreams[i] == nullptr)
-    {
-      // Todo: Would be nice to output which data stream it missing.
-      // Todo: We should be able to work around an empty stream!
-      ezLog::Warning("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
-      return ezStatus("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
-    }
-  }
+    Position,
+    Texcoord0,
+    Normal,
+    Tangent,
+    BiTangent
+  };
 
-  ezHashTable<ImportHelper::DataIndexBundle<numReadMeshStreams>, ezUInt32> dataIndices_to_InterleavedVertexIndices;
+  const ezModelImporter::VertexDataStream* dataStreams[maxNumMeshStreams];
+  dataStreams[Position] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
+  if (dataStreams[Position] == nullptr)
+  {
+    ezLog::Error("Mesh '%s' from '%s' has no position vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+    return ezStatus("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+  }
+  dataStreams[Texcoord0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
+  dataStreams[Normal] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
+  if (dataStreams[Normal] == nullptr)
+  {
+    ezLog::Error("Mesh '%s' from '%s' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+    return ezStatus("Mesh '%s' from '%s' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+  }
+  dataStreams[Tangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
+  dataStreams[BiTangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
+
+
+  ezHashTable<ImportHelper::DataIndexBundle<maxNumMeshStreams>, ezUInt32> dataIndices_to_InterleavedVertexIndices;
   ezDynamicArray<ezUInt32> triangleVertexIndices;
   auto triangles = mesh->GetTriangles();
-  ImportHelper::GenerateInterleavedVertexMapping<numReadMeshStreams>(triangles, dataStreams, dataIndices_to_InterleavedVertexIndices, triangleVertexIndices);
+  ImportHelper::GenerateInterleavedVertexMapping<maxNumMeshStreams>(triangles, dataStreams, dataIndices_to_InterleavedVertexIndices, triangleVertexIndices);
 
   ezUInt32 uiNumTriangles = mesh->GetNumTriangles();
   ezUInt32 uiNumVertices = dataIndices_to_InterleavedVertexIndices.GetCount();
@@ -304,40 +314,83 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   // Allocate buffer.
   const ezUInt32 uiPosStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  const ezUInt32 uiTexStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
   const ezUInt32 uiNormalStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  const ezUInt32 uiTangentStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+  ezUInt32 uiTangentStream=0, uiTexStream=0;
+  if (dataStreams[Tangent] && dataStreams[BiTangent])
+    uiTangentStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+  if (dataStreams[Texcoord0])
+    uiTexStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
   desc.MeshBufferDesc().AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
   // Read in vertices.
+  // Set positions and normals (should always be there.
   for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
   {
-    ImportHelper::DataIndexBundle<numReadMeshStreams> dataIndices = it.Key();
+    ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
     ezUInt32 uiVertexIndex = it.Value();
 
-    ezVec3 vPosition = dataStreams[0]->GetValueVec3(dataIndices[0]);
+    ezVec3 vPosition = dataStreams[Position]->GetValueVec3(dataIndices[Position]);
     vPosition = mTransformation * vPosition;
-    ezVec2 vTexcoord = dataStreams[1]->GetValueVec2(dataIndices[1]);
-    ezVec3 vNormal = dataStreams[2]->GetValueVec3(dataIndices[2]);
+
+    ezVec3 vNormal = dataStreams[Normal]->GetValueVec3(dataIndices[Normal]);
     vNormal = mTransformation.TransformDirection(vNormal);
     vNormal.NormalizeIfNotZero();
-    ezVec3 vTangent = dataStreams[3]->GetValueVec3(dataIndices[3]);
-    vTangent = mTransformation.TransformDirection(vTangent);
-    vTangent.NormalizeIfNotZero();
-    float biTangentSign = dataStreams[4]->GetValueFloat(dataIndices[4]);
-    biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
-
-    // We encode the handedness of the tangent space in the length of the tangent.
-    if (biTangentSign < 0.0f)
-    {
-      vTangent *= 1.7320508075688772935274463415059f; //ezMath::Root(3, 2)
-    }
 
     desc.MeshBufferDesc().SetVertexData(uiPosStream, uiVertexIndex, vPosition);
-    desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, vTexcoord);
     desc.MeshBufferDesc().SetVertexData(uiNormalStream, uiVertexIndex, vNormal);
-    desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiVertexIndex, vTangent);
   }
+  // Set Tangents.
+  if (dataStreams[Tangent] && dataStreams[BiTangent])
+  {
+    for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+    {
+      ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+      ezUInt32 uiVertexIndex = it.Value();
+
+      ezVec3 vTangent = dataStreams[Tangent]->GetValueVec3(dataIndices[Tangent]);
+      vTangent = mTransformation.TransformDirection(vTangent);
+      vTangent.NormalizeIfNotZero();
+      float biTangentSign = dataStreams[BiTangent]->GetValueFloat(dataIndices[BiTangent]);
+      biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
+
+      // We encode the handedness of the tangent space in the length of the tangent.
+      if (biTangentSign < 0.0f)
+      {
+        vTangent *= 1.7320508075688772935274463415059f; //ezMath::Root(3, 2)
+      }
+
+      desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiVertexIndex, vTangent);
+    }
+  }
+  //else
+  //{
+  //  for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+  //  {
+  //    ezUInt32 uiVertexIndex = it.Value();
+  //    desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiVertexIndex, ezVec3(0.0f));
+  //  }
+  //}
+
+  // Set Texcoords.
+  if (dataStreams[Texcoord0])
+  {
+    for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+    {
+      ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+      ezUInt32 uiVertexIndex = it.Value();
+
+      ezVec2 vTexcoord = dataStreams[Texcoord0]->GetValueVec2(dataIndices[Texcoord0]);
+      desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, vTexcoord);
+    }
+  }
+  //else
+  //{
+  //  for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+  //  {
+  //    ezUInt32 uiVertexIndex = it.Value();
+  //    desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, ezVec2(0.0f));
+  //  }
+  //}
 
   // Read in indices.
   if (bFlipTriangles)

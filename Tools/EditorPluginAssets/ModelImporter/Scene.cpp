@@ -109,11 +109,11 @@ namespace ezModelImporter
       if (meshIt.Value()->GetParent().IsValid())
       {
         // Computing transform like this awnew every time is a bit wasteful, but simple to implement.
-        ezTransform transform;
+        ezTransform transform = ezTransform::Identity();
         GetObject<Node>(meshIt.Value()->GetParent())->ComputeAbsoluteTransform(*this, transform);
         meshIt.Value()->ApplyTransform(transform);
       }
-      
+
       // Merge.
       mergedMesh->AddData(*meshIt.Value());
 

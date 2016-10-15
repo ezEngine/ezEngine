@@ -23,6 +23,15 @@ namespace ezModelImporter
     , m_uiNextUnusedVertexIndex(0)
   {}
 
+  Mesh::Mesh(Mesh&& mesh)
+    : HierarchyObject(ObjectHandle::MESH)
+    , m_Triangles(std::move(mesh.m_Triangles))
+    , m_uiNextUnusedVertexIndex(mesh.m_uiNextUnusedVertexIndex)
+    , m_VertexDataStreams(std::move(mesh.m_VertexDataStreams))
+    , m_SubMeshes(std::move(m_SubMeshes))
+  {
+  }
+
   Mesh::~Mesh()
   {
     for (auto it = m_VertexDataStreams.GetIterator(); it.IsValid(); ++it)
@@ -137,7 +146,7 @@ namespace ezModelImporter
       {
         for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += 3)
         {
-          ezVec3& pos = *reinterpret_cast<ezVec3*>(&sourceStream[i]);
+          ezVec3& pos = *reinterpret_cast<ezVec3*>(&sourceStream->m_Data[i]);
           pos = transformMat.TransformPosition(pos);
         }
       }
@@ -149,7 +158,7 @@ namespace ezModelImporter
       {
         for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += 3)
         {
-          ezVec3& dir = *reinterpret_cast<ezVec3*>(&sourceStream[i]);
+          ezVec3& dir = *reinterpret_cast<ezVec3*>(&sourceStream->m_Data[i]);
           dir = transformMat.TransformDirection(dir);
         }
       }
@@ -390,25 +399,25 @@ namespace ezModelImporter
     mikkInterface.positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (mikkInterface.positionStream == nullptr)
     {
-      ezLog::Error("Can't compute vertex tangents for the mesh %s, because it doesn't have vertex positions.", m_Name.GetData());
+      ezLog::Error("Can't compute vertex tangents for the mesh '%s', because it doesn't have vertex positions.", m_Name.GetData());
       return EZ_FAILURE;
     }
     mikkInterface.normalStream = GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (mikkInterface.normalStream == nullptr)
     {
-      ezLog::Error("Can't compute tangents for the mesh %s, because it doesn't have vertex noramls.", m_Name.GetData());
+      ezLog::Error("Can't compute tangents for the mesh '%s', because it doesn't have vertex noramls.", m_Name.GetData());
       return EZ_FAILURE;
     }
     mikkInterface.texStream = GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
     if (mikkInterface.texStream == nullptr || mikkInterface.texStream->GetNumElementsPerVertex() != 2)
     {
-      ezLog::Error("Can't compute tangents for the mesh %s, because it doesn't have TexCoord0 stream with two components.", m_Name.GetData());
+      ezLog::Error("Can't compute tangents for the mesh '%s', because it doesn't have TexCoord0 stream with two components.", m_Name.GetData());
       return EZ_FAILURE;
     }
 
     // Make sure tangent stream exists.
     mikkInterface.tangentStream = AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
-    
+
     // If there is already a data stream with 3 component bitangents, remove it.
     mikkInterface.bitangentStream = GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
     if (mikkInterface.bitangentStream && mikkInterface.bitangentStream->GetNumElementsPerVertex() != 1)

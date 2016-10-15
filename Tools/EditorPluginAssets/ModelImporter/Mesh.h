@@ -122,7 +122,7 @@ namespace ezModelImporter
 
     // Note that the amount of triangles and vertices can only grow with this system.
     // If vertices are removed, they leave holes until they've been compacted.
-    // Vertices leave only holes in m_Data if they had a data entry which was not referenced by any other vertex. 
+    // Vertices leave only holes in m_Data if they had a data entry which was not referenced by any other vertex.
 
     /// Maps a VertexIndex to the first relevant float in m_Data.
     /// Mesh ensures that there are always enough entries in this array.
@@ -142,6 +142,9 @@ namespace ezModelImporter
   public:
 
     Mesh();
+    Mesh(Mesh&& mesh);
+    Mesh(const Mesh& mesh) = delete;
+
     ~Mesh();
 
     // Triangles
@@ -172,7 +175,7 @@ namespace ezModelImporter
 
     /// Removes a data stream from the mesh.
     void RemoveDataStream(ezGALVertexAttributeSemantic::Enum semantic);
-    
+
     /// Retrieves a data stream for a given semantic. Null if there is none.
     VertexDataStream* GetDataStream(ezGALVertexAttributeSemantic::Enum semantic);
     const VertexDataStream* GetDataStream(ezGALVertexAttributeSemantic::Enum semantic) const;
@@ -204,7 +207,7 @@ namespace ezModelImporter
     ezResult ComputeNormals();
 
     /// Computes vertex tangents and bitangent signs.
-    /// 
+    ///
     /// Bitangent vertex stream will only have a single element which determines the sign of the bitangent. BiTangent = (normal x tangent) * sign
     /// If the mesh already has a vertex stream for (bi)tangent, they will be recomputed.
     /// Fails if there is no normal stream or there is no Texcoord0 stream with 2 components.

@@ -25,8 +25,9 @@ namespace ezModelImporter
         // Typical pbr shading model parameters.
         DIFFUSE,    ///< Also called "Color", "BaseColor"
         ROUGHNESS,  ///< The non-pbr related "SpecularPower" maps to this as well.
-        METALLIC,   ///< The non-pbr related "SpecularColor" maps to this as well.
+        METALLIC,   ///< The non-pbr related "SpecularColor" maps to this as well
 
+        REFLECTIVITY, ///< https://en.wikipedia.org/wiki/Reflectance#Reflectivity
         REFRACTIONINDEX,  ///< Refraction index. "IOR"
 
         // Other lighting information.
@@ -34,7 +35,7 @@ namespace ezModelImporter
         EMISSIVE, ///< Self emmitance of an object.
         LIGHTMAP, ///< Prebacked lighting information, usually irradiance.
 
-        /// How transparent an object is.
+        /// How transparent an object is. Also "transmissivity"
         /// Note that some models distinguish between physical opacity and a more articial fade/transparency that also specular reflections.
         /// Some older shading models may use a "Transparency Color"
         OPACITY,
@@ -64,6 +65,10 @@ namespace ezModelImporter
 
     struct Property
     {
+      Property() : m_SemanticHint(SemanticHint::UNKNOWN), m_Semantic(""), m_Value() {}
+      Property(SemanticHint::Enum semanticHint, const char* semantic, const ezVariant& value) : m_SemanticHint(semanticHint), m_Semantic(semantic), m_Value(value) {}
+      Property(const char* semantic, const ezVariant& value) : m_SemanticHint(SemanticHint::UNKNOWN), m_Semantic(semantic), m_Value(value) {}
+
       SemanticHint::Enum m_SemanticHint;
       ezString m_Semantic;
       ezVariant m_Value;
