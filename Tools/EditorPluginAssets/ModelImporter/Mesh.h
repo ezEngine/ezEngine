@@ -143,7 +143,7 @@ namespace ezModelImporter
 
     Mesh();
     Mesh(Mesh&& mesh);
-    Mesh(const Mesh& mesh) = delete;
+    //Mesh(const Mesh& mesh) = delete;
 
     ~Mesh();
 
@@ -214,6 +214,7 @@ namespace ezModelImporter
     ezResult ComputeTangents();
 
   private:
+    Mesh(const Mesh& mesh);
 
     ezDynamicArray<Triangle> m_Triangles;
     ezUInt32 m_uiNextUnusedVertexIndex;
