@@ -76,7 +76,6 @@ void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
 
 ezParticleTypeBillboard::ezParticleTypeBillboard()
 {
-  m_uiLastExtractedFrame = 0;
 }
 
 void ezParticleTypeBillboard::CreateRequiredStreams()

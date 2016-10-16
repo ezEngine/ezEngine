@@ -26,6 +26,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
   friend class ezParticleSystemInstance;
 
 public:
+  ezParticleType();
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
 
@@ -36,6 +37,7 @@ protected:
   virtual void StepParticleSystem(const ezTime& tDiff) { m_TimeDiff = tDiff; }
 
   ezTime m_TimeDiff;
+  mutable ezUInt64 m_uiLastExtractedFrame;
 };
 
 

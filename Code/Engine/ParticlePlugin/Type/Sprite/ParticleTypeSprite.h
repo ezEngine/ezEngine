@@ -46,8 +46,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeSprite : public ezParticleType
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeSprite, ezParticleType);
 
 public:
-  ezParticleTypeSprite();
-
   virtual void CreateRequiredStreams() override;
 
   ezTextureResourceHandle m_hTexture;
@@ -66,7 +64,6 @@ protected:
   ezProcessingStream* m_pStreamRotationSpeed;
   ezProcessingStream* m_pStreamAxis;
 
-  mutable ezUInt64 m_uiLastExtractedFrame;
   mutable ezSharedPtr<ezSpriteParticleDataContainer> m_GpuData;
 };
 

@@ -9,36 +9,39 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
-#include <RendererCore/../../../Data/Base/Shaders/Particles/FragmentShaderData.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
-typedef ezRefCountedContainer<ezDynamicArray<ezFragmentParticleData>> ezFragmentParticleDataContainer;
+typedef ezRefCountedContainer<ezDynamicArray<ezTrailParticleData>> ezTrailParticleDataContainer;
+typedef ezRefCountedContainer<ezDynamicArray<ezUInt8>> ezTrailParticleSegmentDataContainer;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFragmentRenderData : public ezRenderData
+class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData : public ezRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFragmentRenderData, ezRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderData, ezRenderData);
 
 public:
-  ezParticleFragmentRenderData();
+  ezParticleTrailRenderData();
 
   ezTextureResourceHandle m_hTexture;
   ezUInt32 m_uiNumParticles;
-  ezSharedPtr<ezFragmentParticleDataContainer> m_GpuData;
+  ezUInt32 m_uiMaxSegmentBucketSize;
+  ezSharedPtr<ezTrailParticleDataContainer> m_GpuData;
+  ezSharedPtr<ezTrailParticleSegmentDataContainer> m_SegmentGpuData;
 };
 
 
 
 /// \brief Implements rendering of particle systems
-class EZ_PARTICLEPLUGIN_DLL ezParticleFragmentRenderer : public ezParticleRenderer
+class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderer : public ezParticleRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFragmentRenderer, ezParticleRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleFragmentRenderer);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderer, ezParticleRenderer);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleTrailRenderer);
 
 public:
-  ezParticleFragmentRenderer();
-  ~ezParticleFragmentRenderer();
+  ezParticleTrailRenderer();
+  ~ezParticleTrailRenderer();
 
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
   virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
@@ -48,6 +51,7 @@ protected:
 
   static const ezUInt32 s_uiParticlesPerBatch = 512;
   ezGALBufferHandle m_hDataBuffer;
+  ezGALBufferHandle m_hSegmentDataBuffer;
   ezShaderResourceHandle m_hShader;
 };
 

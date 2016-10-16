@@ -80,6 +80,7 @@ float3x3 TransformToRotation(Transform t)
 // C++
 
 #include <RendererCore/Shader/Types.h>
+#include <Foundation\Basics\Platform\Common.h>
 
 #define CONSTANT_BUFFER(Name, Slot) struct EZ_ALIGN_16(Name)
 #define STRUCTURED_BUFFER(Name, Type)

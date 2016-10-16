@@ -2,7 +2,7 @@
 
 #include "ParticleSystemConstants.h"
 
-EZ_ALIGN_16(struct) ezBillboardParticleData
+struct EZ_ALIGN_16(ezBillboardParticleData)
 {
   TRANSFORM(Transform);
   COLOR4UB(Color);

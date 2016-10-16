@@ -45,7 +45,7 @@ void ezParticleFragmentRenderer::CreateDataBuffer()
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezFragmentParticleData);
-    desc.m_uiTotalSize = s_uiMaxBufferSize;
+    desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
     desc.m_bAllowShaderResourceView = true;
@@ -60,7 +60,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  /// \brief This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
+  /// \todo This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   // prepare the constant buffer
   ezConstantBufferStorage<ezParticleSystemConstants>* pConstantBuffer;
   ezConstantBufferStorageHandle hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pConstantBuffer);
@@ -77,12 +77,10 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
   }
 
-  const ezUInt32 uiParticlesPerBatch(s_uiMaxBufferSize / sizeof(ezFragmentParticleData));
-
   // make sure our structured buffer is allocated and bound
   {
     CreateDataBuffer();
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiParticlesPerBatch * 2);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
     renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
   }
 
@@ -105,7 +103,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
     while (uiNumParticles > 0)
     {
       // upload this batch of particle data
-      const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, uiParticlesPerBatch);
+      const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       pGALContext->UpdateBuffer(m_hDataBuffer, 0, ezMakeArrayPtr(pParticleData, uiNumParticlesInBatch).ToByteArray());
 
       // do one drawcall

@@ -46,7 +46,7 @@ public:
 protected:
   void CreateDataBuffer();
 
-  static const ezUInt32 s_uiMaxBufferSize = 256 * 1024;
+  static const ezUInt32 s_uiParticlesPerBatch = 1024;
   ezGALBufferHandle m_hDataBuffer;
   ezShaderResourceHandle m_hShader;
 };

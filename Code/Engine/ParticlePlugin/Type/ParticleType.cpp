@@ -21,3 +21,8 @@ ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwn
   return pType;
 }
 
+
+ezParticleType::ezParticleType()
+{
+  m_uiLastExtractedFrame = 0;
+}

@@ -116,15 +116,16 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 {
   // all spawners get cleared, so clear this as well
   // this has to be done before any streams get created
-  for (auto& info : m_StreamInfo)
-  {
-    info.m_pZeroInitializer = nullptr;
-  }
+  //for (auto& info : m_StreamInfo)
+  //{
+  //  info.m_pZeroInitializer = nullptr;
+  //}
 
 
-
-  // deletes everything that is referenced by m_Emitters, m_Initializers
-  m_StreamGroup.ClearProcessors();
+  const ezUInt64 uiMaxParticles = m_StreamGroup.GetNumElements();
+  m_StreamGroup.Clear();
+  m_StreamGroup.SetSize(uiMaxParticles);
+  m_StreamInfo.Clear();
 
   // emitters
   {

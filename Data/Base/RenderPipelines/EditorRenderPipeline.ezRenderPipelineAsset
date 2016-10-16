@@ -115,6 +115,13 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x7E65CC112F68FE40A4D9F71289398AD3" },
+   "t" : "ezParticleTrailRenderer",
+   "p" : {
+    
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x683B31A1A61C1E418B44E932107796CA" },
    "t" : "ezGizmoRenderer",
    "p" : {
@@ -223,7 +230,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x0A24F3C23E8055C5485F2974F9861957" }, { "$t" : "uuid", "$b" : "0x222FE151A91CC302238E66956E391846" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-23.0000, -286.0000)", "$b" : "0x0000B8C100008FC3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" }, { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" }, { "$t" : "uuid", "$b" : "0xBDE3415F4D17A94694FBFFC4BCB94EEA" }, { "$t" : "uuid", "$b" : "0xE4F67305B0DC94488245356C6A1445DF" }, { "$t" : "uuid", "$b" : "0x22D44A1E4A76084F8AFA52F9BF6CB2F9" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" }, { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" }, { "$t" : "uuid", "$b" : "0xBDE3415F4D17A94694FBFFC4BCB94EEA" }, { "$t" : "uuid", "$b" : "0xE4F67305B0DC94488245356C6A1445DF" }, { "$t" : "uuid", "$b" : "0x22D44A1E4A76084F8AFA52F9BF6CB2F9" }, { "$t" : "uuid", "$b" : "0x7E65CC112F68FE40A4D9F71289398AD3" } ]
    }
   },
   {
@@ -311,7 +318,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "17772495854362735996", "$b" : "0x7CB5641BD196A4F6" },
+    "Hash" : { "$t" : "uint64", "$v" : "2630891992038218868", "$b" : "0x749CDBE353CE8224" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },

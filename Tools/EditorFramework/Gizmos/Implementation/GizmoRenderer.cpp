@@ -65,7 +65,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
   renderViewContext.m_pRenderContext->BindMaterial(hMaterial);
 
-  /// \brief This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
+  /// \todo This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   ezConstantBufferStorage<ezGizmoConstants>* pGizmoConstantBuffer;
   ezConstantBufferStorageHandle hGizmoConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pGizmoConstantBuffer);
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hGizmoConstantBuffer));

@@ -2,7 +2,7 @@
 
 #include "ParticleSystemConstants.h"
 
-EZ_ALIGN_16(struct) ezSpriteParticleData
+struct EZ_ALIGN_16(ezSpriteParticleData)
 {
   FLOAT3(Position);
   FLOAT1(dummy1);

@@ -90,11 +90,6 @@ void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
 }
 
 
-ezParticleTypeSprite::ezParticleTypeSprite()
-{
-  m_uiLastExtractedFrame = 0;
-}
-
 void ezParticleTypeSprite::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
