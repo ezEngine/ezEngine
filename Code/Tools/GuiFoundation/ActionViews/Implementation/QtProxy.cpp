@@ -87,7 +87,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
 {
   QSharedPointer<ezQtProxy> pProxy;
   const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
-  if (pDesc->m_Type != ezActionType::Action)
+  if (pDesc->m_Type != ezActionType::Action && pDesc->m_Type != ezActionType::ActionAndMenu)
   {
     auto pAction = pDesc->CreateAction(context);
     pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
