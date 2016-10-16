@@ -15,6 +15,7 @@
 #include <QLabel>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/Types/ScopeExit.h>
 
 ezDynamicArray<ezQtContainerWindow*> ezQtContainerWindow::s_AllContainerWindows;
 bool ezQtContainerWindow::s_bForceClose = false;
@@ -128,6 +129,10 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
     return;
 
   s_bForceClose = true;
+  EZ_SCOPE_EXIT(s_bForceClose = false);
+
+  e->setAccepted(true);
+
   if (IsMainContainer())
   {
     if (!ezToolsProject::CanCloseProject())
@@ -164,7 +169,6 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
       pWindow->CloseDocumentWindow();
     }
   }
-  s_bForceClose = false;
 }
 
 
