@@ -18,6 +18,7 @@ namespace ezModelImporter
     ParamType GetParamType(const ezStringView& type);
 
     ezResult ParseVec3(ezStringView& params, ezVec3& out);
+    ezResult ParseFloats(ezStringView& params, ezArrayPtr<float> outFloats, int numExpectedFloats);
 
     Parameter::DataArray ParseParameterBlock(ParamType type, ezStringView& remainingSceneText);
   }

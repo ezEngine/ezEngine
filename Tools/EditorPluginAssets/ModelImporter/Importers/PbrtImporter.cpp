@@ -44,15 +44,17 @@ namespace ezModelImporter
       // * ActiveTransform & TransformTimes
 
       // Transforms
+      PbrtCommandLookup::s_transforms.Insert("identity", &PbrtTransformFunctions::Identity);
       PbrtCommandLookup::s_transforms.Insert("translate", &PbrtTransformFunctions::Translate);
+      PbrtCommandLookup::s_transforms.Insert("rotate", &PbrtTransformFunctions::Rotate);
+      PbrtCommandLookup::s_transforms.Insert("scale", &PbrtTransformFunctions::Scale);
+      PbrtCommandLookup::s_transforms.Insert("lookat", &PbrtTransformFunctions::LookAt);
+      PbrtCommandLookup::s_transforms.Insert("transform", &PbrtTransformFunctions::Transform);
+      PbrtCommandLookup::s_transforms.Insert("concattransform", &PbrtTransformFunctions::ConcatTransform);
+
       // Known missing:
-      // * Scale
-      // * Rotate
-      // * LookAt
       // * CoordinateSystem
       // * CoordSysTransform
-      // * Transform
-      // * ConcatTransform
 
       // Objects.
       PbrtCommandLookup::s_objects.Insert("shape", &PbrtObjectParseFunctions::ParseShape);
@@ -74,10 +76,8 @@ namespace ezModelImporter
     return ezMakeArrayPtr(&extension, 1);
   }
 
-  ezUniquePtr<Scene> PbrtImporter::ImportScene(const char* szFileName)
+  void ImportSceneImpl(const char* szFileName, ParseContext& context, Scene& outScene)
   {
-    ezLogBlock("Load Pbrt scene", szFileName);
-
     ezStringBuilder content;
 
     {
@@ -85,16 +85,13 @@ namespace ezModelImporter
       if (sceneFile.Open(szFileName).Failed())
       {
         ezLog::Error("Failed to open '%s'", szFileName);
-        return nullptr;
+        return;
       }
 
       content.ReadAll(sceneFile);
       sceneFile.Close();
     }
     ezString sceneFolderPath = ezPathUtils::GetFileDirectory(szFileName);
-
-
-    ezUniquePtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
 
     // Read pbrt file command by command.
     // A command is either an object, a scope or a transform.
@@ -105,7 +102,6 @@ namespace ezModelImporter
 
     ezDynamicArray<Parameter> parameterList;
 
-    ParseContext context(szFileName);
     ezStringView remainingSceneText = content;
     while (remainingSceneText.IsValid())
     {
@@ -116,19 +112,7 @@ namespace ezModelImporter
       {
         ezStringBuilder includeFilename = sceneFolderPath;
         includeFilename.AppendPath(ezString(PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"')));
-
-        ezFileReader includeFile;
-        if (includeFile.Open(includeFilename).Failed())
-        {
-          ezLog::Error("Failed to open '%s'", includeFilename.GetData());
-          continue;
-        }
-
-        ezString includeFileContent;
-        includeFileContent.ReadAll(includeFile);
-        includeFile.Close();
-
-        content.Insert(remainingSceneText.GetStartPosition(), includeFileContent);
+        ImportSceneImpl(includeFilename.GetData(), context, outScene);
       }
 
       // Is it an object?
@@ -172,7 +156,7 @@ namespace ezModelImporter
           parameterDesc = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
         }
 
-        PbrtCommandLookup::s_objects[commandName](type, parameterList, context, *outScene);
+        PbrtCommandLookup::s_objects[commandName](type, parameterList, context, outScene);
       }
 
       // Is it a transform?
@@ -190,6 +174,8 @@ namespace ezModelImporter
       // If it is nothing of the above, skip it till we find something that could be another command.
       else
       {
+        ezLog::Warning("Unknown Pbrt command '%s'.", commandName.GetData());
+
         // Skip lines until something does not start like a parameters.
         while (remainingSceneText.IsValid() &&
                !(remainingSceneText.GetCharacter() >= 'A' && remainingSceneText.GetCharacter() <= 'Z') &&
@@ -201,6 +187,15 @@ namespace ezModelImporter
         }
       }
     }
+  }
+
+  ezUniquePtr<Scene> PbrtImporter::ImportScene(const char* szFileName)
+  {
+    ezLogBlock("Load Pbrt scene", szFileName);
+    ezUniquePtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
+    ParseContext context(szFileName);
+
+    ImportSceneImpl(szFileName, context, *outScene);
 
     if (context.IsInWorld())
     {

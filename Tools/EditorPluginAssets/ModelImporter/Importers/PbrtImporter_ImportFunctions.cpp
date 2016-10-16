@@ -49,6 +49,11 @@ namespace ezModelImporter
 
   namespace PbrtTransformFunctions
   {
+    void Identity(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
+    {
+      context.PeekActiveTransform().SetIdentity();
+    }
+
     void Translate(ParseContext& context, ezStringView& remainingSceneText)
     {
       ezVec3 translation;
@@ -59,6 +64,73 @@ namespace ezModelImporter
       else
         ezLog::Error("Failed parsing Translate transform command.");
     }
+    void Rotate(ParseContext& context, ezStringView& remainingSceneText)
+    {
+      float values[4];
+      if (PbrtParseHelper::ParseFloats(remainingSceneText, ezMakeArrayPtr(values), 4).Succeeded())
+      {
+        ezQuat rotation;
+        rotation.SetFromAxisAndAngle(ezVec3(values[1], values[2], values[3]), ezAngle::Degree(values[0]));
+        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), rotation));
+      }
+      else
+        ezLog::Error("Failed parsing Rotate transform command.");
+    }
+    void Scale(ParseContext& context, ezStringView& remainingSceneText)
+    {
+      ezVec3 scale;
+      if (PbrtParseHelper::ParseVec3(remainingSceneText, scale).Succeeded())
+      {
+        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), ezQuat::IdentityQuaternion(), scale));
+      }
+      else
+        ezLog::Error("Failed parsing Scale transform command.");
+    }
+
+    void LookAt(ParseContext& context, ezStringView& remainingSceneText)
+    {
+      float values[9];
+      if (PbrtParseHelper::ParseFloats(remainingSceneText, ezMakeArrayPtr(values), 9).Succeeded())
+      {
+        ezMat4 lookAt;
+        lookAt.SetLookAtMatrix(ezVec3(values[0], values[1], values[2]), ezVec3(values[3], values[4], values[5]), ezVec3(values[6], values[7], values[8]));
+        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(lookAt));
+      }
+      else
+        ezLog::Error("Failed parsing LookAt transform command.");
+    }
+
+    ezResult ParseMat4(ezStringView& remainingSceneText, ezMat4& outMat)
+    {
+      return PbrtParseHelper::ParseFloats(remainingSceneText, ezArrayPtr<float>(&outMat.m_fElementsCM[0], outMat.m_fElementsCM[16]), 16);
+    }
+
+    void Transform(ParseContext& context, ezStringView& remainingSceneText)
+    {
+      ezMat4 mat;
+      if (ParseMat4(remainingSceneText, mat).Succeeded())
+        context.PeekActiveTransform() = ezTransform(mat);
+      else
+        ezLog::Error("Failed parsing Transform transform command.");
+    }
+
+    void ConcatTransform(ParseContext& context, ezStringView& remainingSceneText)
+    {
+      ezMat4 mat;
+      if (ParseMat4(remainingSceneText, mat).Succeeded())
+        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(mat));
+      else
+        ezLog::Error("Failed parsing Transform transform command.");
+    }
+
+    //void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
+    //{
+    //  ezStringView name = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
+    //}
+
+    //void CoordSysTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
+    //{
+    //}
   }
 
   namespace PbrtObjectParseFunctions

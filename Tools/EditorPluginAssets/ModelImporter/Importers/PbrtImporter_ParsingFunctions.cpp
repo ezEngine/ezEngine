@@ -113,6 +113,31 @@ namespace ezModelImporter
       }
     }
 
+    ezResult ParseFloats(ezStringView& params, ezArrayPtr<float> outFloats, int numExpectedFloats)
+    {
+      const char* startPos = params.GetStartPosition();
+      for (int i = 0; i < numExpectedFloats; ++i)
+      {
+        SkipWhiteSpaces(params);
+        if (params.GetCharacter() == '[')
+          ++params;
+        if (params.GetCharacter() == ']')
+          return EZ_FAILURE;
+
+        double value;
+        if (ezConversionUtils::StringToFloat(startPos, value, &startPos).Failed())
+          return EZ_FAILURE;
+
+        outFloats[i] = static_cast<float>(value);
+        params.SetStartPosition(startPos);
+      }
+
+      if (params.GetCharacter() == ']')
+        ++params;
+
+      return EZ_SUCCESS;
+    }
+
     Parameter::DataArray ParseParameterBlock(ParamType type, ezStringView& remainingSceneText)
     {
       ezStringView params;

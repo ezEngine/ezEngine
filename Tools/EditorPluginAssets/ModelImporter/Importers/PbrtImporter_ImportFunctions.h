@@ -19,7 +19,15 @@ namespace ezModelImporter
 
   namespace PbrtTransformFunctions
   {
+    void Identity(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
     void Translate(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    void Rotate(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    void Scale(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    void LookAt(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    void Transform(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    void ConcatTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    //void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    //void CoordSysTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
   }
 
   namespace PbrtObjectParseFunctions
