@@ -41,7 +41,9 @@ namespace ezModelImporter
 
   const Material* Scene::GetMaterial(MaterialHandle handle) const
   {
-    return m_Materials[handle.GetInternalID()].Borrow();
+    ezUniquePtr<Material>* material = nullptr;
+    m_Materials.TryGetValue(handle.GetInternalID(), material);
+    return material ? material->Borrow() : nullptr;
   }
 
   ObjectHandle Scene::AddNode(ezUniquePtr<Node> node)

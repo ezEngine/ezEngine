@@ -428,12 +428,15 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
     // Try to find material in property list.
     int assetMaterialIndex = -1;
-    for (ezUInt32 i = 0; i < pProp->m_Slots.GetCount(); ++i)
+    if (!material)
     {
-      if (pProp->m_Slots[i].m_sLabel == material->m_Name)
+      for (ezUInt32 i = 0; i < pProp->m_Slots.GetCount(); ++i)
       {
-        assetMaterialIndex = i;
-        break;
+        if (pProp->m_Slots[i].m_sLabel == material->m_Name)
+        {
+          assetMaterialIndex = i;
+          break;
+        }
       }
     }
 
@@ -471,6 +474,8 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
   {
     const ezModelImporter::SubMesh& subMesh = mesh.GetSubMesh(subMeshIdx);
     const ezModelImporter::Material* material = scene.GetMaterial(subMesh.m_Material);
+    if (!material)
+      continue;
 
     if (!ezAssetCurator::GetSingleton()->FindAssetInfo(pProp->m_Slots[subMeshIdx].m_sResource))
     {
@@ -645,7 +650,8 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
     {
       const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
       const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
-      pProp->m_Slots[subMeshIdx].m_sLabel = material->m_Name;
+      if(material)
+        pProp->m_Slots[subMeshIdx].m_sLabel = material->m_Name;
     }
 
     if (pProp->m_bImportMaterials)
