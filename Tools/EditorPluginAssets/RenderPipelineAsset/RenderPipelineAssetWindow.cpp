@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
+#include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetScene.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
@@ -34,7 +35,7 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
     addToolBar(pToolBar);
   }
 
-  ezQtNodeScene* m_pScene = new ezQtNodeScene(this);
+  m_pScene = new ezQtRenderPipelineAssetScene(this);
   m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
   ezQtNodeView* m_pView = new ezQtNodeView(this);
   m_pView->SetScene(m_pScene);

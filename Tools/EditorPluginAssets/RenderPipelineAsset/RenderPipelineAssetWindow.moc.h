@@ -4,7 +4,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezQtNodeScene;
+class ezQtRenderPipelineAssetScene;
 class ezQtNodeView;
 
 class ezQtRenderPipelineAssetDocumentWindow : public ezQtDocumentWindow
@@ -20,6 +20,6 @@ public:
 private slots:
   
 private:
-  ezQtNodeScene* m_pScene;
+  ezQtRenderPipelineAssetScene* m_pScene;
   ezQtNodeView* m_pView;
 };

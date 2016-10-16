@@ -47,10 +47,11 @@ private:
   void ConnectPins(const ezConnection* pConnection);
   void DisconnectPins(const ezConnection* pConnection);
 
-  void RemoveNodeAction(ezQtNode* pNode);
-  void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin);
-  void DisconnectPinsAction(ezQtConnection* pConnection);
-  void DisconnectPinsAction(ezQtPin* pPin);
+protected:
+  virtual void RemoveNodeAction(ezQtNode* pNode);
+  virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin);
+  virtual void DisconnectPinsAction(ezQtConnection* pConnection);
+  virtual void DisconnectPinsAction(ezQtPin* pPin);
 
 private slots:
   void OnMenuAction();
@@ -60,8 +61,10 @@ private:
   static ezRttiMappedObjectFactory<ezQtPin> s_PinFactory;
   static ezRttiMappedObjectFactory<ezQtConnection> s_ConnectionFactory;
 
-private:
+protected:
   const ezDocumentNodeManager* m_pManager;
+
+private:
   ezMap<const ezDocumentObject*, ezQtNode*> m_Nodes;
   ezMap<const ezConnection*, ezQtConnection*> m_ConnectionsSourceTarget;
 
