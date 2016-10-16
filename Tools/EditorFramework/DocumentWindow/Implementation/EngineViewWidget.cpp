@@ -167,7 +167,7 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
 
 
   m_fCameraStartFovOrDim = m_pViewConfig->m_Camera.GetFovOrDim();
-  
+
   if (fFovOrDim > 0.0f)
     m_fCameraTargetFovOrDim = fFovOrDim;
 
@@ -264,6 +264,9 @@ void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
 
 void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
 {
+  if (e->isAutoRepeat())
+    return;
+
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
@@ -286,6 +289,9 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
 
 void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
 {
+  if (e->isAutoRepeat())
+    return;
+
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
@@ -535,7 +541,7 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   m_pLayout->setMargin(1);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
-   
+
   m_pViewWidget = pViewWidget;
   m_pViewWidget->setParent(this);
 

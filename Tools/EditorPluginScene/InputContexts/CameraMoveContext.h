@@ -6,20 +6,10 @@
 
 class ezCamera;
 
-struct ezCameraMoveContextSettings
-{
-  ezCameraMoveContextSettings()
-  {
-    m_vOrbitPoint.SetZero();
-  }
-
-  ezVec3 m_vOrbitPoint;
-};
-
 class ezCameraMoveContext : public ezEditorInputContext
 {
 public:
-  ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings);
+  ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView);
 
   void LoadState();
 
@@ -48,8 +38,9 @@ private:
   void SetMoveSpeed(ezInt32 iSpeed);
   void ResetCursor();
   void SetCurrentMouseMode();
+  void DeactivateIfLast();
 
-  ezCameraMoveContextSettings* m_pSettings;
+  ezVec3 m_vOrbitPoint;
 
   ezVec2I32 m_LastMousePos;
 

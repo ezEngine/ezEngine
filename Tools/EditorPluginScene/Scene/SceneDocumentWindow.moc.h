@@ -83,7 +83,6 @@ private:
   ezScaleGizmo m_ScaleGizmo;
   ezDragToPositionGizmo m_DragToPosGizmo;
 
-  ezCameraMoveContextSettings m_CameraMoveSettings;
   ezVec3 m_vLastTranslationGizmoResult;
 
   struct SelectedGO

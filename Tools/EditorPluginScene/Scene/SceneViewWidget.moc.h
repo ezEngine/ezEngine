@@ -15,7 +15,7 @@ class ezQtSceneViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
+  ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezSceneViewConfig* pViewConfig);
   ~ezQtSceneViewWidget();
 
   ezOrthoGizmoContext* m_pOrthoGizmoContext;

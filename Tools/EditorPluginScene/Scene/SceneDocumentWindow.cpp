@@ -463,7 +463,7 @@ void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
   {
     for (ezUInt32 i = 0; i < 4; ++i)
     {
-      ezQtSceneViewWidget* pViewWidget = new ezQtSceneViewWidget(nullptr, this, &m_CameraMoveSettings, &m_ViewConfigQuad[i]);
+      ezQtSceneViewWidget* pViewWidget = new ezQtSceneViewWidget(nullptr, this, &m_ViewConfigQuad[i]);
       ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, pViewWidget, "EditorPluginScene_ViewToolBar");
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
@@ -473,7 +473,7 @@ void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
   }
   else
   {
-    ezQtSceneViewWidget* pViewWidget = new ezQtSceneViewWidget(nullptr, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
+    ezQtSceneViewWidget* pViewWidget = new ezQtSceneViewWidget(nullptr, this, &m_ViewConfigSingle);
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, pViewWidget, "EditorPluginScene_ViewToolBar");
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);

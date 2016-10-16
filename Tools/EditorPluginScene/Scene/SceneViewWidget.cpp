@@ -23,7 +23,7 @@
 
 bool ezQtSceneViewWidget::s_bContextMenuInitialized = false;
 
-ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
+ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
@@ -33,7 +33,7 @@ ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWind
   ezQtSceneDocumentWindow* pSceneWindow = pOwnerWindow;
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
-  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
+  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this);
   m_pOrthoGizmoContext = EZ_DEFAULT_NEW(ezOrthoGizmoContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
 
   m_pCameraMoveContext->SetCamera(&m_pViewConfig->m_Camera);
