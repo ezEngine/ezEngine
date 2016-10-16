@@ -334,7 +334,7 @@ namespace ezModelImporter
 
     void ReadMaterialParameter(Material::SemanticHint::Enum semantic, const char* materialParameter, Material& material, ezArrayPtr<Parameter> parameters, ezVariant default)
     {
-      for (Parameter& param : parameters)
+      for (const Parameter& param : parameters)
       {
         if (!param.data.IsEmpty() && param.name.IsEqual_NoCase(materialParameter))
         {
@@ -462,7 +462,10 @@ namespace ezModelImporter
           }
           if (!found)
           {
-            // TODO add texture.
+            ezString textureName = param.name;
+            const char* textureFilename = context.LookUpTextureFilename(textureName);
+            if(textureFilename)
+              newMaterial->m_Textures.PushBack(Material::TextureReference(textureName, param.data[0].Get<ezString>()));
           }
         }
         else
@@ -483,6 +486,40 @@ namespace ezModelImporter
       }
 
       context.PushActiveMaterial(outScene.AddMaterial(std::move(newMaterial)));
+    }
+
+    void ParseTexture(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
+    {
+      // http://www.pbrt.org/fileformat.html#textures
+
+      // Type is actually name.
+      // Second parameter is implementation class. We can't map that.
+      // All other parameters don't matter either, only the "filename" parameter, without that the texture is useless to us.
+
+      ezString filename;
+      for(const Parameter& param : parameters)
+      {
+        if (param.name.IsEqual_NoCase("filename"))
+        {
+          if (param.type != ParamType::STRING || param.data.GetCount() != 1)
+          {
+            ezLog::Error("Texture's filename parameter is not a string and/or does not have one value.");
+            continue;
+          }
+
+          filename = param.data[0].Get<ezString>();
+          break;
+        }
+      }
+
+      if (filename.IsEmpty())
+      {
+        ezLog::Warning("Texture '%s' does not have a filename, unable to import.", type.GetData());
+      }
+      else
+      {
+        context.AddTexture(ezString(type), filename);
+      }
     }
   }
 }

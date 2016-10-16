@@ -55,6 +55,10 @@ namespace ezModelImporter
 
     struct TextureReference
     {
+      TextureReference() : m_SemanticHint(SemanticHint::UNKNOWN), m_Semantic(""), m_FileName(), m_UVSetIndex(0) {}
+      TextureReference(SemanticHint::Enum semanticHint, const char* semantic, const char* filename) : m_SemanticHint(semanticHint), m_Semantic(semantic), m_FileName(filename), m_UVSetIndex(0) {}
+      TextureReference(const char* semantic, const char* filename) : m_SemanticHint(SemanticHint::UNKNOWN), m_Semantic(semantic), m_FileName(filename), m_UVSetIndex(0) {}
+
       SemanticHint::Enum m_SemanticHint;
       ezString m_Semantic;
       /// Relative file path to the texture.

@@ -59,6 +59,7 @@ namespace ezModelImporter
       // Objects.
       PbrtCommandLookup::s_objects.Insert("shape", &PbrtObjectParseFunctions::ParseShape);
       PbrtCommandLookup::s_objects.Insert("material", &PbrtObjectParseFunctions::ParseMaterial);
+      PbrtCommandLookup::s_objects.Insert("texture", &PbrtObjectParseFunctions::ParseTexture);
       // Known missing:
       // * Film
       // * Sampler
@@ -116,7 +117,7 @@ namespace ezModelImporter
       }
 
       // Is it an object?
-      if (PbrtCommandLookup::s_objects.Contains(commandName))
+      else if (PbrtCommandLookup::s_objects.Contains(commandName))
       {
         // Extract type.
         ezStringView type = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
@@ -131,26 +132,34 @@ namespace ezModelImporter
         ezStringView parameterDesc = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
         while (parameterDesc.IsValid())
         {
-          // Expecting two strings, type and name.
+          // Usually two strings, type and name.
+          auto& parameter = parameterList.ExpandAndGetRef();
+
           const char* separatorPos = parameterDesc.FindSubString(" ");
           if (separatorPos == nullptr)
           {
-            ezLog::Error("Invalid parameter in pbrt file '%s' for an object '%s'.", commandName.GetData(), szFileName);
-            break;
+            parameter.type = ParamType::INVALID;
+            parameter.name = parameterDesc;
+            //parameter.data;
           }
-          ezStringView paramTypeString(parameterDesc.GetData(), separatorPos);
-          ParamType paramType = PbrtParseHelper::GetParamType(paramTypeString);
-          if (paramType == ParamType::INVALID)
+          else
           {
-            ezString paramTypeStringInst = paramTypeString;
-            ezLog::Error("Unknown parameter type '%s' in pbrt file '%s' for an object '%s'.", paramTypeStringInst.GetData(), commandName.GetData(), szFileName);
-            break;
+            ezStringView paramTypeString(parameterDesc.GetData(), separatorPos);
+            ParamType paramType = PbrtParseHelper::GetParamType(paramTypeString);
+            if (paramType == ParamType::INVALID)
+            {
+              ezString paramTypeStringInst = paramTypeString;
+              ezLog::Error("Unknown parameter type '%s' in pbrt file '%s' for an object '%s'.", paramTypeStringInst.GetData(), commandName.GetData(), szFileName);
+              break;
+            }
+
+            parameter.type = paramType;
+            parameter.name = ezStringView(separatorPos + 1, parameterDesc.GetEndPosition());
+            parameter.data = PbrtParseHelper::ParseParameterBlock(paramType, remainingSceneText);
           }
 
-          auto& parameter = parameterList.ExpandAndGetRef();
-          parameter.type = paramType;
-          parameter.name = ezStringView(separatorPos+1, parameterDesc.GetEndPosition());
-          parameter.data = PbrtParseHelper::ParseParameterBlock(paramType, remainingSceneText);
+
+
 
           // Next parameter.
           parameterDesc = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');

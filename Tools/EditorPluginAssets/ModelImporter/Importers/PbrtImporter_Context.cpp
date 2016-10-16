@@ -77,5 +77,17 @@ namespace ezModelImporter
     {
       return m_modelFilename;
     }
+
+    void ParseContext::AddTexture(const char* name, const char* filename)
+    {
+      m_textureFilenames.Insert(name, filename);
+    }
+
+    const char* ParseContext::LookUpTextureFilename(const char* textureName) const
+    {
+      ezString* filename = nullptr;
+      m_textureFilenames.TryGetValue(textureName, filename);
+      return filename ? filename->GetData() : nullptr;
+    }
   }
 }

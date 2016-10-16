@@ -29,6 +29,9 @@ namespace ezModelImporter
 
       const char* GetModelFilename();
 
+      void AddTexture(const char* name, const char* filename);
+      const char* LookUpTextureFilename(const char* textureName) const;
+
     private:
       ezDynamicArray<ezTransform> m_transformStack;
       ezDynamicArray<MaterialHandle> m_activeMaterialStack;
@@ -39,6 +42,8 @@ namespace ezModelImporter
       bool m_inWorld;
 
       const char* const m_modelFilename;
+
+      ezHashTable<ezString, ezString> m_textureFilenames;
     };
   }
 }
