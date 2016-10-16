@@ -78,7 +78,7 @@ namespace ezModelImporter
   {
     ezLogBlock("Load Pbrt scene", szFileName);
 
-    ezString content;
+    ezStringBuilder content;
 
     {
       ezFileReader sceneFile;
@@ -112,7 +112,24 @@ namespace ezModelImporter
       ezStringView commandName = PbrtParseHelper::ReadCommandName(remainingSceneText);
 
       // Is it an include? (special)
-      // todo.
+      if (commandName == "include")
+      {
+        ezStringBuilder includeFilename = sceneFolderPath;
+        includeFilename.AppendPath(ezString(PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"')));
+
+        ezFileReader includeFile;
+        if (includeFile.Open(includeFilename).Failed())
+        {
+          ezLog::Error("Failed to open '%s'", includeFilename.GetData());
+          continue;
+        }
+
+        ezString includeFileContent;
+        includeFileContent.ReadAll(includeFile);
+        includeFile.Close();
+
+        content.Insert(remainingSceneText.GetStartPosition(), includeFileContent);
+      }
 
       // Is it an object?
       if (PbrtCommandLookup::s_objects.Contains(commandName))

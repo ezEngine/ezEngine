@@ -139,11 +139,12 @@ namespace ezModelImporter
   /// Note that as of now we do not support other mesh representations, which means that any other topology needs to be triangulated on import.
   class Mesh : public HierarchyObject
   {
+    EZ_DISALLOW_COPY_AND_ASSIGN(Mesh);
+
   public:
 
     Mesh();
     Mesh(Mesh&& mesh);
-    //Mesh(const Mesh& mesh) = delete;
 
     ~Mesh();
 
@@ -214,7 +215,6 @@ namespace ezModelImporter
     ezResult ComputeTangents();
 
   private:
-    Mesh(const Mesh& mesh);
 
     ezDynamicArray<Triangle> m_Triangles;
     ezUInt32 m_uiNextUnusedVertexIndex;

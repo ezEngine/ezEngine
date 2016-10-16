@@ -90,7 +90,8 @@ namespace ezModelImporter
         ezStringUtils::IsEqualN_NoCase(type.GetData(), "normal", stringLen, type.GetEndPosition()) ||
         ezStringUtils::IsEqualN_NoCase(type.GetData(), "vector", stringLen, type.GetEndPosition()))
         return ParamType::VECTOR3;
-      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "rgb", stringLen, type.GetEndPosition()))
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "rgb", stringLen, type.GetEndPosition()) ||
+               ezStringUtils::IsEqualN_NoCase(type.GetData(), "color", stringLen, type.GetEndPosition()))
         return ParamType::COLOR;
       else
         return ParamType::INVALID;
@@ -120,8 +121,14 @@ namespace ezModelImporter
         params = ReadBlock(remainingSceneText, '[', ']');
         if (!params.IsValid())
         {
-          ezLog::Error("Failed to parse parameter, expected '['.");
-          return Parameter::DataArray();
+          // No brackets, so it still can be a single value delimited by newline or whitespace.
+          SkipWhiteSpaces(remainingSceneText);
+
+          const char* begin = remainingSceneText.GetStartPosition();
+          while (!ezStringUtils::IsWhiteSpace(*remainingSceneText.GetStartPosition()))
+            ++remainingSceneText;
+
+          params = ezStringView(begin, remainingSceneText.GetStartPosition());
         }
         SkipWhiteSpaces(params);
       }

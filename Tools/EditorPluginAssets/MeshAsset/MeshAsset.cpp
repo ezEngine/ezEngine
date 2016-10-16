@@ -312,13 +312,20 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   ezLog::Info("Number of Vertices: %u", uiNumVertices);
   ezLog::Info("Number of Triangles: %u", uiNumTriangles);
 
+  // Seems to be necessary with current rendering pipeline.
+#define GENERATE_FAKE_DATA
+
   // Allocate buffer.
   const ezUInt32 uiPosStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   const ezUInt32 uiNormalStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
   ezUInt32 uiTangentStream=0, uiTexStream=0;
+#ifndef GENERATE_FAKE_DATA
   if (dataStreams[Tangent] && dataStreams[BiTangent])
+#endif
     uiTangentStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+#ifndef GENERATE_FAKE_DATA
   if (dataStreams[Texcoord0])
+#endif
     uiTexStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
   desc.MeshBufferDesc().AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
@@ -362,14 +369,16 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiVertexIndex, vTangent);
     }
   }
-  //else
-  //{
-  //  for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
-  //  {
-  //    ezUInt32 uiVertexIndex = it.Value();
-  //    desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiVertexIndex, ezVec3(0.0f));
-  //  }
-  //}
+#ifdef GENERATE_FAKE_DATA
+  else
+  {
+    for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+    {
+      ezUInt32 uiVertexIndex = it.Value();
+      desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiVertexIndex, ezVec3(0.0f));
+    }
+  }
+#endif
 
   // Set Texcoords.
   if (dataStreams[Texcoord0])
@@ -383,14 +392,16 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, vTexcoord);
     }
   }
-  //else
-  //{
-  //  for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
-  //  {
-  //    ezUInt32 uiVertexIndex = it.Value();
-  //    desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, ezVec2(0.0f));
-  //  }
-  //}
+#ifdef GENERATE_FAKE_DATA
+  else
+  {
+    for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+    {
+      ezUInt32 uiVertexIndex = it.Value();
+      desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, ezVec2(0.0f));
+    }
+  }
+#endif
 
   // Read in indices.
   if (bFlipTriangles)

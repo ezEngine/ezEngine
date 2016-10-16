@@ -160,19 +160,19 @@ namespace ezModelImporter
 
   inline void VertexDataStream::AddValue(float value)
   {
-    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 1, "Data stream has %i values, not 1", m_uiNumElementsPerVertex);
+    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 1, "Data stream has %i elements per vertex, not 1", m_uiNumElementsPerVertex);
     m_Data.PushBack(value);
   }
   inline void VertexDataStream::AddValue(const ezVec2& value)
   {
-    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 2, "Data stream has %i values, not 2", m_uiNumElementsPerVertex);
+    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 2, "Data stream has %i elements per vertex, not 2", m_uiNumElementsPerVertex);
     m_Data.Reserve(m_Data.GetCount() + 2);
     m_Data.PushBackUnchecked(value.x);
     m_Data.PushBackUnchecked(value.y);
   }
   inline void VertexDataStream::AddValue(const ezVec3& value)
   {
-    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 3, "Data stream has %i values, not 3", m_uiNumElementsPerVertex);
+    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 3, "Data stream has %i elements per vertex, not 3", m_uiNumElementsPerVertex);
     m_Data.Reserve(m_Data.GetCount() + 3);
     m_Data.PushBackUnchecked(value.x);
     m_Data.PushBackUnchecked(value.y);
@@ -180,7 +180,7 @@ namespace ezModelImporter
   }
   inline void VertexDataStream::AddValue(const ezVec4& value)
   {
-    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 4, "Data stream has %i values, not 4", m_uiNumElementsPerVertex);
+    EZ_ASSERT_DEBUG(m_uiNumElementsPerVertex == 4, "Data stream has %i elements per vertex, not 4", m_uiNumElementsPerVertex);
     m_Data.Reserve(m_Data.GetCount() + 4);
     m_Data.PushBackUnchecked(value.x);
     m_Data.PushBackUnchecked(value.y);

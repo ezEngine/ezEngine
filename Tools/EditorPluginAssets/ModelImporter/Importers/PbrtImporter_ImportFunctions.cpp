@@ -63,6 +63,14 @@ namespace ezModelImporter
 
   namespace PbrtObjectParseFunctions
   {
+    template<typename T>
+    void CopyParamToArray(ezDynamicArray<T>& targetArray, const Parameter& param)
+    {
+      targetArray.Reserve(param.data.GetCount());
+      for (ezUInt32 elem = 0; elem < param.data.GetCount(); ++elem)
+        targetArray.PushBack(param.data[elem].Get<T>());
+    }
+
     void ParseShape(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
     {
       // Get/Create node for current transform.
@@ -74,6 +82,8 @@ namespace ezModelImporter
         node->m_RelativeTransform = context.PeekActiveTransform();
         parentNode = outScene.AddNode(std::move(node));
       }
+
+      ezUniquePtr<ezModelImporter::Mesh> mesh;
 
       if (type.IsEqual_NoCase("plymesh"))
       {
@@ -98,8 +108,127 @@ namespace ezModelImporter
           ezLog::Error("Failed to load mesh '%s'.", meshFilename.GetData());
           return;
         }
-        ezUniquePtr<ezModelImporter::Mesh> mesh = EZ_DEFAULT_NEW(ezModelImporter::Mesh, std::move(*subScene->MergeAllMeshes()));
+        mesh = EZ_DEFAULT_NEW(ezModelImporter::Mesh, std::move(*subScene->MergeAllMeshes()));
+      }
+      else if (type.IsEqual_NoCase("trianglemesh"))
+      {
+        // Read data.
+        ezDynamicArray<int> indices;
+        ezDynamicArray<ezVec3> positions;
+        ezDynamicArray<ezVec3> normals;
+        ezDynamicArray<ezVec3> tangents;
+        ezDynamicArray<float> texcoords;
+        for (ezUInt32 i = 0; i < parameters.GetCount(); ++i)
+        {
+          if (parameters[i].name.IsEqual_NoCase("P"))
+          {
+            if(parameters[i].type != ParamType::VECTOR3)
+              ezLog::Warning("PBRT triangle mesh parameter 'P' is not a vec3 array.", type.GetData());
+            CopyParamToArray(positions, parameters[i]);
+          }
+          else if (parameters[i].name.IsEqual_NoCase("N"))
+          {
+            if (parameters[i].type != ParamType::VECTOR3)
+              ezLog::Warning("PBRT triangle mesh parameter 'N' is not a vec3 array.", type.GetData());
+            CopyParamToArray(normals, parameters[i]);
+          }
+          else if (parameters[i].name.IsEqual_NoCase("S"))
+          {
+            if (parameters[i].type != ParamType::VECTOR3)
+              ezLog::Warning("PBRT triangle mesh parameter 'S' is not a vec3 array.", type.GetData());
+            CopyParamToArray(tangents, parameters[i]);
+          }
+          else if (parameters[i].name.IsEqual_NoCase("uv"))
+          {
+            if (parameters[i].type != ParamType::FLOAT)
+              ezLog::Warning("PBRT triangle mesh parameter 'uv' is not a float array.", type.GetData());
+            CopyParamToArray(texcoords, parameters[i]);
+          }
+          else if (parameters[i].name.IsEqual_NoCase("indices"))
+          {
+            if (parameters[i].type != ParamType::INT)
+              ezLog::Warning("PBRT triangle mesh parameter 'indece' is not an int array.", type.GetData());
+            CopyParamToArray(indices, parameters[i]);
+          }
+        }
 
+
+        if (positions.IsEmpty())
+        {
+          ezLog::Error("PBRT triangle mesh has no positions.", type.GetData());
+          return;
+        }
+        if (indices.IsEmpty())
+        {
+          ezLog::Error("PBRT triangle mesh has no indices.", type.GetData());
+          return;
+        }
+        if (indices.GetCount() % 3 != 0)
+        {
+          ezLog::Error("PBRT triangle mesh has not n*3 indices.", type.GetData());
+          return;
+        }
+        if (texcoords.GetCount() % 2 != 0)
+        {
+          ezLog::Error("PBRT triangle mesh has not n*2 floats in its texcoord array.", type.GetData());
+          return;
+        }
+
+        // Build mesh.
+        mesh = EZ_DEFAULT_NEW(ezModelImporter::Mesh);
+        mesh->AddTriangles(indices.GetCount() / 3);
+
+        ezHybridArray<VertexDataStream*, 4> streams;
+
+        VertexDataStream* positionStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::Position, 3);
+        streams.PushBack(positionStream);
+        positionStream->ReserveData(positions.GetCount());
+        for (ezUInt32 i = 0; i < positions.GetCount(); ++i)
+          positionStream->AddValue(positions[i]);
+
+        if (!normals.IsEmpty())
+        {
+          VertexDataStream* normalStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
+          streams.PushBack(normalStream);
+          normalStream->ReserveData(normals.GetCount());
+          for (ezUInt32 i = 0; i < normals.GetCount(); ++i)
+            normalStream->AddValue(normals[i]);
+        }
+        if (!tangents.IsEmpty())
+        {
+          VertexDataStream* tangentStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
+          streams.PushBack(tangentStream);
+          tangentStream->ReserveData(tangents.GetCount());
+          for (ezUInt32 i = 0; i < tangents.GetCount(); ++i)
+            tangentStream->AddValue(tangents[i]);
+        }
+        if (!texcoords.IsEmpty())
+        {
+          VertexDataStream* texcoordStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::TexCoord0, 2);
+          streams.PushBack(texcoordStream);
+          texcoordStream->AddValues(texcoords);
+        }
+
+        ezArrayPtr<Mesh::Triangle> triangleList = mesh->GetTriangles();
+        for (VertexDataStream* stream : streams)
+        {
+          ezUInt32 numComponents = stream->GetNumElementsPerVertex();
+          for (ezUInt32 i = 0; i < triangleList.GetCount(); ++i)
+          {
+            stream->SetDataIndex(triangleList[i].m_Vertices[0], indices[i * 3] * numComponents);
+            stream->SetDataIndex(triangleList[i].m_Vertices[1], indices[i * 3 + 1] * numComponents);
+            stream->SetDataIndex(triangleList[i].m_Vertices[2], indices[i * 3 + 2] * numComponents);
+          }
+        }
+      }
+      else
+      {
+        ezLog::Warning("PBRT '%s' shapes are not supported.", type.GetData());
+        return;
+      }
+
+      if (mesh)
+      {
         // Wire in last node.
         mesh->SetParent(parentNode);
 
@@ -129,8 +258,6 @@ namespace ezModelImporter
         // Add to output scene.
         outScene.AddMesh(std::move(mesh));
       }
-      else
-        ezLog::Warning("PBRT '%s' shapes are not supported.", type.GetData());
     }
 
     void ReadMaterialParameter(Material::SemanticHint::Enum semantic, const char* materialParameter, Material& material, ezArrayPtr<Parameter> parameters, ezVariant default)
