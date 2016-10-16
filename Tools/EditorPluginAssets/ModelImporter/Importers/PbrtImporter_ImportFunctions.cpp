@@ -159,9 +159,9 @@ namespace ezModelImporter
 
       if (type.IsEqual_NoCase("plymesh"))
       {
-        if (parameters.GetCount() != 1)
+        if (parameters.IsEmpty())
         {
-          ezLog::Error("Expected a single parameter for plymesh shape.", type.GetData());
+          ezLog::Error("Expected at least single parameter for plymesh shape.", type.GetData());
           return;
         }
         if (!parameters[0].name.IsEqual_NoCase("filename") || parameters[0].data.GetCount() != 1 || !parameters[0].data[0].IsA<ezString>())
@@ -462,10 +462,10 @@ namespace ezModelImporter
           }
           if (!found)
           {
-            ezString textureName = param.name;
+            ezString textureName = param.data[0].Get<ezString>();
             const char* textureFilename = context.LookUpTextureFilename(textureName);
             if(textureFilename)
-              newMaterial->m_Textures.PushBack(Material::TextureReference(textureName, param.data[0].Get<ezString>()));
+              newMaterial->m_Textures.PushBack(Material::TextureReference(ezString(param.name), textureFilename));
           }
         }
         else

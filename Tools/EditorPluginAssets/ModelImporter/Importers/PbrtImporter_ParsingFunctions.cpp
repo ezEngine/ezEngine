@@ -119,9 +119,9 @@ namespace ezModelImporter
       for (int i = 0; i < numExpectedFloats; ++i)
       {
         SkipWhiteSpaces(params);
-        if (params.GetCharacter() == '[')
-          ++params;
-        if (params.GetCharacter() == ']')
+        if (*startPos == '[')
+          ++startPos;
+        if (*startPos == ']')
           return EZ_FAILURE;
 
         double value;

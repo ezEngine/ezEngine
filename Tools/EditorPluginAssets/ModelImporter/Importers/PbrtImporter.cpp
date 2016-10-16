@@ -180,20 +180,20 @@ namespace ezModelImporter
         PbrtCommandLookup::s_scopes[commandName](context);
       }
 
-      // If it is nothing of the above, skip it till we find something that could be another command.
       else
       {
         ezLog::Warning("Unknown Pbrt command '%s'.", commandName.GetData());
+      }
 
-        // Skip lines until something does not start like a parameters.
-        while (remainingSceneText.IsValid() &&
-               !(remainingSceneText.GetCharacter() >= 'A' && remainingSceneText.GetCharacter() <= 'Z') &&
-               !(remainingSceneText.GetCharacter() >= 'a' && remainingSceneText.GetCharacter() <= 'z'))
-        {
-          PbrtParseHelper::SkipWhiteSpaces(remainingSceneText);
-          PbrtParseHelper::SkipCurrentLine(remainingSceneText);
-          PbrtParseHelper::SkipWhiteSpaces(remainingSceneText);
-        }
+      // Skip lines until something does not start like a parameter.
+      PbrtParseHelper::SkipWhiteSpaces(remainingSceneText);
+      while (remainingSceneText.IsValid() &&
+              !(remainingSceneText.GetCharacter() >= 'A' && remainingSceneText.GetCharacter() <= 'Z') &&
+              !(remainingSceneText.GetCharacter() >= 'a' && remainingSceneText.GetCharacter() <= 'z'))
+      {
+        PbrtParseHelper::SkipWhiteSpaces(remainingSceneText);
+        PbrtParseHelper::SkipCurrentLine(remainingSceneText);
+        PbrtParseHelper::SkipWhiteSpaces(remainingSceneText);
       }
     }
   }
