@@ -16,6 +16,7 @@ namespace ezModelImporter
       INT,
       VECTOR3,
       COLOR,
+      BOOL,
 
       INVALID
     };

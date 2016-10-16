@@ -93,6 +93,8 @@ namespace ezModelImporter
       else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "rgb", stringLen, type.GetEndPosition()) ||
                ezStringUtils::IsEqualN_NoCase(type.GetData(), "color", stringLen, type.GetEndPosition()))
         return ParamType::COLOR;
+      else if (ezStringUtils::IsEqualN_NoCase(type.GetData(), "bool", stringLen, type.GetEndPosition()))
+        return ParamType::BOOL;
       else
         return ParamType::INVALID;
     }
@@ -226,6 +228,16 @@ namespace ezModelImporter
             stopParsing = true;
           else
             entries.PushBack(ezColor(vec.x, vec.y, vec.z));
+          break;
+        }
+        case ParamType::BOOL:
+        {
+          if (params.IsEqual_NoCase("\"true\""))
+            entries.PushBack(true);
+          else
+            entries.PushBack(false);
+          const char* next = params.FindSubString(" ");
+          params.SetStartPosition(next ? next : params.GetEndPosition());
           break;
         }
 
