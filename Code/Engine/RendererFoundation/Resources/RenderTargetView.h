@@ -7,13 +7,16 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALRenderTargetView : public ezGALObject<ezGALRenderTargetViewCreationDescription>
 {
 public:
-
+  EZ_FORCE_INLINE ezGALTexture* GetTexture() const
+  {
+    return m_pTexture;
+  }
 
 protected:
 
   friend class ezGALDevice;
 
-  ezGALRenderTargetView(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& description);
+  ezGALRenderTargetView(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& description);
 
   virtual ~ezGALRenderTargetView();
 
@@ -21,5 +24,5 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 
-  ezGALResourceBase* m_pResource;
+  ezGALTexture* m_pTexture;
 };

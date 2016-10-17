@@ -369,9 +369,9 @@ void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALResourceView* pResourceVi
   EZ_DELETE(&m_Allocator, pDX11ResourceView);
 }
 
-ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description)
+ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
 {
-  ezGALRenderTargetViewDX11* pRTView = EZ_NEW(&m_Allocator, ezGALRenderTargetViewDX11, pResource, Description);
+  ezGALRenderTargetViewDX11* pRTView = EZ_NEW(&m_Allocator, ezGALRenderTargetViewDX11, pTexture, Description);
 
   if(!pRTView->InitPlatform(this).Succeeded())
   {

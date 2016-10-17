@@ -133,11 +133,6 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
     {
       m_Renderer[uiRendererIndex]->RenderBatch(renderViewContext, this, batch);
     }
-    else
-    {
-      /// \todo Clemens...
-      //ezLog::Warning("Could not render object of type '%s' in render pass '%s'. No suitable renderer found.", pType->GetTypeName(), m_sName.GetString().GetData());
-    }
   }
 }
 

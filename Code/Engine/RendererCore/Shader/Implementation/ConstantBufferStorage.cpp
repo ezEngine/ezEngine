@@ -3,6 +3,8 @@
 
 
 ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
+  : m_bHasBeenModified(false)
+  , m_uiLastHash(0)
 {
   m_Data = ezMakeArrayPtr(static_cast<ezUInt8*>(ezFoundation::GetAlignedAllocator()->Allocate(uiSizeInBytes, 16)), uiSizeInBytes);
 
@@ -34,8 +36,13 @@ void ezConstantBufferStorageBase::UploadData(ezGALContext* pContext)
     return;
 
   m_bHasBeenModified = false;
-
-  pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Data);
+  
+  ezUInt32 uiNewHash = ezHashing::MurmurHash(m_Data.GetPtr(), m_Data.GetCount());
+  if (m_uiLastHash != uiNewHash)
+  {
+    pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Data);
+    m_uiLastHash = uiNewHash;
+  }
 }
 
 

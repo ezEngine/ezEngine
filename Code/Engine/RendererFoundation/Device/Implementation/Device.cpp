@@ -657,12 +657,12 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ezGALResourceBase* pResource = nullptr;
+  ezGALTexture* pTexture = nullptr;
 
   if (!desc.m_hTexture.IsInvalidated())
-    pResource = Get<TextureTable, ezGALTexture>(desc.m_hTexture, m_Textures);
+    pTexture = Get<TextureTable, ezGALTexture>(desc.m_hTexture, m_Textures);
 
-  if (pResource == nullptr)
+  if (pTexture == nullptr)
   {
     return ezGALRenderTargetViewHandle();
   }
@@ -673,17 +673,17 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
   ezUInt32 uiHash = desc.CalculateHash();
 
   ezGALRenderTargetViewHandle hRenderTargetView;
-  if (pResource->m_RenderTargetViews.TryGetValue(uiHash, hRenderTargetView))
+  if (pTexture->m_RenderTargetViews.TryGetValue(uiHash, hRenderTargetView))
   {
     return hRenderTargetView;
   }
 
-  ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pResource, desc);
+  ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pTexture, desc);
 
   if (pRenderTargetView != nullptr)
   {
     ezGALRenderTargetViewHandle hRenderTargetView(m_RenderTargetViews.Insert(pRenderTargetView));
-    pResource->m_RenderTargetViews.Insert(uiHash, hRenderTargetView);
+    pTexture->m_RenderTargetViews.Insert(uiHash, hRenderTargetView);
 
     return hRenderTargetView;
   }
@@ -701,9 +701,9 @@ void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTar
   {
     m_RenderTargetViews.Remove(hRenderTargetView);
 
-    ezGALResourceBase* pResource = pRenderTargetView->m_pResource;
-    EZ_VERIFY(pResource->m_RenderTargetViews.Remove(pRenderTargetView->GetDescription().CalculateHash()), "");
-    pRenderTargetView->m_pResource = nullptr;
+    ezGALTexture* pTexture = pRenderTargetView->m_pTexture;
+    EZ_VERIFY(pTexture->m_RenderTargetViews.Remove(pRenderTargetView->GetDescription().CalculateHash()), "");
+    pRenderTargetView->m_pTexture = nullptr;
 
     DestroyRenderTargetViewPlatform(pRenderTargetView);
   }

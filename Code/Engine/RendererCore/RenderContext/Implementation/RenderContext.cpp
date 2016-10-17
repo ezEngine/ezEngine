@@ -6,6 +6,8 @@
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/TextureResource.h>
+#include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <Foundation/Types/ScopeExit.h>
 
 ezRenderContext* ezRenderContext::s_DefaultInstance = nullptr;
@@ -531,6 +533,38 @@ const ezGlobalConstants& ezRenderContext::ReadGlobalConstants() const
   ezConstantBufferStorage<ezGlobalConstants>* pStorage = nullptr;
   EZ_VERIFY(TryGetConstantBufferStorage(m_hGlobalConstantBufferStorage, pStorage), "Invalid Global Constant Storage");
   return pStorage->GetDataForReading();
+}
+
+void ezRenderContext::SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTagetSetup& renderTargetSetup)
+{
+  ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
+
+  ezGALRenderTargetViewHandle hRTV = renderTargetSetup.GetRenderTarget(0);
+  if (hRTV.IsInvalidated())
+  {
+    hRTV = renderTargetSetup.GetDepthStencilTarget();
+  }
+
+  if (const ezGALRenderTargetView* pRTV = ezGALDevice::GetDefaultDevice()->GetRenderTargetView(hRTV))
+  {
+    msaaSampleCount = pRTV->GetTexture()->GetDescription().m_SampleCount;
+  }
+
+  if (msaaSampleCount != ezGALMSAASampleCount::None)
+  {
+    SetShaderPermutationVariable("MSAA", "TRUE");
+  }
+  else
+  {
+    SetShaderPermutationVariable("MSAA", "FALSE");
+  }
+
+  auto& gc = WriteGlobalConstants();
+  gc.Viewport = ezVec4(viewport.x, viewport.y, viewport.width, viewport.height);
+  gc.NumMsaaSamples = msaaSampleCount;
+
+  m_pGALContext->SetRenderTargetSetup(renderTargetSetup);
+  m_pGALContext->SetViewport(viewport);
 }
 
 //static

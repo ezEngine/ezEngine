@@ -1,24 +1,22 @@
 #pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/Shader/ShaderResource.h>
 
-class EZ_RENDERERCORE_DLL ezSelectionHighlightPass : public ezRenderPipelinePass
+class EZ_RENDERERCORE_DLL ezMsaaResolvePass : public ezRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectionHighlightPass, ezRenderPipelinePass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMsaaResolvePass, ezRenderPipelinePass);
 
 public:
-  ezSelectionHighlightPass(const char* szName = "SelectionHighlightPass");
-  ~ezSelectionHighlightPass();
+  ezMsaaResolvePass();
+  ~ezMsaaResolvePass();
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-  ezPassThroughNodePin m_PinColor;
-  ezInputNodePin m_PinDepthStencil;
-
-  ezShaderResourceHandle m_hShader;
+  ezInputNodePin m_PinInput;
+  ezOutputNodePin m_PinOutput;
 };

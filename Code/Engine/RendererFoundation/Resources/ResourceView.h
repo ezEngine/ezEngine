@@ -7,7 +7,10 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALResourceView : public ezGALObject<ezGALResourceViewCreationDescription>
 {
 public:
-
+  EZ_FORCE_INLINE ezGALResourceBase* GetResource() const
+  {
+    return m_pResource;
+  }
 
 protected:
 

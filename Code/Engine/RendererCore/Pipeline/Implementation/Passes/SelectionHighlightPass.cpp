@@ -25,16 +25,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName) : ezRenderPipelinePass(szName)
 {
-  ezGALSamplerStateCreationDescription desc;
-  desc.m_MagFilter = ezGALTextureFilterMode::Point;
-  desc.m_MinFilter = ezGALTextureFilterMode::Point;
-  desc.m_MipFilter = ezGALTextureFilterMode::Point;
-  desc.m_AddressU = ezGALTextureAddressMode::Border;
-  desc.m_AddressV = ezGALTextureAddressMode::Border;
-  desc.m_BorderColor = ezColor::White;
-  m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
-  
-
   // Load shader.
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SelectionHighlight.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load selection highlight shader!");
@@ -42,7 +32,6 @@ ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName) : ezRende
 
 ezSelectionHighlightPass::~ezSelectionHighlightPass()
 {
-  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
 }
 
 bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
@@ -90,11 +79,13 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
   {
     ezUInt32 uiWidth = pColorOutput->m_Desc.m_uiWidth;
     ezUInt32 uiHeight = pColorOutput->m_Desc.m_uiHeight;
+    ezGALMSAASampleCount::Enum sampleCount = pColorOutput->m_Desc.m_SampleCount;
 
     ezGALTextureCreationDescription desc;
     desc.m_uiWidth = uiWidth;
     desc.m_uiHeight = uiHeight;
     desc.m_Format = ezGALResourceFormat::D24S8;
+    desc.m_SampleCount = sampleCount;
     desc.m_bCreateRenderTarget = true;
 
     hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
@@ -102,7 +93,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
 
-    pGALContext->SetRenderTargetSetup(renderTargetSetup);
+    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0);
 
@@ -116,13 +107,12 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
-    pGALContext->SetRenderTargetSetup(renderTargetSetup);
+    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
-    renderViewContext.m_pRenderContext->BindSamplerState(ezGALShaderStage::PixelShader, "BorderClampSampler", m_hSamplerState);
     
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 

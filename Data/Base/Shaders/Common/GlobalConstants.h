@@ -41,6 +41,7 @@ CONSTANT_BUFFER(ezGlobalConstants, 0)
   FLOAT1(DeltaTime);
 
   INT1(RenderPass);
+  UINT1(NumMsaaSamples);
 };
 
 

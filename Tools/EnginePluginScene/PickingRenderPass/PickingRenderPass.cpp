@@ -71,10 +71,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+  renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(viewPortRect, m_RenderTargetSetup);
 
-  pGALContext->SetViewport(viewPortRect);
-  pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "PICKING");

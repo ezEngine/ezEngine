@@ -6,8 +6,8 @@
 
 #include <d3d11.h>
 
-ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description)
-  : ezGALRenderTargetView(pResource, Description)
+ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
+  : ezGALRenderTargetView(pTexture, Description)
   , m_pRenderTargetView(nullptr)
   , m_pDepthStencilView(nullptr)
   , m_pUnorderedAccessView(nullptr)

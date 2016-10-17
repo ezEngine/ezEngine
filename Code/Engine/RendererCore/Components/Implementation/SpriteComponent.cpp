@@ -2,9 +2,9 @@
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <RendererCore/Pipeline/View.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE

@@ -3,6 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
+MSAA
+
 [RENDERSTATE]
 
 DepthTest = false
@@ -27,20 +29,32 @@ struct PS_IN
 {
 	float4 Position : SV_Position;
 	float2 TexCoord0 : TEXCOORD0;
+	
+	#if MSAA
+		uint SampleIndex : SV_SampleIndex;
+	#endif
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-Texture2D SelectionDepthTexture;
-Texture2D SceneDepthTexture;
-
-SamplerState BorderClampSampler;
+#if MSAA
+	Texture2DMS<float> SelectionDepthTexture;
+	Texture2DMS<float> SceneDepthTexture;
+	
+	#define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0), input.SampleIndex).r
+	
+#else
+	Texture2D SelectionDepthTexture;
+	Texture2D SceneDepthTexture;
+	
+	#define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0)).r
+	
+#endif
 
 float4 main(PS_IN Input) : SV_Target
 {
-	float2 invScreenSize = 1.0f / Viewport.zw;
-	float2 coords = Input.Position.xy * invScreenSize;
-	float depth = SelectionDepthTexture.SampleLevel(BorderClampSampler, coords, 0.0f).r;
+	int2 coords = Input.Position.xy;
+	float depth = SampleDepth(SelectionDepthTexture, coords, Input);
 
 	float3 selectionColor = float3(0.4, 0.55, 1);
 
@@ -50,27 +64,27 @@ float4 main(PS_IN Input) : SV_Target
 		float validSampleCount = 0.0f;
 
 		[unroll]
-		for (float y = -3.0f; y <= 3.0f; y++)
+		for (int y = -3; y <= 3; y++)
 		{
-			if (y == 0.0f)
+			if (y == 0)
 				continue;
 
 			[unroll]
-			for (float x = -3.0f; x <= 3.0f; x++)
+			for (int x = -3; x <= 3; x++)
 			{
-				if (x == 0.0f)
+				if (x == 0)
 					continue;
 
-				float edgeDistance = length(float2(x, y));
-				if (edgeDistance > 3.0f)
+				int edgeDistanceSqr = x*x + y*y;
+				if (edgeDistanceSqr > 9)
 					continue;
 
-				float2 currentCoords = coords + float2(x, y) * invScreenSize;
-				float currentDepth = SelectionDepthTexture.SampleLevel(BorderClampSampler, currentCoords, 0.0f).r;
+				int2 currentCoords = coords + int2(x, y);
+				float currentDepth = SampleDepth(SelectionDepthTexture, currentCoords, Input);
 
-				if (currentDepth != 1.0f)
+				if (currentDepth > 0.0f && currentDepth < 1.0f)
 				{
-					avgEdgeDistance += edgeDistance;
+					avgEdgeDistance += sqrt((float)edgeDistanceSqr);
 					validSampleCount += 1.0f;
 				}
 			}
@@ -88,8 +102,8 @@ float4 main(PS_IN Input) : SV_Target
 	}
 	else
 	{
-		float sceneDepth = SceneDepthTexture.SampleLevel(BorderClampSampler, coords, 0.0f).r;
-		if (sceneDepth < depth)
+		float sceneDepth = SampleDepth(SceneDepthTexture, coords, Input);
+		if (sceneDepth + 0.001f < depth)
 		{
 			discard;
 		}

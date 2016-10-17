@@ -3,11 +3,11 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 
 
-ezGALRenderTargetView::ezGALRenderTargetView(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& description)
+ezGALRenderTargetView::ezGALRenderTargetView(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& description)
   : ezGALObject(description)
-  , m_pResource(pResource)
+  , m_pTexture(pTexture)
 {
-  EZ_ASSERT_DEV(m_pResource != nullptr, "Resource must not be null");
+  EZ_ASSERT_DEV(m_pTexture != nullptr, "Texture must not be null");
 }
 
 ezGALRenderTargetView::~ezGALRenderTargetView()

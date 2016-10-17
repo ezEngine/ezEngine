@@ -2,10 +2,10 @@
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
-#include <RendererCore/Pipeline/View.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 1)
 {

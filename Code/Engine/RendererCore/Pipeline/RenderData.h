@@ -34,7 +34,7 @@ public:
 #endif
 
   ezTransform m_GlobalTransform;
-  ezBoundingBoxSphere m_GlobalBounds; ///< Used for culling. Use invalid bounds to always render an object
+  ezBoundingBoxSphere m_GlobalBounds;
 
 private:
   struct CategoryData

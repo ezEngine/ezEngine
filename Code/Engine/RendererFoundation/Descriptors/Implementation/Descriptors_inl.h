@@ -160,10 +160,7 @@ ezGALRasterizerStateCreationDescription::ezGALRasterizerStateCreationDescription
     m_fSlopeScaledDepthBias(0.0f),
     m_bWireFrame(false),
     m_bFrontCounterClockwise(false),
-    m_bDepthClip(true),
-    m_bScissorTest(false),
-    m_bMSAA(false),
-    m_bLineAA(false)
+    m_bScissorTest(false)
 {
 }
 

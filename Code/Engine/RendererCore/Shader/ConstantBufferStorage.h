@@ -26,6 +26,7 @@ public:
 
 protected:
   bool m_bHasBeenModified;
+  ezUInt32 m_uiLastHash;
   ezGALBufferHandle m_hGALConstantBuffer;
   
   ezArrayPtr<ezUInt8> m_Data;

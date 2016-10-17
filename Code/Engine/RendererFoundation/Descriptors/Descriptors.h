@@ -110,10 +110,7 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   float m_fSlopeScaledDepthBias;  ///< The pixel slope scaled depth bias clamp. Default is 0
   bool m_bWireFrame;              ///< Whether triangles are rendered filled or as wireframe. Default is false
   bool m_bFrontCounterClockwise;  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle is the one where the vertices appear in counter clockwise order. Default is false
-  bool m_bDepthClip;
   bool m_bScissorTest;
-  bool m_bMSAA;
-  bool m_bLineAA;
 };
 
 struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSamplerStateCreationDescription>

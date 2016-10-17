@@ -73,8 +73,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
 
     // Bind render target and viewport
-    pGALContext->SetRenderTargetSetup(renderTargetSetup);
-    pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
+    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
     pGALContext->Clear(ezColor(1.0f, 0.0f, 0.0f));
     // Setup input view and sampler

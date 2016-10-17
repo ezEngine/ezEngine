@@ -87,7 +87,6 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   // Setup render target
   ezGALRenderTagetSetup renderTargetSetup;
@@ -101,8 +100,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  pGALContext->SetRenderTargetSetup(renderTargetSetup);
-  pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
+  renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 

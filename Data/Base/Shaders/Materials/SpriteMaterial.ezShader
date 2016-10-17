@@ -4,6 +4,7 @@ ALL
 [PERMUTATIONS]
 
 RENDER_PASS
+MSAA
 
 [RENDERSTATE]
 
@@ -101,28 +102,55 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
 #endif
 
-#include <Shaders/Materials/MaterialInterpolator.h>
+#if MSAA
+	#define USE_ALPHA_TEST_SUPER_SAMPLING
+#endif
+
+#include <Shaders/Materials/MaterialHelper.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
+
+struct PS_OUT
+{
+	#if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
+		float4 Color : SV_Target;
+	#endif
+	
+	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+		uint Coverage : SV_Coverage;
+	#endif
+};
 
 Texture2D SpriteTexture;
 SamplerState SpriteTexture_AutoSampler;
 
-#if RENDER_PASS == RENDER_PASS_DEPTH_ONLY
-	void main(PS_IN Input)
-#else
-	float4 main(PS_IN Input) : SV_Target
-#endif
+float GetOpacity(PS_IN Input)
 {
-	float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
+	float alpha = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color.a;
+	return alpha - 0.5;
+}
 
-	clip(color.a - 0.5);
-
+PS_OUT main(PS_IN Input)
+{
+	uint coverage = CalculateCoverage(Input);
+	if (coverage == 0)
+	{
+		discard;
+	}
+	
+	PS_OUT RetVal;
+		
 	#if RENDER_PASS == RENDER_PASS_PICKING
-		return Input.GameObjectID;
+		RetVal.Color = Input.GameObjectID;
 	#elif RENDER_PASS != RENDER_PASS_DEPTH_ONLY
-		return color;
+		RetVal.Color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
 	#endif
+	
+	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+		RetVal.Coverage = coverage;
+	#endif
+	
+	return RetVal;
 }
 
 #endif

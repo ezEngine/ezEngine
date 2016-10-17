@@ -185,14 +185,14 @@ ezGALRasterizerStateDX11::~ezGALRasterizerStateDX11()
 ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
 {
   D3D11_RASTERIZER_DESC DXDesc;
-  DXDesc.AntialiasedLineEnable = m_Description.m_bLineAA ? TRUE : FALSE;
   DXDesc.CullMode = GALCullModeToDX11[m_Description.m_CullMode];
   DXDesc.DepthBias = m_Description.m_iDepthBias;
   DXDesc.DepthBiasClamp = m_Description.m_fDepthBiasClamp;
-  DXDesc.DepthClipEnable = m_Description.m_bDepthClip ? TRUE : FALSE;
+  DXDesc.DepthClipEnable = TRUE;
   DXDesc.FillMode = m_Description.m_bWireFrame ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
   DXDesc.FrontCounterClockwise = m_Description.m_bFrontCounterClockwise;
-  DXDesc.MultisampleEnable = m_Description.m_bMSAA;
+  DXDesc.MultisampleEnable = TRUE;
+  DXDesc.AntialiasedLineEnable = TRUE;
   DXDesc.ScissorEnable = m_Description.m_bScissorTest;
   DXDesc.SlopeScaledDepthBias = m_Description.m_fSlopeScaledDepthBias;
 

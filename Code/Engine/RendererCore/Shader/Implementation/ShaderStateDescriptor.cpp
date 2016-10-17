@@ -7,6 +7,7 @@ struct ezShaderStateVersion
   {
     Version0 = 0,
     Version1,
+    Version2,
 
 
     ENUM_COUNT,
@@ -60,10 +61,7 @@ void ezShaderStateResourceDescriptor::Save(ezStreamWriter& stream) const
 
   // Rasterizer State
   {
-    stream << m_RasterizerDesc.m_bDepthClip;
     stream << m_RasterizerDesc.m_bFrontCounterClockwise;
-    stream << m_RasterizerDesc.m_bLineAA;
-    stream << m_RasterizerDesc.m_bMSAA;
     stream << m_RasterizerDesc.m_bScissorTest;
     stream << m_RasterizerDesc.m_bWireFrame;
     stream << (ezUInt8) m_RasterizerDesc.m_CullMode;
@@ -125,10 +123,22 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
   // Rasterizer State
   {
     ezUInt8 uiTemp = 0;
-    stream >> m_RasterizerDesc.m_bDepthClip;
+
+    if (uiVersion < ezShaderStateVersion::Version2)
+    {
+      bool dummy;
+      stream >> dummy;
+    }
+
     stream >> m_RasterizerDesc.m_bFrontCounterClockwise;
-    stream >> m_RasterizerDesc.m_bLineAA;
-    stream >> m_RasterizerDesc.m_bMSAA;
+
+    if (uiVersion < ezShaderStateVersion::Version2)
+    {
+      bool dummy;
+      stream >> dummy;
+      stream >> dummy;
+    }
+
     stream >> m_RasterizerDesc.m_bScissorTest;
     stream >> m_RasterizerDesc.m_bWireFrame;
     stream >> uiTemp; m_RasterizerDesc.m_CullMode = (ezGALCullMode::Enum) uiTemp;
@@ -237,10 +247,7 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
 
   // Retrieve Rasterizer State
   {
-    m_RasterizerDesc.m_bDepthClip = lua.GetBoolVariable("DepthClip", m_RasterizerDesc.m_bDepthClip);
     m_RasterizerDesc.m_bFrontCounterClockwise = lua.GetBoolVariable("FrontCounterClockwise", m_RasterizerDesc.m_bFrontCounterClockwise);
-    m_RasterizerDesc.m_bLineAA = lua.GetBoolVariable("LineAA", m_RasterizerDesc.m_bLineAA);
-    m_RasterizerDesc.m_bMSAA = lua.GetBoolVariable("MSAA", m_RasterizerDesc.m_bMSAA);
     m_RasterizerDesc.m_bScissorTest = lua.GetBoolVariable("ScissorTest", m_RasterizerDesc.m_bScissorTest);
     m_RasterizerDesc.m_bWireFrame = lua.GetBoolVariable("WireFrame", m_RasterizerDesc.m_bWireFrame);
     m_RasterizerDesc.m_CullMode = (ezGALCullMode::Enum) lua.GetIntVariable("CullMode", m_RasterizerDesc.m_CullMode);

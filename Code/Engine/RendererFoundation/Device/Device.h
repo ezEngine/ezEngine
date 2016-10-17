@@ -313,7 +313,7 @@ protected:
 
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) = 0;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description) = 0;
+  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) = 0;
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;
 

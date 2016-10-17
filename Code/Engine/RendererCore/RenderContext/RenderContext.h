@@ -160,6 +160,8 @@ public:
   ezGlobalConstants& WriteGlobalConstants();
   const ezGlobalConstants& ReadGlobalConstants() const;
 
+  void SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTagetSetup& renderTargetSetup);
+
   // Static Functions
 public:
 
