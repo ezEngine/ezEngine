@@ -164,10 +164,19 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     {
       if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
       {
+        bool bResetDefaultPipeline = true;
+
         if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
         {
+          bResetDefaultPipeline = !pCamera->GetRenderPipeline().IsValid();
+
           m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
           pCamera->ApplySettingsToView(m_pView);
+        }
+        
+        if (bResetDefaultPipeline)
+        {
+          m_pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
         }
       }
     }
