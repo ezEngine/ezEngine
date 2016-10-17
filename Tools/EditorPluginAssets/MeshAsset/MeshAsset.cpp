@@ -428,7 +428,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
     // Try to find material in property list.
     int assetMaterialIndex = -1;
-    if (!material)
+    if (material)
     {
       for (ezUInt32 i = 0; i < pProp->m_Slots.GetCount(); ++i)
       {
