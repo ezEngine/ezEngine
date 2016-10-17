@@ -78,6 +78,8 @@ ezResult ezGALDevice::Init()
   // Fill the capabilities
   FillCapabilitiesPlatform();
 
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   // Create primary swapchain if requested
   if (m_Description.m_bCreatePrimarySwapChain)
   {
@@ -98,6 +100,8 @@ ezResult ezGALDevice::Init()
 
 ezResult ezGALDevice::Shutdown()
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   EZ_LOG_BLOCK("ezGALDevice::Shutdown");
 
   // If we created a primary swap chain, release it
@@ -115,6 +119,8 @@ ezResult ezGALDevice::Shutdown()
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   // Hash desc and return potential existing one (including inc. refcount)
   ezUInt32 uiHash = desc.CalculateHash();
 
@@ -143,6 +149,8 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
 
 void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALBlendState* pBlendState = nullptr;
 
   if (m_BlendStates.TryGetValue(hBlendState, pBlendState))
@@ -165,6 +173,8 @@ void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
 
 ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDepthStencilStateCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   // Hash desc and return potential existing one (including inc. refcount)
   ezUInt32 uiHash = desc.CalculateHash();
 
@@ -193,6 +203,8 @@ ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDep
 
 void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALDepthStencilState* pDepthStencilState = nullptr;
 
   if (m_DepthStencilStates.TryGetValue(hDepthStencilState, pDepthStencilState))
@@ -215,6 +227,8 @@ void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthSt
 
 ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasterizerStateCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   // Hash desc and return potential existing one (including inc. refcount)
   ezUInt32 uiHash = desc.CalculateHash();
 
@@ -243,6 +257,8 @@ ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasteri
 
 void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALRasterizerState* pRasterizerState = nullptr;
 
   if (m_RasterizerStates.TryGetValue(hRasterizerState, pRasterizerState))
@@ -265,6 +281,8 @@ void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerS
 
 ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   /// \todo Platform independent validation
 
   // Hash desc and return potential existing one (including inc. refcount)
@@ -295,6 +313,8 @@ ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateC
 
 void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALSamplerState* pSamplerState = nullptr;
 
   if (m_SamplerStates.TryGetValue(hSamplerState, pSamplerState))
@@ -319,6 +339,8 @@ void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
 
 ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   bool bHasByteCodes = false;
 
   for (ezUInt32 uiStage = 0; uiStage < ezGALShaderStage::ENUM_COUNT; uiStage++)
@@ -350,6 +372,8 @@ ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription
 
 void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALShader* pShader = nullptr;
 
   if (m_Shaders.Remove(hShader, &pShader))
@@ -365,6 +389,8 @@ void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
 
 ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription& desc, ezArrayPtr<const ezUInt8> pInitialData)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   if (desc.m_uiTotalSize == 0)
   {
     ezLog::Error("Trying to create a buffer with size of 0 is not possible!");
@@ -385,7 +411,7 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
       ezLog::Error("Trying to create a buffer with invalid initial data!");
       return ezGALBufferHandle();
     }
-  }  
+  }
 
   /// \todo Platform independent validation (buffer type supported)
 
@@ -414,6 +440,8 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
 
 void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALBuffer* pBuffer = nullptr;
 
   if (m_Buffers.Remove(hBuffer, &pBuffer))
@@ -432,6 +460,8 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
 // Helper functions for buffers (for common, simple use cases)
 ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
   desc.m_uiTotalSize = uiVertexSize * uiVertexCount;
@@ -443,6 +473,8 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
 
 ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiIndexCount;
@@ -454,6 +486,8 @@ ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType,
 
 ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = 0;
   desc.m_uiTotalSize = uiBufferSize;
@@ -467,6 +501,8 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 
 ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
   if (desc.m_ResourceAccess.IsImmutable() && (pInitialData.IsEmpty() || pInitialData.GetCount() < desc.m_uiMipLevelCount) && !desc.m_bCreateRenderTarget)
@@ -515,6 +551,8 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
 
 void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALTexture* pTexture = nullptr;
 
   if (m_Textures.Remove(hTexture, &pTexture))
@@ -551,6 +589,8 @@ ezGALResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALBufferHandle hB
 
 ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALResourceBase* pResource = nullptr;
 
   if (!desc.m_hTexture.IsInvalidated())
@@ -589,6 +629,8 @@ ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewC
 
 void ezGALDevice::DestroyResourceView(ezGALResourceViewHandle hResourceView)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALResourceView* pResourceView = nullptr;
 
   if (m_ResourceViews.TryGetValue(hResourceView, pResourceView))
@@ -619,6 +661,8 @@ ezGALRenderTargetViewHandle ezGALDevice::GetDefaultRenderTargetView(ezGALTexture
 
 ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALResourceBase* pResource = nullptr;
 
   if (!desc.m_hTexture.IsInvalidated())
@@ -638,7 +682,7 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
   if (pResource->m_RenderTargetViews.TryGetValue(uiHash, hRenderTargetView))
   {
     return hRenderTargetView;
-  }  
+  }
 
   ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pResource, desc);
 
@@ -655,6 +699,8 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
 
 void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALRenderTargetView* pRenderTargetView = nullptr;
 
   if (m_RenderTargetViews.TryGetValue(hRenderTargetView, pRenderTargetView))
@@ -675,13 +721,15 @@ void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTar
 
 void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   for (auto it = pResource->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
   {
     ezGALResourceViewHandle hResourceView = it.Value();
     ezGALResourceView* pResourceView = m_ResourceViews[hResourceView];
 
     m_ResourceViews.Remove(hResourceView);
-    
+
     DestroyResourceViewPlatform(pResourceView);
   }
   pResource->m_ResourceViews.Clear();
@@ -700,10 +748,18 @@ void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
   pResource->m_hDefaultRenderTargetView.Invalidate();
 }
 
-
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+void ezGALDevice::VerifyMultithreadedAccess() const
+{
+  EZ_ASSERT_DEV(m_Capabilities.m_bMultithreadedResourceCreation || ezThreadUtils::IsMainThread(),
+                "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
+}
+#endif
 
 ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const ezGALSwapChainCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   /// \todo Platform independent validation
   if (desc.m_pWindow == nullptr)
   {
@@ -726,6 +782,8 @@ ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const ezGALSwapChainCreationDe
 
 void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALSwapChain* pSwapChain = nullptr;
 
   if (m_SwapChains.Remove(hSwapChain, &pSwapChain))
@@ -740,6 +798,8 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 
 ezGALFenceHandle ezGALDevice::CreateFence()
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALFence* pFence = CreateFencePlatform();
 
   if (pFence == nullptr)
@@ -754,6 +814,8 @@ ezGALFenceHandle ezGALDevice::CreateFence()
 
 void ezGALDevice::DestroyFence(ezGALFenceHandle& hFence)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALFence* pFence = nullptr;
 
   if (m_Fences.Remove(hFence, &pFence))
@@ -768,6 +830,8 @@ void ezGALDevice::DestroyFence(ezGALFenceHandle& hFence)
 
 ezGALQueryHandle ezGALDevice::CreateQuery(const ezGALQueryCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   /// \todo Platform independent validation
 
   ezGALQuery* pQuery = CreateQueryPlatform(desc);
@@ -784,6 +848,8 @@ ezGALQueryHandle ezGALDevice::CreateQuery(const ezGALQueryCreationDescription& d
 
 void ezGALDevice::DestroyQuery(ezGALQueryHandle hQuery)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALQuery* pQuery = nullptr;
 
   if (m_Queries.Remove(hQuery, &pQuery))
@@ -798,8 +864,10 @@ void ezGALDevice::DestroyQuery(ezGALQueryHandle hQuery)
 
 ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& desc)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   /// \todo Platform independent validation
-  
+
   // Hash desc and return potential existing one (including inc. refcount)
   ezUInt32 uiHash = desc.CalculateHash();
 
@@ -828,6 +896,8 @@ ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVer
 
 void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALVertexDeclaration* pVertexDeclaration = nullptr;
 
   if (m_VertexDeclarations.TryGetValue(hVertexDeclaration, pVertexDeclaration))
@@ -908,6 +978,8 @@ void ezGALDevice::EndFrame()
 
 void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ezGALSwapChain* pSwapChain = nullptr;
 
   if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
@@ -936,7 +1008,7 @@ ezUInt64 ezGALDevice::GetMemoryConsumptionForTexture(const ezGALTextureCreationD
   uiMemory *= ezGALResourceFormat::GetBitsPerElement(desc.m_Format);
   uiMemory /= 8; // Bits per pixel
   uiMemory *= desc.m_SampleCount;
-  
+
   // Also account for mip maps
   if (desc.m_uiMipLevelCount > 1)
   {

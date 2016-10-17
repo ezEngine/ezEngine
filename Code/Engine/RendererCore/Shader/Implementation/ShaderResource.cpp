@@ -5,8 +5,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-/// \todo Use DoUpdate::OnAnyThread once GAL is actually thread-safe
-ezShaderResource::ezShaderResource() : ezResource<ezShaderResource, ezShaderResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezShaderResource::ezShaderResource() : ezResource<ezShaderResource, ezShaderResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderResourceIsValid = false;
 }

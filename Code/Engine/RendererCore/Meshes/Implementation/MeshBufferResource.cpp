@@ -127,7 +127,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
   }
   AllocateStreams(geom.GetVertices().GetCount(), topology, Indices.GetCount() / (topology + 1));
 
-  // Fill vertex buffer. 
+  // Fill vertex buffer.
   for (ezUInt32 s = 0; s < m_VertexDeclaration.m_VertexStreams.GetCount(); ++s)
   {
     const ezVertexStreamInfo& si = m_VertexDeclaration.m_VertexStreams[s];
@@ -332,8 +332,7 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
   return bounds;
 }
 
-/// \todo Use DoUpdate::OnAnyThread once GAL is actually thread-safe
-ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -411,7 +410,7 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
 
     sName.Format("%s Index Buffer", GetResourceDescription().GetData());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
-  }  
+  }
 
   // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
   ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();

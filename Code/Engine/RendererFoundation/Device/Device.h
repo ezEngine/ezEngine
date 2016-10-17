@@ -77,7 +77,7 @@ public:
 
   // Render target views
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
-  
+
   ezGALRenderTargetViewHandle CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& Description);
 
   void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
@@ -162,6 +162,9 @@ public:
   static void SetDefaultDevice(ezGALDevice* pDefaultDevice);
   static ezGALDevice* GetDefaultDevice();
 
+  // public in case someone external needs to lock multiple operations
+  mutable ezMutex m_Mutex;
+
 private:
   static ezGALDevice* s_pDefaultDevice;
 
@@ -177,6 +180,14 @@ protected:
   ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
 
   void DestroyViews(ezGALResourceBase* pResource);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
+  void VerifyMultithreadedAccess() const;
+#else
+  /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
+  EZ_FORCE_INLINE void VerifyMultithreadedAccess() const {}
+#endif
 
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;
@@ -324,8 +335,8 @@ protected:
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) = 0;
 
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
-  
-  
+
+
 
 
   // Get Query Data
@@ -354,7 +365,15 @@ protected:
 
 private:
   bool m_bFrameBeginCalled;
+
 };
+
+
+/// \brief Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
+#define EZ_GALDEVICE_LOCK_AND_CHECK() \
+  EZ_LOCK(m_Mutex); \
+  VerifyMultithreadedAccess()
+
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>
 

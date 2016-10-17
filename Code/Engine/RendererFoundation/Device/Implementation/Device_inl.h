@@ -16,16 +16,18 @@ EZ_FORCE_INLINE ezGALContext* ezGALDevice::GetPrimaryContext() const
   return m_pPrimaryContext;
 }
 
-template<typename T> 
+template<typename T>
 EZ_FORCE_INLINE T* ezGALDevice::GetPrimaryContext() const
 {
   return static_cast<T*>(m_pPrimaryContext);
 }
 
 
-template<typename IdTableType, typename ReturnType> 
+template<typename IdTableType, typename ReturnType>
 EZ_FORCE_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
   ReturnType* pObject = nullptr;
 
   if(IdTable.TryGetValue(hHandle, pObject))
