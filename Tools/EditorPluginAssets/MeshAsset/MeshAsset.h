@@ -10,6 +10,7 @@ namespace ezModelImporter
 {
   class Mesh;
   class Scene;
+  struct TextureReference;
 }
 
 class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties>
@@ -28,11 +29,12 @@ protected:
 
   ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
   void ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* sMeshFileAbs);
+  ezString ImportOrResolveTexture(const char* meshFileDirectory, const ezModelImporter::TextureReference* texture);
 
   /// Assigns and optionally imports materials.
   /// Used for both InternalRetrieveAssetInfo and InternalTransformAsset.
   /// desc is optional.
-  void ProcessMaterials(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor *desc, 
+  void ProcessMaterials(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor *desc,
                         const ezModelImporter::Mesh& mesh, const ezModelImporter::Scene& scene);
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;

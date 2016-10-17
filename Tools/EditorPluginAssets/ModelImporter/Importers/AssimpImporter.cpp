@@ -62,24 +62,24 @@ namespace ezModelImporter
   }
 
   template<typename assimpType, typename ezType>
-  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, Material::SemanticHint::Enum semantic, const aiMaterial& assimpMaterial, Material& material, bool invert = false)
+  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, SemanticHint::Enum semantic, const aiMaterial& assimpMaterial, Material& material, bool invert = false)
   {
     assimpType assimpValue;
     if (assimpMaterial.Get(pKey, type, idx, assimpValue) == AI_SUCCESS)
     {
-      Material::Property& materialProperty = material.m_Properties.ExpandAndGetRef();
+      Property& materialProperty = material.m_Properties.ExpandAndGetRef();
       materialProperty.m_Semantic = pKey;
       materialProperty.m_SemanticHint = semantic;
       materialProperty.m_Value = ConvertAssimpType(assimpValue, invert);
     }
   }
 
-  void TryReadAssimpTextures(aiTextureType assimpTextureType, const char* semanticString, Material::SemanticHint::Enum semanticHint, const aiMaterial& assimpMaterial, Material& material)
+  void TryReadAssimpTextures(aiTextureType assimpTextureType, const char* semanticString, SemanticHint::Enum semanticHint, const aiMaterial& assimpMaterial, Material& material)
   {
     material.m_Textures.Reserve(material.m_Textures.GetCount() + assimpMaterial.GetTextureCount(assimpTextureType));
     for (unsigned int i = 0; i < assimpMaterial.GetTextureCount(assimpTextureType); ++i)
     {
-      Material::TextureReference& textureReference = material.m_Textures.ExpandAndGetRef();
+      TextureReference& textureReference = material.m_Textures.ExpandAndGetRef();
       aiString path;
 
       assimpMaterial.GetTexture(assimpTextureType, i, &path, nullptr, &textureReference.m_UVSetIndex, nullptr, nullptr, nullptr);
@@ -110,32 +110,32 @@ namespace ezModelImporter
       // For type mappings see http://assimp.sourceforge.net/lib_html/materials.html
       // Note that we're currently ignoring all parameters around assimps "texture blending stack" as well as "mapping modes".
       material->m_Properties.Reserve(assimpMaterial->mNumProperties);
-      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_DIFFUSE, Material::SemanticHint::DIFFUSE, *assimpMaterial, *material);
-      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_SPECULAR, Material::SemanticHint::METALLIC, *assimpMaterial, *material);
-      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_AMBIENT, Material::SemanticHint::AMBIENT, *assimpMaterial, *material);
-      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_EMISSIVE, Material::SemanticHint::EMISSIVE, *assimpMaterial, *material);
-      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_TRANSPARENT, Material::SemanticHint::OPACITY, *assimpMaterial, *material, true);
-      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_ENABLE_WIREFRAME, Material::SemanticHint::WIREFRAME, *assimpMaterial, *material);
-      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_TWOSIDED, Material::SemanticHint::TWOSIDED, *assimpMaterial, *material);
-      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_SHADING_MODEL, Material::SemanticHint::SHADINGMODEL, *assimpMaterial, *material);
-      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_BLEND_FUNC, Material::SemanticHint::UNKNOWN, *assimpMaterial, *material); // There is only "additive" and "default". Rather impractical so we're mapping to UNKNOWN.
-      TryReadAssimpProperty<float, float>(AI_MATKEY_OPACITY, Material::SemanticHint::OPACITY, *assimpMaterial, *material); // Yes, we can end up with two properties with semantic hint "OPACITY"
-      TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS, Material::SemanticHint::ROUGHNESS, *assimpMaterial, *material);
-      TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS_STRENGTH, Material::SemanticHint::METALLIC, *assimpMaterial, *material); // From assimp documentation "Scales the specular color of the material. This value is kept separate from the specular color by most modelers, and so do we."
-      TryReadAssimpProperty<float, float>(AI_MATKEY_REFRACTI, Material::SemanticHint::REFRACTIONINDEX, *assimpMaterial, *material);
+      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_DIFFUSE, SemanticHint::DIFFUSE, *assimpMaterial, *material);
+      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_SPECULAR, SemanticHint::METALLIC, *assimpMaterial, *material);
+      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_AMBIENT, SemanticHint::AMBIENT, *assimpMaterial, *material);
+      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_EMISSIVE, SemanticHint::EMISSIVE, *assimpMaterial, *material);
+      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_TRANSPARENT, SemanticHint::OPACITY, *assimpMaterial, *material, true);
+      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_ENABLE_WIREFRAME, SemanticHint::WIREFRAME, *assimpMaterial, *material);
+      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_TWOSIDED, SemanticHint::TWOSIDED, *assimpMaterial, *material);
+      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_SHADING_MODEL, SemanticHint::SHADINGMODEL, *assimpMaterial, *material);
+      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_BLEND_FUNC, SemanticHint::UNKNOWN, *assimpMaterial, *material); // There is only "additive" and "default". Rather impractical so we're mapping to UNKNOWN.
+      TryReadAssimpProperty<float, float>(AI_MATKEY_OPACITY, SemanticHint::OPACITY, *assimpMaterial, *material); // Yes, we can end up with two properties with semantic hint "OPACITY"
+      TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS, SemanticHint::ROUGHNESS, *assimpMaterial, *material);
+      TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS_STRENGTH, SemanticHint::METALLIC, *assimpMaterial, *material); // From assimp documentation "Scales the specular color of the material. This value is kept separate from the specular color by most modelers, and so do we."
+      TryReadAssimpProperty<float, float>(AI_MATKEY_REFRACTI, SemanticHint::REFRACTIONINDEX, *assimpMaterial, *material);
 
       // Read textures.
-      TryReadAssimpTextures(aiTextureType_DIFFUSE, "Diffuse", Material::SemanticHint::DIFFUSE, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_SPECULAR, "Specular", Material::SemanticHint::METALLIC, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_AMBIENT, "Ambient", Material::SemanticHint::AMBIENT, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_EMISSIVE, "Emissive", Material::SemanticHint::EMISSIVE, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_HEIGHT, "Height", Material::SemanticHint::DISPLACEMENT, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_NORMALS, "Normals", Material::SemanticHint::NORMAL, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_SHININESS, "Shininess", Material::SemanticHint::ROUGHNESS, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_OPACITY, "Opacity", Material::SemanticHint::OPACITY, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_DISPLACEMENT, "Displacement", Material::SemanticHint::DISPLACEMENT, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_LIGHTMAP, "LightMap", Material::SemanticHint::LIGHTMAP, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_REFLECTION, "Reflection", Material::SemanticHint::METALLIC, *assimpMaterial, *material); // From Assimp documentation "Contains the color of a perfect mirror reflection."
+      TryReadAssimpTextures(aiTextureType_DIFFUSE, "Diffuse", SemanticHint::DIFFUSE, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_SPECULAR, "Specular", SemanticHint::METALLIC, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_AMBIENT, "Ambient", SemanticHint::AMBIENT, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_EMISSIVE, "Emissive", SemanticHint::EMISSIVE, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_HEIGHT, "Height", SemanticHint::DISPLACEMENT, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_NORMALS, "Normals", SemanticHint::NORMAL, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_SHININESS, "Shininess", SemanticHint::ROUGHNESS, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_OPACITY, "Opacity", SemanticHint::OPACITY, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_DISPLACEMENT, "Displacement", SemanticHint::DISPLACEMENT, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_LIGHTMAP, "LightMap", SemanticHint::LIGHTMAP, *assimpMaterial, *material);
+      TryReadAssimpTextures(aiTextureType_REFLECTION, "Reflection", SemanticHint::METALLIC, *assimpMaterial, *material); // From Assimp documentation "Contains the color of a perfect mirror reflection."
 
       outMaterialHandles.PushBack(outScene.AddMaterial(std::move(material)));
     }
@@ -344,7 +344,7 @@ namespace ezModelImporter
     Assimp::DefaultLogger::get()->attachStream(new aiLogStream(), severity);
 
     Assimp::Importer importer;
-    
+
     // Note: ReadFileFromMemory is not able to read dependent files even if use our own Assimp::IOSystem. It is possible to use ReadFile instead but this involves leads to a lot of code...
     // Triangulate:           Our mesh format cannot handle anything else.
     // JoinIdenticalVertices: Assimp doesn't use index buffer at all if this is not specified.
@@ -378,7 +378,7 @@ namespace ezModelImporter
     // TODO
 
     // Import nodes and build hierarchy.
-    
+
     return std::move(outScene);
   }
 }

@@ -8,6 +8,7 @@
 #include <EditorPluginAssets/ModelImporter/Material.h>
 
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
+#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -449,6 +450,98 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   return ezStatus(EZ_SUCCESS);
 }
 
+ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* meshFileDirectory, const ezModelImporter::TextureReference* texture)
+{
+  ezStringBuilder absTexturePath = meshFileDirectory;
+  absTexturePath.AppendPath(texture->m_FileName);
+  ezStringBuilder absAssetSearchPath = absTexturePath;
+  absAssetSearchPath.ChangeFileExtension("ezTextureAsset");
+  absAssetSearchPath.MakeCleanPath();
+
+  // Try to resolve.
+  auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(absAssetSearchPath);
+  if (textureAssetInfo)
+    return ezConversionUtils::ToString(textureAssetInfo->m_Info.m_DocumentID);
+
+  // Import otherwise.
+  else
+  {
+    ezStringBuilder newAssetPathAbs;
+    newAssetPathAbs.Format("%s_data/%s.ezTextureAsset", GetDocumentPath(), ezStringBuilder(texture->m_FileName).GetFileName().GetData());
+
+    ezTextureAssetDocument* textureDocument = ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newAssetPathAbs, false, false));
+    if (!textureDocument)
+    {
+      ezLog::Error("Failed to create new texture asset '%s'", absTexturePath.GetData());
+      return absTexturePath;
+    }
+
+    ezCommandHistory* history = textureDocument->GetCommandHistory();
+    history->StartTransaction("Import Texture");
+    ezUuid propertySetterTarget = textureDocument->GetPropertyObject()->GetGuid();
+
+    auto setProperty = [&absTexturePath, textureDocument, history, &propertySetterTarget](const char* szProperty, const ezVariant& newValue) -> ezResult
+    {
+      ezSetObjectPropertyCommand cmd;
+      cmd.m_Object = propertySetterTarget;
+      cmd.m_NewValue = newValue;
+      cmd.m_Index = 0;
+      cmd.m_sProperty = szProperty;
+      ezStatus status = history->AddCommand(cmd);
+      if (status.m_Result.Failed())
+      {
+        ezLog::Error("Texture import '%s' failed: %s", absTexturePath.GetData(), status.m_sMessage.GetData());
+        history->CancelTransaction();
+        return EZ_FAILURE;
+      }
+      return EZ_SUCCESS;
+    };
+
+    // Set filename.
+    if (setProperty("Input 1", absTexturePath.GetData()).Failed())
+      return absTexturePath;
+
+    // Try to map usage.
+    ezEnum<ezTextureUsageEnum> usage;
+    switch (texture->m_SemanticHint)
+    {
+    case ezModelImporter::SemanticHint::DIFFUSE:
+      usage = ezTextureUsageEnum::Diffuse;
+      break;
+    case ezModelImporter::SemanticHint::AMBIENT: // Making wild guesses here.
+    case ezModelImporter::SemanticHint::EMISSIVE:
+      usage = ezTextureUsageEnum::Other_sRGB;
+      break;
+    case ezModelImporter::SemanticHint::ROUGHNESS:
+    case ezModelImporter::SemanticHint::METALLIC:
+    case ezModelImporter::SemanticHint::LIGHTMAP: // Lightmap linear? Modern ones likely.
+      usage = ezTextureUsageEnum::Other_Linear;
+      break;
+    case ezModelImporter::SemanticHint::NORMAL:
+      usage = ezTextureUsageEnum::NormalMap;
+      break;
+    case ezModelImporter::SemanticHint::DISPLACEMENT:
+      usage = ezTextureUsageEnum::Height;
+      break;
+    default:
+      usage = ezTextureUsageEnum::Unknown;
+    }
+    if (setProperty("Usage", usage.GetValue()).Failed())
+      return absTexturePath;
+
+    // Set... something else? Todo.
+
+    history->FinishTransaction();
+    textureDocument->SaveDocument();
+    ezAssetCurator::GetSingleton()->TransformAsset(textureDocument->GetGuid());
+
+    ezString guid = ezConversionUtils::ToString(textureDocument->GetGuid());
+    textureDocument->GetDocumentManager()->CloseDocument(textureDocument);
+
+    return guid;
+  }
+};
+
 void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* sMeshFileAbs)
 {
   static const char* litMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
@@ -522,25 +615,6 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       };
 
       ezString meshFileDirectory = ezPathUtils::GetFileDirectory(sMeshFileAbs);
-      auto resolveTexture = [material, &meshFileDirectory](const ezModelImporter::Material::TextureReference* texture) -> ezString
-      {
-        ezStringBuilder absPath = meshFileDirectory;
-        absPath.AppendPath(texture->m_FileName);
-        ezStringBuilder absAssetPath = absPath;
-        absAssetPath.ChangeFileExtension("ezTextureAsset");
-        absAssetPath.MakeCleanPath();
-        // Todo: Import texture if not existing?
-
-        auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(absAssetPath);
-        if (textureAssetInfo)
-          return ezConversionUtils::ToString(textureAssetInfo->m_Info.m_DocumentID);
-        else
-        {
-          ezString sRelativePath = absPath;
-          ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sRelativePath);
-          return sRelativePath;
-        }
-      };
 
       // Set base material.
       if (setProperty("Base Material", litMaterialAssetId) == EZ_FAILURE)
@@ -550,18 +624,18 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       propertySetterTarget = materialDocument->GetShaderPropertyObject()->GetGuid();
 
       // Set base color
-      if (const ezModelImporter::Material::Property* baseColor = material->GetProperty(ezModelImporter::Material::SemanticHint::DIFFUSE))
+      if (const ezModelImporter::Property* baseColor = material->GetProperty(ezModelImporter::SemanticHint::DIFFUSE))
       {
         if (setProperty("BaseColor", baseColor->m_Value) == EZ_FAILURE)
           continue;
       }
 
       // Set base texture.
-      if (const ezModelImporter::Material::TextureReference* baseTexture = material->GetTexture(ezModelImporter::Material::SemanticHint::DIFFUSE))
+      if (const ezModelImporter::TextureReference* baseTexture = material->GetTexture(ezModelImporter::SemanticHint::DIFFUSE))
       {
         if (setProperty("DEFAULT_MAT_USE_BASE_TEXTURE", true) == EZ_FAILURE)
           continue;
-        if (setProperty("BaseTexture", resolveTexture(baseTexture)) == EZ_FAILURE)
+        if (setProperty("BaseTexture", ImportOrResolveTexture(meshFileDirectory, baseTexture)) == EZ_FAILURE)
           continue;
       }
       else
@@ -571,11 +645,11 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       }
 
       // Set Normal Texture
-      if (const ezModelImporter::Material::TextureReference* normalTexture = material->GetTexture(ezModelImporter::Material::SemanticHint::NORMAL))
+      if (const ezModelImporter::TextureReference* normalTexture = material->GetTexture(ezModelImporter::SemanticHint::NORMAL))
       {
         if (setProperty("DEFAULT_MAT_USE_NORMAL_TEXTURE", true) == EZ_FAILURE)
           continue;
-        if (setProperty("NormalTexture", resolveTexture(normalTexture)) == EZ_FAILURE)
+        if (setProperty("NormalTexture", ImportOrResolveTexture(meshFileDirectory, normalTexture)) == EZ_FAILURE)
           continue;
       }
       else
