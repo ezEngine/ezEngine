@@ -570,11 +570,21 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
     if (!material)
       continue;
 
+    // Didn't find currently set resource, create new imported material.
     if (!ezAssetCurator::GetSingleton()->FindAssetInfo(pProp->m_Slots[subMeshIdx].m_sResource))
     {
-      // Didn't find currently set resource, create new imported material.
+      ezStringBuilder materialName = material->m_Name;
+
+      // Might have not a name.
+      if (materialName.IsEmpty())
+      {
+        materialName = "Unnamed";
+        materialName.Append(ezConversionUtils::ToString(subMeshIdx));
+      }
+
+      // Put the new asset in the data folder.
       ezStringBuilder newResourcePathAbs;
-      newResourcePathAbs.Format("%s_data/%s.ezMaterialAsset", GetDocumentPath(), material->m_Name.GetData());
+      newResourcePathAbs.Format("%s_data/%s.ezMaterialAsset", GetDocumentPath(), materialName.GetData());
 
       // Does the generated path already exist? Use it.
       {
@@ -589,7 +599,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
       if (!materialDocument)
       {
-        ezLog::Error("Failed to create new material '%s'", material->m_Name.GetData());
+        ezLog::Error("Failed to create new material '%s'", materialName.GetData());
         continue;
       }
 
@@ -597,7 +607,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       history->StartTransaction("Apply Materials");
       ezUuid propertySetterTarget = materialDocument->GetPropertyObject()->GetGuid();
 
-      auto setProperty = [material, materialDocument, history, &propertySetterTarget](const char* szProperty, const ezVariant& newValue) -> ezResult
+      auto setProperty = [material, &materialName, materialDocument, history, &propertySetterTarget](const char* szProperty, const ezVariant& newValue) -> ezResult
       {
         ezSetObjectPropertyCommand cmd;
         cmd.m_Object = propertySetterTarget;
@@ -607,7 +617,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
         ezStatus status = history->AddCommand(cmd);
         if (status.m_Result.Failed())
         {
-          ezLog::Error("Material import '%s' failed: %s", material->m_Name.GetData(), status.m_sMessage.GetData());
+          ezLog::Error("Material import '%s' failed: %s", materialName.GetData(), status.m_sMessage.GetData());
           history->CancelTransaction();
           return EZ_FAILURE;
         }
