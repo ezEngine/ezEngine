@@ -460,8 +460,6 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
 // Helper functions for buffers (for common, simple use cases)
 ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
   desc.m_uiTotalSize = uiVertexSize * uiVertexCount;
@@ -473,8 +471,6 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
 
 ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiIndexCount;
@@ -486,8 +482,6 @@ ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType,
 
 ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = 0;
   desc.m_uiTotalSize = uiBufferSize;
