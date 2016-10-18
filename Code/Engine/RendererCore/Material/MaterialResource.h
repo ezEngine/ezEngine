@@ -13,7 +13,7 @@ struct ezMaterialResourceDescriptor
 {
   struct Parameter
   {
-    ezHashedString m_Name;
+    ezTempHashedString m_Name;
     ezVariant m_Value;
   };
 
@@ -48,8 +48,8 @@ public:
   ~ezMaterialResource();
 
   ezHashedString GetPermutationValue(const ezTempHashedString& sName);
-  
-  void SetParameter(const ezHashedString& sName, const ezVariant& value);
+
+  void SetParameter(const ezTempHashedString& sName, const ezVariant& value);
   ezVariant GetParameter(const ezTempHashedString& sName);
 
   void SetTextureBinding(const ezHashedString& sName, ezTextureResourceHandle value);
@@ -86,6 +86,6 @@ private:
   ezMutex m_CacheMutex;
   ezShaderResourceHandle m_hCachedShader;
   ezHashTable<ezHashedString, ezHashedString> m_CachedPermutationVars;
-  ezHashTable<ezHashedString, ezVariant> m_CachedParameters;
+  ezHashTable<ezTempHashedString, ezVariant> m_CachedParameters;
   ezHashTable<ezHashedString, ezTextureResourceHandle> m_CachedTextureBindings;
 };

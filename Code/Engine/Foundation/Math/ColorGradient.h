@@ -95,8 +95,13 @@ public:
   /// The control points have to be sorted, so call SortControlPoints() before, if any modifications where done.
   void Evaluate(float x, ezColorGammaUB& rgba, float& intensity) const;
 
+  /// \brief Evaluates the curve and returns RGBA and intensity in one combined ezColor value.
+  void Evaluate(float x, ezColor& hdr) const;
+
   /// \brief Evaluates only the color curve.
   void EvaluateColor(float x, ezColorGammaUB& rgb) const;
+  /// \brief Evaluates only the color curve.
+  void EvaluateColor(float x, ezColor& rgb) const;
   /// \brief Evaluates only the alpha curve.
   void EvaluateAlpha(float x, ezUInt8& alpha) const;
   /// \brief Evaluates only the intensity curve.

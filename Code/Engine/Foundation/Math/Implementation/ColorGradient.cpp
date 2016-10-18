@@ -97,7 +97,30 @@ void ezColorGradient::Evaluate(float x, ezColorGammaUB& rgba, float& intensity) 
   EvaluateIntensity(x, intensity);
 }
 
+
+void ezColorGradient::Evaluate(float x, ezColor& hdr) const
+{
+  float intensity = 1.0f;
+  ezUInt8 alpha = 255;
+
+  EvaluateColor(x, hdr);
+  EvaluateAlpha(x, alpha);
+  EvaluateIntensity(x, intensity);
+
+  hdr.ScaleIntensity(intensity);
+  hdr.a = ezMath::ColorByteToFloat(alpha);
+}
+
 void ezColorGradient::EvaluateColor(float x, ezColorGammaUB& rgb) const
+{
+  ezColor hdr;
+  EvaluateColor(x, hdr);
+
+  rgb = hdr;
+  rgb.a = 255;
+}
+
+void ezColorGradient::EvaluateColor(float x, ezColor& rgb) const
 {
   rgb.r = 255;
   rgb.g = 255;
@@ -148,12 +171,7 @@ void ezColorGradient::EvaluateColor(float x, ezColorGammaUB& rgb) const
       float lerpX = x - m_ColorCPs[iControlPoint].m_PosX;
       lerpX /= (m_ColorCPs[iControlPoint + 1].m_PosX - m_ColorCPs[iControlPoint].m_PosX);
 
-      const ezColor interpolated = ezMath::Lerp(lhs, rhs, lerpX);
-      const ezColorGammaUB intGamma = interpolated;
-
-      rgb.r = intGamma.r;
-      rgb.g = intGamma.g;
-      rgb.b = intGamma.b;
+      rgb = ezMath::Lerp(lhs, rhs, lerpX);
     }
   }
 }

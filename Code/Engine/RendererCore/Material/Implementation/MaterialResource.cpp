@@ -10,7 +10,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+/// \todo Should be done on any thread, but currently crashes when deleting custom loaders in the resource manager
+ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
   m_iLastUpdated = 0;
   m_iLastConstantsUpdated = 0;
@@ -35,7 +36,7 @@ ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString&
   return sResult;
 }
 
-void ezMaterialResource::SetParameter(const ezHashedString& sName, const ezVariant& value)
+void ezMaterialResource::SetParameter(const ezTempHashedString& sName, const ezVariant& value)
 {
   ezUInt32 uiIndex = ezInvalidIndex;
   for (ezUInt32 i = 0; i < m_Desc.m_Parameters.GetCount(); ++i)
@@ -284,7 +285,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           continue;
 
         ezMaterialResourceDescriptor::Parameter& tc = m_Desc.m_Parameters.ExpandAndGetRef();
-        tc.m_Name.Assign(sTemp.GetData());
+        tc.m_Name = sTemp.GetData();
         tc.m_Value = vTemp;
       }
     }
@@ -386,7 +387,7 @@ else if (!sValue.IsEmpty())
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
             ezMaterialResourceDescriptor::Parameter& sc = m_Desc.m_Parameters.ExpandAndGetRef();
-            sc.m_Name.Assign(it.Key().GetData());
+            sc.m_Name = it.Key().GetData();
             sc.m_Value = it.Value();
           }
         }

@@ -866,6 +866,8 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
   if (m_hNewMaterial != m_hMaterial || pMaterial->IsModified())
   {
+    EZ_LOCK(pMaterial->m_CacheMutex);
+
     pMaterial->UpdateCaches();
 
     BindShaderInternal(pMaterial->m_hCachedShader, ezShaderBindFlags::Default);
