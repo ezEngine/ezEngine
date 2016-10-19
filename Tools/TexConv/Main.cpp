@@ -131,6 +131,10 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
   // everything is fine
   SetReturnCode(TexConvReturnCodes::OK);
+
+  // Flush standard output to make log available.
+  fflush(stdout);
+
   return ezApplication::Quit;
 }
 

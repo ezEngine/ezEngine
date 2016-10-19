@@ -11,6 +11,7 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <QProcess>
 #include <QStringList>
+#include <QTextStream>
 #include <Foundation/IO/OSFile.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
@@ -196,11 +197,25 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   ezLog::Debug("TexConv.exe%s", cmd.GetData());
 
   QProcess proc;
+  QString logoutput;
+  proc.setProcessChannelMode(QProcess::MergedChannels);
+  proc.setReadChannel(QProcess::StandardOutput);
+  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]() { logoutput.append(proc.readAllStandardOutput()); });
   proc.start(QString::fromUtf8(FindTexConvTool().GetData()), arguments);
   auto stat = proc.exitStatus();
 
   if (!proc.waitForFinished(60000))
     return ezStatus("TexConv.exe timed out");
+
+  // Output log.
+  ezString test = logoutput.toUtf8().data();
+  ezLog::Info("TexConv.exe log output:");
+  QTextStream logoutputStream(&logoutput);
+  while (!logoutputStream.atEnd())
+  {
+    QString line = logoutputStream.readLine();
+    ezLog::Info("%s", line.toUtf8().data());
+  }
 
   if (proc.exitCode() != 0)
     return ezStatus("TexConv.exe returned error code %i", proc.exitCode());

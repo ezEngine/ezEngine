@@ -27,6 +27,26 @@ ezResult ezTexConv::LoadInputs()
     }
   }
 
+
+  // Some evaluation.
+
+  // Check if compression is possible.
+  if (m_bCompress)
+  {
+    for (ezUInt32 i = 0; i < m_InputImages.GetCount(); ++i)
+    {
+      // We're doing block compression in any case, so we can only support width/height beeing a multiple of 4
+      // Give out an error and disable compression if this is not the case.
+      if (m_InputImages[i].GetWidth() % 4 != 0 || m_InputImages[i].GetHeight() % 4 != 0)
+      {
+        ezLog::Error("Input image '%s' cannot be compressed since it's height/width is not a multiple of 4.", m_InputFileNames[i].GetData());
+        m_bCompress = false;
+        break;
+      }
+    }
+  }
+
+  // Check for same resolutions.
   for (ezUInt32 i = 1; i < m_InputImages.GetCount(); ++i)
   {
     if (m_InputImages[i].GetWidth() != m_InputImages[0].GetWidth() ||
