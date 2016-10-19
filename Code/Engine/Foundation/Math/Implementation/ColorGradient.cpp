@@ -122,16 +122,14 @@ void ezColorGradient::EvaluateColor(float x, ezColorGammaUB& rgb) const
 
 void ezColorGradient::EvaluateColor(float x, ezColor& rgb) const
 {
-  rgb.r = 255;
-  rgb.g = 255;
-  rgb.b = 255;
-  rgb.a = 255;
+  rgb.r = 1.0f;
+  rgb.g = 1.0f;
+  rgb.b = 1.0f;
+  rgb.a = 1.0f;
 
   if (m_ColorCPs.GetCount() == 1)
   {
-    rgb.r = m_ColorCPs[0].m_GammaRed;
-    rgb.g = m_ColorCPs[0].m_GammaGreen;
-    rgb.b = m_ColorCPs[0].m_GammaBlue;
+    rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
   }
   else if (m_ColorCPs.GetCount() >= 2)
   {
@@ -149,16 +147,12 @@ void ezColorGradient::EvaluateColor(float x, ezColor& rgb) const
     if (iControlPoint == -1)
     {
       // clamp to left value
-      rgb.r = m_ColorCPs[0].m_GammaRed;
-      rgb.g = m_ColorCPs[0].m_GammaGreen;
-      rgb.b = m_ColorCPs[0].m_GammaBlue;
+      rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
     }
     else if (iControlPoint == numCPs - 1)
     {
       // clamp to right value
-      rgb.r = m_ColorCPs[numCPs - 1].m_GammaRed;
-      rgb.g = m_ColorCPs[numCPs - 1].m_GammaGreen;
-      rgb.b = m_ColorCPs[numCPs - 1].m_GammaBlue;
+      rgb = ezColorGammaUB(m_ColorCPs[numCPs - 1].m_GammaRed, m_ColorCPs[numCPs - 1].m_GammaGreen, m_ColorCPs[numCPs - 1].m_GammaBlue);
     }
     else
     {

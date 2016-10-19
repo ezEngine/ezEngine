@@ -20,6 +20,8 @@
 #include <QStringBuilder>
 #include <QLabel>
 #include <QMenu>
+#include <QClipboard>
+#include <QMimeData>
 
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget() : QWidget(nullptr), m_pGrid(nullptr), m_pProp(nullptr)
@@ -83,19 +85,34 @@ void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
 {
   QMenu m;
 
-  QAction* pRevert = m.addAction("Revert to Default");
-  pRevert->setEnabled(!m_bIsDefault);
-  connect(pRevert, &QAction::triggered, this, [this]() 
+  // revert
   {
-    ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
-    pObjectAccessor->StartTransaction("Revert to Default");
-    for (const Selection& sel : m_Items)
+    QAction* pRevert = m.addAction("Revert to Default");
+    pRevert->setEnabled(!m_bIsDefault);
+    connect(pRevert, &QAction::triggered, this, [this]()
     {
-      ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_pProp->GetPropertyName());
-      pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
-    }
-    pObjectAccessor->FinishTransaction();
-  });
+      ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+      pObjectAccessor->StartTransaction("Revert to Default");
+      for (const Selection& sel : m_Items)
+      {
+        ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_pProp->GetPropertyName());
+        pObjectAccessor->SetValue(sel.m_pObject, m_pProp, defaultValue, sel.m_Index);
+      }
+      pObjectAccessor->FinishTransaction();
+    });
+  }
+
+  // copy internal name
+  {
+    QAction* pAction = m.addAction("Copy Internal Property Name");
+    connect(pAction, &QAction::triggered, this, [this]()
+    {
+      QClipboard* clipboard = QApplication::clipboard();
+      QMimeData* mimeData = new QMimeData();
+      mimeData->setText(m_pProp->GetPropertyName());
+      clipboard->setMimeData(mimeData);
+    });
+  }
 
   ExtendContextMenu(m);
   m.exec(pt); // pt is already in global space, because we fixed that
