@@ -190,6 +190,9 @@ public:
   /// \brief This is true for resources that are used as a 'missing resource' fallback. Through this function one can detect whether acquiring a resource returned the missing resource fallback.
   EZ_FORCE_INLINE bool IsMissingResource() const { return m_Flags.IsSet(ezResourceFlags::IsMissingFallback); }
 
+  /// \brief If the resource has modifications from the original state, it should reset itself to that state now (or force a reload on itself).
+  virtual void ResetResource() {}
+
   mutable ezEvent<const ezResourceEvent&> m_ResourceEvents;
 
 private:

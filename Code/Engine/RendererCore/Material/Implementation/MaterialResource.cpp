@@ -148,6 +148,17 @@ ezTextureResourceHandle ezMaterialResource::GetTextureBinding(const ezTempHashed
   return ezTextureResourceHandle();
 }
 
+
+void ezMaterialResource::ResetResource()
+{
+  m_Desc = m_OriginalDesc;
+
+  m_iLastModified.Increment();
+  m_iLastConstantsModified.Increment();
+
+  m_ModifiedEvent.Broadcast(this);
+}
+
 ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 {
   if (m_Desc.m_hBaseMaterial.IsValid())
@@ -157,6 +168,7 @@ ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
   }
 
   m_Desc.Clear();
+  m_OriginalDesc.Clear();
 
   if (!m_hConstantBufferStorage.IsInvalidated())
   {
@@ -180,6 +192,7 @@ ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 {
   m_Desc.Clear();
+  m_OriginalDesc.Clear();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -329,45 +342,45 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
       {
         ezString sValue = pValue->ConvertTo<ezString>(&Conversion);
 
-if (Conversion.Failed())
-{
-  ezLog::Error("'Shader' variable is malformed.");
-}
-else if (!sValue.IsEmpty())
-{
-  m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sValue);
-}
+        if (Conversion.Failed())
+        {
+          ezLog::Error("'Shader' variable is malformed.");
+        }
+        else if (!sValue.IsEmpty())
+        {
+          m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sValue);
+        }
       }
     }
 
     // Read the shader permutation variables
     {
-    ezVariant* pValue = nullptr;
-    if (json.GetTopLevelObject().TryGetValue("Permutations", pValue))
-    {
-      if (!pValue->IsA<ezVariantDictionary>())
+      ezVariant* pValue = nullptr;
+      if (json.GetTopLevelObject().TryGetValue("Permutations", pValue))
       {
-        ezLog::Error("'Permutations' variable is not an object");
-      }
-      else
-      {
-        const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
-
-        m_Desc.m_PermutationVars.Reserve(dict.GetCount());
-        for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+        if (!pValue->IsA<ezVariantDictionary>())
         {
-          ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
-          pv.m_sName.Assign(it.Key().GetData());
-          pv.m_sValue.Assign(it.Value().ConvertTo<ezString>(&Conversion).GetData());
+          ezLog::Error("'Permutations' variable is not an object");
+        }
+        else
+        {
+          const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
 
-          if (Conversion.Failed())
+          m_Desc.m_PermutationVars.Reserve(dict.GetCount());
+          for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
-            ezLog::Error("'Permutations' object has member '%s' that is not convertible to a string", it.Key().GetData());
-            m_Desc.m_PermutationVars.PopBack();
+            ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
+            pv.m_sName.Assign(it.Key().GetData());
+            pv.m_sValue.Assign(it.Value().ConvertTo<ezString>(&Conversion).GetData());
+
+            if (Conversion.Failed())
+            {
+              ezLog::Error("'Permutations' object has member '%s' that is not convertible to a string", it.Key().GetData());
+              m_Desc.m_PermutationVars.PopBack();
+            }
           }
         }
       }
-    }
     }
 
     // Read the shader constants
@@ -435,6 +448,8 @@ else if (!sValue.IsEmpty())
     pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
   }
 
+  m_OriginalDesc = m_Desc;
+
   m_iLastModified.Increment();
   m_iLastConstantsModified.Increment();
 
@@ -446,9 +461,12 @@ else if (!sValue.IsEmpty())
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMaterialResource) +
-                                     (ezUInt32) (m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
-                                                 m_Desc.m_Parameters.GetHeapMemoryUsage() +
-                                                 m_Desc.m_TextureBindings.GetHeapMemoryUsage());
+    (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
+               m_Desc.m_Parameters.GetHeapMemoryUsage() +
+               m_Desc.m_TextureBindings.GetHeapMemoryUsage() +
+               m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() +
+               m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
+               m_OriginalDesc.m_TextureBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 
@@ -457,6 +475,7 @@ void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 ezResourceLoadDesc ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& descriptor)
 {
   m_Desc = descriptor;
+  m_OriginalDesc = descriptor;
 
   ezResourceLoadDesc res;
   res.m_State = ezResourceState::Loaded;

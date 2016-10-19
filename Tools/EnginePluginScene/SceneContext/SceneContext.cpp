@@ -233,6 +233,7 @@ void ezSceneContext::OnSimulationDisabled()
 {
   ezLog::Info("World Simulation disabled");
 
+  ezResourceManager::ResetAllResources();
 }
 
 ezGameState* ezSceneContext::GetGameState() const

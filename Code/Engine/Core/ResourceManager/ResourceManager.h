@@ -144,6 +144,11 @@ public:
   /// \brief Goes through all resources and makes sure they are reloaded, if they have changed. If bForce is true, all reloadable resources are updated, even if there is no indication that they have changed.
   static void ReloadAllResources(bool bForce);
 
+  /// \brief Calls ezResourceBase::ResetResource() on all resources.
+  ///
+  /// This is mostly for usage in tools to reset resource whose state can be modified at runtime, to reset them to their original state.
+  static void ResetAllResources();
+
   //static void CleanUpResources();
 
   /// \brief Must be called once per frame for some bookkeeping
@@ -208,7 +213,7 @@ private:
 
   static void EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState);
 
-  
+
   static bool HelpResourceLoading();
 
   static void ReloadResource(ezResourceBase* pResource, bool bForce);
@@ -260,7 +265,7 @@ private:
   static ezDeque<LoadingInfo> m_RequireLoading;
 
   static const ezUInt32 MaxDiskReadTasks = 2;
-  static const ezUInt32 MaxMainThreadTasks = 16; 
+  static const ezUInt32 MaxMainThreadTasks = 16;
   static bool m_bTaskRunning;
   static bool m_bStop;
   static ezResourceManagerWorkerDiskRead m_WorkerTasksDiskRead[MaxDiskReadTasks];

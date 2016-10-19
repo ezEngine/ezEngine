@@ -104,14 +104,19 @@ void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
 
   // copy internal name
   {
-    QAction* pAction = m.addAction("Copy Internal Property Name");
-    connect(pAction, &QAction::triggered, this, [this]()
+    auto lambda = [this]()
     {
       QClipboard* clipboard = QApplication::clipboard();
       QMimeData* mimeData = new QMimeData();
       mimeData->setText(m_pProp->GetPropertyName());
       clipboard->setMimeData(mimeData);
-    });
+    };
+
+    QAction* pAction = m.addAction("Copy Internal Property Name:");
+    connect(pAction, &QAction::triggered, this, lambda);
+
+    QAction* pAction2 = m.addAction(m_pProp->GetPropertyName());
+    connect(pAction2, &QAction::triggered, this, lambda);
   }
 
   ExtendContextMenu(m);

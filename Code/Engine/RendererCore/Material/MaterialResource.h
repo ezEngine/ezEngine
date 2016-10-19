@@ -55,6 +55,8 @@ public:
   void SetTextureBinding(const ezHashedString& sName, ezTextureResourceHandle value);
   ezTextureResourceHandle GetTextureBinding(const ezTempHashedString& sName);
 
+  virtual void ResetResource() override;
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
@@ -62,6 +64,7 @@ private:
   virtual ezResourceLoadDesc CreateResource(const ezMaterialResourceDescriptor& descriptor) override;
 
 private:
+  ezMaterialResourceDescriptor m_OriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
   ezMaterialResourceDescriptor m_Desc;
 
   friend class ezRenderContext;

@@ -654,6 +654,20 @@ void ezResourceManager::ReloadAllResources(bool bForce)
   }
 }
 
+
+void ezResourceManager::ResetAllResources()
+{
+  EZ_LOCK(s_ResourceMutex);
+  EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
+
+  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+  {
+    ezResourceBase* pResource = it.Value();
+    pResource->ResetResource();
+  }
+
+}
+
 void ezResourceManager::PerFrameUpdate()
 {
   m_LastFrameUpdate = ezTime::Now();
