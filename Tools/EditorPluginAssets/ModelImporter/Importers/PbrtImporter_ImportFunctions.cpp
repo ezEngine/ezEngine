@@ -516,7 +516,7 @@ namespace ezModelImporter
 
       if (filename.IsEmpty())
       {
-        ezLog::Warning("Texture '%s' does not have a filename, unable to import.", type.GetData());
+        ezLog::Warning("Texture '%s' does not have a filename, unable to import.", ezString(type).GetData());
       }
       else
       {
