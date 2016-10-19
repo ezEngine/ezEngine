@@ -13,6 +13,15 @@ ezResult ezTexConv::LoadSingleInputFile(const char* szFile)
   return EZ_SUCCESS;
 }
 
+namespace
+{
+  bool isPowerOfTwo(ezUInt32 i)
+  {
+    // http://graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
+    return i && !(i & (i - 1));
+  }
+}
+
 ezResult ezTexConv::LoadInputs()
 {
   EZ_LOG_BLOCK("Load Inputs");
@@ -35,11 +44,12 @@ ezResult ezTexConv::LoadInputs()
   {
     for (ezUInt32 i = 0; i < m_InputImages.GetCount(); ++i)
     {
-      // We're doing block compression in any case, so we can only support width/height beeing a multiple of 4
+      // We're doing block compression in any case, so we can only support width/height beeing a multiple of 4.
+      // Since this must apply to all mip maps this means effectively that we need a 2^n texture.
       // Give out an error and disable compression if this is not the case.
-      if (m_InputImages[i].GetWidth() % 4 != 0 || m_InputImages[i].GetHeight() % 4 != 0)
+      if (!ezMath::IsPowerOf(m_InputImages[i].GetWidth(), 2) || !ezMath::IsPowerOf(m_InputImages[i].GetHeight(), 2))
       {
-        ezLog::Error("Input image '%s' cannot be compressed since it's height/width is not a multiple of 4.", m_InputFileNames[i].GetData());
+        ezLog::Error("Input image '%s' cannot be compressed since it's height/width is not a power of 2.", m_InputFileNames[i].GetData());
         m_bCompress = false;
         break;
       }
