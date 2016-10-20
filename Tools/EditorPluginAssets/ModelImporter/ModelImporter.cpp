@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/HashSet.h>
+#include <Foundation/Time/Stopwatch.h>
 
 EZ_IMPLEMENT_SINGLETON(ezModelImporter::Importer);
 
@@ -78,6 +79,7 @@ namespace ezModelImporter
       if (std::any_of(cbegin(supportedFormats), cend(supportedFormats), [fileExtension](const char* ext)
           { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
       {
+        ezStopwatch timer;
         ezUniquePtr<Scene> scene = m_ImporterImplementations[i]->ImportScene(szFileName);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -86,6 +88,7 @@ namespace ezModelImporter
         if (scene)
           scene->RefreshRootList();
 
+        ezLog::Success("Scene '%s' has been imported (time %f.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
         return std::move(scene);
       }
     }
