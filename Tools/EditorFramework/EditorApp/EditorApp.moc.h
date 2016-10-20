@@ -16,12 +16,14 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <EditorFramework/TestFramework/EditorTests.h>
 
 class QMainWindow;
 class QWidget;
 class ezProgress;
 class ezQtProgressbar;
 class ezQtEditorApp;
+class ezEditorTests;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -112,7 +114,7 @@ public:
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   /// Returns an empty string if nothing is found. Otherwise the returned path concatenated with szSubPath will be a valid, existing path.
   ezString FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath) const;
-  
+
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is available.
   /// The path must be relative to the SdkRoot folder.
   void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false);
@@ -135,12 +137,14 @@ public:
   /// as txt files. Each line names one input slot.
   void GetKnownInputSlots(ezDynamicArray<ezString>& slots) const;
 
+  void ExecuteTests();
+
 signals:
   void IdleEvent();
 
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
-  
+
   void GuiCreateOrOpenDocument(bool bCreate);
   void GuiCreateOrOpenProject(bool bCreate);
 
@@ -209,4 +213,6 @@ private:
   // *** Progress Bar ***
   ezProgress* m_pProgressbar;
   ezQtProgressbar* m_pQtProgressbar;
+
+  ezUniquePtr<ezEditorTests> m_TestFramework;
 };

@@ -39,6 +39,7 @@ ezActionDescriptorHandle ezProjectActions::s_hEnginePlugins;
 ezActionDescriptorHandle ezProjectActions::s_hDataDirectories;
 ezActionDescriptorHandle ezProjectActions::s_hInputConfig;
 ezActionDescriptorHandle ezProjectActions::s_hPreferencesDlg;
+ezActionDescriptorHandle ezProjectActions::s_hEditorTests;
 ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
@@ -70,6 +71,7 @@ void ezProjectActions::RegisterActions()
   s_hEnginePlugins = EZ_REGISTER_ACTION_1("Engine.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EnginePlugins);
   s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.ezQtPreferencesDlg", ezActionScope::Global, "Editor", "Ctrl+P", ezProjectAction, ezProjectAction::ButtonType::PreferencesDialog);
   s_hTagsDlg = EZ_REGISTER_ACTION_1("Engine.ezQtTagsDlg", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
+  s_hEditorTests = EZ_REGISTER_ACTION_1("Editor.Tests", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorTests);
 
   s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
   s_hInputConfig = EZ_REGISTER_ACTION_1("Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
@@ -106,6 +108,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hTagsDlg);
   ezActionManager::UnregisterAction(s_hDataDirectories);
   ezActionManager::UnregisterAction(s_hInputConfig);
+  ezActionManager::UnregisterAction(s_hEditorTests);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -138,6 +141,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
   pMap->MapAction(s_hPreferencesDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
+  pMap->MapAction(s_hEditorTests, "Menu.Editor/SettingsCategory", 2.0f);
 
   pMap->MapAction(s_hDataDirectories, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
   pMap->MapAction(s_hEnginePlugins, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 2.0f);
@@ -302,6 +306,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::Shortcuts:
     SetIconPath(":/GuiFoundation/Icons/Shortcuts16.png");
     break;
+  case ezProjectAction::ButtonType::EditorTests:
+    //SetIconPath(":/EditorFramework/Icons/StoredSettings16.png"); /// \todo Icon
+    break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject ||
@@ -440,6 +447,13 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezEditorEngineProcessConnection::GetSingleton()->RestartProcess();
     }
     break;
+
+  case ezProjectAction::ButtonType::EditorTests:
+    {
+      ezQtEditorApp::GetSingleton()->ExecuteTests();
+    }
+    break;
+
   }
 
 }

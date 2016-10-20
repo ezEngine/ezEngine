@@ -35,6 +35,7 @@ Menu.View;&View
 Menu.Help;&Help
 Menu.ProjectSettings;Project Settings
 Menu.EditorSettings;Editor Settings
+Editor.Tests;Tests
 View.RenderMode;Render Mode
 View.RenderPerspective;Perspective
 View.CameraUsageHint;Camera Usage Hint

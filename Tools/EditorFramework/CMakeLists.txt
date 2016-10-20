@@ -34,6 +34,7 @@ SET (LINK_LIBRARIES
   GuiFoundation
   CoreUtils
   GameFoundation
+  TestFramework
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
