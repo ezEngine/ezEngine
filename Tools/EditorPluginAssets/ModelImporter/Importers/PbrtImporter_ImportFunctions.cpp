@@ -143,7 +143,7 @@ namespace ezModelImporter
         targetArray.PushBack(param.data[elem].Get<T>());
     }
 
-    void ParseShape(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
+    void Shape(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
     {
       // Get/Create node for current transform.
       ObjectHandle parentNode;
@@ -332,7 +332,7 @@ namespace ezModelImporter
       }
     }
 
-    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter, Material& material, ezArrayPtr<Parameter> parameters, ezVariant default)
+    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter, ezModelImporter::Material& material, ezArrayPtr<Parameter> parameters, ezVariant default)
     {
       for (const Parameter& param : parameters)
       {
@@ -357,9 +357,9 @@ namespace ezModelImporter
         material.m_Properties.PushBack(Property(semantic, materialParameter, default));
     }
 
-    void ParseMaterial(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
+    ezUniquePtr<ezModelImporter::Material> PareMaterialImpl(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
     {
-      ezUniquePtr<Material> newMaterial = EZ_DEFAULT_NEW(Material);
+      ezUniquePtr<ezModelImporter::Material> newMaterial = EZ_DEFAULT_NEW(ezModelImporter::Material);
 
       newMaterial->m_Name = "";
       newMaterial->m_Properties.PushBack(Property("type", type));
@@ -466,7 +466,7 @@ namespace ezModelImporter
           {
             ezString textureName = param.data[0].Get<ezString>();
             const char* textureFilename = context.LookUpTextureFilename(textureName);
-            if(textureFilename)
+            if (textureFilename)
               newMaterial->m_Textures.PushBack(TextureReference(ezString(param.name), textureFilename));
           }
         }
@@ -487,10 +487,46 @@ namespace ezModelImporter
         }
       }
 
+      return std::move(newMaterial);
+    }
+
+    void Material(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
+    {
+      ezUniquePtr<ezModelImporter::Material> newMaterial = PareMaterialImpl(type, parameters, context, outScene);
       context.PushActiveMaterial(outScene.AddMaterial(std::move(newMaterial)));
     }
 
-    void ParseTexture(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
+    void MakeNamedMAterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    {
+      // "type" is name and the first parameter is the type.
+      ezString name = type;
+      ezString materialType;
+      if (parameters.IsEmpty() || parameters[0].type != ParamType::STRING ||
+        parameters[0].data.IsEmpty() || parameters[0].name.Compare_NoCase("type"))
+      {
+        ezLog::Warning("PBRT make named material should have a type parameter.", type.GetData()); // This sometimes happens and need to handle that.
+      }
+      else
+      {
+        materialType = parameters[0].data[0].Get<ezString>();
+        parameters = parameters.GetSubArray(1);
+      }
+
+      ezUniquePtr<ezModelImporter::Material> newMaterial = PareMaterialImpl(materialType, parameters, context, outScene);
+      newMaterial->m_Name = name;
+      context.AddNamedMaterial(name, outScene.AddMaterial(std::move(newMaterial)));
+    }
+
+    void NamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    {
+      ezString materialName(type);
+      if (context.MakeNamedMaterialActive(materialName).Failed())
+      {
+        ezLog::Error("PBRT make 'NamedMaterial' material name '%s' is not known.", materialName.GetData());
+      }
+    }
+
+    void Texture(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
     {
       // http://www.pbrt.org/fileformat.html#textures
 

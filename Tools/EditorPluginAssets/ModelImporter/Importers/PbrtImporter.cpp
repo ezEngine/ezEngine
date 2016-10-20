@@ -33,6 +33,8 @@ namespace ezModelImporter
   {
     if (!PbrtCommandLookup::s_initialized)
     {
+      // All in lower case since we convert the incoming string to lower case.
+
       // Scopes.
       PbrtCommandLookup::s_scopes.Insert("worldbegin", &PbrtScopeFunctions::WorldBegin);
       PbrtCommandLookup::s_scopes.Insert("worldend", &PbrtScopeFunctions::WorldEnd);
@@ -57,9 +59,12 @@ namespace ezModelImporter
       // * CoordSysTransform
 
       // Objects.
-      PbrtCommandLookup::s_objects.Insert("shape", &PbrtObjectParseFunctions::ParseShape);
-      PbrtCommandLookup::s_objects.Insert("material", &PbrtObjectParseFunctions::ParseMaterial);
-      PbrtCommandLookup::s_objects.Insert("texture", &PbrtObjectParseFunctions::ParseTexture);
+      PbrtCommandLookup::s_objects.Insert("shape", &PbrtObjectParseFunctions::Shape);
+      PbrtCommandLookup::s_objects.Insert("material", &PbrtObjectParseFunctions::Material);
+      PbrtCommandLookup::s_objects.Insert("makenamedmaterial", &PbrtObjectParseFunctions::MakeNamedMAterial);
+      PbrtCommandLookup::s_objects.Insert("namedmaterial", &PbrtObjectParseFunctions::NamedMaterial);
+      PbrtCommandLookup::s_objects.Insert("material", &PbrtObjectParseFunctions::Material);
+      PbrtCommandLookup::s_objects.Insert("texture", &PbrtObjectParseFunctions::Texture);
       // Known missing:
       // * Film
       // * Sampler

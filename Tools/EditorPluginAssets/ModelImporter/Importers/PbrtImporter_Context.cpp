@@ -52,6 +52,24 @@ namespace ezModelImporter
       m_activeMaterialStack.PushBack(handle);
     }
 
+    void ParseContext::AddNamedMaterial(const char* name, MaterialHandle handle)
+    {
+      m_namedMaterials.Insert(name, handle);
+    }
+
+    ezResult ParseContext::MakeNamedMaterialActive(const char* name)
+    {
+      MaterialHandle handle;
+      if (m_namedMaterials.TryGetValue(name, handle))
+      {
+        m_activeMaterialStack.PopBack();
+        m_activeMaterialStack.PushBack(handle);
+        return EZ_SUCCESS;
+      }
+      else
+        return EZ_FAILURE;
+    }
+
     void ParseContext::EnterWorld()
     {
       m_inWorld = true;
