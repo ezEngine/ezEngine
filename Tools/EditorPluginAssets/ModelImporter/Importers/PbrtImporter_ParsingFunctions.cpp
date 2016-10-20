@@ -142,10 +142,10 @@ namespace ezModelImporter
 
     Parameter::DataArray ParseParameterBlock(ParamType type, ezStringView& remainingSceneText)
     {
-      ezStringView params;
+      ezStringView params = ReadBlock(remainingSceneText, '[', ']');
+
       if (type != ParamType::STRING && type != ParamType::TEXTURE && type != ParamType::SPECTRUM)
       {
-        params = ReadBlock(remainingSceneText, '[', ']');
         if (!params.IsValid())
         {
           // No brackets, so it still can be a single value delimited by newline or whitespace.
@@ -161,15 +161,20 @@ namespace ezModelImporter
       }
       else
       {
-        const char* start = remainingSceneText.FindSubString("\"") + 1;
-        const char* end = remainingSceneText.FindSubString("\"", start);
+        if (!params.IsValid())
+          params = remainingSceneText;
+
+        const char* start = params.FindSubString("\"") + 1;
+        const char* end = params.FindSubString("\"", start);
         if (start == nullptr || end == nullptr)
         {
           ezLog::Error("Failed to parse parameter, expected string.");
           return Parameter::DataArray();
         }
         params = ezStringView(start, end);
-        remainingSceneText.SetStartPosition(end + 1);
+
+        if (remainingSceneText.GetStartPosition() < end + 1)
+          remainingSceneText.SetStartPosition(end + 1);
       }
 
       Parameter::DataArray entries;
