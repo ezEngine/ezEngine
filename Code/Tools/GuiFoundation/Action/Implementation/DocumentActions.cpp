@@ -200,9 +200,16 @@ void ezDocumentAction::Execute(const ezVariant& value)
         for (auto pDoc : pMan->ezDocumentManager::GetAllDocuments())
         {
           ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-
-          if (pWnd->SaveDocument().m_Result.Failed())
-            return;
+          if (pWnd)
+          {
+            if (pWnd->SaveDocument().m_Result.Failed())
+              return;
+          }
+          // There might be no window for this document.
+          else
+          {
+            pDoc->SaveDocument();
+          }
         }
       }
     }
