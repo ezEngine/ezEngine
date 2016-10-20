@@ -548,6 +548,12 @@ namespace ezModelImporter
           filename = param.data[0].Get<ezString>();
           break;
         }
+
+        // Can't load "scale" and similar texture correctly, but if they contain a txture reference, we can try to use that.
+        else if ((param.name.IsEqual_NoCase("tex1") || param.name.IsEqual_NoCase("tex2")) && param.type == ParamType::TEXTURE && !param.data.IsEmpty())
+        {
+          filename = context.LookUpTextureFilename(param.data[0].Get<ezString>());
+        }
       }
 
       if (filename.IsEmpty())

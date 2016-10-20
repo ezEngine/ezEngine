@@ -163,9 +163,6 @@ namespace ezModelImporter
             parameter.data = PbrtParseHelper::ParseParameterBlock(paramType, remainingSceneText);
           }
 
-
-
-
           // Next parameter.
           parameterDesc = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
         }
