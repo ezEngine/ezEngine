@@ -13,7 +13,7 @@ class ezWindowBase;
 
 struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
 {
-  inline ezGALSwapChainCreationDescription();
+  ezGALSwapChainCreationDescription();
 
   ezWindowBase* m_pWindow;
 
@@ -28,7 +28,7 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
 
 struct ezGALDeviceCreationDescription
 {
-  inline ezGALDeviceCreationDescription();
+  ezGALDeviceCreationDescription();
 
   ezGALSwapChainCreationDescription m_PrimarySwapChainDescription;
   bool m_bDebugDevice;
@@ -37,17 +37,17 @@ struct ezGALDeviceCreationDescription
 
 struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>
 {
-  inline ezGALShaderCreationDescription();
-  inline ~ezGALShaderCreationDescription();
+  ezGALShaderCreationDescription();
+  ~ezGALShaderCreationDescription();
 
-  inline bool HasByteCodeForStage(ezGALShaderStage::Enum Stage) const;
+  bool HasByteCodeForStage(ezGALShaderStage::Enum Stage) const;
 
   ezScopedRefPointer<ezGALShaderByteCode> m_ByteCodes[ezGALShaderStage::ENUM_COUNT];
 };
 
 struct ezGALRenderTargetBlendDescription : public ezHashableStruct<ezGALRenderTargetBlendDescription>
 {
-  inline ezGALRenderTargetBlendDescription();
+  ezGALRenderTargetBlendDescription();
 
   ezGALBlend::Enum m_SourceBlend;
   ezGALBlend::Enum m_DestBlend;
@@ -63,7 +63,7 @@ struct ezGALRenderTargetBlendDescription : public ezHashableStruct<ezGALRenderTa
 
 struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendStateCreationDescription>
 {
-  inline ezGALBlendStateCreationDescription();
+  ezGALBlendStateCreationDescription();
 
   ezGALRenderTargetBlendDescription m_RenderTargetBlendDescriptions[EZ_GAL_MAX_RENDERTARGET_COUNT];
 
@@ -73,7 +73,7 @@ struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendSt
 
 struct ezGALStencilOpDescription : public ezHashableStruct<ezGALStencilOpDescription>
 {
-  inline ezGALStencilOpDescription();
+  ezGALStencilOpDescription();
 
   ezGALStencilOp::Enum m_FailOp;
   ezGALStencilOp::Enum m_DepthFailOp;
@@ -84,7 +84,7 @@ struct ezGALStencilOpDescription : public ezHashableStruct<ezGALStencilOpDescrip
 
 struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGALDepthStencilStateCreationDescription>
 {
-  inline ezGALDepthStencilStateCreationDescription();
+  ezGALDepthStencilStateCreationDescription();
 
   ezGALStencilOpDescription m_FrontFaceStencilOp;
   ezGALStencilOpDescription m_BackFaceStencilOp;
@@ -102,7 +102,7 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
 /// \brief Describes the settings for a new rasterizer state. See ezGALDevice::CreateRasterizerState
 struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRasterizerStateCreationDescription>
 {
-  inline ezGALRasterizerStateCreationDescription();
+  ezGALRasterizerStateCreationDescription();
 
   ezGALCullMode::Enum m_CullMode; ///< Which sides of a triangle to cull. Default is ezGALCullMode::Back
   ezInt32 m_iDepthBias;           ///< The pixel depth bias. Default is 0
@@ -115,7 +115,7 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
 
 struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSamplerStateCreationDescription>
 {
-  inline ezGALSamplerStateCreationDescription();
+  ezGALSamplerStateCreationDescription();
 
   ezGALTextureFilterMode::Enum m_MinFilter;
   ezGALTextureFilterMode::Enum m_MagFilter;
@@ -167,9 +167,9 @@ struct ezGALVertexAttributeSemantic
 
 struct ezGALVertexAttribute
 {
-  EZ_FORCE_INLINE ezGALVertexAttribute();
+  ezGALVertexAttribute();
 
-  EZ_FORCE_INLINE ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData);
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData);
 
   ezGALVertexAttributeSemantic::Enum m_eSemantic;
   ezGALResourceFormat::Enum m_eFormat;
@@ -186,10 +186,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : pub
 
 struct ezGALResourceAccess
 {
-  inline ezGALResourceAccess();
+  ezGALResourceAccess();
 
-  inline bool IsImmutable() const;
-
+  bool IsImmutable() const;
 
   bool m_bReadBack;
   bool m_bImmutable;
@@ -210,7 +209,7 @@ struct ezGALBufferType
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
-  inline ezGALBufferCreationDescription();
+  ezGALBufferCreationDescription();
 
   ezUInt32 m_uiStructSize;
   ezUInt32 m_uiTotalSize;
@@ -229,7 +228,9 @@ struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreat
 
 struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
 {
-  inline ezGALTextureCreationDescription();
+  ezGALTextureCreationDescription();
+
+  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
 
   ezUInt32 m_uiWidth;
   ezUInt32 m_uiHeight;
@@ -255,10 +256,9 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   void* m_pExisitingNativeObject; ///< Can be used to encapsulate existing native textures in objects usable by the GAL
 };
 
-
 struct ezGALResourceViewCreationDescription : public ezHashableStruct<ezGALResourceViewCreationDescription>
 {
-  inline ezGALResourceViewCreationDescription();
+  ezGALResourceViewCreationDescription();
 
   ezGALTextureHandle m_hTexture;
 
@@ -289,7 +289,7 @@ struct ezGALRenderTargetType
 
 struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALRenderTargetViewCreationDescription>
 {
-  inline ezGALRenderTargetViewCreationDescription();
+  ezGALRenderTargetViewCreationDescription();
 
   ezGALTextureHandle m_hTexture;
 

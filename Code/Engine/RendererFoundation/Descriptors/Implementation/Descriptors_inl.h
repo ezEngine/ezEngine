@@ -1,5 +1,5 @@
 
-ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
+inline ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
   : ezHashableStruct(),
     m_pWindow(nullptr),
     m_SampleCount(ezGALMSAASampleCount::None),
@@ -12,7 +12,7 @@ ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
 }
 
 
-ezGALDeviceCreationDescription::ezGALDeviceCreationDescription()
+inline ezGALDeviceCreationDescription::ezGALDeviceCreationDescription()
   : m_PrimarySwapChainDescription(),
     m_bDebugDevice(false),
     m_bCreatePrimarySwapChain(true)
@@ -20,12 +20,12 @@ ezGALDeviceCreationDescription::ezGALDeviceCreationDescription()
 }
 
 
-ezGALShaderCreationDescription::ezGALShaderCreationDescription()
+inline ezGALShaderCreationDescription::ezGALShaderCreationDescription()
   : ezHashableStruct()
 {
 }
 
-ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
+inline ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
 {
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
   {
@@ -39,12 +39,12 @@ ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
   }
 }
 
-bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum Stage) const
+inline bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum Stage) const
 {
   return m_ByteCodes[Stage] != nullptr && m_ByteCodes[Stage]->IsValid();
 }
 
-ezGALRenderTargetBlendDescription::ezGALRenderTargetBlendDescription()
+inline ezGALRenderTargetBlendDescription::ezGALRenderTargetBlendDescription()
   : m_SourceBlend(ezGALBlend::One),
     m_DestBlend(ezGALBlend::One),
     m_BlendOp(ezGALBlendOp::Add),
@@ -56,24 +56,24 @@ ezGALRenderTargetBlendDescription::ezGALRenderTargetBlendDescription()
 {
 }
 
-ezGALBlendStateCreationDescription::ezGALBlendStateCreationDescription()
+inline ezGALBlendStateCreationDescription::ezGALBlendStateCreationDescription()
   : m_bAlphaToCoverage(false),
     m_bIndependentBlend(false)
 {
 }
 
-ezGALResourceAccess::ezGALResourceAccess()
+EZ_FORCE_INLINE ezGALResourceAccess::ezGALResourceAccess()
   : m_bReadBack(false), m_bImmutable(true)
 {
 }
 
-bool ezGALResourceAccess::IsImmutable() const
+EZ_FORCE_INLINE bool ezGALResourceAccess::IsImmutable() const
 {
   return m_bImmutable;
 }
 
 
-ezGALBufferCreationDescription::ezGALBufferCreationDescription()
+inline ezGALBufferCreationDescription::ezGALBufferCreationDescription()
   : ezHashableStruct(),
     m_uiStructSize(0),
     m_uiTotalSize(0),
@@ -89,7 +89,7 @@ ezGALBufferCreationDescription::ezGALBufferCreationDescription()
 }
 
 
-ezGALTextureCreationDescription::ezGALTextureCreationDescription()
+inline ezGALTextureCreationDescription::ezGALTextureCreationDescription()
   : ezHashableStruct(),
     m_uiWidth(0),
     m_uiHeight(0),
@@ -108,8 +108,28 @@ ezGALTextureCreationDescription::ezGALTextureCreationDescription()
 {
 }
 
+inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, 
+  ezGALMSAASampleCount::Enum sampleCount /*= ezGALMSAASampleCount::None*/)
+{
+  m_uiWidth = uiWidth;
+  m_uiHeight = uiHeight;
+  m_uiDepth = 1;
+  m_uiMipLevelCount = 1;
+  m_uiArraySize = 1;
+  m_SampleCount = sampleCount;
+  m_Format = format;
+  m_Type = ezGALTextureType::Texture2D;
+  m_bAllowShaderResourceView = true;
+  m_bAllowUAV = false;
+  m_bCreateRenderTarget = true;
+  m_bAllowDynamicMipGeneration = false;
+  m_ResourceAccess.m_bReadBack = false;
+  m_ResourceAccess.m_bImmutable = true;
+  m_pExisitingNativeObject = nullptr;
+}
 
-ezGALResourceViewCreationDescription::ezGALResourceViewCreationDescription()
+
+inline ezGALResourceViewCreationDescription::ezGALResourceViewCreationDescription()
   : m_hTexture(),
     m_hBuffer(),
     m_OverrideViewFormat(ezGALResourceFormat::Invalid),
@@ -124,7 +144,7 @@ ezGALResourceViewCreationDescription::ezGALResourceViewCreationDescription()
 }
 
 
-ezGALRenderTargetViewCreationDescription::ezGALRenderTargetViewCreationDescription()
+inline ezGALRenderTargetViewCreationDescription::ezGALRenderTargetViewCreationDescription()
   : ezHashableStruct(),
     m_hTexture(),
     m_OverrideViewFormat(ezGALResourceFormat::Invalid),
@@ -135,7 +155,7 @@ ezGALRenderTargetViewCreationDescription::ezGALRenderTargetViewCreationDescripti
 {
 }
 
-ezGALVertexAttribute::ezGALVertexAttribute()
+EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute()
   : m_eSemantic(ezGALVertexAttributeSemantic::Position),
   m_eFormat(ezGALResourceFormat::XYZFloat),
   m_uiOffset(0),
@@ -144,7 +164,7 @@ ezGALVertexAttribute::ezGALVertexAttribute()
 {
 }
 
-ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
+EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
   : m_eSemantic(eSemantic),
     m_eFormat(eFormat),
     m_uiOffset(uiOffset),
@@ -153,7 +173,7 @@ ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eS
 {
 }
 
-ezGALRasterizerStateCreationDescription::ezGALRasterizerStateCreationDescription()
+inline ezGALRasterizerStateCreationDescription::ezGALRasterizerStateCreationDescription()
   : m_CullMode(ezGALCullMode::Back),
     m_iDepthBias(0),
     m_fDepthBiasClamp(0.0f),
@@ -164,7 +184,7 @@ ezGALRasterizerStateCreationDescription::ezGALRasterizerStateCreationDescription
 {
 }
 
-ezGALStencilOpDescription::ezGALStencilOpDescription()
+inline ezGALStencilOpDescription::ezGALStencilOpDescription()
   : m_FailOp(ezGALStencilOp::Keep),
     m_DepthFailOp(ezGALStencilOp::Keep),
     m_PassOp(ezGALStencilOp::Keep),
@@ -172,7 +192,7 @@ ezGALStencilOpDescription::ezGALStencilOpDescription()
 {
 }
 
-ezGALDepthStencilStateCreationDescription::ezGALDepthStencilStateCreationDescription()
+inline ezGALDepthStencilStateCreationDescription::ezGALDepthStencilStateCreationDescription()
   : m_DepthTestFunc(ezGALCompareFunc::Less),
     m_bSeparateFrontAndBack(false),
     m_bDepthTest(true),
@@ -183,7 +203,7 @@ ezGALDepthStencilStateCreationDescription::ezGALDepthStencilStateCreationDescrip
 {
 }
 
-ezGALSamplerStateCreationDescription::ezGALSamplerStateCreationDescription()
+inline ezGALSamplerStateCreationDescription::ezGALSamplerStateCreationDescription()
   : m_MinFilter(ezGALTextureFilterMode::Linear),
     m_MagFilter(ezGALTextureFilterMode::Linear),
     m_MipFilter(ezGALTextureFilterMode::Linear),

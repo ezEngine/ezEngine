@@ -57,22 +57,15 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
   {
     if (const ezGALRenderTargetView* pTargetView = pDevice->GetRenderTargetView(view.GetRenderTargetSetup().GetRenderTarget(0)))
     {
-      if (const ezGALTexture* pTexture = pDevice->GetTexture(pTargetView->GetDescription().m_hTexture))
+      const ezGALTexture* pTexture = pTargetView->GetTexture();
+      const ezGALTextureCreationDescription& desc = pTexture->GetDescription();
+      if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
       {
-        const ezGALTextureCreationDescription& desc = pTexture->GetDescription();
-        if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
-        {
-          ezLog::Error("Render target sizes don't match");
-          return false;
-        }
-
-        outputs[m_PinOutput.m_uiOutputIndex] = desc;
-        outputs[m_PinOutput.m_uiOutputIndex].m_bCreateRenderTarget = true;
-        outputs[m_PinOutput.m_uiOutputIndex].m_bAllowShaderResourceView = true;
-        outputs[m_PinOutput.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
-        outputs[m_PinOutput.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
-        outputs[m_PinOutput.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
+        ezLog::Error("Render target sizes don't match");
+        return false;
       }
+
+      outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(desc.m_uiWidth, desc.m_uiHeight, desc.m_Format);
     }
     else
     {

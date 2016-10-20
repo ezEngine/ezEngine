@@ -39,12 +39,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAlloca
 
     EZ_ENUM_MEMBER_PROPERTY("Channel Mapping", ezChannelMappingEnum, m_ChannelMapping),
 
-    EZ_ACCESSOR_PROPERTY("Input 1", GetInputFile0, SetInputFile0)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
-    EZ_ACCESSOR_PROPERTY("Input 2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
-    EZ_ACCESSOR_PROPERTY("Input 3", GetInputFile2, SetInputFile2)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
-    EZ_ACCESSOR_PROPERTY("Input 4", GetInputFile3, SetInputFile3)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
-    EZ_ACCESSOR_PROPERTY("Input 5", GetInputFile4, SetInputFile4)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
-    EZ_ACCESSOR_PROPERTY("Input 6", GetInputFile5, SetInputFile5)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
+    EZ_ACCESSOR_PROPERTY("Input 1", GetInputFile0, SetInputFile0)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png")),
+    EZ_ACCESSOR_PROPERTY("Input 2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png")),
+    EZ_ACCESSOR_PROPERTY("Input 3", GetInputFile2, SetInputFile2)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png")),
+    EZ_ACCESSOR_PROPERTY("Input 4", GetInputFile3, SetInputFile3)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png")),
+    EZ_ACCESSOR_PROPERTY("Input 5", GetInputFile4, SetInputFile4)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png")),
+    EZ_ACCESSOR_PROPERTY("Input 6", GetInputFile5, SetInputFile5)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png")),
 
   }
   EZ_END_PROPERTIES
