@@ -35,7 +35,7 @@ struct ezNodeFlags
 class EZ_GUIFOUNDATION_DLL ezQtNode : public QGraphicsPathItem
 {
 public:
-  explicit ezQtNode(QGraphicsItem* parent = nullptr);
+  ezQtNode();
   ~ezQtNode();
   virtual int type() const override { return ezQtNodeScene::Node; }
 
@@ -54,6 +54,9 @@ protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
+  QColor m_HeaderColor;
+  QGraphicsTextItem* m_pLabel;
+
 private:
   const ezDocumentNodeManager* m_pManager;
   const ezDocumentObject* m_pObject;
@@ -62,7 +65,6 @@ private:
   // Header
   QRectF m_HeaderRect;
   QGraphicsDropShadowEffect* m_pShadow;
-  QGraphicsTextItem* m_pLabel;
 
   // Pins
   ezHybridArray<ezQtPin*, 6> m_Inputs;

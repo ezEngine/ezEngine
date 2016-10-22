@@ -27,89 +27,90 @@ SourceBlend0 = Blend_SrcAlpha
 
 struct PS_IN
 {
-	float4 Position : SV_Position;
-	float2 TexCoord0 : TEXCOORD0;
-	
-	#if MSAA
-		uint SampleIndex : SV_SampleIndex;
-	#endif
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+
+  #if MSAA
+    uint SampleIndex : SV_SampleIndex;
+  #endif
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 #if MSAA
-	Texture2DMS<float> SelectionDepthTexture;
-	Texture2DMS<float> SceneDepthTexture;
-	
-	#define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0), input.SampleIndex).r
-	
+  Texture2DMS<float> SelectionDepthTexture;
+  Texture2DMS<float> SceneDepthTexture;
+
+  #define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0), input.SampleIndex).r
+
 #else
-	Texture2D SelectionDepthTexture;
-	Texture2D SceneDepthTexture;
-	
-	#define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0)).r
-	
+  Texture2D SelectionDepthTexture;
+  Texture2D SceneDepthTexture;
+
+  #define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0)).r
+
 #endif
 
 float4 main(PS_IN Input) : SV_Target
 {
-	int2 coords = Input.Position.xy;
-	float depth = SampleDepth(SelectionDepthTexture, coords, Input);
+  int2 coords = Input.Position.xy;
+  float depth = SampleDepth(SelectionDepthTexture, coords, Input);
 
-	float3 selectionColor = float3(0.4, 0.55, 1);
+  // maybe we should expose this color
+  float3 selectionColor = float3(177.0 / 255.0, 135.0 / 255.0, 27.0 / 255.0);
 
-	if (depth == 1.0f)
-	{
-		float avgEdgeDistance = 0.0f;
-		float validSampleCount = 0.0f;
+  if (depth == 1.0f)
+  {
+    float avgEdgeDistance = 0.0f;
+    float validSampleCount = 0.0f;
 
-		[unroll]
-		for (int y = -3; y <= 3; y++)
-		{
-			if (y == 0)
-				continue;
+    [unroll]
+    for (int y = -3; y <= 3; y++)
+    {
+      if (y == 0)
+        continue;
 
-			[unroll]
-			for (int x = -3; x <= 3; x++)
-			{
-				if (x == 0)
-					continue;
+      [unroll]
+      for (int x = -3; x <= 3; x++)
+      {
+        if (x == 0)
+          continue;
 
-				int edgeDistanceSqr = x*x + y*y;
-				if (edgeDistanceSqr > 9)
-					continue;
+        int edgeDistanceSqr = x*x + y*y;
+        if (edgeDistanceSqr > 9)
+          continue;
 
-				int2 currentCoords = coords + int2(x, y);
-				float currentDepth = SampleDepth(SelectionDepthTexture, currentCoords, Input);
+        int2 currentCoords = coords + int2(x, y);
+        float currentDepth = SampleDepth(SelectionDepthTexture, currentCoords, Input);
 
-				if (currentDepth > 0.0f && currentDepth < 1.0f)
-				{
-					avgEdgeDistance += sqrt((float)edgeDistanceSqr);
-					validSampleCount += 1.0f;
-				}
-			}
-		}
+        if (currentDepth > 0.0f && currentDepth < 1.0f)
+        {
+          avgEdgeDistance += sqrt((float)edgeDistanceSqr);
+          validSampleCount += 1.0f;
+        }
+      }
+    }
 
-		if (validSampleCount == 0.0f)
-		{
-			discard;
-		}
+    if (validSampleCount == 0.0f)
+    {
+      discard;
+    }
 
-		float x = (avgEdgeDistance / validSampleCount) - 2.0f;
+    float x = (avgEdgeDistance / validSampleCount) - 2.0f;
 
-		float edgeOpacity = saturate((x * x) * -1.0f + 1.0f);
-		return float4(selectionColor, edgeOpacity);
-	}
-	else
-	{
-		float sceneDepth = SampleDepth(SceneDepthTexture, coords, Input);
-		if (sceneDepth + 0.001f < depth)
-		{
-			discard;
-		}
+    float edgeOpacity = saturate((x * x) * -1.0f + 1.0f);
+    return float4(selectionColor, edgeOpacity);
+  }
+  else
+  {
+    float sceneDepth = SampleDepth(SceneDepthTexture, coords, Input);
+    if (sceneDepth + 0.001f < depth)
+    {
+      discard;
+    }
 
-		return float4(selectionColor, 0.1);
-	}
+    return float4(selectionColor, 0.1);
+  }
 }
 
 #endif

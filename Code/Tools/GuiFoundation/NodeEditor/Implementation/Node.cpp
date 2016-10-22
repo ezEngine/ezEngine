@@ -15,7 +15,7 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-ezQtNode::ezQtNode(QGraphicsItem* parent) : QGraphicsPathItem(parent), m_pManager(nullptr), m_pObject(nullptr)
+ezQtNode::ezQtNode() : m_pManager(nullptr), m_pObject(nullptr)
 {
   auto palette = QApplication::palette();
 
@@ -41,6 +41,8 @@ ezQtNode::ezQtNode(QGraphicsItem* parent) : QGraphicsPathItem(parent), m_pManage
     m_pShadow->setBlurRadius(10);
     setGraphicsEffect(m_pShadow);
   }
+
+  m_HeaderColor = palette.alternateBase().color();
 }
 
 ezQtNode::~ezQtNode()
@@ -81,7 +83,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
   for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
   {
     ezQtPin* pQtPin = m_Outputs[i];
-   
+
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
 
@@ -103,6 +105,13 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     p.addRoundedRect(-5, -5, w + 10, y + 10, 5, 5);
     setPath(p);
   }
+
+  const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>();
+  if (pColorAttr)
+  {
+    ezColorGammaUB col = pColorAttr->GetColor();
+    m_HeaderColor = qRgb(col.r, col.g, col.b);
+  }
 }
 
 void ezQtNode::CreatePins()
@@ -114,8 +123,9 @@ void ezQtNode::CreatePins()
     ezQtPin* pQtPin = ezQtNodeScene::GetPinFactory().CreateObject(pPinTarget->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
-      pQtPin = new ezQtPin(this);
+      pQtPin = new ezQtPin();
     }
+    pQtPin->setParentItem(this);
     m_Inputs.PushBack(pQtPin);
 
     pQtPin->SetPin(pPinTarget);
@@ -128,8 +138,10 @@ void ezQtNode::CreatePins()
     ezQtPin* pQtPin = ezQtNodeScene::GetPinFactory().CreateObject(pPinSource->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
-      pQtPin = new ezQtPin(this);
+      pQtPin = new ezQtPin();
     }
+
+    pQtPin->setParentItem(this);
     m_Outputs.PushBack(pQtPin);
 
     pQtPin->SetPin(pPinSource);
@@ -178,19 +190,23 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   // Draw header
   painter->setClipPath(path());
   painter->setPen(QPen(Qt::NoPen));
-  if (isSelected())
-  {
-    painter->setBrush(palette.highlight());
-  }
-  else
-  {
-    painter->setBrush(palette.alternateBase());
-  }
+  painter->setBrush(m_HeaderColor);
   painter->drawRect(m_HeaderRect);
   painter->setClipping(false);
 
   // Draw outline
-  painter->setPen(pen());
+
+  if (isSelected())
+  {
+    QPen p = pen();
+    p.setColor(palette.highlight().color());
+    painter->setPen(p);
+  }
+  else
+  {
+    painter->setPen(pen());
+  }
+
   painter->setBrush(QBrush(Qt::NoBrush));
   painter->drawPath(path());
 }

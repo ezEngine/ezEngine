@@ -4,7 +4,7 @@
 #include <QApplication>
 #include <QPalette>
 
-ezQtPin::ezQtPin(QGraphicsItem* parent) : QGraphicsPathItem(parent)
+ezQtPin::ezQtPin()
 {
   auto palette = QApplication::palette();
 
@@ -28,8 +28,7 @@ void ezQtPin::AddConnection(ezQtConnection* pConnection)
   EZ_ASSERT_DEBUG(!m_Connections.Contains(pConnection), "Connection already present!");
   m_Connections.PushBack(pConnection);
 
-  auto palette = QApplication::palette();
-  setBrush(palette.highlightedText());
+  ConnectedStateChanged(true);
   UpdateConnections();
 }
 
@@ -39,12 +38,26 @@ void ezQtPin::RemoveConnection(ezQtConnection* pConnection)
   m_Connections.RemoveSwap(pConnection);
 
   if (m_Connections.IsEmpty())
+    ConnectedStateChanged(false);
+
+  UpdateConnections();
+}
+
+void ezQtPin::ConnectedStateChanged(bool bConnected)
+{
+  if (bConnected)
+  {
+    auto palette = QApplication::palette();
+    setBrush(palette.highlightedText());
+  }
+  else
   {
     auto palette = QApplication::palette();
     setBrush(palette.base());
   }
-  UpdateConnections();
 }
+
+
 
 void ezQtPin::SetPin(const ezPin* pPin)
 {

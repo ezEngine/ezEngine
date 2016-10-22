@@ -14,11 +14,15 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <SharedPluginAssets/Common/Messages.h>
+#include <VisualShader/VisualShaderScene.moc.h>
+#include <GuiFoundation/NodeEditor/NodeView.moc.h>
+#include <QSplitter>
+#include <QTimer>
 
 ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {
-
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
 
   // Menu Bar
   {
@@ -40,16 +44,30 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     addToolBar(pToolBar);
   }
 
-  // 3D View
+  QSplitter* pSplitter = new QSplitter(Qt::Orientation::Vertical, this);
+
   {
-    SetTargetFramerate(25);
+    // 3D View
+    {
+      SetTargetFramerate(25);
 
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
-    m_ViewConfig.ApplyPerspectiveSetting(90);
+      m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+      m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MaterialAssetViewToolBar");
-    setCentralWidget(pContainer);
+      m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
+      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(pSplitter, m_pViewWidget, "MaterialAssetViewToolBar");
+      pSplitter->addWidget(pContainer);
+    }
+
+    {
+      m_pScene = new ezQtVisualShaderScene(this);
+      m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+      m_pNodeView = new ezQtNodeView(pSplitter);
+      m_pNodeView->SetScene(m_pScene);
+      pSplitter->addWidget(m_pNodeView);
+    }
+
+    setCentralWidget(pSplitter);
   }
 
   // Property Grid
@@ -70,12 +88,16 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
   FinishWindowCreation();
 
   UpdatePreview();
+
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  m_pNodeView->setVisible(bCustom);
 }
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 {
   RestoreResource();
 
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 }
 
@@ -123,7 +145,33 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
 
 void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
+  if (e.m_pObject == GetMaterialDocument()->GetPropertyObject() && e.m_sProperty == "Shader Mode")
+  {
+    if (e.m_NewValue.ConvertTo<ezInt64>() == ezMaterialShaderMode::File)
+    {
+      m_pNodeView->setVisible(false);
+    }
+    else
+    {
+      m_pNodeView->setVisible(true);
+    }
+  }
+
   UpdatePreview();
+}
+
+
+void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+{
+  if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  {
+    // delayed execution
+    QTimer::singleShot(1, [this]()
+    {
+      GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject());
+    });
+
+  }
 }
 
 void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()

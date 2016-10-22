@@ -10,6 +10,9 @@ class QScrollArea;
 class ezQtImageWidget;
 class ezMaterialAssetDocument;
 class ezQtMaterialViewWidget;
+class ezQtVisualShaderScene;
+class ezQtNodeView;
+struct ezSelectionManagerEvent;
 
 class ezQtMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -28,9 +31,12 @@ protected:
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void SendRedrawMsg();
   void RestoreResource();
 
   ezSceneViewConfig m_ViewConfig;
   ezQtMaterialViewWidget* m_pViewWidget;
+  ezQtVisualShaderScene* m_pScene;
+  ezQtNodeView* m_pNodeView;
 };

@@ -20,6 +20,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorAttribute, 1, ezRTTIDefaultAllocator<ezColorAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Color", m_Color),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSuffixAttribute, 1, ezRTTIDefaultAllocator<ezSuffixAttribute>)
 {
   EZ_BEGIN_PROPERTIES

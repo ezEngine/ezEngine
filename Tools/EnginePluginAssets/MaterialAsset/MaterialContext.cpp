@@ -113,10 +113,11 @@ void ezMaterialContext::OnInitialize()
 
   ezGameObjectDesc obj;
   ezGameObject* pObj;
-  
+
   // Preview Mesh
   {
     obj.m_sName.Assign("MaterialPreview");
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
     pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;

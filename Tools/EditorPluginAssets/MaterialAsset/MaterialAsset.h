@@ -1,8 +1,24 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <VisualShader/VisualShaderNodeManager.h>
 
 class ezMaterialAssetDocument;
+
+struct ezMaterialShaderMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    File,
+    Custom,
+
+    Default = File
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialShaderMode);
 
 class ezMaterialAssetProperties : public ezReflectedClass
 {
@@ -17,6 +33,8 @@ public:
   const char* GetShader() const;
   void SetShaderProperties(ezReflectedClass* pProperties);
   ezReflectedClass* GetShaderProperties() const;
+  void SetShaderMode(ezEnum<ezMaterialShaderMode> mode);
+  ezEnum<ezMaterialShaderMode> GetShaderMode() const { return m_ShaderMode; }
 
   void SetDocument(ezMaterialAssetDocument* pDocument);
   void UpdateShader(bool bForce = false);
@@ -28,12 +46,15 @@ public:
   void LoadOldValues();
   const ezRTTI* UpdateShaderType(const char* szShaderPath);
 
+  ezString GetFinalShader() const;
+
 public:
   ezString m_sBaseMaterial;
   ezString m_sShader;
 
   ezMap<ezString, ezVariant> m_CachedProperties;
   ezMaterialAssetDocument* m_pDocument;
+  ezEnum<ezMaterialShaderMode> m_ShaderMode;
 };
 
 class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProperties>
@@ -62,4 +83,11 @@ protected:
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
+  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
+  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
+  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
+};
+
+class ezMaterialObjectManager : public ezVisualShaderNodeManager
+{
 };

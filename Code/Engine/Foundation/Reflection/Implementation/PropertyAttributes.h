@@ -25,7 +25,7 @@ class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
 };
 
-/// \brief Used to categorize types (e.g. add component menu) 
+/// \brief Used to categorize types (e.g. add component menu)
 class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAttribute, ezPropertyAttribute);
@@ -41,6 +41,24 @@ public:
 
 private:
   ezString m_sCategory;
+};
+
+/// \brief Used to colorize types
+class EZ_FOUNDATION_DLL ezColorAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezColorAttribute, ezPropertyAttribute);
+
+public:
+  ezColorAttribute() {}
+  ezColorAttribute(ezColor color)
+  {
+    m_Color = color;
+  }
+
+  ezColor GetColor() const { return m_Color; }
+
+private:
+  ezColor m_Color;
 };
 
 /// \brief Used for any property shown as a line edit (int, float, vector etc).

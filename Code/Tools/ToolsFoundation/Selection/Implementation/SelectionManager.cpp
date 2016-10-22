@@ -55,15 +55,18 @@ bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObject* pO
 
 void ezSelectionManager::Clear()
 {
-  m_SelectionList.Clear();
-  m_SelectionSet.Clear();
+  if (!m_SelectionList.IsEmpty() || !m_SelectionSet.IsEmpty())
+  {
+    m_SelectionList.Clear();
+    m_SelectionSet.Clear();
 
-  ezSelectionManagerEvent e;
-  e.m_pDocument = m_pDocument;
-  e.m_pObject = nullptr;
-  e.m_Type = ezSelectionManagerEvent::Type::SelectionCleared;
+    ezSelectionManagerEvent e;
+    e.m_pDocument = m_pDocument;
+    e.m_pObject = nullptr;
+    e.m_Type = ezSelectionManagerEvent::Type::SelectionCleared;
 
-  m_Events.Broadcast(e);
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezSelectionManager::AddObject(const ezDocumentObject* pObject)

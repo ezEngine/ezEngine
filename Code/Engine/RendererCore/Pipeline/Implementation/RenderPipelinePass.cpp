@@ -14,6 +14,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
     EZ_SET_ACCESSOR_PROPERTY("Renderers", GetRenderers, AddRenderer, RemoveRenderer)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezColorAttribute(ezColorGammaUB(64, 32, 96))
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 

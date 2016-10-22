@@ -12,7 +12,11 @@ public:
   ezSimpleAssetDocument(const char* szDocumentPath, bool bUseEngineConnection = false, bool bUseIPCObjectMirror = false)
     : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), bUseEngineConnection, bUseIPCObjectMirror)
   {
+  }
 
+  ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, bool bUseEngineConnection = false, bool bUseIPCObjectMirror = false)
+    : ezAssetDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
+  {
   }
 
   ~ezSimpleAssetDocument()
@@ -107,9 +111,9 @@ private:
     }
   }
 
-  virtual ezDocumentInfo* CreateDocumentInfo() override 
-  { 
-    return EZ_DEFAULT_NEW(ezAssetDocumentInfo); 
+  virtual ezDocumentInfo* CreateDocumentInfo() override
+  {
+    return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
   }
 
 private:

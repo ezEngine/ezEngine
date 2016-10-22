@@ -37,7 +37,7 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
 
   m_pScene = new ezQtRenderPipelineAssetScene(this);
   m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
-  ezQtNodeView* m_pView = new ezQtNodeView(this);
+  m_pView = new ezQtNodeView(this);
   m_pView->SetScene(m_pScene);
   setCentralWidget(m_pView);
 

@@ -10,7 +10,7 @@ class ezQtConnection;
 class EZ_GUIFOUNDATION_DLL ezQtPin : public QGraphicsPathItem
 {
 public:
-  explicit ezQtPin(QGraphicsItem* parent = 0);
+  ezQtPin();
   ~ezQtPin();
   virtual int type() const override { return ezQtNodeScene::Pin; }
 
@@ -20,6 +20,7 @@ public:
 
   const ezPin* GetPin() const { return m_pPin; }
   virtual void SetPin(const ezPin* pPin);
+  virtual void ConnectedStateChanged(bool bConnected);
 
   virtual QPointF GetPinPos() const;
   virtual QPointF GetPinDir() const;
@@ -34,4 +35,4 @@ private:
   QPointF m_PinCenter;
   const ezPin* m_pPin;
   QGraphicsTextItem* m_pLabel;
-}; 
+};

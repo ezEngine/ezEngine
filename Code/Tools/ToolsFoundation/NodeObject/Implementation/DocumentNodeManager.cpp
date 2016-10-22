@@ -71,7 +71,7 @@ ezDocumentNodeManager::~ezDocumentNodeManager()
   m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentNodeManager::StructureEventHandler, this));
 
   EZ_ASSERT_DEV(m_PinsToConnection.IsEmpty(), "Not all pins have been destroyed!");
-  
+
 }
 
 void ezDocumentNodeManager::DestroyAllObjects()
@@ -153,8 +153,13 @@ bool ezDocumentNodeManager::IsNode(const ezDocumentObject* pObject) const
 
 ezStatus ezDocumentNodeManager::CanConnect(const ezPin* pSource, const ezPin* pTarget) const
 {
-  EZ_ASSERT_DEV(pSource != nullptr, "Invalid input!");
-  EZ_ASSERT_DEV(pTarget != nullptr, "Invalid input!");
+  // apparently this can happen when the types change
+  if (pSource == nullptr || pTarget == nullptr)
+    return ezStatus("Invalid inputs");
+
+  //EZ_ASSERT_DEV(pSource != nullptr, "Invalid input!");
+  //EZ_ASSERT_DEV(pTarget != nullptr, "Invalid input!");
+
   if (pSource->m_Type != ezPin::Type::Output)
     return ezStatus("Source pin is not an output pin!");
   if (pTarget->m_Type != ezPin::Type::Input)
@@ -275,7 +280,7 @@ void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& gr
         auto connections = pPinSource->GetConnections();
         for (const ezConnection* pConnection : connections)
         {
-          const ezPin* pPinTarget = pConnection->m_pTargetPin;      
+          const ezPin* pPinTarget = pConnection->m_pTargetPin;
           data.m_Connections.PushBack(ConnectionInternal(pPinSource->GetName(), pPinTarget->GetParent()->GetGuid(), pPinTarget->GetName()));
         }
       }
@@ -292,7 +297,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
 
   auto pType = ezGetStaticRTTI<NodeDataInternal>();
   NodeDataInternal data;
-  
+
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
 
@@ -307,6 +312,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
     {
       if (IsNode(pObject))
       {
+        data.m_NodePos.SetZero();
         data.m_Connections.Clear();
         rttiConverter.ApplyPropertiesToObject(pNode, pType, &data);
 
@@ -356,8 +362,8 @@ void ezDocumentNodeManager::ObjectHandler(const ezDocumentObjectEvent& e)
       {
         auto it = m_ObjectToNode.Find(e.m_pObject->GetGuid());
         EZ_ASSERT_DEBUG(it.IsValid(), "Sanity check failed!");
-        
-        InternalDestroyPins(e.m_pObject, it.Value());       
+
+        InternalDestroyPins(e.m_pObject, it.Value());
         m_ObjectToNode.Remove(e.m_pObject->GetGuid());
       }
     }

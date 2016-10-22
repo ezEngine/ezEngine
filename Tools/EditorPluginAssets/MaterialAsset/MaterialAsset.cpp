@@ -15,11 +15,16 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
+EZ_ENUM_CONSTANTS(ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
+EZ_END_STATIC_REFLECTED_ENUM();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Base Material", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_ENUM_ACCESSOR_PROPERTY("Shader Mode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
@@ -122,7 +127,7 @@ namespace
         sEnumName.Format("%s::Default", def.m_sName.GetData());
 
         descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
-          
+
         for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
         {
           if (enumValues[i].IsEmpty())
@@ -209,7 +214,7 @@ void ezMaterialAssetProperties::SetBaseMaterial(const char* szBaseMaterial)
   if (!m_pDocument)
     return;
   m_pDocument->SetBaseMaterial(m_sBaseMaterial);
-  
+
 }
 
 const char* ezMaterialAssetProperties::GetBaseMaterial() const
@@ -237,6 +242,15 @@ ezReflectedClass* ezMaterialAssetProperties::GetShaderProperties() const
 {
   // This property represents the phantom shader type, so it is never actually used.
   return nullptr;
+}
+
+void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
+{
+  m_ShaderMode = mode;
+
+  // TODO: change shader to custom result
+
+  UpdateShader();
 }
 
 void ezMaterialAssetProperties::SetDocument(ezMaterialAssetDocument* pDocument)
@@ -273,7 +287,7 @@ void ezMaterialAssetProperties::UpdateShader(bool bForce)
 
   // TODO: If m_sShader is empty, we need to get the shader of our base material and use that one instead
   // for the code below. The type name is the clean path to the shader at the moment.
-  ezStringBuilder sShaderPath = m_sShader;
+  ezStringBuilder sShaderPath = GetFinalShader();
   sShaderPath.MakeCleanPath();
 
   if (sShaderPath.IsEmpty())
@@ -416,7 +430,7 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
   {
     ezString sShaderPath = szShaderPath;
     ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sShaderPath);
-      
+
     ezFileReader file;
     if (file.Open(sShaderPath).Failed())
     {
@@ -436,7 +450,7 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
 
   for (auto& parameter : parameters)
   {
-    const ezRTTI* pType = GetType(parameter); 
+    const ezRTTI* pType = GetType(parameter);
     if (pType == nullptr)
     {
       continue;
@@ -452,7 +466,7 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
 
     ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, pType->GetTypeName(), flags);
 
-    AddAttributes(parameter, propDesc.m_Attributes);    
+    AddAttributes(parameter, propDesc.m_Attributes);
 
     desc.m_Properties.PushBack(propDesc);
   }
@@ -463,10 +477,19 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
   return pShaderType;
 }
 
+ezString ezMaterialAssetProperties::GetFinalShader() const
+{
+  if (m_ShaderMode == ezMaterialShaderMode::File)
+    return m_sShader;
+
+  // TODO
+  return m_sShader;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezMaterialAssetProperties>(szDocumentPath, true)
+  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, true)
 {
 }
 
@@ -597,7 +620,7 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
     {
       if (op.m_sProperty == "Shader" || op.m_sProperty == "ShaderProperties")
         continue;
-      
+
       cleanedDiff.PushBack(op);
     }
   }
@@ -666,6 +689,40 @@ ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ezAssetFileHeade
   return status;
 }
 
+void ezMaterialAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+{
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  if (pManager->IsNode(pObject))
+  {
+    auto outputs = pManager->GetOutputPins(pObject);
+    for (const ezPin* pPinSource : outputs)
+    {
+      auto inputs = pPinSource->GetConnections();
+      for (const ezConnection* pConnection : inputs)
+      {
+        const ezPin* pPinTarget = pConnection->GetTargetPin();
+
+        inout_uiHash = ezHashing::MurmurHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashing::MurmurHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashing::MurmurHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash = ezHashing::MurmurHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+      }
+    }
+  }
+}
+
+void ezMaterialAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
+{
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  pManager->AttachMetaDataBeforeSaving(graph);
+}
+
+void ezMaterialAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+{
+  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  pManager->RestoreMetaDataAfterLoading(graph);
+}
+
 ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
@@ -676,7 +733,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
     stream << uiVersion;
     stream << pProp->m_sBaseMaterial;
-    stream << pProp->m_sShader;
+    stream << pProp->GetFinalShader();
 
     ezHybridArray<ezAbstractProperty*, 16> Textures;
     ezHybridArray<ezAbstractProperty*, 16> Permutation;

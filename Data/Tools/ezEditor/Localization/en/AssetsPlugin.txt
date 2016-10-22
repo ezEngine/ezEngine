@@ -66,3 +66,5 @@ Top (+Y);Top (+Y)
 Bottom (-Y);Bottom (-Y)
 Front (+Z);Front (+Z)
 Back (-Z);Back (-Z)
+ezMaterialShaderMode::File;Shader File
+ezMaterialShaderMode::Custom;Custom Shader

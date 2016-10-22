@@ -19,7 +19,7 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Base, QColor(42, 42, 42, 255));
   palette.setColor(QPalette::Window, QColor(68, 68, 68, 255));
   palette.setColor(QPalette::Shadow, QColor(0, 0, 0, 255));
-  palette.setColor(QPalette::Highlight, QColor(103, 141, 178, 255));
+  palette.setColor(QPalette::Highlight, QColor(177, 135, 27, 255));
   palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255, 255));
   palette.setColor(QPalette::Link, QColor(0, 148, 255, 255));
   palette.setColor(QPalette::LinkVisited, QColor(255, 0, 220, 255));

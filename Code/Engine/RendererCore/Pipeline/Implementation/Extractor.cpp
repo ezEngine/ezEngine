@@ -12,6 +12,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezColorAttribute(ezColorGammaUB(128, 0, 0))
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
