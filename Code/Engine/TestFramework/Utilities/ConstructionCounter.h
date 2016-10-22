@@ -9,43 +9,54 @@ struct ezConstructionCounter
   ezInt32 m_iData;
 
   /// Default Constructor
-  ezConstructionCounter() : m_iData (0) 
-  { 
-    ++s_iConstructions; 
+  ezConstructionCounter() : m_iData (0)
+  {
+    ++s_iConstructions;
   }
 
   /// Constructor with initialization
-  ezConstructionCounter(ezInt32 d) : m_iData (d) 
-  { 
-    ++s_iConstructions; 
+  ezConstructionCounter(ezInt32 d) : m_iData (d)
+  {
+    ++s_iConstructions;
   }
-  
+
   /// Copy Constructor
-  ezConstructionCounter(const ezConstructionCounter& cc) : m_iData(cc.m_iData) 
-  { 
-    ++s_iConstructions; 
+  ezConstructionCounter(const ezConstructionCounter& cc) : m_iData(cc.m_iData)
+  {
+    ++s_iConstructions;
+  }
+
+  /// Move construction counts as a construction as well.
+  ezConstructionCounter(ezConstructionCounter&& cc) : m_iData(cc.m_iData)
+  {
+    ++s_iConstructions;
   }
 
   /// Destructor
   ~ezConstructionCounter()
-  { 
-    ++s_iDestructions; 
+  {
+    ++s_iDestructions;
   }
 
   /// Assignment does not change the construction counter, because it is only executed on already constructed objects.
   void operator= (const ezConstructionCounter& cc)
-  { 
-    m_iData = cc.m_iData; 
+  {
+    m_iData = cc.m_iData;
+  }
+  /// Move assignment does not change the construction counter, because it is only executed on already constructed objects.
+  void operator= (const ezConstructionCounter&& cc)
+  {
+    m_iData = cc.m_iData;
   }
 
   bool operator== (const ezConstructionCounter& cc) const
-  { 
-    return m_iData == cc.m_iData; 
+  {
+    return m_iData == cc.m_iData;
   }
 
   bool operator!= (const ezConstructionCounter& cc) const
-  { 
-    return m_iData != cc.m_iData; 
+  {
+    return m_iData != cc.m_iData;
   }
 
   bool operator< (const ezConstructionCounter& rhs) const
