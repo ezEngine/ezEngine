@@ -24,6 +24,32 @@ namespace
 
     EZ_DECLARE_POD_TYPE();
   };
+
+  class OnlyMovable
+  {
+  public:
+    OnlyMovable(ezUInt32 hash) : hash(hash), m_NumTimesMoved(0) {}
+    OnlyMovable(OnlyMovable&& other) { *this = std::move(other); }
+
+    void operator = (OnlyMovable&& other)
+    {
+      hash = other.hash;
+      m_NumTimesMoved = 0;
+      ++other.m_NumTimesMoved;
+    }
+
+    bool operator==(const OnlyMovable& other) const
+    {
+      return hash == other.hash;
+    }
+
+    int m_NumTimesMoved;
+    ezUInt32 hash;
+
+  private:
+    OnlyMovable(const OnlyMovable&);
+    void operator = (const OnlyMovable&);
+  };
 }
 
 template <>
@@ -37,6 +63,20 @@ struct ezHashHelper<Collision>
   EZ_FORCE_INLINE static bool Equal(const Collision& a, const Collision& b)
   {
     return a == b;
+  }
+};
+
+template <>
+struct ezHashHelper<OnlyMovable>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(const OnlyMovable& value)
+  {
+    return value.hash;
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const OnlyMovable& a, const OnlyMovable& b)
+  {
+    return a.hash == b.hash;
   }
 };
 
@@ -64,7 +104,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
     for (ezInt32 i = 0; i < 64; ++i)
     {
       ezInt32 key;
-      
+
       do
       {
         key = rand() % 100000;
@@ -184,6 +224,19 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
     }
   }
 
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Insert")
+  {
+    OnlyMovable noCopyObject(42);
+
+    ezHashSet<OnlyMovable> noCopyKey;
+    //noCopyKey.Insert(noCopyObject); // Should not compile
+    noCopyKey.Insert(std::move(noCopyObject));
+    EZ_TEST_INT(noCopyObject.m_NumTimesMoved, 1);
+    EZ_TEST_BOOL(noCopyKey.Contains(noCopyObject));
+  }
+
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove/Compact")
   {
     ezHashSet<ezInt32> a;
@@ -204,7 +257,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
     {
       EZ_TEST_BOOL(a.Remove(i));
     }
-    
+
     a.Compact();
 
     for (ezInt32 i = 500; i < 1000; ++i)

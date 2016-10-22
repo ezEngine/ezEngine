@@ -117,8 +117,9 @@ public:
 
   /// \brief Inserts the key value pair or replaces value if an entry with the given key already exists.
   ///
-  /// Returns if an existing value was replaced and optionally writes out the old value to out_oldValue.
-  bool Insert(const KeyType& key, const ValueType& value, ValueType* out_oldValue = nullptr); // [tested]
+  /// Returns true if an existing value was replaced and optionally writes out the old value to out_oldValue.
+  template <typename CompatibleKeyType, typename CompatibleValueType>
+  bool Insert(CompatibleKeyType&& key, CompatibleValueType&& value, ValueType* out_oldValue = nullptr); // [tested]
 
   /// \brief Removes the entry with the given key. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
   template <typename CompatibleKeyType>

@@ -7,10 +7,10 @@
 
 /// \brief Implementation of a hashset.
 ///
-/// The hashset stores values by using the hash as an index into the table. 
-/// This implementation uses linear-probing to resolve hash collisions which means all values are stored 
+/// The hashset stores values by using the hash as an index into the table.
+/// This implementation uses linear-probing to resolve hash collisions which means all values are stored
 /// in a linear array.
-/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded, 
+/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded,
 /// which happens when the load gets greater than 60%.
 /// The hash function can be customized by providing a Hasher helper class like ezHashHelper.
 
@@ -54,7 +54,7 @@ public:
 protected:
   /// \brief Creates an empty hashset. Does not allocate any data yet.
   ezHashSetBase(ezAllocatorBase* pAllocator); // [tested]
-  
+
   /// \brief Creates a copy of the given hashset.
   ezHashSetBase(const ezHashSetBase<KeyType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
@@ -77,7 +77,7 @@ public:
 
   /// \brief Tries to compact the hashset to avoid wasting memory.
   ///
-  /// The resulting capacity is at least 'GetCount' (no elements get removed). 
+  /// The resulting capacity is at least 'GetCount' (no elements get removed).
   /// Will deallocate all data, if the hashset is empty.
   void Compact(); // [tested]
 
@@ -91,7 +91,8 @@ public:
   void Clear(); // [tested]
 
   /// \brief Inserts the key. Returns whether the key was already existing.
-  bool Insert(const KeyType& key); // [tested]
+  template <typename CompatibleKeyType>
+  bool Insert(CompatibleKeyType&& key); // [tested]
 
   /// \brief Removes the entry with the given key. Returns if an entry was removed.
   bool Remove(const KeyType& key); // [tested]
@@ -115,16 +116,16 @@ private:
 
   ezUInt32 m_uiCount;
   ezUInt32 m_uiCapacity;
-  
+
   ezAllocatorBase* m_pAllocator;
 
-  enum 
-  { 
+  enum
+  {
     FREE_ENTRY = 0,
     VALID_ENTRY = 1,
     DELETED_ENTRY = 2,
     FLAGS_MASK = 3,
-    CAPACITY_ALIGNMENT = 32 
+    CAPACITY_ALIGNMENT = 32
   };
 
   void SetCapacity(ezUInt32 uiCapacity);

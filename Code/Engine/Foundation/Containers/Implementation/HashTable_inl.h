@@ -259,7 +259,8 @@ void ezHashTableBase<K, V, H>::Clear()
 }
 
 template <typename K, typename V, typename H>
-bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldValue /*= nullptr*/)
+template <typename CompatibleKeyType, typename CompatibleValueType>
+bool ezHashTableBase<K, V, H>::Insert(CompatibleKeyType&& key, CompatibleValueType&& value, V* out_oldValue /*= nullptr*/)
 {
   Reserve(m_uiCount + 1);
 
@@ -279,7 +280,7 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
       if (out_oldValue != nullptr)
         *out_oldValue = std::move(m_pEntries[uiIndex].value);
 
-      m_pEntries[uiIndex].value = value;
+      m_pEntries[uiIndex].value = std::forward<CompatibleValueType>(value); // Either move or copy assignment.
       return true;
     }
     ++uiIndex;
@@ -292,8 +293,12 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
   // new entry
   uiIndex = uiDeletedIndex != ezInvalidIndex ? uiDeletedIndex : uiIndex;
 
-  ezMemoryUtils::CopyConstruct(&m_pEntries[uiIndex].key, &key, 1);
-  ezMemoryUtils::CopyConstruct(&m_pEntries[uiIndex].value, &value, 1);
+  // Both constructions might either be a move or a copy.
+  // Can't use ezMemoryUtils here therefore.
+  // Note that the only difference (as of writing) is the use of implace construction instead of assignment for ezPodType.
+  ::new (&m_pEntries[uiIndex].key) K(std::forward<CompatibleKeyType>(key));
+  ::new (&m_pEntries[uiIndex].value) V(std::forward<CompatibleValueType>(value));
+
   MarkEntryAsValid(uiIndex);
   ++m_uiCount;
 
@@ -454,7 +459,7 @@ void ezHashTableBase<K, V, H>::SetCapacity(ezUInt32 uiCapacity)
   {
     if (GetFlags(pOldEntryFlags, i) == VALID_ENTRY)
     {
-      EZ_VERIFY(!Insert(pOldEntries[i].key, pOldEntries[i].value), "Implementation error");
+      EZ_VERIFY(!Insert(std::move(pOldEntries[i].key), std::move(pOldEntries[i].value)), "Implementation error");
 
       ezMemoryUtils::Destruct(&pOldEntries[i].key, 1);
       ezMemoryUtils::Destruct(&pOldEntries[i].value, 1);

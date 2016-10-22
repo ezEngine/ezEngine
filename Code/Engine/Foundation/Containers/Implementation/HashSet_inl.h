@@ -195,7 +195,8 @@ void ezHashSetBase<K, H>::Clear()
 }
 
 template <typename K, typename H>
-bool ezHashSetBase<K, H>::Insert(const K& key)
+template <typename CompatibleKeyType>
+bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
 {
   Reserve(m_uiCount + 1);
 
@@ -224,7 +225,11 @@ bool ezHashSetBase<K, H>::Insert(const K& key)
   // new entry
   uiIndex = uiDeletedIndex != ezInvalidIndex ? uiDeletedIndex : uiIndex;
 
-  ezMemoryUtils::CopyConstruct(&m_pEntries[uiIndex], &key, 1);
+  // Constructions might either be a move or a copy.
+  // Can't use ezMemoryUtils here therefore.
+  // Note that the only difference (as of writing) is the use of implace construction instead of assignment for ezPodType.
+  ::new (&m_pEntries[uiIndex]) K(std::forward<CompatibleKeyType>(key));
+
   MarkEntryAsValid(uiIndex);
   ++m_uiCount;
 
@@ -238,7 +243,7 @@ bool ezHashSetBase<K, H>::Remove(const K& key)
   if (uiIndex != ezInvalidIndex)
   {
     ezMemoryUtils::Destruct(&m_pEntries[uiIndex], 1);
-    
+
     ezUInt32 uiNextIndex = uiIndex + 1;
     if (uiNextIndex == m_uiCapacity)
       uiNextIndex = 0;
@@ -317,7 +322,7 @@ void ezHashSetBase<K, H>::SetCapacity(ezUInt32 uiCapacity)
   {
     if (GetFlags(pOldEntryFlags, i) == VALID_ENTRY)
     {
-      EZ_VERIFY(!Insert(pOldEntries[i]), "Implementation error");
+      EZ_VERIFY(!Insert(std::move(pOldEntries[i])), "Implementation error");
 
       ezMemoryUtils::Destruct(&pOldEntries[i], 1);
     }
