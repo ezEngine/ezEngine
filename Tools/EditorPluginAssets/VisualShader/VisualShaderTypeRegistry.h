@@ -9,10 +9,16 @@
 class ezVisualShaderPinDescriptor
 {
 public:
+  ezVisualShaderPinDescriptor()
+  {
+    m_bExposeAsProperty = false;
+  }
+
   ezString m_sName;
   const ezRTTI* m_pDataType;
   ezReflectedPropertyDescriptor m_PropertyDesc;
   ezColorGammaUB m_Color;
+  bool m_bExposeAsProperty;
   ezVariant m_DefaultValue;
 };
 
@@ -67,6 +73,13 @@ private:
 
   void LoadNodeData();
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc) const;
+  void LoadConfigFile(const char* szFile);
+
+  void ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray);
+
+  void ExtractNodeProperties(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
+
+  void ExtractNodeConfig(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
 
   ezMap<const ezRTTI*, ezVisualShaderNodeDescriptor> m_NodeDescriptors;
 

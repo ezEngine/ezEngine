@@ -1,0 +1,43 @@
+{
+  "Add" :
+  {
+    "Color" : "1.0, 0.5, 0.0",
+    "NodeType" : "Generic", // "Main",
+    "CodePermutations" : "",
+    "CodeRenderStates" : "",
+    "CodeVertexShader" : "",
+    "CodeMaterialParams" : "",
+    "CodePixelDefines" : "",
+    "CodePixelIncludes" : "",
+    "CodePixelConstants" : "",
+    "CodePixelBody" : "float4 $out0() { return $in0() + $in1(); }",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float4",
+        "Color" : "1, 1, 1",
+        "Expose" : true,
+        "Fallback" : "float4(0, 0, 0, 0)"
+      },
+
+      {
+        "Name" : "b",
+        "Type" : "float4",
+        "Color" : "1, 1, 1",
+        "Expose" : true,
+        "Fallback" : "float4(0, 0, 0, 0)"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "sum",
+        "Type" : "float4",
+        "Color" : "1, 1, 1"
+      }
+    ]
+  }
+}

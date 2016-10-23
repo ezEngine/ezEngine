@@ -4,6 +4,11 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/JSONReader.h>
+#include <Foundation/Logging/Log.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
 
@@ -15,19 +20,19 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
 
   ON_CORE_STARTUP
   {
-    EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
+  EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
 
-    ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
-    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+  ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
+  const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
+  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
   }
 
   ON_CORE_SHUTDOWN
   {
-    ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+  ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
+  EZ_DEFAULT_DELETE(pDummy);
   }
 
   ON_ENGINE_STARTUP
@@ -72,136 +77,23 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
   }
 
   {
-    ezVisualShaderPinDescriptor pin;
+    ezStringBuilder sFile;
 
-    ezVisualShaderNodeDescriptor nd;
-    nd.m_NodeType = ezVisualShaderNodeType::Main;
-    nd.m_sName = "MaterialOutput";
-    nd.m_Color = ezColorGammaUB(92, 30, 123);
-    nd.m_sShaderCodePermutations = "\
-BLEND_MODE\n\
-RENDER_PASS\n\
-SHADING_MODE\n\
-TWO_SIDED\n\
-INSTANCING\n\
-DEFAULT_MAT_USE_BASE_TEXTURE\n\
-DEFAULT_MAT_USE_NORMAL_TEXTURE\n\
-DEFAULT_MAT_USE_METALLIC_TEXTURE\n\
-DEFAULT_MAT_USE_ROUGHNESS_TEXTURE\n\
-";
-    nd.m_sShaderCodeMaterialParams = "\
-Permutation BLEND_MODE;\n\
-Permutation SHADING_MODE;\n\
-Permutation TWO_SIDED;\n\
-";
-    nd.m_sShaderCodeRenderState = "\
-#include <Shaders/Materials/MaterialState.h>\n\
-";
-    nd.m_sShaderCodeVertexShader = "\
-#define USE_NORMAL\n\
-#define USE_TANGENT\n\
-#define USE_TEXCOORD0\n\
-\n\
-#include <Shaders/Materials/DefaultMaterialCB.h>\n\
-#include <Shaders/Materials/MaterialVertexShader.h>\n\
-\n\
-VS_OUT main(VS_IN Input)\n\
-{\n\
-  return FillVertexData(Input);\n\
-}\n\
-";
-    nd.m_sShaderCodePixelDefines = "\
-#define USE_NORMAL\n\
-#define USE_TANGENT\n\
-#define USE_TEXCOORD0\n\
-#define USE_SIMPLE_MATERIAL_MODEL\n\
-";
+    ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+    sSearchDir.AppendPath("VisualShader/*.json");
 
-    nd.m_sShaderCodePixelIncludes = "\
-#include <Shaders/Materials/DefaultMaterialCB.h>\n\
-#include <Shaders/Materials/MaterialPixelShader.h>\n\
-";
-
-    nd.m_sShaderCodePixelBody = "\
-float3 GetNormal(PS_IN Input) { return Input.Normal; }\n\
-float3 GetBaseColor(PS_IN Input) { return $in0.rgb; }\n\
-float GetMetallic(PS_IN Input) { return 0.0; }\n\
-float GetReflectance(PS_IN Input) { return 0.5f; }\n\
-float GetRoughness(PS_IN Input) { return 0.5; }\n\
-float GetOpacity(PS_IN Input) { return 1.0; }\n\
-";
-
+    ezFileSystemIterator it;
+    if (it.StartSearch(sSearchDir, false, false).Succeeded())
     {
-      pin.m_Color = ezColor::White;
-      pin.m_pDataType = ezGetStaticRTTI<ezVec4>();
-      pin.m_sName = "Base Color";
-      pin.m_DefaultValue = ezColor::White;
-      pin.m_PropertyDesc.m_sName = pin.m_sName;
-      pin.m_PropertyDesc.m_Category = ezPropertyCategory::Member;
-      pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
-      pin.m_PropertyDesc.m_sType = ezGetStaticRTTI<ezColor>()->GetTypeName();
+      do
+      {
+        sFile = it.GetCurrentPath();
+        sFile.AppendPath(it.GetStats().m_sFileName);
 
-      nd.m_InputPins.PushBack(pin);
+        LoadConfigFile(sFile);
+      }
+      while (it.Next().Succeeded());
     }
-
-    m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
-  }
-
-  {
-    ezVisualShaderPinDescriptor pin;
-
-    ezVisualShaderNodeDescriptor nd;
-    nd.m_sName = "ConstantColor";
-    nd.m_Color = ezColorGammaUB(140, 13, 38);
-    nd.m_sShaderCodePixelConstants = "static float4 $out0 = $prop0;\nstatic float $out1 = $prop0.x;\nstatic float $out2 = $prop0.y;\nstatic float $out3 = $prop0.z;\nstatic float $out4 = $prop0.w;\n\n";
-    auto& prop0 = nd.m_Properties.ExpandAndGetRef();
-    prop0.m_sName = "Color";
-    prop0.m_Category = ezPropertyCategory::Member;
-    prop0.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
-    prop0.m_sType = ezGetStaticRTTI<ezColor>()->GetTypeName();
-    // TODO: Property default value
-
-    {
-      pin.m_Color = ezColor::White;
-      pin.m_pDataType = ezGetStaticRTTI<ezVec4>();
-      pin.m_sName = "RGBA";
-
-      nd.m_OutputPins.PushBack(pin);
-    }
-
-    {
-      pin.m_Color = ezColor::Red;
-      pin.m_pDataType = ezGetStaticRTTI<float>();
-      pin.m_sName = "Red";
-
-      nd.m_OutputPins.PushBack(pin);
-    }
-
-    {
-      pin.m_Color = ezColor::Lime;
-      pin.m_pDataType = ezGetStaticRTTI<float>();
-      pin.m_sName = "Green";
-
-      nd.m_OutputPins.PushBack(pin);
-    }
-
-    {
-      pin.m_Color = ezColor::Blue;
-      pin.m_pDataType = ezGetStaticRTTI<float>();
-      pin.m_sName = "Blue";
-
-      nd.m_OutputPins.PushBack(pin);
-    }
-
-    {
-      pin.m_Color = ezColorGammaUB(228, 228, 155);
-      pin.m_pDataType = ezGetStaticRTTI<float>();
-      pin.m_sName = "Alpha";
-
-      nd.m_OutputPins.PushBack(pin);
-    }
-
-    m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
   }
 }
 
@@ -237,5 +129,280 @@ const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualSha
   }
 
   return ezPhantomRttiManager::RegisterType(desc);
+}
+
+void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
+{
+  EZ_LOG_BLOCK("Loading Visual Shader Config", szFile);
+
+  ezFileReader file;
+  if (file.Open(szFile).Failed())
+  {
+    ezLog::Error("Failed to open Visual Shader config file '%s'", szFile);
+    return;
+  }
+
+  ezJSONReader json;
+  json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
+
+  if (json.Parse(file).Failed())
+  {
+    ezLog::Error("Failed to parse Visual Shader config file '%s'", szFile);
+    return;
+  }
+
+  const ezVariantDictionary& top = json.GetTopLevelObject();
+
+  for (auto itTop = top.GetIterator(); itTop.IsValid(); ++itTop)
+  {
+    const ezVariant& varNode = itTop.Value();
+    if (!varNode.IsA<ezVariantDictionary>())
+    {
+      ezLog::Error("Block '%s' is not a dictionary", itTop.Key().GetData());
+      continue;
+    }
+
+    const ezVariantDictionary& varNodeDict = varNode.Get<ezVariantDictionary>();
+
+    ezVisualShaderNodeDescriptor nd;
+    nd.m_sName = itTop.Key();
+
+    ExtractNodeConfig(varNodeDict, nd);
+    ExtractNodeProperties(varNodeDict, nd);
+    ExtractNodePins(varNodeDict, "InputPins", nd.m_InputPins);
+    ExtractNodePins(varNodeDict, "OutputPins", nd.m_OutputPins);
+
+    m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
+  }
+}
+
+
+void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray)
+{
+  ezVariant varValue;
+  if (varNodeDict.TryGetValue(szPinType, varValue) && varValue.IsA<ezVariantArray>())
+  {
+    const ezVariantArray& varPins = varValue.Get<ezVariantArray>();
+
+    for (ezUInt32 p = 0; p < varPins.GetCount(); ++p)
+    {
+      if (!varPins[p].IsA<ezVariantDictionary>())
+      {
+        ezLog::Error("Properties array contains values that are not dictionaries");
+        continue;
+      }
+
+      const ezVariantDictionary& varPin = varPins[p].Get<ezVariantDictionary>();
+      ezVisualShaderPinDescriptor pin;
+
+      if (!varPin.TryGetValue("Name", varValue) || !varValue.IsA<ezString>())
+      {
+        ezLog::Error("Missing or invalid name for pin");
+        continue;
+      }
+
+      pin.m_sName = varValue.Get<ezString>();
+
+      if (!varPin.TryGetValue("Type", varValue) || !varValue.IsA<ezString>())
+      {
+        ezLog::Error("Missing or invalid pin type");
+        continue;
+      }
+
+      {
+        const ezString& sType = varValue.Get<ezString>();
+
+        if (sType == "color")
+          pin.m_pDataType = ezGetStaticRTTI<ezColor>();
+        else if (sType == "float4")
+          pin.m_pDataType = ezGetStaticRTTI<ezVec4>();
+        else if (sType == "float3")
+          pin.m_pDataType = ezGetStaticRTTI<ezVec3>();
+        else if (sType == "float2")
+          pin.m_pDataType = ezGetStaticRTTI<ezVec2>();
+        else if (sType == "float")
+          pin.m_pDataType = ezGetStaticRTTI<float>();
+        else
+        {
+          ezLog::Error("Invalid pin type '%s'", sType.GetData());
+          continue;
+        }
+      }
+
+      // this is optional
+      if (varPin.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
+      {
+        float col[3] = { 1, 1, 1 };
+        ezConversionUtils::ExtractFloatsFromString(varValue.Get<ezString>(), 3, col);
+        pin.m_Color = ezColor(col[0], col[1], col[2]);
+      }
+
+      // this is optional
+      if (varPin.TryGetValue("Expose", varValue) && varValue.IsA<bool>())
+      {
+        pin.m_bExposeAsProperty = varValue.Get<bool>();
+      }
+
+      // this is optional
+      if (varPin.TryGetValue("Fallback", varValue) && varValue.IsA<ezString>())
+      {
+        /// \todo Keep this a variant?
+        pin.m_DefaultValue = varValue.Get<ezString>();
+      }
+
+      if (pin.m_bExposeAsProperty)
+      {
+        pin.m_PropertyDesc.m_sName = pin.m_sName;
+        pin.m_PropertyDesc.m_Category = ezPropertyCategory::Member;
+        pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
+        pin.m_PropertyDesc.m_sType = pin.m_pDataType->GetTypeName();
+      }
+
+      pinArray.PushBack(pin);
+    }
+  }
+}
+
+void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd)
+{
+  ezVariant varValue;
+  if (varNodeDict.TryGetValue("Properties", varValue) && varValue.IsA<ezVariantArray>())
+  {
+    const ezVariantArray& varProperties = varValue.Get<ezVariantArray>();
+
+    for (ezUInt32 p = 0; p < varProperties.GetCount(); ++p)
+    {
+      if (!varProperties[p].IsA<ezVariantDictionary>())
+      {
+        ezLog::Error("Properties array contains values that are not dictionaries");
+        continue;
+      }
+
+      const ezVariantDictionary& varProperty = varProperties[p].Get<ezVariantDictionary>();
+
+      ezReflectedPropertyDescriptor prop;
+      prop.m_Category = ezPropertyCategory::Member;
+      prop.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
+
+      if (!varProperty.TryGetValue("Name", varValue) || !varValue.IsA<ezString>())
+      {
+        ezLog::Error("Property doesn't have a name");
+        continue;
+      }
+
+      prop.m_sName = varValue.Get<ezString>();
+
+      if (!varProperty.TryGetValue("Type", varValue) || !varValue.IsA<ezString>())
+      {
+        ezLog::Error("Property doesn't have a type");
+        continue;
+      }
+
+      {
+        const ezString& sType = varValue.Get<ezString>();
+
+        if (sType == "color")
+          prop.m_sType = ezGetStaticRTTI<ezColor>()->GetTypeName();
+        else if (sType == "float4")
+          prop.m_sType = ezGetStaticRTTI<ezVec4>()->GetTypeName();
+        else if (sType == "float3")
+          prop.m_sType = ezGetStaticRTTI<ezVec3>()->GetTypeName();
+        else if (sType == "float2")
+          prop.m_sType = ezGetStaticRTTI<ezVec2>()->GetTypeName();
+        else if (sType == "float")
+          prop.m_sType = ezGetStaticRTTI<float>()->GetTypeName();
+        else
+        {
+          ezLog::Error("Invalid property type '%s'", sType.GetData());
+          continue;
+        }
+      }
+
+      if (varProperty.TryGetValue("Value", varValue) && varValue.IsA<ezString>())
+      {
+        // TODO Default property value
+
+      }
+
+      nd.m_Properties.PushBack(prop);
+    }
+  }
+}
+
+void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor& nd)
+{
+  ezVariant varValue;
+  if (varNodeDict.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
+  {
+    float col[3] = { 1, 1, 1 };
+    ezConversionUtils::ExtractFloatsFromString(varValue.Get<ezString>(), 3, col);
+    nd.m_Color = ezColor(col[0], col[1], col[2]);
+  }
+
+  if (varNodeDict.TryGetValue("NodeType", varValue) && varValue.IsA<ezString>())
+  {
+    if (varValue.Get<ezString>() == "Main")
+      nd.m_NodeType = ezVisualShaderNodeType::Main;
+    else
+      nd.m_NodeType = ezVisualShaderNodeType::Generic;
+  }
+
+  ezStringBuilder temp;
+
+  if (varNodeDict.TryGetValue("CodePermutations", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodePermutations = temp;
+  }
+
+  if (varNodeDict.TryGetValue("CodeRenderStates", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodeRenderState = temp;
+  }
+
+  if (varNodeDict.TryGetValue("CodeVertexShader", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodeVertexShader = temp;
+  }
+
+  if (varNodeDict.TryGetValue("CodeMaterialParams", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodeMaterialParams = temp;
+  }
+
+  if (varNodeDict.TryGetValue("CodePixelDefines", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodePixelDefines = temp;
+  }
+
+  if (varNodeDict.TryGetValue("CodePixelIncludes", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodePixelIncludes = temp;
+  }
+
+  if (varNodeDict.TryGetValue("CodePixelConstants", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodePixelConstants = temp;
+  }
+
+  if (varNodeDict.TryGetValue("CodePixelBody", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodePixelBody = temp;
+  }
 }
 

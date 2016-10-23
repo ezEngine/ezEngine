@@ -1,0 +1,49 @@
+{
+  "ConstantColor" :
+  {
+    "Color" : "0.55, 0.05, 0.15", // 140, 13, 38
+    "CodePixelConstants" : "float4 $out0() { return $prop0; } \nfloat $out1() { return $prop0.x; } \nfloat $out2() { return $prop0.y; } \nfloat $out3() { return $prop0.z; } \nfloat $out4() { return $prop0.w; }",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "RGBA",
+        "Type" : "float4",
+        "Color" : "1, 1, 1"
+      },
+
+      {
+        "Name" : "Red",
+        "Type" : "float",
+        "Color" : "1, 0, 0"
+      },
+
+      {
+        "Name" : "Green",
+        "Type" : "float",
+        "Color" : "0, 1, 0"
+      },
+
+      {
+        "Name" : "Blue",
+        "Type" : "float",
+        "Color" : "0, 0, 1"
+      },
+
+      {
+        "Name" : "Alpha",
+        "Type" : "float",
+        "Color" : "0.9, 0.9, 0.6"
+      }
+    ],
+
+    "Properties" :
+    [
+      {
+        "Name" : "Color",
+        "Type" : "float4",
+        "Value" : "1, 1, 1, 1"
+      }
+    ]
+  }
+}

@@ -155,6 +155,12 @@ ezString ezVisualShaderCodeGenerator::ToShaderString(const ezVariant& value) con
 
   switch (value.GetType())
   {
+  case ezVariantType::String:
+    {
+      temp = value.Get<ezString>();
+    }
+    break;
+
   case ezVariantType::Color:
     {
       ezColor v = value.Get<ezColor>();
@@ -271,7 +277,15 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinNames(const ezDocumentObjec
 
     if (connections.IsEmpty())
     {
-      sValue = ToShaderString(pDesc->m_InputPins[i].m_DefaultValue);
+      if (pDesc->m_InputPins[i].m_bExposeAsProperty)
+      {
+        ezVariant val = pNode->GetTypeAccessor().GetValue(pDesc->m_InputPins[i].m_sName);
+        sValue = ToShaderString(val);
+      }
+      else
+      {
+        sValue = ToShaderString(pDesc->m_InputPins[i].m_DefaultValue);
+      }
     }
     else
     {
