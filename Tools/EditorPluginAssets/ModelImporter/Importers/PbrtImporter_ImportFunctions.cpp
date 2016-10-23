@@ -334,14 +334,12 @@ namespace ezModelImporter
           obj->AddMesh(std::move(mesh));
         else
         {
-          Mesh* meshPtrCopy = mesh.Borrow();
           auto meshHandle = outScene.AddMesh(std::move(mesh));
 
           // Wire in last node.
           if (Node* parentNode = outScene.GetObject<Node>(parentNodeHandle))
           {
             parentNode->m_Children.PushBack(meshHandle);
-            meshPtrCopy->SetParent(parentNodeHandle);
           }
         }
       }
@@ -612,7 +610,6 @@ namespace ezModelImporter
       node->m_RelativeTransform.SetGlobalTransform(context.PeekActiveTransform(), object->m_Transform);
       for (ObjectHandle meshHandle : meshes)
       {
-        outScene.GetObject<Mesh>(meshHandle)->SetParent(nodeHandle);
         node->m_Children.PushBack(meshHandle);
       }
     }

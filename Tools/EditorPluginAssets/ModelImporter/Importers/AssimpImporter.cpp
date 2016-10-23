@@ -246,12 +246,11 @@ namespace ezModelImporter
     }
   }
 
-  ObjectHandle ImportNodesRecursive(aiNode* assimpNode, ObjectHandle parentNode, const ezDynamicArray<ObjectHandle>& meshHandles, Scene& outScene)
+  ObjectHandle ImportNodesRecursive(aiNode* assimpNode, const ezDynamicArray<ObjectHandle>& meshHandles, Scene& outScene)
   {
     Node* newNode = EZ_DEFAULT_NEW(Node);
     ObjectHandle newNodeHandle = outScene.AddNode(ezUniquePtr<Node>(newNode, ezFoundation::GetDefaultAllocator()));
 
-    newNode->SetParent(parentNode);
     newNode->m_Name = assimpNode->mName.C_Str();
 
     // Transformation.
@@ -307,7 +306,7 @@ namespace ezModelImporter
     // Import children.
     for (unsigned int childIdx = 0; childIdx < assimpNode->mNumChildren; ++childIdx)
     {
-      newNode->m_Children.PushBack(ImportNodesRecursive(assimpNode->mChildren[childIdx], parentNode, meshHandles, outScene));
+      newNode->m_Children.PushBack(ImportNodesRecursive(assimpNode->mChildren[childIdx], meshHandles, outScene));
     }
 
     return newNodeHandle;
@@ -320,12 +319,12 @@ namespace ezModelImporter
     {
       for (unsigned int childIdx = 0; childIdx < assimpRootNode->mNumChildren; ++childIdx)
       {
-        ImportNodesRecursive(assimpRootNode->mChildren[childIdx], ObjectHandle(), meshHandles, outScene);
+        ImportNodesRecursive(assimpRootNode->mChildren[childIdx],meshHandles, outScene);
       }
     }
     else
     {
-      ImportNodesRecursive(assimpRootNode, ObjectHandle(), meshHandles, outScene);
+      ImportNodesRecursive(assimpRootNode, meshHandles, outScene);
     }
   }
 

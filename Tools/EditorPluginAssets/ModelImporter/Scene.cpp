@@ -68,41 +68,32 @@ namespace ezModelImporter
 
   void Scene::RefreshRootList()
   {
-    ezHashSet<ObjectHandle> elementsInRootListIndirect;
+    ezHashSet<ObjectHandle> elementsInChildArrays;
 
     m_RootObjects.Clear();
     for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
     {
-      ObjectHandle handle(ObjectHandle::NODE, it.Id());
-      if (!it.Value()->GetParent().IsValid() && !elementsInRootListIndirect.Contains(handle))
+      for (ObjectHandle child : it.Value()->m_Children)
       {
-        m_RootObjects.PushBack(it.Value().Borrow());
-
-        // Recursively put all children into the indirect list.
-        ezHybridArray<ObjectHandle, 32> childHandles;
-        childHandles.PushBack(handle);
-        while(!childHandles.IsEmpty())
-        {
-          handle = childHandles.PeekBack();
-          childHandles.PopBack();
-          elementsInRootListIndirect.Insert(handle);
-
-          if (handle.GetType() == ObjectHandle::NODE)
-          {
-            Node* node = GetObject<Node>(handle);
-            childHandles.PushBackRange(node->m_Children);
-          }
-        }
+        elementsInChildArrays.Insert(child);
       }
     }
 
-    // Add all meshes that are not indirectly in the list already.
+    // Add everything that was not in any child array.
     for (auto it = m_Meshes.GetIterator(); it.IsValid(); ++it)
     {
       ObjectHandle handle(ObjectHandle::MESH, it.Id());
-      if (!elementsInRootListIndirect.Contains(handle))
+      if (!elementsInChildArrays.Contains(handle))
         m_RootObjects.PushBack(it.Value().Borrow());
     }
+    for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+    {
+      ObjectHandle handle(ObjectHandle::NODE, it.Id());
+      if (!elementsInChildArrays.Contains(handle))
+        m_RootObjects.PushBack(it.Value().Borrow());
+    }
+
+    EZ_ASSERT_DEBUG((m_Nodes.IsEmpty() && m_Meshes.IsEmpty()) || !m_RootObjects.IsEmpty(), "There are objects but no root objects. The scene graph is a circle!");
   }
 
   Mesh* Scene::MergeAllMeshes(bool mergeSubmeshesWithSameMaterials)
@@ -110,31 +101,38 @@ namespace ezModelImporter
     ezStopwatch timer;
     ezUniquePtr<Mesh> mergedMesh = EZ_DEFAULT_NEW(Mesh);
 
-    // Get all meshes and their transform.
-    for (auto meshIt = m_Meshes.GetIterator(); meshIt.IsValid(); ++meshIt)
+    // Walk along the scene hierarchy.
+    for (auto rootObject : m_RootObjects)
     {
-      // Apply transform if any.
-      if (meshIt.Value()->GetParent().IsValid())
-      {
-        // Computing transform like this awnew every time is a bit wasteful, but simple to implement.
-        ezTransform transform = ezTransform::Identity();
-        GetObject<Node>(meshIt.Value()->GetParent())->ComputeAbsoluteTransform(*this, transform);
-        meshIt.Value()->ApplyTransform(transform);
-      }
+      ezDynamicArray<HierarchyObject*> treeStack;
+      ezDynamicArray<ezTransform> transformStack;
+      treeStack.PushBack(rootObject);
+      transformStack.PushBack(ezTransform::Identity());
 
-      // Merge.
-      mergedMesh->AddData(*meshIt.Value());
-
-      // Remove handles & pointers to this mesh.
-      for (auto nodeIt = m_Nodes.GetIterator(); nodeIt.IsValid(); ++nodeIt)
+      while (!treeStack.IsEmpty())
       {
-        auto& children = nodeIt.Value()->m_Children;
-        for (int i = children.GetCount()-1; i >= 0; --i)
+        HierarchyObject* currentObject = treeStack.PeekBack();
+        treeStack.PopBack();
+        ezTransform currentTransform = transformStack.PeekBack();
+        transformStack.PopBack();
+
+        if (Node* node = currentObject->Cast<Node>())
         {
-          if (children[i] == ObjectHandle(ObjectHandle::MESH, meshIt.Id()))
+          currentTransform.SetGlobalTransform(currentTransform, node->m_RelativeTransform);
+
+          for (int childIdx=node->m_Children.GetCount()-1; childIdx >=0; --childIdx)
           {
-            children.RemoveAt(i);
+            ObjectHandle childHandle = node->m_Children[childIdx];
+            if (childHandle.GetType() == ObjectHandle::MESH)
+              node->m_Children.RemoveAt(childIdx);
+
+            treeStack.PushBack(GetObject<HierarchyObject>(childHandle));
+            transformStack.PushBack(currentTransform);
           }
+        }
+        else if (const Mesh* mesh = currentObject->Cast<Mesh>())
+        {
+          mergedMesh->AddData(*mesh, currentTransform);
         }
       }
     }

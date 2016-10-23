@@ -11,12 +11,12 @@ namespace ezModelImporter
   public:
     Node();
 
-    void ComputeAbsoluteTransform(const Scene& scene, ezTransform& outAbsoluteTransform) const;
+    //void ComputeAbsoluteTransform(const Scene& scene, ezTransform& outAbsoluteTransform) const;
 
     /// Relative transform of this node to its parent.
     ezTransform m_RelativeTransform;
 
-    /// Children. ImporterImplementations are responsible to set child & parent pointer correctly.
+    /// Children. ImporterImplementations are responsible to avoid cycles.
     ezDynamicArray<ObjectHandle> m_Children;
 
     struct Metadata

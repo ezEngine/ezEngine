@@ -136,6 +136,9 @@ namespace ezModelImporter
 
   void Mesh::ApplyTransform(const ezTransform& transform)
   {
+    if (transform.IsIdentical(ezTransform::Identity()))
+      return;
+
     ezMat4 transformMat = transform.GetAsMat4();
 
     for (auto it = m_VertexDataStreams.GetIterator(); it.IsValid(); ++it)
@@ -166,8 +169,10 @@ namespace ezModelImporter
     }
   }
 
-  void Mesh::AddData(const Mesh& mesh)
+  void Mesh::AddData(const Mesh& mesh, const ezTransform& transform)
   {
+    ezMat4 transformMat = transform.GetAsMat4();
+
     // Create new triangles.
     ezUInt32 oldTriangleCount = GetNumTriangles();
     AddTriangles(mesh.GetNumTriangles());
@@ -190,6 +195,31 @@ namespace ezModelImporter
       // Copy data.
       ezUInt32 targetBaseDataIndex = targetStream->m_Data.GetCount();
       targetStream->m_Data.PushBackRange(sourceStream->m_Data);
+
+      // Transform data.
+      if (!transform.IsIdentical(ezTransform::Identity()))
+      {
+        // Positions
+        if (it.Key() == ezGALVertexAttributeSemantic::Position)
+        {
+          for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += 3)
+          {
+            ezVec3& pos = *reinterpret_cast<ezVec3*>(&targetStream->m_Data[i]);
+            pos = transformMat.TransformPosition(pos);
+          }
+        }
+        // Directions
+        else if (it.Key() == ezGALVertexAttributeSemantic::Normal ||
+                 it.Key() == ezGALVertexAttributeSemantic::Tangent ||
+                 it.Key() == ezGALVertexAttributeSemantic::BiTangent)
+        {
+          for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += 3)
+          {
+            ezVec3& dir = *reinterpret_cast<ezVec3*>(&targetStream->m_Data[i]);
+            dir = transformMat.TransformDirection(dir);
+          }
+        }
+      }
 
       // Set mapping
       for (ezUInt32 tri = 0; tri < sourceTriangles.GetCount(); ++tri)

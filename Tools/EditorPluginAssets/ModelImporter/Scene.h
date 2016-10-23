@@ -58,7 +58,9 @@ namespace ezModelImporter
   public:
     /// Merges all meshes into a single one.
     ///
+    /// Assumes that the root list is up to date.
     /// Transformations from nodes will be applied. The resulting mesh will be stored in the list of root objects.
+    /// Note that instanced meshes will be duplicated in this process!
     /// \param mergeSubmeshesWithIdenticalMaterials
     ///   If true, all submeshes that use the same material will be merged in the resulting mesh.
     /// \return

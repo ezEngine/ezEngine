@@ -32,7 +32,7 @@ namespace ezModelImporter
 
     for (const HierarchyObject* object : scene->GetRootObjects())
     {
-      EZ_ASSERT_DEBUG(!object->GetParent().IsValid(), "Root object has a parent!");
+      //EZ_ASSERT_DEBUG(!object->GetParent().IsValid(), "Root object has a parent!");
 
       const Node* currentNode = object->Cast<Node>();
       if (currentNode)
@@ -49,7 +49,7 @@ namespace ezModelImporter
 
           for (ObjectHandle child : currentNode->m_Children)
           {
-            EZ_ASSERT_DEBUG(scene->GetObject(object->GetParent()) == currentNode, "Child's parent pointer is incorrect!");
+            //EZ_ASSERT_DEBUG(scene->GetObject(object->GetParent()) == currentNode, "Child's parent pointer is incorrect!");
 
             const Node* childNode = object->Cast<Node>();
             if (childNode)

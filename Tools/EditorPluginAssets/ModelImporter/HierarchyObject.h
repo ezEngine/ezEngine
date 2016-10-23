@@ -21,23 +21,17 @@ namespace ezModelImporter
     /// A optional name for this node.
     ezString m_Name;
 
-
-    /// Pointer to parent of this object.
-    /// If it is invalid, this is a root object.
-    ObjectHandle GetParent() const { return m_Parent; }
-    void SetParent(ObjectHandle newParent);
-
-
   protected:
     HierarchyObject(ObjectHandle::Type type) : m_Type(type) {}
-
-    ObjectHandle m_Parent;
   };
 
 
   template<typename T>
   inline const T* HierarchyObject::Cast() const
   {
+    if (std::is_same<T, class HierarchyObject>::value)
+      return static_cast<const T*>(this);
+
     switch (m_Type)
     {
     case ObjectHandle::MESH:

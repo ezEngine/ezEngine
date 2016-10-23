@@ -196,7 +196,7 @@ namespace ezModelImporter
     void ApplyTransform(const ezTransform& transform);
 
     /// Adds all triangles, vertices and submeshes from an existing mesh.
-    void AddData(const Mesh& mesh);
+    void AddData(const Mesh& mesh, const ezTransform& transform = ezTransform::Identity());
 
     /// Merges all sub-meshes that use the same material.
     /// Especially useful after merging meshes.
