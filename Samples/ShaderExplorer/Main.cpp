@@ -117,15 +117,14 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
       ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
       auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
-      EZ_CHECK_AT_COMPILETIME(sizeof(gc) > sizeof(void*));
-      memset(&gc, 0, sizeof(gc));
+      ezMemoryUtils::ZeroFill(&gc);
 
       m_camera->GetViewMatrix(gc.WorldToCameraMatrix);
       gc.CameraToWorldMatrix = gc.WorldToCameraMatrix.GetInverse();
       gc.Viewport = ezVec4(0, 0, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
       // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
       gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
-      gc.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
+      gc.WorldTime = gc.GlobalTime;
 
 
       ezGALRenderTagetSetup RTS;
@@ -233,7 +232,7 @@ void ezShaderExplorerApp::AfterCoreStartup()
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyD;
     cfg.m_bApplyTimeScaling = true;
     ezInputManager::SetInputActionConfig("Main", "MovePosX", cfg, true);
-    
+
     cfg = ezInputManager::GetInputActionConfig("Main", "MoveNegX");
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyA;
     cfg.m_bApplyTimeScaling = true;
@@ -290,7 +289,7 @@ void ezShaderExplorerApp::AfterCoreStartup()
     texDesc.m_bCreateRenderTarget = true;
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
-    
+
     m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
     m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
   }

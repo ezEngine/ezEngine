@@ -1,23 +1,90 @@
 {
   "MaterialOutput" :
   {
-    "Color" : "0.36, 0.118, 0.48",
+    "Color" : "90, 30, 122",
     "NodeType" : "Main",
-    "CodePermutations" : "BLEND_MODE\nRENDER_PASS\nSHADING_MODE\nTWO_SIDED\nINSTANCING\nDEFAULT_MAT_USE_BASE_TEXTURE\nDEFAULT_MAT_USE_NORMAL_TEXTURE\nDEFAULT_MAT_USE_METALLIC_TEXTURE\nDEFAULT_MAT_USE_ROUGHNESS_TEXTURE",
+    "CodePermutations" : "
+BLEND_MODE
+RENDER_PASS
+SHADING_MODE
+TWO_SIDED
+INSTANCING
+DEFAULT_MAT_USE_BASE_TEXTURE
+DEFAULT_MAT_USE_NORMAL_TEXTURE
+DEFAULT_MAT_USE_METALLIC_TEXTURE
+DEFAULT_MAT_USE_ROUGHNESS_TEXTURE
+",
+
     "CodeRenderStates" : "#include <Shaders/Materials/MaterialState.h>",
-    "CodeVertexShader" : "#define USE_NORMAL\n#define USE_TANGENT\n#define USE_TEXCOORD0\n#include <Shaders/Materials/DefaultMaterialCB.h>\n#include <Shaders/Materials/MaterialVertexShader.h>\nVS_OUT main(VS_IN Input)\n{\nreturn FillVertexData(Input);\n}",
-    "CodeMaterialParams" : "Permutation BLEND_MODE;\nPermutation SHADING_MODE;\nPermutation TWO_SIDED;\n",
-    "CodePixelDefines" : "#define USE_NORMAL\n#define USE_TANGENT\n#define USE_TEXCOORD0\n#define USE_SIMPLE_MATERIAL_MODEL",
-    "CodePixelIncludes" : "#include <Shaders/Materials/DefaultMaterialCB.h>\n#include <Shaders/Materials/MaterialPixelShader.h>",
+    "CodeVertexShader" : "
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}",
+
+    "CodeMaterialParams" : "
+Permutation BLEND_MODE;
+Permutation SHADING_MODE;
+Permutation TWO_SIDED;",
+
+    "CodePixelDefines" : "
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_SIMPLE_MATERIAL_MODEL
+",
+
+    "CodePixelIncludes" : "
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialPixelShader.h>
+",
+
     "CodePixelConstants" : "",
-    "CodePixelBody" : "float3 GetNormal(PS_IN Input) { return Input.Normal; }\nfloat3 GetBaseColor(PS_IN Input) { return $in0().rgb; }\nfloat GetMetallic(PS_IN Input) { return 0.0; }\nfloat GetReflectance(PS_IN Input) { return 0.5f; }\nfloat GetRoughness(PS_IN Input) { return 0.5; }\nfloat GetOpacity(PS_IN Input) { return 1.0; }",
+    "CodePixelBody" : "
+float3 GetNormal(PS_IN Input)
+{
+  return Input.Normal;
+}
+
+float3 GetBaseColor(PS_IN Input)
+{
+  return $in0.rgb;
+}
+
+float GetMetallic(PS_IN Input)
+{
+  return 0.0;
+}
+
+float GetReflectance(PS_IN Input)
+{
+  return 0.5f;
+}
+
+float GetRoughness(PS_IN Input)
+{
+  return 0.5;
+}
+
+float GetOpacity(PS_IN Input)
+{
+  return 1.0;
+}
+",
 
     "InputPins" :
     [
       {
         "Name" : "Base Color",
         "Type" : "float4",
-        "Color" : "1, 1, 1",
+        "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float4(1, 1, 1, 1)"
       }

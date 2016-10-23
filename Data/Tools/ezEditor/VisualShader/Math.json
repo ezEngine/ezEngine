@@ -1,7 +1,7 @@
 {
   "Add" :
   {
-    "Color" : "1.0, 0.5, 0.0",
+    "Color" : "255, 128, 0",
     "NodeType" : "Generic", // "Main",
     "CodePermutations" : "",
     "CodeRenderStates" : "",
@@ -10,14 +10,14 @@
     "CodePixelDefines" : "",
     "CodePixelIncludes" : "",
     "CodePixelConstants" : "",
-    "CodePixelBody" : "float4 $out0() { return $in0() + $in1(); }",
+    "CodePixelBody" : "float4 $out0() { return $in0 + $in1; }",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float4",
-        "Color" : "1, 1, 1",
+        "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float4(0, 0, 0, 0)"
       },
@@ -25,7 +25,7 @@
       {
         "Name" : "b",
         "Type" : "float4",
-        "Color" : "1, 1, 1",
+        "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float4(0, 0, 0, 0)"
       }
@@ -36,22 +36,22 @@
       {
         "Name" : "result",
         "Type" : "float4",
-        "Color" : "1, 1, 1"
+        "Color" : "255, 255, 255"
       }
     ]
   },
 
   "Subtract" :
   {
-    "Color" : "1.0, 0.5, 0.0",
-    "CodePixelBody" : "float4 $out0() { return $in0() - $in1(); }",
+    "Color" : "255, 128, 0",
+    "CodePixelBody" : "float4 $out0() { return $in0 - $in1; }",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float4",
-        "Color" : "1, 1, 1",
+        "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float4(0, 0, 0, 0)"
       },
@@ -59,7 +59,7 @@
       {
         "Name" : "b",
         "Type" : "float4",
-        "Color" : "1, 1, 1",
+        "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float4(0, 0, 0, 0)"
       }
@@ -70,22 +70,22 @@
       {
         "Name" : "result",
         "Type" : "float4",
-        "Color" : "1, 1, 1"
+        "Color" : "255, 255, 255"
       }
     ]
   },
 
   "Multiply" :
   {
-    "Color" : "1.0, 0.5, 0.0",
-    "CodePixelBody" : "float4 $out0() { return $in0() * $in1(); }",
+    "Color" : "255, 128, 0",
+    "CodePixelBody" : "float4 $out0() { return $in0 * $in1; }",
 
     "InputPins" :
     [
       {
         "Name" : "vector",
         "Type" : "float4",
-        "Color" : "1, 1, 1",
+        "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float4(1, 1, 1, 1)"
       },
@@ -93,7 +93,7 @@
       {
         "Name" : "scalar",
         "Type" : "float",
-        "Color" : "1, 1, 1",
+        "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float(1.0)"
       }
@@ -104,7 +104,32 @@
       {
         "Name" : "result",
         "Type" : "float4",
-        "Color" : "1, 1, 1"
+        "Color" : "255, 255, 255"
+      }
+    ]
+  },
+
+  "Fraction" :
+  {
+    "Color" : "255, 128, 0",
+    "CodePixelBody" : "float $out0() { return frac($in0); }",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "scalar",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Fallback" : "float(0)"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255"
       }
     ]
   }

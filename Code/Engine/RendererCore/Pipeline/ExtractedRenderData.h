@@ -41,6 +41,16 @@ public:
     return m_uiWorldIndex;
   }
 
+  EZ_FORCE_INLINE void SetWorldTime(ezTime time)
+  {
+    m_WorldTime = time;
+  }
+
+  EZ_FORCE_INLINE ezTime GetWorldTime() const
+  {
+    return m_WorldTime;
+  }
+
   void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiRenderDataSortingKey);
 
   void SortAndBatch();
@@ -60,6 +70,7 @@ private:
   ezCamera m_Camera;
   ezViewData m_ViewData;
   ezUInt32 m_uiWorldIndex;
+  ezTime m_WorldTime;
 
   ezHybridArray< DataPerCategory, 8 > m_DataPerCategory;
 };

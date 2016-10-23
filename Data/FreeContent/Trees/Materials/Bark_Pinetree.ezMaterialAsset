@@ -1,11 +1,11 @@
 {
  "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x650DEC7CC65F3F40980AF355AAECAD40" },
-   "t" : "ShaderNode::ConstantColor",
+   "#" : { "$t" : "uuid", "$b" : "0xDF5F95E941BA960CE24DF585D3A44E7F" },
+   "t" : "ConnectionInternal",
    "p" : {
-    "Color" : { "$t" : "vec4", "$v" : "(1.0000, 0.0000, 0.0000, 0.0000)", "$b" : "0x0000803F000000000000000000000000" },
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0xA3C080F9AF026ADA2F2103BC7D3877B3" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(419.1753, 215.4518)", "$b" : "0x7096D143AB735743" }
+    "SourcePin" : "result",
+    "Target" : { "$t" : "uuid", "$b" : "0x6E99BC50FBEF904897776B6B42982A5A" },
+    "TargetPin" : "scalar"
    }
   },
   {
@@ -19,15 +19,6 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xA25AC2B9797A9341925EE9E67B509E94" },
-   "t" : "ShaderNode::ConstantColor",
-   "p" : {
-    "Color" : { "$t" : "vec4", "$v" : "(0.0000, 0.0000, 0.5000, 0.0000)", "$b" : "0x00000000000000000000003F00000000" },
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0xEA974B6BAECAD0424A2A62C6A0690884" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(646.5638, 546.2349)", "$b" : "0x15A42144088F0844" }
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x5C0200B77F5C47428157F409369EF16B" },
    "t" : "ezAssetDocumentInfo",
    "n" : "Header",
@@ -35,26 +26,52 @@
     "AssetType" : "Material",
     "Dependencies" : [ "{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5C0200B77F5C47428157F409369EF16B" },
-    "Hash" : { "$t" : "uint64", "$v" : "2402557254282560682", "$b" : "0xAAC40CEE17995721" },
+    "Hash" : { "$t" : "uint64", "$v" : "9552948506556253728", "$b" : "0x2046E2920DE49284" },
     "References" : [ "{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xEA974B6BAECAD0424A2A62C6A0690884" },
-   "t" : "ConnectionInternal",
-   "p" : {
-    "SourcePin" : "RGBA",
-    "Target" : { "$t" : "uuid", "$b" : "0xDBEA6C39F450734B8A59F2700D137936" },
-    "TargetPin" : "b"
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x45E65D338B5A36438AED6BA24B6555B8" },
    "t" : "ShaderNode::MaterialOutput",
    "p" : {
-    "Base Color" : { "$t" : "vec4", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
+    "Base Color" : { "$t" : "vec4", "$v" : "(0.4000, 0.5000, 1.0000, 1.0000)", "$b" : "0xCDCCCC3E0000003F0000803F0000803F" },
     "Node::Connections" : [  ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(1169.7557, 328.6158)", "$b" : "0x2F389244D24EA443" }
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(971.2997, 341.3266)", "$b" : "0x2FD37244CEA9AA43" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x47AB6CA4AD39AE4481AAD65839F3E14C" },
+   "t" : "ConnectionInternal",
+   "p" : {
+    "SourcePin" : "World",
+    "Target" : { "$t" : "uuid", "$b" : "0x4AF3B2A4F2045448BE8A456BA8E1E1FC" },
+    "TargetPin" : "scalar"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6498D4FD4F89D9458D9C8B572AD20FE7" },
+   "t" : "ShaderNode::Time",
+   "p" : {
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x47AB6CA4AD39AE4481AAD65839F3E14C" } ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(340.0312, 301.4781)", "$b" : "0xFF03AA4333BD9643" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4AF3B2A4F2045448BE8A456BA8E1E1FC" },
+   "t" : "ShaderNode::Fraction",
+   "p" : {
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0xDF5F95E941BA960CE24DF585D3A44E7F" } ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(557.7424, 301.0550)", "$b" : "0x846F0B440B879643" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6E99BC50FBEF904897776B6B42982A5A" },
+   "t" : "ShaderNode::Multiply",
+   "p" : {
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x65187F93AB26BB96C367C85EB3BB5B9F" } ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(767.8984, 300.4089)", "$b" : "0x7FF93F4457349643" },
+    "scalar" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "vector" : { "$t" : "vec4", "$v" : "(0.5000, 0.5000, 1.0000, 0.0000)", "$b" : "0x0000003F0000003F0000803F00000000" }
    }
   },
   {
@@ -62,36 +79,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" }, { "$t" : "uuid", "$b" : "0x45E65D338B5A36438AED6BA24B6555B8" }, { "$t" : "uuid", "$b" : "0x650DEC7CC65F3F40980AF355AAECAD40" }, { "$t" : "uuid", "$b" : "0x147943771EB0644C86DB06297E36A712" }, { "$t" : "uuid", "$b" : "0xD7204F7434F65F4C8C33066FE41196ED" }, { "$t" : "uuid", "$b" : "0xA25AC2B9797A9341925EE9E67B509E94" }, { "$t" : "uuid", "$b" : "0xDBEA6C39F450734B8A59F2700D137936" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xDBEA6C39F450734B8A59F2700D137936" },
-   "t" : "ShaderNode::Add",
-   "p" : {
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x8CCE72CEAB483F751594423178B5DCEB" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(936.4027, 481.3758)", "$b" : "0xC6196A441BB0F043" },
-    "a" : { "$t" : "vec4", "$v" : "(0.0000, 0.0000, 0.0000, 0.0000)", "$b" : "0x00000000000000000000000000000000" },
-    "b" : { "$t" : "vec4", "$v" : "(0.0000, 0.0000, 0.0000, 0.0000)", "$b" : "0x00000000000000000000000000000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xD7204F7434F65F4C8C33066FE41196ED" },
-   "t" : "ShaderNode::ConstantColor",
-   "p" : {
-    "Color" : { "$t" : "vec4", "$v" : "(0.0000, 0.5000, 0.0000, 0.0000)", "$b" : "0x000000000000003F0000000000000000" },
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0xB540683586A16EB41DCA2A4F4E564500" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(425.6376, 418.5436)", "$b" : "0x9CD1D4439645D143" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x147943771EB0644C86DB06297E36A712" },
-   "t" : "ShaderNode::Add",
-   "p" : {
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x026598A9AEA2687BB71342C07308DA41" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(716.4899, 321.2550)", "$b" : "0x5B1F3344A5A0A043" },
-    "a" : { "$t" : "vec4", "$v" : "(0.0000, 0.0000, 0.0000, 0.0000)", "$b" : "0x00000000000000000000000000000000" },
-    "b" : { "$t" : "vec4", "$v" : "(0.0000, 0.0000, 0.0000, 0.0000)", "$b" : "0x00000000000000000000000000000000" }
+    "Children" : [ { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" }, { "$t" : "uuid", "$b" : "0x45E65D338B5A36438AED6BA24B6555B8" }, { "$t" : "uuid", "$b" : "0x6498D4FD4F89D9458D9C8B572AD20FE7" }, { "$t" : "uuid", "$b" : "0x4AF3B2A4F2045448BE8A456BA8E1E1FC" }, { "$t" : "uuid", "$b" : "0x6E99BC50FBEF904897776B6B42982A5A" } ]
    }
   },
   {
@@ -104,39 +92,12 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x8CCE72CEAB483F751594423178B5DCEB" },
+   "#" : { "$t" : "uuid", "$b" : "0x65187F93AB26BB96C367C85EB3BB5B9F" },
    "t" : "ConnectionInternal",
    "p" : {
-    "SourcePin" : "sum",
+    "SourcePin" : "result",
     "Target" : { "$t" : "uuid", "$b" : "0x45E65D338B5A36438AED6BA24B6555B8" },
     "TargetPin" : "Base Color"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x026598A9AEA2687BB71342C07308DA41" },
-   "t" : "ConnectionInternal",
-   "p" : {
-    "SourcePin" : "sum",
-    "Target" : { "$t" : "uuid", "$b" : "0xDBEA6C39F450734B8A59F2700D137936" },
-    "TargetPin" : "a"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB540683586A16EB41DCA2A4F4E564500" },
-   "t" : "ConnectionInternal",
-   "p" : {
-    "SourcePin" : "RGBA",
-    "Target" : { "$t" : "uuid", "$b" : "0x147943771EB0644C86DB06297E36A712" },
-    "TargetPin" : "b"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA3C080F9AF026ADA2F2103BC7D3877B3" },
-   "t" : "ConnectionInternal",
-   "p" : {
-    "SourcePin" : "RGBA",
-    "Target" : { "$t" : "uuid", "$b" : "0x147943771EB0644C86DB06297E36A712" },
-    "TargetPin" : "a"
    }
   } ],
  "Types" : [ {
@@ -175,18 +136,6 @@
     "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly",
     "Name" : "SHADING_MODE::Default",
     "Type" : "ezUInt32"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE09FE78C96C548146778E495F4EFEC9F" },
-   "t" : "ezReflectedPropertyDescriptor",
-   "p" : {
-    "Attributes" : [  ],
-    "Category" : "ezPropertyCategory::Member",
-    "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
-    "Name" : "Color",
-    "Type" : "ezVec4"
    }
   },
   {
@@ -254,6 +203,20 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x680BA5F5E59164489FB879236594683E" },
+   "t" : "ezReflectedTypeDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
+    "ParentTypeName" : "ezVisualShaderNodeBase",
+    "PluginName" : "VisualShaderTypes",
+    "Properties" : [  ],
+    "TypeName" : "ShaderNode::Time",
+    "TypeSize" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xB5FA422DA0B29850469ED66FE826133D" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
@@ -287,6 +250,46 @@
     "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "Base Color",
     "Type" : "ezVec4"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF31780897C6B375A654B4F8C0A66AE04" },
+   "t" : "ezReflectedPropertyDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Category" : "ezPropertyCategory::Member",
+    "ConstantValue" : null,
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
+    "Name" : "scalar",
+    "Type" : "float"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x50D139E70420B36FD93AE3A1A054B060" },
+   "t" : "ezReflectedTypeDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
+    "ParentTypeName" : "ezVisualShaderNodeBase",
+    "PluginName" : "VisualShaderTypes",
+    "Properties" : [  ],
+    "TypeName" : "ShaderNode::Fraction",
+    "TypeSize" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6EF1236FAC33CB759EDCFB78DE2D9874" },
+   "t" : "ezReflectedTypeDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
+    "ParentTypeName" : "ezVisualShaderNodeBase",
+    "PluginName" : "VisualShaderTypes",
+    "Properties" : [ { "$t" : "uuid", "$b" : "0x6EB45A98F5E2DF7D0F16B77ED912858B" }, { "$t" : "uuid", "$b" : "0xF31780897C6B375A654B4F8C0A66AE04" } ],
+    "TypeName" : "ShaderNode::Multiply",
+    "TypeSize" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },
   {
@@ -326,6 +329,18 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x6EB45A98F5E2DF7D0F16B77ED912858B" },
+   "t" : "ezReflectedPropertyDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Category" : "ezPropertyCategory::Member",
+    "ConstantValue" : null,
+    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
+    "Name" : "vector",
+    "Type" : "ezVec4"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xB788E0609D5D3E8F582B5936F45D5063" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
@@ -335,20 +350,6 @@
     "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
     "Name" : "TWO_SIDED",
     "Type" : "bool"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xBAF4CC0E21204B9C051225E241EDE9CF" },
-   "t" : "ezReflectedTypeDescriptor",
-   "p" : {
-    "Attributes" : [  ],
-    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
-    "ParentTypeName" : "ezVisualShaderNodeBase",
-    "PluginName" : "VisualShaderTypes",
-    "Properties" : [ { "$t" : "uuid", "$b" : "0x8E38832605B904BECAA9667707E4C652" }, { "$t" : "uuid", "$b" : "0xAD3F4135C2FCD4E332FA79799DFA4424" } ],
-    "TypeName" : "ShaderNode::Add",
-    "TypeSize" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },
   {
@@ -394,18 +395,6 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x8E38832605B904BECAA9667707E4C652" },
-   "t" : "ezReflectedPropertyDescriptor",
-   "p" : {
-    "Attributes" : [  ],
-    "Category" : "ezPropertyCategory::Member",
-    "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
-    "Name" : "a",
-    "Type" : "ezVec4"
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0xBB2A4EC7E379ADCAED1340B6C05D1811" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
@@ -418,36 +407,10 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xAD3F4135C2FCD4E332FA79799DFA4424" },
-   "t" : "ezReflectedPropertyDescriptor",
-   "p" : {
-    "Attributes" : [  ],
-    "Category" : "ezPropertyCategory::Member",
-    "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType|ezPropertyFlags::Phantom",
-    "Name" : "b",
-    "Type" : "ezVec4"
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x98BE197B5269BEEC0BF13482F1D98CB7" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Permutation"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x567D646E719EA8F983D7D4161F6F1503" },
-   "t" : "ezReflectedTypeDescriptor",
-   "p" : {
-    "Attributes" : [  ],
-    "Flags" : "ezTypeFlags::Class|ezTypeFlags::Phantom",
-    "ParentTypeName" : "ezVisualShaderNodeBase",
-    "PluginName" : "VisualShaderTypes",
-    "Properties" : [ { "$t" : "uuid", "$b" : "0xE09FE78C96C548146778E495F4EFEC9F" } ],
-    "TypeName" : "ShaderNode::ConstantColor",
-    "TypeSize" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   } ]
 }

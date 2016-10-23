@@ -232,9 +232,9 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
       // this is optional
       if (varPin.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
       {
-        float col[3] = { 1, 1, 1 };
+        float col[3] = { 255, 255, 255 };
         ezConversionUtils::ExtractFloatsFromString(varValue.Get<ezString>(), 3, col);
-        pin.m_Color = ezColor(col[0], col[1], col[2]);
+        pin.m_Color = ezColorGammaUB((ezUInt8)col[0], (ezUInt8)col[1], (ezUInt8)col[2]);
       }
 
       // this is optional
@@ -334,9 +334,9 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &va
   ezVariant varValue;
   if (varNodeDict.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
   {
-    float col[3] = { 1, 1, 1 };
+    float col[3] = { 255, 255, 255 };
     ezConversionUtils::ExtractFloatsFromString(varValue.Get<ezString>(), 3, col);
-    nd.m_Color = ezColor(col[0], col[1], col[2]);
+    nd.m_Color = ezColorGammaUB((ezUInt8)col[0], (ezUInt8)col[1], (ezUInt8)col[2]);
   }
 
   if (varNodeDict.TryGetValue("NodeType", varValue) && varValue.IsA<ezString>())

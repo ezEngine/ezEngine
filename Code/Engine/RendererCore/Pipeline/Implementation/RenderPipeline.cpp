@@ -24,7 +24,7 @@ ezRenderPipeline::~ezRenderPipeline()
 {
   m_Data[0].Clear();
   m_Data[1].Clear();
-  
+
   ClearRenderPassGraphTextures();
   while (!m_Passes.IsEmpty())
   {
@@ -431,7 +431,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
         data.m_Outputs[i]->m_Desc = outputs[i];
       }
     }
-    
+
     // Check passthrough consistency of input / output target desc.
     auto inputPins = pPass->GetInputPins();
     for (const ezNodePin* pPin : inputPins)
@@ -532,7 +532,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     }
   }
 
-  // Stupid loop to gather all TextureUsageData indices that are not view render target textures. 
+  // Stupid loop to gather all TextureUsageData indices that are not view render target textures.
   for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
   {
     TextureUsageData& data = m_TextureUsage[i];
@@ -651,14 +651,14 @@ void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)
     ezRenderPipelinePassConnection* pConn = data.m_Inputs[i];
     if (pConn != nullptr)
     {
-      ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(pConn->m_pOutput->m_pParent);      
+      ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(pConn->m_pOutput->m_pParent);
       bool bRes = Disconnect(pSource, pSource->GetPinName(pConn->m_pOutput), pPass, pPass->GetPinName(pPass->GetInputPins()[i]));
       EZ_IGNORE_UNUSED(bRes);
       EZ_ASSERT_DEBUG(bRes, "ezRenderPipeline::RemoveConnections should not fail to disconnect pins!");
     }
   }
   for (ezUInt32 i = 0; i < data.m_Outputs.GetCount(); i++)
-  {   
+  {
     ezRenderPipelinePassConnection* pConn = data.m_Outputs[i];
     while (pConn != nullptr)
     {
@@ -679,7 +679,7 @@ void ezRenderPipeline::ClearRenderPassGraphTextures()
   m_TextureUsageIdxSortedByLastUsage.Clear();
 
   //ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  
+
   for (auto it = m_Connections.GetIterator(); it.IsValid(); ++it)
   {
     auto& conn = it.Value();
@@ -710,7 +710,7 @@ bool ezRenderPipeline::AreInputDescriptionsAvailable(const ezRenderPipelinePass*
       if (!done.Contains(static_cast<ezRenderPipelinePass*>(pConn->m_pOutput->m_pParent)))
       {
         return false;
-      }    
+      }
     }
   }
 
@@ -775,7 +775,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   }
 
   m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
-  
+
   auto& data = m_Data[ezRenderLoop::GetDataIndexForExtraction()];
 
   // Usually clear is not needed, only if the multithreading flag is switched during runtime.
@@ -785,6 +785,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   data.SetCamera(*view.GetRenderCamera());
   data.SetViewData(view.GetData());
   data.SetWorldIndex(view.GetWorld()->GetIndex());
+  data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
 
   // Extract object render data
   for (auto& pExtractor : m_Extractors)
@@ -834,9 +835,10 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   gc.ScreenToWorldMatrix = pViewData->m_InverseViewProjectionMatrix;
   gc.Viewport = ezVec4(pViewData->m_ViewPortRect.x, pViewData->m_ViewPortRect.y, pViewData->m_ViewPortRect.width, pViewData->m_ViewPortRect.height);
 
+
   // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
-  gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0); 
-  gc.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
+  gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
+  gc.WorldTime = (float)ezMath::Mod(data.GetWorldTime().GetSeconds(), 20790.0);
 
   ezRenderViewContext renderViewContext;
   renderViewContext.m_pCamera = pCamera;
@@ -850,7 +852,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   static ezHashedString sPerspective = ezMakeHashedString("PERSPECTIVE");
 
   pRenderContext->SetShaderPermutationVariable(sCameraMode, pCamera->IsOrthographic() ? sOrtho : sPerspective);
-  
+
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
