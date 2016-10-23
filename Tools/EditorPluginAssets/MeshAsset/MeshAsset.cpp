@@ -575,18 +575,23 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       ezLog::SeriousWarning("Can't find default lit alpha test material %s", litMaterialAssetPath);
   }
 
+  ezHashTable<const ezModelImporter::Material*, ezString> importMatToMaterialGuid;
   for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
   {
     const ezModelImporter::SubMesh& subMesh = mesh.GetSubMesh(subMeshIdx);
     const ezModelImporter::Material* material = scene.GetMaterial(subMesh.m_Material);
-    if (!material)
+    if (!material) // No material? Leave default or user set.
       continue;
 
     // Didn't find currently set resource, create new imported material.
     if (!ezAssetCurator::GetSingleton()->FindAssetInfo(pProp->m_Slots[subMeshIdx].m_sResource))
     {
-      ezStringBuilder materialName = material->m_Name;
+      // Check first if we already imported this material.
+      if (importMatToMaterialGuid.TryGetValue(material, pProp->m_Slots[subMeshIdx].m_sResource))
+        continue;
 
+
+      ezStringBuilder materialName = material->m_Name;
       // Might have not a name.
       if (materialName.IsEmpty())
       {
@@ -694,7 +699,17 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       materialDocument->SaveDocument();
       ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
       pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid());
+
       materialDocument->GetDocumentManager()->CloseDocument(materialDocument);
+    }
+
+    // If we have a material now, fill the mapping.
+    // It is important to do this even for "old"/known materials since a mesh might have gotton a new slot that points to the same material than previous slots.
+    if (pProp->m_Slots[subMeshIdx].m_sResource)
+    {
+      // Note that this overwrites the slot with the newest resource.
+      // Should we instead check whether this particular resource exists before we do that?
+      importMatToMaterialGuid.Insert(material, pProp->m_Slots[subMeshIdx].m_sResource);
     }
   }
 }
