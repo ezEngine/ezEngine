@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <QPainter>
 
 

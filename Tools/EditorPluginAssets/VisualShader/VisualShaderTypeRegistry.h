@@ -13,14 +13,37 @@ public:
   const ezRTTI* m_pDataType;
   ezReflectedPropertyDescriptor m_PropertyDesc;
   ezColorGammaUB m_Color;
+  ezVariant m_DefaultValue;
+};
+
+struct ezVisualShaderNodeType
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Generic,
+    Main,
+
+    Default = Generic
+  };
 };
 
 class ezVisualShaderNodeDescriptor
 {
 public:
 
+  ezEnum<ezVisualShaderNodeType> m_NodeType;
   ezString m_sName;
   ezColorGammaUB m_Color;
+  ezString m_sShaderCodePixelDefines;
+  ezString m_sShaderCodePixelIncludes;
+  ezString m_sShaderCodePixelConstants;
+  ezString m_sShaderCodePixelBody;
+  ezString m_sShaderCodePermutations;
+  ezString m_sShaderCodeMaterialParams;
+  ezString m_sShaderCodeRenderState;
+  ezString m_sShaderCodeVertexShader;
 
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_InputPins;
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_OutputPins;
@@ -34,7 +57,6 @@ class ezVisualShaderTypeRegistry
 
 public:
   ezVisualShaderTypeRegistry();
-  ~ezVisualShaderTypeRegistry();
 
   const ezVisualShaderNodeDescriptor* GetDescriptorForType(const ezRTTI* pRtti) const;
 

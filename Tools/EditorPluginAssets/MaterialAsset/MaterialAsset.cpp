@@ -14,6 +14,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
@@ -477,13 +478,26 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
   return pShaderType;
 }
 
+ezString ezMaterialAssetProperties::GetAutoGenShaderPathAbs() const
+{
+  ezStringBuilder sPath = m_pDocument->GetDocumentPath();
+  ezStringBuilder sFilename = sPath.GetFileName();
+
+  sFilename.Append(".autogen.ezShader");
+  sPath.ChangeFileNameAndExtension(sFilename);
+
+  return sPath;
+}
+
 ezString ezMaterialAssetProperties::GetFinalShader() const
 {
   if (m_ShaderMode == ezMaterialShaderMode::File)
     return m_sShader;
 
-  // TODO
-  return m_sShader;
+  ezString sResult = GetAutoGenShaderPathAbs();
+  ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sResult);
+
+  return sResult;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -679,6 +693,28 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
+  if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
+  {
+    ezVisualShaderCodeGenerator codeGen;
+    ezStatus status = codeGen.GenerateVisualShader(static_cast<ezDocumentNodeManager*>(GetObjectManager()), szPlatform);
+
+    if (status.m_Result.Failed())
+      return status;
+
+    ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
+
+    ezFileWriter file;
+    if (file.Open(sAutoGenShader).Succeeded())
+    {
+      ezStringBuilder shader = codeGen.GetFinalShaderCode();
+
+      file.WriteBytes(shader.GetData(), shader.GetElementCount());
+      file.Close();
+    }
+    else
+      return ezStatus("Failed to write auto-generated shader to '%s'", sAutoGenShader.GetData());
+  }
+
   ezStatus status = WriteMaterialAsset(stream, szPlatform);
   return status;
 }

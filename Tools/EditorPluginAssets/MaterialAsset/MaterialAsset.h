@@ -47,6 +47,7 @@ public:
   const ezRTTI* UpdateShaderType(const char* szShaderPath);
 
   ezString GetFinalShader() const;
+  ezString GetAutoGenShaderPathAbs() const;
 
 public:
   ezString m_sBaseMaterial;

@@ -148,7 +148,7 @@ void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObje
       for (const ezConnection* pConnection : inputs)
       {
         const ezPin* pPinTarget = pConnection->GetTargetPin();
-       
+
         inout_uiHash = ezHashing::MurmurHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashing::MurmurHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashing::MurmurHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
