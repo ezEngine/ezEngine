@@ -5,6 +5,8 @@
 #include <EditorPluginAssets/ModelImporter/Material.h>
 
 #include <Foundation/Containers/HashSet.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Logging/Log.h>
 
 
 namespace ezModelImporter
@@ -19,6 +21,9 @@ namespace ezModelImporter
 
   const HierarchyObject* Scene::GetObject(ObjectHandle handle) const
   {
+    if (!handle.IsValid())
+      return nullptr;
+
     switch (handle.GetType())
     {
     case ObjectHandle::NODE:
@@ -102,6 +107,7 @@ namespace ezModelImporter
 
   Mesh* Scene::MergeAllMeshes(bool mergeSubmeshesWithSameMaterials)
   {
+    ezStopwatch timer;
     ezUniquePtr<Mesh> mergedMesh = EZ_DEFAULT_NEW(Mesh);
 
     // Get all meshes and their transform.
@@ -142,11 +148,8 @@ namespace ezModelImporter
 
     Mesh* outMesh = mergedMesh.Borrow();
     m_Meshes.Insert(std::move(mergedMesh));
+
+    ezLog::Debug("Merged meshes in '%.2f's", timer.GetRunningTotal().GetSeconds());
     return outMesh;
-  }
-
-  void Scene::RemoveEmptyNodesRec(ObjectId nodeId)
-  {
-
   }
 }

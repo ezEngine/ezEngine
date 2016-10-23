@@ -16,7 +16,7 @@ namespace ezModelImporter
     /// Relative transform of this node to its parent.
     ezTransform m_RelativeTransform;
 
-    /// Children.
+    /// Children. ImporterImplementations are responsible to set child & parent pointer correctly.
     ezDynamicArray<ObjectHandle> m_Children;
 
     struct Metadata

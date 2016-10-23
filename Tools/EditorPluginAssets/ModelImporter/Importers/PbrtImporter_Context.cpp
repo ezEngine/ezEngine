@@ -3,13 +3,66 @@
 #include <EditorPluginAssets/ModelImporter/Material.h>
 #include <EditorPluginAssets/ModelImporter/Scene.h>
 #include <EditorPluginAssets/ModelImporter/Node.h>
+#include <EditorPluginAssets/ModelImporter/Mesh.h>
 #include <Foundation/Logging/Log.h>
 
 namespace ezModelImporter
 {
   namespace Pbrt
   {
-    ParseContext::ParseContext(const char* modelFilename) : m_inWorld(false), m_modelFilename(modelFilename)
+    Object::Object() : m_Transform(ezTransform::Identity()), m_NumMeshes(0)
+    {}
+
+    Object::~Object()
+    {}
+
+    Object::Object(Object&& object)
+    {
+      *this = std::move(object);
+    }
+
+    void Object::operator = (Object&& object)
+    {
+      m_Transform = object.m_Transform;
+      m_MeshesHandles = std::move(object.m_MeshesHandles);
+      m_NumMeshes = object.m_NumMeshes;
+      for(ezUInt32 i=0; i<m_NumMeshes; ++i)
+        m_MeshesData[i] = std::move(object.m_MeshesData[i]);
+    }
+
+    void Object::AddMesh(ezUniquePtr<Mesh> mesh)
+    {
+      EZ_ASSERT_DEBUG(m_MeshesHandles.IsEmpty(), "Can't add meshes to Pbrt::Object after it was initialized once.");
+      if (m_NumMeshes == s_maxNumMeshes)
+      {
+        ezLog::Error("Due to implementation limitatinos a pbrt object can't hold more than %i meshes.", s_maxNumMeshes);
+        return;
+      }
+      m_MeshesData[m_NumMeshes] = std::move(mesh);
+      ++m_NumMeshes;
+    }
+
+    ezArrayPtr<ObjectHandle> Object::InstantiateMeshes(Scene& scene)
+    {
+      if (m_NumMeshes == 0)
+        return ezArrayPtr<ObjectHandle>();
+
+      if(m_MeshesHandles.IsEmpty())
+      {
+        m_MeshesHandles.SetCountUninitialized(m_NumMeshes);
+        for(ezUInt32 i=0; i<m_NumMeshes; ++i)
+        {
+          m_MeshesHandles[i] = scene.AddMesh(std::move(m_MeshesData[i]));
+        }
+      }
+
+      return m_MeshesHandles;
+    }
+
+    ParseContext::ParseContext(const char* modelFilename)
+      : m_inWorld(false)
+      , m_modelFilename(modelFilename)
+      , m_activeObject(nullptr)
     {
       m_transformStack.PushBack(ezTransform::Identity());
       m_activeMaterialStack.PushBack(MaterialHandle());
@@ -28,7 +81,10 @@ namespace ezModelImporter
 
     ezTransform& ParseContext::PeekActiveTransform()
     {
-      return m_transformStack.PeekBack();
+      if (m_activeObject)
+        return m_activeObject->m_Transform;
+      else
+        return m_transformStack.PeekBack();
     }
 
     MaterialHandle* ParseContext::PeekActiveMaterial()
@@ -68,6 +124,34 @@ namespace ezModelImporter
       }
       else
         return EZ_FAILURE;
+    }
+
+    void ParseContext::ObjectBegin(const char* name)
+    {
+      m_activeObject = nullptr;
+      m_objects.TryGetValue(name, m_activeObject);
+      if (!m_activeObject)
+      {
+        m_objects.Insert(name, Object());
+        m_activeObject = &m_objects[name];
+      }
+    }
+
+    Object* ParseContext::GetActiveObject() const
+    {
+      return m_activeObject;
+    }
+
+    void ParseContext::ObjectEnd()
+    {
+      m_activeObject = nullptr;
+    }
+
+    Object* ParseContext::LookUpObject(const char* name)
+    {
+      Object* out = nullptr;
+      m_objects.TryGetValue(name, out);
+      return out;
     }
 
     void ParseContext::EnterWorld()

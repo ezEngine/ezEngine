@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Time/Stopwatch.h>
 
 #include <ThirdParty/mikktspace/mikktspace.h>
 
@@ -278,6 +279,8 @@ namespace ezModelImporter
 
   ezResult Mesh::ComputeNormals()
   {
+    ezStopwatch timer;
+
     VertexDataStream* positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (positionStream == nullptr)
     {
@@ -313,6 +316,7 @@ namespace ezModelImporter
     for (ezUInt32 n = 0; n < normalStream->m_Data.GetCount(); n += 3)
       reinterpret_cast<ezVec3*>(&normalStream->m_Data[n])->NormalizeIfNotZero();
 
+    ezLog::Debug("Computed mesh normals ('%s') in '%.2f's", m_Name.GetData(), timer.GetRunningTotal().GetSeconds());
     return EZ_SUCCESS;
   }
 
@@ -333,6 +337,8 @@ namespace ezModelImporter
 
   ezResult Mesh::ComputeTangents()
   {
+    ezStopwatch timer;
+
     struct MikkInterfaceImpl
     {
       ezArrayPtr<Triangle> triangles;
@@ -447,6 +453,7 @@ namespace ezModelImporter
       return EZ_FAILURE;
     }
 
+    ezLog::Debug("Computed mesh normals ('%s') in '%.2f's", m_Name.GetData(), timer.GetRunningTotal().GetSeconds());
     return EZ_SUCCESS;
   }
 }

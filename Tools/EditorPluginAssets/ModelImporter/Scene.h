@@ -33,9 +33,9 @@ namespace ezModelImporter
     const HierarchyObject* GetObject(ObjectHandle handle) const;
     HierarchyObject* GetObject(ObjectHandle handle);
     template<typename T>
-    const T* GetObject(ObjectHandle handle) const { return GetObject(handle)->Cast<T>(); }
+    const T* GetObject(ObjectHandle handle) const { auto obj = GetObject(handle); return obj ? obj->Cast<T>() : nullptr; }
     template<typename T>
-    T* GetObject(ObjectHandle handle) { return GetObject(handle)->Cast<T>(); }
+    T* GetObject(ObjectHandle handle) { auto obj = GetObject(handle); return obj ? obj->Cast<T>() : nullptr; }
 
     const Material* GetMaterial(MaterialHandle handle) const;
 
@@ -57,7 +57,7 @@ namespace ezModelImporter
     // Postprocessing
   public:
     /// Merges all meshes into a single one.
-    /// 
+    ///
     /// Transformations from nodes will be applied. The resulting mesh will be stored in the list of root objects.
     /// \param mergeSubmeshesWithIdenticalMaterials
     ///   If true, all submeshes that use the same material will be merged in the resulting mesh.
@@ -67,10 +67,9 @@ namespace ezModelImporter
 
 
   private:
-    void RemoveEmptyNodesRec(ObjectId nodeId);
 
     ezDynamicArray<HierarchyObject*> m_RootObjects;
-    
+
     ezIdTable<ObjectId, ezUniquePtr<Node>> m_Nodes;
     ezIdTable<ObjectId, ezUniquePtr<Mesh>> m_Meshes;
     ezIdTable<MaterialId, ezUniquePtr<Material>> m_Materials;

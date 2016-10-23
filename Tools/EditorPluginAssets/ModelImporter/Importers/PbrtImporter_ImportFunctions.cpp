@@ -45,6 +45,11 @@ namespace ezModelImporter
     {
       context.PopActiveTransform();
     }
+
+    void ObjectEnd(ParseContext& context)
+    {
+      context.ObjectEnd();
+    }
   }
 
   namespace PbrtTransformFunctions
@@ -146,13 +151,13 @@ namespace ezModelImporter
     void Shape(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
     {
       // Get/Create node for current transform.
-      ObjectHandle parentNode;
-      if (!context.PeekActiveTransform().IsIdentical(ezTransform::Identity()))
+      ObjectHandle parentNodeHandle;
+      if (!context.GetActiveObject() && !context.PeekActiveTransform().IsIdentical(ezTransform::Identity()))
       {
         // todo: Recycle node if it hasn't changed since last time.
         ezUniquePtr<Node> node = EZ_DEFAULT_NEW(Node);
         node->m_RelativeTransform = context.PeekActiveTransform();
-        parentNode = outScene.AddNode(std::move(node));
+        parentNodeHandle = outScene.AddNode(std::move(node));
       }
 
       ezUniquePtr<ezModelImporter::Mesh> mesh;
@@ -301,9 +306,6 @@ namespace ezModelImporter
 
       if (mesh)
       {
-        // Wire in last node.
-        mesh->SetParent(parentNode);
-
         // Wire in last material. If active material is invalid, still do it to remove any reference to old scene.
         if (context.PeekActiveMaterial())
         {
@@ -327,8 +329,21 @@ namespace ezModelImporter
             mesh->GetSubMesh(i).m_Material = MaterialHandle();
         }
 
-        // Add to output scene.
-        outScene.AddMesh(std::move(mesh));
+        // Add to output scene or object.
+        if (Object* obj = context.GetActiveObject())
+          obj->AddMesh(std::move(mesh));
+        else
+        {
+          Mesh* meshPtrCopy = mesh.Borrow();
+          auto meshHandle = outScene.AddMesh(std::move(mesh));
+
+          // Wire in last node.
+          if (Node* parentNode = outScene.GetObject<Node>(parentNodeHandle))
+          {
+            parentNode->m_Children.PushBack(meshHandle);
+            meshPtrCopy->SetParent(parentNodeHandle);
+          }
+        }
       }
     }
 
@@ -496,7 +511,7 @@ namespace ezModelImporter
       context.PushActiveMaterial(outScene.AddMaterial(std::move(newMaterial)));
     }
 
-    void MakeNamedMAterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    void MakeNamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
     {
       // "type" is name and the first parameter is the type.
       ezString name = type;
@@ -563,6 +578,42 @@ namespace ezModelImporter
       else
       {
         context.AddTexture(ezString(type), filename);
+      }
+    }
+
+    void ObjectBegin(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    {
+      ezString objectName(type);
+      if (parameters.GetCount() != 0)
+        ezLog::Warning("Expected 0 parameters for ObjectBegin command (name '%s').", objectName.GetData());
+
+      context.ObjectBegin(objectName);
+    }
+
+    void ObjectInstance(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
+    {
+      ezString objectName(type);
+      if (parameters.GetCount() != 0)
+        ezLog::Warning("Expected 0 parameters for ObjectInstance command (name '%s').", objectName.GetData());
+
+      Object* object = context.LookUpObject(objectName);
+      if (!object)
+      {
+        ezLog::Error("Can't instantiate object: No object with name '%s' known.", objectName.GetData());
+        return;
+      }
+
+      ezArrayPtr<ObjectHandle> meshes = object->InstantiateMeshes(outScene);
+      ezTransform transform;
+
+      auto nodeHandle = outScene.AddNode(EZ_DEFAULT_NEW(Node));
+      Node* node = outScene.GetObject<Node>(nodeHandle);
+      node->m_Name = objectName;
+      node->m_RelativeTransform.SetGlobalTransform(context.PeekActiveTransform(), object->m_Transform);
+      for (ObjectHandle meshHandle : meshes)
+      {
+        outScene.GetObject<Mesh>(meshHandle)->SetParent(nodeHandle);
+        node->m_Children.PushBack(meshHandle);
       }
     }
   }

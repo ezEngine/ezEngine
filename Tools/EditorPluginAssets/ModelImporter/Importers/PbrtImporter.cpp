@@ -42,6 +42,7 @@ namespace ezModelImporter
       PbrtCommandLookup::s_scopes.Insert("attributeend", &PbrtScopeFunctions::AttributeEnd);
       PbrtCommandLookup::s_scopes.Insert("transformbegin", &PbrtScopeFunctions::TransformBegin);
       PbrtCommandLookup::s_scopes.Insert("transformend", &PbrtScopeFunctions::TransformEnd);
+      PbrtCommandLookup::s_scopes.Insert("objectend", &PbrtScopeFunctions::ObjectEnd);
       // Known missing:
       // * ActiveTransform & TransformTimes
 
@@ -61,10 +62,12 @@ namespace ezModelImporter
       // Objects.
       PbrtCommandLookup::s_objects.Insert("shape", &PbrtObjectParseFunctions::Shape);
       PbrtCommandLookup::s_objects.Insert("material", &PbrtObjectParseFunctions::Material);
-      PbrtCommandLookup::s_objects.Insert("makenamedmaterial", &PbrtObjectParseFunctions::MakeNamedMAterial);
+      PbrtCommandLookup::s_objects.Insert("makenamedmaterial", &PbrtObjectParseFunctions::MakeNamedMaterial);
       PbrtCommandLookup::s_objects.Insert("namedmaterial", &PbrtObjectParseFunctions::NamedMaterial);
       PbrtCommandLookup::s_objects.Insert("material", &PbrtObjectParseFunctions::Material);
       PbrtCommandLookup::s_objects.Insert("texture", &PbrtObjectParseFunctions::Texture);
+      PbrtCommandLookup::s_objects.Insert("objectbegin", &PbrtObjectParseFunctions::ObjectBegin);
+      PbrtCommandLookup::s_objects.Insert("objectinstance", &PbrtObjectParseFunctions::ObjectInstance);
       // Known missing:
       // * Film
       // * Sampler
