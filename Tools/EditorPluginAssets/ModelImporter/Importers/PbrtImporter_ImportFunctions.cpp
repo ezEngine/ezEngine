@@ -107,7 +107,7 @@ namespace ezModelImporter
 
     ezResult ParseMat4(ezStringView& remainingSceneText, ezMat4& outMat)
     {
-      return PbrtParseHelper::ParseFloats(remainingSceneText, ezArrayPtr<float>(&outMat.m_fElementsCM[0], outMat.m_fElementsCM[16]), 16);
+      return PbrtParseHelper::ParseFloats(remainingSceneText, ezArrayPtr<float>(&outMat.m_fElementsCM[0], 16), 16);
     }
 
     void Transform(ParseContext& context, ezStringView& remainingSceneText)
