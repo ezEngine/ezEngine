@@ -32,7 +32,9 @@ VS_OUT main(VS_IN Input)
     "CodeMaterialParams" : "
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;
-Permutation TWO_SIDED;",
+Permutation TWO_SIDED;
+float MaskThreshold @Default(0.25);
+",
 
     "CodePixelDefines" : "
 #define USE_NORMAL
@@ -48,45 +50,91 @@ Permutation TWO_SIDED;",
 
     "CodePixelConstants" : "",
     "CodePixelBody" : "
-float3 GetNormal(PS_IN Input)
-{
-  return Input.Normal;
-}
 
 float3 GetBaseColor(PS_IN Input)
 {
   return $in0.rgb;
 }
 
+float3 GetNormal(PS_IN Input)
+{
+  return $in1.xyz;
+}
+
 float GetMetallic(PS_IN Input)
 {
-  return 0.0;
+  return $in2;
 }
 
 float GetReflectance(PS_IN Input)
 {
-  return 0.5f;
+  return $in3;
 }
 
 float GetRoughness(PS_IN Input)
 {
-  return 0.5;
+  return $in4;
 }
 
 float GetOpacity(PS_IN Input)
 {
-  return 1.0;
+  #if BLEND_MODE == BLEND_MODE_MASKED
+    return $in5 - MaskThreshold;
+  #else
+    return $in5;
+  #endif
 }
 ",
 
     "InputPins" :
     [
+      // Pin 0
       {
         "Name" : "Base Color",
         "Type" : "float4",
         "Color" : "255, 255, 255",
         "Expose" : true,
         "Fallback" : "float4(1, 1, 1, 1)"
+      },
+
+      // Pin 1
+      {
+        "Name" : "Normal",
+        "Type" : "float3",
+        "Color" : "128, 128, 255",
+        "Fallback" : "Input.Normal"
+      },
+
+      // Pin 2
+      {
+        "Name" : "Metallic",
+        "Type" : "float",
+        "Color" : "128, 128, 128",
+        "Fallback" : "float(0.0)"
+      },
+
+      // Pin 3
+      {
+        "Name" : "Reflectance",
+        "Type" : "float",
+        "Color" : "196, 196, 196",
+        "Fallback" : "float(0.5)"
+      },
+
+      // Pin 4
+      {
+        "Name" : "Roughness",
+        "Type" : "float",
+        "Color" : "150, 64, 64",
+        "Fallback" : "float(0.5)"
+      },
+
+      // Pin 5
+      {
+        "Name" : "Opacity",
+        "Type" : "float",
+        "Color" : "230, 230, 153",
+        "Fallback" : "float(1.0)"
       }
     ]
   }

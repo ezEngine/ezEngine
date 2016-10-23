@@ -10,7 +10,7 @@
     "CodePixelDefines" : "",
     "CodePixelIncludes" : "",
     "CodePixelConstants" : "",
-    "CodePixelBody" : "float4 $out0() { return $in0 + $in1; }",
+    "CodePixelBody" : "float4 $out0(PS_IN Input) { return $in0 + $in1; }",
 
     "InputPins" :
     [
@@ -44,7 +44,7 @@
   "Subtract" :
   {
     "Color" : "255, 128, 0",
-    "CodePixelBody" : "float4 $out0() { return $in0 - $in1; }",
+    "CodePixelBody" : "float4 $out0(PS_IN Input) { return $in0 - $in1; }",
 
     "InputPins" :
     [
@@ -78,7 +78,7 @@
   "Multiply" :
   {
     "Color" : "255, 128, 0",
-    "CodePixelBody" : "float4 $out0() { return $in0 * $in1; }",
+    "CodePixelBody" : "float4 $out0(PS_IN Input) { return $in0 * $in1; }",
 
     "InputPins" :
     [
@@ -112,7 +112,7 @@
   "Fraction" :
   {
     "Color" : "255, 128, 0",
-    "CodePixelBody" : "float $out0() { return frac($in0); }",
+    "CodePixelBody" : "float $out0(PS_IN Input) { return frac($in0); }",
 
     "InputPins" :
     [

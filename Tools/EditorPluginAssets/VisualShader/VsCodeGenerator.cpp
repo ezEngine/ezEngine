@@ -300,7 +300,8 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinNames(const ezDocumentObjec
       if (uiPinID == 0xFFFF)
         return ezStatus("Could not determine ID of source pin in connected input node");
 
-      sValue.Format("node%u_out%u()", uiSourceNodeID, uiPinID);
+      /// \todo Oh god, why is HLSL so shitty?! Need to pass along the input data through every single function!
+      sValue.Format("node%u_out%u(Input)", uiSourceNodeID, uiPinID);
     }
 
     ezUInt32 rep = 0;
