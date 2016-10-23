@@ -34,7 +34,75 @@
     "OutputPins" :
     [
       {
-        "Name" : "sum",
+        "Name" : "result",
+        "Type" : "float4",
+        "Color" : "1, 1, 1"
+      }
+    ]
+  },
+
+  "Subtract" :
+  {
+    "Color" : "1.0, 0.5, 0.0",
+    "CodePixelBody" : "float4 $out0() { return $in0() - $in1(); }",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float4",
+        "Color" : "1, 1, 1",
+        "Expose" : true,
+        "Fallback" : "float4(0, 0, 0, 0)"
+      },
+
+      {
+        "Name" : "b",
+        "Type" : "float4",
+        "Color" : "1, 1, 1",
+        "Expose" : true,
+        "Fallback" : "float4(0, 0, 0, 0)"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float4",
+        "Color" : "1, 1, 1"
+      }
+    ]
+  },
+
+  "Multiply" :
+  {
+    "Color" : "1.0, 0.5, 0.0",
+    "CodePixelBody" : "float4 $out0() { return $in0() * $in1(); }",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "vector",
+        "Type" : "float4",
+        "Color" : "1, 1, 1",
+        "Expose" : true,
+        "Fallback" : "float4(1, 1, 1, 1)"
+      },
+
+      {
+        "Name" : "scalar",
+        "Type" : "float",
+        "Color" : "1, 1, 1",
+        "Expose" : true,
+        "Fallback" : "float(1.0)"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
         "Type" : "float4",
         "Color" : "1, 1, 1"
       }

@@ -45,5 +45,101 @@
         "Value" : "1, 1, 1, 1"
       }
     ]
+  },
+
+  "Constant1" :
+  {
+    "Color" : "0.55, 0.05, 0.15", // 140, 13, 38
+    "CodePixelConstants" : "float $out0() { return $prop0; }",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float",
+        "Color" : "1, 1, 1"
+      }
+    ],
+
+    "Properties" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float",
+        "Value" : "0"
+      }
+    ]
+  },
+
+  "Constant2" :
+  {
+    "Color" : "0.55, 0.05, 0.15", // 140, 13, 38
+    "CodePixelConstants" : "float2 $out0() { return $prop0; }",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float2",
+        "Color" : "1, 1, 1"
+      }
+    ],
+
+    "Properties" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float2",
+        "Value" : "0, 0"
+      }
+    ]
+  },
+
+  "Constant3" :
+  {
+    "Color" : "0.55, 0.05, 0.15", // 140, 13, 38
+    "CodePixelConstants" : "float3 $out0() { return $prop0; }",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float3",
+        "Color" : "1, 1, 1"
+      }
+    ],
+
+    "Properties" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float3",
+        "Value" : "0, 0, 0"
+      }
+    ]
+  },
+
+  "Constant4" :
+  {
+    "Color" : "0.55, 0.05, 0.15", // 140, 13, 38
+    "CodePixelConstants" : "float4 $out0() { return $prop0; }",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float4",
+        "Color" : "1, 1, 1"
+      }
+    ],
+
+    "Properties" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float4",
+        "Value" : "0, 0, 0, 0"
+      }
+    ]
   }
 }
