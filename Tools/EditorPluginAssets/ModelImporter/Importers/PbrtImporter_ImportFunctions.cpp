@@ -464,6 +464,13 @@ namespace ezModelImporter
       // Put in all parameters not loaded yet.
       for (Parameter& param : parameters)
       {
+        // More general semantic hint mapping.
+        SemanticHint::Enum semanticHint = SemanticHint::UNKNOWN;
+        if(param.name.IsEqual_NoCase("kd")) semanticHint = SemanticHint::DIFFUSE;
+        else if (param.name.IsEqual_NoCase("ks")) semanticHint = SemanticHint::ROUGHNESS;
+        else if (param.name.IsEqual_NoCase("kr")) semanticHint = SemanticHint::METALLIC;
+        else if (param.name.IsEqual_NoCase("bumpmap")) semanticHint = SemanticHint::NORMAL;
+
         bool found = false;
         if (param.type == ParamType::TEXTURE)
         {
@@ -480,7 +487,7 @@ namespace ezModelImporter
             ezString textureName = param.data[0].Get<ezString>();
             const char* textureFilename = context.LookUpTextureFilename(textureName);
             if (textureFilename)
-              newMaterial->m_Textures.PushBack(TextureReference(ezString(param.name), textureFilename));
+              newMaterial->m_Textures.PushBack(TextureReference(semanticHint, ezString(param.name), textureFilename));
           }
         }
         else
@@ -495,7 +502,7 @@ namespace ezModelImporter
           }
           if (!found)
           {
-            newMaterial->m_Properties.PushBack(Property(ezString(param.name), param.data[0]));
+            newMaterial->m_Properties.PushBack(Property(semanticHint, ezString(param.name), param.data[0]));
           }
         }
       }
