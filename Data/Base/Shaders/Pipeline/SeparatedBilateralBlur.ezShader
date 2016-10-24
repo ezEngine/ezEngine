@@ -1,0 +1,100 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLUR_DIRECTION
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthTestFunc = CompareFunc_Less
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/ObjectConstants.h>
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include "BilateralBlurConstants.h"
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D BlurSource;
+Texture2D DepthBuffer;
+
+// todo: Move this to a better place.
+// Also note that computations like this are not set in stone as we may want to move to a different way of storing Z
+// (for example flipped near/far plane is quite common for better float precision)
+//
+// Basically removes the w division from z again.
+float LinearizeZBufferDepth(float depthFromZBuffer)
+{
+  return CameraToScreenMatrix._34 / (depthFromZBuffer - CameraToScreenMatrix._33);
+}
+
+float LoadLinearDepth(int2 texelCoord)
+{
+  return LinearizeZBufferDepth(DepthBuffer.Load(int3(texelCoord, 0)).r);
+}
+
+
+// Note that with the bilateral blur we can't do any of the usual optimizations like
+// using linear sampling or using the symmetry of the gaussian function.
+float4 BlurFunction(int2 texelCoord, float gaussianExp, float centerDepth, inout float totalWeights)
+{
+  // https://en.wikipedia.org/wiki/Bilateral_filter
+  float depth = LoadLinearDepth(texelCoord);
+  float ddiff = depth - centerDepth;
+  float w = exp(gaussianExp - ddiff * ddiff * Sharpness);
+  totalWeights += w;
+
+  return w * BlurSource.Load(int3(texelCoord, 0));
+}
+
+float4 main(PS_IN input) : SV_Target
+{
+  float width, height, levels;
+  BlurSource.GetDimensions(0, width, height, levels);
+
+  int2 texelCoord = int2(input.TexCoord0 * float2(width, height));
+
+  float centerDepth = LoadLinearDepth(texelCoord);
+  float4 accum = BlurSource.Load(int3(texelCoord, 0));
+  float totalWeights = 1.0f;
+
+  int2 texelCoordPos = texelCoord;
+  int2 texelCoordNeg = texelCoord;
+  float sampleDistance = 0.0f;
+  for (uint r = 1; r <= BlurRadius; ++r) // todo: Should BlurRadius be a permutation variable so we can unroll it?
+  {
+  #if BLUR_DIRECTION == HORIZONTAL
+    --texelCoordNeg.x;
+    ++texelCoordPos.x;
+  #else
+    --texelCoordNeg.y;
+    ++texelCoordPos.y;
+  #endif
+
+    sampleDistance += 1.0f;
+    float gaussianExp = -sampleDistance * sampleDistance * GaussianFalloff;
+
+    accum += BlurFunction(texelCoordPos, gaussianExp, centerDepth, totalWeights);
+    accum += BlurFunction(texelCoordNeg, gaussianExp, centerDepth, totalWeights);
+  }
+
+  return accum / totalWeights;
+}
+
+#endif

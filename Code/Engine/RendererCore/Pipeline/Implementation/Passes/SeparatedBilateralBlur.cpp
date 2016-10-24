@@ -1,0 +1,179 @@
+#include <RendererCore/PCH.h>
+#include <RendererCore/Pipeline/Passes/SeparatedBilateralBlur.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+
+#include <CoreUtils/Geometry/GeomUtils.h>
+#include <RendererCore/../../../Data/Base/Shaders/Pipeline/BilateralBlurConstants.h>
+
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSeparatedBilateralBlurPass, 1, ezRTTIDefaultAllocator<ezSeparatedBilateralBlurPass>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("BlurSource", m_PinBlurSourceInput),
+    EZ_MEMBER_PROPERTY("Depth", m_PinDepthInput),
+    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
+    EZ_ACCESSOR_PROPERTY("Blur Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(7)),
+      // Should we really expose that? This gives the user control over the error compared to a perfect gaussian.
+      // In theory we could also compute this for a given error from the blur radius. See http://dev.theomader.com/gaussian-kernel-calculator/ for visualization.
+    EZ_ACCESSOR_PROPERTY("Gaussian Standard Deviation", GetGaussianSigma, SetGaussianSigma)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
+    EZ_ACCESSOR_PROPERTY("Bilateral Sharpness", GetSharpness, SetSharpness)->AddAttributes(new ezDefaultValueAttribute(120.0f)),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+  ezSeparatedBilateralBlurPass::ezSeparatedBilateralBlurPass()
+  : ezRenderPipelinePass("SeparatedBilateral")
+  , m_uiRadius(7)
+  , m_fGaussianSigma(3.5f)
+  , m_fSharpness(120.0f)
+{
+  {
+    // Load shader.
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SeparatedBilateralBlur.ezShader");
+    EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load blur shader!");
+  }
+
+  {
+    m_hBilateralBlurCB = ezRenderContext::CreateConstantBufferStorage<ezBilateralBlurConstants>();
+  }
+}
+
+ezSeparatedBilateralBlurPass::~ezSeparatedBilateralBlurPass()
+{
+  ezRenderContext::DeleteConstantBufferStorage(m_hBilateralBlurCB);
+  m_hBilateralBlurCB.Invalidate();
+}
+
+bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+{
+  EZ_ASSERT_DEBUG(inputs.GetCount() == 2, "Unexpected number of inputs for ezSeparatedBilateralBlurPass.");
+
+  // Color
+  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex])
+  {
+    ezLog::Error("No blur target connected to bilateral blur pass!");
+    return false;
+  }
+  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  {
+    ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
+    return false;
+  }
+
+  // Depth
+  if (!inputs[m_PinDepthInput.m_uiInputIndex])
+  {
+    ezLog::Error("No depth connected to bilateral blur pass!");
+    return false;
+  }
+  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  {
+    ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
+    return false;
+  }
+  if (inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiWidth != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiWidth ||
+    inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiHeight != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiHeight)
+  {
+    ezLog::Error("Blur target and depth buffer for bilateral blur pass need to have the same dimensions.");
+    return false;
+  }
+
+
+  // Output format maches input format.
+  outputs[m_PinOutput.m_uiOutputIndex] = *inputs[m_PinBlurSourceInput.m_uiInputIndex];
+
+  return true;
+}
+
+void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+  if (outputs[m_PinOutput.m_uiOutputIndex])
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+    // Setup input view and sampler
+    ezGALResourceViewCreationDescription rvcd;
+    rvcd.m_hTexture = inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle;
+    ezGALResourceViewHandle hBlurSourceInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
+    ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+
+    // Get temp texture for horizontal target / vertical source.
+    ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
+    tempTextureDesc.m_bAllowShaderResourceView = true;
+    tempTextureDesc.m_bCreateRenderTarget = true;
+    ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
+    rvcd.m_hTexture = tempTexture;
+    ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+
+    ezGALRenderTagetSetup renderTargetSetup;
+    renderTargetSetup.SetDepthStencilTarget(ezGALRenderTargetViewHandle());
+
+    // Bind shader and inputs
+    renderViewContext.m_pRenderContext->BindShader(m_hShader);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "DepthBuffer", hDepthInputView);
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
+
+    // Horizontal.
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
+    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "HORIZONTAL");
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "BlurSource", hBlurSourceInputView);
+    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+    // Vertical.
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "VERTICAL");
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "BlurSource", hTempTextureRView);
+    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+    // Give back temp texture.
+    ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(tempTexture);
+  }
+}
+
+void ezSeparatedBilateralBlurPass::SetRadius(ezUInt32 uiRadius)
+{
+  m_uiRadius = uiRadius;
+
+  ezBilateralBlurConstants* cb = ezRenderContext::GetConstantBufferData<ezBilateralBlurConstants>(m_hBilateralBlurCB);
+  cb->BlurRadius = m_uiRadius;
+}
+
+ezUInt32 ezSeparatedBilateralBlurPass::GetRadius() const
+{
+  return m_uiRadius;
+}
+
+void ezSeparatedBilateralBlurPass::SetGaussianSigma(const float sigma)
+{
+  m_fGaussianSigma = sigma;
+
+  ezBilateralBlurConstants* cb = ezRenderContext::GetConstantBufferData<ezBilateralBlurConstants>(m_hBilateralBlurCB);
+  cb->GaussianFalloff = 1.0f / (2.0f * m_fGaussianSigma * m_fGaussianSigma);
+}
+
+float ezSeparatedBilateralBlurPass::GetGaussianSigma() const
+{
+  return m_fGaussianSigma;
+}
+
+void ezSeparatedBilateralBlurPass::SetSharpness(const float fSharpness)
+{
+  m_fSharpness = fSharpness;
+
+  ezBilateralBlurConstants* cb = ezRenderContext::GetConstantBufferData<ezBilateralBlurConstants>(m_hBilateralBlurCB);
+  cb->Sharpness = m_fSharpness;
+}
+
+float ezSeparatedBilateralBlurPass::GetSharpness() const
+{
+  return m_fSharpness;
+}
