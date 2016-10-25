@@ -158,5 +158,85 @@ float $out4(PS_IN Input)
         "Color" : "230, 230, 153"
       }
     ],
-  }
+  },
+
+  "EmissiveTexture" :
+  {
+    "Color" : "140, 13, 38",
+    "CodeMaterialParams" : "
+Texture2D EmissiveTexture;
+",
+
+    "CodePixelConstants" : "
+Texture2D EmissiveTexture;
+SamplerState EmissiveTexture_AutoSampler;
+
+float4 $out0(PS_IN Input)
+{
+  return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, $in0.xy);
+}
+
+float $out1(PS_IN Input)
+{
+  return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, $in0.xy).r;
+}
+
+float $out2(PS_IN Input)
+{
+  return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, $in0.xy).g;
+}
+
+float $out3(PS_IN Input)
+{
+  return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, $in0.xy).b;
+}
+
+float $out4(PS_IN Input)
+{
+  return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, $in0.xy).a;
+}
+",
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "RGBA",
+        "Type" : "float4",
+        "Color" : "255, 255, 255"
+      },
+
+            {
+        "Name" : "Red",
+        "Type" : "float",
+        "Color" : "255, 0, 0"
+      },
+
+      {
+        "Name" : "Green",
+        "Type" : "float",
+        "Color" : "0, 255, 0"
+      },
+
+      {
+        "Name" : "Blue",
+        "Type" : "float",
+        "Color" : "0, 0, 255"
+      },
+
+      {
+        "Name" : "Alpha",
+        "Type" : "float",
+        "Color" : "230, 230, 153"
+      }
+    ],
+  },
 }

@@ -4,6 +4,7 @@
 #include <VisualShader/VisualShaderNodeManager.h>
 
 class ezMaterialAssetDocument;
+struct ezPropertyMetaStateEvent;
 
 struct ezMaterialShaderMode
 {
@@ -48,6 +49,8 @@ public:
 
   ezString GetFinalShader() const;
   ezString GetAutoGenShaderPathAbs() const;
+
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 public:
   ezString m_sBaseMaterial;

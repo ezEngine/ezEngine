@@ -47,7 +47,7 @@ float $out4(PS_IN Input) { return $prop0.w; }
     [
       {
         "Name" : "Color",
-        "Type" : "float4",
+        "Type" : "color",
         "Value" : "1, 1, 1, 1"
       }
     ]

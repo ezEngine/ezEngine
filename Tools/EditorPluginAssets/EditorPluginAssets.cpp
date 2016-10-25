@@ -14,6 +14,7 @@
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -46,6 +47,8 @@ void OnLoadPlugin(bool bReloading)
 
   // Material Asset
   {
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezMaterialAssetProperties::PropertyMetaStateEventHandler);
+
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("MaterialAssetMenuBar");

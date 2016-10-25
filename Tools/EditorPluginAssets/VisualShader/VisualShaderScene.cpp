@@ -27,12 +27,12 @@ void ezQtVisualShaderScene::ConnectPinsAction(const ezPin* pSourcePin, const ezP
 
   const ezVisualShaderPin* pPinSource = ezDynamicCast<const ezVisualShaderPin*>(pSourcePin);
   const ezVisualShaderPin* pPinTarget = ezDynamicCast<const ezVisualShaderPin*>(pTargetPin);
-  if (pPinSource->GetDataType() != pPinTarget->GetDataType())
-  {
-    res = ezStatus("Incompatible data types");
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
-    return;
-  }
+  //if (pPinSource->GetDataType() != pPinTarget->GetDataType())
+  //{
+  //  res = ezStatus("Incompatible data types");
+  //  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
+  //  return;
+  //}
 
   if (!pTargetPin->GetConnections().IsEmpty())
   {

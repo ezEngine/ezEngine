@@ -83,15 +83,15 @@
     "InputPins" :
     [
       {
-        "Name" : "vector",
-        "Type" : "float4",
+        "Name" : "a",
+        "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float4(1, 1, 1, 1)"
+        "Fallback" : "float(1.0)"
       },
 
       {
-        "Name" : "scalar",
+        "Name" : "b",
         "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,

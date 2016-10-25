@@ -15,6 +15,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
@@ -487,6 +488,21 @@ ezString ezMaterialAssetProperties::GetAutoGenShaderPathAbs() const
   sPath.ChangeFileNameAndExtension(sFilename);
 
   return sPath;
+}
+
+void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezMaterialAssetProperties"))
+  {
+    ezInt64 shaderMode = e.m_pObject->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>();
+
+    auto& props = *e.m_pPropertyStates;
+
+    if (shaderMode == ezMaterialShaderMode::Custom)
+      props["Shader"].m_Visibility = ezPropertyUiState::Invisible;
+    else
+      props["Shader"].m_Visibility = ezPropertyUiState::Default;
+  }
 }
 
 ezString ezMaterialAssetProperties::GetFinalShader() const

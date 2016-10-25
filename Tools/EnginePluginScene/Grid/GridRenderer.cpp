@@ -285,7 +285,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* p
     pRenderData->m_iLastLine2 = iNumLines;
   }
 
-  pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleForeground, 0);
+  pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, 0);
 }
 
 

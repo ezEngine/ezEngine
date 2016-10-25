@@ -46,6 +46,7 @@ float MaskThreshold @Default(0.25);
     "CodePixelIncludes" : "
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
+#include <Shaders/Common/VisualShaderUtil.h>
 ",
 
     "CodePixelConstants" : "",
@@ -53,35 +54,35 @@ float MaskThreshold @Default(0.25);
 
 float3 GetBaseColor(PS_IN Input)
 {
-  return $in0.rgb;
+  return ToColor3($in0);
 }
 
 float3 GetNormal(PS_IN Input)
 {
-  return $in1.xyz;
+  return ToFloat3($in1);
 }
 
 float GetMetallic(PS_IN Input)
 {
-  return $in2;
+  return clamp(ToFloat1($in2), 0, 1);
 }
 
 float GetReflectance(PS_IN Input)
 {
-  return $in3;
+  return clamp(ToFloat1($in3), 0, 1);
 }
 
 float GetRoughness(PS_IN Input)
 {
-  return $in4;
+  return clamp(ToFloat1($in4), 0, 1);
 }
 
 float GetOpacity(PS_IN Input)
 {
   #if BLEND_MODE == BLEND_MODE_MASKED
-    return $in5 - MaskThreshold;
+    return ToFloat1($in5) - MaskThreshold;
   #else
-    return $in5;
+    return ToFloat1($in5);
   #endif
 }
 ",
@@ -110,6 +111,7 @@ float GetOpacity(PS_IN Input)
         "Name" : "Metallic",
         "Type" : "float",
         "Color" : "128, 128, 128",
+        "Expose" : true,
         "Fallback" : "float(0.0)"
       },
 
@@ -118,6 +120,7 @@ float GetOpacity(PS_IN Input)
         "Name" : "Reflectance",
         "Type" : "float",
         "Color" : "196, 196, 196",
+        //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "float(0.5)"
       },
 
@@ -126,6 +129,7 @@ float GetOpacity(PS_IN Input)
         "Name" : "Roughness",
         "Type" : "float",
         "Color" : "150, 64, 64",
+        //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "float(0.5)"
       },
 
@@ -134,6 +138,7 @@ float GetOpacity(PS_IN Input)
         "Name" : "Opacity",
         "Type" : "float",
         "Color" : "230, 230, 153",
+        //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "float(1.0)"
       }
     ]

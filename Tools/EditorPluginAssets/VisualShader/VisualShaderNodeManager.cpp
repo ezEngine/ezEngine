@@ -25,6 +25,9 @@ void ezVisualShaderNodeManager::InternalCreatePins(const ezDocumentObject* pObje
 {
   const auto* pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
 
+  if (pDesc == nullptr)
+    return;
+
   node.m_Inputs.Reserve(pDesc->m_InputPins.GetCount());
   node.m_Outputs.Reserve(pDesc->m_OutputPins.GetCount());
 
@@ -75,10 +78,10 @@ ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, con
 
   EZ_ASSERT_DEBUG(pPinSource != nullptr && pPinTarget != nullptr, "Das ist eigentlich unmoeglich!");
 
-  if (pPinSource->GetDataType() != pPinTarget->GetDataType())
-  {
-    return ezStatus("Incompatible data types");
-  }
+  //if (pPinSource->GetDataType() != pPinTarget->GetDataType())
+  //{
+  //  return ezStatus("Incompatible data types");
+  //}
 
   if (!pTarget->GetConnections().IsEmpty())
     return ezStatus("Only one connection can be made to an input pin!");
