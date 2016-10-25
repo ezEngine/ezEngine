@@ -711,18 +711,24 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 {
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
-    ezVisualShaderCodeGenerator codeGen;
-    ezStatus status = codeGen.GenerateVisualShader(static_cast<ezDocumentNodeManager*>(GetObjectManager()), szPlatform);
+    //ezVisualShaderCodeGenerator codeGen;
+    ezVisualShaderCodeGenerator2 codeGen2;
+    //ezStatus status = codeGen.GenerateVisualShader(static_cast<ezDocumentNodeManager*>(GetObjectManager()), szPlatform);
 
-    if (status.m_Result.Failed())
-      return status;
+    //if (status.m_Result.Failed())
+      //return status;
+
+    ezStatus status2 = codeGen2.GenerateVisualShader(static_cast<ezDocumentNodeManager*>(GetObjectManager()), szPlatform);
+    if (status2.m_Result.Failed())
+      return status2;
 
     ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
 
     ezFileWriter file;
     if (file.Open(sAutoGenShader).Succeeded())
     {
-      ezStringBuilder shader = codeGen.GetFinalShaderCode();
+      //ezStringBuilder shader = codeGen.GetFinalShaderCode();
+      ezStringBuilder shader = codeGen2.GetFinalShaderCode();
 
       file.WriteBytes(shader.GetData(), shader.GetElementCount());
       file.Close();

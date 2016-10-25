@@ -20,6 +20,7 @@ public:
   ezColorGammaUB m_Color;
   bool m_bExposeAsProperty;
   ezVariant m_DefaultValue;
+  ezString m_sShaderCodeInline;
 };
 
 struct ezVisualShaderNodeType

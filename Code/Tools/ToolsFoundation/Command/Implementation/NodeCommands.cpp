@@ -99,7 +99,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         const ezPin* pPinTarget = pConnection->GetTargetPin();
         ezDisconnectNodePinsCommand cmd;
         cmd.m_ObjectSource = pPinSource->GetParent()->GetGuid();
-        cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid();
+        cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid(); /// \todo Crash here when deleting a node whose output is connected to multiple inputs on another node
         cmd.m_sSourcePin = pPinSource->GetName();
         cmd.m_sTargetPin = pPinTarget->GetName();
         auto res = AddSubCommand(cmd);
@@ -152,7 +152,7 @@ ezStatus ezMoveNodeCommand::DoInternal(bool bRedo)
     m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
     if (m_pObject == nullptr)
       return ezStatus(EZ_FAILURE, "Move Node: The given object does not exist!");
-    
+
     m_OldPos = pManager->GetNodePos(m_pObject);
     auto res = pManager->CanMoveNode(m_pObject, m_NewPos);
     if (res.m_Result.Failed())
@@ -176,7 +176,7 @@ ezStatus ezMoveNodeCommand::UndoInternal(bool bFireEvents)
   {
     return res;
   }
-  
+
   pManager->MoveNode(m_pObject, m_OldPos);
 
   return ezStatus(EZ_SUCCESS);
@@ -205,7 +205,7 @@ ezStatus ezConnectNodePinsCommand::DoInternal(bool bRedo)
       return ezStatus(EZ_FAILURE, "Connect Node: The given node does not exist!");
     m_pObjectTarget = pManager->GetObject(m_ObjectTarget);
     if (m_pObjectTarget == nullptr)
-      return ezStatus(EZ_FAILURE, "Connect Node: The given node does not exist!");   
+      return ezStatus(EZ_FAILURE, "Connect Node: The given node does not exist!");
   }
 
   const ezPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);

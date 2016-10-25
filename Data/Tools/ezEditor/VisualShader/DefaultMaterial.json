@@ -59,6 +59,7 @@ float3 GetBaseColor(PS_IN Input)
 
 float3 GetNormal(PS_IN Input)
 {
+  // TODO: Incorrect when texture is sampled, needs transformation from tangent space to world space
   return ToFloat3($in1);
 }
 

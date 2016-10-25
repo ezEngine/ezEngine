@@ -229,6 +229,12 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
         }
       }
 
+      /// \todo Enforce this for output pins
+      if (varPin.TryGetValue("Inline", varValue) && varValue.IsA<ezString>())
+      {
+        pin.m_sShaderCodeInline = varValue.Get<ezString>();
+      }
+
       // this is optional
       if (varPin.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
       {

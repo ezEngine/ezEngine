@@ -15,31 +15,36 @@ float $out4(PS_IN Input) { return $prop0.w; }
       {
         "Name" : "RGBA",
         "Type" : "float4",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "$prop0"
       },
 
       {
         "Name" : "Red",
         "Type" : "float",
-        "Color" : "255, 0, 0"
+        "Color" : "255, 0, 0",
+        "Inline" : "$prop0.x"
       },
 
       {
         "Name" : "Green",
         "Type" : "float",
-        "Color" : "0, 255, 0"
+        "Color" : "0, 255, 0",
+        "Inline" : "$prop0.y"
       },
 
       {
         "Name" : "Blue",
         "Type" : "float",
-        "Color" : "0, 0, 255"
+        "Color" : "0, 0, 255",
+        "Inline" : "$prop0.z"
       },
 
       {
         "Name" : "Alpha",
         "Type" : "float",
-        "Color" : "230, 230, 153"
+        "Color" : "230, 230, 153",
+        "Inline" : "$prop0.w"
       }
     ],
 
@@ -63,7 +68,8 @@ float $out4(PS_IN Input) { return $prop0.w; }
       {
         "Name" : "Value",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "$prop0"
       }
     ],
 
@@ -87,7 +93,8 @@ float $out4(PS_IN Input) { return $prop0.w; }
       {
         "Name" : "Value",
         "Type" : "float2",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "$prop0"
       }
     ],
 
@@ -111,7 +118,8 @@ float $out4(PS_IN Input) { return $prop0.w; }
       {
         "Name" : "Value",
         "Type" : "float3",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "$prop0"
       }
     ],
 
@@ -135,7 +143,8 @@ float $out4(PS_IN Input) { return $prop0.w; }
       {
         "Name" : "Value",
         "Type" : "float4",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "$prop0"
       }
     ],
 
@@ -162,13 +171,15 @@ float $out1(PS_IN Input) { return WorldTime; }
       {
         "Name" : "Global",
         "Type" : "float",
-        "Color" : "255, 0, 0"
+        "Color" : "255, 0, 0",
+        "Inline" : "GlobalTime"
       },
 
       {
         "Name" : "World",
         "Type" : "float",
-        "Color" : "0, 255, 0"
+        "Color" : "0, 255, 0",
+        "Inline" : "WorldTime"
       }
     ]
   },

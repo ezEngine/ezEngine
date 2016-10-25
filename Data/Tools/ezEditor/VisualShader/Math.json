@@ -36,7 +36,8 @@
       {
         "Name" : "result",
         "Type" : "float4",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "($in0 + $in1)"
       }
     ]
   },
@@ -70,7 +71,8 @@
       {
         "Name" : "result",
         "Type" : "float4",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "($in0 - $in1)"
       }
     ]
   },
@@ -104,7 +106,8 @@
       {
         "Name" : "result",
         "Type" : "float4",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "($in0 * $in1)"
       }
     ]
   },
@@ -129,7 +132,8 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "255, 255, 255",
+        "Inline" : "frac($in0)"
       }
     ]
   }
