@@ -10,7 +10,7 @@ namespace ezModelImporter
 {
   namespace Pbrt
   {
-    Object::Object() : m_Transform(ezTransform::Identity()), m_NumMeshes(0)
+    Object::Object() : m_Transform(ezTransform::Identity())
     {}
 
     Object::~Object()
@@ -25,35 +25,29 @@ namespace ezModelImporter
     {
       m_Transform = object.m_Transform;
       m_MeshesHandles = std::move(object.m_MeshesHandles);
-      m_NumMeshes = object.m_NumMeshes;
-      for(ezUInt32 i=0; i<m_NumMeshes; ++i)
+
+      // Workaround for bug in dynamic array - not movable for non-copyable objects
+      m_MeshesData.SetCount(object.m_MeshesData.GetCount());
+      for(ezUInt32 i=0; i<object.m_MeshesData.GetCount(); ++i)
         m_MeshesData[i] = std::move(object.m_MeshesData[i]);
     }
 
     void Object::AddMesh(ezUniquePtr<Mesh> mesh)
     {
       EZ_ASSERT_DEBUG(m_MeshesHandles.IsEmpty(), "Can't add meshes to Pbrt::Object after it was initialized once.");
-      if (m_NumMeshes == s_maxNumMeshes)
-      {
-        ezLog::Error("Due to implementation limitatinos a pbrt object can't hold more than %i meshes.", s_maxNumMeshes);
-        return;
-      }
-      m_MeshesData[m_NumMeshes] = std::move(mesh);
-      ++m_NumMeshes;
+      m_MeshesData.PushBack(std::move(mesh));
     }
 
     ezArrayPtr<ObjectHandle> Object::InstantiateMeshes(Scene& scene)
     {
-      if (m_NumMeshes == 0)
-        return ezArrayPtr<ObjectHandle>();
-
       if(m_MeshesHandles.IsEmpty())
       {
-        m_MeshesHandles.SetCountUninitialized(m_NumMeshes);
-        for(ezUInt32 i=0; i<m_NumMeshes; ++i)
+        m_MeshesHandles.SetCountUninitialized(m_MeshesData.GetCount());
+        for(ezUInt32 i=0; i<m_MeshesData.GetCount(); ++i)
         {
           m_MeshesHandles[i] = scene.AddMesh(std::move(m_MeshesData[i]));
         }
+        m_MeshesData.Clear();
       }
 
       return m_MeshesHandles;

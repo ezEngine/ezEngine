@@ -28,10 +28,7 @@ namespace ezModelImporter
 
     private:
       ezHybridArray<ObjectHandle, 2> m_MeshesHandles;
-
-      static const ezUInt32 s_maxNumMeshes = 16;
-      ezUInt32 m_NumMeshes;
-      ezUniquePtr<Mesh> m_MeshesData[s_maxNumMeshes]; /// \todo Can't use dynamic array with ezUniquePtr<>
+      ezDynamicArray<ezUniquePtr<Mesh>> m_MeshesData;
     };
 
     class ParseContext
