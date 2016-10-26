@@ -221,3 +221,95 @@ float4 ToBiggerType(float4 a, float4 b)
   return a;
 }
 
+// ToSameType returns the first value packed into a vector of the same type as the second parameter
+// Use this if you want to enforce use of the type of a certain variable
+// Additional components are discarded, missing components are zero extended
+
+// ToSameType float1, x
+
+float ToSameType(float value, float type)
+{
+  return value;
+}
+
+float2 ToSameType(float value, float2 type)
+{
+  return float2(value, value);
+}
+
+float3 ToSameType(float value, float3 type)
+{
+  return float3(value, value, value);
+}
+
+float4 ToSameType(float value, float4 type)
+{
+  return float4(value, value, value, value);
+}
+
+// ToSameType float2, x
+
+float ToSameType(float2 value, float type)
+{
+  return value.x;
+}
+
+float2 ToSameType(float2 value, float2 type)
+{
+  return value;
+}
+
+float3 ToSameType(float2 value, float3 type)
+{
+  return float3(value.x, value.y, 0);
+}
+
+float4 ToSameType(float2 value, float4 type)
+{
+  return float4(value.x, value.y, 0, 0);
+}
+
+// ToSameType float3, x
+
+float ToSameType(float3 value, float type)
+{
+  return value.x;
+}
+
+float2 ToSameType(float3 value, float2 type)
+{
+  return value.xy;
+}
+
+float3 ToSameType(float3 value, float3 type)
+{
+  return value;
+}
+
+float4 ToSameType(float3 value, float4 type)
+{
+  return float4(value.x, value.y, value.z, 0);
+}
+
+// ToSameType float4, x
+
+float ToSameType(float4 value, float type)
+{
+  return value.x;
+}
+
+float2 ToSameType(float4 value, float2 type)
+{
+  return value.xy;
+}
+
+float3 ToSameType(float4 value, float3 type)
+{
+  return value.xyz;
+}
+
+float4 ToSameType(float4 value, float4 type)
+{
+  return value;
+}
+

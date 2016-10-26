@@ -162,6 +162,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   reader.ApplyPropertiesToObject(pPrefabGraphMainNode, pPrefabSceneMainObject);
 
+  pSceneDocument->SetModified(true);
   auto res = pSceneDocument->SaveDocument();
   pTypeDesc->m_pManager->CloseDocument(pSceneDocument);
   return res;
@@ -261,7 +262,7 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
   // remove current object
   ezRemoveObjectCommand rm;
   rm.m_Object = pObject->GetGuid();
-  
+
   // instantiate prefab again
   ezInstantiatePrefabCommand inst;
   inst.m_bAllowPickedPosition = false;
