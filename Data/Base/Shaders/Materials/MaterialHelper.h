@@ -33,16 +33,16 @@ uint CalculateCoverage(PS_IN Input)
 {
 	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
 		uint coverage = 0;
-		
+
 		for (uint i = 0; i < NumMsaaSamples; ++i)
 		{
 			PS_IN InputCopy = Input;
 			InputCopy.TexCoords.xy = EvaluateAttributeAtSample(Input.TexCoords.xy, i);
-			
+
 			float opacity = GetOpacity(InputCopy);
 			coverage |= (opacity > 0.0) ? (1 << i) : 0;
 		}
-		
+
 		return coverage;
 	#else
 		return GetOpacity(Input) > 0.0;
@@ -52,7 +52,7 @@ uint CalculateCoverage(PS_IN Input)
 ezMaterialData FillMaterialData(PS_IN Input)
 {
 	ezMaterialData matData;
-	
+
 	#if defined(USE_WORLDPOS)
 		matData.worldPosition = Input.WorldPosition;
 	#else
@@ -85,3 +85,7 @@ ezMaterialData FillMaterialData(PS_IN Input)
 	return matData;
 }
 
+float3 TangentToObjectSpace(float3 normalTS, PS_IN Input)
+{
+  return normalTS.x * Input.Tangent + normalTS.y * Input.BiTangent + normalTS.z * Input.Normal;
+}

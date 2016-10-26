@@ -1,0 +1,195 @@
+{
+  "Split" :
+  {
+    "Color" : "162, 181, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "x",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "ToFloat1($in0)"
+      },
+      {
+        "Name" : "y",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "ToFloat2($in0).y"
+      },
+      {
+        "Name" : "z",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "ToFloat3($in0).z"
+      },
+      {
+        "Name" : "w",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "ToFloat4($in0).w"
+      }
+    ]
+  },
+
+  "MergeFloat2" :
+  {
+    "Color" : "162, 181, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "x",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "y",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "float2(ToFloat1($in0), ToFloat1($in1))"
+      }
+    ]
+  },
+
+  "MergeFloat3" :
+  {
+    "Color" : "162, 181, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "x",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "y",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "z",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "float3(ToFloat1($in0), ToFloat1($in1), ToFloat1($in2))"
+      }
+    ]
+  },
+
+  "MergeFloat4" :
+  {
+    "Color" : "162, 181, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "x",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "y",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "z",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "w",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Expose" : true,
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "float4(ToFloat1($in0), ToFloat1($in1), ToFloat1($in2), ToFloat1($in3))"
+      }
+    ]
+  },
+
+  "TangentToObjectSpace" :
+  {
+    "Color" : "162, 181, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "Normal",
+        "Type" : "float3",
+        "Color" : "128, 128, 255",
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Normal",
+        "Type" : "float3",
+        "Color" : "128, 128, 255",
+        "Inline" : "TangentToObjectSpace(ToFloat3($in0), Input)"
+      }
+    ]
+  }
+}
