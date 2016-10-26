@@ -45,6 +45,7 @@ float MaskThreshold @Default(0.25);
 #include <Shaders/Common/VisualShaderUtil.h>
 ",
 
+    "CodePixelSamplers" : "",
     "CodePixelConstants" : "",
     "CodePixelBody" : "
 

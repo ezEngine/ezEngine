@@ -397,6 +397,13 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &va
     nd.m_sShaderCodePixelIncludes = temp;
   }
 
+  if (varNodeDict.TryGetValue("CodePixelSamplers", varValue) && varValue.IsA<ezString>())
+  {
+    temp = varValue.Get<ezString>();
+    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+    nd.m_sShaderCodePixelSamplers = temp;
+  }
+
   if (varNodeDict.TryGetValue("CodePixelConstants", varValue) && varValue.IsA<ezString>())
   {
     temp = varValue.Get<ezString>();

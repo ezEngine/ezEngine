@@ -6,7 +6,7 @@
 Texture2D BaseTexture;
 ",
 
-    "CodePixelConstants" : "
+    "CodePixelSamplers" : "
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
 ",
@@ -67,7 +67,7 @@ SamplerState BaseTexture_AutoSampler;
 Texture2D NormalTexture;
 ",
 
-    "CodePixelConstants" : "
+    "CodePixelSamplers" : "
 Texture2D NormalTexture;
 SamplerState NormalTexture_AutoSampler;
 ",
@@ -127,7 +127,7 @@ SamplerState NormalTexture_AutoSampler;
 Texture2D EmissiveTexture;
 ",
 
-    "CodePixelConstants" : "
+    "CodePixelSamplers" : "
 Texture2D EmissiveTexture;
 SamplerState EmissiveTexture_AutoSampler;
 ",

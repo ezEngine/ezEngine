@@ -9,6 +9,7 @@
     "CodeMaterialParams" : "",
     "CodePixelDefines" : "",
     "CodePixelIncludes" : "",
+    "CodePixelSamplers" : "",
     "CodePixelConstants" : "",
     "CodePixelBody" : "",
 

@@ -57,10 +57,12 @@ private:
   const ezRTTI* m_pNodeBaseRtti;
   ezMap<const ezDocumentObject*, NodeState> m_Nodes;
   ezMap<const ezPin*, OutputPinState> m_OutputPins;
+  ezSet<const ezVisualShaderNodeDescriptor*> m_DeclarationsInserted;
 
   ezStringBuilder m_sShaderPixelDefines;
   ezStringBuilder m_sShaderPixelIncludes;
   ezStringBuilder m_sShaderPixelConstants;
+  ezStringBuilder m_sShaderPixelSamplers;
   ezStringBuilder m_sShaderPixelBody;
   ezStringBuilder m_sShaderVertex;
   ezStringBuilder m_sShaderMaterialParam;

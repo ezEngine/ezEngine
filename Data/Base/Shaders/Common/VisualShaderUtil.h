@@ -1,3 +1,5 @@
+#pragma once
+
 /// ToFloat1
 
 float ToFloat1(float val)

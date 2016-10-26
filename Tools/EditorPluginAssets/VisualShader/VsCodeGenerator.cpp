@@ -146,7 +146,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
   m_sFinalShaderCode.Append("[RENDERSTATE]\n\n", m_sShaderRenderState, "\n");
   m_sFinalShaderCode.Append("[VERTEXSHADER]\n\n", m_sShaderVertex, "\n");
   m_sFinalShaderCode.Append("[PIXELSHADER]\n\n", m_sShaderPixelDefines, "\n", m_sShaderPixelIncludes, "\n");
-  m_sFinalShaderCode.Append(m_sShaderPixelConstants, "\n", m_sShaderPixelBody, "\n");
+  m_sFinalShaderCode.Append(m_sShaderPixelConstants, "\n", m_sShaderPixelSamplers, "\n", m_sShaderPixelBody, "\n");
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -184,46 +184,22 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   if (res.m_Result.Failed())
     return res;
 
-  //ReplaceInputPinsByCode(pNode, sConstantsCode); // probably not necessary
   ReplaceInputPinsByCode(pNode, pDesc, sBodyCode);
 
-
-  /// \todo Backwards compatibility hack
+  if (!m_DeclarationsInserted.Contains(pDesc))
   {
-    static int unique = 1;
-    ezStringBuilder name, repl;
+    m_DeclarationsInserted.Insert(pDesc);
 
-    for (int i = 0; i < 8; ++i)
-    {
-      ++unique;
-
-      name.Format("$out%i", i);
-      repl.Format("ignore%i", unique);
-
-      sConstantsCode.ReplaceAll(name, repl);
-      sBodyCode.ReplaceAll(name, repl);
-    }
-
-    for (int i = 0; i < 8; ++i)
-    {
-      ++unique;
-
-      name.Format("$in%i", i);
-      repl.Format("ignore%i", unique);
-
-      sConstantsCode.ReplaceAll(name, repl);
-      sBodyCode.ReplaceAll(name, repl);
-    }
+    m_sShaderPermutations.Append(pDesc->m_sShaderCodePermutations);
+    m_sShaderRenderState.Append(pDesc->m_sShaderCodeRenderState);
+    m_sShaderVertex.Append(pDesc->m_sShaderCodeVertexShader);
+    m_sShaderMaterialParam.Append(pDesc->m_sShaderCodeMaterialParams);
+    m_sShaderPixelDefines.Append(pDesc->m_sShaderCodePixelDefines);
+    m_sShaderPixelIncludes.Append(pDesc->m_sShaderCodePixelIncludes);
+    m_sShaderPixelBody.Append(sBodyCode);
+    m_sShaderPixelConstants.Append(sConstantsCode);
+    m_sShaderPixelSamplers.Append(pDesc->m_sShaderCodePixelSamplers);
   }
-
-  m_sShaderPermutations.Append(pDesc->m_sShaderCodePermutations);
-  m_sShaderRenderState.Append(pDesc->m_sShaderCodeRenderState);
-  m_sShaderVertex.Append(pDesc->m_sShaderCodeVertexShader);
-  m_sShaderMaterialParam.Append(pDesc->m_sShaderCodeMaterialParams);
-  m_sShaderPixelDefines.Append(pDesc->m_sShaderCodePixelDefines);
-  m_sShaderPixelIncludes.Append(pDesc->m_sShaderCodePixelIncludes);
-  m_sShaderPixelBody.Append(sBodyCode);
-  m_sShaderPixelConstants.Append(sConstantsCode);
 
   return ezStatus(EZ_SUCCESS);
 }

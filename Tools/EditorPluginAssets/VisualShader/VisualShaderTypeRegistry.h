@@ -45,6 +45,7 @@ public:
   ezColorGammaUB m_Color;
   ezString m_sShaderCodePixelDefines;
   ezString m_sShaderCodePixelIncludes;
+  ezString m_sShaderCodePixelSamplers;
   ezString m_sShaderCodePixelConstants;
   ezString m_sShaderCodePixelBody;
   ezString m_sShaderCodePermutations;
