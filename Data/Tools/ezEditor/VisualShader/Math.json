@@ -10,24 +10,24 @@
     "CodePixelDefines" : "",
     "CodePixelIncludes" : "",
     "CodePixelConstants" : "",
-    "CodePixelBody" : "float4 $out0(PS_IN Input) { return $in0 + $in1; }",
+    "CodePixelBody" : "",
 
     "InputPins" :
     [
       {
         "Name" : "a",
-        "Type" : "float4",
+        "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float4(0, 0, 0, 0)"
+        "Fallback" : "0"
       },
 
       {
         "Name" : "b",
-        "Type" : "float4",
+        "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float4(0, 0, 0, 0)"
+        "Fallback" : "0"
       }
     ],
 
@@ -35,9 +35,9 @@
     [
       {
         "Name" : "result",
-        "Type" : "float4",
+        "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "($in0 + $in1)"
+        "Inline" : "(ToBiggerType($in0, $in1) + ToBiggerType($in1, $in0))"
       }
     ]
   },
@@ -45,24 +45,23 @@
   "Subtract" :
   {
     "Color" : "255, 128, 0",
-    "CodePixelBody" : "float4 $out0(PS_IN Input) { return $in0 - $in1; }",
 
     "InputPins" :
     [
       {
         "Name" : "a",
-        "Type" : "float4",
+        "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float4(0, 0, 0, 0)"
+        "Fallback" : "0"
       },
 
       {
         "Name" : "b",
-        "Type" : "float4",
+        "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float4(0, 0, 0, 0)"
+        "Fallback" : "0"
       }
     ],
 
@@ -70,9 +69,9 @@
     [
       {
         "Name" : "result",
-        "Type" : "float4",
+        "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "($in0 - $in1)"
+        "Inline" : "(ToBiggerType($in0, $in1) - ToBiggerType($in1, $in0))"
       }
     ]
   },
@@ -80,7 +79,6 @@
   "Multiply" :
   {
     "Color" : "255, 128, 0",
-    "CodePixelBody" : "float4 $out0(PS_IN Input) { return $in0 * $in1; }",
 
     "InputPins" :
     [
@@ -89,7 +87,7 @@
         "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float(1.0)"
+        "Fallback" : "1"
       },
 
       {
@@ -97,7 +95,7 @@
         "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float(1.0)"
+        "Fallback" : "1"
       }
     ],
 
@@ -105,9 +103,9 @@
     [
       {
         "Name" : "result",
-        "Type" : "float4",
+        "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "($in0 * $in1)"
+        "Inline" : "(ToBiggerType($in0, $in1) * ToBiggerType($in1, $in0))"
       }
     ]
   },
@@ -115,15 +113,14 @@
   "Fraction" :
   {
     "Color" : "255, 128, 0",
-    "CodePixelBody" : "float $out0(PS_IN Input) { return frac($in0); }",
 
     "InputPins" :
     [
       {
-        "Name" : "scalar",
+        "Name" : "a",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Fallback" : "float(0)"
+        "Fallback" : "0"
       }
     ],
 

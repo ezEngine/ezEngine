@@ -2,13 +2,6 @@
   "ConstantColor" :
   {
     "Color" : "140, 13, 38",
-    "CodePixelConstants" : "
-float4 $out0(PS_IN Input) { return $prop0; }
-float $out1(PS_IN Input) { return $prop0.x; }
-float $out2(PS_IN Input) { return $prop0.y; }
-float $out3(PS_IN Input) { return $prop0.z; }
-float $out4(PS_IN Input) { return $prop0.w; }
-",
 
     "OutputPins" :
     [
@@ -61,7 +54,6 @@ float $out4(PS_IN Input) { return $prop0.w; }
   "Constant1" :
   {
     "Color" : "140, 13, 38",
-    "CodePixelConstants" : "float $out0(PS_IN Input) { return $prop0; }",
 
     "OutputPins" :
     [
@@ -86,7 +78,6 @@ float $out4(PS_IN Input) { return $prop0.w; }
   "Constant2" :
   {
     "Color" : "140, 13, 38",
-    "CodePixelConstants" : "float2 $out0(PS_IN Input) { return $prop0; }",
 
     "OutputPins" :
     [
@@ -111,7 +102,6 @@ float $out4(PS_IN Input) { return $prop0.w; }
   "Constant3" :
   {
     "Color" : "140, 13, 38",
-    "CodePixelConstants" : "float3 $out0(PS_IN Input) { return $prop0; }",
 
     "OutputPins" :
     [
@@ -136,7 +126,6 @@ float $out4(PS_IN Input) { return $prop0.w; }
   "Constant4" :
   {
     "Color" : "140, 13, 38",
-    "CodePixelConstants" : "float4 $out0(PS_IN Input) { return $prop0; }",
 
     "OutputPins" :
     [
@@ -161,10 +150,6 @@ float $out4(PS_IN Input) { return $prop0.w; }
   "Time" :
   {
     "Color" : "140, 13, 38",
-    "CodePixelConstants" : "
-float $out0(PS_IN Input) { return GlobalTime; }
-float $out1(PS_IN Input) { return WorldTime; }
-",
 
     "OutputPins" :
     [

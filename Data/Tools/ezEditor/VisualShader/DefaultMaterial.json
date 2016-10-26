@@ -9,10 +9,6 @@ RENDER_PASS
 SHADING_MODE
 TWO_SIDED
 INSTANCING
-DEFAULT_MAT_USE_BASE_TEXTURE
-DEFAULT_MAT_USE_NORMAL_TEXTURE
-DEFAULT_MAT_USE_METALLIC_TEXTURE
-DEFAULT_MAT_USE_ROUGHNESS_TEXTURE
 ",
 
     "CodeRenderStates" : "#include <Shaders/Materials/MaterialState.h>",
@@ -93,10 +89,10 @@ float GetOpacity(PS_IN Input)
       // Pin 0
       {
         "Name" : "Base Color",
-        "Type" : "float4",
+        "Type" : "float3",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "float4(1, 1, 1, 1)"
+        "Fallback" : "1"
       },
 
       // Pin 1
@@ -113,7 +109,7 @@ float GetOpacity(PS_IN Input)
         "Type" : "float",
         "Color" : "128, 128, 128",
         "Expose" : true,
-        "Fallback" : "float(0.0)"
+        "Fallback" : "0"
       },
 
       // Pin 3
@@ -122,7 +118,7 @@ float GetOpacity(PS_IN Input)
         "Type" : "float",
         "Color" : "196, 196, 196",
         //"Expose" : true, // otherwise fallback is currently 0
-        "Fallback" : "float(0.5)"
+        "Fallback" : "0.5"
       },
 
       // Pin 4
@@ -131,7 +127,7 @@ float GetOpacity(PS_IN Input)
         "Type" : "float",
         "Color" : "150, 64, 64",
         //"Expose" : true, // otherwise fallback is currently 0
-        "Fallback" : "float(0.5)"
+        "Fallback" : "0.5"
       },
 
       // Pin 5
@@ -140,7 +136,7 @@ float GetOpacity(PS_IN Input)
         "Type" : "float",
         "Color" : "230, 230, 153",
         //"Expose" : true, // otherwise fallback is currently 0
-        "Fallback" : "float(1.0)"
+        "Fallback" : "1"
       }
     ]
   }
