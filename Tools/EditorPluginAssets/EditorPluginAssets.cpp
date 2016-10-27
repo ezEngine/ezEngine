@@ -16,12 +16,15 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 
+
+#include <EditorFramework/Actions/ProjectActions.h>
+#include <GuiFoundation/Action/ActionManager.h>
+
+
 void OnLoadPlugin(bool bReloading)
 {
   ezTranslatorFromFiles::AddTranslationFile("AssetsPlugin.txt");
   ezTranslatorFromFiles::AddTranslationFile("PermutationVars.txt");
-
-  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
 
   // Texture Asset
   {
