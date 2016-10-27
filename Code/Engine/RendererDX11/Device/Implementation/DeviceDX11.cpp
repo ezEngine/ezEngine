@@ -122,18 +122,23 @@ retry:
   m_pPrimaryContext = EZ_NEW(&m_Allocator, ezGALContextDX11, this, pImmediateContext);
   EZ_ASSERT_RELEASE(m_pPrimaryContext != nullptr, "Couldn't create primary context!");
 
-  if(FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void **)&m_pDXGIDevice)))
+  if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void **)&m_pDXGIDevice)))
   {
     ezLog::Error("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 installed!");
     return EZ_FAILURE;
   }
 
-  if(FAILED(m_pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&m_pDXGIAdapter)))
+  if (FAILED(m_pDXGIDevice->SetMaximumFrameLatency(1)))
+  {
+    ezLog::Warning("Failed to set max frames latency");
+  }
+
+  if (FAILED(m_pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&m_pDXGIAdapter)))
   {
     return EZ_FAILURE;
   }
 
-  if(FAILED(m_pDXGIAdapter->GetParent(__uuidof(IDXGIFactory1), (void **)&m_pDXGIFactory)))
+  if (FAILED(m_pDXGIAdapter->GetParent(__uuidof(IDXGIFactory1), (void **)&m_pDXGIFactory)))
   {
     return EZ_FAILURE;
   }

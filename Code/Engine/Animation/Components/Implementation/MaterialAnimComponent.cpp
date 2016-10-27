@@ -137,7 +137,7 @@ void ezMaterialAnimComponent::Update()
         ezColor color;
         pColor->GetDescriptor().m_Gradient.Evaluate((float)m_CurAnimTime.GetSeconds(), color);
 
-        pMaterial->SetParameter(ezTempHashedString(anim.m_sPropertyName.GetData()), color);
+        pMaterial->SetParameter(anim.m_sPropertyName.GetData(), color);
       }
       break;
 
@@ -147,7 +147,7 @@ void ezMaterialAnimComponent::Update()
 
         const float value = pCurve->GetDescriptor().m_Curves[0].Evaluate((float)m_CurAnimTime.GetSeconds());
 
-        pMaterial->SetParameter(ezTempHashedString(anim.m_sPropertyName.GetData()), value);
+        pMaterial->SetParameter(anim.m_sPropertyName.GetData(), value);
       }
       break;
 

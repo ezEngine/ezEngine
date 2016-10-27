@@ -85,7 +85,9 @@ ezMaterialData FillMaterialData(PS_IN Input)
 	return matData;
 }
 
-float3 TangentToObjectSpace(float3 normalTS, PS_IN Input)
-{
-  return normalTS.x * Input.Tangent + normalTS.y * Input.BiTangent + normalTS.z * Input.Normal;
-}
+#if defined(USE_NORMAL) && defined(USE_TANGENT)
+  float3 TangentToObjectSpace(float3 normalTS, PS_IN Input)
+  {
+    return normalTS.x * Input.Tangent + normalTS.y * Input.BiTangent + normalTS.z * Input.Normal;
+  }
+#endif

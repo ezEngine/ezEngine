@@ -36,7 +36,7 @@ ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString&
   return sResult;
 }
 
-void ezMaterialResource::SetParameter(const ezTempHashedString& sName, const ezVariant& value)
+void ezMaterialResource::SetParameter(const ezHashedString& sName, const ezVariant& value)
 {
   ezUInt32 uiIndex = ezInvalidIndex;
   for (ezUInt32 i = 0; i < m_Desc.m_Parameters.GetCount(); ++i)
@@ -82,11 +82,59 @@ void ezMaterialResource::SetParameter(const ezTempHashedString& sName, const ezV
   m_ModifiedEvent.Broadcast(this);
 }
 
+void ezMaterialResource::SetParameter(const char* szName, const ezVariant& value)
+{
+  ezTempHashedString sName(szName);
+
+  ezUInt32 uiIndex = ezInvalidIndex;
+  for (ezUInt32 i = 0; i < m_Desc.m_Parameters.GetCount(); ++i)
+  {
+    if (m_Desc.m_Parameters[i].m_Name == sName)
+    {
+      uiIndex = i;
+      break;
+    }
+  }
+
+  if (value.IsValid())
+  {
+    if (uiIndex != ezInvalidIndex)
+    {
+      if (m_Desc.m_Parameters[uiIndex].m_Value == value)
+      {
+        return;
+      }
+
+      m_Desc.m_Parameters[uiIndex].m_Value = value;
+    }
+    else
+    {
+      auto& param = m_Desc.m_Parameters.ExpandAndGetRef();
+      param.m_Name.Assign(szName);
+      param.m_Value = value;
+    }
+  }
+  else
+  {
+    if (uiIndex == ezInvalidIndex)
+    {
+      return;
+    }
+
+    m_Desc.m_Parameters.RemoveAtSwap(uiIndex);
+  }
+
+  m_iLastModified.Increment();
+  m_iLastConstantsModified.Increment();
+
+  m_ModifiedEvent.Broadcast(this);
+}
+
 ezVariant ezMaterialResource::GetParameter(const ezTempHashedString& sName)
 {
-  UpdateCaches();
-
   EZ_LOCK(m_CacheMutex);
+
+  UpdateCaches();
 
   ezVariant value;
   m_CachedParameters.TryGetValue(sName, value);
@@ -132,11 +180,51 @@ void ezMaterialResource::SetTextureBinding(const ezHashedString& sName, ezTextur
   m_ModifiedEvent.Broadcast(this);
 }
 
+void ezMaterialResource::SetTextureBinding(const char* szName, ezTextureResourceHandle value)
+{
+  ezTempHashedString sName(szName);
+
+  ezUInt32 uiIndex = ezInvalidIndex;
+  for (ezUInt32 i = 0; i < m_Desc.m_TextureBindings.GetCount(); ++i)
+  {
+    if (m_Desc.m_TextureBindings[i].m_Name == sName)
+    {
+      uiIndex = i;
+      break;
+    }
+  }
+
+  if (value.IsValid())
+  {
+    if (uiIndex != ezInvalidIndex)
+    {
+      m_Desc.m_TextureBindings[uiIndex].m_Value = value;
+    }
+    else
+    {
+      auto& binding = m_Desc.m_TextureBindings.ExpandAndGetRef();
+      binding.m_Name.Assign(szName);
+      binding.m_Value = value;
+    }
+  }
+  else
+  {
+    if (uiIndex != ezInvalidIndex)
+    {
+      m_Desc.m_TextureBindings.RemoveAtSwap(uiIndex);
+    }
+  }
+
+  m_iLastModified.Increment();
+
+  m_ModifiedEvent.Broadcast(this);
+}
+
 ezTextureResourceHandle ezMaterialResource::GetTextureBinding(const ezTempHashedString& sName)
 {
-  UpdateCaches();
-
   EZ_LOCK(m_CacheMutex);
+
+  UpdateCaches();
 
   // Use pointer to prevent ref counting
   ezTextureResourceHandle* pBinding;
@@ -298,7 +386,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           continue;
 
         ezMaterialResourceDescriptor::Parameter& tc = m_Desc.m_Parameters.ExpandAndGetRef();
-        tc.m_Name = sTemp.GetData();
+        tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value = vTemp;
       }
     }
@@ -400,7 +488,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
             ezMaterialResourceDescriptor::Parameter& sc = m_Desc.m_Parameters.ExpandAndGetRef();
-            sc.m_Name = it.Key().GetData();
+            sc.m_Name.Assign(it.Key().GetData());
             sc.m_Value = it.Value();
           }
         }
