@@ -162,10 +162,10 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     if (pMsg->m_uiRenderMode == ezViewRenderMode::None)
     {
+      bool bResetDefaultPipeline = true;
+
       if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
       {
-        bool bResetDefaultPipeline = true;
-
         if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
         {
           bResetDefaultPipeline = !pCamera->GetRenderPipeline().IsValid();
@@ -173,11 +173,11 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
           m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
           pCamera->ApplySettingsToView(m_pView);
         }
-        
-        if (bResetDefaultPipeline)
-        {
-          m_pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-        }
+      }
+
+      if (bResetDefaultPipeline)
+      {
+        m_pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
       }
     }
     else
@@ -190,12 +190,13 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
-  // by default this stuff is disabled, derived classes can enable it
   if (m_pView)
   {
-    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
-    m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
+    m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
+    m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
+
+    // by default this stuff is disabled, derived classes can enable it
+    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);    
     m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
   }
 }
