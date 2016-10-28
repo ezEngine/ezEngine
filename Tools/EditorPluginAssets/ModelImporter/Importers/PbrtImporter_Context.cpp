@@ -25,11 +25,7 @@ namespace ezModelImporter
     {
       m_Transform = object.m_Transform;
       m_MeshesHandles = std::move(object.m_MeshesHandles);
-
-      // Workaround for bug in dynamic array - not movable for non-copyable objects
-      m_MeshesData.SetCount(object.m_MeshesData.GetCount());
-      for(ezUInt32 i=0; i<object.m_MeshesData.GetCount(); ++i)
-        m_MeshesData[i] = std::move(object.m_MeshesData[i]);
+      m_MeshesData = std::move(object.m_MeshesData);
     }
 
     void Object::AddMesh(ezUniquePtr<Mesh> mesh)
