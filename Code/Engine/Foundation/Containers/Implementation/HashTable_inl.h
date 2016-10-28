@@ -147,11 +147,27 @@ void ezHashTableBase<K, V, H>::operator= (const ezHashTableBase<K, V, H>& rhs)
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::operator= (ezHashTableBase<K, V, H>&& rhs)
 {
+  // Clear any existing data (calls destructors if necessary)
+  Clear();
+
   if (m_pAllocator != rhs.m_pAllocator)
-    operator=(static_cast<ezHashTableBase<K, V, H>&>(rhs));
+  {
+    Reserve(rhs.m_uiCapacity);
+
+    ezUInt32 uiCopied = 0;
+    for (ezUInt32 i = 0; uiCopied < rhs.GetCount(); ++i)
+    {
+      if (rhs.IsValidEntry(i))
+      {
+        Insert(std::move(rhs.m_pEntries[i].key), std::move(rhs.m_pEntries[i].value));
+        ++uiCopied;
+      }
+    }
+
+    rhs.Clear();
+  }
   else
   {
-    Clear();
     EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
     EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
 
@@ -168,7 +184,6 @@ void ezHashTableBase<K, V, H>::operator= (ezHashTableBase<K, V, H>&& rhs)
     rhs.m_uiCapacity = 0;
   }
 }
-
 
 template <typename K, typename V, typename H>
 bool ezHashTableBase<K, V, H>::operator== (const ezHashTableBase<K, V, H>& rhs) const

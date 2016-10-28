@@ -63,9 +63,16 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (const ezHybridArrayB
 template <typename T, ezUInt32 Size>
 EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T, Size>&& rhs)
 {
+  // Clear any existing data (calls destructors if necessary)
+  this->Clear();
+
   if (rhs.m_pElements == rhs.GetStaticArray() || (m_pAllocator != rhs.m_pAllocator))
   {
-    ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
+    // Ensure we have enough data.
+    SetCountUninitialized(rhs.m_uiCount);
+
+    ezMemoryUtils::RelocateConstruct(this->m_pElements, rhs.m_pElements, rhs.m_uiCount);
+
     rhs.Clear();
   }
   else
@@ -73,8 +80,6 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
     // Move semantics !
     // We cannot do this when the allocators of this and rhs are different,
     // because the memory will be freed by this and not by rhs anymore.
-
-    this->Clear();
 
     if (this->m_pElements != GetStaticArray())
       EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);

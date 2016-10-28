@@ -6,7 +6,7 @@
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
 {
-  // Default constructor is always called, so that debug helper initializations (e.g. ezVec3 initializes to NaN) take place. 
+  // Default constructor is always called, so that debug helper initializations (e.g. ezVec3 initializes to NaN) take place.
   // Note that destructor is ONLY called for class types.
   // Special case for c++11 to prevent default construction of "real" Pod types, also avoids warnings on msvc
   Construct(pDestination, uiCount, ezTraitInt<ezIsPodType<T>::value && std::is_trivial<T>::value>());
@@ -69,16 +69,33 @@ EZ_FORCE_INLINE ezMemoryUtils::CopyConstructorFunction ezMemoryUtils::MakeCopyCo
 }
 
 template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
+{
+  // Make sure source is actually an rvalue reference (T&& is a universal reference).
+  static_assert(std::is_rvalue_reference<decltype(source)>::value, "'source' parameter is not an rvalue reference.");
+  ::new(pDestination) T(std::move(source)); // Hardly "perfect forwarding" since we're explicitely only allowing moves here. Therefore no std::forward, but should work as well.
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, size_t uiCount)
+{
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using MoveConstruct.");
+
+  // Enforce move construction.
+  static_assert(std::is_move_constructible<T>::value, "Type is not move constructible!");
+
+  for (size_t i = 0; i < uiCount; ++i)
+  {
+    ::new(pDestination + i) T(std::move(pSource[i]));
+  }
+}
+
+
+template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
   EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
   RelocateConstruct(pDestination, pSource, uiCount, ezGetTypeClass<T>());
-}
-
-template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
-{
-  ::new(pDestination) T(std::move(source));
 }
 
 template <typename T>
@@ -283,8 +300,12 @@ EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSourc
 
   for (size_t i = 0; i < uiCount; i++)
   {
+    // Note that this calls the move constructor only if available and will copy otherwise.
     ::new (pDestination + i) T(std::move(pSource[i]));
   }
+
+  // Destruction might be superfluous if object has been moved earlier.
+  //if(!std::is_move_constructible<T>::value)
   Destruct(pSource, uiCount, ezTypeIsClass());
 }
 

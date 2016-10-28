@@ -7,8 +7,8 @@
 /// \details
 ///   The following concepts are realized:
 ///   Copy: Copying a object from a to b means that two equivalent objects will exists in both a and b.
-///   Relocate: Relocating an object from a to b means that the object will exist in b afterwards but will no longer exist in a, which means a will be destructed.
-///   Move: Moving an object from a to b menas that the object will exist in b afterwards but a will be empty afterwards, but not destructed.
+///   Move: Moving an object from a to b menas that the object will exist in b afterwards but a will be empty afterwards, but not destructed. This strictly requires an available move constructor (compile error otherwise).
+///   Relocate: Relocating an object from a to b means that the object will exist in b afterwards but will no longer exist in a, which means a will be moved if available or copied, but destructed afterwards in any case.
 ///   Construct: Constructing assumes that the destination does not contain a valid object.
 ///   Overlapped: The source and destination range may overlap for the operation to be performed.
 ///   The above mentioned concepts can be combined, e.g. RelocateConstruct for relocating to an uninitialized buffer.
@@ -49,13 +49,18 @@ public:
   template <typename T>
   static CopyConstructorFunction MakeCopyConstructorFunction(); // [tested]
 
-  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestionation from an existing array of objects at \a pSource by using move construction.
-  template <typename T>
-  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount);
-
-  /// \brief Constructs an object of type T in a raw buffer at \a pDestionation, by using move construction from \a source.
+  /// \brief Constructs an object of type T in a raw buffer at \a pDestination, by using move construction from \a source.
   template <typename T>
   static void MoveConstruct(T* pDestination, T&& source); // [tested]
+
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using move construction.
+  template <typename T>
+  static void MoveConstruct(T* pDestination, T* pSource, size_t uiCount);
+
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using move construction if availble, otherwise by copy construction.
+  /// Calls destructor of source elements in any case (if it is a non primitive or memrelocatable type).
+  template <typename T>
+  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount);
 
   /// \brief Destructs \a uiCount objects of type T at \a pDestination.
   template <typename T>
@@ -121,11 +126,11 @@ public:
   template <typename T>
   static const T* AddByteOffsetConst(const T* ptr, ptrdiff_t iOffset); // [tested]
 
-  /// \brief Aligns the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.  
+  /// \brief Aligns the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.
   template <typename T>
   static T* Align(T* ptr, size_t uiAlignment); // [tested]
 
-  /// \brief Aligns the given size \a uiSize by rounding up to the next multiple of the size. 
+  /// \brief Aligns the given size \a uiSize by rounding up to the next multiple of the size.
   template <typename T>
   static T AlignSize(T uiSize, T uiAlignment); // [tested]
 

@@ -112,6 +112,47 @@ void ezHashSetBase<K, H>::operator= (const ezHashSetBase<K, H>& rhs)
 }
 
 template <typename K, typename H>
+void ezHashSetBase<K, H>::operator= (ezHashSetBase<K, H>&& rhs)
+{
+  // Clear any existing data (calls destructors if necessary)
+  Clear();
+
+  if (m_pAllocator != rhs.m_pAllocator)
+  {
+    Reserve(rhs.m_uiCapacity);
+
+    ezUInt32 uiCopied = 0;
+    for (ezUInt32 i = 0; uiCopied < rhs.GetCount(); ++i)
+    {
+      if (rhs.IsValidEntry(i))
+      {
+        Insert(std::move(rhs.m_pEntries[i].key), std::move(rhs.m_pEntries[i].value));
+        ++uiCopied;
+      }
+    }
+
+    rhs.Clear();
+  }
+  else
+  {
+    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntries);
+    EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pEntryFlags);
+
+    // Move all data over.
+    m_pEntries = rhs.m_pEntries;
+    m_pEntryFlags = rhs.m_pEntryFlags;
+    m_uiCount = rhs.m_uiCount;
+    m_uiCapacity = rhs.m_uiCapacity;
+
+    // Temp copy forgets all its state.
+    rhs.m_pEntries = nullptr;
+    rhs.m_pEntryFlags = nullptr;
+    rhs.m_uiCount = 0;
+    rhs.m_uiCapacity = 0;
+  }
+}
+
+template <typename K, typename H>
 bool ezHashSetBase<K, H>::operator== (const ezHashSetBase<K, H>& rhs) const
 {
   if (m_uiCount != rhs.m_uiCount)

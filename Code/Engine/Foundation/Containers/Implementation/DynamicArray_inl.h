@@ -30,7 +30,7 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<const T>& other, ezAl
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
 
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)other);
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(other);
 }
 
 template <typename T>
@@ -50,10 +50,11 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<
 template <typename T>
 EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& rhs)
 {
+  // Clear any existing data (calls destructors if necessary)
+  this->Clear();
+
   if (this->m_pAllocator == rhs.m_pAllocator)
   {
-    // clear any existing data
-    this->Clear();
     EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
     // move the data over from the other array
@@ -68,7 +69,13 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
   }
   else
   {
-    ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
+    // Ensure we have enough data.
+    SetCountUninitialized(rhs.m_uiCount);
+    this->m_uiCount = rhs.m_uiCount;
+
+    ezMemoryUtils::RelocateConstruct(this->m_pElements, rhs.m_pElements, rhs.m_uiCount);
+
+    // Strictly speaking, clearing the other array is optional, but it makes it a bit more consistent to do so.
     rhs.Clear();
   }
 }

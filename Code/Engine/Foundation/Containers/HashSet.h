@@ -64,6 +64,9 @@ protected:
   /// \brief Copies the data from another hashset into this one.
   void operator= (const ezHashSetBase<KeyType, Hasher>& rhs); // [tested]
 
+  /// \brief Moves data from an existing hashset into this one.
+  void operator= (ezHashSetBase<KeyType, Hasher>&& rhs);
+
 public:
 
   /// \brief Compares this table to another table.
