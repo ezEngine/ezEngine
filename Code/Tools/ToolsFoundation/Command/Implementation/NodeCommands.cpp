@@ -73,10 +73,14 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     auto inputs = pManager->GetInputPins(m_pObject);
     for (const ezPin* pPinTarget : inputs)
     {
-      auto outputs = pPinTarget->GetConnections();
-      for (const ezConnection* pConnection : outputs)
+      while (true)
       {
-        const ezPin* pPinSource = pConnection->GetSourcePin();
+        auto outputs = pPinTarget->GetConnections();
+
+        if (outputs.IsEmpty())
+          break;
+
+        const ezPin* pPinSource = outputs[0]->GetSourcePin();
         ezDisconnectNodePinsCommand cmd;
         cmd.m_ObjectSource = pPinSource->GetParent()->GetGuid();
         cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid();
@@ -93,13 +97,17 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     auto outputs = pManager->GetOutputPins(m_pObject);
     for (const ezPin* pPinSource : outputs)
     {
-      auto inputs = pPinSource->GetConnections();
-      for (const ezConnection* pConnection : inputs)
+      while (true)
       {
-        const ezPin* pPinTarget = pConnection->GetTargetPin();
+        auto inputs = pPinSource->GetConnections();
+
+        if (inputs.IsEmpty())
+          break;
+
+        const ezPin* pPinTarget = inputs[0]->GetTargetPin();
         ezDisconnectNodePinsCommand cmd;
         cmd.m_ObjectSource = pPinSource->GetParent()->GetGuid();
-        cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid(); /// \todo Crash here when deleting a node whose output is connected to multiple inputs on another node
+        cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid();
         cmd.m_sSourcePin = pPinSource->GetName();
         cmd.m_sTargetPin = pPinTarget->GetName();
         auto res = AddSubCommand(cmd);

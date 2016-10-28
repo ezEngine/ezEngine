@@ -49,7 +49,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
   m_GameModeData[GameMode::Off].m_bRenderVisualizers = true;
   m_GameModeData[GameMode::Off].m_bAddAmbientLight = m_bIsPrefab;
 
-  m_GameModeData[GameMode::Simulate].m_bRenderSelectionOverlay = true;
+  m_GameModeData[GameMode::Simulate].m_bRenderSelectionOverlay = false;
   m_GameModeData[GameMode::Simulate].m_bRenderShapeIcons = false;
   m_GameModeData[GameMode::Simulate].m_bRenderVisualizers = false;
   m_GameModeData[GameMode::Simulate].m_bAddAmbientLight = m_bIsPrefab;

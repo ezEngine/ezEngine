@@ -18,6 +18,7 @@
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <QSplitter>
 #include <QTimer>
 
