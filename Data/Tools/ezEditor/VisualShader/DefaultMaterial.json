@@ -56,7 +56,7 @@ float3 GetBaseColor(PS_IN Input)
 
 float3 GetNormal(PS_IN Input)
 {
-  return ToFloat3($in1);
+  return TangentToWorldSpace(ToFloat3($in1), Input);
 }
 
 float GetMetallic(PS_IN Input)
@@ -110,7 +110,7 @@ float GetOcclusion(PS_IN Input)
         "Name" : "Normal",
         "Type" : "float3",
         "Color" : "128, 128, 255",
-        "Fallback" : "Input.Normal"
+        "Fallback" : "float3(0, 0, 1)"
       },
 
       // Pin 2
@@ -148,7 +148,7 @@ float GetOcclusion(PS_IN Input)
         //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "1"
       },
-      
+
       // Pin 6
       {
         "Name" : "Emissive",
@@ -157,7 +157,7 @@ float GetOcclusion(PS_IN Input)
         //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "0"
       },
-      
+
       // Pin 7
       {
         "Name" : "Occlusion",

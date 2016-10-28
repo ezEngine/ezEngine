@@ -34,21 +34,24 @@ public:
 
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent* /*event*/) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
   virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenuEvent) override;
+  virtual void keyPressEvent(QKeyEvent* event) override;
 
 private:
   void Clear();
   void CreateNode(const ezDocumentObject* pObject);
   void DeleteNode(const ezDocumentObject* pObject);
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
-  void GetSelection(ezDeque<const ezDocumentObject*>& selection);
+  void GetSelection(ezDeque<const ezDocumentObject*>& selection) const;
+  void GetSelectedNodes(ezDeque<ezQtNode*>& selection) const;
   void ConnectPins(const ezConnection* pConnection);
   void DisconnectPins(const ezConnection* pConnection);
 
 protected:
-  virtual void RemoveNodeAction(ezQtNode* pNode);
+  virtual ezStatus RemoveNode(ezQtNode* pNode);
+  virtual void RemoveSelectedNodesAction();
   virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin);
   virtual void DisconnectPinsAction(ezQtConnection* pConnection);
   virtual void DisconnectPinsAction(ezQtPin* pPin);

@@ -113,7 +113,7 @@ void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
   case Qt::LeftButton:
     {
       QTransform id;
-      
+
       QGraphicsItem* item = itemAt(event->scenePos(), id);
       if (item && item->type() == Type::Pin)
       {
@@ -159,7 +159,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         const ezPin* pSourcePin = (m_pStartPin->GetPin()->GetType() == ezPin::Type::Input) ? pPin->GetPin() : m_pStartPin->GetPin();
         const ezPin* pTargetPin = (m_pStartPin->GetPin()->GetType() == ezPin::Type::Input) ? m_pStartPin->GetPin() : pPin->GetPin();
         ConnectPinsAction(pSourcePin, pTargetPin);
-       
+
       }
     }
 
@@ -235,7 +235,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   QMenu menu;
   if (iType == Type::Pin)
   {
-    ezQtPin* pPin = static_cast<ezQtPin*>(pItem);  
+    ezQtPin* pPin = static_cast<ezQtPin*>(pItem);
     QAction* pAction = new QAction("Disconnect Pin", &menu);
     menu.addAction(pAction);
     connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked)
@@ -246,11 +246,19 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   else if (iType == Type::Node)
   {
     ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
+
+    // if we clicked on an unselected item, make it the only selected item
+    if (!pNode->isSelected())
+    {
+      clearSelection();
+      pNode->setSelected(true);
+    }
+
     QAction* pAction = new QAction("Remove Node", &menu);
     menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this, pNode](bool bChecked)
+    connect(pAction, &QAction::triggered, this, [this](bool bChecked)
     {
-      RemoveNodeAction(pNode);
+      RemoveSelectedNodesAction();
     });
   }
   else if (iType == Type::Connection)
@@ -282,13 +290,23 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   menu.exec(contextMenuEvent->screenPos());
 }
 
+void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
+
+{
+  if (event->key() == Qt::Key_Delete)
+  {
+    RemoveSelectedNodesAction();
+    return;
+  }
+}
+
 void ezQtNodeScene::Clear()
 {
   while (!m_ConnectionsSourceTarget.IsEmpty())
   {
     DisconnectPins(m_ConnectionsSourceTarget.GetIterator().Key());
   }
-  
+
   m_ConnectionsSourceTarget.Clear();
 
   while (!m_Nodes.IsEmpty())
@@ -378,7 +396,7 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
   }
 }
 
-void ezQtNodeScene::GetSelection(ezDeque<const ezDocumentObject*>& selection)
+void ezQtNodeScene::GetSelection(ezDeque<const ezDocumentObject*>& selection) const
 {
   selection.Clear();
   auto items = selectedItems();
@@ -388,6 +406,20 @@ void ezQtNodeScene::GetSelection(ezDeque<const ezDocumentObject*>& selection)
     {
       ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
       selection.PushBack(pNode->GetObject());
+    }
+  }
+}
+
+void ezQtNodeScene::GetSelectedNodes(ezDeque<ezQtNode*>& selection) const
+{
+  selection.Clear();
+  auto items = selectedItems();
+  for (QGraphicsItem* pItem : items)
+  {
+    if (pItem->type() == ezQtNodeScene::Node)
+    {
+      ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
+      selection.PushBack(pNode);
     }
   }
 }
@@ -435,29 +467,45 @@ void ezQtNodeScene::DisconnectPins(const ezConnection* pConnection)
   delete pQtConnection;
 }
 
-void ezQtNodeScene::RemoveNodeAction(ezQtNode* pNode)
+ezStatus ezQtNodeScene::RemoveNode(ezQtNode* pNode)
 {
-  ezStatus res = m_pManager->CanRemove(pNode->GetObject());
-  if (res.m_Result.Succeeded())
-  {
-    ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction("Remove Node");
+  EZ_SUCCEED_OR_RETURN(m_pManager->CanRemove(pNode->GetObject()));
 
-    ezRemoveNodeCommand cmd;
-    cmd.m_Object = pNode->GetObject()->GetGuid();
-   
-    res = history->AddCommand(cmd);
+  ezRemoveNodeCommand cmd;
+  cmd.m_Object = pNode->GetObject()->GetGuid();
+
+  ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
+  return history->AddCommand(cmd);
+}
+
+void ezQtNodeScene::RemoveSelectedNodesAction()
+{
+  ezDeque<ezQtNode*> selection;
+  GetSelectedNodes(selection);
+
+  if (selection.IsEmpty())
+    return;
+
+  if (ezQtUiServices::MessageBoxQuestion("Delete the selected Nodes?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
+    return;
+
+  ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
+  history->StartTransaction("Remove Nodes");
+
+  for (ezQtNode* pNode : selection)
+  {
+    ezStatus res = RemoveNode(pNode);
+
     if (res.m_Result.Failed())
+    {
       history->CancelTransaction();
-    else
-      history->FinishTransaction();
 
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node remove failed.");
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to remove node");
+      return;
+    }
   }
-  else
-  {
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node remove failed.");
-  }
+
+  history->FinishTransaction();
 }
 
 void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin)

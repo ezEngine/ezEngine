@@ -87,32 +87,32 @@ SamplerState NormalTexture_AutoSampler;
         "Name" : "Normal",
         "Type" : "float3",
         "Color" : "128, 128, 255",
-        "Inline" : "TangentToObjectSpace(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0, Input)"
+        "Inline" : "(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0)"
       },
 
       {
-        "Name" : "Red",
+        "Name" : "X",
         "Type" : "float",
         "Color" : "255, 0, 0",
         "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).x"
       },
 
       {
-        "Name" : "Green",
+        "Name" : "Y",
         "Type" : "float",
         "Color" : "0, 255, 0",
         "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).y"
       },
 
       {
-        "Name" : "Blue",
+        "Name" : "Z",
         "Type" : "float",
         "Color" : "0, 0, 255",
         "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).z"
       },
 
       {
-        "Name" : "Alpha",
+        "Name" : "W",
         "Type" : "float",
         "Color" : "230, 230, 153",
         "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).w"

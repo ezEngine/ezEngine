@@ -166,30 +166,5 @@
         "Inline" : "float4(ToFloat1($in0), ToFloat1($in1), ToFloat1($in2), ToFloat1($in3))"
       }
     ]
-  },
-
-  "TangentToWorldSpace" :
-  {
-    "Color" : "162, 181, 0",
-
-    "InputPins" :
-    [
-      {
-        "Name" : "Normal",
-        "Type" : "float3",
-        "Color" : "128, 128, 255",
-        "Fallback" : "0"
-      }
-    ],
-
-    "OutputPins" :
-    [
-      {
-        "Name" : "Normal",
-        "Type" : "float3",
-        "Color" : "128, 128, 255",
-        "Inline" : "TangentToWorldSpace(ToFloat3($in0), Input)"
-      }
-    ]
   }
 }
