@@ -29,7 +29,7 @@ public:
 private:
 
   void CreateScreenQuad();
-  void OnFileChanged(const char* filename, ezDirectoryWatcher::Action action);
+  void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
 
   ezShaderExplorerWindow* m_pWindow;
   ezGALDevice* m_pDevice;

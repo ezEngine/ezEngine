@@ -87,7 +87,7 @@ SamplerState NormalTexture_AutoSampler;
         "Name" : "Normal",
         "Type" : "float3",
         "Color" : "128, 128, 255",
-        "Inline" : "(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0)"
+        "Inline" : "TangentToObjectSpace(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0, Input)"
       },
 
       {
@@ -179,4 +179,36 @@ SamplerState EmissiveTexture_AutoSampler;
       }
     ],
   },
+
+  "MetallicTexture" :
+  {
+    "Color" : "140, 13, 38",
+    "CodeMaterialParams" : "
+Texture2D MetallicTexture;
+",
+
+    "CodePixelSamplers" : "
+Texture2D MetallicTexture;
+SamplerState MetallicTexture_AutoSampler;
+",
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Metallic",
+        "Type" : "float",
+        "Color" : "128, 128, 128",
+        "Inline" : "MetallicTexture.Sample(MetallicTexture_AutoSampler, ToFloat2($in0)).x"
+      }
+    ]
+  }
 }

@@ -13,6 +13,8 @@ class ezQtMaterialViewWidget;
 class ezQtVisualShaderScene;
 class ezQtNodeView;
 struct ezSelectionManagerEvent;
+class ezDirectoryWatcher;
+enum class ezDirectoryWatcherAction;
 
 class ezQtMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -34,9 +36,16 @@ private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void SendRedrawMsg();
   void RestoreResource();
+  void UpdateNodeEditorVisibility();
+  void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action);
 
   ezSceneViewConfig m_ViewConfig;
   ezQtMaterialViewWidget* m_pViewWidget;
   ezQtVisualShaderScene* m_pScene;
   ezQtNodeView* m_pNodeView;
+
+  static ezInt32 s_iNodeConfigWatchers;
+  static ezDirectoryWatcher* s_pNodeConfigWatcher;
+
+
 };

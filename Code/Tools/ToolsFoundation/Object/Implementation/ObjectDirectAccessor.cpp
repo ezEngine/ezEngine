@@ -62,11 +62,7 @@ ezStatus ezObjectDirectAccessor::GetCount(const ezDocumentObject* pObject, const
 
 ezStatus ezObjectDirectAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
-  ezStatus status = m_pManager->CanAdd(pType, pParent, pParentProp->GetPropertyName(), index);
-  if (status.m_Result.Failed())
-  {
-    return status;
-  }
+  EZ_SUCCEED_OR_RETURN(m_pManager->CanAdd(pType, pParent, pParentProp->GetPropertyName(), index));
 
   ezDocumentObject* pPar = m_pManager->GetObject(pParent->GetGuid());
   EZ_ASSERT_DEBUG(pPar, "Parent is not part of this document manager.");
@@ -80,11 +76,7 @@ ezStatus ezObjectDirectAccessor::AddObject(const ezDocumentObject* pParent, cons
 
 ezStatus ezObjectDirectAccessor::RemoveObject(const ezDocumentObject* pObject)
 {
-  ezStatus status = m_pManager->CanRemove(pObject);
-  if (status.m_Result.Failed())
-  {
-    return status;
-  }
+  EZ_SUCCEED_OR_RETURN(m_pManager->CanRemove(pObject));
 
   ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
   EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
@@ -94,11 +86,7 @@ ezStatus ezObjectDirectAccessor::RemoveObject(const ezDocumentObject* pObject)
 
 ezStatus ezObjectDirectAccessor::MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index)
 {
-  ezStatus status = m_pManager->CanMove(pObject, pNewParent, pParentProp->GetPropertyName(), index);
-  if (status.m_Result.Failed())
-  {
-    return status;
-  }
+  EZ_SUCCEED_OR_RETURN(m_pManager->CanMove(pObject, pNewParent, pParentProp->GetPropertyName(), index));
 
   ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
   EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");

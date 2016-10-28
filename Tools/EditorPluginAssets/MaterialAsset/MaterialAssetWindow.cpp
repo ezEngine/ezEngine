@@ -16,8 +16,15 @@
 #include <SharedPluginAssets/Common/Messages.h>
 #include <VisualShader/VisualShaderScene.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
+#include <Foundation/IO/DirectoryWatcher.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <QSplitter>
 #include <QTimer>
+
+
+ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
+ezDirectoryWatcher* ezQtMaterialAssetDocumentWindow::s_pNodeConfigWatcher = nullptr;
+
 
 ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {
@@ -63,6 +70,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
       m_pScene = new ezQtVisualShaderScene(this);
       m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
       m_pNodeView = new ezQtNodeView(pSplitter);
+      m_pNodeView->setVisible(false);
       m_pNodeView->SetScene(m_pScene);
       pSplitter->addWidget(m_pNodeView);
     }
@@ -89,8 +97,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   UpdatePreview();
 
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
-  m_pNodeView->setVisible(bCustom);
+  UpdateNodeEditorVisibility();
 }
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
@@ -99,8 +106,19 @@ ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
-}
 
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+
+  if (bCustom)
+  {
+    --s_iNodeConfigWatchers;
+
+    if (s_iNodeConfigWatchers == 0)
+    {
+      EZ_DEFAULT_DELETE(s_pNodeConfigWatcher);
+    }
+  }
+}
 
 ezMaterialAssetDocument* ezQtMaterialAssetDocumentWindow::GetMaterialDocument()
 {
@@ -114,6 +132,11 @@ void ezQtMaterialAssetDocumentWindow::InternalRedraw()
   ezEditorInputContext::UpdateActiveInputContext();
 
   SendRedrawMsg();
+
+  if (s_pNodeConfigWatcher)
+  {
+    s_pNodeConfigWatcher->EnumerateChanges(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::OnVseConfigChanged, this));
+  }
 }
 
 void ezQtMaterialAssetDocumentWindow::UpdatePreview()
@@ -147,14 +170,7 @@ void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjec
 {
   if (e.m_pObject == GetMaterialDocument()->GetPropertyObject() && e.m_sProperty == "Shader Mode")
   {
-    if (e.m_NewValue.ConvertTo<ezInt64>() == ezMaterialShaderMode::File)
-    {
-      m_pNodeView->setVisible(false);
-    }
-    else
-    {
-      m_pNodeView->setVisible(true);
-    }
+    UpdateNodeEditorVisibility();
   }
 
   UpdatePreview();
@@ -208,6 +224,45 @@ void ezQtMaterialAssetDocumentWindow::RestoreResource()
 {
   ezEditorEngineRestoreResourceMsg msg;
   GetEditorEngineConnection()->SendMessage(&msg);
+}
+
+void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
+{
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+
+  if (m_pNodeView->isVisible() != bCustom)
+  {
+    m_pNodeView->setVisible(bCustom);
+
+    if (bCustom)
+      ++s_iNodeConfigWatchers;
+    else
+      --s_iNodeConfigWatchers;
+
+    if (bCustom && s_pNodeConfigWatcher == nullptr)
+    {
+      s_pNodeConfigWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+
+      ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+      sSearchDir.AppendPath("VisualShader");
+
+      if (s_pNodeConfigWatcher->OpenDirectory(sSearchDir, ezDirectoryWatcher::Watch::Writes).Failed())
+        ezLog::Warning("Could not register a file system watcher for changes to '%s'", sSearchDir.GetData());
+    }
+  }
+}
+
+void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action)
+{
+  if (!ezPathUtils::HasExtension(filename, "JSON"))
+    return;
+
+  // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it
+  ezThreadUtils::Sleep(100);
+
+  ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(filename);
+
+  GetMaterialDocument()->RecreateVisualShaderFile();
 }
 
 

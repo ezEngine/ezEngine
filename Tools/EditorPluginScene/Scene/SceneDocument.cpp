@@ -1148,13 +1148,9 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
 
 ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
 {
-  auto res = SaveDocument();
-  if (res.m_Result.Failed())
-    return res;
+  EZ_SUCCEED_OR_RETURN(SaveDocument());
 
-  res = ezAssetDocument::RemoteExport(header, szTargetFile);
-
-  return res;
+  return ezAssetDocument::RemoteExport(header, szTargetFile);
 }
 
 void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const

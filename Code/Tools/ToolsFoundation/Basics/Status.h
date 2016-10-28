@@ -1,9 +1,12 @@
 #pragma once
 
+/// \file
+
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 
+/// \brief An ezResult with an additional message for the reason of failure
 struct EZ_TOOLSFOUNDATION_DLL ezStatus
 {
   explicit ezStatus() : m_Result(EZ_FAILURE)
@@ -31,7 +34,11 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
     m_sMessage = sMsg;
   }
 
+  EZ_FORCE_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
+  EZ_FORCE_INLINE bool Failed() const { return m_Result.Failed(); }
+
   ezResult m_Result;
   ezString m_sMessage;
 };
+
 

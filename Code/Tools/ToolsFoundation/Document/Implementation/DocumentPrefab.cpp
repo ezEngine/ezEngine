@@ -143,12 +143,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 
   ezDocument* pSceneDocument = nullptr;
 
-  {
-    auto res = pTypeDesc->m_pManager->CreateDocument("ezPrefab", szFile, pSceneDocument, false);
-
-    if (res.m_Result.Failed())
-      return res;
-  }
+  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument("ezPrefab", szFile, pSceneDocument, false));
 
   out_NewDocumentGuid = pSceneDocument->GetGuid();
 
@@ -165,6 +160,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   pSceneDocument->SetModified(true);
   auto res = pSceneDocument->SaveDocument();
   pTypeDesc->m_pManager->CloseDocument(pSceneDocument);
+
   return res;
 }
 

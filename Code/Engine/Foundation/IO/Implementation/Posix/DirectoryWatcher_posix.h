@@ -26,7 +26,7 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 {
 }
 
-void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, Action action)> func)
+void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func)
 {
   EZ_ASSERT_NOT_IMPLEMENTED
 }

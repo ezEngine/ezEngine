@@ -20,19 +20,19 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
 
   ON_CORE_STARTUP
   {
-  EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
+    EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
 
-  ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
-  const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+    ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
+    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
   }
 
   ON_CORE_SHUTDOWN
   {
-  ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
+    ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
   }
 
   ON_ENGINE_STARTUP
@@ -48,7 +48,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
   : m_SingletonRegistrar(this)
 {
-
+    m_pBaseType = nullptr;
 }
 
 const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
@@ -61,9 +61,36 @@ const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorFor
   return &it.Value();
 }
 
+
+void ezVisualShaderTypeRegistry::UpdateNodeData()
+{
+  ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  sSearchDir.AppendPath("VisualShader/*.json");
+
+  ezFileSystemIterator it;
+  if (it.StartSearch(sSearchDir, false, false).Succeeded())
+  {
+    do
+    {
+      UpdateNodeData(it.GetStats().m_sFileName);
+    }
+    while (it.Next().Succeeded());
+  }
+}
+
+
+void ezVisualShaderTypeRegistry::UpdateNodeData(const char* szCfgFileRelative)
+{
+  ezStringBuilder sPath = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  sPath.AppendPath("VisualShader", szCfgFileRelative);
+
+  LoadConfigFile(sPath);
+}
+
 void ezVisualShaderTypeRegistry::LoadNodeData()
 {
   // Base Node Type
+  if (m_pBaseType == nullptr)
   {
     ezReflectedTypeDescriptor desc;
     desc.m_sTypeName = "ezVisualShaderNodeBase";
@@ -76,25 +103,7 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
   }
 
-  {
-    ezStringBuilder sFile;
-
-    ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-    sSearchDir.AppendPath("VisualShader/*.json");
-
-    ezFileSystemIterator it;
-    if (it.StartSearch(sSearchDir, false, false).Succeeded())
-    {
-      do
-      {
-        sFile = it.GetCurrentPath();
-        sFile.AppendPath(it.GetStats().m_sFileName);
-
-        LoadConfigFile(sFile);
-      }
-      while (it.Next().Succeeded());
-    }
-  }
+  UpdateNodeData();
 }
 
 const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& nd) const
@@ -134,6 +143,8 @@ const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualSha
 void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
 {
   EZ_LOG_BLOCK("Loading Visual Shader Config", szFile);
+
+  ezLog::Debug("Loading VSE node config '%s'", szFile);
 
   ezFileReader file;
   if (file.Open(szFile).Failed())

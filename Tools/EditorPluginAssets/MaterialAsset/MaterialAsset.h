@@ -77,6 +77,10 @@ public:
 
   ezStatus WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const;
 
+  /// \brief Will make sure that the visual shader is rebuilt.
+  /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
+  ezStatus RecreateVisualShaderFile(const char* szPlatform = nullptr);
+
 protected:
   ezUuid GetSeedFromBaseMaterial(const char* szBaseGraph);
   static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);

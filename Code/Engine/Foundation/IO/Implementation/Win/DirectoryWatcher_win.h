@@ -88,7 +88,7 @@ void ezDirectoryWatcherImpl::DoRead()
   EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
 }
 
-void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, Action action)> func)
+void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func)
 {
   EZ_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
   OVERLAPPED* lpOverlapped;
@@ -117,23 +117,23 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
         dir.SetCount(bytesNeeded+1);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
         dir[bytesNeeded] = '\0';
-        Action action;
+        ezDirectoryWatcherAction action;
         switch (info->Action)
         {
           case FILE_ACTION_ADDED:
-            action = Action::Added;
+            action = ezDirectoryWatcherAction::Added;
             break;
           case FILE_ACTION_REMOVED:
-            action = Action::Removed;
+            action = ezDirectoryWatcherAction::Removed;
             break;
           case FILE_ACTION_MODIFIED:
-            action = Action::Modified;
+            action = ezDirectoryWatcherAction::Modified;
             break;
           case FILE_ACTION_RENAMED_OLD_NAME:
-            action = Action::RenamedOldName;
+            action = ezDirectoryWatcherAction::RenamedOldName;
             break;
           case FILE_ACTION_RENAMED_NEW_NAME:
-            action = Action::RenamedNewName;
+            action = ezDirectoryWatcherAction::RenamedNewName;
             break;
         }
         func(dir.GetData(), action);

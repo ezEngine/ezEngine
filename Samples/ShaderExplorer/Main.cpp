@@ -364,9 +364,9 @@ void ezShaderExplorerApp::CreateScreenQuad()
       m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", desc);
 }
 
-void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcher::Action action)
+void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action)
 {
-  if (action == ezDirectoryWatcher::Action::Modified)
+  if (action == ezDirectoryWatcherAction::Modified)
   {
     ezLog::Info("The file %s was modified", filename);
     m_stuffChanged = true;

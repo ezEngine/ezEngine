@@ -120,14 +120,12 @@ ezStatus ezCommandHistory::UndoInternal()
 
 ezStatus ezCommandHistory::Undo(ezUInt32 uiNumEntries)
 {
-  ezStatus res;
   for (ezUInt32 i = 0; i < uiNumEntries; i++)
   {
-    res = UndoInternal();
-    if (res.m_Result.Failed())
-      return res;
+    EZ_SUCCEED_OR_RETURN(UndoInternal());
   }
-  return res;
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezCommandHistory::RedoInternal()
@@ -169,14 +167,12 @@ ezStatus ezCommandHistory::RedoInternal()
 
 ezStatus ezCommandHistory::Redo(ezUInt32 uiNumEntries)
 {
-  ezStatus res;
   for (ezUInt32 i = 0; i < uiNumEntries; i++)
   {
-    res = RedoInternal();
-    if (res.m_Result.Failed())
-      return res;
+    EZ_SUCCEED_OR_RETURN(RedoInternal());
   }
-  return res;
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 bool ezCommandHistory::CanUndo() const

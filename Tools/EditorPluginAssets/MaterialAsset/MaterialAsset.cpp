@@ -16,6 +16,7 @@
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
@@ -196,7 +197,7 @@ namespace
     {
       if (attributeDef.m_sName.IsEqual("Default"))
       {
-    //TODO: this needs a proper implementation for types other than float
+        //TODO: this needs a proper implementation for types other than float
         double fValue;
         ezConversionUtils::StringToFloat(attributeDef.m_sValue, fValue);
 
@@ -597,7 +598,7 @@ ezUuid ezMaterialAssetDocument::GetSeedFromBaseMaterial(const char* szBaseGraph)
   ezUuid baseGuid = ezMaterialAssetDocument::GetMaterialNodeGuid(baseGraph);
   if (baseGuid.IsValid())
   {
-     //Create seed that converts base guid into instance guid
+    //Create seed that converts base guid into instance guid
     instanceGuid.RevertCombinationWithSeed(baseGuid);
     return instanceGuid;
   }
@@ -709,36 +710,14 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
-  {
-    ezVisualShaderCodeGenerator codeGen;
+  EZ_SUCCEED_OR_RETURN(RecreateVisualShaderFile(szPlatform));
 
-    ezStatus status = codeGen.GenerateVisualShader(static_cast<ezDocumentNodeManager*>(GetObjectManager()), szPlatform);
-    if (status.m_Result.Failed())
-      return status;
-
-    ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
-
-    ezFileWriter file;
-    if (file.Open(sAutoGenShader).Succeeded())
-    {
-      ezStringBuilder shader = codeGen.GetFinalShaderCode();
-
-      file.WriteBytes(shader.GetData(), shader.GetElementCount());
-      file.Close();
-    }
-    else
-      return ezStatus("Failed to write auto-generated shader to '%s'", sAutoGenShader.GetData());
-  }
-
-  ezStatus status = WriteMaterialAsset(stream, szPlatform);
-  return status;
+  return WriteMaterialAsset(stream, szPlatform);
 }
 
 ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
 {
-  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
-  return status;
+  return ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
 }
 
 void ezMaterialAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
@@ -893,3 +872,32 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
   return ezStatus(EZ_SUCCESS);
 }
+
+ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatform)
+{
+  ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
+
+  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
+  {
+    ezOSFile::DeleteFile(sAutoGenShader);
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  ezVisualShaderCodeGenerator codeGen;
+
+  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<ezDocumentNodeManager*>(GetObjectManager()), szPlatform));
+
+  ezFileWriter file;
+  if (file.Open(sAutoGenShader).Succeeded())
+  {
+    ezStringBuilder shader = codeGen.GetFinalShaderCode();
+
+    file.WriteBytes(shader.GetData(), shader.GetElementCount());
+    file.Close();
+
+    return ezStatus(EZ_SUCCESS);
+  }
+  else
+    return ezStatus("Failed to write auto-generated shader to '%s'", sAutoGenShader.GetData());
+}
+

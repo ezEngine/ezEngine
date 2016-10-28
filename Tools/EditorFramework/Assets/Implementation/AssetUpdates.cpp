@@ -174,12 +174,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
   bool bNew = !RefFile.m_AssetGuid.IsValid(); // Under this current location the asset is not known.
   // if it already has a valid GUID, an ezAssetInfo object must exist
   EZ_VERIFY(bNew == !m_KnownAssets.Contains(RefFile.m_AssetGuid), "guid set in file-status but no asset is actually known under that guid");
-  ezResult res = UpdateAssetInfo(szAbsFilePath, RefFile, assetInfo, &fs);
-
-  if (res.Failed())
-  {
-    return res;
-  }
+  EZ_SUCCEED_OR_RETURN(UpdateAssetInfo(szAbsFilePath, RefFile, assetInfo, &fs));
 
   ezAssetInfo* pAssetInfo = nullptr;
   if (bNew)
@@ -246,7 +241,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 
   UpdateAssetTransformState(RefFile.m_AssetGuid, ezAssetInfo::TransformState::Unknown);
 
-  return res;
+  return EZ_SUCCESS;
 }
 
 void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)

@@ -102,7 +102,6 @@
    </item>
   </layout>
   <zorder>label_2</zorder>
-  <zorder>buttonBox</zorder>
   <zorder>checkBoxLightImport</zorder>
   <zorder>checkBoxCameraImport</zorder>
  </widget>

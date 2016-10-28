@@ -112,15 +112,15 @@ void ezAssetCurator::SetActivePlatform(const char* szPlatform)
   m_Events.Broadcast(e);
 }
 
-void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirectoryWatcher::Action action)
+void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirectoryWatcherAction action)
 {
   switch (action)
   {
-  case ezDirectoryWatcher::Action::Added:
-  case ezDirectoryWatcher::Action::Removed:
-  case ezDirectoryWatcher::Action::Modified:
-  case ezDirectoryWatcher::Action::RenamedOldName:
-  case ezDirectoryWatcher::Action::RenamedNewName:
+  case ezDirectoryWatcherAction::Added:
+  case ezDirectoryWatcherAction::Removed:
+  case ezDirectoryWatcherAction::Modified:
+  case ezDirectoryWatcherAction::RenamedOldName:
+  case ezDirectoryWatcherAction::RenamedNewName:
     {
       ezStringBuilder sTemp = szDirectory;
       sTemp.AppendPath(szFilename);
@@ -141,7 +141,7 @@ void ezAssetCurator::MainThreadTick()
 
   for (ezDirectoryWatcher* pWatcher : m_Watchers)
   {
-    pWatcher->EnumerateChanges([pWatcher](const char* szFilename, ezDirectoryWatcher::Action action)
+    pWatcher->EnumerateChanges([pWatcher](const char* szFilename, ezDirectoryWatcherAction action)
     {
       WatcherCallback(pWatcher->GetDirectory(), szFilename, action);
     });
@@ -571,9 +571,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
     {
-      ezStatus res = ProcessAsset(pInfo, szPlatform);
-      if (res.m_Result.Failed())
-        return res;
+      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, szPlatform));
     }
   }
 

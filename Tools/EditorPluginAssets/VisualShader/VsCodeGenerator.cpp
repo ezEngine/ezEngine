@@ -89,6 +89,10 @@ ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRo
     ns.m_bInProgress = false;
 
     auto pDesc = m_pTypeRegistry->GetDescriptorForType(pRootObj->GetType());
+
+    if (pDesc == nullptr)
+      return ezStatus("Node type of root node is unknown");
+
     if (pDesc->m_NodeType == ezVisualShaderNodeType::Main)
     {
       if (m_pMainNode != nullptr)
@@ -101,9 +105,7 @@ ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRo
   const auto& children = pRootObj->GetChildren();
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
-    ezStatus res = GatherAllNodes(children[i]);
-    if (res.m_Result.Failed())
-      return res;
+    EZ_SUCCEED_OR_RETURN(GatherAllNodes(children[i]));
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -130,15 +132,12 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
   m_pTypeRegistry = ezVisualShaderTypeRegistry::GetSingleton();
   m_pNodeBaseRtti = m_pTypeRegistry->GetNodeBaseType();
 
-  GatherAllNodes(m_pNodeManager->GetRootObject());
+  EZ_SUCCEED_OR_RETURN(GatherAllNodes(m_pNodeManager->GetRootObject()));
 
   if (m_Nodes.IsEmpty())
     return ezStatus("Visual Shader graph is empty");
 
-  ezStatus res = GenerateNode(m_pMainNode);
-
-  if (res.m_Result.Failed())
-    return res;
+  EZ_SUCCEED_OR_RETURN(GenerateNode(m_pMainNode));
 
   m_sFinalShaderCode.Set("[PLATFORMS]\nALL\n\n");
   m_sFinalShaderCode.Append("[PERMUTATIONS]\n\n", m_sShaderPermutations, "\n");
@@ -168,21 +167,15 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
 
   const ezVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pNode->GetType());
 
-  ezStatus res = GenerateInputPinCode(pDesc->m_InputPins, m_pNodeManager->GetInputPins(pNode));
-  if (res.m_Result.Failed())
-    return res;
+  EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(pDesc->m_InputPins, m_pNodeManager->GetInputPins(pNode)));
 
   ezStringBuilder sConstantsCode, sBodyCode;
 
   sConstantsCode = pDesc->m_sShaderCodePixelConstants;
   sBodyCode = pDesc->m_sShaderCodePixelBody;
 
-  res = InsertPropertyValues(pNode, pDesc, sConstantsCode);
-  if (res.m_Result.Failed())
-    return res;
-  res = InsertPropertyValues(pNode, pDesc, sBodyCode);
-  if (res.m_Result.Failed())
-    return res;
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sBodyCode));
 
   ReplaceInputPinsByCode(pNode, pDesc, sBodyCode);
 
@@ -242,18 +235,14 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 
   ps.m_bCodeGenerated = true;
 
-  ezStatus res = GenerateNode(pOwnerNode);
-  if (res.m_Result.Failed())
-    return res;
+  EZ_SUCCEED_OR_RETURN(GenerateNode(pOwnerNode));
 
   const ezVisualShaderNodeDescriptor* pDesc = m_pTypeRegistry->GetDescriptorForType(pOwnerNode->GetType());
   const ezUInt16 uiPinID = DeterminePinId(pOwnerNode, pPin);
 
   ezStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
 
-  res = InsertPropertyValues(pOwnerNode, pDesc, sInlineCode);
-  if (res.m_Result.Failed())
-    return res;
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
 
   ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode);
 

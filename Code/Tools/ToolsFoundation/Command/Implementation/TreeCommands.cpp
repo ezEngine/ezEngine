@@ -184,11 +184,7 @@ ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
       return ezStatus(EZ_FAILURE, "Add Object: The given parent does not exist!");
   }
 
-  ezStatus status = pDocument->GetObjectManager()->CanAdd(m_pType, pParent, m_sParentProperty, m_Index);
-  if (status.m_Result.Failed())
-  {
-    return status;
-  }
+  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pType, pParent, m_sParentProperty, m_Index));
 
   if (!bRedo)
   {
@@ -204,11 +200,7 @@ ezStatus ezAddObjectCommand::UndoInternal(bool bFireEvents)
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocument* pDocument = GetDocument();
-  ezStatus status = pDocument->GetObjectManager()->CanRemove(m_pObject);
-  if (status.m_Result.Failed())
-  {
-    return status;
-  }
+  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(m_pObject));
 
   pDocument->GetObjectManager()->RemoveObject(m_pObject);
   return ezStatus(EZ_SUCCESS);
@@ -250,7 +242,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     ezAbstractObjectGraph graph;
 
     {
-      // Deserialize 
+      // Deserialize
       ezMemoryStreamStorage streamStorage;
       ezMemoryStreamWriter memoryWriter(&streamStorage);
       memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
@@ -327,11 +319,7 @@ ezStatus ezPasteObjectsCommand::UndoInternal(bool bFireEvents)
 
   for (auto& po : m_PastedObjects)
   {
-    ezStatus status = pDocument->GetObjectManager()->CanRemove(po.m_pObject);
-    if (status.m_Result.Failed())
-    {
-      return status;
-    }
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
@@ -466,11 +454,7 @@ ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
 
   for (auto& po : m_PastedObjects)
   {
-    ezStatus status = pDocument->GetObjectManager()->CanRemove(po.m_pObject);
-    if (status.m_Result.Failed())
-    {
-      return status;
-    }
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
@@ -581,11 +565,7 @@ ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
     else
       return ezStatus(EZ_FAILURE, "Remove Object: The given object does not exist!");
 
-    ezStatus status = pDocument->GetObjectManager()->CanRemove(m_pObject);
-    if (status.m_Result.Failed())
-    {
-      return status;
-    }
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(m_pObject));
 
     m_pParent = const_cast<ezDocumentObject*>(m_pObject->GetParent());
     m_sParentProperty = m_pObject->GetParentProperty();
@@ -602,11 +582,7 @@ ezStatus ezRemoveObjectCommand::UndoInternal(bool bFireEvents)
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocument* pDocument = GetDocument();
-  ezStatus status = pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index);
-  if (status.m_Result.Failed())
-  {
-    return status;
-  }
+  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index));
 
   pDocument->GetObjectManager()->AddObject(m_pObject, m_pParent, m_sParentProperty, m_Index);
   return ezStatus(EZ_SUCCESS);
@@ -657,11 +633,7 @@ ezStatus ezMoveObjectCommand::DoInternal(bool bRedo)
     const ezIReflectedTypeAccessor& accessor = m_pOldParent->GetTypeAccessor();
     m_OldIndex = accessor.GetPropertyChildIndex(m_pObject->GetParentProperty(), m_pObject->GetGuid());
 
-    ezStatus status = pDocument->GetObjectManager()->CanMove(m_pObject, m_pNewParent, m_sParentProperty, m_Index);
-    if (status.m_Result.Failed())
-    {
-      return status;
-    }
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanMove(m_pObject, m_pNewParent, m_sParentProperty, m_Index));
   }
 
   pDocument->GetObjectManager()->MoveObject(m_pObject, m_pNewParent, m_sParentProperty, m_Index);
@@ -691,11 +663,7 @@ ezStatus ezMoveObjectCommand::UndoInternal(bool bFireEvents)
     }
   }
 
-  ezStatus status = pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition);
-  if (status.m_Result.Failed())
-  {
-    return status;
-  }
+  EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition));
 
   pDocument->GetObjectManager()->MoveObject(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition);
 

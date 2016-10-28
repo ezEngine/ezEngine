@@ -154,11 +154,7 @@ ezStatus ezMoveNodeCommand::DoInternal(bool bRedo)
       return ezStatus(EZ_FAILURE, "Move Node: The given object does not exist!");
 
     m_OldPos = pManager->GetNodePos(m_pObject);
-    auto res = pManager->CanMoveNode(m_pObject, m_NewPos);
-    if (res.m_Result.Failed())
-    {
-      return res;
-    }
+    EZ_SUCCEED_OR_RETURN(pManager->CanMoveNode(m_pObject, m_NewPos));
   }
 
   pManager->MoveNode(m_pObject, m_NewPos);
@@ -171,11 +167,7 @@ ezStatus ezMoveNodeCommand::UndoInternal(bool bFireEvents)
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  auto res = pManager->CanMoveNode(m_pObject, m_OldPos);
-  if (res.m_Result.Failed())
-  {
-    return res;
-  }
+  EZ_SUCCEED_OR_RETURN(pManager->CanMoveNode(m_pObject, m_OldPos));
 
   pManager->MoveNode(m_pObject, m_OldPos);
 
@@ -216,11 +208,8 @@ ezStatus ezConnectNodePinsCommand::DoInternal(bool bRedo)
   if (pInput == nullptr)
     return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
 
-  auto res = pManager->CanConnect(pOutput, pInput);
-  if (res.m_Result.Failed())
-  {
-    return res;
-  }
+  EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput));
+
   pManager->Connect(pOutput, pInput);
   return ezStatus(EZ_SUCCESS);
 }
@@ -238,11 +227,8 @@ ezStatus ezConnectNodePinsCommand::UndoInternal(bool bFireEvents)
   if (pInput == nullptr)
     return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
 
-  auto res = pManager->CanDisconnect(pOutput, pInput);
-  if (res.m_Result.Failed())
-  {
-    return res;
-  }
+  EZ_SUCCEED_OR_RETURN(pManager->CanDisconnect(pOutput, pInput));
+
   pManager->Disconnect(pOutput, pInput);
   return ezStatus(EZ_SUCCESS);
 }
@@ -281,11 +267,8 @@ ezStatus ezDisconnectNodePinsCommand::DoInternal(bool bRedo)
   if (pInput == nullptr)
     return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
 
-  auto res = pManager->CanDisconnect(pOutput, pInput);
-  if (res.m_Result.Failed())
-  {
-    return res;
-  }
+  EZ_SUCCEED_OR_RETURN(pManager->CanDisconnect(pOutput, pInput));
+
   pManager->Disconnect(pOutput, pInput);
   return ezStatus(EZ_SUCCESS);
 }
@@ -303,11 +286,8 @@ ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
   if (pInput == nullptr)
     return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
 
-  auto res = pManager->CanConnect(pOutput, pInput);
-  if (res.m_Result.Failed())
-  {
-    return res;
-  }
+  EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput));
+
   pManager->Connect(pOutput, pInput);
   return ezStatus(EZ_SUCCESS);
 }

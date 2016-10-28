@@ -70,6 +70,10 @@ public:
 
   const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
 
+  void UpdateNodeData();
+
+  void UpdateNodeData(const char* szCfgFileRelative);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, VisualShader);
 

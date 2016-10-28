@@ -267,8 +267,8 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
   }
 
   ezQuat qRot;
-  qRot.SetFromEulerAngles(ezAngle::Degree(fStep * m_vAccumulativeRotation.x + vRandR.x), 
-                          ezAngle::Degree(fStep * m_vAccumulativeRotation.y + vRandR.y), 
+  qRot.SetFromEulerAngles(ezAngle::Degree(fStep * m_vAccumulativeRotation.x + vRandR.x),
+                          ezAngle::Degree(fStep * m_vAccumulativeRotation.y + vRandR.y),
                           ezAngle::Degree(fStep * m_vAccumulativeRotation.z + vRandR.z));
 
   const ezMat3 mRot = qRot.GetAsMat3();
@@ -276,7 +276,7 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
   for (const auto& pi : Duplicates)
   {
     ezTransform tGlobal = pScene->GetGlobalTransform(pi.m_pObject);
-    
+
     tGlobal.m_vPosition += vPosOffset + fStep * m_vAccumulativeTranslation + vRandT;
     tGlobal.m_Rotation = mRot * tGlobal.m_Rotation;
 
@@ -295,9 +295,7 @@ ezStatus ezDuplicateObjectsCommand::UndoInternal(bool bFireEvents)
 
   for (auto& po : m_DuplicatedObjects)
   {
-    ezStatus res = pDocument->GetObjectManager()->CanRemove(po.m_pObject);
-    if (res.m_Result.Failed())
-      return res;
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(po.m_pObject));
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }

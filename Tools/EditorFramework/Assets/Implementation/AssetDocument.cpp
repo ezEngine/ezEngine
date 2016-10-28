@@ -120,7 +120,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
 
     if (ret.m_Result.Failed())
     {
-      ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), GetDocumentPath());
+      ezLog::Error("Transform failed: '%s' (%s)", ret.m_sMessage.GetData(), GetDocumentPath());
     }
     else
     {
@@ -369,10 +369,7 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
 
   AssetHeader.Write(file);
 
-  auto ret = InternalTransformAsset(file, szPlatform, AssetHeader);
-
-  if (ret.m_Result.Failed())
-    return ret;
+  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szPlatform, AssetHeader));
 
   if (file.Close().Failed())
   {

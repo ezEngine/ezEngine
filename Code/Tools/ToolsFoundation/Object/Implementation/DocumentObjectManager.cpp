@@ -203,7 +203,7 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
       ezVariant value = accessor.GetValue(szParentProperty);
       if (!value.IsA<ezUuid>())
         return ezStatus("Property is not a pointer and thus can't be added to.");
- 
+
       if (value.Get<ezUuid>().IsValid())
         return ezStatus("Can't set pointer if it already has a value, need to delete value first.");
     }
@@ -233,13 +233,9 @@ ezStatus ezDocumentObjectManager::CanRemove(const ezDocumentObject* pObject) con
 
 ezStatus ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
 {
-  ezStatus status = CanAdd(pObject->GetTypeAccessor().GetType(), pNewParent, szParentProperty, index);
-  if (status.m_Result.Failed())
-    return status;
+  EZ_SUCCEED_OR_RETURN(CanAdd(pObject->GetTypeAccessor().GetType(), pNewParent, szParentProperty, index));
 
-  status = CanRemove(pObject);
-  if (status.m_Result.Failed())
-    return status;
+  EZ_SUCCEED_OR_RETURN(CanRemove(pObject));
 
   if (pNewParent == nullptr)
     pNewParent = GetRootObject();

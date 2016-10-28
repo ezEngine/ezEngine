@@ -7,6 +7,16 @@
 
 struct ezDirectoryWatcherImpl;
 
+/// \brief Which action has been performed on a file.
+enum class ezDirectoryWatcherAction
+{
+  Added,
+  Removed,
+  Modified,
+  RenamedOldName,
+  RenamedNewName,
+};
+
 /// \brief
 ///   Watches file actions in a directory. Changes need to be polled.
 class EZ_FOUNDATION_DLL ezDirectoryWatcher
@@ -26,7 +36,7 @@ public:
       Renames = EZ_BIT(3), ///< Watch for renames.
       Subdirectories = EZ_BIT(4) ///< Watch files in subdirectories recursively.
     };
-    
+
     struct Bits
     {
       StorageType Reads : 1;
@@ -35,16 +45,6 @@ public:
       StorageType Renames : 1;
       StorageType Subdirectories : 1;
     };
-  };
-
-  /// \brief Which action has been performed on a file.
-  enum class Action
-  {
-    Added,
-    Removed,
-    Modified,
-    RenamedOldName,
-    RenamedNewName,
   };
 
   ezDirectoryWatcher();
@@ -69,7 +69,7 @@ public:
   ///   and the action, which was performed on the file, is passed to \p func.
   ///
   /// \note There might be multiple changes on the same file reported.
-  void EnumerateChanges(ezDelegate<void(const char* filename, Action action)> func);
+  void EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func);
 
 private:
   ezString m_sDirectoryPath;

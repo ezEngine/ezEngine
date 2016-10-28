@@ -64,6 +64,13 @@ private:
   ezResultEnum e;
 };
 
+/// \brief Helper macro to call functions that return ezStatus or ezResult in a function that returns ezStatus (or ezResult) as well.
+/// If the called function fails, its return value is returned from the calling scope.
+#define EZ_SUCCEED_OR_RETURN(code) \
+  do { auto s = (code); if (s.Failed()) return s; } while(false)
+
+//////////////////////////////////////////////////////////////////////////
+
 class ezRTTI;
 
 /// \brief Dummy type to pass to templates and macros that expect a base type for a class that has no base.
