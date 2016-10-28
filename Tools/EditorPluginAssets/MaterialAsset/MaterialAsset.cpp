@@ -165,7 +165,7 @@ namespace
     return pType;
   }
 
-  void AddAttributes(ezShaderParser::ParameterDefinition& def, ezHybridArray<ezPropertyAttribute*, 2>& attributes)
+  void AddAttributes(ezShaderParser::ParameterDefinition& def, const ezRTTI* pType, ezHybridArray<ezPropertyAttribute*, 2>& attributes)
   {
     if (def.m_sType.StartsWith_NoCase("texture"))
     {
@@ -195,13 +195,42 @@ namespace
 
     for (auto& attributeDef : def.m_Attributes)
     {
+      float fValues[4] = {};
+      ezUInt32 uiNumFloats = ezConversionUtils::ExtractFloatsFromString(attributeDef.m_sValue, 4, fValues);
+
       if (attributeDef.m_sName.IsEqual("Default"))
       {
-        //TODO: this needs a proper implementation for types other than float
-        double fValue;
-        ezConversionUtils::StringToFloat(attributeDef.m_sValue, fValue);
+        ///\todo: this needs a proper implementation for types other than float
+        if (pType == ezGetStaticRTTI<float>())
+        {
+          if (uiNumFloats >= 1)
+          {
+            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, fValues[0]));
+          }
+        }
+        else if (pType == ezGetStaticRTTI<ezColor>())
+        {
+          if (uiNumFloats >= 3)
+          {
+            ezColor color(fValues[0], fValues[1], fValues[2]);
+            if (uiNumFloats == 4)
+            {
+              color.a = fValues[3];
+            }
 
-        attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, fValue));
+            attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, color));
+          }
+        }
+      }
+      else if (attributeDef.m_sName.IsEqual("Clamp"))
+      {
+        if (pType == ezGetStaticRTTI<float>())
+        {
+          if (uiNumFloats >= 2)
+          {
+            attributes.PushBack(EZ_DEFAULT_NEW(ezClampValueAttribute, fValues[0], fValues[1]));
+          }
+        }
       }
     }
   }
@@ -469,7 +498,7 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
 
     ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, pType->GetTypeName(), flags);
 
-    AddAttributes(parameter, propDesc.m_Attributes);
+    AddAttributes(parameter, pType, propDesc.m_Attributes);
 
     desc.m_Properties.PushBack(propDesc);
   }

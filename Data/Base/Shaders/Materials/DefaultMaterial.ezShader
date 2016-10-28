@@ -8,10 +8,6 @@ RENDER_PASS
 SHADING_MODE
 TWO_SIDED
 INSTANCING
-DEFAULT_MAT_USE_BASE_TEXTURE
-DEFAULT_MAT_USE_NORMAL_TEXTURE
-DEFAULT_MAT_USE_METALLIC_TEXTURE
-DEFAULT_MAT_USE_ROUGHNESS_TEXTURE
 
 [MATERIALPARAMETER]
 
@@ -21,20 +17,25 @@ Permutation TWO_SIDED;
 
 float MaskThreshold @Default(0.25);
 
-Permutation DEFAULT_MAT_USE_BASE_TEXTURE;
+bool UseBaseTexture;
 Texture2D BaseTexture;
 Color BaseColor @Default(1.0, 1.0, 1.0);
 
-Permutation DEFAULT_MAT_USE_NORMAL_TEXTURE;
+bool UseNormalAndRoughnessTexture;
 Texture2D NormalTexture;
+Texture2D RoughnessTexture;
+float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
 
-Permutation DEFAULT_MAT_USE_METALLIC_TEXTURE;
+bool UseMetallicTexture;
 Texture2D MetallicTexture;
 float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
 
-Permutation DEFAULT_MAT_USE_ROUGHNESS_TEXTURE;
-Texture2D RoughnessTexture;
-float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
+bool UseEmissiveTexture;
+Texture2D EmissiveTexture;
+Color EmissiveColor @Default(0.0, 0.0, 0.0);
+
+bool UseOcclusionTexture;
+Texture2D OcclusionTexture;
 
 [RENDERSTATE]
 
@@ -76,32 +77,50 @@ SamplerState MetallicTexture_AutoSampler;
 Texture2D RoughnessTexture;
 SamplerState RoughnessTexture_AutoSampler;
 
+Texture2D EmissiveTexture;
+SamplerState EmissiveTexture_AutoSampler;
+
+Texture2D OcclusionTexture;
+SamplerState OcclusionTexture_AutoSampler;
+
 float3 GetNormal(PS_IN Input)
 {
-	#if DEFAULT_MAT_USE_NORMAL_TEXTURE == TRUE
-		float3 vNt = NormalTexture.Sample(NormalTexture_AutoSampler, Input.TexCoords.xy).rgb * 2.0f - 1.0f;
-		return vNt.x * Input.Tangent + vNt.y * Input.BiTangent + vNt.z * Input.Normal;
-	#else
+  [branch]
+	if (UseNormalAndRoughnessTexture)
+  {
+		float3 normalTS = NormalTexture.Sample(NormalTexture_AutoSampler, Input.TexCoords.xy).rgb * 2.0f - 1.0f;
+		return TangentToWorldSpace(normalTS, Input);
+	}
+  else
+  {
 		return Input.Normal;
-	#endif
+	}
 }
 
 float3 GetBaseColor(PS_IN Input)
 {
-	#if DEFAULT_MAT_USE_BASE_TEXTURE == TRUE
+	[branch]
+	if (UseBaseTexture)
+  {
 		return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
-	#else
+	}
+  else
+  {
 		return BaseColor.rgb;
-	#endif
+	}
 }
 
 float GetMetallic(PS_IN Input)
 {
-	#if DEFAULT_MAT_USE_METALLIC_TEXTURE == TRUE
+	[branch]
+	if (UseMetallicTexture)
+  {
 		return MetallicTexture.Sample(MetallicTexture_AutoSampler, Input.TexCoords.xy).r;
-	#else
+	}
+  else
+  {
 		return MetallicValue;
-	#endif
+	}
 }
 
 float GetReflectance(PS_IN Input)
@@ -111,24 +130,60 @@ float GetReflectance(PS_IN Input)
 
 float GetRoughness(PS_IN Input)
 {
-	#if DEFAULT_MAT_USE_ROUGHNESS_TEXTURE == TRUE
+	[branch]
+	if (UseNormalAndRoughnessTexture)
+  {
 		return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, Input.TexCoords.xy).r;
-	#else
+	}
+  else
+  {
 		return RoughnessValue;
-	#endif
+	}
 }
 
 float GetOpacity(PS_IN Input)
 {
-	#if DEFAULT_MAT_USE_BASE_TEXTURE == TRUE
-		float opacity = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * BaseColor.a;
-	#else
-		float opacity = BaseColor.a;
-	#endif
+  float opacity;
+
+	[branch]
+	if (UseBaseTexture)
+  {
+		opacity = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * BaseColor.a;
+	}
+  else
+  {
+		opacity = BaseColor.a;
+	}
 
 	#if BLEND_MODE == BLEND_MODE_MASKED
 		return opacity - MaskThreshold;
 	#else
 		return opacity;
 	#endif
+}
+
+float3 GetEmissiveColor(PS_IN Input)
+{
+	[branch]
+	if (UseEmissiveTexture)
+  {
+		return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, Input.TexCoords.xy).rgb * EmissiveColor.rgb;
+	}
+  else
+  {
+		return EmissiveColor.rgb;
+	}
+}
+
+float GetOcclusion(PS_IN Input)
+{
+	[branch]
+	if (UseOcclusionTexture)
+  {
+		return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, Input.TexCoords.xy).r;
+	}
+  else
+  {
+		return 1.0f;
+	}
 }

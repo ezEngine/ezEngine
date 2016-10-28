@@ -17,8 +17,10 @@ float3 GetNormal(PS_IN Input);
 	float3 GetSpecularColor(PS_IN Input);
 #endif
 
+float3 GetEmissiveColor(PS_IN Input);
 float GetRoughness(PS_IN Input);
 float GetOpacity(PS_IN Input);
+float GetOcclusion(PS_IN Input);
 
 ezPerInstanceData GetInstanceData(PS_IN Input)
 {
@@ -58,6 +60,8 @@ ezMaterialData FillMaterialData(PS_IN Input)
 	#else
 		matData.worldPosition = float3(0.0, 0.0, 0.0);
 	#endif
+  
+  matData.normalizedViewVector = normalize(CameraPosition - matData.worldPosition);
 
 	float3 worldNormal = normalize(GetNormal(Input));
 	#if TWO_SIDED == TRUE
@@ -80,13 +84,21 @@ ezMaterialData FillMaterialData(PS_IN Input)
 		matData.specularColor = GetSpecularColor(Input);
 	#endif
 
-	matData.roughness = max(GetRoughness(Input), 0.04f);
+  matData.emissiveColor = GetEmissiveColor(Input);  
+  matData.roughness = max(GetRoughness(Input), 0.04f);
+  
+  #if defined(USE_NORMAL)
+    float occlusionFade = saturate(dot(Input.Normal, matData.normalizedViewVector));
+  #else
+    float occlusionFade = 1.0f;
+  #endif
+  matData.occlusion = lerp(1.0f, GetOcclusion(Input), occlusionFade);
 
 	return matData;
 }
 
 #if defined(USE_NORMAL) && defined(USE_TANGENT)
-  float3 TangentToObjectSpace(float3 normalTS, PS_IN Input)
+  float3 TangentToWorldSpace(float3 normalTS, PS_IN Input)
   {
     return normalTS.x * Input.Tangent + normalTS.y * Input.BiTangent + normalTS.z * Input.Normal;
   }

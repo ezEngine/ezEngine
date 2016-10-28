@@ -60,7 +60,9 @@ ezViewRenderMode::Normals;Normals
 ezViewRenderMode::DiffuseColor;Diffuse Color
 ezViewRenderMode::DiffuseColorRange;Diffuse Color Range Check
 ezViewRenderMode::SpecularColor;Specular Color
+ezViewRenderMode::EmissiveColor;Emissive Color
 ezViewRenderMode::Roughness;Roughness
+ezViewRenderMode::Occlusion;Ambient Occlusion
 ezViewRenderMode::Depth;Depth
 ezMeshPrimitive::File;From File
 ezMeshPrimitive::Box;Box

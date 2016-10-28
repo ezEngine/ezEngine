@@ -96,3 +96,13 @@ float GetOpacity(PS_IN Input)
 		return opacity;
 	#endif
 }
+
+float3 GetEmissiveColor(PS_IN Input)
+{
+  return 0.0f;
+}
+
+float GetOcclusion(PS_IN Input)
+{
+  return 1.0f;
+}

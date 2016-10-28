@@ -61,17 +61,17 @@ float3 GetNormal(PS_IN Input)
 
 float GetMetallic(PS_IN Input)
 {
-  return clamp(ToFloat1($in2), 0, 1);
+  return saturate(ToFloat1($in2));
 }
 
 float GetReflectance(PS_IN Input)
 {
-  return clamp(ToFloat1($in3), 0, 1);
+  return saturate(ToFloat1($in3));
 }
 
 float GetRoughness(PS_IN Input)
 {
-  return clamp(ToFloat1($in4), 0, 1);
+  return saturate(ToFloat1($in4));
 }
 
 float GetOpacity(PS_IN Input)
@@ -81,6 +81,16 @@ float GetOpacity(PS_IN Input)
   #else
     return ToFloat1($in5);
   #endif
+}
+
+float3 GetEmissiveColor(PS_IN Input)
+{
+  return ToColor3($in6);
+}
+
+float GetOcclusion(PS_IN Input)
+{
+  return saturate(ToFloat1($in7));
 }
 ",
 
@@ -133,6 +143,24 @@ float GetOpacity(PS_IN Input)
       // Pin 5
       {
         "Name" : "Opacity",
+        "Type" : "float",
+        "Color" : "230, 230, 153",
+        //"Expose" : true, // otherwise fallback is currently 0
+        "Fallback" : "1"
+      },
+      
+      // Pin 6
+      {
+        "Name" : "Emissive",
+        "Type" : "float3",
+        "Color" : "230, 230, 153",
+        //"Expose" : true, // otherwise fallback is currently 0
+        "Fallback" : "0"
+      },
+      
+      // Pin 7
+      {
+        "Name" : "Occlusion",
         "Type" : "float",
         "Color" : "230, 230, 153",
         //"Expose" : true, // otherwise fallback is currently 0

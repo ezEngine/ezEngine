@@ -20,7 +20,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezViewRenderMode
     DiffuseColor,
     DiffuseColorRange,
     SpecularColor,
+    EmissiveColor,
     Roughness,
+    Occlusion,
     Depth,
 
     Default = None

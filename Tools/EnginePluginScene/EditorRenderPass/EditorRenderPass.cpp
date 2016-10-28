@@ -28,6 +28,8 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
 
   switch (m_ViewRenderMode)
   {
+  case ezViewRenderMode::None:
+    break;
   case ezViewRenderMode::WireframeColor:
     sRenderPass = "WIREFRAME";
     uiRenderPass = WIREFRAME_RENDER_PASS_COLOR;
@@ -61,14 +63,24 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_SPECULAR_COLOR;
     break;
+  case ezViewRenderMode::EmissiveColor:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_EMISSIVE_COLOR;
+    break;
   case ezViewRenderMode::Roughness:
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_ROUGHNESS;
+    break;
+  case ezViewRenderMode::Occlusion:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_OCCLUSION;
     break;
   case ezViewRenderMode::Depth:
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_DEPTH;
     break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);

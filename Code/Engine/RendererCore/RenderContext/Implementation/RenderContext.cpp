@@ -953,11 +953,8 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
     const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
 
     ezGALResourceViewHandle hResourceView;
-    if (!m_BoundTextures[stage].TryGetValue(uiResourceHash, hResourceView))
-    {
-      ezLog::Error("No texture is bound for %s slot '%s'", ezGALShaderStage::Names[stage], binding.m_sName.GetData());
-    }
-
+    m_BoundTextures[stage].TryGetValue(uiResourceHash, hResourceView);
+    
     m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);
   }
 }
@@ -975,7 +972,6 @@ void ezRenderContext::ApplySamplerBindings(ezGALShaderStage::Enum stage, const e
     ezGALSamplerStateHandle hSamplerState;
     if (!m_BoundSamplers[stage].TryGetValue(uiResourceHash, hSamplerState))
     {
-      ezLog::Error("No sampler is bound for %s slot '%s'", ezGALShaderStage::Names[stage], binding.m_sName.GetData());
       hSamplerState = GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering); // Bind a default state to avoid DX11 errors.
     }
 

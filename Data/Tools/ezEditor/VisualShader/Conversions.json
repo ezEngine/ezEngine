@@ -168,7 +168,7 @@
     ]
   },
 
-  "TangentToObjectSpace" :
+  "TangentToWorldSpace" :
   {
     "Color" : "162, 181, 0",
 
@@ -188,7 +188,7 @@
         "Name" : "Normal",
         "Type" : "float3",
         "Color" : "128, 128, 255",
-        "Inline" : "TangentToObjectSpace(ToFloat3($in0), Input)"
+        "Inline" : "TangentToWorldSpace(ToFloat3($in0), Input)"
       }
     ]
   }

@@ -36,6 +36,7 @@
 	#endif
 
 	float3 litColor = CalculateLighting(matData);
+  litColor += matData.emissiveColor;
 
 	#if RENDER_PASS == RENDER_PASS_FORWARD
 		#if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
@@ -83,9 +84,17 @@
 		{
 			return float4(matData.specularColor, 1);
 		}
+    else if (RenderPass == EDITOR_RENDER_PASS_EMISSIVE_COLOR)
+		{
+			return float4(matData.emissiveColor, 1);
+		}
 		else if (RenderPass == EDITOR_RENDER_PASS_ROUGHNESS)
 		{
 			return float4(SrgbToLinear(matData.roughness), 1);
+		}
+    else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
+		{
+			return float4(SrgbToLinear(matData.occlusion), 1);
 		}
 		else if (RenderPass == EDITOR_RENDER_PASS_DEPTH)
 		{
