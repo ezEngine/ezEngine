@@ -101,7 +101,6 @@ Only concrete and clocks.\n\
     ezFileStats s;
 
     ezStringBuilder dir = sOutputFile2.GetFileDirectory();
-    dir.ToLower();
 
     EZ_TEST_BOOL(ezOSFile::GetFileStats(sOutputFile2.GetData(), s) == EZ_SUCCESS);
     //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
