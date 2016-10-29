@@ -15,8 +15,6 @@ SamplerState BaseTexture_AutoSampler;
       {
         "Name" : "UV",
         "Type" : "float2",
-        "Color" : "50, 50, 128",
-        "Fallback" : "Input.TexCoords",
         "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
       }
     ],
@@ -71,6 +69,7 @@ Texture2D NormalTexture;
     "CodePixelSamplers" : "
 Texture2D NormalTexture;
 SamplerState NormalTexture_AutoSampler;
+float3 FlipX(float3 f) { return float3(f.x, f.y, f.z); }
 ",
     "InputPins" :
     [
@@ -89,40 +88,8 @@ SamplerState NormalTexture_AutoSampler;
         "Name" : "Normal",
         "Type" : "float3",
         "Color" : "128, 128, 255",
-        "Inline" : "(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0)",
+        "Inline" : "normalize(FlipX(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0))",
         "Tooltip" : "Normal in Tangent Space"
-      },
-
-      {
-        "Name" : "X",
-        "Type" : "float",
-        "Color" : "255, 0, 0",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).x",
-        "Tooltip" : "Raw x component of the normal map"
-      },
-
-      {
-        "Name" : "Y",
-        "Type" : "float",
-        "Color" : "0, 255, 0",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).y",
-        "Tooltip" : "Raw y component of the normal map"
-      },
-
-      {
-        "Name" : "Z",
-        "Type" : "float",
-        "Color" : "0, 0, 255",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).z",
-        "Tooltip" : "Raw z component of the normal map"
-      },
-
-      {
-        "Name" : "W",
-        "Type" : "float",
-        "Color" : "230, 230, 153",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).w",
-        "Tooltip" : "Raw w component of the normal map"
       }
     ],
   },
@@ -177,13 +144,6 @@ SamplerState EmissiveTexture_AutoSampler;
         "Type" : "float",
         "Color" : "0, 0, 255",
         "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).z"
-      },
-
-      {
-        "Name" : "Alpha",
-        "Type" : "float",
-        "Color" : "230, 230, 153",
-        "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).w"
       }
     ],
   },
@@ -247,12 +207,184 @@ SamplerState RoughnessTexture_AutoSampler;
     "OutputPins" :
     [
       {
-        "Name" : "Metallic",
+        "Name" : "Roughness",
         "Type" : "float",
-        "Color" : "128, 128, 128",
+        "Color" : "150, 64, 64",
         "Inline" : "RoughnessTexture.Sample(RoughnessTexture_AutoSampler, ToFloat2($in0)).x",
         "Tooltip" : "Outputs only the red component of the sampled texture."
       }
     ]
+  },
+
+
+
+  "Texture2D" :
+  {
+    "Color" : "140, 13, 38",
+    "CodeMaterialParams" : "
+Texture2D $prop0;
+",
+
+    "CodePixelSamplers" : "
+Texture2D $prop0;
+SamplerState $prop0_AutoSampler;
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "TextureName",
+        "Type" : "string",
+        "Value" : ""
+      }
+    ],
+
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      },
+
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "40, 15, 140",
+        "Fallback" : "$prop0_AutoSampler",
+        "Tooltip" : "Optional sampler state to use."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "RGBA",
+        "Type" : "float4",
+        "Color" : "255, 255, 255",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0))"
+      },
+
+      {
+        "Name" : "Red",
+        "Type" : "float",
+        "Color" : "255, 0, 0",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).x"
+      },
+
+      {
+        "Name" : "Green",
+        "Type" : "float",
+        "Color" : "0, 255, 0",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).y"
+      },
+
+      {
+        "Name" : "Blue",
+        "Type" : "float",
+        "Color" : "0, 0, 255",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).z"
+      },
+
+      {
+        "Name" : "Alpha",
+        "Type" : "float",
+        "Color" : "230, 230, 153",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).w"
+      }
+    ],
+  },
+
+  "PointSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState PointSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "PointSampler"
+      }
+    ],
+  },
+
+  "LinearSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState LinearSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "LinearSampler"
+      }
+    ],
+  },
+
+  "PointClampSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState PointClampSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "PointClampSampler"
+      }
+    ],
+  },
+
+  "LinearClampSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState LinearClampSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "LinearClampSampler"
+      }
+    ],
+  },
+
+  "UV" :
+  {
+    "Color" : "40, 15, 140",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Inline" : "Input.TexCoords"
+      }
+    ],
   }
 }

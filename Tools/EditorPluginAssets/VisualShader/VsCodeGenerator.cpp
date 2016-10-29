@@ -169,29 +169,30 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
 
   EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(pDesc->m_InputPins, m_pNodeManager->GetInputPins(pNode)));
 
-  ezStringBuilder sConstantsCode, sBodyCode;
+  ezStringBuilder sConstantsCode, sBodyCode, sMaterialParamCode, sPixelSamplersCode;
 
   sConstantsCode = pDesc->m_sShaderCodePixelConstants;
   sBodyCode = pDesc->m_sShaderCodePixelBody;
-
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sBodyCode));
+  sMaterialParamCode = pDesc->m_sShaderCodeMaterialParams;
+  sPixelSamplersCode = pDesc->m_sShaderCodePixelSamplers;
 
   ReplaceInputPinsByCode(pNode, pDesc, sBodyCode);
 
-  if (!m_DeclarationsInserted.Contains(pDesc))
-  {
-    m_DeclarationsInserted.Insert(pDesc);
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sBodyCode));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialParamCode));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelSamplersCode));
 
-    m_sShaderPermutations.Append(pDesc->m_sShaderCodePermutations);
-    m_sShaderRenderState.Append(pDesc->m_sShaderCodeRenderState);
-    m_sShaderVertex.Append(pDesc->m_sShaderCodeVertexShader);
-    m_sShaderMaterialParam.Append(pDesc->m_sShaderCodeMaterialParams);
-    m_sShaderPixelDefines.Append(pDesc->m_sShaderCodePixelDefines);
-    m_sShaderPixelIncludes.Append(pDesc->m_sShaderCodePixelIncludes);
-    m_sShaderPixelBody.Append(sBodyCode);
-    m_sShaderPixelConstants.Append(sConstantsCode);
-    m_sShaderPixelSamplers.Append(pDesc->m_sShaderCodePixelSamplers);
+  {
+    AppendStringIfUnique(m_sShaderPermutations, pDesc->m_sShaderCodePermutations);
+    AppendStringIfUnique(m_sShaderRenderState, pDesc->m_sShaderCodeRenderState);
+    AppendStringIfUnique(m_sShaderVertex, pDesc->m_sShaderCodeVertexShader);
+    AppendStringIfUnique(m_sShaderMaterialParam, sMaterialParamCode);
+    AppendStringIfUnique(m_sShaderPixelDefines, pDesc->m_sShaderCodePixelDefines);
+    AppendStringIfUnique(m_sShaderPixelIncludes, pDesc->m_sShaderCodePixelIncludes);
+    AppendStringIfUnique(m_sShaderPixelBody, sBodyCode);
+    AppendStringIfUnique(m_sShaderPixelConstants, sConstantsCode);
+    AppendStringIfUnique(m_sShaderPixelSamplers, sPixelSamplersCode);
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -242,9 +243,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 
   ezStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
 
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
-
   ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode);
+
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
 
   // store the result
   ps.m_sCodeAtPin = sInlineCode;
@@ -292,6 +293,15 @@ void ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject*
   }
 }
 
+
+void ezVisualShaderCodeGenerator::AppendStringIfUnique(ezStringBuilder& inout_String, const char* szAppend)
+{
+  if (inout_String.FindSubString(szAppend) != nullptr)
+    return;
+
+  inout_String.Append(szAppend);
+}
+
 ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString) const
 {
   const auto& TypeAccess = pNode->GetTypeAccessor();
@@ -306,11 +316,7 @@ ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObjec
     const ezVariant value = TypeAccess.GetValue(props[p].m_sName);
     sPropValue = ToShaderString(value);
 
-    ezUInt32 repl = 0;
-    repl += sString.ReplaceAll(sPropName, sPropValue);
-
-    //if (repl == 0)
-    //  return ezStatus("Property '%s' is not referenced in the shader code at all.", props[p].m_sName.GetData());
+    sString.ReplaceAll(sPropName, sPropValue);
   }
 
   return ezStatus(EZ_SUCCESS);

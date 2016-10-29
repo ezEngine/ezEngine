@@ -457,6 +457,8 @@ void ezMaterialAssetProperties::LoadOldValues()
 
 const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPath)
 {
+  EZ_LOG_BLOCK("Updating Shader Parameters", szShaderPath);
+
   ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
 
   {

@@ -49,7 +49,7 @@ private:
   ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin* pPinSource);
 
   void ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder &sInlineCode);
-
+  static void AppendStringIfUnique(ezStringBuilder& inout_String, const char* szAppend);
 
   const ezDocumentObject* m_pMainNode;
   const ezVisualShaderTypeRegistry* m_pTypeRegistry;
@@ -57,7 +57,6 @@ private:
   const ezRTTI* m_pNodeBaseRtti;
   ezMap<const ezDocumentObject*, NodeState> m_Nodes;
   ezMap<const ezPin*, OutputPinState> m_OutputPins;
-  ezSet<const ezVisualShaderNodeDescriptor*> m_DeclarationsInserted;
 
   ezStringBuilder m_sShaderPixelDefines;
   ezStringBuilder m_sShaderPixelIncludes;

@@ -60,7 +60,7 @@ ezMaterialData FillMaterialData(PS_IN Input)
 	#else
 		matData.worldPosition = float3(0.0, 0.0, 0.0);
 	#endif
-  
+
   matData.normalizedViewVector = normalize(CameraPosition - matData.worldPosition);
 
 	float3 worldNormal = normalize(GetNormal(Input));
@@ -84,9 +84,9 @@ ezMaterialData FillMaterialData(PS_IN Input)
 		matData.specularColor = GetSpecularColor(Input);
 	#endif
 
-  matData.emissiveColor = GetEmissiveColor(Input);  
+  matData.emissiveColor = GetEmissiveColor(Input);
   matData.roughness = max(GetRoughness(Input), 0.04f);
-  
+
   #if defined(USE_NORMAL)
     float occlusionFade = saturate(dot(Input.Normal, matData.normalizedViewVector));
   #else

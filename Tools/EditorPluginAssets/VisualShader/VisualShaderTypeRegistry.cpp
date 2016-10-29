@@ -233,6 +233,8 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
           pin.m_pDataType = ezGetStaticRTTI<ezVec2>();
         else if (sType == "float")
           pin.m_pDataType = ezGetStaticRTTI<float>();
+        else if (sType == "string")
+          pin.m_pDataType = ezGetStaticRTTI<ezString>();
         else
         {
           ezLog::Error("Invalid pin type '%s'", sType.GetData());
@@ -334,6 +336,8 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
           prop.m_sType = ezGetStaticRTTI<ezVec2>()->GetTypeName();
         else if (sType == "float")
           prop.m_sType = ezGetStaticRTTI<float>()->GetTypeName();
+        else if (sType == "string")
+          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
         else
         {
           ezLog::Error("Invalid property type '%s'", sType.GetData());

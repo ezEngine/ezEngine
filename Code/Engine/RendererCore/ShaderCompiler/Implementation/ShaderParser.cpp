@@ -24,7 +24,7 @@ namespace
 
     if (!s.IsValid() || s.GetCharacter() != '@')
       return;
-        
+
     ++s; //skip @
 
     const char* szNameStart = s.GetData();
@@ -73,11 +73,13 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 
   ezUInt32 uiFirstLine = 0;
   ezStringView s = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
-  
+
   SkipWhitespace(s);
 
   while (s.IsValid())
   {
+    const char* szCurrentStart = s.GetData();
+
     const char* szTypeStart = s.GetData();
     while (s.IsValid() && IsIdentifier(s.GetCharacter()))
     {
@@ -86,7 +88,7 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 
     ParameterDefinition def;
     def.m_sType = ezStringView(szTypeStart, s.GetData());
-        
+
     SkipWhitespace(s);
 
     const char* szNameStart = s.GetData();
@@ -118,6 +120,12 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
     }
 
     SkipWhitespace(s);
+
+    if (szCurrentStart == s.GetData()) // no change -> parsing error
+    {
+      ezLog::Error("Error parsing material parameter section of shader");
+      break;
+    }
   }
 }
 
@@ -148,10 +156,10 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
       sToken.Append(s.GetCharacter());
       ++s;
     }
-    
+
     out_PermVars.ExpandAndGetRef().Assign(sToken.GetData());
     sToken.Clear();
-    
+
     SkipWhitespace(s);
   }
 }
