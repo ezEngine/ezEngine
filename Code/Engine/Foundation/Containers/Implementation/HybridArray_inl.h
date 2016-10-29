@@ -69,7 +69,7 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
   if (rhs.m_pElements == rhs.GetStaticArray() || (m_pAllocator != rhs.m_pAllocator))
   {
     // Ensure we have enough data.
-    SetCountUninitialized(rhs.m_uiCount);
+    this->SetCountUninitialized(rhs.m_uiCount);
 
     ezMemoryUtils::RelocateConstruct(this->m_pElements, rhs.m_pElements, rhs.m_uiCount);
 

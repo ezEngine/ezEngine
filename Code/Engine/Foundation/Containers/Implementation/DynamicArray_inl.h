@@ -70,7 +70,7 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
   else
   {
     // Ensure we have enough data.
-    SetCountUninitialized(rhs.m_uiCount);
+    this->SetCountUninitialized(rhs.m_uiCount);
     this->m_uiCount = rhs.m_uiCount;
 
     ezMemoryUtils::RelocateConstruct(this->m_pElements, rhs.m_pElements, rhs.m_uiCount);
