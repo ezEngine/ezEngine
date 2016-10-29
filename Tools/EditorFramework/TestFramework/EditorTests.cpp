@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <EditorFramework/TestFramework/EditorTests.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
