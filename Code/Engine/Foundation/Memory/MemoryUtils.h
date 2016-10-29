@@ -67,8 +67,12 @@ public:
 
   /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was called with a rvalue reference or a const reference to \a source.
   template <typename T>
-  static auto CopyOrMoveConstruct(T* pDestination, T&& source) -> typename std::enable_if<std::is_rvalue_reference<decltype(source)>::value>::type;
-
+  static auto CopyOrMoveConstruct(T* pDestination, T&& source) -> typename std::enable_if<std::is_rvalue_reference<decltype(source)>::value>::type
+  { // GCC can't forward declare this function.
+    // This static_assert should never be hit. Just makes sure the implementation is working as expected.
+    static_assert(std::is_rvalue_reference<decltype(source)>::value, "Implementation error - compiler should have called CopyOrMoveConstruct version that takes a reference.");
+    MoveConstruct(pDestination, std::forward<T>(source));
+  }
 #else
 
   // In the MSVC2012 we're falling back to forwarding which should be almost the same except in a few border cases.

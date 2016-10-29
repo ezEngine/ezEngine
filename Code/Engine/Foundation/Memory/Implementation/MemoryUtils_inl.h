@@ -100,14 +100,6 @@ EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T
   CopyConstruct(pDestination, &source, 1);
 }
 
-template <typename T>
-EZ_FORCE_INLINE auto ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, T&& source) -> typename std::enable_if<std::is_rvalue_reference<decltype(source)>::value>::type
-{
-  // This static_assert should never be hit. Just makes sure the implementation is working as expected.
-  static_assert(std::is_rvalue_reference<decltype(source)>::value, "Implementation error - compiler should have called CopyOrMoveConstruct version that takes a reference.");
-  MoveConstruct(pDestination, std::forward<T>(source));
-}
-
 #else
 
 // In the MSVC2012 we're falling back to forwarding which should be almost the same except in a few border cases.
