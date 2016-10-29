@@ -1,32 +1,17 @@
 #include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
-#include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
-#include <EditorPluginAssets/MeshAsset/MeshAssetManager.h>
-#include <EditorPluginAssets/ModelImporter/ModelImporter.h>
-#include <EditorPluginAssets/ModelImporter/Scene.h>
-#include <EditorPluginAssets/ModelImporter/Mesh.h>
-#include <EditorPluginAssets/ModelImporter/Material.h>
-
-#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
-#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
-
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-
-#include <Foundation/Containers/HashTable.h>
-#include <Foundation/Time/Stopwatch.h>
-
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <CoreUtils/Image/Image.h>
-#include <RendererCore/Meshes/MeshResourceDescriptor.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
-
-
-#include <ToolsFoundation/CommandHistory/CommandHistory.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
+#include <EditorPluginAssets/ModelImporter/Material.h>
+#include <EditorPluginAssets/ModelImporter/Mesh.h>
+#include <EditorPluginAssets/ModelImporter/ModelImporter.h>
+#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 2, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

@@ -101,6 +101,7 @@ public:
   ~ezAbstractObjectGraph();
 
   void Clear();
+  void Clone(ezAbstractObjectGraph& cloneTarget) const;
 
   const char* RegisterString(const char* szString);
 
@@ -132,7 +133,7 @@ public:
   void PruneGraph(const ezUuid& rootGuid);
 
   /// \brief Allows to copy a node from another graph into this graph.
-  void CopyNodeIntoGraph(ezAbstractObjectNode* pNode);
+  void CopyNodeIntoGraph(const ezAbstractObjectNode* pNode);
 
   void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const;
 

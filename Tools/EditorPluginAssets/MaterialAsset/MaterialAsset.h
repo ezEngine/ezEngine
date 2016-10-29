@@ -41,11 +41,10 @@ public:
   void UpdateShader(bool bForce = false);
 
   void DeleteProperties();
-  void CreateProperties(const char* szShaderPath, bool bForce = false);
+  void CreateProperties(const char* szShaderPath);
 
   void SaveOldValues();
   void LoadOldValues();
-  const ezRTTI* UpdateShaderType(const char* szShaderPath);
 
   ezString GetFinalShader() const;
   ezString GetAutoGenShaderPathAbs() const;
@@ -82,7 +81,7 @@ public:
   ezStatus RecreateVisualShaderFile(const char* szPlatform = nullptr);
 
 protected:
-  ezUuid GetSeedFromBaseMaterial(const char* szBaseGraph);
+  ezUuid GetSeedFromBaseMaterial(const ezAbstractObjectGraph* pBaseGraph);
   static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;

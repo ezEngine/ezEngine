@@ -28,5 +28,7 @@ public:
   /// and the right graph is build directly from pRight and its PrefabSeed.
   static void Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph);
 
+  static ezString ReadDocumentAsString(const char* szFile);
+
 };
 

@@ -2,22 +2,10 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Threading/TaskSystem.h>
-#include <Foundation/Algorithm/Hashing.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/JsonSerializer.h>
-#include <Foundation/Serialization/RttiConverter.h>
 #include <CoreUtils/Other/Progress.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_IMPLEMENT_SINGLETON(ezAssetCurator);
 
@@ -684,6 +672,8 @@ ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezString& sAssetGuid)
 
 void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
 {
+  EZ_LOCK(m_CuratorMutex);
+
   ezFileStats Stats;
   if (ezOSFile::GetFileStats(sAbsolutePath, Stats).Failed())
   {
@@ -693,10 +683,20 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
       it.Value().m_Timestamp.Invalidate();
       it.Value().m_uiHash = 0;
       it.Value().m_Status = FileStatus::Status::Unknown;
+
+      ezUuid guid = it.Value().m_AssetGuid;
+      if (guid.IsValid())
+      {
+        m_KnownAssets[guid]->m_ExistanceState = ezAssetInfo::ExistanceState::FileRemoved;
+        m_TransformStateUnknown.Remove(guid);
+        m_TransformStateNeedsTransform.Remove(guid);
+        m_TransformStateNeedsThumbnail.Remove(guid);
+        m_TransformStateMissingDependency.Remove(guid);
+        m_TransformStateMissingReference.Remove(guid);
+      }
     }
     return;
   }
-  EZ_LOCK(m_CuratorMutex);
 
   // make sure the set exists, but don't update it
   // this is only updated in CheckFileSystem

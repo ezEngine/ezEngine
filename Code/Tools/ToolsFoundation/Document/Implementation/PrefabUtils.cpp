@@ -1,10 +1,11 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
-#include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 #define PREFAB_DEBUG false
 
@@ -27,12 +28,7 @@ ezString ToBinary(const ezUuid& guid)
 
 void ezPrefabUtils::LoadGraph(ezAbstractObjectGraph& out_graph, const char* szGraph)
 {
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter stringWriter(&storage);
-  ezMemoryStreamReader stringReader(&storage);
-  stringWriter.WriteBytes(szGraph, ezStringUtils::GetStringElementCount(szGraph));
-
-  ezAbstractGraphJsonSerializer::Read(stringReader, &out_graph);
+  ezPrefabCache::GetSingleton()->LoadGraph(out_graph, ezStringView(szGraph));
 }
 
 
@@ -247,4 +243,19 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
     }
   }
 
+}
+
+ezString ezPrefabUtils::ReadDocumentAsString(const char* szFile)
+{
+  ezFileReader file;
+  if (file.Open(szFile) == EZ_FAILURE)
+  {
+    ezLog::Error("Failed to open document file '%s'", szFile);
+    return ezString();
+  }
+
+  ezStringBuilder sGraph;
+  sGraph.ReadAll(file);
+
+  return sGraph;
 }

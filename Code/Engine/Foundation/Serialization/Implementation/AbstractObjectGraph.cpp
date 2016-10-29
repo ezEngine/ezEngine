@@ -38,6 +38,17 @@ void ezAbstractObjectGraph::Clear()
   m_Strings.Clear();
 }
 
+
+void ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneTarget) const
+{
+  cloneTarget.Clear();
+
+  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    cloneTarget.CopyNodeIntoGraph(it.Value());
+  }
+}
+
 const char* ezAbstractObjectGraph::RegisterString(const char* szString)
 {
   auto it = m_Strings.Insert(szString);
@@ -366,7 +377,7 @@ void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
   }
 }
 
-void ezAbstractObjectGraph::CopyNodeIntoGraph(ezAbstractObjectNode* pNode)
+void ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode)
 {
   auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetNodeName());
 

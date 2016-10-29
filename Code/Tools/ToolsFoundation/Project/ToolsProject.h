@@ -4,6 +4,7 @@
 #include <Foundation/Communication/Event.h>
 #include <ToolsFoundation/Basics/Status.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Types/Uuid.h>
 
 class ezToolsProject;
 class ezDocument;
@@ -32,12 +33,16 @@ struct ezToolsProjectRequest
     CanCloseProject, ///< Can we close the project? Listener needs to set m_bCanClose if not.
     CanCloseDocuments, ///< Can we close the documents in m_Documents? Listener needs to set m_bCanClose if not.
     SuggestContainerWindow,  ///< m_Documents contains one element that a container window should be suggested for and written to m_iContainerWindowUniqueIdentifier.
+    GetPathForDocumentGuid,
   };
 
   Type m_Type;
   bool m_bCanClose; ///< When the event is sent, interested code can set this to false to prevent closing.
   ezDynamicArray<ezDocument*> m_Documents; ///< In case of 'CanCloseDocuments', these will be the documents in question.
   ezInt32 m_iContainerWindowUniqueIdentifier; ///< In case of 'SuggestContainerWindow', the ID of the container to be used for the docs in m_Documents.
+  
+  ezUuid m_documentGuid;
+  ezStringBuilder m_sAbsDocumentPath;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezToolsProject
@@ -60,6 +65,8 @@ public:
   static bool CanCloseDocuments(ezArrayPtr<ezDocument*> documents);
   /// \brief Returns the unique ID of the container window this document should use for its window. Uses ezToolsProjectRequest::Type::SuggestContainerWindow event.
   static ezInt32 SuggestContainerWindow(ezDocument* pDoc);
+  /// \brief Resolve document GUID into an absolute path.
+  ezStringBuilder GetPathForDocumentGuid(const ezUuid& guid);
   static ezStatus OpenProject(const char* szProjectPath);
   static ezStatus CreateProject(const char* szProjectPath);
 

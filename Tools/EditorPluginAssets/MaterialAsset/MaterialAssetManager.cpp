@@ -31,7 +31,7 @@ ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
 ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
+  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

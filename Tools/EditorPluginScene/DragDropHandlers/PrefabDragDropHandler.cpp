@@ -3,6 +3,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezPrefabComponentDragDropHandler>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -53,7 +54,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   PasteCmd.m_Parent = parent;
   PasteCmd.m_CreateFromPrefab = AssetGuid;
   //PasteCmd.m_Index = iInsertChildIndex;
-  PasteCmd.m_sJsonGraph = pScene->GetCachedPrefabDocument(AssetGuid);
+  PasteCmd.m_sJsonGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(AssetGuid);
   PasteCmd.m_RemapGuid.CreateNewUuid();
 
   if (PasteCmd.m_sJsonGraph.IsEmpty())

@@ -1,21 +1,13 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/JsonSerializer.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
-
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 void ezDocument::UpdatePrefabs()
 {
-  // make sure the prefabs are updated
-  m_CachedPrefabDocuments.Clear();
-  m_CachedPrefabGraphs.Clear();
-
   GetCommandHistory()->StartTransaction("Update Prefabs");
 
   UpdatePrefabsRecursive(GetObjectManager()->GetRootObject());
@@ -31,9 +23,6 @@ void ezDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection
     return;
 
   auto pHistory = GetCommandHistory();
-
-  m_CachedPrefabDocuments.Clear();
-  m_CachedPrefabGraphs.Clear();
 
   pHistory->StartTransaction("Revert Prefab");
 
@@ -62,40 +51,6 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection
   }
 
   pHistory->FinishTransaction();
-}
-
-const ezString& ezDocument::GetCachedPrefabDocument(const ezUuid& documentGuid) const
-{
-  if (!m_CachedPrefabDocuments.Contains(documentGuid))
-  {
-    ezString sPrefabFile = GetDocumentPathFromGuid(documentGuid);
-
-    m_CachedPrefabDocuments[documentGuid] = ReadDocumentAsString(sPrefabFile);
-  }
-
-  return m_CachedPrefabDocuments[documentGuid];
-}
-
-const ezAbstractObjectGraph* ezDocument::GetCachedPrefabGraph(const ezUuid& documentGuid) const
-{
-  if (m_CachedPrefabGraphs.Contains(documentGuid))
-  {
-    return m_CachedPrefabGraphs[documentGuid].Borrow();
-  }
-  else
-  {
-    const ezString& sPrefabFile = GetCachedPrefabDocument(documentGuid);
-    if (sPrefabFile.IsEmpty())
-    {
-      return nullptr;
-    }
-    else
-    {
-      auto it = m_CachedPrefabGraphs.Insert(documentGuid, ezUniquePtr<ezAbstractObjectGraph>(EZ_DEFAULT_NEW(ezAbstractObjectGraph)));
-      ezPrefabUtils::LoadGraph(*it.Value().Borrow(), sPrefabFile);
-      return it.Value().Borrow();
-    }
-  }
 }
 
 ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType)
@@ -176,7 +131,7 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
   instCmd.m_bAllowPickedPosition = false;
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
-  instCmd.m_sJsonGraph = ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
+  instCmd.m_sJsonGraph = ezPrefabUtils::ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
   instCmd.m_RemapGuid = PrefabSeed;
 
   GetCommandHistory()->AddCommand(remCmd);
@@ -207,7 +162,7 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
-  instCmd.m_sJsonGraph = GetCachedPrefabDocument(pMeta->m_CreateFromPrefab);
+  instCmd.m_sJsonGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(pMeta->m_CreateFromPrefab);
 
   m_DocumentObjectMetaData.EndReadMetaData();
 
@@ -250,7 +205,7 @@ void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
 
 void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
 {
-  const ezString& sNewPrefab = GetCachedPrefabDocument(PrefabAsset);
+  const ezStringBuilder& sNewPrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(PrefabAsset);
 
   ezStringBuilder sNewGraph;
   ezPrefabUtils::Merge(szBasePrefab, sNewPrefab, pObject, PrefabSeed, sNewGraph);
@@ -269,21 +224,6 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
 
   GetCommandHistory()->AddCommand(rm);
   GetCommandHistory()->AddCommand(inst);
-}
-
-ezString ezDocument::ReadDocumentAsString(const char* szFile) const
-{
-  ezFileReader file;
-  if (file.Open(szFile) == EZ_FAILURE)
-  {
-    ezLog::Error("Failed to open document file '%s'", szFile);
-    return ezString();
-  }
-
-  ezStringBuilder sGraph;
-  sGraph.ReadAll(file);
-
-  return sGraph;
 }
 
 ezString ezDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) const

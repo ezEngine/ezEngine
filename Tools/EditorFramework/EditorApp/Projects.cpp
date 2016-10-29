@@ -184,6 +184,12 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       }
     }
     break;
+  case ezToolsProjectRequest::Type::GetPathForDocumentGuid:
+    {
+      ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(r.m_documentGuid);
+      r.m_sAbsDocumentPath = pAssetInfo->m_sAbsolutePath;
+    }
+    break;
   }
 }
 

@@ -24,6 +24,7 @@ public:
   
   void resetModel();
 
+
   void SetIconMode(bool bIconMode) { m_bIconMode = bIconMode; }
   bool GetIconMode() { return m_bIconMode; }
 
@@ -65,23 +66,22 @@ public: //QAbstractItemModel interface
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const override;
 
 private:
+  friend struct AssetComparer;
   struct AssetEntry
   {
     ezString m_sSortingKey;
     ezUuid m_Guid;
     mutable ezUInt32 m_uiThumbnailID;
-
-    inline bool operator<(const AssetEntry& rhs) const
-    {
-      return m_sSortingKey < rhs.m_sSortingKey;
-    }
   };
 
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
   ezInt32 FindAssetIndex(const ezUuid& assetGuid) const;
+  bool IsAssetFiltered(const ezAssetInfo* pInfo) const;
+  void HandleAsset(const ezAssetInfo* pInfo, bool bAdd);
+  void Init(AssetEntry& ae, const ezAssetInfo* pInfo);
 
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
-  ezDeque<AssetEntry> m_AssetsToDisplay;
+  ezDynamicArray<AssetEntry> m_AssetsToDisplay;
 
   bool m_bIconMode;
   bool m_bShowItemsInSubFolders;

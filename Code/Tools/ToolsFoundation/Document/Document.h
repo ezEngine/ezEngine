@@ -139,13 +139,11 @@ public:
   virtual void UpdatePrefabs();
 
   /// \brief Resets the given objects to their template prefab state, if they have local modifications.
-  virtual void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
+  void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
   /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
-  virtual const ezString& GetCachedPrefabDocument(const ezUuid& documentGuid) const;
-  virtual const ezAbstractObjectGraph* GetCachedPrefabGraph(const ezUuid& documentGuid) const;
   virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType);
   virtual ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
   // Returns new guid of replaced object.
@@ -186,7 +184,6 @@ protected:
 
   virtual void UpdatePrefabsRecursive(ezDocumentObject* pObject);
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab);
-  ezString ReadDocumentAsString(const char* szFile) const;
   virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const;
 
   ///@}
@@ -215,8 +212,4 @@ private:
 
   ezSet<ezString> m_UnknownObjectTypes;
   ezUInt32 m_uiUnknownObjectTypeInstances;
-
-  mutable ezMap<ezUuid, ezString> m_CachedPrefabDocuments;
-  mutable ezMap<ezUuid, ezUniquePtr<ezAbstractObjectGraph>> m_CachedPrefabGraphs;
-
 };

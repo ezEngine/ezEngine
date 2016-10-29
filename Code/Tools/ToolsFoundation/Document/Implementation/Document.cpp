@@ -1,16 +1,14 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -333,7 +331,7 @@ ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const cha
   if (pProp && rootObjectGuid.IsValid())
   {
     auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(rootObjectGuid);
-    const ezAbstractObjectGraph* pGraph = GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
+    const ezAbstractObjectGraph* pGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
     ezUuid objectPrefabGuid = pObject->GetGuid();
     objectPrefabGuid.RevertCombinationWithSeed(pMeta->m_PrefabSeedGuid);
     m_DocumentObjectMetaData.EndReadMetaData();

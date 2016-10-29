@@ -1,8 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_IMPLEMENT_SINGLETON(ezToolsProject);
 
@@ -153,6 +152,15 @@ ezInt32 ezToolsProject::SuggestContainerWindow(ezDocument* pDoc)
   s_Requests.Broadcast(e);
 
   return e.m_iContainerWindowUniqueIdentifier;
+}
+
+ezStringBuilder ezToolsProject::GetPathForDocumentGuid(const ezUuid& guid)
+{
+  ezToolsProjectRequest e;
+  e.m_Type = ezToolsProjectRequest::Type::GetPathForDocumentGuid;
+  e.m_documentGuid = guid;
+  s_Requests.Broadcast(e);
+  return e.m_sAbsDocumentPath;
 }
 
 ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCreate)
