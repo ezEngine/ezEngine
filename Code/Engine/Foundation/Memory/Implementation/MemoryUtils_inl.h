@@ -90,7 +90,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, s
   }
 }
 
-#if !defined(_MSC_VER) || _MSC_VER >= 1700
+#if !defined(_MSC_VER) || _MSC_VER > 1700
 
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T& source)

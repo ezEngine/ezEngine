@@ -59,7 +59,7 @@ public:
 
   // MSVC 2012<= can't handle this use of SFINAE. In this case we're just always using move construction.
   // All other supported compilers work fine.
-#if !defined(_MSC_VER) || _MSC_VER >= 1700
+#if !defined(_MSC_VER) || _MSC_VER > 1700
 
   /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was called with a rvalue reference or a const reference to \a source.
   template <typename T>
