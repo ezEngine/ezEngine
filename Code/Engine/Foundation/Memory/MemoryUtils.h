@@ -57,6 +57,14 @@ public:
   template <typename T>
   static void MoveConstruct(T* pDestination, T* pSource, size_t uiCount);
 
+  /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was called with a rvalue reference or a const reference to \a source.
+  template <typename T>
+  static void CopyOrMoveConstruct(T* pDestination, const T& source);
+
+  /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was called with a rvalue reference or a const reference to \a source.
+  template <typename T>
+  static auto CopyOrMoveConstruct(T* pDestination, T&& source) -> typename std::enable_if<std::is_rvalue_reference<decltype(source)>::value>::type;
+
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using move construction if availble, otherwise by copy construction.
   /// Calls destructor of source elements in any case (if it is a non primitive or memrelocatable type).
   template <typename T>

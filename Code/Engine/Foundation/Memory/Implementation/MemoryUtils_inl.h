@@ -73,7 +73,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
 {
   // Make sure source is actually an rvalue reference (T&& is a universal reference).
   static_assert(std::is_rvalue_reference<decltype(source)>::value, "'source' parameter is not an rvalue reference.");
-  ::new(pDestination) T(std::move(source)); // Hardly "perfect forwarding" since we're explicitely only allowing moves here. Therefore no std::forward, but should work as well.
+  ::new(pDestination) T(std::forward<T>(source));
 }
 
 template <typename T>
@@ -90,6 +90,21 @@ EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, s
   }
 }
 
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T& source)
+{
+  // This static_assert should never be hit. Just makes sure the implementation is working as expected.
+  static_assert(std::is_rvalue_reference<decltype(source)>::value == false, "Implementation error - compiler should have called CopyOrMoveConstruct version that takes a rvalue reference.");
+  CopyConstruct(pDestination, &source, 1);
+}
+
+template <typename T>
+EZ_FORCE_INLINE auto ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, T&& source) -> typename std::enable_if<std::is_rvalue_reference<decltype(source)>::value>::type
+{
+  // This static_assert should never be hit. Just makes sure the implementation is working as expected.
+  static_assert(std::is_rvalue_reference<decltype(source)>::value, "Implementation error - compiler should have called CopyOrMoveConstruct version that takes a reference.");
+  MoveConstruct(pDestination, std::forward<T>(source));
+}
 
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
@@ -304,8 +319,6 @@ EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSourc
     ::new (pDestination + i) T(std::move(pSource[i]));
   }
 
-  // Destruction might be superfluous if object has been moved earlier.
-  //if(!std::is_move_constructible<T>::value)
   Destruct(pSource, uiCount, ezTypeIsClass());
 }
 
@@ -414,8 +427,10 @@ EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t
 
   for (size_t i = 0; i < uiCount; i++)
   {
+    // Note that this calls the move constructor only if available and will copy otherwise.
     pDestination[i] = std::move(pSource[i]);
   }
+
   Destruct(pSource, uiCount, ezTypeIsClass());
 }
 

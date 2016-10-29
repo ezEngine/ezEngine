@@ -267,9 +267,7 @@ bool ezHashSetBase<K, H>::Insert(CompatibleKeyType&& key)
   uiIndex = uiDeletedIndex != ezInvalidIndex ? uiDeletedIndex : uiIndex;
 
   // Constructions might either be a move or a copy.
-  // Can't use ezMemoryUtils here therefore.
-  // Note that the only difference (as of writing) is the use of implace construction instead of assignment for ezPodType.
-  ::new (&m_pEntries[uiIndex]) K(std::forward<CompatibleKeyType>(key));
+  ezMemoryUtils::CopyOrMoveConstruct<K>(&m_pEntries[uiIndex], std::forward<CompatibleKeyType>(key));
 
   MarkEntryAsValid(uiIndex);
   ++m_uiCount;
