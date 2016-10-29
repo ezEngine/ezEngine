@@ -108,15 +108,9 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(ezOSFile::GetFileStats(dir.GetData(), s) == EZ_SUCCESS);
     //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
-
-    ezStringBuilder sOutputFile3 = BUILDSYSTEM_OUTPUT_FOLDER;
-    sOutputFile3.AppendPath("FoundationTest", "IO", "SubFolder2");
-    sOutputFile3.AppendPath("*.txt");
-
-    EZ_TEST_BOOL(ezOSFile::GetFileStats(sOutputFile3.GetData(), s) == EZ_SUCCESS);
-    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
   }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileCasing")
   {
     ezStringBuilder dir = sOutputFile2;
@@ -128,8 +122,8 @@ Only concrete and clocks.\n\
     // On Windows the drive letter will always be made to upper case
     EZ_TEST_STRING(sCorrected.GetData(), sOutputFile2.GetData());
   }
-
-#endif
+#endif // EZ_PLATFORM_WINDOWS 
+#endif // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 

@@ -4,13 +4,13 @@
 #undef EZ_USE_POSIX_FILE_API
 #define EZ_USE_POSIX_FILE_API EZ_ON
 
-/// Iterating through the file system is supported
+/// Iterating through the file system is not supported
 #undef EZ_SUPPORTS_FILE_ITERATORS
 #define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
 
 /// Getting the stats of a file (modification times etc.) is supported.
 #undef EZ_SUPPORTS_FILE_STATS
-#define EZ_SUPPORTS_FILE_STATS EZ_OFF
+#define EZ_SUPPORTS_FILE_STATS EZ_ON
 
 /// Whether dynamic plugins (through DLLs loaded/unloaded at runtime) are supported
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS

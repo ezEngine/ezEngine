@@ -12,7 +12,7 @@ ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllo
   if (!m_pDataDirReader)
     return EZ_FAILURE;
 
-  m_Cache.SetCount(uiCacheSize);
+  m_Cache.SetCountUninitialized(uiCacheSize);
 
   m_uiCacheReadPosition = 0;
   m_uiBytesCached = m_pDataDirReader->Read(&m_Cache[0], m_Cache.GetCount());

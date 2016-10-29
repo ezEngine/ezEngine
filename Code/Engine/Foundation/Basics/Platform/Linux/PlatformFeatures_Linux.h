@@ -8,9 +8,9 @@
 #undef EZ_SUPPORTS_FILE_ITERATORS
 #define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
 
-/// Getting the stats of a file (modification times etc.) is not supported.
+/// Getting the stats of a file (modification times etc.) is supported.
 #undef EZ_SUPPORTS_FILE_STATS
-#define EZ_SUPPORTS_FILE_STATS EZ_OFF
+#define EZ_SUPPORTS_FILE_STATS EZ_ON
 
 /// Whether dynamic plugins (through DLLs loaded/unloaded at runtime) are supported
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS

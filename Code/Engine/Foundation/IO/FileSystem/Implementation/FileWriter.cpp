@@ -10,7 +10,7 @@ ezResult ezFileWriter::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllo
   if (!m_pDataDirWriter)
     return EZ_FAILURE;
 
-  m_Cache.SetCount(uiCacheSize);
+  m_Cache.SetCountUninitialized(uiCacheSize);
 
   m_uiCacheWritePosition = 0;
 

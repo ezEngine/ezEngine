@@ -427,15 +427,17 @@ done:
         ++it;
       }
 
-      ezFileStats stats;
-      if (GetFileStats(sCurPath.GetData(), stats) == EZ_FAILURE)
+      if (!sCurPath.IsEmpty())
       {
-        Res = EZ_FAILURE;
-        break;
+        ezFileStats stats;
+        if (GetFileStats(sCurPath.GetData(), stats) == EZ_FAILURE)
+        {
+          Res = EZ_FAILURE;
+          break;
+        }
+
+        out_sCorrectSpelling.AppendPath(stats.m_sFileName.GetData());
       }
-
-      out_sCorrectSpelling.AppendPath(stats.m_sFileName.GetData());
-
       sCurPath.Append(it.GetCharacter());
       ++it;
     }

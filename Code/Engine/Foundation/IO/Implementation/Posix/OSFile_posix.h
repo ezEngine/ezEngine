@@ -157,7 +157,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {
-  stat tempStat;
+  struct stat tempStat;
   int iRes = stat(szFileOrFolder, &tempStat);
   
   if (iRes != 0)
