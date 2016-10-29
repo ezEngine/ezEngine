@@ -104,9 +104,14 @@ EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T
 
 // In the MSVC2012 we're falling back to forwarding which should be almost the same except in a few border cases.
 template <typename T>
-EZ_FORCE_INLINE void CopyOrMoveConstruct(T* pDestination, T&& source)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, T&& source)
 {
   ::new(pDestination) T(std::forward<T>(source));
+}
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T& source)
+{
+  CopyConstruct(pDestination, &source, 1);
 }
 
 #endif

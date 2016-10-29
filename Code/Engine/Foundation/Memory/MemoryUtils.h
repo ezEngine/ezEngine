@@ -78,6 +78,8 @@ public:
   // In the MSVC2012 we're falling back to forwarding which should be almost the same except in a few border cases.
   template <typename T>
   static void CopyOrMoveConstruct(T* pDestination, T&& source);
+  template <typename T>
+  static void CopyOrMoveConstruct(T* pDestination, const T& source);
 
 #endif
 
