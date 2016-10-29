@@ -1,0 +1,77 @@
+{
+  "PointSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState PointSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "PointSampler"
+      }
+    ],
+  },
+
+  "LinearSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState LinearSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "LinearSampler"
+      }
+    ],
+  },
+
+  "PointClampSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState PointClampSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "PointClampSampler"
+      }
+    ],
+  },
+
+  "LinearClampSampler" :
+  {
+    "Color" : "40, 15, 140",
+
+    "CodePixelSamplers" : "
+SamplerState LinearClampSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "string",
+        "Color" : "255, 255, 255",
+        "Inline" : "LinearClampSampler"
+      }
+    ]
+  }
+}

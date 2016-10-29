@@ -10,34 +10,6 @@
         "Type" : "float4",
         "Color" : "255, 255, 255",
         "Inline" : "$prop0"
-      },
-
-      {
-        "Name" : "Red",
-        "Type" : "float",
-        "Color" : "255, 0, 0",
-        "Inline" : "$prop0.x"
-      },
-
-      {
-        "Name" : "Green",
-        "Type" : "float",
-        "Color" : "0, 255, 0",
-        "Inline" : "$prop0.y"
-      },
-
-      {
-        "Name" : "Blue",
-        "Type" : "float",
-        "Color" : "0, 0, 255",
-        "Inline" : "$prop0.z"
-      },
-
-      {
-        "Name" : "Alpha",
-        "Type" : "float",
-        "Color" : "230, 230, 153",
-        "Inline" : "$prop0.w"
       }
     ],
 
@@ -143,30 +115,6 @@
         "Name" : "Value",
         "Type" : "float4",
         "Value" : "0, 0, 0, 0"
-      }
-    ]
-  },
-
-  "Time" :
-  {
-    "Color" : "140, 13, 38",
-
-    "OutputPins" :
-    [
-      {
-        "Name" : "Global",
-        "Type" : "float",
-        "Color" : "255, 0, 0",
-        "Inline" : "GlobalTime",
-        "Tooltip" : "Real time. Always at the same speed, unaffected by world simulation speed."
-      },
-
-      {
-        "Name" : "World",
-        "Type" : "float",
-        "Color" : "0, 255, 0",
-        "Inline" : "WorldTime",
-        "Tooltip" : "World simulation time. Affected by simulation speed (slow-motion) and world paused state."
       }
     ]
   }

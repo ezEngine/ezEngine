@@ -280,19 +280,6 @@ void ezContainerWindowMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
   ezQtDocumentWindow* pView = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
 
   out_Entries.Clear();
-  {
-    ezDynamicMenuAction::Item newContainer;
-    newContainer.m_sDisplay = ezTranslate("Document.NewWindow");
-    newContainer.m_CheckState = ezDynamicMenuAction::Item::CheckMark::NotCheckable;
-    newContainer.m_UserValue = (ezInt32)-1;
-    newContainer.m_Icon = QIcon(QStringLiteral(":/GuiFoundation/Icons/Window16.png"));
-    out_Entries.PushBack(newContainer);
-  }
-  {
-    ezDynamicMenuAction::Item separator;
-    separator.m_ItemFlags = ezDynamicMenuAction::Item::ItemFlags::Separator;
-    out_Entries.PushBack(separator);
-  }
   const auto& containers = ezQtContainerWindow::GetAllContainerWindows();
   for (ezUInt32 i = 0; i < containers.GetCount(); i++)
   {
@@ -304,6 +291,19 @@ void ezContainerWindowMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
     entryItem.m_UserValue = (ezInt32)i;
     entryItem.m_Icon = QIcon(QStringLiteral(":/GuiFoundation/Icons/Window16.png"));
     out_Entries.PushBack(entryItem);
+  }
+  {
+    ezDynamicMenuAction::Item separator;
+    separator.m_ItemFlags = ezDynamicMenuAction::Item::ItemFlags::Separator;
+    out_Entries.PushBack(separator);
+  }
+  {
+    ezDynamicMenuAction::Item newContainer;
+    newContainer.m_sDisplay = ezTranslate("Document.NewWindow");
+    newContainer.m_CheckState = ezDynamicMenuAction::Item::CheckMark::NotCheckable;
+    newContainer.m_UserValue = (ezInt32)-1;
+    newContainer.m_Icon = QIcon(QStringLiteral(":/GuiFoundation/Icons/Window16.png"));
+    out_Entries.PushBack(newContainer);
   }
 }
 

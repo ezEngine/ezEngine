@@ -29,6 +29,9 @@ signals:
   /// \brief Passed through from the QLineEdit
   void textChanged(const QString& text);
 
+  /// \brief The user pressed the enter key
+  void enterPressed();
+
 private slots:
   void onLineEditTextChanged(const QString& text);
   void onClearButtonClicked(bool checked = false);

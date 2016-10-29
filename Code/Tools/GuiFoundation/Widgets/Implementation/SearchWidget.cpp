@@ -71,9 +71,15 @@ bool ezQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
     {
       QKeyEvent* pEvent = static_cast<QKeyEvent*>(e);
 
-      if (pEvent->key() == Qt::Key_Escape)
+      if (pEvent->key() == Qt::Key_Escape && !text().isEmpty())
       {
         setText("");
+        return true;
+      }
+
+      if (pEvent->key() == Qt::Key_Return || pEvent->key() == Qt::Key_Enter)
+      {
+        emit enterPressed();
         return true;
       }
     }

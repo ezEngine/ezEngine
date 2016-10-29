@@ -1,0 +1,35 @@
+{
+  "Parameter1" :
+  {
+    "Color" : "13, 140, 38",
+
+    "CodeMaterialParams" : "
+float $prop0 @Default($prop1);
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "ParamName",
+        "Type" : "string",
+        "Value" : "Parameter"
+      },
+
+      {
+        "Name" : "Default",
+        "Type" : "float",
+        "Value" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Value",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "$prop0"
+      }
+    ]
+  }
+}

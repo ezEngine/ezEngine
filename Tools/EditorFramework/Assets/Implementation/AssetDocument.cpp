@@ -202,10 +202,16 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             {
               continue;
             }
-            if (bIsDependency)
-              pInfo->m_FileDependencies.Insert(pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezString>());
-            else
-              pInfo->m_FileReferences.Insert(pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezString>());
+
+            const ezVariant& var = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+
+            if (var.IsA<ezString>())
+            {
+              if (bIsDependency)
+                pInfo->m_FileDependencies.Insert(var.Get<ezString>());
+              else
+                pInfo->m_FileReferences.Insert(var.Get<ezString>());
+            }
           }
         }
         break;
