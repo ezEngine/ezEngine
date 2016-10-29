@@ -1,0 +1,54 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xC00E8CDF75511122FFB3AC27759DC09C" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "DefaultMaterial",
+    "Resource" : "{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9E9D191B641B1D4086A0A9587C904EFF" },
+   "t" : "ezMeshAssetProperties",
+   "p" : {
+    "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+    "Cap" : true,
+    "Cap 2" : true,
+    "Detail" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Detail 2" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Forward Dir" : "ezBasisAxis::PositiveX",
+    "Height" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Import Materials" : false,
+    "Materials" : [ { "$t" : "uuid", "$b" : "0xC00E8CDF75511122FFB3AC27759DC09C" } ],
+    "Mesh File" : "id/Imp/Imp.obj",
+    "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Primitive Type" : "ezMeshPrimitive::File",
+    "Radius" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
+    "Radius 2" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
+    "Right Dir" : "ezBasisAxis::PositiveY",
+    "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Up Dir" : "ezBasisAxis::PositiveZ"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8C3A909D6A556445A6783EBD5F03720B" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Mesh",
+    "Dependencies" : [ "id/Imp/Imp.obj" ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x8C3A909D6A556445A6783EBD5F03720B" },
+    "Hash" : { "$t" : "uint64", "$v" : "16045838990031269344", "$b" : "0xE02DED038C45AEDE" },
+    "References" : [ "{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }" ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x9E9D191B641B1D4086A0A9587C904EFF" } ]
+   }
+  } ],
+ "Types" : [  ]
+}

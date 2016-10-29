@@ -1,0 +1,43 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xFB8668BEA1415A428AD03D9F1E1A6F8B" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : [ "id/Imp/Roughness.tga" ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xFB8668BEA1415A428AD03D9F1E1A6F8B" },
+    "Hash" : { "$t" : "uint64", "$v" : "4313945389820452452", "$b" : "0x649EAECC7936DE3B" },
+    "References" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x7ED30B0E3717354C988CCD3F0338A95B" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7ED30B0E3717354C988CCD3F0338A95B" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Address Mode U" : "ezTextureAddressMode::Wrap",
+    "Address Mode V" : "ezTextureAddressMode::Wrap",
+    "Address Mode W" : "ezTextureAddressMode::Wrap",
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "id/Imp/Roughness.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
+    "Usage" : "ezTextureUsageEnum::Other_Linear"
+   }
+  } ],
+ "Types" : [  ]
+}

@@ -99,7 +99,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 
     const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
 
-    // Generate batch id from mesh, material and part index. 
+    // Generate batch id from mesh, material and part index.
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex };
     ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
@@ -125,21 +125,28 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     }
     else
     {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
-      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-      if (blendModeValue == "OPAQUE" || blendModeValue == "")
+      if (hMaterial.IsValid())
       {
-        category = ezDefaultRenderDataCategories::LitOpaque;
-      }
-      else if (blendModeValue == "MASKED")
-      {
-        category = ezDefaultRenderDataCategories::LitMasked;
+        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
+        ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+        if (blendModeValue == "OPAQUE" || blendModeValue == "")
+        {
+          category = ezDefaultRenderDataCategories::LitOpaque;
+        }
+        else if (blendModeValue == "MASKED")
+        {
+          category = ezDefaultRenderDataCategories::LitMasked;
+        }
+        else
+        {
+          category = ezDefaultRenderDataCategories::LitTransparent;
+        }
       }
       else
       {
-        category = ezDefaultRenderDataCategories::LitTransparent;
+        category = ezDefaultRenderDataCategories::LitOpaque;
       }
-    }    
+    }
 
     // Sort by material and then by mesh
     ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
@@ -198,7 +205,7 @@ void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezUInt32 uiMaterials = 0;
   s >> uiMaterials;
-  
+
   m_Materials.SetCount(uiMaterials);
 
   for (auto& mat : m_Materials)

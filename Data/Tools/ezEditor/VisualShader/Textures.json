@@ -220,5 +220,39 @@ SamplerState MetallicTexture_AutoSampler;
         "Tooltip" : "Outputs only the red component of the sampled texture."
       }
     ]
+  },
+
+  "RoughnessTexture" :
+  {
+    "Color" : "140, 13, 38",
+    "CodeMaterialParams" : "
+Texture2D RoughnessTexture;
+",
+
+    "CodePixelSamplers" : "
+Texture2D RoughnessTexture;
+SamplerState RoughnessTexture_AutoSampler;
+",
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Metallic",
+        "Type" : "float",
+        "Color" : "128, 128, 128",
+        "Inline" : "RoughnessTexture.Sample(RoughnessTexture_AutoSampler, ToFloat2($in0)).x",
+        "Tooltip" : "Outputs only the red component of the sampled texture."
+      }
+    ]
   }
 }

@@ -1,0 +1,43 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x5869C67B0563DC46B5E4263887C895C6" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Address Mode U" : "ezTextureAddressMode::Wrap",
+    "Address Mode V" : "ezTextureAddressMode::Wrap",
+    "Address Mode W" : "ezTextureAddressMode::Wrap",
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "id/Imp/Glow.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
+    "Usage" : "ezTextureUsageEnum::EmissiveColor"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xEAA028B7E0860A48ACFFC1D273020F66" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : [ "id/Imp/Glow.tga" ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xEAA028B7E0860A48ACFFC1D273020F66" },
+    "Hash" : { "$t" : "uint64", "$v" : "3179561188730748242", "$b" : "0x523DEA1B0E12202C" },
+    "References" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x5869C67B0563DC46B5E4263887C895C6" } ]
+   }
+  } ],
+ "Types" : [  ]
+}

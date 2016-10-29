@@ -1,0 +1,43 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xBDDE280A99132742A934E40EBC4B1844" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : [ "id/Imp/Diffuse.tga" ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xBDDE280A99132742A934E40EBC4B1844" },
+    "Hash" : { "$t" : "uint64", "$v" : "17652223225302418523", "$b" : "0x5B040D787F4BF9F4" },
+    "References" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x54572CFBFD0BE748B92A263119A30632" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Address Mode U" : "ezTextureAddressMode::Wrap",
+    "Address Mode V" : "ezTextureAddressMode::Wrap",
+    "Address Mode W" : "ezTextureAddressMode::Wrap",
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "id/Imp/Diffuse.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x54572CFBFD0BE748B92A263119A30632" } ]
+   }
+  } ],
+ "Types" : [  ]
+}
