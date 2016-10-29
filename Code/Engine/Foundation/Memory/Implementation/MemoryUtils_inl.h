@@ -90,6 +90,8 @@ EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, s
   }
 }
 
+#if !defined(_MSC_VER) || _MSC_VER >= 1700
+
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T& source)
 {
@@ -105,6 +107,17 @@ EZ_FORCE_INLINE auto ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, T&& sou
   static_assert(std::is_rvalue_reference<decltype(source)>::value, "Implementation error - compiler should have called CopyOrMoveConstruct version that takes a reference.");
   MoveConstruct(pDestination, std::forward<T>(source));
 }
+
+#else
+
+// In the MSVC2012 we're falling back to forwarding which should be almost the same except in a few border cases.
+template <typename T>
+EZ_FORCE_INLINE void CopyOrMoveConstruct(T* pDestination, T&& source)
+{
+  ::new(pDestination) T(std::forward<T>(source));
+}
+
+#endif
 
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
