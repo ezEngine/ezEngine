@@ -368,11 +368,18 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
         vTangent = mTransformation.TransformDirection(vTangent);
         vTangent.NormalizeIfNotZero();
 
-        ezVec3 vBiTangent = dataStreams[BiTangent]->GetValueVec3(dataIndices[BiTangent]);
-        vBiTangent = mTransformation.TransformDirection(vBiTangent);
-        vBiTangent.NormalizeIfNotZero();
+        float biTangentSign;
 
-        float biTangentSign = vBiTangent.Dot(vTangent);
+        if(dataStreams[BiTangent]->GetNumElementsPerVertex() == 1)
+          biTangentSign = dataStreams[BiTangent]->GetValueFloat(dataIndices[BiTangent]);
+        else
+        {
+          ezVec3 vBiTangent = dataStreams[BiTangent]->GetValueVec3(dataIndices[BiTangent]);
+          vBiTangent = mTransformation.TransformDirection(vBiTangent);
+          vBiTangent.NormalizeIfNotZero();
+          biTangentSign = vBiTangent.Dot(vTangent);
+        }
+
         biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
 
         // We encode the handedness of the tangent space in the length of the tangent.

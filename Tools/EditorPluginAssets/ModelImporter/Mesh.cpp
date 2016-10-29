@@ -145,6 +145,9 @@ namespace ezModelImporter
     {
       VertexDataStream* sourceStream = it.Value();
 
+      if (sourceStream->GetNumElementsPerVertex() != 3)
+        continue;
+
       // Positions
       if (it.Key() == ezGALVertexAttributeSemantic::Position)
       {
