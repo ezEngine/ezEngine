@@ -16,7 +16,8 @@ SamplerState BaseTexture_AutoSampler;
         "Name" : "UV",
         "Type" : "float2",
         "Color" : "50, 50, 128",
-        "Fallback" : "Input.TexCoords"
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
       }
     ],
 
@@ -77,7 +78,8 @@ SamplerState NormalTexture_AutoSampler;
         "Name" : "UV",
         "Type" : "float2",
         "Color" : "50, 50, 128",
-        "Fallback" : "Input.TexCoords"
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
       }
     ],
 
@@ -87,35 +89,40 @@ SamplerState NormalTexture_AutoSampler;
         "Name" : "Normal",
         "Type" : "float3",
         "Color" : "128, 128, 255",
-        "Inline" : "(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0)"
+        "Inline" : "(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0)",
+        "Tooltip" : "Normal in Tangent Space"
       },
 
       {
         "Name" : "X",
         "Type" : "float",
         "Color" : "255, 0, 0",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).x"
+        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).x",
+        "Tooltip" : "Raw x component of the normal map"
       },
 
       {
         "Name" : "Y",
         "Type" : "float",
         "Color" : "0, 255, 0",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).y"
+        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).y",
+        "Tooltip" : "Raw y component of the normal map"
       },
 
       {
         "Name" : "Z",
         "Type" : "float",
         "Color" : "0, 0, 255",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).z"
+        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).z",
+        "Tooltip" : "Raw z component of the normal map"
       },
 
       {
         "Name" : "W",
         "Type" : "float",
         "Color" : "230, 230, 153",
-        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).w"
+        "Inline" : "NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).w",
+        "Tooltip" : "Raw w component of the normal map"
       }
     ],
   },
@@ -137,7 +144,8 @@ SamplerState EmissiveTexture_AutoSampler;
         "Name" : "UV",
         "Type" : "float2",
         "Color" : "50, 50, 128",
-        "Fallback" : "Input.TexCoords"
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
       }
     ],
 
@@ -197,7 +205,8 @@ SamplerState MetallicTexture_AutoSampler;
         "Name" : "UV",
         "Type" : "float2",
         "Color" : "50, 50, 128",
-        "Fallback" : "Input.TexCoords"
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
       }
     ],
 
@@ -207,7 +216,8 @@ SamplerState MetallicTexture_AutoSampler;
         "Name" : "Metallic",
         "Type" : "float",
         "Color" : "128, 128, 128",
-        "Inline" : "MetallicTexture.Sample(MetallicTexture_AutoSampler, ToFloat2($in0)).x"
+        "Inline" : "MetallicTexture.Sample(MetallicTexture_AutoSampler, ToFloat2($in0)).x",
+        "Tooltip" : "Outputs only the red component of the sampled texture."
       }
     ]
   }

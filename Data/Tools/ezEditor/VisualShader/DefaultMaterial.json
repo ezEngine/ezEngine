@@ -110,7 +110,8 @@ float GetOcclusion(PS_IN Input)
         "Name" : "Normal",
         "Type" : "float3",
         "Color" : "128, 128, 255",
-        "Fallback" : "float3(0, 0, 1)"
+        "Fallback" : "float3(0, 0, 1)",
+        "Tooltip" : "Surface normal in tangent space."
       },
 
       // Pin 2

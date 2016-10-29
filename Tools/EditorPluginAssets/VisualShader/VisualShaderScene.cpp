@@ -84,7 +84,26 @@ void ezQtVisualShaderPin::SetPin(const ezPin* pPin)
   const ezVisualShaderPin* pShaderPin = ezDynamicCast<const ezVisualShaderPin*>(pPin);
   EZ_ASSERT_DEV(pShaderPin != nullptr, "Invalid pin type");
 
-  setToolTip(pShaderPin->GetDataType()->GetTypeName());
+  ezStringBuilder sTooltip;
+
+  if (!pShaderPin->GetTooltip().IsEmpty())
+  {
+    sTooltip = pShaderPin->GetTooltip();
+  }
+  else
+  {
+    sTooltip = pShaderPin->GetName();
+  }
+
+  if (pShaderPin->GetDescriptor()->m_DefaultValue.CanConvertTo<ezString>())
+  {
+    if (!sTooltip.IsEmpty())
+      sTooltip.Append("\n");
+
+    sTooltip.Append("Default is ", pShaderPin->GetDescriptor()->m_DefaultValue.ConvertTo<ezString>());
+  }
+
+  setToolTip(sTooltip.GetData());
 
   const ezColorGammaUB col = pShaderPin->GetColor();
 

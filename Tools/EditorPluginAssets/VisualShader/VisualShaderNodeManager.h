@@ -2,19 +2,22 @@
 
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
+class ezVisualShaderPinDescriptor;
+
 class ezVisualShaderPin : public ezPin
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderPin, ezPin);
 public:
 
-  ezVisualShaderPin(Type type, const char* szName, const ezDocumentObject* pObject, const ezRTTI* pDataType, const ezColorGammaUB& color);
+  ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
 
-  const ezRTTI* GetDataType() const { return m_pDataType; }
-  const ezColorGammaUB& GetColor() const { return m_Color; }
+  const ezRTTI* GetDataType() const;
+  const ezColorGammaUB& GetColor() const;
+  const ezString& GetTooltip() const;
+  const ezVisualShaderPinDescriptor* GetDescriptor() const { return m_pDescriptor; }
 
 private:
-  const ezRTTI* m_pDataType;
-  ezColorGammaUB m_Color;
+  const ezVisualShaderPinDescriptor* m_pDescriptor;
 };
 
 class ezVisualShaderNodeManager : public ezDocumentNodeManager

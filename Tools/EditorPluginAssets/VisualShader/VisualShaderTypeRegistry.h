@@ -21,6 +21,7 @@ public:
   bool m_bExposeAsProperty;
   ezVariant m_DefaultValue;
   ezString m_sShaderCodeInline;
+  ezString m_sTooltip;
 };
 
 struct ezVisualShaderNodeType

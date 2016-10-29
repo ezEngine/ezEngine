@@ -38,7 +38,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "(ToBiggerType($in0, $in1) + ToBiggerType($in1, $in0))"
+        "Inline" : "(ToBiggerType($in0, $in1) + ToBiggerType($in1, $in0))",
+        "Tooltip" : "a + b"
       }
     ]
   },
@@ -72,7 +73,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "(ToBiggerType($in0, $in1) - ToBiggerType($in1, $in0))"
+        "Inline" : "(ToBiggerType($in0, $in1) - ToBiggerType($in1, $in0))",
+        "Tooltip" : "a - b"
       }
     ]
   },
@@ -106,7 +108,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "(ToBiggerType($in0, $in1) * ToBiggerType($in1, $in0))"
+        "Inline" : "(ToBiggerType($in0, $in1) * ToBiggerType($in1, $in0))",
+        "Tooltip" : "a * b (component-wise)"
       }
     ]
   },
@@ -120,8 +123,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -131,7 +133,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "frac($in0)"
+        "Inline" : "frac($in0)",
+        "Tooltip" : "The fractional part of the input (component-wise)."
       }
     ]
   },
@@ -145,8 +148,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -156,7 +158,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "abs($in0)"
+        "Inline" : "abs($in0)",
+        "Tooltip" : "The absolute value of the input (component-wise)."
       }
     ]
   },
@@ -170,8 +173,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -181,7 +183,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "floor($in0)"
+        "Inline" : "floor($in0)",
+        "Tooltip" : "The largest integer which is less than or equal to the input (component-wise)."
       }
     ]
   },
@@ -195,8 +198,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -206,7 +208,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "ceil($in0)"
+        "Inline" : "ceil($in0)",
+        "Tooltip" : "The smallest integer which is greater than or equal to the input (component-wise)."
       }
     ]
   },
@@ -240,7 +243,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "max(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))"
+        "Inline" : "max(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
+        "Tooltip" : "The larger of the two input values (component-wise)."
       }
     ]
   },
@@ -274,7 +278,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "min(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))"
+        "Inline" : "min(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
+        "Tooltip" : "The smaller of the two input values (component-wise)."
       }
     ]
   },
@@ -288,15 +293,13 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       },
 
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -306,7 +309,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "distance(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))"
+        "Inline" : "distance(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
+        "Tooltip" : "The distance between the two input vectors."
       }
     ]
   },
@@ -320,8 +324,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -331,7 +334,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "length($in0)"
+        "Inline" : "length($in0)",
+        "Tooltip" : "The length of the input vector."
       }
     ]
   },
@@ -345,8 +349,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -356,7 +359,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "round($in0)"
+        "Inline" : "round($in0)",
+        "Tooltip" : "Rounds the input to the closest integer value (component-wise)."
       }
     ]
   },
@@ -370,8 +374,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -381,7 +384,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "saturate($in0)"
+        "Inline" : "saturate($in0)",
+        "Tooltip" : "Clamps the input to the range [0, 1] (component-wise)."
       }
     ]
   },
@@ -395,8 +399,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -406,7 +409,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "sign($in0)"
+        "Inline" : "sign($in0)",
+        "Tooltip" : "Outputs the sign of the input (component-wise)."
       }
     ]
   },
@@ -420,8 +424,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -431,7 +434,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "trunc($in0)"
+        "Inline" : "trunc($in0)",
+        "Tooltip" : "Removes the fractional part of the input without rounding (component-wise)."
       }
     ]
   },
@@ -446,7 +450,7 @@
         "Name" : "a",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Tooltip" : "The angle value in radians."
       }
     ],
 
@@ -456,7 +460,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "sin($in0)"
+        "Inline" : "sin($in0)",
+        "Tooltip" : "The sine of the input (component-wise)."
       }
     ]
   },
@@ -471,7 +476,7 @@
         "Name" : "a",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Tooltip" : "The angle value in radians."
       }
     ],
 
@@ -481,7 +486,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "cos($in0)"
+        "Inline" : "cos($in0)",
+        "Tooltip" : "The cosine of the input (component-wise)."
       }
     ]
   },
@@ -495,8 +501,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Color" : "255, 255, 255"
       }
     ],
 
@@ -506,7 +511,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "sqrt($in0)"
+        "Inline" : "sqrt($in0)",
+        "Tooltip" : "The square root of the input (component-wise)."
       }
     ]
   },
@@ -538,7 +544,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "dot(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))"
+        "Inline" : "dot(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
+        "Tooltip" : "Dot product between a and b. A scalar value."
       }
     ]
   },
@@ -553,7 +560,7 @@
         "Name" : "a",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Tooltip" : "A vector. Avoid zero vectors to prevent NaN's."
       }
     ],
 
@@ -563,7 +570,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "normalize($in0)"
+        "Inline" : "normalize($in0)",
+        "Tooltip" : "The normalized vector."
       }
     ]
   },
@@ -578,7 +586,7 @@
         "Name" : "x",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Fallback" : "0"
+        "Tooltip" : "The value to clamp."
       },
 
       {
@@ -586,7 +594,8 @@
         "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "0"
+        "Fallback" : "0",
+        "Tooltip" : "The minimum value to clamp against."
       },
 
       {
@@ -594,7 +603,8 @@
         "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "1"
+        "Fallback" : "1",
+        "Tooltip" : "The maximum value to clamp against."
       }
     ],
 
@@ -604,7 +614,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "clamp($in0, ToSameType($in1, $in0), ToSameType($in2, $in0))"
+        "Inline" : "clamp($in0, ToSameType($in1, $in0), ToSameType($in2, $in0))",
+        "Tooltip" : "All output values will be clamped to be between Min and Max."
       }
     ]
   },
@@ -636,7 +647,8 @@
         "Type" : "float",
         "Color" : "255, 255, 255",
         "Expose" : true,
-        "Fallback" : "0.5"
+        "Fallback" : "0.5",
+        "Tooltip" : "How much to interpolate between x and y. At 0 the output is x, at 1 the output is y."
       }
     ],
 
@@ -646,7 +658,8 @@
         "Name" : "result",
         "Type" : "float",
         "Color" : "255, 255, 255",
-        "Inline" : "lerp(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0), ToFloat1($in2))"
+        "Inline" : "lerp(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0), ToFloat1($in2))",
+        "Tooltip" : "Linear interpolation between x and y according to factor."
       }
     ]
   }

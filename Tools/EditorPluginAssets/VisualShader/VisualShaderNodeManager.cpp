@@ -5,11 +5,28 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualShaderPin::ezVisualShaderPin(Type type, const char* szName, const ezDocumentObject* pObject, const ezRTTI* pDataType, const ezColorGammaUB& color)
-  : ezPin(type, szName, pObject)
+ezVisualShaderPin::ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
+  : ezPin(type, pDescriptor->m_sName, pObject)
 {
-  m_pDataType = pDataType;
-  m_Color = color;
+  m_pDescriptor = pDescriptor;
+}
+
+
+const ezRTTI* ezVisualShaderPin::GetDataType() const
+{
+  return m_pDescriptor->m_pDataType;
+}
+
+
+const ezColorGammaUB& ezVisualShaderPin::GetColor() const
+{
+  return m_pDescriptor->m_Color;
+}
+
+
+const ezString& ezVisualShaderPin::GetTooltip() const
+{
+  return m_pDescriptor->m_sTooltip;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -33,13 +50,13 @@ void ezVisualShaderNodeManager::InternalCreatePins(const ezDocumentObject* pObje
 
   for (const auto& pin : pDesc->m_InputPins)
   {
-    ezVisualShaderPin* pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Input, pin.m_sName, pObject, pin.m_pDataType, pin.m_Color);
+    ezVisualShaderPin* pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Input, &pin, pObject);
     node.m_Inputs.PushBack(pPin);
   }
 
   for (const auto& pin : pDesc->m_OutputPins)
   {
-    ezVisualShaderPin* pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Output, pin.m_sName, pObject, pin.m_pDataType, pin.m_Color);
+    ezVisualShaderPin* pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Output, &pin, pObject);
     node.m_Outputs.PushBack(pPin);
   }
 }

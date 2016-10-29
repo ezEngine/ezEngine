@@ -157,15 +157,17 @@
         "Name" : "Global",
         "Type" : "float",
         "Color" : "255, 0, 0",
-        "Inline" : "GlobalTime"
+        "Inline" : "GlobalTime",
+        "Tooltip" : "Real time. Always at the same speed, unaffected by world simulation speed."
       },
 
       {
         "Name" : "World",
         "Type" : "float",
         "Color" : "0, 255, 0",
-        "Inline" : "WorldTime"
+        "Inline" : "WorldTime",
+        "Tooltip" : "World simulation time. Affected by simulation speed (slow-motion) and world paused state."
       }
     ]
-  },
+  }
 }

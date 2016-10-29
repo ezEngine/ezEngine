@@ -255,6 +255,12 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
       }
 
       // this is optional
+      if (varPin.TryGetValue("Tooltip", varValue) && varValue.IsA<ezString>())
+      {
+        pin.m_sTooltip = varValue.Get<ezString>();
+      }
+
+      // this is optional
       if (varPin.TryGetValue("Expose", varValue) && varValue.IsA<bool>())
       {
         pin.m_bExposeAsProperty = varValue.Get<bool>();
