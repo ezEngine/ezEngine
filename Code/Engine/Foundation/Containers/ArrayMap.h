@@ -51,14 +51,16 @@ public:
   void Clear(); // [tested]
 
   /// \brief Always inserts a new value under the given key. Duplicates are allowed. The returned index is only valid briefly, until the map is sorted or modified further.
-  ezUInt32 Insert(const KEY& key, const VALUE& value); // [tested]
+  template<typename CompatibleKeyType, typename CompatibleValueType>
+  ezUInt32 Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// \brief Ensures the internal data structure is sorted. This is done automatically every time a lookup needs to be made.
   void Sort() const; // [tested]
 
   /// \brief Returns an index to one element with the given key. If the key is inserted multiple times, there is no guarantee which one is returned.
   /// Returns ezInvalidIndex when no such element exists.
-  ezUInt32 Find(const KEY& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  ezUInt32 Find(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns an index to the element with a key equal or larger than the given key.
   /// Returns ezInvalidIndex when no such element exists.
@@ -78,15 +80,16 @@ public:
   VALUE& GetValue(ezUInt32 index); // [tested]
 
   /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
-  VALUE& FindOrAdd(const KEY& key, bool* bExisted = nullptr); // [tested]
+  template<typename CompatibleKeyType>
+  VALUE& FindOrAdd(const CompatibleKeyType& key, bool* bExisted = nullptr); // [tested]
 
   /// \brief Same as FindOrAdd.
   VALUE& operator[](const KEY& key); // [tested]
-  
+
   /// \brief Returns the key/value pair at the given index.
   const Pair& operator[](ezUInt32 index) const; // [tested]
 
-  /// \brief Removes the element at the given index. 
+  /// \brief Removes the element at the given index.
   ///
   /// If the map is sorted and bKeepSorted is true, the element will be removed such that the map stays sorted.
   /// This is only useful, if only a single (or very few) elements are removed before the next lookup. If multiple values

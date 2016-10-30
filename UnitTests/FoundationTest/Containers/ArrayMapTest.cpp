@@ -195,7 +195,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     ezArrayMap<ezInt32, ezInt32> sa;
     ezMap<ezInt32, ezInt32> map;
 
-    const ezUInt32 uiElements = 100000;
+    const ezInt32 uiElements = 100000;
 
     //const ezTime t0 = s.Checkpoint();
 
@@ -213,7 +213,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     //const ezTime t1 = s.Checkpoint();
 
     {
-      for (ezUInt32 i = 0; i < uiElements; ++i)
+      for (ezInt32 i = 0; i < uiElements; ++i)
       {
         EZ_TEST_INT(sa.GetValue(sa.Find(uiElements - i)), i * 2);
       }

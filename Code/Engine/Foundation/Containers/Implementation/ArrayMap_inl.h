@@ -38,12 +38,13 @@ inline void ezArrayMapBase<KEY, VALUE>::Clear()
   m_Data.Clear();
 }
 
-template<typename KEY, typename VALUE>
-inline ezUInt32 ezArrayMapBase<KEY, VALUE>::Insert(const KEY& key, const VALUE& value)
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType, typename CompatibleValueType>
+inline ezUInt32 ezArrayMapBase<KEY, VALUE>::Insert(CompatibleKeyType&& key, CompatibleValueType&& value)
 {
   Pair& ref = m_Data.ExpandAndGetRef();
-  ref.key = key;
-  ref.value = value;
+  ref.key = std::forward<CompatibleKeyType>(key);
+  ref.value = std::forward<CompatibleValueType>(value);
   m_bSorted = false;
 
   return m_Data.GetCount() - 1;
@@ -60,7 +61,8 @@ inline void ezArrayMapBase<KEY, VALUE>::Sort() const
 }
 
 template<typename KEY, typename VALUE>
-ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const KEY& key) const
+template<typename CompatibleKeyType>
+ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const CompatibleKeyType& key) const
 {
   if (!m_bSorted)
   {
@@ -175,9 +177,10 @@ VALUE& ezArrayMapBase<KEY, VALUE>::GetValue(ezUInt32 index)
 }
 
 template<typename KEY, typename VALUE>
-VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const KEY& key, bool* bExisted)
+template<typename CompatibleKeyType>
+VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const CompatibleKeyType& key, bool* bExisted)
 {
-  ezUInt32 index = Find(key);
+  ezUInt32 index = Find<CompatibleKeyType>(key);
 
   if (bExisted)
     *bExisted = index != ezInvalidIndex;

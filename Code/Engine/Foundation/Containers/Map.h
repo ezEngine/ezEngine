@@ -153,10 +153,8 @@ public:
   ConstIterator GetLastIterator() const; // [tested]
 
   /// \brief Inserts the key/value pair into the tree and returns an Iterator to it. O(log n) operation.
-  Iterator Insert(const KeyType& key, const ValueType& value); // [tested]
-
-  /// \brief Inserts the key/value pair into the tree and returns an Iterator to it. O(log n) operation.
-  Iterator Insert(const KeyType& key, ValueType&& value);
+  template <typename CompatibleKeyType, typename CompatibleValueType>
+  Iterator Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// \brief Erases the key/value pair with the given key, if it exists. O(log n) operation.
   bool Remove(const KeyType& key); // [tested]
@@ -165,13 +163,15 @@ public:
   Iterator Remove(const Iterator& pos); // [tested]
 
   /// \brief Searches for the given key and returns an iterator to it. If it did not exist yet, it is default-created. \a bExisted is set to true, if the key was found, false if it needed to be created.
-  Iterator FindOrAdd(const KeyType& key, bool* bExisted = nullptr); // [tested]
+  template<typename CompatibleKeyType>
+  Iterator FindOrAdd(CompatibleKeyType&& key, bool* bExisted = nullptr); // [tested]
 
   /// \brief Allows read/write access to the value stored under the given key. If there is no such key, a new element is default-constructed.
   ValueType& operator[](const KeyType& key); // [tested]
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
-  Iterator Find(const KeyType& key); // [tested]
+  template<typename CompatibleKeyType>
+  Iterator Find(const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
   Iterator LowerBound(const KeyType& key); // [tested]
@@ -180,7 +180,8 @@ public:
   Iterator UpperBound(const KeyType& key); // [tested]
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
-  ConstIterator Find(const KeyType& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  ConstIterator Find(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Checks whether the given key is in the container.
   bool Contains(const KeyType& key) const; // [tested]
@@ -204,7 +205,8 @@ public:
   ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
 
 private:
-  Node* Internal_Find(const KeyType& key) const;
+  template<typename CompatibleKeyType>
+  Node* Internal_Find(const CompatibleKeyType& key) const;
   Node* Internal_LowerBound(const KeyType& key) const;
   Node* Internal_UpperBound(const KeyType& key) const;
 
@@ -212,7 +214,8 @@ private:
   void Constructor();
 
   /// \brief Creates one new node and initializes it.
-  Node* AcquireNode(const KeyType& key, ValueType&& value, int m_uiLevel, Node* pParent);
+  template<typename CompatibleKeyType>
+  Node* AcquireNode(CompatibleKeyType&& key, ValueType&& value, int m_uiLevel, Node* pParent);
 
   /// \brief Destroys the given node.
   void ReleaseNode(Node* pNode);
