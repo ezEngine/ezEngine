@@ -1,9 +1,11 @@
+#include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 #include <QTreeWidget>
 #include <QBoxLayout>
 #include <QStandardItemModel>
+#include <QMouseEvent>
 
 
 class QNullWidget : public QWidget

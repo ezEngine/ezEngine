@@ -2,6 +2,8 @@
 
 #include <GuiFoundation/Basics.h>
 #include <QWidgetAction>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Strings/String.h>
 
 class ezQtSearchWidget;
 class QTreeWidget;
