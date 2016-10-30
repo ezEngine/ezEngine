@@ -15,6 +15,7 @@ class ezQtNodeView;
 struct ezSelectionManagerEvent;
 class ezDirectoryWatcher;
 enum class ezDirectoryWatcherAction;
+class ezQtDocumentPanel;
 
 class ezQtMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -43,6 +44,8 @@ private:
   ezQtMaterialViewWidget* m_pViewWidget;
   ezQtVisualShaderScene* m_pScene;
   ezQtNodeView* m_pNodeView;
+  ezQtDocumentPanel* m_pVsePanel;
+  bool m_bVisualShaderEnabled;
 
   static ezInt32 s_iNodeConfigWatchers;
   static ezDirectoryWatcher* s_pNodeConfigWatcher;

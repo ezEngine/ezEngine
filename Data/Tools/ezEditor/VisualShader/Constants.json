@@ -1,6 +1,7 @@
 {
   "ConstantColor" :
   {
+    "Category" : "Constants",
     "Color" : "140, 13, 38",
 
     "OutputPins" :
@@ -25,6 +26,7 @@
 
   "Constant1" :
   {
+    "Category" : "Constants",
     "Color" : "140, 13, 38",
 
     "OutputPins" :
@@ -49,6 +51,7 @@
 
   "Constant2" :
   {
+    "Category" : "Constants",
     "Color" : "140, 13, 38",
 
     "OutputPins" :
@@ -73,6 +76,7 @@
 
   "Constant3" :
   {
+    "Category" : "Constants",
     "Color" : "140, 13, 38",
 
     "OutputPins" :
@@ -97,6 +101,7 @@
 
   "Constant4" :
   {
+    "Category" : "Constants",
     "Color" : "140, 13, 38",
 
     "OutputPins" :

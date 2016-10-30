@@ -52,31 +52,19 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     addToolBar(pToolBar);
   }
 
-  QSplitter* pSplitter = new QSplitter(Qt::Orientation::Vertical, this);
 
+  // 3D View
   {
-    // 3D View
-    {
-      SetTargetFramerate(25);
+    SetTargetFramerate(25);
 
-      m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
-      m_ViewConfig.ApplyPerspectiveSetting(90);
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.ApplyPerspectiveSetting(90);
 
-      m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
-      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(pSplitter, m_pViewWidget, "MaterialAssetViewToolBar");
-      pSplitter->addWidget(pContainer);
-    }
+    m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
 
-    {
-      m_pScene = new ezQtVisualShaderScene(this);
-      m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
-      m_pNodeView = new ezQtNodeView(pSplitter);
-      m_pNodeView->setVisible(false);
-      m_pNodeView->SetScene(m_pScene);
-      pSplitter->addWidget(m_pNodeView);
-    }
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pVsePanel, m_pViewWidget, "MaterialAssetViewToolBar");
 
-    setCentralWidget(pSplitter);
+    setCentralWidget(pContainer);
   }
 
   // Property Grid
@@ -90,9 +78,28 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-
-    pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
+
+  // Visual Shader Editor
+  {
+    m_pVsePanel = new ezQtDocumentPanel(this);
+    m_pVsePanel->setObjectName("VisualShaderDockWidget");
+    m_pVsePanel->setWindowTitle("Visual Shader Editor");
+    m_pVsePanel->show();
+
+    m_pScene = new ezQtVisualShaderScene(this);
+    m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+    m_pNodeView = new ezQtNodeView(m_pVsePanel);
+    m_pNodeView->SetScene(m_pScene);
+
+    m_bVisualShaderEnabled = false;
+    //m_pNodeView->setEnabled(m_bVisualShaderEnabled);
+    m_pVsePanel->setWidget(m_pNodeView);
+
+    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pVsePanel);
+  }
+
+  pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
   FinishWindowCreation();
 
@@ -231,9 +238,10 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
   const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
-  if (m_pNodeView->isVisible() != bCustom)
+  if (m_bVisualShaderEnabled != bCustom)
   {
-    m_pNodeView->setVisible(bCustom);
+    m_bVisualShaderEnabled = bCustom;
+    //m_pNodeView->setEnabled(m_bVisualShaderEnabled);
 
     if (bCustom)
       ++s_iNodeConfigWatchers;

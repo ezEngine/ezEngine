@@ -1,0 +1,120 @@
+{
+  "Distance" :
+  {
+    "Category" : "Math/Vector",
+    "Color" : "255, 128, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "255, 255, 255"
+      },
+
+      {
+        "Name" : "b",
+        "Type" : "float",
+        "Color" : "255, 255, 255"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "distance(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
+        "Tooltip" : "The distance between the two input vectors."
+      }
+    ]
+  },
+
+  "Length" :
+  {
+    "Category" : "Math/Vector",
+    "Color" : "255, 128, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "255, 255, 255"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "length($in0)",
+        "Tooltip" : "The length of the input vector."
+      }
+    ]
+  },
+
+  "Dot" :
+  {
+    "Category" : "Math/Vector",
+    "Color" : "255, 128, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "b",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "dot(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
+        "Tooltip" : "Dot product between a and b. A scalar value."
+      }
+    ]
+  },
+
+  "Normalize" :
+  {
+    "Category" : "Math/Vector",
+    "Color" : "255, 128, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Tooltip" : "A vector. Avoid zero vectors to prevent NaN's."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "255, 255, 255",
+        "Inline" : "normalize($in0)",
+        "Tooltip" : "The normalized vector."
+      }
+    ]
+  }
+}

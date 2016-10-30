@@ -1,6 +1,7 @@
 {
   "BaseTexture" :
   {
+    "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
 Texture2D BaseTexture;
@@ -62,6 +63,7 @@ SamplerState BaseTexture_AutoSampler;
 
   "NormalTexture" :
   {
+    "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
 Texture2D NormalTexture;
@@ -96,6 +98,7 @@ SamplerState NormalTexture_AutoSampler;
 
   "EmissiveTexture" :
   {
+    "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
 Texture2D EmissiveTexture;
@@ -150,6 +153,7 @@ SamplerState EmissiveTexture_AutoSampler;
 
   "MetallicTexture" :
   {
+    "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
 Texture2D MetallicTexture;
@@ -184,6 +188,7 @@ SamplerState MetallicTexture_AutoSampler;
 
   "RoughnessTexture" :
   {
+    "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
 Texture2D RoughnessTexture;
@@ -220,6 +225,7 @@ SamplerState RoughnessTexture_AutoSampler;
 
   "Texture2D" :
   {
+    "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
 Texture2D $prop0;

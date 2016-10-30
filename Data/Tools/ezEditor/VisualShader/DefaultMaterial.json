@@ -1,6 +1,7 @@
 {
   "MaterialOutput" :
   {
+    "Category" : "Output",
     "Color" : "90, 30, 122",
     "NodeType" : "Main",
     "CodePermutations" : "

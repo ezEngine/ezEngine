@@ -1,6 +1,7 @@
 {
   "PointSampler" :
   {
+    "Category" : "Texturing/Samplers",
     "Color" : "40, 15, 140",
 
     "CodePixelSamplers" : "
@@ -20,6 +21,7 @@ SamplerState PointSampler;
 
   "LinearSampler" :
   {
+    "Category" : "Texturing/Samplers",
     "Color" : "40, 15, 140",
 
     "CodePixelSamplers" : "
@@ -39,6 +41,7 @@ SamplerState LinearSampler;
 
   "PointClampSampler" :
   {
+    "Category" : "Texturing/Samplers",
     "Color" : "40, 15, 140",
 
     "CodePixelSamplers" : "
@@ -58,6 +61,7 @@ SamplerState PointClampSampler;
 
   "LinearClampSampler" :
   {
+    "Category" : "Texturing/Samplers",
     "Color" : "40, 15, 140",
 
     "CodePixelSamplers" : "

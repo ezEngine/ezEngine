@@ -58,6 +58,8 @@ protected:
 
 private slots:
   void OnMenuAction();
+  void CreateNode(const ezRTTI* pRtti);
+  void OnMenuItemTriggered(const QString& sName, const QVariant& variant);
 
 private:
   static ezRttiMappedObjectFactory<ezQtNode> s_NodeFactory;
@@ -75,4 +77,7 @@ private:
   ezQtConnection* m_pTempConnection;
   ezDeque<const ezDocumentObject*> m_Selection;
   ezVec2 m_vPos;
+  QString m_sContextMenuSearchText;
 };
+
+

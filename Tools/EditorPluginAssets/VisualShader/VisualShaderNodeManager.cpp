@@ -105,3 +105,13 @@ ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, con
 
   return ezStatus(EZ_SUCCESS);
 }
+
+const char* ezVisualShaderNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
+{
+  const ezVisualShaderNodeDescriptor* pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
+
+  if (pDesc == nullptr)
+    return nullptr;
+
+  return pDesc->m_sCategory;
+}

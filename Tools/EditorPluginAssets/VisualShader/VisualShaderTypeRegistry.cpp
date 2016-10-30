@@ -106,16 +106,15 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
   UpdateNodeData();
 }
 
-const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& nd) const
+const ezRTTI* ezVisualShaderTypeRegistry::GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& nd)
 {
   ezStringBuilder temp;
-
   temp.Set("ShaderNode::", nd.m_sName);
 
   ezReflectedTypeDescriptor desc;
   desc.m_sTypeName = temp;
   desc.m_sPluginName = "VisualShaderTypes";
-  desc.m_sParentTypeName = "ezVisualShaderNodeBase";
+  desc.m_sParentTypeName = m_pBaseType->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
   desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 1;
@@ -358,6 +357,8 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
 
 void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor& nd)
 {
+  ezStringBuilder temp;
+
   ezVariant varValue;
   if (varNodeDict.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
   {
@@ -374,7 +375,10 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &va
       nd.m_NodeType = ezVisualShaderNodeType::Generic;
   }
 
-  ezStringBuilder temp;
+  if (varNodeDict.TryGetValue("Category", varValue) && varValue.IsA<ezString>())
+  {
+    nd.m_sCategory = varValue.Get<ezString>();
+  }
 
   if (varNodeDict.TryGetValue("CodePermutations", varValue) && varValue.IsA<ezString>())
   {
@@ -439,4 +443,3 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &va
     nd.m_sShaderCodePixelBody = temp;
   }
 }
-

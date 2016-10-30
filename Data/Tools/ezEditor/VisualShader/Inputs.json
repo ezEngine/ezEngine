@@ -1,6 +1,7 @@
 {
   "Time" :
   {
+    "Category" : "Input",
     "Color" : "140, 13, 38",
 
     "OutputPins" :
@@ -25,6 +26,7 @@
 
   "UV" :
   {
+    "Category" : "Input",
     "Color" : "40, 15, 140",
 
     "OutputPins" :

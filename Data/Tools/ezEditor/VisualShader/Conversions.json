@@ -1,6 +1,7 @@
 {
   "Split" :
   {
+    "Category" : "Components",
     "Color" : "162, 181, 0",
 
     "InputPins" :
@@ -48,6 +49,7 @@
 
   "MergeFloat2" :
   {
+    "Category" : "Components",
     "Color" : "162, 181, 0",
 
     "InputPins" :
@@ -85,6 +87,7 @@
 
   "MergeFloat3" :
   {
+    "Category" : "Components",
     "Color" : "162, 181, 0",
 
     "InputPins" :
@@ -131,6 +134,7 @@
 
   "MergeFloat4" :
   {
+    "Category" : "Components",
     "Color" : "162, 181, 0",
 
     "InputPins" :

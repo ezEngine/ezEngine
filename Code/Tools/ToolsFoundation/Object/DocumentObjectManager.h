@@ -115,6 +115,9 @@ public:
   void DestroyObject(ezDocumentObject* pObject);
   virtual void DestroyAllObjects();
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const {};
+
+  /// \brief Allows to annotate types with a category (group), such that things like creator menus can use this to present the types in a more user friendly way
+  virtual const char* GetTypeCategory(const ezRTTI* pRtti) const { return nullptr; }
   void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
 
   // Structure Change

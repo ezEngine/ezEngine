@@ -1,15 +1,16 @@
 #include <PCH.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <Core/World/GameObject.h>
-#include <QMenu>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <Actions/SelectionActions.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
-#include <QBoxLayout>
-#include <QSortFilterProxyModel>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
+#include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
+#include <QSortFilterProxyModel>
+#include <QBoxLayout>
+#include <QMenu>
 
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
   : ezQtDocumentPanel(pParent)
@@ -47,7 +48,7 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDoc
 ezQtScenegraphPanel::~ezQtScenegraphPanel()
 {
   m_pDocument->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphPanel::DocumentSceneEventHandler, this));
-  
+
 }
 
 void ezQtScenegraphPanel::RegisterActions()

@@ -43,6 +43,7 @@ public:
 
   ezEnum<ezVisualShaderNodeType> m_NodeType;
   ezString m_sName;
+  ezString m_sCategory;
   ezColorGammaUB m_Color;
   ezString m_sShaderCodePixelDefines;
   ezString m_sShaderCodePixelIncludes;
@@ -79,13 +80,11 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, VisualShader);
 
   void LoadNodeData();
-  const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc) const;
+  const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
   void LoadConfigFile(const char* szFile);
 
   void ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray);
-
   void ExtractNodeProperties(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
-
   void ExtractNodeConfig(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
 
   ezMap<const ezRTTI*, ezVisualShaderNodeDescriptor> m_NodeDescriptors;

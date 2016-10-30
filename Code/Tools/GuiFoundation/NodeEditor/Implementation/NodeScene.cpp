@@ -10,6 +10,7 @@
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
 
@@ -232,6 +233,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     iType = pItem != nullptr ? pItem->type() : -1;
   }
 
+  ezQtSearchableMenu* pSearchMenu = nullptr;
+
   QMenu menu;
   if (iType == Type::Pin)
   {
@@ -273,21 +276,40 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   }
   else
   {
+    pSearchMenu = new ezQtSearchableMenu(&menu);
+    menu.addAction(pSearchMenu);
+
+    connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
+    connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() {menu.close(); });
+
+    ezStringBuilder sFullName;
+
     ezHybridArray<const ezRTTI*, 32> types;
     m_pManager->GetCreateableTypes(types);
     auto pos = contextMenuEvent->scenePos();
     m_vPos = ezVec2(pos.x(), pos.y());
     for (const ezRTTI* pRtti : types)
     {
-      // Add type action to current menu
-      QAction* pAction = new QAction(QString::fromUtf8(pRtti->GetTypeName()), &menu);
-      pAction->setProperty("type", qVariantFromValue((void*)pRtti));
-      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
-      menu.addAction(pAction);
+      const char* szCleanName = pRtti->GetTypeName();
+      const char* szColonColon = ezStringUtils::FindLastSubString(szCleanName, "::");
+      if (szColonColon != nullptr)
+        szCleanName = szColonColon + 2;
+
+      sFullName = m_pManager->GetTypeCategory(pRtti);
+      sFullName.AppendPath(szCleanName);
+
+      pSearchMenu->AddItem(sFullName, qVariantFromValue((void*)pRtti));
     }
+
+    pSearchMenu->Finalize(m_sContextMenuSearchText);
   }
 
   menu.exec(contextMenuEvent->screenPos());
+
+  if (pSearchMenu)
+  {
+    m_sContextMenuSearchText = pSearchMenu->GetSearchText();
+  }
 }
 
 void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
@@ -330,6 +352,38 @@ void ezQtNodeScene::CreateNode(const ezDocumentObject* pObject)
   pNode->setPos(vPos.x, vPos.y);
 
   pNode->ResetFlags();
+}
+
+void ezQtNodeScene::CreateNode(const ezRTTI* pRtti)
+{
+  ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
+  history->StartTransaction("Add Node");
+
+  ezStatus res;
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_pType = pRtti;
+    cmd.m_NewObjectGuid.CreateNewUuid();
+    // cmd.m_sParentProperty
+    // cmd.m_Parent
+    cmd.m_Index = -1;
+
+    res = history->AddCommand(cmd);
+    if (res.m_Result.Succeeded())
+    {
+      ezMoveNodeCommand move;
+      move.m_Object = cmd.m_NewObjectGuid;
+      move.m_NewPos = m_vPos;
+      res = history->AddCommand(move);
+    }
+  }
+
+  if (res.m_Result.Failed())
+    history->CancelTransaction();
+  else
+    history->FinishTransaction();
+
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
 void ezQtNodeScene::DeleteNode(const ezDocumentObject* pObject)
@@ -594,32 +648,13 @@ void ezQtNodeScene::OnMenuAction()
 {
   const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
 
-  ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
-  history->StartTransaction("Add Node");
-
-  ezStatus res;
-  {
-    ezAddObjectCommand cmd;
-    cmd.m_pType = pRtti;
-    cmd.m_NewObjectGuid.CreateNewUuid();
-    // cmd.m_sParentProperty
-    // cmd.m_Parent
-    cmd.m_Index = -1;
-
-    res = history->AddCommand(cmd);
-    if (res.m_Result.Succeeded())
-    {
-      ezMoveNodeCommand move;
-      move.m_Object = cmd.m_NewObjectGuid;
-      move.m_NewPos = m_vPos;
-      res = history->AddCommand(move);
-    }
-  }
-
-  if (res.m_Result.Failed())
-    history->CancelTransaction();
-  else
-    history->FinishTransaction();
-
-  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
+  CreateNode(pRtti);
 }
+
+void ezQtNodeScene::OnMenuItemTriggered(const QString& sName, const QVariant& variant)
+{
+  const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
+
+  CreateNode(pRtti);
+}
+
