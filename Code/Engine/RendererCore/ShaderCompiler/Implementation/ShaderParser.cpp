@@ -54,6 +54,8 @@ namespace
 
     ezStringView view = ezStringView(szValueStart, s.GetData());
 
+    ++s; //skip )
+
     // remove " at the start and end of the string, if given
     if (view.StartsWith("\""))
       view.Shrink(1, 0);
