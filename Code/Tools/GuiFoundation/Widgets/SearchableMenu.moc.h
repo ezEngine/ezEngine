@@ -30,10 +30,15 @@ signals:
   private slots:
   void OnItemActivated(const QModelIndex& index);
   void OnEnterPressed();
+  void OnSpecialKeyPressed(Qt::Key key);
   void OnSearchChanged(const QString& text);
+
+protected:
+  virtual bool eventFilter(QObject *, QEvent *) override;
 
 private:
   QStandardItem* CreateCategoryMenu(const char* szCategory);
+  bool SelectFirstLeaf(QModelIndex parent);
 
   QWidget* m_pGroup;
   ezQtSearchWidget* m_pSearch;
@@ -41,6 +46,7 @@ private:
   QTreeView* m_pTreeView;
   QStandardItemModel* m_pItemModel;
   ezMap<ezString, QStandardItem*> m_Hierarchy;
+
 };
 
 

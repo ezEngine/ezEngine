@@ -5,7 +5,7 @@
 ezQtTreeSearchFilterModel::ezQtTreeSearchFilterModel(QWidget* parent)
   : QSortFilterProxyModel(parent)
 {
-
+  m_bIncludeChildren = false;
 }
 
 void ezQtTreeSearchFilterModel::SetFilterText(const QString& text)
@@ -25,6 +25,18 @@ void ezQtTreeSearchFilterModel::SetFilterText(const QString& text)
   invalidateFilter();
 }
 
+
+void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
+{
+  m_bIncludeChildren = true;
+
+  if (!m_sFilterText.isEmpty())
+  {
+    RecomputeVisibleItems();
+    invalidateFilter();
+  }
+}
+
 void ezQtTreeSearchFilterModel::RecomputeVisibleItems()
 {
   m_pSourceModel = sourceModel();
@@ -35,11 +47,11 @@ void ezQtTreeSearchFilterModel::RecomputeVisibleItems()
   {
     QModelIndex idx = m_pSourceModel->index(r, 0);
 
-    UpdateVisibility(idx);
+    UpdateVisibility(idx, false);
   }
 }
 
-bool ezQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx)
+bool ezQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx, bool bParentIsVisible)
 {
   bool bExisted = false;
   auto itVis = m_Visible.FindOrAdd(idx, &bExisted);
@@ -50,10 +62,13 @@ bool ezQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx)
 
   QString name = m_pSourceModel->data(idx, Qt::DisplayRole).toString();
 
-  bool bAnyVisible = false;
+  bool bSubTreeAnyVisible = false;
 
   if (name.contains(m_sFilterText, Qt::CaseInsensitive))
-    bAnyVisible = true;
+  {
+    bParentIsVisible = true;
+    bSubTreeAnyVisible = true;
+  }
 
   const int numRows = m_pSourceModel->rowCount(idx);
 
@@ -61,12 +76,20 @@ bool ezQtTreeSearchFilterModel::UpdateVisibility(const QModelIndex& idx)
   {
     QModelIndex idxChild = m_pSourceModel->index(r, 0, idx);
 
-    if (UpdateVisibility(idxChild))
-      bAnyVisible = true;
+    if (UpdateVisibility(idxChild, bParentIsVisible))
+      bSubTreeAnyVisible = true;
   }
 
-  itVis.Value() = bAnyVisible;
-  return bAnyVisible;
+  if (m_bIncludeChildren && bParentIsVisible)
+  {
+    itVis.Value() = true;
+  }
+  else
+  {
+    itVis.Value() = bSubTreeAnyVisible;
+  }
+
+  return bSubTreeAnyVisible;
 }
 
 bool ezQtTreeSearchFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const

@@ -32,6 +32,10 @@ signals:
   /// \brief The user pressed the enter key
   void enterPressed();
 
+  /// \brief This signal is sent when certain keys are pressed that could be used by external code to implement additional features.
+  /// Currently exposed: Qt::Key_Up, Qt::Key_Down, Qt::Key_Tab, Qt::Key_Backtab (that's SHIFT+Tab)
+  void specialKeyPressed(Qt::Key key);
+
 private slots:
   void onLineEditTextChanged(const QString& text);
   void onClearButtonClicked(bool checked = false);

@@ -82,6 +82,12 @@ bool ezQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
         emit enterPressed();
         return true;
       }
+
+      if (pEvent->key() == Qt::Key_Up || pEvent->key() == Qt::Key_Down || pEvent->key() == Qt::Key_Tab || pEvent->key() == Qt::Key_Backtab)
+      {
+        emit specialKeyPressed((Qt::Key)pEvent->key());
+        return true;
+      }
     }
   }
 

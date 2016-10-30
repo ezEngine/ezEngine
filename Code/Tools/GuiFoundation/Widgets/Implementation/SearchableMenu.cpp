@@ -42,6 +42,7 @@ ezQtSearchableMenu::ezQtSearchableMenu(QObject* parent)
 
   m_pSearch = new ezQtSearchWidget(m_pGroup);
   connect(m_pSearch, &ezQtSearchWidget::enterPressed, this, &ezQtSearchableMenu::OnEnterPressed);
+  connect(m_pSearch, &ezQtSearchWidget::specialKeyPressed, this, &ezQtSearchableMenu::OnSpecialKeyPressed);
   connect(m_pSearch, &ezQtSearchWidget::textChanged, this, &ezQtSearchableMenu::OnSearchChanged);
 
   m_pGroup->layout()->addWidget(m_pSearch);
@@ -50,9 +51,11 @@ ezQtSearchableMenu::ezQtSearchableMenu(QObject* parent)
   m_pItemModel = new QStandardItemModel(m_pGroup);
 
   m_pFilterModel = new ezQtTreeSearchFilterModel(m_pGroup);
+  m_pFilterModel->SetIncludeChildren(true);
   m_pFilterModel->setSourceModel(m_pItemModel);
 
   m_pTreeView = new QTreeView(m_pGroup);
+  m_pTreeView->installEventFilter(this);
   m_pTreeView->setModel(m_pFilterModel);
   m_pTreeView->setHeaderHidden(true);
   m_pTreeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
@@ -95,6 +98,53 @@ QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(const char* szCategory)
   m_Hierarchy[szCategory] = pThisItem;
 
   return pThisItem;
+}
+
+bool ezQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
+{
+  const int iRows = m_pFilterModel->rowCount(parent);
+
+  for (int i = 0; i < iRows; ++i)
+  {
+    QModelIndex child = m_pFilterModel->index(i, 0, parent);
+
+    if (!m_pFilterModel->hasChildren(child))
+    {
+      if (m_pFilterModel->data(child, Qt::UserRole + 1).isValid())
+      {
+        // set this one item as the new selection
+        m_pTreeView->selectionModel()->setCurrentIndex(child, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::SelectionFlag::SelectCurrent);
+        m_pTreeView->scrollTo(child, QAbstractItemView::EnsureVisible);
+        return true;
+      }
+    }
+    else
+    {
+      if (SelectFirstLeaf(child))
+        return true;
+    }
+  }
+
+  return false;
+}
+
+bool ezQtSearchableMenu::eventFilter(QObject* pObject, QEvent* event)
+{
+  if (pObject == m_pTreeView)
+  {
+    if (event->type() == QEvent::KeyPress)
+    {
+      QKeyEvent* pKeyEvent = (QKeyEvent*)(event);
+
+      if (pKeyEvent->key() == Qt::Key_Tab || pKeyEvent->key() == Qt::Key_Backtab)
+      {
+        m_pSearch->setFocus();
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 void ezQtSearchableMenu::AddItem(const char* szName, const QVariant& variant)
@@ -151,12 +201,20 @@ void ezQtSearchableMenu::OnItemActivated(const QModelIndex& index)
 
 void ezQtSearchableMenu::OnEnterPressed()
 {
-  //auto selection = m_pTree->selectedItems();
+  auto selection = m_pTreeView->selectionModel()->selection();
 
-  //if (selection.size() != 1)
-  //  return;
+  if (selection.size() != 1)
+    return;
 
-  //OnItemActivated(selection[0], 0);
+  OnItemActivated(selection.indexes()[0]);
+}
+
+void ezQtSearchableMenu::OnSpecialKeyPressed(Qt::Key key)
+{
+  if (key == Qt::Key_Down || key == Qt::Key_Up || key == Qt::Key_Tab || key == Qt::Key_Backtab)
+  {
+    m_pTreeView->setFocus();
+  }
 }
 
 void ezQtSearchableMenu::OnSearchChanged(const QString& text)
@@ -164,5 +222,8 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
   m_pFilterModel->SetFilterText(text);
 
   if (!text.isEmpty())
+  {
+    SelectFirstLeaf(QModelIndex());
     m_pTreeView->expandAll();
+  }
 }
