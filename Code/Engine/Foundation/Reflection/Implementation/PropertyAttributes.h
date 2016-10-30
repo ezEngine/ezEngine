@@ -222,10 +222,14 @@ public:
   ezAssetBrowserAttribute() {}
   ezAssetBrowserAttribute(const char* szTypeFilter)
   {
+    SetTypeFilter(szTypeFilter);
+  }
+
+  void SetTypeFilter(const char* szTypeFilter)
+  {
     ezStringBuilder sTemp(";", szTypeFilter, ";");
     m_sTypeFilter = sTemp;
   }
-
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 private:

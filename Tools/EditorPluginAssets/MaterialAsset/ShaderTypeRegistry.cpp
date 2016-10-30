@@ -216,6 +216,10 @@ namespace
             attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, color));
           }
         }
+        else if (pType == ezGetStaticRTTI<ezString>())
+        {
+          attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_sValue));
+        }
       }
       else if (attributeDef.m_sName.IsEqual("Clamp"))
       {

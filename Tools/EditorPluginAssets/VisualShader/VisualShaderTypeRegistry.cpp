@@ -337,6 +337,15 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
           prop.m_sType = ezGetStaticRTTI<float>()->GetTypeName();
         else if (sType == "string")
           prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+        else if (sType == "Texture2D")
+        {
+          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+
+          // apparently the attributes are deallocated using the type allocator, so we must allocate them here through RTTI as well
+          ezAssetBrowserAttribute* pAttr = static_cast<ezAssetBrowserAttribute*>(ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
+          pAttr->SetTypeFilter("Texture 2D");
+          prop.m_Attributes.PushBack(pAttr);
+        }
         else
         {
           ezLog::Error("Invalid property type '%s'", sType.GetData());

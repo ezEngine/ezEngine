@@ -4,13 +4,23 @@
     "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
-Texture2D BaseTexture;
+Texture2D BaseTexture @Default(\"$prop0\");
 ",
 
     "CodePixelSamplers" : "
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
 ",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : "RebeccaPurple.color"
+      }
+    ],
+
     "InputPins" :
     [
       {
@@ -66,13 +76,23 @@ SamplerState BaseTexture_AutoSampler;
     "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
-Texture2D NormalTexture;
+Texture2D NormalTexture @Default(\"$prop0\");
 ",
 
     "CodePixelSamplers" : "
 Texture2D NormalTexture;
 SamplerState NormalTexture_AutoSampler;
 ",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : "{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }" // Neutral normal map
+      }
+    ],
+
     "InputPins" :
     [
       {
@@ -101,13 +121,23 @@ SamplerState NormalTexture_AutoSampler;
     "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
-Texture2D EmissiveTexture;
+Texture2D EmissiveTexture @Default(\"$prop0\");
 ",
 
     "CodePixelSamplers" : "
 Texture2D EmissiveTexture;
 SamplerState EmissiveTexture_AutoSampler;
 ",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : ""
+      }
+    ],
+
     "InputPins" :
     [
       {
@@ -156,13 +186,23 @@ SamplerState EmissiveTexture_AutoSampler;
     "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
-Texture2D MetallicTexture;
+Texture2D MetallicTexture @Default(\"$prop0\");
 ",
 
     "CodePixelSamplers" : "
 Texture2D MetallicTexture;
 SamplerState MetallicTexture_AutoSampler;
 ",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : ""
+      }
+    ],
+
     "InputPins" :
     [
       {
@@ -191,13 +231,23 @@ SamplerState MetallicTexture_AutoSampler;
     "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
-Texture2D RoughnessTexture;
+Texture2D RoughnessTexture @Default(\"$prop0\");
 ",
 
     "CodePixelSamplers" : "
 Texture2D RoughnessTexture;
 SamplerState RoughnessTexture_AutoSampler;
 ",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : ""
+      }
+    ],
+
     "InputPins" :
     [
       {
@@ -228,7 +278,7 @@ SamplerState RoughnessTexture_AutoSampler;
     "Category" : "Texturing",
     "Color" : "140, 13, 38",
     "CodeMaterialParams" : "
-Texture2D $prop0;
+Texture2D $prop0 @Default(\"$prop1\");
 ",
 
     "CodePixelSamplers" : "
@@ -241,6 +291,12 @@ SamplerState $prop0_AutoSampler;
       {
         "Name" : "Name",
         "Type" : "string",
+        "Value" : ""
+      },
+
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
         "Value" : ""
       }
     ],

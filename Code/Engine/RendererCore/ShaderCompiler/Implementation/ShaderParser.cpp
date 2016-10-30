@@ -52,9 +52,15 @@ namespace
     if (!s.IsValid() || s.GetCharacter() != ')')
       return;
 
-    ++s; //skip )
+    ezStringView view = ezStringView(szValueStart, s.GetData());
 
-    attributeDef.m_sValue = ezStringView(szValueStart, s.GetData());
+    // remove " at the start and end of the string, if given
+    if (view.StartsWith("\""))
+      view.Shrink(1, 0);
+    if (view.EndsWith("\""))
+      view.Shrink(0, 1);
+
+    attributeDef.m_sValue = view;
     if (!def.m_sName.IsEmpty())
     {
       def.m_Attributes.PushBack(attributeDef);
