@@ -236,7 +236,7 @@ ezShaderTypeRegistry::ezShaderTypeRegistry()
 {
 
 }
-  
+
 const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
 {
   if (ezStringUtils::IsNullOrEmpty(szShaderPath))
@@ -244,7 +244,16 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
 
   ezStringBuilder sShaderPath = szShaderPath;
   sShaderPath.MakeCleanPath();
- 
+
+  if (sShaderPath.IsAbsolutePath())
+  {
+    ezString sRelPath = sShaderPath;
+    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sRelPath))
+    {
+      sShaderPath = sRelPath;
+    }
+  }
+
   auto it = m_ShaderTypes.Find(sShaderPath);
   if (it.IsValid())
   {
@@ -273,7 +282,7 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
     it.Value().m_sAbsShaderPath = sAbsPath;
     UpdateShaderType(it.Value());
   }
-  
+
   return it.Value().m_pType;
 }
 

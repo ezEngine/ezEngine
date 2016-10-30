@@ -673,6 +673,9 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
     file.WriteBytes(shader.GetData(), shader.GetElementCount());
     file.Close();
 
+    // This should update the shader parameter section in all affected materials
+    ezShaderTypeRegistry::GetSingleton()->GetShaderType(sAutoGenShader);
+
     return ezStatus(EZ_SUCCESS);
   }
   else
