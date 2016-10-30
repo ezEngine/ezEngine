@@ -2,14 +2,14 @@
   "ConstantColor" :
   {
     "Category" : "Constants",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 53, 91",
 
     "OutputPins" :
     [
       {
         "Name" : "RGBA",
         "Type" : "float4",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 53, 91",
         "Inline" : "$prop0"
       }
     ],
@@ -27,14 +27,14 @@
   "Constant1" :
   {
     "Category" : "Constants",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 53, 91",
 
     "OutputPins" :
     [
       {
         "Name" : "Value",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 53, 91",
         "Inline" : "$prop0"
       }
     ],
@@ -52,14 +52,14 @@
   "Constant2" :
   {
     "Category" : "Constants",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 53, 91",
 
     "OutputPins" :
     [
       {
         "Name" : "Value",
         "Type" : "float2",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 53, 91",
         "Inline" : "$prop0"
       }
     ],
@@ -77,14 +77,14 @@
   "Constant3" :
   {
     "Category" : "Constants",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 53, 91",
 
     "OutputPins" :
     [
       {
         "Name" : "Value",
         "Type" : "float3",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 53, 91",
         "Inline" : "$prop0"
       }
     ],
@@ -102,14 +102,14 @@
   "Constant4" :
   {
     "Category" : "Constants",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 53, 91",
 
     "OutputPins" :
     [
       {
         "Name" : "Value",
         "Type" : "float4",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 53, 91",
         "Inline" : "$prop0"
       }
     ],

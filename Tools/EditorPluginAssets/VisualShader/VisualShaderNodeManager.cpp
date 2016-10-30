@@ -2,6 +2,10 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 
+//////////////////////////////////////////////////////////////////////////
+// ezVisualShaderPin
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -28,6 +32,13 @@ const ezString& ezVisualShaderPin::GetTooltip() const
 {
   return m_pDescriptor->m_sTooltip;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// ezVisualShaderConnection
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderConnection, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualShaderNodeManager
@@ -95,13 +106,20 @@ ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, con
 
   EZ_ASSERT_DEBUG(pPinSource != nullptr && pPinTarget != nullptr, "Das ist eigentlich unmoeglich!");
 
-  //if (pPinSource->GetDataType() != pPinTarget->GetDataType())
-  //{
-  //  return ezStatus("Incompatible data types");
-  //}
+  const ezRTTI* pSamplerType = ezVisualShaderTypeRegistry::GetSingleton()->GetPinSamplerType();
+  const ezRTTI* pStringType = ezGetStaticRTTI<ezString>();
 
-  if (!pTarget->GetConnections().IsEmpty())
-    return ezStatus("Only one connection can be made to an input pin!");
+  if ((pPinSource->GetDataType() == pSamplerType && pPinTarget->GetDataType() != pSamplerType) ||
+    (pPinSource->GetDataType() != pSamplerType && pPinTarget->GetDataType() == pSamplerType))
+  {
+    return ezStatus("Pin of type 'sampler' cannot be connected with a pin of a different type.");
+  }
+
+  if ((pPinSource->GetDataType() == pStringType && pPinTarget->GetDataType() != pStringType) ||
+    (pPinSource->GetDataType() != pStringType && pPinTarget->GetDataType() == pStringType))
+  {
+    return ezStatus("Pin of type 'string' cannot be connected with a pin of a different type.");
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

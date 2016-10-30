@@ -2,14 +2,14 @@
   "Time" :
   {
     "Category" : "Input",
-    "Color" : "140, 13, 38",
+    "Color" : "38, 105, 0",
 
     "OutputPins" :
     [
       {
         "Name" : "Global",
         "Type" : "float",
-        "Color" : "255, 0, 0",
+        "Color" : "200, 0, 0",
         "Inline" : "GlobalTime",
         "Tooltip" : "Real time. Always at the same speed, unaffected by world simulation speed."
       },
@@ -17,7 +17,7 @@
       {
         "Name" : "World",
         "Type" : "float",
-        "Color" : "0, 255, 0",
+        "Color" : "0, 200, 0",
         "Inline" : "WorldTime",
         "Tooltip" : "World simulation time. Affected by simulation speed (slow-motion) and world paused state."
       }
@@ -27,7 +27,7 @@
   "UV" :
   {
     "Category" : "Input",
-    "Color" : "40, 15, 140",
+    "Color" : "38, 105, 0",
 
     "OutputPins" :
     [

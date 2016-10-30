@@ -22,9 +22,9 @@ public:
   const ezConnection* GetConnection() const { return m_pConnection; }
 
   virtual void UpdateConnection();
+  virtual QPen DeterminePen() const;
 
-
-private:
+protected:
   const ezConnection* m_pConnection;
   QPointF m_InPoint;
   QPointF m_OutPoint;

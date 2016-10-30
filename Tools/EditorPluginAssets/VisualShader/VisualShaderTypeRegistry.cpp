@@ -26,6 +26,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
     const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
     ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
+    ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualShaderConnection(); });
     ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
   }
 
@@ -49,6 +50,7 @@ ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
   : m_SingletonRegistrar(this)
 {
     m_pBaseType = nullptr;
+    m_pSamplerPinType = nullptr;
 }
 
 const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
@@ -101,6 +103,19 @@ void ezVisualShaderTypeRegistry::LoadNodeData()
     desc.m_uiTypeVersion = 1;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
+  }
+
+  if (m_pSamplerPinType == nullptr)
+  {
+    ezReflectedTypeDescriptor desc;
+    desc.m_sTypeName = "ezVisualShaderSamplerPin";
+    desc.m_sPluginName = "VisualShaderTypes";
+    desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
+    desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
+    desc.m_uiTypeSize = 0;
+    desc.m_uiTypeVersion = 1;
+
+    m_pSamplerPinType = ezPhantomRttiManager::RegisterType(desc);
   }
 
   UpdateNodeData();
@@ -234,6 +249,8 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
           pin.m_pDataType = ezGetStaticRTTI<float>();
         else if (sType == "string")
           pin.m_pDataType = ezGetStaticRTTI<ezString>();
+        else if (sType == "sampler")
+          pin.m_pDataType = m_pSamplerPinType;
         else
         {
           ezLog::Error("Invalid pin type '%s'", sType.GetData());

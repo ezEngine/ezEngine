@@ -2,14 +2,14 @@
   "Floor" :
   {
     "Category" : "Math/Rounding",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -18,7 +18,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "floor($in0)",
         "Tooltip" : "The largest integer which is less than or equal to the input (component-wise)."
       }
@@ -28,14 +28,14 @@
   "Ceil" :
   {
     "Category" : "Math/Rounding",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -44,7 +44,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "ceil($in0)",
         "Tooltip" : "The smallest integer which is greater than or equal to the input (component-wise)."
       }
@@ -54,14 +54,14 @@
   "Round" :
   {
     "Category" : "Math/Rounding",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -70,7 +70,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "round($in0)",
         "Tooltip" : "Rounds the input to the closest integer value (component-wise)."
       }
@@ -80,14 +80,14 @@
   "Truncate" :
   {
     "Category" : "Math/Rounding",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -96,7 +96,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "trunc($in0)",
         "Tooltip" : "Removes the fractional part of the input without rounding (component-wise)."
       }

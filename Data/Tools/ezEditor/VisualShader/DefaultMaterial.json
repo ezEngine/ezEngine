@@ -2,7 +2,7 @@
   "MaterialOutput" :
   {
     "Category" : "Output",
-    "Color" : "90, 30, 122",
+    "Color" : "127, 0, 110",
     "NodeType" : "Main",
     "CodePermutations" : "
 BLEND_MODE
@@ -30,7 +30,7 @@ VS_OUT main(VS_IN Input)
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
-float MaskThreshold @Default(0.25);
+float MaskThreshold @Default($prop0);
 ",
 
     "CodePixelDefines" : "
@@ -95,6 +95,15 @@ float GetOcclusion(PS_IN Input)
 }
 ",
 
+    "Properties" :
+    [
+      {
+        "Name" : "MaskThreshold",
+        "Type" : "float",
+        "Value" : "0.25"
+      }
+    ],
+
     "InputPins" :
     [
       // Pin 0
@@ -128,7 +137,7 @@ float GetOcclusion(PS_IN Input)
       {
         "Name" : "Reflectance",
         "Type" : "float",
-        "Color" : "196, 196, 196",
+        "Color" : "210, 255, 100",
         //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "0.5"
       },
@@ -146,7 +155,7 @@ float GetOcclusion(PS_IN Input)
       {
         "Name" : "Opacity",
         "Type" : "float",
-        "Color" : "230, 230, 153",
+        "Color" : "255, 0, 110",
         //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "1"
       },
@@ -155,7 +164,7 @@ float GetOcclusion(PS_IN Input)
       {
         "Name" : "Emissive",
         "Type" : "float3",
-        "Color" : "230, 230, 153",
+        "Color" : "255, 106, 0",
         //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "0"
       },
@@ -164,7 +173,7 @@ float GetOcclusion(PS_IN Input)
       {
         "Name" : "Occlusion",
         "Type" : "float",
-        "Color" : "230, 230, 153",
+        "Color" : "127, 115, 63",
         //"Expose" : true, // otherwise fallback is currently 0
         "Fallback" : "1"
       }

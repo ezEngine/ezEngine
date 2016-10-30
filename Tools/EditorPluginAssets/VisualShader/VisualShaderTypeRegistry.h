@@ -72,6 +72,8 @@ public:
 
   const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
 
+  const ezRTTI* GetPinSamplerType() const { return m_pSamplerPinType; }
+
   void UpdateNodeData();
 
   void UpdateNodeData(const char* szCfgFileRelative);
@@ -90,4 +92,5 @@ private:
   ezMap<const ezRTTI*, ezVisualShaderNodeDescriptor> m_NodeDescriptors;
 
   const ezRTTI* m_pBaseType;
+  const ezRTTI* m_pSamplerPinType;
 };

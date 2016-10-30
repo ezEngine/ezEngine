@@ -12,6 +12,7 @@ struct ezMaterialShaderMode
 
   enum Enum
   {
+    BaseMaterial,
     File,
     Custom,
 

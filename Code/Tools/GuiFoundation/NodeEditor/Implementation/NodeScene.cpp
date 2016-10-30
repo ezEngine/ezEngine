@@ -582,11 +582,11 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTar
     else
       history->FinishTransaction();
 
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
+    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
   }
   else
   {
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
+    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
   }
 }
 

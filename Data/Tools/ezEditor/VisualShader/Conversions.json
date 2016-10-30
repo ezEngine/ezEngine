@@ -2,14 +2,14 @@
   "Split" :
   {
     "Category" : "Components",
-    "Color" : "162, 181, 0",
+    "Color" : "123, 137, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Tooltip" : "Value that should be split into components.\nCan be of any type, missing components output zero."
       }
     ],
@@ -19,28 +19,28 @@
       {
         "Name" : "x",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 0, 0",
         "Inline" : "ToFloat1($in0)",
         "Tooltip" : "Returns the x component of the incoming data."
       },
       {
         "Name" : "y",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 128, 0",
         "Inline" : "ToFloat2($in0).y",
         "Tooltip" : "Returns the y component of the incoming data. Zero if the incoming data has less than 2 components."
       },
       {
         "Name" : "z",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 0, 128",
         "Inline" : "ToFloat3($in0).z",
         "Tooltip" : "Returns the z component of the incoming data. Zero if the incoming data has less than 3 components."
       },
       {
         "Name" : "w",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "175, 175, 117",
         "Inline" : "ToFloat4($in0).w",
         "Tooltip" : "Returns the w component of the incoming data. Zero if the incoming data has less than 4 components."
       }
@@ -50,14 +50,14 @@
   "MergeFloat2" :
   {
     "Category" : "Components",
-    "Color" : "162, 181, 0",
+    "Color" : "123, 137, 0",
 
     "InputPins" :
     [
       {
         "Name" : "x",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 0, 0",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the x component of the output."
@@ -66,7 +66,7 @@
       {
         "Name" : "y",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 128, 0",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the y component of the output."
@@ -78,7 +78,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "float2(ToFloat1($in0), ToFloat1($in1))",
         "Tooltip" : "The first component of each input is put into the respective component of the output."
       }
@@ -88,14 +88,14 @@
   "MergeFloat3" :
   {
     "Category" : "Components",
-    "Color" : "162, 181, 0",
+    "Color" : "123, 137, 0",
 
     "InputPins" :
     [
       {
         "Name" : "x",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 0, 0",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the x component of the output."
@@ -104,7 +104,7 @@
       {
         "Name" : "y",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 128, 0",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the y component of the output."
@@ -113,7 +113,7 @@
       {
         "Name" : "z",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 0, 128",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the z component of the output."
@@ -125,7 +125,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "float3(ToFloat1($in0), ToFloat1($in1), ToFloat1($in2))",
         "Tooltip" : "The first component of each input is put into the respective component of the output."
       }
@@ -135,14 +135,14 @@
   "MergeFloat4" :
   {
     "Category" : "Components",
-    "Color" : "162, 181, 0",
+    "Color" : "123, 137, 0",
 
     "InputPins" :
     [
       {
         "Name" : "x",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 0, 0",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the x component of the output."
@@ -151,7 +151,7 @@
       {
         "Name" : "y",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 128, 0",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the y component of the output."
@@ -160,7 +160,7 @@
       {
         "Name" : "z",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "0, 0, 128",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the z component of the output."
@@ -169,7 +169,7 @@
       {
         "Name" : "w",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "175, 175, 117",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The first component of the incoming data is put into the w component of the output."
@@ -181,7 +181,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "float4(ToFloat1($in0), ToFloat1($in1), ToFloat1($in2), ToFloat1($in3))",
         "Tooltip" : "The first component of each input is put into the respective component of the output."
       }

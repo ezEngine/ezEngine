@@ -4,6 +4,7 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/NodeEditor/Node.h>
+#include <GuiFoundation/NodeEditor/Connection.h>
 
 class ezQtNodeScene;
 class ezQtNodeView;
@@ -30,6 +31,14 @@ public:
 
 
   virtual void ConnectedStateChanged(bool bConnected) override;
+};
+
+class ezQtVisualShaderConnection : public ezQtConnection
+{
+public:
+  ezQtVisualShaderConnection(QGraphicsItem* parent = 0);
+
+  virtual QPen DeterminePen() const override;
 };
 
 class ezQtVisualShaderNode : public ezQtNode

@@ -19,27 +19,17 @@ ezQtVisualShaderScene::~ezQtVisualShaderScene()
 void ezQtVisualShaderScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin)
 {
   ezStatus res = m_pManager->CanConnect(pSourcePin, pTargetPin);
-  if (res.m_Result.Succeeded())
-  {
-    ezQtNodeScene::ConnectPinsAction(pSourcePin, pTargetPin);
-    return;
-  }
 
-  const ezVisualShaderPin* pPinSource = ezDynamicCast<const ezVisualShaderPin*>(pSourcePin);
-  const ezVisualShaderPin* pPinTarget = ezDynamicCast<const ezVisualShaderPin*>(pTargetPin);
-  //if (pPinSource->GetDataType() != pPinTarget->GetDataType())
-  //{
-  //  res = ezStatus("Incompatible data types");
-  //  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
-  //  return;
-  //}
-
-  if (!pTargetPin->GetConnections().IsEmpty())
+  if (res.Succeeded())
   {
-    // If we already have a connection at this input pin, delete it.
+    const ezVisualShaderPin* pPinSource = ezDynamicCast<const ezVisualShaderPin*>(pSourcePin);
+    const ezVisualShaderPin* pPinTarget = ezDynamicCast<const ezVisualShaderPin*>(pTargetPin);
+
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction("Replace Input Pin");
+    history->StartTransaction("Connect Pins");
 
+    // If we already have a connection at this input pin, delete it.
+    if (!pTargetPin->GetConnections().IsEmpty())
     {
       const ezArrayPtr<const ezConnection* const> connections = pTargetPin->GetConnections();
       EZ_ASSERT_DEV(connections.GetCount() == 1, "A render pipeline should only support one input connection at a time.");
@@ -53,6 +43,9 @@ void ezQtVisualShaderScene::ConnectPinsAction(const ezPin* pSourcePin, const ezP
 
       res = history->AddCommand(cmd);
     }
+
+    // so far so good, try connecting
+    if (res.Succeeded())
     {
       ezConnectNodePinsCommand cmd;
       cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
@@ -62,14 +55,19 @@ void ezQtVisualShaderScene::ConnectPinsAction(const ezPin* pSourcePin, const ezP
 
       res = history->AddCommand(cmd);
     }
+
     if (res.m_Result.Failed())
       history->CancelTransaction();
     else
       history->FinishTransaction();
-
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
   }
+
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 
 ezQtVisualShaderPin::ezQtVisualShaderPin()
@@ -127,7 +125,7 @@ void ezQtVisualShaderPin::ConnectedStateChanged(bool bConnected)
 {
   if (bConnected)
   {
-    setBrush(pen().color().darker(140));
+    setBrush(pen().color());
   }
   else
   {
@@ -135,6 +133,52 @@ void ezQtVisualShaderPin::ConnectedStateChanged(bool bConnected)
     setBrush(palette.base());
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezQtVisualShaderConnection::ezQtVisualShaderConnection(QGraphicsItem* parent /*= 0*/)
+{
+
+}
+
+
+QPen ezQtVisualShaderConnection::DeterminePen() const
+{
+  const ezVisualShaderPin* pSourcePin = static_cast<const ezVisualShaderPin*>(m_pConnection->GetSourcePin());
+  const ezVisualShaderPin* pTargetPin = static_cast<const ezVisualShaderPin*>(m_pConnection->GetTargetPin());
+
+  ezColorGammaUB color;
+  const ezColorGammaUB color1 = pSourcePin->GetDescriptor()->m_Color;
+  const ezColorGammaUB color2 = pTargetPin->GetDescriptor()->m_Color;
+
+  const bool isGrey1 = (color1.r == color1.g && color1.r == color1.b);
+  const bool isGrey2 = (color2.r == color2.g && color2.r == color2.b);
+
+  if (!isGrey1)
+  {
+    color = ezMath::Lerp(color1, color2, 0.2f);
+  }
+  else if (!isGrey2)
+  {
+    color = ezMath::Lerp(color1, color2, 0.8f);
+  }
+  else
+  {
+    color = ezMath::Lerp(color1, color2, 0.5f);
+  }
+
+  auto palette = QApplication::palette();
+  QPen pen(QBrush(qRgb(color.r, color.g, color.b)), 3, Qt::SolidLine);
+
+  return pen;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 
 ezQtVisualShaderNode::ezQtVisualShaderNode()
 {

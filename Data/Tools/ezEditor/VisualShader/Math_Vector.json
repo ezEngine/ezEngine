@@ -2,20 +2,20 @@
   "Distance" :
   {
     "Category" : "Math/Vector",
-    "Color" : "255, 128, 0",
+    "Color" : "216, 86, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "128, 50, 50"
       },
 
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "50, 128, 50"
       }
     ],
 
@@ -24,7 +24,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "distance(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
         "Tooltip" : "The distance between the two input vectors."
       }
@@ -34,14 +34,14 @@
   "Length" :
   {
     "Category" : "Math/Vector",
-    "Color" : "255, 128, 0",
+    "Color" : "216, 86, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -50,7 +50,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "length($in0)",
         "Tooltip" : "The length of the input vector."
       }
@@ -60,21 +60,21 @@
   "Dot" :
   {
     "Category" : "Math/Vector",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Fallback" : "0"
       },
 
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Fallback" : "0"
       }
     ],
@@ -84,9 +84,43 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "dot(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
         "Tooltip" : "Dot product between a and b. A scalar value."
+      }
+    ]
+  },
+
+  "Cross" :
+  {
+    "Category" : "Math/Vector",
+    "Color" : "183, 153, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float3",
+        "Color" : "128, 50, 50",
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "b",
+        "Type" : "float3",
+        "Color" : "50, 128, 50",
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "cross(ToFloat3($in0), ToFloat3($in1))",
+        "Tooltip" : "Cross product between a and b. Inputs are converted to float3, result is float3."
       }
     ]
   },
@@ -94,14 +128,14 @@
   "Normalize" :
   {
     "Category" : "Math/Vector",
-    "Color" : "255, 128, 0",
+    "Color" : "216, 86, 0",
 
     "InputPins" :
     [
       {
-        "Name" : "a",
+        "Name" : "vector",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Tooltip" : "A vector. Avoid zero vectors to prevent NaN's."
       }
     ],
@@ -111,7 +145,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "normalize($in0)",
         "Tooltip" : "The normalized vector."
       }

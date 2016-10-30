@@ -1,69 +1,15 @@
 {
-  "Sine" :
-  {
-    "Category" : "Math/Trigonometry",
-    "Color" : "255, 128, 0",
-
-    "InputPins" :
-    [
-      {
-        "Name" : "a",
-        "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Tooltip" : "The angle value in radians."
-      }
-    ],
-
-    "OutputPins" :
-    [
-      {
-        "Name" : "result",
-        "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Inline" : "sin($in0)",
-        "Tooltip" : "The sine of the input (component-wise)."
-      }
-    ]
-  },
-
-  "Cosine" :
-  {
-    "Category" : "Math/Trigonometry",
-    "Color" : "255, 128, 0",
-
-    "InputPins" :
-    [
-      {
-        "Name" : "a",
-        "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Tooltip" : "The angle value in radians."
-      }
-    ],
-
-    "OutputPins" :
-    [
-      {
-        "Name" : "result",
-        "Type" : "float",
-        "Color" : "255, 255, 255",
-        "Inline" : "cos($in0)",
-        "Tooltip" : "The cosine of the input (component-wise)."
-      }
-    ]
-  },
-
   "Lerp" :
   {
     "Category" : "Math/Interpolation",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "x",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Expose" : true,
         "Fallback" : "0"
       },
@@ -71,7 +17,7 @@
       {
         "Name" : "y",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Expose" : true,
         "Fallback" : "1"
       },
@@ -79,7 +25,7 @@
       {
         "Name" : "factor",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 128, 0",
         "Expose" : true,
         "Fallback" : "0.5",
         "Tooltip" : "How much to interpolate between x and y. At 0 the output is x, at 1 the output is y."
@@ -91,7 +37,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "lerp(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0), ToFloat1($in2))",
         "Tooltip" : "Linear interpolation between x and y according to factor."
       }

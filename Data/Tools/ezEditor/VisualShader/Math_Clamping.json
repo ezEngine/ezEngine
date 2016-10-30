@@ -2,14 +2,14 @@
   "Max" :
   {
     "Category" : "Math/Clamping",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Expose" : true,
         "Fallback" : "0"
       },
@@ -17,7 +17,7 @@
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Expose" : true,
         "Fallback" : "0"
       }
@@ -28,7 +28,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "max(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
         "Tooltip" : "The larger of the two input values (component-wise)."
       }
@@ -38,14 +38,14 @@
   "Min" :
   {
     "Category" : "Math/Clamping",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Expose" : true,
         "Fallback" : "0"
       },
@@ -53,7 +53,7 @@
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Expose" : true,
         "Fallback" : "0"
       }
@@ -64,7 +64,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "min(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
         "Tooltip" : "The smaller of the two input values (component-wise)."
       }
@@ -74,14 +74,14 @@
   "Saturate" :
   {
     "Category" : "Math/Clamping",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -90,7 +90,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "saturate($in0)",
         "Tooltip" : "Clamps the input to the range [0, 1] (component-wise)."
       }
@@ -100,21 +100,21 @@
   "Clamp" :
   {
     "Category" : "Math/Clamping",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "x",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 128, 50",
         "Tooltip" : "The value to clamp."
       },
 
       {
         "Name" : "min",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Expose" : true,
         "Fallback" : "0",
         "Tooltip" : "The minimum value to clamp against."
@@ -123,7 +123,7 @@
       {
         "Name" : "max",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Expose" : true,
         "Fallback" : "1",
         "Tooltip" : "The maximum value to clamp against."
@@ -135,7 +135,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "clamp($in0, ToSameType($in1, $in0), ToSameType($in2, $in0))",
         "Tooltip" : "All output values will be clamped to be between Min and Max."
       }

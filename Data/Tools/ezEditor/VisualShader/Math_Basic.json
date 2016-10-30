@@ -2,7 +2,7 @@
   "Add" :
   {
     "Category" : "Math/Basic",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
     "NodeType" : "Generic", // "Main",
     "CodePermutations" : "",
     "CodeRenderStates" : "",
@@ -19,7 +19,7 @@
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Expose" : true,
         "Fallback" : "0"
       },
@@ -27,7 +27,7 @@
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Expose" : true,
         "Fallback" : "0"
       }
@@ -38,7 +38,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "(ToBiggerType($in0, $in1) + ToBiggerType($in1, $in0))",
         "Tooltip" : "a + b"
       }
@@ -48,14 +48,14 @@
   "Subtract" :
   {
     "Category" : "Math/Basic",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Expose" : true,
         "Fallback" : "0"
       },
@@ -63,7 +63,7 @@
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Expose" : true,
         "Fallback" : "0"
       }
@@ -74,7 +74,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "(ToBiggerType($in0, $in1) - ToBiggerType($in1, $in0))",
         "Tooltip" : "a - b"
       }
@@ -84,14 +84,14 @@
   "Multiply" :
   {
     "Category" : "Math/Basic",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "128, 50, 50",
         "Expose" : true,
         "Fallback" : "1"
       },
@@ -99,7 +99,7 @@
       {
         "Name" : "b",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "50, 128, 50",
         "Expose" : true,
         "Fallback" : "1"
       }
@@ -110,24 +110,34 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "(ToBiggerType($in0, $in1) * ToBiggerType($in1, $in0))",
         "Tooltip" : "a * b (component-wise)"
       }
     ]
   },
 
-  "Fraction" :
+  "Divide" :
   {
     "Category" : "Math/Basic",
-    "Color" : "255, 128, 0",
+    "Color" : "216, 86, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "128, 50, 50",
+        "Expose" : true,
+        "Fallback" : "1"
+      },
+
+      {
+        "Name" : "b",
+        "Type" : "float",
+        "Color" : "50, 128, 50",
+        "Expose" : true,
+        "Fallback" : "1"
       }
     ],
 
@@ -136,7 +146,33 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
+        "Inline" : "(ToBiggerType($in0, $in1) / ToBiggerType($in1, $in0))",
+        "Tooltip" : "a / b (component-wise)"
+      }
+    ]
+  },
+
+  "Fraction" :
+  {
+    "Category" : "Math/Basic",
+    "Color" : "183, 153, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
         "Inline" : "frac($in0)",
         "Tooltip" : "The fractional part of the input (component-wise)."
       }
@@ -146,14 +182,14 @@
   "Abs" :
   {
     "Category" : "Math/Basic",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -162,7 +198,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "abs($in0)",
         "Tooltip" : "The absolute value of the input (component-wise)."
       }
@@ -172,14 +208,14 @@
   "Sign" :
   {
     "Category" : "Math/Basic",
-    "Color" : "255, 128, 0",
+    "Color" : "183, 153, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -188,7 +224,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "sign($in0)",
         "Tooltip" : "Outputs the sign of the input (component-wise)."
       }
@@ -198,14 +234,14 @@
   "Sqrt" :
   {
     "Category" : "Math/Basic",
-    "Color" : "255, 128, 0",
+    "Color" : "216, 86, 0",
 
     "InputPins" :
     [
       {
         "Name" : "a",
         "Type" : "float",
-        "Color" : "255, 255, 255"
+        "Color" : "200, 200, 200"
       }
     ],
 
@@ -214,7 +250,7 @@
       {
         "Name" : "result",
         "Type" : "float",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "sqrt($in0)",
         "Tooltip" : "The square root of the input (component-wise)."
       }

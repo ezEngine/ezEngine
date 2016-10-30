@@ -2,7 +2,7 @@
   "PointSampler" :
   {
     "Category" : "Texturing/Samplers",
-    "Color" : "40, 15, 140",
+    "Color" : "0, 96, 96",
 
     "CodePixelSamplers" : "
 SamplerState PointSampler;
@@ -12,8 +12,8 @@ SamplerState PointSampler;
     [
       {
         "Name" : "Sampler",
-        "Type" : "string",
-        "Color" : "255, 255, 255",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
         "Inline" : "PointSampler"
       }
     ],
@@ -22,7 +22,7 @@ SamplerState PointSampler;
   "LinearSampler" :
   {
     "Category" : "Texturing/Samplers",
-    "Color" : "40, 15, 140",
+    "Color" : "0, 96, 96",
 
     "CodePixelSamplers" : "
 SamplerState LinearSampler;
@@ -32,8 +32,8 @@ SamplerState LinearSampler;
     [
       {
         "Name" : "Sampler",
-        "Type" : "string",
-        "Color" : "255, 255, 255",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
         "Inline" : "LinearSampler"
       }
     ],
@@ -42,7 +42,7 @@ SamplerState LinearSampler;
   "PointClampSampler" :
   {
     "Category" : "Texturing/Samplers",
-    "Color" : "40, 15, 140",
+    "Color" : "0, 96, 96",
 
     "CodePixelSamplers" : "
 SamplerState PointClampSampler;
@@ -52,8 +52,8 @@ SamplerState PointClampSampler;
     [
       {
         "Name" : "Sampler",
-        "Type" : "string",
-        "Color" : "255, 255, 255",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
         "Inline" : "PointClampSampler"
       }
     ],
@@ -62,7 +62,7 @@ SamplerState PointClampSampler;
   "LinearClampSampler" :
   {
     "Category" : "Texturing/Samplers",
-    "Color" : "40, 15, 140",
+    "Color" : "0, 96, 96",
 
     "CodePixelSamplers" : "
 SamplerState LinearClampSampler;
@@ -72,8 +72,8 @@ SamplerState LinearClampSampler;
     [
       {
         "Name" : "Sampler",
-        "Type" : "string",
-        "Color" : "255, 255, 255",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
         "Inline" : "LinearClampSampler"
       }
     ]

@@ -11,15 +11,15 @@
 #include <VisualShader/VsCodeGenerator.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
-EZ_ENUM_CONSTANTS(ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
+EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Base Material", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_ENUM_ACCESSOR_PROPERTY("Shader Mode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
+    EZ_ACCESSOR_PROPERTY("Base Material", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
@@ -37,10 +37,13 @@ void ezMaterialAssetProperties::SetBaseMaterial(const char* szBaseMaterial)
 {
   if (m_sBaseMaterial == szBaseMaterial)
     return;
+
   m_sBaseMaterial = szBaseMaterial;
+
   // If no doc is present, we are de-serializing the document so do nothing yet.
   if (!m_pDocument)
     return;
+
   m_pDocument->SetBaseMaterial(m_sBaseMaterial);
 
 }
@@ -52,8 +55,11 @@ const char* ezMaterialAssetProperties::GetBaseMaterial() const
 
 void ezMaterialAssetProperties::SetShader(const char* szShader)
 {
-  m_sShader = szShader;
-  UpdateShader();
+  if (m_sShader != szShader)
+  {
+    m_sShader = szShader;
+    UpdateShader();
+  }
 }
 
 const char* ezMaterialAssetProperties::GetShader() const
@@ -76,7 +82,22 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
 {
   m_ShaderMode = mode;
 
-  // TODO: change shader to custom result
+  /// \todo Set proper shader:
+
+  switch (m_ShaderMode)
+  {
+  case ezMaterialShaderMode::BaseMaterial:
+    /// \todo Reset to 'default' (ie from base)
+    break;
+
+  case ezMaterialShaderMode::Custom:
+    /// \todo Make sure this is correct
+    if (m_pDocument) // if m_pDocument == nullptr, we are deserializing
+    {
+      m_sShader = GetFinalShader();
+    }
+    break;
+  }
 
   UpdateShader();
 }
@@ -97,6 +118,7 @@ void ezMaterialAssetProperties::UpdateShader(bool bForce)
   // If no doc is present, we are de-serializing the document so do nothing yet.
   if (!m_pDocument)
     return;
+
   ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
   // Do not make new commands if we got here in a response to an undo / redo action.
   if (pHistory->IsInUndoRedo())
@@ -265,22 +287,39 @@ void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStat
 
     auto& props = *e.m_pPropertyStates;
 
-    if (shaderMode == ezMaterialShaderMode::Custom)
-      props["Shader"].m_Visibility = ezPropertyUiState::Invisible;
-    else
-      props["Shader"].m_Visibility = ezPropertyUiState::Default;
+    //if (shaderMode == ezMaterialShaderMode::File)
+    //  props["Shader"].m_Visibility = ezPropertyUiState::Default;
+    //else
+    //  props["Shader"].m_Visibility = ezPropertyUiState::Invisible;
+
+    //if (shaderMode == ezMaterialShaderMode::BaseMaterial)
+    //  props["Base Material"].m_Visibility = ezPropertyUiState::Default;
+    //else
+    //  props["Base Material"].m_Visibility = ezPropertyUiState::Invisible;
   }
 }
 
 ezString ezMaterialAssetProperties::GetFinalShader() const
 {
+  /// \todo Get rid of this function
+
   if (m_ShaderMode == ezMaterialShaderMode::File)
     return m_sShader;
 
-  ezString sResult = GetAutoGenShaderPathAbs();
-  ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sResult);
+  if (m_ShaderMode == ezMaterialShaderMode::Custom)
+  {
+    ezString sResult = GetAutoGenShaderPathAbs();
+    ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sResult);
 
-  return sResult;
+    return sResult;
+  }
+
+  //if (m_ShaderMode == ezMaterialShaderMode::BaseMaterial)
+  //{
+  //  return m_sShader;
+  //}
+
+  return m_sShader;
 }
 
 //////////////////////////////////////////////////////////////////////////

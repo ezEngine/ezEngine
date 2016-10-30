@@ -20,6 +20,14 @@ private:
   const ezVisualShaderPinDescriptor* m_pDescriptor;
 };
 
+class ezVisualShaderConnection : public ezConnection
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderConnection, ezConnection);
+public:
+
+
+};
+
 class ezVisualShaderNodeManager : public ezDocumentNodeManager
 {
 public:
@@ -31,4 +39,6 @@ public:
   virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const override;
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
 
+private:
+  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) { return EZ_DEFAULT_NEW(ezVisualShaderConnection); }
 };

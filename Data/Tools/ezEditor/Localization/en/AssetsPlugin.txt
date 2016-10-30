@@ -66,6 +66,7 @@ Top (+Y);Top (+Y)
 Bottom (-Y);Bottom (-Y)
 Front (+Z);Front (+Z)
 Back (-Z);Back (-Z)
-ezMaterialShaderMode::File;Shader File
-ezMaterialShaderMode::Custom;Custom Shader
+ezMaterialShaderMode::File;From File
+ezMaterialShaderMode::Custom;Visual Shader
+ezMaterialShaderMode::BaseMaterial;From Base Material
 Project.SceneImport;Import Scene

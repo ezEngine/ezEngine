@@ -6,7 +6,7 @@
 ezQtConnection::ezQtConnection(QGraphicsItem* parent) : QGraphicsPathItem(parent)
 {
   auto palette = QApplication::palette();
-  
+
   QPen pen(palette.highlightedText().color(), 3, Qt::SolidLine);
   setPen(pen);
   setBrush(Qt::NoBrush);
@@ -45,9 +45,19 @@ void ezQtConnection::SetDirOut(const QPointF& dir)
   UpdateConnection();
 }
 
+QPen ezQtConnection::DeterminePen() const
+{
+  auto palette = QApplication::palette();
+  QPen pen(palette.highlightedText().color(), 3, Qt::SolidLine);
+
+  return pen;
+}
+
 void ezQtConnection::UpdateConnection()
 {
   prepareGeometryChange();
+
+  setPen(DeterminePen());
 
   QPainterPath p;
 

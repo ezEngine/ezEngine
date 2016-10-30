@@ -2,7 +2,7 @@
   "BaseTexture" :
   {
     "Category" : "Texturing",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 89, 153",
     "CodeMaterialParams" : "
 Texture2D BaseTexture @Default(\"$prop0\");
 ",
@@ -25,6 +25,7 @@ SamplerState BaseTexture_AutoSampler;
     [
       {
         "Name" : "UV",
+        "Color" : "50, 50, 128",
         "Type" : "float2",
         "Fallback" : "Input.TexCoords",
         "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
@@ -36,35 +37,35 @@ SamplerState BaseTexture_AutoSampler;
       {
         "Name" : "RGBA",
         "Type" : "float4",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0))"
       },
 
       {
         "Name" : "Red",
         "Type" : "float",
-        "Color" : "255, 0, 0",
+        "Color" : "128, 0, 0",
         "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).x"
       },
 
       {
         "Name" : "Green",
         "Type" : "float",
-        "Color" : "0, 255, 0",
+        "Color" : "0, 128, 0",
         "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).y"
       },
 
       {
         "Name" : "Blue",
         "Type" : "float",
-        "Color" : "0, 0, 255",
+        "Color" : "0, 0, 128",
         "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).z"
       },
 
       {
         "Name" : "Alpha",
         "Type" : "float",
-        "Color" : "230, 230, 153",
+        "Color" : "175, 175, 117",
         "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).w"
       }
     ],
@@ -74,7 +75,7 @@ SamplerState BaseTexture_AutoSampler;
   "NormalTexture" :
   {
     "Category" : "Texturing",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 89, 153",
     "CodeMaterialParams" : "
 Texture2D NormalTexture @Default(\"$prop0\");
 ",
@@ -119,7 +120,7 @@ SamplerState NormalTexture_AutoSampler;
   "EmissiveTexture" :
   {
     "Category" : "Texturing",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 89, 153",
     "CodeMaterialParams" : "
 Texture2D EmissiveTexture @Default(\"$prop0\");
 ",
@@ -154,28 +155,28 @@ SamplerState EmissiveTexture_AutoSampler;
       {
         "Name" : "RGBA",
         "Type" : "float4",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0))"
       },
 
       {
         "Name" : "Red",
         "Type" : "float",
-        "Color" : "255, 0, 0",
+        "Color" : "128, 0, 0",
         "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).x"
       },
 
       {
         "Name" : "Green",
         "Type" : "float",
-        "Color" : "0, 255, 0",
+        "Color" : "0, 128, 0",
         "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).y"
       },
 
       {
         "Name" : "Blue",
         "Type" : "float",
-        "Color" : "0, 0, 255",
+        "Color" : "0, 0, 128",
         "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).z"
       }
     ],
@@ -184,7 +185,7 @@ SamplerState EmissiveTexture_AutoSampler;
   "MetallicTexture" :
   {
     "Category" : "Texturing",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 89, 153",
     "CodeMaterialParams" : "
 Texture2D MetallicTexture @Default(\"$prop0\");
 ",
@@ -229,7 +230,7 @@ SamplerState MetallicTexture_AutoSampler;
   "RoughnessTexture" :
   {
     "Category" : "Texturing",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 89, 153",
     "CodeMaterialParams" : "
 Texture2D RoughnessTexture @Default(\"$prop0\");
 ",
@@ -276,7 +277,7 @@ SamplerState RoughnessTexture_AutoSampler;
   "Texture2D" :
   {
     "Category" : "Texturing",
-    "Color" : "140, 13, 38",
+    "Color" : "0, 89, 153",
     "CodeMaterialParams" : "
 Texture2D $prop0 @Default(\"$prop1\");
 ",
@@ -313,8 +314,8 @@ SamplerState $prop0_AutoSampler;
 
       {
         "Name" : "Sampler",
-        "Type" : "string",
-        "Color" : "40, 15, 140",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
         "Fallback" : "$prop0_AutoSampler",
         "Tooltip" : "Optional sampler state to use."
       }
@@ -325,35 +326,35 @@ SamplerState $prop0_AutoSampler;
       {
         "Name" : "RGBA",
         "Type" : "float4",
-        "Color" : "255, 255, 255",
+        "Color" : "200, 200, 200",
         "Inline" : "$prop0.Sample($in1, ToFloat2($in0))"
       },
 
       {
         "Name" : "Red",
         "Type" : "float",
-        "Color" : "255, 0, 0",
+        "Color" : "128, 0, 0",
         "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).x"
       },
 
       {
         "Name" : "Green",
         "Type" : "float",
-        "Color" : "0, 255, 0",
+        "Color" : "0, 128, 0",
         "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).y"
       },
 
       {
         "Name" : "Blue",
         "Type" : "float",
-        "Color" : "0, 0, 255",
+        "Color" : "0, 0, 128",
         "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).z"
       },
 
       {
         "Name" : "Alpha",
         "Type" : "float",
-        "Color" : "230, 230, 153",
+        "Color" : "175, 175, 117",
         "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).w"
       }
     ]
