@@ -78,7 +78,7 @@ void ezDequeBase<T, Construct>::operator= (const ezDequeBase<T, Construct>& rhs)
 
   // copy construct all the elements
   for (ezUInt32 i = 0; i < rhs.m_uiCount; ++i)
-    ezMemoryUtils::CopyConstruct(&ElementAt(i), &rhs[i], 1);
+    ezMemoryUtils::CopyConstruct(&ElementAt(i), rhs[i], 1);
 }
 
 template <typename T, bool Construct>
@@ -142,7 +142,7 @@ void ezDequeBase<T, Construct>::Clear()
   m_uiCount = 0;
 
   // since it is much more likely that data is appended at the back of the deque,
-  // we do not use the center of the chunk index array, but instead set the first element 
+  // we do not use the center of the chunk index array, but instead set the first element
   // somewhere more at the front
 
   // set the first element to a position that allows to add elements at the front
@@ -481,7 +481,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront(const T& element)
   ++m_uiCount;
   --m_uiFirstElement;
 
-  ezMemoryUtils::CopyConstruct(&ElementAt(0), &element, 1);
+  ezMemoryUtils::CopyConstruct(&ElementAt(0), element, 1);
 }
 
 template <typename T, bool Construct>
@@ -816,7 +816,7 @@ void ezDequeBase<T, Construct>::RemoveAt(ezUInt32 uiIndex)
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   for (ezUInt32 i = uiIndex + 1; i < m_uiCount; ++i)
-    ezMemoryUtils::CopyOverlapped(&operator[](i - 1), &operator[](i), 1); 
+    ezMemoryUtils::CopyOverlapped(&operator[](i - 1), &operator[](i), 1);
 
   PopBack();
 }

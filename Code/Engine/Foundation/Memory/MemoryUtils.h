@@ -38,12 +38,12 @@ public:
   static ConstructorFunction MakeDefaultConstructorFunction(); // [tested]
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
-  template <typename T>
-  static void CopyConstruct(T* pDestination, const T& copy, size_t uiCount); // [tested]
+  template <typename Destination, typename Source>
+  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount); // [tested]
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using copy construction.
   template <typename T>
-  static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount); // [tested]
+  static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount); // [tested]
 
   /// \brief Returns a function pointer to copy construct an instance of T.
   template <typename T>
@@ -57,31 +57,9 @@ public:
   template <typename T>
   static void MoveConstruct(T* pDestination, T* pSource, size_t uiCount);
 
-  // MSVC 2012<= can't handle this use of SFINAE. In this case we're just always using move construction.
-  // All other supported compilers work fine.
-#if !defined(_MSC_VER) || _MSC_VER > 1700
-
   /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was called with a rvalue reference or a const reference to \a source.
-  template <typename T>
-  static void CopyOrMoveConstruct(T* pDestination, const T& source);
-
-  /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was called with a rvalue reference or a const reference to \a source.
-  template <typename T>
-  static auto CopyOrMoveConstruct(T* pDestination, T&& source) -> typename std::enable_if<std::is_rvalue_reference<decltype(source)>::value>::type
-  { // GCC can't forward declare this function.
-    // This static_assert should never be hit. Just makes sure the implementation is working as expected.
-    static_assert(std::is_rvalue_reference<decltype(source)>::value, "Implementation error - compiler should have called CopyOrMoveConstruct version that takes a reference.");
-    MoveConstruct(pDestination, std::forward<T>(source));
-  }
-#else
-
-  // In the MSVC2012 we're falling back to forwarding which should be almost the same except in a few border cases.
-  template <typename T>
-  static void CopyOrMoveConstruct(T* pDestination, T&& source);
-  template <typename T>
-  static void CopyOrMoveConstruct(T* pDestination, const T& source);
-
-#endif
+  template <typename Destination, typename Source>
+  static void CopyOrMoveConstruct(Destination* pDestination, Source&& source);
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using move construction if availble, otherwise by copy construction.
   /// Calls destructor of source elements in any case (if it is a non primitive or memrelocatable type).
@@ -187,15 +165,24 @@ private:
   template <typename T>
   static ConstructorFunction MakeConstructorFunction(ezTypeIsClass);
 
-  template <typename T>
-  static void CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass);
+  template <typename Destination, typename Source>
+  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod);
+  template <typename Destination, typename Source>
+  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
-  static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
+  static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
   template <typename T>
-  static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
+  static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
+
+
+  typedef std::false_type NotRValueReference;  
+  typedef std::true_type IsRValueReference;
+
+  template <typename Destination, typename Source>
+  static void CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference);
+  template <typename Destination, typename Source>
+  static void CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference);
 
   template <typename T>
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod);

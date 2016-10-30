@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     copy[0].m_iData = 43;
     copy[1].m_iData = 44;
 
-    ezMemoryUtils::CopyConstruct<ezConstructTest>(pTest + 1, copy, 2);
+    ezMemoryUtils::CopyConstructArray<ezConstructTest>(pTest + 1, copy, 2);
 
     EZ_TEST_INT(pTest[0].m_iData, 0);
     EZ_TEST_INT(pTest[1].m_iData, 43);
@@ -212,7 +212,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
   {
     ezUInt8 uiRawData[5]  = { 1, 2, 3, 4, 5 };
     ezUInt8 uiRawData2[5] = { 6, 7, 8, 9, 0 };
-    
+
     EZ_TEST_INT(uiRawData[0], 1);
     EZ_TEST_INT(uiRawData[1], 2);
     EZ_TEST_INT(uiRawData[2], 3);
@@ -231,7 +231,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
   {
     ezUInt8 uiRawData[5]  = { 1, 2, 3, 4, 5 };
-    
+
     EZ_TEST_INT(uiRawData[0], 1);
     EZ_TEST_INT(uiRawData[1], 2);
     EZ_TEST_INT(uiRawData[2], 3);
@@ -269,7 +269,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroFill")
   {
     ezUInt8 uiRawData[5] = { 1, 2, 3, 4, 5 };
-    
+
     EZ_TEST_INT(uiRawData[0], 1);
     EZ_TEST_INT(uiRawData[1], 2);
     EZ_TEST_INT(uiRawData[2], 3);
@@ -289,7 +289,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
   {
     ezUInt32 uiRawDataA[3] = { 1, 2, 3 };
     ezUInt32 uiRawDataB[3] = { 3, 4, 5 };
-    
+
     EZ_TEST_INT(uiRawDataA[0], 1);
     EZ_TEST_INT(uiRawDataA[1], 2);
     EZ_TEST_INT(uiRawDataA[2], 3);

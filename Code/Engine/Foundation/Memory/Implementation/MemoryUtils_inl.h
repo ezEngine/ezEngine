@@ -41,17 +41,17 @@ EZ_FORCE_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeDefaultCon
   return &Helper::DefaultConstruct;
 }
 
-template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T& copy, size_t uiCount)
+template <typename Destination, typename Source>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount)
 {
-  CopyConstruct(pDestination, copy, uiCount, ezIsPodType<T>());
+  CopyConstruct<Destination, Source>(pDestination, copy, uiCount, ezIsPodType<Destination>());
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSource, size_t uiCount)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount)
 {
   EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
-  CopyConstruct(pDestination, pSource, uiCount, ezIsPodType<T>());
+  CopyConstructArray<T>(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 
 template <typename T>
@@ -90,31 +90,12 @@ EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, s
   }
 }
 
-#if !defined(_MSC_VER) || _MSC_VER > 1700
-
-template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T& source)
+template <typename Destination, typename Source>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source)
 {
-  // This static_assert should never be hit. Just makes sure the implementation is working as expected.
-  static_assert(std::is_rvalue_reference<decltype(source)>::value == false, "Implementation error - compiler should have called CopyOrMoveConstruct version that takes a rvalue reference.");
-  CopyConstruct(pDestination, &source, 1);
+  typedef typename std::is_rvalue_reference<decltype(source)>::type IsRValueRef;
+  CopyOrMoveConstruct<Destination, Source>(pDestination, std::forward<Source>(source), IsRValueRef());
 }
-
-#else
-
-// In the MSVC2012 we're falling back to forwarding which should be almost the same except in a few border cases.
-template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, T&& source)
-{
-  ::new(pDestination) T(std::forward<T>(source));
-}
-template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(T* pDestination, const T& source)
-{
-  CopyConstruct(pDestination, &source, 1);
-}
-
-#endif
 
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
@@ -269,34 +250,40 @@ EZ_FORCE_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructo
   return &Helper::Construct;
 }
 
-template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod)
+template <typename Destination, typename Source>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod)
 {
+  static_assert(std::is_same<Destination, Source>::value ||
+                (std::is_base_of<Destination, Source>::value == false &&
+                 std::is_base_of<Source, Destination>::value == false),
+    "Can't copy POD types that are derived from each other. Are you certain any of these types should be POD?");
+
+  const Destination& copyConverted = copy;
   for (size_t i = 0; i < uiCount; i++)
   {
-    pDestination[i] = copy;
+    memcpy(pDestination + i, &copyConverted, sizeof(Destination));
+  }
+}
+
+template <typename Destination, typename Source>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(Destination);
+
+  for (size_t i = 0; i < uiCount; i++)
+  {
+    ::new (pDestination + i) Destination(copy); // Note that until now copy has not been converted to Destination. This allows for calling specialized constructors if available.
   }
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass)
-{
-  EZ_CHECK_CLASS(T);
-
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    ::new (pDestination + i) T(copy);
-  }
-}
-
-template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
 {
   memcpy(pDestination, pSource, uiCount * sizeof(T));
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -304,6 +291,19 @@ EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSou
   {
     ::new (pDestination + i) T(pSource[i]);
   }
+}
+
+template <typename Destination, typename Source>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference)
+{
+  CopyConstruct<Destination, Source>(pDestination, source, 1);
+}
+
+template <typename Destination, typename Source>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference)
+{
+  static_assert(std::is_rvalue_reference<decltype(source)>::value, "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
+  ::new(pDestination) Destination(std::move(source));
 }
 
 template <typename T>

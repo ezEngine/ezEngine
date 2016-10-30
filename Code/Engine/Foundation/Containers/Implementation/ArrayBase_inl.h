@@ -26,7 +26,7 @@ void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<const T>& rhs)
   {
     static_cast<Derived*>(this)->Reserve(uiNewCount);
     ezMemoryUtils::Copy(m_pElements, rhs.GetPtr(), uiOldCount);
-    ezMemoryUtils::CopyConstruct(m_pElements + uiOldCount, rhs.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
+    ezMemoryUtils::CopyConstructArray(m_pElements + uiOldCount, rhs.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
   }
   else
   {
@@ -287,7 +287,7 @@ void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
   const ezUInt32 uiRangeCount = range.GetCount();
   static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
 
-  ezMemoryUtils::CopyConstruct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
+  ezMemoryUtils::CopyConstructArray(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
   m_uiCount += uiRangeCount;
 }
 
