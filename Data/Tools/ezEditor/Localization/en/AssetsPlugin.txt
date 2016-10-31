@@ -70,3 +70,4 @@ ezMaterialShaderMode::File;From File
 ezMaterialShaderMode::Custom;Visual Shader
 ezMaterialShaderMode::BaseMaterial;From Base Material
 Project.SceneImport;Import Scene
+VisualShader.CleanGraph;Clean Visual Shader Graph

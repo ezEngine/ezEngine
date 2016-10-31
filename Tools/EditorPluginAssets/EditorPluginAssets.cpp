@@ -20,6 +20,7 @@
 
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <GuiFoundation/Action/ActionManager.h>
+#include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -71,6 +72,9 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("MaterialAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("MaterialAssetToolBar", "");
       ezAssetActions::MapActions("MaterialAssetToolBar", true);
+
+      ezVisualShaderActions::RegisterActions();
+      ezVisualShaderActions::MapActions("MaterialAssetToolBar");
     }
 
     // View Tool Bar

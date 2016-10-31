@@ -9,6 +9,7 @@
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <VisualShader/VsCodeGenerator.h>
+#include <ToolsFoundation/Command/NodeCommands.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
@@ -738,5 +739,84 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
   }
   else
     return ezStatus("Failed to write auto-generated shader to '%s'", sAutoGenShader.GetData());
+}
+
+static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)
+{
+  if (AllNodes[pRoot])
+    return;
+
+  AllNodes[pRoot] = true;
+
+  auto allInputs = pNodeManager->GetInputPins(pRoot);
+
+  // we start at the final output, so use the inputs on a node and then walk backwards
+  for (ezPin* pTargetPin : allInputs)
+  {
+    const ezArrayPtr<const ezConnection* const> connections = pTargetPin->GetConnections();
+
+    // all incoming connections at the input pin, there should only be one though
+    for (const ezConnection* const pConnection : connections)
+    {
+      // output pin on other node connecting to this node
+      const ezPin* pSourcePin = pConnection->GetSourcePin();
+
+      // recurse from here
+      MarkReachableNodes(AllNodes, pSourcePin->GetParent(), pNodeManager);
+    }
+  }
+}
+
+void ezMaterialAssetDocument::RemoveDisconnectedNodes()
+{
+  ezDocumentNodeManager* pNodeManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+
+  const ezDocumentObject* pRoot = pNodeManager->GetRootObject();
+  const ezRTTI* pNodeBaseRtti = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+
+  const ezHybridArray<ezDocumentObject*, 8>& children = pRoot->GetChildren();
+  ezMap<const ezDocumentObject*, bool> AllNodes;
+
+  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  {
+    if (children[i]->GetType()->IsDerivedFrom(pNodeBaseRtti))
+    {
+      AllNodes[children[i]] = false;
+    }
+  }
+
+  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+  {
+    // skip nodes that have already been marked
+    if (it.Value())
+      continue;
+
+    auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(it.Key()->GetType());
+
+    if (pDesc->m_NodeType == ezVisualShaderNodeType::Main)
+    {
+      MarkReachableNodes(AllNodes, it.Key(), pNodeManager);
+    }
+  }
+
+  // now purge all nodes that haven't been reached
+  {
+    auto pHistory = GetCommandHistory();
+    pHistory->StartTransaction("Purge unreachable nodes");
+
+    for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+    {
+      // skip nodes that have been marked
+      if (it.Value())
+        continue;
+
+      ezRemoveNodeCommand rem;
+      rem.m_Object = it.Key()->GetGuid();
+
+      pHistory->AddCommand(rem);
+    }
+
+    pHistory->FinishTransaction();
+  }
 }
 
