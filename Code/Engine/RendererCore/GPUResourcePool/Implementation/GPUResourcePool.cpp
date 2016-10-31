@@ -86,16 +86,16 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   return hNewTexture;
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat)
+ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat, ezGALMSAASampleCount::Enum sampleCount)
 {
   ezGALTextureCreationDescription TextureDesc;
-  TextureDesc.m_bAllowDynamicMipGeneration = true;
   TextureDesc.m_bCreateRenderTarget = true;
   TextureDesc.m_bAllowShaderResourceView = true;
   TextureDesc.m_Format = eFormat;
   TextureDesc.m_Type = ezGALTextureType::Texture2D;
   TextureDesc.m_uiWidth = uiWidth;
   TextureDesc.m_uiHeight = uiHeight;
+  TextureDesc.m_SampleCount = sampleCount;
 
   return GetRenderTarget(TextureDesc);
 }

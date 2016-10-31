@@ -17,10 +17,16 @@ float3 GetNormal(PS_IN Input);
 	float3 GetSpecularColor(PS_IN Input);
 #endif
 
-float3 GetEmissiveColor(PS_IN Input);
+#if defined(USE_MATERIAL_EMISSIVE)
+  float3 GetEmissiveColor(PS_IN Input);
+#endif
+
 float GetRoughness(PS_IN Input);
 float GetOpacity(PS_IN Input);
-float GetOcclusion(PS_IN Input);
+
+#if defined(USE_MATERIAL_OCCLUSION)
+  float GetOcclusion(PS_IN Input);
+#endif
 
 ezPerInstanceData GetInstanceData(PS_IN Input)
 {
@@ -60,7 +66,7 @@ ezMaterialData FillMaterialData(PS_IN Input)
 	#else
 		matData.worldPosition = float3(0.0, 0.0, 0.0);
 	#endif
-
+  
   matData.normalizedViewVector = normalize(CameraPosition - matData.worldPosition);
 
 	float3 worldNormal = normalize(GetNormal(Input));
@@ -83,16 +89,25 @@ ezMaterialData FillMaterialData(PS_IN Input)
 		matData.diffuseColor = GetDiffuseColor(Input);
 		matData.specularColor = GetSpecularColor(Input);
 	#endif
-
-  matData.emissiveColor = GetEmissiveColor(Input);
-  matData.roughness = max(GetRoughness(Input), 0.04f);
-
-  #if defined(USE_NORMAL)
-    float occlusionFade = saturate(dot(Input.Normal, matData.normalizedViewVector));
+  
+  #if defined(USE_MATERIAL_EMISSIVE)
+    matData.emissiveColor = GetEmissiveColor(Input);  
   #else
-    float occlusionFade = 1.0f;
+    matData.emissiveColor = 0.0f;
   #endif
-  matData.occlusion = lerp(1.0f, GetOcclusion(Input), occlusionFade);
+  
+  matData.roughness = max(GetRoughness(Input), 0.04f);
+  
+  #if defined(USE_MATERIAL_OCCLUSION)
+    #if defined(USE_NORMAL)
+      float occlusionFade = saturate(dot(Input.Normal, matData.normalizedViewVector));
+    #else
+      float occlusionFade = 1.0f;
+    #endif
+    matData.occlusion = lerp(1.0f, GetOcclusion(Input), occlusionFade);
+  #else
+    matData.occlusion = 1.0f;
+  #endif
 
 	return matData;
 }

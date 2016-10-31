@@ -21,8 +21,8 @@ CullMode = CullMode_None
 
 struct PS_IN
 {
-	float4 Position : SV_Position;
-	float2 TexCoord0 : TEXCOORD0;
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)
@@ -30,84 +30,85 @@ struct PS_IN
 // From http://filmicgames.com/archives/75
 float3 FilmicTonemap(float3 x)
 {
-	float A = 0.15;
-	float B = 0.50;
-	float C = 0.10;
-	float D = 0.20;
-	float E = 0.02;
-	float F = 0.30;
-	float W = 11.2;
+  float A = 0.15;
+  float B = 0.50;
+  float C = 0.10;
+  float D = 0.20;
+  float E = 0.02;
+  float F = 0.30;
+  float W = 11.2;
 
-	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+  return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
 float3 AdjustContrast(float3 x)
 {
-	float3 x2 = x*x;
-	float3 x3 = x2*x;
+  float3 x2 = x*x;
+  float3 x3 = x2*x;
 
-	float a = ContrastParams.x;
-	float b = ContrastParams.y;
-	float c = ContrastParams.z;
+  float a = ContrastParams.x;
+  float b = ContrastParams.y;
+  float c = ContrastParams.z;
 
-	return a*x3 + b*x2 + c*x;
+  return a*x3 + b*x2 + c*x;
 }
 
 Texture2D VignettingTexture;
 Texture2D NoiseTexture;
 
-SamplerState LinearSampler;
+SamplerState LinearClampSampler;
 SamplerState PointSampler;
 
 Texture2D SceneColorTexture;
+Texture2D BloomTexture;
 
 float3 ScreenSpaceDither( float2 texCoords )
 {
-	float t = frac( GlobalTime );
-	texCoords = (texCoords + t) * (Viewport.zw / 256.0);
+  float t = frac( GlobalTime );
+  texCoords = (texCoords + t) * (Viewport.zw / 256.0);
 
-	// map to -0.5..1.5 bit range for an 8bit output target
-	return NoiseTexture.SampleLevel(PointSampler, texCoords, 0.0).rgb * (2.0 / 255.0) - (0.5 / 255.0);
+  // map to -0.5..1.5 bit range for an 8bit output target
+  return NoiseTexture.SampleLevel(PointSampler, texCoords, 0.0).rgb * (2.0 / 255.0) - (0.5 / 255.0);
 }
 
 float4 main(PS_IN Input) : SV_Target
 {
-	float4 sceneColor = SceneColorTexture.Load(int3(Input.Position.xy, 0));
+  float4 sceneColor = SceneColorTexture.Load(int3(Input.Position.xy, 0));
+  sceneColor.rgb *= Exposure;
+  
+  float3 bloom = BloomTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb;
+  sceneColor.rgb += bloom;
 
-	// Bloom
-	// TODO
+  // Vignetting
+  float3 vignetting = VignettingTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb;
+  sceneColor.rgb *= vignetting;
 
-	// Vignetting
-	float3 vignetting = VignettingTexture.SampleLevel(LinearSampler, Input.TexCoord0.xy, 0.0).rgb;
-	sceneColor.rgb *= vignetting;
+  // Tonemapping	
+  float3 color = FilmicTonemap(sceneColor.rgb);
 
-	// Tonemapping
-	sceneColor.rgb *= Exposure;
-	float3 color = FilmicTonemap(sceneColor.rgb);
+  float3 whiteScale = 1.0 / FilmicTonemap(11.2);
+  color = saturate(color * whiteScale);
 
-	float3 whiteScale = 1.0 / FilmicTonemap(11.2);
-	color = saturate(color * whiteScale);
+  // Color correction
+  float luminance = GetLuminance(color);
 
-	// Color correction
-	float luminance = GetLuminance(color);
+  float3 moodColor = lerp(0.0, MoodColor.rgb, saturate(luminance * 2.0));
+  moodColor = lerp(moodColor, 1.0, saturate(luminance - 0.5) * 2.0);
+  color = lerp(color, moodColor, saturate( luminance * MoodStrength ));
 
-	float3 moodColor = lerp(0.0, MoodColor.rgb, saturate(luminance * 2.0));
-	moodColor = lerp(moodColor, 1.0, saturate(luminance - 0.5) * 2.0);
-	color = lerp(color, moodColor, saturate( luminance * MoodStrength ));
+  color = saturate(lerp(luminance.xxx, color, Saturation));
+  color = AdjustContrast(color);
 
-	color = saturate(lerp(luminance.xxx, color, Saturation));
-	color = AdjustContrast(color);
+  // Cheap approx convert to sRGB before dither
+  color = sqrt(color);
 
-	// Cheap approx convert to sRGB before dither
-	color = sqrt(color);
+  // Dither
+  color += ScreenSpaceDither(Input.TexCoord0.xy);
 
-	// Dither
-	color += ScreenSpaceDither(Input.TexCoord0.xy);
+  // Convert back to linear
+  color *= color;
 
-	// Convert back to linear
-	color *= color;
-
-	return float4(color, sceneColor.a);
+  return float4(color, sceneColor.a);
 }
 
 #endif

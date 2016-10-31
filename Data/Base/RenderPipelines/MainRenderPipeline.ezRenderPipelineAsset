@@ -13,7 +13,7 @@
    "t" : "ConnectionInternal",
    "p" : {
     "SourcePin" : "Color",
-    "Target" : { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" },
+    "Target" : { "$t" : "uuid", "$b" : "0x02D5A29AF67A8B4CA7B2D09A7E9C3F0F" },
     "TargetPin" : "Input"
    }
   },
@@ -57,8 +57,15 @@
    "t" : "ConnectionInternal",
    "p" : {
     "SourcePin" : "Output",
-    "Target" : { "$t" : "uuid", "$b" : "0x6A577D8175BB5E4EA558245D6BA0F9F6" },
+    "Target" : { "$t" : "uuid", "$b" : "0xC30524852782554392EA3EC60C925158" },
     "TargetPin" : "DepthStencil"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA5149555E9CC473C94540EBC02E84496" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
    }
   },
   {
@@ -113,17 +120,37 @@
    "t" : "ezTonemapPass",
    "p" : {
     "Active" : true,
+    "Bloom" : { "$t" : "uuid", "$b" : "0xA5149555E9CC473C94540EBC02E84496" },
+    "Color" : { "$t" : "uuid", "$b" : "0x389670C4FF1562431D8CCEAA0F0ADC8E" },
     "Contrast" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-    "Input" : { "$t" : "uuid", "$b" : "0x5EBCE3AED5EFB674BD40220EA4097765" },
     "MoodColor" : { "$t" : "color", "$v" : "(1.0000, 0.3763, 0.0000, 1.0000)", "$b" : "0x0000803F71A5C03E000000000000803F" },
     "MoodStrength" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Name" : "TonemapPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x33F16D3E8523F6615F222087503BC6AB" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-187.0000, -306.0000)", "$b" : "0x00003BC3000099C3" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-6.2832, -301.4055)", "$b" : "0x2A10C9C0E8B396C3" },
     "Output" : { "$t" : "uuid", "$b" : "0x667E5D48D10ADC3C627E98B16ADC5ABF" },
     "Renderers" : [  ],
     "Saturation" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "VignettingTexture" : "{ 3edf10b3-36d2-434f-9683-c653909abe7e }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC30524852782554392EA3EC60C925158" },
+   "t" : "ezDepthOnyPass",
+   "p" : {
+    "Active" : true,
+    "DepthStencil" : { "$t" : "uuid", "$b" : "0x1D35E6FF532A6A6D54314138F218FF70" },
+    "Name" : "DepthPrePass",
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0xDC27C8D58EA4FAE191EE53A055552607" } ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-676.6938, -187.2992)", "$b" : "0x672C29C4974C3BC3" },
+    "Renderers" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x389670C4FF1562431D8CCEAA0F0ADC8E" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
    }
   },
   {
@@ -150,7 +177,7 @@
     "Message" : "",
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x9ED631EE90DDDAECFC96E7CB90E691D8" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(9.0000, -273.0000)", "$b" : "0x00001041008088C3" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(198.9058, -228.5865)", "$b" : "0xE0E74643289664C3" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x4651B0110A4A5949A6B9476F10776C66" }, { "$t" : "uuid", "$b" : "0x66259E24D0F3C0419D3197A25AF6933E" }, { "$t" : "uuid", "$b" : "0x0AF22333D9108B48A007A1E193A8A384" } ]
    }
   },
@@ -183,7 +210,24 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x665790226845764AA23E8C8C7D95DFCE" }, { "$t" : "uuid", "$b" : "0xAF8E37781D04C347951BFE82BC017608" }, { "$t" : "uuid", "$b" : "0x8E65B5290411E14E8B3C585954A9C051" }, { "$t" : "uuid", "$b" : "0x6A577D8175BB5E4EA558245D6BA0F9F6" }, { "$t" : "uuid", "$b" : "0x68C7992341C84A40BDEDC3B6E73D0081" }, { "$t" : "uuid", "$b" : "0xF2252852B0632D4E82C7E9EC0E11CF9A" }, { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" }, { "$t" : "uuid", "$b" : "0xB7733D12A7484A428D3DB55A60AE29D4" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x665790226845764AA23E8C8C7D95DFCE" }, { "$t" : "uuid", "$b" : "0xAF8E37781D04C347951BFE82BC017608" }, { "$t" : "uuid", "$b" : "0x8E65B5290411E14E8B3C585954A9C051" }, { "$t" : "uuid", "$b" : "0x6A577D8175BB5E4EA558245D6BA0F9F6" }, { "$t" : "uuid", "$b" : "0x68C7992341C84A40BDEDC3B6E73D0081" }, { "$t" : "uuid", "$b" : "0xF2252852B0632D4E82C7E9EC0E11CF9A" }, { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" }, { "$t" : "uuid", "$b" : "0xB7733D12A7484A428D3DB55A60AE29D4" }, { "$t" : "uuid", "$b" : "0xC30524852782554392EA3EC60C925158" }, { "$t" : "uuid", "$b" : "0x02D5A29AF67A8B4CA7B2D09A7E9C3F0F" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x02D5A29AF67A8B4CA7B2D09A7E9C3F0F" },
+   "t" : "ezBloomPass",
+   "p" : {
+    "Active" : true,
+    "Input" : { "$t" : "uuid", "$b" : "0x6645E40B5EF6315DAE930301B602C67A" },
+    "Intensity" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
+    "Name" : "",
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x4DC2CE6D465B1779F719E3CCC9415D4B" } ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-185.3113, -295.5791)", "$b" : "0xAF4F39C321CA93C3" },
+    "NumBlurPasses" : { "$t" : "uint32", "$v" : "5", "$b" : "0x05000000" },
+    "Output" : { "$t" : "uuid", "$b" : "0x9F118152C0EB9FB3C0D2224BA30A83AB" },
+    "Radius" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Renderers" : [  ],
+    "Threshold" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
    }
   },
   {
@@ -197,7 +241,7 @@
     "MSAA Mode" : "ezGALMSAASampleCount::None",
     "Name" : "DepthStencil",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x6D7EE6C19B503C2CF856F831B9565144" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-652.0000, -183.0000)", "$b" : "0x000023C4000037C3" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-880.5856, -162.8603)", "$b" : "0x7A255CC43DDC22C3" },
     "Output" : { "$t" : "uuid", "$b" : "0x73E63F5ABFF68C5151281D6F3A69861D" },
     "Renderers" : [  ]
    }
@@ -210,7 +254,7 @@
     "Color" : { "$t" : "uuid", "$b" : "0x17DD3B405778FA0C2CFB27C3B31F5682" },
     "DepthStencil" : { "$t" : "uuid", "$b" : "0x7CDB2778528602AAA34E52ECE36A8315" },
     "Name" : "",
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x535868A4FE2CF2030E913EC779FBED55" }, { "$t" : "uuid", "$b" : "0x04D84AB3D1AFA5615D3DF0597666A8B2" } ],
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x535868A4FE2CF2030E913EC779FBED55" }, { "$t" : "uuid", "$b" : "0x04D84AB3D1AFA5615D3DF0597666A8B2" }, { "$t" : "uuid", "$b" : "0xE60FD9B30B46DAB0D80238B0765EFB82" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-429.0000, -265.0000)", "$b" : "0x0080D6C3008084C3" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x13A16C1297396D478DA087F27F5082AE" }, { "$t" : "uuid", "$b" : "0x929A7C4C3F97C646A5B28C46134A3003" } ]
    }
@@ -231,7 +275,7 @@
     "DepthStencil" : { "$t" : "uuid", "$b" : "0xD58A99ED474927C14F2891BB92ACB6F6" },
     "Name" : "",
     "Node::Connections" : [  ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(259.0000, -295.0000)", "$b" : "0x00808143008093C3" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(448.9058, -250.5865)", "$b" : "0xF073E04328967AC3" },
     "Renderers" : [  ]
    }
   },
@@ -243,7 +287,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x13E133C54C2A424FA546653C78F5E8A7" },
-    "Hash" : { "$t" : "uint64", "$v" : "3858862978139437439", "$b" : "0x7F39E8F86E6F8D35" },
+    "Hash" : { "$t" : "uint64", "$v" : "12066123863236112762", "$b" : "0x7A710D7CB97B73A7" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
@@ -262,12 +306,19 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x6645E40B5EF6315DAE930301B602C67A" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x04D84AB3D1AFA5615D3DF0597666A8B2" },
    "t" : "ConnectionInternal",
    "p" : {
-    "SourcePin" : "DepthStencil",
-    "Target" : { "$t" : "uuid", "$b" : "0xAF8E37781D04C347951BFE82BC017608" },
-    "TargetPin" : "DepthStencil"
+    "SourcePin" : "Color",
+    "Target" : { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" },
+    "TargetPin" : "Color"
    }
   },
   {
@@ -280,10 +331,19 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x5EBCE3AED5EFB674BD40220EA4097765" },
-   "t" : "ezInputNodePin",
+   "#" : { "$t" : "uuid", "$b" : "0x1D35E6FF532A6A6D54314138F218FF70" },
+   "t" : "ezPassThroughNodePin",
    "p" : {
     
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4DC2CE6D465B1779F719E3CCC9415D4B" },
+   "t" : "ConnectionInternal",
+   "p" : {
+    "SourcePin" : "Output",
+    "Target" : { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" },
+    "TargetPin" : "Bloom"
    }
   },
   {
@@ -308,6 +368,22 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xE60FD9B30B46DAB0D80238B0765EFB82" },
+   "t" : "ConnectionInternal",
+   "p" : {
+    "SourcePin" : "DepthStencil",
+    "Target" : { "$t" : "uuid", "$b" : "0xAF8E37781D04C347951BFE82BC017608" },
+    "TargetPin" : "DepthStencil"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9F118152C0EB9FB3C0D2224BA30A83AB" },
+   "t" : "ezOutputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xD58A99ED474927C14F2891BB92ACB6F6" },
    "t" : "ezInputNodePin",
    "p" : {
@@ -326,6 +402,15 @@
    "t" : "ezInputNodePin",
    "p" : {
     
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDC27C8D58EA4FAE191EE53A055552607" },
+   "t" : "ConnectionInternal",
+   "p" : {
+    "SourcePin" : "DepthStencil",
+    "Target" : { "$t" : "uuid", "$b" : "0x6A577D8175BB5E4EA558245D6BA0F9F6" },
+    "TargetPin" : "DepthStencil"
    }
   },
   {

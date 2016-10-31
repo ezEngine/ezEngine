@@ -5,8 +5,7 @@
 
 CONSTANT_BUFFER(ezTonemapConstants, 3)
 {
-  FLOAT1(Exposure);
-  FLOAT3(AutoExposureParams);
+  FLOAT4(AutoExposureParams);
 
   COLOR4F(MoodColor);
   FLOAT1(MoodStrength);

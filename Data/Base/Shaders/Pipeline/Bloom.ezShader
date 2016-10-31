@@ -1,0 +1,107 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLOOM_PASS_MODE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthTestFunc = CompareFunc_Less
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include "BloomConstants.h"
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+#if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
+  Texture2D NextColorTexture;
+#endif
+
+Texture2D ColorTexture;
+SamplerState LinearClampSampler;
+
+#if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
+  #define NUM_SAMPLES 9
+#else
+  #define NUM_SAMPLES 13
+#endif
+
+float4 main(PS_IN Input) : SV_Target
+{
+  #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
+    float3 offsetAndWeights[NUM_SAMPLES] = 
+    {
+      float3( 0.0f,  0.0f, 4.0f / 16.0f),
+      float3(-1.0f,  0.0f, 2.0f / 16.0f),
+      float3( 1.0f,  0.0f, 2.0f / 16.0f),
+      float3( 0.0f, -1.0f, 2.0f / 16.0f),
+      float3( 0.0f,  1.0f, 2.0f / 16.0f),
+      float3(-1.0f,  1.0f, 1.0f / 16.0f),
+      float3( 1.0f,  1.0f, 1.0f / 16.0f),
+      float3(-1.0f, -1.0f, 1.0f / 16.0f),
+      float3( 1.0f, -1.0f, 1.0f / 16.0f)
+    };
+
+    float3 color = NextColorTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb;
+
+  #else
+    float3 offsetAndWeights[NUM_SAMPLES] = 
+    {
+      float3( 0.0f,  0.0f, 4.0f / 32.0f),
+      float3(-0.5f,  0.5f, 4.0f / 32.0f),
+      float3( 0.5f,  0.5f, 4.0f / 32.0f),
+      float3(-0.5f, -0.5f, 4.0f / 32.0f),
+      float3( 0.5f, -0.5f, 4.0f / 32.0f),
+      float3(-1.0f,  0.0f, 2.0f / 32.0f),
+      float3( 1.0f,  0.0f, 2.0f / 32.0f),
+      float3( 0.0f, -1.0f, 2.0f / 32.0f),
+      float3( 0.0f,  1.0f, 2.0f / 32.0f),
+      float3(-1.0f,  1.0f, 1.0f / 32.0f),
+      float3( 1.0f,  1.0f, 1.0f / 32.0f),
+      float3(-1.0f, -1.0f, 1.0f / 32.0f),
+      float3( 1.0f, -1.0f, 1.0f / 32.0f)
+    };
+  
+    float3 color = 0.0f;
+  #endif
+
+  for (uint i = 0; i < NUM_SAMPLES; ++i)
+  {
+    float2 texCoord = offsetAndWeights[i].xy * PixelSize + Input.TexCoord0.xy;
+
+    float3 sampleColor = ColorTexture.SampleLevel(LinearClampSampler, texCoord, 0.0).rgb;
+    float weight = offsetAndWeights[i].z;
+
+    color += sampleColor * weight;
+  }
+
+  #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE
+    float luminance = GetLuminance(color) * Exposure;
+    float thresholdedLuminance = saturate(luminance - BloomThreshold);
+    float intensity = thresholdedLuminance * BloomIntensity;
+
+    color *= intensity;
+  #endif
+
+  return float4(color, 1.0f);
+}
+
+#endif
+

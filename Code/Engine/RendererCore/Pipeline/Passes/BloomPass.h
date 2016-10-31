@@ -1,17 +1,17 @@
 #pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/TextureResource.h>
 
-class EZ_RENDERERCORE_DLL ezTonemapPass : public ezRenderPipelinePass
+class EZ_RENDERERCORE_DLL ezBloomPass : public ezRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTonemapPass, ezRenderPipelinePass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezBloomPass, ezRenderPipelinePass);
 
 public:
-  ezTonemapPass();
-  ~ezTonemapPass();
+  ezBloomPass();
+  ~ezBloomPass();
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
@@ -20,21 +20,17 @@ public:
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-  ezInputNodePin m_PinColorInput;
-  ezInputNodePin m_PinBloomInput;
+
+  void UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColor);
+
+  ezInputNodePin m_PinInput;
   ezOutputNodePin m_PinOutput;
 
-  void SetVignettingTextureFile(const char* szFile);
-  const char* GetVignettingTextureFile() const;
-
-  ezTextureResourceHandle m_hVignettingTexture;
-  ezTextureResourceHandle m_hNoiseTexture;
-
-  ezColor m_MoodColor;
-  float m_fMoodStrength;
-  float m_fSaturation;
-  float m_fContrast;
-
+  ezUInt32 m_uiNumBlurPasses;
+  float m_fRadius;
+  float m_fThreshold;
+  float m_fIntensity;
+  ezHybridArray<ezColor, 8> m_tintColors;
   ezConstantBufferStorageHandle m_hConstantBuffer;
   ezShaderResourceHandle m_hShader;
 };

@@ -39,8 +39,11 @@ CONSTANT_BUFFER(ezGlobalConstants, 0)
   MAT4(ScreenToWorldMatrix);
   FLOAT4(Viewport);
 
+  FLOAT1(DeltaTime);
   FLOAT1(GlobalTime);
   FLOAT1(WorldTime);
+
+  FLOAT1(Exposure);
 
   INT1(RenderPass);
   UINT1(NumMsaaSamples);

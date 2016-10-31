@@ -15,13 +15,9 @@ ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
 //static 
 ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
 {
-  ezTempHashedString categoryName(szCategoryName);
-
-  for (Category category = 0; category < s_CategoryData.GetCount(); ++category)
-  {
-    if (s_CategoryData[category].m_sName == categoryName)
-      return category;
-  }
+  Category oldCategory = FindCategory(szCategoryName);
+  if (oldCategory != ezInvalidIndex)
+    return oldCategory;
 
   Category newCategory = s_CategoryData.GetCount();
 
@@ -31,6 +27,19 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
   data.m_sortingKeyFunc = sortingKeyFunc;
 
   return newCategory;
+}
+
+ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
+{
+  ezTempHashedString categoryName(szCategoryName);
+
+  for (Category category = 0; category < s_CategoryData.GetCount(); ++category)
+  {
+    if (s_CategoryData[category].m_sName == categoryName)
+      return category;
+  }
+
+  return ezInvalidIndex;
 }
 
 ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);

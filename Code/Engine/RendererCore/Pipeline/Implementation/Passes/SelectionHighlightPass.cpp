@@ -81,14 +81,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     ezUInt32 uiHeight = pColorOutput->m_Desc.m_uiHeight;
     ezGALMSAASampleCount::Enum sampleCount = pColorOutput->m_Desc.m_SampleCount;
 
-    ezGALTextureCreationDescription desc;
-    desc.m_uiWidth = uiWidth;
-    desc.m_uiHeight = uiHeight;
-    desc.m_Format = ezGALResourceFormat::D24S8;
-    desc.m_SampleCount = sampleCount;
-    desc.m_bCreateRenderTarget = true;
-
-    hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+    hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount);
 
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));

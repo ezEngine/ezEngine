@@ -835,10 +835,12 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   gc.ScreenToWorldMatrix = pViewData->m_InverseViewProjectionMatrix;
   gc.Viewport = ezVec4(pViewData->m_ViewPortRect.x, pViewData->m_ViewPortRect.y, pViewData->m_ViewPortRect.width, pViewData->m_ViewPortRect.height);
 
-
   // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
+  gc.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
   gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
   gc.WorldTime = (float)ezMath::Mod(data.GetWorldTime().GetSeconds(), 20790.0);
+
+  gc.Exposure = pCamera->GetExposure();
 
   ezRenderViewContext renderViewContext;
   renderViewContext.m_pCamera = pCamera;

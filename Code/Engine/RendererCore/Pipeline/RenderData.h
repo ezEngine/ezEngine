@@ -19,9 +19,10 @@ public:
   typedef ezDelegate<ezUInt64(const ezRenderData*, ezUInt32, const ezCamera&)> SortingKeyFunc;
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
+  static Category FindCategory(const char* szCategoryName);
 
   static const char* GetCategoryName(Category category);
-  static ezProfilingId& GetCategoryProfilingID(Category category);
+  static ezProfilingId& GetCategoryProfilingID(Category category);  
 
   /// \brief Returns the sorting key for this render data by using the sorting key function for the given category.
   ezUInt64 GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const;
