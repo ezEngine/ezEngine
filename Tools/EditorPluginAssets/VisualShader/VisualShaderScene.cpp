@@ -114,9 +114,33 @@ void ezQtVisualShaderPin::paint(QPainter* painter, const QStyleOptionGraphicsIte
 {
   QPainterPath p = path();
 
+  const ezVisualShaderPin* pVsPin = static_cast<const ezVisualShaderPin*>(GetPin());
+
   painter->save();
   painter->setBrush(brush());
   painter->setPen(pen());
+
+  if (pVsPin->GetType() == ezPin::Type::Input && GetConnections().IsEmpty())
+  {
+    if (pVsPin->GetDescriptor()->m_sDefaultValue.IsEmpty())
+    {
+      // this pin MUST be connected
+
+      QPen p;
+      p.setColor(qRgb(255, 0, 0));
+      p.setWidth(3);
+      p.setCosmetic(true);
+      p.setStyle(Qt::PenStyle::SolidLine);
+      p.setCapStyle(Qt::PenCapStyle::SquareCap);
+
+      painter->setPen(p);
+
+      painter->drawRect(this->path().boundingRect());
+      painter->restore();
+      return;
+    }
+  }
+
   painter->drawPath(p);
   painter->restore();
 }
