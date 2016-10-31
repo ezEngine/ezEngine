@@ -17,14 +17,29 @@ INSTANCING
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
+#define USE_OBJECT_POSITION_OFFSET
+#define USE_WORLD_POSITION_OFFSET
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
+#include <Shaders/Common/VisualShaderUtil.h>
 
 VS_OUT main(VS_IN Input)
 {
   return FillVertexData(Input);
-}",
+}
+
+float3 GetObjectPositionOffset(VS_IN Input, ezPerInstanceData data)
+{
+  return ToFloat3($in8);
+}
+
+float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data)
+{
+  return ToFloat3($in9);
+}
+
+",
 
     "CodeMaterialParams" : "
 Permutation BLEND_MODE;
@@ -178,6 +193,22 @@ float GetOcclusion(PS_IN Input)
         "Color" : "127, 115, 63",
         "Expose" : true,
         "Fallback" : "1"
+      },
+
+      // Pin 8
+      {
+        "Name" : "LocalPosOffset",
+        "Type" : "float3",
+        "Color" : "75, 145, 112",
+        "Fallback" : "0"
+      },
+
+      // Pin 9
+      {
+        "Name" : "GlobalPosOffset",
+        "Type" : "float3",
+        "Color" : "226, 96, 93",
+        "Fallback" : "0"
       }
     ]
   }

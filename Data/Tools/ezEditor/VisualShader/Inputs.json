@@ -35,8 +35,60 @@
         "Name" : "UV",
         "Type" : "float2",
         "Color" : "50, 50, 128",
-        "Inline" : "Input.TexCoords"
+        "Inline" : "Input.TexCoords",
+        "Tooltip" : "The UV 0 texture coordinate."
       }
     ]
-  }
+  },
+
+  "VertexPosition" :
+  {
+    "Category" : "Input",
+    "Color" : "38, 105, 0",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Position",
+        "Type" : "float3",
+        "Color" : "38, 105, 0",
+        "Inline" : "Input.Position",
+        "Tooltip" : "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position."
+      }
+    ]
+  },
+
+  "VertexNormal" :
+  {
+    "Category" : "Input",
+    "Color" : "38, 105, 0",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Normal",
+        "Type" : "float3",
+        "Color" : "128, 128, 255",
+        "Inline" : "Input.Normal",
+        "Tooltip" : "The vertex normal. For vertex shaders this is in local space, for pixel shaders it is in world space."
+      }
+    ]
+  },
+
+  "VertexTangent" :
+  {
+    "Category" : "Input",
+    "Color" : "38, 105, 0",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Tangent",
+        "Type" : "float3",
+        "Color" : "255, 128, 128",
+        "Inline" : "Input.Tangent",
+        "Tooltip" : "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position."
+      }
+    ]
+  },
 }
