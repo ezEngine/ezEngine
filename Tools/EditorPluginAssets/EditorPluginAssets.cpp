@@ -12,6 +12,7 @@
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
+#include <EditorPluginAssets/Actions/EditorPluginAssetsActions.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
@@ -225,10 +226,18 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("PropertyAnimAssetToolBar", true);
     }
   }
+
+  // General editor plugin actions
+  {
+    ezAssetPluginActions::RegisterActions();
+    ezAssetPluginActions::MapActions("SettingsTabMenuBar");
+  }
 }
 
 void OnUnloadPlugin(bool bReloading)
 {
+  ezAssetPluginActions::UnregisterActions();
+
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
 }
