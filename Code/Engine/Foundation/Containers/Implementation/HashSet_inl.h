@@ -86,6 +86,18 @@ ezHashSetBase<K, H>::ezHashSetBase(const ezHashSetBase<K, H>& other, ezAllocator
 }
 
 template <typename K, typename H>
+ezHashSetBase<K, H>::ezHashSetBase(ezHashSetBase<K, H>&& other, ezAllocatorBase* pAllocator)
+{
+  m_pEntries = nullptr;
+  m_pEntryFlags = nullptr;
+  m_uiCount = 0;
+  m_uiCapacity = 0;
+  m_pAllocator = pAllocator;
+
+  *this = std::move(other);
+}
+
+template <typename K, typename H>
 ezHashSetBase<K, H>::~ezHashSetBase()
 {
   Clear();
@@ -126,7 +138,7 @@ void ezHashSetBase<K, H>::operator= (ezHashSetBase<K, H>&& rhs)
     {
       if (rhs.IsValidEntry(i))
       {
-        Insert(std::move(rhs.m_pEntries[i].key), std::move(rhs.m_pEntries[i].value));
+        Insert(std::move(rhs.m_pEntries[i]));
         ++uiCopied;
       }
     }
@@ -497,6 +509,16 @@ ezHashSet<K, H, A>::ezHashSet(const ezHashSetBase<K, H>& other) : ezHashSetBase<
 }
 
 template <typename K, typename H, typename A>
+ezHashSet<K, H, A>::ezHashSet(ezHashSet<K, H, A>&& other) : ezHashSetBase<K, H>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename K, typename H, typename A>
+ezHashSet<K, H, A>::ezHashSet(ezHashSetBase<K, H>&& other) : ezHashSetBase<K, H>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename K, typename H, typename A>
 void ezHashSet<K, H, A>::operator=(const ezHashSet<K, H, A>& rhs)
 {
   ezHashSetBase<K, H>::operator=(rhs);
@@ -506,5 +528,17 @@ template <typename K, typename H, typename A>
 void ezHashSet<K, H, A>::operator=(const ezHashSetBase<K, H>& rhs)
 {
   ezHashSetBase<K, H>::operator=(rhs);
+}
+
+template <typename K, typename H, typename A>
+void ezHashSet<K, H, A>::operator=(ezHashSet<K, H, A>&& rhs)
+{
+  ezHashSetBase<K, H>::operator=(std::move(rhs));
+}
+
+template <typename K, typename H, typename A>
+void ezHashSet<K, H, A>::operator=(ezHashSetBase<K, H>&& rhs)
+{
+  ezHashSetBase<K, H>::operator=(std::move(rhs));
 }
 

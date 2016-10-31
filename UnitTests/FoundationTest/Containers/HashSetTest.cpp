@@ -139,6 +139,32 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
     EZ_TEST_INT(uiCounter, table1.GetCount());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Copy Constructor/Assignment")
+  {
+    ezHashSet<st> set1;
+    for (ezInt32 i = 0; i < 64; ++i)
+    {
+      set1.Insert(ezConstructionCounter(i));
+    }
+
+    ezUInt64 memoryUsage = set1.GetHeapMemoryUsage();
+
+    ezHashSet<st> set2;
+    set2 = std::move(set1);
+
+    EZ_TEST_INT(set1.GetCount(), 0);
+    EZ_TEST_INT(set1.GetHeapMemoryUsage(), 0);
+    EZ_TEST_INT(set2.GetCount(), 64);
+    EZ_TEST_INT(set2.GetHeapMemoryUsage(), memoryUsage);
+
+    ezHashSet<st> set3(std::move(set2));
+
+    EZ_TEST_INT(set2.GetCount(), 0);
+    EZ_TEST_INT(set2.GetHeapMemoryUsage(), 0);
+    EZ_TEST_INT(set3.GetCount(), 64);
+    EZ_TEST_INT(set3.GetHeapMemoryUsage(), memoryUsage);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Collision Tests")
   {
     ezHashSet<Collision> map2;

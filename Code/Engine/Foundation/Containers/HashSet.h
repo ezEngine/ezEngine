@@ -58,6 +58,9 @@ protected:
   /// \brief Creates a copy of the given hashset.
   ezHashSetBase(const ezHashSetBase<KeyType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
+  /// \brief Moves data from an existing hashtable into this one.
+  ezHashSetBase(ezHashSetBase<KeyType, Hasher>&& rhs, ezAllocatorBase* pAllocator); // [tested]
+
   /// \brief Destructor.
   ~ezHashSetBase(); // [tested]
 
@@ -65,7 +68,7 @@ protected:
   void operator= (const ezHashSetBase<KeyType, Hasher>& rhs); // [tested]
 
   /// \brief Moves data from an existing hashset into this one.
-  void operator= (ezHashSetBase<KeyType, Hasher>&& rhs);
+  void operator= (ezHashSetBase<KeyType, Hasher>&& rhs); // [tested]
 
 public:
 
@@ -159,8 +162,14 @@ public:
   ezHashSet(const ezHashSet<KeyType, Hasher, AllocatorWrapper>& other);
   ezHashSet(const ezHashSetBase<KeyType, Hasher>& other);
 
+  ezHashSet(ezHashSet<KeyType, Hasher, AllocatorWrapper>&& other);
+  ezHashSet(ezHashSetBase<KeyType, Hasher>&& other);
+
   void operator=(const ezHashSet<KeyType, Hasher, AllocatorWrapper>& rhs);
   void operator=(const ezHashSetBase<KeyType, Hasher>& rhs);
+
+  void operator=(ezHashSet<KeyType, Hasher, AllocatorWrapper>&& rhs);
+  void operator=(ezHashSetBase<KeyType, Hasher>&& rhs);
 };
 
 #include <Foundation/Containers/Implementation/HashSet_inl.h>
