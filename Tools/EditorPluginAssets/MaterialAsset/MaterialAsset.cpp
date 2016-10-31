@@ -571,6 +571,25 @@ void ezMaterialAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObject
   pManager->RestoreMetaDataAfterLoading(graph);
 }
 
+void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
+  {
+    /// \todo This doesn't work!!!
+    // Dependencies are files that have to exist, otherwise asset transform fails
+    // But we are actually GENERATING this file! That means when the file does not exist, transform will never be called,
+    // if we put this as a dependency...
+    // But NOT having it as a dependency somehow also means the asset is never transformed when stuff changes, argh!
+    // Basically we are generating multiple outputs here ... and need to check whether any of them is out-of-date (or at least missing).
+
+    // Also the Visual Shader node configuration files would need to be a dependency of the auto-generated shader.
+
+    //pInfo->m_FileDependencies.Insert(GetProperties()->GetFinalShader());
+  }
+}
+
 ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();

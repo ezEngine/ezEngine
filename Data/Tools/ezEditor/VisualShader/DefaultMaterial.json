@@ -138,7 +138,7 @@ float GetOcclusion(PS_IN Input)
         "Name" : "Reflectance",
         "Type" : "float",
         "Color" : "210, 255, 100",
-        //"Expose" : true, // otherwise fallback is currently 0
+        "Expose" : true,
         "Fallback" : "0.5"
       },
 
@@ -147,7 +147,7 @@ float GetOcclusion(PS_IN Input)
         "Name" : "Roughness",
         "Type" : "float",
         "Color" : "150, 64, 64",
-        //"Expose" : true, // otherwise fallback is currently 0
+        "Expose" : true,
         "Fallback" : "0.5"
       },
 
@@ -156,7 +156,7 @@ float GetOcclusion(PS_IN Input)
         "Name" : "Opacity",
         "Type" : "float",
         "Color" : "255, 0, 110",
-        //"Expose" : true, // otherwise fallback is currently 0
+        "Expose" : true,
         "Fallback" : "1"
       },
 
@@ -165,7 +165,7 @@ float GetOcclusion(PS_IN Input)
         "Name" : "Emissive",
         "Type" : "float3",
         "Color" : "255, 106, 0",
-        //"Expose" : true, // otherwise fallback is currently 0
+        "Expose" : true,
         "Fallback" : "0"
       },
 
@@ -174,7 +174,7 @@ float GetOcclusion(PS_IN Input)
         "Name" : "Occlusion",
         "Type" : "float",
         "Color" : "127, 115, 63",
-        //"Expose" : true, // otherwise fallback is currently 0
+        "Expose" : true,
         "Fallback" : "1"
       }
     ]

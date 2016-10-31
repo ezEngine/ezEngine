@@ -49,8 +49,8 @@ EZ_END_SUBSYSTEM_DECLARATION
 ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
   : m_SingletonRegistrar(this)
 {
-    m_pBaseType = nullptr;
-    m_pSamplerPinType = nullptr;
+  m_pBaseType = nullptr;
+  m_pSamplerPinType = nullptr;
 }
 
 const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
@@ -194,15 +194,47 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
 
     ExtractNodeConfig(varNodeDict, nd);
     ExtractNodeProperties(varNodeDict, nd);
-    ExtractNodePins(varNodeDict, "InputPins", nd.m_InputPins);
-    ExtractNodePins(varNodeDict, "OutputPins", nd.m_OutputPins);
+    ExtractNodePins(varNodeDict, "InputPins", nd.m_InputPins, false);
+    ExtractNodePins(varNodeDict, "OutputPins", nd.m_OutputPins, true);
 
     m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
   }
 }
 
+static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
+{
+  if (pType == ezGetStaticRTTI<ezString>())
+  {
+    return ezVariant(szDefault);
+  }
 
-void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray)
+  float values[4] = { 0, 0, 0, 0 };
+  ezConversionUtils::ExtractFloatsFromString(szDefault, 4, values);
+
+  if (pType == ezGetStaticRTTI<float>())
+  {
+    return ezVariant(values[0]);
+  }
+
+  if (pType == ezGetStaticRTTI<ezVec2>())
+  {
+    return ezVariant(ezVec2(values[0], values[1]));
+  }
+
+  if (pType == ezGetStaticRTTI<ezVec3>())
+  {
+    return ezVariant(ezVec3(values[0], values[1], values[2]));
+  }
+
+  if (pType == ezGetStaticRTTI<ezVec4>() || pType == ezGetStaticRTTI<ezColor>())
+  {
+    return ezVariant(ezVec4(values[0], values[1], values[2], values[3]));
+  }
+
+  return ezVariant();
+}
+
+void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput)
 {
   ezVariant varValue;
   if (varNodeDict.TryGetValue(szPinType, varValue) && varValue.IsA<ezVariantArray>())
@@ -263,6 +295,11 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
       {
         pin.m_sShaderCodeInline = varValue.Get<ezString>();
       }
+      else if (bOutput)
+      {
+        ezLog::Error("Output pin '%s' has no inline code specified", pin.m_sName.GetData());
+        continue;
+      }
 
       // this is optional
       if (varPin.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
@@ -279,16 +316,15 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
       }
 
       // this is optional
-      if (varPin.TryGetValue("Expose", varValue) && varValue.IsA<bool>())
+      if (varPin.TryGetValue("Fallback", varValue) && varValue.IsA<ezString>())
       {
-        pin.m_bExposeAsProperty = varValue.Get<bool>();
+        pin.m_sDefaultValue = varValue.Get<ezString>();
       }
 
       // this is optional
-      if (varPin.TryGetValue("Fallback", varValue) && varValue.IsA<ezString>())
+      if (varPin.TryGetValue("Expose", varValue) && varValue.IsA<bool>())
       {
-        /// \todo Keep this a variant?
-        pin.m_DefaultValue = varValue.Get<ezString>();
+        pin.m_bExposeAsProperty = varValue.Get<bool>();
       }
 
       if (pin.m_bExposeAsProperty)
@@ -297,6 +333,13 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
         pin.m_PropertyDesc.m_Category = ezPropertyCategory::Member;
         pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
         pin.m_PropertyDesc.m_sType = pin.m_pDataType->GetTypeName();
+
+        const ezVariant def = ExtractDefaultValue(pin.m_pDataType, pin.m_sDefaultValue);
+
+        if (def.IsValid())
+        {
+          pin.m_PropertyDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, def));
+        }
       }
 
       pinArray.PushBack(pin);

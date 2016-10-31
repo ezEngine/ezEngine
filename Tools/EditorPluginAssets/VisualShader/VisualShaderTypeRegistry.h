@@ -19,7 +19,7 @@ public:
   ezReflectedPropertyDescriptor m_PropertyDesc;
   ezColorGammaUB m_Color;
   bool m_bExposeAsProperty;
-  ezVariant m_DefaultValue;
+  ezString m_sDefaultValue;
   ezString m_sShaderCodeInline;
   ezString m_sTooltip;
 };
@@ -85,7 +85,7 @@ private:
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
   void LoadConfigFile(const char* szFile);
 
-  void ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray);
+  void ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput);
   void ExtractNodeProperties(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
   void ExtractNodeConfig(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
 

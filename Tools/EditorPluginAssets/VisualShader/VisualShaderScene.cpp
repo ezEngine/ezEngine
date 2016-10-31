@@ -93,12 +93,12 @@ void ezQtVisualShaderPin::SetPin(const ezPin* pPin)
     sTooltip = pShaderPin->GetName();
   }
 
-  if (pShaderPin->GetDescriptor()->m_DefaultValue.CanConvertTo<ezString>())
+  if (!pShaderPin->GetDescriptor()->m_sDefaultValue.IsEmpty())
   {
     if (!sTooltip.IsEmpty())
       sTooltip.Append("\n");
 
-    sTooltip.Append("Default is ", pShaderPin->GetDescriptor()->m_DefaultValue.ConvertTo<ezString>());
+    sTooltip.Append("Default is ", pShaderPin->GetDescriptor()->m_sDefaultValue);
   }
 
   setToolTip(sTooltip.GetData());

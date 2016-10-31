@@ -274,7 +274,7 @@ void ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject*
       }
       else
       {
-        sValue = ToShaderString(pNodeDesc->m_InputPins[i].m_DefaultValue);
+        sValue = pNodeDesc->m_InputPins[i].m_sDefaultValue;
       }
 
       // replace all occurrences of the pin identifier with the code that was generate for the connected output pin
