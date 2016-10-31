@@ -199,14 +199,18 @@
         "Name" : "Base",
         "Type" : "float",
         "Color" : "128, 50, 50",
-        "Tooltip" : ""
+        "Tooltip" : "",
+        "Expose" : true,
+        "Fallback" : "1"
       },
 
       {
         "Name" : "Exponent",
         "Type" : "float",
         "Color" : "50, 128, 50",
-        "Tooltip" : ""
+        "Tooltip" : "",
+        "Expose" : true,
+        "Fallback" : "1"
       }
     ],
 

@@ -1,0 +1,134 @@
+{
+  "FromCameraSpace" :
+  {
+    "Category" : "Transformations",
+    "Color" : "38, 105, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "CameraSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Tooltip" : "Position in camera-space."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "ScreenSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "mul(CameraToScreenMatrix, ToFloat3($in0))",
+        "Tooltip" : "Transformed position in screen-space."
+      },
+
+      {
+        "Name" : "WorldSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "mul(CameraToWorldMatrix, ToFloat3($in0))",
+        "Tooltip" : "Transformed position in world-space."
+      }
+    ]
+  },
+
+  "FromScreenSpace" :
+  {
+    "Category" : "Transformations",
+    "Color" : "38, 105, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "CameraSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Tooltip" : "Position in screen-space."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "CameraSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "mul(ScreenToCameraMatrix, ToFloat3($in0))",
+        "Tooltip" : "Transformed position in camera-space."
+      },
+
+      {
+        "Name" : "WorldSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "mul(ScreenToWorldMatrix, ToFloat3($in0))",
+        "Tooltip" : "Transformed position in world-space."
+      }
+    ]
+  },
+
+  "FromWorldSpace" :
+  {
+    "Category" : "Transformations",
+    "Color" : "38, 105, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "CameraSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Tooltip" : "Position in world-space."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "CameraSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "mul(WorldToCameraMatrix, ToFloat3($in0))",
+        "Tooltip" : "Transformed position in camera-space."
+      },
+
+      {
+        "Name" : "ScreenSpace",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "mul(WorldToScreenMatrix, ToFloat3($in0))",
+        "Tooltip" : "Transformed position in screen-space."
+      }
+    ]
+  },
+
+  "TangentToWorldSpace" :
+  {
+    "Category" : "Transformations",
+    "Color" : "38, 105, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "TangentSpace",
+        "Type" : "float3",
+        "Color" : "128, 128, 255",
+        "Tooltip" : "Normal in tangent space."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "WorldSpace",
+        "Type" : "float3",
+        "Color" : "128, 128, 255",
+        "Inline" : "TangentToWorldSpace(ToFloat3($in0), Input)",
+        "Tooltip" : "Transformed normal in world-space."
+      }
+    ]
+  }
+}
+

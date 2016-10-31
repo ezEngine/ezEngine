@@ -255,5 +255,32 @@
         "Tooltip" : "The square root of the input (component-wise)."
       }
     ]
+  },
+
+  "Negate" :
+  {
+    "Category" : "Math/Vector",
+    "Color" : "183, 153, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Fallback" : "0"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "-$in0",
+        "Tooltip" : "Negated input value."
+      }
+    ]
   }
 }

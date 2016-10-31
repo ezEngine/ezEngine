@@ -91,4 +91,53 @@
       }
     ]
   },
+
+  "Camera" :
+  {
+    "Category" : "Input",
+    "Color" : "38, 105, 0",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Position",
+        "Type" : "float3",
+        "Color" : "200, 200, 200",
+        "Inline" : "CameraPosition",
+        "Tooltip" : "Global camera position."
+      },
+
+      {
+        "Name" : "Forwards",
+        "Type" : "float3",
+        "Color" : "128, 0, 0",
+        "Inline" : "CameraDirForwards",
+        "Tooltip" : "Forward direction vector of the camera."
+      },
+
+      {
+        "Name" : "Right",
+        "Type" : "float3",
+        "Color" : "0, 128, 0",
+        "Inline" : "CameraDirRight",
+        "Tooltip" : "Right direction vector of the camera."
+      },
+
+      {
+        "Name" : "Up",
+        "Type" : "float3",
+        "Color" : "0, 0, 128",
+        "Inline" : "CameraDirUp",
+        "Tooltip" : "Up direction vector of the camera."
+      },
+
+      {
+        "Name" : "Exposure",
+        "Type" : "float",
+        "Color" : "128, 128, 0",
+        "Inline" : "Exposure",
+        "Tooltip" : "Current exposure value of the camera."
+      }
+    ]
+  }
 }
