@@ -30,6 +30,6 @@ private:
   };
   void UpdateShaderType(ShaderData& data);
 
-  ezMap<ezStringBuilder, ShaderData> m_ShaderTypes;
+  ezMap<ezString, ShaderData> m_ShaderTypes;
 
 };

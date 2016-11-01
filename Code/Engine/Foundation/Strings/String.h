@@ -172,5 +172,84 @@ typedef ezHybridString<64> ezString64;
 typedef ezHybridString<128> ezString128;
 typedef ezHybridString<256> ezString256;
 
+template<>
+struct ezCompareHelper<ezString>
+{
+  template <typename DerivedLhs, typename DerivedRhs>
+  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
+  }
+
+  template <typename DerivedRhs>
+  EZ_FORCE_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return rhs.Compare(lhs) > 0;
+  }
+
+  template <typename DerivedLhs>
+  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  {
+    return lhs.Compare(rhs) < 0;
+  }
+
+  template <typename DerivedLhs, typename DerivedRhs>
+  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
+  }
+
+  template <typename DerivedRhs>
+  EZ_FORCE_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return rhs.IsEqual(lhs);
+  }
+
+  template <typename DerivedLhs>
+  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  {
+    return lhs.IsEqual(rhs);
+  }
+};
+
+struct ezCompareString_NoCase
+{
+  template <typename DerivedLhs, typename DerivedRhs>
+  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
+  }
+
+  template <typename DerivedRhs>
+  EZ_FORCE_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return rhs.Compare_NoCase(lhs) > 0;
+  }
+
+  template <typename DerivedLhs>
+  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  {
+    return lhs.Compare_NoCase(rhs) < 0;
+  }
+
+  template <typename DerivedLhs, typename DerivedRhs>
+  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return ezStringUtils::IsEqual_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
+  }
+
+  template <typename DerivedRhs>
+  EZ_FORCE_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  {
+    return rhs.IsEqual_NoCase(lhs);
+  }
+
+  template <typename DerivedLhs>
+  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  {
+    return lhs.IsEqual_NoCase(rhs);
+  }
+};
+
 #include <Foundation/Strings/Implementation/String_inl.h>
 
