@@ -32,13 +32,15 @@ CullMode = CullMode_None
 
 [VERTEXSHADER]
 
+#define USE_COLOR
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-VS_OUT_COLORED main(VS_IN_COLORED Input)
+VS_OUT main(VS_IN Input)
 {
 	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
 
@@ -50,7 +52,7 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 
 	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position * scale, 1.0f));
 
-	VS_OUT_COLORED RetVal;
+	VS_OUT RetVal;
 	RetVal.Position = mul(WorldToScreenMatrix, worldSpacePos);
 	RetVal.Color =  GizmoColor;
 
@@ -62,13 +64,15 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 
 [PIXELSHADER]
 
+#define USE_COLOR
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h  >
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-float4 main(PS_IN_COLORED Input) : SV_Target
+float4 main(PS_IN Input) : SV_Target
 {
 #if PREPARE_DEPTH == 1
 	return float4(0, 0, 0, 1);
