@@ -284,7 +284,7 @@ private:
   ezSet<ezUuid> m_TransformStateChanged;
 
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
-  ezMap<ezString, FileStatus, ezCompareString_NoCase<ezString> > m_ReferencedFiles;
+  ezMap<ezString, FileStatus, ezCompareString_NoCase > m_ReferencedFiles;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseReferences;
   ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here. 
