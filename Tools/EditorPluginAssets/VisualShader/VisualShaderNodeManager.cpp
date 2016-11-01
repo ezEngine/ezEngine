@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
+#include <CoreUtils/NodeGraph/Node.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualShaderPin
@@ -138,3 +139,47 @@ const char* ezVisualShaderNodeManager::GetTypeCategory(const ezRTTI* pRtti) cons
 
   return pDesc->m_sCategory;
 }
+
+
+ezStatus ezVisualShaderNodeManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+{
+  auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
+
+  if (pDesc)
+  {
+    if (pDesc->m_NodeType == ezVisualShaderNodeType::Main && CountNodesOfType(ezVisualShaderNodeType::Main) > 0)
+    {
+      return ezStatus("The shader may only contain a single output node");
+    }
+
+    /// \todo This is an arbitrary limit and it does not count how many nodes reference the same texture
+    static const ezUInt32 uiMaxTextures = 16;
+    if (pDesc->m_NodeType == ezVisualShaderNodeType::Texture && CountNodesOfType(ezVisualShaderNodeType::Texture) >= uiMaxTextures)
+    {
+      return ezStatus("The maximum number of texture nodes is %u", uiMaxTextures);
+    }
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezUInt32 ezVisualShaderNodeManager::CountNodesOfType(ezVisualShaderNodeType::Enum type) const
+{
+  ezUInt32 count = 0;
+
+  const ezVisualShaderTypeRegistry* pRegistry = ezVisualShaderTypeRegistry::GetSingleton();
+
+  const auto& children = GetRootObject()->GetChildren();
+  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  {
+    auto pDesc = pRegistry->GetDescriptorForType(children[i]->GetType());
+
+    if (pDesc && pDesc->m_NodeType == type)
+    {
+      ++count;
+    }
+  }
+
+  return count;
+}
+

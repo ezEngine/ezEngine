@@ -440,6 +440,8 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &va
   {
     if (varValue.Get<ezString>() == "Main")
       nd.m_NodeType = ezVisualShaderNodeType::Main;
+    else if (varValue.Get<ezString>() == "Texture")
+      nd.m_NodeType = ezVisualShaderNodeType::Texture;
     else
       nd.m_NodeType = ezVisualShaderNodeType::Generic;
   }

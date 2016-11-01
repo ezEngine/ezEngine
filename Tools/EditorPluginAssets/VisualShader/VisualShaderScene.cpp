@@ -206,7 +206,8 @@ QPen ezQtVisualShaderConnection::DeterminePen() const
 
 ezQtVisualShaderNode::ezQtVisualShaderNode()
 {
-
+  // this costs too much performance :-(
+  EnableDropShadow(false);
 }
 
 void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)

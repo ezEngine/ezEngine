@@ -49,6 +49,7 @@ public:
   ezBitflags<ezNodeFlags> GetFlags() const;
   void ResetFlags();
 
+  void EnableDropShadow(bool enable);
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;

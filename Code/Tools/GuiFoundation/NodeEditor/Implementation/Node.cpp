@@ -34,7 +34,23 @@ ezQtNode::ezQtNode() : m_pManager(nullptr), m_pObject(nullptr)
   font.setBold(true);
   m_pLabel->setFont(font);
 
+  m_pShadow = nullptr;
+  EnableDropShadow(true);
+
+  m_HeaderColor = palette.alternateBase().color();
+}
+
+ezQtNode::~ezQtNode()
+{
+  EnableDropShadow(false);
+}
+
+void ezQtNode::EnableDropShadow(bool enable)
+{
+  if (enable && m_pShadow == nullptr)
   {
+    auto palette = QApplication::palette();
+
     m_pShadow = new QGraphicsDropShadowEffect();
     m_pShadow->setOffset(3, 3);
     m_pShadow->setColor(palette.color(QPalette::Shadow));
@@ -42,13 +58,11 @@ ezQtNode::ezQtNode() : m_pManager(nullptr), m_pObject(nullptr)
     setGraphicsEffect(m_pShadow);
   }
 
-  m_HeaderColor = palette.alternateBase().color();
-}
-
-ezQtNode::~ezQtNode()
-{
-  delete m_pShadow;
-  m_pShadow = nullptr;
+  if (!enable && m_pShadow != nullptr)
+  {
+    delete m_pShadow;
+    m_pShadow = nullptr;
+  }
 }
 
 void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)

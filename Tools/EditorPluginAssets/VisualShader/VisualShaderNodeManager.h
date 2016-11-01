@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 
 class ezVisualShaderPinDescriptor;
 
@@ -41,4 +42,9 @@ public:
 
 private:
   virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) { return EZ_DEFAULT_NEW(ezVisualShaderConnection); }
+  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
+
+  ezUInt32 CountNodesOfType(ezVisualShaderNodeType::Enum type) const;
+
+
 };
