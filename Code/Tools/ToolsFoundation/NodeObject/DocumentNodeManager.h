@@ -107,6 +107,12 @@ public:
   void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph);
 
 protected:
+  /// \brief Tests whether pTarget can be reached from pSource by following the pin connections
+  bool CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const;
+
+  /// \brief Returns true if adding a connection between the two pins would create a circular graph
+  bool WouldConnectionCreateCircle(const ezPin* pSource, const ezPin* pTarget) const;
+
   struct NodeInternal
   {
     NodeInternal() : m_vPos(0, 0) {}

@@ -121,6 +121,11 @@ ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, con
     return ezStatus("Pin of type 'string' cannot be connected with a pin of a different type.");
   }
 
+  if (WouldConnectionCreateCircle(pSource, pTarget))
+  {
+    return ezStatus("Connecting these pins would create a circle in the shader graph.");
+  }
+
   return ezStatus(EZ_SUCCESS);
 }
 

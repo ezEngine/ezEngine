@@ -341,6 +341,44 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
 }
 
 
+bool ezDocumentNodeManager::CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const
+{
+  if (pSource == pTarget)
+    return true;
+
+  if (Visited.Contains(pSource))
+    return false;
+
+  Visited.Insert(pSource);
+
+  const ezArrayPtr<ezPin* const> outputs = GetOutputPins(pSource);
+
+  for (const ezPin* pSourcePin : outputs)
+  {
+    const ezArrayPtr<const ezConnection* const> connections = pSourcePin->GetConnections();
+
+    for (const ezConnection* pConnection : connections)
+    {
+      const ezPin* pTargetPin = pConnection->GetTargetPin();
+
+      if (CanReachNode(pTargetPin->GetParent(), pTarget, Visited))
+        return true;
+    }
+  }
+
+  return false;
+}
+
+
+bool ezDocumentNodeManager::WouldConnectionCreateCircle(const ezPin* pSource, const ezPin* pTarget) const
+{
+  const ezDocumentObject* pSourceNode = pSource->GetParent();
+  const ezDocumentObject* pTargetNode = pTarget->GetParent();
+  ezSet<const ezDocumentObject*> Visited;
+
+  return CanReachNode(pTargetNode, pSourceNode, Visited);
+}
+
 void ezDocumentNodeManager::ObjectHandler(const ezDocumentObjectEvent& e)
 {
   switch (e.m_EventType)
