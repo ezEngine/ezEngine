@@ -7,6 +7,11 @@ template <typename K, typename H>
 ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet) :
   m_hashSet(hashSet), m_uiCurrentIndex(0), m_uiCurrentCount(0)
 {
+}
+
+template <typename K, typename H>
+void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
+{
   if (m_hashSet.IsEmpty())
     return;
 
@@ -14,6 +19,12 @@ ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& has
   {
     ++m_uiCurrentIndex;
   }
+}
+
+template <typename K, typename H>
+EZ_FORCE_INLINE void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
+{
+  ++m_uiCurrentIndex = m_hashSet.m_uiCount;
 }
 
 template <typename K, typename H>
@@ -339,7 +350,17 @@ EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const K& key) const
 template <typename K, typename H>
 EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::GetIterator() const
 {
-  return ConstIterator(*this);
+  ConstIterator iterator(*this);
+  iterator.SetToBegin();
+  return iterator;
+}
+
+template <typename K, typename H>
+EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::GetEndIterator() const
+{
+  ConstIterator iterator(*this);
+  iterator.SetToEnd();
+  return iterator;
 }
 
 template <typename K, typename H>

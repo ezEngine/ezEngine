@@ -35,6 +35,9 @@ public:
     /// \brief Returns the 'key' of the element that this iterator points to.
     const KeyType& Key() const; // [tested]
 
+    /// \brief Returns the 'key' of the element that this iterator points to.
+    EZ_FORCE_INLINE const KeyType& operator*() { return Key(); }
+
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
 
@@ -45,6 +48,8 @@ public:
     friend class ezHashSetBase<KeyType, Hasher>;
 
     explicit ConstIterator(const ezHashSetBase<KeyType, Hasher>& hashSet);
+    void SetToBegin();
+    void SetToEnd();
 
     const ezHashSetBase<KeyType, Hasher>& m_hashSet;
     ezUInt32 m_uiCurrentIndex; // current element index that this iterator points to.
@@ -109,6 +114,9 @@ public:
   /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
 
+  /// \brief Returns a constant Iterator to the first element that is not part of the hashset. Needed to implement range based for loop support.
+  ConstIterator GetEndIterator() const;
+
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const;
 
@@ -171,6 +179,18 @@ public:
   void operator=(ezHashSet<KeyType, Hasher, AllocatorWrapper>&& rhs);
   void operator=(ezHashSetBase<KeyType, Hasher>&& rhs);
 };
+
+template <typename KeyType, typename Hasher>
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator begin(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetIterator(); }
+
+template <typename KeyType, typename Hasher>
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator cbegin(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetIterator(); }
+
+template <typename KeyType, typename Hasher>
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator end(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetEndIterator(); }
+
+template <typename KeyType, typename Hasher>
+typename ezHashSetBase<KeyType, Hasher>::ConstIterator cend(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetEndIterator(); }
 
 #include <Foundation/Containers/Implementation/HashSet_inl.h>
 
