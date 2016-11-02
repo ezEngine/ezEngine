@@ -11,3 +11,4 @@ The following libraries are used in ezEngine:
   * [mikktspace] (http://mmikkelsen3d.blogspot.ie/): Tangent space generation code by Morten S. Mikkelsen. See https://wiki.blender.org/index.php/Dev:Shading/Tangent_Space_Normal_Maps for more information. It is used by ezGeometry.
   * [Silk Icons](http://www.famfamfam.com/lab/icons/silk): Icons from this set are used by some of our tools.
   * [Microsoft DirectXTex] (https://github.com/Microsoft/DirectXTex): Used by the ezTexConv tool for block compression.
+  * [stb?image] (https://github.com/nothings/stb): Public domain licensed image import library by Sean Barrett. Used by ezTexConv tool to import some of the supported formats.
