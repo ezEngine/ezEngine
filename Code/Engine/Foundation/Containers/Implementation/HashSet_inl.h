@@ -24,7 +24,7 @@ void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 template <typename K, typename H>
 EZ_FORCE_INLINE void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
 {
-  ++m_uiCurrentIndex = m_hashSet.m_uiCount;
+  m_uiCurrentIndex = m_hashSet.m_uiCount;
 }
 
 template <typename K, typename H>
