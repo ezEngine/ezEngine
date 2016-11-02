@@ -382,6 +382,7 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
     return ezImageFormat::BC3_UNORM;
 
   case MAKE_FOURCC('A', 'T', 'I', '1'):
+  case MAKE_FOURCC('B', 'C', '4', 'U'):
     return ezImageFormat::BC4_UNORM;
 
   case MAKE_FOURCC('A', 'T', 'I', '2'):

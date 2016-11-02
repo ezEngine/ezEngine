@@ -61,6 +61,8 @@ VS_OUT main(VS_IN Input)
 #define USE_TANGENT
 #define USE_TEXCOORD0
 #define USE_SIMPLE_MATERIAL_MODEL
+#define USE_MATERIAL_EMISSIVE
+#define USE_MATERIAL_OCCLUSION
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>

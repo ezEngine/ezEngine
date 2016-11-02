@@ -59,7 +59,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   switch (numComp)
   {
   case 1:
-    format = ezImageFormat::R8_UINT;
+    format = ezImageFormat::R8_UNORM;
     break;
   case 2:
   case 3:

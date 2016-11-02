@@ -211,7 +211,6 @@ static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
   case ezImageFormat::BC1_UNORM:
   case ezImageFormat::BC1_UNORM_SRGB:
     return 2;
-    break;
   case ezImageFormat::BC2_TYPELESS:
   case ezImageFormat::BC2_UNORM:
   case ezImageFormat::BC2_UNORM_SRGB:
@@ -219,11 +218,10 @@ static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
   case ezImageFormat::BC3_UNORM:
   case ezImageFormat::BC3_UNORM_SRGB:
     return 4;
-    //case ezImageFormat::BC4_TYPELESS:
-    //case ezImageFormat::BC4_UNORM:
-    //case ezImageFormat::BC4_SNORM:
-    //  uiMemPitchFactor = 8;
-    //  break;
+  case ezImageFormat::BC4_TYPELESS:
+  case ezImageFormat::BC4_UNORM:
+  case ezImageFormat::BC4_SNORM:
+    return 2;
     //case ezImageFormat::BC5_TYPELESS:
     //case ezImageFormat::BC5_UNORM:
     //case ezImageFormat::BC5_SNORM:
