@@ -200,7 +200,6 @@ private:
 
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
-  ezDocumentObjectManager* m_pObjectTree;
   ezDocumentManager* m_pDocumentManager;
   ezDocumentObjectManager* m_pObjectManager;
 

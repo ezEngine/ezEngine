@@ -32,7 +32,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-
+ezUuid ezMaterialAssetDocument::s_LitBaseMaterial;
+ezUuid ezMaterialAssetDocument::s_LitAlphaTextBaseMaterial;
+ezUuid ezMaterialAssetDocument::s_NeutralNormalMap;
 
 void ezMaterialAssetProperties::SetBaseMaterial(const char* szBaseMaterial)
 {
@@ -820,3 +822,44 @@ void ezMaterialAssetDocument::RemoveDisconnectedNodes()
   }
 }
 
+ezUuid ezMaterialAssetDocument::GetLitBaseMaterial()
+{
+  if (!s_LitBaseMaterial.IsValid())
+  {
+    static const char* szLitMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
+    auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szLitMaterialAssetPath);
+    if (assetInfo)
+      s_LitBaseMaterial = assetInfo->m_Info.m_DocumentID;
+    else
+      ezLog::Error("Can't find default lit material %s", szLitMaterialAssetPath);
+  }
+  return s_LitBaseMaterial;
+}
+
+ezUuid ezMaterialAssetDocument::GetLitAlphaTextBaseMaterial()
+{
+  if (!s_LitAlphaTextBaseMaterial.IsValid())
+  {
+    static const char* szLitAlphaTestMaterialAssetPath = "Materials/BaseMaterials/LitAlphaTest.ezMaterialAsset";
+    auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szLitAlphaTestMaterialAssetPath);
+    if (assetInfo)
+      s_LitAlphaTextBaseMaterial = assetInfo->m_Info.m_DocumentID;
+    else
+      ezLog::Error("Can't find default lit alpha test material %s", szLitAlphaTestMaterialAssetPath);
+  }
+  return s_LitAlphaTextBaseMaterial;
+}
+
+ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
+{
+  if (!s_NeutralNormalMap.IsValid())
+  {
+    static const char* szNeutralNormalMapAssetPath = "Textures/NeutralNormal.ezTextureAsset";
+    auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szNeutralNormalMapAssetPath);
+    if (assetInfo)
+      s_NeutralNormalMap = assetInfo->m_Info.m_DocumentID;
+    else
+      ezLog::Error("Can't find neutral normal map texture %s", szNeutralNormalMapAssetPath);
+  }
+  return s_NeutralNormalMap;
+}

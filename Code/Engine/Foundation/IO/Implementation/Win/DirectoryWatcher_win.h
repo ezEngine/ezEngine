@@ -97,7 +97,9 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
   while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, 0) != 0)
   {
     //Copy the buffer
-    EZ_ASSERT_DEBUG(numberOfBytes > 0, "GetQueuedCompletionStatus failed");
+    if (numberOfBytes == 0)
+      continue;
+
     ezHybridArray<ezUInt8, 4096> buffer;
     buffer.SetCount(numberOfBytes);
     buffer.GetArrayPtr().CopyFrom(m_pImpl->m_buffer.GetArrayPtr().GetSubArray(0, numberOfBytes));

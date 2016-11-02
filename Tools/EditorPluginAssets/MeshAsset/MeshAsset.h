@@ -2,12 +2,15 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
+#include <EditorPluginAssets/ModelImporter/Declarations.h>
 
 class ezMeshResourceDescriptor;
 class ezGeometry;
+class ezMaterialAssetDocument;
 
 namespace ezModelImporter
 {
+  struct Material;
   class Mesh;
   class Scene;
   struct TextureReference;
@@ -29,7 +32,8 @@ protected:
 
   ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
   void ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* sMeshFileAbs);
-  ezString ImportOrResolveTexture(const char* meshFileDirectory, const ezModelImporter::TextureReference* texture);
+  void ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material, const char* szMeshFileAbs);
+  ezString ImportOrResolveTexture(const char* meshFileDirectory, const char* szTexturePath, ezModelImporter::SemanticHint::Enum hint);
 
   /// Assigns and optionally imports materials.
   /// Used for both InternalRetrieveAssetInfo and InternalTransformAsset.

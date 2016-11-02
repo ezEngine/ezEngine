@@ -293,14 +293,16 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   const ezUInt32 uiBytesPerPixel = Header.m_iBitsPerPixel / 8;
 
   // check whether width, height an BitsPerPixel are valid
-  if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (Header.m_ImageType != 2 && Header.m_ImageType != 10))
+  if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10))
   {
     ezLog::Error(pLog, "TGA has an invalid header: Width = %i, Height = %i, BPP = %i, ImageType = %i", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
     return EZ_FAILURE;
   }
 
   // Set image data
-  if (uiBytesPerPixel == 3)
+  if (uiBytesPerPixel == 1)
+    image.SetImageFormat(ezImageFormat::R8_UNORM);
+  else if (uiBytesPerPixel == 3)
     image.SetImageFormat(ezImageFormat::B8G8R8_UNORM);
   else
     image.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM);
@@ -315,6 +317,16 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   image.AllocateImageData();
 
+  if (Header.m_ImageType == 3)
+  {
+    // uncompressed grayscale
+
+    const ezUInt32 uiBytesPerRow = uiBytesPerPixel * Header.m_iImageWidth;
+
+    // read each row (gets rid of the row pitch
+    for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, Header.m_iImageHeight - y - 1, 0), uiBytesPerRow);
+  }
   if (Header.m_ImageType == 2)
   {
     // uncompressed

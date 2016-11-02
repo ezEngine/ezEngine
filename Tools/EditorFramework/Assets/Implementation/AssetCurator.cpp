@@ -50,6 +50,16 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
   }
 
   CheckFileSystem();
+
+  // As we fired a AssetListReset in CheckFileSystem, set everything new to FileUnchanged or
+  // we would fire an added call for every asset.
+  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value()->m_ExistanceState == ezAssetInfo::ExistanceState::FileAdded)
+    {
+      it.Value()->m_ExistanceState = ezAssetInfo::ExistanceState::FileUnchanged;
+    }
+  }
 }
 
 void ezAssetCurator::Deinitialize()
@@ -693,6 +703,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
         m_TransformStateNeedsThumbnail.Remove(guid);
         m_TransformStateMissingDependency.Remove(guid);
         m_TransformStateMissingReference.Remove(guid);
+        it.Value().m_AssetGuid = ezUuid();
       }
     }
     return;

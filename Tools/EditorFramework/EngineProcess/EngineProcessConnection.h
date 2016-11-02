@@ -39,7 +39,15 @@ public:
   void DestroyEngineConnection(ezAssetDocument* pDocument);
 
   void SendMessage(ezProcessMessage* pMessage);
+
+  /// /brief Waits for a message of type pMessageType. If tTimeout is zero, the function will not timeout. If the timeout is valid
+  ///        and is it, EZ_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
+  ///        and the return values decides whether the message is to be accepted and the waiting has ended.
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback = nullptr);
+  /// /brief Same as WaitForMessage but the message must be to a specific document. Therefore,
+  ///        pMessageType must be derived from ezEditorEngineDocumentMsg and the function will only return if the received
+  ///        message matches both type, document and is accepted by pCallback.
+  ezResult WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback = nullptr);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }

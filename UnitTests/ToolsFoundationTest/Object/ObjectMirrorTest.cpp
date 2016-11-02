@@ -223,7 +223,7 @@ EZ_CREATE_SIMPLE_TEST(ObjectMirror, ObjectMirror)
   ezUuid mirrorGuid;
 
   pAccessor->StartTransaction("Init");
-  ezStatus status = pAccessor->AddObject(nullptr, nullptr, -1, ezGetStaticRTTI<ezMirrorTest>(), mirrorGuid);
+  ezStatus status = pAccessor->AddObject(nullptr, (const ezAbstractProperty*)nullptr, -1, ezGetStaticRTTI<ezMirrorTest>(), mirrorGuid);
   const ezDocumentObject* pObject = pAccessor->GetObject(mirrorGuid);
   EZ_TEST_BOOL(status.m_Result.Succeeded());
   pAccessor->FinishTransaction();

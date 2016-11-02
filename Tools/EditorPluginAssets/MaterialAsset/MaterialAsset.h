@@ -84,6 +84,10 @@ public:
   /// \brief Deletes all Visual Shader nodes that are not connected to the output
   void RemoveDisconnectedNodes();
 
+  static ezUuid GetLitBaseMaterial();
+  static ezUuid GetLitAlphaTextBaseMaterial();
+  static ezUuid GetNeutralNormalMap();
+
 protected:
   ezUuid GetSeedFromBaseMaterial(const ezAbstractObjectGraph* pBaseGraph);
   static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);
@@ -100,6 +104,11 @@ protected:
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
+
+private:
+  static ezUuid s_LitBaseMaterial;
+  static ezUuid s_LitAlphaTextBaseMaterial;
+  static ezUuid s_NeutralNormalMap;
 };
 
 class ezMaterialObjectManager : public ezVisualShaderNodeManager

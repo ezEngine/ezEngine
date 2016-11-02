@@ -354,10 +354,16 @@ void ezProcessCommunication::DispatchMessages()
       {
         if (m_WaitForMessageCallback.IsValid())
         {
-          m_WaitForMessageCallback(pObject);
-          m_WaitForMessageCallback = WaitForMessageCallback();
+          if (m_WaitForMessageCallback(pObject))
+          {
+            m_WaitForMessageCallback = WaitForMessageCallback();
+            m_pWaitForMessageType = nullptr;
+          }
         }
-        m_pWaitForMessageType = nullptr;
+        else
+        {
+          m_pWaitForMessageType = nullptr;
+        }
       }
 
       EZ_ASSERT_DEV(pRtti != nullptr, "Message Type unknown");

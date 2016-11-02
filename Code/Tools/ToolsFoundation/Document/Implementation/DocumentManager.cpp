@@ -217,9 +217,12 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
           status = out_pDocument->LoadDocument();
         
         out_pDocument->InitializeAfterLoading();
-        if (bCreate)
-          status = out_pDocument->SaveDocument();
 
+        if (bCreate)
+        {
+          out_pDocument->SetModified(true);
+          status = out_pDocument->SaveDocument();
+        }
         Event e;
         e.m_pDocument = out_pDocument;
         e.m_Type = Event::Type::DocumentOpened;

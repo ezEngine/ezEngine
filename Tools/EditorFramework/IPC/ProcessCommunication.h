@@ -36,7 +36,9 @@ public:
 
   void SendMessage(ezProcessMessage* pMessage);
 
-  typedef ezDelegate<void(ezProcessMessage*)> WaitForMessageCallback;
+  /// /brief Callback for 'wait for...' functions. If true is returned, the message is accepted to match the wait criteria and
+  ///        the waiting ends. If false is returned the wait for the message continues.
+  typedef ezDelegate<bool(ezProcessMessage*)> WaitForMessageCallback;
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack = nullptr );
 
   bool ProcessMessages(bool bAllowMsgDispatch = true);

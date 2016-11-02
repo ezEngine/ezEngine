@@ -4,7 +4,8 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Strings/StringBuilder.h>
+
+class ezLogInterface;
 
 /// \brief An ezResult with an additional message for the reason of failure
 struct EZ_TOOLSFOUNDATION_DLL ezStatus
@@ -21,21 +22,11 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
   {
   }
 
-  explicit ezStatus(const char* szError, ...) : m_Result(EZ_FAILURE)
-  {
-    va_list args;
-    va_start(args, szError);
-
-    ezStringBuilder sMsg;
-    sMsg.FormatArgs(szError, args);
-
-    va_end(args);
-
-    m_sMessage = sMsg;
-  }
+  explicit ezStatus(const char* szError, ...);
 
   EZ_FORCE_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
   EZ_FORCE_INLINE bool Failed() const { return m_Result.Failed(); }
+  void LogFailure(ezLogInterface* pLog = nullptr);
 
   ezResult m_Result;
   ezString m_sMessage;

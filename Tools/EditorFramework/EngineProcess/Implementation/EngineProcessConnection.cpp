@@ -135,6 +135,34 @@ ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageT
   return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
+ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback /*= nullptr*/)
+{
+  EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
+  struct WaitData
+  {
+    ezUuid m_AssetGuid;
+    ezProcessCommunication::WaitForMessageCallback* m_pCallback;
+  };
+
+  WaitData data;
+  data.m_AssetGuid = assetGuid;
+  data.m_pCallback = pCallback;
+  ezProcessCommunication::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
+  {
+    ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
+    if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
+    {
+      if (data.m_pCallback && data.m_pCallback->IsValid() && !(*data.m_pCallback)(pMsg))
+      {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  };
+  return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
+}
+
 ezResult ezEditorEngineProcessConnection::RestartProcess()
 {
   EZ_LOG_BLOCK("Restarting Engine Process");

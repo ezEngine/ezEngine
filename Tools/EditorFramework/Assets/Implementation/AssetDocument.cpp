@@ -55,14 +55,6 @@ ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectMan
 
 ezAssetDocument::~ezAssetDocument()
 {
-  if (m_EngineStatus == EngineStatus::Initializing)
-  {
-    // In case we sent the init message, at least wait for the response before dying or someone else after us will see it as 'his' response.
-    // TODO: WaitForMessage isn't really a good idea with multiple documents in general. How do you know which response message it was?
-    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10));
-    EZ_ASSERT_DEV(m_EngineStatus == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
-  }
-
   m_Mirror.DeInit();
 
   if (m_bUseEngineConnection)
@@ -532,7 +524,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
     {
       return ezStatus("Exporting %s to \"%s\" failed, document initialization timed out.", QueryAssetType(), szOutputTarget);
     }
@@ -547,13 +539,14 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   GetEditorEngineConnection()->SendMessage(&msg);
 
   bool bSuccess = false;
-  ezProcessCommunication::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg)
+  ezProcessCommunication::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg)->bool
   {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
     bSuccess = pMsg2->m_bOutputSuccess;
+    return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
   {
     return ezStatus("Remote exporting %s to \"%s\" timed out.", QueryAssetType(), msg.m_sOutputFile.GetData());
   }
@@ -590,7 +583,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
     {
       return ezStatus("Create %s thumbnail for \"%s\" failed, document initialization timed out.", QueryAssetType(), GetDocumentPath());
     }
@@ -601,13 +594,14 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
-  ezProcessCommunication::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)
+  ezProcessCommunication::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
   {
     ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;
+    return true;
   };
 
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
   {
     return ezStatus("Create %s thumbnail for \"%s\" failed timed out.", QueryAssetType(), GetDocumentPath());
   }

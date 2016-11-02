@@ -40,6 +40,19 @@ public:
   /// \name Object Access Convenience Functions
   ///@{
 
+  ezStatus GetValue(const ezDocumentObject* pObject, const char* szProp, ezVariant& out_value, ezVariant index = ezVariant());
+  ezStatus SetValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus InsertValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus RemoveValue(const ezDocumentObject* pObject, const char* szProp, ezVariant index = ezVariant());
+  ezStatus MoveValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& oldIndex, const ezVariant& newIndex);
+  ezStatus GetCount(const ezDocumentObject* pObject, const char* szProp, ezInt32& out_iCount);
+
+  ezStatus AddObject(const ezDocumentObject* pParent, const char* szParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid);
+  ezStatus MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProp, const ezVariant& index);
+
+  ezStatus GetKeys(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_keys);
+  ezStatus GetValues(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_values);
+
   template<typename T>
   T Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());
   EZ_FORCE_INLINE ezInt32 GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
