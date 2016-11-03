@@ -237,26 +237,20 @@ public:
 
   /// \brief Sets this color from a color that is in linear color space and given in HSV format.
   ///
+  /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
+  ///
   /// You should typically NOT use this functions, as most colors in HSV format are taken from some color picker,
   /// which will return a color in Gamma space.
-  void FromLinearHSV(float hue, float sat, float val); // [tested]
+  void SetHSV(float hue, float sat, float val); // [tested]
 
   /// \brief Converts the color part to HSV format. The HSV color will be in linear space.
+  ///
+  /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
   ///
   /// You should NOT use this functions when you want to display the HSV value in a UI element, as those should display colors in Gamma space.
   /// You can use this function for procedural color modifications. E.g. GetComplementaryColor() is computed by rotating the hue value 180 degree.
   /// In this case you also need to use FromLinearHSV() to convert the color back to RGB format.
-  void ToLinearHSV(float& hue, float& sat, float& val) const; // [tested]
-
-  /// \brief Sets this color from a color that is in gamma space and given in HSV format.
-  ///
-  /// This method should be used when a color was determined through a color picker.
-  void FromGammaHSV(float hue, float sat, float val); // [tested]
-
-  /// \brief Converts the color part to HSV format. The HSV color will be in gamma space.
-  ///
-  /// This should be used when you want to display the color as HSV in a color picker.
-  void ToGammaHSV(float& hue, float& sat, float& val) const; // [tested]
+  void GetHSV(float& hue, float& sat, float& val) const; // [tested]
 
   /// \brief Conversion to const float*
   const float* GetData() const { return &r; }
@@ -297,6 +291,9 @@ public:
 
   /// \brief Multiplies the given factor into red, green and blue, but not alpha.
   void ScaleIntensity(float fIntensity);
+
+  /// \brief Determines the intensity. For HDR colors this is the value of the largest RGB channel. If all channels are below 1.0, the intensity is clamped to 1.0.
+  float ComputeIntensity() const;
 
   // *** Numeric properties ***
 public:

@@ -23,7 +23,7 @@ bool ezColor::IsNormalized() const
 }
 
 // http://en.literateprograms.org/RGB_to_HSV_color_space_conversion_%28C%29
-void ezColor::ToLinearHSV(float& out_hue, float& out_sat, float& out_value) const
+void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
 {
   out_value = ezMath::Max(r, g, b); // Value
 
@@ -73,7 +73,7 @@ void ezColor::ToLinearHSV(float& out_hue, float& out_sat, float& out_value) cons
 }
 
 // http://www.rapidtables.com/convert/color/hsv-to-rgb.htm
-void ezColor::FromLinearHSV(float hue, float sat, float val)
+void ezColor::SetHSV(float hue, float sat, float val)
 {
   EZ_ASSERT_DEBUG(hue <= 360 && hue >= 0, "HSV Hue value is in invalid range.");
   EZ_ASSERT_DEBUG(sat <= 1 && val >= 0, "HSV saturation value is in invalid range.");
@@ -127,7 +127,7 @@ void ezColor::FromLinearHSV(float hue, float sat, float val)
 float ezColor::GetSaturation() const
 {
   float hue, sat, val;
-  ToLinearHSV(hue, sat, val);
+  GetHSV(hue, sat, val);
 
   return sat;
 }
@@ -196,37 +196,22 @@ void ezColor::ScaleIntensity(float fIntensity)
   b *= fIntensity;
 }
 
+float ezColor::ComputeIntensity() const
+{
+  /// \test This is new
+  return ezMath::Max(1.0f, ezMath::Max(r, g, b));
+}
+
 ezColor ezColor::GetComplementaryColor() const
 {
   float hue, sat, val;
-  ToLinearHSV(hue, sat, val);
+  GetHSV(hue, sat, val);
 
   ezColor Shifted;
-  Shifted.FromLinearHSV(ezMath::Mod(hue + 180.0f, 360.0f), sat, val);
+  Shifted.SetHSV(ezMath::Mod(hue + 180.0f, 360.0f), sat, val);
   Shifted.a = a;
 
   return Shifted;
-}
-
-void ezColor::FromGammaHSV(float hue, float sat, float val)
-{
-  ezColor gamma;
-  gamma.FromLinearHSV(hue, sat, val);
-
-  const ezVec3 linear = GammaToLinear(ezVec3(gamma.r, gamma.g, gamma.b));
-
-  r = linear.x;
-  g = linear.y;
-  b = linear.z;
-  a = gamma.a;
-}
-
-void ezColor::ToGammaHSV(float& hue, float& sat, float& val) const
-{
-  const ezVec3 gamma = LinearToGamma(ezVec3(r, g, b));
-
-  ezColor ColorGamma(gamma.x, gamma.y, gamma.z, a);
-  ColorGamma.ToLinearHSV(hue, sat, val);
 }
 
 float ezColor::GammaToLinear(float gamma)
