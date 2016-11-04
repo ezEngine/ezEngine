@@ -154,61 +154,67 @@ void ezQtDoubleSpinBox::focusInEvent(QFocusEvent *event)
 void ezQtDoubleSpinBox::focusOutEvent(QFocusEvent *event)
 {
   QDoubleSpinBox::focusOutEvent(event);
-
 }
 
 void ezQtDoubleSpinBox::mousePressEvent(QMouseEvent* event)
 {
-  QStyleOptionSpinBox opt;
-  initStyleOption(&opt);
-  opt.subControls = QStyle::SC_All;
-  QStyle::SubControl hoverControl = style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, event->pos(), this);
-
-  if (event->button() == Qt::LeftButton && (hoverControl == QStyle::SC_SpinBoxUp || hoverControl == QStyle::SC_SpinBoxDown))
+  if (!isReadOnly())
   {
-    m_fStartDragValue = value();
-    m_bDragging = true;
-    m_iDragDelta = 0;
-    m_bModified = false;
-    m_LastDragPos = event->globalPos();
-    grabMouse();
-    event->accept();
-    return;
+    QStyleOptionSpinBox opt;
+    initStyleOption(&opt);
+    opt.subControls = QStyle::SC_All;
+    QStyle::SubControl hoverControl = style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, event->pos(), this);
+
+    if (event->button() == Qt::LeftButton && (hoverControl == QStyle::SC_SpinBoxUp || hoverControl == QStyle::SC_SpinBoxDown))
+    {
+      m_fStartDragValue = value();
+      m_bDragging = true;
+      m_iDragDelta = 0;
+      m_bModified = false;
+      m_LastDragPos = event->globalPos();
+      grabMouse();
+      event->accept();
+      return;
+    }
   }
+
   QDoubleSpinBox::mousePressEvent(event);
 }
 
 void ezQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
 {
-  if (event->button() == Qt::LeftButton && m_bDragging)
+  if (!isReadOnly())
   {
-    m_fStartDragValue = 0;
-    m_bDragging = false;
-    m_iDragDelta = 0;
-    if (m_bModified)
+    if (event->button() == Qt::LeftButton && m_bDragging)
     {
-      m_bModified = false;
-      emit editingFinished();
-    }
-    else
-    {
-      QStyleOptionSpinBox opt;
-      initStyleOption(&opt);
-      opt.subControls = QStyle::SC_All;
-      QStyle::SubControl hoverControl = style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, event->pos(), this);
-      if (hoverControl == QStyle::SC_SpinBoxUp)
+      m_fStartDragValue = 0;
+      m_bDragging = false;
+      m_iDragDelta = 0;
+      if (m_bModified)
       {
-        stepUp();
+        m_bModified = false;
+        emit editingFinished();
       }
-      else if (hoverControl == QStyle::SC_SpinBoxDown)
+      else
       {
-        stepDown();
+        QStyleOptionSpinBox opt;
+        initStyleOption(&opt);
+        opt.subControls = QStyle::SC_All;
+        QStyle::SubControl hoverControl = style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, event->pos(), this);
+        if (hoverControl == QStyle::SC_SpinBoxUp)
+        {
+          stepUp();
+        }
+        else if (hoverControl == QStyle::SC_SpinBoxDown)
+        {
+          stepDown();
+        }
+        // editingFinished sent on leave focus
       }
-      // editingFinished sent on leave focus
+      releaseMouse();
+      event->accept();
+      return;
     }
-    releaseMouse();
-    event->accept();
-    return;
   }
 
   QDoubleSpinBox::mouseReleaseEvent(event);
@@ -216,39 +222,46 @@ void ezQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
 
 void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
 {
-  if (m_bDragging)
+  if (!isReadOnly())
   {
-    int iDelta = m_LastDragPos.y() - event->globalPos().y();
-    m_iDragDelta += iDelta;
+    if (m_bDragging)
     {
-      m_LastDragPos = event->globalPos();
-      const QRect dsize = QApplication::desktop()->availableGeometry(m_LastDragPos);
-      if (m_LastDragPos.y() < (dsize.top() + 10))
+      int iDelta = m_LastDragPos.y() - event->globalPos().y();
+      m_iDragDelta += iDelta;
       {
-        m_LastDragPos.setY(dsize.bottom() - 10);
-        QCursor::setPos(m_LastDragPos);
+        m_LastDragPos = event->globalPos();
+        const QRect dsize = QApplication::desktop()->availableGeometry(m_LastDragPos);
+        if (m_LastDragPos.y() < (dsize.top() + 10))
+        {
+          m_LastDragPos.setY(dsize.bottom() - 10);
+          QCursor::setPos(m_LastDragPos);
+        }
+        else if (m_LastDragPos.y() > (dsize.bottom() - 10))
+        {
+          m_LastDragPos.setY(dsize.top() + 10);
+          QCursor::setPos(m_LastDragPos);
+        }
       }
-      else if (m_LastDragPos.y() > (dsize.bottom() - 10))
-      {
-        m_LastDragPos.setY(dsize.top() + 10);
-        QCursor::setPos(m_LastDragPos);
-      }
+
+      double fValue = m_fStartDragValue;
+      if (m_bIntMode)
+        fValue += ((double)m_iDragDelta / 8.0);
+      else
+        fValue += ((double)m_iDragDelta * 0.01);
+
+      setValue(fValue);
+      m_bModified = true;
     }
-
-    double fValue = m_fStartDragValue;
-    if (m_bIntMode)
-      fValue += ((double)m_iDragDelta / 8.0);
-    else
-      fValue += ((double)m_iDragDelta * 0.01);
-
-    setValue(fValue);
-    m_bModified = true;
   }
+
   QDoubleSpinBox::mouseMoveEvent(event);
 }
 
 void ezQtDoubleSpinBox::onCustomContextMenuRequested()
 {
-  m_sDisplayedText = QDoubleSpinBox::textFromValue(m_fDefaultValue);
-  setValue(m_fDefaultValue);
+  if (!isReadOnly())
+  {
+    m_sDisplayedText = QDoubleSpinBox::textFromValue(m_fDefaultValue);
+    setValue(m_fDefaultValue);
+  }
 }
