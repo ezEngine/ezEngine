@@ -17,8 +17,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaResolvePass, 1, ezRTTIDefaultAllocator<ezM
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezMsaaResolvePass::ezMsaaResolvePass() : ezRenderPipelinePass("MsaaResolvePass")
+ezMsaaResolvePass::ezMsaaResolvePass()
+  : ezRenderPipelinePass("MsaaResolvePass")
+  , m_bIsDepth(false)
+  , m_MsaaSampleCount(ezGALMSAASampleCount::None)
 {
+  {
+    // Load shader.
+    m_hDepthResolveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/MsaaDepthResolve.ezShader");
+    EZ_ASSERT_DEV(m_hDepthResolveShader.IsValid(), "Could not load depth resolve shader!");
+  }
 }
 
 ezMsaaResolvePass::~ezMsaaResolvePass()
@@ -38,6 +46,9 @@ bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ez
       ezLog::Error("Input is not a valid msaa target");
       return false;
     }
+
+    m_bIsDepth = ezGALResourceFormat::IsDepthFormat(pInput->m_Format);
+    m_MsaaSampleCount = pInput->m_SampleCount;
     
     ezGALTextureCreationDescription desc = *pInput;
     desc.m_SampleCount = ezGALMSAASampleCount::None;
@@ -46,7 +57,7 @@ bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ez
   }
   else
   {
-    ezLog::Error("No input connected to msaa resolve pass!");
+    ezLog::Error("No input connected to '%s'!", GetName());
     return false;
   }
 
@@ -63,12 +74,39 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     return;
   }
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  ezGALTextureSubresource subresource;
-  subresource.m_uiMipLevel = 0;
-  subresource.m_uiArraySlice = 0;
+  if (m_bIsDepth)
+  {
+    // Setup render target
+    ezGALRenderTagetSetup renderTargetSetup;
+    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
-  pGALContext->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+    // Bind render target and viewport
+    renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+
+    auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
+    globals.NumMsaaSamples = m_MsaaSampleCount;
+
+    renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
+
+    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+    // Prevent shader resource hazard in DX11
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "DepthTexture", ezGALResourceViewHandle());
+    renderViewContext.m_pRenderContext->ApplyContextStates();
+    pGALContext->Flush();
+  }
+  else
+  {
+    ezGALTextureSubresource subresource;
+    subresource.m_uiMipLevel = 0;
+    subresource.m_uiArraySlice = 0;
+
+    pGALContext->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+  }
 }
 

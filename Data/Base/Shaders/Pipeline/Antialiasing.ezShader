@@ -1,0 +1,141 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+MSAA_SAMPLES
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+float FilterBSpline(float x)
+{
+  // Rescale from [-2, 2] range to [-FilterWidth, FilterWidth]
+  x *= 2.0f;
+
+  float x2 = x * x;
+  float x3 = x2 * x;
+  
+  float y = 0.0f;
+  if (x < 1)
+  {
+    y = 3 * x3 - 6 * x2 + 4;
+  }
+  else if (x <= 2)
+  {
+    y = -1 * x3 + 6 * x2 - 12 * x + 8;
+  }
+
+  return y / 6.0f;
+}
+
+float Filter(in float x)
+{
+  //return 1.0f;
+  return FilterBSpline(x);
+}
+
+Texture2DMS<float4> ColorTexture;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  const float FilterSize = 2.0f; // 2 Pixels wide kernel
+  const int SampleRadius = 1;  
+
+  #if MSAA_SAMPLES == MSAA_SAMPLES_TWO
+    float2 SampleOffsets[2] =
+    {
+      float2( 4.0f / 16.0f,  4.0f / 16.0f),
+      float2(-4.0f / 16.0f, -4.0f / 16.0f)
+    };
+  #elif MSAA_SAMPLES == MSAA_SAMPLES_FOUR
+    float2 SampleOffsets[4] =
+    {
+      float2(-2.0f / 16.0f, -6.0f / 16.0f),
+      float2( 6.0f / 16.0f, -2.0f / 16.0f),
+      float2(-6.0f / 16.0f,  2.0f / 16.0f),
+      float2( 2.0f / 16.0f,  6.0f / 16.0f)
+    };
+  #elif MSAA_SAMPLES == MSAA_SAMPLES_EIGHT
+    float2 SampleOffsets[8] =
+    {
+      float2( 1.0f / 16.0f, -3.0f / 16.0f),
+      float2(-1.0f / 16.0f,  3.0f / 16.0f),
+      float2( 5.0f / 16.0f,  1.0f / 16.0f),
+      float2(-3.0f / 16.0f, -5.0f / 16.0f),
+      float2(-5.0f / 16.0f,  5.0f / 16.0f),
+      float2(-7.0f / 16.0f, -1.0f / 16.0f),
+      float2( 3.0f / 16.0f,  7.0f / 16.0f),
+      float2( 7.0f / 16.0f, -7.0f / 16.0f)
+    };
+  #else
+    #error Undefined MSAA Sample count
+  #endif
+
+  int2 coords = Input.Position.xy;
+  int2 maxCoords = int2(Viewport.zw) - 1;
+
+  float3 color = 0.0f;
+  float totalWeight = 0.0f;
+
+  [unroll]
+  for (int y = -SampleRadius; y <= SampleRadius; ++y)
+  {
+    [unroll]
+    for (int x = -SampleRadius; x <= SampleRadius; ++x)
+    {
+      int2 pixelOffset = int2(x, y);
+      int2 currentCoords = coords + pixelOffset;
+      currentCoords = clamp(currentCoords, 0, maxCoords);
+
+      [unroll]
+      for (uint subSampleIdx = 0; subSampleIdx < MSAA_SAMPLES; ++subSampleIdx)
+      {
+        float2 sampleOffset = float2(pixelOffset) + SampleOffsets[subSampleIdx];
+
+        float sampleDist = length(sampleOffset) / (FilterSize / 2.0f);
+
+        if (sampleDist <= 1.0f)
+        {
+          float3 sample = ColorTexture.Load(currentCoords, subSampleIdx).rgb;
+                  
+          float weight = Filter(sampleDist);
+          float luminance = GetLuminance(sample);
+          luminance *= Exposure; // *exp2(ExposureOffset);
+          weight *= 1.0f / (1.0f + luminance);
+                  
+          color += sample * weight;
+          totalWeight += weight;
+        }
+      }
+    }
+  }
+
+  color /= max(totalWeight, 0.00001f);
+  color = max(color, 0.0f);
+
+  return float4(color, 1.0f);
+}
+
+#endif
+

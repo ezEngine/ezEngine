@@ -1,0 +1,46 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = true
+DepthWrite = true
+DepthTestFunc = CompareFunc_Always
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2DMS<float> DepthTexture;
+
+float main(PS_IN Input) : SV_Depth
+{
+  int2 coords = Input.Position.xy;
+  float depth = 0.0f;
+
+  for (uint i = 0; i < NumMsaaSamples; ++i)
+  {
+    depth = max(depth, DepthTexture.Load(coords, i).r);
+  }
+  
+  return depth;
+}
+
+#endif
+

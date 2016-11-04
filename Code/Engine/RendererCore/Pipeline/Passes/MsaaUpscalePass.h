@@ -3,13 +3,13 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
-class EZ_RENDERERCORE_DLL ezMsaaResolvePass : public ezRenderPipelinePass
+class EZ_RENDERERCORE_DLL ezMsaaUpscalePass : public ezRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMsaaResolvePass, ezRenderPipelinePass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMsaaUpscalePass, ezRenderPipelinePass);
 
 public:
-  ezMsaaResolvePass();
-  ~ezMsaaResolvePass();
+  ezMsaaUpscalePass();
+  ~ezMsaaUpscalePass();
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
@@ -21,7 +21,6 @@ protected:
   ezInputNodePin m_PinInput;
   ezOutputNodePin m_PinOutput;
 
-  bool m_bIsDepth;
-  ezGALMSAASampleCount::Enum m_MsaaSampleCount;
-  ezShaderResourceHandle m_hDepthResolveShader;
+  ezGALMSAASampleCount::Enum m_MsaaMode;
+  ezShaderResourceHandle m_hShader;
 };

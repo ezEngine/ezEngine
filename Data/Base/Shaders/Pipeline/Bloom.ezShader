@@ -8,7 +8,6 @@ BLOOM_PASS_MODE
 [RENDERSTATE]
 
 DepthTest = false
-DepthTestFunc = CompareFunc_Less
 DepthWrite = false
 CullMode = CullMode_None
 

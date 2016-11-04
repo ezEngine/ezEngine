@@ -104,7 +104,7 @@ float4 main(PS_IN Input) : SV_Target
   else
   {
     float sceneDepth = SampleDepth(SceneDepthTexture, coords, Input);
-    if (sceneDepth + 0.001f < depth)
+    if (sceneDepth < depth)
     {
       discard;
     }

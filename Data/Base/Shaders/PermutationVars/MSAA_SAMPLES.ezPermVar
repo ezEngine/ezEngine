@@ -1,0 +1,6 @@
+enum MSAA_SAMPLES
+{
+  TWO = 2,
+  FOUR = 4,
+  EIGHT = 8
+};

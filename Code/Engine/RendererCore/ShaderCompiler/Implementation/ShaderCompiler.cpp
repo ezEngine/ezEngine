@@ -63,8 +63,11 @@ namespace
 
         for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
         {
-          sTemp.Format("%s_%s %d", szName, enumValues[i].GetData(), i);
-          out_Defines.PushBack(sTemp);
+          if (!enumValues[i].IsEmpty())
+          {
+            sTemp.Format("%s_%s %d", szName, enumValues[i].GetData(), i);
+            out_Defines.PushBack(sTemp);
+          }
         }
 
         if (ezStringUtils::StartsWith(szValue, szName))
