@@ -1,5 +1,6 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/UIServices/ColorDlgWidgets.moc.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <QPainter>
 #include <QColor>
 #include <qevent.h>
