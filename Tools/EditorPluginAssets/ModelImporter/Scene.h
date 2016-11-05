@@ -51,8 +51,15 @@ namespace ezModelImporter
     MaterialHandle AddMaterial(ezUniquePtr<Material> material);
 
     /// Adds all objects without a parent to the list of root objects.
+    ///
     /// Called by Importer after ImporterImplementation is done.
     void RefreshRootList();
+
+    /// Ensures that every hierarchy object has an unique name.
+    ///
+    /// Does not change the name of materials
+    /// Called by Importer after ImporterImplementation is done.
+    void CreateUniqueNames();
 
     // Postprocessing
   public:

@@ -86,7 +86,10 @@ namespace ezModelImporter
         ValidateSceneGraph(scene.Borrow());
 #endif
         if (scene)
+        {
           scene->RefreshRootList();
+          scene->CreateUniqueNames();
+        }
 
         ezLog::Success("Scene '%s' has been imported (time %f.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
         return std::move(scene);

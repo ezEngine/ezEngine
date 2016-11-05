@@ -96,6 +96,50 @@ namespace ezModelImporter
     EZ_ASSERT_DEBUG((m_Nodes.IsEmpty() && m_Meshes.IsEmpty()) || !m_RootObjects.IsEmpty(), "There are objects but no root objects. The scene graph is a circle!");
   }
 
+  namespace
+  {
+    template<typename HierarchyNodeCollection>
+    void CreateUniqueNamesImpl(HierarchyNodeCollection& hierarchyObjectList, const char* unnamedPrefix)
+    {
+      int unnamedCounter = 0;
+      ezHashSet<ezString> encounteredNames;
+      for (auto it = hierarchyObjectList.GetIterator(); it.IsValid(); ++it)
+      {
+        auto& targetName = it.Value()->m_Name;
+
+        if (targetName.IsEmpty())
+        {
+          ezStringBuilder newName = unnamedPrefix;
+          newName.Append(ezConversionUtils::ToString(unnamedCounter));
+          ++unnamedCounter;
+
+          targetName = newName;
+          encounteredNames.Insert(targetName);
+        }
+        else if (encounteredNames.Contains(targetName))
+        {
+          ezStringBuilder newName;
+
+          int suffix = 0;
+          do {
+            newName = targetName;
+            newName.Append("_", ezConversionUtils::ToString(suffix));
+            ++suffix;
+          } while (encounteredNames.Contains(newName));
+
+          targetName = newName;
+          encounteredNames.Insert(targetName);
+        }
+      }
+    }
+  }
+
+  void Scene::CreateUniqueNames()
+  {
+    CreateUniqueNamesImpl(m_Nodes, "Node");
+    CreateUniqueNamesImpl(m_Meshes, "Mesh");
+  }
+
   Mesh* Scene::MergeAllMeshes(bool mergeSubmeshesWithSameMaterials)
   {
     ezStopwatch timer;
