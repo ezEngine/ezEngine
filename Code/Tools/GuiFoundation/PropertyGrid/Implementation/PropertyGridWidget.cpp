@@ -65,6 +65,7 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
     return new ezQtPropertyEditorLineEditWidget();
 
   case ezVariant::Type::Color:
+  case ezVariant::Type::ColorGamma:
     return new ezQtPropertyEditorColorWidget();
 
   case ezVariant::Type::Angle:

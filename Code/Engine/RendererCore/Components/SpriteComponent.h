@@ -49,8 +49,8 @@ public:
   void SetTextureFile(const char* szFile);
   const char* GetTextureFile() const;
 
-  void SetColor(ezColor color);
-  ezColor GetColor() const;
+  void SetColor(ezColorGammaUB color);
+  ezColorGammaUB GetColor() const;
 
   void SetSize(float fSize);
   float GetSize() const;
@@ -61,7 +61,7 @@ public:
 private:
 
   ezTextureResourceHandle m_hTexture;
-  ezColor m_Color;
+  ezColorGammaUB m_Color;
 
   float m_fSize;
   float m_fMaxScreenSize;

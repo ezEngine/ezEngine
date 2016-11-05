@@ -22,8 +22,8 @@ class EZ_RENDERERCORE_DLL ezLightComponent : public ezRenderComponent
 public:
   ezLightComponent();
 
-  void SetLightColor(ezColor LightColor);
-  ezColor GetLightColor() const;
+  void SetLightColor(ezColorGammaUB LightColor);
+  ezColorGammaUB GetLightColor() const;
 
   void SetIntensity(float fIntensity);
   float GetIntensity() const;
@@ -36,7 +36,7 @@ public:
 
 protected:
 
-  ezColor m_LightColor;
+  ezColorGammaUB m_LightColor;
   float m_fIntensity;
   bool m_bCastShadows;
 

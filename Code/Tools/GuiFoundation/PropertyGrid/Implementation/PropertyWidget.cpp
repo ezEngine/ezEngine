@@ -817,6 +817,8 @@ void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)
 
 ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget() : ezQtStandardPropertyWidget()
 {
+  m_bExposeAlpha = false;
+
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
@@ -827,6 +829,11 @@ ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget() : ezQtStandardPro
   m_pLayout->addWidget(m_pWidget);
 
   EZ_VERIFY(connect(m_pWidget, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
+}
+
+void ezQtPropertyEditorColorWidget::OnInit()
+{
+  m_bExposeAlpha = (m_pProp->GetAttributeByType<ezExposeColorAlphaAttribute>() != nullptr);
 }
 
 void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
@@ -841,26 +848,35 @@ void ezQtPropertyEditorColorWidget::on_Button_triggered()
 {
   Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
 
+  bool bShowHDR = false;
+
   ezColor temp = ezColor::White;
   if (m_OriginalValue.IsValid())
+  {
+    bShowHDR = m_OriginalValue.IsA<ezColor>();
+
     temp = m_OriginalValue.ConvertTo<ezColor>();
+  }
 
-  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
-}
-
-void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
-{
-  const ezColor NewCol(ezColorGammaUB(color.red(), color.green(), color.blue(), color.alpha()));
-
-  m_pWidget->SetColor(NewCol);
-
-  BroadcastValueChanged(NewCol);
+  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, m_bExposeAlpha, bShowHDR, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const ezColor& color)
 {
-  m_pWidget->SetColor(color);
-  BroadcastValueChanged(color);
+  ezVariant col;
+
+  if (m_OriginalValue.IsA<ezColorGammaUB>())
+  {
+    // ezVariant does not down-cast to ezColorGammaUB automatically
+    col = ezColorGammaUB(color);
+  }
+  else
+  {
+    col = color;
+  }
+
+  m_pWidget->SetColor(col);
+  BroadcastValueChanged(col);
 }
 
 void ezQtPropertyEditorColorWidget::on_Color_reset()

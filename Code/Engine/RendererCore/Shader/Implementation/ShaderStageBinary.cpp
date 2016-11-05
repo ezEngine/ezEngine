@@ -43,7 +43,8 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
     case Type::Float4:
       if (pValue->GetType() == ezVariant::Type::Color || pValue->GetType() == ezVariant::Type::ColorGamma)
       {
-        *reinterpret_cast<ezVec4*>(pDest) = *reinterpret_cast<const ezVec4*>(&pValue->ConvertTo<ezColor>());
+        const ezColor tmp = pValue->ConvertTo<ezColor>();
+        *reinterpret_cast<ezVec4*>(pDest) = *reinterpret_cast<const ezVec4*>(&tmp);
       }
       else
       {

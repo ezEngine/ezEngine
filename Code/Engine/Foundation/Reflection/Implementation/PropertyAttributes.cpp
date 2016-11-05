@@ -30,6 +30,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorAttribute, 1, ezRTTIDefaultAllocator<ezCo
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposeColorAlphaAttribute, 1, ezRTTIDefaultAllocator<ezExposeColorAlphaAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSuffixAttribute, 1, ezRTTIDefaultAllocator<ezSuffixAttribute>)
 {

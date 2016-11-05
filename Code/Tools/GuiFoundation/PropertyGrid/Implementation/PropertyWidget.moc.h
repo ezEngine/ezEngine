@@ -211,16 +211,16 @@ public:
 
 private slots:
   void on_Button_triggered();
-  void on_CurrentColor_changed(const QColor& color);
   void on_CurrentColor_changed(const ezColor& color);
   void on_Color_reset();
   void on_Color_accepted();
 
 protected:
-  virtual void OnInit() override {}
+  virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
+  bool m_bExposeAlpha;
   QHBoxLayout* m_pLayout;
   ezQtColorButtonWidget* m_pWidget;
   ezVariant m_OriginalValue;

@@ -8,12 +8,12 @@
 
 QPoint ezQtColorDialog::s_LastDialogPosition;
 
-void ezQtUiServices::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
+void ezQtUiServices::ShowColorDialog(const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
 {
   m_pColorDlg = new ezQtColorDialog(color, pParent);
   m_pColorDlg->move(m_ColorDlgPos);
   m_pColorDlg->ShowAlpha(bAlpha);
-  m_pColorDlg->ShowHDR(true);
+  m_pColorDlg->ShowHDR(bHDR);
 
   EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(CurrentColorChanged(const ezColor&)), pParent, slotCurColChanged) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), pParent, slotAccept) != nullptr, "signal/slot connection failed");

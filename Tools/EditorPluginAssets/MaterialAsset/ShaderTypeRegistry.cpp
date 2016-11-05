@@ -215,6 +215,9 @@ namespace
             }
 
             attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, color));
+
+            // always expose the alpha channel for color properties
+            attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
           }
         }
         else if (pType == ezGetStaticRTTI<ezString>())

@@ -25,11 +25,11 @@ public:
   ezAmbientLightComponent();
   ~ezAmbientLightComponent();
 
-  void SetTopColor(ezColor color);
-  ezColor GetTopColor() const;
+  void SetTopColor(ezColorGammaUB color);
+  ezColorGammaUB GetTopColor() const;
 
-  void SetBottomColor(ezColor color);
-  ezColor GetBottomColor() const;
+  void SetBottomColor(ezColorGammaUB color);
+  ezColorGammaUB GetBottomColor() const;
 
   void SetIntensity(float fIntensity);
   float GetIntensity() const;
@@ -41,7 +41,7 @@ public:
 
 private:
 
-  ezColor m_TopColor;
-  ezColor m_BottomColor;
+  ezColorGammaUB m_TopColor;
+  ezColorGammaUB m_BottomColor;
   float m_fIntensity;
 };

@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor),
+    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Max Screen Size", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
   }
@@ -147,12 +147,12 @@ const char* ezSpriteComponent::GetTextureFile() const
   return m_hTexture.GetResourceID();
 }
 
-void ezSpriteComponent::SetColor(ezColor color)
+void ezSpriteComponent::SetColor(ezColorGammaUB color)
 {
   m_Color = color;
 }
 
-ezColor ezSpriteComponent::GetColor() const
+ezColorGammaUB ezSpriteComponent::GetColor() const
 {
   return m_Color;
 }

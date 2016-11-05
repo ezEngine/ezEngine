@@ -11,8 +11,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Top Color", GetTopColor, SetTopColor)->AddAttributes(new ezDefaultValueAttribute(ezColor(0.2f, 0.2f, 0.3f))),
-    EZ_ACCESSOR_PROPERTY("Bottom Color", GetBottomColor, SetBottomColor)->AddAttributes(new ezDefaultValueAttribute(ezColor(0.1f, 0.1f, 0.15f))),
+    EZ_ACCESSOR_PROPERTY("Top Color", GetTopColor, SetTopColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.2f, 0.2f, 0.3f)))),
+    EZ_ACCESSOR_PROPERTY("Bottom Color", GetBottomColor, SetBottomColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.1f, 0.1f, 0.15f)))),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f))
   }
   EZ_END_PROPERTIES
@@ -41,24 +41,24 @@ ezAmbientLightComponent::~ezAmbientLightComponent()
 
 }
 
-void ezAmbientLightComponent::SetTopColor(ezColor color)
+void ezAmbientLightComponent::SetTopColor(ezColorGammaUB color)
 {
   m_TopColor = color;
   SetModified(EZ_BIT(1));
 }
 
-ezColor ezAmbientLightComponent::GetTopColor() const
+ezColorGammaUB ezAmbientLightComponent::GetTopColor() const
 {
   return m_TopColor;
 }
 
-void ezAmbientLightComponent::SetBottomColor(ezColor color)
+void ezAmbientLightComponent::SetBottomColor(ezColorGammaUB color)
 {
   m_BottomColor = color;
   SetModified(EZ_BIT(2));
 }
 
-ezColor ezAmbientLightComponent::GetBottomColor() const
+ezColorGammaUB ezAmbientLightComponent::GetBottomColor() const
 {
   return m_BottomColor;
 }
@@ -84,9 +84,9 @@ void ezAmbientLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& ms
   auto pRenderData = ezCreateRenderDataForThisFrame<ezAmbientLightRenderData>(GetOwner(), uiBatchId);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_TopColor = m_TopColor * m_fIntensity;
-  pRenderData->m_BottomColor = m_BottomColor * m_fIntensity;
-  
+  pRenderData->m_TopColor = ezColor(m_TopColor) * m_fIntensity;
+  pRenderData->m_BottomColor = ezColor(m_BottomColor) * m_fIntensity;
+
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
 }
 

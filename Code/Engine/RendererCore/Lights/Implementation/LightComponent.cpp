@@ -31,17 +31,17 @@ ezLightComponent::ezLightComponent()
 }
 
 
-void ezLightComponent::SetLightColor( ezColor LightColor )
+void ezLightComponent::SetLightColor(ezColorGammaUB LightColor)
 {
   m_LightColor = LightColor;
 }
 
-ezColor ezLightComponent::GetLightColor() const
+ezColorGammaUB ezLightComponent::GetLightColor() const
 {
   return m_LightColor;
 }
 
-void ezLightComponent::SetIntensity( float fIntensity )
+void ezLightComponent::SetIntensity(float fIntensity)
 {
   m_fIntensity = fIntensity;
 }
@@ -51,7 +51,7 @@ float ezLightComponent::GetIntensity() const
   return m_fIntensity;
 }
 
-void ezLightComponent::SetCastShadows( bool bCastShadows )
+void ezLightComponent::SetCastShadows(bool bCastShadows)
 {
   m_bCastShadows = bCastShadows;
 }

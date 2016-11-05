@@ -386,7 +386,13 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
         const ezString& sType = varValue.Get<ezString>();
 
         if (sType == "color")
+        {
           prop.m_sType = ezGetStaticRTTI<ezColor>()->GetTypeName();
+
+          // always expose the alpha channel for color properties
+          ezExposeColorAlphaAttribute* pAttr = static_cast<ezExposeColorAlphaAttribute*>(ezExposeColorAlphaAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
+          prop.m_Attributes.PushBack(pAttr);
+        }
         else if (sType == "float4")
           prop.m_sType = ezGetStaticRTTI<ezVec4>()->GetTypeName();
         else if (sType == "float3")

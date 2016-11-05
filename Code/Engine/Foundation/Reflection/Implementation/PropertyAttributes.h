@@ -61,6 +61,12 @@ private:
   ezColor m_Color;
 };
 
+/// \brief A property attribute that indicates that the alpha channel of an ezColorGammaUB or ezColor should be exposed in the UI.
+class EZ_FOUNDATION_DLL ezExposeColorAlphaAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExposeColorAlphaAttribute, ezPropertyAttribute);
+};
+
 /// \brief Used for any property shown as a line edit (int, float, vector etc).
 class EZ_FOUNDATION_DLL ezSuffixAttribute : public ezPropertyAttribute
 {

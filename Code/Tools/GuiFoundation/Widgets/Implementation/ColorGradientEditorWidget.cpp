@@ -177,8 +177,7 @@ void ezQtColorGradientEditorWidget::on_ButtonColor_clicked()
 
     emit BeginOperation();
 
-    ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, this,
-                                                  SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+    ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, false, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
   }
 }
 
