@@ -64,6 +64,7 @@ namespace
     s_NameToTypeTable.Insert("uint4", ezGetStaticRTTI<ezVec4U32>());
     s_NameToTypeTable.Insert("bool", ezGetStaticRTTI<bool>());
     s_NameToTypeTable.Insert("Color", ezGetStaticRTTI<ezColor>());
+    /// \todo Are we going to support linear UB colors ?
     s_NameToTypeTable.Insert("Texture", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("Texture2D", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("Texture3D", ezGetStaticRTTI<ezString>());

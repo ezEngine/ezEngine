@@ -41,9 +41,9 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
     case Type::Float3:
       *reinterpret_cast<ezVec3*>(pDest) = pValue->Get<ezVec3>(); return;
     case Type::Float4:
-      if (pValue->GetType() == ezVariant::Type::Color)
+      if (pValue->GetType() == ezVariant::Type::Color || pValue->GetType() == ezVariant::Type::ColorGamma)
       {
-        *reinterpret_cast<ezVec4*>(pDest) = *reinterpret_cast<const ezVec4*>(&pValue->Get<ezColor>());
+        *reinterpret_cast<ezVec4*>(pDest) = *reinterpret_cast<const ezVec4*>(&pValue->ConvertTo<ezColor>());
       }
       else
       {
@@ -88,7 +88,7 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
   {
     return;
   }
-  
+
   //ezLog::Error("Constant '%s' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName.GetData());
   const ezUInt32 uiSize = s_TypeSize[m_Type];
   ezMemoryUtils::ZeroFill(pDest, uiSize);
@@ -287,7 +287,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
         r.m_pLayout = pLayout;
       }
     }
-  }  
+  }
 
   return EZ_SUCCESS;
 }

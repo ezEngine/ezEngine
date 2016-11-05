@@ -145,36 +145,39 @@ namespace ezConversionUtils
 
   /// \brief Converts a 8bit signed integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezInt8 value); // [tested]
-  
+
   /// \brief Converts a 8bit unsigned integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezUInt8 value); // [tested]
 
   /// \brief Converts a 16bit signed integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezInt16 value); // [tested]
-  
+
   /// \brief Converts a 16bit unsigned integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezUInt16 value); // [tested]
 
   /// \brief Converts a 32bit signed integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezInt32 value); // [tested]
-  
+
   /// \brief Converts a 32bit unsigned integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezUInt32 value); // [tested]
-  
+
   /// \brief Converts a 64bit signed integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezInt64 value); // [tested]
-  
+
   /// \brief Converts a 64bit unsigned integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezUInt64 value); // [tested]
-  
+
   /// \brief Converts a float to a string
   EZ_FOUNDATION_DLL ezString ToString(float value); // [tested]
-  
+
   /// \brief Converts a double to a string
   EZ_FOUNDATION_DLL ezString ToString(double value); // [tested]
 
   /// \brief Converts a color to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezColor& value); // [tested]
+
+  /// \brief Converts a color to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezColorGammaUB& value);
 
   /// \brief Converts a vec2 to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezVec2& value); // [tested]
@@ -205,7 +208,7 @@ namespace ezConversionUtils
 
   /// \brief Converts a transform to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezTransform& value); // [tested]
-  
+
   /// \brief Converts a Uuid to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezUuid& value);
 

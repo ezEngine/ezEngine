@@ -1,7 +1,11 @@
 #pragma once
 
-EZ_FORCE_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/) : ezColorUnsignedByteBase(R, G, B, A)
+EZ_FORCE_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/)
 {
+  r = R;
+  g = G;
+  b = B;
+  a = A;
 }
 
 inline ezColorLinearUB::ezColorLinearUB(const ezColor& color)
@@ -26,8 +30,12 @@ inline ezColor ezColorLinearUB::ToLinearFloat() const
 
 // *****************
 
-EZ_FORCE_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A) : ezColorUnsignedByteBase(R, G, B, A)
+EZ_FORCE_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A)
 {
+  r = R;
+  g = G;
+  b = B;
+  a = A;
 }
 
 inline ezColorGammaUB::ezColorGammaUB(const ezColor& color)

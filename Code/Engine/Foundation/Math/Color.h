@@ -305,6 +305,9 @@ public:
   /// \brief Raises 2 to the power \a ev and multiplies RGB with that factor.
   void ApplyHdrExposureValue(ezUInt32 ev);
 
+  /// \brief If this is an HDR color, the largest component value is used to normalize RGB to LDR range. Alpha is unaffected.
+  void NormalizeToLdrRange();
+
   // *** Numeric properties ***
 public:
 

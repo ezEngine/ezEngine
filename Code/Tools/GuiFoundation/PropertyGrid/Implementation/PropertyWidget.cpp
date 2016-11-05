@@ -788,7 +788,10 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
 {
   if (color.IsValid())
   {
-    ezColorGammaUB col = color.ConvertTo<ezColor>();
+    ezColor col0 = color.ConvertTo<ezColor>();
+    col0.NormalizeToLdrRange();
+
+    const ezColorGammaUB col = col0;
 
     QColor qol;
     qol.setRgb(col.r, col.g, col.b, col.a);

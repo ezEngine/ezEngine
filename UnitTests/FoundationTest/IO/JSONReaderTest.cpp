@@ -42,49 +42,49 @@ namespace JSONReaderTestDetail
     switch (var.GetType())
     {
     case ezVariant::Type::VariantDictionary:
-    {
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), "<object>");
-      Compare.PopFront();
-
-      const ezVariantDictionary& vd = var.Get<ezVariantDictionary>();
-
-      for (auto it = vd.GetIterator(); it.IsValid(); ++it)
       {
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), "<object>");
+        Compare.PopFront();
+
+        const ezVariantDictionary& vd = var.Get<ezVariantDictionary>();
+
+        for (auto it = vd.GetIterator(); it.IsValid(); ++it)
+        {
+          if (Compare.IsEmpty())
+            return;
+
+          EZ_TEST_STRING(Compare.PeekFront().GetData(), it.Key().GetData());
+          Compare.PopFront();
+
+          TraverseTree(it.Value(), Compare);
+        }
+
         if (Compare.IsEmpty())
           return;
 
-        EZ_TEST_STRING(Compare.PeekFront().GetData(), it.Key().GetData());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), "</object>");
         Compare.PopFront();
-
-        TraverseTree(it.Value(), Compare);
       }
-
-      if (Compare.IsEmpty())
-        return;
-
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), "</object>");
-      Compare.PopFront();
-    }
       break;
 
     case ezVariant::Type::VariantArray:
-    {
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), "<array>");
-      Compare.PopFront();
-
-      const ezVariantArray& va = var.Get<ezVariantArray>();
-
-      for (ezUInt32 i = 0; i < va.GetCount(); ++i)
       {
-        TraverseTree(va[i], Compare);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), "<array>");
+        Compare.PopFront();
+
+        const ezVariantArray& va = var.Get<ezVariantArray>();
+
+        for (ezUInt32 i = 0; i < va.GetCount(); ++i)
+        {
+          TraverseTree(va[i], Compare);
+        }
+
+        if (Compare.IsEmpty())
+          return;
+
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), "</array>");
+        Compare.PopFront();
       }
-
-      if (Compare.IsEmpty())
-        return;
-
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), "</array>");
-      Compare.PopFront();
-    }
       break;
 
     case ezVariant::Type::Invalid:
@@ -98,111 +98,111 @@ namespace JSONReaderTestDetail
       break;
 
     case ezVariant::Type::Int8:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("int8 %i", var.Get<ezInt8>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("int8 %i", var.Get<ezInt8>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::UInt8:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("uint8 %i", var.Get<ezUInt8>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("uint8 %i", var.Get<ezUInt8>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Int16:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("int16 %i", var.Get<ezInt16>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("int16 %i", var.Get<ezInt16>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::UInt16:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("uint16 %i", var.Get<ezUInt16>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("uint16 %i", var.Get<ezUInt16>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Int32:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("int32 %i", var.Get<ezInt32>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("int32 %i", var.Get<ezInt32>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::UInt32:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("uint32 %i", var.Get<ezUInt32>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("uint32 %i", var.Get<ezUInt32>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Int64:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("int64 %i", var.Get<ezInt64>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("int64 %i", var.Get<ezInt64>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::UInt64:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("uint64 %i", var.Get<ezUInt64>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("uint64 %i", var.Get<ezUInt64>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Float:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("float %.4f", var.Get<float>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("float %.4f", var.Get<float>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Double:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("double %.4f", var.Get<double>());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("double %.4f", var.Get<double>());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Time:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("time %.4f", var.Get<ezTime>().GetSeconds());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("time %.4f", var.Get<ezTime>().GetSeconds());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Angle:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("angle %.4f", var.Get<ezAngle>().GetDegree());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("angle %.4f", var.Get<ezAngle>().GetDegree());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::String:
@@ -211,107 +211,118 @@ namespace JSONReaderTestDetail
       break;
 
     case ezVariant::Type::Vector2:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("vec2 (%.4f, %.4f)", var.Get<ezVec2>().x, var.Get<ezVec2>().y);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("vec2 (%.4f, %.4f)", var.Get<ezVec2>().x, var.Get<ezVec2>().y);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Vector3:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("vec3 (%.4f, %.4f, %.4f)", var.Get<ezVec3>().x, var.Get<ezVec3>().y, var.Get<ezVec3>().z);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("vec3 (%.4f, %.4f, %.4f)", var.Get<ezVec3>().x, var.Get<ezVec3>().y, var.Get<ezVec3>().z);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Vector4:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("vec4 (%.4f, %.4f, %.4f, %.4f)", var.Get<ezVec4>().x, var.Get<ezVec4>().y, var.Get<ezVec4>().z, var.Get<ezVec4>().w);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("vec4 (%.4f, %.4f, %.4f, %.4f)", var.Get<ezVec4>().x, var.Get<ezVec4>().y, var.Get<ezVec4>().z, var.Get<ezVec4>().w);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Vector2I:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("vec2i (%i, %i)", var.Get<ezVec2I32>().x, var.Get<ezVec2I32>().y);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("vec2i (%i, %i)", var.Get<ezVec2I32>().x, var.Get<ezVec2I32>().y);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Vector3I:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("vec3i (%i, %i, %i)", var.Get<ezVec3I32>().x, var.Get<ezVec3I32>().y, var.Get<ezVec3I32>().z);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("vec3i (%i, %i, %i)", var.Get<ezVec3I32>().x, var.Get<ezVec3I32>().y, var.Get<ezVec3I32>().z);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Vector4I:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("vec4i (%i, %i, %i, %i)", var.Get<ezVec4I32>().x, var.Get<ezVec4I32>().y, var.Get<ezVec4I32>().z, var.Get<ezVec4I32>().w);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("vec4i (%i, %i, %i, %i)", var.Get<ezVec4I32>().x, var.Get<ezVec4I32>().y, var.Get<ezVec4I32>().z, var.Get<ezVec4I32>().w);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Color:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("color (%.4f, %.4f, %.4f, %.4f)", var.Get<ezColor>().r, var.Get<ezColor>().g, var.Get<ezColor>().b, var.Get<ezColor>().a);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("color (%.4f, %.4f, %.4f, %.4f)", var.Get<ezColor>().r, var.Get<ezColor>().g, var.Get<ezColor>().b, var.Get<ezColor>().a);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
+      break;
+
+    case ezVariant::Type::ColorGamma:
+      {
+        ezStringBuilder sTemp;
+        const ezColorGammaUB c = var.ConvertTo<ezColorGammaUB>();
+
+        sTemp.Format("gamma (%u, %u, %u, %u)", c.r, c.g, c.b, c.a);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Quaternion:
-    {
-      ezStringBuilder sTemp;
-      sTemp.Format("quat (%.4f, %.4f, %.4f, %.4f)", var.Get<ezQuat>().v.x, var.Get<ezQuat>().v.y, var.Get<ezQuat>().v.z, var.Get<ezQuat>().w);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezStringBuilder sTemp;
+        sTemp.Format("quat (%.4f, %.4f, %.4f, %.4f)", var.Get<ezQuat>().v.x, var.Get<ezQuat>().v.y, var.Get<ezQuat>().v.z, var.Get<ezQuat>().w);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Matrix3:
-    {
-      ezMat3 m = var.Get<ezMat3>();
+      {
+        ezMat3 m = var.Get<ezMat3>();
 
-      ezStringBuilder sTemp;
-      sTemp.Format("mat3 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)", m.m_fElementsCM[0], m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5], m.m_fElementsCM[6], m.m_fElementsCM[7], m.m_fElementsCM[8]);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+        ezStringBuilder sTemp;
+        sTemp.Format("mat3 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)", m.m_fElementsCM[0], m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5], m.m_fElementsCM[6], m.m_fElementsCM[7], m.m_fElementsCM[8]);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Matrix4:
-    {
-      ezMat4 m = var.Get<ezMat4>();
+      {
+        ezMat4 m = var.Get<ezMat4>();
 
-      ezStringBuilder sTemp;
-      sTemp.Format("mat4 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)", m.m_fElementsCM[0], m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5], m.m_fElementsCM[6], m.m_fElementsCM[7], m.m_fElementsCM[8], m.m_fElementsCM[9], m.m_fElementsCM[10], m.m_fElementsCM[11], m.m_fElementsCM[12], m.m_fElementsCM[13], m.m_fElementsCM[14], m.m_fElementsCM[15]);
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+        ezStringBuilder sTemp;
+        sTemp.Format("mat4 (%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)", m.m_fElementsCM[0], m.m_fElementsCM[1], m.m_fElementsCM[2], m.m_fElementsCM[3], m.m_fElementsCM[4], m.m_fElementsCM[5], m.m_fElementsCM[6], m.m_fElementsCM[7], m.m_fElementsCM[8], m.m_fElementsCM[9], m.m_fElementsCM[10], m.m_fElementsCM[11], m.m_fElementsCM[12], m.m_fElementsCM[13], m.m_fElementsCM[14], m.m_fElementsCM[15]);
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     case ezVariant::Type::Uuid:
-    {
-      ezUuid uuid = var.Get<ezUuid>();
-      ezStringBuilder sTemp;
-      sTemp.Format("uuid %s", ezConversionUtils::ToString(uuid).GetData());
-      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
-      Compare.PopFront();
-    }
+      {
+        ezUuid uuid = var.Get<ezUuid>();
+        ezStringBuilder sTemp;
+        sTemp.Format("uuid %s", ezConversionUtils::ToString(uuid).GetData());
+        EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+        Compare.PopFront();
+      }
       break;
 
     default:
@@ -327,7 +338,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test")
   {
     ezStringUtf8 sTD(
-L"{\n\
+      L"{\n\
 \"myarray2\":[\"\",2.2],\n\
 \"myarray\" : [1, 2.2, 3.3, false, \"ende\" ],\n\
 \"String\"/**/ : \"testvälue\",\n\
@@ -369,76 +380,76 @@ L"{\n\
 
     ezDeque<ezString> sCompare;
     sCompare.PushBack("<object>");
-      sCompare.PushBack("bool");
-      sCompare.PushBack("bool true");
+    sCompare.PushBack("bool");
+    sCompare.PushBack("bool true");
 
-      sCompare.PushBack("int");
-      sCompare.PushBack("double 23.0000");
+    sCompare.PushBack("int");
+    sCompare.PushBack("double 23.0000");
 
-      sCompare.PushBack("myarray");
-      sCompare.PushBack("<array>");
-        sCompare.PushBack("double 1.0000");
-        sCompare.PushBack("double 2.2000");
-        sCompare.PushBack("double 3.3000");
-        sCompare.PushBack("bool false");
-        sCompare.PushBack("ende");
-      sCompare.PushBack("</array>");
+    sCompare.PushBack("myarray");
+    sCompare.PushBack("<array>");
+    sCompare.PushBack("double 1.0000");
+    sCompare.PushBack("double 2.2000");
+    sCompare.PushBack("double 3.3000");
+    sCompare.PushBack("bool false");
+    sCompare.PushBack("ende");
+    sCompare.PushBack("</array>");
 
-      sCompare.PushBack("object");
-      sCompare.PushBack("<object>");
+    sCompare.PushBack("object");
+    sCompare.PushBack("<object>");
 
-        sCompare.PushBack("variable in object");
-        sCompare.PushBack("bla\\\"/"); // escaped backslash, quotation mark, slash
-      
-        sCompare.PushBack("Subobject");
-        sCompare.PushBack("<object>");
+    sCompare.PushBack("variable in object");
+    sCompare.PushBack("bla\\\"/"); // escaped backslash, quotation mark, slash
 
-          sCompare.PushBack("array in sub");
-          sCompare.PushBack("<array>");
+    sCompare.PushBack("Subobject");
+    sCompare.PushBack("<object>");
 
-            sCompare.PushBack("<object>");
-              sCompare.PushBack("obj var");
-              sCompare.PushBack("double 234.0000");
-            sCompare.PushBack("</object>");
+    sCompare.PushBack("array in sub");
+    sCompare.PushBack("<array>");
 
-            sCompare.PushBack("<object>");
-              sCompare.PushBack("obj var 2");
-              sCompare.PushBack("double -235.0000");
-            sCompare.PushBack("</object>");
+    sCompare.PushBack("<object>");
+    sCompare.PushBack("obj var");
+    sCompare.PushBack("double 234.0000");
+    sCompare.PushBack("</object>");
 
-            sCompare.PushBack("bool true");
-            sCompare.PushBack("double 4.0000");
-            sCompare.PushBack("bool false");
+    sCompare.PushBack("<object>");
+    sCompare.PushBack("obj var 2");
+    sCompare.PushBack("double -235.0000");
+    sCompare.PushBack("</object>");
 
-          sCompare.PushBack("</array>");
+    sCompare.PushBack("bool true");
+    sCompare.PushBack("double 4.0000");
+    sCompare.PushBack("bool false");
 
-          sCompare.PushBack("variable in subobject");
-          sCompare.PushBack("blub\r\f\n\b\t"); // escaped special characters
+    sCompare.PushBack("</array>");
 
-        sCompare.PushBack("</object>");
+    sCompare.PushBack("variable in subobject");
+    sCompare.PushBack("blub\r\f\n\b\t"); // escaped special characters
 
-      sCompare.PushBack("</object>");
+    sCompare.PushBack("</object>");
 
-      sCompare.PushBack("test");
-      sCompare.PushBack("text");
+    sCompare.PushBack("</object>");
 
-      sCompare.PushBack("String");
-      sCompare.PushBack(ezStringUtf8(L"testvälue").GetData()); // unicode literal
+    sCompare.PushBack("test");
+    sCompare.PushBack("text");
 
-      sCompare.PushBack("float");
-      sCompare.PushBack("double 64.7200");
+    sCompare.PushBack("String");
+    sCompare.PushBack(ezStringUtf8(L"testvälue").GetData()); // unicode literal
 
-      sCompare.PushBack(ezStringUtf8(L"MyNüll").GetData()); // unicode literal
-      sCompare.PushBack("null");
+    sCompare.PushBack("float");
+    sCompare.PushBack("double 64.7200");
 
-      sCompare.PushBack("double");
-      sCompare.PushBack("double 43.5600");
+    sCompare.PushBack(ezStringUtf8(L"MyNüll").GetData()); // unicode literal
+    sCompare.PushBack("null");
 
-      sCompare.PushBack("myarray2");
-      sCompare.PushBack("<array>");
-        sCompare.PushBack("");
-        sCompare.PushBack("double 2.2000");
-      sCompare.PushBack("</array>");
+    sCompare.PushBack("double");
+    sCompare.PushBack("double 43.5600");
+
+    sCompare.PushBack("myarray2");
+    sCompare.PushBack("<array>");
+    sCompare.PushBack("");
+    sCompare.PushBack("double 2.2000");
+    sCompare.PushBack("</array>");
 
     sCompare.PushBack("</object>");
 

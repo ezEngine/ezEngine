@@ -516,6 +516,15 @@ namespace ezConversionUtils
     return sb;
   }
 
+  ezString ToString(const ezColorGammaUB& value)
+  {
+    /// \test This is new
+
+    ezStringBuilder sb;
+    sb.Format("{ r=%u, g=%u, b=%u, a=%u }", value.r, value.g, value.b, value.a);
+    return sb;
+  }
+
   ezString ToString(const ezVec2& value)
   {
     ezStringBuilder sb;

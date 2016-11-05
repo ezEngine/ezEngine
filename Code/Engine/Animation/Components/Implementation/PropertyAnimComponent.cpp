@@ -124,7 +124,7 @@ void ezPropertyAnimComponent::CreatePropertyBinding(const ezPropertyAnimEntry* p
 
   if (pAnim->m_Target == ezPropertyAnimTarget::Color)
   {
-    if (pPropRtti != ezGetStaticRTTI<ezColor>())
+    if (pPropRtti != ezGetStaticRTTI<ezColor>() && pPropRtti != ezGetStaticRTTI<ezColorGammaUB>())
       return;
 
     if (!pAnim->m_hColorCurve.IsValid())
@@ -233,6 +233,20 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
 
     ezTypedMemberProperty<ezColor>* pTyped = static_cast<ezTypedMemberProperty<ezColor>*>(binding.m_pMemberProperty);
     pTyped->SetValue(binding.m_pObject, finalColor);
+
+    return;
+  }
+
+  if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
+  {
+    ezResourceLock<ezColorGradientResource> pResource(binding.m_pAnimation->m_hColorCurve);
+
+    ezColorGammaUB gamma;
+    float intensity;
+    pResource->GetDescriptor().m_Gradient.Evaluate(fLookupPos, gamma, intensity);
+
+    ezTypedMemberProperty<ezColorGammaUB>* pTyped = static_cast<ezTypedMemberProperty<ezColorGammaUB>*>(binding.m_pMemberProperty);
+    pTyped->SetValue(binding.m_pObject, gamma);
 
     return;
   }

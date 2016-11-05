@@ -221,6 +221,12 @@ void ezColor::ApplyHdrExposureValue(ezUInt32 ev)
   b *= factor;
 }
 
+
+void ezColor::NormalizeToLdrRange()
+{
+  ScaleRGB(1.0f / ComputeHdrMultiplier());
+}
+
 ezColor ezColor::GetComplementaryColor() const
 {
   float hue, sat, val;

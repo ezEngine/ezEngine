@@ -46,6 +46,8 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant(0.0);
   case ezVariant::Type::Color:
     return ezVariant(ezColor(1.0f, 1.0f, 1.0f));
+  case ezVariant::Type::ColorGamma:
+    return ezVariant(ezColorGammaUB(255, 255, 255));
   case ezVariant::Type::Vector2:
     return ezVariant(ezVec2(0.0f, 0.0f));
   case ezVariant::Type::Vector3:
@@ -84,7 +86,8 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant();
   case ezVariant::Type::VoidPointer:
     return ezVariant();
-  case ezVariant::Type::ENUM_COUNT:
+
+  default:
     EZ_REPORT_FAILURE("Invalid case statement");
     return ezVariant();
   }
@@ -114,14 +117,14 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
       if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
         iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
     }
-    
+
     return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
   }
   else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer | ezPropertyFlags::EmbeddedClass))
   {
     return ezUuid();
   }
- 
+
   return ezVariant();
 }
 
@@ -241,7 +244,7 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
   for (ezReflectedTypeDescriptor* desc : descriptors)
   {
     auto it = dependencies.Insert(desc, ezSet<ezString>());
-    
+
     if (typesInArray.Contains(desc->m_sParentTypeName))
     {
       it.Value().Insert(desc->m_sParentTypeName);

@@ -66,6 +66,19 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColor, ezNoBase, 1, ezRTTINoAllocator)
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColorGammaUB, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("r", r),
+    EZ_MEMBER_PROPERTY("g", g),
+    EZ_MEMBER_PROPERTY("b", b),
+    EZ_MEMBER_PROPERTY("a", a),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVec2, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -206,7 +219,7 @@ EZ_END_STATIC_REFLECTED_ENUM();
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezUuid, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariant, ezNoBase, 2, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariant, ezNoBase, 3, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezString, ezNoBase, 1, ezRTTINoAllocator)
@@ -239,7 +252,7 @@ EZ_BITFLAGS_CONSTANTS(ezVariantType::Int32, ezVariantType::UInt32, ezVariantType
 EZ_BITFLAGS_CONSTANTS(ezVariantType::Color, ezVariantType::Vector2, ezVariantType::Vector3, ezVariantType::Vector4)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::Vector2I, ezVariantType::Vector3I, ezVariantType::Vector4I, ezVariantType::Vector2U, ezVariantType::Vector3U, ezVariantType::Vector4U)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::Quaternion, ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::Transform)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::String, ezVariantType::StringView, ezVariantType::DataBuffer, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle)
+EZ_BITFLAGS_CONSTANTS(ezVariantType::String, ezVariantType::StringView, ezVariantType::DataBuffer, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle, ezVariantType::ColorGamma)
 EZ_BITFLAGS_CONSTANTS(ezVariantType::VariantArray, ezVariantType::VariantDictionary, ezVariantType::ReflectedPointer, ezVariantType::VoidPointer)
 EZ_END_STATIC_REFLECTED_ENUM();
 

@@ -15,8 +15,9 @@ static ezString ToShaderString(const ezVariant& value)
     break;
 
   case ezVariantType::Color:
+  case ezVariantType::ColorGamma:
     {
-      ezColor v = value.Get<ezColor>();
+      ezColor v = value.ConvertTo<ezColor>();
       temp.Format("float4(%f, %f, %f, %f)", v.r, v.g, v.b, v.a);
     }
     break;

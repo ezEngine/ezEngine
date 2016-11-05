@@ -111,8 +111,11 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
 
 inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum type, bool bAndString = false)
 {
-  for (int iType = 0; iType <= ezVariant::Type::VoidPointer; ++iType)
+  for (int iType = ezVariant::Type::FirstStandardType; iType < ezVariant::Type::LastExtendedType; ++iType)
   {
+    if (iType == ezVariant::Type::LastStandardType)
+      iType = ezVariant::Type::FirstExtendedType;
+
     if (iType == type)
     {
       EZ_TEST_BOOL(v.CanConvertTo(type));
@@ -128,15 +131,21 @@ inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum typ
   }
 }
 
-inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type)
+inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type, ezVariant::Type::Enum type2 = ezVariant::Type::Invalid)
 {
-  for (int iType = 0; iType <= ezVariant::Type::VoidPointer; ++iType)
+  if (type2 == ezVariant::Type::Invalid)
+    type2 = type;
+
+  for (int iType = ezVariant::Type::FirstStandardType; iType < ezVariant::Type::LastExtendedType; ++iType)
   {
+    if (iType == ezVariant::Type::LastStandardType)
+      iType = ezVariant::Type::FirstExtendedType;
+
     if (iType == ezVariant::Type::String)
     {
       EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
     }
-    else if (iType == type)
+    else if (iType == type || iType == type2)
     {
       EZ_TEST_BOOL(v.CanConvertTo(type));
     }
@@ -286,6 +295,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.IsValid());
     EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Color);
     EZ_TEST_BOOL(v.IsA<ezColor>());
+    EZ_TEST_BOOL(!v.CanConvertTo<ezColorGammaUB>());
     EZ_TEST_BOOL(v.Get<ezColor>() == ezColor(1, 2, 3, 1));
 
     EZ_TEST_BOOL(v == ezVariant(ezColor(1, 2, 3)));
@@ -309,6 +319,40 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["g"] == 9);
     EZ_TEST_BOOL(v["b"] == 4);
     EZ_TEST_BOOL(v["a"] == 1);
+    EZ_TEST_BOOL(v["x"] == ezVariant());
+    EZ_TEST_BOOL(!v["x"].IsValid());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezColorGammaUB")
+  {
+    ezVariant v(ezColorGammaUB(64, 128, 255, 255));
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::ColorGamma);
+    EZ_TEST_BOOL(v.IsA<ezColorGammaUB>());
+    EZ_TEST_BOOL(v.CanConvertTo<ezColor>());
+    EZ_TEST_BOOL(v.Get<ezColorGammaUB>() == ezColorGammaUB(64, 128, 255, 255));
+
+    EZ_TEST_BOOL(v == ezVariant(ezColorGammaUB(64, 128, 255, 255)));
+    EZ_TEST_BOOL(v != ezVariant(ezColorGammaUB(255, 128, 255, 255)));
+
+    EZ_TEST_BOOL(v == ezColorGammaUB(64, 128, 255, 255));
+    EZ_TEST_BOOL(v != ezColorGammaUB(64, 42, 255, 255));
+
+    v = ezColorGammaUB(10, 50, 200);
+    EZ_TEST_BOOL(v == ezColorGammaUB(10, 50, 200));
+
+    v = ezVariant(ezColorGammaUB(17, 120, 200));
+    EZ_TEST_BOOL(v == ezColorGammaUB(17, 120, 200));
+    EZ_TEST_BOOL(v[0] == 17);
+    EZ_TEST_BOOL(v[1] == 120);
+    EZ_TEST_BOOL(v[2] == 200);
+    EZ_TEST_BOOL(v[3] == 255);
+    EZ_TEST_BOOL(v[4] == ezVariant());
+    EZ_TEST_BOOL(!v[4].IsValid());
+    EZ_TEST_BOOL(v["r"] == 17);
+    EZ_TEST_BOOL(v["g"] == 120);
+    EZ_TEST_BOOL(v["b"] == 200);
+    EZ_TEST_BOOL(v["a"] == 255);
     EZ_TEST_BOOL(v["x"] == ezVariant());
     EZ_TEST_BOOL(!v["x"].IsValid());
   }
@@ -949,6 +993,21 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ r=3, g=3, b=4, a=0 }");
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ColorGamma)")
+  {
+    ezColorGammaUB c(0, 128, 64, 255);
+    ezVariant v(c);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::ColorGamma, ezVariant::Type::Color);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezColorGammaUB>() == c);
+    ezString val = v.ConvertTo<ezString>();
+    EZ_TEST_BOOL(val == "{ r=0, g=128, b=64, a=255 }");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::ColorGamma).Get<ezColorGammaUB>() == c);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ r=0, g=128, b=64, a=255 }");
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec2)")
   {
     ezVec2 vec(3.0f, 4.0f);
@@ -1113,7 +1172,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
       ezResult ConversionStatus = EZ_SUCCESS;
       EZ_TEST_BOOL(v.ConvertTo<bool>(&ConversionStatus) == false);
       EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);
-      
+
       ConversionStatus = EZ_SUCCESS;
       EZ_TEST_BOOL(v.ConvertTo<ezInt8>(&ConversionStatus) == 0);
       EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);
@@ -1121,7 +1180,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
       ConversionStatus = EZ_SUCCESS;
       EZ_TEST_BOOL(v.ConvertTo<ezUInt8>(&ConversionStatus) == 0);
       EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);
-      
+
       ConversionStatus = EZ_SUCCESS;
       EZ_TEST_BOOL(v.ConvertTo<ezInt16>(&ConversionStatus) == 0);
       EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);

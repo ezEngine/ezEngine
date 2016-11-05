@@ -9,7 +9,7 @@ class ezVariantHelper
   {
     return v.ConvertNumber<double>() == static_cast<double>(other);
   }
-  
+
   template <typename T>
   EZ_FORCE_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<0>)
   {
@@ -21,7 +21,7 @@ class ezVariantHelper
   {
     return v.ConvertNumber<ezInt64>() == static_cast<ezInt64>(other);
   }
-  
+
   template <typename T>
   EZ_FORCE_INLINE static bool CompareNumber(const ezVariant& v, const T& other, ezTraitInt<0>)
   {
@@ -192,6 +192,14 @@ class ezVariantHelper
     EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer, "Only ptr can be converted to void*!");
     result = value.GetType() == ezVariant::Type::VoidPointer ? value.Get<void*>() : value.Get<ezReflectedClass*>();
     bSuccessful = true;
+  }
+
+  static void To(const ezVariant& value, ezColor& result, bool& bSuccessful)
+  {
+    if (value.GetType() == ezVariant::Type::ColorGamma)
+      result = value.Get<ezColorGammaUB>();
+    else
+      EZ_REPORT_FAILURE("Conversion to ezColor failed");
   }
 
   template <typename T>

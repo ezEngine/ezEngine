@@ -180,10 +180,10 @@ T BuildTypedVariant_vector(const ezVariant& Value, const ezVariant& Binary, floa
   T bValue = T();
   bool bText = false;
   bool bBinary = false;
-  const ezInt32 iNumFloats = sizeof(T) / sizeof(float);
+  const ezInt32 iNumFloats = sizeof(T) / sizeof(SUB_TYPE);
 
-  float* ptValueFloats = (float*) &tValue;
-  float* pbValueFloats = (float*) &bValue;
+  SUB_TYPE* ptValueFloats = (SUB_TYPE*) &tValue;
+  SUB_TYPE* pbValueFloats = (SUB_TYPE*) &bValue;
 
   if (Value.IsValid() && Value.CanConvertTo<ezString>())
   {
@@ -210,13 +210,13 @@ T BuildTypedVariant_vector(const ezVariant& Value, const ezVariant& Binary, floa
       // if they are really close, prefer the binary value
       // here we do this on a per-component level
       // copy it into the text representation
-      if (ezMath::IsEqual(ptValueFloats[i], pbValueFloats[i], fEpsilon))
+      if (ezMath::IsEqual((float)ptValueFloats[i], (float)pbValueFloats[i], fEpsilon))
         ptValueFloats[i] = pbValueFloats[i];
     }
   }
 
   out_Result = (bText || bBinary) ? EZ_SUCCESS : EZ_FAILURE;
-  
+
   if (bText)
   {
     return tValue;
@@ -252,6 +252,9 @@ ezVariant BuildTypedVariant(const char* szType, const ezVariant& Value, const ez
 
   if (ezStringUtils::IsEqual(szType, "color"))
     return ezVariant(BuildTypedVariant_vector<ezColor, float>(Value, Binary, 0.00009f, out_Result));
+
+  if (ezStringUtils::IsEqual(szType, "gamma"))
+    return ezVariant(BuildTypedVariant_vector<ezColorGammaUB, ezUInt8>(Value, Binary, 0, out_Result));
 
   if (ezStringUtils::IsEqual(szType, "vec2"))
     return ezVariant(BuildTypedVariant_vector<ezVec2, float>(Value, Binary, 0.00009f, out_Result));

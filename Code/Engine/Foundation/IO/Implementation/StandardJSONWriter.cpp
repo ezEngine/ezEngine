@@ -23,7 +23,7 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
     // we are writing the comma now, so it is not required anymore
     m_pWriter->m_StateStack.PeekBack().m_bRequireComma = false;
 
-    if (m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array || 
+    if (m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array ||
         m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
     {
       if (pWriter->m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
@@ -211,7 +211,18 @@ void ezStandardJSONWriter::WriteColor(const ezColor& value)
     s.Format("(%.4f, %.4f, %.4f, %.4f)", value.r, value.g, value.b, value.a);
 
   WriteBinaryData("color", &temp, sizeof(temp), s.GetData());
+}
 
+void ezStandardJSONWriter::WriteColorGamma(const ezColorGammaUB& value)
+{
+  ezStringBuilder s;
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%u,%u,%u,%u)", value.r, value.g, value.b, value.a);
+  else
+    s.Format("(%u, %u, %u, %u)", value.r, value.g, value.b, value.a);
+
+  WriteBinaryData("gamma", value.GetData(), sizeof(ezColorGammaUB), s.GetData());
 }
 
 void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
@@ -511,7 +522,7 @@ void ezStandardJSONWriter::End()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
 
-  if (m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array || 
+  if (m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array ||
       m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
   {
     --m_iIndentation;
@@ -522,7 +533,7 @@ void ezStandardJSONWriter::End()
       OutputString(" ]");
   }
 
-  
+
   m_StateStack.PopBack();
   m_StateStack.PeekBack().m_bRequireComma = true;
 

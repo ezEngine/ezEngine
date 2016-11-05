@@ -20,16 +20,18 @@ public:
 private:
   void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData* pExtractedRenderData, ezRenderData::Category category);
   const ezTypedMemberProperty<ezColor>* FindColorProperty(const ezRTTI* pRtti) const;
+  const ezTypedMemberProperty<ezColorGammaUB>* FindColorGammaProperty(const ezRTTI* pRtti) const;
   void FillShapeIconInfo();
 
   float m_fSize;
   float m_fMaxScreenSize;
   ezSceneContext* m_pSceneContext;
 
-  struct ShapeIconInfo 
+  struct ShapeIconInfo
   {
     ezTextureResourceHandle m_hTexture;
     const ezTypedMemberProperty<ezColor>* m_pColorProperty;
+    const ezTypedMemberProperty<ezColorGammaUB>* m_pColorGammaProperty;
   };
 
   ezHashTable<const ezRTTI*, ShapeIconInfo> m_ShapeIconInfos;

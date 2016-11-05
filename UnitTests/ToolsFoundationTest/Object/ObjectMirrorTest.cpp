@@ -61,6 +61,8 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     return ezVariant(-2048.0f);
   case ezVariant::Type::Color:
     return ezVariant(ezColor(0.5f, 33.0f, 2.0f, 0.3f));
+  case ezVariant::Type::ColorGamma:
+    return ezVariant(ezColorGammaUB(ezColor(0.5f, 33.0f, 2.0f, 0.3f)));
   case ezVariant::Type::Vector2:
     return ezVariant(ezVec2(2.0f, 4.0f));
   case ezVariant::Type::Vector3:
@@ -82,7 +84,7 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
   case ezVariant::Type::Matrix3:
     {
       ezMat3 mat = ezMat3::IdentityMatrix();
-      
+
       mat.SetRotationMatrix(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::Degree(30));
       return ezVariant(mat);
     }
@@ -124,7 +126,8 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     return ezVariant();
   case ezVariant::Type::VoidPointer:
     return ezVariant();
-  case ezVariant::Type::ENUM_COUNT:
+
+  default:
     EZ_REPORT_FAILURE("Invalid case statement");
     return ezVariant();
   }

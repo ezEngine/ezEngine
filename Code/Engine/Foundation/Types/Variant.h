@@ -26,10 +26,10 @@ public:
     /// patches to the serializer or a re-export of binary data that contains ezVariants.
     enum Enum
     {
-      Invalid,            ///< The variant stores no (valid) data at the moment.
+      Invalid = 0,        ///< The variant stores no (valid) data at the moment.
 
 /// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
-      FirstStandardType,
+      FirstStandardType = 1,
       Bool,               ///< The variant stores a bool.
       Int8,               ///< The variant stores an ezInt8.
       UInt8,              ///< The variant stores an ezUInt8.
@@ -61,14 +61,18 @@ public:
       Time,               ///< The variant stores an ezTime value.
       Uuid,               ///< The variant stores an ezUuid value.
       Angle,              ///< The variant stores an ezAngle value.
+      ColorGamma,         ///< The variant stores an ezColorGammaUB value.
       LastStandardType,
 /// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
 
+      FirstExtendedType = 64,
       VariantArray,       ///< The variant stores an array of ezVariant's. A heap allocation is required to store this data type.
       VariantDictionary,  ///< The variant stores a dictionary (hashmap) of ezVariant's. A heap allocation is required to store this data type.
       ReflectedPointer,   ///< The variant stores a pointer to a dynamically reflected object.
       VoidPointer,        ///< The variant stores a void pointer.
-      ENUM_COUNT,         ///< Number of values for ezVariant::Type.
+      LastExtendedType,         ///< Number of values for ezVariant::Type.
+
+      MAX_ENUM_VALUE = LastExtendedType,
       Default = Invalid   ///< Default value used by ezEnum.
     };
   };
@@ -86,7 +90,7 @@ public:
 
     typedef T StorageType;
   };
-  
+
   /// \brief Initializes the variant to be 'Invalid'
   ezVariant(); // [tested]
 
@@ -131,7 +135,7 @@ public:
 
   /// \brief Same as operator== (with a twist!)
   bool operator!=(const ezVariant& other) const; // [tested]
-  
+
   /// \brief See non-templated operator==
   template <typename T>
   bool operator==(const T& other) const; // [tested]

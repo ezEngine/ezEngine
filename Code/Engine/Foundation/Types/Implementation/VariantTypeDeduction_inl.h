@@ -158,6 +158,19 @@ struct ezVariant::TypeDeduction<ezColor>
 };
 
 template <>
+struct ezVariant::TypeDeduction<ezColorGammaUB>
+{
+  enum
+  {
+    value = Type::ColorGamma,
+    forceSharing = false,
+    hasReflectedMembers = true
+  };
+
+  typedef ezColorGammaUB StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<ezVec2>
 {
   enum
@@ -374,7 +387,7 @@ struct ezVariant::TypeDeduction<char*>
     forceSharing = true,
     hasReflectedMembers = false
   };
-  
+
   typedef ezString StorageType;
 };
 
@@ -400,7 +413,7 @@ struct ezVariant::TypeDeduction<char[N]>
     forceSharing = true,
     hasReflectedMembers = false
   };
-  
+
   typedef ezString StorageType;
 };
 

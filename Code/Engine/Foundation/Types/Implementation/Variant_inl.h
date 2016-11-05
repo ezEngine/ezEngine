@@ -21,7 +21,7 @@ EZ_FORCE_INLINE ezVariant::ezVariant(const T& value)
   Init(value);
 }
 
-EZ_FORCE_INLINE ezVariant::~ezVariant() 
+EZ_FORCE_INLINE ezVariant::~ezVariant()
 {
   Release();
 }
@@ -214,6 +214,10 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, ezColor);
     break;
 
+  case Type::ColorGamma:
+    CALL_FUNCTOR(functor, ezColorGammaUB);
+    break;
+
   case Type::Vector2:
     CALL_FUNCTOR(functor, ezVec2);
     break;
@@ -309,7 +313,7 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
   default:
     EZ_REPORT_FAILURE("Could not dispatch type '%d'", type);
     break;
-  }  
+  }
 }
 
 #undef CALL_FUNCTOR
@@ -356,7 +360,7 @@ inline void ezVariant::CopyFrom(const ezVariant& other)
 {
   m_Type = other.m_Type;
   m_bIsShared = other.m_bIsShared;
-  
+
   if (m_bIsShared)
   {
     m_Data.shared = other.m_Data.shared;
@@ -435,13 +439,13 @@ T ezVariant::ConvertNumber() const
   case Type::Int64:
     return static_cast<T>(Cast<ezInt64>());
   case Type::UInt64:
-    return static_cast<T>(Cast<ezUInt64>());  
+    return static_cast<T>(Cast<ezUInt64>());
   case Type::Float:
     return static_cast<T>(Cast<float>());
   case Type::Double:
     return static_cast<T>(Cast<double>());
   }
-  
+
   EZ_REPORT_FAILURE("Variant is not a number");
   return T(0);
 }

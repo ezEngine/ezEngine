@@ -90,7 +90,7 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezMat3Template<Type>
 {
   for (ezUInt32 i = 0; i < 9; ++i)
     Stream >> Value.m_fElementsCM[i];
-  
+
   return Stream;
 }
 
@@ -110,7 +110,7 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezMat4Template<Type>
 {
   for (ezUInt32 i = 0; i < 16; ++i)
     Stream >> Value.m_fElementsCM[i];
-  
+
   return Stream;
 }
 
@@ -225,6 +225,25 @@ inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezColor& Value
 }
 
 inline ezStreamReader& operator >> (ezStreamReader& Stream, ezColor& Value)
+{
+  Stream >> Value.r;
+  Stream >> Value.g;
+  Stream >> Value.b;
+  Stream >> Value.a;
+  return Stream;
+}
+
+// ezColorGammaUB
+inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezColorGammaUB& Value)
+{
+  Stream << Value.r;
+  Stream << Value.g;
+  Stream << Value.b;
+  Stream << Value.a;
+  return Stream;
+}
+
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ezColorGammaUB& Value)
 {
   Stream >> Value.r;
   Stream >> Value.g;
