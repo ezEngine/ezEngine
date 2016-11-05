@@ -16,10 +16,12 @@ class EZ_GUIFOUNDATION_DLL ezQtColorDialog : public QDialog, Ui_ColorDialog
 public:
 
   ezQtColorDialog(const ezColor& initial, QWidget* parent);
+  ~ezQtColorDialog();
 
   void ShowAlpha(bool enable);
   void ShowHDR(bool enable);
 
+  static QPoint GetLastDialogPosition() { return s_LastDialogPosition; }
 
 signals:
   void CurrentColorChanged(const ezColor& color);
@@ -50,6 +52,8 @@ private:
   ezUInt32 m_uiExposureValue;
 
   ezColor m_CurrentColor;
+
+  static QPoint s_LastDialogPosition;
 
 private:
   void ApplyColor();

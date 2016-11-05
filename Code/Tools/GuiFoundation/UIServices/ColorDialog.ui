@@ -528,34 +528,30 @@
     </layout>
    </item>
   </layout>
-  <zorder>LineHEX</zorder>
-  <zorder>label_8</zorder>
-  <zorder>SpinAlpha</zorder>
-  <zorder>LabelAlpha</zorder>
  </widget>
  <customwidgets>
   <customwidget>
    <class>ezQtColorRangeWidget</class>
    <extends>QWidget</extends>
-   <header location="global">GuiFoundation\UIServices\ColorDlgWidgets.moc.h</header>
+   <header location="global">GuiFoundation/UIServices/ColorDlgWidgets.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ezQtColorAreaWidget</class>
    <extends>QWidget</extends>
-   <header location="global">GuiFoundation\UIServices\ColorDlgWidgets.moc.h</header>
+   <header location="global">GuiFoundation/UIServices/ColorDlgWidgets.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ezQtColorCompareWidget</class>
    <extends>QWidget</extends>
-   <header location="global">GuiFoundation\UIServices\ColorDlgWidgets.moc.h</header>
+   <header location="global">GuiFoundation/UIServices/ColorDlgWidgets.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ezQtDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
-   <header location="global">GuiFoundation\Widgets\DoubleSpinBox.moc.h</header>
+   <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
   </customwidget>
  </customwidgets>
  <resources>

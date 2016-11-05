@@ -85,12 +85,8 @@ public:
   /// \brief Returns a cached QPixmap that was created from an internal Qt resource (e.g. 'QPixmap(":QtNamespace/MyIcon.png")' ). Prevents creating the object over and over.
   static const QPixmap& GetCachedPixmapResource(const char* szIdentifier);
 
-private slots:
-  void SlotColorDialogClosed();
-
 private:
-  QColorDialog* m_pColorDlg;
-  ezQtColorDialog* m_pColorDlg2;
+  ezQtColorDialog* m_pColorDlg;
   QPoint m_ColorDlgPos;
 
   static ezMap<ezString, QIcon> s_IconsCache;

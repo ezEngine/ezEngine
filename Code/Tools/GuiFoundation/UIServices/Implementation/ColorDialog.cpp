@@ -6,43 +6,25 @@
 #include <QColor>
 #include <QColorDialog>
 
+QPoint ezQtColorDialog::s_LastDialogPosition;
+
 void ezQtUiServices::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
 {
-  //ezColorGammaUB gamma = color;
+  m_pColorDlg = new ezQtColorDialog(color, pParent);
+  m_pColorDlg->move(m_ColorDlgPos);
+  m_pColorDlg->ShowAlpha(bAlpha);
+  m_pColorDlg->ShowHDR(true);
 
-  //QColor col;
-  //col.setRgb(gamma.r, gamma.g, gamma.b, gamma.a);
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(CurrentColorChanged(const ezColor&)), pParent, slotCurColChanged) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), pParent, slotAccept) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), pParent, slotReject) != nullptr, "signal/slot connection failed");
 
-  //m_pColorDlg = new QColorDialog (col, pParent);
-  //m_pColorDlg->move(m_ColorDlgPos);
-  //m_pColorDlg->setOption (QColorDialog::ShowAlphaChannel, bAlpha);
-  //EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(currentColorChanged(const QColor&)), pParent, slotCurColChanged) != nullptr, "signal/slot connection failed");
-  //EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), pParent, slotAccept) != nullptr, "signal/slot connection failed");
-  //EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), pParent, slotReject) != nullptr, "signal/slot connection failed");
-  //EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), this, SLOT(SlotColorDialogClosed())) != nullptr, "signal/slot connection failed");
-  //EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), this, SLOT(SlotColorDialogClosed())) != nullptr, "signal/slot connection failed");
-  //m_pColorDlg->open(pParent, slotCurColChanged);
-
-  m_pColorDlg2 = new ezQtColorDialog(color, pParent);
-  m_pColorDlg2->move(m_ColorDlgPos);
-  m_pColorDlg2->ShowAlpha(bAlpha);
-  m_pColorDlg2->ShowHDR(true);
-
-  EZ_VERIFY(QWidget::connect(m_pColorDlg2, SIGNAL(CurrentColorChanged(const ezColor&)), pParent, slotCurColChanged) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(QWidget::connect(m_pColorDlg2, SIGNAL(accepted()), pParent, slotAccept) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(QWidget::connect(m_pColorDlg2, SIGNAL(rejected()), pParent, slotReject) != nullptr, "signal/slot connection failed");
-  //EZ_VERIFY(QWidget::connect(m_pColorDlg2, SIGNAL(accepted()), this, SLOT(SlotColorDialogClosed())) != nullptr, "signal/slot connection failed");
-  //EZ_VERIFY(QWidget::connect(m_pColorDlg2, SIGNAL(rejected()), this, SLOT(SlotColorDialogClosed())) != nullptr, "signal/slot connection failed");
-
-  m_pColorDlg2->exec();
-}
-
-void ezQtUiServices::SlotColorDialogClosed()
-{
-  m_ColorDlgPos = m_pColorDlg->pos();
+  m_pColorDlg->exec();
+  delete m_pColorDlg;
   m_pColorDlg = nullptr;
-}
 
+  m_ColorDlgPos = ezQtColorDialog::GetLastDialogPosition();
+}
 
 ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* parent)
   : QDialog(parent)
@@ -95,6 +77,11 @@ ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* parent)
   ApplyColor();
 }
 
+ezQtColorDialog::~ezQtColorDialog()
+{
+  s_LastDialogPosition = pos();
+}
+
 void ezQtColorDialog::ShowAlpha(bool enable)
 {
   m_bAlpha = enable;
@@ -140,9 +127,9 @@ void ezQtColorDialog::ApplyColor()
   SpinSaturation->setValue(m_uiSaturation);
   SpinValue->setValue(m_uiValue);
 
-  LineRed32->setText(QString("%1").arg(m_CurrentColor.r, 0, 'g', 3));
-  LineGreen32->setText(QString("%1").arg(m_CurrentColor.g, 0, 'g', 3));
-  LineBlue32->setText(QString("%1").arg(m_CurrentColor.b, 0, 'g', 3));
+  LineRed32->setText(QString("%1").arg(m_CurrentColor.r, 0, 'f', 2));
+  LineGreen32->setText(QString("%1").arg(m_CurrentColor.g, 0, 'f', 2));
+  LineBlue32->setText(QString("%1").arg(m_CurrentColor.b, 0, 'f', 2));
 
   ColorRange->SetHue(m_uiHue);
   ColorArea->SetHue(m_uiHue);
