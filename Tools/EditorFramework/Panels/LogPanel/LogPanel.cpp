@@ -19,7 +19,9 @@ ezQtLogPanel::ezQtLogPanel()
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtLogPanel::EngineProcessMsgHandler, this));
 
   ListViewEditorLog->setModel(&m_EditorLog);
+  ListViewEditorLog->setUniformItemSizes(true);
   ListViewEngineLog->setModel(&m_EngineLog);
+  ListViewEngineLog->setUniformItemSizes(true);
 
   ButtonClearSearch->setEnabled(false);
 
@@ -227,8 +229,9 @@ bool ezQtLogModel::AddLogMsg(const LogMsg& msg)
   if (IsFiltered(msg))
     return false;
 
-  /// \todo Instead of resetting everything, one could probably just insert/add an item at the end
-  Invalidate();
+  beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
+  m_VisibleMessages.PushBack(&m_AllMessages.PeekBack());
+  endInsertRows();
   return true;
 }
 
