@@ -130,7 +130,7 @@ namespace ImportHelper
     }
   }
 
-  ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ezUniquePtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
+  ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
   {
     outMeshFileAbs = filename;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
@@ -295,7 +295,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 
-  ezUniquePtr<Scene> scene;
+  ezSharedPtr<Scene> scene;
   Mesh* mesh = nullptr;
   ezString sMeshFileAbs;
   ezStatus importStatus = ImportHelper::ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs);

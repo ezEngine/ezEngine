@@ -203,10 +203,10 @@ namespace ezModelImporter
     }
   }
 
-  ezUniquePtr<Scene> PbrtImporter::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> PbrtImporter::ImportScene(const char* szFileName)
   {
     ezLogBlock("Load Pbrt scene", szFileName);
-    ezUniquePtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
+    ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
     ParseContext context(szFileName);
 
     ImportSceneImpl(szFileName, context, *outScene);

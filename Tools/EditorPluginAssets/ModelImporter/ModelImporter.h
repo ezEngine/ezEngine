@@ -2,6 +2,8 @@
 
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HashSet.h>
 #include <EditorPluginAssets/ModelImporter/Scene.h>
 
@@ -19,9 +21,16 @@ namespace ezModelImporter
 
     /// Imports a scene from given file using the first available ImporterImplementation that supports the given file.
     ///
+    /// \param addToCache
+    ///   If true, the scene will be kept in the Importer's cache. Note that the cache needs be cleared manually by calling ClearCachedScenes.
     /// \returns
     ///   Null if something went wrong (see log).
-    ezUniquePtr<Scene> ImportScene(const char* szFileName);
+    /// \see ClearCachedScenes
+    ezSharedPtr<Scene> ImportScene(const char* szFileName, bool addToCache = false);
+
+    /// Clears list of cached scenes.
+    /// \see ImportScene
+    void ClearCachedScenes();
 
     /// Adds a importer implementation.
     ///
@@ -35,5 +44,6 @@ namespace ezModelImporter
 
   private:
     ezHybridArray<ezUniquePtr<ImporterImplementation>, 4> m_ImporterImplementations;
+    ezHashTable<ezString, ezSharedPtr<Scene>> m_cachedScenes;
   };
 };

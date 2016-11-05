@@ -328,7 +328,7 @@ namespace ezModelImporter
     }
   }
 
-  ezUniquePtr<Scene> AssimpImporter::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> AssimpImporter::ImportScene(const char* szFileName)
   {
     class aiLogStream : public Assimp::LogStream
     {
@@ -356,7 +356,7 @@ namespace ezModelImporter
       return nullptr;
     }
 
-    ezUniquePtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
+    ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
 
     // Import materials.
     ezDynamicArray<MaterialHandle> materialHandles;
@@ -378,6 +378,6 @@ namespace ezModelImporter
 
     // Import nodes and build hierarchy.
 
-    return std::move(outScene);
+    return outScene;
   }
 }

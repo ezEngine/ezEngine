@@ -13,6 +13,6 @@ namespace ezModelImporter
     ~PbrtImporter() {}
 
     virtual ezArrayPtr<const ezString> GetSupportedFileFormats() const override;
-    virtual ezUniquePtr<Scene> ImportScene(const char* szFileName) override;
+    virtual ezSharedPtr<Scene> ImportScene(const char* szFileName) override;
   };
 }

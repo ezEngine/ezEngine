@@ -61,9 +61,13 @@ namespace ezModelImporter
   }
 #endif
 
-  ezUniquePtr<Scene> Importer::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> Importer::ImportScene(const char* szFileName, bool addToCache)
   {
     ezLogBlock logBlock("Scene Import", szFileName);
+
+    ezSharedPtr<Scene> scene;
+    if (m_cachedScenes.TryGetValue(szFileName, scene))
+      return scene;
 
     ezString fileExtension = ezPathUtils::GetFileExtension(szFileName);
     if (fileExtension.IsEmpty())
@@ -80,10 +84,10 @@ namespace ezModelImporter
           { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
       {
         ezStopwatch timer;
-        ezUniquePtr<Scene> scene = m_ImporterImplementations[i]->ImportScene(szFileName);
+        scene = m_ImporterImplementations[i]->ImportScene(szFileName);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-        ValidateSceneGraph(scene.Borrow());
+        ValidateSceneGraph(scene);
 #endif
         if (scene)
         {
@@ -92,11 +96,19 @@ namespace ezModelImporter
         }
 
         ezLog::Success("Scene '%s' has been imported (time %f.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
-        return std::move(scene);
+        if (addToCache)
+          m_cachedScenes.Insert(szFileName, scene);
+
+        return scene;
       }
     }
 
     return nullptr;
+  }
+
+  void Importer::ClearCachedScenes()
+  {
+    m_cachedScenes.Clear();
   }
 
   void Importer::AddImporterImplementation(ezUniquePtr<ImporterImplementation> importerImplementation)

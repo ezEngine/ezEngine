@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/RefCounted.h>
 #include <EditorPluginAssets/ModelImporter/HierarchyObject.h>
 
 namespace ezModelImporter
@@ -16,7 +17,7 @@ namespace ezModelImporter
   /// A scene contains all data that has been imported from a single file.
   /// All data is as raw as possible, however we apply basic preprocessing during import already to fit into our data structure.
   /// \see ezModelImporter::Importer
-  class Scene
+  class Scene : public ezRefCounted
   {
   public:
     Scene();

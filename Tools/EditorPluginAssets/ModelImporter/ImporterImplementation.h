@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/SharedPtr.h>
 
 class ezStreamReader;
 
@@ -27,6 +27,6 @@ namespace ezModelImporter
     /// Some formats have dependent files. This makes it difficult to pass a stream reader instead of a filepath.
     /// \returns
     ///   Null if something went wrong (see log).
-    virtual ezUniquePtr<Scene> ImportScene(const char* szFileName) = 0;
+    virtual ezSharedPtr<Scene> ImportScene(const char* szFileName) = 0;
   };
 }

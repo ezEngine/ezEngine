@@ -12,7 +12,7 @@ namespace ezModelImporter
     ~AssimpImporter() {}
 
     virtual ezArrayPtr<const ezString> GetSupportedFileFormats() const override;
-    virtual ezUniquePtr<Scene> ImportScene(const char* szFileName) override;
+    virtual ezSharedPtr<Scene> ImportScene(const char* szFileName) override;
 
   private:
     ezDynamicArray<ezString> m_supportedFileFormats;
