@@ -5,6 +5,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/ResourceView.h>
 
 ezGALContext::ezGALContext(ezGALDevice* pDevice)
   : m_pDevice(pDevice),
@@ -67,7 +69,7 @@ void ezGALContext::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgum
   /// \todo Assert for indirect draw
   /// \todo Assert offset < buffer size
 
-  ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
+  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndirectArgumentBuffer);
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
@@ -95,7 +97,7 @@ void ezGALContext::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuff
   /// \todo Assert for indirect draw
   /// \todo Assert offset < buffer size
 
-  ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
+  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndirectArgumentBuffer);
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
@@ -148,7 +150,7 @@ void ezGALContext::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, e
   /// \todo Assert for indirect dispatch
   /// \todo Assert offset < buffer size
 
-  ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
+  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndirectArgumentBuffer);
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
@@ -169,7 +171,7 @@ void ezGALContext::SetShader(ezGALShaderHandle hShader)
     return;
   }
 
-  ezGALShader* pShader = m_pDevice->m_Shaders[hShader];
+  const ezGALShader* pShader = m_pDevice->GetShader(hShader);
   EZ_ASSERT_DEV(pShader != nullptr, "The given shader handle isn't valid, this may be a use after destroy!");
 
   SetShaderPlatform(pShader);
@@ -186,10 +188,9 @@ void ezGALContext::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
     return;
   }
 
-  ezGALBuffer* pBuffer = nullptr;
-  m_pDevice->m_Buffers.TryGetValue(hIndexBuffer, pBuffer);
+  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hIndexBuffer);
   /// \todo Assert on index buffer type (if non nullptr)
-  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
 
   SetIndexBufferPlatform(pBuffer);
 
@@ -205,10 +206,9 @@ void ezGALContext::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuf
     return;
   }
 
-  ezGALBuffer* pBuffer = nullptr;
-  m_pDevice->m_Buffers.TryGetValue(hVertexBuffer, pBuffer);
+  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hVertexBuffer);
   // Assert on vertex buffer type (if non-zero)
-  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
 
   SetVertexBufferPlatform(uiSlot, pBuffer);
 
@@ -243,8 +243,7 @@ void ezGALContext::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDecl
     return;
   }
 
-  ezGALVertexDeclaration* pVertexDeclaration = nullptr;
-  m_pDevice->m_VertexDeclarations.TryGetValue(hVertexDeclaration, pVertexDeclaration);
+  const ezGALVertexDeclaration* pVertexDeclaration = m_pDevice->GetVertexDeclaration(hVertexDeclaration);
   // Assert on vertex buffer type (if non-zero)
 
   SetVertexDeclarationPlatform(pVertexDeclaration);
@@ -265,8 +264,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
     return;
   }
 
-  ezGALBuffer* pBuffer = nullptr;
-  m_pDevice->m_Buffers.TryGetValue(hBuffer, pBuffer);
+  const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
   EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer, "Wrong buffer type");
   
   SetConstantBufferPlatform(uiSlot, pBuffer);
@@ -287,8 +285,7 @@ void ezGALContext::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
     return;
   }
 
-  ezGALSamplerState* pSamplerState = nullptr;
-  m_pDevice->m_SamplerStates.TryGetValue(hSamplerState, pSamplerState);
+  const ezGALSamplerState* pSamplerState = m_pDevice->GetSamplerState(hSamplerState);
 
   SetSamplerStatePlatform(Stage, uiSlot, pSamplerState);
 
@@ -309,12 +306,12 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
     return;
   }
 
-  ezGALResourceView* pResourceView = nullptr;
-  m_pDevice->m_ResourceViews.TryGetValue(hResourceView, pResourceView);
+  const ezGALResourceView* pResourceView = m_pDevice->GetResourceView(hResourceView);
 
   SetResourceViewPlatform(Stage, uiSlot, pResourceView);
 
   m_State.m_hResourceViews[Stage][uiSlot] = hResourceView;
+  m_State.m_pResourcesForResourceViews[Stage][uiSlot] = pResourceView != nullptr ? pResourceView->GetResource() : nullptr;
 
   CountStateChange();
 }
@@ -329,24 +326,40 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTarge
     return;
   }
   
-  ezGALRenderTargetView* ppRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = { nullptr };
-  ezGALRenderTargetView* pDepthStencilView = nullptr;
+  const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = { nullptr };
+  const ezGALRenderTargetView* pDepthStencilView = nullptr;
 
   ezUInt32 uiRenderTargetCount = 0;
+
+  bool bFlushNeeded = false;
 
   if ( RenderTargetSetup.HasRenderTargets() )
   {
     for ( ezUInt8 uiIndex = 0; uiIndex <= RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex )
     {
-      m_pDevice->m_RenderTargetViews.TryGetValue( RenderTargetSetup.GetRenderTarget( uiIndex ), ppRenderTargetViews[uiIndex] );
+      const ezGALRenderTargetView* pRenderTargetView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetRenderTarget(uiIndex));
+      if (pRenderTargetView != nullptr)
+      {
+        bFlushNeeded |= UnsetResourceViews(pRenderTargetView->GetTexture());
+      }
+
+      pRenderTargetViews[uiIndex] = pRenderTargetView;
     }
 
     uiRenderTargetCount = RenderTargetSetup.GetMaxRenderTargetIndex() + 1;
   }
 
-  m_pDevice->m_RenderTargetViews.TryGetValue( RenderTargetSetup.GetDepthStencilTarget(), pDepthStencilView );
+  pDepthStencilView = m_pDevice->GetRenderTargetView(RenderTargetSetup.GetDepthStencilTarget());
+  if (pDepthStencilView != nullptr)
+  {
+    bFlushNeeded |= UnsetResourceViews(pDepthStencilView->GetTexture());
+  }
 
-  SetRenderTargetSetupPlatform( ppRenderTargetViews, uiRenderTargetCount, pDepthStencilView );
+  if (bFlushNeeded)
+  {
+    FlushPlatform();
+  }
+  SetRenderTargetSetupPlatform( ezMakeArrayPtr(pRenderTargetViews, uiRenderTargetCount), pDepthStencilView );
 
   m_State.m_RenderTargetSetup = RenderTargetSetup;
 
@@ -370,8 +383,7 @@ void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColo
     return;
   }
 
-  ezGALBlendState* pBlendState = nullptr;
-  m_pDevice->m_BlendStates.TryGetValue(hBlendState, pBlendState);
+  const ezGALBlendState* pBlendState = m_pDevice->GetBlendState(hBlendState);
 
   SetBlendStatePlatform(pBlendState, BlendFactor, uiSampleMask);
 
@@ -390,8 +402,7 @@ void ezGALContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStenc
     return;
   }
 
-  ezGALDepthStencilState* pDepthStencilState = nullptr;
-  m_pDevice->m_DepthStencilStates.TryGetValue(hDepthStencilState, pDepthStencilState);
+  const ezGALDepthStencilState* pDepthStencilState = m_pDevice->GetDepthStencilState(hDepthStencilState);
 
   SetDepthStencilStatePlatform(pDepthStencilState, uiStencilRefValue);
 
@@ -410,8 +421,7 @@ void ezGALContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerStat
     return;
   }
 
-  ezGALRasterizerState* pRasterizerState = nullptr;
-  m_pDevice->m_RasterizerStates.TryGetValue(hRasterizerState, pRasterizerState);
+  const ezGALRasterizerState* pRasterizerState = m_pDevice->GetRasterizerState(hRasterizerState);
 
   SetRasterizerStatePlatform(pRasterizerState);
 
@@ -468,21 +478,21 @@ void ezGALContext::InsertFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  InsertFencePlatform(m_pDevice->m_Fences[hFence]);
+  InsertFencePlatform(m_pDevice->GetFence(hFence));
 }
 
 bool ezGALContext::IsFenceReached(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  return IsFenceReachedPlatform(m_pDevice->m_Fences[hFence]);
+  return IsFenceReachedPlatform(m_pDevice->GetFence(hFence));
 }
 
 void ezGALContext::WaitForFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  WaitForFencePlatform(m_pDevice->m_Fences[hFence]);
+  WaitForFencePlatform(m_pDevice->GetFence(hFence));
 }
 
 void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
@@ -490,7 +500,7 @@ void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
   AssertRenderingThread();
   /// \todo Assert on query support?
 
-  BeginQueryPlatform(m_pDevice->m_Queries[hQuery]);
+  BeginQueryPlatform(m_pDevice->GetQuery(hQuery));
 }
 
 void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
@@ -499,17 +509,17 @@ void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
   /// \todo Assert on query support?
   /// \todo Assert on query started
 
-  EndQueryPlatform(m_pDevice->m_Queries[hQuery]);
+  EndQueryPlatform(m_pDevice->GetQuery(hQuery));
 }
 
 void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource)
 {
   AssertRenderingThread();
 
-  ezGALBuffer* pDest = nullptr;
-  ezGALBuffer* pSource = nullptr;
+  const ezGALBuffer* pDest = m_pDevice->GetBuffer(hDest);
+  const ezGALBuffer* pSource = m_pDevice->GetBuffer(hSource);
 
-  if (m_pDevice->m_Buffers.TryGetValue(hDest, pDest) && m_pDevice->m_Buffers.TryGetValue(hSource, pSource))
+  if (pDest != nullptr && pSource != nullptr)
   {
     CopyBufferPlatform(pDest, pSource);
   }
@@ -523,10 +533,10 @@ void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffs
 {
   AssertRenderingThread();
 
-  ezGALBuffer* pDest = nullptr;
-  ezGALBuffer* pSource = nullptr;
+  const ezGALBuffer* pDest = m_pDevice->GetBuffer(hDest);
+  const ezGALBuffer* pSource = m_pDevice->GetBuffer(hSource);
 
-  if (m_pDevice->m_Buffers.TryGetValue(hDest, pDest) && m_pDevice->m_Buffers.TryGetValue(hSource, pSource))
+  if (pDest != nullptr && pSource != nullptr)
   {
     const ezUInt32 uiDestSize = pDest->GetSize();
     const ezUInt32 uiSourceSize = pSource->GetSize();
@@ -548,9 +558,9 @@ void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, 
 
   EZ_VERIFY(!pSourceData.IsEmpty(), "Source data for buffer update is invalid!");
 
-  ezGALBuffer* pDest = nullptr;
+  const ezGALBuffer* pDest = m_pDevice->GetBuffer(hDest);
 
-  if (m_pDevice->m_Buffers.TryGetValue(hDest, pDest))
+  if (pDest != nullptr)
   {
     EZ_VERIFY(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
     UpdateBufferPlatform(pDest, uiDestOffset, pSourceData);
@@ -565,10 +575,10 @@ void ezGALContext::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSou
 {
   AssertRenderingThread();
 
-  ezGALTexture* pDest = nullptr;
-  ezGALTexture* pSource = nullptr;
+  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
+  const ezGALTexture* pSource = m_pDevice->GetTexture(hSource);
 
-  if (m_pDevice->m_Textures.TryGetValue(hDest, pDest) && m_pDevice->m_Textures.TryGetValue(hSource, pSource))
+  if (pDest != nullptr && pSource != nullptr)
   {
     CopyTexturePlatform(pDest, pSource);
   }
@@ -582,10 +592,10 @@ void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextur
 {
   AssertRenderingThread();
 
-  ezGALTexture* pDest = nullptr;
-  ezGALTexture* pSource = nullptr;
+  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
+  const ezGALTexture* pSource = m_pDevice->GetTexture(hSource);
 
-  if (m_pDevice->m_Textures.TryGetValue(hDest, pDest) && m_pDevice->m_Textures.TryGetValue(hSource, pSource))
+  if (pDest != nullptr && pSource != nullptr)
   {
     CopyTextureRegionPlatform(pDest, DestinationSubResource, DestinationPoint, pSource, SourceSubResource, Box);
   }
@@ -599,9 +609,9 @@ void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSub
 {
   AssertRenderingThread();
 
-  ezGALTexture* pDest = nullptr;
-  
-  if (m_pDevice->m_Textures.TryGetValue(hDest, pDest))
+  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
+    
+  if (pDest != nullptr)
   {
     UpdateTexturePlatform(pDest, DestinationSubResource, DestinationBox, pSourceData);
   }
@@ -615,10 +625,10 @@ void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSu
 {
   AssertRenderingThread();
 
-  ezGALTexture* pDest = nullptr;
-  ezGALTexture* pSource = nullptr;
+  const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
+  const ezGALTexture* pSource = m_pDevice->GetTexture(hSource);
 
-  if (m_pDevice->m_Textures.TryGetValue(hDest, pDest) && m_pDevice->m_Textures.TryGetValue(hSource, pSource))
+  if (pDest != nullptr && pSource != nullptr)
   {
     ResolveTexturePlatform(pDest, DestinationSubResource, pSource, SourceSubResource);
   }
@@ -632,9 +642,9 @@ void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)
 {
   AssertRenderingThread();
 
-  ezGALTexture* pTexture = nullptr;
+  const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
 
-  if (m_pDevice->m_Textures.TryGetValue(hTexture, pTexture))
+  if (pTexture != nullptr)
   {
     EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
@@ -646,9 +656,9 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
 {
   AssertRenderingThread();
 
-  ezGALTexture* pTexture = nullptr;
+  const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
 
-  if (m_pDevice->m_Textures.TryGetValue(hTexture, pTexture))
+  if (pTexture != nullptr)
   {
     EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
@@ -705,7 +715,28 @@ void ezGALContext::InvalidateState()
   m_State.Invalidate();
 }
 
+bool ezGALContext::UnsetResourceViews(const ezGALResourceBase* pResource)
+{
+  bool bResult = false;
 
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    for (ezUInt32 uiSlot = 0; uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; ++uiSlot)
+    {
+      if (m_State.m_pResourcesForResourceViews[stage][uiSlot] == pResource)
+      {
+        SetResourceViewPlatform((ezGALShaderStage::Enum)stage, uiSlot, nullptr);
+
+        m_State.m_hResourceViews[stage][uiSlot].Invalidate();
+        m_State.m_pResourcesForResourceViews[stage][uiSlot] = nullptr;
+
+        bResult = true;
+      }
+    }
+  }
+
+  return bResult;
+}
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Context_Implementation_Context);
 

@@ -29,18 +29,8 @@ EZ_FORCE_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHan
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ReturnType* pObject = nullptr;
-
-  if(IdTable.TryGetValue(hHandle, pObject))
-  {
-    return pObject;
-  }
-  else
-  {
-    ezLog::Warning("ezGALDevice::Get() for invalid handle!");
-    /// \todo typeid of incomplete types not allowed. Fix includes or move this away from the inline file.
-    //ezLog::Warning("ezGALDevice::Get() for invalid handle for object type %s", typeid(ReturnType).name());
-    return nullptr;
-  }
+  IdTable.TryGetValue(hHandle, pObject);
+  return pObject;
 }
 
 EZ_FORCE_INLINE const ezGALSwapChain* ezGALDevice::GetSwapChain(ezGALSwapChainHandle hSwapChain) const
@@ -83,11 +73,6 @@ EZ_FORCE_INLINE const ezGALVertexDeclaration* ezGALDevice::GetVertexDeclaration(
   return Get<VertexDeclarationTable, ezGALVertexDeclaration>(hVertexDeclaration, m_VertexDeclarations);
 }
 
-EZ_FORCE_INLINE const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const
-{
-  return Get<QueryTable, ezGALQuery>(hQuery, m_Queries);
-}
-
 EZ_FORCE_INLINE const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHandle hSamplerState) const
 {
   return Get<SamplerStateTable, ezGALSamplerState>(hSamplerState, m_SamplerStates);
@@ -101,6 +86,16 @@ EZ_FORCE_INLINE const ezGALResourceView* ezGALDevice::GetResourceView(ezGALResou
 EZ_FORCE_INLINE const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const
 {
   return Get<RenderTargetViewTable, ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
+}
+
+EZ_FORCE_INLINE const ezGALFence* ezGALDevice::GetFence(ezGALFenceHandle hFence) const
+{
+  return Get<FenceTable, ezGALFence>(hFence, m_Fences);
+}
+
+EZ_FORCE_INLINE const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const
+{
+  return Get<QueryTable, ezGALQuery>(hQuery, m_Queries);
 }
 
 // static

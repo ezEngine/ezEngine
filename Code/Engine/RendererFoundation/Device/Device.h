@@ -149,10 +149,11 @@ public:
   const ezGALBlendState* GetBlendState(ezGALBlendStateHandle hBlendState) const;
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
-  const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
   const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
+  const ezGALFence* GetFence(ezGALFenceHandle hFence) const;
+  const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
 
   const ezGALDeviceCapabilities& GetCapabilities() const;
 
@@ -169,8 +170,6 @@ private:
   static ezGALDevice* s_pDefaultDevice;
 
 protected:
-
-  friend class ezGALContext;
 
   ezGALDevice(const ezGALDeviceCreationDescription& Description);
 

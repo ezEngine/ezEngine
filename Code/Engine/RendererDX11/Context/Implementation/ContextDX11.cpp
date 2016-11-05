@@ -112,11 +112,11 @@ void ezGALContextDX11::DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInst
   m_pDXContext->DrawIndexedInstanced(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex, 0, 0);
 }
 
-void ezGALContextDX11::DrawIndexedInstancedIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+void ezGALContextDX11::DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   FlushDeferredStateChanges();
 
-  m_pDXContext->DrawIndexedInstancedIndirect(static_cast<ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
+  m_pDXContext->DrawIndexedInstancedIndirect(static_cast<const ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
 }
 
 void ezGALContextDX11::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
@@ -126,11 +126,11 @@ void ezGALContextDX11::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, 
   m_pDXContext->DrawInstanced(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex, 0);
 }
 
-void ezGALContextDX11::DrawInstancedIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+void ezGALContextDX11::DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   FlushDeferredStateChanges();
 
-  m_pDXContext->DrawInstancedIndirect(static_cast<ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
+  m_pDXContext->DrawInstancedIndirect(static_cast<const ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
 }
 
 void ezGALContextDX11::DrawAutoPlatform()
@@ -279,17 +279,17 @@ void ezGALContextDX11::DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 u
   m_pDXContext->Dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
 }
 
-void ezGALContextDX11::DispatchIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
+void ezGALContextDX11::DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   FlushDeferredStateChanges();
 
-  m_pDXContext->DispatchIndirect(static_cast<ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
+  m_pDXContext->DispatchIndirect(static_cast<const ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
 }
 
 
 // State setting functions
 
-void ezGALContextDX11::SetShaderPlatform(ezGALShader* pShader)
+void ezGALContextDX11::SetShaderPlatform(const ezGALShader* pShader)
 {
   ID3D11VertexShader* pVS = nullptr;
   ID3D11HullShader* pHS = nullptr;
@@ -300,7 +300,7 @@ void ezGALContextDX11::SetShaderPlatform(ezGALShader* pShader)
 
   if (pShader != nullptr)
   {
-    ezGALShaderDX11* pDXShader = static_cast<ezGALShaderDX11*>(pShader);
+    const ezGALShaderDX11* pDXShader = static_cast<const ezGALShaderDX11*>(pShader);
     
     pVS = pDXShader->GetDXVertexShader();
     pHS = pDXShader->GetDXHullShader();
@@ -347,11 +347,11 @@ void ezGALContextDX11::SetShaderPlatform(ezGALShader* pShader)
   }
 }
 
-void ezGALContextDX11::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
+void ezGALContextDX11::SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer)
 {
   if (pIndexBuffer != nullptr)
   {
-    ezGALBufferDX11* pDX11Buffer = static_cast<ezGALBufferDX11*>(pIndexBuffer);
+    const ezGALBufferDX11* pDX11Buffer = static_cast<const ezGALBufferDX11*>(pIndexBuffer);
     m_pDXContext->IASetIndexBuffer(pDX11Buffer->GetDXBuffer(), pDX11Buffer->GetIndexFormat(), 0 /* \todo: Expose */);
   }
   else
@@ -360,18 +360,18 @@ void ezGALContextDX11::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
   }
 }
 
-void ezGALContextDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pVertexBuffer)
+void ezGALContextDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer)
 {
   EZ_ASSERT_DEV(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
 
-  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
+  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<const ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
   m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
   m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
 }
 
-void ezGALContextDX11::SetVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
+void ezGALContextDX11::SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration)
 {
-  m_pDXContext->IASetInputLayout(pVertexDeclaration != nullptr ? static_cast<ezGALVertexDeclarationDX11*>(pVertexDeclaration)->GetDXInputLayout() : nullptr);
+  m_pDXContext->IASetInputLayout(pVertexDeclaration != nullptr ? static_cast<const ezGALVertexDeclarationDX11*>(pVertexDeclaration)->GetDXInputLayout() : nullptr);
 }
 
 
@@ -387,27 +387,27 @@ void ezGALContextDX11::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum
   m_pDXContext->IASetPrimitiveTopology(GALTopologyToDX11[Topology]);
 }
 
-void ezGALContextDX11::SetConstantBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer)
+void ezGALContextDX11::SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer)
 {
   /// \todo Check if the device supports the slot index?
-  m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
+  m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
   m_BoundConstantBuffersRange.SetToIncludeValue(uiSlot);
 }
 
-void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerState* pSamplerState)
+void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState)
 {
   /// \todo Check if the device supports the stage / the slot index
-  m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != nullptr ? static_cast<ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
+  m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != nullptr ? static_cast<const ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
   m_BoundSamplerStatesRange[Stage].SetToIncludeValue(uiSlot);
 }
 
-void ezGALContextDX11::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView)
+void ezGALContextDX11::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView)
 {
-  m_pBoundShaderResourceViews[Stage][uiSlot] = pResourceView != nullptr ? static_cast<ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
+  m_pBoundShaderResourceViews[Stage][uiSlot] = pResourceView != nullptr ? static_cast<const ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
   m_BoundShaderResourceViewsRange[Stage].SetToIncludeValue(uiSlot);
 }
 
-void ezGALContextDX11::SetRenderTargetSetupPlatform( ezGALRenderTargetView** ppRenderTargetViews, ezUInt32 uiRenderTargetCount, ezGALRenderTargetView* pDepthStencilView )
+void ezGALContextDX11::SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRenderTargetView*> pRenderTargetViews, const ezGALRenderTargetView* pDepthStencilView)
 {
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
   {
@@ -415,28 +415,26 @@ void ezGALContextDX11::SetRenderTargetSetupPlatform( ezGALRenderTargetView** ppR
   }
   m_pBoundDepthStencilTarget = nullptr;
 
-  if (uiRenderTargetCount > 0 || pDepthStencilView != nullptr)
+  if (!pRenderTargetViews.IsEmpty() || pDepthStencilView != nullptr)
   {
-    m_uiBoundRenderTargetCount = uiRenderTargetCount;
-
-    for ( ezUInt32 i = 0; i < uiRenderTargetCount; i++ )
+    for (ezUInt32 i = 0; i < pRenderTargetViews.GetCount(); i++)
     {
-      if ( ppRenderTargetViews[i] != nullptr )
+      if (pRenderTargetViews[i] != nullptr)
       {
-        m_pBoundRenderTargets[i] = static_cast<ezGALRenderTargetViewDX11*>(ppRenderTargetViews[i])->GetRenderTargetView();
+        m_pBoundRenderTargets[i] = static_cast<const ezGALRenderTargetViewDX11*>(pRenderTargetViews[i])->GetRenderTargetView();
       }
-      
+
     }
 
     if (pDepthStencilView != nullptr )
     {
-      m_pBoundDepthStencilTarget = static_cast<ezGALRenderTargetViewDX11*>(pDepthStencilView)->GetDepthStencilView();
+      m_pBoundDepthStencilTarget = static_cast<const ezGALRenderTargetViewDX11*>(pDepthStencilView)->GetDepthStencilView();
     }    
 
     // Bind rendertargets, bind max(new rt count, old rt count) to overwrite bound rts if new count < old count
-    m_pDXContext->OMSetRenderTargets(ezMath::Max(uiRenderTargetCount, m_uiBoundRenderTargetCount), m_pBoundRenderTargets, m_pBoundDepthStencilTarget);
+    m_pDXContext->OMSetRenderTargets(ezMath::Max(pRenderTargetViews.GetCount(), m_uiBoundRenderTargetCount), m_pBoundRenderTargets, m_pBoundDepthStencilTarget);
 
-    m_uiBoundRenderTargetCount = uiRenderTargetCount;
+    m_uiBoundRenderTargetCount = pRenderTargetViews.GetCount();
   }
   else
   {
@@ -446,12 +444,12 @@ void ezGALContextDX11::SetRenderTargetSetupPlatform( ezGALRenderTargetView** ppR
   }
 }
 
-void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView)
+void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALResourceView* pResourceView)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALContextDX11::SetBlendStatePlatform(ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
+void ezGALContextDX11::SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
 {
   FLOAT BlendFactors[4] =
   {
@@ -461,17 +459,17 @@ void ezGALContextDX11::SetBlendStatePlatform(ezGALBlendState* pBlendState, const
     BlendFactor.a
   };
 
-  m_pDXContext->OMSetBlendState(pBlendState != nullptr ? static_cast<ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
+  m_pDXContext->OMSetBlendState(pBlendState != nullptr ? static_cast<const ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
 }
 
-void ezGALContextDX11::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
+void ezGALContextDX11::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
 {
-  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr ? static_cast<ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr, uiStencilRefValue );
+  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr, uiStencilRefValue );
 }
 
-void ezGALContextDX11::SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)
+void ezGALContextDX11::SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState)
 {
-  m_pDXContext->RSSetState(pRasterizerState != nullptr ? static_cast<ezGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
+  m_pDXContext->RSSetState(pRasterizerState != nullptr ? static_cast<const ezGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
 }
 
 void ezGALContextDX11::SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
@@ -498,22 +496,22 @@ void ezGALContextDX11::SetScissorRectPlatform(const ezRectU32& rect)
   m_pDXContext->RSSetScissorRects(1, &ScissorRect);
 }
 
-void ezGALContextDX11::SetStreamOutBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer, ezUInt32 uiOffset)
+void ezGALContextDX11::SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 // Fence & Query functions
 
-void ezGALContextDX11::InsertFencePlatform(ezGALFence* pFence)
+void ezGALContextDX11::InsertFencePlatform(const ezGALFence* pFence)
 {
-  m_pDXContext->End(static_cast<ezGALFenceDX11*>(pFence)->GetDXFence());
+  m_pDXContext->End(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence());
 }
 
-bool ezGALContextDX11::IsFenceReachedPlatform(ezGALFence* pFence)
+bool ezGALContextDX11::IsFenceReachedPlatform(const ezGALFence* pFence)
 {
   BOOL data = FALSE;
-  if (m_pDXContext->GetData(static_cast<ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
+  if (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
   {
     EZ_ASSERT_DEV(data == TRUE, "Implementation error");
     return true;
@@ -522,10 +520,10 @@ bool ezGALContextDX11::IsFenceReachedPlatform(ezGALFence* pFence)
   return false;
 }
 
-void ezGALContextDX11::WaitForFencePlatform(ezGALFence* pFence)
+void ezGALContextDX11::WaitForFencePlatform(const ezGALFence* pFence)
 {
   BOOL data = FALSE;
-  while (m_pDXContext->GetData(static_cast<ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
+  while (m_pDXContext->GetData(static_cast<const ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
   {
     ezThreadUtils::YieldTimeSlice();
   }
@@ -533,40 +531,40 @@ void ezGALContextDX11::WaitForFencePlatform(ezGALFence* pFence)
   EZ_ASSERT_DEV(data == TRUE, "Implementation error");
 }
 
-void ezGALContextDX11::BeginQueryPlatform(ezGALQuery* pQuery)
+void ezGALContextDX11::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALContextDX11::EndQueryPlatform(ezGALQuery* pQuery)
+void ezGALContextDX11::EndQueryPlatform(const ezGALQuery* pQuery)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 // Resource update functions
 
-void ezGALContextDX11::CopyBufferPlatform(ezGALBuffer* pDestination, ezGALBuffer* pSource)
+void ezGALContextDX11::CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource)
 {
-  ID3D11Buffer* pDXDestination = static_cast<ezGALBufferDX11*>(pDestination)->GetDXBuffer();
-  ID3D11Buffer* pDXSource = static_cast<ezGALBufferDX11*>(pSource)->GetDXBuffer();
+  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXSource = static_cast<const ezGALBufferDX11*>(pSource)->GetDXBuffer();
 
   m_pDXContext->CopyResource(pDXDestination, pDXSource);
 }
 
-void ezGALContextDX11::CopyBufferRegionPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
+void ezGALContextDX11::CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
 {
-  ID3D11Buffer* pDXDestination = static_cast<ezGALBufferDX11*>(pDestination)->GetDXBuffer();
-  ID3D11Buffer* pDXSource = static_cast<ezGALBufferDX11*>(pSource)->GetDXBuffer();
+  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXSource = static_cast<const ezGALBufferDX11*>(pSource)->GetDXBuffer();
 
   D3D11_BOX srcBox = { uiSourceOffset, 0, 0, uiSourceOffset + uiByteCount, 1, 1 };
   m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXSource, 0, &srcBox);
 }
 
-void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
+void ezGALContextDX11::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
 {
   EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
 
-  ID3D11Buffer* pDXDestination = static_cast<ezGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
 
   if (pDestination->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer)
   {
@@ -602,18 +600,18 @@ void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 
   }
 }
 
-void ezGALContextDX11::CopyTexturePlatform(ezGALTexture* pDestination, ezGALTexture* pSource)
+void ezGALContextDX11::CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource)
 {
-  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<ezGALTextureDX11*>(pSource)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<const ezGALTextureDX11*>(pSource)->GetDXTexture();
 
   m_pDXContext->CopyResource(pDXDestination, pDXSource);
 }
 
-void ezGALContextDX11::CopyTextureRegionPlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
+void ezGALContextDX11::CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
-  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<ezGALTextureDX11*>(pSource)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<const ezGALTextureDX11*>(pSource)->GetDXTexture();
 
   ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
   ezUInt32 srcSubResource = D3D11CalcSubresource(SourceSubResource.m_uiMipLevel, SourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
@@ -622,9 +620,9 @@ void ezGALContextDX11::CopyTextureRegionPlatform(ezGALTexture* pDestination, con
   m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, DestinationPoint.x, DestinationPoint.y, DestinationPoint.z, pDXSource, srcSubResource, &srcBox);
 }
 
-void ezGALContextDX11::UpdateTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
+void ezGALContextDX11::UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
-  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
 
   ezUInt32 uiWidth = ezMath::Max(DestinationBox.m_vMax.x - DestinationBox.m_vMin.x, 1u);
   ezUInt32 uiHeight = ezMath::Max(DestinationBox.m_vMax.y - DestinationBox.m_vMin.y, 1u);
@@ -657,10 +655,10 @@ void ezGALContextDX11::UpdateTexturePlatform(ezGALTexture* pDestination, const e
  }
 }
 
-void ezGALContextDX11::ResolveTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource)
+void ezGALContextDX11::ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource)
 {
-  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
-  ID3D11Resource* pDXSource = static_cast<ezGALTextureDX11*>(pSource)->GetDXTexture();
+  ID3D11Resource* pDXDestination = static_cast<const ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<const ezGALTextureDX11*>(pSource)->GetDXTexture();
 
   ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
   ezUInt32 srcSubResource = D3D11CalcSubresource(SourceSubResource.m_uiMipLevel, SourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
@@ -670,9 +668,9 @@ void ezGALContextDX11::ResolveTexturePlatform(ezGALTexture* pDestination, const 
   m_pDXContext->ResolveSubresource(pDXDestination, dstSubResource, pDXSource, srcSubResource, DXFormat);
 }
 
-void ezGALContextDX11::ReadbackTexturePlatform(ezGALTexture* pTexture)
+void ezGALContextDX11::ReadbackTexturePlatform(const ezGALTexture* pTexture)
 {
-  ezGALTextureDX11* pDXTexture = static_cast<ezGALTextureDX11*>(pTexture);
+  const ezGALTextureDX11* pDXTexture = static_cast<const ezGALTextureDX11*>(pTexture);
 
   // MSAA textures (e.g. backbuffers) need to be converted to non MSAA versions
   const bool bMSAASourceTexture = pDXTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
@@ -692,9 +690,9 @@ void ezGALContextDX11::ReadbackTexturePlatform(ezGALTexture* pTexture)
 
 }
 
-void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
+void ezGALContextDX11::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData)
 {
-  ezGALTextureDX11* pDXTexture = static_cast<ezGALTextureDX11*>(pTexture);
+  const ezGALTextureDX11* pDXTexture = static_cast<const ezGALTextureDX11*>(pTexture);
 
   EZ_ASSERT_DEV(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
 

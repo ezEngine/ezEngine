@@ -1,7 +1,9 @@
 
+#include <RendererFoundation/PCH.h>
+#include <RendererFoundation/Context/ContextState.h>
+
 void ezGALContextState::Invalidate()
 {
-
   m_hShader = ezGALShaderHandle();
 
   m_hBlendState = ezGALBlendStateHandle();
@@ -21,6 +23,7 @@ void ezGALContextState::Invalidate()
   //ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
 
   //ezGALResourceViewHandle m_hResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezMemoryUtils::ZeroFill(m_pResourcesForResourceViews, ezGALShaderStage::ENUM_COUNT);
 
   //ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
 

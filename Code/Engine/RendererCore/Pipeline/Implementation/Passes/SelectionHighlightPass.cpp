@@ -109,12 +109,6 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
-    // Prevent shader resource hazard in DX11
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", ezGALResourceViewHandle());
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", ezGALResourceViewHandle());
-    renderViewContext.m_pRenderContext->ApplyContextStates();
-    pGALContext->Flush();
-
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hDepthTexture);
   }  
 }

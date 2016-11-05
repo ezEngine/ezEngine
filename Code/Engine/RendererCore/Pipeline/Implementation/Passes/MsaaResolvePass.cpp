@@ -94,11 +94,6 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
-
-    // Prevent shader resource hazard in DX11
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "DepthTexture", ezGALResourceViewHandle());
-    renderViewContext.m_pRenderContext->ApplyContextStates();
-    pGALContext->Flush();
   }
   else
   {

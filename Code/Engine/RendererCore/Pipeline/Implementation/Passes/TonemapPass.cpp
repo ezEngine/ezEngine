@@ -133,12 +133,6 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "BloomTexture", hBloomTextureView);  
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
-
-  ///\ todo generalize prevention of resource hazards somehow?
-  // Prevent shader resource hazard in DX11
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneColorTexture", ezGALResourceViewHandle());
-  renderViewContext.m_pRenderContext->ApplyContextStates();
-  pGALContext->Flush();
 }
 
 void ezTonemapPass::SetVignettingTextureFile(const char* szFile)

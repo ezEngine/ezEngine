@@ -146,11 +146,11 @@ protected:
 
   virtual void DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) = 0;
 
-  virtual void DrawIndexedInstancedIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+  virtual void DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
 
   virtual void DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) = 0;
 
-  virtual void DrawInstancedIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+  virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
 
   virtual void DrawAutoPlatform() = 0;
 
@@ -162,75 +162,75 @@ protected:
 
   virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) = 0;
 
-  virtual void DispatchIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+  virtual void DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
 
 
   // State setting functions
 
-  virtual void SetShaderPlatform(ezGALShader* pShader) = 0;
+  virtual void SetShaderPlatform(const ezGALShader* pShader) = 0;
 
-  virtual void SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer) = 0;
+  virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) = 0;
 
-  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pVertexBuffer) = 0;
+  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer) = 0;
 
-  virtual void SetVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
+  virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) = 0;
 
   virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology) = 0;
 
-  virtual void SetConstantBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer) = 0;
+  virtual void SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer) = 0;
 
-  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerState* pSamplerState) = 0;
+  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) = 0;
 
-  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView) = 0;
+  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) = 0;
 
-  virtual void SetRenderTargetSetupPlatform(ezGALRenderTargetView** ppRenderTargetViews, ezUInt32 uiRenderTargetCount, ezGALRenderTargetView* pDepthStencilView) = 0;
+  virtual void SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRenderTargetView*> pRenderTargetViews, const ezGALRenderTargetView* pDepthStencilView) = 0;
 
-  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView) = 0;
+  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALResourceView* pResourceView) = 0;
 
-  virtual void SetBlendStatePlatform(ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) = 0;
+  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) = 0;
 
-  virtual void SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) = 0;
+  virtual void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) = 0;
 
-  virtual void SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState) = 0;
+  virtual void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState) = 0;
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) = 0;
 
   virtual void SetScissorRectPlatform(const ezRectU32& rect) = 0;
 
-  virtual void SetStreamOutBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer, ezUInt32 uiOffset) = 0;
+  virtual void SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset) = 0;
 
   // Fence & Query functions
 
-  virtual void InsertFencePlatform(ezGALFence* pFence) = 0;
+  virtual void InsertFencePlatform(const ezGALFence* pFence) = 0;
 
-  virtual bool IsFenceReachedPlatform(ezGALFence* pFence) = 0;
+  virtual bool IsFenceReachedPlatform(const ezGALFence* pFence) = 0;
 
-  virtual void WaitForFencePlatform(ezGALFence* pFence) = 0;
+  virtual void WaitForFencePlatform(const ezGALFence* pFence) = 0;
 
-  virtual void BeginQueryPlatform(ezGALQuery* pQuery) = 0;
+  virtual void BeginQueryPlatform(const ezGALQuery* pQuery) = 0;
 
-  virtual void EndQueryPlatform(ezGALQuery* pQuery) = 0;
+  virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;
 
   // Resource update functions
 
-  virtual void CopyBufferPlatform(ezGALBuffer* pDestination, ezGALBuffer* pSource) = 0;
+  virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) = 0;
 
-  virtual void CopyBufferRegionPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
+  virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
 
-  virtual void UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData) = 0;
+  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData) = 0;
 
-  virtual void CopyTexturePlatform(ezGALTexture* pDestination, ezGALTexture* pSource) = 0;
+  virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) = 0;
 
-  virtual void CopyTextureRegionPlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box) = 0;
+  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box) = 0;
 
-  virtual void UpdateTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) = 0;
+  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) = 0;
 
-  virtual void ResolveTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) = 0;
+  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) = 0;
 
-  virtual void ReadbackTexturePlatform(ezGALTexture* pTexture) = 0;
+  virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) = 0;
 
   /// \todo add parameters for mip level & count selection?
-  virtual void CopyTextureReadbackResultPlatform(ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) = 0;
+  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) = 0;
 
   virtual void FlushPlatform() = 0;
 
@@ -245,19 +245,22 @@ protected:
   // Don't use light hearted ;)
   void InvalidateState();
 
+  // Returns whether a resource view has been unset for the given resource
+  bool UnsetResourceViews(const ezGALResourceBase* pResource);
+
 private:
 
   friend class ezMemoryUtils;
 
-  inline void CountDrawCall();
+  void CountDrawCall();
 
-  inline void CountDispatchCall();
+  void CountDispatchCall();
 
-  inline void CountStateChange();
+  void CountStateChange();
 
-  inline void CountRedundantStateChange();
+  void CountRedundantStateChange();
 
-  inline void AssertRenderingThread();
+  void AssertRenderingThread();
 
   // Parent device
   ezGALDevice* m_pDevice;

@@ -7,6 +7,8 @@
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 {
+  void Invalidate();
+
   ezGALShaderHandle m_hShader;
 
   ezGALBlendStateHandle m_hBlendState;
@@ -26,6 +28,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
   ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
 
   ezGALResourceViewHandle m_hResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  const ezGALResourceBase* m_pResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
 
   ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
 
@@ -44,11 +47,4 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
   float m_fViewPortMaxDepth;
 
   ezGALPrimitiveTopology::Enum m_Topology;
-
-  inline void Invalidate();
-
 };
-
-
-
-#include <RendererFoundation/Context/Implementation/ContextState_inl.h>
