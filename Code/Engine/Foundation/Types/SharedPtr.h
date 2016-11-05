@@ -9,7 +9,7 @@ class ezSharedPtr
 {
 public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
-  
+
   /// \brief Creates an empty shared ptr.
   ezSharedPtr();
 
@@ -35,6 +35,9 @@ public:
   /// \brief Move constructs a shared ptr from a unique ptr. The unique ptr will be empty afterwards to guarantee that there is only one unique ptr managing the same object.
   template <typename U>
   ezSharedPtr(ezUniquePtr<U>&& other);
+
+  /// \brief Initialization with nullptr to be able to return nullptr in functions that return shared ptr.
+  ezSharedPtr(std::nullptr_t);
 
   /// \brief Destroys the managed object using the stored allocator if no one else references it anymore.
   ~ezSharedPtr();

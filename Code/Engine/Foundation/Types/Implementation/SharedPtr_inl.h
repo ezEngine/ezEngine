@@ -61,8 +61,15 @@ template <typename U>
 EZ_FORCE_INLINE ezSharedPtr<T>::ezSharedPtr(ezUniquePtr<U>&& other)
 {
   m_pInstance = other.Release(m_pAllocator);
-  
+
   AddReferenceIfValid();
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezSharedPtr<T>::ezSharedPtr(std::nullptr_t)
+{
+  m_pInstance = nullptr;
+  m_pAllocator = nullptr;
 }
 
 template <typename T>

@@ -8,7 +8,7 @@ class ezUniquePtr
 {
 public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
-  
+
   /// \brief Creates an empty unique ptr.
   ezUniquePtr();
 
@@ -25,7 +25,7 @@ public:
   ezUniquePtr(ezUniquePtr<U>&& other);
 
   /// \brief Initialization with nullptr to be able to return nullptr in functions that return unique ptr.
-  ezUniquePtr(std::nullptr_t null);
+  ezUniquePtr(std::nullptr_t);
 
   /// \brief Destroys the managed object using the stored allocator.
   ~ezUniquePtr();
