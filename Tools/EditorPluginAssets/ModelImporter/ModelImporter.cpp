@@ -101,4 +101,18 @@ namespace ezModelImporter
     EZ_ASSERT_DEBUG(importerImplementation != nullptr, "Given importer implementation is null!");
     m_ImporterImplementations.PushBack(std::move(importerImplementation));
   }
+
+  ezHashSet<ezString> Importer::GetSupportedTypes()
+  {
+    ezHashSet<ezString> supportedFormats;
+    for (auto& importer : m_ImporterImplementations)
+    {
+      ezArrayPtr<const ezString> formats = importer->GetSupportedFileFormats();
+      for (const ezString& format : formats)
+      {
+        supportedFormats.Insert(format);
+      }
+    }
+    return supportedFormats;
+  }
 }
