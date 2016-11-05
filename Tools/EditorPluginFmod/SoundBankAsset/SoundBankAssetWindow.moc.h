@@ -21,12 +21,11 @@ public:
   virtual const char* GetWindowLayoutGroupName() const override { return "SoundBankAsset"; }
 
   private slots:
-  
+
 
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void SoundBankAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
 
   ezSoundBankAssetDocument* m_pAssetDoc;
   QLabel* m_pLabelInfo;

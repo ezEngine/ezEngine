@@ -46,7 +46,6 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
   }
 
   m_pAssetDoc = static_cast<ezSoundEventAssetDocument*>(pDocument);
-  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::SoundEventAssetDocumentEventHandler, this));
 
   m_pLabelInfo = new QLabel(this);
   setCentralWidget(m_pLabelInfo);
@@ -60,19 +59,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
 
 ezSoundEventAssetDocumentWindow::~ezSoundEventAssetDocumentWindow()
 {
-  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::SoundEventAssetDocumentEventHandler, this));
-
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
-}
-
-void ezSoundEventAssetDocumentWindow::SoundEventAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
-{
-  switch (e.m_Type)
-  {
-  case ezAssetDocument::AssetEvent::Type::AssetInfoChanged:
-    UpdatePreview();
-    break;
-  }
 }
 
 void ezSoundEventAssetDocumentWindow::UpdatePreview()
@@ -84,7 +71,7 @@ void ezSoundEventAssetDocumentWindow::UpdatePreview()
 
   //for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
   //  s.AppendFormat("\nSlot %u: %s", m, prop->m_SlotNames[m].GetData());
-  
+
   //m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
 }
 

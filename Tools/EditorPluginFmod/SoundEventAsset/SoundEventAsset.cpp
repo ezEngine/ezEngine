@@ -38,10 +38,3 @@ ezStatus ezSoundEventAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   return ezStatus(EZ_SUCCESS);
 }
 
-
-ezStatus ezSoundEventAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
-{
-
-  return ezStatus(EZ_SUCCESS);
-}
-

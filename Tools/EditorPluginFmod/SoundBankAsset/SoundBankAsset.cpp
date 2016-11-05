@@ -152,12 +152,3 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
   return ezStatus(EZ_SUCCESS);
 }
-
-
-ezStatus ezSoundBankAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
-{
-
-
-  return ezStatus(EZ_SUCCESS);
-}
-

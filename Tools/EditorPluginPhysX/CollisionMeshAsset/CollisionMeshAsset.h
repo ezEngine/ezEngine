@@ -22,8 +22,6 @@ public:
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
 
-  ezStatus CreateMeshFromFile(const ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream);
-
-  virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
+  ezStatus CreateMeshFromFile(ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream);
 
 };

@@ -20,12 +20,11 @@ public:
   virtual const char* GetWindowLayoutGroupName() const { return "SoundEventAsset"; }
 
   private slots:
-  
+
 
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void SoundEventAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
 
   ezSoundEventAssetDocument* m_pAssetDoc;
   QLabel* m_pLabelInfo;

@@ -84,7 +84,7 @@ const char* ezCollisionMeshAssetDocument::QueryAssetType() const
 
 ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  const ezCollisionMeshAssetProperties* pProp = GetProperties();
+  ezCollisionMeshAssetProperties* pProp = GetProperties();
 
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
   const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
@@ -105,7 +105,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream)
+ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream)
 {
   ezPhysXCooking::Mesh xMesh;
   xMesh.m_bFlipNormals = false;// bFlipTriangles;
@@ -153,6 +153,41 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshA
 
   ezLog::Info("Number of Vertices: %u", uiVertices);
   ezLog::Info("Number of Triangles: %u", uiTriangles);
+
+
+  {
+    // Update materials.
+    {
+      aiString name;
+      ezStringBuilder sMatName;
+
+      pProp->m_Slots.SetCount(scene->mNumMeshes);
+      for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+      {
+        aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
+
+        mat->Get(AI_MATKEY_NAME, name);
+
+        pProp->m_Slots[i].m_sLabel = name.C_Str();
+      }
+    }
+
+    // Set changes.
+    {
+      ezAbstractObjectGraph graph;
+      ezRttiConverterContext context;
+      ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+
+      ezDocumentObject* pPropObj = GetPropertyObject();
+      context.RegisterObject(pPropObj->GetGuid(), pPropObj->GetTypeAccessor().GetType(), pProp);
+      auto* pNode = rttiConverter.AddObjectToGraph(pProp, "Object");
+
+      ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+      objectConverter.ApplyPropertiesToObject(pNode, pPropObj);
+
+      pProp = GetProperties();
+    }
+  }
 
   xMesh.m_PolygonIndices.Reserve(uiTriangles * 3);
   xMesh.m_Vertices.SetCount(uiVertices);
@@ -229,92 +264,3 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshA
 
   return ezStatus(EZ_SUCCESS);
 }
-
-ezStatus ezCollisionMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
-{
-  ezCollisionMeshAssetProperties* pProp = GetProperties();
-  ezDocumentObject* pPropObj = GetPropertyObject();
-
-  {
-
-    ezString sMeshFileAbs = pProp->m_sMeshFile;
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
-    {
-      ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
-      return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
-    }
-
-    Importer importer;
-
-    DefaultLogger::create("", Logger::NORMAL);
-
-    const unsigned int severity = Logger::Debugging | Logger::Info | Logger::Err | Logger::Warn;
-    DefaultLogger::get()->attachStream(new aiLogStream(), severity);
-
-    const aiScene* scene = nullptr;
-
-    {
-      EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
-
-      scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
-
-      if (!scene)
-      {
-        ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
-        return ezStatus("Mesh Asset input file could not be imported");
-      }
-    }
-
-    ezLog::Success("Mesh has been imported", sMeshFileAbs.GetData());
-
-    ezLog::Info("Number of unique Meshes: %u", scene->mNumMeshes);
-
-    ezUInt32 uiVertices = 0;
-    ezUInt32 uiTriangles = 0;
-
-    for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
-    {
-      uiVertices += scene->mMeshes[i]->mNumVertices;
-      uiTriangles += scene->mMeshes[i]->mNumFaces;
-    }
-
-    ezLog::Info("Number of Vertices: %u", uiVertices);
-    ezLog::Info("Number of Triangles: %u", uiTriangles);
-
-    //pProp->m_uiVertices = uiVertices;
-    //pProp->m_uiTriangles = uiTriangles;
-    //pProp->m_SlotNames.SetCount(scene->mNumMeshes);
-
-
-    aiString name;
-    ezStringBuilder sMatName;
-
-    pProp->m_Slots.SetCount(scene->mNumMeshes);
-    for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
-    {
-      aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
-
-      mat->Get(AI_MATKEY_NAME, name);
-
-      pProp->m_Slots[i].m_sLabel = name.C_Str();
-    }
-  }
-
-  {
-    ezAbstractObjectGraph graph;
-    ezRttiConverterContext context;
-    ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
-    context.RegisterObject(pPropObj->GetGuid(), pPropObj->GetTypeAccessor().GetType(), pProp);
-    auto* pNode = rttiConverter.AddObjectToGraph(pProp, "Object");
-
-    ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
-    objectConverter.ApplyPropertiesToObject(pNode, pPropObj);
-  }
-
-  GetSelectionManager()->Clear();
-  GetSelectionManager()->AddObject(pPropObj);
-
-
-  return ezStatus(EZ_SUCCESS);
-}
-
