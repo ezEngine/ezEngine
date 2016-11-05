@@ -178,7 +178,7 @@ void ezQtColorGradientEditorWidget::on_ButtonColor_clicked()
     emit BeginOperation();
 
     ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, this,
-                                                  SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+                                                  SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
   }
 }
 
@@ -187,6 +187,17 @@ void ezQtColorGradientEditorWidget::on_CurrentColor_changed(const QColor& col)
   if (m_iSelectedColorCP != -1)
   {
     m_PickColorCurrent = ezColorGammaUB(col.red(), col.green(), col.blue());
+
+    emit ColorCpChanged(m_iSelectedColorCP, m_PickColorCurrent);
+  }
+}
+
+
+void ezQtColorGradientEditorWidget::on_CurrentColor_changed(const ezColor& col)
+{
+  if (m_iSelectedColorCP != -1)
+  {
+    m_PickColorCurrent = col;
 
     emit ColorCpChanged(m_iSelectedColorCP, m_PickColorCurrent);
   }

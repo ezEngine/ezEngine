@@ -23,6 +23,11 @@ inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode) : Q
   connect(this, &QWidget::customContextMenuRequested, this, &ezQtDoubleSpinBox::onCustomContextMenuRequested);
 }
 
+void ezQtDoubleSpinBox::SetIntMode(bool enable)
+{
+  m_bIntMode = enable;
+}
+
 void ezQtDoubleSpinBox::setDisplaySuffix(const char* szSuffix)
 {
   m_sSuffix = QString::fromUtf8(szSuffix);

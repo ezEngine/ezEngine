@@ -96,7 +96,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
     {
       CreatePropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
     }
-    
+
   }
 }
 
@@ -227,9 +227,9 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
     ezColorGammaUB gamma;
     float intensity;
     pResource->GetDescriptor().m_Gradient.Evaluate(fLookupPos, gamma, intensity);
-    
+
     ezColor finalColor = gamma;
-    finalColor.ScaleIntensity(intensity);
+    finalColor.ScaleRGB(intensity);
 
     ezTypedMemberProperty<ezColor>* pTyped = static_cast<ezTypedMemberProperty<ezColor>*>(binding.m_pMemberProperty);
     pTyped->SetValue(binding.m_pObject, finalColor);

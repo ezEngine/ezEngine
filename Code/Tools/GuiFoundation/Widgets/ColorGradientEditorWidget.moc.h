@@ -55,7 +55,8 @@ private slots:
   void on_SliderAlpha_sliderReleased();
   void on_SpinIntensity_valueChanged(double value);
   void on_ButtonColor_clicked();
-  void on_CurrentColor_changed(const QColor&);
+  void on_CurrentColor_changed(const QColor& col);
+  void on_CurrentColor_changed(const ezColor& col);
   void on_Color_accepted();
   void on_Color_reset();
   void on_ButtonNormalize_clicked();

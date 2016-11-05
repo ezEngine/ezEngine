@@ -9,6 +9,8 @@ class EZ_GUIFOUNDATION_DLL ezQtDoubleSpinBox : public QDoubleSpinBox
 public:
   explicit ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode = false);
 
+  void SetIntMode(bool enable);
+
   void setDisplaySuffix(const char* szSuffix);
   void setDefaultValue(double value);
 

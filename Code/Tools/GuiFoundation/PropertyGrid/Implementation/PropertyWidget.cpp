@@ -842,7 +842,7 @@ void ezQtPropertyEditorColorWidget::on_Button_triggered()
   if (m_OriginalValue.IsValid())
     temp = m_OriginalValue.ConvertTo<ezColor>();
 
-  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
@@ -852,6 +852,12 @@ void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
   m_pWidget->SetColor(NewCol);
 
   BroadcastValueChanged(NewCol);
+}
+
+void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const ezColor& color)
+{
+  m_pWidget->SetColor(color);
+  BroadcastValueChanged(color);
 }
 
 void ezQtPropertyEditorColorWidget::on_Color_reset()

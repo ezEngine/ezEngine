@@ -75,9 +75,9 @@ void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
 // http://www.rapidtables.com/convert/color/hsv-to-rgb.htm
 void ezColor::SetHSV(float hue, float sat, float val)
 {
-  EZ_ASSERT_DEBUG(hue <= 360 && hue >= 0, "HSV Hue value is in invalid range.");
-  EZ_ASSERT_DEBUG(sat <= 1 && val >= 0, "HSV saturation value is in invalid range.");
-  EZ_ASSERT_DEBUG(val <= 1 && val >= 0, "HSV value is in invalid range.");
+  EZ_ASSERT_DEBUG(hue <= 360 && hue >= 0, "HSV 'hue' is in invalid range.");
+  EZ_ASSERT_DEBUG(sat <= 1 && val >= 0, "HSV 'saturation' is in invalid range.");
+  EZ_ASSERT_DEBUG(val >= 0, "HSV 'value' is in invalid range.");
 
   float c = sat * val;
   float x = c * (1.0f - ezMath::Abs(ezMath::Mod(hue / 60.0f, 2) - 1.0f));
@@ -189,17 +189,36 @@ void ezColor::operator*= (const ezMat4& rhs)
 }
 
 
-void ezColor::ScaleIntensity(float fIntensity)
+void ezColor::ScaleRGB(float factor)
 {
-  r *= fIntensity;
-  g *= fIntensity;
-  b *= fIntensity;
+  r *= factor;
+  g *= factor;
+  b *= factor;
 }
 
-float ezColor::ComputeIntensity() const
+float ezColor::ComputeHdrMultiplier() const
 {
-  /// \test This is new
-  return ezMath::Max(1.0f, ezMath::Max(r, g, b));
+  return ezMath::Max(1.0f, r, g, b);
+}
+
+ezUInt32 ezColor::ComputeHdrMultiplierPOT() const
+{
+  const float mult = ComputeHdrMultiplier();
+  return (ezUInt32)ezMath::PowerOfTwo_Ceil((ezUInt32)mult);
+}
+
+ezUInt32 ezColor::ComputeHdrExposureValue() const
+{
+  const ezUInt32 mult = ComputeHdrMultiplierPOT();
+  return ezMath::Log2i(mult);
+}
+
+void ezColor::ApplyHdrExposureValue(ezUInt32 ev)
+{
+  const float factor = (float)(1U << ev);
+  r *= factor;
+  g *= factor;
+  b *= factor;
 }
 
 ezColor ezColor::GetComplementaryColor() const

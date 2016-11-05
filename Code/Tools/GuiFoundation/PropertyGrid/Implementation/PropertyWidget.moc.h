@@ -10,7 +10,7 @@
 
 class QCheckBox;
 class QDoubleSpinBox;
-class QSpinBox; 
+class QSpinBox;
 class QLabel;
 class QHBoxLayout;
 class QLineEdit;
@@ -43,7 +43,7 @@ protected:
 
   QHBoxLayout* m_pLayout;
   QCheckBox* m_pWidget;
-  
+
 };
 
 
@@ -212,6 +212,7 @@ public:
 private slots:
   void on_Button_triggered();
   void on_CurrentColor_changed(const QColor& color);
+  void on_CurrentColor_changed(const ezColor& color);
   void on_Color_reset();
   void on_Color_accepted();
 

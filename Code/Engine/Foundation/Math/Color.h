@@ -290,10 +290,20 @@ public:
   ezColor GetComplementaryColor() const; // [tested]
 
   /// \brief Multiplies the given factor into red, green and blue, but not alpha.
-  void ScaleIntensity(float fIntensity);
+  void ScaleRGB(float factor);
 
-  /// \brief Determines the intensity. For HDR colors this is the value of the largest RGB channel. If all channels are below 1.0, the intensity is clamped to 1.0.
-  float ComputeIntensity() const;
+  /// \brief Returns 1 for an LDR color (all components < 1). Otherwise the value of the largest component.
+  float ComputeHdrMultiplier() const;
+
+  /// \brief Computes the next larger power-of-two multiplier. 1 for LDR colors, 2, 4, 8, etc. for HDR colors.
+  ezUInt32 ComputeHdrMultiplierPOT() const;
+
+  /// \brief Returns the base-2 logarithm of ComputeHdrMultiplierPOT().
+  /// 0 for LDR colors, +1, +2, etc. for HDR colors.
+  ezUInt32 ComputeHdrExposureValue() const;
+
+  /// \brief Raises 2 to the power \a ev and multiplies RGB with that factor.
+  void ApplyHdrExposureValue(ezUInt32 ev);
 
   // *** Numeric properties ***
 public:

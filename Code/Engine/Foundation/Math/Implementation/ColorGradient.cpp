@@ -107,7 +107,7 @@ void ezColorGradient::Evaluate(float x, ezColor& hdr) const
   EvaluateAlpha(x, alpha);
   EvaluateIntensity(x, intensity);
 
-  hdr.ScaleIntensity(intensity);
+  hdr.ScaleRGB(intensity);
   hdr.a = ezMath::ColorByteToFloat(alpha);
 }
 

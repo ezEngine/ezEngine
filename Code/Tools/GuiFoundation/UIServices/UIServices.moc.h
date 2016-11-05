@@ -9,6 +9,7 @@
 #include <Foundation/Time/Time.h>
 
 class QColorDialog;
+class ezQtColorDialog;
 
 class EZ_GUIFOUNDATION_DLL ezQtUiServices : public QObject
 {
@@ -89,6 +90,7 @@ private slots:
 
 private:
   QColorDialog* m_pColorDlg;
+  ezQtColorDialog* m_pColorDlg2;
   QPoint m_ColorDlgPos;
 
   static ezMap<ezString, QIcon> s_IconsCache;
