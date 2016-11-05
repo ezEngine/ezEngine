@@ -102,7 +102,7 @@ namespace ImportHelper
 
 
   template<int NumStreams>
-  static void GenerateInterleavedVertexMapping(ezArrayPtr<const Mesh::Triangle> triangles, const VertexDataStream* (&dataStreams)[NumStreams],
+  void GenerateInterleavedVertexMapping(ezArrayPtr<const Mesh::Triangle> triangles, const VertexDataStream* (&dataStreams)[NumStreams],
                                             ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices)
   {
     outTriangleVertexIndices.SetCountUninitialized(triangles.GetCount() * 3);
@@ -128,6 +128,52 @@ namespace ImportHelper
         outTriangleVertexIndices[t * 3 + v] = gpuVertexIndex;
       }
     }
+  }
+
+  ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ezUniquePtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
+  {
+    outMeshFileAbs = filename;
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
+    {
+      ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", outMeshFileAbs.GetData());
+      return ezStatus("Could not make path absolute: '%s;", outMeshFileAbs.GetData());
+    }
+
+    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(outMeshFileAbs);
+    if (!outScene)
+    {
+      ezLog::Error("Could not import file '%s'", outMeshFileAbs.GetData());
+      return ezStatus("Mesh Asset input file '%s' could not be imported", outMeshFileAbs.GetData());
+    }
+
+    if (outScene->GetMeshes().GetCount() == 0)
+    {
+      return ezStatus("Scene does not contain any meshes.");
+    }
+
+    if (ezStringUtils::IsNullOrEmpty(subMeshFilename))
+    {
+      outMesh = outScene->MergeAllMeshes();
+    }
+    else
+    {
+      outMesh = nullptr;
+      for (auto it = outScene->GetMeshes().GetIterator(); it.IsValid(); ++it)
+      {
+        if (it.Value()->m_Name == subMeshFilename)
+        {
+          outMesh = it.Value().Borrow();
+          break;
+        }
+      }
+
+      if (outMesh == nullptr)
+      {
+        return ezStatus("Scene does not contain a mesh with name '%s'.", subMeshFilename);
+      }
+    }
+
+    return ezStatus(EZ_SUCCESS);
   }
 }
 
@@ -227,38 +273,22 @@ void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp,
 
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation)
 {
-  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
-
-  ezString sMeshFileAbs = pProp->m_sMeshFile;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
-  {
-    ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
-    return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
-  }
-
   using namespace ezModelImporter;
 
-  ezUniquePtr<Scene> scene = Importer::GetSingleton()->ImportScene(sMeshFileAbs);
-  if (!scene)
-  {
-    ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
-    return ezStatus("Mesh Asset input file '%s' could not be imported", sMeshFileAbs.GetData());
-  }
+  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 
-  if (scene->GetMeshes().GetCount() == 0)
-  {
-    return ezStatus("Scene does not contain any meshes.");
-  }
-
-  // Want a single mesh so let's all merge it together.
-  // Todo: Later we might want to point to a specific mesh inside the scene!
+  ezUniquePtr<Scene> scene;
   Mesh* mesh = nullptr;
+  ezString sMeshFileAbs;
+  ezStatus importStatus = ImportHelper::ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs);
+  if (importStatus.Failed())
+    return importStatus;
+
   {
     ezStopwatch timer;
-    mesh = scene->MergeAllMeshes();
     mesh->ComputeNormals();
     mesh->ComputeTangents();
-    ezLog::Success("Merged mesh, computed normals and tangents (time %.2fs)", timer.GetRunningTotal());
+    ezLog::Success("Computed missing normals and tangents (time %.2fs)", timer.GetRunningTotal());
   }
 
   // Create vertex & index buffer.
@@ -362,7 +392,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
           ezVec3 vBiTangent = dataStreams[BiTangent]->GetValueVec3(dataIndices[BiTangent]);
           vBiTangent = mTransformation.TransformDirection(vBiTangent);
           vBiTangent.NormalizeIfNotZero();
-          biTangentSign = vBiTangent.Dot(vTangent);
+          biTangentSign = -vBiTangent.Dot(vTangent);
         }
 
         biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
@@ -699,38 +729,15 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
-    ezString sMeshFileAbs = pProp->m_sMeshFile;
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
-    {
-      ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
-      return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
-    }
-
-    using namespace ezModelImporter;
-
-    ezUniquePtr<Scene> scene = Importer::GetSingleton()->ImportScene(sMeshFileAbs);
-    if (!scene)
-    {
-      ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
-      return ezStatus("Mesh Asset input file '%s' could not be imported", sMeshFileAbs.GetData());
-    }
-
-    ezLog::Success("Scene '%s' has been imported", sMeshFileAbs.GetData());
-
-    if (scene->GetMeshes().GetCount() == 0)
-    {
-      return ezStatus("Scene does not contain any meshes.");
-    }
-
-    ezLog::Success("Scene has been imported", sMeshFileAbs.GetData());
-
-    // Want a single mesh so let's all merge it together.
-    // Todo: Later we might want to point to a specific mesh inside the scene!
-    const Mesh* mesh = scene->MergeAllMeshes();
+    ezUniquePtr<ezModelImporter::Scene> scene;
+    ezModelImporter::Mesh* mesh;
+    ezString sMeshFileAbs;
+    ezStatus importStatus = ImportHelper::ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs);
+    if (importStatus.Failed())
+      return importStatus;
 
     ezUInt32 uiTriangles = mesh->GetNumTriangles();
     ezLog::Info("Number of Triangles: %u", uiTriangles);
-
 
     GetObjectAccessor()->StartTransaction("Update Mesh Asset Info");
 

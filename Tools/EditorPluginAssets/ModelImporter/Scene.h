@@ -42,6 +42,9 @@ namespace ezModelImporter
     const ezIdTable<ObjectId, ezUniquePtr<Node>>& GetNodes() const           { return m_Nodes; }
     const ezIdTable<ObjectId, ezUniquePtr<Mesh>>& GetMeshes() const          { return m_Meshes; }
     const ezIdTable<MaterialId, ezUniquePtr<Material>>& GetMaterials() const { return m_Materials; }
+    ezIdTable<ObjectId, ezUniquePtr<Node>>& GetNodes()                       { return m_Nodes; }
+    ezIdTable<ObjectId, ezUniquePtr<Mesh>>& GetMeshes()                      { return m_Meshes; }
+    ezIdTable<MaterialId, ezUniquePtr<Material>>& GetMaterials()             { return m_Materials; }
 
     // Manipulation methods for importer implementations.
   public:

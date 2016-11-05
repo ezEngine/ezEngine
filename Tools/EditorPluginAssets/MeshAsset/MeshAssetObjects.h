@@ -47,6 +47,7 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
+  ezString m_sSubMeshName;
   float m_fUniformScaling;
   ezVec3 m_vNonUniformScaling;
   float m_fRadius;

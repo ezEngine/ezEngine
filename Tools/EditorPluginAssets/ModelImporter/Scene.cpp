@@ -110,7 +110,7 @@ namespace ezModelImporter
         if (targetName.IsEmpty())
         {
           ezStringBuilder newName = unnamedPrefix;
-          newName.Append(ezConversionUtils::ToString(unnamedCounter));
+          newName.Append("_", ezConversionUtils::ToString(unnamedCounter));
           ++unnamedCounter;
 
           targetName = newName;
