@@ -28,14 +28,19 @@ void ezViewActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCameraUsageHint);
 }
 
-void ezViewActions::MapActions(const char* szMapping, const char* szPath)
+void ezViewActions::MapActions(const char* szMapping, const char* szPath, bool bPerspective, bool bRenderMode, bool bUsageHint)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
 
-  pMap->MapAction(s_hPerspective, szPath, 1.0f);
-  pMap->MapAction(s_hRenderMode, szPath, 2.0f);
-  pMap->MapAction(s_hCameraUsageHint, szPath, 3.0f);
+  if (bPerspective)
+    pMap->MapAction(s_hPerspective, szPath, 1.0f);
+
+  if (bRenderMode)
+    pMap->MapAction(s_hRenderMode, szPath, 2.0f);
+
+  if (bUsageHint)
+    pMap->MapAction(s_hCameraUsageHint, szPath, 3.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -47,7 +47,7 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtMeshViewWidget(nullptr, this, &m_ViewConfig);
-    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr/*"MeshAssetViewToolBar"*/);
+    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MeshAssetViewToolBar");
     setCentralWidget(pContainer);
   }
 

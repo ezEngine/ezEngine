@@ -40,7 +40,7 @@ void ToolsProjectEventHandler(const ezEditorAppEvent& e)
   }
 }
 
-void OnLoadPlugin(bool bReloading)    
+void OnLoadPlugin(bool bReloading)
 {
   ezTranslatorFromFiles::AddTranslationFile("ScenePlugin.txt");
 
@@ -86,12 +86,12 @@ void OnLoadPlugin(bool bReloading)
 
   // View Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
-  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
+  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", true, true, true);
   ezSceneViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
 }
 
-void OnUnloadPlugin(bool bReloading)  
+void OnUnloadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));

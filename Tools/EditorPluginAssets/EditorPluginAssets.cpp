@@ -80,7 +80,7 @@ void OnLoadPlugin(bool bReloading)
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar");
-      ezViewActions::MapActions("MaterialAssetViewToolBar", "");
+      ezViewActions::MapActions("MaterialAssetViewToolBar", "", false, true, false);
     }
   }
 
@@ -123,6 +123,12 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("MeshAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("MeshAssetToolBar", "");
       ezAssetActions::MapActions("MeshAssetToolBar", true);
+    }
+
+    // View Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("MeshAssetViewToolBar");
+      ezViewActions::MapActions("MeshAssetViewToolBar", "", false, true, false);
     }
   }
 

@@ -42,11 +42,11 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("ParticleEffectAssetToolBar", true);
       ezParticleActions::MapActions("ParticleEffectAssetToolBar", "");
     }
-    
+
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar");
-      ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "");
+      //ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", false, true, false);
     }
   }
 
