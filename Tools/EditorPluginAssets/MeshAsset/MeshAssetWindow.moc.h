@@ -28,7 +28,6 @@ protected:
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
   void SendRedrawMsg();
 
   ezSceneViewConfig m_ViewConfig;

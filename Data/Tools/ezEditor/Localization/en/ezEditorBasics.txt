@@ -44,7 +44,6 @@ Asset.Transform;Transform Asset;Transform: Creates the runtime data for this ass
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
 Asset.CheckFilesystem;Check Filesystem;Checks for new or deleted assets on disk
 Asset.WriteLookupTable;Write Lookup Table
-Asset.RetrieveInfo;Retrieve Asset Info;Inspects the source data for details that may be useful for configuring the asset
 Panel.AssetBrowser;Asset Browser
 Panel.Log;Log
 ezSceneViewPerspective::Orthogonal_Front;Ortho Front

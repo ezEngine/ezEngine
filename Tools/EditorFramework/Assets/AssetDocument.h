@@ -50,8 +50,6 @@ public:
   /// If this function encounters flags that prevent transformation, it will return an error and not silently ignore them.
   ezStatus TransformAssetManually(const char* szPlatform = nullptr);
 
-  ezStatus RetrieveAssetInfo(const char* szPlatform = nullptr);
-
   /// \brief Returns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
   /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
   ezUInt16 GetAssetTypeVersion() const;
@@ -61,7 +59,7 @@ public:
   ///@}
   /// \name IPC Functions
   ///@{
-  
+
   enum class EngineStatus
   {
     Unsupported, ///< This document does not have engine IPC.
@@ -95,18 +93,6 @@ public:
   void SyncObjectsToEngine();
 
   ///@}
-
-  struct AssetEvent
-  {
-    enum class Type
-    {
-      AssetInfoChanged,
-    };
-
-    Type m_Type;
-  };
-
-  ezEvent<const AssetEvent&> m_AssetEvents;
 
   ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;
 
@@ -161,8 +147,6 @@ protected:
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
   /// write \a AssetHeader to the file, to make it a valid asset file.
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader);
-
-  virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) = 0;
 
   virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const override;
 

@@ -1261,11 +1261,6 @@ ezStatus ezSceneDocument::InternalCreateThumbnail(const ezAssetFileHeader& Asset
   return status;
 }
 
-ezStatus ezSceneDocument::InternalRetrieveAssetInfo(const char* szPlatform)
-{
-  return ezStatus(EZ_SUCCESS);
-}
-
 void ezSceneDocument::SyncObjectHiddenState()
 {
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())

@@ -10,7 +10,6 @@ ezActionDescriptorHandle ezAssetActions::s_hTransformAsset;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAllAssets;
 ezActionDescriptorHandle ezAssetActions::s_hCheckFileSystem;
 ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
-ezActionDescriptorHandle ezAssetActions::s_hRetrieveAssetInfo;
 
 
 void ezAssetActions::RegisterActions()
@@ -20,7 +19,6 @@ void ezAssetActions::RegisterActions()
   s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
   s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
   s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
-  s_hRetrieveAssetInfo = EZ_REGISTER_ACTION_1("Asset.RetrieveInfo", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::RetrieveAssetInfo);
 }
 
 void ezAssetActions::UnregisterActions()
@@ -30,7 +28,6 @@ void ezAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hTransformAllAssets);
   ezActionManager::UnregisterAction(s_hCheckFileSystem);
   ezActionManager::UnregisterAction(s_hWriteLookupTable);
-  ezActionManager::UnregisterAction(s_hRetrieveAssetInfo);
 }
 
 void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
@@ -42,8 +39,7 @@ void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
 
   if (bDocument)
   {
-    pMap->MapAction(s_hRetrieveAssetInfo, "AssetCategory", 1.0f);
-    pMap->MapAction(s_hTransformAsset, "AssetCategory", 2.0f);
+    pMap->MapAction(s_hTransformAsset, "AssetCategory", 1.0f);
   }
   else
   {
@@ -78,9 +74,6 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
     break;
   case ezAssetAction::ButtonType::WriteLookupTable:
     SetIconPath(":/EditorFramework/Icons/WriteLookupTable16.png");
-    break;
-  case ezAssetAction::ButtonType::RetrieveAssetInfo:
-    SetIconPath(":/EditorFramework/Icons/RetriveAssetInfo16.png");
     break;
   }
 }
@@ -132,15 +125,6 @@ void ezAssetAction::Execute(const ezVariant& value)
   case ezAssetAction::ButtonType::WriteLookupTable:
     {
       ezAssetCurator::GetSingleton()->WriteAssetTables();
-    }
-    break;
-
-  case ezAssetAction::ButtonType::RetrieveAssetInfo:
-    {
-      // TODO const cast
-      ezAssetDocument* pDoc = const_cast<ezAssetDocument*>(static_cast<const ezAssetDocument*>(m_Context.m_pDocument));
-
-      pDoc->RetrieveAssetInfo();
     }
     break;
   }

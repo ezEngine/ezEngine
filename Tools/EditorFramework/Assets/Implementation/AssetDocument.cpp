@@ -378,22 +378,6 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezAssetDocument::RetrieveAssetInfo(const char* szPlatform)
-{
-  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
-
-  ezStatus stat = InternalRetrieveAssetInfo(sPlatform);
-
-  if (stat.m_Result.Succeeded())
-  {
-    AssetEvent e;
-    e.m_Type = AssetEvent::Type::AssetInfoChanged;
-    m_AssetEvents.Broadcast(e);
-  }
-
-  return stat;
-}
-
 ezString ezAssetDocument::GetThumbnailFilePath() const
 {
   return static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceThumbnailPath(GetDocumentPath());

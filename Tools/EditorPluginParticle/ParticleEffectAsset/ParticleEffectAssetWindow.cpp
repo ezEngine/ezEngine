@@ -65,7 +65,6 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   }
 
   m_pAssetDoc = static_cast<ezParticleEffectAssetDocument*>(pDocument);
-  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
 
   FinishWindowCreation();
 
@@ -82,24 +81,12 @@ ezQtParticleEffectAssetDocumentWindow::~ezQtParticleEffectAssetDocumentWindow()
 
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
-
-  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
 }
 
 
 ezParticleEffectAssetDocument* ezQtParticleEffectAssetDocumentWindow::GetParticleDocument()
 {
   return static_cast<ezParticleEffectAssetDocument*>(GetDocument());
-}
-
-void ezQtParticleEffectAssetDocumentWindow::AssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
-{
-  switch (e.m_Type)
-  {
-  case ezAssetDocument::AssetEvent::Type::AssetInfoChanged:
-    UpdatePreview();
-    break;
-  }
 }
 
 void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()

@@ -29,6 +29,9 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 
 void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen)
 {
+  if (!pDocument)
+    return;
+
   ezDocumentOpenMsgToEngine m;
   m.m_DocumentGuid = pDocument->GetGuid();
   m.m_bDocumentOpen = bOpen;

@@ -22,7 +22,7 @@ public:
   ezParticleEffectAssetDocument* GetParticleDocument();
 
 private slots:
-  
+
 protected:
   virtual void InternalRedraw() override;
 
@@ -30,7 +30,6 @@ private:
   void SendRedrawMsg();
   void RestoreResource();
   void UpdatePreview();
-  void AssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void ParticleEventHandler(const ezParticleEffectAssetEvent& e);

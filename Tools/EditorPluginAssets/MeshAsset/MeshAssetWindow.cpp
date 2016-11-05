@@ -14,6 +14,7 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {
@@ -65,8 +66,6 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  GetMeshDocument()->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezQtMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
-
   m_pLabelInfo = new QLabel(this);
   m_pLabelInfo->setText("<Mesh Information>");
   pContainer->GetLayout()->addWidget(m_pLabelInfo, 0);
@@ -78,7 +77,6 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
 
 ezQtMeshAssetDocumentWindow::~ezQtMeshAssetDocumentWindow()
 {
-  GetMeshDocument()->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
 }
 
 
@@ -91,16 +89,6 @@ ezMeshAssetDocument* ezQtMeshAssetDocumentWindow::GetMeshDocument()
 void ezQtMeshAssetDocumentWindow::UpdatePreview()
 {
 
-}
-
-void ezQtMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
-{
-  switch (e.m_Type)
-  {
-  case ezAssetDocument::AssetEvent::Type::AssetInfoChanged:
-    UpdatePreview();
-    break;
-  }
 }
 
 void ezQtMeshAssetDocumentWindow::SendRedrawMsg()

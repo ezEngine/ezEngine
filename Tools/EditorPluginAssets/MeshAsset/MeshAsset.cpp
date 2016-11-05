@@ -254,12 +254,31 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
 }
 
 
-void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry& geom, ezMeshResourceDescriptor& desc)
+void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezGeometry& geom, ezMeshResourceDescriptor& desc)
 {
-  if (!pProp->m_Slots.IsEmpty())
-    desc.SetMaterial(0, pProp->m_Slots[0].m_sResource);
-  else
-    desc.SetMaterial(0, "");
+  // Material setup.
+  {
+    // Ensure there is just one slot.
+    if (pProp->m_Slots.GetCount() != 1)
+    {
+      GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
+
+      pProp->m_Slots.SetCount(1);
+      pProp->m_Slots[0].m_sLabel = "Default";
+
+      ApplyNativePropertyChangesToObjectManager();
+      GetObjectAccessor()->FinishTransaction();
+
+      // Need to reacquire pProp pointer since it might be reallocated.
+      pProp = GetProperties();
+    }
+
+    // Set material for mesh.
+    if (!pProp->m_Slots.IsEmpty())
+      desc.SetMaterial(0, pProp->m_Slots[0].m_sResource);
+    else
+      desc.SetMaterial(0, "");
+  }
 
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
@@ -268,7 +287,6 @@ void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp,
   desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
-
 }
 
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation)
@@ -283,6 +301,9 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   ezStatus importStatus = ImportHelper::ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs);
   if (importStatus.Failed())
     return importStatus;
+
+  ezUInt32 uiTriangles = mesh->GetNumTriangles();
+  ezLog::Info("Number of Triangles: %u", uiTriangles);
 
   {
     ezStopwatch timer;
@@ -459,6 +480,38 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   static const char* defaultMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
   ezString defaultMaterialAssetId = ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindAssetInfo(defaultMaterialAssetPath)->m_Info.m_DocumentID);
 
+
+  // Option material slot count correction & material import.
+  if (pProp->m_bImportMaterials || pProp->m_Slots.GetCount() != mesh->GetNumSubMeshes())
+  {
+    GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
+
+    pProp->m_Slots.SetCount(mesh->GetNumSubMeshes());
+    for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
+    {
+      const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
+      const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
+      if (material)
+        pProp->m_Slots[subMeshIdx].m_sLabel = material->m_Name;
+    }
+
+    if (pProp->m_bImportMaterials)
+      ImportMaterials(*scene, *mesh, pProp, sMeshFileAbs);
+
+    if (mesh->GetNumSubMeshes() == 0)
+    {
+      pProp->m_Slots.SetCount(1);
+      pProp->m_Slots[0].m_sLabel = "Default";
+    }
+
+    ApplyNativePropertyChangesToObjectManager();
+    GetObjectAccessor()->FinishTransaction();
+
+    // Need to reacquire pProp pointer since it might be reallocated.
+    pProp = GetProperties();
+  }
+
+  // Setting materials.
   for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
   {
     const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
@@ -722,64 +775,8 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
   pAccessor->FinishTransaction();
 }
 
-ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
-{
-  ezMeshAssetProperties* pProp = GetProperties();
-  ezDocumentObject* pPropObj = GetPropertyObject();
-
-  if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
-  {
-    ezUniquePtr<ezModelImporter::Scene> scene;
-    ezModelImporter::Mesh* mesh;
-    ezString sMeshFileAbs;
-    ezStatus importStatus = ImportHelper::ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs);
-    if (importStatus.Failed())
-      return importStatus;
-
-    ezUInt32 uiTriangles = mesh->GetNumTriangles();
-    ezLog::Info("Number of Triangles: %u", uiTriangles);
-
-    GetObjectAccessor()->StartTransaction("Update Mesh Asset Info");
-
-    pProp->m_Slots.SetCount(mesh->GetNumSubMeshes());
-    for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
-    {
-      const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
-      const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
-      if(material)
-        pProp->m_Slots[subMeshIdx].m_sLabel = material->m_Name;
-    }
-
-    if (pProp->m_bImportMaterials)
-      ImportMaterials(*scene, *mesh, pProp, sMeshFileAbs);
-
-    if (mesh->GetNumSubMeshes() == 0)
-    {
-      pProp->m_Slots.SetCount(1);
-      pProp->m_Slots[0].m_sLabel = "Default";
-    }
-  }
-  else
-  {
-    GetObjectAccessor()->StartTransaction("Update Mesh Asset Info");
-
-    pProp->m_Slots.SetCount(1);
-    pProp->m_Slots[0].m_sLabel = "Default";
-  }
-
-  ApplyNativePropertyChangesToObjectManager();
-
-  GetObjectAccessor()->FinishTransaction();
-
-  GetSelectionManager()->Clear();
-  GetSelectionManager()->AddObject(pPropObj);
-
-  return ezStatus(EZ_SUCCESS);
-}
-
 ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
   return status;
 }
-
