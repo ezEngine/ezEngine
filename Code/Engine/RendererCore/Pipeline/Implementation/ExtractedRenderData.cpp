@@ -5,7 +5,6 @@
 static ezProfilingId s_SortingProfilingId = ezProfilingSystem::CreateId("SortAndBatch");
 
 ezExtractedRenderData::ezExtractedRenderData()
-  : m_uiWorldIndex(ezInvalidIndex)
 {
 }
 

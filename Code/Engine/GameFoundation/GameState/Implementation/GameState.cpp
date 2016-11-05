@@ -103,8 +103,8 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
   EZ_LOG_BLOCK("SetupMainView");
 
   m_pMainView = ezRenderLoop::CreateView("MainView");
-  ezRenderLoop::AddMainView(m_pMainView);
-
+  m_pMainView->SetCameraUsageHint(ezCameraUsageHint::MainView);
+    
   ezGALRenderTagetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, hBackBuffer);
   m_pMainView->SetRenderTargetSetup(renderTargetSetup);
@@ -121,6 +121,8 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 
   // exclude all editor objects from rendering in proper game views
   m_pMainView->m_ExcludeTags.Set(*tagEditor);
+
+  ezRenderLoop::AddMainView(m_pMainView);
 }
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)

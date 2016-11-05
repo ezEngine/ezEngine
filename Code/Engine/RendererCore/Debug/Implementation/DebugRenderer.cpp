@@ -10,6 +10,18 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <CoreUtils/Graphics/SimpleASCIIFont.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+ezDebugRendererContext::ezDebugRendererContext(const ezWorld* pWorld)
+  : m_Id(pWorld->GetIndex())
+{
+}
+
+ezDebugRendererContext::ezDebugRendererContext(const ezView* pView)
+  : m_Id(reinterpret_cast<size_t>(pView))
+{
+}
+
 namespace
 {
   struct EZ_ALIGN_16(Vertex)
@@ -38,7 +50,7 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(GlyphData) == 16);
 
-  struct PerWorldData
+  struct PerContextData
   {
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangleVertices;
@@ -48,28 +60,35 @@ namespace
     ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
   };
 
-  static ezDynamicArray<PerWorldData*> s_PerWorldData[2];
+  struct DoubleBufferedPerContextData
+  {
+    DoubleBufferedPerContextData()
+    {
+      m_uiLastRenderedFrame = 0;
+      m_pData[0] = nullptr;
+      m_pData[1] = nullptr;
+    }
+
+    ezUInt64 m_uiLastRenderedFrame;
+    PerContextData* m_pData[2];
+  };
+
+  static ezHashTable<ezDebugRendererContext, DoubleBufferedPerContextData> s_PerContextData;
 
   static ezMutex s_Mutex;
 
-  static ezUInt64 s_uiLastRenderedFrame;
-
-  PerWorldData& GetDataForExtraction(ezUInt32 uiWorldIndex)
+  PerContextData& GetDataForExtraction(const ezDebugRendererContext& context)
   {
-    const ezUInt32 uiDataIndex = ezRenderLoop::IsRenderingThread() && (s_uiLastRenderedFrame != ezRenderLoop::GetFrameCounter()) ? 
+    DoubleBufferedPerContextData& doubleBufferedData = s_PerContextData[context];
+
+    const ezUInt32 uiDataIndex = ezRenderLoop::IsRenderingThread() && (doubleBufferedData.m_uiLastRenderedFrame != ezRenderLoop::GetFrameCounter()) ? 
       ezRenderLoop::GetDataIndexForRendering() : ezRenderLoop::GetDataIndexForExtraction();
 
-    auto& perWorldData = s_PerWorldData[uiDataIndex];
-    if (uiWorldIndex >= perWorldData.GetCount())
-    {
-      perWorldData.SetCount(uiWorldIndex + 1);
-    }
-
-    PerWorldData* pData = perWorldData[uiWorldIndex];
+    PerContextData* pData = doubleBufferedData.m_pData[uiDataIndex];
     if (pData == nullptr)
     {
-      pData = EZ_DEFAULT_NEW(PerWorldData);
-      perWorldData[uiWorldIndex] = pData;
+      pData = EZ_DEFAULT_NEW(PerContextData);
+      doubleBufferedData.m_pData[uiDataIndex] = pData;
     }
 
     return *pData;
@@ -77,11 +96,10 @@ namespace
 
   void ClearRenderData(ezUInt64)
   {
-    auto& perWorldData = s_PerWorldData[ezRenderLoop::GetDataIndexForRendering()];
-
-    for (ezUInt32 i = 0; i < perWorldData.GetCount(); ++i)
+    // No lock needed since clear is executed during ezRenderLoop::EndFrame which is always single-threaded.
+    for (auto it = s_PerContextData.GetIterator(); it.IsValid(); ++it)
     {
-      PerWorldData* pData = perWorldData[i];
+      PerContextData* pData = it.Value().m_pData[ezRenderLoop::GetDataIndexForRendering()];
       if (pData)
       {
         pData->m_lineVertices.Clear();
@@ -192,20 +210,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, DebugRenderer)
 EZ_END_SUBSYSTEM_DECLARATION
 
 //static 
-void ezDebugRenderer::DrawLines(const ezWorld* pWorld, ezArrayPtr<Line> lines, const ezColor& color)
-{
-  DrawLines(pWorld->GetIndex(), lines, color);
-}
-
-//static 
-void ezDebugRenderer::DrawLines(ezUInt32 uiWorldIndex, ezArrayPtr<Line> lines, const ezColor& color)
+void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
 {
   if (lines.IsEmpty())
     return;
 
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(uiWorldIndex);
+  auto& data = GetDataForExtraction(context);
 
   for (auto& line : lines)
   {
@@ -221,17 +233,11 @@ void ezDebugRenderer::DrawLines(ezUInt32 uiWorldIndex, ezArrayPtr<Line> lines, c
 }
 
 //static
-void ezDebugRenderer::DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
-{
-  DrawLineBox(pWorld->GetIndex(), box, color, transform);
-}
-
-//static
-void ezDebugRenderer::DrawLineBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
+void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
 {
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(uiWorldIndex);
+  auto& data = GetDataForExtraction(context);
   
   auto& boxData = data.m_lineBoxes.ExpandAndGetRef();
   
@@ -243,13 +249,7 @@ void ezDebugRenderer::DrawLineBox(ezUInt32 uiWorldIndex, const ezBoundingBox& bo
 }
 
 //static
-void ezDebugRenderer::DrawLineBoxCorners(const ezWorld* pWorld, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
-{
-  DrawLineBoxCorners(pWorld->GetIndex(), box, fCornerFraction, color, transform);
-}
-
-//static
-void ezDebugRenderer::DrawLineBoxCorners(ezUInt32 uiWorldIndex, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
+void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
 {
   fCornerFraction = ezMath::Clamp(fCornerFraction, 0.0f, 1.0f) * 0.5f;
 
@@ -290,21 +290,15 @@ void ezDebugRenderer::DrawLineBoxCorners(ezUInt32 uiWorldIndex, const ezBounding
     lines[i * 2 + 1].m_end = edgeEnd - edgeDir * fCornerFraction;
   }
 
-  DrawLines(uiWorldIndex, lines, color);
+  DrawLines(context, lines, color);
 }
 
 //static
-void ezDebugRenderer::DrawSolidBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
-{
-  DrawSolidBox(pWorld->GetIndex(), box, color, transform);
-}
-
-//static
-void ezDebugRenderer::DrawSolidBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
+void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
 {
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(uiWorldIndex);
+  auto& data = GetDataForExtraction(context);
 
   auto& boxData = data.m_solidBoxes.ExpandAndGetRef();
 
@@ -316,20 +310,14 @@ void ezDebugRenderer::DrawSolidBox(ezUInt32 uiWorldIndex, const ezBoundingBox& b
 }
 
 //static
-void ezDebugRenderer::DrawSolidTriangles(const ezWorld* pWorld, ezArrayPtr<Triangle> triangles, const ezColor& color)
-{
-  DrawSolidTriangles(pWorld->GetIndex(), triangles, color);
-}
-
-//static
-void ezDebugRenderer::DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Triangle> triangles, const ezColor& color)
+void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color)
 {
   if (triangles.IsEmpty())
     return;
 
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(uiWorldIndex);
+  auto& data = GetDataForExtraction(context);
 
   for (auto& triangle : triangles)
   {
@@ -344,12 +332,7 @@ void ezDebugRenderer::DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Trian
   }
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezWorld* pWorld, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
-{
-  Draw2DRectangle(pWorld->GetIndex(), rectInPixel, fDepth, color);
-}
-
-void ezDebugRenderer::Draw2DRectangle(ezUInt32 uiWorldIndex, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
 {
   Vertex vertices[6];
 
@@ -368,24 +351,19 @@ void ezDebugRenderer::Draw2DRectangle(ezUInt32 uiWorldIndex, const ezRectFloat& 
 
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(uiWorldIndex);
+  auto& data = GetDataForExtraction(context);
  
   data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::DrawText(const ezWorld* pWorld, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
-{
-  DrawText(pWorld->GetIndex(), text, topLeftCornerInPixel, color, uiSizeInPixel);
-}
-
-void ezDebugRenderer::DrawText(ezUInt32 uiWorldIndex, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
+void ezDebugRenderer::DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
 {
   if (text.IsEmpty())
     return;
 
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(uiWorldIndex);
+  auto& data = GetDataForExtraction(context);
 
   float fSizeInPixel = (float)uiSizeInPixel;
   ezVec2 currentPos((float)topLeftCornerInPixel.x, (float)topLeftCornerInPixel.y);
@@ -406,17 +384,29 @@ void ezDebugRenderer::DrawText(ezUInt32 uiWorldIndex, const ezStringView& text, 
 //static
 void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
 {
-  s_uiLastRenderedFrame = ezRenderLoop::GetFrameCounter();
+  if (renderViewContext.m_pWorldDebugContext != nullptr)
+  {
+    RenderInternal(*renderViewContext.m_pWorldDebugContext, renderViewContext);
+  }
 
-  const ezUInt32 uiWorldIndex = renderViewContext.m_uiWorldIndex;
+  if (renderViewContext.m_pViewDebugContext != nullptr)
+  {
+    RenderInternal(*renderViewContext.m_pViewDebugContext, renderViewContext);
+  }
+}
 
-  auto& perWorldData = s_PerWorldData[ezRenderLoop::GetDataIndexForRendering()];
-  if (uiWorldIndex >= perWorldData.GetCount())
+//static
+void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext)
+{
+  DoubleBufferedPerContextData* pDoubleBufferedContextData = nullptr;
+  if (!s_PerContextData.TryGetValue(context, pDoubleBufferedContextData))
   {
     return;
   }
 
-  PerWorldData* pData = perWorldData[uiWorldIndex];
+  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderLoop::GetFrameCounter();
+  
+  PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderLoop::GetDataIndexForRendering()];
   if (pData == nullptr)
   {
     return;

@@ -784,8 +784,9 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   // Store camera and viewdata
   data.SetCamera(*view.GetRenderCamera());
   data.SetViewData(view.GetData());
-  data.SetWorldIndex(view.GetWorld()->GetIndex());
   data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
+  data.SetWorldDebugContext(view.GetWorld());
+  data.SetViewDebugContext(&view);
 
   // Extract object render data
   for (auto& pExtractor : m_Extractors)
@@ -846,7 +847,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   renderViewContext.m_pCamera = pCamera;
   renderViewContext.m_pViewData = pViewData;
   renderViewContext.m_pRenderContext = pRenderContext;
-  renderViewContext.m_uiWorldIndex = data.GetWorldIndex();
+  renderViewContext.m_pWorldDebugContext = &data.GetWorldDebugContext();
+  renderViewContext.m_pViewDebugContext = &data.GetViewDebugContext();
 
   // Set camera mode permutation variable here since it doesn't change throughout the frame
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");

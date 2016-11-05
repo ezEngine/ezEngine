@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
-#include <RendererCore/Components/Declarations.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 ///////////////////////////////////// ezProcessMessages /////////////////////////////////////
 
@@ -160,7 +160,7 @@ public:
   float m_fFarPlane;
   float m_fFovOrDim;
   ezUInt8 m_uiRenderMode; ///< ezViewRenderMode::Enum
-  ezCameraComponentUsageHint::Enum m_CameraUsageHint;
+  ezCameraUsageHint::Enum m_CameraUsageHint;
 
   ezVec3 m_vPosition;
   ezVec3 m_vDirForwards;

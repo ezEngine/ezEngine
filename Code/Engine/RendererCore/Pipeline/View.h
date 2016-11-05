@@ -7,7 +7,6 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/Components/Declarations.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 
@@ -49,10 +48,10 @@ public:
   const ezCamera* GetRenderCamera() const;
 
   /// \brief Returns the camera usage hint for the view.
-  ezEnum<ezCameraComponentUsageHint> GetCameraUsageHint() const;
+  ezEnum<ezCameraUsageHint> GetCameraUsageHint() const;
   /// \brief Sets the camera usage hint for the view. If not 'None', the camera component of the same usage will be auto-connected
   ///   to this view.
-  void SetCameraUsageHint(ezEnum<ezCameraComponentUsageHint> val);
+  void SetCameraUsageHint(ezEnum<ezCameraUsageHint> val);
 
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
@@ -117,7 +116,7 @@ private:
   ezRenderPipelineResourceHandle m_hRenderPipeline;
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
   ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;
-  ezEnum<ezCameraComponentUsageHint> m_CameraUsageHint;
+  ezEnum<ezCameraUsageHint> m_CameraUsageHint;
   ezCamera* m_pLogicCamera;
   ezCamera* m_pRenderCamera;
 

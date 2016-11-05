@@ -90,6 +90,6 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
 
   if (!sDebugText.IsEmpty())
   {
-    ezDebugRenderer::DrawText(0u, sDebugText, ezVec2I32(10, 10), ezColor::White);
+    ezDebugRenderer::DrawText(*renderViewContext.m_pViewDebugContext, sDebugText, ezVec2I32(10, 10), ezColor::White);
   }
 }

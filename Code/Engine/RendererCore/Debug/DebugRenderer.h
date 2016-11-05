@@ -1,10 +1,10 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
+#include <RendererCore/Debug/DebugRendererContext.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Color.h>
 
-class ezWorld;
 struct ezRenderViewContext;
 
 template<typename Type>
@@ -18,12 +18,8 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    EZ_FORCE_INLINE Line() { }
-
-    EZ_FORCE_INLINE Line(const ezVec3& start, const ezVec3& end)
-      : m_start(start), m_end(end)
-    {
-    }
+    Line();
+    Line(const ezVec3& start, const ezVec3& end);
 
     ezVec3 m_start;
     ezVec3 m_end;
@@ -33,12 +29,8 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    EZ_FORCE_INLINE Triangle() { }
-
-    EZ_FORCE_INLINE Triangle(const ezVec3& p0, const ezVec3& p1, const ezVec3& p2)
-      : m_p0(p0), m_p1(p1), m_p2(p2)
-    {
-    }
+    Triangle();
+    Triangle(const ezVec3& p0, const ezVec3& p1, const ezVec3& p2);
 
     ezVec3 m_p0;
     ezVec3 m_p1;
@@ -46,31 +38,25 @@ public:
   };
 
 
-  static void DrawLines(const ezWorld* pWorld, ezArrayPtr<Line> lines, const ezColor& color);
-  static void DrawLines(ezUInt32 uiWorldIndex, ezArrayPtr<Line> lines, const ezColor& color);
-
-  static void DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
-  static void DrawLineBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
-
-  static void DrawLineBoxCorners(const ezWorld* pWorld, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
-  static void DrawLineBoxCorners(ezUInt32 uiWorldIndex, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
-
-  static void DrawSolidBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
-  static void DrawSolidBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
-
-  static void DrawSolidTriangles(const ezWorld* pWorld, ezArrayPtr<Triangle> triangles, const ezColor& color);
-  static void DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Triangle> triangles, const ezColor& color);
-
-  static void Draw2DRectangle(const ezWorld* pWorld, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
-  static void Draw2DRectangle(ezUInt32 uiWorldIndex, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
-
-  static void DrawText(const ezWorld* pWorld, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16);
-  static void DrawText(ezUInt32 uiWorldIndex, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16);
-
+  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color);
+  
+  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+  
+  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+  
+  static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+  
+  static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color);
+  
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
+  
+  static void DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16);
+  
 private:
   friend class ezSimpleRenderPass;
 
   static void Render(const ezRenderViewContext& renderViewContext);
+  static void RenderInternal(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext);
 
   static void OnEngineStartup();
   static void OnEngineShutdown();
@@ -78,3 +64,4 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, DebugRenderer);
 };
 
+#include <RendererCore/Debug/Implementation/DebugRenderer_inl.h>

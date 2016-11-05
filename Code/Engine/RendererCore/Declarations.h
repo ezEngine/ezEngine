@@ -13,6 +13,7 @@ typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHa
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
+typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 struct ezPermutationVar
 {

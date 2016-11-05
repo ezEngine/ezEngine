@@ -16,6 +16,7 @@ class ezRenderPipeline;
 class ezRenderPipelinePass;
 class ezGALContext;
 class ezRenderContext;
+class ezDebugRendererContext;
 
 struct ezNodePin;
 struct ezRenderPipelinePassConnection;
@@ -26,7 +27,9 @@ struct ezRenderViewContext
   const ezCamera* m_pCamera;
   const ezViewData* m_pViewData;
   ezRenderContext* m_pRenderContext;
-  ezUInt32 m_uiWorldIndex;
+  
+  const ezDebugRendererContext* m_pWorldDebugContext;
+  const ezDebugRendererContext* m_pViewDebugContext;
 };
 
 /// \brief This is the base class for types that handle rendering of different object types.
@@ -41,3 +44,23 @@ public:
 
   virtual void RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) = 0;
 };
+
+/// \brief Usage hint of a camera/view.
+struct EZ_RENDERERCORE_DLL ezCameraUsageHint
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    None,
+    MainView,
+    EditorView,
+    Thumbnail,
+
+    ENUM_COUNT,
+
+    Default = None,
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezCameraUsageHint);

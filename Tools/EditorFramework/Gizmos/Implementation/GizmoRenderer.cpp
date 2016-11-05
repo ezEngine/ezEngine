@@ -101,7 +101,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
       // draw bounding box instead
       if (pRenderData->m_GlobalBounds.IsValid())
       {
-        ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+        ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
       }
     }
   }

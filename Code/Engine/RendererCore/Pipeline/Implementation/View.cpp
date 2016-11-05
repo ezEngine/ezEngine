@@ -6,6 +6,13 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Pipeline/Extractor.h>
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
+  EZ_ENUM_CONSTANT(ezCameraUsageHint::None),
+  EZ_ENUM_CONSTANT(ezCameraUsageHint::MainView),
+  EZ_ENUM_CONSTANT(ezCameraUsageHint::EditorView),
+  EZ_ENUM_CONSTANT(ezCameraUsageHint::Thumbnail),
+EZ_END_STATIC_REFLECTED_ENUM();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -77,13 +84,13 @@ ezRenderPipelineResourceHandle ezView::GetRenderPipelineResource() const
 }
 
 
-ezEnum<ezCameraComponentUsageHint> ezView::GetCameraUsageHint() const
+ezEnum<ezCameraUsageHint> ezView::GetCameraUsageHint() const
 {
   return m_CameraUsageHint;
 }
 
 
-void ezView::SetCameraUsageHint(ezEnum<ezCameraComponentUsageHint> val)
+void ezView::SetCameraUsageHint(ezEnum<ezCameraUsageHint> val)
 {
   m_CameraUsageHint = val;
 }

@@ -118,6 +118,19 @@ void ezRenderLoop::ClearMainViews()
   s_MainViews.Clear();
 }
 
+ezView* ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint)
+{
+  for (auto pView : s_Views)
+  {
+    if (pView->GetCameraUsageHint() == usageHint)
+    {
+      return pView;
+    }
+  }
+
+  return nullptr;
+}
+
 void ezRenderLoop::AddViewToRender(ezView* pView)
 {
   EZ_LOCK(s_ViewsToRenderMutex);

@@ -36,7 +36,7 @@ void ezCameraComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)
       continue;
     }
 
-    ezCameraComponentUsageHint::Enum usageHint = pCameraComponent->GetUsageHint();
+    ezCameraUsageHint::Enum usageHint = pCameraComponent->GetUsageHint();
 
     for (auto pView : ezRenderLoop::GetAllViews())
     {
@@ -52,7 +52,7 @@ void ezCameraComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)
   m_modifiedCameras.Clear();
 }
 
-const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraComponentUsageHint::Enum usageHint) const
+const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint) const
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
@@ -71,7 +71,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("Usage Hint", ezCameraComponentUsageHint, GetUsageHint, SetUsageHint),
+    EZ_ENUM_ACCESSOR_PROPERTY("Usage Hint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
     EZ_ACCESSOR_PROPERTY("Near Plane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_ACCESSOR_PROPERTY("Far Plane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
@@ -149,10 +149,10 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  ezCameraComponentUsageHint::StorageType usage;
+  ezCameraUsageHint::StorageType usage;
   s >> usage;
-  if (uiVersion == 1 && usage > ezCameraComponentUsageHint::MainView)
-    usage = ezCameraComponentUsageHint::None;
+  if (uiVersion == 1 && usage > ezCameraUsageHint::MainView)
+    usage = ezCameraUsageHint::None;
   m_UsageHint.SetValue(usage);
 
   ezCameraMode::StorageType cam;
@@ -185,7 +185,7 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetUsageHint(ezEnum<ezCameraComponentUsageHint> val)
+void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
 {
   if (val == m_UsageHint)
     return;
@@ -336,7 +336,7 @@ float ezCameraComponent::GetExposure() const
 
 void ezCameraComponent::ApplySettingsToView(ezView* pView) const
 {
-  if (m_UsageHint == ezCameraComponentUsageHint::None)
+  if (m_UsageHint == ezCameraUsageHint::None)
     return;
 
   float fFovOrDim = m_fPerspectiveFieldOfView;

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
-#include <RendererCore/Components/Declarations.h>
+#include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/Declarations.h>
 #include <Core/World/World.h>
-#include <Core/World/Component.h>
 #include <CoreUtils/Graphics/Camera.h>
 
 class ezView;
@@ -18,7 +17,7 @@ public:
 
   void Update(ezUInt32 uiStartIndex, ezUInt32 uiCount);
 
-  const ezCameraComponent* GetCameraByUsageHint(ezCameraComponentUsageHint::Enum usageHint) const;
+  const ezCameraComponent* GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint) const;
 
 private:
   friend class ezCameraComponent;
@@ -38,8 +37,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  ezEnum<ezCameraComponentUsageHint> GetUsageHint() const { return m_UsageHint; }
-  void SetUsageHint(ezEnum<ezCameraComponentUsageHint> val);
+  ezEnum<ezCameraUsageHint> GetUsageHint() const { return m_UsageHint; }
+  void SetUsageHint(ezEnum<ezCameraUsageHint> val);
 
   ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; }
   void SetCameraMode(ezEnum<ezCameraMode> val);
@@ -80,7 +79,7 @@ public:
   void ApplySettingsToView(ezView* pView) const;
 
 private:
-  ezEnum<ezCameraComponentUsageHint> m_UsageHint;
+  ezEnum<ezCameraUsageHint> m_UsageHint;
   ezEnum<ezCameraMode> m_Mode;
   float m_fNearPlane;
   float m_fFarPlane;

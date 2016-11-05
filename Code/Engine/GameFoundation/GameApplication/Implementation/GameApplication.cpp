@@ -593,15 +593,17 @@ void ezGameApplication::RenderFps()
     fElapsedTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
   }
 
-  auto mainViews = ezRenderLoop::GetMainViews();
-  if (m_bShowFps && mainViews.GetCount() > 0)
+  if (m_bShowFps)
   {
-    ezStringBuilder sFps;
-    sFps.Format("%4.4f fps, %4.4f ms", 1.0f / fElapsedTime, fElapsedTime * 1000.0f);
+    if (const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView))
+    {
+      ezStringBuilder sFps;
+      sFps.Format("%4.4f fps, %4.4f ms", 1.0f / fElapsedTime, fElapsedTime * 1000.0f);
 
-    ezInt32 viewHeight = (ezInt32)(mainViews[0]->GetViewport().height);
+      ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 
-    ezDebugRenderer::DrawText(0U, sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
+      ezDebugRenderer::DrawText(pView, sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
+    }
   }
 }
 
@@ -610,16 +612,12 @@ void ezGameApplication::RenderConsole()
   if (!m_bShowConsole || !m_pConsole)
     return;
 
-  auto mainViews = ezRenderLoop::GetMainViews();
-
-  /// \todo Currently this would prevent the console to show in play-the-game mode in the editor (since we always have at least two main views there)
-  /// Maybe one could detect whether the current view outputs to a backbuffer ?
-  /// Also we are always using viewport[0] etc. here, which doesn't work well in the editor with multiple views and different sizes
-  //if (mainViews.GetCount() != 1)
-  //  return;
-
-  const float fViewWidth = mainViews[0]->GetViewport().width;
-  const float fViewHeight = mainViews[0]->GetViewport().height;
+  const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView);
+  if (pView == nullptr)
+    return;
+  
+  const float fViewWidth = pView->GetViewport().width;
+  const float fViewHeight = pView->GetViewport().height;
   const float fTextHeight = 16.0f;
   const float fConsoleHeight = (fViewHeight / 2.0f);
   const float fBorderWidth = 3.0f;
@@ -630,11 +628,11 @@ void ezGameApplication::RenderConsole()
 
   {
     ezColor backgroundColor(0.3f, 0.3f, 0.3f, 0.5f);
-    ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
+    ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
 
     ezColor foregroundColor(0.02f, 0.02f, 0.02f, 0.8f);
-    ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
-    ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
   }
 
   {
@@ -648,17 +646,17 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::DrawText(0U, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+      ezDebugRenderer::DrawText(pView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
     }
 
     ezStringView sInputLine(m_pConsole->GetInputLine());
-    ezDebugRenderer::DrawText(0U, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
+    ezDebugRenderer::DrawText(pView, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
 
     if (ezMath::Fraction(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds()) > 0.5)
     {
       float fCaretPosition = (float)m_pConsole->GetCaretPosition();
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
-      ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(fBorderWidth + fCaretPosition * 10.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
+      ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth + fCaretPosition * 10.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
     }
   }
 }

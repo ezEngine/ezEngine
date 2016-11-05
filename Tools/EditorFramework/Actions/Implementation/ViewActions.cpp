@@ -7,7 +7,7 @@
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
-#include <RendererCore/Components/Declarations.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;
@@ -112,7 +112,7 @@ ezCameraUsageHintAction::ezCameraUsageHintAction(const ezActionContext& context,
 {
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
   EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
-  InitEnumerationType(ezGetStaticRTTI<ezCameraComponentUsageHint>());
+  InitEnumerationType(ezGetStaticRTTI<ezCameraUsageHint>());
 }
 
 ezInt64 ezCameraUsageHintAction::GetValue() const
@@ -124,7 +124,7 @@ ezInt64 ezCameraUsageHintAction::GetValue() const
 void ezCameraUsageHintAction::Execute(const ezVariant& value)
 {
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  auto newValue = (ezCameraComponentUsageHint::Enum)value.ConvertTo<ezInt64>();
+  auto newValue = (ezCameraUsageHint::Enum)value.ConvertTo<ezInt64>();
   pView->m_pViewConfig->m_CameraUsageHint = newValue;
   TriggerUpdate();
 }

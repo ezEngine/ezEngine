@@ -110,7 +110,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   if (!m_sMessage.IsEmpty())
   {
-    ezDebugRenderer::DrawText(0u, m_sMessage, ezVec2I32(20, 20), ezColor::OrangeRed);
+    ezDebugRenderer::DrawText(*renderViewContext.m_pViewDebugContext, m_sMessage, ezVec2I32(20, 20), ezColor::OrangeRed);
   }
 
   ezDebugRenderer::Render(renderViewContext);

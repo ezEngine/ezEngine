@@ -88,7 +88,7 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
 
   auto itComp = pManager->GetComponents();
 
-  ezHybridArray<const ezCameraComponent*, 32> Cameras[ezCameraComponentUsageHint::ENUM_COUNT];
+  ezHybridArray<const ezCameraComponent*, 32> Cameras[ezCameraUsageHint::ENUM_COUNT];
 
   // first find all cameras and sort them by usage type
   while (itComp.IsValid())
@@ -110,7 +110,7 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
   if (m_iActiveCameraComponentIndex == -2)
   {
     m_iActiveCameraComponentIndex = 0;
-    for (ezUInt32 i = 0; i < ezCameraComponentUsageHint::ENUM_COUNT; ++i)
+    for (ezUInt32 i = 0; i < ezCameraUsageHint::ENUM_COUNT; ++i)
     {
       m_iActiveCameraComponentIndex += Cameras[i].GetCount();
     }
@@ -123,7 +123,7 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
     ezInt32 offset = m_iActiveCameraComponentIndex;
 
     // now find the camera by that index
-    for (ezUInt32 i = 0; i < ezCameraComponentUsageHint::ENUM_COUNT; ++i)
+    for (ezUInt32 i = 0; i < ezCameraUsageHint::ENUM_COUNT; ++i)
     {
       if (offset < (ezInt32)Cameras[i].GetCount())
         return Cameras[i][offset];

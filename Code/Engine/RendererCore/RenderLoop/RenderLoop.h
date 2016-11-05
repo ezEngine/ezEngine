@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/Declarations.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -27,6 +27,8 @@ public:
   {
     return s_Views;
   }
+
+  static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint);
 
   static void AddViewToRender(ezView* pView);
 
