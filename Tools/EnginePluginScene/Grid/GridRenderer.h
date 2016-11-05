@@ -23,6 +23,7 @@ public:
   ezInt32 m_iFirstLine2;
   ezInt32 m_iLastLine2;
   bool m_bOrthoMode;
+  bool m_bGlobal;
 };
 
 class ezEditorGridExtractor : public ezExtractor

@@ -336,7 +336,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     msg.m_bRenderShapeIcons = pSceneDoc->GetRenderShapeIcons();
     msg.m_bRenderSelectionBoxes = pSceneDoc->GetRenderVisualizers();
     msg.m_bAddAmbientLight = pSceneDoc->GetAddAmbientLight();
-    msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
+    msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
     msg.m_vGridTangent1.SetZero(); // indicates that the grid is disabled
     msg.m_vGridTangent2.SetZero(); // indicates that the grid is disabled
 
@@ -348,7 +348,25 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
         msg.m_vGridCenter = m_TranslateGizmo.GetTransformation().GetTranslationVector();
 
       if (pSceneDoc->GetGizmoWorldSpace())
+      {
         ezSnapProvider::SnapTranslation(msg.m_vGridCenter);
+
+        switch (m_TranslateGizmo.GetLastPlaneInteraction())
+        {
+        case ezTranslateGizmo::PlaneInteraction::PlaneX:
+          msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          break;
+        case ezTranslateGizmo::PlaneInteraction::PlaneY:
+          msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.z = ezMath::Round(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          break;
+        case ezTranslateGizmo::PlaneInteraction::PlaneZ:
+          msg.m_vGridCenter.x = ezMath::Round(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          msg.m_vGridCenter.y = ezMath::Round(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          break;
+        }
+      }
 
       switch (m_TranslateGizmo.GetLastPlaneInteraction())
       {

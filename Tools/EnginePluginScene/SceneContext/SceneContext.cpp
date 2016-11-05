@@ -86,7 +86,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
     m_fGridDensity = msg->m_fGridDensity;
 
-    if (m_fGridDensity > 0.0f)
+    if (m_fGridDensity != 0.0f)
     {
       m_GridTransform.m_vPosition = msg->m_vGridCenter;
 

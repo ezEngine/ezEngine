@@ -109,6 +109,11 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd)
     cOther = ezColorGammaUB(80, 80, 80);
   }
 
+  if (rd.m_bGlobal)
+  {
+    cCenter = cTen;
+  }
+
   const ezVec3 vCorner = vCenter + rd.m_iFirstLine1 * rd.m_fDensity * vTangent1 + rd.m_iFirstLine2 * rd.m_fDensity * vTangent2;
 
   for (ezInt32 i = 0; i <= iNumLines1; ++i)
@@ -212,7 +217,7 @@ float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX
 
 void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
-  if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() <= 0.0f)
+  if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() == 0.0f)
     return;
 
   const ezCamera* cam = view.GetRenderCamera();
@@ -222,6 +227,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* p
   ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr, 0);
   pRenderData->m_GlobalBounds.SetInvalid();
   pRenderData->m_bOrthoMode = cam->IsOrthographic();
+  pRenderData->m_bGlobal = m_pSceneContext->IsGridInGlobalSpace();
 
   if (cam->IsOrthographic())
   {
@@ -233,7 +239,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* p
     pRenderData->m_fDensity = fDensity;
 
     pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition.SetZero();
+    pRenderData->m_GlobalTransform.m_vPosition = cam->GetCenterDirForwards() * cam->GetFarPlane() * 0.9f;
     pRenderData->m_GlobalTransform.m_Rotation.SetColumn(0, cam->GetCenterDirRight());
     pRenderData->m_GlobalTransform.m_Rotation.SetColumn(1, cam->GetCenterDirUp());
     pRenderData->m_GlobalTransform.m_Rotation.SetColumn(2, cam->GetCenterDirForwards());
@@ -257,7 +263,6 @@ void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* p
     val.y = ezMath::Round(val.y, pRenderData->m_fDensity);
     val.z = ezMath::Round(val.z, pRenderData->m_fDensity);
 
-    const ezInt32 iNumLines = 30;
     pRenderData->m_iFirstLine1 = (ezInt32)ezMath::Trunc(fFirstDist1 / fDensity);
     pRenderData->m_iLastLine1 = (ezInt32)ezMath::Trunc(fLastDist1 / fDensity);
     pRenderData->m_iFirstLine2 = (ezInt32)ezMath::Trunc(fFirstDist2 / fDensity);
@@ -278,7 +283,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* p
 
     pRenderData->m_fDensity = fDensity;
 
-    const ezInt32 iNumLines = 30;
+    const ezInt32 iNumLines = 50;
     pRenderData->m_iFirstLine1 = -iNumLines;
     pRenderData->m_iLastLine1 = iNumLines;
     pRenderData->m_iFirstLine2 = -iNumLines;
