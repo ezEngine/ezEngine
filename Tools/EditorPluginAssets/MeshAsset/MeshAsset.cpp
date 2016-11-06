@@ -560,8 +560,9 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* importFolder, c
   if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(relTexturePath))
     ezLog::Warning("Texture path '%s' can't be made relative!", szTexturePath);
 
-  ezStringBuilder textureName = ezStringBuilder(szTexturePath).GetFileName();
-  ezPathUtils::MakeValidFilename(const_cast<char*>(textureName.GetData()), '_');
+  ezStringBuilder textureNameTemp = ezStringBuilder(szTexturePath).GetFileName();
+  ezStringBuilder textureName;
+  ezPathUtils::MakeValidFilename(textureNameTemp, '_', textureName);
 
   ezStringBuilder newAssetPathAbs = importFolder;
   newAssetPathAbs.AppendPath(ezStringBuilder(szTexturePath).GetFileName().GetData());
@@ -656,7 +657,10 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
         materialName.Append(ezConversionUtils::ToString(subMeshIdx));
       }
       else
-        ezPathUtils::MakeValidFilename(const_cast<char*>(materialName.GetData()), '_');
+      {
+        ezStringBuilder materialNameTemp = materialName;
+        ezPathUtils::MakeValidFilename(materialNameTemp, '_', materialName);
+      }
 
       // Put the new asset in the data folder.
       ezStringBuilder newResourcePathAbs = importFolder;

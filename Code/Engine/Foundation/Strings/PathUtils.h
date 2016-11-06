@@ -2,6 +2,8 @@
 
 #include <Foundation/Strings/StringView.h>
 
+class ezStringBuilder;
+
 /// \brief Contains Helper functions to work with paths.
 ///
 /// Only functions that require read-only access to a string are provided here
@@ -75,7 +77,7 @@ public:
   /// Asserts that replacementCharacter is not allowed itself.
   /// Fails for empty strings.
   /// \see IsValidFilenameChar()
-  static ezResult MakeValidFilename(char* szFilename, ezUInt32 replacementCharacter);
+  static ezResult MakeValidFilename(const char* szFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename);
 };
 
 #include <Foundation/Strings/Implementation/PathUtils_inl.h>

@@ -65,8 +65,8 @@ void ezQtSceneImportDlg::on_accepted()
   for (auto meshIt=rawScene->GetMeshes().GetIterator(); meshIt.IsValid(); ++meshIt)
   {
     // Figure out a good filename.
-    ezString validFileMeshName = meshIt.Value()->m_Name;
-    if (ezPathUtils::MakeValidFilename(const_cast<char*>(validFileMeshName.GetData()), '_').Failed())
+    ezStringBuilder validFileMeshName;
+    if (ezPathUtils::MakeValidFilename(meshIt.Value()->m_Name, '_', validFileMeshName).Failed())
     {
       ezLog::Error("Failed to create a filename for mesh '%s'", meshIt.Value()->m_Name.GetData());
       continue;

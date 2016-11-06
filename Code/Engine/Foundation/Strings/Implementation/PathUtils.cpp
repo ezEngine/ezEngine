@@ -212,24 +212,22 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
   return true;
 }
 
-ezResult ezPathUtils::MakeValidFilename(char* szFilename, ezUInt32 replacementCharacter)
+ezResult ezPathUtils::MakeValidFilename(const char* szFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename)
 {
-  EZ_ASSERT_DEBUG(szFilename != nullptr, "Bad programmer!");
   EZ_ASSERT_DEBUG(IsValidFilenameChar(replacementCharacter), "Given replacement character is not allowed for filenames.");
 
   // Empty string
-  if (*szFilename == '\0')
+  if (ezStringUtils::IsNullOrEmpty(szFilename))
     return EZ_FAILURE;
 
   do
   {
-    char* previousPos = szFilename;
     ezUInt32 currentChar = ezUnicodeUtils::DecodeUtf8ToUtf32(szFilename); // moves pointer one char forward already.
     if (IsValidFilenameChar(currentChar) == false)
-    {
-      ezUnicodeUtils::EncodeUtf32ToUtf8(replacementCharacter, previousPos);
-      break;
-    }
+      outFilename.Append(replacementCharacter);
+    else
+      outFilename.Append(currentChar);
+
   } while (*szFilename != '\0');
 
   return EZ_SUCCESS;
