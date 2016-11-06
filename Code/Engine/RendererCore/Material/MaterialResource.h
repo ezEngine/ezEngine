@@ -15,21 +15,30 @@ struct ezMaterialResourceDescriptor
   {
     ezHashedString m_Name;
     ezVariant m_Value;
+
+    EZ_FORCE_INLINE bool operator==(const Parameter& other) const
+    {
+      return m_Name == other.m_Name && m_Value == other.m_Value;
+    }
   };
 
   struct TextureBinding
   {
     ezHashedString m_Name;
     ezTextureResourceHandle m_Value;
+
+    EZ_FORCE_INLINE bool operator==(const TextureBinding& other) const
+    {
+      return m_Name == other.m_Name && m_Value == other.m_Value;
+    }
   };
 
-  void Clear()
+  void Clear();
+  
+  bool operator==(const ezMaterialResourceDescriptor& other) const;
+  EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const
   {
-    m_hBaseMaterial.Invalidate();
-    m_hShader.Invalidate();
-    m_PermutationVars.Clear();
-    m_Parameters.Clear();
-    m_TextureBindings.Clear();
+    return !(*this == other);
   }
 
   ezMaterialResourceHandle m_hBaseMaterial;
@@ -57,6 +66,8 @@ public:
   void SetTextureBinding(const char* szName, ezTextureResourceHandle value);
   ezTextureResourceHandle GetTextureBinding(const ezTempHashedString& sName);
 
+  /// \brief Copies current desc to original desc so the material is not modified on reset
+  void PreserveCurrentDesc(); 
   virtual void ResetResource() override;
 
 private:

@@ -227,9 +227,11 @@ void ezSkyBoxComponent::UpdateMaterials()
 
     ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
 
-    pMaterial->SetParameter(ezMakeHashedString("ExposureBias"), m_fExposureBias);
-    pMaterial->SetParameter(ezMakeHashedString("InverseTonemap"), m_bInverseTonemap);
-    pMaterial->SetTextureBinding(ezMakeHashedString("BaseTexture"), m_Textures[i]);
+    pMaterial->SetParameter("ExposureBias", m_fExposureBias);
+    pMaterial->SetParameter("InverseTonemap", m_bInverseTonemap);
+    pMaterial->SetTextureBinding("BaseTexture", m_Textures[i]);
+
+    pMaterial->PreserveCurrentDesc();
   }
 }
 

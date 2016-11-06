@@ -21,4 +21,9 @@ struct ezPermutationVar
 
   ezHashedString m_sName;
   ezHashedString m_sValue;
+
+  EZ_FORCE_INLINE bool operator==(const ezPermutationVar& other) const
+  {
+    return m_sName == other.m_sName && m_sValue == other.m_sValue;
+  }
 };

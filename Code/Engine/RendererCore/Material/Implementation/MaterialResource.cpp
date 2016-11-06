@@ -7,6 +7,26 @@
 #include <Foundation/IO/ExtendedJSONReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
+void ezMaterialResourceDescriptor::Clear()
+{
+  m_hBaseMaterial.Invalidate();
+  m_hShader.Invalidate();
+  m_PermutationVars.Clear();
+  m_Parameters.Clear();
+  m_TextureBindings.Clear();
+}
+
+bool ezMaterialResourceDescriptor::operator==(const ezMaterialResourceDescriptor& other) const
+{
+  return m_hBaseMaterial == other.m_hBaseMaterial &&
+    m_hShader == other.m_hShader &&
+    m_PermutationVars == other.m_PermutationVars &&
+    m_Parameters == other.m_Parameters &&
+    m_TextureBindings == other.m_TextureBindings;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -236,15 +256,22 @@ ezTextureResourceHandle ezMaterialResource::GetTextureBinding(const ezTempHashed
   return ezTextureResourceHandle();
 }
 
+void ezMaterialResource::PreserveCurrentDesc()
+{
+  m_OriginalDesc = m_Desc;
+}
 
 void ezMaterialResource::ResetResource()
 {
-  m_Desc = m_OriginalDesc;
+  if (m_Desc != m_OriginalDesc)
+  {
+    m_Desc = m_OriginalDesc;
 
-  m_iLastModified.Increment();
-  m_iLastConstantsModified.Increment();
+    m_iLastModified.Increment();
+    m_iLastConstantsModified.Increment();
 
-  m_ModifiedEvent.Broadcast(this);
+    m_ModifiedEvent.Broadcast(this);
+  }
 }
 
 ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)

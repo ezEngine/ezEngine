@@ -106,10 +106,10 @@ ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
 ezCameraMode::PerspectiveFixedFovY;Perspective Fixed Y
 ezCameraMode::OrthoFixedWidth;Ortho Fixed Width
 ezCameraMode::OrthoFixedHeight;Ortho Fixed Height
-ezCameraComponentUsageHint::None;None
-ezCameraComponentUsageHint::MainView;Main View
-ezCameraComponentUsageHint::EditorView;Editor View
-ezCameraComponentUsageHint::Thumbnail;Thumbnail
+ezCameraUsageHint::None;None
+ezCameraUsageHint::MainView;Main View
+ezCameraUsageHint::EditorView;Editor View
+ezCameraUsageHint::Thumbnail;Thumbnail
 ezInputMessageGranularity::PressOnly;Only Key Pressed
 ezInputMessageGranularity::PressAndRelease;Key Pressed and Released
 ezInputMessageGranularity::PressReleaseAndDown;Key Pressed, Released and Down
