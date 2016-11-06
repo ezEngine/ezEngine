@@ -17,6 +17,9 @@ public:
   /// \brief Returns whether c is any known path separator.
   static bool IsPathSeparator (ezUInt32 c); // [tested]
 
+  /// \brief Checks if a given character is allowed in a filename (not path!)
+  static bool IsValidFilenameChar(ezUInt32 character);
+
   /// \brief Searches for the previous path separator before szStartSearchAt. Will return nullptr if it reaches szPathStart before finding any separator.
   static const char* FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt); // [tested]
 
@@ -65,6 +68,14 @@ public:
   /// ":/MyRoot\folder" -> "MyRoot"
   /// Returns an empty string, if the path is not rooted.
   static ezStringView GetRootedPathRootName(const char* szPath);
+
+  /// \brief Creates a valid filename (not path!) using the given string by replacing all unallowed characters.
+  ///
+  /// Note that path separators in the given string will be replaced as well!
+  /// Asserts that replacementCharacter is not allowed itself.
+  /// Fails for empty strings.
+  /// \see IsValidFilenameChar()
+  static ezResult MakeValidFilename(char* szFilename, ezUInt32 replacementCharacter);
 };
 
 #include <Foundation/Strings/Implementation/PathUtils_inl.h>

@@ -178,7 +178,7 @@ ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
 
   const char* szStart = szPath;
 
-  do 
+  do
   {
     ezUnicodeUtils::MoveToNextUtf8(szStart);
 
@@ -194,6 +194,45 @@ ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
     ezUnicodeUtils::MoveToNextUtf8(szEnd);
 
   return ezStringView(szStart, szEnd);
+}
+
+bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
+{
+  // Windows: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+  // Unix: https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
+  // Details can be more complicated (there might be reserved names depending on the filesystem), but in general all platforms behave like this:
+  static const ezUInt32 forbiddenFilenameChars[] = { '<', '>', ':', '"', '|', '?', '*', '\\', '/', '\t', '\b', '\n', '\r', '\0' };
+
+  for (int i = 0; i < EZ_ARRAY_SIZE(forbiddenFilenameChars); ++i)
+  {
+    if (forbiddenFilenameChars[i] == character)
+      return false;
+  }
+
+  return true;
+}
+
+ezResult ezPathUtils::MakeValidFilename(char* szFilename, ezUInt32 replacementCharacter)
+{
+  EZ_ASSERT_DEBUG(szFilename != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(IsValidFilenameChar(replacementCharacter), "Given replacement character is not allowed for filenames.");
+
+  // Empty string
+  if (*szFilename == '\0')
+    return EZ_FAILURE;
+
+  do
+  {
+    char* previousPos = szFilename;
+    ezUInt32 currentChar = ezUnicodeUtils::DecodeUtf8ToUtf32(szFilename); // moves pointer one char forward already.
+    if (IsValidFilenameChar(currentChar) == false)
+    {
+      ezUnicodeUtils::EncodeUtf32ToUtf8(replacementCharacter, previousPos);
+      break;
+    }
+  } while (*szFilename != '\0');
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_PathUtils);
