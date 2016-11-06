@@ -247,6 +247,7 @@ void ezTexConv::ParseCommandLine()
     m_uiOutputChannels = pCmd->GetIntOption("-channels", 4);
     m_bPremultiplyAlpha = pCmd->GetBoolOption("-premulalpha", false);
 
+    m_uiFilterSetting = pCmd->GetIntOption("-filter", 9); // ezTextureFilterSetting::DefaultQuality
     m_uiAddressU = pCmd->GetIntOption("-addressU", 0);
     m_uiAddressV = pCmd->GetIntOption("-addressV", 0);
     m_uiAddressW = pCmd->GetIntOption("-addressW", 0);

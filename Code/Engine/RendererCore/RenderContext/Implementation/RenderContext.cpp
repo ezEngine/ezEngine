@@ -21,6 +21,12 @@ ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> ezRenderContext::s
 
 ezGALSamplerStateHandle ezRenderContext::s_hDefaultSamplerStates[4];
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureFilterSetting, 1)
+EZ_ENUM_CONSTANTS(ezTextureFilterSetting::FixedNearest, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedTrilinear, ezTextureFilterSetting::FixedAnisotropic2x)
+EZ_ENUM_CONSTANTS(ezTextureFilterSetting::FixedAnisotropic4x, ezTextureFilterSetting::FixedAnisotropic8x, ezTextureFilterSetting::FixedAnisotropic16x)
+EZ_ENUM_CONSTANTS(ezTextureFilterSetting::LowestQuality, ezTextureFilterSetting::LowQuality, ezTextureFilterSetting::DefaultQuality, ezTextureFilterSetting::HighQuality, ezTextureFilterSetting::HighestQuality)
+EZ_END_STATIC_REFLECTED_ENUM()
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererContext)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -92,6 +98,7 @@ ezRenderContext::ezRenderContext()
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
   m_Topology = ezGALPrimitiveTopology::Triangles;
   m_uiMeshBufferPrimitiveCount = 0;
+  m_DefaultTextureFilter = ezTextureFilterSetting::FixedAnisotropic4x;
 
   m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
 
@@ -954,7 +961,7 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
 
     ezGALResourceViewHandle hResourceView;
     m_BoundTextures[stage].TryGetValue(uiResourceHash, hResourceView);
-    
+
     m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);
   }
 }
@@ -997,3 +1004,45 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
     m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);
   }
 }
+
+void ezRenderContext::SetDefaultTextureFilter(ezTextureFilterSetting::Enum filter)
+{
+  EZ_ASSERT_DEBUG(filter >= ezTextureFilterSetting::FixedBilinear && filter <= ezTextureFilterSetting::FixedAnisotropic16x, "Invalid default texture filter");
+  filter = ezMath::Clamp(filter, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedAnisotropic16x);
+
+  if (m_DefaultTextureFilter == filter)
+    return;
+
+  m_DefaultTextureFilter = filter;
+}
+
+ezTextureFilterSetting::Enum ezRenderContext::GetSpecificTextureFilter(ezTextureFilterSetting::Enum configuration) const
+{
+  if (configuration >= ezTextureFilterSetting::FixedNearest && configuration <= ezTextureFilterSetting::FixedAnisotropic16x)
+    return configuration;
+
+  int iFilter = m_DefaultTextureFilter;
+
+  switch (configuration)
+  {
+  case ezTextureFilterSetting::LowestQuality:
+    iFilter -= 2;
+    break;
+  case ezTextureFilterSetting::LowQuality:
+    iFilter -= 1;
+    break;
+  case ezTextureFilterSetting::HighQuality:
+    iFilter += 1;
+    break;
+  case ezTextureFilterSetting::HighestQuality:
+    iFilter += 2;
+    break;
+  }
+
+  iFilter = ezMath::Clamp<int>(iFilter, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedAnisotropic16x);
+
+  return (ezTextureFilterSetting::Enum)iFilter;
+}
+
+
+

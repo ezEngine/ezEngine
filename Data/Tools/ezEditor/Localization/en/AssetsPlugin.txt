@@ -77,3 +77,15 @@ ezTextureChannelMode::Red;Display Channel: Red
 ezTextureChannelMode::Green;Display Channel: Green
 ezTextureChannelMode::Blue;Display Channel: Blue
 ezTextureChannelMode::Alpha;Display Channel: Alpha
+ezTextureFilterSetting::FixedNearest;Fixed: Nearest
+ezTextureFilterSetting::FixedBilinear;Fixed: Bilinear
+ezTextureFilterSetting::FixedTrilinear;Fixed: Trilinear
+ezTextureFilterSetting::FixedAnisotropic2x;Fixed: Anisotropic 2x
+ezTextureFilterSetting::FixedAnisotropic4x;Fixed: Anisotropic 4x
+ezTextureFilterSetting::FixedAnisotropic8x;Fixed: Anisotropic 8x
+ezTextureFilterSetting::FixedAnisotropic16x;Fixed: Anisotropic 16x
+ezTextureFilterSetting::LowestQuality;Lowest Quality
+ezTextureFilterSetting::LowQuality;Low Quality
+ezTextureFilterSetting::DefaultQuality;Default Quality
+ezTextureFilterSetting::HighQuality;High Quality
+ezTextureFilterSetting::HighestQuality;Highest Quality

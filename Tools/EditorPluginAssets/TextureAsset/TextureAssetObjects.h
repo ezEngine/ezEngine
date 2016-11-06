@@ -2,6 +2,7 @@
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 
 struct ezPropertyMetaStateEvent;
 
@@ -118,6 +119,7 @@ public:
   bool m_bCompression;
   bool m_bPremultipliedAlpha;
 
+  ezEnum<ezTextureFilterSetting> m_TextureFilter;
   ezEnum<ezTextureAddressMode> m_AddressModeU;
   ezEnum<ezTextureAddressMode> m_AddressModeV;
   ezEnum<ezTextureAddressMode> m_AddressModeW;

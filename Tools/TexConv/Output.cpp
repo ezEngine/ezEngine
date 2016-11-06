@@ -9,10 +9,14 @@ void ezTexConv::WriteTexHeader()
 
     header.Write(m_FileOut);
 
+    const ezUInt8 uiTexFileFormatVersion = 2;
+
+    m_FileOut << uiTexFileFormatVersion;
     m_FileOut << m_bSRGBOutput;
     m_FileOut << m_uiAddressU;
     m_FileOut << m_uiAddressV;
     m_FileOut << m_uiAddressW;
+    m_FileOut << m_uiFilterSetting;
   }
 }
 

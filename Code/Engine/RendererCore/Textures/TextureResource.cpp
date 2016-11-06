@@ -3,6 +3,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <CoreUtils/Image/Formats/DdsFileFormat.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
@@ -69,10 +70,19 @@ ezResourceLoadDesc ezTextureResource::UnloadData(Unload WhatToUnload)
 
   if (WhatToUnload == Unload::AllQualityLevels)
   {
+    /// \todo This only works because samplers are shared.
+    /// Since they are not kept alive by ezRenderContext, this will crash if a sampler actually is deleted, but still in use by D3D.
+
     if (!m_hSamplerState.IsInvalidated())
     {
       ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
       m_hSamplerState.Invalidate();
+    }
+
+    if (!m_hOldSamplerState.IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hOldSamplerState);
+      m_hOldSamplerState.Invalidate();
     }
   }
 
@@ -258,12 +268,14 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   bool bSRGB = false;
   *Stream >> bSRGB;
 
-  ezEnum<ezGALTextureAddressMode> addressModeU = ezGALTextureAddressMode::Wrap;
-  ezEnum<ezGALTextureAddressMode> addressModeV = ezGALTextureAddressMode::Wrap;
-  ezEnum<ezGALTextureAddressMode> addressModeW = ezGALTextureAddressMode::Wrap;
+  ezEnum<ezGALTextureAddressMode> addressModeU;
+  ezEnum<ezGALTextureAddressMode> addressModeV;
+  ezEnum<ezGALTextureAddressMode> addressModeW;
+  ezEnum<ezTextureFilterSetting> textureFilter;
   *Stream >> addressModeU;
   *Stream >> addressModeV;
   *Stream >> addressModeW;
+  *Stream >> textureFilter;
 
   const ezUInt32 uiNumMipmapsLowRes = s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
 
@@ -327,6 +339,8 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   td.m_SamplerDesc.m_AddressW = addressModeW;
   td.m_InitialContent = InitDataPtr;
 
+  td.ConfigureSampler(textureFilter);
+
   // ignore its return value here, we build our own
   CreateResource(td);
 
@@ -365,16 +379,90 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
 
   pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
 
-  if (m_hSamplerState.IsInvalidated())
-  {
-    m_hSamplerState = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
-    EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
-  }
+  SetupSamplerState(pDevice, descriptor);
 
   ++m_uiLoadedTextures;
 
   return ret;
 }
+
+void ezTextureResourceDescriptor::ConfigureSampler(ezTextureFilterSetting::Enum filter)
+{
+  const ezTextureFilterSetting::Enum thisFilter = ezRenderContext::GetDefaultInstance()->GetSpecificTextureFilter(filter);
+
+  m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
+  m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
+  m_SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
+  m_SamplerDesc.m_uiMaxAnisotropy = 1;
+
+  switch (filter)
+  {
+  case ezTextureFilterSetting::FixedNearest:
+    m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
+    m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Point;
+    m_SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+    break;
+  case ezTextureFilterSetting::FixedBilinear:
+    m_SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+    break;
+  case ezTextureFilterSetting::FixedTrilinear:
+    break;
+  case ezTextureFilterSetting::FixedAnisotropic2x:
+    m_SamplerDesc.m_uiMaxAnisotropy = 2;
+    break;
+  case ezTextureFilterSetting::FixedAnisotropic4x:
+    m_SamplerDesc.m_uiMaxAnisotropy = 4;
+    break;
+  case ezTextureFilterSetting::FixedAnisotropic8x:
+    m_SamplerDesc.m_uiMaxAnisotropy = 8;
+    break;
+  case ezTextureFilterSetting::FixedAnisotropic16x:
+    m_SamplerDesc.m_uiMaxAnisotropy = 16;
+    break;
+  }
+}
+
+
+void ezTextureResource::SetupSamplerState(ezGALDevice* pDevice, const ezTextureResourceDescriptor &descriptor)
+{
+  /// \todo This is a hack! The sampler state is still bound in ezRenderContext and if we destroy it here, it might be deleted entirely
+  /// we would need to do ref-counting of sampler states, but that is currently not really implemented.
+  /// Se we keep the old sampler around for a bit longer, and hope it is not in use anymore on the second change.
+
+  ezGALSamplerStateHandle hNewSampler = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
+  EZ_ASSERT_DEV(!hNewSampler.IsInvalidated(), "Sampler state error");
+
+  if (hNewSampler == m_hSamplerState)
+  {
+    // make sure ref-count is correct
+    pDevice->DestroySamplerState(m_hSamplerState);
+    m_hSamplerState = hNewSampler;
+    return;
+  }
+
+  // first time
+  if (m_hSamplerState.IsInvalidated())
+  {
+    m_hSamplerState = hNewSampler;
+    return;
+  }
+
+  {
+    // get rid of a previous sampler
+    if (!m_hOldSamplerState.IsInvalidated())
+    {
+      pDevice->DestroySamplerState(m_hOldSamplerState);
+      m_hOldSamplerState.Invalidate();
+    }
+
+    // store the old sampler
+    m_hOldSamplerState = m_hSamplerState;
+
+    // take the new one from now on
+    m_hSamplerState = hNewSampler;
+  }
+}
+
 
 ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)
 {
@@ -386,6 +474,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
   ezEnum<ezGALTextureAddressMode> addressModeU = ezGALTextureAddressMode::Wrap;
   ezEnum<ezGALTextureAddressMode> addressModeV = ezGALTextureAddressMode::Wrap;
   ezEnum<ezGALTextureAddressMode> addressModeW = ezGALTextureAddressMode::Wrap;
+  ezEnum<ezTextureFilterSetting> textureFilter = ezTextureFilterSetting::Default;
 
   // Solid Color Textures
   if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))
@@ -449,10 +538,33 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
       AssetHash.Read(File);
 
       // read the ezTex file format
-      File >> bSRGB;
+      ezUInt8 uiTexFileFormatVersion = 0;
+      File >> uiTexFileFormatVersion;
+
+      if (uiTexFileFormatVersion < 2)
+      {
+        // There is no version 0 or 1, some idiot forgot to add a version number to the format.
+        // However, the first byte in those versions is a bool, so either 0 or 1 and therefore we can detect
+        // old versions by making the minimum file format version 2. I'm so clever! And handsome.
+
+        bSRGB = (uiTexFileFormatVersion == 1);
+        uiTexFileFormatVersion = 1;
+      }
+      else
+      {
+        File >> bSRGB;
+      }
+
       File >> addressModeU;
       File >> addressModeV;
       File >> addressModeW;
+
+      if (uiTexFileFormatVersion >= 2)
+      {
+        ezUInt8 uiFilter = 0;
+        File >> uiFilter;
+        textureFilter = (ezTextureFilterSetting::Enum) uiFilter;
+      }
 
       ezDdsFileFormat fmt;
       if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetOrCreateInstance()).Failed())
@@ -486,6 +598,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
   w << addressModeU;
   w << addressModeV;
   w << addressModeW;
+  w << textureFilter;
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
@@ -495,7 +608,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
 void ezTextureResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
 {
-  LoadedData* pData = (LoadedData*) LoaderData.m_pCustomLoaderData;
+  LoadedData* pData = (LoadedData*)LoaderData.m_pCustomLoaderData;
 
   EZ_DEFAULT_DELETE(pData);
 }

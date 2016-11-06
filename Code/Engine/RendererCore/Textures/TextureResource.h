@@ -7,6 +7,7 @@
 #include <CoreUtils/Image/Image.h>
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
@@ -18,6 +19,9 @@ struct ezTextureResourceDescriptor
     m_uiQualityLevelsDiscardable = 0;
     m_uiQualityLevelsLoadable = 0;
   }
+
+  /// \brief Sets the samplers min filter, mag filter, mip filter and anisotropy according to \a filter.
+  void ConfigureSampler(ezTextureFilterSetting::Enum filter);
 
   /// Describes the texture format, etc.
   ezGALTextureCreationDescription m_DescGAL;
@@ -49,6 +53,8 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezTextureResourceDescriptor& descriptor) override;
 
+  void SetupSamplerState(ezGALDevice* pDevice, const ezTextureResourceDescriptor &descriptor);
+
 private:
   friend class ezRenderContext;
 
@@ -60,6 +66,7 @@ private:
   ezGALTextureHandle m_hGALTexture[2];
   ezUInt32 m_uiMemoryGPU[2];
   ezGALSamplerStateHandle m_hSamplerState;
+  ezGALSamplerStateHandle m_hOldSamplerState;
 };
 
 

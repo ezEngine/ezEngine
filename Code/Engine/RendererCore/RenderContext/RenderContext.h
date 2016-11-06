@@ -11,91 +11,11 @@
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
+#include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 
-
-struct ezShaderBindFlags
-{
-  typedef ezUInt32 StorageType;
-
-  enum Enum
-  {
-    None = 0,                           ///< No flags causes the default shader binding behavior (all render states are applied)
-    ForceRebind = EZ_BIT(0),    ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was previously used with custom bound states
-    NoRasterizerState = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer
-    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil
-    NoBlendState = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend
-    NoStateBinding = NoRasterizerState | NoDepthStencilState | NoBlendState,
-
-    Default = None
-  };
-
-  struct Bits
-  {
-    StorageType ForceRebind : 1;
-    StorageType NoRasterizerState : 1;
-    StorageType NoDepthStencilState : 1;
-    StorageType NoBlendState : 1;
-  };
-};
-
-EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
-
-
-struct ezRenderContextFlags
-{
-  typedef ezUInt32 StorageType;
-
-  enum Enum
-  {
-    None = 0,
-    ShaderStateChanged = EZ_BIT(0),
-    TextureBindingChanged = EZ_BIT(1),
-    SamplerBindingChanged = EZ_BIT(2),
-    BufferBindingChanged = EZ_BIT(3),
-    ConstantBufferBindingChanged = EZ_BIT(4),
-    MeshBufferBindingChanged = EZ_BIT(5),
-    MaterialBindingChanged = EZ_BIT(6),
-
-    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | SamplerBindingChanged | BufferBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
-    Default = None
-  };
-
-  struct Bits
-  {
-    StorageType ShaderStateChanged : 1;
-    StorageType TextureBindingChanged : 1;
-    StorageType SamplerBindingChanged : 1;
-    StorageType BufferBindingChanged : 1;
-    StorageType ConstantBufferBindingChanged : 1;
-    StorageType MeshBufferBindingChanged : 1;
-    StorageType MaterialBindingChanged : 1;
-  };
-};
-
-EZ_DECLARE_FLAGS_OPERATORS(ezRenderContextFlags);
-
-struct ezDefaultSamplerFlags
-{
-  typedef ezUInt32 StorageType;
-
-  enum Enum
-  {
-    PointFiltering = 0,
-    LinearFiltering = EZ_BIT(0),
-
-    Wrap = 0,
-    Clamp = EZ_BIT(1)
-  };
-
-  struct Bits
-  {
-    StorageType LinearFiltering : 1;
-    StorageType Clamp : 1;
-  };
-};
-
-EZ_DECLARE_FLAGS_OPERATORS(ezDefaultSamplerFlags);
-
+//////////////////////////////////////////////////////////////////////////
+// ezRenderContext
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_RENDERERCORE_DLL ezRenderContext
 {
@@ -161,6 +81,23 @@ public:
   const ezGlobalConstants& ReadGlobalConstants() const;
 
   void SetViewportAndRenderTargetSetup(const ezRectFloat& viewport, const ezGALRenderTagetSetup& renderTargetSetup);
+
+  /// \brief Sets the texture filter mode that is used by default for texture resources.
+  ///
+  /// The built in default is Anisotropic 4x.
+  /// If the default setting is changed, already loaded textures might not adjust.
+  /// Nearest filtering is not allowed as a default filter.
+  void SetDefaultTextureFilter(ezTextureFilterSetting::Enum filter);
+
+  /// \brief Returns the texture filter mode that is used by default for textures.
+  ezTextureFilterSetting::Enum GetDefaultTextureFilter() const { return m_DefaultTextureFilter; }
+
+  /// \brief Returns the 'fixed' texture filter setting that the combination of default texture filter and given \a configuration defines.
+  ///
+  /// If \a configuration is set to a fixed filter, that setting is returned.
+  /// If it is one of LowestQuality to HighestQuality, the adjusted default filter is returned.
+  /// When the default filter is used (with adjustments), the allowed range is Bilinear to Aniso16x, the Nearest filter is never used.
+  ezTextureFilterSetting::Enum GetSpecificTextureFilter(ezTextureFilterSetting::Enum configuration) const;
 
   // Static Functions
 public:
@@ -243,6 +180,7 @@ private:
   const ezVertexDeclarationInfo* m_pVertexDeclarationInfo;
   ezGALPrimitiveTopology::Enum m_Topology;
   ezUInt32 m_uiMeshBufferPrimitiveCount;
+  ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
 
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers[ezGALShaderStage::ENUM_COUNT];

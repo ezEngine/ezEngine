@@ -103,6 +103,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
   arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());
   arguments << "-addressW" << QString::number(pProp->m_AddressModeW.GetValue());
+  arguments << "-filter" << QString::number(pProp->m_TextureFilter.GetValue());
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)

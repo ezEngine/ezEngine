@@ -108,7 +108,7 @@ inline ezGALTextureCreationDescription::ezGALTextureCreationDescription()
 {
 }
 
-inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, 
+inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format,
   ezGALMSAASampleCount::Enum sampleCount /*= ezGALMSAASampleCount::None*/)
 {
   m_uiWidth = uiWidth;
@@ -215,6 +215,6 @@ inline ezGALSamplerStateCreationDescription::ezGALSamplerStateCreationDescriptio
     m_fMipLodBias(0),
     m_fMinMip(-1.0f),
     m_fMaxMip(42000.0f),
-    m_uiMaxAnisotropy(16)
+    m_uiMaxAnisotropy(4)
 {
 }

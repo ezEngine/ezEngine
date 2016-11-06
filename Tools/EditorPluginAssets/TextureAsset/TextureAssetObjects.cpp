@@ -33,6 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("Compression", m_bCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Premultiplied Alpha", m_bPremultipliedAlpha),
 
+    EZ_ENUM_MEMBER_PROPERTY("Texture Filter", ezTextureFilterSetting, m_TextureFilter),
     EZ_ENUM_MEMBER_PROPERTY("Address Mode U", ezTextureAddressMode, m_AddressModeU),
     EZ_ENUM_MEMBER_PROPERTY("Address Mode V", ezTextureAddressMode, m_AddressModeV),
     EZ_ENUM_MEMBER_PROPERTY("Address Mode W", ezTextureAddressMode, m_AddressModeW),
