@@ -66,6 +66,7 @@ public:
   ezMeshPrimitive::Enum m_PrimitiveType;
 
   bool m_bImportMaterials;
+  bool m_bUseSubFolderForImportedMaterials;
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 
   const ezString GetResourceSlotProperty(ezUInt32 uiSlot) const;

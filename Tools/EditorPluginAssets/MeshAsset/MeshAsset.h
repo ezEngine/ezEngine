@@ -31,9 +31,9 @@ protected:
   void CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezGeometry &geom, ezMeshResourceDescriptor &desc);
   ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
 
-  void ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* sMeshFileAbs);
-  void ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material, const char* szMeshFileAbs);
-  ezString ImportOrResolveTexture(const char* meshFileDirectory, const char* szTexturePath, ezModelImporter::SemanticHint::Enum hint);
+  void ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* importFolder);
+  void ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material, const char* importFolder);
+  ezString ImportOrResolveTexture(const char* importFolder, const char* szTexturePath, ezModelImporter::SemanticHint::Enum hint);
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 

@@ -16,6 +16,6 @@ public slots:
   virtual void on_OutputBrowse_clicked();
 
 private:
-
+  void validatePaths();
 };
 

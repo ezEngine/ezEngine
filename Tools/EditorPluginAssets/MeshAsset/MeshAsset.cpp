@@ -496,7 +496,19 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     }
 
     if (pProp->m_bImportMaterials)
-      ImportMaterials(*scene, *mesh, pProp, sMeshFileAbs);
+    {
+      ezStringBuilder importDirectory = GetDocumentPath();
+
+      if (pProp->m_bUseSubFolderForImportedMaterials)
+      {
+        importDirectory.Append("_data");
+        importDirectory.Append(ezPathUtils::OsSpecificPathSeparator);
+      }
+      else
+        importDirectory = importDirectory.GetFileDirectory();
+
+      ImportMaterials(*scene, *mesh, pProp, importDirectory);
+    }
 
     if (mesh->GetNumSubMeshes() == 0)
     {
@@ -542,16 +554,18 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   return ezStatus(EZ_SUCCESS);
 }
 
-ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* meshFileDirectory, const char* szTexturePath, ezModelImporter::SemanticHint::Enum hint)
+ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* importFolder, const char* szTexturePath, ezModelImporter::SemanticHint::Enum hint)
 {
-  ezStringBuilder absTexturePath = meshFileDirectory;
-  absTexturePath.AppendPath(szTexturePath);
-  ezString relTexturePath = absTexturePath;
+  ezString relTexturePath = szTexturePath;
   if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(relTexturePath))
-    ezLog::Warning("Texture path '%s' can't be made relative!", absTexturePath.GetData());
+    ezLog::Warning("Texture path '%s' can't be made relative!", szTexturePath);
 
-  ezStringBuilder newAssetPathAbs;
-  newAssetPathAbs.Format("%s_data/%s.ezTextureAsset", GetDocumentPath(), ezStringBuilder(szTexturePath).GetFileName().GetData());
+  ezStringBuilder textureName = ezStringBuilder(szTexturePath).GetFileName();
+  ezPathUtils::MakeValidFilename(const_cast<char*>(textureName.GetData()), '_');
+
+  ezStringBuilder newAssetPathAbs = importFolder;
+  newAssetPathAbs.AppendPath(ezStringBuilder(szTexturePath).GetFileName().GetData());
+  newAssetPathAbs.Append(".ezTextureAsset");
 
   // Try to resolve.
   auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(newAssetPathAbs);
@@ -564,8 +578,8 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* meshFileDirecto
     ezTextureAssetDocument* textureDocument = ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newAssetPathAbs, false, false));
     if (!textureDocument)
     {
-      ezLog::Error("Failed to create new texture asset '%s'", absTexturePath.GetData());
-      return absTexturePath;
+      ezLog::Error("Failed to create new texture asset '%s'", szTexturePath);
+      return szTexturePath;
     }
 
     ezObjectAccessorBase* pAccessor = textureDocument->GetObjectAccessor();
@@ -616,7 +630,7 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* meshFileDirecto
   }
 };
 
-void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* sMeshFileAbs)
+void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* importFolder)
 {
   ezHashTable<const ezModelImporter::Material*, ezString> importMatToMaterialGuid;
   for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
@@ -641,10 +655,13 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
         materialName = "Unnamed";
         materialName.Append(ezConversionUtils::ToString(subMeshIdx));
       }
+      else
+        ezPathUtils::MakeValidFilename(const_cast<char*>(materialName.GetData()), '_');
 
       // Put the new asset in the data folder.
-      ezStringBuilder newResourcePathAbs;
-      newResourcePathAbs.Format("%s_data/%s.ezMaterialAsset", GetDocumentPath(), materialName.GetData());
+      ezStringBuilder newResourcePathAbs = importFolder;
+      newResourcePathAbs.AppendPath(materialName.GetData());
+      newResourcePathAbs.Append(".ezMaterialAsset");
 
       // Does the generated path already exist? Use it.
       {
@@ -659,11 +676,11 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
       if (!materialDocument)
       {
-        ezLog::Error("Failed to create new material '%s'", materialName.GetData());
+        ezLog::Error("Failed to create new material '%s'", material->m_Name.GetData());
         continue;
       }
 
-      ImportMaterial(materialDocument, material, sMeshFileAbs);
+      ImportMaterial(materialDocument, material, importFolder);
       materialDocument->SaveDocument();
 
       //ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
@@ -683,7 +700,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
   }
 }
 
-void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material, const char* szMeshFileAbs)
+void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocument, const ezModelImporter::Material* material, const char* importFolder)
 {
   ezStringBuilder materialName = ezPathUtils::GetFileName(materialDocument->GetDocumentPath());
 
@@ -693,7 +710,6 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
   pAccessor->StartTransaction("Apply Material Settings");
   ezDocumentObject* pMaterialAsset = materialDocument->GetPropertyObject();
 
-  ezString meshFileDirectory = ezPathUtils::GetFileDirectory(szMeshFileAbs);
 
   // Set base material.
   ezStatus res = pAccessor->SetValue(pMaterialAsset, "Base Material", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial()));
@@ -714,7 +730,7 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
   if (const ezModelImporter::TextureReference* baseTexture = material->GetTexture(ezModelImporter::SemanticHint::DIFFUSE))
   {
     pAccessor->SetValue(pMaterialProperties, "UseBaseTexture", true).LogFailure();
-    pAccessor->SetValue(pMaterialProperties, "BaseTexture", ImportOrResolveTexture(meshFileDirectory, baseTexture->m_FileName, ezModelImporter::SemanticHint::DIFFUSE)).LogFailure();
+    pAccessor->SetValue(pMaterialProperties, "BaseTexture", ImportOrResolveTexture(importFolder, baseTexture->m_FileName, ezModelImporter::SemanticHint::DIFFUSE)).LogFailure();
   }
   else
   {
@@ -733,13 +749,13 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
   {
     pAccessor->SetValue(pMaterialProperties, "UseNormalAndRoughnessTexture", true).LogFailure();
     if (normalTexture)
-      pAccessor->SetValue(pMaterialProperties, "NormalTexture", ImportOrResolveTexture(meshFileDirectory, normalTexture->m_FileName, ezModelImporter::SemanticHint::NORMAL)).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "NormalTexture", ImportOrResolveTexture(importFolder, normalTexture->m_FileName, ezModelImporter::SemanticHint::NORMAL)).LogFailure();
     else
     {
       pAccessor->SetValue(pMaterialProperties, "NormalTexture", ezConversionUtils::ToString(ezMaterialAssetDocument::GetNeutralNormalMap())).LogFailure();
     }
     if (roughnessTexture)
-      pAccessor->SetValue(pMaterialProperties, "RoughnessTexture", ImportOrResolveTexture(meshFileDirectory, roughnessTexture->m_FileName, ezModelImporter::SemanticHint::ROUGHNESS)).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "RoughnessTexture", ImportOrResolveTexture(importFolder, roughnessTexture->m_FileName, ezModelImporter::SemanticHint::ROUGHNESS)).LogFailure();
     else
       pAccessor->SetValue(pMaterialProperties, "RoughnessTexture", "White.color").LogFailure();
   }
@@ -758,7 +774,7 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
   if (metalTexture)
   {
     pAccessor->SetValue(pMaterialProperties, "UseMetallicTexture", true).LogFailure();
-    pAccessor->SetValue(pMaterialProperties, "MetallicTexture", ImportOrResolveTexture(meshFileDirectory, metalTexture->m_FileName, ezModelImporter::SemanticHint::METALLIC)).LogFailure();
+    pAccessor->SetValue(pMaterialProperties, "MetallicTexture", ImportOrResolveTexture(importFolder, metalTexture->m_FileName, ezModelImporter::SemanticHint::METALLIC)).LogFailure();
   }
   else
   {
