@@ -20,6 +20,7 @@ class ezDirectoryWatcher;
 class ezProcessCommunication;
 class ezProcessTask;
 struct ezFileStats;
+struct AssetCacheEntry;
 
 struct ezAssetInfo
 {
@@ -61,6 +62,16 @@ struct ezAssetInfo
   ezSet<ezString> m_MissingDependencies;
   ezSet<ezString> m_MissingReferences;
 };
+
+struct AssetCacheEntry
+{
+  ezString m_sFile;
+  ezTimestamp m_Timestamp;
+  ezUInt64 m_uiHash;
+  ezAssetDocumentInfo m_Info;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, AssetCacheEntry);
 
 struct ezAssetCuratorEvent
 {
@@ -214,6 +225,9 @@ private:
   void HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat);
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTable(const char* szDataDirectory, const char* szPlatform = nullptr);
+  /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
+  ///   that has all its references transformed before any other documents are loaded.
+  void ProcessAllCoreAssets();
 
   ///@}
   /// \name Update Task
@@ -248,7 +262,7 @@ private:
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
-  static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
+  ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
   /// \brief Opens the asset JSON file and reads the "Header" into the given ezAssetDocumentInfo.
   static ezStatus ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
@@ -264,6 +278,8 @@ private:
   void RemoveStaleFileInfos();
   static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
   void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
+  void LoadCaches();
+  void SaveCaches();
 
   ///@}
 
@@ -285,6 +301,9 @@ private:
 
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezMap<ezString, FileStatus, ezCompareString_NoCase > m_ReferencedFiles;
+
+  ezMap<ezString, ezUniquePtr<AssetCacheEntry>, ezCompareString_NoCase > m_CachedEntries;
+
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseReferences;
   ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.

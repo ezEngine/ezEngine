@@ -360,7 +360,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     return EZ_FAILURE;
   }
 
-
+  auto it = m_CachedEntries.Find(szAbsFilePath);
   // Update time stamp
   {
     ezFileStats fs;
@@ -412,11 +412,24 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
 
   ezMemoryStreamWriter MemWriter(&storage);
 
-  // compute the hash for the asset JSON file
-  stat.m_uiHash = ezAssetCurator::HashFile(file, &MemWriter);
+  if (it.IsValid() && it.Value()->m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
+  {
+    stat.m_uiHash = it.Value()->m_uiHash;
+  }
+  else
+  {
+    // compute the hash for the asset JSON file
+    stat.m_uiHash = ezAssetCurator::HashFile(file, &MemWriter);
+  }
   file.Close();
 
   // and finally actually read the asset JSON file (header only) and store the information in the ezAssetDocumentInfo member
+  if (it.IsValid() && it.Value()->m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
+  {
+    assetInfo.m_Info = it.Value()->m_Info;
+    stat.m_AssetGuid = assetInfo.m_Info.m_DocumentID;
+  }
+  else
   {
     ezStatus ret = ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
     if (ret.Failed())
@@ -651,7 +664,6 @@ void ezProcessTask::ShutdownProcess()
 
   m_bProcessShouldBeRunning = false;
   m_pIPC->CloseConnection();
-  EZ_DEFAULT_DELETE(m_pIPC);
 }
 
 void ezProcessTask::Execute()

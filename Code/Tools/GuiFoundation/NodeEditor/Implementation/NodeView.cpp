@@ -7,7 +7,7 @@
 
 ezQtNodeView::ezQtNodeView(QWidget* parent) : QGraphicsView(parent), m_pScene(nullptr), m_bPanning(false), m_iPanCounter(0)
 {
-  setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
+  setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
   setDragMode(QGraphicsView::DragMode::RubberBandDrag);
 
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

@@ -26,7 +26,7 @@ public:
   void Clear();
   void SetLogLevel(ezLogMsgType::Enum LogLevel);
   void SetSearchText(const char* szText);
-  bool AddLogMsg(const LogMsg& msg);
+  void AddLogMsg(const LogMsg& msg);
 
   ezUInt32 GetVisibleItemCount() const { return m_VisibleMessages.GetCount(); }
 
@@ -39,6 +39,9 @@ public: //QAbstractItemModel interface
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
+private slots:
+  /// \brief Adds queued messages from a different thread to the model.
+  void ProcessNewMessages();
 
 private:
   void Invalidate();
@@ -51,6 +54,9 @@ private:
 
   mutable bool m_bIsValid;
   mutable ezDeque<const LogMsg*> m_VisibleMessages;
+
+  mutable ezMutex m_NewMessagesMutex;
+  ezDeque<LogMsg> m_NewMessages;
 };
 
 /// \brief The application wide panel that shows the engine log output and the editor log output

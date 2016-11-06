@@ -2,6 +2,18 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Time/Timestamp.h>
 
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTimestamp, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("time", m_iTimestamp),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+
 ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
 {
   EZ_ASSERT_DEV(IsValid(), "Can't retrieve timestamp of invalid values!");

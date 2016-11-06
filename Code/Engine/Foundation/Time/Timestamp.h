@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Time/Time.h>
+#include <Foundation/Reflection/Reflection.h>
 
 struct ezSIUnitOfTime
 {
@@ -86,6 +87,7 @@ public:
 
 
 private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezTimestamp);
   /// \brief The date is stored as microseconds since Unix epoch.
   ezInt64 m_iTimestamp;
 };
@@ -93,6 +95,7 @@ private:
 /// \brief Returns a timestamp that is "timeSpan" further into the future from "timestamp".
 const ezTimestamp operator+ (ezTime& timeSpan, const ezTimestamp& timestamp);
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTimestamp);
 
 /// \brief The ezDateTime class can be used to convert ezTimestamp into a human readable form.
 ///

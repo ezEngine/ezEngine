@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QStyleFactory>
+#include <QtGlobal>
 
 void ezQtEditorApp::SetStyleSheet()
 {
@@ -39,8 +40,34 @@ void ezQtEditorApp::SetStyleSheet()
   QApplication::setPalette(palette);
 }
 
+static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+  QByteArray localMsg = msg.toLocal8Bit();
+  switch (type)
+  {
+  case QtDebugMsg:
+    ezLog::Debug("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    break;
+#if QT_VERSION >= 0x050500
+  case QtInfoMsg:
+    ezLog::Info("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    break;
+#endif
+  case QtWarningMsg:
+    ezLog::Warning("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    break;
+  case QtCriticalMsg:
+    ezLog::Error("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    break;
+  case QtFatalMsg:
+    EZ_ASSERT_DEBUG("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    break;
+  }
+}
+
 void ezQtEditorApp::InitQt(int argc, char** argv)
 {
+  qInstallMessageHandler(QtDebugMessageHandler);
   s_pQtApplication = new QApplication(argc, argv);
 }
 

@@ -3,6 +3,7 @@
 #include <QSettings>
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QThread>
 
 EZ_IMPLEMENT_SINGLETON(ezQtLogPanel);
 
@@ -20,8 +21,17 @@ ezQtLogPanel::ezQtLogPanel()
 
   ListViewEditorLog->setModel(&m_EditorLog);
   ListViewEditorLog->setUniformItemSizes(true);
+  connect(&m_EditorLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex &parent, int first, int last) 
+  {
+    ScrollToBottomIfAtEnd(ListViewEditorLog, first);
+  });
+
   ListViewEngineLog->setModel(&m_EngineLog);
   ListViewEngineLog->setUniformItemSizes(true);
+  connect(&m_EngineLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex &parent, int first, int last)
+  {
+    ScrollToBottomIfAtEnd(ListViewEngineLog, first);
+  });
 
   ButtonClearSearch->setEnabled(false);
 
@@ -69,18 +79,14 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 
 void ezQtLogPanel::LogWriter(const ezLoggingEventData& e)
 {
+  // Can be called from a different thread, but AddLogMsg is thread safe.
   ezQtLogModel::LogMsg msg;
   msg.m_sMsg = e.m_szText;
   msg.m_sTag = e.m_szTag;
   msg.m_Type = e.m_EventType;
   msg.m_uiIndentation = e.m_uiIndentation;
 
-  const ezUInt32 uiMsgs = m_EditorLog.GetVisibleItemCount();
-
-  if (m_EditorLog.AddLogMsg(msg))
-  {
-    ScrollToBottomIfAtEnd(ListViewEditorLog, (int)uiMsgs);
-  }
+  m_EditorLog.AddLogMsg(msg);
 }
 
 void ezQtLogPanel::ScrollToBottomIfAtEnd(QListView* pView, int iNumElements)
@@ -113,12 +119,7 @@ void ezQtLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection
         msg.m_Type = (ezLogMsgType::Enum)pMsg->m_iMsgType;
         msg.m_uiIndentation = pMsg->m_uiIndentation;
 
-        const ezUInt32 uiMsgs = m_EngineLog.GetVisibleItemCount();
-
-        if (m_EngineLog.AddLogMsg(msg))
-        {
-          ScrollToBottomIfAtEnd(ListViewEngineLog, (int)uiMsgs);
-        }
+        m_EngineLog.AddLogMsg(msg);
       }
     }
     break;
@@ -201,38 +202,23 @@ void ezQtLogModel::SetSearchText(const char* szText)
   Invalidate();
 }
 
-bool ezQtLogModel::AddLogMsg(const LogMsg& msg)
+void ezQtLogModel::AddLogMsg(const LogMsg& msg)
 {
-  ezStringBuilder s;
-
-  m_AllMessages.PushBack(msg);
-
-  if (msg.m_Type == ezLogMsgType::BeginGroup || msg.m_Type == ezLogMsgType::EndGroup)
   {
-    s.Format("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+    EZ_LOCK(m_NewMessagesMutex);
+    m_NewMessages.PushBack(msg);
+  }
 
-    if (!msg.m_sTag.IsEmpty())
-      s.Append(" (", msg.m_sTag, ") >>>");
-    else
-      s.Append(" >>>");
-
-    m_AllMessages.PeekBack().m_sMsg = s;
+  if (QThread::currentThread() == thread())
+  {
+    ProcessNewMessages();
   }
   else
   {
-    s.Format("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
-    m_AllMessages.PeekBack().m_sMsg = s;
+    QMetaObject::invokeMethod(this, "ProcessNewMessages", Qt::ConnectionType::QueuedConnection);
   }
-
-
-  // if the message would not be shown anyway, don't trigger an update
-  if (IsFiltered(msg))
-    return false;
-
-  beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
-  m_VisibleMessages.PushBack(&m_AllMessages.PeekBack());
-  endInsertRows();
-  return true;
+ 
+  return;
 }
 
 bool ezQtLogModel::IsFiltered(const LogMsg& lm) const
@@ -337,6 +323,45 @@ int ezQtLogModel::rowCount(const QModelIndex& parent) const
 int ezQtLogModel::columnCount(const QModelIndex& parent) const
 {
   return 1;
+}
+
+
+void ezQtLogModel::ProcessNewMessages()
+{
+  EZ_LOCK(m_NewMessagesMutex);
+  ezStringBuilder s;
+  for (const auto& msg : m_NewMessages)
+  {
+    m_AllMessages.PushBack(msg);
+
+    if (msg.m_Type == ezLogMsgType::BeginGroup || msg.m_Type == ezLogMsgType::EndGroup)
+    {
+      s.Format("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+
+      if (!msg.m_sTag.IsEmpty())
+        s.Append(" (", msg.m_sTag, ") >>>");
+      else
+        s.Append(" >>>");
+
+      m_AllMessages.PeekBack().m_sMsg = s;
+    }
+    else
+    {
+      s.Format("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+      m_AllMessages.PeekBack().m_sMsg = s;
+    }
+
+
+    // if the message would not be shown anyway, don't trigger an update
+    if (IsFiltered(msg))
+      continue;
+
+    beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
+    m_VisibleMessages.PushBack(&m_AllMessages.PeekBack());
+    endInsertRows();
+  }
+
+  m_NewMessages.Clear();
 }
 
 void ezQtLogModel::UpdateVisibleEntries() const

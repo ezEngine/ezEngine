@@ -59,7 +59,7 @@ public:
 
 signals:
   void ImageLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
-  void ImageInvalidated(QString sPath, ezUInt32 uiImageID);
+  void ImageInvalidated(QString sPath, unsigned int uiImageID);
 
 private:
   void EmitLoadedSignal(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);

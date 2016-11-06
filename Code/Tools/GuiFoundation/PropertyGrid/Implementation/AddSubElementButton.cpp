@@ -44,8 +44,9 @@ void ezQtAddSubElementButton::OnInit()
   if (m_pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
     m_pMenu = new QMenu(m_pButton);
-    m_pMenu->setObjectName("Menu");
+    connect(m_pMenu, &QMenu::aboutToShow, this, &ezQtAddSubElementButton::onMenuAboutToShow);
     m_pButton->setMenu(m_pMenu);
+    m_pButton->setObjectName("Button");
   }
   QMetaObject::connectSlotsByName(this);
 }
@@ -107,7 +108,7 @@ QMenu* ezQtAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap
   return pNewMenu;
 }
 
-void ezQtAddSubElementButton::on_Menu_aboutToShow()
+void ezQtAddSubElementButton::onMenuAboutToShow()
 {
   if (m_Items.IsEmpty())
     return;

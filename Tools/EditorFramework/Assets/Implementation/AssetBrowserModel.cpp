@@ -53,8 +53,8 @@ ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent)
   SetIconMode(true);
   m_bShowItemsInSubFolders = true;
 
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), SIGNAL(ImageLoaded(QString, QModelIndex, QVariant, QVariant)), this, SLOT(ThumbnailLoaded(QString, QModelIndex, QVariant, QVariant))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), SIGNAL(ImageInvalidated(QString, ezUInt32)), this, SLOT(ThumbnailInvalidated(QString, ezUInt32))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetBrowserModel::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetBrowserModel::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
 }
 
 ezQtAssetBrowserModel::~ezQtAssetBrowserModel()
