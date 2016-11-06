@@ -150,6 +150,7 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   WaitData data;
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
+
   ezProcessCommunication::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
   {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
@@ -163,7 +164,8 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
     }
     return false;
   };
-  return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
+
+  return m_IPC.WaitForMessage(pMessageType, tTimeout, &callback);
 }
 
 ezResult ezEditorEngineProcessConnection::RestartProcess()
