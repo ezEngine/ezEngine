@@ -28,6 +28,8 @@ void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pN
 
 void ezRttiConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, const ezRTTI* pRtti, void* pObject)
 {
+  EZ_ASSERT_DEBUG(pNode != nullptr, "Invalid node");
+
   if (pRtti->GetParentType() != nullptr)
     ApplyPropertiesToObject(pNode, pRtti->GetParentType(), pObject);
 
@@ -158,7 +160,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       ezUuid temp;
       temp.CreateNewUuid();
       void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
-      
+
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
         if (!array[i].IsA<ezUuid>())

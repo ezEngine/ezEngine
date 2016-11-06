@@ -418,7 +418,12 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
 
   // and finally actually read the asset JSON file (header only) and store the information in the ezAssetDocumentInfo member
   {
-    ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
+    ezStatus ret = ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
+    if (ret.Failed())
+    {
+      ezLog::Error("Failed to read asset document info for asset file '%s'", szAbsFilePath);
+      return EZ_FAILURE;
+    }
 
     // here we get the GUID out of the JSON document
     // this links the 'file' to the 'asset'
@@ -428,16 +433,23 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   return EZ_SUCCESS;
 }
 
-void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream)
+ezStatus ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream)
 {
   ezAbstractObjectGraph graph;
-  ezAbstractGraphJsonSerializer::Read(stream, &graph);
+  if (ezAbstractGraphJsonSerializer::Read(stream, &graph).Failed())
+    return ezStatus("Failed to read document from JSON");
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
 
   auto* pHeaderNode = graph.GetNodeByName("Header");
+
+  if (pHeaderNode == nullptr)
+    return ezStatus("Document does not contain a 'Header'");
+
   rttiConverter.ApplyPropertiesToObject(pHeaderNode, pInfo->GetDynamicRTTI(), pInfo);
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream)

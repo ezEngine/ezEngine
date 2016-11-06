@@ -127,14 +127,14 @@ static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGrap
   }
 }
 
-void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+ezResult ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
 {
   ezExtendedJSONReader reader;
   reader.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
   if (reader.Parse(stream).Failed())
   {
     EZ_REPORT_FAILURE("Failed to parse JSON graph");
-    return;
+    return EZ_FAILURE;
   }
 
   ReadGraph(reader, pGraph, "Objects");
@@ -143,7 +143,7 @@ void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjec
     ReadGraph(reader, pTypesGraph, "Types");
   }
 
-  return;
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_JsonSerializer);

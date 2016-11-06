@@ -148,7 +148,7 @@ public:
 
   /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
   const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
-  
+
   ///@}
   /// \name Manual and Automatic Change Notification
   ///@{
@@ -250,7 +250,7 @@ private:
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
   static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
   /// \brief Opens the asset JSON file and reads the "Header" into the given ezAssetDocumentInfo.
-  static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
+  static ezStatus ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
   static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
 
@@ -287,7 +287,7 @@ private:
   ezMap<ezString, FileStatus, ezCompareString_NoCase > m_ReferencedFiles;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseReferences;
-  ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here. 
+  ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
   ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedReferences;
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
