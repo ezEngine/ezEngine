@@ -1,16 +1,16 @@
 {
-  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
-  
-  "Permutations" : 
+  "Shader" : "Shaders/Materials/FallbackMaterial.ezShader",
+
+  "Permutations" :
   {
   },
 
   "Constants" :
   {
   },
-  
+
   "Textures" :
   {
     "BaseTexture" : "Textures/MissingMesh_D.dds"
-  }  
+  }
 }
