@@ -52,6 +52,7 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     {
       ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial);
       pMaterial->SetParameter("ShowChannelMode", pMsg2->m_iValue);
+      pMaterial->SetParameter("LodLevel", pMsg2->m_fValue);
     }
   }
 

@@ -34,6 +34,7 @@ public:
 
   // for previewing purposes
   ezEnum<ezTextureChannelMode> m_ChannelMode;
+  ezInt32 m_iTextureLod; // -1 == regular sampling, >= 0 == sample that level
 
 protected:
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;

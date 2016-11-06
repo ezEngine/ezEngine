@@ -25,6 +25,7 @@ EZ_END_STATIC_REFLECTED_ENUM()
 ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
 {
+  m_iTextureLod = -1;
 }
 
 ezString ezTextureAssetDocument::FindTexConvTool() const

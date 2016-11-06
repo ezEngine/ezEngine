@@ -89,3 +89,4 @@ ezTextureFilterSetting::LowQuality;Low Quality
 ezTextureFilterSetting::DefaultQuality;Default Quality
 ezTextureFilterSetting::HighQuality;High Quality
 ezTextureFilterSetting::HighestQuality;Highest Quality
+TextureAsset.LodSlider;Mipmap

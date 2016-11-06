@@ -38,17 +38,47 @@ void ezTextureChannelModeAction::Execute(const ezVariant& value)
 }
 
 //////////////////////////////////////////////////////////////////////////
+// ezTextureLodSliderAction
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureLodSliderAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
+ezTextureLodSliderAction::ezTextureLodSliderAction(const ezActionContext& context, const char* szName)
+  : ezSliderAction(context, szName)
+{
+  m_pDocument = const_cast<ezTextureAssetDocument*>(static_cast<const ezTextureAssetDocument*>(context.m_pDocument));
+
+  SetRange(-1, 13);
+  SetValue(m_pDocument->m_iTextureLod);
+}
+
+void ezTextureLodSliderAction::Execute(const ezVariant& value)
+{
+  const ezInt32 iValue = value.Get<ezInt32>();
+
+  m_pDocument->m_iTextureLod = value.Get<ezInt32>();
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// ezTextureAssetActions
+//////////////////////////////////////////////////////////////////////////
 
 ezActionDescriptorHandle ezTextureAssetActions::s_hTextureChannelMode;
+ezActionDescriptorHandle ezTextureAssetActions::s_hLodSlider;
 
 void ezTextureAssetActions::RegisterActions()
 {
   s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hLodSlider = EZ_REGISTER_ACTION_0("TextureAsset.LodSlider", ezActionScope::Document, "Texture Asset", "", ezTextureLodSliderAction);
 }
 
 void ezTextureAssetActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hTextureChannelMode);
+  ezActionManager::UnregisterAction(s_hLodSlider);
 }
 
 void ezTextureAssetActions::MapActions(const char* szMapping, const char* szPath)
@@ -56,10 +86,13 @@ void ezTextureAssetActions::MapActions(const char* szMapping, const char* szPath
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
 
+  pMap->MapAction(s_hLodSlider, szPath, 14.0f);
   pMap->MapAction(s_hTextureChannelMode, szPath, 15.0f);
 }
 
 
+//////////////////////////////////////////////////////////////////////////
+// ezQtTextureAssetDocumentWindow
 //////////////////////////////////////////////////////////////////////////
 
 ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDocument* pDocument)
@@ -139,9 +172,12 @@ void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
   }
 
   {
+    const ezTextureAssetDocument* pDoc = static_cast<const ezTextureAssetDocument*>(GetDocument());
+
     ezDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "ChannelMode";
-    msg.m_iValue = static_cast<const ezTextureAssetDocument*>(GetDocument())->m_ChannelMode.GetValue();
+    msg.m_iValue = pDoc->m_ChannelMode.GetValue();
+    msg.m_fValue = pDoc->m_iTextureLod;
 
     GetEditorEngineConnection()->SendMessage(&msg);
   }
@@ -160,3 +196,4 @@ void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
     ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
   }
 }
+

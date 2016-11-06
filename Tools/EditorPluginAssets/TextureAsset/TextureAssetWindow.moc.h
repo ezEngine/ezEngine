@@ -38,6 +38,20 @@ public:
   virtual void Execute(const ezVariant& value) override;
 };
 
+class ezTextureLodSliderAction : public ezSliderAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureLodSliderAction, ezSliderAction);
+
+public:
+
+  ezTextureLodSliderAction(const ezActionContext& context, const char* szName);
+
+  virtual void Execute(const ezVariant& value) override;
+
+private:
+  ezTextureAssetDocument* m_pDocument;
+};
+
 class ezTextureAssetActions
 {
 public:
@@ -47,4 +61,5 @@ public:
   static void MapActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hTextureChannelMode;
+  static ezActionDescriptorHandle s_hLodSlider;
 };

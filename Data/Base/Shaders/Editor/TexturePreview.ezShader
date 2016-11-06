@@ -24,6 +24,7 @@ int ShowChannelMode;
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
 	INT1(ShowChannelMode);
+  FLOAT1(LodLevel);
 };
 
 #define USE_TEXCOORD0
@@ -42,6 +43,7 @@ VS_OUT main(VS_IN Input)
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
 	INT1(ShowChannelMode);
+  FLOAT1(LodLevel);
 };
 
 #define USE_TEXCOORD0
@@ -51,30 +53,38 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
 
+float4 SampleTexture(PS_IN Input)
+{
+  if (LodLevel < 0)
+    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy);
+
+  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, Input.TexCoords.xy, LodLevel);
+}
+
 float3 GetBaseColor(PS_IN Input)
 {
   if (ShowChannelMode == 0)
   {
-    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb;
+    return SampleTexture(Input).rgb;
   }
   else if (ShowChannelMode == 1)
   {
-    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).r;
+    float v = SampleTexture(Input).r;
     return float3(v, v, v);
   }
   else if (ShowChannelMode == 2)
   {
-    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).g;
+    float v = SampleTexture(Input).g;
     return float3(v, v, v);
   }
   else if (ShowChannelMode == 3)
   {
-    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).b;
+    float v = SampleTexture(Input).b;
     return float3(v, v, v);
   }
   else if (ShowChannelMode == 4)
   {
-    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a;
+    float v = SampleTexture(Input).a;
     return float3(v, v, v);
   }
 
