@@ -94,6 +94,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, 1, ezRTTINoAllocator)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentConfigMsgToEngine, 1, ezRTTIDefaultAllocator<ezDocumentConfigMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    EZ_MEMBER_PROPERTY("Int", m_iValue),
+    EZ_MEMBER_PROPERTY("Float", m_fValue),
+    EZ_MEMBER_PROPERTY("String", m_sValue),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineViewMsg, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES

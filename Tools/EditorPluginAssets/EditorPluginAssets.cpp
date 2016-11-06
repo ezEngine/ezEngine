@@ -21,6 +21,7 @@
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -33,6 +34,8 @@ void OnLoadPlugin(bool bReloading)
   // Texture Asset
   {
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
+
+    ezTextureAssetActions::RegisterActions();
 
     // Menu Bar
     {
@@ -49,6 +52,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("TextureAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("TextureAssetToolBar", "");
       ezAssetActions::MapActions("TextureAssetToolBar", true);
+      ezTextureAssetActions::MapActions("TextureAssetToolBar", "");
     }
   }
 

@@ -3,27 +3,48 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <GuiFoundation/Action/Action.h>
+#include <GuiFoundation/Action/BaseActions.h>
 
-class QLabel;
-class QScrollArea;
-class ezQtImageWidget;
+class ezQtTextureViewWidget;
+class ezTextureAssetDocument;
 
-class ezQtTextureAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtTextureAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezQtTextureAssetDocumentWindow(ezDocument* pDocument);
-  ~ezQtTextureAssetDocumentWindow();
+  ezQtTextureAssetDocumentWindow(ezTextureAssetDocument* pDocument);
 
   virtual const char* GetWindowLayoutGroupName() const { return "TextureAsset"; }
 
-private slots:
-  
-
 private:
-  void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  virtual void InternalRedraw() override;
+  void SendRedrawMsg();
 
-  ezQtImageWidget* m_pImageWidget;
+  ezSceneViewConfig m_ViewConfig;
+  ezQtTextureViewWidget* m_pViewWidget;
+};
+
+class ezTextureChannelModeAction : public ezEnumerationMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureChannelModeAction, ezEnumerationMenuAction);
+public:
+
+  ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+  virtual ezInt64 GetValue() const override;
+  virtual void Execute(const ezVariant& value) override;
+};
+
+class ezTextureAssetActions
+{
+public:
+  static void RegisterActions();
+  static void UnregisterActions();
+
+  static void MapActions(const char* szMapping, const char* szPath);
+
+  static ezActionDescriptorHandle s_hTextureChannelMode;
 };

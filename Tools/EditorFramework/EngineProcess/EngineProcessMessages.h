@@ -112,6 +112,17 @@ public:
   ezUInt32 m_uiViewID;
 };
 
+/// \brief For very simple uses cases where a custom message would be too much
+class EZ_EDITORFRAMEWORK_DLL ezDocumentConfigMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentConfigMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezString m_sWhatToDo;
+  int m_iValue;
+  float m_fValue;
+  ezString m_sValue;
+};
 
 class EZ_EDITORFRAMEWORK_DLL ezDocumentOpenMsgToEngine : public ezEditorEngineDocumentMsg
 {

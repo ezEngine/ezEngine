@@ -1,0 +1,107 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+SHADING_MODE
+TWO_SIDED
+INSTANCING
+
+[MATERIALPARAMETER]
+
+int ShowChannelMode;
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+	INT1(ShowChannelMode);
+};
+
+#define USE_TEXCOORD0
+#define USE_SIMPLE_MATERIAL_MODEL
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+	INT1(ShowChannelMode);
+};
+
+#define USE_TEXCOORD0
+#define USE_SIMPLE_MATERIAL_MODEL
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+float3 GetBaseColor(PS_IN Input)
+{
+  if (ShowChannelMode == 0)
+  {
+    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb;
+  }
+  else if (ShowChannelMode == 1)
+  {
+    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).r;
+    return float3(v, v, v);
+  }
+  else if (ShowChannelMode == 2)
+  {
+    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).g;
+    return float3(v, v, v);
+  }
+  else if (ShowChannelMode == 3)
+  {
+    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).b;
+    return float3(v, v, v);
+  }
+  else if (ShowChannelMode == 4)
+  {
+    float v = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a;
+    return float3(v, v, v);
+  }
+
+  return float3(1, 1, 1);
+}
+
+float3 GetNormal(PS_IN Input)
+{
+  return float3(-1, 0, 0);
+}
+
+float GetMetallic(PS_IN Input)
+{
+  return 0;
+}
+
+float GetReflectance(PS_IN Input)
+{
+  return 0.5;
+}
+
+float GetRoughness(PS_IN Input)
+{
+  return 0.5;
+}
+
+float GetOpacity(PS_IN Input)
+{
+  return 0.0;
+}

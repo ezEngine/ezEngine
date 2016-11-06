@@ -27,7 +27,8 @@ ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
 ezDirectoryWatcher* ezQtMaterialAssetDocumentWindow::s_pNodeConfigWatcher = nullptr;
 
 
-ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
+ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
@@ -206,12 +207,10 @@ void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
 
   {
     ezSceneSettingsMsgToEngine msg;
-    msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
+    msg.m_fGizmoScale = 0;
     msg.m_bAddAmbientLight = true; // not implemented yet
     GetEditorEngineConnection()->SendMessage(&msg);
   }
-
-  //auto pHoveredView = GetHoveredViewWidget();
 
   for (auto pView : m_ViewWidgets)
   {

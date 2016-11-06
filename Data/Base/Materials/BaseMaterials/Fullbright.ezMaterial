@@ -1,19 +1,37 @@
 {
   "Shader" : "Shaders/Materials/DefaultMaterial.ezShader",
-  
-  "Permutations" : 
+
+  "Permutations" :
   {
-	"BLEND_MODE" : "OPAQUE",
-	"SHADING_MODE" : "FULLBRIGHT",
-	"TWO_SIDED" : "FALSE"
+    "BLEND_MODE" : "OPAQUE",
+    "SHADING_MODE" : "FULLBRIGHT",
+    "TWO_SIDED" : "FALSE"
   },
 
   "Constants" :
   {
+    "UseBaseTexture" : true,
+    "UseNormalAndRoughnessTexture" : false,
+    "UseMetallicTexture" : false,
+    "UseEmissiveTexture" : false,
+    "UseOcclusionTexture" : false,
+    "MaskThreshold" : 0.25,
+    "BaseColor" :
+    {
+      "$t" : "color",
+      "$v" : "(1, 1, 1, 0)"
+    },
+
+    "EmissiveColor" :
+    {
+      "$t" : "color",
+      "$v" : "(0, 0, 0, 0)"
+    }
   },
-  
+
   "Textures" :
   {
     "BaseTexture" : "Textures/Reference_D.dds"
-  }  
+  }
 }
+

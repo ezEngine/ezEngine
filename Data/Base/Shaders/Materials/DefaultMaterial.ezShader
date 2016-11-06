@@ -88,104 +88,104 @@ SamplerState OcclusionTexture_AutoSampler;
 float3 GetNormal(PS_IN Input)
 {
   [branch]
-	if (UseNormalAndRoughnessTexture)
+  if (UseNormalAndRoughnessTexture)
   {
-		float3 normalTS = NormalTexture.Sample(NormalTexture_AutoSampler, Input.TexCoords.xy).rgb * 2.0f - 1.0f;
-		return TangentToWorldSpace(normalTS, Input);
-	}
+    float3 normalTS = NormalTexture.Sample(NormalTexture_AutoSampler, Input.TexCoords.xy).rgb * 2.0f - 1.0f;
+    return TangentToWorldSpace(normalTS, Input);
+  }
   else
   {
-		return Input.Normal;
-	}
+    return Input.Normal;
+  }
 }
 
 float3 GetBaseColor(PS_IN Input)
 {
-	[branch]
-	if (UseBaseTexture)
+  [branch]
+  if (UseBaseTexture)
   {
-		return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
-	}
+    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
+  }
   else
   {
-		return BaseColor.rgb;
-	}
+    return BaseColor.rgb;
+  }
 }
 
 float GetMetallic(PS_IN Input)
 {
-	[branch]
-	if (UseMetallicTexture)
+  [branch]
+  if (UseMetallicTexture)
   {
-		return MetallicTexture.Sample(MetallicTexture_AutoSampler, Input.TexCoords.xy).r;
-	}
+    return MetallicTexture.Sample(MetallicTexture_AutoSampler, Input.TexCoords.xy).r;
+  }
   else
   {
-		return MetallicValue;
-	}
+    return MetallicValue;
+  }
 }
 
 float GetReflectance(PS_IN Input)
 {
-	return 0.5f;
+  return 0.5f;
 }
 
 float GetRoughness(PS_IN Input)
 {
-	[branch]
-	if (UseNormalAndRoughnessTexture)
+  [branch]
+  if (UseNormalAndRoughnessTexture)
   {
-		return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, Input.TexCoords.xy).r;
-	}
+    return RoughnessTexture.Sample(RoughnessTexture_AutoSampler, Input.TexCoords.xy).r;
+  }
   else
   {
-		return RoughnessValue;
-	}
+    return RoughnessValue;
+  }
 }
 
 float GetOpacity(PS_IN Input)
 {
   float opacity;
 
-	[branch]
-	if (UseBaseTexture)
+  [branch]
+  if (UseBaseTexture)
   {
-		opacity = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * BaseColor.a;
-	}
+    opacity = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * BaseColor.a;
+  }
   else
   {
-		opacity = BaseColor.a;
-	}
+    opacity = BaseColor.a;
+  }
 
-	#if BLEND_MODE == BLEND_MODE_MASKED
-		return opacity - MaskThreshold;
-	#else
-		return opacity;
-	#endif
+  #if BLEND_MODE == BLEND_MODE_MASKED
+    return opacity - MaskThreshold;
+  #else
+    return opacity;
+  #endif
 }
 
 float3 GetEmissiveColor(PS_IN Input)
 {
-	[branch]
-	if (UseEmissiveTexture)
+  [branch]
+  if (UseEmissiveTexture)
   {
-		return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, Input.TexCoords.xy).rgb * EmissiveColor.rgb;
-	}
+    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, Input.TexCoords.xy).rgb * EmissiveColor.rgb;
+  }
   else
   {
-		return EmissiveColor.rgb;
-	}
+    return EmissiveColor.rgb;
+  }
 }
 
 float GetOcclusion(PS_IN Input)
 {
-	[branch]
-	if (UseOcclusionTexture)
+  [branch]
+  if (UseOcclusionTexture)
   {
-		return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, Input.TexCoords.xy).r;
-	}
+    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, Input.TexCoords.xy).r;
+  }
   else
   {
-		return 1.0f;
-	}
+    return 1.0f;
+  }
 }

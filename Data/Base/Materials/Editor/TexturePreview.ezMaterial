@@ -1,0 +1,21 @@
+{
+  "Shader" : "Shaders/Editor/TexturePreview.ezShader",
+
+  "Permutations" :
+  {
+    "TWO_SIDED" : "TRUE",
+    "SHADING_MODE" : "FULLBRIGHT",
+     "BLEND_MODE" : "OPAQUE"
+  },
+
+  "Constants" :
+  {
+    "ShowChannelMode" : 0
+  },
+
+  "Textures" :
+  {
+    "BaseTexture" : "Textures/Reference_D.dds"
+  }
+}
+

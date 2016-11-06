@@ -18,7 +18,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
+EZ_ENUM_CONSTANTS(ezTextureChannelMode::RGB, ezTextureChannelMode::Red, ezTextureChannelMode::Green, ezTextureChannelMode::Blue, ezTextureChannelMode::Alpha)
+EZ_END_STATIC_REFLECTED_ENUM()
+
+ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
+  : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
 {
 }
 

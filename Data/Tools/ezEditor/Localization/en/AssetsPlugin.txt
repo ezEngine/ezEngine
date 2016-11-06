@@ -71,3 +71,9 @@ ezMaterialShaderMode::Custom;Visual Shader
 ezMaterialShaderMode::BaseMaterial;From Base Material
 Project.SceneImport;Import Scene
 VisualShader.CleanGraph;Clean Visual Shader Graph
+TextureAsset.ChannelMode;
+ezTextureChannelMode::RGB;Display Channel: RGB
+ezTextureChannelMode::Red;Display Channel: Red
+ezTextureChannelMode::Green;Display Channel: Green
+ezTextureChannelMode::Blue;Display Channel: Blue
+ezTextureChannelMode::Alpha;Display Channel: Alpha

@@ -48,7 +48,7 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureAssetDocument>())
       {
-        ezQtTextureAssetDocumentWindow* pDocWnd = new ezQtTextureAssetDocumentWindow(e.m_pDocument);
+        ezQtTextureAssetDocumentWindow* pDocWnd = new ezQtTextureAssetDocumentWindow(static_cast<ezTextureAssetDocument*>(e.m_pDocument));
       }
     }
     break;
