@@ -855,9 +855,11 @@ void ezAssetCurator::ProcessAllCoreAssets()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sCoreCollectionPath(ezApplicationConfig::GetSdkRootDirectory());
-    sCoreCollectionPath.AppendPath(dd.m_sSdkRootRelativePath, dd.m_sRootName);
-    sCoreCollectionPath.Append(".ezCollectionAsset");
+    sCoreCollectionPath.AppendPath(dd.m_sSdkRootRelativePath);
     sCoreCollectionPath.MakeCleanPath();
+    ezStringBuilder sName = sCoreCollectionPath.GetFileName();
+    sName.Append(".ezCollectionAsset");
+    sCoreCollectionPath.AppendPath(sName);
     QFile coreCollection(sCoreCollectionPath.GetData());
     if (coreCollection.exists())
     {
