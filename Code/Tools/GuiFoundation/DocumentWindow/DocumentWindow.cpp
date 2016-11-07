@@ -303,6 +303,8 @@ void ezQtDocumentWindow::SaveWindowLayout()
 
 void ezQtDocumentWindow::RestoreWindowLayout()
 {
+  QtScopedUpdatesDisabled _(this);
+
   ezStringBuilder sGroup;
   sGroup.Format("DocumentWnd_%s", GetWindowLayoutGroupName());
 
@@ -310,10 +312,9 @@ void ezQtDocumentWindow::RestoreWindowLayout()
   Settings.beginGroup(QString::fromUtf8(sGroup));
   {
     restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
-
     move(Settings.value("WindowPosition", pos()).toPoint());
     resize(Settings.value("WindowSize", size()).toSize());
-
+    qApp->processEvents();
     if (Settings.value("IsMaximized", isMaximized()).toBool())
       showMaximized();
 
