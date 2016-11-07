@@ -45,6 +45,8 @@ public:
   ezTextureResource();
 
   EZ_FORCE_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
+  EZ_FORCE_INLINE ezUInt32 GetWidth() const { return m_uiWidth; }
+  EZ_FORCE_INLINE ezUInt32 GetHeight() const { return m_uiHeight; }
 
   /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
   static bool s_bForceFullQualityAlways;
@@ -67,7 +69,11 @@ private:
   ezUInt8 m_uiLoadedTextures;
   ezGALTextureHandle m_hGALTexture[2];
   ezUInt32 m_uiMemoryGPU[2];
+
   ezGALResourceFormat::Enum m_Format;
+  ezUInt32 m_uiWidth;
+  ezUInt32 m_uiHeight;
+
   ezGALSamplerStateHandle m_hSamplerState;
   ezGALSamplerStateHandle m_hOldSamplerState;
 };

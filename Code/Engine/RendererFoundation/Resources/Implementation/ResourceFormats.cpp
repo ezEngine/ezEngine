@@ -2,17 +2,28 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
-EZ_BITFLAGS_CONSTANTS(ezGALResourceFormat::RGBAFloat, 
-  ezGALResourceFormat::RGBAHalf,
-  ezGALResourceFormat::RGB10A2UIntNormalized,
-  ezGALResourceFormat::RG11B10Float,
-  ezGALResourceFormat::RGBAUByteNormalizedsRGB, 
-  ezGALResourceFormat::D24S8
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAFloat, 
+    ezGALResourceFormat::RGBAHalf,
+    ezGALResourceFormat::RGB10A2UIntNormalized,
+    ezGALResourceFormat::RG11B10Float,
+    ezGALResourceFormat::RGBAUByteNormalized,
+    ezGALResourceFormat::RGBAUByteNormalizedsRGB, 
+    ezGALResourceFormat::D24S8
+  )
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC1, ezGALResourceFormat::BC1sRGB,
+    ezGALResourceFormat::BC3, ezGALResourceFormat::BC3sRGB,
+    ezGALResourceFormat::BC4UNormalized, ezGALResourceFormat::BC4Normalized,
+    ezGALResourceFormat::BC5UNormalized, ezGALResourceFormat::BC5Normalized
+  )
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC6UFloat, ezGALResourceFormat::BC6Float,
+    ezGALResourceFormat::BC7UNormalized, ezGALResourceFormat::BC7UNormalizedsRGB
   )
 EZ_END_STATIC_REFLECTED_ENUM();
 
 const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
 {
+  0, // Invalid
+
   128, // RGBAFloat, XYZWFloat
   128, // RGBAUInt
   128, // RGBAInt
@@ -99,6 +110,8 @@ const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_CO
 
 const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUNT] =
 {
+  0, // Invalid
+
   4, // RGBAFloat, XYZWFloat
   4, // RGBAUInt
   4, // RGBAInt

@@ -42,6 +42,14 @@ void CreatePreviewRect(ezGeometry& geom)
   geom.AddPolygon(idx, false);
 }
 
+ezTextureContext::ezTextureContext()
+  : m_TextureFormat(ezGALResourceFormat::Invalid)
+  , m_uiTextureWidth(0)
+  , m_uiTextureHeight(0)
+{
+
+}
+
 void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentConfigMsgToEngine>())
@@ -59,6 +67,13 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
+void ezTextureContext::GetTextureStats(ezGALResourceFormat::Enum& format, ezUInt32& uiWidth, ezUInt32& uiHeight)
+{
+  format = m_TextureFormat;
+  uiWidth = m_uiTextureWidth;
+  uiHeight = m_uiTextureHeight;
+}
+
 void ezTextureContext::OnInitialize()
 {
   const char* szMeshName = "DefaultTexturePreviewMesh";
@@ -67,6 +82,17 @@ void ezTextureContext::OnInitialize()
 
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
   m_hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialResource);
+
+  m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(sTextureGuid);
+  {
+    ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+
+    m_TextureFormat = pTexture->GetFormat();
+    m_uiTextureWidth = pTexture->GetWidth();
+    m_uiTextureHeight = pTexture->GetHeight();
+
+    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
+  }
 
   // Preview Mesh
   if (!hMesh.IsValid())
@@ -108,16 +134,13 @@ void ezTextureContext::OnInitialize()
     ezMaterialResourceDescriptor md;
     md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TexturePreview.ezMaterial");
     
-    ezTextureResourceHandle hTexture = ezResourceManager::LoadResource<ezTextureResource>(sTextureGuid);
-    ezResourceLock<ezTextureResource> pTexture(hTexture, ezResourceAcquireMode::NoFallback);
-
     auto& tb = md.m_TextureBindings.ExpandAndGetRef();
     tb.m_Name.Assign("BaseTexture");
-    tb.m_Value = hTexture;
+    tb.m_Value = m_hTexture;
 
     auto& param = md.m_Parameters.ExpandAndGetRef();
     param.m_Name.Assign("IsLinear");
-    param.m_Value = !ezGALResourceFormat::IsSrgb(pTexture->GetFormat());
+    param.m_Value = !ezGALResourceFormat::IsSrgb(m_TextureFormat);
 
     m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, md);
   }
@@ -142,6 +165,13 @@ void ezTextureContext::OnInitialize()
   }
 }
 
+void ezTextureContext::OnDeinitialize()
+{
+  ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+
+  pTexture->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
+}
+
 ezEngineProcessViewContext* ezTextureContext::CreateViewContext()
 {
   return EZ_DEFAULT_NEW(ezTextureViewContext, this);
@@ -150,5 +180,17 @@ ezEngineProcessViewContext* ezTextureContext::CreateViewContext()
 void ezTextureContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
   EZ_DEFAULT_DELETE(pContext);
+}
+
+void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
+{
+  if (e.m_EventType == ezResourceEventType::ResourceContentUpdated)
+  {
+    const ezTextureResource* pTexture = static_cast<const ezTextureResource*>(e.m_pResource);
+
+    m_TextureFormat = pTexture->GetFormat();
+    m_uiTextureWidth = pTexture->GetWidth();
+    m_uiTextureHeight = pTexture->GetHeight();
+  }
 }
 

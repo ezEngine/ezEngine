@@ -45,6 +45,9 @@ ezTextureResource::ezTextureResource() : ezResource<ezTextureResource, ezTexture
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
   m_uiMemoryGPU[1] = 0;
+  m_Format = ezGALResourceFormat::Invalid;
+  m_uiWidth = 0;
+  m_uiHeight = 0;
 }
 
 ezResourceLoadDesc ezTextureResource::UnloadData(Unload WhatToUnload)
@@ -211,45 +214,6 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
   return ezGALResourceFormat::Invalid;
 }
 
-static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
-{
-  /// \todo Finish (verify) this function
-
-  switch (format)
-  {
-  case ezImageFormat::BC1_TYPELESS:
-  case ezImageFormat::BC1_UNORM:
-  case ezImageFormat::BC1_UNORM_SRGB:
-    return 2;
-  case ezImageFormat::BC2_TYPELESS:
-  case ezImageFormat::BC2_UNORM:
-  case ezImageFormat::BC2_UNORM_SRGB:
-  case ezImageFormat::BC3_TYPELESS:
-  case ezImageFormat::BC3_UNORM:
-  case ezImageFormat::BC3_UNORM_SRGB:
-    return 4;
-  case ezImageFormat::BC4_TYPELESS:
-  case ezImageFormat::BC4_UNORM:
-  case ezImageFormat::BC4_SNORM:
-    return 2;
-    //case ezImageFormat::BC5_TYPELESS:
-    //case ezImageFormat::BC5_UNORM:
-    //case ezImageFormat::BC5_SNORM:
-    //case ezImageFormat::BC6H_TYPELESS:
-    //case ezImageFormat::BC6H_UF16:
-    //case ezImageFormat::BC6H_SF16:
-    //case ezImageFormat::BC7_TYPELESS:
-    //case ezImageFormat::BC7_UNORM:
-    //case ezImageFormat::BC7_UNORM_SRGB:
-    //  return 4;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    break;
-  }
-
-  return 1;
-}
-
 ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
 {
   if (Stream == nullptr)
@@ -283,11 +247,13 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
   m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
+  m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
+  m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
 
   ezGALTextureCreationDescription texDesc;
   texDesc.m_Format = m_Format;
-  texDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
-  texDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
+  texDesc.m_uiWidth = m_uiWidth;
+  texDesc.m_uiHeight = m_uiHeight;
   texDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
   texDesc.m_uiMipLevelCount = uiNumMipLevels;
   texDesc.m_uiArraySize = pImage->GetNumArrayIndices();
@@ -316,7 +282,7 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
 
         if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
         {
-          const ezUInt32 uiMemPitchFactor = GetBCnMemPitchFactor(pImage->GetImageFormat());
+          const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(m_Format) * 4 / 8;
 
           id.m_uiRowPitch = pImage->GetWidth(mip) * uiMemPitchFactor;
         }
@@ -377,6 +343,9 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   m_Format = descriptor.m_DescGAL.m_Format;
+  m_uiWidth = descriptor.m_DescGAL.m_uiWidth;
+  m_uiHeight = descriptor.m_DescGAL.m_uiHeight;
+
   m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
   EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 
