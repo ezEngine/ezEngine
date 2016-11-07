@@ -36,10 +36,17 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezMeshContext::ezMeshContext()
 {
+  m_pMeshObject = nullptr;
 }
 
 void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  {
+    QuerySelectionBBox(pMsg);
+    return;
+  }
+
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
@@ -51,27 +58,27 @@ void ezMeshContext::OnInitialize()
   ezMeshComponentManager* pMeshCompMan = pWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
 
   ezGameObjectDesc obj;
-  ezGameObject* pObj;
   ezMeshComponent* pMesh;
 
   // Preview Mesh
   {
     obj.m_sName.Assign("MeshPreview");
-    pWorld->CreateObject(obj, pObj);
+    pWorld->CreateObject(obj, m_pMeshObject);
 
     pMeshCompMan->CreateComponent(pMesh);
     ezString sMeshGuid = ezConversionUtils::ToString(GetDocumentGuid());
     ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
     pMesh->SetMesh(hMesh);
 
-    pObj->AttachComponent(pMesh);
+    m_pMeshObject->AttachComponent(pMesh);
   }
 
   // Lights
   {
     obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
 
+    ezGameObject* pObj;
     pWorld->CreateObject(obj, pObj);
 
     ezDirectionalLightComponent* pDirLight;
@@ -104,4 +111,35 @@ bool ezMeshContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThum
 
   ezMeshViewContext* pMeshViewContext = static_cast<ezMeshViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
+}
+
+
+void ezMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+{
+  if (m_pMeshObject == nullptr)
+    return;
+
+  ezBoundingBoxSphere bounds;
+  bounds.SetInvalid();
+
+  {
+    EZ_LOCK(m_pWorld->GetReadMarker());
+
+    m_pMeshObject->UpdateGlobalTransformAndBounds();
+    const auto& b = m_pMeshObject->GetGlobalBounds();
+
+    if (b.IsValid())
+      bounds.ExpandToInclude(b);
+  }
+
+  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+
+  ezQuerySelectionBBoxResultMsgToEditor res;
+  res.m_uiViewID = msg->m_uiViewID;
+  res.m_iPurpose = msg->m_iPurpose;
+  res.m_vCenter = bounds.m_vCenter;
+  res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
+  res.m_DocumentGuid = pMsg->m_DocumentGuid;
+
+  SendProcessMessage(&res);
 }

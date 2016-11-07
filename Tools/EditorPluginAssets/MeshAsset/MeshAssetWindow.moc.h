@@ -17,18 +17,17 @@ class ezQtMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 
 public:
   ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument);
-  ~ezQtMeshAssetDocumentWindow();
 
   ezMeshAssetDocument* GetMeshDocument();
   virtual const char* GetWindowLayoutGroupName() const { return "MeshAsset"; }
 
 protected:
   virtual void InternalRedraw() override;
+  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
 
 private:
-  void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void SendRedrawMsg();
+  void QueryObjectBBox();
 
   ezSceneViewConfig m_ViewConfig;
   ezQtMeshViewWidget* m_pViewWidget;

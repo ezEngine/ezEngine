@@ -27,6 +27,9 @@ protected:
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
+  void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+
+  ezGameObject* m_pMeshObject;
   ezMeshResourceHandle m_hMesh;
 };
 

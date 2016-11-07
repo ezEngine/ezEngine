@@ -288,24 +288,17 @@ ezEditorInut ezOrbitCameraContext::DoKeyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_F)
   {
-    if (!m_vOrbitPoint.IsEqual(m_Volume.GetCenter(), 0.1f))
-    {
-      const ezVec3 vDiff = m_Volume.GetCenter() - m_vOrbitPoint;
-      m_vOrbitPoint = m_Volume.GetCenter();
-      m_pCamera->MoveGlobally(vDiff);
+    const ezVec3 vDiff = m_Volume.GetCenter() - m_vOrbitPoint;
+    m_vOrbitPoint = m_Volume.GetCenter();
+    m_pCamera->MoveGlobally(vDiff);
 
-      return ezEditorInut::WasExclusivelyHandled;
-    }
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
   if (e->key() == Qt::Key_Space)
   {
-    if (m_vOrbitPoint.IsEqual(m_Volume.GetCenter(), 0.1f))
-    {
-      m_pCamera->LookAt(m_vDefaultCameraPosition, m_vOrbitPoint, ezVec3(0, 0, 1));
-
-      return ezEditorInut::WasExclusivelyHandled;
-    }
+    m_pCamera->LookAt(m_vDefaultCameraPosition, m_vOrbitPoint, ezVec3(0, 0, 1));
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
   return ezEditorInut::MayBeHandledByOthers;

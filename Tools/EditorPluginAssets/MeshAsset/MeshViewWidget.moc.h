@@ -13,6 +13,8 @@ public:
   ezQtMeshViewWidget(QWidget* pParent, ezQtMeshAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
   ~ezQtMeshViewWidget();
 
+  ezOrbitCameraContext* GetOrbitCamera() { return m_pOrbitCameraContext; }
+
 private:
   ezOrbitCameraContext* m_pOrbitCameraContext;
 };
