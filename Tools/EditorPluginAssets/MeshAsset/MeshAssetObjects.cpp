@@ -19,13 +19,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 1, ezRTTIDefaultAllocator
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Primitive Type", ezMeshPrimitive, m_PrimitiveType),
-    EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
-    EZ_ENUM_MEMBER_PROPERTY("Right Dir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveZ)),
+    EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
+    EZ_ENUM_MEMBER_PROPERTY("Right Dir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
+    EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
     EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.ply;*.pbrt")), // todo. need to get this list of extensions automatically.
-    EZ_MEMBER_PROPERTY("Mesh Name", m_sSubMeshName),
+    EZ_MEMBER_PROPERTY("Submesh Name", m_sSubMeshName),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Radius 2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
