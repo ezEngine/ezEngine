@@ -105,15 +105,19 @@ void ezTextureContext::OnInitialize()
   // Preview Material
   if (!m_hMaterial.IsValid())
   {
-    const ezMaterialResourceHandle hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TexturePreview.ezMaterial");
-
-    ezMaterialResourceDescriptor::TextureBinding tb;
-    tb.m_Name.Assign("BaseTexture");
-    tb.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTextureGuid);
-
     ezMaterialResourceDescriptor md;
-    md.m_hBaseMaterial = hBaseMaterial;
-    md.m_TextureBindings.PushBack(tb);
+    md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TexturePreview.ezMaterial");
+    
+    ezTextureResourceHandle hTexture = ezResourceManager::LoadResource<ezTextureResource>(sTextureGuid);
+    ezResourceLock<ezTextureResource> pTexture(hTexture, ezResourceAcquireMode::NoFallback);
+
+    auto& tb = md.m_TextureBindings.ExpandAndGetRef();
+    tb.m_Name.Assign("BaseTexture");
+    tb.m_Value = hTexture;
+
+    auto& param = md.m_Parameters.ExpandAndGetRef();
+    param.m_Name.Assign("IsLinear");
+    param.m_Value = !ezGALResourceFormat::IsSrgb(pTexture->GetFormat());
 
     m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, md);
   }

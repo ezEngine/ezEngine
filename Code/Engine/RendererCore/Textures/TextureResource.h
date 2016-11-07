@@ -44,6 +44,8 @@ class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResourc
 public:
   ezTextureResource();
 
+  EZ_FORCE_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
+
   /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
   static bool s_bForceFullQualityAlways;
 
@@ -65,6 +67,7 @@ private:
   ezUInt8 m_uiLoadedTextures;
   ezGALTextureHandle m_hGALTexture[2];
   ezUInt32 m_uiMemoryGPU[2];
+  ezGALResourceFormat::Enum m_Format;
   ezGALSamplerStateHandle m_hSamplerState;
   ezGALSamplerStateHandle m_hOldSamplerState;
 };

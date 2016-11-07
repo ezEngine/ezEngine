@@ -282,8 +282,10 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
+  m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
+
   ezGALTextureCreationDescription texDesc;
-  texDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
+  texDesc.m_Format = m_Format;
   texDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
   texDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
   texDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
@@ -374,6 +376,7 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  m_Format = descriptor.m_DescGAL.m_Format;
   m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
   EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 

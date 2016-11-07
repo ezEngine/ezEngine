@@ -116,6 +116,8 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
   /// \brief Returns whether the given resource format is a depth format
   static bool IsDepthFormat(ezGALResourceFormat::Enum format);
 
+  static bool IsSrgb(ezGALResourceFormat::Enum format);
+
 private:
   
   static const ezUInt8 s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT];

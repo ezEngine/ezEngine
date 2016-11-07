@@ -17,6 +17,14 @@ EZ_FORCE_INLINE bool ezGALResourceFormat::IsDepthFormat(ezGALResourceFormat::Enu
   return format == DFloat || format == D24S8;
 }
 
+//static 
+EZ_FORCE_INLINE bool ezGALResourceFormat::IsSrgb(ezGALResourceFormat::Enum format)
+{
+  return format == BGRAUByteNormalizedsRGB || format == RGBAUByteNormalizedsRGB ||
+    format == BC1sRGB || format == BC2sRGB || format == BC3sRGB ||
+    format == BC7UNormalizedsRGB;
+}
+
 
 template<typename NativeFormatType, NativeFormatType InvalidFormat> 
 ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::ezGALFormatLookupEntry()

@@ -31,6 +31,7 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
 	INT1(ShowChannelMode);
   FLOAT1(LodLevel);
+  BOOL(IsLinear);
 };
 
 #define USE_WORLDPOS
@@ -71,7 +72,12 @@ float4 main(PS_IN Input) : SV_Target
   }
   else if (ShowChannelMode == 4)
   {
-    color = SampleTexture(Input).a;
+    color = SrgbToLinear(SampleTexture(Input).a); // alpha is always linear
+  }
+  
+  if (IsLinear && ShowChannelMode < 4)
+  {
+    color = SrgbToLinear(color);
   }
 
   return float4(color, 1);
