@@ -395,7 +395,7 @@ void ezTextureResourceDescriptor::ConfigureSampler(ezTextureFilterSetting::Enum 
   m_SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
   m_SamplerDesc.m_uiMaxAnisotropy = 1;
 
-  switch (filter)
+  switch (thisFilter)
   {
   case ezTextureFilterSetting::FixedNearest:
     m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
@@ -408,15 +408,23 @@ void ezTextureResourceDescriptor::ConfigureSampler(ezTextureFilterSetting::Enum 
   case ezTextureFilterSetting::FixedTrilinear:
     break;
   case ezTextureFilterSetting::FixedAnisotropic2x:
+    m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+    m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
     m_SamplerDesc.m_uiMaxAnisotropy = 2;
     break;
   case ezTextureFilterSetting::FixedAnisotropic4x:
+    m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+    m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
     m_SamplerDesc.m_uiMaxAnisotropy = 4;
     break;
   case ezTextureFilterSetting::FixedAnisotropic8x:
+    m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+    m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
     m_SamplerDesc.m_uiMaxAnisotropy = 8;
     break;
   case ezTextureFilterSetting::FixedAnisotropic16x:
+    m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+    m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
     m_SamplerDesc.m_uiMaxAnisotropy = 16;
     break;
   }
