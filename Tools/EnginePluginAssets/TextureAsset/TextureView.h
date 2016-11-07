@@ -12,6 +12,7 @@ public:
 
 protected:
   virtual ezView* CreateView() override;
+  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
 
   ezTextureContext* m_pTextureContext;
 };

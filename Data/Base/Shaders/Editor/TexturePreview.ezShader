@@ -3,32 +3,19 @@ ALL
 
 [PERMUTATIONS]
 
-BLEND_MODE
-RENDER_PASS
-SHADING_MODE
-TWO_SIDED
-INSTANCING
-
 [MATERIALPARAMETER]
 
 int ShowChannelMode;
 
 [RENDERSTATE]
 
-#include <Shaders/Materials/MaterialState.h>
+CullMode = CullMode_None
 
 [VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
 
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
-	INT1(ShowChannelMode);
-  FLOAT1(LodLevel);
-};
-
 #define USE_TEXCOORD0
-#define USE_SIMPLE_MATERIAL_MODEL
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -46,9 +33,10 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   FLOAT1(LodLevel);
 };
 
+#define USE_WORLDPOS
 #define USE_TEXCOORD0
-#define USE_SIMPLE_MATERIAL_MODEL
-#include <Shaders/Materials/MaterialPixelShader.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
@@ -61,57 +49,30 @@ float4 SampleTexture(PS_IN Input)
   return BaseTexture.SampleLevel(BaseTexture_AutoSampler, Input.TexCoords.xy, LodLevel);
 }
 
-float3 GetBaseColor(PS_IN Input)
+float4 main(PS_IN Input) : SV_Target
 {
+  float3 color = float3(1, 1, 1);
+
   if (ShowChannelMode == 0)
   {
-    return SampleTexture(Input).rgb;
+    color = SampleTexture(Input).rgb;
   }
   else if (ShowChannelMode == 1)
   {
-    float v = SampleTexture(Input).r;
-    return float3(v, v, v);
+    color = SampleTexture(Input).r;
   }
   else if (ShowChannelMode == 2)
   {
-    float v = SampleTexture(Input).g;
-    return float3(v, v, v);
+    color = SampleTexture(Input).g;
   }
   else if (ShowChannelMode == 3)
   {
-    float v = SampleTexture(Input).b;
-    return float3(v, v, v);
+    color = SampleTexture(Input).b;
   }
   else if (ShowChannelMode == 4)
   {
-    float v = SampleTexture(Input).a;
-    return float3(v, v, v);
+    color = SampleTexture(Input).a;
   }
 
-  return float3(1, 1, 1);
-}
-
-float3 GetNormal(PS_IN Input)
-{
-  return float3(-1, 0, 0);
-}
-
-float GetMetallic(PS_IN Input)
-{
-  return 0;
-}
-
-float GetReflectance(PS_IN Input)
-{
-  return 0.5;
-}
-
-float GetRoughness(PS_IN Input)
-{
-  return 0.5;
-}
-
-float GetOpacity(PS_IN Input)
-{
-  return 0.0;
+  return float4(color, 1);
 }
