@@ -13,8 +13,15 @@ public:
 
   void SetCamera(ezCamera* pCamera);
   ezCamera* GetCamera() const;
-  void SetOrbitPoint(const ezVec3& vPos);
-  const ezVec3 GetOrbitPoint() const;
+
+  /// \brief Defines the box in which the user may move the camera around
+  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition);
+
+  /// \brief The center point around which the camera can be moved and rotated.
+  ezVec3 GetVolumeCenter() const { return m_Volume.GetCenter(); }
+
+  /// \brief The half-size of the volume in which the camera may move around
+  ezVec3 GetVolumeHalfSize() const { return m_Volume.GetHalfExtents(); }
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
@@ -23,8 +30,11 @@ protected:
   virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
   virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
   virtual ezEditorInut DoWheelEvent(QWheelEvent* e) override;
+  virtual ezEditorInut DoKeyPressEvent(QKeyEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
+
+
 
 private:
   virtual void UpdateContext() override {};
@@ -34,10 +44,20 @@ private:
 
   ezVec2I32 m_LastMousePos;
 
-  bool m_bOrbitCamera;
+  enum class Mode
+  {
+    Off,
+    Orbit,
+    UpDown,
+    MovePlane,
+    Pan,
+  };
 
+  Mode m_Mode;
   ezCamera* m_pCamera;
+
+  ezVec3 m_vDefaultCameraPosition;
   ezVec3 m_vOrbitPoint;
 
-  bool m_bDidMoveMouse[3]; // Left Click, Right Click, Middle Click
+  ezBoundingBox m_Volume;
 };

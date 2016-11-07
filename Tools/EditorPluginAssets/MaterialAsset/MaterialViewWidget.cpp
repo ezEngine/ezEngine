@@ -13,6 +13,7 @@ ezQtMaterialViewWidget::ezQtMaterialViewWidget(QWidget* pParent, ezQtMaterialAss
 
   m_pOrbitCameraContext = EZ_DEFAULT_NEW(ezOrbitCameraContext, pOwnerWindow, this);
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
+  m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0), ezVec3(0.0f), ezVec3(-2, 0, 0));
 
   m_InputContexts.PushBack(m_pOrbitCameraContext);
 }

@@ -13,6 +13,7 @@ ezQtTextureViewWidget::ezQtTextureViewWidget(QWidget* pParent, ezQtTextureAssetD
 
   m_pOrbitCameraContext = EZ_DEFAULT_NEW(ezOrbitCameraContext, pOwnerWindow, this);
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
+  m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
 
   m_InputContexts.PushBack(m_pOrbitCameraContext);
 }
