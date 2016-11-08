@@ -5,10 +5,9 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 {
   printf("%s(%u): Expression '%s' failed: %s\n", szSourceFile, uiLine, szExpression, szAssertMsg);
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (IsDebuggerPresent())
     return true;
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
   // make sure the cursor is definitely shown, since the user must be able to click buttons
   ezInt32 iHideCursor = 1;
