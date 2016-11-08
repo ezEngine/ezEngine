@@ -9,6 +9,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 {
   BeginFrame();
 
+  ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
+
   bool bFinish = true;
 
   const ezInt32 iNumFrames = 10;
@@ -107,6 +109,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 {
   BeginFrame();
 
+  ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
+
   bool bFinish = true;
 
   const ezInt32 iNumFrames = 1;
@@ -136,6 +140,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 {
   BeginFrame();
+
+  ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
   bool bFinish = true;
 

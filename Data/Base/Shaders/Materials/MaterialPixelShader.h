@@ -48,7 +48,7 @@
 	#elif RENDER_PASS == RENDER_PASS_EDITOR
 		if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
 		{
-			return float4(litColor, 1);
+			return float4(SrgbToLinear(litColor * Exposure), 1);
 		}
 		else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
 		{
