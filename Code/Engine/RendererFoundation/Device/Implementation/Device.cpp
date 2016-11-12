@@ -1,6 +1,7 @@
 
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/State/State.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -943,8 +944,17 @@ void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain)
 
 ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain)
 {
-  EZ_REPORT_FAILURE("Not implemented!");
-  return ezGALTextureHandle();
+  ezGALSwapChain* pSwapChain = nullptr;
+
+  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
+  {
+    return pSwapChain->GetBackBufferTexture();
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("Swap chain handle invalid");
+    return ezGALTextureHandle();
+  }
 }
 
 
