@@ -1,0 +1,56 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord : TEXCOORD0;
+};
+
+float Gradient(float uv, float frequency, float speed)
+{
+  return 0.5 + 0.5 * sin(frequency * uv + WorldTime * speed);
+}
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float4 outColor;
+  
+  // Some psychedelic weirdness to get an interesting histogram.
+
+  float crot = cos(WorldTime * 0.1);
+  float srot = sin(WorldTime * 0.3);
+  float2 uv = float2(dot(Input.TexCoord, float2(crot, -srot)), dot(Input.TexCoord, float2(srot, crot)));
+
+  outColor.r = Gradient(uv.x, 1.0f, 0.1f);
+  outColor.g = Gradient(uv.y, cos(WorldTime*0.05f), 1.0f);
+  outColor.b = Gradient(uv.x + uv.y, 10.0f, 0.5f);
+
+  outColor.r += Gradient(uv.x, 10.0f * crot, 0.1f);
+  outColor.g += Gradient(uv.y, 10.0f, 0.05f);
+  outColor.b += Gradient(uv.x, 10.0f * srot, 0.5f);
+
+  outColor.rgb *= 0.6f;
+
+  outColor.a = 1.0f;
+
+  return outColor;
+}
+
+#endif

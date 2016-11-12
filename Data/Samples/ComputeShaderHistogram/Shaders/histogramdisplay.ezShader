@@ -1,0 +1,92 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+[MATERIALPARAMETER]
+Texture2D HistogramTexture;
+
+[RENDERSTATE]
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#ifdef PLATFORM_DX11
+
+struct VS_IN
+{
+  float3 Position : POSITION;
+  float2 TexCoord : TEXCOORD0;
+};
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float2 TexCoord : TEXCOORD0;
+};
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.Position = float4(Input.Position, 1.0f);
+  RetVal.TexCoord = Input.TexCoord;
+
+  return RetVal;
+}
+
+#endif
+
+[PIXELSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#define NUM_BINS 256
+
+Texture2D<uint> HistogramTexture;
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord : TEXCOORD0;
+};
+
+float3 GetBarHeight(int barIndex)
+{
+  int3 histogramValues;
+  histogramValues.r = HistogramTexture.Load(int3(barIndex, 0, 0));
+  histogramValues.g = HistogramTexture.Load(int3(barIndex, 1, 0));
+  histogramValues.b = HistogramTexture.Load(int3(barIndex, 2, 0)); 
+  return float3(histogramValues * 0.00003f); // Need a max function on all histogram buckets to get normalization factor.
+}
+
+float4 main(PS_IN Input) : SV_Target
+{
+  // Leave some border in all 4 dirs.
+  const float borderThickness = 0.01f;
+  float aspectRatio = Viewport.z / Viewport.w; 
+  float2 border = float2(borderThickness, borderThickness * aspectRatio);
+  float2 usableArea = float2(1.0f, 1.0f) - border * 2.0f;
+
+  // Compute which bar we are on.
+  float2 posInUsableArea = (Input.TexCoord - border) / usableArea;
+  if(posInUsableArea.x < 0.0f || posInUsableArea.x > 1.0f || 
+     posInUsableArea.y < 0.0f || posInUsableArea.y > 1.0f)
+  {
+    return float4(0.0f, 0.0f, 0.0f, 1.0f);
+  }
+
+  float4 BarColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+  int barIndex = (int)(posInUsableArea.x * NUM_BINS);
+  float3 barHeight = GetBarHeight(barIndex);
+
+  for(int i=0; i<3; ++i)
+  {
+    if(barHeight[i] > posInUsableArea.y)
+      BarColor[i] = 1.0f;
+  }
+
+  return BarColor;
+}

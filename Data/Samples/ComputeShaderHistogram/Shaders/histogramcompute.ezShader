@@ -1,0 +1,75 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+[MATERIALPARAMETER]
+RWTexture2D HistogramOutput;
+Texture2D ScreenTexture;
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+RWTexture2D<uint> HistogramOutput;
+Texture2D<float3> ScreenTexture;
+SamplerState PointSampler;
+
+// Turns out the "BRUTEFORCE" method is MUCH faster then my optimization attempt.
+#define BRUTEFORCE
+#define NUM_BINS 256
+#define NUM_THREADS 32
+
+groupshared uint GroupHistogram[3 * NUM_BINS];
+
+[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+void main(uint3 PixCoord : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
+{
+  float2 pixCoordF = PixCoord.xy / Viewport.zw;
+  float3 screenColor = ScreenTexture.SampleLevel(PointSampler, pixCoordF, 0.0f);
+  uint3 screenColorDiscrete = uint3(screenColor * (NUM_BINS-1) + 0.5f);
+
+  bool isOutsideOfScreen = PixCoord.x >= uint(Viewport.z) || PixCoord.y >= uint(Viewport.w);
+
+#ifdef BRUTEFORCE
+
+  // Kill threads that are outside of the screen.
+  if (isOutsideOfScreen)
+    return;
+
+  int previousValue;
+  [unroll] for(int i=0; i<3; ++i)
+    InterlockedAdd(HistogramOutput[int2(screenColorDiscrete[i], i)], 1, previousValue);
+
+#else
+
+  // A thread can have "ownership" over a histogram cell.
+  bool hasHistOwnership = (GroupIndex < NUM_BINS * 3);
+
+  // Clear group shared memory.
+  if(hasHistOwnership)
+    GroupHistogram[GroupIndex] = 0;
+  GroupMemoryBarrierWithGroupSync();
+
+  // Write values.
+  int previousValue;
+  if (!isOutsideOfScreen)
+  {
+    [unroll] for(int i=0; i<3; ++i)
+      InterlockedAdd(GroupHistogram[i * NUM_BINS + screenColorDiscrete[i]], 1, previousValue);
+  }
+  GroupMemoryBarrierWithGroupSync();
+
+  // Now only write those values to global mem that need writing.
+  [branch] if(hasHistOwnership)
+  {
+    uint value = GroupHistogram[GroupIndex];
+    [branch] if(value > 0)
+    {
+      uint2 histCoord = uint2(GroupIndex % NUM_BINS, GroupIndex / NUM_BINS);
+      InterlockedAdd(HistogramOutput[histCoord], value, previousValue);
+    }
+  }
+
+#endif
+}
