@@ -166,6 +166,13 @@ namespace ezConversionUtils
     {
       const char c = *szString;
 
+      // allow underscores in floats for improved readability
+      if (c == '_')
+      {
+        ++szString;
+        continue;
+      }
+
       if (Part == Integer)
       {
         if (c == '.')
@@ -193,6 +200,11 @@ namespace ezConversionUtils
             bExponentIsPositive = false;
             ++szString;
           }
+          else if (*szString == '+')
+          {
+            bExponentIsPositive = true;
+            ++szString;
+          }
 
           continue;
         }
@@ -216,6 +228,11 @@ namespace ezConversionUtils
           if (*szString == '-')
           {
             bExponentIsPositive = false;
+            ++szString;
+          }
+          else if (*szString == '+')
+          {
+            bExponentIsPositive = true;
             ++szString;
           }
 

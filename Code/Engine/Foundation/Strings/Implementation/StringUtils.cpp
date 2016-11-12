@@ -827,7 +827,8 @@ void ezStringUtils::Trim(const char*& pString, const char*& pStringEnd, const ch
 
 bool ezStringUtils::IsWhiteSpace(ezUInt32 c)
 {
-  return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v');
+  // ASCII range of useless characters (32 is actually SPACE)
+  return (c >= 1 && c <= 32);
 }
 
 bool ezStringUtils::IsWordDelimiter_English(ezUInt32 uiChar)
