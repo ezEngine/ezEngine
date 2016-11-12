@@ -44,6 +44,7 @@ struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 struct ID3D11Buffer;
 struct ID3D11ShaderResourceView;
+struct ID3D11UnorderedAccessView;
 struct ID3D11SamplerState;
 
 /// \brief The DX11 implementation of the graphics context.
@@ -65,6 +66,10 @@ protected:
   // Draw functions
 
   virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
+
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) override;
+
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) override;
 
   virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
 
@@ -111,7 +116,7 @@ protected:
 
   virtual void SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRenderTargetView*> pRenderTargetViews, const ezGALRenderTargetView* pDepthStencilView) override;
 
-  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
+  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
 
   virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) override;
 
@@ -186,12 +191,15 @@ protected:
   ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
 
   ID3D11Buffer* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
-  ezGALDX11::ModifiedRange m_BoundConstantBuffersRange;
+  ezGALDX11::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
 
   ezUInt32 m_uiBoundRenderTargetCount;
 
   ID3D11ShaderResourceView* m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
   ezGALDX11::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
+
+  ID3D11UnorderedAccessView* m_pBoundUnoderedAccessViews[EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezGALDX11::ModifiedRange m_pBoundUnoderedAccessViewsRange;
 
   ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
   ezGALDX11::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];

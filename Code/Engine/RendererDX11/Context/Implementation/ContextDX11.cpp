@@ -7,6 +7,7 @@
 #include <RendererDX11/Resources/FenceDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
+#include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
@@ -46,7 +47,6 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
   {
     m_pBoundConstantBuffers[i] = nullptr;
   }
-  m_BoundConstantBuffersRange.Reset();
 
   for (ezUInt32 s = 0; s < ezGALShaderStage::ENUM_COUNT; s++)
   {
@@ -58,9 +58,16 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
 
     m_BoundShaderResourceViewsRange[s].Reset();
     m_BoundSamplerStatesRange[s].Reset();
+    m_BoundConstantBuffersRange[s].Reset();
 
     m_pBoundShaders[s] = nullptr;
   }
+
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; i++)
+  {
+    m_pBoundUnoderedAccessViews[i] = nullptr;
+  }
+  m_pBoundUnoderedAccessViewsRange.Reset();
 }
 
 ezGALContextDX11::~ezGALContextDX11()
@@ -89,6 +96,18 @@ void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRende
 
     m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, uiClearFlags, fDepthClear, uiStencilClear);
   }
+}
+
+void ezGALContextDX11::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues)
+{
+  const ezGALUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  m_pDXContext->ClearUnorderedAccessViewFloat(pUnorderedAccessViewDX11->GetDXResourceView(), &clearValues.x);
+}
+
+void ezGALContextDX11::ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues)
+{
+  const ezGALUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  m_pDXContext->ClearUnorderedAccessViewUint(pUnorderedAccessViewDX11->GetDXResourceView(), &clearValues.x);
 }
 
 void ezGALContextDX11::DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
@@ -177,6 +196,33 @@ static void SetShaderResources(ezGALShaderStage::Enum stage, ID3D11DeviceContext
   }
 }
 
+static void SetConstantBuffers(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots, ID3D11Buffer** pConstantBuffers)
+{
+  switch (stage)
+  {
+  case ezGALShaderStage::VertexShader:
+    pContext->VSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
+    break;
+  case ezGALShaderStage::HullShader:
+    pContext->HSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
+    break;
+  case ezGALShaderStage::DomainShader:
+    pContext->DSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
+    break;
+  case ezGALShaderStage::GeometryShader:
+    pContext->GSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
+    break;
+  case ezGALShaderStage::PixelShader:
+    pContext->PSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
+    break;
+  case ezGALShaderStage::ComputeShader:
+    pContext->CSSetConstantBuffers(uiStartSlot, uiNumSlots, pConstantBuffers);
+    break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+}
+
 static void SetSamplers(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots, ID3D11SamplerState** pSamplerStates)
 {
   switch (stage)
@@ -217,37 +263,32 @@ void ezGALContextDX11::FlushDeferredStateChanges()
     m_BoundVertexBuffersRange.Reset();
   }
 
-  if (m_BoundConstantBuffersRange.IsValid())
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    const ezUInt32 uiStartSlot = m_BoundConstantBuffersRange.m_uiMin;
-    const ezUInt32 uiNumSlots = m_BoundConstantBuffersRange.GetCount();
+    if (m_pBoundShaders[stage] != nullptr && m_BoundConstantBuffersRange[stage].IsValid())
+    {
+      const ezUInt32 uiStartSlot = m_BoundConstantBuffersRange[stage].m_uiMin;
+      const ezUInt32 uiNumSlots = m_BoundConstantBuffersRange[stage].GetCount();
 
-    if (m_pBoundShaders[ezGALShaderStage::VertexShader] != nullptr)
-      m_pDXContext->VSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+      SetConstantBuffers((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
 
-    if (m_pBoundShaders[ezGALShaderStage::HullShader] != nullptr)
-      m_pDXContext->HSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+      m_BoundConstantBuffersRange[stage].Reset();
+    }
+  }
 
-    if (m_pBoundShaders[ezGALShaderStage::DomainShader] != nullptr)
-      m_pDXContext->DSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+  // Do UAV bindings before SRV since UAV are outputs which need to be unbound before they are potentially rebound as SRV again.
+  if (m_pBoundUnoderedAccessViewsRange.IsValid())
+  {
+    const ezUInt32 uiStartSlot = m_pBoundUnoderedAccessViewsRange.m_uiMin;
+    const ezUInt32 uiNumSlots = m_pBoundUnoderedAccessViewsRange.GetCount();
+    m_pDXContext->CSSetUnorderedAccessViews(uiStartSlot, uiNumSlots, m_pBoundUnoderedAccessViews + uiStartSlot, nullptr); // Todo: Count reset.
 
-    if (m_pBoundShaders[ezGALShaderStage::GeometryShader] != nullptr)
-      m_pDXContext->GSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
-    
-    if (m_pBoundShaders[ezGALShaderStage::PixelShader] != nullptr)
-      m_pDXContext->PSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
-
-    if (m_pBoundShaders[ezGALShaderStage::ComputeShader] != nullptr)
-      m_pDXContext->CSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);    
-
-    m_BoundConstantBuffersRange.Reset();
+    m_pBoundUnoderedAccessViewsRange.Reset();
   }
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    if (m_pBoundShaders[stage] == nullptr)
-      continue;
-
+    // Need to do bindings even on inactive shader stages since we might miss unbindings otherwise!
     if (m_BoundShaderResourceViewsRange[stage].IsValid())
     {
       const ezUInt32 uiStartSlot = m_BoundShaderResourceViewsRange[stage].m_uiMin;
@@ -257,6 +298,10 @@ void ezGALContextDX11::FlushDeferredStateChanges()
 
       m_BoundShaderResourceViewsRange[stage].Reset();
     }
+
+    // Don't need to unset sampler stages for unbound shader stages.
+    if (m_pBoundShaders[stage] == nullptr)
+      continue;
 
     if (m_BoundSamplerStatesRange[stage].IsValid())
     {
@@ -301,7 +346,7 @@ void ezGALContextDX11::SetShaderPlatform(const ezGALShader* pShader)
   if (pShader != nullptr)
   {
     const ezGALShaderDX11* pDXShader = static_cast<const ezGALShaderDX11*>(pShader);
-    
+
     pVS = pDXShader->GetDXVertexShader();
     pHS = pDXShader->GetDXHullShader();
     pDS = pDXShader->GetDXDomainShader();
@@ -309,7 +354,7 @@ void ezGALContextDX11::SetShaderPlatform(const ezGALShader* pShader)
     pPS = pDXShader->GetDXPixelShader();
     pCS = pDXShader->GetDXComputeShader();
   }
-  
+
   if (pVS != m_pBoundShaders[ezGALShaderStage::VertexShader])
   {
     m_pDXContext->VSSetShader(pVS, nullptr, 0);
@@ -391,7 +436,10 @@ void ezGALContextDX11::SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuf
 {
   /// \todo Check if the device supports the slot index?
   m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
-  m_BoundConstantBuffersRange.SetToIncludeValue(uiSlot);
+
+  // The GAL doesn't care about stages for constant buffer, but we need to handle this internaly.
+  for(ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    m_BoundConstantBuffersRange[stage].SetToIncludeValue(uiSlot);
 }
 
 void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState)
@@ -429,7 +477,7 @@ void ezGALContextDX11::SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRender
     if (pDepthStencilView != nullptr )
     {
       m_pBoundDepthStencilTarget = static_cast<const ezGALRenderTargetViewDX11*>(pDepthStencilView)->GetDepthStencilView();
-    }    
+    }
 
     // Bind rendertargets, bind max(new rt count, old rt count) to overwrite bound rts if new count < old count
     m_pDXContext->OMSetRenderTargets(ezMath::Max(pRenderTargetViews.GetCount(), m_uiBoundRenderTargetCount), m_pBoundRenderTargets, m_pBoundDepthStencilTarget);
@@ -444,9 +492,10 @@ void ezGALContextDX11::SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRender
   }
 }
 
-void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALResourceView* pResourceView)
+void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  m_pBoundUnoderedAccessViews[uiSlot] = pUnorderedAccessView != nullptr ? static_cast<const ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
+  m_pBoundUnoderedAccessViewsRange.SetToIncludeValue(uiSlot);
 }
 
 void ezGALContextDX11::SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)

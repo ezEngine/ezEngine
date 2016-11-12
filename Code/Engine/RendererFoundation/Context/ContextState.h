@@ -30,6 +30,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
   ezGALResourceViewHandle m_hResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
   const ezGALResourceBase* m_pResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
 
+  ezGALUnorderedAccessViewHandle m_hUnorderedAccessViews[EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  const ezGALResourceBase* m_pResourcesForUnorderedAccessViews[EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+
   ezGALSamplerStateHandle m_hSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
 
   ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];

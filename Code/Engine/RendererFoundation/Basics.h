@@ -37,6 +37,7 @@ struct ezGALQueryCreationDescription;
 struct ezGALSamplerStateCreationDescription;
 struct ezGALResourceViewCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
+struct ezGALUnorderedAccessViewCreationDescription;
 
 class ezGALSwapChain;
 class ezGALShader;
@@ -53,6 +54,7 @@ class ezGALQuery;
 class ezGALSamplerState;
 class ezGALResourceView;
 class ezGALRenderTargetView;
+class ezGALUnorderedAccessView;
 class ezGALDevice;
 class ezGALContext;
 
@@ -281,7 +283,7 @@ struct ezGALSystemMemoryDescription
 };
 
 /// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
-template<typename CreationDescription> 
+template<typename CreationDescription>
 class ezGALObject : public ezRefCounted
 {
 public:
@@ -347,6 +349,15 @@ class ezGALBufferHandle
 class ezGALResourceViewHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALResourceViewHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+  friend struct ezGALContextState;
+  friend class ezGALContext;
+};
+
+class ezGALUnorderedAccessViewHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALUnorderedAccessViewHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
   friend struct ezGALContextState;

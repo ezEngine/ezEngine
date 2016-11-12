@@ -7,6 +7,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
+#include <RendererFoundation/Resources/UnorderedAccesView.h>
 
 ezGALContext::ezGALContext(ezGALDevice* pDevice)
   : m_pDevice(pDevice),
@@ -30,6 +31,34 @@ void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClear
   AssertRenderingThread();
 
   ClearPlatform(ClearColor, uiRenderTargetClearMask, bClearDepth, bClearStencil, fDepthClear, uiStencilClear);
+}
+
+void ezGALContext::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues)
+{
+  AssertRenderingThread();
+
+  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
+  if (pUnorderedAccessView == nullptr)
+  {
+    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
+    return;
+  }
+
+  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
+}
+
+void ezGALContext::ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues)
+{
+  AssertRenderingThread();
+
+  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
+  if (pUnorderedAccessView == nullptr)
+  {
+    EZ_REPORT_FAILURE("ClearUnorderedAccessView failed, unordered access view handle invalid.");
+    return;
+  }
+
+  ClearUnorderedAccessViewPlatform(pUnorderedAccessView, clearValues);
 }
 
 void ezGALContext::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
@@ -136,6 +165,9 @@ void ezGALContext::EndStreamOut()
 void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
 {
   AssertRenderingThread();
+
+  EZ_ASSERT_DEBUG(uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
+
   /// \todo Assert for compute
 
   DispatchPlatform(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
@@ -266,7 +298,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
 
   const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
   EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer, "Wrong buffer type");
-  
+
   SetConstantBufferPlatform(uiSlot, pBuffer);
 
   m_State.m_hConstantBuffers[uiSlot] = hBuffer;
@@ -325,7 +357,7 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTarge
     CountRedundantStateChange();
     return;
   }
-  
+
   const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = { nullptr };
   const ezGALRenderTargetView* pDepthStencilView = nullptr;
 
@@ -341,6 +373,7 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTarge
       if (pRenderTargetView != nullptr)
       {
         bFlushNeeded |= UnsetResourceViews(pRenderTargetView->GetTexture());
+        bFlushNeeded |= UnsetUnorderedAccessViews(pRenderTargetView->GetTexture());
       }
 
       pRenderTargetViews[uiIndex] = pRenderTargetView;
@@ -353,6 +386,7 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTarge
   if (pDepthStencilView != nullptr)
   {
     bFlushNeeded |= UnsetResourceViews(pDepthStencilView->GetTexture());
+    bFlushNeeded |= UnsetUnorderedAccessViews(pDepthStencilView->GetTexture());
   }
 
   if (bFlushNeeded)
@@ -366,11 +400,26 @@ void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTarge
   CountStateChange();
 }
 
-void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView)
+void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
 {
   AssertRenderingThread();
-  /// \todo
-  EZ_REPORT_FAILURE("not implemented");
+
+  /// \todo Check if the device supports the stage / the slot index
+
+  if (m_State.m_hUnorderedAccessViews[uiSlot] == hUnorderedAccessView)
+  {
+    CountRedundantStateChange();
+    return;
+  }
+
+  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
+
+  SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
+
+  m_State.m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
+  m_State.m_pResourcesForUnorderedAccessViews[uiSlot] = pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr;
+
+  CountStateChange();
 }
 
 void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
@@ -610,7 +659,7 @@ void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSub
   AssertRenderingThread();
 
   const ezGALTexture* pDest = m_pDevice->GetTexture(hDest);
-    
+
   if (pDest != nullptr)
   {
     UpdateTexturePlatform(pDest, DestinationSubResource, DestinationBox, pSourceData);
@@ -732,6 +781,26 @@ bool ezGALContext::UnsetResourceViews(const ezGALResourceBase* pResource)
 
         bResult = true;
       }
+    }
+  }
+
+  return bResult;
+}
+
+bool ezGALContext::UnsetUnorderedAccessViews(const ezGALResourceBase* pResource)
+{
+  bool bResult = false;
+
+  for (ezUInt32 uiSlot = 0; uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; ++uiSlot)
+  {
+    if (m_State.m_pResourcesForUnorderedAccessViews[uiSlot] == pResource)
+    {
+      SetUnorderedAccessViewPlatform(uiSlot, nullptr);
+
+      m_State.m_hUnorderedAccessViews[uiSlot].Invalidate();
+      m_State.m_pResourcesForUnorderedAccessViews[uiSlot] = nullptr;
+
+      bResult = true;
     }
   }
 

@@ -7,6 +7,7 @@
 #include <RendererDX11/Resources/FenceDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
+#include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
@@ -57,7 +58,6 @@ retry:
     D3D_FEATURE_LEVEL_10_0,
     D3D_FEATURE_LEVEL_9_3
   };
-
   ID3D11DeviceContext* pImmediateContext = nullptr;
 
   // Manually step through feature levels - if a Win 7 system doesn't have the 11.1 runtime installed
@@ -394,6 +394,27 @@ void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRe
   pDX11RenderTargetView->DeInitPlatform(this);
   EZ_DELETE(&m_Allocator, pDX11RenderTargetView);
 }
+
+ezGALUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALResourceBase* pTextureOfBuffer, const ezGALUnorderedAccessViewCreationDescription& Description)
+{
+  ezGALUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALUnorderedAccessViewDX11, pTextureOfBuffer, Description);
+
+  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
+    return nullptr;
+  }
+
+  return pUnorderedAccessView;
+}
+
+void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView)
+{
+  ezGALUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALUnorderedAccessViewDX11*>(pUnorderedAccessView);
+  pUnorderedAccessViewDX11->DeInitPlatform(this);
+  EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
+}
+
 
 
 // Other rendering creation functions

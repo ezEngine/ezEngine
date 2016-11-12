@@ -83,20 +83,35 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
         shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1DArray; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D: 
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2D; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY: 
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DArray; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS: 
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMS; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: 
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMSArray; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D: 
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture3D; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE: 
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCube; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY: 
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCubeArray; break;
+      }
+    }
+
+    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWTYPED)
+    {
+      switch (shaderInputBindDesc.Dimension)
+      {
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture1D; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture1DArray; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D:
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2D; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2DArray; break;
       }
     }
 

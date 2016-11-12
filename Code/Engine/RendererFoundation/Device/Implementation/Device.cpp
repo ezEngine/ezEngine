@@ -7,6 +7,7 @@
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/UnorderedAccesView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Context/Context.h>
 
@@ -50,6 +51,9 @@ ezGALDevice::~ezGALDevice()
 
     if (!m_RenderTargetViews.IsEmpty())
       ezLog::Warning("%d render target views have not been cleaned up", m_RenderTargetViews.GetCount());
+
+    if (!m_UnorderedAccessViews.IsEmpty())
+      ezLog::Warning("%d unordered access views have not been cleaned up", m_UnorderedAccessViews.GetCount());
 
     if (!m_SwapChains.IsEmpty())
       ezLog::Warning("%d swap chains have not been cleaned up", m_SwapChains.GetCount());
@@ -652,6 +656,113 @@ ezGALRenderTargetViewHandle ezGALDevice::GetDefaultRenderTargetView(ezGALTexture
   }
 
   return ezGALRenderTargetViewHandle();
+}
+
+ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& desc)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  if (!desc.m_hTexture.IsInvalidated() && !desc.m_hBuffer.IsInvalidated())
+  {
+    ezLog::Error("Can't pass both a texture and buffer to a ezGALUnorderedAccessViewCreationDescription.");
+    return ezGALUnorderedAccessViewHandle();
+  }
+
+  ezGALResourceBase* pResource = nullptr;
+  ezGALTexture* pTexture = nullptr;
+  ezGALBuffer* pBuffer = nullptr;
+
+  if (!desc.m_hTexture.IsInvalidated())
+  {
+    pResource = pTexture = Get<TextureTable, ezGALTexture>(desc.m_hTexture, m_Textures);
+  }
+  else if (!desc.m_hBuffer.IsInvalidated())
+  {
+    pResource = pBuffer = Get<BufferTable, ezGALBuffer>(desc.m_hBuffer, m_Buffers);
+  }
+
+  if (pResource == nullptr)
+  {
+    ezLog::Error("No valid texture handle or buffer handle given for unordered access view creation!");
+    return ezGALUnorderedAccessViewHandle();
+  }
+
+  // Some platform independent validation.
+  {
+    if (pTexture)
+    {
+      // Is this really platform independent?
+      if (pTexture->GetDescription().m_Type == ezGALTextureType::TextureCube)
+      {
+        ezLog::Error("Can't create unordered access view from cube textures.");
+        return EZ_FAILURE;
+      }
+
+      // Is this really platform independent?
+      if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
+      {
+        ezLog::Error("Can't create unordered access view on textures with multisampling.");
+        return EZ_FAILURE;
+      }
+    }
+    else
+    {
+      if (desc.m_OverrideViewFormat == ezGALResourceFormat::Invalid)
+      {
+        ezLog::Error("Invalid resource format is not allowed for buffer unordered access views!");
+        return EZ_FAILURE;
+      }
+
+      if (!pBuffer->GetDescription().m_bAllowRawViews && desc.m_bRawView)
+      {
+        ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
+        return EZ_FAILURE;
+      }
+    }
+  }
+
+  // Hash desc and return potential existing one
+  ezUInt32 uiHash = desc.CalculateHash();
+
+  ezGALUnorderedAccessViewHandle hUnorderedAccessView;
+  if (pResource->m_UnorderedAccessViews.TryGetValue(uiHash, hUnorderedAccessView))
+  {
+    return hUnorderedAccessView;
+  }
+
+  ezGALUnorderedAccessView* pUnorderedAccessViewView = CreateUnorderedAccessViewPlatform(pResource, desc);
+
+  if (pUnorderedAccessViewView != nullptr)
+  {
+    ezGALUnorderedAccessViewHandle hUnorderedAccessView(m_UnorderedAccessViews.Insert(pUnorderedAccessViewView));
+    pResource->m_UnorderedAccessViews.Insert(uiHash, hUnorderedAccessView);
+
+    return hUnorderedAccessView;
+  }
+
+  return ezGALUnorderedAccessViewHandle();
+}
+
+void ezGALDevice::DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALUnorderedAccessView* pUnorderedAccesssView = nullptr;
+
+  if (m_UnorderedAccessViews.TryGetValue(hUnorderedAccessViewHandle, pUnorderedAccesssView))
+  {
+    m_UnorderedAccessViews.Remove(hUnorderedAccessViewHandle);
+
+    ezGALResourceBase* pResource = pUnorderedAccesssView->m_pResource;
+    EZ_VERIFY(pResource->m_UnorderedAccessViews.Remove(pUnorderedAccesssView->GetDescription().CalculateHash()), "");
+    pUnorderedAccesssView->m_pResource = nullptr;
+
+    DestroyUnorderedAccessViewPlatform(pUnorderedAccesssView);
+  }
+  else
+  {
+    ezLog::Warning("DestroyUnorderedAccessView called on invalid handle (double free?)");
+  }
 }
 
 ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& desc)

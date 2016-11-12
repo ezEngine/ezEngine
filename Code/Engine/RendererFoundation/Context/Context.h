@@ -21,6 +21,12 @@ public:
   void Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true,
               float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
 
+  /// Clears an unordered access view with a float value.
+  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues);
+
+  /// Clears an unordered access view with an int value.
+  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues);
+
   void Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex);
 
   void DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex);
@@ -68,7 +74,7 @@ public:
 
   void SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTargetSetup);
 
-  void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
+  void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView);
 
   void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
 
@@ -140,6 +146,10 @@ protected:
 
   virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
 
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) = 0;
+
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) = 0;
+
   virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) = 0;
 
   virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) = 0;
@@ -185,7 +195,7 @@ protected:
 
   virtual void SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRenderTargetView*> pRenderTargetViews, const ezGALRenderTargetView* pDepthStencilView) = 0;
 
-  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALResourceView* pResourceView) = 0;
+  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
 
   virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) = 0;
 
@@ -247,6 +257,8 @@ protected:
 
   // Returns whether a resource view has been unset for the given resource
   bool UnsetResourceViews(const ezGALResourceBase* pResource);
+  // Returns whether a unordered access view has been unset for the given resource
+  bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
 
 private:
 

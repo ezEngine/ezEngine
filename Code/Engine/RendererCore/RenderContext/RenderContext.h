@@ -57,6 +57,8 @@ public:
     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
+  void BindRWTexture(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle);
+
   void BindSamplerState(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
 
   void BindBuffer(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
@@ -66,13 +68,15 @@ public:
 
   /// \brief Sets the currently active shader on the given render context.
   ///
-  /// This function has no effect until the next drawcall on the context.
+  /// This function has no effect until the next draw or dispatch call on the context.
   void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
   void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo,
     ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
+
+  ezResult Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY = 1, ezUInt32 uiThreadGroupCountZ = 1);
 
   ezResult ApplyContextStates(bool bForce = false);
   void ResetContextState();
@@ -183,6 +187,7 @@ private:
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
 
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_BoundRWTextures;
   ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer[ezGALShaderStage::ENUM_COUNT];
 
@@ -245,6 +250,7 @@ private: // Per Renderer States
   ezMaterialResource* ApplyMaterialState();
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
   void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  void ApplyRWTextureBindings(const ezShaderStageBinary* pBinary);
   void ApplySamplerBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
   void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
 };

@@ -55,7 +55,7 @@ public:
     ezHashedString m_sName;
     ezEnum<Type> m_Type;
     ezUInt8 m_uiArrayElements;
-    ezUInt16 m_uiOffset;   
+    ezUInt16 m_uiOffset;
   };
 
 private:
@@ -80,6 +80,7 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
   enum ResourceType
   {
     Unknown,
+
     Texture1D,
     Texture1DArray,
     Texture2D,
@@ -89,6 +90,12 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
     Texture3D,
     TextureCube,
     TextureCubeArray,
+
+    RWTexture1D,
+    RWTexture1DArray,
+    RWTexture2D,
+    RWTexture2DArray,
+
     ConstantBuffer,
     GenericBuffer,
     Sampler
@@ -131,7 +138,7 @@ public:
   const ezShaderResourceBinding* GetShaderResourceBinding(const ezTempHashedString& sName) const;
 
   ezShaderConstantBufferLayout* CreateConstantBufferLayout() const;
-  
+
 private:
   friend class ezRenderContext;
   friend class ezShaderCompiler;

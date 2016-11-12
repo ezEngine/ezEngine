@@ -26,6 +26,7 @@ protected:
 
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_ResourceViews;
   ezHashTable<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViews;
+  ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };
 
 /// \brief Base class for GAL resources, stores a creation description of the object and also allows for reference counting.

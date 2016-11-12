@@ -83,9 +83,9 @@ public:
   void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
 
   // Unordered access views
-  //ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& Description);
+  ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& Description);
 
-  //void DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hRenderTargetView);
+  void DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView);
 
 
   // Other rendering creation functions
@@ -152,6 +152,7 @@ public:
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
   const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
+  const ezGALUnorderedAccessView* GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const;
   const ezGALFence* GetFence(ezGALFenceHandle hFence) const;
   const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
 
@@ -209,6 +210,8 @@ protected:
 
   typedef ezIdTable<ezGALRenderTargetViewHandle::IdType, ezGALRenderTargetView*, ezLocalAllocatorWrapper> RenderTargetViewTable;
 
+  typedef ezIdTable<ezGALUnorderedAccessViewHandle::IdType, ezGALUnorderedAccessView*, ezLocalAllocatorWrapper> UnorderedAccessViewTable;
+
   typedef ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper> SwapChainTable;
 
   typedef ezIdTable<ezGALFenceHandle::IdType, ezGALFence*, ezLocalAllocatorWrapper> FenceTable;
@@ -234,6 +237,8 @@ protected:
   SamplerStateTable m_SamplerStates;
 
   RenderTargetViewTable m_RenderTargetViews;
+
+  UnorderedAccessViewTable m_UnorderedAccessViews;
 
   SwapChainTable m_SwapChains;
 
@@ -316,6 +321,9 @@ protected:
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;
 
+  virtual ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) = 0;
+
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pRenderTargetView) = 0;
 
   // Other rendering creation functions
 

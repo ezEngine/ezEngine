@@ -88,6 +88,11 @@ EZ_FORCE_INLINE const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ez
   return Get<RenderTargetViewTable, ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
 }
 
+EZ_FORCE_INLINE const ezGALUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const
+{
+  return Get<UnorderedAccessViewTable, ezGALUnorderedAccessView>(hUnorderedAccessView, m_UnorderedAccessViews);
+}
+
 EZ_FORCE_INLINE const ezGALFence* ezGALDevice::GetFence(ezGALFenceHandle hFence) const
 {
   return Get<FenceTable, ezGALFence>(hFence, m_Fences);

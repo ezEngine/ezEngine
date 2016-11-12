@@ -303,5 +303,27 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   bool m_bReadOnly; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };
 
+struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALUnorderedAccessViewCreationDescription>
+{
+  ezGALUnorderedAccessViewCreationDescription();
+
+  ezGALTextureHandle m_hTexture;
+
+  ezGALBufferHandle m_hBuffer;
+
+  ezGALResourceFormat::Enum m_OverrideViewFormat;
+
+  // Texture only
+  ezUInt32 m_uiMipLevelToUse; ///< Which MipLevel is accessed with this UAV
+  ezUInt32 m_uiFirstArraySlice; ///< First depth slice for 3D Textures.
+  ezUInt32 m_uiArraySize; ///< Number of depth slices for 3D textures.
+
+  // Buffer only
+  ezUInt32 m_uiFirstElement;
+  ezUInt32 m_uiNumElements;
+  bool m_bRawView;
+  bool m_bAppend; // Allows appending data to the end of the buffer.
+};
+
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>

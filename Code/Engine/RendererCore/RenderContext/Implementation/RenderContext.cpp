@@ -208,6 +208,25 @@ void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHash
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
+void ezRenderContext::BindRWTexture(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
+{
+  ezGALUnorderedAccessViewHandle* pOldResourceView = nullptr;
+  if (m_BoundRWTextures.TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  {
+    if (*pOldResourceView == hUnorderedAccessView)
+      return;
+
+    *pOldResourceView = hUnorderedAccessView;
+  }
+  else
+  {
+    m_BoundRWTextures.Insert(sSlotName.GetHash(), hUnorderedAccessView);
+  }
+
+  m_StateFlags.Add(ezRenderContextFlags::RWTextureBindingChanged);
+}
+
+
 void ezRenderContext::BindSamplerState(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate)
 {
   EZ_ASSERT_DEBUG(sSlotName != "LinearSampler", "'LinearSampler' is a resevered sampler name and must not be set manually.");
@@ -363,6 +382,19 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
   return EZ_SUCCESS;
 }
 
+ezResult ezRenderContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
+{
+  if (ApplyContextStates().Failed())
+  {
+    m_Statistics.m_uiFailedDrawcalls++;
+    return EZ_FAILURE;
+  }
+
+  m_pGALContext->Dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
   // First apply material state since this can modify all other states.
@@ -397,11 +429,27 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
   if (m_hActiveShaderPermutation.IsValid())
   {
-    if ((bForce || m_StateFlags.IsAnySet(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::SamplerBindingChanged |
-      ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged)))
+    if ((bForce || m_StateFlags.IsAnySet(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::RWTextureBindingChanged | ezRenderContextFlags::SamplerBindingChanged |
+                                         ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged)))
     {
       if (pShaderPermutation == nullptr)
         pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::NoFallback);
+    }
+
+
+    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::RWTextureBindingChanged))
+    {
+      // RWTextures/UAV are usually only suppoprted in compute and pixel shader.
+      if (auto pBin = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::ComputeShader))
+      {
+        ApplyRWTextureBindings(pBin);
+      }
+      if (auto pBin = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader))
+      {
+        ApplyRWTextureBindings(pBin);
+      }
+
+      m_StateFlags.Remove(ezRenderContextFlags::RWTextureBindingChanged);
     }
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::TextureBindingChanged))
@@ -525,6 +573,7 @@ void ezRenderContext::ResetContextState()
     m_BoundSamplers[stage].Insert(ezTempHashedString("PointClampSampler").GetHash(), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
   }
 
+  m_BoundRWTextures.Clear();
   m_BoundConstantBuffers.Clear();
 }
 
@@ -966,6 +1015,21 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
   }
 }
 
+void ezRenderContext::ApplyRWTextureBindings(const ezShaderStageBinary* pBinary)
+{
+  for (const auto& binding : pBinary->m_ShaderResourceBindings)
+  {
+    if (binding.m_Type < ezShaderResourceBinding::RWTexture1D || binding.m_Type > ezShaderResourceBinding::RWTexture2DArray)
+      continue;
+
+    const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
+
+    ezGALUnorderedAccessViewHandle hResourceView;
+    m_BoundRWTextures.TryGetValue(uiResourceHash, hResourceView);
+
+    m_pGALContext->SetUnorderedAccessView(binding.m_iSlot, hResourceView);
+  }
+}
 
 void ezRenderContext::ApplySamplerBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
 {

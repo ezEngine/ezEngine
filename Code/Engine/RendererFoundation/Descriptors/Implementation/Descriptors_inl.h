@@ -218,3 +218,17 @@ inline ezGALSamplerStateCreationDescription::ezGALSamplerStateCreationDescriptio
     m_uiMaxAnisotropy(4)
 {
 }
+
+inline ezGALUnorderedAccessViewCreationDescription::ezGALUnorderedAccessViewCreationDescription()
+  : m_hTexture()
+  , m_hBuffer()
+  , m_OverrideViewFormat(ezGALResourceFormat::Invalid)
+  , m_uiMipLevelToUse(0)
+  , m_uiFirstArraySlice(0)
+  , m_uiArraySize(1)
+  , m_uiFirstElement(0)
+  , m_uiNumElements(0)
+  , m_bRawView(false)
+  , m_bAppend(false)
+{
+}

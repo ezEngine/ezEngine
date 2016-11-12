@@ -90,6 +90,9 @@ protected:
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
 
+  ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) override;
+
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pResource) override;
 
   // Other rendering creation functions
 
@@ -108,8 +111,8 @@ protected:
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
 
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
-  
-  
+
+
   // Get Query Data
 
   virtual void GetQueryDataPlatform(ezGALQuery* pQuery, ezUInt64* puiRendererdPixels) override;
@@ -152,7 +155,7 @@ private:
   ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
   void FreeTempResources(ezUInt64 uiFrame);
 
-  void FillFormatLookupTable();  
+  void FillFormatLookupTable();
 
   ID3D11Device* m_pDevice;
 
