@@ -165,6 +165,13 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
       ++s;
     }
 
+    if (sToken.IsEmpty())
+    {
+      ezString invalidData = s;
+      ezLog::Warning("Invalid identifier in token section at: \"%s\"", invalidData.GetData());
+      break;
+    }
+
     out_PermVars.ExpandAndGetRef().Assign(sToken.GetData());
     sToken.Clear();
 
