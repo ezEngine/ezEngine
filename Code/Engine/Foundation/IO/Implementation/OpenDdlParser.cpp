@@ -304,136 +304,146 @@ void ezOpenDdlParser::ContinueIdle()
 
       SkipWhitespace();
 
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "float"))
+      // unsigned int types
+      if (m_szIdentifierType[0] == 'u')
       {
-        m_StateStack.PushBack(State::ReadingFloat);
+        // support for 'uint' is an extension to OpenDDL
 
-        if (!m_bSkippingMode)
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint8"))
         {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Float, (const char*)m_szIdentifierName, bGlobalName);
+          m_StateStack.PushBack(State::ReadingUInt8);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
         }
-        return;
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint32"))
+        {
+          m_StateStack.PushBack(State::ReadingUInt32);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
+        }
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint16"))
+        {
+          m_StateStack.PushBack(State::ReadingUInt16);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
+        }
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint64"))
+        {
+          m_StateStack.PushBack(State::ReadingUInt64);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
+        }
       }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "string"))
+      else if (m_szIdentifierType[0] == 'i') // int types
       {
-        m_StateStack.PushBack(State::ReadingString);
-
-        if (!m_bSkippingMode)
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int32"))
         {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::String, (const char*)m_szIdentifierName, bGlobalName);
+          m_StateStack.PushBack(State::ReadingInt32);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
         }
-        return;
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int8"))
+        {
+          m_StateStack.PushBack(State::ReadingInt8);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
+        }
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int16"))
+        {
+          m_StateStack.PushBack(State::ReadingInt16);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
+        }
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int64"))
+        {
+          m_StateStack.PushBack(State::ReadingInt64);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
+        }
       }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "bool"))
+      else
       {
-        m_StateStack.PushBack(State::ReadingBool);
-
-        if (!m_bSkippingMode)
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "float"))
         {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, (const char*)m_szIdentifierName, bGlobalName);
+          m_StateStack.PushBack(State::ReadingFloat);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Float, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
         }
-        return;
-      }
 
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8"))
-      {
-        m_StateStack.PushBack(State::ReadingUInt8);
-
-        if (!m_bSkippingMode)
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "string"))
         {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, (const char*)m_szIdentifierName, bGlobalName);
+          m_StateStack.PushBack(State::ReadingString);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::String, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
         }
-        return;
-      }
 
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int32"))
-      {
-        m_StateStack.PushBack(State::ReadingInt32);
-
-        if (!m_bSkippingMode)
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "bool"))
         {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, (const char*)m_szIdentifierName, bGlobalName);
+          m_StateStack.PushBack(State::ReadingBool);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
         }
-        return;
-      }
 
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32"))
-      {
-        m_StateStack.PushBack(State::ReadingUInt32);
-
-        if (!m_bSkippingMode)
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "double"))
         {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, (const char*)m_szIdentifierName, bGlobalName);
+          m_StateStack.PushBack(State::ReadingDouble);
+
+          if (!m_bSkippingMode)
+          {
+            OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Double, (const char*)m_szIdentifierName, bGlobalName);
+          }
+          return;
         }
-        return;
-      }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int8"))
-      {
-        m_StateStack.PushBack(State::ReadingInt8);
-
-        if (!m_bSkippingMode)
-        {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, (const char*)m_szIdentifierName, bGlobalName);
-        }
-        return;
-      }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16"))
-      {
-        m_StateStack.PushBack(State::ReadingUInt16);
-
-        if (!m_bSkippingMode)
-        {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, (const char*)m_szIdentifierName, bGlobalName);
-        }
-        return;
-      }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int16"))
-      {
-        m_StateStack.PushBack(State::ReadingInt16);
-
-        if (!m_bSkippingMode)
-        {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, (const char*)m_szIdentifierName, bGlobalName);
-        }
-        return;
-      }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64"))
-      {
-        m_StateStack.PushBack(State::ReadingUInt64);
-
-        if (!m_bSkippingMode)
-        {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, (const char*)m_szIdentifierName, bGlobalName);
-        }
-        return;
-      }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int64"))
-      {
-        m_StateStack.PushBack(State::ReadingInt64);
-
-        if (!m_bSkippingMode)
-        {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, (const char*)m_szIdentifierName, bGlobalName);
-        }
-        return;
-      }
-
-      if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "double"))
-      {
-        m_StateStack.PushBack(State::ReadingDouble);
-
-        if (!m_bSkippingMode)
-        {
-          OnBeginPrimitiveList(ezOpenDdlPrimitiveType::Double, (const char*)m_szIdentifierName, bGlobalName);
-        }
-        return;
       }
 
       // else this is a custom object type
