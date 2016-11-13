@@ -127,7 +127,7 @@ public:
 protected:
   ezBitflags<ezPropertyFlags> m_Flags;
   const char* m_szPropertyName;
-  ezHybridArray<ezPropertyAttribute*, 2> m_Attributes;
+  ezHybridArray<ezPropertyAttribute*, 2, ezStaticAllocatorWrapper> m_Attributes; // Do not track RTTI data.
 };
 
 /// \brief This is the base class for all constant properties that are stored inside the RTTI data.

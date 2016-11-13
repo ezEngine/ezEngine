@@ -39,6 +39,8 @@ struct ezExampleBitflags
   };
 };
 
+EZ_DECLARE_FLAGS_OPERATORS(ezExampleBitflags);
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
 
 
@@ -394,10 +396,16 @@ public:
     return  *m_SetPtr.GetIterator().Key() == *rhs.m_SetPtr.GetIterator().Key();
   }
 
-  void SetString(const char* pzValue) { m_sString = pzValue; }
+  void SetString(const char* pzValue)
+  {
+    m_sString = pzValue;
+  }
   const char* GetString() const { return m_sString; }
 
-  void SetArrays(ezTestArrays* pValue) { m_pArrays = pValue; }
+  void SetArrays(ezTestArrays* pValue)
+  {
+    m_pArrays = pValue;
+  }
   ezTestArrays* GetArrays() const { return m_pArrays; }
 
 

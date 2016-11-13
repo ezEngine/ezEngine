@@ -46,4 +46,25 @@ public:
   /// \brief Same as ReadObjectPropertiesFromJSON but binary.
   static void ReadObjectPropertiesFromBinary(ezStreamReader& stream, const ezRTTI& rtti, void* pObject); // [tested]
 
+  /// \brief Templated convenience function that calls Clone and automatically deduces the type.
+  template<typename T>
+  static T* Clone(const T* pObject)
+  {
+    return static_cast<T*>(Clone(pObject, ezGetStaticRTTI<T>()));
+  }
+
+  /// \brief Clones pObject of type pType and returns it.
+  ///
+  /// In case a class derived from ezReflectedClass is passed in the correct derived type
+  /// will automatically be determined so it is not necessary to put the exact type into pType,
+  /// any derived class type will do.
+  static void* Clone(const void* pObject, const ezRTTI* pType); // [tested]
+
+  /// \brief Clones pObject of type pType into the already existing pClone.
+  ///
+  /// In case a class derived from ezReflectedClass is passed in the correct derived type
+  /// will automatically be determined so it is not necessary to put the exact type into pType,
+  /// any derived class type will do. However, the function will assert if pObject and pClone
+  /// actually have a different type.
+  static void Clone(const void* pObject, void* pClone, const ezRTTI* pType); // [tested]
 };

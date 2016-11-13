@@ -84,8 +84,12 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
         }
       }
-
+      
+      void* pOldObject = nullptr;
+      pSpecific->GetValuePtr(pObject, &pOldObject);
       pSpecific->SetValuePtr(pObject, &pRefrencedObject);
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        ezReflectionUtils::DeleteObject(pOldObject, pProp);
     }
     else
     {
@@ -120,6 +124,19 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     if (!pSource->m_Value.IsA<ezVariantArray>())
       return;
     const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
+    // Delete old values
+    if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+    {
+      const ezInt32 uiOldCount = (ezInt32)pSpecific->GetCount(pObject);
+      for (ezInt32 i = uiOldCount - 1; i >= 0; --i)
+      {
+        void* pOldObject = nullptr;
+        pSpecific->GetValue(pObject, i, &pOldObject);
+        pSpecific->Remove(pObject, i);
+        if (pOldObject)
+          ezReflectionUtils::DeleteObject(pOldObject, pProp);
+      }
+    }
 
     pSpecific->SetCount(pObject, array.GetCount());
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
@@ -185,6 +202,20 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
 
     const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
 
+    // Delete old values
+    if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+    {
+      ezHybridArray<ezVariant, 16> keys;
+      pSpecific->GetValues(pObject, keys);
+      pSpecific->Clear(pObject);
+      for (ezVariant& value : keys)
+      {
+        void* pOldObject = value.ConvertTo<void*>();
+        if (pOldObject)
+          ezReflectionUtils::DeleteObject(pOldObject, pProp);
+      }
+    }
+
     pSpecific->Clear(pObject);
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
     {
@@ -243,9 +274,6 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     }
   }
 }
-
-
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_RttiConverterReader);
 

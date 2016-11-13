@@ -218,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
     EZ_TEST_BOOL(pRtti->GetParentType() == nullptr);
 
-    EZ_TEST_BOOL(!pRtti->GetAllocator()->CanAllocate());
+    EZ_TEST_BOOL(pRtti->GetAllocator()->CanAllocate());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTestClass1")
@@ -448,6 +448,23 @@ void TestSerialization(const T& source)
       pRtti->GetAllocator()->Deallocate(pObject);
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clone")
+  {
+    {
+      T clone;
+      ezReflectionSerializer::Clone(&source, &clone, ezGetStaticRTTI<T>());
+      EZ_TEST_BOOL(clone == source);
+      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&clone, &source, ezGetStaticRTTI<T>()));
+    }
+
+    {
+      T* pClone = ezReflectionSerializer::Clone(&source);
+      EZ_TEST_BOOL(*pClone == source);
+      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, &source));
+      ezGetStaticRTTI<T>()->GetAllocator()->Deallocate(pClone);
+    }
+  }
 }
 
 EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
@@ -470,7 +487,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     c2.m_Color = ezColor(0.1f, 0.2f, 0.3f);
     c2.m_Time = ezTime::Seconds(91.0f);
     c2.m_enumClass = ezExampleEnum::Value3;
-    c2.m_bitflagsClass = ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3);
+    c2.m_bitflagsClass = ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3;
     c2.m_array.PushBack(5.0f);
     c2.m_array.PushBack(10.0f);
     c2.m_Variant = ezVec3(1.0f, 2.0f, 3.0f);
@@ -498,7 +515,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_BOOL(c2.m_Struct.m_vVec3I == ezVec3I32(9, 8, 7));
     EZ_TEST_BOOL(c2.m_Struct.m_DataBuffer == ezDataBuffer());
     EZ_TEST_BOOL(c2.m_enumClass == ezExampleEnum::Value3);
-    EZ_TEST_BOOL(c2.m_bitflagsClass == ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
+    EZ_TEST_BOOL(c2.m_bitflagsClass == (ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
     EZ_TEST_INT(c2.m_array.GetCount(), 2);
     if (c2.m_array.GetCount() == 2)
     {
@@ -548,7 +565,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_BOOL(c2.m_Struct.m_vVec3I == ezVec3I32(9, 8, 7));
     EZ_TEST_BOOL(c2.m_Struct.m_DataBuffer == ezDataBuffer());
     EZ_TEST_BOOL(c2.m_enumClass == ezExampleEnum::Value3);
-    EZ_TEST_BOOL(c2.m_bitflagsClass == ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
+    EZ_TEST_BOOL(c2.m_bitflagsClass == (ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
     EZ_TEST_INT(c2.m_array.GetCount(), 2);
     if (c2.m_array.GetCount() == 2)
     {

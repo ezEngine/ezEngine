@@ -149,6 +149,25 @@ namespace
     void* m_pObject;
     const ezVariant* m_pValue;
   };
+
+
+  static bool CompareProperties(const void* pObject, const void* pObject2, const ezRTTI* pType)
+  {
+    if (pType->GetParentType())
+    {
+      if (!CompareProperties(pObject, pObject2, pType->GetParentType()))
+        return false;
+    }
+
+    for (auto* pProp : pType->GetProperties())
+    {
+      if (!ezReflectionUtils::IsEqual(pObject, pObject2, pProp))
+        return false;
+    }
+
+    return true;
+  }
+
 }
 
 const ezRTTI* ezReflectionUtils::GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2)
@@ -795,6 +814,230 @@ ezInt64 ezReflectionUtils::MakeEnumerationValid(const ezRTTI* pEnumerationRtti, 
   }
 }
 
+bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbstractProperty* pProp)
+{
+  const ezRTTI* pPropType = pProp->GetSpecificType();
+
+  ezVariant vTemp;
+  ezVariant vTemp2;
+  switch (pProp->GetCategory())
+  {
+  case ezPropertyCategory::Member:
+    {
+      ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
+
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
+      {
+        vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+        vTemp2 = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject2);
+        return vTemp == vTemp2;
+      }
+      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      {
+        vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+        vTemp2 = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject2);
+        void* pRefrencedObject = vTemp.ConvertTo<void*>();
+        void* pRefrencedObject2 = vTemp2.ConvertTo<void*>();
+        if ((pRefrencedObject == nullptr) != (pRefrencedObject2 == nullptr))
+          return false;
+        if ((pRefrencedObject == nullptr) && (pRefrencedObject2 == nullptr))
+          return true;
+
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        {
+          return IsEqual(pRefrencedObject, pRefrencedObject2, pPropType);
+        }
+        else
+        {
+          return pRefrencedObject == pRefrencedObject2;
+        }
+      }
+      else if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+      {
+        void* pSubObject = pSpecific->GetPropertyPointer(pObject);
+        void* pSubObject2 = pSpecific->GetPropertyPointer(pObject2);
+        // Do we have direct access to the property?
+        if (pSubObject != nullptr)
+        {
+          return IsEqual(pSubObject, pSubObject2, pPropType);
+        }
+        // If the property is behind an accessor, we need to retrieve it first.
+        else if (pPropType->GetAllocator()->CanAllocate())
+        {
+          pSubObject = pPropType->GetAllocator()->Allocate();
+          pSubObject2 = pPropType->GetAllocator()->Allocate();
+          pSpecific->GetValuePtr(pObject, pSubObject);
+          pSpecific->GetValuePtr(pObject2, pSubObject2);
+          bool bEqual = IsEqual(pSubObject, pSubObject2, pPropType);
+          pPropType->GetAllocator()->Deallocate(pSubObject);
+          pPropType->GetAllocator()->Deallocate(pSubObject2);
+          return bEqual;
+        }
+        else
+        {
+          // TODO: return false if prop can't be compared?
+          return true;
+        }
+      }
+    }
+    break;
+  case ezPropertyCategory::Array:
+    {
+      ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
+
+      const ezUInt32 uiCount = pSpecific->GetCount(pObject);
+      const ezUInt32 uiCount2 = pSpecific->GetCount(pObject2);
+      if (uiCount != uiCount2)
+        return false;
+
+      if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
+      {
+        for (ezUInt32 i = 0; i < uiCount; ++i)
+        {
+          vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+          vTemp2 = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject2, i);
+          if (vTemp != vTemp2)
+            return false;
+        }
+        return true;
+      }
+      else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      {
+        for (ezUInt32 i = 0; i < uiCount; ++i)
+        {
+          vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+          vTemp2 = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject2, i);
+          void* pRefrencedObject = vTemp.ConvertTo<void*>();
+          void* pRefrencedObject2 = vTemp2.ConvertTo<void*>();
+          if ((pRefrencedObject == nullptr) != (pRefrencedObject2 == nullptr))
+            return false;
+          if ((pRefrencedObject == nullptr) && (pRefrencedObject2 == nullptr))
+            continue;
+
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          {
+            if (!IsEqual(pRefrencedObject, pRefrencedObject2, pPropType))
+              return false;
+          }
+          else
+          {
+            if (pRefrencedObject != pRefrencedObject2)
+              return false;
+          }
+        }
+        return true;
+      }
+      else if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) && pPropType->GetAllocator()->CanAllocate())
+      {
+        void* pSubObject = pPropType->GetAllocator()->Allocate();
+        void* pSubObject2 = pPropType->GetAllocator()->Allocate();
+
+        bool bEqual = true;
+        for (ezUInt32 i = 0; i < uiCount; ++i)
+        {
+          pSpecific->GetValue(pObject, i, pSubObject);
+          pSpecific->GetValue(pObject2, i, pSubObject2);
+          bEqual = IsEqual(pSubObject, pSubObject2, pPropType);
+          if (!bEqual)
+            break;
+        }
+
+        pPropType->GetAllocator()->Deallocate(pSubObject);
+        pPropType->GetAllocator()->Deallocate(pSubObject2);
+        return bEqual;
+      }
+    }
+    break;
+  case ezPropertyCategory::Set:
+    {
+      ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
+
+      ezHybridArray<ezVariant, 16> values;
+      pSpecific->GetValues(pObject, values);
+      ezHybridArray<ezVariant, 16> values2;
+      pSpecific->GetValues(pObject2, values2);
+
+      const ezUInt32 uiCount = values.GetCount();
+      const ezUInt32 uiCount2 = values2.GetCount();
+      if (uiCount != uiCount2)
+        return false;
+
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || 
+      (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+      {
+        bool bEqual = true;
+        for (ezUInt32 i = 0; i < uiCount; ++i)
+        {
+          bEqual = values2.Contains(values[i]);
+          if (!bEqual)
+            break;
+        }
+        return bEqual;
+      }
+      else if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+      {
+        // TODO: pointer sets are never stable unless they use an array based pseudo set as storage.
+        bool bEqual = true;
+        for (ezUInt32 i = 0; i < uiCount; ++i)
+        {
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          {
+            void* pRefrencedObject = values[i].ConvertTo<void*>();
+            void* pRefrencedObject2 = values2[i].ConvertTo<void*>();
+            if ((pRefrencedObject == nullptr) != (pRefrencedObject2 == nullptr))
+              return false;
+            if ((pRefrencedObject == nullptr) && (pRefrencedObject2 == nullptr))
+              continue;
+
+            bEqual = IsEqual(pRefrencedObject, pRefrencedObject2, pPropType);
+          }
+          if (!bEqual)
+            break;
+        }
+
+        return bEqual;
+      }
+    }
+    break;
+  }
+  return true;
+}
+
+bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const ezRTTI* pType)
+{
+  EZ_ASSERT_DEV(pObject && pObject2 && pType, "invalid type.");
+  if (pType->IsDerivedFrom<ezReflectedClass>())
+  {
+    const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
+    const ezReflectedClass* pRefObject2 = static_cast<const ezReflectedClass*>(pObject2);
+    pType = pRefObject->GetDynamicRTTI();
+    if (pType != static_cast<const ezReflectedClass*>(pObject2)->GetDynamicRTTI())
+      return false;
+  }
+
+  return CompareProperties(pObject, pObject2, pType);
+}
+
+
+void ezReflectionUtils::DeleteObject(void* pObject, ezAbstractProperty* pOwnerProperty)
+{
+  if (!pObject)
+    return;
+
+  const ezRTTI* pType = pOwnerProperty->GetSpecificType();
+  if (pType->IsDerivedFrom<ezReflectedClass>())
+  {
+    ezReflectedClass* pRefObject = static_cast<ezReflectedClass*>(pObject);
+    pType = pRefObject->GetDynamicRTTI();
+  }
+
+  if (!pType->GetAllocator()->CanAllocate())
+  {
+    ezLog::Error("Tried to deallocate object of type '%s', but it has no allocator.", pType->GetTypeName());
+    return;
+  }
+  pType->GetAllocator()->Deallocate(pObject);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);
 

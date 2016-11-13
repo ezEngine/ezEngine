@@ -102,18 +102,8 @@ void ezCommand::Cleanup(CommandState state)
 
 ezStatus ezCommand::AddSubCommand(ezCommand& command)
 {
-  const ezRTTI* pRtti = nullptr;
-  ezCommand* pCommand = nullptr;
-  {
-    ezMemoryStreamStorage storage;
-    ezMemoryStreamWriter writer(&storage);
-    ezMemoryStreamReader reader(&storage);
-
-    /// \todo Clone action, instead of writing to JSON and then reading from it again
-
-    ezReflectionSerializer::WriteObjectToBinary(writer, command.GetDynamicRTTI(), &command);
-    pCommand = (ezCommand*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
-  }
+  ezCommand* pCommand = ezReflectionSerializer::Clone(&command);
+  const ezRTTI* pRtti = pCommand->GetDynamicRTTI();
 
   pCommand->m_pDocument = m_pDocument;
 

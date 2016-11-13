@@ -21,7 +21,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAbstractTestStruct, ezNoBase, 1, ezRTTINoAlloca
 EZ_END_STATIC_REFLECTED_TYPE
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTIDefaultAllocator<ezTestStruct>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -55,6 +55,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestC
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
+    // EZ_MEMBER_PROPERTY("MyVector", m_MyVector), Intentionally not reflected
     EZ_MEMBER_PROPERTY("Color", m_Color),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Sub Vector", GetVector)
   }
@@ -293,7 +294,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestEnumStruct>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -306,7 +307,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTINoAllocator)
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTINoAllocator)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestBitflagsStruct>)
 {
   EZ_BEGIN_PROPERTIES
   {
