@@ -1,5 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/OpenDdlParser.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 ezOpenDdlParser::ezOpenDdlParser()
 {
