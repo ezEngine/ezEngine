@@ -3,6 +3,9 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/OpenDdlParser.h>
 
+// TODO
+// Write primitives in HEX (esp. float)
+
 /// \brief The base class for OpenDDL writers.
 ///
 /// Declares a common interface for writing OpenDDL files.
@@ -26,60 +29,58 @@ public:
   virtual ~ezOpenDdlWriter() { }
 
   /// \brief All output is written to this binary stream.
-  void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; }
+  void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]
 
   /// \brief Configures how much whitespace is output.
   void SetWhitespaceMode(WhitespaceMode wsm) { m_WhitespaceMode = wsm; }
 
   /// \brief Begins outputting an object.
-  void BeginObject(const char* szType, const char* szName = nullptr, bool bGlobalName = false);
-
-  void OutputObjectName(const char* szName, bool bGlobalName);
+  void BeginObject(const char* szType, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Ends outputting an object.
-  void EndObject();
+  void EndObject(); // [tested]
 
   /// \brief Begins outputting a list of primitives of the given type.
-  void BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char* szName = nullptr, bool bGlobalName = false);
+  void BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char* szName = nullptr, bool bGlobalName = false); // [tested]
 
   /// \brief Ends outputting the list of primitives.
-  void EndPrimitiveList();
+  void EndPrimitiveList(); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteBool(const bool* pValues, ezUInt32 count = 1);
+  void WriteBool(const bool* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt8(const ezInt8* pValues, ezUInt32 count = 1);
+  void WriteInt8(const ezInt8* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt16(const ezInt16* pValues, ezUInt32 count = 1);
+  void WriteInt16(const ezInt16* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt32(const ezInt32* pValues, ezUInt32 count = 1);
+  void WriteInt32(const ezInt32* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteInt64(const ezInt64* pValues, ezUInt32 count = 1);
+  void WriteInt64(const ezInt64* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt8(const ezUInt8* pValues, ezUInt32 count = 1);
+  void WriteUInt8(const ezUInt8* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt16(const ezUInt16* pValues, ezUInt32 count = 1);
+  void WriteUInt16(const ezUInt16* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt32(const ezUInt32* pValues, ezUInt32 count = 1);
+  void WriteUInt32(const ezUInt32* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteUInt64(const ezUInt64* pValues, ezUInt32 count = 1);
+  void WriteUInt64(const ezUInt64* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteFloat(const float* pValues, ezUInt32 count = 1);
+  void WriteFloat(const float* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a number of values to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteDouble(const double* pValues, ezUInt32 count = 1);
+  void WriteDouble(const double* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a single string to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteString(const char* szString);
+  void WriteString(const char* szString); // [tested]
 
 
 protected:
@@ -119,6 +120,7 @@ protected:
   void OutputIndentation();
   void OutputPrimitiveTypeName(ezOpenDdlPrimitiveType type);
   void WritePrimitiveType(ezOpenDdlWriter::State exp);
+  void OutputObjectName(const char* szName, bool bGlobalName);
 
   ezInt32 m_iIndentation;
   WhitespaceMode m_WhitespaceMode;

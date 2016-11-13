@@ -107,6 +107,7 @@ ezOpenDdlWriter::ezOpenDdlWriter()
   EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesString == (int)ezOpenDdlPrimitiveType::String);
 
   m_WhitespaceMode = WhitespaceMode::All;
+  m_iIndentation = 0;
 
   m_StateStack.ExpandAndGetRef().m_State = State::Invalid;
   m_StateStack.ExpandAndGetRef().m_State = State::Empty;
@@ -133,12 +134,12 @@ void ezOpenDdlWriter::BeginObject(const char* szType, const char* szName /*= nul
   {
     OutputString("\n", 1);
     OutputIndentation();
-  }
-
-  if (m_WhitespaceMode == WhitespaceMode::None)
-    OutputString("{", 1);
-  else
     OutputString("{\n", 2);
+  }
+  else
+  {
+    OutputString("{", 1);
+  }
 
   m_iIndentation++;
 
@@ -179,16 +180,13 @@ void ezOpenDdlWriter::EndObject()
 
   m_iIndentation--;
 
-  if (m_WhitespaceMode != WhitespaceMode::None)
-  {
-    OutputString("\n", 1);
-    OutputIndentation();
-  }
-
   if (m_WhitespaceMode == WhitespaceMode::None)
     OutputString("}", 1);
   else
+  {
+    OutputIndentation();
     OutputString("}\n", 2);
+  }
 
   m_StateStack.PopBack();
 }
@@ -219,10 +217,12 @@ void ezOpenDdlWriter::EndPrimitiveList()
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEBUG(state >= State::PrimitivesBool && state <= State::PrimitivesString, "No primitive list is open");
 
-  if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+  if (m_WhitespaceMode == WhitespaceMode::None)
     OutputString("}", 1);
+  else if (m_WhitespaceMode == WhitespaceMode::NewlinesOnly)
+    OutputString("}\n", 2);
   else
-    OutputString(" } ", 3);
+    OutputString(" }\n", 3);
 
   m_StateStack.PopBack();
 }
