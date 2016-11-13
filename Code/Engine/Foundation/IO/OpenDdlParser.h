@@ -25,6 +25,7 @@ enum class ezOpenDdlPrimitiveType
   String,
   //Ref, // Currently not supported
   //Type // Currently not supported
+  Custom
 };
 
 /// \brief A low level parser for the OpenDDL format. It can incrementally parse the structure, individual blocks can be skipped.
@@ -48,6 +49,7 @@ public:
   /// \brief Configures the parser to read from the given stream. This can only be called once on a parser instance.
   void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0);
 
+  bool HadFatalParsingError() const { return m_bHadFatalParsingError; }
 
 protected:
 
@@ -57,7 +59,7 @@ protected:
   bool ContinueParsing();
 
   /// \brief Calls ContinueParsing() in a loop until that returns false.
-  void ParseAll();
+  ezResult ParseAll();
 
   /// \brief Skips the rest of the currently open object. No OnEndObject() call will be done for this object either.
   void SkipRestOfObject();
@@ -94,33 +96,33 @@ private:
   //virtual void OnEndPrimitiveArrayList() = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveBool(ezUInt32 count, const bool* pData) = 0;
+  virtual void OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll) = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveInt8 (ezUInt32 count, const ezInt8* pData) = 0;
+  virtual void OnPrimitiveInt8 (ezUInt32 count, const ezInt8* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveInt16(ezUInt32 count, const ezInt16* pData) = 0;
+  virtual void OnPrimitiveInt16(ezUInt32 count, const ezInt16* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveInt32(ezUInt32 count, const ezInt32* pData) = 0;
+  virtual void OnPrimitiveInt32(ezUInt32 count, const ezInt32* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveInt64(ezUInt32 count, const ezInt64* pData) = 0;
+  virtual void OnPrimitiveInt64(ezUInt32 count, const ezInt64* pData, bool bThisIsAll) = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveUInt8 (ezUInt32 count, const ezUInt8* pData) = 0;
+  virtual void OnPrimitiveUInt8 (ezUInt32 count, const ezUInt8* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveUInt16(ezUInt32 count, const ezUInt16* pData) = 0;
+  virtual void OnPrimitiveUInt16(ezUInt32 count, const ezUInt16* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveUInt32(ezUInt32 count, const ezUInt32* pData) = 0;
+  virtual void OnPrimitiveUInt32(ezUInt32 count, const ezUInt32* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveUInt64(ezUInt32 count, const ezUInt64* pData) = 0;
+  virtual void OnPrimitiveUInt64(ezUInt32 count, const ezUInt64* pData, bool bThisIsAll) = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveFloat(ezUInt32 count, const float* pData) = 0;
+  virtual void OnPrimitiveFloat(ezUInt32 count, const float* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveDouble(ezUInt32 count, const double* pData) = 0;
+  virtual void OnPrimitiveDouble(ezUInt32 count, const double* pData, bool bThisIsAll) = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveString(ezUInt32 count, const ezStringView* pData) = 0;
+  virtual void OnPrimitiveString(ezUInt32 count, const ezStringView* pData, bool bThisIsAll) = 0;
 
 private:
 
@@ -159,7 +161,7 @@ private:
   void ReadString();
   void ReadWord();
   ezUInt64 ReadDecimalLiteral();
-  void PurgeCachedPrimitives();
+  void PurgeCachedPrimitives(bool bThisIsAll);
   bool ContinuePrimitiveList();
   void ContinueString();
   void SkipString();
@@ -178,6 +180,7 @@ private:
   ezUInt32 m_uiCurLine;
   ezUInt32 m_uiCurColumn;
   bool m_bSkippingMode;
+  bool m_bHadFatalParsingError;
   ezUInt8 m_szIdentifierType[32];
   ezUInt8 m_szIdentifierName[32];
   ezUInt8 m_TempString[1024];

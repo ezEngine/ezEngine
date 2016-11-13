@@ -6,6 +6,7 @@
 ezOpenDdlParser::ezOpenDdlParser()
 {
   m_pLogInterface = nullptr;
+  m_bHadFatalParsingError = false;
 }
 
 void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
@@ -129,14 +130,13 @@ bool ezOpenDdlParser::ContinueParsing()
   }
 }
 
-void ezOpenDdlParser::ParseAll()
+ezResult ezOpenDdlParser::ParseAll()
 {
   while (ContinueParsing())
   {
   }
 
-  int i = 0;
-  (void)i;
+  return m_bHadFatalParsingError ? EZ_FAILURE : EZ_SUCCESS;
 }
 
 void ezOpenDdlParser::SkipRestOfObject()
@@ -167,6 +167,7 @@ void ezOpenDdlParser::ParsingError(const char* szMessage, bool bFatal)
     // prevent further error messages
     m_uiCurByte = '\0';
     m_StateStack.Clear();
+    m_bHadFatalParsingError = true;
   }
 }
 
@@ -605,54 +606,54 @@ void ezOpenDdlParser::ReadWord()
     SkipWhitespace();
 }
 
-void ezOpenDdlParser::PurgeCachedPrimitives()
+void ezOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
 {
   if (!m_bSkippingMode)
   {
     switch (m_StateStack.PeekBack().m_State)
     {
     case State::ReadingBool:
-      OnPrimitiveBool(m_uiNumCachedPrimitives, m_pBoolCache);
+      OnPrimitiveBool(m_uiNumCachedPrimitives, m_pBoolCache, bThisIsAll);
       break;
 
     case State::ReadingInt8:
-      OnPrimitiveInt8(m_uiNumCachedPrimitives, m_pInt8Cache);
+      OnPrimitiveInt8(m_uiNumCachedPrimitives, m_pInt8Cache, bThisIsAll);
       break;
 
     case State::ReadingInt16:
-      OnPrimitiveInt16(m_uiNumCachedPrimitives, m_pInt16Cache);
+      OnPrimitiveInt16(m_uiNumCachedPrimitives, m_pInt16Cache, bThisIsAll);
       break;
 
     case State::ReadingInt32:
-      OnPrimitiveInt32(m_uiNumCachedPrimitives, m_pInt32Cache);
+      OnPrimitiveInt32(m_uiNumCachedPrimitives, m_pInt32Cache, bThisIsAll);
       break;
 
     case State::ReadingInt64:
-      OnPrimitiveInt64(m_uiNumCachedPrimitives, m_pInt64Cache);
+      OnPrimitiveInt64(m_uiNumCachedPrimitives, m_pInt64Cache, bThisIsAll);
       break;
 
     case State::ReadingUInt8:
-      OnPrimitiveUInt8(m_uiNumCachedPrimitives, m_pUInt8Cache);
+      OnPrimitiveUInt8(m_uiNumCachedPrimitives, m_pUInt8Cache, bThisIsAll);
       break;
 
     case State::ReadingUInt16:
-      OnPrimitiveUInt16(m_uiNumCachedPrimitives, m_pUInt16Cache);
+      OnPrimitiveUInt16(m_uiNumCachedPrimitives, m_pUInt16Cache, bThisIsAll);
       break;
 
     case State::ReadingUInt32:
-      OnPrimitiveUInt32(m_uiNumCachedPrimitives, m_pUInt32Cache);
+      OnPrimitiveUInt32(m_uiNumCachedPrimitives, m_pUInt32Cache, bThisIsAll);
       break;
 
     case State::ReadingUInt64:
-      OnPrimitiveUInt64(m_uiNumCachedPrimitives, m_pUInt64Cache);
+      OnPrimitiveUInt64(m_uiNumCachedPrimitives, m_pUInt64Cache, bThisIsAll);
       break;
 
     case State::ReadingFloat:
-      OnPrimitiveFloat(m_uiNumCachedPrimitives, m_pFloatCache);
+      OnPrimitiveFloat(m_uiNumCachedPrimitives, m_pFloatCache, bThisIsAll);
       break;
 
     case State::ReadingDouble:
-      OnPrimitiveDouble(m_uiNumCachedPrimitives, m_pDoubleCache);
+      OnPrimitiveDouble(m_uiNumCachedPrimitives, m_pDoubleCache, bThisIsAll);
       break;
     }
   }
@@ -668,7 +669,7 @@ bool ezOpenDdlParser::ContinuePrimitiveList()
     {
       if (!m_bSkippingMode)
       {
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(true);
         OnEndPrimitiveList();
       }
 
@@ -715,7 +716,7 @@ void ezOpenDdlParser::ContinueString()
       {
         ezStringView view((const char*)&m_TempString[0], (const char*)&m_TempString[m_uiTempStringLength]);
 
-        OnPrimitiveString(1, &view);
+        OnPrimitiveString(1, &view, false);
       }
 
       return;
@@ -775,7 +776,7 @@ void ezOpenDdlParser::ContinueBool()
         m_pBoolCache[m_uiNumCachedPrimitives++] = bRes;
 
         if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(bool))
-          PurgeCachedPrimitives();
+          PurgeCachedPrimitives(false);
       }
 
       break;
@@ -859,7 +860,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pInt8Cache[m_uiNumCachedPrimitives++] = sign * (ezInt8)value; // if user data is out of range, we don't care
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt8))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -869,7 +870,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pInt16Cache[m_uiNumCachedPrimitives++] = sign * (ezInt16)value; // if user data is out of range, we don't care
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt16))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -879,7 +880,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pInt32Cache[m_uiNumCachedPrimitives++] = sign * (ezInt32)value; // if user data is out of range, we don't care
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt32))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -889,7 +890,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pInt64Cache[m_uiNumCachedPrimitives++] = sign * (ezInt64)value; // if user data is out of range, we don't care
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezInt64))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -900,7 +901,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pUInt8Cache[m_uiNumCachedPrimitives++] = (ezUInt8)value; // if user data is out of range, we don't care
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt8))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -910,7 +911,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pUInt16Cache[m_uiNumCachedPrimitives++] = (ezUInt16)value; // if user data is out of range, we don't care
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt16))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -920,7 +921,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pUInt32Cache[m_uiNumCachedPrimitives++] = (ezUInt32)value; // if user data is out of range, we don't care
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt32))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -930,7 +931,7 @@ void ezOpenDdlParser::ContinueInt()
       m_pUInt64Cache[m_uiNumCachedPrimitives++] = (ezUInt64)value;
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(ezUInt64))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -1010,7 +1011,7 @@ void ezOpenDdlParser::ContinueFloat()
       m_pFloatCache[m_uiNumCachedPrimitives++] = (float)value;
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(float))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
@@ -1020,7 +1021,7 @@ void ezOpenDdlParser::ContinueFloat()
       m_pDoubleCache[m_uiNumCachedPrimitives++] = (double)value;
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(double))
-        PurgeCachedPrimitives();
+        PurgeCachedPrimitives(false);
 
       break;
     }
