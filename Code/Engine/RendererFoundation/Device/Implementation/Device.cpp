@@ -695,14 +695,14 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
       if (pTexture->GetDescription().m_Type == ezGALTextureType::TextureCube)
       {
         ezLog::Error("Can't create unordered access view from cube textures.");
-        return EZ_FAILURE;
+        return ezGALUnorderedAccessViewHandle();
       }
 
       // Is this really platform independent?
       if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
       {
         ezLog::Error("Can't create unordered access view on textures with multisampling.");
-        return EZ_FAILURE;
+        return ezGALUnorderedAccessViewHandle();
       }
     }
     else
@@ -710,13 +710,13 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
       if (desc.m_OverrideViewFormat == ezGALResourceFormat::Invalid)
       {
         ezLog::Error("Invalid resource format is not allowed for buffer unordered access views!");
-        return EZ_FAILURE;
+        return ezGALUnorderedAccessViewHandle();
       }
 
       if (!pBuffer->GetDescription().m_bAllowRawViews && desc.m_bRawView)
       {
         ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
-        return EZ_FAILURE;
+        return ezGALUnorderedAccessViewHandle();
       }
     }
   }
