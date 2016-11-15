@@ -3,9 +3,9 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-void ezOpenDdlWriter::OutputEscapedString(const char* sz)
+void ezOpenDdlWriter::OutputEscapedString(const ezStringView& string)
 {
-  m_Temp = sz;
+  m_Temp = string;
   m_Temp.ReplaceAll("\\", "\\\\");
   m_Temp.ReplaceAll("\"", "\\\"");
   m_Temp.ReplaceAll("\b", "\\b");
@@ -433,11 +433,11 @@ void ezOpenDdlWriter::WriteDouble(const double* pValues, ezUInt32 count /*= 1*/)
   }
 }
 
-void ezOpenDdlWriter::WriteString(const char* szString)
+void ezOpenDdlWriter::WriteString(const ezStringView& string)
 {
   WritePrimitiveType(State::PrimitivesString);
 
-  OutputEscapedString(szString);
+  OutputEscapedString(string);
 }
 
 

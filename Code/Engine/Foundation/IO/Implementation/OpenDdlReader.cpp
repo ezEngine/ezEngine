@@ -12,9 +12,13 @@ ezOpenDdlReader::~ezOpenDdlReader()
   ClearDataChunks();
 }
 
-ezResult ezOpenDdlReader::ParseDocument()
+ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset, ezLogInterface* pLog, ezUInt32 uiSizeInKB)
 {
   EZ_ASSERT_DEBUG(m_ObjectStack.IsEmpty(), "A reader can only be used once.");
+
+  SetLogInterface(pLog);
+  SetCacheSize(uiSizeInKB);
+  SetInputStream(stream, uiFirstLineOffset);
 
   m_TempCache.Reserve(s_uiChunkSize);
 
@@ -39,6 +43,16 @@ const ezOpenDdlReaderElement* ezOpenDdlReader::GetRootElement() const
   return m_ObjectStack[0];
 }
 
+
+const ezOpenDdlReaderElement* ezOpenDdlReader::FindElement(const char* szGlobalName) const
+{
+  auto it = m_GlobalNames.Find(szGlobalName);
+  if (it.IsValid())
+    return it.Value();
+
+  return nullptr;
+}
+
 const char* ezOpenDdlReader::CopyString(const ezStringView& string)
 {
   if (string.IsEmpty())
@@ -59,6 +73,11 @@ ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType ty
   pElement->m_szCustomType = szType;
   pElement->m_szName = CopyString(szName);
   pElement->m_uiNumChildElements = 0;
+
+  if (bGlobalName)
+  {
+    pElement->m_uiNumChildElements = EZ_BIT(31);
+  }
 
   if (bGlobalName && !ezStringUtils::IsNullOrEmpty(szName))
   {
@@ -141,56 +160,67 @@ void ezOpenDdlReader::StorePrimitiveData(bool bThisIsAll, ezUInt32 bytecount, co
 void ezOpenDdlReader::OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(bool) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveInt8(ezUInt32 count, const ezInt8* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezInt8) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveInt16(ezUInt32 count, const ezInt16* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezInt16) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveInt32(ezUInt32 count, const ezInt32* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezInt32) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveInt64(ezUInt32 count, const ezInt64* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezInt64) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveUInt8(ezUInt32 count, const ezUInt8* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezUInt8) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveUInt16(ezUInt32 count, const ezUInt16* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezUInt16) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveUInt32(ezUInt32 count, const ezUInt32* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezUInt32) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveUInt64(ezUInt32 count, const ezUInt64* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(ezUInt64) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveFloat(ezUInt32 count, const float* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(float) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveDouble(ezUInt32 count, const double* pData, bool bThisIsAll)
 {
   StorePrimitiveData(bThisIsAll, sizeof(double) * count, (const ezUInt8*)pData);
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pData, bool bThisIsAll)
@@ -206,6 +236,8 @@ void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pDat
     const char* szStart = CopyString(pData[i]);
     pTarget[i] = ezStringView(szStart, szStart + pData[i].GetElementCount());
   }
+
+  m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 
@@ -263,7 +295,7 @@ ezUInt32 ezOpenDdlReaderElement::GetNumChildObjects() const
   if (m_PrimitiveType != ezOpenDdlPrimitiveType::Custom)
     return 0;
 
-  return m_uiNumChildElements;
+  return m_uiNumChildElements & (~EZ_BIT(31)); // Bit 31 stores whether the name is global
 }
 
 ezUInt32 ezOpenDdlReaderElement::GetNumPrimitives() const
@@ -271,22 +303,25 @@ ezUInt32 ezOpenDdlReaderElement::GetNumPrimitives() const
   if (m_PrimitiveType == ezOpenDdlPrimitiveType::Custom)
     return 0;
 
-  return m_uiNumChildElements;
+  return m_uiNumChildElements & (~EZ_BIT(31)); // Bit 31 stores whether the name is global
 }
 
-//const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildElement(const char* szName) const
-//{
-//  EZ_ASSERT_DEBUG(m_PrimitiveType == ezOpenDdlPrimitiveType::Invalid, "Cannot search for a child object in a primitives list");
-//
-//  const auto* pChildren = GetChildObjects();
-//
-//  for (ezUInt32 i = 0; i < m_uiNumChildElements; ++i)
-//  {
-//    if (ezStringUtils::IsEqual(pChildren[i].GetName(), szName))
-//    {
-//      return &pChildren[i];
-//    }
-//  }
-//
-//  return nullptr;
-//}
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildElement(const char* szName) const
+{
+  EZ_ASSERT_DEBUG(m_PrimitiveType == ezOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
+
+  const ezOpenDdlReaderElement* pChild = static_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
+
+  while (pChild)
+  {
+    if (ezStringUtils::IsEqual(pChild->GetName(), szName))
+    {
+      return pChild;
+    }
+
+    pChild = pChild->GetSibling();
+  }
+
+  return nullptr;
+}
+

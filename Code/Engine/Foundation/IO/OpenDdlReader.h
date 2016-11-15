@@ -5,32 +5,81 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 
+/// \brief Represents a single 'object' in a DDL document, e.g. either a custom type or a primitives list.
 class EZ_FOUNDATION_DLL ezOpenDdlReaderElement
 {
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE bool IsCustomType() const { return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom; }
-  EZ_FORCE_INLINE const char* GetCustomType() const { return m_szCustomType; }
-  EZ_FORCE_INLINE bool HasName() const { return !ezStringUtils::IsNullOrEmpty(m_szName); }
-  EZ_FORCE_INLINE const char* GetName() const { return m_szName; }
-  ezUInt32 GetNumChildObjects() const;
-  //EZ_FORCE_INLINE const ezOpenDdlReaderElement* GetChildObjects() const { reinterpret_cast<const ezOpenDdlReaderElement*>(m_pChildElements); }
-  ezUInt32 GetNumPrimitives() const;
-  EZ_FORCE_INLINE ezOpenDdlPrimitiveType GetPrimitivesType() const { return m_PrimitiveType; }
-  EZ_FORCE_INLINE const bool* GetPrimitivesBool() const { return reinterpret_cast<const bool*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezInt8* GetPrimitivesInt8() const { return reinterpret_cast<const ezInt8*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezInt16* GetPrimitivesInt16() const { return reinterpret_cast<const ezInt16*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezInt32* GetPrimitivesInt32() const { return reinterpret_cast<const ezInt32*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezInt64* GetPrimitivesInt64() const { return reinterpret_cast<const ezInt64*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezUInt8* GetPrimitivesUInt8() const { return reinterpret_cast<const ezUInt8*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezUInt16* GetPrimitivesUInt16() const { return reinterpret_cast<const ezUInt16*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezUInt32* GetPrimitivesUInt32() const { return reinterpret_cast<const ezUInt32*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezUInt64* GetPrimitivesUInt64() const { return reinterpret_cast<const ezUInt64*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const float* GetPrimitivesFloat() const { return reinterpret_cast<const float*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const double* GetPrimitivesDouble() const { return reinterpret_cast<const double*>(m_pFirstChild); }
-  EZ_FORCE_INLINE const ezStringView* GetPrimitivesString() const { return reinterpret_cast<const ezStringView*>(m_pFirstChild); }
-  //const ezOpenDdlReaderElement* FindChildElement(const char* szName) const;
+  /// \brief Whether this is a custom object type that typically contains sub-elements.
+  EZ_FORCE_INLINE bool IsCustomType() const { return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom; } // [tested]
+
+  /// \brief Returns the string for the custom type name.
+  EZ_FORCE_INLINE const char* GetCustomType() const { return m_szCustomType; } // [tested]
+
+  /// \brief Whether the name of the object is non-empty.
+  EZ_FORCE_INLINE bool HasName() const { return !ezStringUtils::IsNullOrEmpty(m_szName); } // [tested]
+
+  /// \brief Returns the name of the object.
+  EZ_FORCE_INLINE const char* GetName() const { return m_szName; } // [tested]
+
+  /// \brief Returns whether the element name is a global or a local name.
+  EZ_FORCE_INLINE bool IsNameGlobal() const { return (m_uiNumChildElements & EZ_BIT(31)) != 0; } // [tested]
+
+  /// \brief How many sub-elements the object has.
+  ezUInt32 GetNumChildObjects() const; // [tested]
+
+  /// \brief If this is a custom type element, the returned pointer is to the first child element.
+  EZ_FORCE_INLINE const ezOpenDdlReaderElement* GetFirstChild() const { return reinterpret_cast<const ezOpenDdlReaderElement*>(m_pFirstChild); } // [tested]
+
+  /// \brief If the parent is a custom type element, the next child after this is returned.
+  EZ_FORCE_INLINE const ezOpenDdlReaderElement* GetSibling() const { return m_pSiblingElement; } // [tested]
+
+  /// \brief For non-custom types this returns how many primitives are stored at this element.
+  ezUInt32 GetNumPrimitives() const; // [tested]
+
+  /// \brief For non-custom types this returns the type of primitive that is stored at this element.
+  EZ_FORCE_INLINE ezOpenDdlPrimitiveType GetPrimitivesType() const { return m_PrimitiveType; } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const bool* GetPrimitivesBool() const { return reinterpret_cast<const bool*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezInt8* GetPrimitivesInt8() const { return reinterpret_cast<const ezInt8*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezInt16* GetPrimitivesInt16() const { return reinterpret_cast<const ezInt16*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezInt32* GetPrimitivesInt32() const { return reinterpret_cast<const ezInt32*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezInt64* GetPrimitivesInt64() const { return reinterpret_cast<const ezInt64*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezUInt8* GetPrimitivesUInt8() const { return reinterpret_cast<const ezUInt8*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezUInt16* GetPrimitivesUInt16() const { return reinterpret_cast<const ezUInt16*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezUInt32* GetPrimitivesUInt32() const { return reinterpret_cast<const ezUInt32*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezUInt64* GetPrimitivesUInt64() const { return reinterpret_cast<const ezUInt64*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const float* GetPrimitivesFloat() const { return reinterpret_cast<const float*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const double* GetPrimitivesDouble() const { return reinterpret_cast<const double*>(m_pFirstChild); } // [tested]
+
+  /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
+  EZ_FORCE_INLINE const ezStringView* GetPrimitivesString() const { return reinterpret_cast<const ezStringView*>(m_pFirstChild); } // [tested]
+
+  /// \brief Searches for a child with the given name. It does not matter whether the object's name is 'local' or 'global'.
+  /// \a szName is case-sensitive.
+  const ezOpenDdlReaderElement* FindChildElement(const char* szName) const; // [tested]
 
 private:
   friend class ezOpenDdlReader;
@@ -44,16 +93,27 @@ private:
   const ezOpenDdlReaderElement* m_pSiblingElement;
 };
 
+/// \brief An OpenDDL reader parses an entire DDL document and creates an in-memory representation of the document structure.
 class EZ_FOUNDATION_DLL ezOpenDdlReader : public ezOpenDdlParser
 {
 public:
   ezOpenDdlReader();
   ~ezOpenDdlReader();
 
-  ezResult ParseDocument();
+  /// \brief Parses the given document, returns EZ_FAILURE if an unrecoverable parsing error was encountered.
+  ///
+  /// \param stream is the input data.
+  /// \param uiFirstLineOffset allows to adjust the reported line numbers in error messages, in case the given stream represents a sub-section of a larger file.
+  /// \param pLog is used for outputting details about parsing errors. If nullptr is given, no details are logged.
+  /// \param uiSizeInKB is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single list,
+  /// increasing the cache size can improve performance, but typically this doesn't need to be adjusted.
+  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = nullptr, ezUInt32 uiSizeInKB = 4); // [tested]
 
-  /// \todo Get by global name
-  const ezOpenDdlReaderElement* GetRootElement() const;
+  /// \brief Every document has exactly one root element.
+  const ezOpenDdlReaderElement* GetRootElement() const; // [tested]
+
+  /// \brief Searches for an element with a global name. NULL if there is no such element.
+  const ezOpenDdlReaderElement* FindElement(const char* szGlobalName) const; // [tested]
 
 private:
   virtual void OnBeginObject(const char* szType, const char* szName, bool bGlobalName) override;
@@ -100,8 +160,6 @@ protected:
   ezDeque<ezOpenDdlReaderElement> m_Elements;
   ezHybridArray<ezOpenDdlReaderElement*, 16> m_ObjectStack;
 
-  ezDynamicArray<bool> m_BoolData;
-  // ...
   ezDeque<ezString> m_Strings;
 
   ezMap<ezString, ezOpenDdlReaderElement*> m_GlobalNames;

@@ -37,6 +37,11 @@ public:
   ezOpenDdlParser();
   virtual ~ezOpenDdlParser() {}
 
+  /// \brief Whether an error occured during parsing that resulted in cancelation of further parsing.
+  bool HadFatalParsingError() const { return m_bHadFatalParsingError; }
+
+protected:
+
   /// \brief Sets an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
@@ -47,19 +52,15 @@ public:
   void SetCacheSize(ezUInt32 uiSizeInKB);
 
   /// \brief Configures the parser to read from the given stream. This can only be called once on a parser instance.
-  void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0);
-
-  bool HadFatalParsingError() const { return m_bHadFatalParsingError; }
-
-protected:
+  void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0); // [tested]
 
   /// \brief Call this to parse the next piece of the document. This may trigger a callback through which data is returned.
   ///
   /// This function returns false when the end of the document has been reached, or a fatal parsing error has been reported.
-  bool ContinueParsing();
+  bool ContinueParsing(); // [tested]
 
   /// \brief Calls ContinueParsing() in a loop until that returns false.
-  ezResult ParseAll();
+  ezResult ParseAll(); // [tested]
 
   /// \brief Skips the rest of the currently open object. No OnEndObject() call will be done for this object either.
   void SkipRestOfObject();

@@ -80,7 +80,7 @@ public:
   void WriteDouble(const double* pValues, ezUInt32 count = 1); // [tested]
 
   /// \brief Writes a single string to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
-  void WriteString(const char* szString); // [tested]
+  void WriteString(const ezStringView& string); // [tested]
 
 
 protected:
@@ -116,7 +116,7 @@ protected:
 
   EZ_FORCE_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)); }
   EZ_FORCE_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount); }
-  void OutputEscapedString(const char* sz);
+  void OutputEscapedString(const ezStringView& string);
   void OutputIndentation();
   void OutputPrimitiveTypeName(ezOpenDdlPrimitiveType type);
   void WritePrimitiveType(ezOpenDdlWriter::State exp);
