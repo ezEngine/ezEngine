@@ -1,53 +1,17 @@
 #include "Main.h"
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
-#include <Core/Input/InputManager.h>
 #include <System/Window/Window.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererDX11/Device/DeviceDX11.h>
-#include <Foundation/Configuration/Startup.h>
-#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Textures/TextureResource.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Foundation/Time/Clock.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <CoreUtils/Graphics/Camera.h>
 
 static ezUInt32 g_uiWindowWidth = 1920;
 static ezUInt32 g_uiWindowHeight = 1080;
 static ezUInt32 g_uiComputeThreadGroupSize = 32;
 
-class ezShaderExplorerWindow : public ezWindow
-{
-public:
-
-  ezShaderExplorerWindow()
-    : ezWindow()
-  {
-    m_bCloseRequested = false;
-  }
-
-  virtual void OnClickCloseMessage() override
-  {
-    m_bCloseRequested = true;
-  }
-
-  bool m_bCloseRequested;
-};
-
 ezComputeShaderHistogramApp::ezComputeShaderHistogramApp()
-  : ezApplication()
+  : ezGameApplication("ComputeShaderHistogram", ezGameApplicationType::StandAlone, "../../..\\Data\\Samples\\ComputeShaderHistogram") //"ezEngine Project/ComputeShaderHistogram")
   , m_pWindow(nullptr)
-  , m_pDevice(nullptr)
 {
 }
 
@@ -57,194 +21,135 @@ ezComputeShaderHistogramApp::~ezComputeShaderHistogramApp()
 
 ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 {
-    m_pWindow->ProcessWindowMessages();
+  ProcessWindowMessages();
+  ezClock::GetGlobalClock()->Update();
+  UpdateInput();
 
-    if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
-      return ApplicationExecution::Quit;
-    // update all input state
-    ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
+  m_stuffChanged = false;
+  m_directoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
+  if (m_stuffChanged)
+  {
+    ezResourceManager::ReloadAllResources(false);
+  }
 
-    // make sure time goes on
-    ezClock::GetGlobalClock()->Update();
+  // do the rendering
+  {
+    auto device = ezGALDevice::GetDefaultDevice();
 
-    m_stuffChanged = false;
-    m_directoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
-    if (m_stuffChanged)
+    // Before starting to render in a frame call this function
+    device->BeginFrame();
+
+    // The ezGALContext class is the main interaction point for draw / compute operations
+    ezGALContext& GALContext = *device->GetPrimaryContext();
+    ezRenderContext& renderContext = *ezRenderContext::GetDefaultInstance();
+
+    // Constant buffer update
     {
-      ezResourceManager::ReloadAllResources(false);
+      auto& globalConstants = renderContext.WriteGlobalConstants();
+      ezMemoryUtils::ZeroFill(&globalConstants);
+
+      globalConstants.Viewport = ezVec4(0, 0, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
+      // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
+      globalConstants.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
+      globalConstants.WorldTime = globalConstants.GlobalTime;
     }
 
-    // do the rendering
+    ezRectFloat viewport(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
+
+    // Draw background.
     {
-      // Before starting to render in a frame call this function
-      m_pDevice->BeginFrame();
+      ezGALRenderTagetSetup RTS;
+      RTS.SetRenderTarget(0, m_hScreenRTV);
+      renderContext.SetViewportAndRenderTargetSetup(viewport, RTS);
 
-      // The ezGALContext class is the main interaction point for draw / compute operations
-      ezGALContext& GALContext = *m_pDevice->GetPrimaryContext();
-      ezRenderContext& renderContext = *ezRenderContext::GetDefaultInstance();
-
-      // Constant buffer update
-      {
-        auto& globalConstants = renderContext.WriteGlobalConstants();
-        ezMemoryUtils::ZeroFill(&globalConstants);
-
-        globalConstants.Viewport = ezVec4(0, 0, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
-        // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
-        globalConstants.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
-        globalConstants.WorldTime = globalConstants.GlobalTime;
-      }
-
-      ezRectFloat viewport(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
-
-      // Draw background.
-      {
-        ezGALRenderTagetSetup RTS;
-        RTS.SetRenderTarget(0, m_hScreenRTV);
-        renderContext.SetViewportAndRenderTargetSetup(viewport, RTS);
-
-        renderContext.BindShader(m_hScreenShader);
-        renderContext.BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1); // Vertices are generated by shader.
-        renderContext.DrawMeshBuffer();
-      }
-
-      // Copy screentexture contents to backbuffer.
-      // (Is drawing better? Don't care, this is a one liner and needs no shader!)
-      {
-        GALContext.CopyTexture(m_pDevice->GetBackBufferTextureFromSwapChain(m_pDevice->GetPrimarySwapChain()), m_hScreenTexture);
-      }
-
-      // Switch to backbuffer (so that the screen texture is no longer bound)
-      {
-        ezGALRenderTagetSetup RTS;
-        RTS.SetRenderTarget(0, m_hBackbufferRTV);
-        renderContext.SetViewportAndRenderTargetSetup(viewport, RTS);
-      }
-
-      // Compute histogram.
-      {
-        // Reset first.
-        GALContext.ClearUnorderedAccessView(m_hHistogramUAV, ezVec4U32(0, 0, 0, 0));
-
-        renderContext.BindShader(m_hHistogramComputeShader);
-        renderContext.BindTexture(ezGALShaderStage::ComputeShader, "ScreenTexture", m_hScreenSRV);
-        renderContext.BindRWTexture("HistogramOutput", m_hHistogramUAV);
-        renderContext.Dispatch(g_uiWindowWidth / g_uiComputeThreadGroupSize + (g_uiWindowWidth % g_uiComputeThreadGroupSize != 0 ? 1 : 0),
-                               g_uiWindowHeight / g_uiComputeThreadGroupSize + (g_uiWindowHeight % g_uiComputeThreadGroupSize != 0 ? 1 : 0));
-
-        // Unbind UAV since it is used as SRV in next step. TODO: This should be handled automatically.
-        renderContext.BindRWTexture("HistogramOutput", ezGALUnorderedAccessViewHandle());
-        renderContext.ApplyContextStates();
-      }
-
-      // Draw histogram.
-      {
-        renderContext.BindShader(m_hHistogramDisplayShader);
-        renderContext.BindMeshBuffer(m_hHistogramQuadMeshBuffer);
-        renderContext.BindTexture(ezGALShaderStage::PixelShader, "HistogramTexture", m_hHistogramSRV);
-        renderContext.DrawMeshBuffer();
-
-        // Unbind SRV since it is used as UAV in the next frame. TODO: This should be handled automatically.
-        renderContext.BindTexture(ezGALShaderStage::PixelShader, "HistogramTexture", ezGALResourceViewHandle());
-        renderContext.ApplyContextStates();
-      }
-
-      m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
-
-      m_pDevice->EndFrame();
-      ezRenderContext::GetDefaultInstance()->ResetContextState();
+      renderContext.BindShader(m_hScreenShader);
+      renderContext.BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1); // Vertices are generated by shader.
+      renderContext.DrawMeshBuffer();
     }
 
-    // needs to be called once per frame
-    ezResourceManager::PerFrameUpdate();
+    // Copy screentexture contents to backbuffer.
+    // (Is drawing better? Don't care, this is a one liner and needs no shader!)
+    {
+      GALContext.CopyTexture(device->GetBackBufferTextureFromSwapChain(device->GetPrimarySwapChain()), m_hScreenTexture);
+    }
 
-    // tell the task system to finish its work for this frame
-    // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
-    // uploading GPU data etc.
-    ezTaskSystem::FinishFrameTasks();
+    // Switch to backbuffer (so that the screen texture is no longer bound)
+    {
+      ezGALRenderTagetSetup RTS;
+      RTS.SetRenderTarget(0, m_hBackbufferRTV);
+      renderContext.SetViewportAndRenderTargetSetup(viewport, RTS);
+    }
 
-    return ezApplication::Continue;
+    // Compute histogram.
+    {
+      // Reset first.
+      GALContext.ClearUnorderedAccessView(m_hHistogramUAV, ezVec4U32(0, 0, 0, 0));
+
+      renderContext.BindShader(m_hHistogramComputeShader);
+      renderContext.BindTexture(ezGALShaderStage::ComputeShader, "ScreenTexture", m_hScreenSRV);
+      renderContext.BindRWTexture("HistogramOutput", m_hHistogramUAV);
+      renderContext.Dispatch(g_uiWindowWidth / g_uiComputeThreadGroupSize + (g_uiWindowWidth % g_uiComputeThreadGroupSize != 0 ? 1 : 0),
+                              g_uiWindowHeight / g_uiComputeThreadGroupSize + (g_uiWindowHeight % g_uiComputeThreadGroupSize != 0 ? 1 : 0));
+
+      // Unbind UAV since it is used as SRV in next step. TODO: This should be handled automatically.
+      renderContext.BindRWTexture("HistogramOutput", ezGALUnorderedAccessViewHandle());
+      renderContext.ApplyContextStates();
+    }
+
+    // Draw histogram.
+    {
+      renderContext.BindShader(m_hHistogramDisplayShader);
+      renderContext.BindMeshBuffer(m_hHistogramQuadMeshBuffer);
+      renderContext.BindTexture(ezGALShaderStage::PixelShader, "HistogramTexture", m_hHistogramSRV);
+      renderContext.DrawMeshBuffer();
+
+      // Unbind SRV since it is used as UAV in the next frame. TODO: This should be handled automatically.
+      renderContext.BindTexture(ezGALShaderStage::PixelShader, "HistogramTexture", ezGALResourceViewHandle());
+      renderContext.ApplyContextStates();
+    }
+
+    device->Present(device->GetPrimarySwapChain());
+
+    device->EndFrame();
+    ezRenderContext::GetDefaultInstance()->ResetContextState();
+  }
+
+  // needs to be called once per frame
+  ezResourceManager::PerFrameUpdate();
+
+  // tell the task system to finish its work for this frame
+  // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
+  // uploading GPU data etc.
+  ezTaskSystem::FinishFrameTasks();
+
+  return WasQuitRequested() ? ezApplication::ApplicationExecution::Quit : ezApplication::ApplicationExecution::Continue;
 }
 
 void ezComputeShaderHistogramApp::AfterCoreStartup()
 {
+  ezGameApplication::AfterCoreStartup();
+
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-
-  ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sBaseDir.AppendPath("../../Data/Base/");
-
-  ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sProjectDir.AppendPath("../../Data/Samples/ComputeShaderHistogram");
-
-  EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDir, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
-
-  // setup the 'asset management system'
-  {
-    // which redirection table to search
-    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
-    // which platform assets to use
-    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
-  }
-
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
-  ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
-  ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder("ezEngine Project/ComputeShaderHistogram"), "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
-
-  ezFileSystem::AddDataDirectory(sBaseDir.GetData(), "Base", "base");
-  ezFileSystem::AddDataDirectory(sProjectDir.GetData(), "Project", "project", ezFileSystem::AllowWrites);
-
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-
-  ezPlugin::LoadPlugin("ezInspectorPlugin");
+  EZ_VERIFY(m_directoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
-  // Register Input
-  {
-    ezInputActionConfig cfg;
-
-    cfg = ezInputManager::GetInputActionConfig("Main", "CloseApp");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
-    ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
-  }
+  auto device = ezGALDevice::GetDefaultDevice();
 
   // Create a window for rendering
   {
-    ezWindowCreationDesc WindowCreationDesc;
-    WindowCreationDesc.m_ClientAreaSize.width = g_uiWindowWidth;
-    WindowCreationDesc.m_ClientAreaSize.height = g_uiWindowHeight;
-    m_pWindow = EZ_DEFAULT_NEW(ezShaderExplorerWindow);
-    m_pWindow->Initialize(WindowCreationDesc);
-  }
+    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    ezWindowCreationDesc windowDesc;
+    windowDesc.m_ClientAreaSize.width = g_uiWindowWidth;
+    windowDesc.m_ClientAreaSize.height = g_uiWindowHeight;
+    windowDesc.m_Title = "Compute Shader Histogram";
+    m_pWindow->Initialize(windowDesc);
+    ezGALSwapChainHandle hPrimarySwapChain = AddWindow(m_pWindow.Borrow());
+    device->SetPrimarySwapChain(hPrimarySwapChain);
 
-  // Create a device
-  {
-    ezGALDeviceCreationDescription DeviceInit;
-    DeviceInit.m_bCreatePrimarySwapChain = true;
-    DeviceInit.m_bDebugDevice = true;
-    DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
-    DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-    DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
-    DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = false;//true;
-
-    m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
-    EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
-
-    ezGALDevice::SetDefaultDevice(m_pDevice);
-  }
-
-  // now that we have a window and device, tell the engine to initialize the rendering infrastructure
-  ezStartup::StartupEngine();
-
-  // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
-  {
-    ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
-
-    m_hBackbufferRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+    // Get backbuffer render target view.
+    const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(hPrimarySwapChain);
+    m_hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
   }
 
   // Create textures and texture view for screen content (can't use backbuffer as shader resource view)
@@ -256,9 +161,9 @@ void ezComputeShaderHistogramApp::AfterCoreStartup()
     texDesc.m_bCreateRenderTarget = true;
     texDesc.m_bAllowShaderResourceView = true;
 
-    m_hScreenTexture = m_pDevice->CreateTexture(texDesc);
-    m_hScreenRTV = m_pDevice->GetDefaultRenderTargetView(m_hScreenTexture);
-    m_hScreenSRV = m_pDevice->GetDefaultResourceView(m_hScreenTexture);
+    m_hScreenTexture = device->CreateTexture(texDesc);
+    m_hScreenRTV = device->GetDefaultRenderTargetView(m_hScreenTexture);
+    m_hScreenSRV = device->GetDefaultResourceView(m_hScreenTexture);
   }
 
   // Create texture for histogram data.
@@ -273,12 +178,12 @@ void ezComputeShaderHistogramApp::AfterCoreStartup()
     texDesc.m_bAllowUAV = true;
     texDesc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hHistogramTexture = m_pDevice->CreateTexture(texDesc);
-    m_hHistogramSRV = m_pDevice->GetDefaultResourceView(m_hHistogramTexture);
+    m_hHistogramTexture = device->CreateTexture(texDesc);
+    m_hHistogramSRV = device->GetDefaultResourceView(m_hHistogramTexture);
 
     ezGALUnorderedAccessViewCreationDescription uavDesc;
     uavDesc.m_hTexture = m_hHistogramTexture;
-    m_hHistogramUAV = m_pDevice->CreateUnorderedAccessView(uavDesc);
+    m_hHistogramUAV = device->CreateUnorderedAccessView(uavDesc);
   }
 
   // Setup Shaders and Materials
@@ -291,15 +196,11 @@ void ezComputeShaderHistogramApp::AfterCoreStartup()
 
   // Geometry.
   CreateHistogramQuad();
-
-  // UAV for histogram
 }
 
 void ezComputeShaderHistogramApp::BeforeCoreShutdown()
 {
-  m_directoryWatcher->CloseDirectory();
-
-  ezRenderContext::GetDefaultInstance()->BindMaterial(ezMaterialResourceHandle());
+  auto device = ezGALDevice::GetDefaultDevice();
 
   m_hScreenShader.Invalidate();
   m_hHistogramDisplayShader.Invalidate();
@@ -308,29 +209,16 @@ void ezComputeShaderHistogramApp::BeforeCoreShutdown()
 
   m_hScreenRTV.Invalidate();
   m_hScreenSRV.Invalidate();
-  m_pDevice->DestroyTexture(m_hScreenTexture);
+  device->DestroyTexture(m_hScreenTexture);
   m_hScreenTexture.Invalidate();
 
-  m_pDevice->DestroyUnorderedAccessView(m_hHistogramUAV);
+  device->DestroyUnorderedAccessView(m_hHistogramUAV);
   m_hHistogramUAV.Invalidate();
   m_hHistogramSRV.Invalidate();
-  m_pDevice->DestroyTexture(m_hHistogramTexture);
+  device->DestroyTexture(m_hHistogramTexture);
   m_hHistogramTexture.Invalidate();
 
-  // tell the engine that we are about to destroy window and graphics device,
-  // and that it therefore needs to cleanup anything that depends on that
-  ezStartup::ShutdownEngine();
-
-  // now we can destroy the graphics device
-  m_pDevice->Shutdown();
-
-  EZ_DEFAULT_DELETE(m_pDevice);
-
-  // finally destroy the window
-  m_pWindow->Destroy();
-  EZ_DEFAULT_DELETE(m_pWindow);
-
-  m_directoryWatcher.Reset();
+  ezGameApplication::BeforeCoreShutdown();
 }
 
 void ezComputeShaderHistogramApp::CreateHistogramQuad()
@@ -387,4 +275,4 @@ void ezComputeShaderHistogramApp::OnFileChanged(const char* filename, ezDirector
   }
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezComputeShaderHistogramApp);
+EZ_APPLICATION_ENTRY_POINT(ezComputeShaderHistogramApp);

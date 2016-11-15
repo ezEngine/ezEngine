@@ -1,0 +1,10 @@
+{
+  "DataDirectories" : [ {
+      "Path" : "Data/Samples/ComputeShaderHistogram",
+      "Writable" : true
+    },
+    {
+      "Path" : "Data/Base",
+      "Writable" : false
+    } ]
+}

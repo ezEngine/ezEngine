@@ -1,25 +1,22 @@
 #pragma once
 
-#include <Core/Application/Application.h>
+#include <GameFoundation/GameApplication/GameApplication.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <RendererFoundation/Basics.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 
-class ezShaderExplorerWindow;
-class ezCamera;
-class ezGALDevice;
+class ezWindow;
 class ezDirectoryWatcher;
 
 /// Uses shader reloading mechanism of the ShaderExplorer sample for quick prototyping.
-class ezComputeShaderHistogramApp : public ezApplication
+class ezComputeShaderHistogramApp : public ezGameApplication
 {
 public:
   ezComputeShaderHistogramApp();
   ~ezComputeShaderHistogramApp();
 
-  virtual ApplicationExecution Run() override;
+  ezApplication::ApplicationExecution Run();
 
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown() override;
@@ -29,8 +26,7 @@ private:
   void CreateHistogramQuad();
   void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
 
-  ezShaderExplorerWindow* m_pWindow;
-  ezGALDevice* m_pDevice;
+  ezUniquePtr<ezWindow> m_pWindow;
 
   ezGALTextureHandle m_hScreenTexture;
   ezGALRenderTargetViewHandle m_hScreenRTV;
