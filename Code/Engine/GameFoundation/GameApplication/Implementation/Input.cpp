@@ -97,6 +97,14 @@ void ezGameApplication::ProcessApplicationInput()
 }
 
 
+void ezGameApplication::ProcessWindowMessages()
+{
+  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
+  {
+    m_Windows[i].m_pWindow->ProcessWindowMessages();
+  }
+}
+
 
 void ezGameApplication::UpdateInput()
 {

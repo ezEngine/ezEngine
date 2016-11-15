@@ -204,9 +204,13 @@ void ezGameApplication::DeactivateGameStateForWorld(ezWorld* pWorld)
 
 void ezGameApplication::ActivateAllGameStates()
 {
+  // There is always at least one gamestate, but if it is null, then our applicatin might not use them at all.
+  if (m_GameStates.IsEmpty() || m_GameStates[0].m_pState == nullptr)
+    return;
+
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-    /// \todo Already deactivated?
+    /// \todo Already deactivated
     m_GameStates[i].m_pState->OnActivation(m_GameStates[i].m_pLinkedToWorld);
   }
 }
@@ -214,6 +218,10 @@ void ezGameApplication::ActivateAllGameStates()
 
 void ezGameApplication::DeactivateAllGameStates()
 {
+  // There is always at least one gamestate, but if it is null, then our applicatin might not use them at all.
+  if (m_GameStates.IsEmpty() || m_GameStates[0].m_pState == nullptr)
+    return;
+
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
     /// \todo Already deactivated?
@@ -404,10 +412,7 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
 {
   if (!m_bWasQuitRequested)
   {
-    for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
-    {
-      m_Windows[i].m_pWindow->ProcessWindowMessages();
-    }
+    ProcessWindowMessages();
 
     if (ezRenderLoop::GetMainViews().GetCount() > 0)
     {
@@ -442,7 +447,7 @@ void ezGameApplication::UpdateWorldsAndRender()
 
     RenderFps();
     RenderConsole();
-    
+
     ezRenderLoop::Render(ezRenderContext::GetDefaultInstance());
 
     if (ezRenderLoop::GetUseMultithreadedRendering())
@@ -615,7 +620,7 @@ void ezGameApplication::RenderConsole()
   const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView);
   if (pView == nullptr)
     return;
-  
+
   const float fViewWidth = pView->GetViewport().width;
   const float fViewHeight = pView->GetViewport().height;
   const float fTextHeight = 16.0f;

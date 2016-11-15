@@ -60,7 +60,7 @@ public:
   virtual ezApplication::ApplicationExecution Run() override;
 
   /// \brief Adds a top level window to the application.
-  /// 
+  ///
   /// An ezGALSwapChain is created for that window. Run() will call ezWindowBase::ProcessWindowMessages()
   /// on all windows that have been added.
   /// Most applications should add exactly one such window to the game application.
@@ -98,7 +98,7 @@ public:
   /// \brief Returns whether RequestQuit() was called.
   EZ_FORCE_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
 
-  /// \brief Checks all parent directories of the scene file and tries to find a file called 
+  /// \brief Checks all parent directories of the scene file and tries to find a file called
   /// 'ezProject' (no extension) which marks the project directory.
   /// Returns an empty string, if no such directory could be found.
   ezString FindProjectDirectoryForScene(const char* szScene) const;
@@ -165,7 +165,7 @@ protected:
   /// Destroys all game states and shuts down everything that was created in AfterCoreStartup()
   virtual void BeforeCoreShutdown() override;
 
-  
+
 
 protected:
   ///
@@ -178,7 +178,7 @@ protected:
   /// \brief Called by DoProjectSetup() very early to configure where all log output shall go.
   virtual void DoSetupLogWriters();
 
-  /// \brief Called by DoProjectSetup() early on to configure the ezFileSystem. 
+  /// \brief Called by DoProjectSetup() early on to configure the ezFileSystem.
   ///
   /// It's main responsibility is to call ezFileSystem::RegisterDataDirectoryFactory for all data
   /// directory types that the application should use. For configuring custom data directories,
@@ -193,13 +193,13 @@ protected:
   virtual void DoSetupDataDirectories();
 
   /// \brief Called by DoProjectSetup() after DoSetupDataDirectories(). Loads plugins that the application should always load.
-  /// The default implementation loads 'ezInspectorPlugin' in development builds 
+  /// The default implementation loads 'ezInspectorPlugin' in development builds
   virtual void DoLoadCustomPlugins();
 
   /// \brief Called by DoProjectSetup() after DoLoadCustomPlugins().
   /// The default implementation uses ezApplicationPluginConfig to load all manual plugins.
   virtual void DoLoadPluginsFromConfig();
-  
+
   /// \brief Called by DoProjectSetup() after DoLoadPluginsFromConfig().
   /// The default implementation sets up some common fallbacks.
   virtual void DoSetupDefaultResources();
@@ -233,11 +233,17 @@ protected:
   ///
   /// Application Update
   ///
-  
+
   /// \brief Override to implement proper input handling.
   ///
   /// The default implementation handles ESC (close app), F5 (reload resources) and F8 (capture profiling info).
   virtual void ProcessApplicationInput();
+
+  /// \brief Calls ProcessWindowMessages on all windows.
+  void ProcessWindowMessages();
+
+  /// \brief Does all input handling on input manager and game states.
+  void UpdateInput();
 
   ///
   /// Data
@@ -264,7 +270,6 @@ private:
   void RenderConsole();
 
   void DestroyGameState(ezUInt32 idx);
-  void UpdateInput();
 
   void UpdateWorldsAndExtractViews();
   ezDelegateTask<void> m_UpdateTask;
