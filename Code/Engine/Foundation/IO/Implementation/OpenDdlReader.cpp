@@ -1,4 +1,4 @@
-  #include <Foundation/PCH.h>
+#include <Foundation/PCH.h>
 #include <Foundation/IO/OpenDdlReader.h>
 
 ezOpenDdlReader::ezOpenDdlReader()

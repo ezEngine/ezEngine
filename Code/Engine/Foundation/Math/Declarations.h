@@ -40,8 +40,8 @@ struct ezMatrixLayout
 {
   enum Enum
   {
-    RowMajor,     ///< The matrix is store in row-major format.
-    ColumnMajor   ///< The matrix is store in column-major format.
+    RowMajor,     ///< The matrix is stored in row-major format.
+    ColumnMajor   ///< The matrix is stored in column-major format.
   };
 };
 
