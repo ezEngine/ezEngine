@@ -1,0 +1,81 @@
+{
+  "PointSampler" :
+  {
+    "Category" : "Texturing/Samplers",
+    "Color" : "0, 96, 96",
+
+    "CodePixelSamplers" : "
+SamplerState PointSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
+        "Inline" : "PointSampler"
+      }
+    ],
+  },
+
+  "LinearSampler" :
+  {
+    "Category" : "Texturing/Samplers",
+    "Color" : "0, 96, 96",
+
+    "CodePixelSamplers" : "
+SamplerState LinearSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
+        "Inline" : "LinearSampler"
+      }
+    ],
+  },
+
+  "PointClampSampler" :
+  {
+    "Category" : "Texturing/Samplers",
+    "Color" : "0, 96, 96",
+
+    "CodePixelSamplers" : "
+SamplerState PointClampSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
+        "Inline" : "PointClampSampler"
+      }
+    ],
+  },
+
+  "LinearClampSampler" :
+  {
+    "Category" : "Texturing/Samplers",
+    "Color" : "0, 96, 96",
+
+    "CodePixelSamplers" : "
+SamplerState LinearClampSampler;
+",
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Sampler",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
+        "Inline" : "LinearClampSampler"
+      }
+    ]
+  }
+}

@@ -6,6 +6,8 @@
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
+class ezOpenDdlReaderElement;
+
 class ezVisualShaderPinDescriptor
 {
 public:
@@ -87,8 +89,12 @@ private:
   void LoadConfigFile(const char* szFile);
 
   void ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput);
+  void ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput);
   void ExtractNodeProperties(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
+  void ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor &nd);
   void ExtractNodeConfig(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd);
+  void ExtractNodeConfig(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor &nd);
+
 
   ezMap<const ezRTTI*, ezVisualShaderNodeDescriptor> m_NodeDescriptors;
 

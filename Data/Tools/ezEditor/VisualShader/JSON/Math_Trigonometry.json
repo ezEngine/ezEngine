@@ -1,0 +1,228 @@
+{
+  "Sine" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Tooltip" : "The angle value in radians."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "sin($in0)",
+        "Tooltip" : "The sine of the input (component-wise)."
+      }
+    ]
+  },
+
+  "Cosine" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Tooltip" : "The angle value in radians."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "cos($in0)",
+        "Tooltip" : "The cosine of the input (component-wise)."
+      }
+    ]
+  },
+
+  "Exp" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Tooltip" : ""
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "exp($in0)",
+        "Tooltip" : "The base-e exponential (component-wise)."
+      }
+    ]
+  },
+
+  "Exp2" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Tooltip" : ""
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "exp2($in0)",
+        "Tooltip" : "The base-2 exponential (component-wise)."
+      }
+    ]
+  },
+
+  "Log" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Tooltip" : ""
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "log($in0)",
+        "Tooltip" : "The base-e logarithm of a. (component-wise)."
+      }
+    ]
+  },
+
+  "Log2" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Tooltip" : ""
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "log2($in0)",
+        "Tooltip" : "The base-2 logarithm of a. (component-wise)."
+      }
+    ]
+  },
+
+  "Log10" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "a",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Tooltip" : ""
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "log10($in0)",
+        "Tooltip" : "The base-10 logarithm of a. (component-wise)."
+      }
+    ]
+  },
+
+  "Pow" :
+  {
+    "Category" : "Math/Trigonometry",
+    "Color" : "183, 36, 3",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "Base",
+        "Type" : "float",
+        "Color" : "128, 50, 50",
+        "Tooltip" : "",
+        "Expose" : true,
+        "Fallback" : "1"
+      },
+
+      {
+        "Name" : "Exponent",
+        "Type" : "float",
+        "Color" : "50, 128, 50",
+        "Tooltip" : "",
+        "Expose" : true,
+        "Fallback" : "1"
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "pow(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))",
+        "Tooltip" : "Base raised to the power of Exponent. (component-wise)."
+      }
+    ]
+  }
+}

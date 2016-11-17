@@ -1,0 +1,368 @@
+{
+  "BaseTexture" :
+  {
+    "Category" : "Texturing",
+    "NodeType" : "Texture",
+    "Color" : "0, 89, 153",
+    "CodeMaterialParams" : "
+Texture2D BaseTexture @Default(\"$prop0\");
+",
+
+    "CodePixelSamplers" : "
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : "RebeccaPurple.color"
+      }
+    ],
+
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Color" : "50, 50, 128",
+        "Type" : "float2",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "RGBA",
+        "Type" : "float4",
+        "Color" : "200, 200, 200",
+        "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0))"
+      },
+
+      {
+        "Name" : "Red",
+        "Type" : "float",
+        "Color" : "128, 0, 0",
+        "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).x"
+      },
+
+      {
+        "Name" : "Green",
+        "Type" : "float",
+        "Color" : "0, 128, 0",
+        "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).y"
+      },
+
+      {
+        "Name" : "Blue",
+        "Type" : "float",
+        "Color" : "0, 0, 128",
+        "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).z"
+      },
+
+      {
+        "Name" : "Alpha",
+        "Type" : "float",
+        "Color" : "175, 175, 117",
+        "Inline" : "BaseTexture.Sample(BaseTexture_AutoSampler, ToFloat2($in0)).w"
+      }
+    ],
+  },
+
+
+  "NormalTexture" :
+  {
+    "Category" : "Texturing",
+    "NodeType" : "Texture",
+    "Color" : "0, 89, 153",
+    "CodeMaterialParams" : "
+Texture2D NormalTexture @Default(\"$prop0\");
+",
+
+    "CodePixelSamplers" : "
+Texture2D NormalTexture;
+SamplerState NormalTexture_AutoSampler;
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : "{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }" // Neutral normal map
+      }
+    ],
+
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Normal",
+        "Type" : "float3",
+        "Color" : "128, 128, 255",
+        "Inline" : "normalize(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0)",
+        "Tooltip" : "Normal in Tangent Space"
+      }
+    ],
+  },
+
+  "EmissiveTexture" :
+  {
+    "Category" : "Texturing",
+    "NodeType" : "Texture",
+    "Color" : "0, 89, 153",
+    "CodeMaterialParams" : "
+Texture2D EmissiveTexture @Default(\"$prop0\");
+",
+
+    "CodePixelSamplers" : "
+Texture2D EmissiveTexture;
+SamplerState EmissiveTexture_AutoSampler;
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : ""
+      }
+    ],
+
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "RGBA",
+        "Type" : "float4",
+        "Color" : "200, 200, 200",
+        "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0))"
+      },
+
+      {
+        "Name" : "Red",
+        "Type" : "float",
+        "Color" : "128, 0, 0",
+        "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).x"
+      },
+
+      {
+        "Name" : "Green",
+        "Type" : "float",
+        "Color" : "0, 128, 0",
+        "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).y"
+      },
+
+      {
+        "Name" : "Blue",
+        "Type" : "float",
+        "Color" : "0, 0, 128",
+        "Inline" : "EmissiveTexture.Sample(EmissiveTexture_AutoSampler, ToFloat2($in0)).z"
+      }
+    ],
+  },
+
+  "MetallicTexture" :
+  {
+    "Category" : "Texturing",
+    "NodeType" : "Texture",
+    "Color" : "0, 89, 153",
+    "CodeMaterialParams" : "
+Texture2D MetallicTexture @Default(\"$prop0\");
+",
+
+    "CodePixelSamplers" : "
+Texture2D MetallicTexture;
+SamplerState MetallicTexture_AutoSampler;
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : ""
+      }
+    ],
+
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Metallic",
+        "Type" : "float",
+        "Color" : "128, 128, 128",
+        "Inline" : "MetallicTexture.Sample(MetallicTexture_AutoSampler, ToFloat2($in0)).x",
+        "Tooltip" : "Outputs only the red component of the sampled texture."
+      }
+    ]
+  },
+
+  "RoughnessTexture" :
+  {
+    "Category" : "Texturing",
+    "NodeType" : "Texture",
+    "Color" : "0, 89, 153",
+    "CodeMaterialParams" : "
+Texture2D RoughnessTexture @Default(\"$prop0\");
+",
+
+    "CodePixelSamplers" : "
+Texture2D RoughnessTexture;
+SamplerState RoughnessTexture_AutoSampler;
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : ""
+      }
+    ],
+
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "Roughness",
+        "Type" : "float",
+        "Color" : "150, 64, 64",
+        "Inline" : "RoughnessTexture.Sample(RoughnessTexture_AutoSampler, ToFloat2($in0)).x",
+        "Tooltip" : "Outputs only the red component of the sampled texture."
+      }
+    ]
+  },
+
+
+
+  "Texture2D" :
+  {
+    "Category" : "Texturing",
+    "NodeType" : "Texture",
+    "Color" : "0, 89, 153",
+    "CodeMaterialParams" : "
+Texture2D $prop0 @Default(\"$prop1\");
+",
+
+    "CodePixelSamplers" : "
+Texture2D $prop0;
+SamplerState $prop0_AutoSampler;
+",
+
+    "Properties" :
+    [
+      {
+        "Name" : "Name",
+        "Type" : "string",
+        "Value" : ""
+      },
+
+      {
+        "Name" : "Texture",
+        "Type" : "Texture2D",
+        "Value" : ""
+      }
+    ],
+
+    "InputPins" :
+    [
+      {
+        "Name" : "UV",
+        "Type" : "float2",
+        "Color" : "50, 50, 128",
+        "Fallback" : "Input.TexCoords",
+        "Tooltip" : "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates."
+      },
+
+      {
+        "Name" : "Sampler",
+        "Type" : "sampler",
+        "Color" : "0, 96, 96",
+        "Fallback" : "$prop0_AutoSampler",
+        "Tooltip" : "Optional sampler state to use."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "RGBA",
+        "Type" : "float4",
+        "Color" : "200, 200, 200",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0))"
+      },
+
+      {
+        "Name" : "Red",
+        "Type" : "float",
+        "Color" : "128, 0, 0",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).x"
+      },
+
+      {
+        "Name" : "Green",
+        "Type" : "float",
+        "Color" : "0, 128, 0",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).y"
+      },
+
+      {
+        "Name" : "Blue",
+        "Type" : "float",
+        "Color" : "0, 0, 128",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).z"
+      },
+
+      {
+        "Name" : "Alpha",
+        "Type" : "float",
+        "Color" : "175, 175, 117",
+        "Inline" : "$prop0.Sample($in1, ToFloat2($in0)).w"
+      }
+    ]
+  }
+}

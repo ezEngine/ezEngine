@@ -29,7 +29,7 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
       if (pChild->HasName())
       {
         ezString sNameCopy = pChild->GetName();
-        const ezOpenDdlReaderElement* pChild2 = pElement->FindChildElement(sNameCopy);
+        const ezOpenDdlReaderElement* pChild2 = pElement->FindChild(sNameCopy);
 
         EZ_TEST_BOOL(pChild == pChild2);
       }

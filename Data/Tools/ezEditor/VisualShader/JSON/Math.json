@@ -1,0 +1,46 @@
+{
+  "Lerp" :
+  {
+    "Category" : "Math/Interpolation",
+    "Color" : "183, 153, 0",
+
+    "InputPins" :
+    [
+      {
+        "Name" : "x",
+        "Type" : "float",
+        "Color" : "128, 50, 50",
+        "Expose" : true,
+        "Fallback" : "0"
+      },
+
+      {
+        "Name" : "y",
+        "Type" : "float",
+        "Color" : "50, 128, 50",
+        "Expose" : true,
+        "Fallback" : "1"
+      },
+
+      {
+        "Name" : "factor",
+        "Type" : "float",
+        "Color" : "128, 128, 0",
+        "Expose" : true,
+        "Fallback" : "0.5",
+        "Tooltip" : "How much to interpolate between x and y. At 0 the output is x, at 1 the output is y."
+      }
+    ],
+
+    "OutputPins" :
+    [
+      {
+        "Name" : "result",
+        "Type" : "float",
+        "Color" : "200, 200, 200",
+        "Inline" : "lerp(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0), ToFloat1($in2))",
+        "Tooltip" : "Linear interpolation between x and y according to factor."
+      }
+    ]
+  }
+}

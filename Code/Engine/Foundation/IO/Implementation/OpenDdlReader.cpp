@@ -306,7 +306,18 @@ ezUInt32 ezOpenDdlReaderElement::GetNumPrimitives() const
   return m_uiNumChildElements & (~EZ_BIT(31)); // Bit 31 stores whether the name is global
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildElement(const char* szName) const
+
+bool ezOpenDdlReaderElement::HasPrimitives(ezOpenDdlPrimitiveType type, ezUInt32 uiMinNumberOfPrimitives /*= 1*/) const
+{
+  /// \test This is new
+
+  if (m_PrimitiveType != type)
+    return false;
+
+  return m_uiNumChildElements >= uiMinNumberOfPrimitives;
+}
+
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(const char* szName) const
 {
   EZ_ASSERT_DEBUG(m_PrimitiveType == ezOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
 
@@ -317,6 +328,28 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildElement(const cha
     if (ezStringUtils::IsEqual(pChild->GetName(), szName))
     {
       return pChild;
+    }
+
+    pChild = pChild->GetSibling();
+  }
+
+  return nullptr;
+}
+
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives/* = 1*/) const
+{
+  /// \test This is new
+
+  EZ_ASSERT_DEBUG(m_PrimitiveType == ezOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
+
+  const ezOpenDdlReaderElement* pChild = static_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
+
+  while (pChild)
+  {
+    if (pChild->GetPrimitivesType() == type && ezStringUtils::IsEqual(pChild->GetName(), szName))
+    {
+      if (type == ezOpenDdlPrimitiveType::Custom || pChild->GetNumPrimitives() >= uiMinNumberOfPrimitives)
+        return pChild;
     }
 
     pChild = pChild->GetSibling();

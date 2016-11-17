@@ -41,6 +41,9 @@ public:
   /// \brief For non-custom types this returns the type of primitive that is stored at this element.
   EZ_FORCE_INLINE ezOpenDdlPrimitiveType GetPrimitivesType() const { return m_PrimitiveType; } // [tested]
 
+  /// \brief Returns true if the element stores the requested type of primitives AND has at least the desired amount of them, so that accessing the data array at certain indices is safe.
+  bool HasPrimitives(ezOpenDdlPrimitiveType type, ezUInt32 uiMinNumberOfPrimitives = 1) const;
+
   /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
   EZ_FORCE_INLINE const bool* GetPrimitivesBool() const { return reinterpret_cast<const bool*>(m_pFirstChild); } // [tested]
 
@@ -79,7 +82,10 @@ public:
 
   /// \brief Searches for a child with the given name. It does not matter whether the object's name is 'local' or 'global'.
   /// \a szName is case-sensitive.
-  const ezOpenDdlReaderElement* FindChildElement(const char* szName) const; // [tested]
+  const ezOpenDdlReaderElement* FindChild(const char* szName) const; // [tested]
+
+  /// \brief Searches for a child element that has the given type, name and if it is a primitives list, at least the desired number of primitives.
+  const ezOpenDdlReaderElement* FindChild(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives = 1) const;
 
 private:
   friend class ezOpenDdlReader;
