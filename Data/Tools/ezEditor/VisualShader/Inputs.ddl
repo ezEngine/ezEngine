@@ -1,0 +1,124 @@
+Node %Time
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  OutputPin %Global
+  {
+    string %Type { "float" }
+    unsigned_int8 %Color { 200, 0, 0 }
+    string %Inline { "GlobalTime" }
+    string %Tooltip { "Real time. Always at the same speed, unaffected by world simulation speed." }
+  }
+
+  OutputPin %World
+  {
+    string %Type { "float" }
+    unsigned_int8 %Color { 0, 200, 0 }
+    string %Inline { "WorldTime" }
+    string %Tooltip { "World simulation time. Affected by simulation speed (slow-motion) and world paused state." }
+  }
+}
+
+Node %UV
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  OutputPin %UV
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 50, 50, 128 }
+    string %Inline { "Input.TexCoords" }
+    string %Tooltip { "The UV 0 texture coordinate." }
+  }
+}
+
+Node %VertexPosition
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  OutputPin %Position
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 38, 105, 0 }
+    string %Inline { "Input.Position" }
+    string %Tooltip { "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position." }
+  }
+}
+
+Node %VertexNormal
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  OutputPin %Normal
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 128, 128, 255 }
+    string %Inline { "Input.Normal" }
+    string %Tooltip { "The vertex normal. For vertex shaders this is in local space, for pixel shaders it is in world space." }
+  }
+}
+
+Node %VertexTangent
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  OutputPin %Tangent
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 255, 128, 128 }
+    string %Inline { "Input.Tangent" }
+    string %Tooltip { "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position." }
+  }
+}
+
+Node %Camera
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  OutputPin %Position
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Inline { "CameraPosition" }
+    string %Tooltip { "Global camera position." }
+  }
+
+  OutputPin %Forwards
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 128, 0, 0 }
+    string %Inline { "CameraDirForwards" }
+    string %Tooltip { "Forward direction vector of the camera." }
+  }
+
+  OutputPin %Right
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 0, 128, 0 }
+    string %Inline { "CameraDirRight" }
+    string %Tooltip { "Right direction vector of the camera." }
+  }
+
+  OutputPin %Up
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 0, 0, 128 }
+    string %Inline { "CameraDirUp" }
+    string %Tooltip { "Up direction vector of the camera." }
+  }
+
+  OutputPin %Exposure
+  {
+    string %Type { "float" }
+    unsigned_int8 %Color { 128, 128, 0 }
+    string %Inline { "Exposure" }
+    string %Tooltip { "Current exposure value of the camera." }
+  }
+}
+
