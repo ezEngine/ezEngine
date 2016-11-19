@@ -184,20 +184,6 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   out_desc.m_ReferenceAttributes = pRtti->GetAttributes();
 }
 
-void ezToolsReflectionUtils::WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriter& stream, const ezDocumentObject* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)
-{
-  ezAbstractObjectGraph graph;
-  ezDocumentObjectConverterWriter conv(&graph, pObject->GetDocumentObjectManager(), false, bSerializeOwnerPtrs);
-
-  ezUuid guid;
-  guid.CreateNewUuid();
-
-  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pObject, "root");
-
-  ezAbstractGraphJsonSerializer::Write(stream, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
-}
-
-
 static void GatherObjectTypesInternal(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types)
 {
   inout_types.Insert(pObject->GetTypeAccessor().GetType());

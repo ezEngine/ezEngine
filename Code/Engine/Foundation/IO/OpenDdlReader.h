@@ -87,6 +87,9 @@ public:
   /// \brief Searches for a child element that has the given type, name and if it is a primitives list, at least the desired number of primitives.
   const ezOpenDdlReaderElement* FindChild(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives = 1) const;
 
+  /// \brief Searches for a child element with the given type and optionally also a certain name.
+  const ezOpenDdlReaderElement* FindChildOfType(const char* szType, const char* szName = nullptr) const;
+
 private:
   friend class ezOpenDdlReader;
 
@@ -111,9 +114,9 @@ public:
   /// \param stream is the input data.
   /// \param uiFirstLineOffset allows to adjust the reported line numbers in error messages, in case the given stream represents a sub-section of a larger file.
   /// \param pLog is used for outputting details about parsing errors. If nullptr is given, no details are logged.
-  /// \param uiSizeInKB is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single list,
+  /// \param uiCacheSizeInKB is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single list,
   /// increasing the cache size can improve performance, but typically this doesn't need to be adjusted.
-  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = nullptr, ezUInt32 uiSizeInKB = 4); // [tested]
+  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = nullptr, ezUInt32 uiCacheSizeInKB = 4); // [tested]
 
   /// \brief Every document has exactly one root element.
   const ezOpenDdlReaderElement* GetRootElement() const; // [tested]

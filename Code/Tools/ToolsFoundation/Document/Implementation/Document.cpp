@@ -9,6 +9,7 @@
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -157,6 +158,8 @@ void ezDocument::EnsureVisible()
   s_EventsAny.Broadcast(e);
 }
 
+//#define EZ_ENABLE_DDL
+
 ezStatus ezDocument::InternalSaveDocument()
 {
   ezFileWriter file;
@@ -164,6 +167,17 @@ ezStatus ezDocument::InternalSaveDocument()
   {
     return ezStatus(EZ_FAILURE, "Unable to open file for writing!");
   }
+
+#ifdef EZ_ENABLE_DDL
+  ezStringBuilder fileDdl = m_sDocumentPath;
+  fileDdl.ChangeFileExtension("ddl");
+
+  ezFileWriter ddlFile;
+  if (ddlFile.Open(fileDdl) == EZ_FAILURE)
+  {
+    return ezStatus(EZ_FAILURE, "Unable to open file for writing!");
+  }
+#endif
 
   ezAbstractObjectGraph graph;
   {
@@ -195,20 +209,36 @@ ezStatus ezDocument::InternalSaveDocument()
   }
   ezAbstractGraphJsonSerializer::Write(file, &graph, &typesGraph, ezJSONWriter::WhitespaceMode::LessIndentation);
 
+#ifdef EZ_ENABLE_DDL
+  ezAbstractGraphDdlSerializer::Write(ddlFile, &graph, &typesGraph, ezOpenDdlWriter::WhitespaceMode::LessIndentation);
+#endif
+
   return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezDocument::InternalLoadDocument()
 {
-  ezFileReader file;
-  if (file.Open(m_sDocumentPath) == EZ_FAILURE)
-  {
-    return ezStatus(EZ_FAILURE, "Unable to open file for reading!");
-  }
-
   ezAbstractObjectGraph graph;
   ezAbstractObjectGraph typesGraph;
-  ezAbstractGraphJsonSerializer::Read(file, &graph, &typesGraph);
+
+  ezStringBuilder fileDdl = m_sDocumentPath;
+  fileDdl.ChangeFileExtension("ddl");
+
+  ezFileReader ddlFile;
+  if (ddlFile.Open(fileDdl).Succeeded())
+  {
+    ezAbstractGraphDdlSerializer::Read(ddlFile, &graph, &typesGraph);
+  }
+  else
+  {
+    ezFileReader file;
+    if (file.Open(m_sDocumentPath) == EZ_FAILURE)
+    {
+      return ezStatus(EZ_FAILURE, "Unable to open file for reading!");
+    }
+
+    ezAbstractGraphJsonSerializer::Read(file, &graph, &typesGraph);
+  }
 
   {
     // Deserialize and register serialized phantom types.

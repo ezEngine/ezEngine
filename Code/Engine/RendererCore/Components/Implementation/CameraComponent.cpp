@@ -75,8 +75,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 4)
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
     EZ_ACCESSOR_PROPERTY("Near Plane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_ACCESSOR_PROPERTY("Far Plane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
-    EZ_ACCESSOR_PROPERTY("FOV (perspective)", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 179.0f)),
-    EZ_ACCESSOR_PROPERTY("Dimensions (ortho)", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
+    EZ_ACCESSOR_PROPERTY("FOV", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 179.0f)),
+    EZ_ACCESSOR_PROPERTY("Dimensions", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_SET_MEMBER_PROPERTY("Include Tags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_SET_MEMBER_PROPERTY("Exclude Tags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_ACCESSOR_PROPERTY("Render Pipeline", GetRenderPipelineFile, SetRenderPipelineFile)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline")),
@@ -162,7 +162,7 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fFarPlane;
   s >> m_fPerspectiveFieldOfView;
   s >> m_fOrthoDimension;
-  
+
   if (uiVersion >= 2)
   {
     s >> m_hRenderPipeline;
@@ -190,7 +190,7 @@ void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
   if (val == m_UsageHint)
     return;
   m_UsageHint = val;
-  
+
   MarkAsModified();
 }
 
@@ -200,7 +200,7 @@ void ezCameraComponent::SetCameraMode(ezEnum<ezCameraMode> val)
   if (val == m_Mode)
     return;
   m_Mode = val;
-  
+
   MarkAsModified();
 }
 
@@ -210,7 +210,7 @@ void ezCameraComponent::SetNearPlane(float val)
   if (val == m_fNearPlane)
     return;
   m_fNearPlane = val;
-  
+
   MarkAsModified();
 }
 
@@ -220,7 +220,7 @@ void ezCameraComponent::SetFarPlane(float val)
   if (val == m_fFarPlane)
     return;
   m_fFarPlane = val;
-  
+
   MarkAsModified();
 }
 
@@ -230,7 +230,7 @@ void ezCameraComponent::SetFieldOfView(float val)
   if (val == m_fPerspectiveFieldOfView)
     return;
   m_fPerspectiveFieldOfView = val;
-  
+
   MarkAsModified();
 }
 
@@ -240,7 +240,7 @@ void ezCameraComponent::SetOrthoDimension(float val)
   if (val == m_fOrthoDimension)
     return;
   m_fOrthoDimension = val;
-  
+
   MarkAsModified();
 }
 
@@ -249,7 +249,7 @@ void ezCameraComponent::SetRenderPipeline(ezRenderPipelineResourceHandle hRender
   if (hRenderPipeline == m_hRenderPipeline)
     return;
   m_hRenderPipeline = hRenderPipeline;
-  
+
   MarkAsModified();
 }
 

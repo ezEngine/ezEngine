@@ -184,7 +184,7 @@ private:
   bool m_bHadFatalParsingError;
   ezUInt8 m_szIdentifierType[32];
   ezUInt8 m_szIdentifierName[32];
-  ezUInt8 m_TempString[1024];
+  ezDynamicArray<ezUInt8> m_TempString;
   ezUInt32 m_uiTempStringLength;
 
   ezUInt32 m_uiNumCachedPrimitives;

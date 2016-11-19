@@ -436,6 +436,26 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
   // expect a custom type
   if (pElement->IsCustomType())
   {
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "VarArray"))
+    {
+      ezVariantArray value;
+      ezVariant varChild;
+
+      /// \test This is just quickly hacked
+      /// \todo Store array size for reserving var array length
+
+      for (const ezOpenDdlReaderElement* pChild = pElement->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+      {
+        if (ConvertToVariant(pChild, varChild).Failed())
+          return EZ_FAILURE;
+
+        value.PushBack(varChild);
+      }
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
     // always expect exactly one child
     if (pElement->GetNumChildObjects() != 1)
       return EZ_FAILURE;
@@ -893,20 +913,14 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
   case ezVariant::Type::String:
     {
       const ezString& var = value.Get<ezString>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, szName, bGlobalName);
-      writer.WriteString(var);
-      writer.EndPrimitiveList();
+      ezOpenDdlUtils::StoreString(writer, var, szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::StringView:
     {
       const ezStringView& var = value.Get<ezStringView>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, szName, bGlobalName);
-      writer.WriteString(var);
-      writer.EndPrimitiveList();
+      ezOpenDdlUtils::StoreString(writer, var, szName, bGlobalName);
     }
     return;
 
@@ -957,8 +971,33 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
   case ezVariant::Type::ColorGamma:
     StoreColorGamma(writer, value.Get<ezColorGammaUB>(), szName, bGlobalName);
     return;
-  }
 
+  case ezVariant::Type::VariantArray:
+    {
+      /// \test This is just quickly hacked
+
+      writer.BeginObject("VarArray", szName, bGlobalName);
+
+      const ezVariantArray& arr = value.Get<ezVariantArray>();
+      for (ezUInt32 i = 0; i < arr.GetCount(); ++i)
+      {
+        ezOpenDdlUtils::StoreVariant(writer, arr[i]);
+      }
+
+      writer.EndObject();
+    }
+    return;
+
+  default:
+    EZ_REPORT_FAILURE("Can't write this type of Variant");
+  }
+}
+
+void ezOpenDdlUtils::StoreString(ezOpenDdlWriter& writer, const ezStringView& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, szName, bGlobalName);
+  writer.WriteString(value);
+  writer.EndPrimitiveList();
 }
 
 

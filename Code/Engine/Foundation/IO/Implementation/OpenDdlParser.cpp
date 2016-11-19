@@ -12,6 +12,7 @@ ezOpenDdlParser::ezOpenDdlParser()
 void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
 {
   m_Cache.SetCount(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
+  m_TempString.SetCount(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
 
   m_pBoolCache = reinterpret_cast<bool*>(m_Cache.GetData());
   m_pInt8Cache = reinterpret_cast<ezInt8*>(m_Cache.GetData());
@@ -465,12 +466,14 @@ void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString)
 {
   ezUInt32 count = 0;
 
-  if (IsIdentifierCharacter(m_uiCurByte))
+  // Extension to default OpenDDL: We allow ':' to appear in identifier names
+
+  if (IsIdentifierCharacter(m_uiCurByte) || m_uiCurByte == ':')
   {
     szString[count] = m_uiCurByte;
     ++count;
 
-    while (IsIdentifierCharacter(m_uiNextByte) && count < 32)
+    while ((IsIdentifierCharacter(m_uiNextByte) || m_uiCurByte == ':') && count < 32)
     {
       ReadCharacterSkipComments();
 
@@ -486,7 +489,7 @@ void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString)
     ParsingError("Object type name is longer than 31 characters", false);
 
     // skip the rest
-    while (IsIdentifierCharacter(m_uiCurByte))
+    while (IsIdentifierCharacter(m_uiCurByte) || m_uiCurByte == ':')
     {
       ReadCharacterSkipComments();
     }
@@ -577,8 +580,12 @@ void ezOpenDdlParser::ReadString()
       ++m_uiTempStringLength;
     }
 
-    /// \todo Do this properly ...
-    EZ_ASSERT_DEV(m_uiTempStringLength < 1020, "String is longer than allowed");
+    /// \todo Not sure if we can just use the other cache here, they might be used in parallel
+
+    if (m_uiTempStringLength + 2 >= m_TempString.GetCount())
+    {
+      m_TempString.SetCount(m_TempString.GetCount() * 2);
+    }
   }
 
   m_TempString[m_uiTempStringLength] = '\0';
@@ -779,9 +786,11 @@ void ezOpenDdlParser::ContinueBool()
           PurgeCachedPrimitives(false);
       }
 
-      break;
+      return;
     }
   }
+
+  ParsingError("Invalid bool value", true);
 }
 
 void ezOpenDdlParser::ContinueInt()

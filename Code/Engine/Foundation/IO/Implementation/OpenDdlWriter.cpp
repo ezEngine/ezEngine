@@ -47,6 +47,8 @@ void ezOpenDdlWriter::OutputIndentation()
 
 void ezOpenDdlWriter::OutputPrimitiveTypeName(ezOpenDdlPrimitiveType type)
 {
+  // Change to OpenDDL: We write uint8 etc. instead of unsigned_int
+
   switch (type)
   {
   case ezOpenDdlPrimitiveType::Bool:
@@ -65,16 +67,20 @@ void ezOpenDdlWriter::OutputPrimitiveTypeName(ezOpenDdlPrimitiveType type)
     OutputString("int64", 5);
     break;
   case ezOpenDdlPrimitiveType::UInt8:
-    OutputString("unsigned_int8", 13);
+    //OutputString("unsigned_int8", 13);
+    OutputString("uint8", 5);
     break;
   case ezOpenDdlPrimitiveType::UInt16:
-    OutputString("unsigned_int16", 14);
+    //OutputString("unsigned_int16", 14);
+    OutputString("uint16", 6);
     break;
   case ezOpenDdlPrimitiveType::UInt32:
-    OutputString("unsigned_int32", 14);
+    //OutputString("unsigned_int32", 14);
+    OutputString("uint32", 6);
     break;
   case ezOpenDdlPrimitiveType::UInt64:
-    OutputString("unsigned_int64", 14);
+    //OutputString("unsigned_int64", 14);
+    OutputString("uint64", 6);
     break;
   case ezOpenDdlPrimitiveType::Float:
     OutputString("float", 5);
@@ -151,6 +157,8 @@ void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
 {
   if (!ezStringUtils::IsNullOrEmpty(szName))
   {
+    EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '%s'", szName);
+
     if (m_WhitespaceMode == WhitespaceMode::None)
     {
       // even remove the whitespace between type and name

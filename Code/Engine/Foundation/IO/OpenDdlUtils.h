@@ -141,5 +141,9 @@ namespace ezOpenDdlUtils
 
   /// \brief Writes an ezVariant to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreVariant(ezOpenDdlWriter& writer, const ezVariant& value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single string and an optional name.
+  EZ_FOUNDATION_DLL void StoreString(ezOpenDdlWriter& writer, const ezStringView& value, const char* szName = nullptr, bool bGlobalName = false);
+
 }
 

@@ -12,12 +12,12 @@ ezOpenDdlReader::~ezOpenDdlReader()
   ClearDataChunks();
 }
 
-ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset, ezLogInterface* pLog, ezUInt32 uiSizeInKB)
+ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset, ezLogInterface* pLog, ezUInt32 uiCacheSizeInKB)
 {
   EZ_ASSERT_DEBUG(m_ObjectStack.IsEmpty(), "A reader can only be used once.");
 
   SetLogInterface(pLog);
-  SetCacheSize(uiSizeInKB);
+  SetCacheSize(uiCacheSizeInKB);
   SetInputStream(stream, uiFirstLineOffset);
 
   m_TempCache.Reserve(s_uiChunkSize);
@@ -349,6 +349,25 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(ezOpenDdlPrimiti
     if (pChild->GetPrimitivesType() == type && ezStringUtils::IsEqual(pChild->GetName(), szName))
     {
       if (type == ezOpenDdlPrimitiveType::Custom || pChild->GetNumPrimitives() >= uiMinNumberOfPrimitives)
+        return pChild;
+    }
+
+    pChild = pChild->GetSibling();
+  }
+
+  return nullptr;
+}
+
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(const char* szType, const char* szName /*= nullptr*/) const
+{
+  const ezOpenDdlReaderElement* pChild = static_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
+
+  while (pChild)
+  {
+    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom &&
+        ezStringUtils::IsEqual(pChild->GetCustomType(), szType) &&
+       (szName == nullptr || ezStringUtils::IsEqual(pChild->GetName(), szName)))
+    {
         return pChild;
     }
 
