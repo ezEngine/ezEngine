@@ -708,4 +708,15 @@ void ezOpenDdlWriter::WriteString(const ezStringView& string)
   OutputEscapedString(string);
 }
 
+void ezOpenDdlWriter::WriteBinaryAsString(const void* pData, ezUInt32 uiBytes)
+{
+  /// \test ezOpenDdlWriter::WriteBinaryAsString
+
+  WritePrimitiveType(State::PrimitivesString);
+
+  OutputString("\"", 1);
+  WriteBinaryAsHex(pData, uiBytes);
+  OutputString("\"", 1);
+}
+
 

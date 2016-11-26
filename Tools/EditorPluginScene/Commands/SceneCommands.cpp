@@ -7,6 +7,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Random.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>)
 {
@@ -139,7 +140,7 @@ void ezDuplicateObjectsCommand::DeserializeGraph(ezAbstractObjectGraph& graph)
   memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
 
   ezMemoryStreamReader memoryReader(&streamStorage);
-  ezAbstractGraphJsonSerializer::Read(memoryReader, &graph);
+  ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
 }
 
 void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph &graph, ezHybridArray<ezDocument::PasteInfo, 16>& ToBePasted)

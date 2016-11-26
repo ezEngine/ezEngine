@@ -15,6 +15,7 @@
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <Core/World/GameObject.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -238,7 +239,7 @@ void ezSceneDocument::DuplicateSpecial()
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
   memoryWriter.WriteBytes("\0", 1); // null terminate
 
   ezDuplicateObjectsCommand cmd;
@@ -466,7 +467,7 @@ void ezSceneDocument::DuplicateSelection()
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph);
   memoryWriter.WriteBytes("\0", 1); // null terminate
 
   ezDuplicateObjectsCommand cmd;

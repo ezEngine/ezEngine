@@ -6,6 +6,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>)
 {
@@ -248,7 +249,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
 
       ezMemoryStreamReader memoryReader(&streamStorage);
-      ezAbstractGraphJsonSerializer::Read(memoryReader, &graph);
+      ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
     }
 
     // Remap

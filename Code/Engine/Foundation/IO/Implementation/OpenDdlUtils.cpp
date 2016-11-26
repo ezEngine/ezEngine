@@ -484,6 +484,26 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
     if (pElement->GetNumChildObjects() != 1)
       return EZ_FAILURE;
 
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "VarDataBuffer"))
+    {
+      /// \test This is just quickly hacked
+
+      ezDataBuffer value;
+
+      const ezOpenDdlReaderElement* pString = pElement->GetFirstChild();
+
+      if (!pString->HasPrimitives(ezOpenDdlPrimitiveType::String))
+        return EZ_FAILURE;
+
+      const ezStringView* pValues = pString->GetPrimitivesString();
+
+      value.SetCount(pValues[0].GetElementCount() / 2);
+      ezConversionUtils::ConvertHexToBinary(pValues[0].GetData(), value.GetData(), value.GetCount());
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
     if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Color"))
     {
       ezColor value;
@@ -657,7 +677,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
 
     case ezOpenDdlPrimitiveType::String:
-      out_result = ezString(pElement->GetPrimitivesString()[0]); // make sure this isn't stored as a string view
+      out_result = ezString(pElement->GetPrimitivesString()[0]); // make sure this isn't stored as a string view by copying to to an ezString first
       return EZ_SUCCESS;
     }
   }
@@ -1014,6 +1034,8 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
 
   case ezVariant::Type::VariantDictionary:
     {
+      /// \test This is just quickly hacked
+
       writer.BeginObject("VarDict", szName, bGlobalName);
 
       const ezVariantDictionary& dict = value.Get<ezVariantDictionary>();
@@ -1022,6 +1044,22 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
         ezOpenDdlUtils::StoreVariant(writer, it.Value(), it.Key(), false);
       }
 
+      writer.EndObject();
+
+    }
+    return;
+
+  case ezVariant::Type::DataBuffer:
+    {
+      /// \test This is just quickly hacked
+
+      writer.BeginObject("VarDataBuffer", szName, bGlobalName);
+      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String);
+
+      const ezDataBuffer& db = value.Get<ezDataBuffer>();
+      writer.WriteBinaryAsString(db.GetData(), db.GetCount());
+
+      writer.EndPrimitiveList();
       writer.EndObject();
 
     }

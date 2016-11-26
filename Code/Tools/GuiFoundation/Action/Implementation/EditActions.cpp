@@ -9,6 +9,7 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QMimeData>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -129,6 +130,10 @@ ezEditAction::~ezEditAction()
 
 void ezEditAction::Execute(const ezVariant& value)
 {
+  // if we ever want to use this action inside different types of documents and potentially copy between different document types
+  // we need to be more specific with the Mime data names
+  const char* szDataName = "ezAbstractGraph"; //m_Context.m_pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName.GetData()
+
   switch (m_ButtonType)
   {
   case ezEditAction::ButtonType::Copy:
@@ -139,14 +144,15 @@ void ezEditAction::Execute(const ezVariant& value)
       // Serialize to string
       ezMemoryStreamStorage streamStorage;
       ezMemoryStreamWriter memoryWriter(&streamStorage);
-      ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+      ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph, nullptr, false);
       memoryWriter.WriteBytes("\0", 1); // null terminate
 
       // Write to clipboard
       QClipboard* clipboard = QApplication::clipboard();
       QMimeData* mimeData = new QMimeData();
       QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
-      mimeData->setData(m_Context.m_pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName.GetData(), encodedData);
+
+      mimeData->setData(szDataName, encodedData);
       mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
       clipboard->setMimeData(mimeData);
     }
@@ -156,15 +162,14 @@ void ezEditAction::Execute(const ezVariant& value)
   case ezEditAction::ButtonType::PasteAsChild:
     {
       // Check for clipboard data of the correct type.
-      const ezString& sDocumentTypeName = m_Context.m_pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
       QClipboard* clipboard = QApplication::clipboard();
       auto mimedata = clipboard->mimeData();
-      if (!mimedata->hasFormat(sDocumentTypeName.GetData()))
+      if (!mimedata->hasFormat(szDataName))
         return;
 
       // Paste at current selected object.
       ezPasteObjectsCommand cmd;
-      QByteArray ba = mimedata->data(sDocumentTypeName.GetData());
+      QByteArray ba = mimedata->data(szDataName);
       cmd.m_sJsonGraph = ba.data();
 
       if (m_ButtonType == ButtonType::PasteAsChild)

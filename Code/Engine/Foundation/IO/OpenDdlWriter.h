@@ -95,6 +95,9 @@ public:
   /// \brief Writes a single string to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
   void WriteString(const ezStringView& string); // [tested]
 
+  /// \brief Writes a single string to the primitive list, but the value is a HEX representation of the given binary data.
+  void WriteBinaryAsString(const void* pData, ezUInt32 uiBytes);
+
 
 protected:
   enum State
