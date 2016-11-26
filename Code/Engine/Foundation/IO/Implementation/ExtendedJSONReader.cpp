@@ -1,29 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
 
-// converts a string of hex values to a binary data blob
-static void ConvertHexToBinary(const char* szHEX, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer)
-{
-  // skip 0x
-  if (szHEX[0] == '0' && szHEX[1] == 'x')
-    szHEX += 2;
-
-  // convert two characters to one byte, at a time
-  // try not to run out of buffer space
-  while (*szHEX != '\0' && uiBinaryBuffer >= 1)
-  {
-    ezUInt8 uiValue1 = ezConversionUtils::HexCharacterToIntValue(szHEX[0]);
-    ezUInt8 uiValue2 = ezConversionUtils::HexCharacterToIntValue(szHEX[1]);
-    ezUInt8 uiValue = 16 * uiValue1 + uiValue2;
-    *pBinary = uiValue;
-
-    pBinary += 1;
-    szHEX += 2;
-
-    uiBinaryBuffer -= 1;
-  }
-}
-
 // convert the binary string representation of some value to its memory
 // useful for types where no text representation is available/useful
 template<typename T>
@@ -36,7 +13,7 @@ ezVariant BuildTypedVariant_binary(const ezVariant& Binary, ezResult& out_Result
   if (Binary.IsValid() && Binary.CanConvertTo<ezString>())
   {
     ezUInt8 Data[1024];
-    ConvertHexToBinary(Binary.ConvertTo<ezString>().GetData(), Data, EZ_ARRAY_SIZE(Data));
+    ezConversionUtils::ConvertHexToBinary(Binary.ConvertTo<ezString>().GetData(), Data, EZ_ARRAY_SIZE(Data));
 
     tValue = *((T*) &Data[0]);
 
@@ -57,7 +34,7 @@ ezVariant BuildDataBuffer(const ezVariant& Binary, ezResult& out_Result)
     const ezString& bin = Binary.Get<ezString>();
     data.SetCount((bin.GetElementCount() - 1) / 2);
 
-    ConvertHexToBinary(bin.GetData(), data.GetData(), data.GetCount());
+    ezConversionUtils::ConvertHexToBinary(bin.GetData(), data.GetData(), data.GetCount());
 
     out_Result = EZ_SUCCESS;
   }
@@ -88,7 +65,7 @@ T BuildTypedVariant_number(const ezVariant& Value, const ezVariant& Binary, T fE
     ezResult Status(EZ_FAILURE);
 
     ezUInt8 Data[1024];
-    ConvertHexToBinary(Binary.ConvertTo<ezString>(&Status).GetData(), Data, EZ_ARRAY_SIZE(Data));
+    ezConversionUtils::ConvertHexToBinary(Binary.ConvertTo<ezString>(&Status).GetData(), Data, EZ_ARRAY_SIZE(Data));
 
     bValue = *((T*) &Data[0]);
 
@@ -132,7 +109,7 @@ ezAngle BuildTypedVariant_Angle(const ezVariant& Value, const ezVariant& Binary,
     ezResult Status(EZ_FAILURE);
 
     ezUInt8 Data[1024];
-    ConvertHexToBinary(Binary.ConvertTo<ezString>(&Status).GetData(), Data, EZ_ARRAY_SIZE(Data));
+    ezConversionUtils::ConvertHexToBinary(Binary.ConvertTo<ezString>(&Status).GetData(), Data, EZ_ARRAY_SIZE(Data));
 
     bValue = *((ezAngle*)&Data[0]);
 
@@ -196,7 +173,7 @@ T BuildTypedVariant_vector(const ezVariant& Value, const ezVariant& Binary, floa
     ezResult Status(EZ_FAILURE);
 
     ezUInt8 Data[1024];
-    ConvertHexToBinary(Binary.ConvertTo<ezString>(&Status).GetData(), Data, EZ_ARRAY_SIZE(Data));
+    ezConversionUtils::ConvertHexToBinary(Binary.ConvertTo<ezString>(&Status).GetData(), Data, EZ_ARRAY_SIZE(Data));
 
     bValue = *((T*) &Data[0]);
 

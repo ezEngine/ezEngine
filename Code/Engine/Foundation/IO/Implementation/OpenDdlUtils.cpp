@@ -456,6 +456,30 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "VarDict"))
+    {
+      ezVariantDictionary value;
+      ezVariant varChild;
+
+      /// \test This is just quickly hacked
+      /// \todo Store array size for reserving var array length
+
+      for (const ezOpenDdlReaderElement* pChild = pElement->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+      {
+        // no name -> invalid dictionary entry
+        if (!pChild->HasName())
+          continue;
+
+        if (ConvertToVariant(pChild, varChild).Failed())
+          return EZ_FAILURE;
+
+        value[pChild->GetName()] = varChild;
+      }
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
     // always expect exactly one child
     if (pElement->GetNumChildObjects() != 1)
       return EZ_FAILURE;
@@ -985,6 +1009,21 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
       }
 
       writer.EndObject();
+    }
+    return;
+
+  case ezVariant::Type::VariantDictionary:
+    {
+      writer.BeginObject("VarDict", szName, bGlobalName);
+
+      const ezVariantDictionary& dict = value.Get<ezVariantDictionary>();
+      for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+      {
+        ezOpenDdlUtils::StoreVariant(writer, it.Value(), it.Key(), false);
+      }
+
+      writer.EndObject();
+
     }
     return;
 

@@ -295,6 +295,7 @@ obj2\n\
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
 
     js.BeginObject("Data");
     {
@@ -313,11 +314,12 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  unsigned_int16 %values { 0,32767,65535 }\n\
+  uint16 %values { 0,32767,65535 }\n\
 }\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
 
     js.BeginObject("Data");
     {
@@ -337,11 +339,12 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  unsigned_int32 { 4294967295 }\n\
+  u3 { 4294967295 }\n\
 }\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Shortest);
 
     js.BeginObject("Data");
     {
@@ -365,6 +368,7 @@ obj2\n\
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
 
     js.BeginObject("Data");
     {
@@ -393,6 +397,7 @@ obj2\n\
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
 
     js.BeginObject("Data");
     {
@@ -433,6 +438,7 @@ obj2\n\
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
 
     js.BeginObject("Data");
     {
@@ -515,6 +521,7 @@ obj1\n\
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetWhitespaceMode(ezOpenDdlWriter::WhitespaceMode::LessIndentation);
 
     js.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, "balue", true);
@@ -561,6 +568,7 @@ float %falue{23.42}\n\
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetWhitespaceMode(ezOpenDdlWriter::WhitespaceMode::NewlinesOnly);
 
     js.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, "balue", true);
@@ -598,6 +606,7 @@ float %falue{23.42}\n\
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetWhitespaceMode(ezOpenDdlWriter::WhitespaceMode::None);
 
     js.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, "balue", true);

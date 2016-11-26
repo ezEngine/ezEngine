@@ -130,6 +130,18 @@ namespace ezConversionUtils
   /// \brief Converts a hex string (i.e. 0xAABBCCDD) into its uint32 value.
   EZ_FOUNDATION_DLL ezUInt32 ConvertHexStringToUInt32(const char* szHEX); // [tested]
 
+  /// \brief Converts a HEX string to a binary value.
+  ///
+  /// "0x" or "0X" at the start is allowed and will be skipped.
+  /// A maximum of \a uiBinaryBuffer bytes is written to \a pBinary.
+  /// If the string contains fewer HEX values than fit into \a pBinary, the remaining bytes will not be touched, so make sure all data is properly initialized!
+  /// The hex values are read 2 characters at a time to form a single byte value.
+  /// If at the end a single character is left (so an odd number of characters in total) that character is ignored entirely!
+  /// Values are started to be written at \a pBinary and then the pointer is increased, so the first values in szHEX represent to least significant bytes in \a pBinary.
+  ///
+  /// \note This function does not validate that the incoming string is actually valid HEX. If an invalid character is used, the result will be invalid and there is no error reported.
+  EZ_FOUNDATION_DLL void ConvertHexToBinary(const char* szHEX, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer);
+
   /// \brief Converts a string that was written with ezConversionUtils::ToString(ezUuid) back to an ezUuid object.
   EZ_FOUNDATION_DLL ezUuid ConvertStringToUuid(const char* szUuidString);
 

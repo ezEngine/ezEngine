@@ -271,9 +271,10 @@ void ezOpenDdlParser::ContinueIdle()
 
   default:
     {
-      ReadIdentifier(m_szIdentifierType);
+      ezUInt32 uiIdTypeLen = 0;
+      ReadIdentifier(m_szIdentifierType, uiIdTypeLen);
 
-      if (m_szIdentifierType[0] == '\0')
+      if (uiIdTypeLen == 0)
       {
         ParsingError("Object does not start with a valid type name", true);
         return;
@@ -289,9 +290,10 @@ void ezOpenDdlParser::ContinueIdle()
         if (!ReadCharacterSkipComments())
           return;
 
-        ReadIdentifier(m_szIdentifierName);
+        ezUInt32 uiIdNameLen = 0;
+        ReadIdentifier(m_szIdentifierName, uiIdNameLen);
 
-        if (m_szIdentifierName[0] == '\0')
+        if (uiIdNameLen == 0)
         {
           ParsingError("Object name is empty", true);
           return;
@@ -310,8 +312,9 @@ void ezOpenDdlParser::ContinueIdle()
       if (m_szIdentifierType[0] == 'u')
       {
         // support for 'uint' is an extension to OpenDDL
+        // support for u1, u2, u3, u4 for  8 Bit, 16 Bit, 32 Bit, 64 Bit is an extension to OpenDDL
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint8"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u1") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint8"))
         {
           m_StateStack.PushBack(State::ReadingUInt8);
 
@@ -322,7 +325,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint32"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u3") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint32"))
         {
           m_StateStack.PushBack(State::ReadingUInt32);
 
@@ -333,7 +336,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint16"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u2") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint16"))
         {
           m_StateStack.PushBack(State::ReadingUInt16);
 
@@ -344,7 +347,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint64"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u4") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint64"))
         {
           m_StateStack.PushBack(State::ReadingUInt64);
 
@@ -357,7 +360,9 @@ void ezOpenDdlParser::ContinueIdle()
       }
       else if (m_szIdentifierType[0] == 'i') // int types
       {
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int32"))
+        // support for i1, i2, i3, i4 for  8 Bit, 16 Bit, 32 Bit, 64 Bit is an extension to OpenDDL
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i3") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int32"))
         {
           m_StateStack.PushBack(State::ReadingInt32);
 
@@ -368,7 +373,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int8"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i1") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int8"))
         {
           m_StateStack.PushBack(State::ReadingInt8);
 
@@ -379,7 +384,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int16"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i2") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int16"))
         {
           m_StateStack.PushBack(State::ReadingInt16);
 
@@ -390,7 +395,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int64"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "i4") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "int64"))
         {
           m_StateStack.PushBack(State::ReadingInt64);
 
@@ -403,7 +408,9 @@ void ezOpenDdlParser::ContinueIdle()
       }
       else
       {
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "float"))
+        // support for f, d, s, b for  float, double, string, boo is an extension to OpenDDL
+
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "f") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "float"))
         {
           m_StateStack.PushBack(State::ReadingFloat);
 
@@ -414,7 +421,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "string"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "s") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "string"))
         {
           m_StateStack.PushBack(State::ReadingString);
 
@@ -425,7 +432,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "bool"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "b") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "bool"))
         {
           m_StateStack.PushBack(State::ReadingBool);
 
@@ -436,7 +443,7 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "double"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "d") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "double"))
         {
           m_StateStack.PushBack(State::ReadingDouble);
 
@@ -462,9 +469,9 @@ void ezOpenDdlParser::ContinueIdle()
   }
 }
 
-void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString)
+void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString, ezUInt32& count)
 {
-  ezUInt32 count = 0;
+  count = 0;
 
   // Extension to default OpenDDL: We allow ':' to appear in identifier names
 
@@ -953,7 +960,9 @@ void ezOpenDdlParser::ContinueFloat()
   if (!ContinuePrimitiveList())
     return;
 
-  double sign = 1;
+  const auto curState = m_StateStack.PeekBack().m_State;
+
+  float sign = 1;
 
   // sign
   {
@@ -973,11 +982,22 @@ void ezOpenDdlParser::ContinueFloat()
     }
   }
 
+  double dValue = 0;
+  float fValue = 0;
+
   if (m_uiCurByte == '0' && (m_uiNextByte == 'x' || m_uiNextByte == 'X'))
   {
+    // skip the 0x part
+    ReadCharacterSkipComments();
+    ReadCharacterSkipComments();
+
     // HEX literal
-    ParsingError("Float HEX literals are not supported", true);
-    return;
+    ReadHexString();
+
+    if (curState == ReadingFloat)
+      ezConversionUtils::ConvertHexToBinary((const char*)m_TempString.GetData(), (ezUInt8*)&fValue, 4);
+    else
+      ezConversionUtils::ConvertHexToBinary((const char*)m_TempString.GetData(), (ezUInt8*)&dValue, 8);
   }
   else if (m_uiCurByte == '0' && (m_uiNextByte == 'o' || m_uiNextByte == 'O'))
   {
@@ -995,6 +1015,15 @@ void ezOpenDdlParser::ContinueFloat()
   {
     // Decimal literal
     ReadDecimalFloat();
+
+    if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], dValue) == EZ_FAILURE)
+    {
+      ezStringBuilder s;
+      s.Format("Reading number failed: Could not convert '%s' to a floating point value.", (const char*)&m_TempString[0]);
+      ParsingError(s.GetData(), true);
+    }
+
+    fValue = (float)dValue;
   }
   else
   {
@@ -1002,22 +1031,11 @@ void ezOpenDdlParser::ContinueFloat()
     return;
   }
 
-  double value = 0;
-  if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], value) == EZ_FAILURE)
-  {
-    ezStringBuilder s;
-    s.Format("Reading number failed: Could not convert '%s' to a floating point value.", (const char*)&m_TempString[0]);
-    ParsingError(s.GetData(), true);
-  }
-
-  value = sign * value;
-
-  const auto curState = m_StateStack.PeekBack().m_State;
   switch (curState)
   {
   case ReadingFloat:
     {
-      m_pFloatCache[m_uiNumCachedPrimitives++] = (float)value;
+      m_pFloatCache[m_uiNumCachedPrimitives++] = sign * fValue;
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(float))
         PurgeCachedPrimitives(false);
@@ -1027,7 +1045,7 @@ void ezOpenDdlParser::ContinueFloat()
 
   case ReadingDouble:
     {
-      m_pDoubleCache[m_uiNumCachedPrimitives++] = (double)value;
+      m_pDoubleCache[m_uiNumCachedPrimitives++] = sign * dValue;
 
       if (m_uiNumCachedPrimitives >= m_Cache.GetCount() / sizeof(double))
         PurgeCachedPrimitives(false);
@@ -1052,6 +1070,29 @@ void ezOpenDdlParser::ReadDecimalFloat()
       break; // stop when end of stream is encountered
   }
   while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' || m_uiCurByte == '+' || m_uiCurByte == '_');
+
+  m_TempString[m_uiTempStringLength] = '\0';
+
+  if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
+    SkipWhitespace();
+}
+
+
+void ezOpenDdlParser::ReadHexString()
+{
+  m_uiTempStringLength = 0;
+
+  do
+  {
+    m_TempString[m_uiTempStringLength] = m_uiCurByte;
+    ++m_uiTempStringLength;
+
+    m_uiCurByte = '\0';
+
+    if (!ReadCharacterSkipComments())
+      break; // stop when end of stream is encountered
+  }
+  while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || (m_uiCurByte >= 'a' && m_uiCurByte <= 'f') || (m_uiCurByte >= 'A' && m_uiCurByte <= 'F'));
 
   m_TempString[m_uiTempStringLength] = '\0';
 

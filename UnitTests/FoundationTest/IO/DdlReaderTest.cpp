@@ -117,6 +117,8 @@ static void WriteToDDL(const ezOpenDdlReader& doc, ezStreamWriter& output)
 {
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&output);
+  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
 
   const auto* pRoot = doc.GetRootElement();
   EZ_ASSERT_DEV(pRoot != nullptr, "Invalid root");

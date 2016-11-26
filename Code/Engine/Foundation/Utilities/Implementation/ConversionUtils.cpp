@@ -456,6 +456,34 @@ namespace ezConversionUtils
     return uiResult;
   }
 
+
+  void ConvertHexToBinary(const char* szHEX, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer)
+  {
+    /// \test This is new
+
+    if (ezStringUtils::IsNullOrEmpty(szHEX))
+      return;
+
+    // skip 0x
+    if (szHEX[0] == '0' && (szHEX[1] == 'x' || szHEX[1] == 'X'))
+      szHEX += 2;
+
+    // convert two characters to one byte, at a time
+    // try not to run out of buffer space
+    while (szHEX[0] != '\0' && szHEX[1] != '\0' && uiBinaryBuffer >= 1)
+    {
+      ezUInt8 uiValue1 = ezConversionUtils::HexCharacterToIntValue(szHEX[0]);
+      ezUInt8 uiValue2 = ezConversionUtils::HexCharacterToIntValue(szHEX[1]);
+      ezUInt8 uiValue = 16 * uiValue1 + uiValue2;
+      *pBinary = uiValue;
+
+      pBinary += 1;
+      szHEX += 2;
+
+      uiBinaryBuffer -= 1;
+    }
+  }
+
   ezString ToString(ezInt8 value)
   {
     ezStringBuilder sb;

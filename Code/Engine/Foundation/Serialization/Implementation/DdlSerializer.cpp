@@ -64,12 +64,12 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
   writer.EndObject();
 }
 
-void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph, ezOpenDdlWriter::WhitespaceMode mode)
+void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph, ezOpenDdlWriter::WhitespaceMode mode, ezOpenDdlWriter::TypeStringMode typeMode)
 {
-
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&stream);
   writer.SetWhitespaceMode(mode);
+  writer.SetPrimitiveTypeStringMode(typeMode);
 
   WriteGraph(writer, pGraph, "Objects");
   if (pTypesGraph)

@@ -158,7 +158,7 @@ private:
   bool ReadCharacterSkipComments();
   void SkipWhitespace();
   void ContinueIdle();
-  void ReadIdentifier(ezUInt8* szString);
+  void ReadIdentifier(ezUInt8* szString, ezUInt32& count);
   void ReadString();
   void ReadWord();
   ezUInt64 ReadDecimalLiteral();
@@ -171,6 +171,7 @@ private:
   void ContinueFloat();
 
   void ReadDecimalFloat();
+  void ReadHexString();
 
   ezHybridArray<DdlState, 32> m_StateStack;
   ezStreamReader* m_pInput;

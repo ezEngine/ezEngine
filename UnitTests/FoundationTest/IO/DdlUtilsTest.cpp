@@ -411,6 +411,7 @@ Color $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreColor(js, ezColor(1, 2, 3, 4), "v1", true);
@@ -422,7 +423,7 @@ Color $v1\n\
       "\
 ColorGamma $v1\n\
 {\n\
-  unsigned_int8 { 1,2,3,4 }\n\
+  uint8 { 1,2,3,4 }\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -441,6 +442,7 @@ Time $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreTime(js, ezTime::Seconds(2.3), "v1", true);
@@ -456,6 +458,7 @@ Vec2 $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreVec2(js, ezVec2(1, 2), "v1", true);
@@ -471,6 +474,7 @@ Vec3 $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreVec3(js, ezVec3(1, 2, 3), "v1", true);
@@ -486,6 +490,7 @@ Vec4 $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreVec4(js, ezVec4(1, 2, 3, 4), "v1", true);
@@ -501,6 +506,7 @@ Mat3 $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreMat3(js, ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9), "v1", true);
@@ -516,6 +522,7 @@ Mat4 $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreMat4(js, ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "v1", true);
@@ -531,6 +538,7 @@ Transform $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreTransform(js, ezTransform(ezVec3(10, 20, 30), ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9)), "v1", true);
@@ -546,6 +554,7 @@ Quat $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreQuat(js, ezQuat(1, 2, 3, 4), "v1", true);
@@ -557,10 +566,11 @@ Quat $v1\n\
       "\
 Uuid $v1\n\
 {\n\
-  unsigned_int64 { 12345678910,10987654321 }\n\
+  u4 { 12345678910,10987654321 }\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Shortest);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreUuid(js, ezUuid(12345678910, 10987654321), "v1", true);
@@ -576,6 +586,7 @@ Angle $v1\n\
 }\n");
 
     ezOpenDdlWriter js;
+    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
     ezOpenDdlUtils::StoreAngle(js, ezAngle::Degree(2.3f), "v1", true);

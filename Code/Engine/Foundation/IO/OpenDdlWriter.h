@@ -23,6 +23,19 @@ public:
     None,             ///< No whitespace, not even newlines, is output. This should be used when it is used for data exchange, but probably not read by humans.
   };
 
+  enum class TypeStringMode
+  {
+    Compliant,            ///< All primitive types are written as the OpenDDL standard defines them (very verbose)
+    ShortenedUnsignedInt, ///< unsigned_intX is shortened to uintX
+    Shortest              ///< All primitive type names are shortened to one or two characters: i1, i2, i3, i4, u1, u2, u3, u4, b, s, f, d (int, uint, bool, string, float, double)
+  };
+
+  enum class FloatPrecisionMode
+  {
+    Readable,   ///< Float values are printed as readable numbers. Precision might get lost though.
+    Exact,      ///< Float values are printed as HEX, representing the exact binary data.
+  };
+
   /// \brief Constructor
   ezOpenDdlWriter();
 
@@ -32,7 +45,13 @@ public:
   void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]
 
   /// \brief Configures how much whitespace is output.
-  void SetWhitespaceMode(WhitespaceMode wsm) { m_WhitespaceMode = wsm; }
+  void SetWhitespaceMode(WhitespaceMode wsm) { m_WhitespaceMode = wsm; } // [tested]
+
+  /// \brief Configures how verbose the type strings are going to be written.
+  void SetPrimitiveTypeStringMode(TypeStringMode mode) { m_TypeStringMode = mode; }
+
+  /// \brief Configures how float values are output.
+  void SetFloatPrecisionMode(FloatPrecisionMode mode) { m_FloatPrecisionMode = mode; }
 
   /// \brief Begins outputting an object.
   void BeginObject(const char* szType, const char* szName = nullptr, bool bGlobalName = false); // [tested]
@@ -118,12 +137,17 @@ protected:
   EZ_FORCE_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount); }
   void OutputEscapedString(const ezStringView& string);
   void OutputIndentation();
-  void OutputPrimitiveTypeName(ezOpenDdlPrimitiveType type);
+  void OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType type);
+  void OutputPrimitiveTypeNameShort(ezOpenDdlPrimitiveType type);
+  void OutputPrimitiveTypeNameShortest(ezOpenDdlPrimitiveType type);
   void WritePrimitiveType(ezOpenDdlWriter::State exp);
   void OutputObjectName(const char* szName, bool bGlobalName);
+  void WriteBinaryAsHex(const void* pData, ezUInt32 uiBytes);
 
   ezInt32 m_iIndentation;
   WhitespaceMode m_WhitespaceMode;
+  TypeStringMode m_TypeStringMode;
+  FloatPrecisionMode m_FloatPrecisionMode;
   ezStreamWriter* m_pOutput;
   ezStringBuilder m_Temp;
 
