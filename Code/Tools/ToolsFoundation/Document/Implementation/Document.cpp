@@ -250,7 +250,7 @@ ezStatus ezDocument::InternalLoadDocument()
       return ezStatus(EZ_FAILURE, "Unable to open file for reading!");
     }
 
-    storage.ReadAll(ddlFile);
+    storage.ReadAll(file);
 
     ezStopwatch sw;
     ezAbstractGraphJsonSerializer::Read(memreader, &graph, &typesGraph);
