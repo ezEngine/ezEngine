@@ -9,9 +9,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Object")
   {
     StreamComparer sc(
-      "TestObject\n\
-{\n\
-}\n");
+      "TestObject{}\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
@@ -23,9 +21,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Named Object (global)")
   {
     StreamComparer sc(
-      "TestObject $ObjName\n\
-{\n\
-}\n");
+      "TestObject $ObjName{}\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
@@ -37,9 +33,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Named Object (local)")
   {
     StreamComparer sc(
-      "TestObject %ObjName\n\
-{\n\
-}\n");
+      "TestObject %ObjName{}\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
@@ -53,22 +47,14 @@ EZ_CREATE_SIMPLE_TEST(IO, DdlWriter)
     StreamComparer sc(
       "obj1\n\
 {\n\
-  obj11 $a\n\
-  {\n\
-    obj111 %b\n\
-    {\n\
-    }\n\
-    obj112\n\
-    {\n\
-    }\n\
-  }\n\
-  obj12 %c\n\
-  {\n\
-  }\n\
+	obj11 $a\n\
+	{\n\
+		obj111 %b{}\n\
+		obj112{}\n\
+	}\n\
+	obj12 %c{}\n\
 }\n\
-obj2\n\
-{\n\
-}\n");
+obj2{}\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
@@ -102,7 +88,7 @@ obj2\n\
     StreamComparer sc(
 "Data\n\
 {\n\
-  bool {  }\n\
+	bool{}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -123,7 +109,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  bool $values {  }\n\
+	bool $values{}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -144,7 +130,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  bool $values { true,false }\n\
+	bool $values{true,false}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -167,7 +153,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  bool %values { true,true,false }\n\
+	bool %values{true,true,false}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -193,7 +179,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  int8 $values { 0,127,-128 }\n\
+	int8 $values{0,127,-128}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -216,7 +202,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  int16 $values { 1,32767,-32768 }\n\
+	int16 $values{1,32767,-32768}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -241,7 +227,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  int32 { -2147483647,2147483647 }\n\
+	int32{-2147483647,2147483647}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -264,7 +250,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  int64 { -9223372036854775807,9223372036854775807 }\n\
+	int64{-9223372036854775807,9223372036854775807}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -290,7 +276,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  unsigned_int8 { 0,255 }\n\
+	unsigned_int8{0,255}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -314,7 +300,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  uint16 %values { 0,32767,65535 }\n\
+	uint16 %values{0,32767,65535}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -339,7 +325,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  u3 { 4294967295 }\n\
+	u3{4294967295}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -363,7 +349,7 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  unsigned_int64 { 18446744073709551615,18446744073709551615 }\n\
+	unsigned_int64{18446744073709551615,18446744073709551615}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -390,9 +376,9 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  float { 0 }\n\
-  float { 0.1,0.00001 }\n\
-  float { 0.00001,230000,-42.23,0,0.1 }\n\
+	float{0}\n\
+	float{0.1,0.00001}\n\
+	float{0.00001,230000,-42.23,0,0.1}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -431,9 +417,9 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  double { 0 }\n\
-  double { 0.1,0.00001 }\n\
-  double { 0.00001,230000,-42.23,0,0.1 }\n\
+	double{0}\n\
+	double{0.1,0.00001}\n\
+	double{0.00001,230000,-42.23,0,0.1}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -474,9 +460,9 @@ obj2\n\
     StreamComparer sc(
       "Data\n\
 {\n\
-  string { \"bla\" }\n\
-  string { \"bla2\",\"blub\" }\n\
-  string { \"A\\nwo\\rld\\\"\" }\n\
+	string{\"bla\"}\n\
+	string{\"bla2\",\"blub\"}\n\
+	string{\"A\\nwo\\rld\\\"\"}\n\
 }\n");
 
     ezOpenDdlWriter js;
@@ -509,67 +495,19 @@ obj2\n\
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LessIndentation")
   {
     StreamComparer sc(
-"bool $balue { true }\n\
-obj1\n\
-{\n\
- string { \"bla\" }\n\
- obj11\n\
- {\n\
-  float %falue { 23.42 }\n\
- }\n\
-}\n");
-
-    ezOpenDdlWriter js;
-    js.SetOutputStream(&sc);
-    js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
-    js.SetWhitespaceMode(ezOpenDdlWriter::WhitespaceMode::LessIndentation);
-
-    js.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, "balue", true);
-    {
-      bool b = true;
-      js.WriteBool(&b, 1);
-    }
-    js.EndPrimitiveList();
-
-    js.BeginObject("obj1");
-    {
-      js.BeginPrimitiveList(ezOpenDdlPrimitiveType::String);
-      {
-        js.WriteString("bla");
-      }
-      js.EndPrimitiveList();
-
-      js.BeginObject("obj11");
-      {
-        js.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float, "falue");
-        {
-          float f = 23.42f;
-          js.WriteFloat(&f);
-        }
-        js.EndPrimitiveList();
-      }
-      js.EndObject();
-    }
-    js.EndObject();
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "NewlinesOnly")
-  {
-    StreamComparer sc(
 "bool $balue{true}\n\
 obj1\n\
 {\n\
-string{\"bla\"}\n\
-obj11\n\
-{\n\
-float %falue{23.42}\n\
-}\n\
+	string{\"bla\"}\n\
+	obj11\n\
+	{\n\
+		float %falue{23.42}\n\
+	}\n\
 }\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
-    js.SetWhitespaceMode(ezOpenDdlWriter::WhitespaceMode::NewlinesOnly);
 
     js.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, "balue", true);
     {
@@ -602,12 +540,12 @@ float %falue{23.42}\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "None")
   {
-    StreamComparer sc("bool$balue{true}obj1{string{\"bla\"}obj11{float%falue{23.42}}}");
+    StreamComparer sc("bool$balue{1}obj1{string{\"bla\"}obj11{float%falue{23.42}}}");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
-    js.SetWhitespaceMode(ezOpenDdlWriter::WhitespaceMode::None);
+    js.SetCompactMode(true);
 
     js.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, "balue", true);
     {

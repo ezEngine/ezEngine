@@ -4,7 +4,7 @@
 #include <Foundation/IO/ExtendedJSONReader.h>
 #include <Foundation/Logging/Log.h>
 
-struct CompareConstChar
+struct CompareConstCharJson
 {
   /// \brief Returns true if a is less than b
   EZ_FORCE_INLINE bool Less(const char* a, const char* b) const
@@ -21,7 +21,7 @@ struct CompareConstChar
 
 static void WriteGraph(ezExtendedJSONWriter &writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
-  ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
+  ezMap<const char*, const ezVariant*, CompareConstCharJson> SortedProperties;
 
   writer.BeginArray(szName);
 

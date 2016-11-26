@@ -777,6 +777,9 @@ void ezOpenDdlParser::ContinueBool()
     {
       ReadWord();
 
+      // Extension to OpenDDL: We allow everything that ezConversionUtils::StringToBool knows as a bool value
+      // We actually use '1' and '0' in compact mode
+
       bool bRes = false;
       if (ezConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == EZ_FAILURE)
       {

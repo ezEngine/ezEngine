@@ -403,12 +403,7 @@ Angle $v12 { float { 45.23 } }\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreColor")
   {
-    StreamComparer sc(
-      "\
-Color $v1\n\
-{\n\
-  float { 1,2,3,4 }\n\
-}\n");
+    StreamComparer sc("Color $v1{float{1,2,3,4}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -419,12 +414,7 @@ Color $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreColorGamma")
   {
-    StreamComparer sc(
-      "\
-ColorGamma $v1\n\
-{\n\
-  uint8 { 1,2,3,4 }\n\
-}\n");
+    StreamComparer sc("ColorGamma $v1{uint8{1,2,3,4}}\n");
 
     ezOpenDdlWriter js;
     js.SetOutputStream(&sc);
@@ -434,12 +424,7 @@ ColorGamma $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreTime")
   {
-    StreamComparer sc(
-      "\
-Time $v1\n\
-{\n\
-  double { 2.3 }\n\
-}\n");
+    StreamComparer sc("Time $v1{double{2.3}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -450,12 +435,7 @@ Time $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVec2")
   {
-    StreamComparer sc(
-      "\
-Vec2 $v1\n\
-{\n\
-  float { 1,2 }\n\
-}\n");
+    StreamComparer sc("Vec2 $v1{float{1,2}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -466,12 +446,7 @@ Vec2 $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVec3")
   {
-    StreamComparer sc(
-      "\
-Vec3 $v1\n\
-{\n\
-  float { 1,2,3 }\n\
-}\n");
+    StreamComparer sc("Vec3 $v1{float{1,2,3}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -482,12 +457,7 @@ Vec3 $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVec4")
   {
-    StreamComparer sc(
-      "\
-Vec4 $v1\n\
-{\n\
-  float { 1,2,3,4 }\n\
-}\n");
+    StreamComparer sc("Vec4 $v1{float{1,2,3,4}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -498,12 +468,7 @@ Vec4 $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreMat3")
   {
-    StreamComparer sc(
-      "\
-Mat3 $v1\n\
-{\n\
-  float { 1,4,7,2,5,8,3,6,9 }\n\
-}\n");
+    StreamComparer sc("Mat3 $v1{float{1,4,7,2,5,8,3,6,9}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -514,12 +479,7 @@ Mat3 $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreMat4")
   {
-    StreamComparer sc(
-      "\
-Mat4 $v1\n\
-{\n\
-  float { 1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16 }\n\
-}\n");
+    StreamComparer sc("Mat4 $v1{float{1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -530,12 +490,7 @@ Mat4 $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreTransform")
   {
-    StreamComparer sc(
-      "\
-Transform $v1\n\
-{\n\
-  float { 1,4,7,2,5,8,3,6,9,10,20,30 }\n\
-}\n");
+    StreamComparer sc("Transform $v1{float{1,4,7,2,5,8,3,6,9,10,20,30}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -546,12 +501,7 @@ Transform $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreQuat")
   {
-    StreamComparer sc(
-      "\
-Quat $v1\n\
-{\n\
-  float { 1,2,3,4 }\n\
-}\n");
+    StreamComparer sc("Quat $v1{float{1,2,3,4}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
@@ -562,12 +512,7 @@ Quat $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreUuid")
   {
-    StreamComparer sc(
-      "\
-Uuid $v1\n\
-{\n\
-  u4 { 12345678910,10987654321 }\n\
-}\n");
+    StreamComparer sc("Uuid $v1{u4{12345678910,10987654321}}\n");
 
     ezOpenDdlWriter js;
     js.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Shortest);
@@ -578,12 +523,7 @@ Uuid $v1\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreAngle")
   {
-    StreamComparer sc(
-      "\
-Angle $v1\n\
-{\n\
-  float { 2.3 }\n\
-}\n");
+    StreamComparer sc("Angle $v1{float{2.3}}\n");
 
     ezOpenDdlWriter js;
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);

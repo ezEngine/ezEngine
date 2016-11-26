@@ -5,7 +5,7 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
 
-struct CompareConstChar
+struct CompareConstCharDdl
 {
   /// \brief Returns true if a is less than b
   EZ_FORCE_INLINE bool Less(const char* a, const char* b) const
@@ -22,7 +22,7 @@ struct CompareConstChar
 
 static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
-  ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
+  ezMap<const char*, const ezVariant*, CompareConstCharDdl> SortedProperties;
 
   writer.BeginObject(szName);
 
@@ -64,12 +64,14 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
   writer.EndObject();
 }
 
-void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph, ezOpenDdlWriter::WhitespaceMode mode, ezOpenDdlWriter::TypeStringMode typeMode)
+void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph, bool bCompactMmode, ezOpenDdlWriter::TypeStringMode typeMode)
 {
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&stream);
-  writer.SetWhitespaceMode(mode);
+  writer.SetCompactMode(bCompactMmode);
+  writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Exact);
   writer.SetPrimitiveTypeStringMode(typeMode);
+  writer.SetIndentation(-1);
 
   WriteGraph(writer, pGraph, "Objects");
   if (pTypesGraph)

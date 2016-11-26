@@ -667,7 +667,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
 
 void ezOpenDdlUtils::StoreColor(ezOpenDdlWriter& writer, const ezColor& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Color", szName, bGlobalName);
+  writer.BeginObject("Color", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     writer.WriteFloat(value.GetData(), 4);
@@ -678,7 +678,7 @@ void ezOpenDdlUtils::StoreColor(ezOpenDdlWriter& writer, const ezColor& value, c
 
 void ezOpenDdlUtils::StoreColorGamma(ezOpenDdlWriter& writer, const ezColorGammaUB& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("ColorGamma", szName, bGlobalName);
+  writer.BeginObject("ColorGamma", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8);
     writer.WriteUInt8(value.GetData(), 4);
@@ -689,7 +689,7 @@ void ezOpenDdlUtils::StoreColorGamma(ezOpenDdlWriter& writer, const ezColorGamma
 
 void ezOpenDdlUtils::StoreTime(ezOpenDdlWriter& writer, const ezTime& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Time", szName, bGlobalName);
+  writer.BeginObject("Time", szName, bGlobalName, true);
   {
     const double d = value.GetSeconds();
 
@@ -702,7 +702,7 @@ void ezOpenDdlUtils::StoreTime(ezOpenDdlWriter& writer, const ezTime& value, con
 
 void ezOpenDdlUtils::StoreVec2(ezOpenDdlWriter& writer, const ezVec2& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Vec2", szName, bGlobalName);
+  writer.BeginObject("Vec2", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     writer.WriteFloat(value.GetData(), 2);
@@ -713,7 +713,7 @@ void ezOpenDdlUtils::StoreVec2(ezOpenDdlWriter& writer, const ezVec2& value, con
 
 void ezOpenDdlUtils::StoreVec3(ezOpenDdlWriter& writer, const ezVec3& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Vec3", szName, bGlobalName);
+  writer.BeginObject("Vec3", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     writer.WriteFloat(value.GetData(), 3);
@@ -724,7 +724,7 @@ void ezOpenDdlUtils::StoreVec3(ezOpenDdlWriter& writer, const ezVec3& value, con
 
 void ezOpenDdlUtils::StoreVec4(ezOpenDdlWriter& writer, const ezVec4& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Vec4", szName, bGlobalName);
+  writer.BeginObject("Vec4", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     writer.WriteFloat(value.GetData(), 4);
@@ -735,7 +735,7 @@ void ezOpenDdlUtils::StoreVec4(ezOpenDdlWriter& writer, const ezVec4& value, con
 
 void ezOpenDdlUtils::StoreMat3(ezOpenDdlWriter& writer, const ezMat3& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Mat3", szName, bGlobalName);
+  writer.BeginObject("Mat3", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
@@ -749,7 +749,7 @@ void ezOpenDdlUtils::StoreMat3(ezOpenDdlWriter& writer, const ezMat3& value, con
 
 void ezOpenDdlUtils::StoreMat4(ezOpenDdlWriter& writer, const ezMat4& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Mat4", szName, bGlobalName);
+  writer.BeginObject("Mat4", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
@@ -763,7 +763,7 @@ void ezOpenDdlUtils::StoreMat4(ezOpenDdlWriter& writer, const ezMat4& value, con
 
 void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& writer, const ezTransform& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Transform", szName, bGlobalName);
+  writer.BeginObject("Transform", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
@@ -781,7 +781,7 @@ void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& writer, const ezTransform& 
 
 void ezOpenDdlUtils::StoreQuat(ezOpenDdlWriter& writer, const ezQuat& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Quat", szName, bGlobalName);
+  writer.BeginObject("Quat", szName, bGlobalName, true);
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     writer.WriteFloat(value.v.GetData(), 4);
@@ -792,7 +792,7 @@ void ezOpenDdlUtils::StoreQuat(ezOpenDdlWriter& writer, const ezQuat& value, con
 
 void ezOpenDdlUtils::StoreUuid(ezOpenDdlWriter& writer, const ezUuid& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Uuid", szName, bGlobalName);
+  writer.BeginObject("Uuid", szName, bGlobalName, true);
   {
     ezUInt64 ui[2];
     value.GetValues(ui[0], ui[1]);
@@ -806,7 +806,7 @@ void ezOpenDdlUtils::StoreUuid(ezOpenDdlWriter& writer, const ezUuid& value, con
 
 void ezOpenDdlUtils::StoreAngle(ezOpenDdlWriter& writer, const ezAngle& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  writer.BeginObject("Angle", szName, bGlobalName);
+  writer.BeginObject("Angle", szName, bGlobalName, true);
   {
     const float f = value.GetDegree();
 

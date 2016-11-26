@@ -13,16 +13,6 @@ class EZ_FOUNDATION_DLL ezOpenDdlWriter
 {
 public:
 
-  /// \brief Modes to configure how much whitespace the writer will output
-  enum class WhitespaceMode
-  {
-    All,              ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
-    LessIndentation,  ///< Saves some space by using less space for indentation
-    NoIndentation,    ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
-    NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
-    None,             ///< No whitespace, not even newlines, is output. This should be used when it is used for data exchange, but probably not read by humans.
-  };
-
   enum class TypeStringMode
   {
     Compliant,            ///< All primitive types are written as the OpenDDL standard defines them (very verbose)
@@ -45,7 +35,7 @@ public:
   void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]
 
   /// \brief Configures how much whitespace is output.
-  void SetWhitespaceMode(WhitespaceMode wsm) { m_WhitespaceMode = wsm; } // [tested]
+  void SetCompactMode(bool compact) { m_bCompactMode = compact; } // [tested]
 
   /// \brief Configures how verbose the type strings are going to be written.
   void SetPrimitiveTypeStringMode(TypeStringMode mode) { m_TypeStringMode = mode; }
@@ -53,8 +43,12 @@ public:
   /// \brief Configures how float values are output.
   void SetFloatPrecisionMode(FloatPrecisionMode mode) { m_FloatPrecisionMode = mode; }
 
+  /// \brief Allows to set the indentation. Negative values are possible.
+  /// This makes it possible to set the indentation e.g. to -2, thus the output will only have indentation after a level of 3 has been reached.
+  void SetIndentation(ezInt8 iIndentation) { m_iIndentation = iIndentation; }
+
   /// \brief Begins outputting an object.
-  void BeginObject(const char* szType, const char* szName = nullptr, bool bGlobalName = false); // [tested]
+  void BeginObject(const char* szType, const char* szName = nullptr, bool bGlobalName = false, bool bSingleLine = false); // [tested]
 
   /// \brief Ends outputting an object.
   void EndObject(); // [tested]
@@ -105,9 +99,11 @@ public:
 protected:
   enum State
   {
-    Invalid = -3,
-    Empty = -2,
-    Object = -1,
+    Invalid = -5,
+    Empty = -4,
+    ObjectSingleLine = -3,
+    ObjectMultiLine = -2,
+    ObjectStart = -1,
     PrimitivesBool = 0, // same values as in ezOpenDdlPrimitiveType to enable casting
     PrimitivesInt8,
     PrimitivesInt16,
@@ -143,9 +139,10 @@ protected:
   void WritePrimitiveType(ezOpenDdlWriter::State exp);
   void OutputObjectName(const char* szName, bool bGlobalName);
   void WriteBinaryAsHex(const void* pData, ezUInt32 uiBytes);
+  void OutputObjectBeginning();
 
   ezInt32 m_iIndentation;
-  WhitespaceMode m_WhitespaceMode;
+  bool m_bCompactMode;
   TypeStringMode m_TypeStringMode;
   FloatPrecisionMode m_FloatPrecisionMode;
   ezStreamWriter* m_pOutput;

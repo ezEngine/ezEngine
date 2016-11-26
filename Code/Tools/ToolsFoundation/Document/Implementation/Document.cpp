@@ -210,7 +210,7 @@ ezStatus ezDocument::InternalSaveDocument()
   ezAbstractGraphJsonSerializer::Write(file, &graph, &typesGraph, ezJSONWriter::WhitespaceMode::LessIndentation);
 
 #ifdef EZ_ENABLE_DDL
-  ezAbstractGraphDdlSerializer::Write(ddlFile, &graph, &typesGraph, ezOpenDdlWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphDdlSerializer::Write(ddlFile, &graph, &typesGraph, false);
 #endif
 
   return ezStatus(EZ_SUCCESS);

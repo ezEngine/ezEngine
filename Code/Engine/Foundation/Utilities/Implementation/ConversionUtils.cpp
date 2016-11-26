@@ -283,6 +283,26 @@ namespace ezConversionUtils
 
     // we are only looking at ASCII characters here, so no need to decode Utf8 sequences
 
+    if (ezStringUtils::StartsWith(szString, "1"))
+    {
+      out_Res = true;
+
+      if (out_LastParsePosition)
+        *out_LastParsePosition = szString + 1;
+
+      return EZ_SUCCESS;
+    }
+
+    if (ezStringUtils::StartsWith(szString, "0"))
+    {
+      out_Res = false;
+
+      if (out_LastParsePosition)
+        *out_LastParsePosition = szString + 1;
+
+      return EZ_SUCCESS;
+    }
+
     if (ezStringUtils::StartsWith_NoCase(szString, "true"))
     {
       out_Res = true;
@@ -339,26 +359,6 @@ namespace ezConversionUtils
 
       if (out_LastParsePosition)
         *out_LastParsePosition = szString + 2;
-
-      return EZ_SUCCESS;
-    }
-
-    if (ezStringUtils::StartsWith_NoCase(szString, "1"))
-    {
-      out_Res = true;
-
-      if (out_LastParsePosition)
-        *out_LastParsePosition = szString + 1;
-
-      return EZ_SUCCESS;
-    }
-
-    if (ezStringUtils::StartsWith_NoCase(szString, "0"))
-    {
-      out_Res = false;
-
-      if (out_LastParsePosition)
-        *out_LastParsePosition = szString + 1;
 
       return EZ_SUCCESS;
     }

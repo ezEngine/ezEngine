@@ -21,16 +21,13 @@ void ezOpenDdlWriter::OutputEscapedString(const ezStringView& string)
 
 void ezOpenDdlWriter::OutputIndentation()
 {
-  if (m_WhitespaceMode >= WhitespaceMode::NoIndentation)
+  if (m_bCompactMode)
     return;
 
-  ezInt32 iIndentation = m_iIndentation * 2;
-
-  if (m_WhitespaceMode == WhitespaceMode::LessIndentation)
-    iIndentation = m_iIndentation;
+  ezInt32 iIndentation = m_iIndentation;
 
   // I need my space!
-  const char* szIndentation = "                ";
+  const char* szIndentation = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
   while (iIndentation >= 16)
   {
@@ -202,7 +199,7 @@ ezOpenDdlWriter::ezOpenDdlWriter()
   EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesFloat == (int)ezOpenDdlPrimitiveType::Float);
   EZ_CHECK_AT_COMPILETIME((int)ezOpenDdlWriter::State::PrimitivesString == (int)ezOpenDdlPrimitiveType::String);
 
-  m_WhitespaceMode = WhitespaceMode::All;
+  m_bCompactMode = false;
   m_TypeStringMode = TypeStringMode::ShortenedUnsignedInt;
   m_FloatPrecisionMode = FloatPrecisionMode::Exact;
   m_iIndentation = 0;
@@ -217,33 +214,73 @@ ezOpenDdlWriter::ezOpenDdlWriter()
 //NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
 //None,             ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
 
-void ezOpenDdlWriter::BeginObject(const char* szType, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlWriter::BeginObject(const char* szType, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/, bool bSingleLine /*= false*/)
 {
-  const auto state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEBUG(state == State::Empty || state == State::Object, "DDL Writer is in a state where no further objects may be created");
+  {
+    const auto state = m_StateStack.PeekBack().m_State;
+    EZ_IGNORE_UNUSED(state);
+    EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectMultiLine || state == State::ObjectStart, "DDL Writer is in a state where no further objects may be created");
+  }
+
+  OutputObjectBeginning();
+
+  {
+    const auto state = m_StateStack.PeekBack().m_State;
+    EZ_IGNORE_UNUSED(state);
+    EZ_ASSERT_DEBUG(state != State::ObjectSingleLine, "Cannot put an object into another single-line object");
+    EZ_ASSERT_DEBUG(state != State::ObjectStart, "Object beginning should have been written");
+  }
 
   OutputIndentation();
   OutputString(szType);
 
   OutputObjectName(szName, bGlobalName);
 
-  if (m_WhitespaceMode != WhitespaceMode::None)
+  if (bSingleLine)
   {
-    OutputString("\n", 1);
-    OutputIndentation();
-    OutputString("{\n", 2);
+    m_StateStack.ExpandAndGetRef().m_State = State::ObjectSingleLine;
   }
   else
   {
-    OutputString("{", 1);
+    m_StateStack.ExpandAndGetRef().m_State = State::ObjectMultiLine;
+  }
+
+  m_StateStack.ExpandAndGetRef().m_State = State::ObjectStart;
+}
+
+
+void ezOpenDdlWriter::OutputObjectBeginning()
+{
+  if (m_StateStack.PeekBack().m_State != State::ObjectStart)
+    return;
+
+  m_StateStack.PopBack();
+
+  const auto state = m_StateStack.PeekBack().m_State;
+
+  if (state == State::ObjectSingleLine)
+  {
+    //if (m_bCompactMode)
+      OutputString("{", 1); // more compact
+    //else
+      //OutputString(" { ", 3);
+  }
+  else if (state == State::ObjectMultiLine)
+  {
+    if (m_bCompactMode)
+    {
+      OutputString("{", 1);
+    }
+    else
+    {
+      OutputString("\n", 1);
+      OutputIndentation();
+      OutputString("{\n", 2);
+    }
   }
 
   m_iIndentation++;
-
-  m_StateStack.ExpandAndGetRef().m_State = State::Object;
 }
-
 
 void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
 {
@@ -251,7 +288,7 @@ void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
   {
     EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '%s'", szName);
 
-    if (m_WhitespaceMode == WhitespaceMode::None)
+    if (m_bCompactMode)
     {
       // even remove the whitespace between type and name
 
@@ -275,17 +312,38 @@ void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
 void ezOpenDdlWriter::EndObject()
 {
   const auto state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEBUG(state == State::Object, "No object is open");
+  EZ_ASSERT_DEBUG(state == State::ObjectSingleLine || state == State::ObjectMultiLine || state == State::ObjectStart, "No object is open");
 
-  m_iIndentation--;
+  if (state == State::ObjectStart)
+  {
+    // object is empty
 
-  if (m_WhitespaceMode == WhitespaceMode::None)
-    OutputString("}", 1);
+    OutputString("{}\n", 3);
+    m_StateStack.PopBack();
+
+    const auto newState = m_StateStack.PeekBack().m_State;
+    EZ_IGNORE_UNUSED(newState);
+    EZ_ASSERT_DEBUG(newState == State::ObjectSingleLine || newState == State::ObjectMultiLine, "No object is open");
+  }
   else
   {
-    OutputIndentation();
-    OutputString("}\n", 2);
+    m_iIndentation--;
+
+    if (m_bCompactMode)
+      OutputString("}", 1);
+    else
+    {
+      if (state == State::ObjectMultiLine)
+      {
+        OutputIndentation();
+        OutputString("}\n", 2);
+      }
+      else
+      {
+        //OutputString(" }\n", 3);
+        OutputString("}\n", 2); // more compact
+      }
+    }
   }
 
   m_StateStack.PopBack();
@@ -293,11 +351,15 @@ void ezOpenDdlWriter::EndObject()
 
 void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
-  const auto state = m_StateStack.PeekBack().m_State;
-  EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEBUG(state == State::Empty || state == State::Object, "DDL Writer is in a state where no primitive list may be created");
+  OutputObjectBeginning();
 
-  OutputIndentation();
+  const auto state = m_StateStack.PeekBack().m_State;
+  EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectSingleLine || state == State::ObjectMultiLine, "DDL Writer is in a state where no primitive list may be created");
+
+  if (state == State::ObjectMultiLine)
+  {
+    OutputIndentation();
+  }
 
   if (m_TypeStringMode == TypeStringMode::Shortest)
     OutputPrimitiveTypeNameShortest(type);
@@ -308,10 +370,11 @@ void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char
 
   OutputObjectName(szName, bGlobalName);
 
-  if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+  // more compact
+  //if (m_bCompactMode)
     OutputString("{", 1);
-  else
-    OutputString(" { ", 3);
+  //else
+    //OutputString(" {", 2);
 
   m_StateStack.ExpandAndGetRef().m_State = static_cast<State>(type);
 
@@ -323,14 +386,17 @@ void ezOpenDdlWriter::EndPrimitiveList()
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEBUG(state >= State::PrimitivesBool && state <= State::PrimitivesString, "No primitive list is open");
 
-  if (m_WhitespaceMode == WhitespaceMode::None)
-    OutputString("}", 1);
-  else if (m_WhitespaceMode == WhitespaceMode::NewlinesOnly)
-    OutputString("}\n", 2);
-  else
-    OutputString(" }\n", 3);
-
   m_StateStack.PopBack();
+
+  if (m_bCompactMode)
+    OutputString("}", 1);
+  else
+  {
+    if (m_StateStack.PeekBack().m_State == State::ObjectSingleLine)
+      OutputString("}", 1);
+    else
+      OutputString("}\n", 2);
+  }
 }
 
 void ezOpenDdlWriter::WritePrimitiveType(ezOpenDdlWriter::State exp)
@@ -370,17 +436,37 @@ void ezOpenDdlWriter::WriteBool(const bool* pValues, ezUInt32 count /*= 1*/)
 
   WritePrimitiveType(State::PrimitivesBool);
 
-  if (pValues[0])
-    OutputString("true", 4);
-  else
-    OutputString("false", 5);
-
-  for (ezUInt32 i = 1; i < count; ++i)
+  if (m_bCompactMode || m_TypeStringMode == TypeStringMode::Shortest)
   {
-    if (pValues[i])
-      OutputString(",true", 5);
+    // Extension to OpenDDL: We write only '1' or '0' in compact mode
+
+    if (pValues[0])
+      OutputString("1", 1);
     else
-      OutputString(",false", 6);
+      OutputString("0", 1);
+
+    for (ezUInt32 i = 1; i < count; ++i)
+    {
+      if (pValues[i])
+        OutputString(",1", 2);
+      else
+        OutputString(",0", 2);
+    }
+  }
+  else
+  {
+    if (pValues[0])
+      OutputString("true", 4);
+    else
+      OutputString("false", 5);
+
+    for (ezUInt32 i = 1; i < count; ++i)
+    {
+      if (pValues[i])
+        OutputString(",true", 5);
+      else
+        OutputString(",false", 6);
+    }
   }
 }
 
