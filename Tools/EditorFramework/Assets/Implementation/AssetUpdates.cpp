@@ -348,7 +348,7 @@ void ezAssetCurator::UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<
 
 ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat)
 {
-  // try to read the asset JSON file
+  // try to read the asset file
   ezFileReader file;
   if (file.Open(szAbsFilePath) == EZ_FAILURE)
   {
@@ -418,7 +418,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   }
   else
   {
-    // compute the hash for the asset JSON file
+    // compute the hash for the asset file
     stat.m_uiHash = ezAssetCurator::HashFile(file, &MemWriter);
   }
   file.Close();
@@ -448,9 +448,11 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
 
 ezStatus ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream)
 {
+  /// \todo PERF / DDL: We are only interested in the HEADER block, we should skip everything else !
+
   ezAbstractObjectGraph graph;
   if (ezAbstractGraphJsonSerializer::Read(stream, &graph).Failed())
-    return ezStatus("Failed to read document from JSON");
+    return ezStatus("Failed to read asset document");
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);

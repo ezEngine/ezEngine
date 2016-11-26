@@ -772,6 +772,8 @@ void ezOpenDdlParser::ContinueBool()
 
   switch (m_uiCurByte)
   {
+  case '1':
+  case '0':
   case 'f':
   case 't':
     {

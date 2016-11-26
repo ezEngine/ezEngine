@@ -10,6 +10,8 @@
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Time/Stopwatch.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -221,15 +223,26 @@ ezStatus ezDocument::InternalLoadDocument()
   ezAbstractObjectGraph graph;
   ezAbstractObjectGraph typesGraph;
 
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamReader memreader(&storage);
+
+#ifdef EZ_ENABLE_DDL
   ezStringBuilder fileDdl = m_sDocumentPath;
   fileDdl.ChangeFileExtension("ddl");
 
   ezFileReader ddlFile;
   if (ddlFile.Open(fileDdl).Succeeded())
   {
-    ezAbstractGraphDdlSerializer::Read(ddlFile, &graph, &typesGraph);
+    storage.ReadAll(ddlFile);
+
+    ezStopwatch sw;
+    ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph);
+    ezTime t = sw.GetRunningTotal();
+
+    ezLog::Dev("DDL parsing time: %.1f msec", t.GetMilliseconds());
   }
   else
+#endif
   {
     ezFileReader file;
     if (file.Open(m_sDocumentPath) == EZ_FAILURE)
@@ -237,7 +250,13 @@ ezStatus ezDocument::InternalLoadDocument()
       return ezStatus(EZ_FAILURE, "Unable to open file for reading!");
     }
 
-    ezAbstractGraphJsonSerializer::Read(file, &graph, &typesGraph);
+    storage.ReadAll(ddlFile);
+
+    ezStopwatch sw;
+    ezAbstractGraphJsonSerializer::Read(memreader, &graph, &typesGraph);
+    ezTime t = sw.GetRunningTotal();
+
+    ezLog::Dev("JSON parsing time: %.1f msec", t.GetMilliseconds());
   }
 
   {
