@@ -1,5 +1,8 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>)
 {
@@ -105,43 +108,37 @@ ezResult ezApplicationPluginConfig::Save()
   ezStringBuilder sPath;
   sPath = ":";
   sPath.AppendPath(ezApplicationConfig::GetProjectDirectory());
-  sPath.AppendPath("Plugins.ezManifest");
+  sPath.AppendPath("Plugins.ddl");
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
     return EZ_FAILURE;
 
-  ezStandardJSONWriter json;
-  json.SetOutputStream(&file);
-
-  json.BeginObject();
-
-  json.BeginArray("Plugins");
+  ezOpenDdlWriter writer;
+  writer.SetOutputStream(&file);
+  writer.SetCompactMode(false);
+  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
 
   for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
-    json.BeginObject();
+    writer.BeginObject("Plugin");
 
-    json.AddVariableString("Path", m_Plugins[i].m_sAppDirRelativePath);
+    ezOpenDdlUtils::StoreString(writer, m_Plugins[i].m_sAppDirRelativePath, "Path");
 
     if (!m_Plugins[i].m_sDependecyOf.IsEmpty())
     {
-      json.BeginArray("DependencyOf");
+      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, "DependencyOf");
 
       for (auto it = m_Plugins[i].m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
       {
-        json.WriteString(*it);
+        writer.WriteString(*it);
       }
 
-      json.EndArray();
+      writer.EndPrimitiveList();
     }
 
-    json.EndObject();
+    writer.EndObject();
   }
-
-  json.EndArray();
-
-  json.EndObject();
 
   return EZ_SUCCESS;
 }
@@ -154,7 +151,7 @@ void ezApplicationPluginConfig::Load()
 
   ezStringBuilder sPath;
   sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("Plugins.ezManifest");
+  sPath.AppendPath("Plugins.ddl");
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -163,47 +160,33 @@ void ezApplicationPluginConfig::Load()
     return;
   }
 
-  ezJSONReader json;
-  json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
-  if (json.Parse(file).Failed())
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
   {
     ezLog::Error("Failed to parse plugins config file '%s'", sPath.GetData());
     return;
   }
 
-  const auto& tree = json.GetTopLevelObject();
+  const ezOpenDdlReaderElement* pTree = reader.GetRootElement();
 
-  ezVariant* dirs;
-  if (!tree.TryGetValue("Plugins", dirs) || !dirs->IsA<ezVariantArray>())
+  for (const ezOpenDdlReaderElement* pPlugin = pTree->GetFirstChild(); pPlugin != nullptr; pPlugin = pPlugin->GetSibling())
   {
-    ezLog::Error("Top level node is not an array");
-    return;
-  }
-
-  for (auto& a : dirs->Get<ezVariantArray>())
-  {
-    if (!a.IsA<ezVariantDictionary>())
+    if (!pPlugin->IsCustomType("Plugin"))
       continue;
-
-    auto& datadir = a.Get<ezVariantDictionary>();
-
-    ezVariant* pVar;
 
     PluginConfig cfg;
 
-    if (datadir.TryGetValue("Path", pVar) && pVar->IsA<ezString>())
-      cfg.m_sAppDirRelativePath = pVar->Get<ezString>();
+    const ezOpenDdlReaderElement* pPath = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "Path");
+    const ezOpenDdlReaderElement* pDependencyOf = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "DependencyOf");
 
-    if (datadir.TryGetValue("DependencyOf", pVar) && pVar->IsA<ezVariantArray>())
+    if (pPath)
+      cfg.m_sAppDirRelativePath = pPath->GetPrimitivesString()[0];
+
+    if (pDependencyOf)
     {
-      const ezVariantArray& dep = pVar->Get<ezVariantArray>();
-
-      for (ezUInt32 i = 0; i < dep.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < pDependencyOf->GetNumPrimitives(); ++i)
       {
-        if (dep[i].IsA<ezString>())
-        {
-          cfg.m_sDependecyOf.Insert(dep[i].Get<ezString>());
-        }
+        cfg.m_sDependecyOf.Insert(pDependencyOf->GetPrimitivesString()[i]);
       }
     }
 
