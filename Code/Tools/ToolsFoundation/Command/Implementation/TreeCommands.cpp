@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, 1, ezRTTIDefaultAllocator
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
-    EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
+    EZ_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
   }
   EZ_END_PROPERTIES
 }
@@ -39,7 +39,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllo
   {
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
     EZ_MEMBER_PROPERTY("CreateFromPrefab", m_CreateFromPrefab),
-    EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
+    EZ_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
     EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
     EZ_MEMBER_PROPERTY("CreatedObjects", m_CreatedRootObject),
     EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
@@ -246,7 +246,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       // Deserialize
       ezMemoryStreamStorage streamStorage;
       ezMemoryStreamWriter memoryWriter(&streamStorage);
-      memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
+      memoryWriter.WriteBytes(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
 
       ezMemoryStreamReader memoryReader(&streamStorage);
       ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
@@ -365,7 +365,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
   if (!bRedo)
   {
     ezAbstractObjectGraph graph;
-    ezPrefabUtils::LoadGraph(graph, m_sJsonGraph);
+    ezPrefabUtils::LoadGraph(graph, m_sGraphTextFormat);
 
     // Remap
     graph.ReMapNodeGuids(m_RemapGuid);
@@ -416,7 +416,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
       auto pMeta = pDocument->m_DocumentObjectMetaData.BeginReadMetaData(m_CreatedRootObject);
       m_OldCreateFromPrefab = pMeta->m_CreateFromPrefab;
       m_OldRemapGuid = pMeta->m_PrefabSeedGuid;
-      m_sOldJsonGraph = pMeta->m_sBasePrefab;
+      m_sOldGraphTextFormat = pMeta->m_sBasePrefab;
       pDocument->m_DocumentObjectMetaData.EndReadMetaData();
     }
   }
@@ -437,7 +437,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
       auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
       pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
       pMeta->m_PrefabSeedGuid = m_RemapGuid;
-      pMeta->m_sBasePrefab = m_sJsonGraph;
+      pMeta->m_sBasePrefab = m_sGraphTextFormat;
       pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
     }
     else
@@ -466,7 +466,7 @@ ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
     auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
     pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
     pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
-    pMeta->m_sBasePrefab = m_sOldJsonGraph;
+    pMeta->m_sBasePrefab = m_sOldGraphTextFormat;
     pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
   return ezStatus(EZ_SUCCESS);
@@ -504,7 +504,7 @@ ezStatus ezUnlinkPrefabCommand::DoInternal(bool bRedo)
     auto pMeta = pDocument->m_DocumentObjectMetaData.BeginReadMetaData(m_Object);
     m_OldCreateFromPrefab = pMeta->m_CreateFromPrefab;
     m_OldRemapGuid = pMeta->m_PrefabSeedGuid;
-    m_sOldJsonGraph = pMeta->m_sBasePrefab;
+    m_sOldGraphTextFormat = pMeta->m_sBasePrefab;
     pDocument->m_DocumentObjectMetaData.EndReadMetaData();
   }
 
@@ -533,7 +533,7 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
     auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_Object);
     pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
     pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
-    pMeta->m_sBasePrefab = m_sOldJsonGraph;
+    pMeta->m_sBasePrefab = m_sOldGraphTextFormat;
     pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
 

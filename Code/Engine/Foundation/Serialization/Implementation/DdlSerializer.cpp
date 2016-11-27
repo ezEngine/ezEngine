@@ -153,7 +153,7 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
   }
 
   const ezOpenDdlReaderElement* pTypes = reader.GetRootElement()->FindChildOfType("Types");
-  if (pTypes != nullptr)
+  if (pTypesGraph != nullptr && pTypes != nullptr)
   {
     ReadGraph(pTypesGraph, pTypes);
   }

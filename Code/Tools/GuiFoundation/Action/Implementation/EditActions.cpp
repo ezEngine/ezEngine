@@ -170,7 +170,7 @@ void ezEditAction::Execute(const ezVariant& value)
       // Paste at current selected object.
       ezPasteObjectsCommand cmd;
       QByteArray ba = mimedata->data(szDataName);
-      cmd.m_sJsonGraph = ba.data();
+      cmd.m_sGraphTextFormat = ba.data();
 
       if (m_ButtonType == ButtonType::PasteAsChild)
       {

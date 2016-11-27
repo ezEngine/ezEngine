@@ -480,7 +480,7 @@ void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString, ezUInt32& count)
     szString[count] = m_uiCurByte;
     ++count;
 
-    while ((IsIdentifierCharacter(m_uiNextByte) || m_uiCurByte == ':') && count < 32)
+    while ((IsIdentifierCharacter(m_uiNextByte) || m_uiNextByte == ':') && count < 32)
     {
       ReadCharacterSkipComments();
 

@@ -6,6 +6,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 #define PREFAB_DEBUG false
 
@@ -68,7 +69,7 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
   auto pMeta = documentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
   ezUuid source = pMeta->m_CreateFromPrefab;
   documentObjectMetaData.EndReadMetaData();
-  
+
   if (source.IsValid())
   {
     return pObject->GetGuid();
@@ -146,19 +147,19 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
     {
       ezFileWriter file;
       file.Open("C:\\temp\\Prefab - base.txt");
-      ezAbstractGraphJsonSerializer::Write(file, &baseGraph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+      ezAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
 
     {
       ezFileWriter file;
       file.Open("C:\\temp\\Prefab - template.txt");
-      ezAbstractGraphJsonSerializer::Write(file, &leftGraph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+      ezAbstractGraphDdlSerializer::Write(file, &leftGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
 
     {
       ezFileWriter file;
       file.Open("C:\\temp\\Prefab - instance.txt");
-      ezAbstractGraphJsonSerializer::Write(file, &rightGraph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+      ezAbstractGraphDdlSerializer::Write(file, &rightGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
   }
 
@@ -229,7 +230,11 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
       ezMemoryStreamStorage stor;
       ezMemoryStreamWriter sw(&stor);
 
+#ifdef EZ_ENABLE_DDL
+      ezAbstractGraphDdlSerializer::Write(sw, &baseGraph, nullptr, true, ezOpenDdlWriter::TypeStringMode::Shortest);
+#else
       ezAbstractGraphJsonSerializer::Write(sw, &baseGraph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+#endif
 
       out_sNewGraph.SetSubString_ElementCount((const char*)stor.GetData(), stor.GetStorageSize());
     }
@@ -239,7 +244,7 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
     {
       ezFileWriter file;
       file.Open("C:\\temp\\Prefab - result.txt");
-      ezAbstractGraphJsonSerializer::Write(file, &baseGraph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+      ezAbstractGraphDdlSerializer::Write(file, &baseGraph, nullptr, false, ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
     }
   }
 

@@ -49,7 +49,7 @@ public:
 
 public: // Properties
   ezUuid m_Parent;
-  ezString m_sJsonGraph;
+  ezString m_sGraphTextFormat;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -64,7 +64,7 @@ private:
     ezString m_sParentProperty;
     ezVariant m_Index;
   };
-  
+
   ezHybridArray<PastedObject, 4> m_PastedObjects;
 };
 
@@ -83,7 +83,7 @@ public: // Properties
   ezUuid m_Parent;
   ezUuid m_CreateFromPrefab;
   ezUuid m_RemapGuid;
-  ezString m_sJsonGraph;
+  ezString m_sGraphTextFormat;
   ezUuid m_CreatedRootObject;
   bool m_bAllowPickedPosition;
 
@@ -106,7 +106,7 @@ private:
 
   ezUuid m_OldCreateFromPrefab;
   ezUuid m_OldRemapGuid;
-  ezString m_sOldJsonGraph;
+  ezString m_sOldGraphTextFormat;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ private:
 private:
   ezUuid m_OldCreateFromPrefab;
   ezUuid m_OldRemapGuid;
-  ezString m_sOldJsonGraph;
+  ezString m_sOldGraphTextFormat;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -160,8 +160,6 @@ void ezDocument::EnsureVisible()
   s_EventsAny.Broadcast(e);
 }
 
-//#define EZ_ENABLE_DDL
-
 ezStatus ezDocument::InternalSaveDocument()
 {
   ezFileWriter file;
@@ -169,17 +167,6 @@ ezStatus ezDocument::InternalSaveDocument()
   {
     return ezStatus(EZ_FAILURE, "Unable to open file for writing!");
   }
-
-#ifdef EZ_ENABLE_DDL
-  ezStringBuilder fileDdl = m_sDocumentPath;
-  fileDdl.ChangeFileExtension("ddl");
-
-  ezFileWriter ddlFile;
-  if (ddlFile.Open(fileDdl) == EZ_FAILURE)
-  {
-    return ezStatus(EZ_FAILURE, "Unable to open file for writing!");
-  }
-#endif
 
   ezAbstractObjectGraph graph;
   {
@@ -209,10 +196,12 @@ ezStatus ezDocument::InternalSaveDocument()
       rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
     }
   }
-  ezAbstractGraphJsonSerializer::Write(file, &graph, &typesGraph, ezJSONWriter::WhitespaceMode::LessIndentation);
+
 
 #ifdef EZ_ENABLE_DDL
-  ezAbstractGraphDdlSerializer::Write(ddlFile, &graph, &typesGraph, false);
+  ezAbstractGraphDdlSerializer::Write(file, &graph, &typesGraph, false);
+#else
+  ezAbstractGraphJsonSerializer::Write(file, &graph, &typesGraph, ezJSONWriter::WhitespaceMode::LessIndentation);
 #endif
 
   return ezStatus(EZ_SUCCESS);
@@ -226,23 +215,6 @@ ezStatus ezDocument::InternalLoadDocument()
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
 
-#ifdef EZ_ENABLE_DDL
-  ezStringBuilder fileDdl = m_sDocumentPath;
-  fileDdl.ChangeFileExtension("ddl");
-
-  ezFileReader ddlFile;
-  if (ddlFile.Open(fileDdl).Succeeded())
-  {
-    storage.ReadAll(ddlFile);
-
-    ezStopwatch sw;
-    ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph);
-    ezTime t = sw.GetRunningTotal();
-
-    ezLog::Dev("DDL parsing time: %.1f msec", t.GetMilliseconds());
-  }
-  else
-#endif
   {
     ezFileReader file;
     if (file.Open(m_sDocumentPath) == EZ_FAILURE)
@@ -252,11 +224,20 @@ ezStatus ezDocument::InternalLoadDocument()
 
     storage.ReadAll(file);
 
-    ezStopwatch sw;
-    ezAbstractGraphJsonSerializer::Read(memreader, &graph, &typesGraph);
-    ezTime t = sw.GetRunningTotal();
-
-    ezLog::Dev("JSON parsing time: %.1f msec", t.GetMilliseconds());
+    if (storage.GetData()[0] == '{') // JSON starts with a brace
+    {
+      ezStopwatch sw;
+      ezAbstractGraphJsonSerializer::Read(memreader, &graph, &typesGraph);
+      ezTime t = sw.GetRunningTotal();
+      ezLog::Dev("JSON parsing time: %.1f msec", t.GetMilliseconds());
+    }
+    else
+    {
+      ezStopwatch sw;
+      ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph);
+      ezTime t = sw.GetRunningTotal();
+      ezLog::Dev("DDL parsing time: %.1f msec", t.GetMilliseconds());
+    }
   }
 
   {

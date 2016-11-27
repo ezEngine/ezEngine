@@ -54,10 +54,10 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   PasteCmd.m_Parent = parent;
   PasteCmd.m_CreateFromPrefab = AssetGuid;
   //PasteCmd.m_Index = iInsertChildIndex;
-  PasteCmd.m_sJsonGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(AssetGuid);
+  PasteCmd.m_sGraphTextFormat = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(AssetGuid);
   PasteCmd.m_RemapGuid.CreateNewUuid();
 
-  if (PasteCmd.m_sJsonGraph.IsEmpty())
+  if (PasteCmd.m_sGraphTextFormat.IsEmpty())
     return; // error
 
   pCmdHistory->AddCommand(PasteCmd);
@@ -73,7 +73,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
 void ezPrefabComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
 {
   ezComponentDragDropHandler::OnDragUpdate(pInfo);
-  
+
   // the way prefabs are instantiated on the runtime side means the selection is not always immediately 'correct'
   // by resetting the selection, we can fix this
   SelectCreatedObjects();

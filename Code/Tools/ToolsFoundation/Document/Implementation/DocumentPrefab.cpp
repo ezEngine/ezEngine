@@ -131,7 +131,7 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
   instCmd.m_bAllowPickedPosition = false;
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
-  instCmd.m_sJsonGraph = ezPrefabUtils::ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
+  instCmd.m_sGraphTextFormat = ezPrefabUtils::ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
   instCmd.m_RemapGuid = PrefabSeed;
 
   GetCommandHistory()->AddCommand(remCmd);
@@ -162,7 +162,7 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
-  instCmd.m_sJsonGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(pMeta->m_CreateFromPrefab);
+  instCmd.m_sGraphTextFormat = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(pMeta->m_CreateFromPrefab);
 
   m_DocumentObjectMetaData.EndReadMetaData();
 
@@ -220,7 +220,7 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
   inst.m_CreateFromPrefab = PrefabAsset;
   inst.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   inst.m_RemapGuid = PrefabSeed;
-  inst.m_sJsonGraph = sNewGraph;
+  inst.m_sGraphTextFormat = sNewGraph;
 
   GetCommandHistory()->AddCommand(rm);
   GetCommandHistory()->AddCommand(inst);

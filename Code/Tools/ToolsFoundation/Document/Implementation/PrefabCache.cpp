@@ -6,6 +6,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_IMPLEMENT_SINGLETON(ezPrefabCache);
 
@@ -66,7 +67,16 @@ void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGr
     ezMemoryStreamReader stringReader(&storage);
     stringWriter.WriteBytes(sGraph.GetData(), sGraph.GetElementCount());
 
-    ezAbstractGraphJsonSerializer::Read(stringReader, it.Value().Borrow());
+    const bool isJSON = sGraph.GetData()[0] == '{';
+
+    if (isJSON)
+    {
+      ezAbstractGraphJsonSerializer::Read(stringReader, it.Value().Borrow());
+    }
+    else
+    {
+      ezAbstractGraphDdlSerializer::Read(stringReader, it.Value().Borrow());
+    }
   }
 
   it.Value()->Clone(out_graph);
@@ -117,14 +127,17 @@ void ezPrefabCache::UpdatePrefabData(PrefabData& data)
   ezFileStats Stats;
   bool bStat = ezOSFile::GetFileStats(data.m_sAbsPath, Stats).Succeeded();
 
-  ezFileReader file;
-  if (!bStat || file.Open(data.m_sAbsPath).Failed())
+  if (!bStat)
   {
     ezLog::Error("Can't update prefab file '%s', the file can't be opened.", data.m_sAbsPath.GetData());
     return;
   }
 
-  data.m_sDocContent.ReadAll(file);
+  data.m_sDocContent = ezPrefabUtils::ReadDocumentAsString(data.m_sAbsPath);
+
+  if (data.m_sDocContent.IsEmpty())
+    return;
+
   data.m_fileModifiedTime = Stats.m_LastModificationTime;
   data.m_Graph.Clear();
   ezPrefabUtils::LoadGraph(data.m_Graph, data.m_sDocContent);
