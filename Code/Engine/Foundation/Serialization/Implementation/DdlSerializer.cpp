@@ -90,9 +90,9 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
 
   for (const ezOpenDdlReaderElement* pObject = pRoot->GetFirstChild(); pObject != nullptr; pObject = pObject->GetSibling())
   {
-    const ezOpenDdlReaderElement* pGuid = pObject->FindChild(ezOpenDdlPrimitiveType::Custom, "id");
-    const ezOpenDdlReaderElement* pType = pObject->FindChild(ezOpenDdlPrimitiveType::String, "t");
-    const ezOpenDdlReaderElement* pName = pObject->FindChild(ezOpenDdlPrimitiveType::String, "n");
+    const ezOpenDdlReaderElement* pGuid = pObject->FindChildOfType(ezOpenDdlPrimitiveType::Custom, "id");
+    const ezOpenDdlReaderElement* pType = pObject->FindChildOfType(ezOpenDdlPrimitiveType::String, "t");
+    const ezOpenDdlReaderElement* pName = pObject->FindChildOfType(ezOpenDdlPrimitiveType::String, "n");
     const ezOpenDdlReaderElement* pProps = pObject->FindChildOfType("p");
 
     if (pGuid == nullptr || pType == nullptr || pProps == nullptr)

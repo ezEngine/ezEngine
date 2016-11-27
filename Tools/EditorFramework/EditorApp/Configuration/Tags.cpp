@@ -9,7 +9,7 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
 
   ezStringBuilder sPath;
   sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("Tags.ezManifest");
+  sPath.AppendPath("Tags.ddl");
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
@@ -17,7 +17,7 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
     return ezStatus("Could not open tags config file '%s' for writing", sPath.GetData());
   }
 
-  ezToolsTagRegistry::WriteToJSON(file);
+  ezToolsTagRegistry::WriteToDDL(file);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -29,7 +29,7 @@ void ezQtEditorApp::ReadTagRegistry()
 
   ezStringBuilder sPath;
   sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("Tags.ezManifest");
+  sPath.AppendPath("Tags.ddl");
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -44,7 +44,7 @@ void ezQtEditorApp::ReadTagRegistry()
   }
   else
   {
-    ezStatus res = ezToolsTagRegistry::ReadFromJSON(file);
+    ezStatus res = ezToolsTagRegistry::ReadFromDDL(file);
     if (res.m_Result.Failed())
     {
       ezLog::Error("%s", res.m_sMessage.GetData());

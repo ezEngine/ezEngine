@@ -336,7 +336,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(const char* szNa
   return nullptr;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives/* = 1*/) const
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives/* = 1*/) const
 {
   /// \test This is new
 

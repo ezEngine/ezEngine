@@ -422,7 +422,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
 
       pin.m_sName = pElement->GetName();
 
-      auto pType = pElement->FindChild(ezOpenDdlPrimitiveType::String, "Type");
+      auto pType = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "Type");
 
       if (!pType)
       {
@@ -454,7 +454,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
         }
       }
 
-      if (auto pInline = pElement->FindChild(ezOpenDdlPrimitiveType::String, "Inline"))
+      if (auto pInline = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "Inline"))
       {
         pin.m_sShaderCodeInline = pInline->GetPrimitivesString()[0];
       }
@@ -471,19 +471,19 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       }
 
       // this is optional
-      if (auto pTooltip = pElement->FindChild(ezOpenDdlPrimitiveType::String, "Tooltip"))
+      if (auto pTooltip = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "Tooltip"))
       {
         pin.m_sTooltip = pTooltip->GetPrimitivesString()[0];
       }
 
       // this is optional
-      if (auto pFallback = pElement->FindChild(ezOpenDdlPrimitiveType::String, "Fallback"))
+      if (auto pFallback = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "Fallback"))
       {
         pin.m_sDefaultValue = pFallback->GetPrimitivesString()[0];
       }
 
       // this is optional
-      if (auto pExpose = pElement->FindChild(ezOpenDdlPrimitiveType::Bool, "Expose"))
+      if (auto pExpose = pElement->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Expose"))
       {
         pin.m_bExposeAsProperty = pExpose->GetPrimitivesBool()[0];
       }
@@ -615,7 +615,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
       prop.m_sName = pElement->GetName();
 
-      const ezOpenDdlReaderElement* pType = pElement->FindChild(ezOpenDdlPrimitiveType::String, "Type");
+      const ezOpenDdlReaderElement* pType = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "Type");
       if (!pType)
       {
         ezLog::Error("Property doesn't have a type");

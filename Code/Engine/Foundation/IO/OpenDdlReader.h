@@ -14,6 +14,9 @@ public:
   /// \brief Whether this is a custom object type that typically contains sub-elements.
   EZ_FORCE_INLINE bool IsCustomType() const { return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom; } // [tested]
 
+  /// \brief Whether this is a custom object type of the requested type.
+  EZ_FORCE_INLINE bool IsCustomType(const char* szTypeName) const { return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom && ezStringUtils::IsEqual(m_szCustomType, szTypeName); }
+
   /// \brief Returns the string for the custom type name.
   EZ_FORCE_INLINE const char* GetCustomType() const { return m_szCustomType; } // [tested]
 
@@ -85,7 +88,7 @@ public:
   const ezOpenDdlReaderElement* FindChild(const char* szName) const; // [tested]
 
   /// \brief Searches for a child element that has the given type, name and if it is a primitives list, at least the desired number of primitives.
-  const ezOpenDdlReaderElement* FindChild(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives = 1) const;
+  const ezOpenDdlReaderElement* FindChildOfType(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives = 1) const;
 
   /// \brief Searches for a child element with the given type and optionally also a certain name.
   const ezOpenDdlReaderElement* FindChildOfType(const char* szType, const char* szName = nullptr) const;

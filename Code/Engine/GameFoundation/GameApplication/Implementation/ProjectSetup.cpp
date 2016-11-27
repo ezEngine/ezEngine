@@ -19,6 +19,7 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <GameUtils/Curves/ColorGradientResource.h>
 #include <GameUtils/Curves/Curve1DResource.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 void ezGameApplication::DoProjectSetup()
 {
@@ -173,26 +174,26 @@ void ezGameApplication::DoSetupDefaultResources()
 void ezGameApplication::DoSetupGraphicsDevice()
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezGALDeviceCreationDescription DeviceInit;
-    DeviceInit.m_bCreatePrimarySwapChain = false;
+  ezGALDeviceCreationDescription DeviceInit;
+  DeviceInit.m_bCreatePrimarySwapChain = false;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    DeviceInit.m_bDebugDevice = true;
+  DeviceInit.m_bDebugDevice = true;
 #endif
 
-    ezGALDevice* pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
-    EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
+  ezGALDevice* pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
+  EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
 
-    ezGALDevice::SetDefaultDevice(pDevice);
+  ezGALDevice::SetDefaultDevice(pDevice);
 
-    // Create GPU resource pool
-    ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
-    ezGPUResourcePool::SetDefaultInstance(pResourcePool);
+  // Create GPU resource pool
+  ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
+  ezGPUResourcePool::SetDefaultInstance(pResourcePool);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezShaderManager::Configure("DX11_SM50", true);
+  ezShaderManager::Configure("DX11_SM50", true);
 #else
-    ezShaderManager::Configure("GL3", true);
+  ezShaderManager::Configure("GL3", true);
 #endif
 
 #endif
@@ -221,60 +222,41 @@ void ezGameApplication::DoLoadPluginsFromConfig()
 
 void ezGameApplication::DoLoadTags()
 {
-  EZ_LOG_BLOCK("Reading Tags", "Tags.ezManifest");
+  EZ_LOG_BLOCK("Reading Tags", "Tags.ddl");
 
   ezFileReader file;
-  if (file.Open("Tags.ezManifest").Failed())
+  if (file.Open("Tags.ddl").Failed())
   {
-    ezLog::Dev("'Tags.ezManifest' does not exist");
+    ezLog::Dev("'Tags.ddl' does not exist");
     return;
   }
 
-  ezJSONReader reader;
-  if (reader.Parse(file).Failed())
+  ezStringBuilder tmp;
+
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(file).Failed())
   {
-    ezLog::Error("Failed to read JSON data from tags file");
+    ezLog::Error("Failed to parse DDL data in tags file");
     return;
   }
 
-  const ezVariantDictionary& dict = reader.GetTopLevelObject();
+  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
 
-  ezVariant* pTags = nullptr;
-  if (!dict.TryGetValue("Tags", pTags))
+  for (const ezOpenDdlReaderElement* pTags = pRoot->GetFirstChild(); pTags != nullptr; pTags = pTags->GetSibling())
   {
-    ezLog::Error("Failed to find 'Tags' JSON object in JSON root object");
-    return;
-  }
-
-  if (!pTags->CanConvertTo<ezVariantArray>())
-  {
-    ezLog::Error("Failed to cast 'Tags' JSON object into a JSON array");
-    return;
-  }
-
-  const ezVariantArray& tags = pTags->Get<ezVariantArray>();
-
-  for (const ezVariant& value : tags)
-  {
-    if (!value.CanConvertTo<ezVariantDictionary>())
-    {
-      ezLog::Error("Tag is not a JSON object!");
+    if (!pTags->IsCustomType("Tag"))
       continue;
-    }
 
-    const ezVariantDictionary& tagDict = value.Get<ezVariantDictionary>();
+    const ezOpenDdlReaderElement* pName = pTags->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name");
 
-    ezVariant* pName = nullptr;
-    tagDict.TryGetValue("Name", pName);
-    if (!pName || !pName->IsA<ezString>())
+    if (!pName)
     {
       ezLog::Error("Incomplete tag declaration!");
       continue;
     }
 
-    const char* szTagString = pName->Get<ezString>();
-
-    ezTagRegistry::GetGlobalRegistry().RegisterTag(szTagString);
+    tmp = pName->GetPrimitivesString()[0];
+    ezTagRegistry::GetGlobalRegistry().RegisterTag(tmp);
   }
 }
 

@@ -16,8 +16,8 @@ class EZ_TOOLSFOUNDATION_DLL ezToolsTagRegistry
 public:
   static void Clear();
 
-  static void WriteToJSON(ezStreamWriter& stream);
-  static ezStatus ReadFromJSON(ezStreamReader& stream);
+  static void WriteToDDL(ezStreamWriter& stream);
+  static ezStatus ReadFromDDL(ezStreamReader& stream);
 
   static bool AddTag(const ezToolsTag& tag);
   static bool RemoveTag(const char* szName);

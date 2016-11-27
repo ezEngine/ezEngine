@@ -7,6 +7,8 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/IO/OpenDdlReader.h>
 ezMap<ezString, ezToolsTag> ezToolsTagRegistry::m_NameToTags;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ToolsTagRegistry)
@@ -46,78 +48,62 @@ void ezToolsTagRegistry::Clear()
   m_NameToTags.Clear();
 }
 
-void ezToolsTagRegistry::WriteToJSON(ezStreamWriter& stream)
+void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& stream)
 {
-  ezExtendedJSONWriter writer;
+  ezOpenDdlWriter writer;
   writer.SetOutputStream(&stream);
-  writer.SetWhitespaceMode(ezJSONWriter::WhitespaceMode::All);
-  writer.BeginObject();
-  writer.BeginArray("Tags");
+  writer.SetCompactMode(false);
+  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::ShortenedUnsignedInt);
 
   for (auto it = m_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
-    writer.BeginObject();
+    writer.BeginObject("Tag");
 
-    writer.AddVariableString("Name", it.Value().m_sName);
-    writer.AddVariableString("Category", it.Value().m_sCategory);
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, "Name");
+    writer.WriteString(it.Value().m_sName);
+    writer.EndPrimitiveList();
+
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, "Category");
+    writer.WriteString(it.Value().m_sCategory);
+    writer.EndPrimitiveList();
 
     writer.EndObject();
   }
-
-  writer.EndArray();
-  writer.EndObject();
 }
 
-ezStatus ezToolsTagRegistry::ReadFromJSON(ezStreamReader& stream)
+ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& stream)
 {
-  ezExtendedJSONReader reader;
-  if (reader.Parse(stream).Failed())
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(stream).Failed())
   {
-    return ezStatus("Failed to read json data from ToolsTagRegistry stream!");
+    return ezStatus("Failed to read data from ToolsTagRegistry stream!");
   }
   m_NameToTags.Clear();
 
-  const ezVariantDictionary& dict = reader.GetTopLevelObject();
+  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
 
-  ezVariant* pTags = nullptr;
-  if (!dict.TryGetValue("Tags", pTags))
+  for (const ezOpenDdlReaderElement* pTags = pRoot->GetFirstChild(); pTags != nullptr; pTags = pTags->GetSibling())
   {
-    return ezStatus("Failed to find 'Tags' json object in json root object!");
-  }
-
-  if (!pTags->CanConvertTo<ezVariantArray>())
-  {
-    return ezStatus("Failed to cast 'Tags' json object into a json array!");
-  }
-  const ezVariantArray& tags = pTags->Get<ezVariantArray>();
-
-  for (const ezVariant& value : tags)
-  {
-    if (!value.CanConvertTo<ezVariantDictionary>())
-    {
-      ezLog::Error("Tag is not a json object!");
+    if (!pTags->IsCustomType("Tag"))
       continue;
-    }
-    const ezVariantDictionary& tagDict = value.Get<ezVariantDictionary>();
-    
-    ezVariant* pName = nullptr;
-    ezVariant* pCategory = nullptr;
-    tagDict.TryGetValue("Name", pName);
-    tagDict.TryGetValue("Category", pCategory);
-    if (!pName || !pCategory || !pName->IsA<ezString>() || !pCategory->IsA<ezString>())
+
+    const ezOpenDdlReaderElement* pName = pTags->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name");
+    const ezOpenDdlReaderElement* pCategory = pTags->FindChildOfType(ezOpenDdlPrimitiveType::String, "Category");
+
+    if (!pName || !pCategory)
     {
       ezLog::Error("Incomplete tag declaration!");
       continue;
     }
 
     ezToolsTag tag;
-    tag.m_sName = pName->Get<ezString>();
-    tag.m_sCategory = pCategory->Get<ezString>();
+    tag.m_sName = pName->GetPrimitivesString()[0];
+    tag.m_sCategory = pCategory->GetPrimitivesString()[0];
+
     if (!ezToolsTagRegistry::AddTag(tag))
     {
       ezLog::Error("Failed to add tag '%s'", tag.m_sName.GetData());
     }
-
   }
 
   return ezStatus(EZ_SUCCESS);
