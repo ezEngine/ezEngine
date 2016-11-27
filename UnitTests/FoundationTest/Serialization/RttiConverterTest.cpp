@@ -101,59 +101,58 @@ void TestSerialize(T* pObject)
     EZ_TEST_BOOL(sData == sData2);
   }
 
-  /// \todo Enable this test once all VariantTypes can be serialized
-  //{
-  //  ezMemoryStreamStorage storage;
-  //  ezMemoryStreamWriter writer(&storage);
-  //  ezMemoryStreamReader reader(&storage);
+  {
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
 
-  //  ezAbstractGraphDdlSerializer::Write(writer, &graph);
+    ezAbstractGraphDdlSerializer::Write(writer, &graph);
 
-  //  ezStringBuilder sData, sData2;
-  //  sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize());
+    ezStringBuilder sData, sData2;
+    sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize());
 
 
-  //  ezRttiConverterReader convRead(&graph, &context);
-  //  auto* pRootNode = graph.GetNodeByName("root");
-  //  EZ_TEST_BOOL(pRootNode != nullptr);
+    ezRttiConverterReader convRead(&graph, &context);
+    auto* pRootNode = graph.GetNodeByName("root");
+    EZ_TEST_BOOL(pRootNode != nullptr);
 
-  //  T target;
-  //  convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
-  //  EZ_TEST_BOOL(target == *pObject);
+    T target;
+    convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
+    EZ_TEST_BOOL(target == *pObject);
 
-  //  // Overwrite again to test for leaks as existing values have to be removed first by ezRttiConverterReader.
-  //  convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
-  //  EZ_TEST_BOOL(target == *pObject);
+    // Overwrite again to test for leaks as existing values have to be removed first by ezRttiConverterReader.
+    convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
+    EZ_TEST_BOOL(target == *pObject);
 
-  //  {
-  //    T clone;
-  //    ezReflectionSerializer::Clone(pObject, &clone, pRtti);
-  //    EZ_TEST_BOOL(clone == *pObject);
-  //    EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&clone, pObject, pRtti));
-  //  }
+    {
+      T clone;
+      ezReflectionSerializer::Clone(pObject, &clone, pRtti);
+      EZ_TEST_BOOL(clone == *pObject);
+      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(&clone, pObject, pRtti));
+    }
 
-  //  {
-  //    T* pClone = ezReflectionSerializer::Clone(pObject);
-  //    EZ_TEST_BOOL(*pClone == *pObject);
-  //    EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, pObject));
-  //    // Overwrite again to test for leaks as existing values have to be removed first by clone.
-  //    ezReflectionSerializer::Clone(pObject, pClone, pRtti);
-  //    EZ_TEST_BOOL(*pClone == *pObject);
-  //    EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, pObject, pRtti));
-  //    pRtti->GetAllocator()->Deallocate(pClone);
-  //  }
+    {
+      T* pClone = ezReflectionSerializer::Clone(pObject);
+      EZ_TEST_BOOL(*pClone == *pObject);
+      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, pObject));
+      // Overwrite again to test for leaks as existing values have to be removed first by clone.
+      ezReflectionSerializer::Clone(pObject, pClone, pRtti);
+      EZ_TEST_BOOL(*pClone == *pObject);
+      EZ_TEST_BOOL(ezReflectionUtils::IsEqual(pClone, pObject, pRtti));
+      pRtti->GetAllocator()->Deallocate(pClone);
+    }
 
-  //  ezAbstractObjectGraph graph2;
-  //  ezAbstractGraphDdlSerializer::Read(reader, &graph2);
+    ezAbstractObjectGraph graph2;
+    ezAbstractGraphDdlSerializer::Read(reader, &graph2);
 
-  //  ezMemoryStreamStorage storage2;
-  //  ezMemoryStreamWriter writer2(&storage2);
+    ezMemoryStreamStorage storage2;
+    ezMemoryStreamWriter writer2(&storage2);
 
-  //  ezAbstractGraphDdlSerializer::Write(writer2, &graph2);
-  //  sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize());
+    ezAbstractGraphDdlSerializer::Write(writer2, &graph2);
+    sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize());
 
-  //  EZ_TEST_BOOL(sData == sData2);
-  //}
+    EZ_TEST_BOOL(sData == sData2);
+  }
 
   {
     ezMemoryStreamStorage storage;

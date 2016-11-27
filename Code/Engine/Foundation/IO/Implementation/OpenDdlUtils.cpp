@@ -252,6 +252,183 @@ ezResult ezOpenDdlUtils::ConvertToVec4(const ezOpenDdlReaderElement* pElement, e
   return EZ_FAILURE;
 }
 
+ezResult ezOpenDdlUtils::ConvertToVec2I(const ezOpenDdlReaderElement* pElement, ezVec2I32& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 2)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Int32)
+  {
+    const ezInt32* pValues = pElement->GetPrimitivesInt32();
+
+    out_result.Set(pValues[0], pValues[1]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezOpenDdlUtils::ConvertToVec3I(const ezOpenDdlReaderElement* pElement, ezVec3I32& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 3)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Int32)
+  {
+    const ezInt32* pValues = pElement->GetPrimitivesInt32();
+
+    out_result.Set(pValues[0], pValues[1], pValues[2]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezOpenDdlUtils::ConvertToVec4I(const ezOpenDdlReaderElement* pElement, ezVec4I32& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 4)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Int32)
+  {
+    const ezInt32* pValues = pElement->GetPrimitivesInt32();
+
+    out_result.Set(pValues[0], pValues[1], pValues[2], pValues[3]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+
+ezResult ezOpenDdlUtils::ConvertToVec2U(const ezOpenDdlReaderElement* pElement, ezVec2U32& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 2)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32)
+  {
+    const ezUInt32* pValues = pElement->GetPrimitivesUInt32();
+
+    out_result.Set(pValues[0], pValues[1]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezOpenDdlUtils::ConvertToVec3U(const ezOpenDdlReaderElement* pElement, ezVec3U32& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 3)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32)
+  {
+    const ezUInt32* pValues = pElement->GetPrimitivesUInt32();
+
+    out_result.Set(pValues[0], pValues[1], pValues[2]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezOpenDdlUtils::ConvertToVec4U(const ezOpenDdlReaderElement* pElement, ezVec4U32& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 4)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32)
+  {
+    const ezUInt32* pValues = pElement->GetPrimitivesUInt32();
+
+    out_result.Set(pValues[0], pValues[1], pValues[2], pValues[3]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+
+
 ezResult ezOpenDdlUtils::ConvertToMat3(const ezOpenDdlReaderElement* pElement, ezMat3& out_result)
 {
   if (pElement == nullptr)
@@ -420,7 +597,8 @@ ezResult ezOpenDdlUtils::ConvertToAngle(const ezOpenDdlReaderElement* pElement, 
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_result = ezAngle::Degree(pValues[0]);
+    // have to use radians to prevent precision loss
+    out_result = ezAngle::Radian(pValues[0]);
 
     return EZ_SUCCESS;
   }
@@ -558,6 +736,66 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
     {
       ezVec4 value;
       if (ConvertToVec4(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec2i"))
+    {
+      ezVec2I32 value;
+      if (ConvertToVec2I(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec3i"))
+    {
+      ezVec3I32 value;
+      if (ConvertToVec3I(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec4i"))
+    {
+      ezVec4I32 value;
+      if (ConvertToVec4I(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec2u"))
+    {
+      ezVec2U32 value;
+      if (ConvertToVec2U(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec3u"))
+    {
+      ezVec3U32 value;
+      if (ConvertToVec3U(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec4u"))
+    {
+      ezVec4U32 value;
+      if (ConvertToVec4U(pElement, value).Failed())
         return EZ_FAILURE;
 
       out_result = value;
@@ -753,6 +991,73 @@ void ezOpenDdlUtils::StoreVec4(ezOpenDdlWriter& writer, const ezVec4& value, con
   writer.EndObject();
 }
 
+void ezOpenDdlUtils::StoreVec2I(ezOpenDdlWriter& writer, const ezVec2I32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginObject("Vec2i", szName, bGlobalName, true);
+  {
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
+    writer.WriteInt32(value.GetData(), 2);
+    writer.EndPrimitiveList();
+  }
+  writer.EndObject();
+}
+
+void ezOpenDdlUtils::StoreVec3I(ezOpenDdlWriter& writer, const ezVec3I32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginObject("Vec3i", szName, bGlobalName, true);
+  {
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
+    writer.WriteInt32(value.GetData(), 3);
+    writer.EndPrimitiveList();
+  }
+  writer.EndObject();
+}
+
+void ezOpenDdlUtils::StoreVec4I(ezOpenDdlWriter& writer, const ezVec4I32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginObject("Vec4i", szName, bGlobalName, true);
+  {
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
+    writer.WriteInt32(value.GetData(), 4);
+    writer.EndPrimitiveList();
+  }
+  writer.EndObject();
+}
+
+void ezOpenDdlUtils::StoreVec2U(ezOpenDdlWriter& writer, const ezVec2U32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginObject("Vec2u", szName, bGlobalName, true);
+  {
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
+    writer.WriteUInt32(value.GetData(), 2);
+    writer.EndPrimitiveList();
+  }
+  writer.EndObject();
+}
+
+void ezOpenDdlUtils::StoreVec3U(ezOpenDdlWriter& writer, const ezVec3U32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginObject("Vec3u", szName, bGlobalName, true);
+  {
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
+    writer.WriteUInt32(value.GetData(), 3);
+    writer.EndPrimitiveList();
+  }
+  writer.EndObject();
+}
+
+void ezOpenDdlUtils::StoreVec4U(ezOpenDdlWriter& writer, const ezVec4U32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginObject("Vec4u", szName, bGlobalName, true);
+  {
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
+    writer.WriteUInt32(value.GetData(), 4);
+    writer.EndPrimitiveList();
+  }
+  writer.EndObject();
+}
+
+
 void ezOpenDdlUtils::StoreMat3(ezOpenDdlWriter& writer, const ezMat3& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
   writer.BeginObject("Mat3", szName, bGlobalName, true);
@@ -828,7 +1133,8 @@ void ezOpenDdlUtils::StoreAngle(ezOpenDdlWriter& writer, const ezAngle& value, c
 {
   writer.BeginObject("Angle", szName, bGlobalName, true);
   {
-    const float f = value.GetDegree();
+    // have to use radians to prevent precision loss
+    const float f = value.GetRadian();
 
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     writer.WriteFloat(&f, 1);
@@ -982,6 +1288,30 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
 
   case ezVariant::Type::Vector4:
     StoreVec4(writer, value.Get<ezVec4>(), szName, bGlobalName);
+    return;
+
+  case ezVariant::Type::Vector2I:
+    StoreVec2I(writer, value.Get<ezVec2I32>(), szName, bGlobalName);
+    return;
+
+  case ezVariant::Type::Vector3I:
+    StoreVec3I(writer, value.Get<ezVec3I32>(), szName, bGlobalName);
+    return;
+
+  case ezVariant::Type::Vector4I:
+    StoreVec4I(writer, value.Get<ezVec4I32>(), szName, bGlobalName);
+    return;
+
+  case ezVariant::Type::Vector2U:
+    StoreVec2U(writer, value.Get<ezVec2U32>(), szName, bGlobalName);
+    return;
+
+  case ezVariant::Type::Vector3U:
+    StoreVec3U(writer, value.Get<ezVec3U32>(), szName, bGlobalName);
+    return;
+
+  case ezVariant::Type::Vector4U:
+    StoreVec4U(writer, value.Get<ezVec4U32>(), szName, bGlobalName);
     return;
 
   case ezVariant::Type::Quaternion:

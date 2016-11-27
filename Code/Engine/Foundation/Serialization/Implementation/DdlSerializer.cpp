@@ -38,7 +38,7 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
       ezOpenDdlUtils::StoreUuid(writer, node.GetGuid() ,"id");
       ezOpenDdlUtils::StoreString(writer, node.GetType(), "t");
 
-      if (node.GetNodeName() != nullptr)
+      if (!ezStringUtils::IsNullOrEmpty(node.GetNodeName()))
         ezOpenDdlUtils::StoreString(writer, node.GetNodeName(), "n");
 
       writer.BeginObject("p");

@@ -326,7 +326,7 @@ Data $v1 { float { 45.23 } }\
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToAngle(doc.FindElement("v0"), v0).Failed());
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToAngle(doc.FindElement("v1"), v1).Succeeded());
 
-    EZ_TEST_FLOAT(v1.GetDegree(), 45.23f, 0.0001f);
+    EZ_TEST_FLOAT(v1.GetRadian(), 45.23f, 0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToVariant")
@@ -391,7 +391,7 @@ Angle $v12 { float { 45.23 } }\
     EZ_TEST_VEC3(v9.Get<ezTransform>().m_vPosition, ezVec3(10, 11, 12), 0.0001f);
     EZ_TEST_BOOL(v10.Get<ezQuat>() == ezQuat(0.1f, 2.0f, 3.2f, 44.5f));
     EZ_TEST_BOOL(v11.Get<ezUuid>() == ezUuid(12345678910, 10987654321));
-    EZ_TEST_FLOAT(v12.Get<ezAngle>().GetDegree(), 45.23f, 0.0001f);
+    EZ_TEST_FLOAT(v12.Get<ezAngle>().GetRadian(), 45.23f, 0.0001f);
 
 
     /// \test Test primitive types in ezVariant
@@ -529,7 +529,7 @@ Angle $v12 { float { 45.23 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreAngle(js, ezAngle::Degree(2.3f), "v1", true);
+    ezOpenDdlUtils::StoreAngle(js, ezAngle::Radian(2.3f), "v1", true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVariant")

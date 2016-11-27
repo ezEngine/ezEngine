@@ -51,6 +51,42 @@ namespace ezOpenDdlUtils
   /// It may also be a group that contains such a primitives list as the only child.
   EZ_FOUNDATION_DLL ezResult ConvertToVec4(const ezOpenDdlReaderElement* pElement, ezVec4& out_result);
 
+  /// \brief Converts the data that \a pElement points to to an ezVec2I32.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 2 int32.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToVec2I(const ezOpenDdlReaderElement* pElement, ezVec2I32& out_result);
+
+  /// \brief Converts the data that \a pElement points to to an ezVec3I32.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 3 int32.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToVec3I(const ezOpenDdlReaderElement* pElement, ezVec3I32& out_result);
+
+  /// \brief Converts the data that \a pElement points to to an ezVec4I32.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 4 int32.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToVec4I(const ezOpenDdlReaderElement* pElement, ezVec4I32& out_result);
+
+  /// \brief Converts the data that \a pElement points to to an ezVec2U32.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 2 uint32.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToVec2U(const ezOpenDdlReaderElement* pElement, ezVec2U32& out_result);
+
+  /// \brief Converts the data that \a pElement points to to an ezVec3U32.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 3 uint32.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToVec3U(const ezOpenDdlReaderElement* pElement, ezVec3U32& out_result);
+
+  /// \brief Converts the data that \a pElement points to to an ezVec4U32.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 4 uint32.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToVec4U(const ezOpenDdlReaderElement* pElement, ezVec4U32& out_result);
+
   /// \brief Converts the data that \a pElement points to to an ezMat3.
   ///
   /// \a pElement maybe be a primitives list of exactly 9 floats.
@@ -120,6 +156,24 @@ namespace ezOpenDdlUtils
 
   /// \brief Writes an ezVec4 to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreVec4(ezOpenDdlWriter& writer, const ezVec4& value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes an ezVec2 to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreVec2I(ezOpenDdlWriter& writer, const ezVec2I32& value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes an ezVec3 to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreVec3I(ezOpenDdlWriter& writer, const ezVec3I32& value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes an ezVec4 to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreVec4I(ezOpenDdlWriter& writer, const ezVec4I32& value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes an ezVec2 to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreVec2U(ezOpenDdlWriter& writer, const ezVec2U32& value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes an ezVec3 to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreVec3U(ezOpenDdlWriter& writer, const ezVec3U32& value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes an ezVec4 to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreVec4U(ezOpenDdlWriter& writer, const ezVec4U32& value, const char* szName = nullptr, bool bGlobalName = false);
 
   /// \brief Writes an ezMat3 to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreMat3(ezOpenDdlWriter& writer, const ezMat3& value, const char* szName = nullptr, bool bGlobalName = false);
