@@ -1,5 +1,8 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/FileSystemConfig.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig>)
 {
@@ -28,33 +31,27 @@ ezResult ezApplicationFileSystemConfig::Save()
 {
   ezStringBuilder sPath;
   sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("DataDirectories.ezManifest");
+  sPath.AppendPath("DataDirectories.ddl");
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
     return EZ_FAILURE;
 
-  ezStandardJSONWriter json;
-  json.SetOutputStream(&file);
-
-  json.BeginObject();
-
-  json.BeginArray("DataDirectories");
+  ezOpenDdlWriter writer;
+  writer.SetOutputStream(&file);
+  writer.SetCompactMode(false);
+  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
 
   for (ezUInt32 i = 0; i < m_DataDirs.GetCount(); ++i)
   {
-    json.BeginObject();
+    writer.BeginObject("DataDir");
 
-    json.AddVariableString("Path", m_DataDirs[i].m_sSdkRootRelativePath);
-    json.AddVariableString("RootName", m_DataDirs[i].m_sRootName);
-    json.AddVariableBool("Writable", m_DataDirs[i].m_bWritable);
+    ezOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sSdkRootRelativePath, "Path");
+    ezOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sRootName, "RootName");
+    ezOpenDdlUtils::StoreBool(writer, m_DataDirs[i].m_bWritable, "Writable");
 
-    json.EndObject();
+    writer.EndObject();
   }
-
-  json.EndArray();
-
-  json.EndObject();
 
   return EZ_SUCCESS;
 }
@@ -67,7 +64,7 @@ void ezApplicationFileSystemConfig::Load()
 
   ezStringBuilder sPath;
   sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("DataDirectories.ezManifest");
+  sPath.AppendPath("DataDirectories.ddl");
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -76,41 +73,33 @@ void ezApplicationFileSystemConfig::Load()
     return;
   }
 
-  ezJSONReader json;
-  json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
-  if (json.Parse(file).Failed())
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
   {
     ezLog::Error("Failed to parse file-system config file '%s'", sPath.GetData());
     return;
   }
 
-  const auto& tree = json.GetTopLevelObject();
+  const ezOpenDdlReaderElement* pTree = reader.GetRootElement();
 
-  ezVariant* dirs;
-  if (!tree.TryGetValue("DataDirectories", dirs) || !dirs->IsA<ezVariantArray>())
+  for (const ezOpenDdlReaderElement* pDirs = pTree->GetFirstChild(); pDirs != nullptr; pDirs = pDirs->GetSibling())
   {
-    ezLog::Error("Top level node is not an array");
-    return;
-  }
-
-  for (auto& a : dirs->Get<ezVariantArray>())
-  {
-    if (!a.IsA<ezVariantDictionary>())
+    if (!pDirs->IsCustomType("DataDir"))
       continue;
-
-    auto& datadir = a.Get<ezVariantDictionary>();
-
-    ezVariant* pVar;
 
     DataDirConfig cfg;
     cfg.m_bWritable = false;
 
-    if (datadir.TryGetValue("Path", pVar) && pVar->IsA<ezString>())
-      cfg.m_sSdkRootRelativePath = pVar->Get<ezString>();
-    if (datadir.TryGetValue("RootName", pVar) && pVar->IsA<ezString>())
-      cfg.m_sRootName = pVar->Get<ezString>();
-    if (datadir.TryGetValue("Writable", pVar) && pVar->IsA<bool>())
-      cfg.m_bWritable = pVar->Get<bool>();
+    const ezOpenDdlReaderElement* pPath = pDirs->FindChildOfType(ezOpenDdlPrimitiveType::String, "Path");
+    const ezOpenDdlReaderElement* pRoot = pDirs->FindChildOfType(ezOpenDdlPrimitiveType::String, "RootName");
+    const ezOpenDdlReaderElement* pWrite = pDirs->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Writable");
+
+    if (pPath)
+      cfg.m_sSdkRootRelativePath = pPath->GetPrimitivesString()[0];
+    if (pRoot)
+      cfg.m_sRootName = pRoot->GetPrimitivesString()[0];
+    if (pWrite)
+      cfg.m_bWritable = pWrite->GetPrimitivesBool()[0];
 
     m_DataDirs.PushBack(cfg);
   }

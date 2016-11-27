@@ -199,5 +199,38 @@ namespace ezOpenDdlUtils
   /// \brief Writes a primitives list with a single string and an optional name.
   EZ_FOUNDATION_DLL void StoreString(ezOpenDdlWriter& writer, const ezStringView& value, const char* szName = nullptr, bool bGlobalName = false);
 
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreBool(ezOpenDdlWriter& writer, bool value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreFloat(ezOpenDdlWriter& writer, float value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreDouble(ezOpenDdlWriter& writer, double value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreInt8(ezOpenDdlWriter& writer, ezInt8 value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreInt16(ezOpenDdlWriter& writer, ezInt16 value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreInt32(ezOpenDdlWriter& writer, ezInt32 value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreInt64(ezOpenDdlWriter& writer, ezInt64 value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreUInt8(ezOpenDdlWriter& writer, ezUInt8 value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreUInt16(ezOpenDdlWriter& writer, ezUInt16 value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreUInt32(ezOpenDdlWriter& writer, ezUInt32 value, const char* szName = nullptr, bool bGlobalName = false);
+
+  /// \brief Writes a primitives list with a single value and an optional name.
+  EZ_FOUNDATION_DLL void StoreUInt64(ezOpenDdlWriter& writer, ezUInt64 value, const char* szName = nullptr, bool bGlobalName = false);
+
 }
 

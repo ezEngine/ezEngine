@@ -1152,111 +1152,67 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
 
   case ezVariant::Type::Bool:
     {
-      const bool var = value.Get<bool>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, szName, bGlobalName);
-      writer.WriteBool(&var);
-      writer.EndPrimitiveList();
+      StoreBool(writer, value.Get<bool>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::Int8:
     {
-      const ezInt8 var = value.Get<ezInt8>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, szName, bGlobalName);
-      writer.WriteInt8(&var);
-      writer.EndPrimitiveList();
+      StoreInt8(writer, value.Get<ezInt8>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::UInt8:
     {
-      const ezUInt8 var = value.Get<ezUInt8>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, szName, bGlobalName);
-      writer.WriteUInt8(&var);
-      writer.EndPrimitiveList();
+      StoreUInt8(writer, value.Get<ezUInt8>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::Int16:
     {
-      const ezInt16 var = value.Get<ezInt16>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, szName, bGlobalName);
-      writer.WriteInt16(&var);
-      writer.EndPrimitiveList();
+      StoreInt16(writer, value.Get<ezInt16>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::UInt16:
     {
-      const ezUInt16 var = value.Get<ezUInt16>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, szName, bGlobalName);
-      writer.WriteUInt16(&var);
-      writer.EndPrimitiveList();
+      StoreUInt16(writer, value.Get<ezUInt16>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::Int32:
     {
-      const ezInt32 var = value.Get<ezInt32>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, szName, bGlobalName);
-      writer.WriteInt32(&var);
-      writer.EndPrimitiveList();
+      StoreInt32(writer, value.Get<ezInt32>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::UInt32:
     {
-      const ezUInt32 var = value.Get<ezUInt32>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, szName, bGlobalName);
-      writer.WriteUInt32(&var);
-      writer.EndPrimitiveList();
+      StoreUInt32(writer, value.Get<ezUInt32>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::Int64:
     {
-      const ezInt64 var = value.Get<ezInt64>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, szName, bGlobalName);
-      writer.WriteInt64(&var);
-      writer.EndPrimitiveList();
+      StoreInt64(writer, value.Get<ezInt64>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::UInt64:
     {
-      const ezUInt64 var = value.Get<ezUInt64>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, szName, bGlobalName);
-      writer.WriteUInt64(&var);
-      writer.EndPrimitiveList();
+      StoreUInt64(writer, value.Get<ezUInt64>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::Float:
     {
-      const float var = value.Get<float>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float, szName, bGlobalName);
-      writer.WriteFloat(&var);
-      writer.EndPrimitiveList();
+      StoreFloat(writer, value.Get<float>(), szName, bGlobalName);
     }
     return;
 
   case ezVariant::Type::Double:
     {
-      const double var = value.Get<double>();
-
-      writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Double, szName, bGlobalName);
-      writer.WriteDouble(&var);
-      writer.EndPrimitiveList();
+      StoreDouble(writer, value.Get<double>(), szName, bGlobalName);
     }
     return;
 
@@ -1404,6 +1360,83 @@ void ezOpenDdlUtils::StoreString(ezOpenDdlWriter& writer, const ezStringView& va
 {
   writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, szName, bGlobalName);
   writer.WriteString(value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreBool(ezOpenDdlWriter& writer, bool value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, szName, bGlobalName);
+  writer.WriteBool(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreFloat(ezOpenDdlWriter& writer, float value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float, szName, bGlobalName);
+  writer.WriteFloat(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreDouble(ezOpenDdlWriter& writer, double value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Double, szName, bGlobalName);
+  writer.WriteDouble(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreInt8(ezOpenDdlWriter& writer, ezInt8 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, szName, bGlobalName);
+  writer.WriteInt8(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreInt16(ezOpenDdlWriter& writer, ezInt16 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, szName, bGlobalName);
+  writer.WriteInt16(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreInt32(ezOpenDdlWriter& writer, ezInt32 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, szName, bGlobalName);
+  writer.WriteInt32(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreInt64(ezOpenDdlWriter& writer, ezInt64 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, szName, bGlobalName);
+  writer.WriteInt64(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreUInt8(ezOpenDdlWriter& writer, ezUInt8 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, szName, bGlobalName);
+  writer.WriteUInt8(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreUInt16(ezOpenDdlWriter& writer, ezUInt16 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, szName, bGlobalName);
+  writer.WriteUInt16(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreUInt32(ezOpenDdlWriter& writer, ezUInt32 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, szName, bGlobalName);
+  writer.WriteUInt32(&value);
+  writer.EndPrimitiveList();
+}
+
+void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& writer, ezUInt64 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, szName, bGlobalName);
+  writer.WriteUInt64(&value);
   writer.EndPrimitiveList();
 }
 
