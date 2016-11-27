@@ -382,38 +382,6 @@ template<typename T>
 void TestSerialization(const T& source)
 {
   ezMemoryStreamStorage StreamStorage;
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
-  {
-    ezMemoryStreamWriter FileOut(&StreamStorage);
-
-    ezReflectionSerializer::WriteObjectToJSON(FileOut, ezGetStaticRTTI<T>(), &source, ezJSONWriter::WhitespaceMode::All);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-    T data;
-    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *ezGetStaticRTTI<T>(), &data);
-
-    EZ_TEST_BOOL(data == source);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-
-    const ezRTTI* pRtti;
-    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
-
-    T& c2 = *((T*)pObject);
-
-    EZ_TEST_BOOL(c2 == source);
-
-    if (pObject)
-    {
-      pRtti->GetAllocator()->Deallocate(pObject);
-    }
-  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToDDL")
   {
@@ -502,10 +470,9 @@ void TestSerialization(const T& source)
 
 EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 {
-
   ezMemoryStreamStorage StreamStorage;
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToDDL")
   {
     ezMemoryStreamWriter FileOut(&StreamStorage);
 
@@ -525,16 +492,16 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     c2.m_array.PushBack(10.0f);
     c2.m_Variant = ezVec3(1.0f, 2.0f, 3.0f);
 
-    ezReflectionSerializer::WriteObjectToJSON(FileOut, c2.GetDynamicRTTI(), &c2, ezJSONWriter::WhitespaceMode::All);
+    ezReflectionSerializer::WriteObjectToDDL(FileOut, c2.GetDynamicRTTI(), &c2, false, ezOpenDdlWriter::TypeStringMode::Compliant);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromDDL")
   {
     ezMemoryStreamReader FileIn(&StreamStorage);
 
     ezTestClass2 c2;
 
-    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
+    ezReflectionSerializer::ReadObjectPropertiesFromDDL(FileIn, *c2.GetDynamicRTTI(), &c2);
 
     EZ_TEST_STRING(c2.GetText(), "Hallo");
     EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
@@ -558,7 +525,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_VEC3(c2.m_Variant.Get<ezVec3>(), ezVec3(1.0f, 2.0f, 3.0f), 0.0f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON (different type)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromDDL (different type)")
   {
     // here we restore the same properties into a different type of object which has properties that are named the same
     // but may have slightly different types (but which are compatible)
@@ -567,7 +534,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 
     ezTestClass2b c2;
 
-    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
+    ezReflectionSerializer::ReadObjectPropertiesFromDDL(FileIn, *c2.GetDynamicRTTI(), &c2);
 
     EZ_TEST_STRING(c2.GetText(), "Tut"); // not restored, different property name
     EZ_TEST_FLOAT(c2.m_Color.r, 0.1f, 0.0f);
@@ -577,12 +544,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromDDL")
   {
     ezMemoryStreamReader FileIn(&StreamStorage);
 
     const ezRTTI* pRtti;
-    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
+    void* pObject = ezReflectionSerializer::ReadObjectFromDDL(FileIn, pRtti);
 
     ezTestClass2& c2 = *((ezTestClass2*) pObject);
 

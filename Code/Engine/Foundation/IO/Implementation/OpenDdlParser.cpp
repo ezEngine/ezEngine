@@ -29,7 +29,7 @@ void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
 
 
 // Extension to default OpenDDL: We allow ':' and '.' to appear in identifier names
-EZ_FORCE_INLINE bool IsDdlIdentifierCharacter(ezUInt8 byte)
+bool IsDdlIdentifierCharacter(ezUInt8 byte)
 {
   return ((byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') || (byte == '_') || (byte >= '0' && byte <= '9') || (byte == ':') || (byte == '.'));
 }
