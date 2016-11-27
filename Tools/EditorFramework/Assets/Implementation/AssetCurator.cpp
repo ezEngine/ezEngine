@@ -15,7 +15,7 @@
 
 EZ_IMPLEMENT_SINGLETON(ezAssetCurator);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(AssetCacheEntry, ezNoBase, 1, ezRTTIDefaultAllocator<AssetCacheEntry>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(AssetCacheEntry, ezNoBase, 2, ezRTTIDefaultAllocator<AssetCacheEntry>)
 {
   EZ_BEGIN_PROPERTIES
   {

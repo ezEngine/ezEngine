@@ -106,7 +106,7 @@ void ezDocumentObjectConverterWriter::AddProperties(ezAbstractObjectNode* pNode,
 
 ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddSubObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
 {
-  ezAbstractObjectNode* pNode = m_pGraph->AddNode(pObject->GetGuid(), pObject->GetTypeAccessor().GetType()->GetTypeName(), szNodeName);
+  ezAbstractObjectNode* pNode = m_pGraph->AddNode(pObject->GetGuid(), pObject->GetType()->GetTypeName(), pObject->GetType()->GetTypeVersion(), szNodeName);
   AddProperties(pNode, pObject);
   return pNode;
 }

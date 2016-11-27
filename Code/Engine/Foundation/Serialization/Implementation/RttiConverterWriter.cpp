@@ -138,7 +138,7 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
 
 ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, void* pObject, const ezUuid& guid, const char* szNodeName)
 {
-  ezAbstractObjectNode* pNode = m_pGraph->AddNode(guid, pRtti->GetTypeName(), szNodeName);
+  ezAbstractObjectNode* pNode = m_pGraph->AddNode(guid, pRtti->GetTypeName(), pRtti->GetTypeVersion(), szNodeName);
   AddProperties(pNode, pRtti, pObject);
   return pNode;
 }

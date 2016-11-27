@@ -11,10 +11,15 @@ ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUI
 
   m_szTypeName = m_sTypeNameStorage.GetData();
   m_szPluginName = m_sPluginNameStorage.GetData();
+
+  RegisterType(this);
 }
 
 ezPhantomRTTI::~ezPhantomRTTI()
 {
+  UnregisterType(this);
+  m_szTypeName = nullptr;
+
   for (auto pProp : m_PropertiesStorage)
   {
     EZ_DEFAULT_DELETE(pProp);

@@ -22,6 +22,8 @@ public:
     ezVariant m_Value;
   };
 
+  ezAbstractObjectNode() : m_uiTypeVersion(0), m_szType(nullptr), m_szNodeName(nullptr) {}
+
   const ezHybridArray<Property, 16>& GetProperties() const { return m_Properties; }
 
   void AddProperty(const char* szName, const ezVariant& value);
@@ -30,7 +32,11 @@ public:
 
   void ChangeProperty(const char* szName, const ezVariant& value);
 
+  void RenameProperty(const char* szOldName, const char* szNewName);
+
   const ezUuid& GetGuid() const { return m_Guid; }
+  const ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
+  void SetTypeVersion(ezUInt32 uiTypeVersion) { m_uiTypeVersion = uiTypeVersion; }
   const char* GetType() const { return m_szType; }
 
   const Property* FindProperty(const char* szName) const;
@@ -44,6 +50,7 @@ private:
   ezAbstractObjectGraph* m_pOwner;
 
   ezUuid m_Guid;
+  ezUInt32 m_uiTypeVersion;
   const char* m_szType;
   const char* m_szNodeName;
 
@@ -62,6 +69,7 @@ struct EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
   Op m_Operation;
   ezUuid m_Node; // prop parent or added / deleted node
   ezString m_sProperty; // prop name or type
+  ezUInt32 m_uiTypeVersion; // only used for NodeAdded
   ezVariant m_Value;
 };
 
@@ -111,7 +119,7 @@ public:
   const ezAbstractObjectNode* GetNodeByName(const char* szName) const;
   ezAbstractObjectNode* GetNodeByName(const char* szName);
 
-  ezAbstractObjectNode* AddNode(const ezUuid& guid, const char* szType, const char* szNodeName = nullptr);
+  ezAbstractObjectNode* AddNode(const ezUuid& guid, const char* szType, ezUInt32 uiTypeVersion, const char* szNodeName = nullptr);
   void RemoveNode(const ezUuid& guid);
 
   const ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() const { return m_Nodes; }
@@ -148,6 +156,6 @@ private:
 
   ezSet<ezString> m_Strings;
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
-  ezMap<const char*, ezAbstractObjectNode*> m_NodesByName;
+  ezMap<const char*, ezAbstractObjectNode*, CompareConstChar> m_NodesByName;
 };
 

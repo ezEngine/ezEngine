@@ -1,27 +1,15 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphVersioning.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
 #include <Foundation/Logging/Log.h>
 
-struct CompareConstCharJson
-{
-  /// \brief Returns true if a is less than b
-  EZ_FORCE_INLINE bool Less(const char* a, const char* b) const
-  {
-    return ezStringUtils::Compare(a, b) < 0;
-  }
-
-  /// \brief Returns true if a is equal to b
-  EZ_FORCE_INLINE bool Equal(const char* a, const char* b) const
-  {
-    return ezStringUtils::IsEqual(a, b);
-  }
-};
-
 static void WriteGraph(ezExtendedJSONWriter &writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
-  ezMap<const char*, const ezVariant*, CompareConstCharJson> SortedProperties;
+  ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
 
   writer.BeginArray(szName);
 
@@ -34,6 +22,7 @@ static void WriteGraph(ezExtendedJSONWriter &writer, const ezAbstractObjectGraph
 
       writer.AddVariableUuid("#", node.GetGuid());
       writer.AddVariableString("t", node.GetType());
+      writer.AddVariableUInt32("v", node.GetTypeVersion());
 
       if (node.GetNodeName() != nullptr)
         writer.AddVariableString("n", node.GetNodeName());
@@ -99,10 +88,12 @@ static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGrap
 
     ezVariant* pGuid = nullptr;
     ezVariant* pType = nullptr;
+    ezVariant* pTypeVersion = nullptr;
     ezVariant* pProp = nullptr;
     ezVariant* pNodeName = nullptr;
     ObjDict.TryGetValue("#", pGuid);
     ObjDict.TryGetValue("t", pType);
+    ObjDict.TryGetValue("v", pTypeVersion);
     ObjDict.TryGetValue("p", pProp);
     ObjDict.TryGetValue("n", pNodeName);
 
@@ -117,7 +108,11 @@ static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGrap
     if (pNodeName != nullptr && pNodeName->IsA<ezString>())
       szNodeName = pNodeName->Get<ezString>();
 
-    auto* pNode = pGraph->AddNode(pGuid->Get<ezUuid>(), pType->Get<ezString>(), szNodeName);
+    ezUInt32 uiTypeVersion = 0;
+    if (pTypeVersion && pTypeVersion->CanConvertTo<ezUInt32>())
+      uiTypeVersion = pTypeVersion->ConvertTo<ezUInt32>();
+
+    auto* pNode = pGraph->AddNode(pGuid->Get<ezUuid>(), pType->Get<ezString>(), uiTypeVersion, szNodeName);
 
     const ezVariantDictionary& Properties = pProp->Get<ezVariantDictionary>();
     for (auto propIt = Properties.GetIterator(); propIt.IsValid(); ++propIt)
@@ -127,7 +122,7 @@ static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGrap
   }
 }
 
-ezResult ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+ezResult ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
   ezExtendedJSONReader reader;
   reader.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
@@ -143,6 +138,8 @@ ezResult ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractO
     ReadGraph(reader, pTypesGraph, "Types");
   }
 
+  if (bApplyPatches)
+    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph);
   return EZ_SUCCESS;
 }
 

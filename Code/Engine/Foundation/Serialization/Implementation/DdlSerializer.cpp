@@ -1,28 +1,15 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/Serialization/GraphVersioning.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
 
-struct CompareConstCharDdl
-{
-  /// \brief Returns true if a is less than b
-  EZ_FORCE_INLINE bool Less(const char* a, const char* b) const
-  {
-    return ezStringUtils::Compare(a, b) < 0;
-  }
-
-  /// \brief Returns true if a is equal to b
-  EZ_FORCE_INLINE bool Equal(const char* a, const char* b) const
-  {
-    return ezStringUtils::IsEqual(a, b);
-  }
-};
 
 static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
-  ezMap<const char*, const ezVariant*, CompareConstCharDdl> SortedProperties;
+  ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
 
   writer.BeginObject(szName);
 
@@ -37,6 +24,7 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
 
       ezOpenDdlUtils::StoreUuid(writer, node.GetGuid() ,"id");
       ezOpenDdlUtils::StoreString(writer, node.GetType(), "t");
+      ezOpenDdlUtils::StoreUInt32(writer, node.GetTypeVersion(), "v");
 
       if (!ezStringUtils::IsNullOrEmpty(node.GetNodeName()))
         ezOpenDdlUtils::StoreString(writer, node.GetNodeName(), "n");
@@ -92,6 +80,7 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
   {
     const ezOpenDdlReaderElement* pGuid = pObject->FindChildOfType(ezOpenDdlPrimitiveType::Custom, "id");
     const ezOpenDdlReaderElement* pType = pObject->FindChildOfType(ezOpenDdlPrimitiveType::String, "t");
+    const ezOpenDdlReaderElement* pTypeVersion = pObject->FindChildOfType(ezOpenDdlPrimitiveType::UInt32, "v");
     const ezOpenDdlReaderElement* pName = pObject->FindChildOfType(ezOpenDdlPrimitiveType::String, "n");
     const ezOpenDdlReaderElement* pProps = pObject->FindChildOfType("p");
 
@@ -115,7 +104,14 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
     else
       tmp2.Clear();
 
-    auto* pNode = pGraph->AddNode(guid, tmp, tmp2);
+    ezUInt32 uiTypeVersion = 0;
+    if (pTypeVersion && pTypeVersion->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32 && pTypeVersion->GetNumPrimitives() == 1)
+    {
+      const ezUInt32* pValues = pTypeVersion->GetPrimitivesUInt32();
+      uiTypeVersion = pValues[0];
+    }
+
+    auto* pNode = pGraph->AddNode(guid, tmp, uiTypeVersion, tmp2);
 
     for (const ezOpenDdlReaderElement* pProp = pProps->GetFirstChild(); pProp != nullptr; pProp = pProp->GetSibling())
     {
@@ -134,7 +130,7 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
   }
 }
 
-ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
   ezOpenDdlReader reader;
   if (reader.ParseDocument(stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
@@ -160,5 +156,7 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
     ReadGraph(pTypesGraph, pTypes);
   }
 
+  if (bApplyPatches)
+    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph);
   return EZ_SUCCESS;
 }

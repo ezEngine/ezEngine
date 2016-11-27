@@ -251,5 +251,20 @@ struct ezCompareString_NoCase
   }
 };
 
+struct CompareConstChar
+{
+  /// \brief Returns true if a is less than b
+  EZ_FORCE_INLINE bool Less(const char* a, const char* b) const
+  {
+    return ezStringUtils::Compare(a, b) < 0;
+  }
+
+  /// \brief Returns true if a is equal to b
+  EZ_FORCE_INLINE bool Equal(const char* a, const char* b) const
+  {
+    return ezStringUtils::IsEqual(a, b);
+  }
+};
+
 #include <Foundation/Strings/Implementation/String_inl.h>
 

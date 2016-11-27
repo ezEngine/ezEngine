@@ -1,6 +1,8 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/BinarySerializer.h>
+#include <Foundation/Serialization/GraphVersioning.h>
 
+#define EZ_BINARY_SERIALIZER_VERSION 1
 
 static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stream)
 {
@@ -13,6 +15,7 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stre
     const auto& node = *itNode.Value();
     stream << node.GetGuid();
     stream << node.GetType();
+    stream << node.GetTypeVersion();
     stream << node.GetNodeName();
 
     const ezHybridArray<ezAbstractObjectNode::Property, 16>& properties = node.GetProperties();
@@ -28,6 +31,9 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stre
 
 void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph)
 {
+  ezUInt32 uiVersion = EZ_BINARY_SERIALIZER_VERSION;
+  stream << uiVersion;
+
   WriteGraph(pGraph, stream);
   if (pTypesGraph)
   {
@@ -42,12 +48,14 @@ static void ReadGraph(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
   for (ezUInt32 i = 0; i < iNodes; i++)
   {
     ezUuid guid;
+    ezUInt32 uiTypeVersion;
     ezStringBuilder sType;
     ezStringBuilder sNodeName;
     stream >> guid;
     stream >> sType;
+    stream >> uiTypeVersion;
     stream >> sNodeName;
-    ezAbstractObjectNode* pNode = pGraph->AddNode(guid, sType, sNodeName);
+    ezAbstractObjectNode* pNode = pGraph->AddNode(guid, sType, uiTypeVersion, sNodeName);
     ezUInt32 iProps = 0;
     stream >> iProps;
     for (ezUInt32 i = 0; i < iProps; i++)
@@ -61,13 +69,23 @@ static void ReadGraph(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
   }
 }
 
-void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
+  ezUInt32 uiVersion = 0;
+  stream >> uiVersion;
+  if (uiVersion != EZ_BINARY_SERIALIZER_VERSION)
+  {
+    EZ_REPORT_FAILURE("Binary serializer version mismmatch, re-export file.");
+    return;
+  }
   ReadGraph(stream, pGraph);
   if (pTypesGraph)
   {
     ReadGraph(stream, pTypesGraph);
   }
+
+  if (bApplyPatches)
+    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_BinarySerializer);

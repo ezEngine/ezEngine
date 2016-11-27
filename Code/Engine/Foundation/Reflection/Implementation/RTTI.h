@@ -126,9 +126,12 @@ protected:
   ezArrayPtr<ezAbstractProperty*> m_Properties;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
+  void RegisterType(ezRTTI* pType);
+  void UnregisterType(ezRTTI* pType);
 
 private:
   void GatherDynamicMessageHandlers() const;
+  static void* GetTypeHashTable();
 
   const ezRTTI* m_pParentType;
   ezUInt32 m_uiVariantType;
