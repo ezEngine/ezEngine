@@ -462,7 +462,7 @@ ezStatus ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStr
   }
   else
   {
-    if (ezAbstractGraphDdlSerializer::Read(stream, &graph).Failed())
+    if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
       return ezStatus("Failed to read asset document");
   }
 

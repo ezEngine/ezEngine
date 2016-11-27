@@ -70,7 +70,7 @@ protected:
 
   ezLogInterface* m_pLogInterface;
 
-private:
+protected:
 
   /// \brief Called when something unexpected is encountered in the document.
   ///

@@ -687,7 +687,7 @@ void ezOpenDdlParser::ReadWord()
 
 void ezOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
 {
-  if (!m_bSkippingMode)
+  if (!m_bSkippingMode && m_uiNumCachedPrimitives > 0)
   {
     switch (m_StateStack.PeekBack().m_State)
     {
@@ -746,9 +746,10 @@ bool ezOpenDdlParser::ContinuePrimitiveList()
   {
   case '}':
     {
+      PurgeCachedPrimitives(true);
+
       if (!m_bSkippingMode)
       {
-        PurgeCachedPrimitives(true);
         OnEndPrimitiveList();
       }
 

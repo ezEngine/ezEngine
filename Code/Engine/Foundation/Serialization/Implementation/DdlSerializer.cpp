@@ -18,9 +18,15 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
   const auto& Nodes = pGraph->GetAllNodes();
   for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
   {
-    writer.BeginObject("o");
+    const auto& node = *itNode.Value();
+
+    // the object type is mostly ignored, but we need to tag the Header specifically, so that we can easily skip everything else when we only need this
+    if (ezStringUtils::IsEqual(node.GetType(), "ezAssetDocumentInfo"))
+      writer.BeginObject("AssetInfo");
+    else
+      writer.BeginObject("o");
+
     {
-      const auto& node = *itNode.Value();
 
       ezOpenDdlUtils::StoreUuid(writer, node.GetGuid() ,"id");
       ezOpenDdlUtils::StoreString(writer, node.GetType(), "t");
@@ -105,10 +111,9 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
       tmp2.Clear();
 
     ezUInt32 uiTypeVersion = 0;
-    if (pTypeVersion && pTypeVersion->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt32 && pTypeVersion->GetNumPrimitives() == 1)
+    if (pTypeVersion)
     {
-      const ezUInt32* pValues = pTypeVersion->GetPrimitivesUInt32();
-      uiTypeVersion = pValues[0];
+      uiTypeVersion = pTypeVersion->GetPrimitivesUInt32()[0];
     }
 
     auto* pNode = pGraph->AddNode(guid, tmp, uiTypeVersion, tmp2);
@@ -158,5 +163,95 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
 
   if (bApplyPatches)
     ezGraphVersioning::GetSingleton()->PatchGraph(pGraph);
+  return EZ_SUCCESS;
+}
+
+// This is a handcrafted DDL reader that ignores everything that is not an 'AssetInfo' object
+// The purpose is to speed up reading asset information by skipping everything else
+//
+// The reader 'knows' the file format details and uses them.
+// Top-level (ie. depth 0) there is an "Objects" object -> we need to enter that
+// Inside that (depth 1) there is the "AssetInfo" object -> need to enter that as well
+// All objects inside that must be stored
+// Once the AssetInfo object is left everything else can be skipped
+class HeaderReader : public ezOpenDdlReader
+{
+public:
+  HeaderReader()
+  {
+    m_iDepth = 0;
+  }
+
+protected:
+  ezInt32 m_iDepth;
+
+  virtual void OnBeginObject(const char* szType, const char* szName, bool bGlobalName) override
+  {
+    // not yet entered the "Objects" group
+    if (m_iDepth == 0 && ezStringUtils::IsEqual(szType, "Objects"))
+    {
+      ++m_iDepth;
+
+      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      return;
+    }
+
+    // not yet entered the "AssetInfo" group, but inside "Objects"
+    if (m_iDepth == 1 && ezStringUtils::IsEqual(szType, "AssetInfo"))
+    {
+      ++m_iDepth;
+
+      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      return;
+    }
+
+    // inside "AssetInfo"
+    if (m_iDepth > 1)
+    {
+      ++m_iDepth;
+      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      return;
+    }
+
+    // ignore everything else
+    SkipRestOfObject();
+  }
+
+
+  virtual void OnEndObject() override
+  {
+    --m_iDepth;
+
+    if (m_iDepth <= 1)
+    {
+      // we were inside "AssetInfo" or "Objects" and returned from it, so now skip the rest
+      m_iDepth = -1;
+    }
+
+    ezOpenDdlReader::OnEndObject();
+  }
+
+};
+
+ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
+{
+  HeaderReader reader;
+  if (reader.ParseDocument(stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+  {
+    EZ_REPORT_FAILURE("Failed to parse DDL graph");
+    return EZ_FAILURE;
+  }
+
+  const ezOpenDdlReaderElement* pObjects = reader.GetRootElement()->FindChildOfType("Objects");
+  if (pObjects != nullptr)
+  {
+    ReadGraph(pGraph, pObjects);
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("DDL graph does not contain an 'Objects' root object");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }

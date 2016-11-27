@@ -127,7 +127,7 @@ public:
   /// \brief Searches for an element with a global name. NULL if there is no such element.
   const ezOpenDdlReaderElement* FindElement(const char* szGlobalName) const; // [tested]
 
-private:
+protected:
   virtual void OnBeginObject(const char* szType, const char* szName, bool bGlobalName) override;
   virtual void OnEndObject() override;
 

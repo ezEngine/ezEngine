@@ -2,7 +2,15 @@
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Serialization/GraphVersioning.h>
 
-#define EZ_BINARY_SERIALIZER_VERSION 1
+enum ezBinarySerializerVersion : ezUInt32
+{
+  InvalidVersion = 0,
+  Version1,
+  // << insert new versions here >>
+
+  ENUM_COUNT,
+  CurrentVersion = ENUM_COUNT - 1 // automatically the highest version number
+};
 
 static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stream)
 {
@@ -31,7 +39,7 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stre
 
 void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph)
 {
-  ezUInt32 uiVersion = EZ_BINARY_SERIALIZER_VERSION;
+  ezUInt32 uiVersion = ezBinarySerializerVersion::CurrentVersion;
   stream << uiVersion;
 
   WriteGraph(pGraph, stream);
@@ -73,9 +81,9 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
 {
   ezUInt32 uiVersion = 0;
   stream >> uiVersion;
-  if (uiVersion != EZ_BINARY_SERIALIZER_VERSION)
+  if (uiVersion != ezBinarySerializerVersion::CurrentVersion)
   {
-    EZ_REPORT_FAILURE("Binary serializer version mismmatch, re-export file.");
+    EZ_REPORT_FAILURE("Binary serializer version %u does not match expected version %u, re-export file.", uiVersion, ezBinarySerializerVersion::CurrentVersion);
     return;
   }
   ReadGraph(stream, pGraph);
