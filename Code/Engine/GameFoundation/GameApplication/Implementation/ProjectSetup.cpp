@@ -12,7 +12,6 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 //typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/JSONReader.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
 #include <GameUtils/Collection/CollectionResource.h>
 #include <RendererCore/Material/MaterialResource.h>

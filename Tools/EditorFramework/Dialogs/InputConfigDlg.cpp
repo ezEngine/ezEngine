@@ -23,13 +23,13 @@ void UpdateInputDynamicEnumValues()
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
-  sPath.AppendPath("InputConfig.json");
+  sPath.AppendPath("InputConfig.ddl");
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
     return;
 
-  ezGameAppInputConfig::ReadFromJson(file, Actions);
+  ezGameAppInputConfig::ReadFromDDL(file, Actions);
 
   auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("InputSet");
   dynEnum.Clear();
@@ -176,26 +176,26 @@ void ezQtInputConfigDlg::LoadActions()
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
-  sPath.AppendPath("InputConfig.json");
+  sPath.AppendPath("InputConfig.ddl");
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
     return;
 
-  ezGameAppInputConfig::ReadFromJson(file, m_Actions);
+  ezGameAppInputConfig::ReadFromDDL(file, m_Actions);
 }
 
 void ezQtInputConfigDlg::SaveActions()
 {
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
-  sPath.AppendPath("InputConfig.json");
+  sPath.AppendPath("InputConfig.ddl");
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
     return;
 
-  ezGameAppInputConfig::WriteToJson(file, m_Actions);
+  ezGameAppInputConfig::WriteToDDL(file, m_Actions);
 }
 
 void ezQtInputConfigDlg::FillList()
@@ -261,7 +261,7 @@ void ezQtInputConfigDlg::GetActionsFromList()
 
       cfg.m_sInputAction = pActionItem->text(0).toUtf8().data();
       cfg.m_bApplyTimeScaling = qobject_cast<QCheckBox*>(TreeActions->itemWidget(pActionItem, 1))->isChecked();
-      
+
       for (int i = 0; i < 3; ++i)
       {
         cfg.m_sInputSlotTrigger[i] = qobject_cast<QComboBox*>(TreeActions->itemWidget(pActionItem, 2 + i * 2))->currentText().toUtf8().data();

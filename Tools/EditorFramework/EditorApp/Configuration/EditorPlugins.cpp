@@ -3,8 +3,9 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/JSONReader.h>
-#include <Foundation/IO/JSONWriter.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 void ezQtEditorApp::DetectAvailableEditorPlugins()
 {
@@ -36,24 +37,20 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
   AddRestartRequiredReason("The set of active editor plugins was changed.");
 
   ezFileWriter FileOut;
-  FileOut.Open(":appdata/EditorPlugins.json");
+  FileOut.Open(":appdata/EditorPlugins.ddl");
 
-  ezStandardJSONWriter writer;
+  ezOpenDdlWriter writer;
+  writer.SetCompactMode(false);
+  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
   writer.SetOutputStream(&FileOut);
-
-  writer.BeginObject();
-  writer.BeginArray("Plugins");
 
   for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
-    writer.BeginObject();
-    writer.AddVariableString("Name", it.Key().GetData());
-    writer.AddVariableBool("Enable", it.Value().m_bToBeLoaded);
+    writer.BeginObject("Plugin");
+    ezOpenDdlUtils::StoreString(writer, it.Key().GetData(), "Name");
+    ezOpenDdlUtils::StoreBool(writer, it.Value().m_bToBeLoaded, "Enable");
     writer.EndObject();
   }
-
-  writer.EndArray();
-  writer.EndObject();
 }
 
 void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
@@ -65,36 +62,29 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
   }
 
   ezFileReader FileIn;
-  if (FileIn.Open(":appdata/EditorPlugins.json").Failed())
+  if (FileIn.Open(":appdata/EditorPlugins.ddl").Failed())
     return;
 
-  ezJSONReader reader;
-  if (reader.Parse(FileIn).Failed())
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(FileIn, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
     return;
 
-  ezVariant* pValue;
-  if (!reader.GetTopLevelObject().TryGetValue("Plugins", pValue) || !pValue->IsA<ezVariantArray>())
-    return;
-
-  ezVariantArray plugins = pValue->ConvertTo<ezVariantArray>();
+  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
 
   // if a plugin is new, activate it (by keeping it enabled)
 
-  for (ezUInt32 i = 0; i < plugins.GetCount(); ++i)
+  for (const ezOpenDdlReaderElement* pPlugin = pRoot->GetFirstChild(); pPlugin != nullptr; pPlugin = pPlugin->GetSibling())
   {
-    if (!plugins[i].IsA<ezVariantDictionary>())
+    if (!pPlugin->IsCustomType("Plugin"))
       continue;
 
-    const ezVariantDictionary& obj = plugins[i].Get<ezVariantDictionary>();
+    const ezOpenDdlReaderElement* pName = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name");
+    const ezOpenDdlReaderElement* pEnable = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Enable");
 
-    ezVariant* pPluginName;
-    if (!obj.TryGetValue("Name", pPluginName) || !pPluginName->IsA<ezString>())
-      continue;
-    ezVariant* pValue;
-    if (!obj.TryGetValue("Enable", pValue) || !pValue->IsA<bool>())
+    if (!pName || !pEnable)
       continue;
 
-    s_EditorPlugins.m_Plugins[pPluginName->Get<ezString>()].m_bToBeLoaded = pValue->Get<bool>();
+    s_EditorPlugins.m_Plugins[pName->GetPrimitivesString()[0]].m_bToBeLoaded = pEnable->GetPrimitivesBool()[0];
   }
 }
 

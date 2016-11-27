@@ -39,11 +39,11 @@ void ezGameApplication::DoConfigureInput(bool bReinitialize)
 
   {
     ezFileReader file;
-    if (file.Open("InputConfig.json").Succeeded())
+    if (file.Open("InputConfig.ddl").Succeeded())
     {
       ezHybridArray<ezGameAppInputConfig, 32> InputActions;
 
-      ezGameAppInputConfig::ReadFromJson(file, InputActions);
+      ezGameAppInputConfig::ReadFromDDL(file, InputActions);
       ezGameAppInputConfig::ApplyAll(InputActions);
     }
   }

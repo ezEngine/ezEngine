@@ -1,7 +1,8 @@
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameApplication/InputConfig.h>
-#include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/JSONReader.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGameAppInputConfig::MaxInputSlotAlternatives == ezInputActionConfig::MaxInputSlotAlternatives, "Max values should be kept in sync");
 
@@ -30,112 +31,99 @@ void ezGameAppInputConfig::Apply() const
   ezInputManager::SetInputActionConfig(m_sInputSet, m_sInputAction, cfg, true);
 }
 
-void ezGameAppInputConfig::WriteToJson(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions)
+void ezGameAppInputConfig::WriteToDDL(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions)
 {
-  ezStandardJSONWriter json;
-  json.SetOutputStream(&stream);
-
-  json.BeginObject();
-  json.BeginArray("InputActions");
+  ezOpenDdlWriter writer;
+  writer.SetCompactMode(false);
+  writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
+  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
+  writer.SetOutputStream(&stream);
 
   for (const ezGameAppInputConfig& config : actions)
   {
-    config.WriteToJson(json);
+    config.WriteToDDL(writer);
   }
-
-  json.EndArray();
-  json.EndObject();
 }
 
-
-void ezGameAppInputConfig::WriteToJson(ezStandardJSONWriter& json) const
+void ezGameAppInputConfig::WriteToDDL(ezOpenDdlWriter &writer) const
 {
-  json.BeginObject();
+  writer.BeginObject("InputAction");
   {
-    json.AddVariableString("Set", m_sInputSet);
-    json.AddVariableString("Action", m_sInputAction);
-    json.AddVariableBool("TimeScale", m_bApplyTimeScaling);
-    json.BeginArray("Slots");
+    ezOpenDdlUtils::StoreString(writer, m_sInputSet, "Set");
+    ezOpenDdlUtils::StoreString(writer, m_sInputAction, "Action");
+    ezOpenDdlUtils::StoreBool(writer, m_bApplyTimeScaling, "TimeScale");
+
+    for (int i = 0; i < 3; ++i)
     {
-      for (int i = 0; i < 3; ++i)
+      if (!m_sInputSlotTrigger[i].IsEmpty())
       {
-        if (!m_sInputSlotTrigger[i].IsEmpty())
+        writer.BeginObject("Slot");
         {
-          json.BeginObject();
-          {
-            json.AddVariableString("Key", m_sInputSlotTrigger[i]);
-            json.AddVariableFloat("Scale", m_fInputSlotScale[i]);
-          }
-          json.EndObject();
+          ezOpenDdlUtils::StoreString(writer, m_sInputSlotTrigger[i], "Key");
+          ezOpenDdlUtils::StoreFloat(writer, m_fInputSlotScale[i], "Scale");
         }
+        writer.EndObject();
       }
     }
-    json.EndArray();
   }
-  json.EndObject();
+  writer.EndObject();
 }
 
-void ezGameAppInputConfig::ReadFromJson(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions)
+void ezGameAppInputConfig::ReadFromDDL(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions)
 {
-  ezJSONReader json;
-  json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
-  if (json.Parse(stream).Failed())
+  ezOpenDdlReader reader;
+
+  if (reader.ParseDocument(stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
     return;
 
-  const ezVariantDictionary& root = json.GetTopLevelObject();
+  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
 
-  ezVariant* inputActions;
-  if (!root.TryGetValue("InputActions", inputActions))
-    return;
-
-  if (!inputActions->IsA<ezVariantArray>())
-    return;
-
-  const ezVariantArray& inputActionsArray = inputActions->Get<ezVariantArray>();
-
-  for (ezUInt32 i = 0; i < inputActionsArray.GetCount(); ++i)
+  for (const ezOpenDdlReaderElement* pAction = pRoot->GetFirstChild(); pAction != nullptr; pAction = pAction->GetSibling())
   {
-    if (!inputActionsArray[i].IsA<ezVariantDictionary>())
+    if (!pAction->IsCustomType("InputAction"))
       continue;
-
-    const ezVariantDictionary& action = inputActionsArray[i].Get<ezVariantDictionary>();
 
     ezGameAppInputConfig& cfg = out_actions.ExpandAndGetRef();
 
-    cfg.ReadFromJson(action);
+    cfg.ReadFromDDL(pAction);
   }
 }
 
-void ezGameAppInputConfig::ReadFromJson(const ezVariantDictionary& action)
+void ezGameAppInputConfig::ReadFromDDL(const ezOpenDdlReaderElement* pInput)
 {
-  ezVariant* pVar;
+  const ezOpenDdlReaderElement* pSet = pInput->FindChildOfType(ezOpenDdlPrimitiveType::String, "Set");
+  const ezOpenDdlReaderElement* pAction = pInput->FindChildOfType(ezOpenDdlPrimitiveType::String, "Action");
+  const ezOpenDdlReaderElement* pTimeScale = pInput->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "TimeScale");
 
-  if (action.TryGetValue("Set", pVar) && pVar->IsA<ezString>())
-    m_sInputSet = pVar->ConvertTo<ezString>();
 
-  if (action.TryGetValue("Action", pVar) && pVar->IsA<ezString>())
-    m_sInputAction = pVar->ConvertTo<ezString>();
+  if (pSet)
+    m_sInputSet = pSet->GetPrimitivesString()[0];
 
-  if (action.TryGetValue("TimeScale", pVar) && pVar->IsA<bool>())
-    m_bApplyTimeScaling = pVar->ConvertTo<bool>();
+  if (pAction)
+    m_sInputAction = pAction->GetPrimitivesString()[0];
 
-  if (!action.TryGetValue("Slots", pVar) || !pVar->IsA<ezVariantArray>())
-    return;
+  if (pTimeScale)
+    m_bApplyTimeScaling = pTimeScale->GetPrimitivesBool()[0];
 
-  const ezVariantArray& slotsArray = pVar->Get<ezVariantArray>();
-
-  for (ezUInt32 slot = 0; slot < slotsArray.GetCount() && slot < MaxInputSlotAlternatives; ++slot)
+  ezInt32 iSlot = 0;
+  for (const ezOpenDdlReaderElement* pSlot = pInput->GetFirstChild(); pSlot != nullptr; pSlot = pSlot->GetSibling())
   {
-    if (!slotsArray[slot].IsA<ezVariantDictionary>())
+    if (!pSlot->IsCustomType("Slot"))
       continue;
 
-    const ezVariantDictionary& slotValue = slotsArray[slot].Get<ezVariantDictionary>();
+    const ezOpenDdlReaderElement* pKey = pSlot->FindChildOfType(ezOpenDdlPrimitiveType::String, "Key");
+    const ezOpenDdlReaderElement* pScale = pSlot->FindChildOfType(ezOpenDdlPrimitiveType::Float, "Scale");
 
-    if (slotValue.TryGetValue("Key", pVar) && pVar->IsA<ezString>())
-      m_sInputSlotTrigger[slot] = pVar->ConvertTo<ezString>();
+    if (pKey)
+      m_sInputSlotTrigger[iSlot] = pKey->GetPrimitivesString()[0];
 
-    if (slotValue.TryGetValue("Scale", pVar) && pVar->IsA<float>())
-      m_fInputSlotScale[slot] = pVar->ConvertTo<float>();
+    if (pScale)
+      m_fInputSlotScale[iSlot] = pScale->GetPrimitivesFloat()[0];
+
+    ++iSlot;
+
+    if (iSlot >= MaxInputSlotAlternatives)
+      break;
   }
 }
 

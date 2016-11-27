@@ -4,7 +4,8 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
 
-class ezStandardJSONWriter;
+class ezOpenDdlWriter;
+class ezOpenDdlReaderElement;
 
 class EZ_GAMEFOUNDATION_DLL ezGameAppInputConfig
 {
@@ -14,12 +15,12 @@ public:
   ezGameAppInputConfig();
 
   void Apply() const;
-  void WriteToJson(ezStandardJSONWriter &json) const;
-  void ReadFromJson(const ezVariantDictionary& action);
+  void WriteToDDL(ezOpenDdlWriter &writer) const;
+  void ReadFromDDL(const ezOpenDdlReaderElement* pAction);
 
   static void ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& actions);
-  static void WriteToJson(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions);
-  static void ReadFromJson(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions);
+  static void WriteToDDL(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions);
+  static void ReadFromDDL(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions);
 
 
 
