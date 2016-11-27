@@ -11,6 +11,8 @@
 #include <Foundation/Logging/Log.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
 
@@ -124,7 +126,7 @@ ezActionDescriptorHandle ezActionManager::GetActionHandle(const char* szCategory
 void ezActionManager::SaveShortcutAssignment()
 {
   ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
-  sFile.AppendPath("Settings/Shortcuts.json");
+  sFile.AppendPath("Settings/Shortcuts.ddl");
 
   EZ_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
 
@@ -135,9 +137,10 @@ void ezActionManager::SaveShortcutAssignment()
     return;
   }
 
-  ezStandardJSONWriter json;
-  json.SetOutputStream(&file);
-  json.BeginObject();
+  ezOpenDdlWriter writer;
+  writer.SetOutputStream(&file);
+  writer.SetCompactMode(false);
+  writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
 
   ezStringBuilder sKey;
 
@@ -153,16 +156,16 @@ void ezActionManager::SaveShortcutAssignment()
     else
       sKey = pAction->m_sShortcut;
 
-    json.AddVariableString(pAction->m_sActionName, sKey);
+    writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, pAction->m_sActionName);
+    writer.WriteString(sKey);
+    writer.EndPrimitiveList();
   }
-
-  json.EndObject();
 }
 
 void ezActionManager::LoadShortcutAssignment()
 {
   ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
-  sFile.AppendPath("Settings/Shortcuts.json");
+  sFile.AppendPath("Settings/Shortcuts.ddl");
 
   EZ_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
 
@@ -173,17 +176,21 @@ void ezActionManager::LoadShortcutAssignment()
     return;
   }
 
-  ezJSONReader json;
-  json.Parse(file);
-  const auto obj = json.GetTopLevelObject();
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+    return;
 
-  for (auto it = obj.GetIterator(); it.IsValid(); ++it)
+  const auto obj = reader.GetRootElement();
+
+  ezStringBuilder sKey, sValue;
+
+  for (auto pElement = obj->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
-    if (!it.Value().IsA<ezString>())
+    if (!pElement->HasName() || !pElement->HasPrimitives(ezOpenDdlPrimitiveType::String))
       continue;
 
-    const ezString sKey = it.Key();
-    const ezString sValue = it.Value().Get<ezString>();
+    sKey = pElement->GetName();
+    sValue = pElement->GetPrimitivesString()[0];
 
     if (sValue.FindSubString_NoCase("default") != nullptr)
       continue;

@@ -27,9 +27,11 @@ void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
   m_pDoubleCache = reinterpret_cast<double*>(m_Cache.GetData());
 }
 
-EZ_FORCE_INLINE static bool IsIdentifierCharacter(ezUInt8 byte)
+
+// Extension to default OpenDDL: We allow ':' and '.' to appear in identifier names
+EZ_FORCE_INLINE bool IsDdlIdentifierCharacter(ezUInt8 byte)
 {
-  return ((byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') || (byte == '_') || (byte >= '0' && byte <= '9'));
+  return ((byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') || (byte == '_') || (byte >= '0' && byte <= '9') || (byte == ':') || (byte == '.'));
 }
 
 void ezOpenDdlParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset /*= 0*/)
@@ -56,7 +58,7 @@ void ezOpenDdlParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLin
     // document is empty
     m_StateStack.Clear();
   }
-  else if (IsIdentifierCharacter(m_uiCurByte))
+  else if (IsDdlIdentifierCharacter(m_uiCurByte))
   {
     m_StateStack.PushBack(State::Finished);
     m_StateStack.PushBack(State::Idle);
@@ -473,37 +475,100 @@ void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString, ezUInt32& count)
 {
   count = 0;
 
-  // Extension to default OpenDDL: We allow ':' to appear in identifier names
-
-  if (IsIdentifierCharacter(m_uiCurByte) || m_uiCurByte == ':')
+  if (m_uiCurByte == '\'')
   {
-    szString[count] = m_uiCurByte;
-    ++count;
+    /// \test This code path is unused so far
 
-    while ((IsIdentifierCharacter(m_uiNextByte) || m_uiNextByte == ':') && count < 32)
+    // Extension to default OpenDDL: We allow identifier names to be surrounded with ' to contain any ASCII character
+
+    if (!ReadCharacter())
     {
-      ReadCharacterSkipComments();
+      ParsingError("Reached end of file while reading identifier", true);
+      return;
+    }
 
+    while (m_uiCurByte != '\'' && count < s_uiMaxIdentifierLength)
+    {
       szString[count] = m_uiCurByte;
       ++count;
+
+      if (!ReadCharacter())
+      {
+        ParsingError("Reached end of file while reading identifier", true);
+        return;
+      }
     }
-  }
 
-  if (count == 32)
-  {
-    szString[31] = '\0';
-
-    ParsingError("Object type name is longer than 31 characters", false);
-
-    // skip the rest
-    while (IsIdentifierCharacter(m_uiCurByte) || m_uiCurByte == ':')
+    if (count == s_uiMaxIdentifierLength)
     {
-      ReadCharacterSkipComments();
+      szString[s_uiMaxIdentifierLength-1] = '\0';
+
+      ParsingError("Object type name is longer than 31 characters", false);
+
+      // skip the rest
+      while (m_uiCurByte != '\'')
+      {
+        if (!ReadCharacter())
+        {
+          ParsingError("Reached end of file while reading identifier", true);
+          return;
+        }
+      }
+    }
+    else
+    {
+      szString[count] = '\0';
+    }
+
+    if (m_uiCurByte != '\'')
+    {
+      if (!ReadCharacter())
+      {
+        ParsingError("Reached end of file while reading identifier", true);
+        return;
+      }
     }
   }
   else
   {
-    szString[count] = '\0';
+    if (IsDdlIdentifierCharacter(m_uiCurByte))
+    {
+      szString[count] = m_uiCurByte;
+      ++count;
+
+      while ((IsDdlIdentifierCharacter(m_uiNextByte)) && count < s_uiMaxIdentifierLength)
+      {
+        if (!ReadCharacterSkipComments())
+        {
+          ParsingError("Reached end of file while reading identifier", true);
+          return;
+        }
+
+        szString[count] = m_uiCurByte;
+        ++count;
+      }
+    }
+
+    if (count == s_uiMaxIdentifierLength)
+    {
+      szString[s_uiMaxIdentifierLength-1] = '\0';
+
+      ParsingError("Object type name is longer than 31 characters", false);
+
+      // skip the rest
+      while (IsDdlIdentifierCharacter(m_uiCurByte))
+      {
+        if (!ReadCharacterSkipComments())
+        {
+          ParsingError("Reached end of file while reading identifier", true);
+          return;
+        }
+      }
+    }
+    else
+    {
+      szString[count] = '\0';
+    }
   }
 
   SkipWhitespace();

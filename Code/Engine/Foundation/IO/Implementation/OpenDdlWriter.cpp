@@ -282,11 +282,25 @@ void ezOpenDdlWriter::OutputObjectBeginning()
   m_iIndentation++;
 }
 
+bool IsDdlIdentifierCharacter(ezUInt8 byte);
+
 void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
 {
   if (!ezStringUtils::IsNullOrEmpty(szName))
   {
-    EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '%s'", szName);
+    //EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '%s'", szName);
+
+
+    /// \test This code path is untested
+    bool bEscape = false;
+    for (const char* szNameCpy = szName; *szNameCpy != '\0'; ++szNameCpy)
+    {
+      if (!IsDdlIdentifierCharacter(*szNameCpy))
+      {
+        bEscape = true;
+        break;
+      }
+    }
 
     if (m_bCompactMode)
     {
@@ -305,7 +319,13 @@ void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
         OutputString(" %", 2);
     }
 
+    if (bEscape)
+      OutputString("\'", 1);
+
     OutputString(szName);
+
+    if (bEscape)
+      OutputString("\'", 1);
   }
 }
 

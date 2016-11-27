@@ -177,14 +177,16 @@ private:
   ezStreamReader* m_pInput;
   ezDynamicArray<ezUInt8> m_Cache;
 
+  static const ezUInt32 s_uiMaxIdentifierLength = 64;
+
   ezUInt8 m_uiCurByte;
   ezUInt8 m_uiNextByte;
   ezUInt32 m_uiCurLine;
   ezUInt32 m_uiCurColumn;
   bool m_bSkippingMode;
   bool m_bHadFatalParsingError;
-  ezUInt8 m_szIdentifierType[32];
-  ezUInt8 m_szIdentifierName[32];
+  ezUInt8 m_szIdentifierType[s_uiMaxIdentifierLength];
+  ezUInt8 m_szIdentifierName[s_uiMaxIdentifierLength];
   ezDynamicArray<ezUInt8> m_TempString;
   ezUInt32 m_uiTempStringLength;
 
