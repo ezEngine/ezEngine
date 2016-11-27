@@ -1,16 +1,7 @@
-{
-  "Shader" : "Shaders/Texture.ezShader",
-  
-  "Permutations" : 
-  {
-  },
+string %Shader { "Shaders/Texture.ezShader" }
 
-  "Constants" :
-  {
-  },
-  
-  "Textures" :
-  {
-    "DiffuseTexture" : "Textures/Reference_D.dds"
-  }  
+Texture
+{
+  string %Variable { "DiffuseTexture" }
+  string %Value { "Textures/Reference_D.dds" }
 }

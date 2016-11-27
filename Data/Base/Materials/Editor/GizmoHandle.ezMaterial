@@ -1,16 +1,7 @@
-{
-  "Shader" : "Shaders/Editor/GizmoHandle.ezShader",
-  
-  "Permutations" : 
-  {
-	"GIZMO_CONSTANT_SIZE" : "FALSE"
-  },
+string %Shader { "Shaders/Editor/GizmoHandle.ezShader" }
 
-  "Constants" :
-  {
-  },
-  
-  "Textures" :
-  {
-  }  
+Permutation
+{
+  string %Variable { "GIZMO_CONSTANT_SIZE" }
+  string %Value { "FALSE" }
 }

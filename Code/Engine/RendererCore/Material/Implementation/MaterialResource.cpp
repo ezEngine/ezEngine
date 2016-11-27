@@ -4,8 +4,9 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
-#include <Foundation/IO/ExtendedJSONReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
 
 void ezMaterialResourceDescriptor::Clear()
 {
@@ -421,137 +422,87 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
   if (sAbsFilePath.HasExtension("ezMaterial"))
   {
-    ezExtendedJSONReader json;
-    json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
+    ezStringBuilder tmp;
+    ezOpenDdlReader reader;
 
-    if (json.Parse(*Stream).Failed())
+    if (reader.ParseDocument(*Stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
     {
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;
     }
 
-    ezResult Conversion(EZ_FAILURE);
+    const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
+
+    const ezOpenDdlReaderElement* pBase = pRoot->FindChildOfType(ezOpenDdlPrimitiveType::String, "BaseMaterial");
+    const ezOpenDdlReaderElement* pshader = pRoot->FindChildOfType(ezOpenDdlPrimitiveType::String, "Shader");
 
     // Read the base material
+    if (pBase)
     {
-      ezVariant* pValue = nullptr;
-      if (json.GetTopLevelObject().TryGetValue("BaseMaterial", pValue))
-      {
-        ezString sValue = pValue->ConvertTo<ezString>(&Conversion);
-
-        if (Conversion.Failed())
-        {
-          ezLog::Error("'BaseMaterial' variable is malformed.");
-        }
-        else if (!sValue.IsEmpty())
-        {
-          m_Desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sValue);
-        }
-      }
+      tmp = pBase->GetPrimitivesString()[0];
+      m_Desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(tmp);
     }
 
     // Read the shader
+    if (pshader)
     {
-      ezVariant* pValue = nullptr;
-      if (json.GetTopLevelObject().TryGetValue("Shader", pValue))
-      {
-        ezString sValue = pValue->ConvertTo<ezString>(&Conversion);
-
-        if (Conversion.Failed())
-        {
-          ezLog::Error("'Shader' variable is malformed.");
-        }
-        else if (!sValue.IsEmpty())
-        {
-          m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sValue);
-        }
-      }
+      tmp = pshader->GetPrimitivesString()[0];
+      m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(tmp);
     }
 
-    // Read the shader permutation variables
+    for (const ezOpenDdlReaderElement* pChild = pRoot->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
     {
-      ezVariant* pValue = nullptr;
-      if (json.GetTopLevelObject().TryGetValue("Permutations", pValue))
+      // Read the shader permutation variables
+      if (pChild->IsCustomType("Permutation"))
       {
-        if (!pValue->IsA<ezVariantDictionary>())
-        {
-          ezLog::Error("'Permutations' variable is not an object");
-        }
-        else
-        {
-          const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+        const ezOpenDdlReaderElement* pName = pChild->FindChildOfType(ezOpenDdlPrimitiveType::String, "Variable");
+        const ezOpenDdlReaderElement* pValue = pChild->FindChildOfType(ezOpenDdlPrimitiveType::String, "Value");
 
-          m_Desc.m_PermutationVars.Reserve(dict.GetCount());
-          for (auto it = dict.GetIterator(); it.IsValid(); ++it)
-          {
-            ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
-            pv.m_sName.Assign(it.Key().GetData());
-            pv.m_sValue.Assign(it.Value().ConvertTo<ezString>(&Conversion).GetData());
+        if (pName && pValue)
+        {
+          ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
 
-            if (Conversion.Failed())
-            {
-              ezLog::Error("'Permutations' object has member '%s' that is not convertible to a string", it.Key().GetData());
-              m_Desc.m_PermutationVars.PopBack();
-            }
-          }
+          tmp = pName->GetPrimitivesString()[0];
+          pv.m_sName.Assign(tmp.GetData());
+
+          tmp = pValue->GetPrimitivesString()[0];
+          pv.m_sValue.Assign(tmp.GetData());
         }
       }
-    }
 
-    // Read the shader constants
-    {
-      ezVariant* pValue = nullptr;
-      if (json.GetTopLevelObject().TryGetValue("Constants", pValue))
+      // Read the shader constants
+      if (pChild->IsCustomType("Constant"))
       {
-        if (!pValue->IsA<ezVariantDictionary>())
-        {
-          ezLog::Error("'Constants' variable is not an object");
-        }
-        else
-        {
-          const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+        const ezOpenDdlReaderElement* pName = pChild->FindChildOfType(ezOpenDdlPrimitiveType::String, "Variable");
+        const ezOpenDdlReaderElement* pValue = pChild->FindChild("Value");
 
-          m_Desc.m_Parameters.Reserve(dict.GetCount());
-          for (auto it = dict.GetIterator(); it.IsValid(); ++it)
-          {
-            ezMaterialResourceDescriptor::Parameter& sc = m_Desc.m_Parameters.ExpandAndGetRef();
-            sc.m_Name.Assign(it.Key().GetData());
-            sc.m_Value = it.Value();
-          }
+        ezVariant value;
+        if (pName && pValue && ezOpenDdlUtils::ConvertToVariant(pValue, value).Succeeded())
+        {
+          ezMaterialResourceDescriptor::Parameter& sc = m_Desc.m_Parameters.ExpandAndGetRef();
+
+          tmp = pName->GetPrimitivesString()[0];
+          sc.m_Name.Assign(tmp.GetData());
+
+          sc.m_Value = value;
         }
       }
-    }
 
-    // Read the texture references
-    {
-      ezVariant* pValue = nullptr;
-      if (json.GetTopLevelObject().TryGetValue("Textures", pValue))
+      // Read the texture references
+      if (pChild->IsCustomType("Texture"))
       {
-        if (!pValue->IsA<ezVariantDictionary>())
+        const ezOpenDdlReaderElement* pName = pChild->FindChildOfType(ezOpenDdlPrimitiveType::String, "Variable");
+        const ezOpenDdlReaderElement* pValue = pChild->FindChildOfType(ezOpenDdlPrimitiveType::String, "Value");
+
+        if (pName && pValue)
         {
-          ezLog::Error("'Textures' variable is not an object");
-        }
-        else
-        {
-          const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+          ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
 
-          m_Desc.m_TextureBindings.Reserve(dict.GetCount());
-          for (auto it = dict.GetIterator(); it.IsValid(); ++it)
-          {
-            ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
-            tc.m_Name.Assign(it.Key().GetData());
+          tmp = pName->GetPrimitivesString()[0];
+          tc.m_Name.Assign(tmp.GetData());
 
-            const ezString sTextureRef = it.Value().ConvertTo<ezString>(&Conversion);
-
-            if (Conversion.Failed())
-            {
-              ezLog::Error("'Textures' object has member '%s' that is not convertible to a string", it.Key().GetData());
-              m_Desc.m_TextureBindings.PopBack();
-              continue;
-            }
-
-            tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTextureRef);
-          }
+          tmp = pValue->GetPrimitivesString()[0];
+          tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(tmp);
         }
       }
     }

@@ -1,15 +1,1 @@
-{
-  "Shader" : "Shaders/Editor/Visualizer.ezShader",
-  
-  "Permutations" : 
-  {
-  },
-
-  "Constants" :
-  {
-  },
-  
-  "Textures" :
-  {
-  }  
-}
+string %Shader { "Shaders/Editor/Visualizer.ezShader" }

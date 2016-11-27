@@ -1,15 +1,1 @@
-{
-  "Shader" : "Shaders/aoTest.ezShader",
-  
-  "Permutations" : 
-  {
-  },
-
-  "Constants" :
-  {
-  },
-  
-  "Textures" :
-  {
-  }  
-}
+string %Shader { "Shaders/aoTest.ezShader" }

@@ -1,21 +1,31 @@
+string %Shader { "Shaders/Editor/TexturePreview.ezShader" }
+
+Permutation
 {
-  "Shader" : "Shaders/Editor/TexturePreview.ezShader",
-
-  "Permutations" :
-  {
-    "TWO_SIDED" : "TRUE",
-    "SHADING_MODE" : "FULLBRIGHT",
-     "BLEND_MODE" : "OPAQUE"
-  },
-
-  "Constants" :
-  {
-    "ShowChannelMode" : 0
-  },
-
-  "Textures" :
-  {
-    "BaseTexture" : "Textures/Reference_D.dds"
-  }
+  string %Variable { "TWO_SIDED" }
+  string %Value { "TRUE" }
 }
 
+Permutation
+{
+  string %Variable { "SHADING_MODE" }
+  string %Value { "FULLBRIGHT" }
+}
+
+Permutation
+{
+  string %Variable { "BLEND_MODE" }
+  string %Value { "OPAQUE" }
+}
+
+Constant
+{
+  string %Variable { "ShowChannelMode" }
+  int32 %Value { 0 }
+}
+
+Texture
+{
+  string %Variable { "BaseTexture" }
+  string %Value { "Textures/Reference_D.dds" }
+}

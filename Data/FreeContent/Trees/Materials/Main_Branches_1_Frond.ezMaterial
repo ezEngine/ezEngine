@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
-  
-  "Textures" :
-  {
-    "DiffuseTexture" : "Trees/Textures/Leaves/Default_D.dds",
-  }  
-}

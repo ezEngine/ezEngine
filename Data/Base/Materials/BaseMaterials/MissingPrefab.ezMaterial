@@ -1,16 +1,7 @@
+string %Shader { "Shaders/Editor/FallbackMaterial.ezShader" }
+
+Texture
 {
-  "Shader" : "Shaders/Materials/FallbackMaterial.ezShader",
-
-  "Permutations" :
-  {
-  },
-
-  "Constants" :
-  {
-  },
-
-  "Textures" :
-  {
-    "BaseTexture" : "Textures/MissingPrefab_D.dds"
-  }
+  string %Variable { "BaseTexture" }
+  string %Value { "Textures/MissingPrefab_D.dds" }
 }
