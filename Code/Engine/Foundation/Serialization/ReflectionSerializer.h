@@ -2,6 +2,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/IO/JSONWriter.h>
+#include <Foundation/IO/OpenDdlWriter.h>
 
 
 class EZ_FOUNDATION_DLL ezReflectionSerializer
@@ -19,6 +20,9 @@ public:
   /// Read-only properties are not written out, as they cannot be restored anyway.
   static void WriteObjectToJSON(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode = ezJSONWriter::WhitespaceMode::NewlinesOnly); // [tested]
 
+  /// \brief Same as WriteObjectToJSON but DDL format.
+  static void WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode = true, ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
+
   /// \brief Same as WriteObjectToJSON but binary.
   static void WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject); // [tested]
 
@@ -29,6 +33,9 @@ public:
   ///
   /// All properties are set to the values as described in the JSON data, as long as the properties can be matched to the runtime type.
   static void* ReadObjectFromJSON(ezStreamReader& stream, const ezRTTI*& pRtti); // [tested]
+
+  /// \brief Same as ReadObjectFromJSON but DDL format.
+  static void* ReadObjectFromDDL(ezStreamReader& stream, const ezRTTI*& pRtti); // [tested]
 
   /// \brief Same as ReadObjectFromJSON but binary.
   static void* ReadObjectFromBinary(ezStreamReader& stream, const ezRTTI*& pRtti); // [tested]
@@ -42,6 +49,9 @@ public:
   /// The object itself will not be reset to the default state before the properties are set, so properties that do not appear
   /// in the JSON data, or cannot be matched, will not be affected.
   static void ReadObjectPropertiesFromJSON(ezStreamReader& stream, const ezRTTI& rtti, void* pObject); // [tested]
+
+  /// \brief Same as ReadObjectPropertiesFromJSON but DDL format.
+  static void ReadObjectPropertiesFromDDL(ezStreamReader& stream, const ezRTTI& rtti, void* pObject); // [tested]
 
   /// \brief Same as ReadObjectPropertiesFromJSON but binary.
   static void ReadObjectPropertiesFromBinary(ezStreamReader& stream, const ezRTTI& rtti, void* pObject); // [tested]

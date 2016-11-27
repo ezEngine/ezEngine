@@ -67,21 +67,21 @@ ezString ezPreferences::GetFilePath() const
   {
     path = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
     path.AppendPath(m_sUniqueName);
-    path.ChangeFileExtension("userpref");
+    path.ChangeFileExtension("pref");
   }
 
   if (m_Domain == Domain::Project)
   {
     path = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     path.AppendPath(m_sUniqueName);
-    path.ChangeFileExtension("userpref");
+    path.ChangeFileExtension("pref");
   }
 
   if (m_Domain == Domain::Document)
   {
     path = ezApplicationServices::GetSingleton()->GetDocumentPreferencesFolder(m_pDocument);
     path.AppendPath(m_sUniqueName);
-    path.ChangeFileExtension("userpref");
+    path.ChangeFileExtension("pref");
   }
 
   return path;
@@ -93,7 +93,7 @@ void ezPreferences::Load()
   if (file.Open(GetFilePath()).Failed())
     return;
 
-  ezReflectionSerializer::ReadObjectPropertiesFromJSON(file, *GetDynamicRTTI(), this);
+  ezReflectionSerializer::ReadObjectPropertiesFromDDL(file, *GetDynamicRTTI(), this);
 }
 
 void ezPreferences::Save() const
@@ -119,7 +119,7 @@ void ezPreferences::Save() const
   if (file.Open(GetFilePath()).Failed())
     return;
 
-  ezReflectionSerializer::WriteObjectToJSON(file, GetDynamicRTTI(), this, ezJSONWriter::WhitespaceMode::All);
+  ezReflectionSerializer::WriteObjectToDDL(file, GetDynamicRTTI(), this, false, ezOpenDdlWriter::TypeStringMode::Compliant);
 }
 
 
@@ -203,7 +203,7 @@ void ezPreferences::GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_
 ezString ezPreferences::GetName() const
 {
   ezStringBuilder s;
-  
+
   if (m_Domain == Domain::Application)
     s.Append("Application");
   else if (m_Domain == Domain::Project)

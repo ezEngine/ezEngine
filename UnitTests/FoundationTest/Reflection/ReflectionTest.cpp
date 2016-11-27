@@ -354,7 +354,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
       EZ_TEST_BOOL(pProp == nullptr);
     }
 
-    { 
+    {
       TestMemberProperty<ezVec3>("Sub Vector", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(3, 4, 5));
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("Sub Struct", false);
       EZ_TEST_BOOL(pProp == nullptr);
@@ -404,6 +404,39 @@ void TestSerialization(const T& source)
 
     const ezRTTI* pRtti;
     void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
+
+    T& c2 = *((T*)pObject);
+
+    EZ_TEST_BOOL(c2 == source);
+
+    if (pObject)
+    {
+      pRtti->GetAllocator()->Deallocate(pObject);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToDDL")
+  {
+    ezMemoryStreamWriter FileOut(&StreamStorage);
+
+    ezReflectionSerializer::WriteObjectToDDL(FileOut, ezGetStaticRTTI<T>(), &source, false, ezOpenDdlWriter::TypeStringMode::Compliant);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromDDL")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+    T data;
+    ezReflectionSerializer::ReadObjectPropertiesFromDDL(FileIn, *ezGetStaticRTTI<T>(), &data);
+
+    EZ_TEST_BOOL(data == source);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromDDL")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+
+    const ezRTTI* pRtti;
+    void* pObject = ezReflectionSerializer::ReadObjectFromDDL(FileIn, pRtti);
 
     T& c2 = *((T*)pObject);
 

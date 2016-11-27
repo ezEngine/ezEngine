@@ -4,6 +4,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectionSerializer public static functions
@@ -22,6 +23,22 @@ void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriter& stream, const ezR
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
   ezAbstractGraphJsonSerializer::Write(stream, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+}
+
+
+void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/, ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
+{
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+  ezRttiConverterWriter conv(&graph, &context, false, true);
+
+  ezUuid guid;
+  guid.CreateNewUuid();
+
+  context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
+  conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
+
+  ezAbstractGraphDdlSerializer::Write(stream, &graph, nullptr, bCompactMmode, typeMode);
 }
 
 void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject)
@@ -45,6 +62,28 @@ void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReader& stream, const e
   ezRttiConverterContext context;
 
   ezAbstractGraphJsonSerializer::Read(stream, &graph);
+
+  ezRttiConverterReader convRead(&graph, &context);
+  auto* pRootNode = graph.GetNodeByName("root");
+
+  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+
+  pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
+
+  void* pTarget = context.CreateObject(pRootNode->GetGuid(), pRtti);
+
+  convRead.ApplyPropertiesToObject(pRootNode, pRtti, pTarget);
+
+  return pTarget;
+}
+
+
+void* ezReflectionSerializer::ReadObjectFromDDL(ezStreamReader& stream, const ezRTTI*& pRtti)
+{
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+
+  ezAbstractGraphDdlSerializer::Read(stream, &graph);
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
@@ -96,6 +135,22 @@ void ezReflectionSerializer::ReadObjectPropertiesFromJSON(ezStreamReader& stream
   convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
 }
 
+
+void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& stream, const ezRTTI& rtti, void* pObject)
+{
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+
+  ezAbstractGraphDdlSerializer::Read(stream, &graph);
+
+  ezRttiConverterReader convRead(&graph, &context);
+  auto* pRootNode = graph.GetNodeByName("root");
+
+  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+
+  convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
+}
+
 void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReader& stream, const ezRTTI& rtti, void* pObject)
 {
   ezAbstractObjectGraph graph;
@@ -118,7 +173,7 @@ namespace
   {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return;
-    
+
     const ezRTTI* pPropType = pProp->GetSpecificType();
 
     ezVariant vTemp;
@@ -185,7 +240,7 @@ namespace
               ezReflectionUtils::DeleteObject(pOldSubClone, pProp);
           }
         }
-     
+
         const ezUInt32 uiCount = pSpecific->GetCount(pObject);
         pSpecific->SetCount(pClone, uiCount);
         if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
@@ -313,7 +368,7 @@ void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRT
     const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
     pType = pRefObject->GetDynamicRTTI();
     EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(),
-      "Object '%s' and clone '%s' have mismatching types!", 
+      "Object '%s' and clone '%s' have mismatching types!",
       pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
   }
 

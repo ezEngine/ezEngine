@@ -71,7 +71,9 @@ void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstrac
   writer.SetCompactMode(bCompactMmode);
   writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Exact);
   writer.SetPrimitiveTypeStringMode(typeMode);
-  writer.SetIndentation(-1);
+
+  if (typeMode != ezOpenDdlWriter::TypeStringMode::Compliant)
+    writer.SetIndentation(-1);
 
   WriteGraph(writer, pGraph, "Objects");
   if (pTypesGraph)
