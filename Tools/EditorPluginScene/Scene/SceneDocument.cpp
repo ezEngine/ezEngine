@@ -243,7 +243,7 @@ void ezSceneDocument::DuplicateSpecial()
   memoryWriter.WriteBytes("\0", 1); // null terminate
 
   ezDuplicateObjectsCommand cmd;
-  cmd.m_sJsonGraph = (const char*)streamStorage.GetData();
+  cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
   cmd.m_sParentNodes = temp;
   cmd.m_uiNumberOfCopies = dlg.s_uiNumberOfCopies;
   cmd.m_vAccumulativeTranslation = dlg.s_vTranslationStep;
@@ -471,7 +471,7 @@ void ezSceneDocument::DuplicateSelection()
   memoryWriter.WriteBytes("\0", 1); // null terminate
 
   ezDuplicateObjectsCommand cmd;
-  cmd.m_sJsonGraph = (const char*)streamStorage.GetData();
+  cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
   cmd.m_sParentNodes = temp;
 
   auto history = GetCommandHistory();

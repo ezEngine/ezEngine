@@ -2,7 +2,6 @@
 #include <EditorPluginScene/Commands/SceneCommands.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Math/Transform.h>
@@ -13,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
+    EZ_MEMBER_PROPERTY("GraphText", m_sGraphTextFormat),
     EZ_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),
     EZ_MEMBER_PROPERTY("NumCopies", m_uiNumberOfCopies),
     EZ_MEMBER_PROPERTY("Translate", m_vAccumulativeTranslation),
@@ -137,7 +136,7 @@ void ezDuplicateObjectsCommand::DeserializeGraph(ezAbstractObjectGraph& graph)
 {
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
-  memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
+  memoryWriter.WriteBytes(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
 
   ezMemoryStreamReader memoryReader(&streamStorage);
   ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);

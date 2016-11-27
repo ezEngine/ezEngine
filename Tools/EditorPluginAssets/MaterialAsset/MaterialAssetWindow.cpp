@@ -262,7 +262,7 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 
 void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action)
 {
-  if (!ezPathUtils::HasExtension(filename, "JSON"))
+  if (!ezPathUtils::HasExtension(filename, "DDL"))
     return;
 
   // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it

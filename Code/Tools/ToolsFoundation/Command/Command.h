@@ -6,8 +6,6 @@
 
 class ezDocument;
 class ezCommandTransaction;
-class ezJSONWriter;
-class ezJSONReader;
 
 /// \brief Interface for a command
 ///

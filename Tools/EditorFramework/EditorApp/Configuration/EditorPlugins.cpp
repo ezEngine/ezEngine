@@ -4,6 +4,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/JSONReader.h>
+#include <Foundation/IO/JSONWriter.h>
 
 void ezQtEditorApp::DetectAvailableEditorPlugins()
 {

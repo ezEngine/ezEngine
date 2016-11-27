@@ -4,7 +4,6 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <QClipboard>
 #include <QApplication>

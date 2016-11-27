@@ -25,7 +25,7 @@ class ezConsole;
 /// For every such step a virtual function is called, allowing to override steps in custom applications.
 ///
 /// The default implementation tries to do as much of this in a data-driven way. E.g. plugin and data
-/// directory configurations are read from JSON files. These can be configured by hand or using ezEditor.
+/// directory configurations are read from DDL files. These can be configured by hand or using ezEditor.
 ///
 /// You are NOT supposed to implement game functionality by deriving from ezGameApplication.
 /// Instead see ezGameState.
@@ -189,7 +189,7 @@ protected:
   virtual void DoConfigureAssetManagement();
 
   /// \brief Called by DoProjectSetup() after DoConfigureAssetManagement(). Adds additional data directories.
-  /// The default implementation reads the data directory configuration from a JSON file in the project folder.
+  /// The default implementation reads the data directory configuration from a DDL file in the project folder.
   virtual void DoSetupDataDirectories();
 
   /// \brief Called by DoProjectSetup() after DoSetupDataDirectories(). Loads plugins that the application should always load.
@@ -209,7 +209,7 @@ protected:
   virtual void DoSetupGraphicsDevice();
 
   /// \brief Called by DoProjectSetup() after DoSetupGraphicsDevice().
-  /// The default implementation uses ezGameAppInputConfig to read the input configuration from a JSON file in the project folder.
+  /// The default implementation uses ezGameAppInputConfig to read the input configuration from a DDL file in the project folder.
   /// Additionally it configures ESC, F5 and F8 to be 'GameApp::CloseApp', 'GameApp::ReloadResources' and 'GameApp::CaptureProfiling' respectively.
   virtual void DoConfigureInput(bool bReinitialize);
 

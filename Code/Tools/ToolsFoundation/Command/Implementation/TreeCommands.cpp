@@ -3,7 +3,6 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <Foundation/Serialization/DdlSerializer.h>

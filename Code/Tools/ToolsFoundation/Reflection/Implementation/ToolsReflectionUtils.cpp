@@ -3,13 +3,10 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/ExtendedJSONWriter.h>
-#include <Foundation/IO/ExtendedJSONReader.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 ////////////////////////////////////////////////////////////////////////

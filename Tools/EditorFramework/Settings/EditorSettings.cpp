@@ -1,8 +1,5 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/ExtendedJSONWriter.h>
-#include <Foundation/IO/ExtendedJSONReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <EditorFramework/Preferences/Preferences.h>

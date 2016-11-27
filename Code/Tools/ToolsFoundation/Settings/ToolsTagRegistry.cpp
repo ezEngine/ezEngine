@@ -1,8 +1,5 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
-#include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/ExtendedJSONWriter.h>
-#include <Foundation/IO/ExtendedJSONReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/Log.h>

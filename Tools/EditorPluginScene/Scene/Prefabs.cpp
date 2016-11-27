@@ -8,7 +8,6 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <Commands/SceneCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>

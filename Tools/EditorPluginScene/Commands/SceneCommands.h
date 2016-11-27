@@ -14,7 +14,7 @@ public:
   ezDuplicateObjectsCommand();
 
 public: // Properties
-  ezString m_sJsonGraph;
+  ezString m_sGraphTextFormat;
   ezString m_sParentNodes; /// A stringyfied map in format "uuidObj1=uuidParent1;..." that defines the previous parents of all top level objects
 
   ezUInt32 m_uiNumberOfCopies; /// if set to 0 (the default), all the 'advanced' duplication code is skipped and only a single straight copy is made

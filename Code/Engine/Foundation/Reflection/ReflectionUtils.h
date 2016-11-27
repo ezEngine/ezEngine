@@ -2,7 +2,6 @@
 
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/IO/JSONWriter.h>
 
 class ezVariant;
 
@@ -18,8 +17,8 @@ public:
   // \brief Returns the RTTI type matching the variant's type.
   static const ezRTTI* GetTypeFromVariant(const ezVariant& value);
 
-  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation 
-  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation 
+  static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation
+  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
   static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
@@ -31,7 +30,7 @@ public:
   static void RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex);
 
   static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);
-  static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation 
+  static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation
 
   /// \brief Gathers all RTTI types that are from plugins
   static void GatherPluginTypes(ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies);
@@ -55,15 +54,15 @@ public:
   /// Types that have no dependences come first in the output followed by types that have their dependencies met by
   /// the previous entries in the output.
   /// If circular dependencies are found the function returns false.
-  static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);  
+  static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);
 
   /// \brief Converts an enum or bitfield value into its string representation.
-  /// 
+  ///
   /// The type of pEnumerationRtti will be automatically detected. The syntax of out_sOutput equals MSVC debugger output.
   static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput); // [tested]
 
   /// \brief Converts an enum or bitfield in its string representation to its value.
-  /// 
+  ///
   /// The type of pEnumerationRtti will be automatically detected. The syntax of szValue must equal the MSVC debugger output.
   static bool StringToEnumeration(const ezRTTI* pEnumerationRtti, const char* szValue, ezInt64& out_iValue); // [tested]
 

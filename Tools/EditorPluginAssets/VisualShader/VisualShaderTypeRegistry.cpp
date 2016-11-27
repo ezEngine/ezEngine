@@ -5,7 +5,6 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/JSONReader.h>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <Foundation/IO/OSFile.h>
@@ -68,34 +67,17 @@ const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorFor
 
 void ezVisualShaderTypeRegistry::UpdateNodeData()
 {
+  ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  sSearchDir.AppendPath("VisualShader/*.ddl");
+
+  ezFileSystemIterator it;
+  if (it.StartSearch(sSearchDir, false, false).Succeeded())
   {
-    ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-    sSearchDir.AppendPath("VisualShader/*.json");
-
-    ezFileSystemIterator it;
-    if (it.StartSearch(sSearchDir, false, false).Succeeded())
+    do
     {
-      do
-      {
-        UpdateNodeData(it.GetStats().m_sFileName);
-      }
-      while (it.Next().Succeeded());
+      UpdateNodeData(it.GetStats().m_sFileName);
     }
-  }
-
-  {
-    ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-    sSearchDir.AppendPath("VisualShader/*.ddl");
-
-    ezFileSystemIterator it;
-    if (it.StartSearch(sSearchDir, false, false).Succeeded())
-    {
-      do
-      {
-        UpdateNodeData(it.GetStats().m_sFileName);
-      }
-      while (it.Next().Succeeded());
-    }
+    while (it.Next().Succeeded());
   }
 }
 
@@ -184,42 +166,6 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
   {
     ezLog::Error("Failed to open Visual Shader config file '%s'", szFile);
     return;
-  }
-
-  if (ezPathUtils::HasExtension(szFile, "json"))
-  {
-    ezJSONReader json;
-    json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
-
-    if (json.Parse(file).Failed())
-    {
-      ezLog::Error("Failed to parse Visual Shader config file '%s'", szFile);
-      return;
-    }
-
-    const ezVariantDictionary& top = json.GetTopLevelObject();
-
-    for (auto itTop = top.GetIterator(); itTop.IsValid(); ++itTop)
-    {
-      const ezVariant& varNode = itTop.Value();
-      if (!varNode.IsA<ezVariantDictionary>())
-      {
-        ezLog::Error("Block '%s' is not a dictionary", itTop.Key().GetData());
-        continue;
-      }
-
-      const ezVariantDictionary& varNodeDict = varNode.Get<ezVariantDictionary>();
-
-      ezVisualShaderNodeDescriptor nd;
-      nd.m_sName = itTop.Key();
-
-      ExtractNodeConfig(varNodeDict, nd);
-      ExtractNodeProperties(varNodeDict, nd);
-      ExtractNodePins(varNodeDict, "InputPins", nd.m_InputPins, false);
-      ExtractNodePins(varNodeDict, "OutputPins", nd.m_OutputPins, true);
-
-      m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
-    }
   }
 
   if (ezPathUtils::HasExtension(szFile, "ddl"))

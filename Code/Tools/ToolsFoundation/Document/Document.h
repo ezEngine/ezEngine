@@ -43,7 +43,7 @@ public:
   bool m_bHidden; /// Whether the object should be rendered in the editor view (no effect on the runtime)
   ezUuid m_CreateFromPrefab; /// The asset GUID of the prefab from which this object was created. Invalid GUID, if this is not a prefab instance.
   ezUuid m_PrefabSeedGuid; /// The seed GUID used to remap the object GUIDs from the prefab asset into this instance.
-  ezString m_sBasePrefab; /// The prefab from which this instance was created as complete JSON text (this describes the entire object!). Necessary for three-way-merging the prefab instances.
+  ezString m_sBasePrefab; /// The prefab from which this instance was created as complete DDL text (this describes the entire object!). Necessary for three-way-merging the prefab instances.
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezDocument : public ezReflectedClass
@@ -155,7 +155,7 @@ public:
 
 public:
   ezObjectMetaData<ezUuid, ezDocumentObjectMetaData> m_DocumentObjectMetaData;
-  
+
   mutable ezEvent<const ezDocumentEvent&> m_EventsOne;
   static ezEvent<const ezDocumentEvent&> s_EventsAny;
 

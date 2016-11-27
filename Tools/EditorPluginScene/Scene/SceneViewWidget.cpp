@@ -9,7 +9,6 @@
 #include <QMimeData>
 #include <QVBoxLayout>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <InputContexts/OrthoGizmoContext.h>
