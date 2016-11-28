@@ -2,16 +2,16 @@
 #include <GameUtils/Components/SpawnComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
-    EZ_ACCESSOR_PROPERTY("Attach as Child", GetAttachAsChild, SetAttachAsChild),
-    EZ_ACCESSOR_PROPERTY("Spawn at Start", GetSpawnAtStart, SetSpawnAtStart),
-    EZ_ACCESSOR_PROPERTY("Spawn Continuously", GetSpawnContinuously, SetSpawnContinuously),
-    EZ_MEMBER_PROPERTY("Min Delay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
-    EZ_MEMBER_PROPERTY("Delay Range", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("AttachAsChild", GetAttachAsChild, SetAttachAsChild),
+    EZ_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
+    EZ_ACCESSOR_PROPERTY("SpawnContinuously", GetSpawnContinuously, SetSpawnContinuously),
+    EZ_MEMBER_PROPERTY("MinDelay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
+    EZ_MEMBER_PROPERTY("DelayRange", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
     EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(179.0))),
   }
   EZ_END_PROPERTIES
@@ -135,7 +135,7 @@ void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_MinDelay;
   s >> m_DelayRange;
-  s >> m_MaxDeviation; 
+  s >> m_MaxDeviation;
   s >> m_LastManualSpawn;
 }
 
@@ -196,3 +196,28 @@ void ezSpawnComponent::OnTriggered(ezTriggerMessage& msg)
     TriggerManualSpawn();
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezSpawnComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSpawnComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezSpawnComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Attach as Child", "AttachAsChild");
+    pNode->RenameProperty("Spawn at Start", "SpawnAtStart");
+    pNode->RenameProperty("Spawn Continuously", "SpawnContinuously");
+    pNode->RenameProperty("Min Delay", "MinDelay");
+    pNode->RenameProperty("Delay Range", "DelayRange");
+  }
+};
+
+ezSpawnComponentPatch_1_2 g_ezSpawnComponentPatch_1_2;
+

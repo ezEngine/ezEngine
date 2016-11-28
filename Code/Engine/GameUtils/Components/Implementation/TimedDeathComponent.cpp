@@ -5,13 +5,13 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Min Delay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
-    EZ_MEMBER_PROPERTY("Delay Range", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Timeout Prefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_MEMBER_PROPERTY("MinDelay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
+    EZ_MEMBER_PROPERTY("DelayRange", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("TimeoutPrefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
@@ -84,7 +84,7 @@ void ezTimedDeathComponent::OnTriggered(ezTriggerMessage& msg)
 
     pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform());
   }
-  
+
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
 }
 
@@ -109,4 +109,26 @@ const char* ezTimedDeathComponent::GetTimeoutPrefab() const
   return m_hTimeoutPrefab.GetResourceID();
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezTimedDeathComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezTimedDeathComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezTimedDeathComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Min Delay", "MinDelay");
+    pNode->RenameProperty("Delay Range", "DelayRange");
+    pNode->RenameProperty("Timeout Prefab", "TimeoutPrefab");
+  }
+};
+
+ezTimedDeathComponentPatch_1_2 g_ezTimedDeathComponentPatch_1_2;
 

@@ -15,12 +15,12 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 2, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("Shader Mode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
-    EZ_ACCESSOR_PROPERTY("Base Material", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_ENUM_ACCESSOR_PROPERTY("ShaderMode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
+    EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
@@ -863,3 +863,25 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
   }
   return s_NeutralNormalMap;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezMaterialAssetPropertiesPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezMaterialAssetPropertiesPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezMaterialAssetProperties>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Shader Mode", "ShaderMode");
+    pNode->RenameProperty("Base Material", "BaseMaterial");
+  }
+};
+
+ezMaterialAssetPropertiesPatch_1_2 g_ezMaterialAssetPropertiesPatch_1_2;
+

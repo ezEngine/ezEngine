@@ -7,13 +7,13 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f), new ezSuffixAttribute(" m")),
-    EZ_ACCESSOR_PROPERTY("Inner Spot Angle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
-    EZ_ACCESSOR_PROPERTY("Outer Spot Angle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
+    EZ_ACCESSOR_PROPERTY("InnerSpotAngle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
     //EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   }
   EZ_END_PROPERTIES
@@ -24,8 +24,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1)
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Outer Spot Angle", 1.0f, "Range", "Light Color"),
-    new ezConeManipulatorAttribute("Outer Spot Angle", "Range"),
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "OuterSpotAngle", 1.0f, "Range", "LightColor"),
+    new ezConeManipulatorAttribute("OuterSpotAngle", "Range"),
   }
   EZ_END_ATTRIBUTES
 }
@@ -173,6 +173,30 @@ void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> temp;
   SetProjectedTextureFile(temp);
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezSpotLightComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSpotLightComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezSpotLightComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezLightComponent>(), 2);
+
+    pNode->RenameProperty("Inner Spot Angle", "InnerSpotAngle");
+    pNode->RenameProperty("Outer Spot Angle", "OuterSpotAngle");
+  }
+};
+
+ezSpotLightComponentPatch_1_2 g_ezSpotLightComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SpotLightComponent);

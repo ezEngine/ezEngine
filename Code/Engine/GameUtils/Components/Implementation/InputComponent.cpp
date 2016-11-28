@@ -10,11 +10,11 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressReleaseAndDown),
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Input Set", m_sInputSet)->AddAttributes(new ezDynamicStringEnumAttribute("InputSet")),
+    EZ_MEMBER_PROPERTY("InputSet", m_sInputSet)->AddAttributes(new ezDynamicStringEnumAttribute("InputSet")),
     EZ_ENUM_MEMBER_PROPERTY("Granularity", ezInputMessageGranularity, m_Granularity),
   }
   EZ_END_PROPERTIES
@@ -99,3 +99,22 @@ void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
   s >> gran; m_Granularity.SetValue(gran);
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezInputComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezInputComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezInputComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Input Set", "InputSet");
+  }
+};
+
+ezInputComponentPatch_1_2 g_ezInputComponentPatch_1_2;

@@ -67,23 +67,23 @@ const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCamera
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 4)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 5)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("Usage Hint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
+    EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
-    EZ_ACCESSOR_PROPERTY("Near Plane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1000000.0f)),
-    EZ_ACCESSOR_PROPERTY("Far Plane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
+    EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1000000.0f)),
+    EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_ACCESSOR_PROPERTY("FOV", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 179.0f)),
     EZ_ACCESSOR_PROPERTY("Dimensions", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
-    EZ_SET_MEMBER_PROPERTY("Include Tags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_SET_MEMBER_PROPERTY("Exclude Tags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
-    EZ_ACCESSOR_PROPERTY("Render Pipeline", GetRenderPipelineFile, SetRenderPipelineFile)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline")),
+    EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+    EZ_SET_MEMBER_PROPERTY("ExcludeTags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+    EZ_ACCESSOR_PROPERTY("RenderPipeline", GetRenderPipelineFile, SetRenderPipelineFile)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline")),
     EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f), new ezSuffixAttribute(" f-stop(s)")),
-    EZ_ACCESSOR_PROPERTY("Shutter Time", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f/100000.0f, 600.0f), new ezSuffixAttribute(" s")),
+    EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f/100000.0f, 600.0f), new ezSuffixAttribute(" s")),
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
-    EZ_ACCESSOR_PROPERTY("Exposure Compensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
+    EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     /*EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Final Exposure", GetExposure),*/
   }
@@ -368,3 +368,32 @@ void ezCameraComponent::MarkAsModified()
     m_bIsModified = true;
   }
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezCameraComponentPatch_4_5 : public ezGraphPatch
+{
+public:
+  ezCameraComponentPatch_4_5()
+    : ezGraphPatch(ezGetStaticRTTI<ezCameraComponent>(), 5) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Usage Hint", "UsageHint");
+    pNode->RenameProperty("Near Plane", "NearPlane");
+    pNode->RenameProperty("Far Plane", "FarPlane");
+    pNode->RenameProperty("Include Tags", "IncludeTags");
+    pNode->RenameProperty("Exclude Tags", "ExcludeTags");
+    pNode->RenameProperty("Render Pipeline", "RenderPipeline");
+    pNode->RenameProperty("Shutter Time", "ShutterTime");
+    pNode->RenameProperty("Exposure Compensation", "ExposureCompensation");
+  }
+};
+
+ezCameraComponentPatch_4_5 g_ezCameraComponentPatch_4_5;

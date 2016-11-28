@@ -6,13 +6,13 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaUpscalePass, 1, ezRTTIDefaultAllocator<ezMsaaUpscalePass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaUpscalePass, 2, ezRTTIDefaultAllocator<ezMsaaUpscalePass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Input", m_PinInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-    EZ_ENUM_MEMBER_PROPERTY("MSAA Mode", ezGALMSAASampleCount, m_MsaaMode)
+    EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode)
   }
   EZ_END_PROPERTIES
 }
@@ -87,4 +87,28 @@ void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, co
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezMsaaUpscalePassPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezMsaaUpscalePassPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezMsaaUpscalePass>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("MSAA Mode", "MSAA_Mode");
+  }
+};
+
+ezMsaaUpscalePassPatch_1_2 g_ezMsaaUpscalePassPatch_1_2;
+
 

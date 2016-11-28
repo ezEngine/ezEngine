@@ -8,23 +8,23 @@
 #include <QPainter>
 #include <QPaintEngine>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 1, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 2, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Point", m_Point),
-    EZ_MEMBER_PROPERTY("Left Tangent", m_LeftTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(-0.1f, 0))),
-    EZ_MEMBER_PROPERTY("Right Tangent", m_RightTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(+0.1f, 0))),
+    EZ_MEMBER_PROPERTY("LeftTangent", m_LeftTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(-0.1f, 0))),
+    EZ_MEMBER_PROPERTY("RightTangent", m_RightTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(+0.1f, 0))),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DData, 1, ezRTTIDefaultAllocator<ezCurve1DData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DData, 2, ezRTTIDefaultAllocator<ezCurve1DData>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Control Points", m_ControlPoints),
+    EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
   }
   EZ_END_PROPERTIES
 }
@@ -186,4 +186,40 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
   return SaveThumbnail(qimg, AssetHeader);
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezCurve1DControlPointPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezCurve1DControlPointPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezCurve1DControlPoint>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Left Tangent", "LeftTangent");
+    pNode->RenameProperty("Right Tangent", "RightTangent");
+  }
+};
+
+ezCurve1DControlPointPatch_1_2 g_ezCurve1DControlPointPatch_1_2;
+
+
+
+class ezCurve1DDataPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezCurve1DDataPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezCurve1DData>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Control Points", "ControlPoints");
+  }
+};
+
+ezCurve1DDataPatch_1_2 g_ezCurve1DDataPatch_1_2;
 

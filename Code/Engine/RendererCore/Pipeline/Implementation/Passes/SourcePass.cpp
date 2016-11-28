@@ -3,14 +3,14 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 1, ezRTTIDefaultAllocator<ezSourcePass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 2, ezRTTIDefaultAllocator<ezSourcePass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
     EZ_ENUM_MEMBER_PROPERTY("Format", ezGALResourceFormat, m_Format),
-    EZ_ENUM_MEMBER_PROPERTY("MSAA Mode", ezGALMSAASampleCount, m_MsaaMode),
-    EZ_MEMBER_PROPERTY("Clear Color", m_ClearColor),
+    EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode),
+    EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor),
     EZ_MEMBER_PROPERTY("Clear", m_bClear),
   }
   EZ_END_PROPERTIES
@@ -73,7 +73,30 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
   }
 
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
-  
+
   // Clear color or depth stencil
   pGALContext->Clear(m_ClearColor);
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezSourcePassPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSourcePassPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezSourcePass>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("MSAA Mode", "MSAA_Mode");
+    pNode->RenameProperty("Clear Color", "ClearColor");
+  }
+};
+
+ezSourcePassPatch_1_2 g_ezSourcePassPatch_1_2;
+

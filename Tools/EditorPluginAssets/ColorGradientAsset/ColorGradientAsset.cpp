@@ -46,13 +46,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezIntensityControlPoint, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 1, ezRTTIDefaultAllocator<ezColorGradientAssetData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 2, ezRTTIDefaultAllocator<ezColorGradientAssetData>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Color CPs", m_ColorCPs),
-    EZ_ARRAY_MEMBER_PROPERTY("Alpha CPs", m_AlphaCPs),
-    EZ_ARRAY_MEMBER_PROPERTY("Intensity CPs", m_IntensityCPs),
+    EZ_ARRAY_MEMBER_PROPERTY("ColorCPs", m_ColorCPs),
+    EZ_ARRAY_MEMBER_PROPERTY("AlphaCPs", m_AlphaCPs),
+    EZ_ARRAY_MEMBER_PROPERTY("IntensityCPs", m_IntensityCPs),
   }
   EZ_END_PROPERTIES
 }
@@ -157,3 +157,24 @@ ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFile
   return SaveThumbnail(img, AssetHeader);
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezColorGradientAssetDataPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezColorGradientAssetDataPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezColorGradientAssetData>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Color CPs", "ColorCPs");
+    pNode->RenameProperty("Alpha CPs", "AlphaCPs");
+    pNode->RenameProperty("Intensity CPs", "IntensityCPs");
+  }
+};
+
+ezColorGradientAssetDataPatch_1_2 g_ezColorGradientAssetDataPatch_1_2;

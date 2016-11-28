@@ -25,15 +25,15 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 1, ezRT
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Gravity Multiplier", m_fGravityMultiplier),
-    EZ_MEMBER_PROPERTY("Max Lifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Timeout Prefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
-    EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_MEMBER_PROPERTY("GravityMultiplier", m_fGravityMultiplier),
+    EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Prefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
   EZ_END_PROPERTIES
@@ -103,10 +103,10 @@ void ezProjectileComponent::Update()
 
     ezVec3 vCurDirection = m_vVelocity * fTimeDiff;
     float fDistance = 0.0f;
-    
+
     if (!vCurDirection.IsZero())
       fDistance = vCurDirection.GetLengthAndNormalize();
-    
+
     ezVec3 vPos, vNormal;
     ezGameObjectHandle hObject;
     ezSurfaceResourceHandle hSurface;
@@ -333,3 +333,25 @@ void ezProjectileComponentManager::Initialize()
   SetUserData(pModule);
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezProjectileComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezProjectileComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezProjectileComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Gravity Multiplier", "GravityMultiplier");
+    pNode->RenameProperty("Max Lifetime", "MaxLifetime");
+    pNode->RenameProperty("Timeout Prefab", "TimeoutPrefab");
+    pNode->RenameProperty("Collision Layer", "CollisionLayer");
+  }
+};
+
+ezProjectileComponentPatch_1_2 g_ezProjectileComponentPatch_1_2;

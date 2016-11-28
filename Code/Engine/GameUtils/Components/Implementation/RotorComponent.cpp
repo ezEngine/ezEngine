@@ -5,12 +5,12 @@
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
-EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
-    EZ_MEMBER_PROPERTY("Degrees to Rotate", m_iDegreeToRotate),
+    EZ_MEMBER_PROPERTY("DegreesToRotate", m_iDegreeToRotate),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
   }
@@ -123,12 +123,7 @@ void ezRotorComponent::Update()
       m_LastRotation = qRotation;
     }
   }
-
 }
-
-
-
-
 
 void ezRotorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -159,6 +154,31 @@ void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
   m_Axis.SetValue(axis);
   s >> m_LastRotation;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezRotorComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezRotorComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezRotorComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // Base class
+    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezTransformComponent>(), 2);
+
+    // this class
+    pNode->RenameProperty("Degrees to Rotate", "DegreesToRotate");
+  }
+};
+
+ezRotorComponentPatch_1_2 g_ezRotorComponentPatch_1_2;
+
 
 EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_RotorComponent);
 

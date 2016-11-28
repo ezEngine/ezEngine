@@ -7,18 +7,18 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Exposure Bias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
-    EZ_ACCESSOR_PROPERTY("Inverse Tonemap", GetInverseTonemap, SetInverseTonemap)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("Left Texture", GetLeftTextureFile, SetLeftTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("Front Texture", GetFrontTextureFile, SetFrontTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("Right Texture", GetRightTextureFile, SetRightTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("Back Texture", GetBackTextureFile, SetBackTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("Up Texture", GetUpTextureFile, SetUpTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("Down Texture", GetDownTextureFile, SetDownTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
+    EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("LeftTexture", GetLeftTextureFile, SetLeftTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("FrontTexture", GetFrontTextureFile, SetFrontTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("RightTexture", GetRightTextureFile, SetRightTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("BackTexture", GetBackTextureFile, SetBackTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("UpTexture", GetUpTextureFile, SetUpTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("DownTexture", GetDownTextureFile, SetDownTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -234,4 +234,33 @@ void ezSkyBoxComponent::UpdateMaterials()
     pMaterial->PreserveCurrentDesc();
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezSkyBoxComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSkyBoxComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezSkyBoxComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Exposure Bias", "ExposureBias");
+    pNode->RenameProperty("Inverse Tonemap", "InverseTonemap");
+    pNode->RenameProperty("Left Texture", "LeftTexture");
+    pNode->RenameProperty("Front Texture", "FrontTexture");
+    pNode->RenameProperty("Right Texture", "RightTexture");
+    pNode->RenameProperty("Back Texture", "BackTexture");
+    pNode->RenameProperty("Up Texture", "UpTexture");
+    pNode->RenameProperty("Down Texture", "DownTexture");
+  }
+};
+
+ezSkyBoxComponentPatch_1_2 g_ezSkyBoxComponentPatch_1_2;
+
 

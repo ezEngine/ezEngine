@@ -8,18 +8,18 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BilateralBlurConstants.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSeparatedBilateralBlurPass, 1, ezRTTIDefaultAllocator<ezSeparatedBilateralBlurPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSeparatedBilateralBlurPass, 2, ezRTTIDefaultAllocator<ezSeparatedBilateralBlurPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("BlurSource", m_PinBlurSourceInput),
     EZ_MEMBER_PROPERTY("Depth", m_PinDepthInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-    EZ_ACCESSOR_PROPERTY("Blur Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(7)),
+    EZ_ACCESSOR_PROPERTY("BlurRadius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(7)),
       // Should we really expose that? This gives the user control over the error compared to a perfect gaussian.
       // In theory we could also compute this for a given error from the blur radius. See http://dev.theomader.com/gaussian-kernel-calculator/ for visualization.
-    EZ_ACCESSOR_PROPERTY("Gaussian Standard Deviation", GetGaussianSigma, SetGaussianSigma)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
-    EZ_ACCESSOR_PROPERTY("Bilateral Sharpness", GetSharpness, SetSharpness)->AddAttributes(new ezDefaultValueAttribute(120.0f)),
+    EZ_ACCESSOR_PROPERTY("GaussianSigma", GetGaussianSigma, SetGaussianSigma)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
+    EZ_ACCESSOR_PROPERTY("Sharpness", GetSharpness, SetSharpness)->AddAttributes(new ezDefaultValueAttribute(120.0f)),
   }
   EZ_END_PROPERTIES
 }
@@ -177,3 +177,30 @@ float ezSeparatedBilateralBlurPass::GetSharpness() const
 {
   return m_fSharpness;
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezSeparatedBilateralBlurPassPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSeparatedBilateralBlurPassPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezSeparatedBilateralBlurPass>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Blur Radius", "BlurRadius");
+    pNode->RenameProperty("Gaussian Standard Deviation", "GaussianSigma");
+    pNode->RenameProperty("Bilateral Sharpness", "Sharpness");
+  }
+};
+
+ezSeparatedBilateralBlurPassPatch_1_2 g_ezSeparatedBilateralBlurPassPatch_1_2;
+
+

@@ -232,7 +232,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUI
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
 
-  cmdSet.m_sProperty = rightTangent ? "Right Tangent" : "Left Tangent";
+  cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
   cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 }

@@ -3,15 +3,15 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Speed", m_fAnimationSpeed), // How many units per second the animation should do.
-    EZ_ACCESSOR_PROPERTY("Run at Startup", GetAnimatingAtStartup, SetAnimatingAtStartup), // Whether the animation should start right away.
-    EZ_ACCESSOR_PROPERTY("Reverse at Start", GetAutoReturnStart, SetAutoReturnStart), // If true, it will not stop at the end, but turn around and continue.
-    EZ_ACCESSOR_PROPERTY("Reverse at End", GetAutoReturnEnd, SetAutoReturnEnd), // If true, after coming back to the start point, the animation won't stop but turn around and continue.
-    EZ_ACCESSOR_PROPERTY("Auto Toggle Direction", GetAutoToggleDirection, SetAutoToggleDirection)->AddAttributes(new ezHiddenAttribute()), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
+    EZ_ACCESSOR_PROPERTY("RunAtStartup", GetAnimatingAtStartup, SetAnimatingAtStartup), // Whether the animation should start right away.
+    EZ_ACCESSOR_PROPERTY("ReverseAtStart", GetAutoReturnStart, SetAutoReturnStart), // If true, it will not stop at the end, but turn around and continue.
+    EZ_ACCESSOR_PROPERTY("ReverseAtEnd", GetAutoReturnEnd, SetAutoReturnEnd), // If true, after coming back to the start point, the animation won't stop but turn around and continue.
+    EZ_ACCESSOR_PROPERTY("AutoToggleDirection", GetAutoToggleDirection, SetAutoToggleDirection)->AddAttributes(new ezHiddenAttribute()), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -167,6 +167,28 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
   return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezTransformComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezTransformComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezTransformComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Run at Startup", "RunAtStartup");
+    pNode->RenameProperty("Reverse at Start", "ReverseAtStart");
+    pNode->RenameProperty("Reverse at End", "ReverseAtEnd");
+    pNode->RenameProperty("Auto Toggle Direction", "AutoToggleDirection");
+  }
+};
+
+ezTransformComponentPatch_1_2 g_ezTransformComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_TransformComponent);

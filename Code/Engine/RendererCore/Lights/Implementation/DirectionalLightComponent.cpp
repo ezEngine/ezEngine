@@ -7,7 +7,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 2)
 {
   /*  EZ_BEGIN_PROPERTIES
     EZ_END_PROPERTIES*/
@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1)
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.75f, "Light Color"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.75f, "LightColor"),
   }
   EZ_END_ATTRIBUTES
 }
@@ -72,6 +72,28 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& stream)
   //ezStreamReader& s = stream.GetStream();
 
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezDirectionalLightComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezDirectionalLightComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezLightComponent>(), 2);
+  }
+};
+
+ezDirectionalLightComponentPatch_1_2 g_ezDirectionalLightComponentPatch_1_2;
+
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_DirectionalLightComponent);

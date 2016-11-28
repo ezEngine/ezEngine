@@ -7,12 +7,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAmbientLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Top Color", GetTopColor, SetTopColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.2f, 0.2f, 0.3f)))),
-    EZ_ACCESSOR_PROPERTY("Bottom Color", GetBottomColor, SetBottomColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.1f, 0.1f, 0.15f)))),
+    EZ_ACCESSOR_PROPERTY("TopColor", GetTopColor, SetTopColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.2f, 0.2f, 0.3f)))),
+    EZ_ACCESSOR_PROPERTY("BottomColor", GetBottomColor, SetBottomColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.1f, 0.1f, 0.15f)))),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f))
   }
   EZ_END_PROPERTIES
@@ -111,6 +111,33 @@ void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_BottomColor;
   s >> m_fIntensity;
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezAmbientLightComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezAmbientLightComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezAmbientLightComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Top Color", "TopColor");
+    pNode->RenameProperty("Bottom Color", "BottomColor");
+  }
+};
+
+ezAmbientLightComponentPatch_1_2 g_ezAmbientLightComponentPatch_1_2;
+
+
+
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SpotLightComponent);

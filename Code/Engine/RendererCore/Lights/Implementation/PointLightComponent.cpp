@@ -7,7 +7,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -23,7 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1)
     EZ_BEGIN_ATTRIBUTES
   {
     new ezSphereManipulatorAttribute("Range"),
-    new ezSphereVisualizerAttribute("Range", "Light Color"),
+    new ezSphereVisualizerAttribute("Range", "LightColor"),
   }
   EZ_END_ATTRIBUTES
 }
@@ -129,6 +129,26 @@ void ezPointLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hProjectedTexture;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezPointLightComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezPointLightComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezPointLightComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezLightComponent>(), 2);
+  }
+};
+
+ezPointLightComponentPatch_1_2 g_ezPointLightComponentPatch_1_2;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_PointLightComponent);
 

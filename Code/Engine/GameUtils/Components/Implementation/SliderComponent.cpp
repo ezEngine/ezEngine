@@ -5,7 +5,7 @@
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
-EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -139,6 +139,28 @@ void ezSliderComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fLastDistance;
 
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezSliderComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSliderComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezSliderComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // Base class
+    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezTransformComponent>(), 2);
+  }
+};
+
+ezSliderComponentPatch_1_2 g_ezSliderComponentPatch_1_2;
+
 
 EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_SliderComponent);
 

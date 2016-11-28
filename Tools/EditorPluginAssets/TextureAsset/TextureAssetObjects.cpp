@@ -22,7 +22,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureAddressMode, 1)
 EZ_ENUM_CONSTANTS(ezTextureAddressMode::Wrap, ezTextureAddressMode::Mirror, ezTextureAddressMode::Clamp)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -31,21 +31,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAlloca
 
     EZ_MEMBER_PROPERTY("Mipmaps", m_bMipmaps)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Compression", m_bCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Premultiplied Alpha", m_bPremultipliedAlpha),
+    EZ_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
 
-    EZ_ENUM_MEMBER_PROPERTY("Texture Filter", ezTextureFilterSetting, m_TextureFilter),
-    EZ_ENUM_MEMBER_PROPERTY("Address Mode U", ezTextureAddressMode, m_AddressModeU),
-    EZ_ENUM_MEMBER_PROPERTY("Address Mode V", ezTextureAddressMode, m_AddressModeV),
-    EZ_ENUM_MEMBER_PROPERTY("Address Mode W", ezTextureAddressMode, m_AddressModeW),
+    EZ_ENUM_MEMBER_PROPERTY("TextureFilter", ezTextureFilterSetting, m_TextureFilter),
+    EZ_ENUM_MEMBER_PROPERTY("AddressModeU", ezTextureAddressMode, m_AddressModeU),
+    EZ_ENUM_MEMBER_PROPERTY("AddressModeV", ezTextureAddressMode, m_AddressModeV),
+    EZ_ENUM_MEMBER_PROPERTY("AddressModeW", ezTextureAddressMode, m_AddressModeW),
 
-    EZ_ENUM_MEMBER_PROPERTY("Channel Mapping", ezChannelMappingEnum, m_ChannelMapping),
+    EZ_ENUM_MEMBER_PROPERTY("ChannelMapping", ezChannelMappingEnum, m_ChannelMapping),
 
-    EZ_ACCESSOR_PROPERTY("Input 1", GetInputFile0, SetInputFile0)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_ACCESSOR_PROPERTY("Input 2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_ACCESSOR_PROPERTY("Input 3", GetInputFile2, SetInputFile2)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_ACCESSOR_PROPERTY("Input 4", GetInputFile3, SetInputFile3)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_ACCESSOR_PROPERTY("Input 5", GetInputFile4, SetInputFile4)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_ACCESSOR_PROPERTY("Input 6", GetInputFile5, SetInputFile5)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_ACCESSOR_PROPERTY("Input1", GetInputFile0, SetInputFile0)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_ACCESSOR_PROPERTY("Input2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_ACCESSOR_PROPERTY("Input3", GetInputFile2, SetInputFile2)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_ACCESSOR_PROPERTY("Input4", GetInputFile3, SetInputFile3)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_ACCESSOR_PROPERTY("Input5", GetInputFile4, SetInputFile4)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_ACCESSOR_PROPERTY("Input6", GetInputFile5, SetInputFile5)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
 
   }
   EZ_END_PROPERTIES
@@ -240,4 +240,36 @@ bool ezTextureAssetProperties::IsTextureCube() const
           m_ChannelMapping == ezChannelMappingEnum::RGB1TO6_CUBE ||
           m_ChannelMapping == ezChannelMappingEnum::RGBA1TO6_CUBE);
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezTextureAssetPropertiesPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezTextureAssetPropertiesPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezTextureAssetProperties>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Premultiplied Alpha", "PremultipliedAlpha");
+    pNode->RenameProperty("Texture Filter", "TextureFilter");
+    pNode->RenameProperty("Address Mode U", "AddressModeU");
+    pNode->RenameProperty("Address Mode V", "AddressModeV");
+    pNode->RenameProperty("Address Mode W", "AddressModeW");
+    pNode->RenameProperty("Channel Mapping", "ChannelMapping");
+    pNode->RenameProperty("Input 1", "Input1");
+    pNode->RenameProperty("Input 2", "Input2");
+    pNode->RenameProperty("Input 3", "Input3");
+    pNode->RenameProperty("Input 4", "Input4");
+    pNode->RenameProperty("Input 5", "Input5");
+    pNode->RenameProperty("Input 6", "Input6");
+  }
+};
+
+ezTextureAssetPropertiesPatch_1_2 g_ezTextureAssetPropertiesPatch_1_2;
+
 

@@ -6,11 +6,11 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Light Color", m_LightColor),
+    EZ_MEMBER_PROPERTY("LightColor", m_LightColor),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     //EZ_MEMBER_PROPERTY("Cast Shadows", m_bCastShadows),
   }
@@ -83,6 +83,31 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fIntensity;
   s >> m_bCastShadows;
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezLightComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezLightComponentPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezLightComponent>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Light Color", "LightColor");
+  }
+};
+
+ezLightComponentPatch_1_2 g_ezLightComponentPatch_1_2;
+
+
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_LightComponent);
