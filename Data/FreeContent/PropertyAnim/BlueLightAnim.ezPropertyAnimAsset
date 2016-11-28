@@ -1,42 +1,64 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xB14E76D27D615B479638BD6F42CA36B3" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "PropertyAnim",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xB14E76D27D615B479638BD6F42CA36B3" },
-    "Hash" : { "$t" : "uint64", "$v" : "4289080293495965209", "$b" : "0x1986F46ACDDF853B" },
-    "References" : [ "{ 935e1236-35a1-4670-a87c-657e77cd7029 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xE995BCFBE963F64DADBE4836D55F212B" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x707BBA268443F14C8EA2546F46B5F5AE" },
-   "t" : "ezPropertyAnimEntry",
-   "p" : {
-    "Color Gradient" : "{ 935e1236-35a1-4670-a87c-657e77cd7029 }",
-    "Duration" : { "$t" : "time", "$v" : "3.0000", "$b" : "0x0000000000000840" },
-    "Mode" : "ezPropertyAnimMode::Loop",
-    "Number Curve" : "",
-    "Property" : "Light Color",
-    "Target" : "ezPropertyAnimTarget::Color"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE995BCFBE963F64DADBE4836D55F212B" },
-   "t" : "ezPropertyAnimResourceDescriptor",
-   "p" : {
-    "Animations" : [ { "$t" : "uuid", "$b" : "0x707BBA268443F14C8EA2546F46B5F5AE" } ]
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{12913731368222800022,5141810592603328177}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"PropertyAnim"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{12913731368222800022,5141810592603328177}}
+		u4 %Hash{4289080293495965209}
+		VarArray %References
+		{
+			s{"{ 935e1236-35a1-4670-a87c-657e77cd7029 }"}
+		}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{3107870587205762733,5617787441793242601}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{12607182046013727374,5544286851134290800}}
+	s %t{"ezPropertyAnimEntry"}
+	u3 %v{1}
+	p
+	{
+		s %ColorGradient{"{ 935e1236-35a1-4670-a87c-657e77cd7029 }"}
+		Time %Duration{d{0x0000000000000840}}
+		s %Mode{"ezPropertyAnimMode::Loop"}
+		s %NumberCurve{""}
+		s %Property{"Light Color"}
+		s %Target{"ezPropertyAnimTarget::Color"}
+	}
+}
+o
+{
+	Uuid %id{u4{3107870587205762733,5617787441793242601}}
+	s %t{"ezPropertyAnimResourceDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Animations
+		{
+			Uuid{u4{12607182046013727374,5544286851134290800}}
+		}
+	}
+}
+}
+Types{}

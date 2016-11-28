@@ -8,9 +8,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Simulate In Local Space", m_bSimulateInLocalSpace),
-    EZ_MEMBER_PROPERTY("PreSimulate Duration", m_PreSimulateDuration),
-    EZ_SET_ACCESSOR_PROPERTY("Particle Systems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
+    EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
+    EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
 }

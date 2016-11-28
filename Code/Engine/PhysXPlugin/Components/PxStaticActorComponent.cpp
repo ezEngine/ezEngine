@@ -8,8 +8,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Collision Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh")),
-    EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh")),
+    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
   }
   EZ_END_PROPERTIES
 }
@@ -95,7 +95,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
 
     ezHybridArray<PxMaterial*, 32> pxMaterials;
-    
+
     {
       pxMaterials.SetCount(pMesh->GetSurfaces().GetCount());
 

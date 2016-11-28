@@ -1,54 +1,81 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xCE508369C2724042B2B0DCEE911282B7" },
-   "t" : "ezPropertyAnimEntry",
-   "p" : {
-    "Color Gradient" : "{ 90e278a4-c3bd-4d0f-8e00-66821a4560e5 }",
-    "Duration" : { "$t" : "time", "$v" : "5.0000", "$b" : "0x0000000000001440" },
-    "Mode" : "ezPropertyAnimMode::Loop",
-    "Number Curve" : "",
-    "Property" : "Light Color",
-    "Target" : "ezPropertyAnimTarget::Color"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x07EA3410197ED0438BD9FF9A2558F4CF" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "PropertyAnim",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x07EA3410197ED0438BD9FF9A2558F4CF" },
-    "Hash" : { "$t" : "uint64", "$v" : "1416325493180802974", "$b" : "0x9E275F3388CCA713" },
-    "References" : [ "{ 1ae43179-7b17-4ead-816d-fd1be3fdae14 }", "{ 90e278a4-c3bd-4d0f-8e00-66821a4560e5 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xC8E80F6A3893134AB9765258DE2D23FB" },
-   "t" : "ezPropertyAnimResourceDescriptor",
-   "p" : {
-    "Animations" : [ { "$t" : "uuid", "$b" : "0x98E6803CEDF42F4BA28B5A8CED4909FB" }, { "$t" : "uuid", "$b" : "0xCE508369C2724042B2B0DCEE911282B7" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xC8E80F6A3893134AB9765258DE2D23FB" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x98E6803CEDF42F4BA28B5A8CED4909FB" },
-   "t" : "ezPropertyAnimEntry",
-   "p" : {
-    "Color Gradient" : "",
-    "Duration" : { "$t" : "time", "$v" : "3.0000", "$b" : "0x0000000000000840" },
-    "Mode" : "ezPropertyAnimMode::Loop",
-    "Number Curve" : "{ 1ae43179-7b17-4ead-816d-fd1be3fdae14 }",
-    "Property" : "LocalPosition",
-    "Target" : "ezPropertyAnimTarget::VectorZ"
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{13223151873900196018,4773941784332161230}}
+	s %t{"ezPropertyAnimEntry"}
+	u3 %v{1}
+	p
+	{
+		s %ColorGradient{"{ 5c9d3e28-e23d-4305-a16e-2db6836ef5d6 }"}
+		Time %Duration{d{0x0000000000001440}}
+		s %Mode{"ezPropertyAnimMode::Loop"}
+		s %NumberCurve{""}
+		s %Property{"Light Color"}
+		s %Target{"ezPropertyAnimTarget::Color"}
+	}
 }
+AssetInfo
+{
+	Uuid %id{u4{14984698778705975691,4886544241808173575}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"PropertyAnim"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{14984698778705975691,4886544241808173575}}
+		u4 %Hash{10559949514184813356}
+		VarArray %References
+		{
+			s{"{ 1ae43179-7b17-4ead-816d-fd1be3fdae14 }"}
+			s{"{ 5c9d3e28-e23d-4305-a16e-2db6836ef5d6 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18096358160692573881,5337771853871048904}}
+	s %t{"ezPropertyAnimResourceDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Animations
+		{
+			Uuid{u4{18089070662921128866,5417818176509503128}}
+			Uuid{u4{13223151873900196018,4773941784332161230}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{18096358160692573881,5337771853871048904}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18089070662921128866,5417818176509503128}}
+	s %t{"ezPropertyAnimEntry"}
+	u3 %v{1}
+	p
+	{
+		s %ColorGradient{""}
+		Time %Duration{d{0x0000000000000840}}
+		s %Mode{"ezPropertyAnimMode::Loop"}
+		s %NumberCurve{"{ 1ae43179-7b17-4ead-816d-fd1be3fdae14 }"}
+		s %Property{"LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorZ"}
+	}
+}
+}
+Types{}

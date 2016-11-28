@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragmentFactory, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ENUM_MEMBER_PROPERTY("Rotation Axis", ezFragmentAxis, m_RotationAxis),
+    EZ_ENUM_MEMBER_PROPERTY("RotationAxis", ezFragmentAxis, m_RotationAxis),
   }
   EZ_END_PROPERTIES
 }

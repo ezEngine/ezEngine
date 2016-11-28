@@ -10,10 +10,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1
   {
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("On Surface", m_bSpawnOnSurface),
-    EZ_MEMBER_PROPERTY("Set Velocity", m_bSetVelocity),
-    EZ_MEMBER_PROPERTY("Min Speed", m_fMinSpeed),
-    EZ_MEMBER_PROPERTY("Speed Range", m_fSpeedRange),
+    EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
+    EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
+    EZ_MEMBER_PROPERTY("MinSpeed", m_fMinSpeed),
+    EZ_MEMBER_PROPERTY("SpeedRange", m_fSpeedRange),
   }
   EZ_END_PROPERTIES
 }

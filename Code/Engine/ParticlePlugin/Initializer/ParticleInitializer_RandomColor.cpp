@@ -12,8 +12,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 1, ezR
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Gradient", GetColorGradientFile, SetColorGradientFile)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
-    EZ_MEMBER_PROPERTY("Color 1", m_Color1)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
-    EZ_MEMBER_PROPERTY("Color 2", m_Color2)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
+    EZ_MEMBER_PROPERTY("Color1", m_Color1)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
+    EZ_MEMBER_PROPERTY("Color2", m_Color2)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
   }
   EZ_END_PROPERTIES
 }

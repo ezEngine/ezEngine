@@ -6,9 +6,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSceneViewPreferences, ezNoBase, 1, ezRTTIDefaul
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Cam Pos", m_vCamPos),
-    EZ_MEMBER_PROPERTY("Cam Dir", m_vCamDir),
-    EZ_MEMBER_PROPERTY("Cam Up", m_vCamUp),
+    EZ_MEMBER_PROPERTY("CamPos", m_vCamPos),
+    EZ_MEMBER_PROPERTY("CamDir", m_vCamDir),
+    EZ_MEMBER_PROPERTY("CamUp", m_vCamUp),
     EZ_MEMBER_PROPERTY("Perspective", m_uiPerspectiveMode),
     EZ_MEMBER_PROPERTY("RenderMode", m_uiRenderMode),
     EZ_MEMBER_PROPERTY("FOV", m_fFov),

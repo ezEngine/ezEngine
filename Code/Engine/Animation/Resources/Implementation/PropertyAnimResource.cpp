@@ -25,8 +25,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPropertyAnimEntry, ezNoBase, 1, ezRTTIDefaultAl
     EZ_MEMBER_PROPERTY("Duration", m_Duration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(5))),
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_Mode),
     EZ_ENUM_MEMBER_PROPERTY("Target", ezPropertyAnimTarget, m_Target),
-    EZ_ACCESSOR_PROPERTY("Number Curve", GetNumberCurveFile, SetNumberCurveFile)->AddAttributes(new ezAssetBrowserAttribute("Curve1D")),
-    EZ_ACCESSOR_PROPERTY("Color Gradient", GetColorCurveFile, SetColorCurveFile)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
+    EZ_ACCESSOR_PROPERTY("NumberCurve", GetNumberCurveFile, SetNumberCurveFile)->AddAttributes(new ezAssetBrowserAttribute("Curve1D")),
+    EZ_ACCESSOR_PROPERTY("ColorGradient", GetColorCurveFile, SetColorCurveFile)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
   }
   EZ_END_PROPERTIES
 }

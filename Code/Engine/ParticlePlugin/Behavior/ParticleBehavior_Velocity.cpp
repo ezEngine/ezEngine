@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDef
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Rise Speed", m_fRiseSpeed),
+    EZ_MEMBER_PROPERTY("RiseSpeed", m_fRiseSpeed),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
   }
   EZ_END_PROPERTIES

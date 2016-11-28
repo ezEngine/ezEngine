@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Age, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("OnDeath Event", m_sOnDeathEvent),
+    EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent),
   }
   EZ_END_PROPERTIES
 }

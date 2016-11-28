@@ -9,8 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 1, ez
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(45)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(70))),
-    EZ_MEMBER_PROPERTY("Min Speed", m_fMinSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Speed Range", m_fSpeedRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("MinSpeed", m_fMinSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("SpeedRange", m_fSpeedRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES
 }

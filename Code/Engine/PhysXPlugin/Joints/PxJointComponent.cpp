@@ -9,9 +9,9 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Break Force", m_fBreakForce),
-    EZ_MEMBER_PROPERTY("Break Torque", m_fBreakTorque),
-    EZ_MEMBER_PROPERTY("Pair Collision", m_bPairCollision),
+    EZ_MEMBER_PROPERTY("BreakForce", m_fBreakForce),
+    EZ_MEMBER_PROPERTY("BreakTorque", m_fBreakTorque),
+    EZ_MEMBER_PROPERTY("PairCollision", m_bPairCollision),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES

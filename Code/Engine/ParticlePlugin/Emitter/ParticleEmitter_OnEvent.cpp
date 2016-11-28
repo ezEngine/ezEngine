@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_OnEvent, 1, ezRTTIDefau
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Event Name", m_sEventName),
+    EZ_MEMBER_PROPERTY("EventName", m_sEventName),
   }
   EZ_END_PROPERTIES
 }

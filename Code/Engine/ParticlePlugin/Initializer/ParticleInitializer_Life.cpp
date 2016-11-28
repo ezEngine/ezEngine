@@ -8,8 +8,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_Life, 1, ezRTTIDefa
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Min Life Time", m_MinLifeTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
-    EZ_MEMBER_PROPERTY("Life Time Range", m_LifeTimeRange)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
+    EZ_MEMBER_PROPERTY("MinLifeTime", m_MinLifeTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
+    EZ_MEMBER_PROPERTY("LifeTimeRange", m_LifeTimeRange)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
   }
   EZ_END_PROPERTIES
 }

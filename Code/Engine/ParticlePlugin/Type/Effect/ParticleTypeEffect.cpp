@@ -9,7 +9,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Effect", m_sEffect)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
-    EZ_MEMBER_PROPERTY("Random Seed", m_uiRandomSeed),
+    EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
     // EZ_MEMBER_PROPERTY("Shared Instance Name", m_sSharedInstanceName), // there is currently no way (I can think of) to uniquely identify each sub-system for the 'shared owner'
   }
   EZ_END_PROPERTIES

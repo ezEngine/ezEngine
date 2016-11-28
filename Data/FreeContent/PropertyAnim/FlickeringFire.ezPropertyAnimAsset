@@ -1,42 +1,64 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x82E6E400309BF242BE3B75A0A3402E97" },
-   "t" : "ezPropertyAnimResourceDescriptor",
-   "p" : {
-    "Animations" : [ { "$t" : "uuid", "$b" : "0x281CE14D5694CA4FADEFC67FC93BAA01" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x82E6E400309BF242BE3B75A0A3402E97" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x9171E140CE4D654FB4F71DE9A179DB08" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "PropertyAnim",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x9171E140CE4D654FB4F71DE9A179DB08" },
-    "Hash" : { "$t" : "uint64", "$v" : "15016758735896913791", "$b" : "0x7F27E112823E66D0" },
-    "References" : [ "{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x281CE14D5694CA4FADEFC67FC93BAA01" },
-   "t" : "ezPropertyAnimEntry",
-   "p" : {
-    "Color Gradient" : "{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }",
-    "Duration" : { "$t" : "time", "$v" : "1.0000", "$b" : "0x000000000000F03F" },
-    "Mode" : "ezPropertyAnimMode::BackAndForth",
-    "Number Curve" : "",
-    "Property" : "Light Color",
-    "Target" : "ezPropertyAnimTarget::Color"
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{10893715620171692990,4824088781342959234}}
+	s %t{"ezPropertyAnimResourceDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Animations
+		{
+			Uuid{u4{119974076696948653,5749570972686556200}}
+		}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{10893715620171692990,4824088781342959234}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{638237508510807988,5721064449891201425}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"PropertyAnim"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{638237508510807988,5721064449891201425}}
+		u4 %Hash{15016758735896913791}
+		VarArray %References
+		{
+			s{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{119974076696948653,5749570972686556200}}
+	s %t{"ezPropertyAnimEntry"}
+	u3 %v{1}
+	p
+	{
+		s %ColorGradient{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
+		Time %Duration{d{0x000000000000F03F}}
+		s %Mode{"ezPropertyAnimMode::BackAndForth"}
+		s %NumberCurve{""}
+		s %Property{"Light Color"}
+		s %Target{"ezPropertyAnimTarget::Color"}
+	}
+}
+}
+Types{}

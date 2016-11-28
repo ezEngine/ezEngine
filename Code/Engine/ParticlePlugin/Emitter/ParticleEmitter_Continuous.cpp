@@ -14,16 +14,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDe
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Duration", m_Duration),
-    EZ_MEMBER_PROPERTY("Start Delay", m_StartDelay),
+    EZ_MEMBER_PROPERTY("StartDelay", m_StartDelay),
 
-    EZ_MEMBER_PROPERTY("Min Spawn Count", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
-    EZ_MEMBER_PROPERTY("Spawn Count Range", m_uiSpawnCountRange),
+    EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
 
-    EZ_MEMBER_PROPERTY("Min Interval", m_SpawnIntervalMin)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(0.1))),
-    EZ_MEMBER_PROPERTY("Interval Range", m_SpawnIntervalRange),
+    EZ_MEMBER_PROPERTY("MinInterval", m_SpawnIntervalMin)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(0.1))),
+    EZ_MEMBER_PROPERTY("IntervalRange", m_SpawnIntervalRange),
 
-    EZ_ACCESSOR_PROPERTY("Count Curve", GetCountCurveFile, SetCountCurveFile)->AddAttributes(new ezAssetBrowserAttribute("Curve1D")),
-    EZ_MEMBER_PROPERTY("Curve Duration", m_CurveDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0))),
+    EZ_ACCESSOR_PROPERTY("CountCurve", GetCountCurveFile, SetCountCurveFile)->AddAttributes(new ezAssetBrowserAttribute("Curve1D")),
+    EZ_MEMBER_PROPERTY("CurveDuration", m_CurveDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0))),
   }
   EZ_END_PROPERTIES
 }

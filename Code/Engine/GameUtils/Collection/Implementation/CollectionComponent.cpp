@@ -8,8 +8,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Collection", GetCollectionFile, SetCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("Collection")),
-    EZ_MEMBER_PROPERTY("Preload At Start", m_bPreloadAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Time to Load", m_TimeToLoad)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0)), new ezClampValueAttribute(ezTime::Seconds(0), ezTime::Seconds(120))),
+    EZ_MEMBER_PROPERTY("PreloadAtStart", m_bPreloadAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("TimeToLoad", m_TimeToLoad)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0)), new ezClampValueAttribute(ezTime::Seconds(0), ezTime::Seconds(120))),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -84,5 +84,4 @@ void ezCollectionComponent::InitiatePreload()
 
     pCollection->PreloadResources(m_TimeToLoad);
   }
-
 }

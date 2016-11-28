@@ -313,6 +313,37 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
   }
 }
 
+static bool IsValidIdentifierName(const char* szIdentifier)
+{
+  // empty strings are not valid
+  if (ezStringUtils::IsNullOrEmpty(szIdentifier))
+    return false;
+
+  // digits are not allowed as the first character
+  if (szIdentifier[0] >= '0' && szIdentifier[0] <= '9')
+    return false;
+
+  for (const char* s = szIdentifier; *s != '\0'; ++s)
+  {
+    const char c = *s;
+
+    if (c >= 'a' && c <= 'z')
+      continue;
+    if (c >= 'A' && c <= 'Z')
+      continue;
+    if (c >= '0' && c <= '9')
+      continue;
+    if (c >= '_')
+      continue;
+    if (c >= ':')
+      continue;
+
+    return false;
+  }
+
+  return true;
+}
+
 void ezRTTI::SanityCheckType(ezRTTI* pType)
 {
   EZ_ASSERT_DEV(pType->GetTypeFlags().IsSet(ezTypeFlags::StandardType) + pType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum)
@@ -321,6 +352,16 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
   for (auto pProp : pType->m_Properties)
   {
     const ezRTTI* pSpecificType = pProp->GetSpecificType();
+
+    EZ_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '%s'", pProp->GetPropertyName());
+
+    //if (!IsValidIdentifierName(pProp->GetPropertyName()))
+    //{
+    //  ezStringBuilder s;
+    //  s.Format("RTTI: %s\n", pProp->GetPropertyName());
+
+    //  OutputDebugStringA(s.GetData());
+    //}
 
     EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) + pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum)
       + pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) + pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) == 1, "Types are mutually exclusive!");

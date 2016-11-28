@@ -8,11 +8,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Min Distance", m_fMinDistance),
-    EZ_MEMBER_PROPERTY("Max Distance", m_fMaxDistance),
-    EZ_MEMBER_PROPERTY("Spring Stiffness", m_fSpringStiffness),
-    EZ_MEMBER_PROPERTY("Spring Damping", m_fSpringDamping),
-    EZ_MEMBER_PROPERTY("Spring Tolerance", m_fSpringTolerance),
+    EZ_MEMBER_PROPERTY("MinDistance", m_fMinDistance),
+    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance),
+    EZ_MEMBER_PROPERTY("SpringStiffness", m_fSpringStiffness),
+    EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping),
+    EZ_MEMBER_PROPERTY("SpringTolerance", m_fSpringTolerance),
   }
   EZ_END_PROPERTIES
 }

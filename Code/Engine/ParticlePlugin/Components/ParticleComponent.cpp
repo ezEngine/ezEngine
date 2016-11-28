@@ -12,12 +12,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
-    EZ_MEMBER_PROPERTY("Spawn At Start", m_bSpawnAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Auto Restart", m_bAutoRestart),
-    EZ_MEMBER_PROPERTY("Min Restart Delay", m_MinRestartDelay),
-    EZ_MEMBER_PROPERTY("Restart Delay Range", m_RestartDelayRange),
-    EZ_MEMBER_PROPERTY("Random Seed", m_uiRandomSeed),
-    EZ_MEMBER_PROPERTY("Shared Instance Name", m_sSharedInstanceName),
+    EZ_MEMBER_PROPERTY("SpawnAtStart", m_bSpawnAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("AutoRestart", m_bAutoRestart),
+    EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
+    EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
+    EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
+    EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES

@@ -1,42 +1,64 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x9292E861E1329C448021D24085D26AEB" },
-   "t" : "ezPropertyAnimEntry",
-   "p" : {
-    "Color Gradient" : "{ 6d4f03a0-38d7-4d2d-bc2c-6344d359545d }",
-    "Duration" : { "$t" : "time", "$v" : "30.0000", "$b" : "0x0000000000003E40" },
-    "Mode" : "ezPropertyAnimMode::Loop",
-    "Number Curve" : "",
-    "Property" : "BaseColor",
-    "Target" : "ezPropertyAnimTarget::Color"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x9391942186BFBC44B3D88ECF76C8B06F" },
-   "t" : "ezPropertyAnimResourceDescriptor",
-   "p" : {
-    "Animations" : [ { "$t" : "uuid", "$b" : "0x9292E861E1329C448021D24085D26AEB" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA9AA11CE82E0024ABB75CF193C804C90" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "PropertyAnim",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xA9AA11CE82E0024ABB75CF193C804C90" },
-    "Hash" : { "$t" : "uint64", "$v" : "14882024476875862364", "$b" : "0x5CB1DAD2699287CE" },
-    "References" : [ "{ 6d4f03a0-38d7-4d2d-bc2c-6344d359545d }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x9391942186BFBC44B3D88ECF76C8B06F" } ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{16963602416204390784,4943882434537624210}}
+	s %t{"ezPropertyAnimEntry"}
+	u3 %v{1}
+	p
+	{
+		s %ColorGradient{"{ 935e1236-35a1-4670-a87c-657e77cd7029 }"}
+		Time %Duration{d{0x0000000000003E40}}
+		s %Mode{"ezPropertyAnimMode::Loop"}
+		s %NumberCurve{""}
+		s %Property{"BaseColor"}
+		s %Target{"ezPropertyAnimTarget::Color"}
+	}
 }
+o
+{
+	Uuid %id{u4{8048152946725017779,4953044273010610579}}
+	s %t{"ezPropertyAnimResourceDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Animations
+		{
+			Uuid{u4{16963602416204390784,4943882434537624210}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{10397826635311052219,5333071761167723177}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"PropertyAnim"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10397826635311052219,5333071761167723177}}
+		u4 %Hash{4353208563658741793}
+		VarArray %References
+		{
+			s{"{ 935e1236-35a1-4670-a87c-657e77cd7029 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8048152946725017779,4953044273010610579}}
+		}
+	}
+}
+}
+Types{}
