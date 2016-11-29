@@ -226,6 +226,7 @@ protected:
     {
       // we were inside "AssetInfo" or "Objects" and returned from it, so now skip the rest
       m_iDepth = -1;
+      StopParsing();
     }
 
     ezOpenDdlReader::OnEndObject();

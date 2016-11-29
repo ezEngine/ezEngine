@@ -65,6 +65,9 @@ protected:
   /// \brief Skips the rest of the currently open object. No OnEndObject() call will be done for this object either.
   void SkipRestOfObject();
 
+  /// \brief Can be used to prevent parsing the rest of the document.
+  void StopParsing();
+
   /// \brief Outputs that a parsing error was detected (via OnParsingError) and stops further parsing, if bFatal is set to true.
   void ParsingError(const char* szMessage, bool bFatal);
 

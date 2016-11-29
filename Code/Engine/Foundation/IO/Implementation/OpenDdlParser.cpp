@@ -156,6 +156,13 @@ void ezOpenDdlParser::SkipRestOfObject()
   m_bSkippingMode = false;
 }
 
+
+void ezOpenDdlParser::StopParsing()
+{
+  m_uiCurByte = '\0';
+  m_StateStack.Clear();
+}
+
 void ezOpenDdlParser::ParsingError(const char* szMessage, bool bFatal)
 {
   if (bFatal)
@@ -168,8 +175,7 @@ void ezOpenDdlParser::ParsingError(const char* szMessage, bool bFatal)
   if (bFatal)
   {
     // prevent further error messages
-    m_uiCurByte = '\0';
-    m_StateStack.Clear();
+    StopParsing();
     m_bHadFatalParsingError = true;
   }
 }
@@ -263,12 +269,12 @@ void ezOpenDdlParser::ContinueIdle()
   case '}': // end of current object
     SkipWhitespace();
 
+    m_StateStack.PopBack();
+
     if (!m_bSkippingMode)
     {
       OnEndObject();
     }
-
-    m_StateStack.PopBack();
     return;
 
   default:
