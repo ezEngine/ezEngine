@@ -390,8 +390,12 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
     desc.m_hParent = hParent;
     ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
 
-    ezTransform tNew;
-    tNew.SetGlobalTransform(rootTransform, tChild);
+    ezTransform tNew = rootTransform;
+
+    // this would combine the stored local offset with the given transform
+    // unfortunately that doesn't work well with editor/engine prefab conversion
+    // it is easier to always assume the prefab root node is at the origin
+    //tNew.SetGlobalTransform(rootTransform, tChild);
 
     tNew.Decompose(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
 
