@@ -15,6 +15,9 @@ const ezDocumentObject* ezObjectDirectAccessor::GetObject(const ezUuid& object)
 
 ezStatus ezObjectDirectAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index)
 {
+  if (pProp == nullptr)
+    return ezStatus("Property is null.");
+
   out_value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index);
   if (!out_value.IsValid())
     return ezStatus("GetValue returned an invalid value.");

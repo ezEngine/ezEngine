@@ -104,7 +104,10 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
       *pStream >> sTemp;
       const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTemp);
 
-      EZ_ASSERT_DEV(pRtti != nullptr, "Unknown resource type '%s'", sTemp.GetData());
+      if (pRtti == nullptr)
+      {
+        ezLog::Error("Unknown resource type '%s'", sTemp.GetData());
+      }
 
       // number of resources of this type
       ezUInt32 uiNumResourcesOfType = 0;
@@ -118,10 +121,18 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
         // read unique ID for restoring the resource (from file)
         *pStream >> sTemp;
 
-        // load the resource of the given type
-        const ezTypelessResourceHandle hResource(ezResourceManager::GetResource(pRtti, sTemp, true));
+        if (pRtti != nullptr)
+        {
+          // load the resource of the given type
+          const ezTypelessResourceHandle hResource(ezResourceManager::GetResource(pRtti, sTemp, true));
 
-        m_AllResources[uiInternalID] = hResource;
+          m_AllResources[uiInternalID] = hResource;
+        }
+        else
+        {
+          // store an invalid handle, hope this doesn't break somewhere later
+          m_AllResources[uiInternalID].Invalidate();
+        }
       }
     }
   }

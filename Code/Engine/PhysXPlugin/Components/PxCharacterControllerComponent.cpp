@@ -32,8 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1)
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
   {
-    new ezCapsuleManipulatorAttribute("Capsule Height", "Capsule Radius"),
-    new ezCapsuleVisualizerAttribute("Capsule Height", "Capsule Radius"),
+    new ezCapsuleManipulatorAttribute("CapsuleHeight", "CapsuleRadius"),
+    new ezCapsuleVisualizerAttribute("CapsuleHeight", "CapsuleRadius"),
   }
   EZ_END_ATTRIBUTES
 }

@@ -47,10 +47,16 @@ void ezCapsuleVisualizerAdapter::Update()
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
-    ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRadiusProperty()), value);
+    auto pProp = GetProperty(pAttr->GetRadiusProperty());
+    EZ_ASSERT_DEBUG(pProp != nullptr, "Invalid property '%s' bound to ezCapsuleVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezCapsuleVisualizerAttribute 'radius'");
+    if (pProp == nullptr)
+      return;
+
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, pProp, value);
+
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '%s' bound to ezCapsuleVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
     fRadius = value.ConvertTo<float>();
   }
 
