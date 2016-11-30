@@ -3,12 +3,12 @@
 
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
-  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2) 
+  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2)
   EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2) 
+  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2)
   EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
@@ -54,10 +54,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestC
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
+    EZ_MEMBER_PROPERTY("SubStruct", m_Struct),
     // EZ_MEMBER_PROPERTY("MyVector", m_MyVector), Intentionally not reflected
     EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("Sub Vector", GetVector)
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("SubVector", GetVector)
   }
     EZ_END_PROPERTIES
 }
@@ -86,7 +86,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, 24, ezRTTIDefaultAllocator<ezTest
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Text2b", GetText, SetText),
-    EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
+    EZ_MEMBER_PROPERTY("SubStruct", m_Struct),
     EZ_MEMBER_PROPERTY("Color", m_Color),
   }
   EZ_END_PROPERTIES

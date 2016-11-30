@@ -108,9 +108,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       pType->GetAllProperties(AllProps);
 
       EZ_TEST_INT(AllProps.GetCount(), 9);
-      EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "Sub Struct");
+      EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "SubStruct");
       EZ_TEST_STRING(AllProps[1]->GetPropertyName(), "Color");
-      EZ_TEST_STRING(AllProps[2]->GetPropertyName(), "Sub Vector");
+      EZ_TEST_STRING(AllProps[2]->GetPropertyName(), "SubVector");
       EZ_TEST_STRING(AllProps[3]->GetPropertyName(), "Text");
       EZ_TEST_STRING(AllProps[4]->GetPropertyName(), "Time");
       EZ_TEST_STRING(AllProps[5]->GetPropertyName(), "Enum");
@@ -170,7 +170,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
         void* pInstance = pRtti->GetAllocator()->Allocate();
         EZ_TEST_BOOL(pInstance != nullptr);
 
-        ezAbstractProperty* pProp = pRtti->FindPropertyByName("Float 2");
+        ezAbstractProperty* pProp = pRtti->FindPropertyByName("Float2");
 
         EZ_TEST_BOOL(pProp != nullptr);
 
@@ -350,18 +350,18 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 
     {
       TestMemberProperty<const char*>("Text", &Instance, pRtti, ezPropertyFlags::StandardType, ezString("Legen"), ezString("dary"));
-      ezAbstractProperty* pProp = pRtti->FindPropertyByName("Sub Vector", false);
+      ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubVector", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }
 
     {
-      TestMemberProperty<ezVec3>("Sub Vector", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(3, 4, 5));
-      ezAbstractProperty* pProp = pRtti->FindPropertyByName("Sub Struct", false);
+      TestMemberProperty<ezVec3>("SubVector", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(3, 4, 5));
+      ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubStruct", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }
 
     {
-      ezAbstractProperty* pProp = pRtti->FindPropertyByName("Sub Struct");
+      ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubStruct");
       EZ_TEST_BOOL(pProp != nullptr);
 
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
