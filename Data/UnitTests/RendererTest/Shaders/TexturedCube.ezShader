@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -7,7 +7,7 @@ ALL
 
 [VERTEXSHADER]
 
-#include "Common.inc"
+#include "Common.h"
 
 VS_OUT main(VS_IN Input)
 {
@@ -21,7 +21,7 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#include "Common.inc"
+#include "Common.h"
 
 TextureCube DiffuseTexture;
 SamplerState DiffuseTexture_AutoSampler;

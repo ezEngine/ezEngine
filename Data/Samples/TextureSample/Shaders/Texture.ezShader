@@ -1,12 +1,9 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
-
-[PERMUTATIONS]
-
 
 [VERTEXSHADER]
 
-#include "Common.inc"
+#include "Common.h"
 
 #ifdef PLATFORM_DX11
 
@@ -25,7 +22,7 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#include "Common.inc"
+#include "Common.h"
 
 #ifdef PLATFORM_DX11
 

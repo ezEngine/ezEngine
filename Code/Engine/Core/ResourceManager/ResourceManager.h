@@ -194,6 +194,9 @@ public:
   /// \brief This will clear ALL resources that were registered as 'missing' or 'loading' fallback resources. This is called early during system shutdown to clean up resources.
   static void ClearAllResourceFallbacks();
 
+  /// \brief Makes sure that no further resource loading will take place.
+  static void EngineAboutToShutdown();
+
 private:
   friend class ezResourceBase;
   friend class ezResourceManagerWorkerDiskRead;

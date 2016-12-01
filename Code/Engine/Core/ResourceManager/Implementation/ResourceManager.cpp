@@ -823,12 +823,8 @@ void ezResourceManager::OnCoreStartup()
   ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
 }
 
-void ezResourceManager::OnEngineShutdown()
+void ezResourceManager::EngineAboutToShutdown()
 {
-  ezResourceManagerEvent e;
-  e.m_EventType = ezResourceManagerEventType::ManagerShuttingDown;
-  s_ManagerEvents.Broadcast(e);
-
   {
     EZ_LOCK(s_ResourceMutex);
     m_RequireLoading.Clear();
@@ -845,6 +841,15 @@ void ezResourceManager::OnEngineShutdown()
   {
     ezTaskSystem::CancelTask(&m_WorkerTasksMainThread[i]);
   }
+}
+
+void ezResourceManager::OnEngineShutdown()
+{
+  ezResourceManagerEvent e;
+  e.m_EventType = ezResourceManagerEventType::ManagerShuttingDown;
+  s_ManagerEvents.Broadcast(e);
+
+  EngineAboutToShutdown();
 
   // unload all resources until there are no more that can be unloaded
   FreeUnusedResources(true);

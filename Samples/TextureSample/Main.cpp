@@ -37,6 +37,9 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Textures/TextureResource.h>
 
+// Constant buffer definition is shared between shader code and C++
+#include <RendererCore/../../../Data/Samples/TextureSample/Shaders/SampleConstantBuffer.h>
+
 class TextureSampleWindow : public ezWindow
 {
 public:
@@ -71,6 +74,8 @@ const bool g_bPreloadAllTextures = false;
 class TextureSample : public ezApplication
 {
   CustomTextureResourceLoader m_TextureResourceLoader;
+  ezConstantBufferStorageHandle m_hSampleConstants;
+  ezConstantBufferStorage<ezTextureSampleConstants>* m_pSampleConstantBuffer;
 
 public:
 
@@ -121,8 +126,6 @@ public:
     {
       ezInputActionConfig cfg;
 
-      //ezStandardInputDevice::
-
       cfg = ezInputManager::GetInputActionConfig("Main", "CloseApp");
       cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
       ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
@@ -166,7 +169,7 @@ public:
     {
       ezGALDeviceCreationDescription DeviceInit;
       DeviceInit.m_bCreatePrimarySwapChain = true;
-      DeviceInit.m_bDebugDevice = false; // On Windows 10 this makes device creation fail :-(
+      DeviceInit.m_bDebugDevice = true;
       DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
       DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
       DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
@@ -194,7 +197,7 @@ public:
       texDesc.m_bCreateRenderTarget = true;
 
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
-      
+
       m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
       m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
     }
@@ -220,7 +223,7 @@ public:
     // Setup Shaders and Materials
     {
       ezShaderManager::Configure("DX11_SM50", true);
- 
+
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
       // Create the mesh that we use for rendering
@@ -238,6 +241,11 @@ public:
       // redirect all texture load operations through our custom loader, so that we can duplicate the single source texture
       // that we have as often as we like (to waste memory)
       ezResourceManager::SetResourceTypeLoader<ezTextureResource>(&m_TextureResourceLoader);
+    }
+
+    // Setup constant buffer that this sample uses
+    {
+      m_hSampleConstants = ezRenderContext::CreateConstantBufferStorage(m_pSampleConstantBuffer);
     }
 
     // Pre-allocate all textures
@@ -317,6 +325,7 @@ public:
       Proj.SetIdentity();
       Proj.SetOrthographicProjectionMatrix(m_vCameraPosition.x + -(float) g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float) g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float) g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float) g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
+      ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
       ezMat4 mTransform;
@@ -339,6 +348,13 @@ public:
         for (ezInt32 x = iLeftBound; x < iRightBound; ++x)
         {
           mTransform.SetTranslationVector(ezVec3((float) x * 100.0f, (float) y * 100.0f, 0));
+
+          // Update the constant buffer
+          {
+            ezTextureSampleConstants& cb = m_pSampleConstantBuffer->GetDataForWriting();
+            cb.ModelMatrix = mTransform;
+            cb.ViewProjectionMatrix = Proj;
+          }
 
           sResourceName.Format("Loaded_%+03i_%+03i_D", x, y);
 
@@ -372,6 +388,12 @@ public:
 
   void BeforeCoreShutdown() override
   {
+    // make sure that no textures are continue to be streamed in while the engine shuts down
+    ezResourceManager::EngineAboutToShutdown();
+
+    ezRenderContext::DeleteConstantBufferStorage(m_hSampleConstants);
+    m_hSampleConstants.Invalidate();
+
     m_pDevice->DestroyTexture(m_hDepthStencilTexture);
     m_hDepthStencilTexture.Invalidate();
 
@@ -414,7 +436,6 @@ public:
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
     desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
 
     desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
@@ -425,8 +446,7 @@ public:
       tc += ezVec2(0.5f);
 
       desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-      desc.SetVertexData<ezVec3>(1, v, ezVec3(0, 0, -1));
-      desc.SetVertexData<ezVec2>(2, v, tc);
+      desc.SetVertexData<ezVec2>(1, v, tc);
     }
 
     ezUInt32 t = 0;

@@ -347,6 +347,9 @@ void ezGameApplication::AfterCoreStartup()
 
 void ezGameApplication::BeforeCoreShutdown()
 {
+  // make sure that no textures are continue to be streamed in while the engine shuts down
+  ezResourceManager::EngineAboutToShutdown();
+
   DeactivateAllGameStates();
 
   DestroyAllGameStates();
