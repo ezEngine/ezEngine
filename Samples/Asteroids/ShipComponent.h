@@ -21,17 +21,16 @@ public:
 
   void SetIsShooting(bool b);
 
-  ezInt32 m_iHealth;
+  bool IsAlive() const { return m_fHealth > 0.0f; }
+
+  float m_fHealth;
   ezInt32 m_iPlayerIndex;
 
 private:
   ezVec3 m_vVelocity;
   bool m_bIsShooting;
-  ezInt32 m_iShootDelay;
-  ezInt32 m_iCurShootCooldown;
-  ezInt32 m_iAmmunition;
-  ezInt32 m_iMaxAmmunition;
-  ezInt32 m_iAmmoPerShot;
+  ezTime m_CurShootCooldown;
+  float m_fAmmunition;
 };
 
 

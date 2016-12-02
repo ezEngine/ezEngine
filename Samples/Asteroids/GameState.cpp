@@ -59,32 +59,13 @@ void AsteroidGameState::OnDeactivation()
 
   DestroyLevel();
 
-  EZ_DEFAULT_DELETE(m_pThumbstick);
-  EZ_DEFAULT_DELETE(m_pThumbstick2);
-
   ezGameState::OnDeactivation();
 }
 
 void AsteroidGameState::BeforeWorldUpdate()
 {
-  if (ezInputManager::GetInputActionState("Main", "ToggleThumbstick") == ezKeyState::Pressed)
-  {
-    m_pThumbstick->SetEnabled(!m_pThumbstick->IsEnabled());
-    m_pThumbstick2->SetEnabled(!m_pThumbstick2->IsEnabled());
-  }
-
-  if (ezInputManager::GetInputActionState("Main", "ToggleMouseShow") == ezKeyState::Pressed)
-  {
-    m_pMainWindow->GetInputDevice()->SetShowMouseCursor(!m_pMainWindow->GetInputDevice()->GetShowMouseCursor());
-  }
-
-  if (ezInputManager::GetInputActionState("Main", "ToggleMouseClip") == ezKeyState::Pressed)
-  {
-    m_pMainWindow->GetInputDevice()->SetClipMouseCursor(!m_pMainWindow->GetInputDevice()->GetClipMouseCursor());
-  }
-
   m_MainCamera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 40, -10, 10);
-  m_MainCamera.LookAt(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
+  m_MainCamera.LookAt(ezVec3::ZeroVector(), ezVec3(0, 0, 1), ezVec3(0, 1, 0));
 }
 
 void AsteroidGameState::ConfigureInputActions()
@@ -95,9 +76,6 @@ void AsteroidGameState::ConfigureInputActions()
   ezInputDeviceXBox360::GetDevice()->EnableVibration(3, true);
 
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
-  RegisterInputAction("Main", "ToggleThumbstick", ezInputSlot_KeyT);
-  RegisterInputAction("Main", "ToggleMouseShow", ezInputSlot_KeyM);
-  RegisterInputAction("Main", "ToggleMouseClip", ezInputSlot_KeyN);
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
@@ -121,28 +99,8 @@ void AsteroidGameState::ConfigureInputActions()
   RegisterInputAction("Game", "Player1_Left", nullptr, ezInputSlot_KeyA);
   RegisterInputAction("Game", "Player1_Right", nullptr, ezInputSlot_KeyD);
   RegisterInputAction("Game", "Player1_Shoot", nullptr, ezInputSlot_KeySpace);
-  RegisterInputAction("Game", "Player1_RotLeft", nullptr, ezInputSlot_KeyLeft, ezInputSlot_MouseMoveNegX);
-  RegisterInputAction("Game", "Player1_RotRight", nullptr, ezInputSlot_KeyRight, ezInputSlot_MouseMovePosX);
-
-  //RegisterInputAction("Game", "Player3_Forwards",   nullptr, ezInputSlot_MouseMoveNegY);
-  //RegisterInputAction("Game", "Player3_Backwards",  nullptr, ezInputSlot_MouseMovePosY);
-  //RegisterInputAction("Game", "Player3_Left",       nullptr, ezInputSlot_MouseMoveNegX);
-  //RegisterInputAction("Game", "Player3_Right",      nullptr, ezInputSlot_MouseMovePosX);
-  //RegisterInputAction("Game", "Player3_Shoot",      nullptr, ezInputSlot_MouseButton2);
-  //RegisterInputAction("Game", "Player3_RotLeft",    nullptr, ezInputSlot_MouseButton0);
-  //RegisterInputAction("Game", "Player3_RotRight",   nullptr, ezInputSlot_MouseButton1);
-
-  m_pThumbstick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-  m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f), 0.1f, 0.0f);
-  m_pThumbstick->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
-  m_pThumbstick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
-  m_pThumbstick->SetEnabled(false);
-
-  m_pThumbstick2 = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-  m_pThumbstick2->SetInputArea(ezVec2(0.2f, 0.1f), ezVec2(0.4f, 0.4f), 0.1f, 0.0f);
-  m_pThumbstick2->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
-  m_pThumbstick2->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_RightStick);
-  m_pThumbstick2->SetEnabled(false);
+  RegisterInputAction("Game", "Player1_RotLeft", nullptr, ezInputSlot_KeyLeft);
+  RegisterInputAction("Game", "Player1_RotRight", nullptr, ezInputSlot_KeyRight);
 }
 
 void AsteroidGameState::CreateGameLevel()

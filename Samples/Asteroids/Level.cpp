@@ -22,10 +22,6 @@ Level::Level()
   m_pWorld = nullptr;
 }
 
-Level::~Level()
-{
-}
-
 void Level::SetupLevel(ezWorld* pWorld)
 {
   m_pWorld = pWorld;
@@ -43,7 +39,7 @@ void Level::SetupLevel(ezWorld* pWorld)
   {
     ezGameObjectDesc obj;
     obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(120.0f));
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), -ezAngle::Degree(120.0f));
 
     ezGameObject* pObj;
     pWorld->CreateObject(obj, pObj);
@@ -108,26 +104,17 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   {
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity += 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal * 60.0f;
+    vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
   {
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity -= 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal * 60.0f;
+    vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
-  {
-    ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-3.0f * fVal * 60.0f));
-
-    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
-    pShip->SetLocalRotation(qNewRot);
-  }
-
-  if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
   {
     ezQuat qRotation;
     qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(3.0f * fVal * 60.0f));
@@ -136,9 +123,17 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
     pShip->SetLocalRotation(qNewRot);
   }
 
+  if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
+  {
+    ezQuat qRotation;
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-3.0f * fVal * 60.0f));
+
+    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
+    pShip->SetLocalRotation(qNewRot);
+  }
+
   if (!vVelocity.IsZero())
     pShipComponent->SetVelocity(vVelocity);
-
 
   if (ezInputManager::GetInputActionState("Game", sControls[6].GetData(), &fVal) != ezKeyState::Up)
     pShipComponent->SetIsShooting(true);

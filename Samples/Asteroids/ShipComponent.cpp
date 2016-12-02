@@ -5,20 +5,23 @@
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <Foundation/Configuration/CVar.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1);
 EZ_END_COMPONENT_TYPE
+
+ezCVarFloat CVar_MaxAmmo("g_MaxAmmo", 20.0f, ezCVarFlags::Default, "How much ammo a ship can store");
+ezCVarFloat CVar_MaxHealth("g_MaxHealth", 30.0f, ezCVarFlags::Default, "How much health a ship can have");
+ezCVarFloat CVar_ProjectileSpeed("g_ProjectileSpeed", 100.0f, ezCVarFlags::Default, "Projectile fly speed");
+ezCVarFloat CVar_ProjectileAmmoPerShot("g_AmmoPerShot", 0.2f, ezCVarFlags::Default, "Ammo used up per shot");
+ezCVarFloat CVar_ShotDelay("g_ShotDelay", 1.0 / 20.0, ezCVarFlags::Default, "Delay between each shot");
 
 ShipComponent::ShipComponent()
 {
   m_vVelocity.SetZero();
   m_bIsShooting = false;
-  m_iShootDelay = 2;//5;
-  m_iCurShootCooldown = 0;
-  m_iMaxAmmunition = 100;
-  m_iAmmunition = m_iMaxAmmunition / 2;
-  m_iAmmoPerShot = 10;
-  m_iHealth = 1000;
+  m_fAmmunition = CVar_MaxAmmo / 2.0f;
+  m_fHealth = CVar_MaxHealth;
   m_iPlayerIndex = -1;
 }
 
@@ -49,10 +52,10 @@ void ShipComponent::SetIsShooting(bool b)
 
 void ShipComponent::Update()
 {
-  if (m_iHealth <= 0)
+  if (!IsAlive())
     return;
 
-  const ezVec3 vShipDir = GetOwner()->GetLocalRotation() * ezVec3(0, 1, 0);
+  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
   if (!m_vVelocity.IsZero(0.001f))
   {
@@ -69,7 +72,7 @@ void ShipComponent::Update()
         if (pShipComponent->m_iPlayerIndex == m_iPlayerIndex)
           continue;
 
-        if (pShipComponent->m_iHealth <= 0)
+        if (!pShipComponent->IsAlive())
           continue;
       }
 
@@ -87,13 +90,13 @@ void ShipComponent::Update()
   GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + m_vVelocity);
   m_vVelocity *= 0.97f;
 
-  if (m_iCurShootCooldown > 0)
+  if (m_CurShootCooldown > ezTime::Seconds(0))
   {
-    --m_iCurShootCooldown;
+    m_CurShootCooldown -= tDiff;
   }
-  else if (m_bIsShooting && m_iAmmunition >= m_iAmmoPerShot)
+  else if (m_bIsShooting && m_fAmmunition >= CVar_ProjectileAmmoPerShot)
   {
-    m_iCurShootCooldown = m_iShootDelay;
+    m_CurShootCooldown = ezTime::Seconds(CVar_ShotDelay);
 
     ezGameObjectDesc desc;
     desc.m_LocalPosition = GetOwner()->GetLocalPosition();
@@ -107,7 +110,7 @@ void ShipComponent::Update()
       ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);
 
       pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
-      pProjectileComponent->m_vVelocity = vShipDir * ezMath::Max(m_vVelocity.GetLength(), 1.0f) * 1.0f;
+      pProjectileComponent->m_fSpeed = CVar_ProjectileSpeed;
       pProjectileComponent->m_bDoesDamage = true;
 
       pProjectile->AttachComponent(hProjectileComponent);
@@ -129,7 +132,7 @@ void ShipComponent::Update()
       pProjectile->AttachComponent(pMeshComponent);
     }
 
-    m_iAmmunition -= m_iAmmoPerShot;
+    m_fAmmunition -= CVar_ProjectileAmmoPerShot;
 
     float ShootTrack[20] =
     {
@@ -140,8 +143,8 @@ void ShipComponent::Update()
     ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(m_iPlayerIndex, ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
   }
 
-  m_iAmmunition = ezMath::Clamp(m_iAmmunition + 1, 0, m_iMaxAmmunition);
-  m_iHealth = ezMath::Clamp(m_iHealth + 1, 0, 1000);
+  m_fAmmunition = ezMath::Clamp<float>(m_fAmmunition + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxAmmo);
+  m_fHealth = ezMath::Clamp<float>(m_fHealth + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxHealth);
 
 
   ezVec3 vCurPos = GetOwner()->GetLocalPosition();
@@ -155,14 +158,14 @@ void ShipComponent::Update()
 
   {
     s.Format("Game/Player%i/Health", m_iPlayerIndex);
-    v.Format("%i", m_iHealth);
+    v.Format("%f", m_fHealth);
 
     ezStats::SetStat(s.GetData(), v.GetData());
   }
 
   {
     s.Format("Game/Player%i/Ammo", m_iPlayerIndex);
-    v.Format("%i", m_iAmmunition);
+    v.Format("%f", m_fAmmunition);
 
     ezStats::SetStat(s.GetData(), v.GetData());
   }

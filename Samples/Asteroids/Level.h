@@ -15,7 +15,6 @@ class Level
 {
 public:
   Level();
-  ~Level();
 
   void SetupLevel(ezWorld* pWorld);
   void UpdatePlayerInput(ezInt32 iPlayer);

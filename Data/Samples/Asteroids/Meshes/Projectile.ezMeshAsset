@@ -12,7 +12,7 @@ o
 		b %Cap2{1}
 		u2 %Detail{1}
 		u2 %Detail2{1}
-		s %ForwardDir{"ezBasisAxis::PositiveY"}
+		s %ForwardDir{"ezBasisAxis::PositiveZ"}
 		f %Height{0x3333333F}
 		b %ImportMaterials{1}
 		VarArray %Materials
@@ -24,10 +24,10 @@ o
 		s %PrimitiveType{"ezMeshPrimitive::Capsule"}
 		f %Radius{0xCDCCCC3D}
 		f %Radius2{0x0000003F}
-		s %RightDir{"ezBasisAxis::PositiveZ"}
+		s %RightDir{"ezBasisAxis::PositiveX"}
 		s %SubmeshName{""}
 		f %UniformScaling{0x0000803F}
-		s %UpDir{"ezBasisAxis::PositiveX"}
+		s %UpDir{"ezBasisAxis::PositiveY"}
 		b %UseSubfolderForMaterialImport{0}
 	}
 }
@@ -56,7 +56,7 @@ AssetInfo
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1276401254243345597,5649675885248166652}}
-		u4 %Hash{17266605091348883959}
+		u4 %Hash{10718816696127465132}
 		VarArray %References
 		{
 			s{"{ df8d2a0d-6a38-49ab-b7a6-710dd992be12 }"}

@@ -16,9 +16,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override {}
   virtual void DeserializeComponent(ezWorldReader& stream) override {}
 
-  ezInt32 m_iTimeToLive;
-  ezVec3 m_vVelocity;
-  ezVec3 m_vDrawDir;
+  ezTime m_TimeToLive;
+  float m_fSpeed;
   ezInt32 m_iBelongsToPlayer;
   bool m_bDoesDamage;
 };

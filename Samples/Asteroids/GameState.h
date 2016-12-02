@@ -27,7 +27,4 @@ private:
   virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 
   Level* m_pLevel;
-
-  ezVirtualThumbStick* m_pThumbstick;
-  ezVirtualThumbStick* m_pThumbstick2;
 };

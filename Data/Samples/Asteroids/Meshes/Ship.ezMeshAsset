@@ -11,7 +11,7 @@ AssetInfo
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8348646499261283766,5355211544799573975}}
-		u4 %Hash{16377958439500489876}
+		u4 %Hash{3492432932734400744}
 		VarArray %References
 		{
 			s{"{ 4d474e6b-321a-43dd-803e-25d58acf4b20 }"}
@@ -44,7 +44,7 @@ o
 		b %Cap2{1}
 		u2 %Detail{16}
 		u2 %Detail2{1}
-		s %ForwardDir{"ezBasisAxis::PositiveY"}
+		s %ForwardDir{"ezBasisAxis::PositiveZ"}
 		f %Height{0x0000803F}
 		b %ImportMaterials{1}
 		VarArray %Materials
@@ -56,10 +56,10 @@ o
 		s %PrimitiveType{"ezMeshPrimitive::Cone"}
 		f %Radius{0x9A99993E}
 		f %Radius2{0x0000003F}
-		s %RightDir{"ezBasisAxis::PositiveZ"}
+		s %RightDir{"ezBasisAxis::PositiveX"}
 		s %SubmeshName{""}
 		f %UniformScaling{0x00000040}
-		s %UpDir{"ezBasisAxis::PositiveX"}
+		s %UpDir{"ezBasisAxis::PositiveY"}
 		b %UseSubfolderForMaterialImport{0}
 	}
 }

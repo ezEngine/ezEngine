@@ -7,12 +7,17 @@
 EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1);
 EZ_END_COMPONENT_TYPE
 
-ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "cvar float");
-ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "cvar float");
+ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "");
+ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "");
 
 AsteroidComponent::AsteroidComponent()
 {
-  m_fRotationSpeed = ((rand() % 1000) / 999.0f) * 2.0f - 1.0f;
+
+}
+
+void AsteroidComponent::OnSimulationStarted()
+{
+  m_fRotationSpeed = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(-1.0, 1.0);
 }
 
 void AsteroidComponent::Update()
@@ -21,7 +26,7 @@ void AsteroidComponent::Update()
 
   ezQuat qRot;
   qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Radian(m_fRotationSpeed * fTimeDiff));
-  
+
   GetOwner()->SetLocalRotation(qRot * GetOwner()->GetLocalRotation());
 
   const ezVec3 vOwnPos = GetOwner()->GetLocalPosition();

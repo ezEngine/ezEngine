@@ -26,6 +26,9 @@ public:
   /// \brief Creates an instance of ezTime that was initialized from seconds.
   static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
 
+  /// \brief Creates an instance of ezTime that was initialized with zero.
+  static ezTime Zero() { return ezTime(0.0); }
+
   EZ_DECLARE_POD_TYPE();
 
   /// \brief The default constructor sets the time to zero.
@@ -33,7 +36,10 @@ public:
 
   /// \brief Sets the time value to zero.
   void SetZero();
-  
+
+  /// \brief Returns true if the stored time is zero or negative.
+  bool IsZeroOrLess() const { return m_fTime <= 0.0; }
+
   /// \brief Returns the time as a float value (in seconds).
   ///
   /// Useful for simulation time steps etc.
