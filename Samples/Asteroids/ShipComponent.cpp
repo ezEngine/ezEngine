@@ -4,6 +4,7 @@
 #include "CollidableComponent.h"
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Utilities/Stats.h>
+#include <RendererCore/Meshes/MeshComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1);
 EZ_END_COMPONENT_TYPE
@@ -96,18 +97,37 @@ void ShipComponent::Update()
 
     ezGameObjectDesc desc;
     desc.m_LocalPosition = GetOwner()->GetLocalPosition();
+    desc.m_LocalRotation = GetOwner()->GetGlobalRotation();
 
     ezGameObject* pProjectile = nullptr;
     ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
 
-    ProjectileComponent* pProjectileComponent = nullptr;
-    ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);
+    {
+      ProjectileComponent* pProjectileComponent = nullptr;
+      ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);
 
-    pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
-    pProjectileComponent->m_vVelocity = vShipDir * ezMath::Max(m_vVelocity.GetLength(), 1.0f) * 1.0f;
-    pProjectileComponent->m_bDoesDamage = true;
+      pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
+      pProjectileComponent->m_vVelocity = vShipDir * ezMath::Max(m_vVelocity.GetLength(), 1.0f) * 1.0f;
+      pProjectileComponent->m_bDoesDamage = true;
 
-    pProjectile->AttachComponent(hProjectileComponent);
+      pProjectile->AttachComponent(hProjectileComponent);
+    }
+
+    // ProjectileMesh
+    {
+      ezMeshComponent* pMeshComponent = nullptr;
+      ezMeshComponent::CreateComponent(GetWorld(), pMeshComponent);
+
+      pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("ProjectileMesh"));
+
+      // this only works because the materials are part of the Asset Collection and get a name like this from there
+      // otherwise we would need to have the GUIDs of the 4 different material assets available
+      ezStringBuilder sMaterialName;
+      sMaterialName.Format("MaterialPlayer%i", m_iPlayerIndex + 1);
+      pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
+
+      pProjectile->AttachComponent(pMeshComponent);
+    }
 
     m_iAmmunition -= m_iAmmoPerShot;
 

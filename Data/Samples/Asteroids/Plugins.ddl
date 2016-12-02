@@ -16,7 +16,7 @@ Plugin
 Plugin
 {
 	string %Path{"ezParticlePlugin"}
-	string %DependencyOf{"EditorPluginParticle"}
+	string %DependencyOf{"<manual>","EditorPluginParticle"}
 }
 Plugin
 {

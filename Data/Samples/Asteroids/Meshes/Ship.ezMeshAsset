@@ -1,0 +1,78 @@
+Objects
+{
+AssetInfo
+{
+	Uuid %id{u4{8348646499261283766,5355211544799573975}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{8348646499261283766,5355211544799573975}}
+		u4 %Hash{16377958439500489876}
+		VarArray %References
+		{
+			s{"{ 4d474e6b-321a-43dd-803e-25d58acf4b20 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16731653731763387521,5666732073505118416}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16731653731763387521,5666732073505118416}}
+	s %t{"ezMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		f %Angle{0x0000B443}
+		b %Cap{1}
+		b %Cap2{1}
+		u2 %Detail{16}
+		u2 %Detail2{1}
+		s %ForwardDir{"ezBasisAxis::PositiveY"}
+		f %Height{0x0000803F}
+		b %ImportMaterials{1}
+		VarArray %Materials
+		{
+			Uuid{u4{10170263775183780532,11154852788060508939}}
+		}
+		s %MeshFile{""}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %PrimitiveType{"ezMeshPrimitive::Cone"}
+		f %Radius{0x9A99993E}
+		f %Radius2{0x0000003F}
+		s %RightDir{"ezBasisAxis::PositiveZ"}
+		s %SubmeshName{""}
+		f %UniformScaling{0x00000040}
+		s %UpDir{"ezBasisAxis::PositiveX"}
+		b %UseSubfolderForMaterialImport{0}
+	}
+}
+o
+{
+	Uuid %id{u4{10170263775183780532,11154852788060508939}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Default"}
+		s %Resource{"{ 4d474e6b-321a-43dd-803e-25d58acf4b20 }"}
+	}
+}
+}
+Types{}

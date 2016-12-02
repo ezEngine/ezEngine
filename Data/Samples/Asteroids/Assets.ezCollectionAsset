@@ -1,0 +1,151 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{9270544859447481473,4673194972576658521}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ e0d977d7-8886-4a51-b6fd-c60fc259dc73 }"}
+		s %Name{"ShipMesh"}
+	}
+}
+o
+{
+	Uuid %id{u4{9822274527894313619,4739085018775030777}}
+	s %t{"ezCollectionAssetData"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Entries
+		{
+			Uuid{u4{3081505819579509923,5670619814149806361}}
+			Uuid{u4{3985131387811228346,5604275202225765807}}
+			Uuid{u4{9270544859447481473,4673194972576658521}}
+			Uuid{u4{4224216728103596442,5410400248052467075}}
+			Uuid{u4{15830477711031091889,5001804991231338994}}
+			Uuid{u4{8246294154447366066,5652307840528890526}}
+			Uuid{u4{2352616944818272955,5471803948580538559}}
+			Uuid{u4{1885048385830581153,5363585414773755396}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15830477711031091889,5001804991231338994}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 42a5822e-ea83-472d-824e-ad9a4b9cf666 }"}
+		s %Name{"MaterialPlayer2"}
+	}
+}
+o
+{
+	Uuid %id{u4{1885048385830581153,5363585414773755396}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ cc4ebafc-ae48-4e67-bda4-09962db0b611 }"}
+		s %Name{"ProjectileMesh"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9822274527894313619,4739085018775030777}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{3499769407349431222,5399866658602215752}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Collection"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{3499769407349431222,5399866658602215752}}
+		u4 %Hash{1252837369721982080}
+		VarArray %References
+		{
+			s{"{ 263fda3b-aae4-4ddb-9d6c-8c6cd7477e7c }"}
+			s{"{ 2f774bb6-5c47-422d-9383-bf5ecae4cf56 }"}
+			s{"{ 38c808bf-eac8-41ed-8321-04d37e0310f9 }"}
+			s{"{ 42a5822e-ea83-472d-824e-ad9a4b9cf666 }"}
+			s{"{ c3029e56-97a2-493c-b179-527127802668 }"}
+			s{"{ cc4ebafc-ae48-4e67-bda4-09962db0b611 }"}
+			s{"{ cedca7a9-1390-4aab-8aae-a5992ea3d395 }"}
+			s{"{ e0d977d7-8886-4a51-b6fd-c60fc259dc73 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4224216728103596442,5410400248052467075}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ cedca7a9-1390-4aab-8aae-a5992ea3d395 }"}
+		s %Name{"MaterialPlayer1"}
+	}
+}
+o
+{
+	Uuid %id{u4{2352616944818272955,5471803948580538559}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 38c808bf-eac8-41ed-8321-04d37e0310f9 }"}
+		s %Name{"MaterialPlayer4"}
+	}
+}
+o
+{
+	Uuid %id{u4{3985131387811228346,5604275202225765807}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ c3029e56-97a2-493c-b179-527127802668 }"}
+		s %Name{"AsteroidMaterial"}
+	}
+}
+o
+{
+	Uuid %id{u4{8246294154447366066,5652307840528890526}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 2f774bb6-5c47-422d-9383-bf5ecae4cf56 }"}
+		s %Name{"MaterialPlayer3"}
+	}
+}
+o
+{
+	Uuid %id{u4{3081505819579509923,5670619814149806361}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 263fda3b-aae4-4ddb-9d6c-8c6cd7477e7c }"}
+		s %Name{"AsteroidMesh"}
+	}
+}
+}
+Types{}

@@ -5,6 +5,7 @@
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
+#include <RendererCore/Meshes/MeshComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1);
 EZ_END_COMPONENT_TYPE
@@ -83,7 +84,7 @@ void ProjectileComponent::Update()
 
         const float fAngle = 10.0f + (rand() % 90);
         const float fSteps = fAngle / iMaxParticles;
-        
+
         for (ezInt32 i = 0; i < iMaxParticles; ++i)
         {
           ezQuat qRot;
@@ -93,6 +94,7 @@ void ProjectileComponent::Update()
           {
             ezGameObjectDesc desc;
             desc.m_LocalPosition = GetOwner()->GetLocalPosition();
+            desc.m_LocalRotation = qRot * GetOwner()->GetLocalRotation();
 
             ezGameObject* pProjectile = nullptr;
             ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
@@ -103,6 +105,22 @@ void ProjectileComponent::Update()
             pProjectileComponent->m_iBelongsToPlayer = pShipComponent->m_iPlayerIndex;
             pProjectileComponent->m_vVelocity = vDir * (1.0f + ((rand() % 1000) / 999.0f));
             pProjectileComponent->m_bDoesDamage = false;
+
+            // ProjectileMesh
+            {
+              ezMeshComponent* pMeshComponent = nullptr;
+              ezMeshComponent::CreateComponent(GetWorld(), pMeshComponent);
+
+              pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("ProjectileMesh"));
+
+              // this only works because the materials are part of the Asset Collection and get a name like this from there
+              // otherwise we would need to have the GUIDs of the 4 different material assets available
+              ezStringBuilder sMaterialName;
+              sMaterialName.Format("MaterialPlayer%i", pShipComponent->m_iPlayerIndex + 1);
+              pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
+
+              pProjectile->AttachComponent(pMeshComponent);
+            }
 
             pProjectile->AttachComponent(hProjectileComponent);
           }

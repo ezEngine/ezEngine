@@ -82,6 +82,9 @@ void AsteroidGameState::BeforeWorldUpdate()
   {
     m_pMainWindow->GetInputDevice()->SetClipMouseCursor(!m_pMainWindow->GetInputDevice()->GetClipMouseCursor());
   }
+
+  m_MainCamera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 40, -10, 10);
+  m_MainCamera.LookAt(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
 }
 
 void AsteroidGameState::ConfigureInputActions()
@@ -108,8 +111,6 @@ void AsteroidGameState::ConfigureInputActions()
       sKey.Format("controller%i_%s", iPlayer, szControlerKeys[iAction]);
 
       RegisterInputAction("Game", sAction.GetData(), sKey.GetData());
-
-
     }
   }
 
@@ -163,4 +164,11 @@ float AsteroidGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* p
   return 1.0f;
 }
 
+void AsteroidGameState::ProcessInput()
+{
+  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+
+  for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
+    m_pLevel->UpdatePlayerInput(iPlayer);
+}
 

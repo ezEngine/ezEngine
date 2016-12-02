@@ -11,6 +11,8 @@ class AsteroidGameState : public ezGameState
 public:
   AsteroidGameState();
 
+  virtual void ProcessInput() override;
+
 protected:
   virtual void ConfigureInputActions() override;
 
