@@ -4,7 +4,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
 EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::None, ezViewRenderMode::WireframeColor, ezViewRenderMode::WireframeMonochrome, ezViewRenderMode::LitOnly, ezViewRenderMode::TexCoordsUV0)
-EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::Normals, ezViewRenderMode::DiffuseColor, ezViewRenderMode::DiffuseColorRange, ezViewRenderMode::SpecularColor)
+EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::Normals, ezViewRenderMode::Tangents, ezViewRenderMode::DiffuseColor, ezViewRenderMode::DiffuseColorRange, ezViewRenderMode::SpecularColor)
 EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::EmissiveColor, ezViewRenderMode::Roughness, ezViewRenderMode::Occlusion, ezViewRenderMode::Depth)
 EZ_END_STATIC_REFLECTED_ENUM();
 

@@ -38,7 +38,7 @@ public:
   {
     // Reverses the order of vertices.
     void FlipWinding();
-    
+
     ezVec3 m_vNormal;
     ezHybridArray<ezUInt32, 4> m_Vertices;
   };
@@ -75,6 +75,11 @@ public:
 
   /// \brief Adds a line.
   void AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex);
+
+  /// \brief Triangulates all polygons that have more than \a uiMaxVerticesInPolygon vertices.
+  ///
+  /// Set \a uiMaxVerticesInPolygon to 4, if you want to keep quads unchanged.
+  void TriangulatePolygons(ezUInt32 uiMaxVerticesInPolygon = 3);
 
   /// \brief Computes normals for all polygons from the current vertex positions. Call this when you do not intend to make further modifications.
   void ComputeFaceNormals();

@@ -221,7 +221,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
     }
     else if (pProp->m_PrimitiveType == ezMeshPrimitive::GeodesicSphere)
     {
-      geom.AddGeodesicSphere(pProp->m_fRadius, pProp->m_uiDetail, ezColor::White, mTrans);
+      geom.AddGeodesicSphere(pProp->m_fRadius, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 0, 6), ezColor::White, mTrans);
     }
     else if (pProp->m_PrimitiveType == ezMeshPrimitive::HalfSphere)
     {
@@ -244,6 +244,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
       geom.AddTorus(pProp->m_fRadius, ezMath::Max(pProp->m_fRadius + 0.01f, pProp->m_fRadius2), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail2), ezColor::White, mTrans);
     }
 
+    geom.TriangulatePolygons(4);
     geom.ComputeTangents();
     CreateMeshFromGeom(pProp, geom, desc);
   }

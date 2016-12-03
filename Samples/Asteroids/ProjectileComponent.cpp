@@ -12,8 +12,8 @@ EZ_END_COMPONENT_TYPE
 
 ezCVarFloat CVar_ProjectileTimeToLive("g_ProjectileTimeToLive", 0.5f, ezCVarFlags::Default, "Projectile time to Live");
 ezCVarFloat CVar_SparksTimeToLive("g_SparksTimeToLive", 3.0f, ezCVarFlags::Default, "Projectile time to fade out");
-ezCVarInt CVar_ParticlesPerHit("g_ParticlesPerHit", 50, ezCVarFlags::Default, "Number of particles spawned when projectile hits a ship");
-ezCVarFloat CVar_ProjectileDamage("g_ProjectileDamage", 2.0f, ezCVarFlags::Default, "How much damage a projectile makes");
+ezCVarInt CVar_SparksPerHit("g_SparksPerHit", 50, ezCVarFlags::Default, "Number of particles spawned when projectile hits a ship");
+ezCVarFloat CVar_ProjectileDamage("g_ProjectileDamage", 0.0f, ezCVarFlags::Default, "How much damage a projectile makes");
 ezCVarFloat CVar_SparksSpeed("g_SparksSpeed", 50.0f, ezCVarFlags::Default, "Projectile fly speed");
 
 ProjectileComponent::ProjectileComponent()
@@ -38,9 +38,16 @@ void ProjectileComponent::Update()
   if (m_TimeToLive.IsZeroOrLess())
     return;
 
+  if (m_fSpeed <= 0.0f)
+    return;
+
   const ezVec3 vVelocity = GetOwner()->GetLocalRotation() * ezVec3(m_fSpeed, 0, 0);
   const ezVec3 vDistance = (float)tDiff.GetSeconds() * vVelocity;
   GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + vDistance);
+
+  // Deactivate the rest of the function, if you want to profile overall engine performance
+  //if (!m_bDoesDamage)
+  //  return;
 
   CollidableComponentManager* pCollidableManager = GetWorld()->GetOrCreateComponentManager<CollidableComponentManager>();
 
@@ -80,12 +87,12 @@ void ProjectileComponent::Update()
         }
 
         const float fAngle = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(10.0, 100.0);
-        const float fSteps = fAngle / CVar_ParticlesPerHit;
+        const float fSteps = fAngle / CVar_SparksPerHit;
 
-        for (ezInt32 i = 0; i < CVar_ParticlesPerHit; ++i)
+        for (ezInt32 i = 0; i < CVar_SparksPerHit; ++i)
         {
           ezQuat qRot;
-          qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree((i - (CVar_ParticlesPerHit / 2)) * fSteps));
+          qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree((i - (CVar_SparksPerHit / 2)) * fSteps));
 
           {
             ezGameObjectDesc desc;

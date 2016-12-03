@@ -123,6 +123,36 @@ void ezGeometry::AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex)
   m_Lines.PushBack(l);
 }
 
+
+void ezGeometry::TriangulatePolygons(ezUInt32 uiMaxVerticesInPolygon /*= 3*/)
+{
+  EZ_ASSERT_DEV(uiMaxVerticesInPolygon >= 3, "Can't triangulate polygons that are already triangles.");
+  uiMaxVerticesInPolygon = ezMath::Max<ezUInt32>(uiMaxVerticesInPolygon, 3);
+
+  const ezUInt32 uiNumPolys = m_Polygons.GetCount();
+
+  for (ezUInt32 p = 0; p < uiNumPolys; ++p)
+  {
+    const auto& poly = m_Polygons[p];
+
+    const ezUInt32 uiNumVerts = poly.m_Vertices.GetCount();
+    if (uiNumVerts > uiMaxVerticesInPolygon)
+    {
+      for (ezUInt32 v = 2; v < uiNumVerts; ++v)
+      {
+        auto& tri = m_Polygons.ExpandAndGetRef();
+        tri.m_vNormal = poly.m_vNormal;
+        tri.m_Vertices.SetCount(3);
+        tri.m_Vertices[0] = poly.m_Vertices[0];
+        tri.m_Vertices[1] = poly.m_Vertices[v - 1];
+        tri.m_Vertices[2] = poly.m_Vertices[v];
+      }
+
+      m_Polygons.RemoveAtSwap(p);
+    }
+  }
+}
+
 void ezGeometry::ComputeFaceNormals()
 {
   for (ezUInt32 p = 0; p < m_Polygons.GetCount(); ++p)
@@ -231,6 +261,12 @@ struct TangentContext
     context.m_Polygons[iFace].m_Vertices[iVert] = iNewVertexIndex;
   }
 
+  static void setTSpace(const SMikkTSpaceContext * pContext, const float fvTangent[], const float fvBiTangent[], const float fMagS, const float fMagT,
+                        const tbool bIsOrientationPreserving, const int iFace, const int iVert)
+  {
+    int i = 0;
+    (void)i;
+  }
 
   ezGeometry* m_pGeom;
   ezMap<ezGeometry::Vertex, ezUInt32> m_VertMap;
@@ -240,6 +276,15 @@ struct TangentContext
 
 void ezGeometry::ComputeTangents()
 {
+  for (ezUInt32 i = 0; i < m_Polygons.GetCount(); ++i)
+  {
+    if (m_Polygons[i].m_Vertices.GetCount() > 4)
+    {
+      ezLog::Error("Tangent generation does not support polygons with more than 4 vertices");
+      break;
+    }
+  }
+
   SMikkTSpaceInterface sMikkTInterface;
   sMikkTInterface.m_getNumFaces = &TangentContext::getNumFaces;
   sMikkTInterface.m_getNumVerticesOfFace = &TangentContext::getNumVerticesOfFace;
@@ -247,7 +292,7 @@ void ezGeometry::ComputeTangents()
   sMikkTInterface.m_getNormal = &TangentContext::getNormal;
   sMikkTInterface.m_getTexCoord = &TangentContext::getTexCoord;
   sMikkTInterface.m_setTSpaceBasic = &TangentContext::setTSpaceBasic;
-  sMikkTInterface.m_setTSpace = nullptr;
+  sMikkTInterface.m_setTSpace = &TangentContext::setTSpace;
   TangentContext context(this);
 
   SMikkTSpaceContext sMikkTContext;
@@ -532,7 +577,7 @@ void ezGeometry::AddPyramid(const ezVec3& size, bool bCap, const ezColor& color,
   quad[1] = AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(1, 1, 0).GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
   quad[2] = AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(1, -1, 0).GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
   quad[3] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(-1, -1, 0).GetNormalized(), ezVec2(0), color, iCustomIndex, mTransform);
-  
+
   const ezUInt32 tip = AddVertex(ezVec3(0, 0, size.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
 
   if (bCap)
@@ -766,7 +811,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
       quad[1] = VertsBottom[i];
       quad[2] = VertsTop[i];
       quad[3] = VertsTop[i - 1];
-      
+
 
       AddPolygon(quad, bFlipWinding);
     }
@@ -785,7 +830,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
     quad[1] = AddVertex(vTopCenter, vNrm0, ezVec2(1, 0), color, iCustomIndex, mTransform);
     quad[2] = AddVertex(vBottomCenter, vNrm0, ezVec2(1, 1), color, iCustomIndex, mTransform);
     quad[3] = AddVertex(vBottomCenter + vDir0 * fRadiusBottom, vNrm0, ezVec2(0, 1), color, iCustomIndex, mTransform);
-    
+
 
     AddPolygon(quad, bFlipWinding);
 
@@ -807,7 +852,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
       VertsBottom.PushBack(AddVertex(vBottomCenter, ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform));
     }
 
-    for (ezInt32 i = uiSegments; i >= 0; --i)
+    for (ezInt32 i = uiSegments - 1; i >= 0; --i)
     {
       const ezAngle deg = (float)i * fDegStep;
 
@@ -831,7 +876,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
       VertsTop.PushBack(AddVertex(vTopCenter, ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform));
     }
 
-    for (ezInt32 i = 0; i <= uiSegments; ++i)
+    for (ezInt32 i = 0; i < uiSegments; ++i)
     {
       const ezAngle deg = (float)i * fDegStep;
 
@@ -840,7 +885,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
 
       const ezVec3 vDir(fX, fY, 0);
 
-      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusBottom, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform));
+      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform));
     }
 
     AddPolygon(VertsTop, bFlipWinding);

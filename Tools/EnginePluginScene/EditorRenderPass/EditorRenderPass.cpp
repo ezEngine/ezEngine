@@ -50,6 +50,10 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_NORMALS;
     break;
+  case ezViewRenderMode::Tangents:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_TANGENTS;
+    break;
   case ezViewRenderMode::DiffuseColor:
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_DIFFUSE_COLOR;

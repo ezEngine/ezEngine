@@ -48,8 +48,6 @@ void AsteroidGameState::OnActivation(ezWorld* pWorld)
 
   ezGameState::OnActivation(pWorld);
 
-  srand((ezUInt32)ezTime::Now().GetMicroseconds());
-
   CreateGameLevel();
 }
 

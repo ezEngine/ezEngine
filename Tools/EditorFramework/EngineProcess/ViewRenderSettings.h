@@ -17,6 +17,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezViewRenderMode
     LitOnly,
     TexCoordsUV0,
     Normals,
+    Tangents,
     DiffuseColor,
     DiffuseColorRange,
     SpecularColor,
