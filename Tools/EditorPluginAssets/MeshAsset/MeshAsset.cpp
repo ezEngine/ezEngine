@@ -589,7 +589,7 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* importFolder, c
     ezDocumentObject* pTextureAsset = textureDocument->GetPropertyObject();
 
     // Set filename.
-    pAccessor->SetValue(pTextureAsset, "Input 1", relTexturePath.GetData()).LogFailure();
+    pAccessor->SetValue(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 
     // Try to map usage.
     ezEnum<ezTextureUsageEnum> usage;
@@ -717,7 +717,7 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
 
 
   // Set base material.
-  ezStatus res = pAccessor->SetValue(pMaterialAsset, "Base Material", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial()));
+  ezStatus res = pAccessor->SetValue(pMaterialAsset, "BaseMaterial", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial()));
   res.LogFailure();
   if (res.Failed())
     return;

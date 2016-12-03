@@ -286,7 +286,7 @@ void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStat
 {
   if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezMaterialAssetProperties"))
   {
-    ezInt64 shaderMode = e.m_pObject->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>();
+    ezInt64 shaderMode = e.m_pObject->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>();
 
     auto& props = *e.m_pPropertyStates;
 
@@ -296,9 +296,9 @@ void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStat
     //  props["Shader"].m_Visibility = ezPropertyUiState::Invisible;
 
     //if (shaderMode == ezMaterialShaderMode::BaseMaterial)
-    //  props["Base Material"].m_Visibility = ezPropertyUiState::Default;
+    //  props["BaseMaterial"].m_Visibility = ezPropertyUiState::Default;
     //else
-    //  props["Base Material"].m_Visibility = ezPropertyUiState::Invisible;
+    //  props["BaseMaterial"].m_Visibility = ezPropertyUiState::Invisible;
   }
 }
 

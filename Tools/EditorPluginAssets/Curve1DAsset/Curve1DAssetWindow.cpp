@@ -192,7 +192,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 
 
   const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
   const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("Control Points", cpIdx);
+  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
@@ -211,7 +211,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt3
 
   const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
   const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("Control Points", cpIdx);
+  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
@@ -227,7 +227,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUI
 
   const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
   const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
-  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("Control Points", cpIdx);
+  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();

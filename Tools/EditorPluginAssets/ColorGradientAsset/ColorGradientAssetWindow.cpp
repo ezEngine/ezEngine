@@ -106,7 +106,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, co
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
   cmdAdd.m_NewObjectGuid.CreateNewUuid();
-  cmdAdd.m_sParentProperty = "Color CPs";
+  cmdAdd.m_sParentProperty = "ColorCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezColorControlPoint>();
   cmdAdd.m_Index = -1;
 
@@ -145,7 +145,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ez
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
   cmdAdd.m_NewObjectGuid.CreateNewUuid();
-  cmdAdd.m_sParentProperty = "Alpha CPs";
+  cmdAdd.m_sParentProperty = "AlphaCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezAlphaControlPoint>();
   cmdAdd.m_Index = -1;
 
@@ -176,7 +176,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
   cmdAdd.m_NewObjectGuid.CreateNewUuid();
-  cmdAdd.m_sParentProperty = "Intensity CPs";
+  cmdAdd.m_sParentProperty = "IntensityCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezIntensityControlPoint>();
   cmdAdd.m_Index = -1;
 
@@ -219,18 +219,18 @@ void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, co
 
 void ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, float newPosX)
 {
-  MoveCP(idx, newPosX, "Color CPs");
+  MoveCP(idx, newPosX, "ColorCPs");
 }
 
 void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, float newPosX)
 {
-  MoveCP(idx, newPosX, "Alpha CPs");
+  MoveCP(idx, newPosX, "AlphaCPs");
 }
 
 
 void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, float newPosX)
 {
-  MoveCP(idx, newPosX, "Intensity CPs");
+  MoveCP(idx, newPosX, "IntensityCPs");
 }
 
 void ezQtColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szArrayName)
@@ -253,19 +253,19 @@ void ezQtColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szA
 
 void ezQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted(ezInt32 idx)
 {
-  RemoveCP(idx, "Color CPs");
+  RemoveCP(idx, "ColorCPs");
 }
 
 
 void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted(ezInt32 idx)
 {
-  RemoveCP(idx, "Alpha CPs");
+  RemoveCP(idx, "AlphaCPs");
 }
 
 
 void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted(ezInt32 idx)
 {
-  RemoveCP(idx, "Intensity CPs");
+  RemoveCP(idx, "IntensityCPs");
 }
 
 
@@ -274,7 +274,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx,
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("Color CPs", idx);
+  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("ColorCPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Color");
@@ -303,7 +303,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx,
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("Alpha CPs", idx);
+  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("AlphaCPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Alpha");
@@ -323,7 +323,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("Intensity CPs", idx);
+  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("IntensityCPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Intensity");
@@ -389,7 +389,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
     x -= minX;
     x *= rangeNorm;
 
-    MoveCP(i, x, "Color CPs");
+    MoveCP(i, x, "ColorCPs");
   }
 
   for (ezUInt32 i = 0; i < numAlpha; ++i)
@@ -398,7 +398,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
     x -= minX;
     x *= rangeNorm;
 
-    MoveCP(i, x, "Alpha CPs");
+    MoveCP(i, x, "AlphaCPs");
   }
 
   for (ezUInt32 i = 0; i < numInt; ++i)
@@ -407,7 +407,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
     x -= minX;
     x *= rangeNorm;
 
-    MoveCP(i, x, "Intensity CPs");
+    MoveCP(i, x, "IntensityCPs");
   }
 
   history->FinishTransaction();

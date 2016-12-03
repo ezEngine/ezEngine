@@ -116,7 +116,7 @@ ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
   if (bCustom)
   {
@@ -177,7 +177,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
 
 void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_pObject == GetMaterialDocument()->GetPropertyObject() && e.m_sProperty == "Shader Mode")
+  if (e.m_pObject == GetMaterialDocument()->GetPropertyObject() && e.m_sProperty == "ShaderMode")
   {
     UpdateNodeEditorVisibility();
   }
@@ -235,7 +235,7 @@ void ezQtMaterialAssetDocumentWindow::RestoreResource()
 
 void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("Shader Mode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
+  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
   if (m_bVisualShaderEnabled != bCustom)
   {

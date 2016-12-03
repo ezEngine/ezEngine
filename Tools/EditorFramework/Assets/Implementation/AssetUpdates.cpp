@@ -507,12 +507,6 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
   {
-    if (pAssetInfo->m_TransformState != state)
-    {
-      pAssetInfo->m_TransformState = state;
-      m_TransformStateChanged.Insert(assetGuid);
-    }
-
     switch (state)
     {
     case ezAssetInfo::TransformState::Unknown:
@@ -576,7 +570,11 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
         m_TransformStateMissingDependency.Remove(assetGuid);
         m_TransformStateMissingReference.Remove(assetGuid);
         ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
-        ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+
+        if (pAssetInfo->m_TransformState != state)
+        {
+          ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+        }
       }
       break;
     case ezAssetInfo::TransformState::MissingDependency:
@@ -595,6 +593,12 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       m_TransformStateMissingDependency.Remove(assetGuid);
       m_TransformStateMissingReference.Insert(assetGuid);
       break;
+    }
+
+    if (pAssetInfo->m_TransformState != state)
+    {
+      pAssetInfo->m_TransformState = state;
+      m_TransformStateChanged.Insert(assetGuid);
     }
   }
 }

@@ -169,9 +169,9 @@ void ezQtSceneImportDlg::on_accepted()
       pAccessor->StartTransaction("Set Mesh and Submesh (Scene Import)");
 
       ezDocumentObject* pMeshAsset = meshDocument->GetPropertyObject();
-      pAccessor->SetValue(pMeshAsset, "Mesh File", inputFilename.GetData()).LogFailure();
-      pAccessor->SetValue(pMeshAsset, "Submesh Name", meshIt.Value()->m_Name).LogFailure();
-      pAccessor->SetValue(pMeshAsset, "Use Subfolder for Material Import", false).LogFailure();
+      pAccessor->SetValue(pMeshAsset, "MeshFile", inputFilename.GetData()).LogFailure();
+      pAccessor->SetValue(pMeshAsset, "SubmeshName", meshIt.Value()->m_Name).LogFailure();
+      pAccessor->SetValue(pMeshAsset, "UseSubfolderForMaterialImport", false).LogFailure();
 
       pAccessor->FinishTransaction();
     }
