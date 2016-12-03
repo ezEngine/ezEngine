@@ -221,6 +221,7 @@ void ezQtColorDialog::ChangedHEX()
   if (valid)
   {
     ComputeRgbAndHsv(col);
+    RecomputeHDR();
   }
 
   ApplyColor();

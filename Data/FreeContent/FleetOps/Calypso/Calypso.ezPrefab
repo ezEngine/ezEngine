@@ -1,239 +1,372 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x025AD134792022000F1C97FFF0308122" },
-   "t" : "ezPointLightComponent",
-   "p" : {
-    "Active" : true,
-    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
-    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 0.0000, 0.0000, 1.0000)", "$b" : "0x0000803F00000000000000000000803F" },
-    "Range" : { "$t" : "float", "$v" : "1.6100", "$b" : "0x7B14CE3F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x4DC026FE3AF7D000129E44DDB7081F4D" },
-   "t" : "ezSpotLightComponent",
-   "p" : {
-    "Active" : true,
-    "Inner Spot Angle" : { "$t" : "angle", "$v" : "15.0000", "$b" : "0x920A863E" },
-    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
-    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
-    "Outer Spot Angle" : { "$t" : "angle", "$v" : "69.0000", "$b" : "0xC2259A3F" },
-    "Range" : { "$t" : "float", "$v" : "1.5000", "$b" : "0x0000C03F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x26535BB39145AF40882009844694BDFB" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xE64EA5931E1ADA499F1EEEA0BB87D7F7" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.2240, 1.6312, 0.2657)", "$b" : "0xA06C653E60CAD03FC00B883E" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x368619C8CC8001418D1E555A0B27EC38" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x22035E7FCFFA21449A73029016309FF9" },
-   "t" : "ezPointLightComponent",
-   "p" : {
-    "Active" : false,
-    "Intensity" : { "$t" : "float", "$v" : "0.6800", "$b" : "0x7B142E3F" },
-    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 0.4125, 0.0382, 1.0000)", "$b" : "0x0000803FCC38D33E317C1C3D0000803F" },
-    "Range" : { "$t" : "float", "$v" : "0.5200", "$b" : "0xB81E053F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE64EA5931E1ADA499F1EEEA0BB87D7F7" },
-   "t" : "ezPointLightComponent",
-   "p" : {
-    "Active" : true,
-    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
-    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 0.0000, 0.0000, 1.0000)", "$b" : "0x0000803F00000000000000000000803F" },
-    "Range" : { "$t" : "float", "$v" : "1.7100", "$b" : "0x48E1DA3F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xE8B3893AD8AA7EFD0F9901ACF2F1E3CE" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x2068BC932DAE924BA8EA5761F7DF8A30" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x368619C8CC8001418D1E555A0B27EC38" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.6230, -0.0035, -0.1545)", "$b" : "0x487A1F3F00E066BB802C1EBE" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xFA138A6CD3F76C4C846A30241E1ED121" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x22035E7FCFFA21449A73029016309FF9" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.8590, -0.6440, 0.3843)", "$b" : "0x18E65B3F80DB24BF40C6C43E" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x77B431F68A480F4DB9D8D067BD8D519E" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Prefab",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x77B431F68A480F4DB9D8D067BD8D519E" },
-    "Hash" : { "$t" : "uint64", "$v" : "17800981210929703634", "$b" : "0xD22ADE0219CA09F7" },
-    "References" : [ "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x6BA71A8DBE9FA38F0BD48EA69707820A" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x2BA3646D4B74CE9822D273C30CFB9B06" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-2.2766, 0.0340, 0.1862)", "$b" : "0x41B411C0B6240B3D53B23E3E" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x2BA3646D4B74CE9822D273C30CFB9B06" },
-   "t" : "ezPointLightComponent",
-   "p" : {
-    "Active" : true,
-    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
-    "Light Color" : { "$t" : "color", "$v" : "(0.0044, 0.4508, 1.0000, 1.0000)", "$b" : "0x16E68F3B67CDE63E0000803F0000803F" },
-    "Range" : { "$t" : "float", "$v" : "3.1500", "$b" : "0x9A994940" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xC1791F1F3CF696D4E227A49B0FA675F8" },
-   "t" : "ezPointLightComponent",
-   "p" : {
-    "Active" : false,
-    "Intensity" : { "$t" : "float", "$v" : "0.6800", "$b" : "0x7B142E3F" },
-    "Light Color" : { "$t" : "color", "$v" : "(0.1022, 0.4452, 1.0000, 1.0000)", "$b" : "0x1F64D13D6BF1E33E0000803F0000803F" },
-    "Range" : { "$t" : "float", "$v" : "0.5200", "$b" : "0xB81E053F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x998A4B0C40F3E1DCCC1ED22F1794A720" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xC1791F1F3CF696D4E227A49B0FA675F8" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.1730, -0.0035, -0.8545)", "$b" : "0x8C23963F00E066BB60BE5ABF" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x425E8754EC4BF7F6F81DB2E27B3D6726" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x025AD134792022000F1C97FFF0308122" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.2240, -1.6188, 0.2657)", "$b" : "0xA06C653EA035CFBFC00B883E" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB498EAB1ACCF47F7DD12B465FD09B541" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x4DC026FE3AF7D000129E44DDB7081F4D" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(2.9959, -0.0071, 0.2784)", "$b" : "0x7EBD3F400040E8BB008B8E3E" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x00000000EE83843E985C4232EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x636C5E90349687F7E3E3A448FFCE2489" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xE664D3A06557C0FCD85587C7CCDFF8B9" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(2.4849, -0.0141, -0.6868)", "$b" : "0xC6081F4000E866BC60D32FBF" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE664D3A06557C0FCD85587C7CCDFF8B9" },
-   "t" : "ezPointLightComponent",
-   "p" : {
-    "Active" : true,
-    "Intensity" : { "$t" : "float", "$v" : "4.3100", "$b" : "0x85EB8940" },
-    "Light Color" : { "$t" : "color", "$v" : "(0.0802, 0.5029, 1.0000, 1.0000)", "$b" : "0x4B4AA43D2DBD003F0000803F0000803F" },
-    "Range" : { "$t" : "float", "$v" : "0.9300", "$b" : "0x7B146E3F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE8B3893AD8AA7EFD0F9901ACF2F1E3CE" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x2068BC932DAE924BA8EA5761F7DF8A30" }, { "$t" : "uuid", "$b" : "0x425E8754EC4BF7F6F81DB2E27B3D6726" }, { "$t" : "uuid", "$b" : "0x26535BB39145AF40882009844694BDFB" }, { "$t" : "uuid", "$b" : "0x6BA71A8DBE9FA38F0BD48EA69707820A" }, { "$t" : "uuid", "$b" : "0xB498EAB1ACCF47F7DD12B465FD09B541" }, { "$t" : "uuid", "$b" : "0x636C5E90349687F7E3E3A448FFCE2489" }, { "$t" : "uuid", "$b" : "0xFA138A6CD3F76C4C846A30241E1ED121" }, { "$t" : "uuid", "$b" : "0x998A4B0C40F3E1DCCC1ED22F1794A720" } ],
-    "Components" : [  ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "Calypso",
-    "Tags" : [  ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{2486322280923601935,9605854157429250}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x00002041}
+		ColorGamma %LightColor{u1{209,105,105,255}}
+		f %Range{0x7B14CE3F}
+	}
 }
+o
+{
+	Uuid %id{u4{5557170050982780434,58818627899932749}}
+	s %t{"ezSpotLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Angle %InnerSpotAngle{f{0x920A863E}}
+		f %Intensity{0x00002041}
+		ColorGamma %LightColor{u1{255,255,255,255}}
+		Angle %OuterSpotAngle{f{0xC2259A3F}}
+		f %Range{0x0000C03F}
+	}
+}
+o
+{
+	Uuid %id{u4{18139817904702038152,4661020631433433894}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17858892087289585311,5321594628320087782}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xA06C653E,0x60CAD03F,0xC00B883E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{4101696290341330573,4684166704460826166}}
+	s %t{"ezMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Materials{}
+		s %Mesh{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{17987148310204543898,4909480837912593186}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x7B142E3F}
+		ColorGamma %LightColor{u1{197,159,0,255}}
+		f %Range{0xB81E053F}
+	}
+}
+o
+{
+	Uuid %id{u4{17858892087289585311,5321594628320087782}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x00002041}
+		ColorGamma %LightColor{u1{209,105,105,255}}
+		f %Range{0x48E1DA3F}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{14908025216096639247,18266224984333071336}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3497854314189679272,5445606410219710496}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4101696290341330573,4684166704460826166}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x487A1F3F,0x00E066BB,0x802C1EBE}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0xCDCCCC3D}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{2436761988189153924,5507048931798422522}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17987148310204543898,4909480837912593186}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x18E65B3F,0x80DB24BF,0x40C6C43E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{11408055175736252601,5552736627244250231}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{11408055175736252601,5552736627244250231}}
+		u4 %Hash{13800934460744320248}
+		VarArray %References
+		{
+			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16321557920984996650,10028865212241423835}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x7B142E3F}
+		ColorGamma %LightColor{u1{197,159,0,255}}
+		f %Range{0xB81E053F}
+	}
+}
+o
+{
+	Uuid %id{u4{757176035267499019,10350292009387468651}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{476250217855046178,11010866006274122539}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x41B411C0,0xB6240B3D,0x53B23E3E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{771171598969606676,10626433306127253171}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16321557920984996650,10028865212241423835}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x18E65B3F,0x80241B3F,0x40C6C43E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{476250217855046178,11010866006274122539}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x00002041}
+		ColorGamma %LightColor{u1{99,143,206,255}}
+		f %Range{0x9A994940}
+	}
+}
+o
+{
+	Uuid %id{u4{17903398479647221730,15318701920627947969}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x7B142E3F}
+		ColorGamma %LightColor{u1{197,160,27,255}}
+		f %Range{0xB81E053F}
+	}
+}
+o
+{
+	Uuid %id{u4{2353012157631831756,15916270014513777305}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17903398479647221730,15318701920627947969}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x8C23963F,0x00E066BB,0x60BE5ABF}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{2767248098336054776,17795775930980326978}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2486322280923601935,9605854157429250}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xA06C653E,0xA035CFBF,0xC00B883E}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{4734701567187620573,17818438791340923060}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5557170050982780434,58818627899932749}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7EBD3F40,0x0040E8BB,0x008B8E3E}}
+		Quat %LocalRotation{f{0,0xEE83843E,0x985C4232,0xEA46773F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{9882251078188458979,17836390001728711779}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13400706761854768600,18212652987087807718}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xC6081F40,0x00E866BC,0x60D32FBF}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{13400706761854768600,18212652987087807718}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x85EB8940}
+		ColorGamma %LightColor{u1{95,169,209,255}}
+		f %Range{0x7B146E3F}
+	}
+}
+o
+{
+	Uuid %id{u4{14908025216096639247,18266224984333071336}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{3497854314189679272,5445606410219710496}}
+			Uuid{u4{2767248098336054776,17795775930980326978}}
+			Uuid{u4{18139817904702038152,4661020631433433894}}
+			Uuid{u4{757176035267499019,10350292009387468651}}
+			Uuid{u4{4734701567187620573,17818438791340923060}}
+			Uuid{u4{9882251078188458979,17836390001728711779}}
+			Uuid{u4{2436761988189153924,5507048931798422522}}
+			Uuid{u4{2353012157631831756,15916270014513777305}}
+			Uuid{u4{771171598969606676,10626433306127253171}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{"Calypso"}
+		VarArray %Tags{}
+	}
+}
+}
+Types{}

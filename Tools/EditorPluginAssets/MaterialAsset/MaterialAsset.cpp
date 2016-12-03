@@ -83,6 +83,9 @@ ezReflectedClass* ezMaterialAssetProperties::GetShaderProperties() const
 
 void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
 {
+  if (m_ShaderMode == mode)
+    return;
+
   m_ShaderMode = mode;
 
   /// \todo Set proper shader:
@@ -885,3 +888,31 @@ public:
 
 ezMaterialAssetPropertiesPatch_1_2 g_ezMaterialAssetPropertiesPatch_1_2;
 
+
+/*
+class ezMaterialAssetPropertiesPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezMaterialAssetPropertiesPatch_2_3()
+    : ezGraphPatch(ezGetStaticRTTI<ezMaterialAssetProperties>(), 3) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pBaseMatProp = pNode->FindProperty("BaseMaterial");
+    if (pBaseMatProp && pBaseMatProp->m_Value.IsA<ezString>())
+    {
+      if (!pBaseMatProp->m_Value.Get<ezString>().IsEmpty())
+      {
+        // BaseMaterial is set
+        pNode->ChangeProperty("ShaderMode", (ezInt32)ezMaterialShaderMode::BaseMaterial);
+      }
+      else
+      {
+        pNode->ChangeProperty("ShaderMode", (ezInt32)ezMaterialShaderMode::File);
+      }
+    }
+  }
+};
+
+ezMaterialAssetPropertiesPatch_2_3 g_ezMaterialAssetPropertiesPatch_2_3;
+*/
