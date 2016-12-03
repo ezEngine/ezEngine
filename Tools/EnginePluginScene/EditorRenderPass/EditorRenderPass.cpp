@@ -46,13 +46,17 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_TEXCOORDS_UV0;
     break;
-  case ezViewRenderMode::Normals:
+  case ezViewRenderMode::PixelNormals:
     sRenderPass = "EDITOR";
-    uiRenderPass = EDITOR_RENDER_PASS_NORMALS;
+    uiRenderPass = EDITOR_RENDER_PASS_PIXEL_NORMALS;
     break;
-  case ezViewRenderMode::Tangents:
+  case ezViewRenderMode::VertexNormals:
     sRenderPass = "EDITOR";
-    uiRenderPass = EDITOR_RENDER_PASS_TANGENTS;
+    uiRenderPass = EDITOR_RENDER_PASS_VERTEX_NORMALS;
+    break;
+  case ezViewRenderMode::VertexTangents:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_VERTEX_TANGENTS;
     break;
   case ezViewRenderMode::DiffuseColor:
     sRenderPass = "EDITOR";

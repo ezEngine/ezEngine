@@ -56,41 +56,41 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 {
   if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezTextureAssetProperties"))
   {
-    const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("Channel Mapping").ConvertTo<ezInt64>();
+    const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
 
     auto& props = *e.m_pPropertyStates;
 
     props["Usage"].m_Visibility = ezPropertyUiState::Default;
-    props["Input 1"].m_Visibility = ezPropertyUiState::Default;
-    props["Input 2"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input 3"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input 4"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input 5"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input 6"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Input1"].m_Visibility = ezPropertyUiState::Default;
+    props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Input5"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Input6"].m_Visibility = ezPropertyUiState::Invisible;
 
     if (mapping == ezChannelMappingEnum::RGB1TO6_CUBE || mapping == ezChannelMappingEnum::RGBA1TO6_CUBE)
     {
-      props["Input 1"].m_sNewLabelText = "Right (+X)";
-      props["Input 2"].m_sNewLabelText = "Left (-X)";
-      props["Input 3"].m_sNewLabelText = "Top (+Y)";
-      props["Input 4"].m_sNewLabelText = "Bottom (-Y)";
-      props["Input 5"].m_sNewLabelText = "Front (+Z)";
-      props["Input 6"].m_sNewLabelText = "Back (-Z)";
+      props["Input1"].m_sNewLabelText = "Right (+X)";
+      props["Input2"].m_sNewLabelText = "Left (-X)";
+      props["Input3"].m_sNewLabelText = "Top (+Y)";
+      props["Input4"].m_sNewLabelText = "Bottom (-Y)";
+      props["Input5"].m_sNewLabelText = "Front (+Z)";
+      props["Input6"].m_sNewLabelText = "Back (-Z)";
     }
     else
     {
-      props["Input 1"].m_sNewLabelText = "Input 1";
-      props["Input 2"].m_sNewLabelText = "Input 2";
-      props["Input 3"].m_sNewLabelText = "Input 3";
-      props["Input 4"].m_sNewLabelText = "Input 4";
-      props["Input 5"].m_sNewLabelText = "Input 5";
-      props["Input 6"].m_sNewLabelText = "Input 6";
+      props["Input1"].m_sNewLabelText = "Input 1";
+      props["Input2"].m_sNewLabelText = "Input 2";
+      props["Input3"].m_sNewLabelText = "Input 3";
+      props["Input4"].m_sNewLabelText = "Input 4";
+      props["Input5"].m_sNewLabelText = "Input 5";
+      props["Input6"].m_sNewLabelText = "Input 6";
     }
 
     switch (mapping)
     {
     case ezChannelMappingEnum::R1_G2_2D:
-      props["Input 2"].m_Visibility = ezPropertyUiState::Default;
+      props["Input2"].m_Visibility = ezPropertyUiState::Default;
       // fall through
 
     case ezChannelMappingEnum::RG1_2D:
@@ -101,20 +101,20 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
     case ezChannelMappingEnum::RGB1TO6_CUBE:
     case ezChannelMappingEnum::RGBA1TO6_CUBE:
-      props["Input 6"].m_Visibility = ezPropertyUiState::Default;
-      props["Input 5"].m_Visibility = ezPropertyUiState::Default;
+      props["Input6"].m_Visibility = ezPropertyUiState::Default;
+      props["Input5"].m_Visibility = ezPropertyUiState::Default;
       // fall through
 
     case ezChannelMappingEnum::R1_G2_B3_A4_2D:
-      props["Input 4"].m_Visibility = ezPropertyUiState::Default;
+      props["Input4"].m_Visibility = ezPropertyUiState::Default;
       // fall through
 
     case ezChannelMappingEnum::R1_G2_B3_2D:
-      props["Input 3"].m_Visibility = ezPropertyUiState::Default;
+      props["Input3"].m_Visibility = ezPropertyUiState::Default;
       // fall through
 
     case ezChannelMappingEnum::RGB1_A2_2D:
-      props["Input 2"].m_Visibility = ezPropertyUiState::Default;
+      props["Input2"].m_Visibility = ezPropertyUiState::Default;
       // fall through
     }
   }

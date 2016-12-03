@@ -55,8 +55,9 @@ ezViewRenderMode::WireframeColor;Wireframe Color
 ezViewRenderMode::WireframeMonochrome;Wireframe Monochrome
 ezViewRenderMode::LitOnly;Lit Only
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
-ezViewRenderMode::Normals;Normals
-ezViewRenderMode::Tangents;Tangents
+ezViewRenderMode::PixelNormals;Pixel Normals
+ezViewRenderMode::VertexNormals;Vertex Normals
+ezViewRenderMode::VertexTangents;Vertex Tangents
 ezViewRenderMode::DiffuseColor;Diffuse Color
 ezViewRenderMode::DiffuseColorRange;Diffuse Color Range Check
 ezViewRenderMode::SpecularColor;Specular Color
