@@ -94,7 +94,6 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   // Setup render target
   ezGALRenderTagetSetup renderTargetSetup;
@@ -130,7 +129,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::NoFallback);
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneColorTexture", pDevice->GetDefaultResourceView(pColorInput->m_TextureHandle));
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "BloomTexture", hBloomTextureView);  
+  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "BloomTexture", hBloomTextureView);
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
 }

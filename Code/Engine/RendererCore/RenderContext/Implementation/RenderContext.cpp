@@ -1101,6 +1101,8 @@ ezTextureFilterSetting::Enum ezRenderContext::GetSpecificTextureFilter(ezTexture
   case ezTextureFilterSetting::HighestQuality:
     iFilter += 2;
     break;
+  default:
+    break;
   }
 
   iFilter = ezMath::Clamp<int>(iFilter, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedAnisotropic16x);

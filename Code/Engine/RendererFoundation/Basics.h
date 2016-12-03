@@ -138,6 +138,7 @@ struct ezGALTextureType
 {
   enum Enum
   {
+    Invalid = -1,
     Texture2D = 0,
     TextureCube,
     Texture3D,

@@ -107,7 +107,7 @@ void ezSpriteComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSpriteComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
 
