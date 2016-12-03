@@ -32,12 +32,17 @@ protected:
 private:
   void OnResourceEvent(const ezResourceEvent& e);
 
+  void UpdatePreview();
+
+  ezGameObjectHandle m_hPreviewObject;
+  ezComponentHandle m_hPreviewMesh2D;
   ezMaterialResourceHandle m_hMaterial;
   ezTextureResourceHandle m_hTexture;
 
   ezGALResourceFormat::Enum m_TextureFormat;
   ezUInt32 m_uiTextureWidth;
   ezUInt32 m_uiTextureHeight;
+  bool m_bIsTexture2D;
 };
 
 

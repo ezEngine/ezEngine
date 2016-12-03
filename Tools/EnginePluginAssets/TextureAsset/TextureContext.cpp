@@ -72,6 +72,8 @@ void ezTextureContext::GetTextureStats(ezGALResourceFormat::Enum& format, ezUInt
   format = m_TextureFormat;
   uiWidth = m_uiTextureWidth;
   uiHeight = m_uiTextureHeight;
+
+  UpdatePreview();
 }
 
 void ezTextureContext::OnInitialize()
@@ -90,6 +92,7 @@ void ezTextureContext::OnInitialize()
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidth = pTexture->GetWidth();
     m_uiTextureHeight = pTexture->GetHeight();
+    m_bIsTexture2D = pTexture->GetType() == ezGALTextureType::Texture2D;
 
     pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
   }
@@ -133,7 +136,7 @@ void ezTextureContext::OnInitialize()
   {
     ezMaterialResourceDescriptor md;
     md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TexturePreview.ezMaterial");
-    
+
     auto& tb = md.m_TextureBindings.ExpandAndGetRef();
     tb.m_Name.Assign("BaseTexture");
     tb.m_Value = m_hTexture;
@@ -154,15 +157,17 @@ void ezTextureContext::OnInitialize()
 
     obj.m_sName.Assign("TexturePreview");
     obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    m_pWorld->CreateObject(obj, pObj);
+    m_hPreviewObject = m_pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;
-    ezMeshComponent::CreateComponent(m_pWorld, pMesh);
+    m_hPreviewMesh2D = ezMeshComponent::CreateComponent(m_pWorld, pMesh);
     pMesh->SetMesh(hMesh);
     pMesh->SetMaterial(0, m_hMaterial);
 
     pObj->AttachComponent(pMesh);
   }
+
+  UpdatePreview();
 }
 
 void ezTextureContext::OnDeinitialize()
@@ -184,6 +189,15 @@ void ezTextureContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
 {
+  if (e.m_EventType == ezResourceEventType::ResourceContentUnloaded)
+  {
+    // once a texture gets unloaded, disable the preview,
+    // to prevent using the wrong preview method in case the texture type changes
+    // This often works, but sometimes reloading is too fast and then we can still get a D3D error,
+    // e.g. when a cubemap is bound to a 2D texture slot
+    m_bIsTexture2D = false;
+  }
+
   if (e.m_EventType == ezResourceEventType::ResourceContentUpdated)
   {
     const ezTextureResource* pTexture = static_cast<const ezTextureResource*>(e.m_pResource);
@@ -191,6 +205,23 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidth = pTexture->GetWidth();
     m_uiTextureHeight = pTexture->GetHeight();
+
+    m_bIsTexture2D = pTexture->GetType() == ezGALTextureType::Texture2D;
+
+    // cannot call this here, because the event happens on another thread at any possible time
+    //UpdatePreview();
+  }
+}
+
+void ezTextureContext::UpdatePreview()
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  // if we have a cubemap or 3D texture we should use a different method for visualization
+  ezMeshComponent* pMesh;
+  if (m_pWorld->TryGetComponent(m_hPreviewMesh2D, pMesh))
+  {
+    pMesh->SetActive(m_bIsTexture2D);
   }
 }
 

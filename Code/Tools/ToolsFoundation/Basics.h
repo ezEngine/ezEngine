@@ -14,4 +14,4 @@
 #endif
 
 
-//#define EZ_ENABLE_DDL
+#define EZ_ENABLE_DDL

@@ -132,7 +132,7 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
     return;
   }
 
-  
+
   m_bRedrawIsTriggered = true;
   m_bTriggerRedrawQueued = false;
 
@@ -321,6 +321,8 @@ void ezQtDocumentWindow::RestoreWindowLayout()
     restoreState(Settings.value("WindowState", saveState()).toByteArray());
   }
   Settings.endGroup();
+
+  qApp->processEvents();
 }
 
 ezStatus ezQtDocumentWindow::SaveDocument()
