@@ -1,150 +1,215 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x1284F938B0413900050BC2224204B0BB" },
-   "t" : "ezCameraComponent",
-   "p" : {
-    "Active" : true,
-    "Dimensions (ortho)" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
-    "FOV (perspective)" : { "$t" : "float", "$v" : "60.0000", "$b" : "0x00007042" },
-    "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
-    "Mode" : "ezCameraMode::PerspectiveFixedFovY",
-    "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
-    "Render Pipeline" : "",
-    "Usage Hint" : "ezCameraComponentUsageHint::None"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xBC8F6063D761A60932A55C94CFFE5A9F" },
-   "t" : "ezPxCharacterControllerComponent",
-   "p" : {
-    "Active" : true,
-    "Air Friction" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
-    "Air Speed" : { "$t" : "float", "$v" : "2.5000", "$b" : "0x00002040" },
-    "Capsule Height" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Capsule Radius" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Constrained Climb Mode" : false,
-    "Force Slope Sliding" : true,
-    "Jump Impulse" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Max Slope Angle" : { "$t" : "angle", "$v" : "40.0000", "$b" : "0xC2B8323F" },
-    "Max Step Height" : { "$t" : "float", "$v" : "0.3000", "$b" : "0x9A99993E" },
-    "Rotate Speed" : { "$t" : "angle", "$v" : "120.0000", "$b" : "0x920A0640" },
-    "Run Speed" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
-    "Walk Speed" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x774EDE1EEFB9A9091E4FF7D7B30932B5" },
-   "t" : "ezFmodListenerComponent",
-   "p" : {
-    "Active" : true,
-    "ListenerIndex" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xDFB6B28334F3FD09065CDADDAFD390AD" },
-   "t" : "ezInputComponent",
-   "p" : {
-    "Active" : true,
-    "Granularity" : "ezInputMessageGranularity::PressReleaseAndDown",
-    "Input Set" : "Player"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xF7F5FEBB34DF0D0B282BD793DD313599" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xB3317C39E0378B0E06D121D4734E1B6B" } ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xBC8F6063D761A60932A55C94CFFE5A9F" }, { "$t" : "uuid", "$b" : "0xDFB6B28334F3FD09065CDADDAFD390AD" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 2.0000)", "$b" : "0x000000000000000000000040" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "Player",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB3317C39E0378B0E06D121D4734E1B6B" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x1284F938B0413900050BC2224204B0BB" }, { "$t" : "uuid", "$b" : "0x774EDE1EEFB9A9091E4FF7D7B30932B5" } ],
-    "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.5000)", "$b" : "0x00000000000000000000003F" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xF7F5FEBB34DF0D0B282BD793DD313599" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xD6EFE7215E6D034FA4D17A430CEB0F8A" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Prefab",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xD6EFE7215E6D034FA4D17A430CEB0F8A" },
-    "Hash" : { "$t" : "uint64", "$v" : "15814849410997163393", "$b" : "0x8115C8A6BFA179DB" },
-    "References" : [  ]
-   }
-  } ],
- "Types" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xCAEEEC11735D3414981C8B4D6134767B" },
-   "t" : "ezReflectedPropertyDescriptor",
-   "p" : {
-    "Attributes" : [  ],
-    "Category" : "ezPropertyCategory::Member",
-    "ConstantValue" : null,
-    "Flags" : "ezPropertyFlags::StandardType",
-    "Name" : "ListenerIndex",
-    "Type" : "ezUInt8"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x309E03F7AD4601867B90342963ADB416" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Sound"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x80E04F577DFEE0883BE6DEB59EE7C34E" },
-   "t" : "ezReflectedTypeDescriptor",
-   "p" : {
-    "Attributes" : [  ],
-    "Flags" : "",
-    "ParentTypeName" : "ezFmodComponent",
-    "PluginName" : "ezFmodPlugin",
-    "Properties" : [ { "$t" : "uuid", "$b" : "0xCAEEEC11735D3414981C8B4D6134767B" } ],
-    "TypeName" : "ezFmodListenerComponent",
-    "TypeSize" : { "$t" : "uint32", "$v" : "48", "$b" : "0x30000000" },
-    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x1398A761712F0FED44F4E230519668D1" },
-   "t" : "ezReflectedTypeDescriptor",
-   "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x309E03F7AD4601867B90342963ADB416" } ],
-    "Flags" : "ezTypeFlags::Abstract",
-    "ParentTypeName" : "ezComponent",
-    "PluginName" : "ezFmodPlugin",
-    "Properties" : [  ],
-    "TypeName" : "ezFmodComponent",
-    "TypeSize" : { "$t" : "uint32", "$v" : "40", "$b" : "0x28000000" },
-    "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-   }
-  } ]
+o
+{
+	Uuid %id{u4{13524314363091094277,16116298798433298}}
+	s %t{"ezCameraComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		f %Dimensions{0x00002041}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0x0000803E}
+		s %RenderPipeline{""}
+		f %ShutterTime{0x0000803F}
+		s %UsageHint{"ezCameraUsageHint::None"}
+	}
+}
+o
+{
+	Uuid %id{u4{11482770367435285810,695350770188455868}}
+	s %t{"ezPxCharacterControllerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %AirFriction{0x0000003F}
+		f %AirSpeed{0x00002040}
+		f %CapsuleHeight{0x0000803F}
+		f %CapsuleRadius{0x0000803E}
+		u1 %CollisionLayer{0}
+		b %ConstrainedClimbMode{0}
+		b %ForceSlopeSliding{1}
+		f %JumpImpulse{0x0000803F}
+		Angle %MaxSlopeAngle{f{0xC2B8323F}}
+		f %MaxStepHeight{0x9A99993E}
+		Angle %RotateSpeed{f{0xDB0FC93F}}
+		f %RunSpeed{0x0000C040}
+		f %WalkSpeed{0x00004040}
+	}
+}
+o
+{
+	Uuid %id{u4{13056508937727594270,696292054071660151}}
+	s %t{"ezFmodListenerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %ListenerIndex{0}
+	}
+}
+o
+{
+	Uuid %id{u4{12506728917502680070,719998922322523871}}
+	s %t{"ezInputComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %Granularity{"ezInputMessageGranularity::PressReleaseAndDown"}
+		s %InputSet{"Player"}
+	}
+}
+o
+{
+	Uuid %id{u4{11039784889306524456,796538126699787767}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7717848645816668422,1047992774470414771}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{11482770367435285810,695350770188455868}}
+			Uuid{u4{12506728917502680070,719998922322523871}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x00000040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{"Player"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{7717848645816668422,1047992774470414771}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13524314363091094277,16116298798433298}}
+			Uuid{u4{13056508937727594270,696292054071660151}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11039784889306524456,796538126699787767}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{9948428539788972452,5693514604989640662}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{9948428539788972452,5693514604989640662}}
+		u4 %Hash{7011077610056984167}
+		VarArray %References{}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8896355706434428056,1455891328350875338}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"ListenerIndex"}
+		s %Type{"ezUInt8"}
+	}
+}
+o
+{
+	Uuid %id{u4{1636123206047010939,9656076789046550064}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Sound"}
+	}
+}
+o
+{
+	Uuid %id{u4{5675634624259089979,9863162998230605952}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezFmodComponent"}
+		s %PluginName{"ezFmodPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{8896355706434428056,1455891328350875338}}
+		}
+		s %TypeName{"ezFmodListenerComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15089475826961544260,17081924075655763987}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1636123206047010939,9656076789046550064}}
+		}
+		s %Flags{"ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezFmodPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezFmodComponent"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{1}
+	}
+}
 }

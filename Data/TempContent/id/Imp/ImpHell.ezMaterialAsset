@@ -1,33 +1,52 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x66A55FD4E96D65479EAB98A944E1E043" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Material",
-    "Dependencies" : [ "{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x66A55FD4E96D65479EAB98A944E1E043" },
-    "Hash" : { "$t" : "uint64", "$v" : "4348312463729792962", "$b" : "0xC29704BD254F583C" },
-    "References" : [ "{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xA4D0CAFEF25CE74C85AB830830705D60" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA4D0CAFEF25CE74C85AB830830705D60" },
-   "t" : "ezMaterialAssetProperties",
-   "p" : {
-    "Base Material" : "{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }",
-    "Shader" : "",
-    "Shader Mode" : "ezMaterialShaderMode::File",
-    "ShaderProperties" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{4891156880343739294,5144639000398505318}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Material"}
+		VarArray %Dependencies
+		{
+			s{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}
+		}
+		Uuid %DocumentID{u4{4891156880343739294,5144639000398505318}}
+		u4 %Hash{46167762996651738}
+		VarArray %References
+		{
+			s{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}
+		}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6943829552078760837,5541500065229230244}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6943829552078760837,5541500065229230244}}
+	s %t{"ezMaterialAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %BaseMaterial{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}
+		s %Shader{""}
+		s %ShaderMode{"ezMaterialShaderMode::File"}
+		Uuid %ShaderProperties{u4{0,0}}
+	}
+}
+}
+Types{}
