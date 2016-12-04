@@ -1,34 +1,50 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x765A112E989F5749A14A6AB54743EEBA" },
-   "t" : "ezSurfaceResourceDescriptor",
-   "p" : {
-    "Base Surface" : "{ 2987eede-0d7c-4750-9043-0215249e52c0 }",
-    "Dynamic Friction" : { "$t" : "float", "$v" : "0.2000", "$b" : "0xCDCC4C3E" },
-    "Interactions" : [  ],
-    "Restitution" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Static Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x765A112E989F5749A14A6AB54743EEBA" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE38FBABB5CEEAB4BBB9A370919CEDA91" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Surface",
-    "Dependencies" : [ "{ 2987eede-0d7c-4750-9043-0215249e52c0 }" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xE38FBABB5CEEAB4BBB9A370919CEDA91" },
-    "Hash" : { "$t" : "uint64", "$v" : "2949350107808314906", "$b" : "0x1AB62CF64B32EE28" },
-    "References" : [ "{ 2987eede-0d7c-4750-9043-0215249e52c0 }" ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{13469777510777113249,5284868163699300982}}
+	s %t{"ezSurfaceResourceDescriptor"}
+	u3 %v{2}
+	p
+	{
+		s %BaseSurface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		f %DynamicFriction{0xCDCC4C3E}
+		VarArray %Interactions{}
+		f %Restitution{0xCDCCCC3D}
+		f %StaticFriction{0xCDCCCC3E}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13469777510777113249,5284868163699300982}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{10509939287346617019,5452713855916085219}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Surface"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10509939287346617019,5452713855916085219}}
+		u4 %Hash{2949350107808314906}
+		VarArray %References
+		{
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		}
+	}
+}
+}
+Types{}

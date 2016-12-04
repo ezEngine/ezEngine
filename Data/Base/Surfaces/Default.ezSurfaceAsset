@@ -1,44 +1,63 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x5559100A69E0234580CE7B9867BDE687" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Surface",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x5559100A69E0234580CE7B9867BDE687" },
-    "Hash" : { "$t" : "uint64", "$v" : "9384612861308419083", "$b" : "0x0BBCD9F0ACD73C82" },
-    "References" : [ "{ 542224c0-bfa2-48dc-8d02-cde130b82a41 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x808E3D4F47BC0147903C731607D0B36E" },
-   "t" : "ezSurfaceResourceDescriptor",
-   "p" : {
-    "Base Surface" : "",
-    "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
-    "Interactions" : [ { "$t" : "uuid", "$b" : "0x763D7C560671404B9CA6BE9F691F4BF1" } ],
-    "Restitution" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
-    "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x808E3D4F47BC0147903C731607D0B36E" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x763D7C560671404B9CA6BE9F691F4BF1" },
-   "t" : "ezSurfaceInteraction",
-   "p" : {
-    "Alignment" : "ezSurfaceInteractionAlignment::IncidentDirection",
-    "Deviation" : { "$t" : "angle", "$v" : "30.0000", "$b" : "0x920A063F" },
-    "Prefab" : "{ 542224c0-bfa2-48dc-8d02-cde130b82a41 }",
-    "Type" : "BulletImpact"
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{9792722692401254016,4982072354546932053}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Surface"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{9792722692401254016,4982072354546932053}}
+		u4 %Hash{13967589477695139884}
+		VarArray %References{}
+	}
 }
+o
+{
+	Uuid %id{u4{7976948093863279760,5116577666127728256}}
+	s %t{"ezSurfaceResourceDescriptor"}
+	u3 %v{2}
+	p
+	{
+		s %BaseSurface{""}
+		f %DynamicFriction{0xCDCCCC3E}
+		VarArray %Interactions
+		{
+			Uuid{u4{17387025324906030748,5422458223388802422}}
+		}
+		f %Restitution{0x0000803E}
+		f %StaticFriction{0x9A99193F}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7976948093863279760,5116577666127728256}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17387025324906030748,5422458223388802422}}
+	s %t{"ezSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Alignment{"ezSurfaceInteractionAlignment::IncidentDirection"}
+		Angle %Deviation{f{0x920A063F}}
+		s %Prefab{""}
+		s %Type{"BulletImpact"}
+	}
+}
+}
+Types{}

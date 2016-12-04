@@ -1,134 +1,216 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x9A712E861D6BE140912035237C827436" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }",
-    "Name" : "NeutralNormalTexture"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xCB38B0DC93DD0643B91DD4AEAF453EAD" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }",
-    "Name" : "EditorRenderPipeline"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x9494C223539EF345AF3AC2F91DB132A3" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }",
-    "Name" : "LitAlphaTestMaterial"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xC6B2C1960A50004686C8EDF823A47F87" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }",
-    "Name" : "SkyMaterial"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xCC616D49E3920B47A8130F2B53AC5AFE" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }",
-    "Name" : "MainRenderPipeline"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x551CCA45F53338478979D54F512ABFD7" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ 4800d341-755b-4367-a175-ffa5dd17bd29 }",
-    "Name" : "FullbrightAlphaTestMaterial"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xD757D147731E5647A1BBE513AC643B71" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ c069b8a2-ccad-417f-bca4-8739efc222cf }",
-    "Name" : "ReferenceMaterial"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x1ADC97B9287C03488595A872E014D8DB" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }",
-    "Name" : "DebugRenderPipeline"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x8899F153D885644999ABFEE82C19ECE4" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }",
-    "Name" : "LitMaterial"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xDB43B037F2744B4DB590412824D15ACE" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x65461B1915C5DF4BAFC052E1D4D893BC" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
-    "Name" : "FullbrightMaterial"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xDB43B037F2744B4DB590412824D15ACE" },
-   "t" : "ezCollectionAssetData",
-   "p" : {
-    "Entries" : [ { "$t" : "uuid", "$b" : "0xCC616D49E3920B47A8130F2B53AC5AFE" }, { "$t" : "uuid", "$b" : "0x1ADC97B9287C03488595A872E014D8DB" }, { "$t" : "uuid", "$b" : "0xCB38B0DC93DD0643B91DD4AEAF453EAD" }, { "$t" : "uuid", "$b" : "0x65461B1915C5DF4BAFC052E1D4D893BC" }, { "$t" : "uuid", "$b" : "0x551CCA45F53338478979D54F512ABFD7" }, { "$t" : "uuid", "$b" : "0x8899F153D885644999ABFEE82C19ECE4" }, { "$t" : "uuid", "$b" : "0x9494C223539EF345AF3AC2F91DB132A3" }, { "$t" : "uuid", "$b" : "0xD757D147731E5647A1BBE513AC643B71" }, { "$t" : "uuid", "$b" : "0xC6B2C1960A50004686C8EDF823A47F87" }, { "$t" : "uuid", "$b" : "0xA6E8B54374540B4EB68D831968915286" }, { "$t" : "uuid", "$b" : "0x9A712E861D6BE140912035237C827436" }, { "$t" : "uuid", "$b" : "0x509507F1F640E04DB21661FD04889B88" }, { "$t" : "uuid", "$b" : "0x6D99022757BFA54F9D7ABA8FEE768B06" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x241D9FFB11C0A14DAAC48A1A32AAAE1C" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Collection",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x241D9FFB11C0A14DAAC48A1A32AAAE1C" },
-    "Hash" : { "$t" : "uint64", "$v" : "15886955751325810668", "$b" : "0xECBF1F4815CE79DC" },
-    "References" : [ "{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }", "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }", "{ 3edf10b3-36d2-434f-9683-c653909abe7e }", "{ 4800d341-755b-4367-a175-ffa5dd17bd29 }", "{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }", "{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }", "{ aa700289-9aae-4ec5-81ea-9c381ec8309e }", "{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }", "{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }", "{ c069b8a2-ccad-417f-bca4-8739efc222cf }", "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }", "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }", "{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x509507F1F640E04DB21661FD04889B88" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ aa700289-9aae-4ec5-81ea-9c381ec8309e }",
-    "Name" : "ReferenceTexture"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA6E8B54374540B4EB68D831968915286" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }",
-    "Name" : "MissingMesh"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x6D99022757BFA54F9D7ABA8FEE768B06" },
-   "t" : "ezCollectionAssetEntry",
-   "p" : {
-    "Asset" : "{ 3edf10b3-36d2-434f-9683-c653909abe7e }",
-    "Name" : "VignettingTexture"
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{3923904645024784529,4675135662736699802}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
+		s %Name{"NeutralNormalTexture"}
+	}
 }
+o
+{
+	Uuid %id{u4{12483491837972323769,4829791277533903051}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
+		s %Name{"EditorRenderPipeline"}
+	}
+}
+o
+{
+	Uuid %id{u4{11759656319320210095,5040546487877145748}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }"}
+		s %Name{"LitAlphaTestMaterial"}
+	}
+}
+o
+{
+	Uuid %id{u4{9763702991569668230,5044119589064127174}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"}
+		s %Name{"SkyMaterial"}
+	}
+}
+o
+{
+	Uuid %id{u4{18328151106742326184,5119346906323837388}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
+		s %Name{"MainRenderPipeline"}
+	}
+}
+o
+{
+	Uuid %id{u4{15546190967426349449,5131908903919557717}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 4800d341-755b-4367-a175-ffa5dd17bd29 }"}
+		s %Name{"FullbrightAlphaTestMaterial"}
+	}
+}
+o
+{
+	Uuid %id{u4{8159225840142760865,5140329505164974039}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
+		s %Name{"ReferenceMaterial"}
+	}
+}
+o
+{
+	Uuid %id{u4{15841434643504600453,5189127710015216666}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
+		s %Name{"DebugRenderPipeline"}
+	}
+}
+o
+{
+	Uuid %id{u4{16495587215829543833,5288499026607577480}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
+		s %Name{"LitMaterial"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{14869427072941527221,5569673947838956507}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13588442909531881647,5467305167057274469}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"}
+		s %Name{"FullbrightMaterial"}
+	}
+}
+o
+{
+	Uuid %id{u4{14869427072941527221,5569673947838956507}}
+	s %t{"ezCollectionAssetData"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Entries
+		{
+			Uuid{u4{18328151106742326184,5119346906323837388}}
+			Uuid{u4{15841434643504600453,5189127710015216666}}
+			Uuid{u4{12483491837972323769,4829791277533903051}}
+			Uuid{u4{13588442909531881647,5467305167057274469}}
+			Uuid{u4{15546190967426349449,5131908903919557717}}
+			Uuid{u4{16495587215829543833,5288499026607577480}}
+			Uuid{u4{11759656319320210095,5040546487877145748}}
+			Uuid{u4{8159225840142760865,5140329505164974039}}
+			Uuid{u4{9763702991569668230,5044119589064127174}}
+			Uuid{u4{9678958425463295414,5623681418031130790}}
+			Uuid{u4{3923904645024784529,4675135662736699802}}
+			Uuid{u4{9843610965560596146,5611556565053576528}}
+			Uuid{u4{471601352976005789,5739203681191106925}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{2066776411180025002,5593963395639352612}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Collection"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
+		u4 %Hash{15886955751325810668}
+		VarArray %References
+		{
+			s{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
+			s{"{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"}
+			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
+			s{"{ 4800d341-755b-4367-a175-ffa5dd17bd29 }"}
+			s{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
+			s{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
+			s{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
+			s{"{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }"}
+			s{"{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"}
+			s{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
+			s{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
+			s{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
+			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9843610965560596146,5611556565053576528}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
+		s %Name{"ReferenceTexture"}
+	}
+}
+o
+{
+	Uuid %id{u4{9678958425463295414,5623681418031130790}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
+		s %Name{"MissingMesh"}
+	}
+}
+o
+{
+	Uuid %id{u4{471601352976005789,5739203681191106925}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
+		s %Name{"VignettingTexture"}
+	}
+}
+}
+Types{}

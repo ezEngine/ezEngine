@@ -1,64 +1,97 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x1BD4211689A6C040B07348EF47E6E554" },
-   "t" : "ezCurve1DControlPoint",
-   "p" : {
-    "Left Tangent" : { "$t" : "vec2", "$v" : "(-0.1000, 0.0000)", "$b" : "0xCDCCCCBD00000000" },
-    "Point" : { "$t" : "vec2", "$v" : "(10.0000, 0.0000)", "$b" : "0x0000204100000000" },
-    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.1000, 0.0000)", "$b" : "0xCDCCCC3D00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x4A416CE2498FDD439176FC48AB05D6F1" },
-   "t" : "ezCurve1DControlPoint",
-   "p" : {
-    "Left Tangent" : { "$t" : "vec2", "$v" : "(-0.6000, 0.6400)", "$b" : "0x989919BF0AD7233F" },
-    "Point" : { "$t" : "vec2", "$v" : "(2.9080, 0.0000)", "$b" : "0xAC1C3A4000000000" },
-    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.0800, 0.0000)", "$b" : "0xFDD6A33D00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xEFEAAE28AAA07649931ADC8C1162269F" },
-   "t" : "ezCurve1DControlPoint",
-   "p" : {
-    "Left Tangent" : { "$t" : "vec2", "$v" : "(-0.1000, 0.0000)", "$b" : "0xCDCCCCBD00000000" },
-    "Point" : { "$t" : "vec2", "$v" : "(0.0000, 1.0000)", "$b" : "0x000000000000803F" },
-    "Right Tangent" : { "$t" : "vec2", "$v" : "(1.7600, 0.0600)", "$b" : "0xAE47E13F8FC2753D" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x2413202A87D22C4DA45D295CEC5E3B7D" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x59AFE4BBC62AC54ABB8D45BD39725D4E" },
-   "t" : "ezCurve1DData",
-   "p" : {
-    "Control Points" : [ { "$t" : "uuid", "$b" : "0xEFEAAE28AAA07649931ADC8C1162269F" }, { "$t" : "uuid", "$b" : "0x4A416CE2498FDD439176FC48AB05D6F1" }, { "$t" : "uuid", "$b" : "0x1BD4211689A6C040B07348EF47E6E554" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x2413202A87D22C4DA45D295CEC5E3B7D" },
-   "t" : "ezCurve1DAssetData",
-   "p" : {
-    "Curves" : [ { "$t" : "uuid", "$b" : "0x59AFE4BBC62AC54ABB8D45BD39725D4E" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE617DAF79724984DA5C6AACED5E9C71E" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Curve1D",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xE617DAF79724984DA5C6AACED5E9C71E" },
-    "Hash" : { "$t" : "uint64", "$v" : "17935453469151592091", "$b" : "0x9BFE5372E787E7F8" },
-    "References" : [  ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{6117548865484256176,4665912321667879963}}
+	s %t{"ezCurve1DControlPoint"}
+	u3 %v{2}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		Vec2 %Point{f{0x00002041,0}}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+	}
 }
+o
+{
+	Uuid %id{u4{17426122041378764433,4890222317888356682}}
+	s %t{"ezCurve1DControlPoint"}
+	u3 %v{2}
+	p
+	{
+		Vec2 %LeftTangent{f{0x989919BF,0x0AD7233F}}
+		Vec2 %Point{f{0xAC1C3A40,0}}
+		Vec2 %RightTangent{f{0xFDD6A33D,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{11467961328662747795,5293595064708033263}}
+	s %t{"ezCurve1DControlPoint"}
+	u3 %v{2}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		Vec2 %Point{f{0,0x0000803F}}
+		Vec2 %RightTangent{f{0xAE47E13F,0x8FC2753D}}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9023910647618428324,5561051117864882980}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5646795100106624443,5387759562262884185}}
+	s %t{"ezCurve1DData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %ControlPoints
+		{
+			Uuid{u4{11467961328662747795,5293595064708033263}}
+			Uuid{u4{17426122041378764433,4890222317888356682}}
+			Uuid{u4{6117548865484256176,4665912321667879963}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9023910647618428324,5561051117864882980}}
+	s %t{"ezCurve1DAssetData"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Curves
+		{
+			Uuid{u4{5646795100106624443,5387759562262884185}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{2217998446007862949,5591259172497397734}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Curve1D"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{2217998446007862949,5591259172497397734}}
+		u4 %Hash{8279257621677102146}
+		VarArray %References{}
+	}
+}
+}
+Types{}

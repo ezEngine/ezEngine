@@ -1,34 +1,50 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x81DDCE39431545419DFFFC694ACC8B95" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Surface",
-    "Dependencies" : [ "{ 2987eede-0d7c-4750-9043-0215249e52c0 }" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x81DDCE39431545419DFFFC694ACC8B95" },
-    "Hash" : { "$t" : "uint64", "$v" : "3430754342784576827", "$b" : "0x3BAD4DD9E57C9C2F" },
-    "References" : [ "{ 2987eede-0d7c-4750-9043-0215249e52c0 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x21D8AB1737383D4C9902978A0204FD08" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x21D8AB1737383D4C9902978A0204FD08" },
-   "t" : "ezSurfaceResourceDescriptor",
-   "p" : {
-    "Base Surface" : "{ 2987eede-0d7c-4750-9043-0215249e52c0 }",
-    "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
-    "Interactions" : [  ],
-    "Restitution" : { "$t" : "float", "$v" : "0.2000", "$b" : "0xCDCC4C3E" },
-    "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{10775931153391878045,4703188764335201665}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Surface"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10775931153391878045,4703188764335201665}}
+		u4 %Hash{3430754342784576827}
+		VarArray %References
+		{
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{647678330372817561,5493608929733367841}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{647678330372817561,5493608929733367841}}
+	s %t{"ezSurfaceResourceDescriptor"}
+	u3 %v{2}
+	p
+	{
+		s %BaseSurface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+		f %DynamicFriction{0xCDCCCC3E}
+		VarArray %Interactions{}
+		f %Restitution{0xCDCC4C3E}
+		f %StaticFriction{0x9A99193F}
+	}
+}
+}
+Types{}

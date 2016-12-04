@@ -1,34 +1,50 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x4ED636FFBE566A42AF2AE17A3F18D06F" },
-   "t" : "ezSurfaceResourceDescriptor",
-   "p" : {
-    "Base Surface" : "{ 72115f7a-5947-4a21-899f-868368bd41d7 }",
-    "Dynamic Friction" : { "$t" : "float", "$v" : "0.3000", "$b" : "0x9A99993E" },
-    "Interactions" : [  ],
-    "Restitution" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
-    "Static Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x99D8F2F11B33F847BBE3E520A23B481E" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Surface",
-    "Dependencies" : [ "{ 72115f7a-5947-4a21-899f-868368bd41d7 }" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x99D8F2F11B33F847BBE3E520A23B481E" },
-    "Hash" : { "$t" : "uint64", "$v" : "17909403259312738808", "$b" : "0xF8118F5260FB8AF8" },
-    "References" : [ "{ 72115f7a-5947-4a21-899f-868368bd41d7 }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x4ED636FFBE566A42AF2AE17A3F18D06F" } ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{8056966394289400495,4785732932360132174}}
+	s %t{"ezSurfaceResourceDescriptor"}
+	u3 %v{2}
+	p
+	{
+		s %BaseSurface{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
+		f %DynamicFriction{0x9A99993E}
+		VarArray %Interactions{}
+		f %Restitution{0x0000803E}
+		f %StaticFriction{0xCDCCCC3E}
+	}
 }
+AssetInfo
+{
+	Uuid %id{u4{2182059586983683003,5185951166033483929}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Surface"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{2182059586983683003,5185951166033483929}}
+		u4 %Hash{17909403259312738808}
+		VarArray %References
+		{
+			s{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8056966394289400495,4785732932360132174}}
+		}
+	}
+}
+}
+Types{}

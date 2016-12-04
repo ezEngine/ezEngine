@@ -1,44 +1,66 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xF5670836B0F19D42B698E4439138BD5A" },
-   "t" : "ezSurfaceResourceDescriptor",
-   "p" : {
-    "Base Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }",
-    "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
-    "Interactions" : [ { "$t" : "uuid", "$b" : "0xEE83A4CB3F3B2C49B3842E9682FF7766" } ],
-    "Restitution" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xD944A956863630478B7D104D2F02E2B1" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Surface",
-    "Dependencies" : [ "{ 0a105955-e069-4523-80ce-7b9867bde687 }" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xD944A956863630478B7D104D2F02E2B1" },
-    "Hash" : { "$t" : "uint64", "$v" : "18406326696319262772", "$b" : "0x3420E6019C6870FF" },
-    "References" : [ "{ 0a105955-e069-4523-80ce-7b9867bde687 }", "{ 8706744c-fb02-44b1-afe6-3c4d37b7a5cc }" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xEE83A4CB3F3B2C49B3842E9682FF7766" },
-   "t" : "ezSurfaceInteraction",
-   "p" : {
-    "Alignment" : "ezSurfaceInteractionAlignment::SurfaceNormal",
-    "Deviation" : { "$t" : "angle", "$v" : "30.0000", "$b" : "0x920A063F" },
-    "Prefab" : "{ 8706744c-fb02-44b1-afe6-3c4d37b7a5cc }",
-    "Type" : "BulletImpact"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xF5670836B0F19D42B698E4439138BD5A" } ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{6538444430572296374,4800258516969875445}}
+	s %t{"ezSurfaceResourceDescriptor"}
+	u3 %v{2}
+	p
+	{
+		s %BaseSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		f %DynamicFriction{0xCDCCCC3E}
+		VarArray %Interactions
+		{
+			Uuid{u4{7383651050427679923,5272654408929543150}}
+		}
+		f %Restitution{0xCDCC4C3D}
+		f %StaticFriction{0x9A99193F}
+	}
 }
+AssetInfo
+{
+	Uuid %id{u4{12817809891629497739,5129659926182446297}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Surface"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{12817809891629497739,5129659926182446297}}
+		u4 %Hash{11864600910859638905}
+		VarArray %References
+		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7383651050427679923,5272654408929543150}}
+	s %t{"ezSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
+		Angle %Deviation{f{0x920A063F}}
+		s %Prefab{""}
+		s %Type{"BulletImpact"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6538444430572296374,4800258516969875445}}
+		}
+	}
+}
+}
+Types{}

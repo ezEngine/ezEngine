@@ -1,192 +1,271 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xBB572BE5FC77554096ED3B76C8BAE768" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "131", "$b" : "0x83000000" },
-    "Green" : { "$t" : "uint32", "$v" : "244", "$b" : "0xF4000000" },
-    "Position" : { "$t" : "float", "$v" : "0.6661", "$b" : "0xBB832A3F" },
-    "Red" : { "$t" : "uint32", "$v" : "238", "$b" : "0xEE000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xC05D861B6BBB1E41ABB7FD741BEA652A" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "93", "$b" : "0x5D000000" },
-    "Green" : { "$t" : "uint32", "$v" : "201", "$b" : "0xC9000000" },
-    "Position" : { "$t" : "float", "$v" : "0.2289", "$b" : "0x78606A3E" },
-    "Red" : { "$t" : "uint32", "$v" : "255", "$b" : "0xFF000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x1D1E419360D9D44283C6CF5ECCA5A2CC" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Green" : { "$t" : "uint32", "$v" : "70", "$b" : "0x46000000" },
-    "Position" : { "$t" : "float", "$v" : "0.8000", "$b" : "0x98CA4C3F" },
-    "Red" : { "$t" : "uint32", "$v" : "175", "$b" : "0xAF000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB059EB29B6C685449A7C7E8D6366C7A6" },
-   "t" : "ezColorGradientAssetData",
-   "p" : {
-    "Alpha CPs" : [  ],
-    "Color CPs" : [ { "$t" : "uuid", "$b" : "0x4615CE5455609645A0C500AFA65E1F11" }, { "$t" : "uuid", "$b" : "0xC05D861B6BBB1E41ABB7FD741BEA652A" }, { "$t" : "uuid", "$b" : "0x61868F926562CE449717C22C0641D9FF" }, { "$t" : "uuid", "$b" : "0x170EEE019E4CE44D950C7B0981710FF6" }, { "$t" : "uuid", "$b" : "0x1D1E419360D9D44283C6CF5ECCA5A2CC" }, { "$t" : "uuid", "$b" : "0x1B8AEC0830F2F74CB24502867CD2D187" }, { "$t" : "uuid", "$b" : "0x687334493DD6E64BB015BC6A2035C97E" }, { "$t" : "uuid", "$b" : "0xCAD836585E7F154F8B0E9BEEA397583F" }, { "$t" : "uuid", "$b" : "0xFE42B226A44B994ABB14DA81B9C951DB" }, { "$t" : "uuid", "$b" : "0xBB572BE5FC77554096ED3B76C8BAE768" }, { "$t" : "uuid", "$b" : "0x0F14ABE7C565CD4794C3C9216D555394" }, { "$t" : "uuid", "$b" : "0xCA1175B61991394A8A8CCDBC3636FCD6" }, { "$t" : "uuid", "$b" : "0x543CCD63100ED94691AF6CED5D8BC0AA" }, { "$t" : "uuid", "$b" : "0x09FC05A33559D84CB5C4CA785E41F818" }, { "$t" : "uuid", "$b" : "0x36495226BEEFC54F822B6C7BC9B67683" }, { "$t" : "uuid", "$b" : "0x64A5AB1042B0C648BAABE0102FC07D3F" } ],
-    "Intensity CPs" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x61868F926562CE449717C22C0641D9FF" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "68", "$b" : "0x44000000" },
-    "Green" : { "$t" : "uint32", "$v" : "94", "$b" : "0x5E000000" },
-    "Position" : { "$t" : "float", "$v" : "0.3998", "$b" : "0xF1ADCC3E" },
-    "Red" : { "$t" : "uint32", "$v" : "161", "$b" : "0xA1000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x4615CE5455609645A0C500AFA65E1F11" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "41", "$b" : "0x29000000" },
-    "Green" : { "$t" : "uint32", "$v" : "195", "$b" : "0xC3000000" },
-    "Position" : { "$t" : "float", "$v" : "-0.0012", "$b" : "0xA0419ABA" },
-    "Red" : { "$t" : "uint32", "$v" : "255", "$b" : "0xFF000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x543CCD63100ED94691AF6CED5D8BC0AA" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "50", "$b" : "0x32000000" },
-    "Green" : { "$t" : "uint32", "$v" : "243", "$b" : "0xF3000000" },
-    "Position" : { "$t" : "float", "$v" : "0.5181", "$b" : "0xC1A3043F" },
-    "Red" : { "$t" : "uint32", "$v" : "240", "$b" : "0xF0000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x0F14ABE7C565CD4794C3C9216D555394" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "24", "$b" : "0x18000000" },
-    "Green" : { "$t" : "uint32", "$v" : "180", "$b" : "0xB4000000" },
-    "Position" : { "$t" : "float", "$v" : "0.8296", "$b" : "0xC95D543F" },
-    "Red" : { "$t" : "uint32", "$v" : "252", "$b" : "0xFC000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x64A5AB1042B0C648BAABE0102FC07D3F" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "121", "$b" : "0x79000000" },
-    "Green" : { "$t" : "uint32", "$v" : "247", "$b" : "0xF7000000" },
-    "Position" : { "$t" : "float", "$v" : "0.1446", "$b" : "0xA405143E" },
-    "Red" : { "$t" : "uint32", "$v" : "247", "$b" : "0xF7000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xCA1175B61991394A8A8CCDBC3636FCD6" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "78", "$b" : "0x4E000000" },
-    "Green" : { "$t" : "uint32", "$v" : "222", "$b" : "0xDE000000" },
-    "Position" : { "$t" : "float", "$v" : "0.7179", "$b" : "0x53C5373F" },
-    "Red" : { "$t" : "uint32", "$v" : "250", "$b" : "0xFA000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xFE42B226A44B994ABB14DA81B9C951DB" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "128", "$b" : "0x80000000" },
-    "Green" : { "$t" : "uint32", "$v" : "237", "$b" : "0xED000000" },
-    "Position" : { "$t" : "float", "$v" : "0.6017", "$b" : "0xFC091A3F" },
-    "Red" : { "$t" : "uint32", "$v" : "234", "$b" : "0xEA000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xB059EB29B6C685449A7C7E8D6366C7A6" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x687334493DD6E64BB015BC6A2035C97E" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "135", "$b" : "0x87000000" },
-    "Green" : { "$t" : "uint32", "$v" : "248", "$b" : "0xF8000000" },
-    "Position" : { "$t" : "float", "$v" : "0.4441", "$b" : "0x8767E33E" },
-    "Red" : { "$t" : "uint32", "$v" : "239", "$b" : "0xEF000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x35DE826074C1404CA5A517FD67B11CE5" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "ColorGradient",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x35DE826074C1404CA5A517FD67B11CE5" },
-    "Hash" : { "$t" : "uint64", "$v" : "10713601955194312718", "$b" : "0x0E984914375CAE94" },
-    "References" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x09FC05A33559D84CB5C4CA785E41F818" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "92", "$b" : "0x5C000000" },
-    "Green" : { "$t" : "uint32", "$v" : "197", "$b" : "0xC5000000" },
-    "Position" : { "$t" : "float", "$v" : "0.3495", "$b" : "0xAEECB23E" },
-    "Red" : { "$t" : "uint32", "$v" : "251", "$b" : "0xFB000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x1B8AEC0830F2F74CB24502867CD2D187" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "122", "$b" : "0x7A000000" },
-    "Green" : { "$t" : "uint32", "$v" : "233", "$b" : "0xE9000000" },
-    "Position" : { "$t" : "float", "$v" : "0.9886", "$b" : "0xF7147D3F" },
-    "Red" : { "$t" : "uint32", "$v" : "241", "$b" : "0xF1000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x170EEE019E4CE44D950C7B0981710FF6" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "138", "$b" : "0x8A000000" },
-    "Green" : { "$t" : "uint32", "$v" : "255", "$b" : "0xFF000000" },
-    "Position" : { "$t" : "float", "$v" : "0.7674", "$b" : "0x7975443F" },
-    "Red" : { "$t" : "uint32", "$v" : "244", "$b" : "0xF4000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xCAD836585E7F154F8B0E9BEEA397583F" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Green" : { "$t" : "uint32", "$v" : "75", "$b" : "0x4B000000" },
-    "Position" : { "$t" : "float", "$v" : "0.6306", "$b" : "0xB36C213F" },
-    "Red" : { "$t" : "uint32", "$v" : "177", "$b" : "0xB1000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x36495226BEEFC54F822B6C7BC9B67683" },
-   "t" : "ezColorControlPoint",
-   "p" : {
-    "Blue" : { "$t" : "uint32", "$v" : "75", "$b" : "0x4B000000" },
-    "Green" : { "$t" : "uint32", "$v" : "132", "$b" : "0x84000000" },
-    "Position" : { "$t" : "float", "$v" : "0.1889", "$b" : "0xD078413E" },
-    "Red" : { "$t" : "uint32", "$v" : "190", "$b" : "0xBE000000" }
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{7559215869704531350,4635743319508080571}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{131}
+		u1 %Green{244}
+		f %Position{0xBB832A3F}
+		u1 %Red{238}
+	}
 }
+o
+{
+	Uuid %id{u4{3055105325888550827,4692393930464320960}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{93}
+		u1 %Green{201}
+		f %Position{0x78606A3E}
+		u1 %Red{255}
+	}
+}
+o
+{
+	Uuid %id{u4{14745530427147011715,4815712910376508957}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{0}
+		u1 %Green{70}
+		f %Position{0x98CA4C3F}
+		u1 %Red{175}
+	}
+}
+o
+{
+	Uuid %id{u4{12017686708423130266,4937571052171254192}}
+	s %t{"ezColorGradientAssetData"}
+	u3 %v{2}
+	p
+	{
+		VarArray %AlphaCPs{}
+		VarArray %ColorCPs
+		{
+			Uuid{u4{1233808892916450720,5014301154734904646}}
+			Uuid{u4{3055105325888550827,4692393930464320960}}
+			Uuid{u4{18435838044394362775,4958008428171593313}}
+			Uuid{u4{17730515057004711061,5612695277131402775}}
+			Uuid{u4{14745530427147011715,4815712910376508957}}
+			Uuid{u4{9786834897518871986,5546167754252126747}}
+			Uuid{u4{9135891732443698608,5469294356197569384}}
+			Uuid{u4{4564564952678600331,5698600946690873546}}
+			Uuid{u4{15803634366004466875,5375410798639334142}}
+			Uuid{u4{7559215869704531350,4635743319508080571}}
+			Uuid{u4{10687980267886986132,5173903447588279311}}
+			Uuid{u4{15491316426971384970,5348465572100510154}}
+			Uuid{u4{12303987417507737489,5105127116157828180}}
+			Uuid{u4{1799259925143798965,5537273828755241993}}
+			Uuid{u4{9472959842695785346,5748264099374057782}}
+			Uuid{u4{4575024104857447354,5244072613913535844}}
+		}
+		VarArray %IntensityCPs{}
+	}
+}
+o
+{
+	Uuid %id{u4{18435838044394362775,4958008428171593313}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{68}
+		u1 %Green{94}
+		f %Position{0xF1ADCC3E}
+		u1 %Red{161}
+	}
+}
+o
+{
+	Uuid %id{u4{1233808892916450720,5014301154734904646}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{41}
+		u1 %Green{195}
+		f %Position{0xA0419ABA}
+		u1 %Red{255}
+	}
+}
+o
+{
+	Uuid %id{u4{12303987417507737489,5105127116157828180}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{50}
+		u1 %Green{243}
+		f %Position{0xC1A3043F}
+		u1 %Red{240}
+	}
+}
+o
+{
+	Uuid %id{u4{10687980267886986132,5173903447588279311}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{24}
+		u1 %Green{180}
+		f %Position{0xC95D543F}
+		u1 %Red{252}
+	}
+}
+o
+{
+	Uuid %id{u4{4575024104857447354,5244072613913535844}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{121}
+		u1 %Green{247}
+		f %Position{0xA405143E}
+		u1 %Red{247}
+	}
+}
+o
+{
+	Uuid %id{u4{15491316426971384970,5348465572100510154}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{78}
+		u1 %Green{222}
+		f %Position{0x53C5373F}
+		u1 %Red{250}
+	}
+}
+o
+{
+	Uuid %id{u4{15803634366004466875,5375410798639334142}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{128}
+		u1 %Green{237}
+		f %Position{0xFC091A3F}
+		u1 %Red{234}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{12017686708423130266,4937571052171254192}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9135891732443698608,5469294356197569384}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{135}
+		u1 %Green{248}
+		f %Position{0x8767E33E}
+		u1 %Red{239}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{16509265394219328933,5494604250971561525}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"ColorGradient"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{16509265394219328933,5494604250971561525}}
+		u4 %Hash{10713601955194312718}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{1799259925143798965,5537273828755241993}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{92}
+		u1 %Green{197}
+		f %Position{0xAEECB23E}
+		u1 %Red{251}
+	}
+}
+o
+{
+	Uuid %id{u4{9786834897518871986,5546167754252126747}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{122}
+		u1 %Green{233}
+		f %Position{0xF7147D3F}
+		u1 %Red{241}
+	}
+}
+o
+{
+	Uuid %id{u4{17730515057004711061,5612695277131402775}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{138}
+		u1 %Green{255}
+		f %Position{0x7975443F}
+		u1 %Red{244}
+	}
+}
+o
+{
+	Uuid %id{u4{4564564952678600331,5698600946690873546}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{1}
+		u1 %Green{75}
+		f %Position{0xB36C213F}
+		u1 %Red{177}
+	}
+}
+o
+{
+	Uuid %id{u4{9472959842695785346,5748264099374057782}}
+	s %t{"ezColorControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Blue{75}
+		u1 %Green{132}
+		f %Position{0xD078413E}
+		u1 %Red{190}
+	}
+}
+}
+Types{}
