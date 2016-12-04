@@ -158,6 +158,68 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const ezUuid& assetGuid)
   return EnsureAssetInfoUpdated(pInfo->m_sAbsolutePath);
 }
 
+static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid newGuid)
+{
+  ezStringBuilder sContent;
+
+  {
+    ezFileReader file;
+    ezUInt32 uiTries = 0;
+
+    while (file.Open(szAbsFilePath).Failed())
+    {
+      if (uiTries >= 5)
+        return EZ_FAILURE;
+
+      ezThreadUtils::Sleep(50 * (uiTries + 1));
+      uiTries++;
+    }
+
+    sContent.ReadAll(file);
+  }
+
+  if (sContent.StartsWith("{")) // JSON
+  {
+    return EZ_FAILURE;
+  }
+  else
+  {
+    // DDL
+    ezUInt64 oldL, oldH;
+    oldGuid.GetValues(oldL, oldH);
+
+    ezUInt64 newL, newH;
+    newGuid.GetValues(newL, newH);
+
+    ezStringBuilder sOld;
+    sOld.Format("%llu,%llu", oldL, oldH);
+
+    ezStringBuilder sNew;
+    sNew.Format("%llu,%llu", newL, newH);
+
+    sContent.ReplaceAll(sOld, sNew);
+  }
+
+  {
+    ezFileWriter file;
+
+    ezUInt32 uiTries = 0;
+
+    while (file.Open(szAbsFilePath).Failed())
+    {
+      if (uiTries >= 5)
+        return EZ_FAILURE;
+
+      ezThreadUtils::Sleep(50 * (uiTries + 1));
+      uiTries++;
+    }
+
+    return file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 {
   ezFileStats fs;
@@ -199,11 +261,30 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
       }
       else
       {
-        EZ_REPORT_FAILURE("The assets '%s' and '%s' share the same GUID!",
-          assetInfo.m_sAbsolutePath.GetData(),
-          pAssetInfo->m_sAbsolutePath.GetData());
-      }
+        // Unfortunately we only know about duplicates in the order in which the filesystem tells us about files
+        // That means we currently always adjust the GUID of the second, third, etc. file that we look at
+        // even if we might know that changing another file makes more sense
+        // This works well for when the editor is running and someone copies a file.
 
+        ezLog::Error("Two assets have identical GUIDs: '%s' and '%s'", assetInfo.m_sAbsolutePath.GetData(), pAssetInfo->m_sAbsolutePath.GetData());
+
+        const ezUuid mod = ezUuid::StableUuidForString(szAbsFilePath);
+        ezUuid newGuid = assetInfo.m_Info.m_DocumentID;
+        newGuid.CombineWithSeed(mod);
+
+        if (PatchAssetGuid(szAbsFilePath, assetInfo.m_Info.m_DocumentID, newGuid).Failed())
+        {
+          ezLog::Error("Failed to adjust GUID of asset: '%s'", szAbsFilePath);
+          m_ReferencedFiles.Remove(szAbsFilePath);
+          return EZ_FAILURE;
+        }
+
+        ezLog::Warning("Adjusted GUID of asset to make it unique: '%s'", szAbsFilePath);
+
+        // now let's try that again
+        m_ReferencedFiles.Remove(szAbsFilePath);
+        return EnsureAssetInfoUpdated(szAbsFilePath);
+      }
     }
     // and we can store the new ezAssetInfo data under that GUID
     pAssetInfo = EZ_DEFAULT_NEW(ezAssetInfo, assetInfo);
@@ -424,7 +505,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   }
   file.Close();
 
-  // and finally actually read the asset JSON file (header only) and store the information in the ezAssetDocumentInfo member
+  // and finally actually read the asset file (header only) and store the information in the ezAssetDocumentInfo member
   if (it.IsValid() && it.Value()->m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
   {
     assetInfo.m_Info = it.Value()->m_Info;
@@ -441,7 +522,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
       return EZ_FAILURE;
     }
 
-    // here we get the GUID out of the JSON document
+    // here we get the GUID out of the document
     // this links the 'file' to the 'asset'
     stat.m_AssetGuid = assetInfo.m_Info.m_DocumentID;
   }
