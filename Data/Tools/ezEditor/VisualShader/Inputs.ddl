@@ -34,6 +34,28 @@ Node %UV
   }
 }
 
+Node %UV_Scroll
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  InputPin %Speed
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 50, 50, 128 }
+    bool %Expose { true }
+    string %Fallback { "1, 1" }
+  }
+
+  OutputPin %UV
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 50, 50, 128 }
+    string %Inline { "Input.TexCoords + frac(WorldTime * $in0)" }
+    string %Tooltip { "The scrolled UV 0 texture coordinate." }
+  }
+}
+
 Node %VertexPosition
 {
   string %Category { "Input" }
