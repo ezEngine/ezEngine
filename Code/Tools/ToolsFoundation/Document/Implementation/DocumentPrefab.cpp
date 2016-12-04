@@ -83,10 +83,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pTypeDesc).Failed())
     return ezStatus("Document type is unknown: '%s'", szFile);
 
-  if (pTypeDesc->m_pManager->EnsureDocumentIsClosed(szFile).Failed())
-  {
-    return ezStatus("Could not close the existing prefab document");
-  }
+  pTypeDesc->m_pManager->EnsureDocumentIsClosed(szFile);
 
   // prepare the current state as a graph
   ezAbstractObjectGraph PrefabGraph;

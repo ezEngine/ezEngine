@@ -215,7 +215,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
         if (!bCreate)
           status = out_pDocument->LoadDocument();
-        
+
         out_pDocument->InitializeAfterLoading();
 
         if (bCreate)
@@ -319,16 +319,29 @@ ezDocument* ezDocumentManager::GetDocumentByGuid(const ezUuid& guid)
   return nullptr;
 }
 
-ezResult ezDocumentManager::EnsureDocumentIsClosed(const char* szPath)
+
+bool ezDocumentManager::EnsureDocumentIsClosedInAllManagers(const char* szPath)
+{
+  bool bClosedAny = false;
+  for (auto man : s_AllDocumentManagers)
+  {
+    if (man->EnsureDocumentIsClosed(szPath))
+      bClosedAny = true;
+  }
+
+  return bClosedAny;
+}
+
+bool ezDocumentManager::EnsureDocumentIsClosed(const char* szPath)
 {
   auto pDoc = GetDocumentByPath(szPath);
 
   if (pDoc == nullptr)
-    return EZ_SUCCESS;
+    return false;
 
   CloseDocument(pDoc);
 
-  return EZ_FAILURE;
+  return true;
 }
 
 ezResult ezDocumentManager::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc)

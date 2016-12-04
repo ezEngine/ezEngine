@@ -142,7 +142,7 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
 
 void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
-  // Sync 
+  // Sync
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEngine>())
   {
     ezSyncWithProcessMsgToEditor msg;
@@ -211,9 +211,11 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
     return;
   }
 
-  EZ_ASSERT_DEV(pDocumentContext != nullptr, "Document Context is invalid!");
-
-  pDocumentContext->HandleMessage(pDocMsg);
+  // can be null if the asset was deleted on disk manually
+  if (pDocumentContext)
+  {
+    pDocumentContext->HandleMessage(pDocMsg);
+  }
 }
 
 ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg)

@@ -138,6 +138,10 @@ void ezAssetCurator::SetActivePlatform(const char* szPlatform)
 
 void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirectoryWatcherAction action)
 {
+  // ignore everything inside the AssetCache
+  if (ezStringUtils::StartsWith(szFilename, "AssetCache"))
+    return;
+
   switch (action)
   {
   case ezDirectoryWatcherAction::Added:
@@ -711,6 +715,14 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
   ezFileStats Stats;
   if (ezOSFile::GetFileStats(sAbsolutePath, Stats).Failed())
   {
+    // this is a bit tricky:
+    // when the document is deleted on disk, it would be nicer not to close it (discarding modifications!)
+    // instead we could set it as modified
+    // but then when it was only moved or renamed that means we have another document with the same GUID
+    // so once the user would save the now modified document, we would end up with two documents with the same GUID
+    // so, for now, since this is probably a rare case anyway, we just close the document without asking
+    ezDocumentManager::EnsureDocumentIsClosedInAllManagers(sAbsolutePath);
+
     auto it = m_ReferencedFiles.Find(sAbsolutePath);
     if (it.IsValid())
     {
@@ -1273,7 +1285,7 @@ void ezAssetCurator::SaveCaches()
     ezUInt32 uiCount = 0;
     for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
     {
-      if (it.Value()->m_ExistanceState == ezAssetInfo::ExistanceState::FileUnchanged 
+      if (it.Value()->m_ExistanceState == ezAssetInfo::ExistanceState::FileUnchanged
         && it.Value()->m_sAbsolutePath.StartsWith(sDataDir))
       {
         ++uiCount;
@@ -1282,11 +1294,11 @@ void ezAssetCurator::SaveCaches()
 
     ezDeferredFileWriter writer;
     writer.SetOutput(sCacheFile);
-    
+
     writer << uiCuratorCacheVersion;
     writer << uiVersion;
     writer << uiCount;
-    
+
     AssetCacheEntry entry;
     for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
     {

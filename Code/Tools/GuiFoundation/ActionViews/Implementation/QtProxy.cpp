@@ -16,7 +16,7 @@
 
 ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
 ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
-ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_DocumentActions;
+ezMap<const ezDocument*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_DocumentActions;
 ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_WindowActions;
 QObject* ezQtProxy::s_pSignalProxy = nullptr;
 
@@ -93,6 +93,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
     pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
     EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
     pProxy->SetAction(pAction);
+    EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == context.m_pDocument, "invalid document pointer");
     return pProxy;
   }
 
@@ -118,19 +119,16 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
     break;
   case ezActionScope::Document:
     {
-      ezUuid guid; // invalid
+      const ezDocument* pDocument = context.m_pDocument; // may be null
 
-      if (context.m_pDocument)
-        guid = context.m_pDocument->GetGuid();
-
-      QWeakPointer<ezQtProxy> pTemp = s_DocumentActions[guid][hDesc];
+      QWeakPointer<ezQtProxy> pTemp = s_DocumentActions[pDocument][hDesc];
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction);
-        s_DocumentActions[guid][hDesc] = pProxy;
+        s_DocumentActions[pDocument][hDesc] = pProxy;
       }
       else
       {
@@ -162,6 +160,12 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       }
     }
     break;
+  }
+
+  // make sure we don't use actions that are meant for a different document
+  if (pProxy != nullptr && pProxy->GetAction()->GetContext().m_pDocument != nullptr)
+  {
+    EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == context.m_pDocument, "invalid document pointer");
   }
   return pProxy;
 }

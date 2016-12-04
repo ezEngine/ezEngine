@@ -311,8 +311,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
   const ezUuid AssetGuid = asset.m_Guid;
   const ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
 
-  EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer! This can happen when an asset has been overwritten by a new file with a new asset GUID.");
-
+  // this can happen when a file was just changed on disk, e.g. got deleted
   if (pAssetInfo == nullptr)
     return QVariant();
 

@@ -28,7 +28,12 @@ public:
 
   static ezDocument* GetDocumentByGuid(const ezUuid& guid);
 
-  ezResult EnsureDocumentIsClosed(const char* szPath);
+  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document was open and needed to be closed.
+  static bool EnsureDocumentIsClosedInAllManagers(const char* szPath);
+
+  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document was open and needed to be closed.
+  /// This function only operates on documents opened by this manager. Use EnsureDocumentIsClosedInAllManagers() to close documents of any type.
+  bool EnsureDocumentIsClosed(const char* szPath);
 
   void CloseAllDocumentsOfManager();
   static void CloseAllDocuments();

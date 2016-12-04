@@ -38,7 +38,7 @@ protected:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, QtProxies);
   static ezRttiMappedObjectFactory<ezQtProxy> s_Factory;
   static ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> s_GlobalActions;
-  static ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_DocumentActions;
+  static ezMap<const ezDocument*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_DocumentActions;
   static ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_WindowActions;
   static QObject* s_pSignalProxy;
 
