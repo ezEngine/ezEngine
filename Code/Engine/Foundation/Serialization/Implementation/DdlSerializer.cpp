@@ -13,8 +13,6 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
 
   writer.BeginObject(szName);
 
-  ezStringBuilder tmp;
-
   const auto& Nodes = pGraph->GetAllNodes();
   for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
   {
@@ -42,10 +40,7 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
 
         for (auto it = SortedProperties.GetIterator(); it.IsValid(); ++it)
         {
-          /// \todo Remove this once spaces are not allowed in property names anymore
-          tmp = it.Key();
-          tmp.ReplaceAll(" ", "_");
-          ezOpenDdlUtils::StoreVariant(writer, *it.Value(), tmp);
+          ezOpenDdlUtils::StoreVariant(writer, *it.Value(), it.Key());
         }
 
         SortedProperties.Clear();
@@ -123,14 +118,10 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
       if (!pProp->HasName())
         continue;
 
-      /// \todo Remove this bla bla
-      tmp = pProp->GetName();
-      tmp.ReplaceAll("_", " ");
-
       if (ezOpenDdlUtils::ConvertToVariant(pProp, varTmp).Failed())
         continue;
 
-      pNode->AddProperty(tmp, varTmp);
+      pNode->AddProperty(pProp->GetName(), varTmp);
     }
   }
 }
