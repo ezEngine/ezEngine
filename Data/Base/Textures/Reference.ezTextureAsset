@@ -1,40 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x2BA1D4168A1ED745997360F28B39FF54" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : true,
-    "Input 1" : "Textures/Reference_D.dds",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x2BA1D4168A1ED745997360F28B39FF54" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x890270AAAE9AC54E81EA9C381EC8309E" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "Textures/Reference_D.dds" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x890270AAAE9AC54E81EA9C381EC8309E" },
-    "Hash" : { "$t" : "uint64", "$v" : "16166257190377300351", "$b" : "0x7F210B1C43155AE0" },
-    "References" : [  ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{6124677291476808601,5032524687047172395}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{1}
+		s %Input1{"Textures/Reference_D.dds"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6124677291476808601,5032524687047172395}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{11398830688999107201,5676112980344832649}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Textures/Reference_D.dds"}
+		}
+		Uuid %DocumentID{u4{11398830688999107201,5676112980344832649}}
+		u4 %Hash{3193970736002624723}
+		VarArray %References{}
+	}
+}
+}
+Types{}

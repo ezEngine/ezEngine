@@ -1,40 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Channel Mapping" : "ezChannelMappingEnum::RGBA1_2D",
-    "Compression" : true,
-    "Input 1" : "Sponza/Textures/sponza_fabric_green_diff.dds",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x68C01A6694C2404A904ABABB33F34110" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "Sponza/Textures/sponza_fabric_green_diff.dds" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x68C01A6694C2404A904ABABB33F34110" },
-    "Hash" : { "$t" : "uint64", "$v" : "18312552997234629355", "$b" : "0xEB5AAF4AED4123FE" },
-    "References" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" } ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{3336002108729556632,5007116286673076272}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGBA1_2D"}
+		b %Compression{1}
+		s %Input1{"Sponza/Textures/sponza_fabric_green_diff.dds"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
 }
+AssetInfo
+{
+	Uuid %id{u4{1171484781611469456,5350490299940126824}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Sponza/Textures/sponza_fabric_green_diff.dds"}
+		}
+		Uuid %DocumentID{u4{1171484781611469456,5350490299940126824}}
+		u4 %Hash{5776400624503687721}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{3336002108729556632,5007116286673076272}}
+		}
+	}
+}
+}
+Types{}

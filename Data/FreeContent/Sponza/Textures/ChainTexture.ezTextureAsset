@@ -1,40 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Channel Mapping" : "ezChannelMappingEnum::RGBA1_2D",
-    "Compression" : true,
-    "Input 1" : "Sponza/Textures/chain_texture_diff.dds",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x1F90B3BCB84A4E4EAE83BBEBEF895A40" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "Sponza/Textures/chain_texture_diff.dds" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x1F90B3BCB84A4E4EAE83BBEBEF895A40" },
-    "Hash" : { "$t" : "uint64", "$v" : "2267335405994129020", "$b" : "0x7C36F2F48931771F" },
-    "References" : [  ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13273011094000490666,5641862591920899124}}
+		}
+	}
 }
+o
+{
+	Uuid %id{u4{13273011094000490666,5641862591920899124}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGBA1_2D"}
+		b %Compression{1}
+		s %Input1{"Sponza/Textures/chain_texture_diff.dds"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{4637170429876470702,5642529540442132511}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Sponza/Textures/chain_texture_diff.dds"}
+		}
+		Uuid %DocumentID{u4{4637170429876470702,5642529540442132511}}
+		u4 %Hash{7989877332737844209}
+		VarArray %References{}
+	}
+}
+}
+Types{}

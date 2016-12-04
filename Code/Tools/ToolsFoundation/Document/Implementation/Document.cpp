@@ -215,6 +215,7 @@ ezStatus ezDocument::InternalLoadDocument()
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
 
+  bool bSetModified = false;
   {
     ezFileReader file;
     if (file.Open(m_sDocumentPath) == EZ_FAILURE)
@@ -226,6 +227,8 @@ ezStatus ezDocument::InternalLoadDocument()
 
     if (storage.GetData()[0] == '{') // JSON starts with a brace
     {
+      bSetModified = true;
+
       ezStopwatch sw;
       ezAbstractGraphJsonSerializer::Read(memreader, &graph, &typesGraph);
       ezTime t = sw.GetRunningTotal();
@@ -283,7 +286,7 @@ ezStatus ezDocument::InternalLoadDocument()
 
   RestoreMetaDataAfterLoading(graph);
 
-  SetModified(false);
+  SetModified(bSetModified);
   return ezStatus(EZ_SUCCESS);
 }
 

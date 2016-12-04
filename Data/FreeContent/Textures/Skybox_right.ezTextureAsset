@@ -1,43 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xD762652E92E6F244AE317143A7E81655" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Address Mode U" : "ezTextureAddressMode::Clamp",
-    "Address Mode V" : "ezTextureAddressMode::Clamp",
-    "Address Mode W" : "ezTextureAddressMode::Clamp",
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : false,
-    "Input 1" : "Textures/skybox_rt.tga",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xD762652E92E6F244AE317143A7E81655" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xCA890AEDA4D7394EA25F9518C1CD3AFF" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xCA890AEDA4D7394EA25F9518C1CD3AFF" },
-    "Hash" : { "$t" : "uint64", "$v" : "11246356238854562304", "$b" : "0x00A26CDA6915139C" },
-    "References" : [ "Textures/skybox_rt.tga" ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{6131343747800183214,4968286854461088471}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Clamp"}
+		s %AddressModeV{"ezTextureAddressMode::Clamp"}
+		s %AddressModeW{"ezTextureAddressMode::Clamp"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{0}
+		s %Input1{"Textures/skybox_rt.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6131343747800183214,4968286854461088471}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{18391238257545666466,5636773511982385610}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Textures/skybox_rt.tga"}
+		}
+		Uuid %DocumentID{u4{18391238257545666466,5636773511982385610}}
+		u4 %Hash{13743786790844266441}
+		VarArray %References{}
+	}
+}
+}
+Types{}

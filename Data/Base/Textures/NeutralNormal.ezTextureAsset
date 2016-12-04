@@ -1,40 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xFAFA4D6EF6291C429AE2EAFF618049E2" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : true,
-    "Input 1" : "Textures/NeutralNormal.tga",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::NormalMap"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xFAFA4D6EF6291C429AE2EAFF618049E2" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x9028C84DE339FC4BA97D86A984D4D3DB" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "Textures/NeutralNormal.tga" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x9028C84DE339FC4BA97D86A984D4D3DB" },
-    "Hash" : { "$t" : "uint64", "$v" : "18171684461863066713", "$b" : "0x595CD587BDCA2EFC" },
-    "References" : [  ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{16305705084265357978,4763728644240440058}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{0}
+		s %Input1{"Textures/NeutralNormal.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::NormalMap"}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16305705084265357978,4763728644240440058}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{15840237980637101481,5475314895401003152}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Textures/NeutralNormal.tga"}
+		}
+		Uuid %DocumentID{u4{15840237980637101481,5475314895401003152}}
+		u4 %Hash{772200185801908079}
+		VarArray %References{}
+	}
+}
+}
+Types{}

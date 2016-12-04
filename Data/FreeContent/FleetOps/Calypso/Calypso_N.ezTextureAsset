@@ -1,40 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xE72A98CADECFD8439432640B8D191559" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "FleetOps/Calypso/Calypso_N.dds" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xE72A98CADECFD8439432640B8D191559" },
-    "Hash" : { "$t" : "uint64", "$v" : "11609970547516886635", "$b" : "0x6BCE7D61B3E61EA1" },
-    "References" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xDDD3DC28E9297C4D9E7360FAF99FCDDE" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xDDD3DC28E9297C4D9E7360FAF99FCDDE" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : true,
-    "Input 1" : "FleetOps/Calypso/Calypso_N.dds",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::NormalMap"
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{6419064937458709140,4888885951299332839}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Calypso/Calypso_N.dds"}
+		}
+		Uuid %DocumentID{u4{6419064937458709140,4888885951299332839}}
+		u4 %Hash{8470367188969354541}
+		VarArray %References{}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16054664142641984414,5583383719422251997}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16054664142641984414,5583383719422251997}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{1}
+		s %Input1{"FleetOps/Calypso/Calypso_N.dds"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::NormalMap"}
+	}
+}
+}
+Types{}

@@ -1,43 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x392064A4E9632143AAAE0772A28F7944" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Address Mode U" : "ezTextureAddressMode::Wrap",
-    "Address Mode V" : "ezTextureAddressMode::Wrap",
-    "Address Mode W" : "ezTextureAddressMode::Wrap",
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : true,
-    "Input 1" : "id/Imp/Metallic.tga",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Other_Linear"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xEE67468FFB2DE449A7135A0E63B94AED" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "id/Imp/Metallic.tga" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xEE67468FFB2DE449A7135A0E63B94AED" },
-    "Hash" : { "$t" : "uint64", "$v" : "7666273131874659985", "$b" : "0x91AE82B8CB12646A" },
-    "References" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x392064A4E9632143AAAE0772A28F7944" } ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{4934132794621669034,4837257329909178425}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{1}
+		s %Input1{"id/Imp/Metallic.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Other_Linear"}
+	}
 }
+AssetInfo
+{
+	Uuid %id{u4{17098682770359194535,5324431217922566126}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"id/Imp/Metallic.tga"}
+		}
+		Uuid %DocumentID{u4{17098682770359194535,5324431217922566126}}
+		u4 %Hash{16813556409186102432}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{4934132794621669034,4837257329909178425}}
+		}
+	}
+}
+}
+Types{}

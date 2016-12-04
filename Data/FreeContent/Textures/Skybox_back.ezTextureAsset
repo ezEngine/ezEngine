@@ -1,43 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xD82EA1B189930A408A56F14DC856FB86" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xD82EA1B189930A408A56F14DC856FB86" },
-    "Hash" : { "$t" : "uint64", "$v" : "14529284904887629982", "$b" : "0x9EB8453CA463A2C9" },
-    "References" : [ "Textures/skybox_bk.tga" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xC1F67353A0EF1841B8960931291C2E47" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Address Mode U" : "ezTextureAddressMode::Clamp",
-    "Address Mode V" : "ezTextureAddressMode::Clamp",
-    "Address Mode W" : "ezTextureAddressMode::Clamp",
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : false,
-    "Input 1" : "Textures/skybox_bk.tga",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xC1F67353A0EF1841B8960931291C2E47" } ]
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{9726463238537827978,4614662987794427608}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Textures/skybox_bk.tga"}
+		}
+		Uuid %DocumentID{u4{9726463238537827978,4614662987794427608}}
+		u4 %Hash{5886615425155495996}
+		VarArray %References{}
+	}
 }
+o
+{
+	Uuid %id{u4{5129067988863522488,4690762483780286145}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Clamp"}
+		s %AddressModeV{"ezTextureAddressMode::Clamp"}
+		s %AddressModeW{"ezTextureAddressMode::Clamp"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{0}
+		s %Input1{"Textures/skybox_bk.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5129067988863522488,4690762483780286145}}
+		}
+	}
+}
+}
+Types{}

@@ -1,43 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x3FC83EAA32A95E41AC028CEFFDB733C1" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [  ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x3FC83EAA32A95E41AC028CEFFDB733C1" },
-    "Hash" : { "$t" : "uint64", "$v" : "13699669570129160777", "$b" : "0x49EAC6DBE3001FBE" },
-    "References" : [ "Textures/skybox_lt.tga" ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xFA6F4E3D9FC89B4D9F7E652155A5E9B8" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xFA6F4E3D9FC89B4D9F7E652155A5E9B8" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Address Mode U" : "ezTextureAddressMode::Clamp",
-    "Address Mode V" : "ezTextureAddressMode::Clamp",
-    "Address Mode W" : "ezTextureAddressMode::Clamp",
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : false,
-    "Input 1" : "Textures/skybox_lt.tga",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{13921673174405874348,4710388295345817663}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Textures/skybox_lt.tga"}
+		}
+		Uuid %DocumentID{u4{13921673174405874348,4710388295345817663}}
+		u4 %Hash{12009224500252878350}
+		VarArray %References{}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13324362757603425951,5592283948564508666}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13324362757603425951,5592283948564508666}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Clamp"}
+		s %AddressModeV{"ezTextureAddressMode::Clamp"}
+		s %AddressModeW{"ezTextureAddressMode::Clamp"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{0}
+		s %Input1{"Textures/skybox_lt.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
+}
+}
+Types{}

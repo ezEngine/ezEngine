@@ -1,40 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xC836BF424171064A825FC0853F621F51" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
-    "Compression" : true,
-    "Input 1" : "FleetOps/Calypso/Calypso_D.dds",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xC836BF424171064A825FC0853F621F51" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA88EC1C639432A4BBA8C346AFDFEB7A6" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "FleetOps/Calypso/Calypso_D.dds" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xA88EC1C639432A4BBA8C346AFDFEB7A6" },
-    "Hash" : { "$t" : "uint64", "$v" : "14717052919901439659", "$b" : "0xABC65907A8793DCC" },
-    "References" : [  ]
-   }
-  } ],
- "Types" : [  ]
+o
+{
+	Uuid %id{u4{5845498866316631938,5334075333773571784}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{1}
+		s %Input1{"FleetOps/Calypso/Calypso_D.dds"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5845498866316631938,5334075333773571784}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{12013350895396097210,5416215417293213352}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Calypso/Calypso_D.dds"}
+		}
+		Uuid %DocumentID{u4{12013350895396097210,5416215417293213352}}
+		u4 %Hash{14685765546040428125}
+		VarArray %References{}
+	}
+}
+}
+Types{}

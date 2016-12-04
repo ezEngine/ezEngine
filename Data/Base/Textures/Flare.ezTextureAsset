@@ -1,43 +1,60 @@
+Objects
 {
- "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xE86202E0F558F542880D569257047201" },
-   "t" : "ezAssetDocumentInfo",
-   "n" : "Header",
-   "p" : {
-    "AssetType" : "Texture 2D",
-    "Dependencies" : [ "Textures/Flare.tga" ],
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xE86202E0F558F542880D569257047201" },
-    "Hash" : { "$t" : "uint64", "$v" : "9035750237458842511", "$b" : "0x8FC3E2AEF76E657D" },
-    "References" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x3645A6869DBCC84FB7AB2519B0F03FDE" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3645A6869DBCC84FB7AB2519B0F03FDE" },
-   "t" : "ezTextureAssetProperties",
-   "p" : {
-    "Address Mode U" : "ezTextureAddressMode::Wrap",
-    "Address Mode V" : "ezTextureAddressMode::Wrap",
-    "Address Mode W" : "ezTextureAddressMode::Wrap",
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_ABLACK_2D",
-    "Compression" : true,
-    "Input 1" : "Textures/Flare.tga",
-    "Input 2" : "",
-    "Input 3" : "",
-    "Input 4" : "",
-    "Input 5" : "",
-    "Input 6" : "",
-    "Mipmaps" : true,
-    "Premultiplied Alpha" : false,
-    "Usage" : "ezTextureUsageEnum::Diffuse"
-   }
-  } ],
- "Types" : [  ]
+AssetInfo
+{
+	Uuid %id{u4{104150515546721672,4824860388845839080}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Textures/Flare.tga"}
+		}
+		Uuid %DocumentID{u4{104150515546721672,4824860388845839080}}
+		u4 %Hash{9946128863334164969}
+		VarArray %References{}
+	}
 }
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16014783439079582647,5749052309093369142}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16014783439079582647,5749052309093369142}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Clamp"}
+		s %AddressModeV{"ezTextureAddressMode::Clamp"}
+		s %AddressModeW{"ezTextureAddressMode::Clamp"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_ABLACK_2D"}
+		b %Compression{0}
+		s %Input1{"Textures/Flare.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
+}
+}
+Types{}
