@@ -1,6 +1,8 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/FormatString.h>
 
+#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg)
 {
   ezUInt32 writepos = 0;
@@ -79,4 +81,6 @@ const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView
 {
   return arg;
 }
+
+#endif
 

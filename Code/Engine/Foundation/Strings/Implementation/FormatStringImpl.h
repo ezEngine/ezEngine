@@ -1,7 +1,10 @@
 #pragma once
 
+#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+
 #include <tuple>
 #include <utility>
+#include <array>
 
 template<typename ... ARGS>
 class ezFormatStringImpl : public ezFormatString
@@ -71,3 +74,5 @@ private:
   // stores the arguments
   std::tuple<ARGS...> m_Arguments;
 };
+
+#endif

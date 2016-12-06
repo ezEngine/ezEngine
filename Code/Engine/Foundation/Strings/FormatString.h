@@ -3,6 +3,8 @@
 #include <Foundation/Strings/Implementation/FormatStringArgs.h>
 #include <Foundation/Strings/StringBuilder.h>
 
+#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+
 class ezFormatString
 {
 public:
@@ -27,3 +29,5 @@ ezFormatStringImpl<ARGS...> ezFmt(const char* szFormat, ARGS... args)
 {
   return ezFormatStringImpl<ARGS...>(szFormat, args...);
 }
+
+#endif
