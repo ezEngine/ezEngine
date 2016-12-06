@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <utility>
 
 template<typename ... ARGS>
 class ezFormatStringImpl : public ezFormatString
