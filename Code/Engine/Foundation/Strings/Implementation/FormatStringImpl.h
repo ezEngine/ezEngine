@@ -24,28 +24,16 @@ public:
   {
     sb = m_szString;
 
-    constexpr auto Size = sizeof...(ARGS);
-    InvokeReplace(sb, std::make_index_sequence<Size>{});
+    char tmp[256];
+    ReplaceString<0>(tmp, sb);
 
     return sb;
   }
 
 private:
 
-  // helper function to expand the tuple to variadic template arguments
-  template<std::size_t... index>
-  void InvokeReplace(ezStringBuilder& sb, std::index_sequence<index...>) const
-  {
-    char tmp[256];
-    ReplaceString<0, ARGS...>(tmp, sb, std::get<index>(m_Arguments)...);
-  }
-
-  // Version without parameters to end the recursion
-  template<ezInt32 N, typename... ARGN>
-  void ReplaceString(char* tmp, ezStringBuilder& sb) const {}
-
-  template<ezInt32 N, typename ARG0, typename... ARGN>
-  void ReplaceString(char* tmp, ezStringBuilder& sb, ARG0 arg0, ARGN... args) const
+  template<ezInt32 N>
+  typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char* tmp, ezStringBuilder& sb) const
   {
     EZ_CHECK_AT_COMPILETIME_MSG(N < 10, "Maximum number of format arguments reached");
 
@@ -68,8 +56,15 @@ private:
     }
 
     // Recurse, chip off one argument
-    ReplaceString<N + 1, ARGN...>(tmp, sb, args...);
+    ReplaceString<N + 1>(tmp, sb);
   }
+
+  // Recursion end if we reached the number of arguments.
+  template<ezInt32 N>
+  typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char* tmp, ezStringBuilder& sb) const
+  {
+  }
+
 
   // stores the arguments
   std::tuple<ARGS...> m_Arguments;
