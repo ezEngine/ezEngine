@@ -28,7 +28,7 @@ public:
   /// Equal to the amount of bytes in a string, if used on non-ASCII (i.e. UTF-8) strings.
   /// Equal to the number of characters in a string, if used with UTF-32 strings.
   template <typename T>
-  static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd = (const T*) -1); // [tested]
+  static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd = (const T*)-1); // [tested]
 
   /// \brief Returns the number of characters (not Bytes!) in a Utf8 string (excluding the zero terminator), until it hits zero or the end pointer.
   static ezUInt32 GetCharacterCount(const char* szUtf8, const char* pStringEnd = ezMaxStringEnd); // [tested]
@@ -193,7 +193,7 @@ public:
   static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Function Definition for a function that determines whether a (Utf32) character belongs to a certain category of characters.
-  typedef bool (*EZ_CHARACTER_FILTER)(ezUInt32 uiChar);
+  typedef bool(*EZ_CHARACTER_FILTER)(ezUInt32 uiChar);
 
   /// \brief Starts at szString and advances to the next character for which SkipCharacterCB returns false;
   ///
@@ -231,6 +231,13 @@ public:
 
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr. Ignores case.
   static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
+
+  /// \brief [internal] Prefer to use snprintf.
+  static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
+  /// \brief [internal] Prefer to use snprintf.
+  static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
+  /// \brief [internal] Prefer to use snprintf.
+  static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros, ezInt8 iPrecision, bool bScientific);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   static void AddUsedStringLength(ezUInt32 uiLength);

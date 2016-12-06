@@ -100,6 +100,7 @@
 
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
+#include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>

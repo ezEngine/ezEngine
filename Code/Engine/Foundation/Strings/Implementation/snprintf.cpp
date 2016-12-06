@@ -9,11 +9,11 @@
 // Spec taken from here: http://www.cplusplus.com/reference/clibrary/cstdio/sprintf/
 
 // So far there is no support for wide character strings (and chars)
-// There is no support for locales, the floating point dot is always a '.' even on layouts 
+// There is no support for locales, the floating point dot is always a '.' even on layouts
 // that would otherwise use a ',' (e.g. German)
 
 // Not Implemented:
-//  Wide Character support for %s 
+//  Wide Character support for %s
 //  Everything about this function works with standard ASCII characters,
 //  what sense does it make to embed a wide-character string into it? Shouldn't the formatting string then
 //  also be wide-character ?
@@ -203,7 +203,7 @@ static char ReadSpecifier (const char* szFormat, unsigned int& uiReadPos, char& 
 
   // 'b' for 'binary' does not exist in the original specification
   // However, for debugging, it is sometime quite useful, so I added it
-  case 'b': 
+  case 'b':
     cNext = szFormat[++uiReadPos];
     break;
 
@@ -211,7 +211,7 @@ static char ReadSpecifier (const char* szFormat, unsigned int& uiReadPos, char& 
     bError = true;
     break;
   }
-    
+
   return cRet;
 }
 
@@ -471,7 +471,7 @@ static void OutputInt (char* szOutputBuffer, unsigned int uiBufferSize, unsigned
   {
     OutputIntSignAndPadding (szOutputBuffer, uiBufferSize, uiWritePos, value, Flags, iWidth - iNumberWidth, iBase, false, iPrecision);
     OutputReverseString (szOutputBuffer, uiBufferSize, uiWritePos, s, iNumDigits);
-  }    
+  }
 }
 
 static void OutputUInt (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, unsigned long long int value, int iWidth, int iPrecision, unsigned int Flags, int iBase, bool bUpperCase)
@@ -503,7 +503,7 @@ static void OutputUInt (char* szOutputBuffer, unsigned int uiBufferSize, unsigne
   {
     OutputIntSignAndPadding (szOutputBuffer, uiBufferSize, uiWritePos, value > 0 ? 1 : 0, Flags, iWidth - iNumberWidth, iBase, bUpperCase, iPrecision);
     OutputReverseString (szOutputBuffer, uiBufferSize, uiWritePos, s, iNumDigits);
-  }    
+  }
 }
 
 static bool RoundUpDigits (char* szBuffer, int iLastDigits)
@@ -600,7 +600,7 @@ static bool FormatUFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsig
   // When no precision is given a maximum of 6 fractional digits is written
   // However, all trailing zeros will be removed again, to shorten the number as much as possible
   const bool bRemoveTrailingZeros = bRemoveZeroes || (iPrecision < 0);
-    
+
   if (iPrecision < 0)
     iPrecision = 6;
 
@@ -648,7 +648,7 @@ static bool FormatUFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsig
   // add the '.'
   if ((iFractionDigits > 0) || (Flags & sprintfFlags::Hash))
     OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, '.');
-    
+
   OutputString (szOutputBuffer, uiBufferSize, uiWritePos, szFraction, 0, 0, -1);
 
   return bRoundedUp;
@@ -702,7 +702,7 @@ static bool WouldRoundToTen (double value, int iPrecision)
 
   // finally check the next digit (which would not be printed anymore)
   value *= 10.0;
-    
+
   int iDigit = (int) value;
 
   // if it is >= 5, the number will be rounded up, thus triggering a cascade of overflows (everything else is '9')
@@ -771,7 +771,7 @@ static void OutputFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsign
     FormatUFloatScientific (szBuffer, 128, iNumDigits, value, iPrecision, Flags, bUpperCase, bRemoveZeroes);
   else
     FormatUFloat (szBuffer, 128, iNumDigits, value, iPrecision, Flags, bRemoveZeroes);
-    
+
   szBuffer[iNumDigits] = '\0';
 
   int iNumberWidth = GetSignSize ((long long int) value, Flags, 10, iPrecision) + iNumDigits;
@@ -908,9 +908,9 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
     if (cSpecifier == 'n')
     {
       int* p = va_arg (args, int*);
-      if (p) 
+      if (p)
         *p = (int) uiWritePos;
-        
+
       continue;
     }
 
@@ -935,7 +935,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
     if ((cSpecifier == 'i') || (cSpecifier == 'd'))
     {
       long long int i = 0;
-        
+
       if (Length == sprintfLength::LongLongInt)
         i = va_arg (args, long long int);
       else
@@ -957,7 +957,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
       // therefore this implementation does this too
 
       unsigned long long int i = 0;
-        
+
       if (Length == sprintfLength::LongLongInt)
         i = va_arg (args, unsigned long long int);
       else
@@ -1040,11 +1040,22 @@ int ezStringUtils::snprintf (char* szOutputBuffer, unsigned int uiBufferSize, co
 
   return ret;
 }
-  
 
 
+void ezStringUtils::OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase)
+{
+  OutputInt(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase);
+}
 
+void ezStringUtils::OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase)
+{
+  OutputUInt(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase, false);
+}
 
+void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros, ezInt8 iPrecision, bool bScientific)
+{
+  OutputFloat(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision), bPadZeros ? sprintfFlags::PadZeros : 0, false, bScientific, false);
+}
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_snprintf);
