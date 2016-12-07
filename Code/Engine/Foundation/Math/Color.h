@@ -72,6 +72,7 @@ public:
   static const ezColor DarkCyan;               ///< #008B8B
   static const ezColor DarkGoldenRod;          ///< #B8860B
   static const ezColor DarkGray;               ///< #A9A9A9
+  static const ezColor DarkGrey;               ///< #A9A9A9
   static const ezColor DarkGreen;              ///< #006400
   static const ezColor DarkKhaki;              ///< #BDB76B
   static const ezColor DarkMagenta;            ///< #8B008B
@@ -83,11 +84,13 @@ public:
   static const ezColor DarkSeaGreen;           ///< #8FBC8F
   static const ezColor DarkSlateBlue;          ///< #483D8B
   static const ezColor DarkSlateGray;          ///< #2F4F4F
+  static const ezColor DarkSlateGrey;          ///< #2F4F4F
   static const ezColor DarkTurquoise;          ///< #00CED1
   static const ezColor DarkViolet;             ///< #9400D3
   static const ezColor DeepPink;               ///< #FF1493
   static const ezColor DeepSkyBlue;            ///< #00BFFF
   static const ezColor DimGray;                ///< #696969
+  static const ezColor DimGrey;                ///< #696969
   static const ezColor DodgerBlue;             ///< #1E90FF
   static const ezColor FireBrick;              ///< #B22222
   static const ezColor FloralWhite;            ///< #FFFAF0
@@ -98,6 +101,7 @@ public:
   static const ezColor Gold;                   ///< #FFD700
   static const ezColor GoldenRod;              ///< #DAA520
   static const ezColor Gray;                   ///< #808080
+  static const ezColor Grey;                   ///< #808080
   static const ezColor Green;                  ///< #008000
   static const ezColor GreenYellow;            ///< #ADFF2F
   static const ezColor HoneyDew;               ///< #F0FFF0
@@ -115,12 +119,14 @@ public:
   static const ezColor LightCyan;              ///< #E0FFFF
   static const ezColor LightGoldenRodYellow;   ///< #FAFAD2
   static const ezColor LightGray;              ///< #D3D3D3
+  static const ezColor LightGrey;              ///< #D3D3D3
   static const ezColor LightGreen;             ///< #90EE90
   static const ezColor LightPink;              ///< #FFB6C1
   static const ezColor LightSalmon;            ///< #FFA07A
   static const ezColor LightSeaGreen;          ///< #20B2AA
   static const ezColor LightSkyBlue;           ///< #87CEFA
   static const ezColor LightSlateGray;         ///< #778899
+  static const ezColor LightSlateGrey;         ///< #778899
   static const ezColor LightSteelBlue;         ///< #B0C4DE
   static const ezColor LightYellow;            ///< #FFFFE0
   static const ezColor Lime;                   ///< #00FF00
@@ -174,6 +180,7 @@ public:
   static const ezColor SkyBlue;                ///< #87CEEB
   static const ezColor SlateBlue;              ///< #6A5ACD
   static const ezColor SlateGray;              ///< #708090
+  static const ezColor SlateGrey;              ///< #708090
   static const ezColor Snow;                   ///< #FFFAFA
   static const ezColor SpringGreen;            ///< #00FF7F
   static const ezColor SteelBlue;              ///< #4682B4

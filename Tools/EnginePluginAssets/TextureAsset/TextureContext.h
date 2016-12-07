@@ -43,6 +43,7 @@ private:
   ezUInt32 m_uiTextureWidth;
   ezUInt32 m_uiTextureHeight;
   bool m_bIsTexture2D;
+  bool m_bAddedEventHandler;
 };
 
 

@@ -844,6 +844,7 @@ namespace ezConversionUtils
       Check(DarkCyan);
       Check(DarkGoldenRod);
       Check(DarkGray);
+      Check(DarkGrey);
       Check(DarkGreen);
       Check(DarkKhaki);
       Check(DarkMagenta);
@@ -855,11 +856,13 @@ namespace ezConversionUtils
       Check(DarkSeaGreen);
       Check(DarkSlateBlue);
       Check(DarkSlateGray);
+      Check(DarkSlateGrey);
       Check(DarkTurquoise);
       Check(DarkViolet);
       Check(DeepPink);
       Check(DeepSkyBlue);
       Check(DimGray);
+      Check(DimGrey);
       Check(DodgerBlue);
       Check(FireBrick);
       Check(FloralWhite);
@@ -870,6 +873,7 @@ namespace ezConversionUtils
       Check(Gold);
       Check(GoldenRod);
       Check(Gray);
+      Check(Grey);
       Check(Green);
       Check(GreenYellow);
       Check(HoneyDew);
@@ -887,12 +891,14 @@ namespace ezConversionUtils
       Check(LightCyan);
       Check(LightGoldenRodYellow);
       Check(LightGray);
+      Check(LightGrey);
       Check(LightGreen);
       Check(LightPink);
       Check(LightSalmon);
       Check(LightSeaGreen);
       Check(LightSkyBlue);
       Check(LightSlateGray);
+      Check(LightSlateGrey);
       Check(LightSteelBlue);
       Check(LightYellow);
       Check(Lime);
@@ -946,6 +952,7 @@ namespace ezConversionUtils
       Check(SkyBlue);
       Check(SlateBlue);
       Check(SlateGray);
+      Check(SlateGrey);
       Check(Snow);
       Check(SpringGreen);
       Check(SteelBlue);

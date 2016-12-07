@@ -46,6 +46,7 @@ ezTextureContext::ezTextureContext()
   : m_TextureFormat(ezGALResourceFormat::Invalid)
   , m_uiTextureWidth(0)
   , m_uiTextureHeight(0)
+  , m_bAddedEventHandler(false)
 {
 
 }
@@ -94,7 +95,11 @@ void ezTextureContext::OnInitialize()
     m_uiTextureHeight = pTexture->GetHeight();
     m_bIsTexture2D = pTexture->GetType() == ezGALTextureType::Texture2D;
 
-    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
+    if (!pTexture->IsMissingResource())
+    {
+      m_bAddedEventHandler = true;
+      pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
+    }
   }
 
   // Preview Mesh
@@ -172,9 +177,12 @@ void ezTextureContext::OnInitialize()
 
 void ezTextureContext::OnDeinitialize()
 {
-  ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+  if (m_bAddedEventHandler)
+  {
+    ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
 
-  pTexture->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
+    pTexture->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
+  }
 }
 
 ezEngineProcessViewContext* ezTextureContext::CreateViewContext()
@@ -222,6 +230,17 @@ void ezTextureContext::UpdatePreview()
   if (m_pWorld->TryGetComponent(m_hPreviewMesh2D, pMesh))
   {
     pMesh->SetActive(m_bIsTexture2D);
+  }
+
+  if (!m_bAddedEventHandler)
+  {
+    ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+
+    if (!pTexture->IsMissingResource())
+    {
+      m_bAddedEventHandler = true;
+      pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
+    }
   }
 }
 

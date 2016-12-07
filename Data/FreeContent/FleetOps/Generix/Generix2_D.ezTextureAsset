@@ -1,0 +1,60 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{16105273328023087753,5327660837258078575}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{1}
+		s %Input1{"FleetOps/Generix/romGenerix1.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16105273328023087753,5327660837258078575}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{13139883668864730525,5556337304190536496}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Generix/romGenerix1.tga"}
+		}
+		Uuid %DocumentID{u4{13139883668864730525,5556337304190536496}}
+		u4 %Hash{17864918657671219258}
+		VarArray %References{}
+	}
+}
+}
+Types{}

@@ -1,0 +1,60 @@
+Objects
+{
+AssetInfo
+{
+	Uuid %id{u4{16851323767018333590,4901687252489865602}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Generix/romGenerix1_bump_Normal.tga"}
+		}
+		Uuid %DocumentID{u4{16851323767018333590,4901687252489865602}}
+		u4 %Hash{16030922362660737435}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{496674786878579132,5688408619327606130}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{496674786878579132,5688408619327606130}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		b %Compression{0}
+		s %Input1{"FleetOps/Generix/romGenerix1_bump_Normal.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::NormalMap"}
+	}
+}
+}
+Types{}
