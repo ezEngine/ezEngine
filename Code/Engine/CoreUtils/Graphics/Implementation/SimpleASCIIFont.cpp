@@ -1,5 +1,9 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Graphics/SimpleASCIIFont.h>
+#include <CoreUtils/Image/Formats/TgaFileFormat.h>
+#include <CoreUtils/Image/ImageConversion.h>
+
+#if EZ_DISABLED(EZ_EMBED_FONT_FILE)
 
 static const char* a = "\
           \
@@ -984,8 +988,16 @@ static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
   }
 }
 
+#else
+
+extern ezUInt64 g_uiFontFileSize;
+extern const ezUInt8 g_FontFileTGA[];
+
+#endif
+
 void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyToUnknown)
 {
+#if EZ_DISABLED(EZ_EMBED_FONT_FILE)
   Img.SetWidth(256);
   Img.SetHeight(128);
   Img.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
@@ -1135,6 +1147,48 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
     CopyCharacter(pPixelData, '}', cbc);
     CopyCharacter(pPixelData, '~', tilde);
   }
+#else
+
+  class VariableReader : public ezStreamReader
+  {
+  public:
+    virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override
+    {
+      const ezUInt64 uiSize = ezMath::Min(uiBytesToRead, m_uiSize);
+      m_uiSize -= uiSize;
+
+      if (uiSize > 0)
+      {
+        ezMemoryUtils::Copy((ezUInt8*)pReadBuffer, m_pData, uiSize);
+        m_pData += uiSize;
+      }
+
+      return uiSize;
+    }
+
+    ezUInt64 m_uiSize;
+    const ezUInt8* m_pData;
+  };
+
+  VariableReader reader;
+  reader.m_uiSize = g_uiFontFileSize;
+  reader.m_pData = g_FontFileTGA;
+
+  ezTgaFileFormat tga;
+  tga.ReadImage(reader, Img, ezGlobalLog::GetOrCreateInstance());
+
+  ezImageConversion::Convert(Img, Img, ezImageFormat::R8G8B8A8_UNORM);
+
+  for (ezUInt32 y = 0; y < Img.GetHeight(); ++y)
+  {
+    for (ezUInt32 x = 0; x < Img.GetWidth(); ++x)
+    {
+      ezUInt8* pPixel = Img.GetPixelPointer<ezUInt8>(0, 0, 0, x, y, 0);
+      pPixel[1] = pPixel[2] = pPixel[3] = pPixel[0]; // copy R into GBA
+    }
+  }
+
+#endif
 }
 
 

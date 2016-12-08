@@ -293,7 +293,8 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   const ezUInt32 uiBytesPerPixel = Header.m_iBitsPerPixel / 8;
 
   // check whether width, height an BitsPerPixel are valid
-  if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) || (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10))
+  if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) ||
+    (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
   {
     ezLog::Error(pLog, "TGA has an invalid header: Width = %i, Height = %i, BPP = %i, ImageType = %i", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
     return EZ_FAILURE;
@@ -380,7 +381,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
         // if it is a 24-Bit TGA (3 channels), the fourth channel stays at 255 all the time, since the 4th value in ucBuffer is never overwritten
 
-        // copy the color into the image data as many times as dictated 
+        // copy the color into the image data as many times as dictated
         for (ezInt32 i = 0; i < (ezInt32) uiChunkHeader; ++i)
         {
           const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
@@ -390,12 +391,16 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
           // BGR
           pPixel[0] = uiBuffer[0];
-          pPixel[1] = uiBuffer[1];
-          pPixel[2] = uiBuffer[2];
 
-          // Alpha
-          if (uiBytesPerPixel == 4)
-            pPixel[3] = uiBuffer[3];
+          if (uiBytesPerPixel > 1)
+          {
+            pPixel[1] = uiBuffer[1];
+            pPixel[2] = uiBuffer[2];
+
+            // Alpha
+            if (uiBytesPerPixel == 4)
+              pPixel[3] = uiBuffer[3];
+          }
 
           ++iCurrentPixel;
         }
