@@ -63,7 +63,7 @@ void ezHybridStringBase<Size>::ReadAll(ezStreamReader& Stream)
 
   ezHybridArray<ezUInt8, 1024 * 4> Bytes(m_Data.GetAllocator());
   ezUInt8 Temp[1024];
-  
+
   while (true)
   {
     const ezUInt32 uiRead = (ezUInt32) Stream.ReadBytes(Temp, 1024);
@@ -79,52 +79,5 @@ void ezHybridStringBase<Size>::ReadAll(ezStreamReader& Stream)
   *this = (const char*) &Bytes[0];
 }
 
-template <ezUInt16 Size>
-ezStringBuilder::ezStringBuilder(const ezHybridStringBase<Size>& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(rhs.m_Data)
-{
-}
-
-template <ezUInt16 Size, typename A>
-ezStringBuilder::ezStringBuilder(const ezHybridString<Size, A>& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(rhs.m_Data)
-{
-}
-
-template <ezUInt16 Size>
-void ezStringBuilder::operator=(const ezHybridStringBase<Size>& rhs)
-{
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
-  m_Data = rhs.m_Data;
-}
-
-template <ezUInt16 Size, typename A>
-void ezStringBuilder::operator=(const ezHybridString<Size, A>& rhs)
-{
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
-  m_Data = rhs.m_Data;
-}
-
-template <ezUInt16 Size>
-ezStringBuilder::ezStringBuilder(ezHybridStringBase<Size>&& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(std::move(rhs.m_Data))
-{
-}
-
-template <ezUInt16 Size, typename A>
-ezStringBuilder::ezStringBuilder(ezHybridString<Size, A>&& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(std::move(rhs.m_Data))
-{
-}
-
-template <ezUInt16 Size>
-void ezStringBuilder::operator=(ezHybridStringBase<Size>&& rhs)
-{
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
-  m_Data = std::move(rhs.m_Data);
-}
-
-template <ezUInt16 Size, typename A>
-void ezStringBuilder::operator=(ezHybridString<Size, A>&& rhs)
-{
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
-  m_Data = std::move(rhs.m_Data);
-}
 
 

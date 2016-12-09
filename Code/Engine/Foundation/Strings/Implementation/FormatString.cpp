@@ -1,7 +1,13 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+
+void ezFormatString::ReplaceAll(ezStringBuilder& sb, const char* szSearchFor, const ezStringView& sub)
+{
+  sb.ReplaceAll(szSearchFor, sub);
+}
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg)
 {

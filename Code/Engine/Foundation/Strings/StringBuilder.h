@@ -7,6 +7,7 @@
 #include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/PathUtils.h>
+#include <Foundation/Strings/FormatString.h>
 
 template <ezUInt16 Size>
 class ezHybridStringBase;
@@ -15,6 +16,7 @@ template <ezUInt16 Size, typename AllocatorWrapper>
 class ezHybridString;
 
 class ezStreamReader;
+class ezFormatString;
 
 /// \brief ezStringBuilder is a class that is meant for creating and modifying strings.
 ///
@@ -45,19 +47,28 @@ public:
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>
-  ezStringBuilder(const ezHybridStringBase<Size>& rhs);
+  ezStringBuilder(const ezHybridStringBase<Size>& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(rhs.m_Data)
+  {
+  }
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size, typename A>
-  ezStringBuilder(const ezHybridString<Size, A>& rhs);
+  ezStringBuilder(const ezHybridString<Size, A>& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(rhs.m_Data)
+  {
+  }
+
 
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size>
-  ezStringBuilder(ezHybridStringBase<Size>&& rhs);
+  ezStringBuilder(ezHybridStringBase<Size>&& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(std::move(rhs.m_Data))
+  {
+  }
 
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size, typename A>
-  ezStringBuilder(ezHybridString<Size, A>&& rhs);
+  ezStringBuilder(ezHybridString<Size, A>&& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(std::move(rhs.m_Data))
+  {
+  }
 
   /// \brief Constructor that appends all the given strings.
   ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
@@ -88,19 +99,35 @@ public:
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>
-  void operator=(const ezHybridStringBase<Size>& rhs);
+  void operator=(const ezHybridStringBase<Size>& rhs)
+  {
+    m_uiCharacterCount = rhs.m_uiCharacterCount;
+    m_Data = rhs.m_Data;
+  }
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size, typename A>
-  void operator=(const ezHybridString<Size, A>& rhs);
+  void operator=(const ezHybridString<Size, A>& rhs)
+  {
+    m_uiCharacterCount = rhs.m_uiCharacterCount;
+    m_Data = rhs.m_Data;
+  }
 
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size>
-  void operator=(ezHybridStringBase<Size>&& rhs);
+  void operator=(ezHybridStringBase<Size>&& rhs)
+  {
+    m_uiCharacterCount = rhs.m_uiCharacterCount;
+    m_Data = std::move(rhs.m_Data);
+  }
 
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size, typename A>
-  void operator=(ezHybridString<Size, A>&& rhs);
+  void operator=(ezHybridString<Size, A>&& rhs)
+  {
+    m_uiCharacterCount = rhs.m_uiCharacterCount;
+    m_Data = std::move(rhs.m_Data);
+  }
 
   /// \brief Returns the allocator that is used by this object.
   ezAllocatorBase* GetAllocator() const;
@@ -189,6 +216,22 @@ public:
 
   /// \brief Sets this string to the formatted string.
   void PrintfArgs(const char* szUtf8Format, va_list args); // [tested]
+
+#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+
+  // Temp name, will be renamed to 'Format' later
+  void TypesafeFormat(ezFormatString& string);
+
+  // Temp name, will be renamed to 'Format' later
+  template<typename ... ARGS>
+  void TypesafeFormat(const char* szFormat, ARGS... args)
+  {
+    TypesafeFormat(ezFormatStringImpl<ARGS...>(szFormat, args...));
+  }
+
+  // Todo Add PrependFormat and AppendPrintf
+
+#endif
 
   /// \brief Removes the first n and last m characters from this string.
   ///
@@ -294,13 +337,13 @@ public:
   /// \brief Returns true, if the given path represents a 'rooted' path. See ezFileSystem for details.
   bool IsRootedPath() const; // [tested]
 
-                             /// \brief Extracts the root name from a rooted path
-                             ///
-                             /// ":MyRoot" -> "MyRoot"
-                             /// ":MyRoot\folder" -> "MyRoot"
-                             /// ":\MyRoot\folder" -> "MyRoot"
-                             /// ":/MyRoot\folder" -> "MyRoot"
-                             /// Returns an empty string, if the path is not rooted.
+  /// \brief Extracts the root name from a rooted path
+  ///
+  /// ":MyRoot" -> "MyRoot"
+  /// ":MyRoot\folder" -> "MyRoot"
+  /// ":\MyRoot\folder" -> "MyRoot"
+  /// ":/MyRoot\folder" -> "MyRoot"
+  /// Returns an empty string, if the path is not rooted.
   ezStringView GetRootedPathRootName() const; // [tested]
 
   /// \brief Removes "../" where possible, replaces all path separators with /, removes double slashes.

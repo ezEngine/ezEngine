@@ -43,16 +43,16 @@ private:
     // replace all occurrances of {N} with the formatted argument
     switch (N)
     {
-    case 0: sb.ReplaceAll("{0}", res); break;
-    case 1: sb.ReplaceAll("{1}", res); break;
-    case 2: sb.ReplaceAll("{2}", res); break;
-    case 3: sb.ReplaceAll("{3}", res); break;
-    case 4: sb.ReplaceAll("{4}", res); break;
-    case 5: sb.ReplaceAll("{5}", res); break;
-    case 6: sb.ReplaceAll("{6}", res); break;
-    case 7: sb.ReplaceAll("{7}", res); break;
-    case 8: sb.ReplaceAll("{8}", res); break;
-    case 9: sb.ReplaceAll("{9}", res); break;
+    case 0: ReplaceAll(sb, "{0}", res); break;
+    case 1: ReplaceAll(sb, "{1}", res); break;
+    case 2: ReplaceAll(sb, "{2}", res); break;
+    case 3: ReplaceAll(sb, "{3}", res); break;
+    case 4: ReplaceAll(sb, "{4}", res); break;
+    case 5: ReplaceAll(sb, "{5}", res); break;
+    case 6: ReplaceAll(sb, "{6}", res); break;
+    case 7: ReplaceAll(sb, "{7}", res); break;
+    case 8: ReplaceAll(sb, "{8}", res); break;
+    case 9: ReplaceAll(sb, "{9}", res); break;
     }
 
     // Recurse, chip off one argument

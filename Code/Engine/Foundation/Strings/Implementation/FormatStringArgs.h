@@ -3,9 +3,10 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Strings/StringBuilder.h>
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+
+class ezStringBuilder;
 
 struct ezArgI
 {

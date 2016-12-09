@@ -1,6 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/FormatString.h>
 
 ezStringBuilder::ezStringBuilder(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
@@ -1017,6 +1018,19 @@ void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimChars
   Shrink(ezStringUtils::GetCharacterCount(GetData(), szNewStart), ezStringUtils::GetCharacterCount(szNewEnd, GetData() + GetElementCount()));
 }
 
+#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+
+void ezStringBuilder::TypesafeFormat(ezFormatString& string)
+{
+  Clear();
+  const char* szText = string.GetText(*this);
+
+  // this is for the case that GetText does not use the ezStringBuilder as temp storage
+  if (szText != GetData())
+    *this = szText;
+}
+
+#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);
 

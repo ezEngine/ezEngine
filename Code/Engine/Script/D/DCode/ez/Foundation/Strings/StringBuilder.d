@@ -9,7 +9,7 @@ private:
   else
     static assert(false, "plattform not supported");
 public:
-  void AppendFormat(const(char)* szUtf8Format, ...);
+  void AppendPrintf(const(char)* szUtf8Format, ...);
 
   const(char)* GetData() const;
 }

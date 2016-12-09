@@ -1,11 +1,13 @@
 #pragma once
 
 #include <Foundation/Strings/Implementation/FormatStringArgs.h>
-#include <Foundation/Strings/StringBuilder.h>
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1900)
 
-class ezFormatString
+class ezStringBuilder;
+class ezStringView;
+
+class EZ_FOUNDATION_DLL ezFormatString
 {
 public:
   ezFormatString() { m_szString = nullptr; }
@@ -19,6 +21,9 @@ public:
   virtual const char* GetText(ezStringBuilder& sb) const { return m_szString; }
 
 protected:
+  // out of line function so that we don't need to include ezStringBuilder here, to break include dependency cycle
+  static void ReplaceAll(ezStringBuilder& sb, const char* szSearchFor, const ezStringView& sub);
+
   const char* m_szString;
 };
 

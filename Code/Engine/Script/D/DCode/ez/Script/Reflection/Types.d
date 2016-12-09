@@ -182,7 +182,7 @@ ReflectedType GetReflectedType(T)()
   scope(exit) ezDestroyStringBuilder(buffer);
   foreach(part; name.splitter('.'))
   {
-    buffer.AppendFormat("%d%.*s", part.length, part.length, part.ptr);
+    buffer.AppendPrintf("%d%.*s", part.length, part.length, part.ptr);
   }
   auto mangled = buffer.GetString();
   auto result = GetReflectedTypeImpl(mangled);
