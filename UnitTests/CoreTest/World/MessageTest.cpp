@@ -112,7 +112,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     for (ezUInt32 j = 0; j < 4; ++j)
     {
       ezStringBuilder sb;
-      sb.AppendFormat("Parent%d_Child%d", i+1, j+1);
+      sb.AppendPrintf("Parent%d_Child%d", i+1, j+1);
       desc.m_sName.Assign(sb.GetData());
 
       ezGameObject* pObject = nullptr;

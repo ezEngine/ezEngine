@@ -17,7 +17,7 @@ ezPreprocessor::ezPreprocessor()
   ezStringBuilder s;
   for (ezUInt32 i = 0; i < 32; ++i)
   {
-    s.Format("__Param%u__", i);
+    s.Printf("__Param%u__", i);
     s_ParamNames[i] = s;
 
     m_ParameterTokens[i].m_iType = s_MacroParameter0 + i;
@@ -124,7 +124,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
   {
     m_TokenFile.m_DataView = ezStringView("__FILE__");
     m_TokenFile.m_iType = ezTokenType::Identifier;
-  
+
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenFile;
     md.m_bIsFunction = false;
@@ -138,7 +138,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
   {
     m_TokenLine.m_DataView = ezStringView("__LINE__");
     m_TokenLine.m_iType = ezTokenType::Identifier;
-  
+
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenLine;
     md.m_bIsFunction = false;
@@ -317,7 +317,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
 
   if (m_bPassThroughLine)
     CopyRelevantTokens(Tokens, uiHashToken, TokenOutput, true);
-  
+
   ezUInt32 uiNumberToken = 0;
   if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiNumberToken).Failed())
     return EZ_FAILURE;
@@ -406,7 +406,7 @@ ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurTok
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
     return EZ_SUCCESS;
   }
-    
+
   if (bCur == IfDefActivity::WasActive || bCur == IfDefActivity::IsActive)
     m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
   else

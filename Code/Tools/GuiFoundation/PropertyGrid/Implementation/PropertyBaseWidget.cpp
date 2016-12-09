@@ -771,7 +771,7 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
   }
 
   ezStringBuilder sTitle;
-  sTitle.Format("[%i]", index);
+  sTitle.Printf("[%i]", index);
 
   elem.m_pSubGroup->setTitle(sTitle);
   m_pGrid->SetCollapseState(elem.m_pSubGroup);
@@ -826,7 +826,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
   const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(SubItems);
 
   ezStringBuilder sTitle;
-  sTitle.Format("[%i] - %s", index, ezTranslate(pCommonType->GetTypeName()));
+  sTitle.Printf("[%i] - %s", index, ezTranslate(pCommonType->GetTypeName()));
   elem.m_pSubGroup->setTitle(sTitle);
 
   {

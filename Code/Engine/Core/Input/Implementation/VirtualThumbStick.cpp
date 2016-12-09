@@ -16,7 +16,7 @@ ezVirtualThumbStick::ezVirtualThumbStick()
   SetInputArea(ezVec2(0.0f), ezVec2(0.0f), 0.0f, 0.0f);
 
   ezStringBuilder s;
-  s.Format("Thumbstick_%i", s_iThumbsticks);
+  s.Printf("Thumbstick_%i", s_iThumbsticks);
   m_sName = s;
 
   ++s_iThumbsticks;
@@ -223,7 +223,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
   ezInt8 iTriggerAlt;
 
   const ezKeyState::Enum ks = ezInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
-  
+
   if (ks != ezKeyState::Up)
   {
     m_bIsActive = true;

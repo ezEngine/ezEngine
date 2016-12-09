@@ -75,7 +75,7 @@ ezResult ezQtPhysxProjectSettingsDlg::Save()
   if (m_Config.Save(sPath).Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Collision Layer file\n'%s'", sPath.GetData());
+    sError.Printf("Failed to save the Collision Layer file\n'%s'", sPath.GetData());
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 

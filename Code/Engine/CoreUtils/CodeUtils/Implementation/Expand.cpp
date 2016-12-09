@@ -183,7 +183,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
   if (sMacroName == "__LINE__")
   {
     ezStringBuilder sLine;
-    sLine.Format("%i", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
+    sLine.Printf("%i", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sLine.GetData());
     pNewToken->m_iType = ezTokenType::Identifier;
@@ -423,7 +423,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
   sMerged.Append(sParam1.GetData(), sParam2.GetData());
 
   const ezToken* pMergedToken = AddCustomToken(pFirst, sMerged.GetData());
-  
+
   Output.PushBack(pMergedToken);
 }
 

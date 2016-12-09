@@ -36,7 +36,7 @@ ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const
   ezStringBuilder sMemName;
   for (ezUInt32 i = 0; i < 1000; ++i)
   {
-    sMemName.Format("%4X", i);
+    sMemName.Printf("%4X", i);
 
     m_pSharedMemory->setKey(QLatin1String(sMemName.GetData()));
 

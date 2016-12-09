@@ -176,7 +176,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Format("  %s  ", it.Key().GetData());
+      sTemp.Printf("  %s  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
       pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.png"));
@@ -194,7 +194,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
       // Flags
       {
         ezStringBuilder sFlags;
-        sFlags.Format("  %16b  ", uiFlags);
+        sFlags.Printf("  %16b  ", uiFlags);
 
         QLabel* pFlags = (QLabel*) TableInputSlots->cellWidget(iRow, 5);
         pFlags->setAlignment(Qt::AlignRight);
@@ -208,18 +208,18 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
         const char* szNo  = "no";
 
         ezStringBuilder tt("<p>");
-        tt.AppendFormat("ReportsRelativeValues: %s<br>",      (uiFlags & ezInputSlotFlags::ReportsRelativeValues)     ? szYes : szNo);
-        tt.AppendFormat("ValueBinaryZeroOrOne: %s<br>",       (uiFlags & ezInputSlotFlags::ValueBinaryZeroOrOne)      ? szYes : szNo);
-        tt.AppendFormat("ValueRangeZeroToOne: %s<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToOne)       ? szYes : szNo);
-        tt.AppendFormat("ValueRangeZeroToInf: %s<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToInf)       ? szYes : szNo);
-        tt.AppendFormat("Pressable: %s<br>",                  (uiFlags & ezInputSlotFlags::Pressable)                 ? szYes : szNo);
-        tt.AppendFormat("Holdable: %s<br>",                   (uiFlags & ezInputSlotFlags::Holdable)                  ? szYes : szNo);
-        tt.AppendFormat("HalfAxis: %s<br>",                   (uiFlags & ezInputSlotFlags::HalfAxis)                  ? szYes : szNo);
-        tt.AppendFormat("FullAxis: %s<br>",                   (uiFlags & ezInputSlotFlags::FullAxis)                  ? szYes : szNo);
-        tt.AppendFormat("RequiresDeadZone: %s<br>",           (uiFlags & ezInputSlotFlags::RequiresDeadZone)          ? szYes : szNo);
-        tt.AppendFormat("ValuesAreNonContinuous: %s<br>",     (uiFlags & ezInputSlotFlags::ValuesAreNonContinuous)    ? szYes : szNo);
-        tt.AppendFormat("ActivationDependsOnOthers: %s<br>",  (uiFlags & ezInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
-        tt.AppendFormat("NeverTimeScale: %s<br>",             (uiFlags & ezInputSlotFlags::NeverTimeScale)            ? szYes : szNo);
+        tt.AppendPrintf("ReportsRelativeValues: %s<br>",      (uiFlags & ezInputSlotFlags::ReportsRelativeValues)     ? szYes : szNo);
+        tt.AppendPrintf("ValueBinaryZeroOrOne: %s<br>",       (uiFlags & ezInputSlotFlags::ValueBinaryZeroOrOne)      ? szYes : szNo);
+        tt.AppendPrintf("ValueRangeZeroToOne: %s<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToOne)       ? szYes : szNo);
+        tt.AppendPrintf("ValueRangeZeroToInf: %s<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToInf)       ? szYes : szNo);
+        tt.AppendPrintf("Pressable: %s<br>",                  (uiFlags & ezInputSlotFlags::Pressable)                 ? szYes : szNo);
+        tt.AppendPrintf("Holdable: %s<br>",                   (uiFlags & ezInputSlotFlags::Holdable)                  ? szYes : szNo);
+        tt.AppendPrintf("HalfAxis: %s<br>",                   (uiFlags & ezInputSlotFlags::HalfAxis)                  ? szYes : szNo);
+        tt.AppendPrintf("FullAxis: %s<br>",                   (uiFlags & ezInputSlotFlags::FullAxis)                  ? szYes : szNo);
+        tt.AppendPrintf("RequiresDeadZone: %s<br>",           (uiFlags & ezInputSlotFlags::RequiresDeadZone)          ? szYes : szNo);
+        tt.AppendPrintf("ValuesAreNonContinuous: %s<br>",     (uiFlags & ezInputSlotFlags::ValuesAreNonContinuous)    ? szYes : szNo);
+        tt.AppendPrintf("ActivationDependsOnOthers: %s<br>",  (uiFlags & ezInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
+        tt.AppendPrintf("NeverTimeScale: %s<br>",             (uiFlags & ezInputSlotFlags::NeverTimeScale)            ? szYes : szNo);
         tt.Append("</p>");
 
         TableInputSlots->cellWidget(iRow, 5)->setToolTip(tt.GetData());
@@ -230,7 +230,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
 
     TableInputSlots->resizeColumnsToContents();
   }
-  
+
   {
     ezStringBuilder sTemp;
 
@@ -265,7 +265,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
           pValue->setText("");
         else
         {
-          sTemp.Format(" %.4f ", it.Value().m_fValue);
+          sTemp.Printf(" %.4f ", it.Value().m_fValue);
           pValue->setText(sTemp.GetData());
         }
       }
@@ -318,7 +318,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Format("  %s  ", it.Key().GetData());
+      sTemp.Printf("  %s  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
       pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.png"));
@@ -339,7 +339,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         if (it.Value().m_sTrigger[slot].IsEmpty())
           sTemp = "  ";
         else
-          sTemp.Format("  [Scale: %.2f] %s  ", it.Value().m_fTriggerScaling[slot], it.Value().m_sTrigger[slot].GetData());
+          sTemp.Printf("  [Scale: %.2f] %s  ", it.Value().m_fTriggerScaling[slot], it.Value().m_sTrigger[slot].GetData());
 
         QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 4 + slot);
         pValue->setText(sTemp.GetData());
@@ -350,7 +350,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
 
     TableInputActions->resizeColumnsToContents();
   }
-  
+
   {
     ezStringBuilder sTemp;
 
@@ -386,9 +386,9 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         else
         {
           if (it.Value().m_bUseTimeScaling)
-            sTemp.Format(" %.4f (Time-Scaled) ", it.Value().m_fValue);
+            sTemp.Printf(" %.4f (Time-Scaled) ", it.Value().m_fValue);
           else
-            sTemp.Format(" %.4f (Absolute) ", it.Value().m_fValue);
+            sTemp.Printf(" %.4f (Absolute) ", it.Value().m_fValue);
 
           pValue->setText(sTemp.GetData());
         }

@@ -180,7 +180,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
         Msg.GetReader() >> bSuccess;
 
         ezStringBuilder s;
-        s.Format("'%s' -> '%s'", sFile1.GetData(), sFile2.GetData());
+        s.Printf("'%s' -> '%s'", sFile1.GetData(), sFile2.GetData());
         data.m_sFile = s.GetData();
 
         data.m_State = bSuccess ? FileCopy : FileCopyFailed;
@@ -363,7 +363,7 @@ void ezQtFileWidget::UpdateTable()
 
     if (!sFilter.IsEmpty() && (it.Value().m_sFile.FindSubString_NoCase(sFilter.GetData()) == nullptr))
       continue;
-    
+
     if (uiRow >= (ezUInt32) Table->rowCount())
       Table->insertRow(Table->rowCount());
 
@@ -391,7 +391,7 @@ void ezQtFileWidget::UpdateTable()
 
     if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
       pItem->setTextColor(QColor::fromRgb(255, 64, 0));
-    else 
+    else
     if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
       pItem->setTextColor(QColor::fromRgb(160, 90, 255));
     else // Task Loading Thread

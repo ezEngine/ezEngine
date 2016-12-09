@@ -177,7 +177,7 @@ void ezQtTimeWidget::UpdateStats()
     m_LastUpdatedClockList = ezTime::Now();
 
     ezStringBuilder s;
-    s.Format("Max: %.0fms", tShowMax.GetMilliseconds());
+    s.Printf("Max: %.0fms", tShowMax.GetMilliseconds());
     LabelMaxTime->setText(s.GetData());
 
     for (ezMap<ezString, ezQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
@@ -188,7 +188,7 @@ void ezQtTimeWidget::UpdateStats()
         continue;
 
       ezStringBuilder sTooltip;
-      sTooltip.Format("<p>Clock: %s<br>Max Time Step: <b>%.2fms</b><br>Min Time Step: <b>%.2fms</b><br></p>",
+      sTooltip.Printf("<p>Clock: %s<br>Max Time Step: <b>%.2fms</b><br>Min Time Step: <b>%.2fms</b><br></p>",
         it.Key().GetData(), Clock.m_MaxTimestep.GetMilliseconds(), Clock.m_MinTimestep.GetMilliseconds());
 
       Clock.m_pListItem->setToolTip(sTooltip.GetData());
@@ -210,7 +210,7 @@ void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
     ezString sClockName;
     Msg.GetReader() >> sClockName;
 
-    sTemp.Format("%s [smoothed]", sClockName.GetData());
+    sTemp.Printf("%s [smoothed]", sClockName.GetData());
 
     ClockData& ad = s_pWidget->m_ClockData[sClockName];
     ClockData& ads = s_pWidget->m_ClockData[sTemp.GetData()];

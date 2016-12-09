@@ -243,7 +243,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float 
   geom.AddGeodesicSphere(fRadius, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Format("Sphere_%i", iSubDivs);
+  sName.Printf("Sphere_%i", iSubDivs);
 
   return CreateMesh(geom, sName);
 }
@@ -257,7 +257,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float f
   geom.AddTorus(fInnerRadius, fOuterRadius, iSubDivs, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Format("Torus_%i", iSubDivs);
+  sName.Printf("Torus_%i", iSubDivs);
 
   return CreateMesh(geom, sName);
 }
@@ -271,7 +271,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
   geom.AddBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Format("Box_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
+  sName.Printf("Box_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
 
   return CreateMesh(geom, sName);
 }
@@ -285,7 +285,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateLineBox(float fWidth, float fHe
   geom.AddLineBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Format("LineBox_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
+  sName.Printf("LineBox_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
 
   return CreateMesh(geom, sName);
 }

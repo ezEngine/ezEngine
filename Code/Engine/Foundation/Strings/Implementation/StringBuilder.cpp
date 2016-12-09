@@ -149,7 +149,7 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
   }
 }
 
-void ezStringBuilder::AppendFormatArgs(const char* szUtf8Format, va_list args0)
+void ezStringBuilder::AppendPrintfArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);
@@ -184,7 +184,7 @@ void ezStringBuilder::AppendFormatArgs(const char* szUtf8Format, va_list args0)
   va_end(args);
 }
 
-void ezStringBuilder::PrependFormatArgs(const char* szUtf8Format, va_list args0)
+void ezStringBuilder::PrependPrintfArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);

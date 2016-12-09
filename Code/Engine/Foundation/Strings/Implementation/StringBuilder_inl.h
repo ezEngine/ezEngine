@@ -183,43 +183,43 @@ inline void ezStringBuilder::ToLower()
   m_Data.SetCount(uiNewStringLength + 1);
 }
 
-inline void ezStringBuilder::AppendFormat(const char* szUtf8Format, ...)
+inline void ezStringBuilder::AppendPrintf(const char* szUtf8Format, ...)
 {
   va_list args;
   va_start (args, szUtf8Format);
 
-  AppendFormatArgs(szUtf8Format, args);
+  AppendPrintfArgs(szUtf8Format, args);
 
   va_end (args);
 }
 
-inline void ezStringBuilder::PrependFormat(const char* szUtf8Format, ...)
+inline void ezStringBuilder::PrependPrintf(const char* szUtf8Format, ...)
 {
   va_list args;
   va_start (args, szUtf8Format);
 
-  PrependFormatArgs(szUtf8Format, args);
+  PrependPrintfArgs(szUtf8Format, args);
 
   va_end (args);
 }
 
-inline void ezStringBuilder::Format(const char* szUtf8Format, ...)
+inline void ezStringBuilder::Printf(const char* szUtf8Format, ...)
 {
   va_list args;
   va_start (args, szUtf8Format);
 
-  FormatArgs(szUtf8Format, args);
+  PrintfArgs(szUtf8Format, args);
 
   va_end (args);
 }
 
-inline void ezStringBuilder::FormatArgs(const char* szUtf8Format, va_list args0)
+inline void ezStringBuilder::PrintfArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);
 
   Clear();
-  AppendFormatArgs(szUtf8Format, args);
+  AppendPrintfArgs(szUtf8Format, args);
 
   va_end(args);
 }
@@ -242,7 +242,7 @@ inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)
 }
 
 EZ_FORCE_INLINE bool ezStringBuilder::IsPureASCII() const
-{ 
+{
   return m_uiCharacterCount + 1 == m_Data.GetCount();
 }
 
@@ -314,7 +314,7 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
 
       return;
     }
-    
+
     if (bReturnEmptyStrings || (szFoundPos > szReadPos))
       Output.PushBack(ezStringView(szReadPos, szFoundPos));
 

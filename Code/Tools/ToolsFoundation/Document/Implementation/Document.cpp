@@ -336,7 +336,7 @@ void ezDocument::ShowDocumentStatus(const char* szFormat, ...) const
   va_list args;
   va_start(args, szFormat);
   ezStringBuilder sMsg;
-  sMsg.FormatArgs(szFormat, args);
+  sMsg.PrintfArgs(szFormat, args);
   va_end(args);
 
   ezDocumentEvent e;

@@ -54,10 +54,10 @@ void SetAppStats()
 
   ezStats::SetStat("Platform/Name", info.GetPlatformName());
 
-  sOut.Format("%i", info.GetCPUCoreCount());
+  sOut.Printf("%i", info.GetCPUCoreCount());
   ezStats::SetStat("Hardware/CPU Cores", sOut.GetData());
 
-  sOut.Format("%.1f GB", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);
+  sOut.Printf("%.1f GB", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);
   ezStats::SetStat("Hardware/RAM", sOut.GetData());
 
   sOut = info.Is64BitOS() ? "64 Bit" : "32 Bit";

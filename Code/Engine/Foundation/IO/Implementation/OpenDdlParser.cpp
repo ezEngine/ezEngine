@@ -646,7 +646,7 @@ void ezOpenDdlParser::ReadString()
       default:
         {
           ezStringBuilder s;
-          s.Format("Unknown escape-sequence '\\%c'", m_uiCurByte);
+          s.Printf("Unknown escape-sequence '\\%c'", m_uiCurByte);
           ParsingError(s, false);
         }
         break;
@@ -858,7 +858,7 @@ void ezOpenDdlParser::ContinueBool()
       if (ezConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == EZ_FAILURE)
       {
         ezStringBuilder s;
-        s.Format("Parsing value: Expected 'true' or 'false', Got '%s' instead.", (const char*)&m_TempString[0]);
+        s.Printf("Parsing value: Expected 'true' or 'false', Got '%s' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), false);
       }
 
@@ -1096,7 +1096,7 @@ void ezOpenDdlParser::ContinueFloat()
     if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], dValue) == EZ_FAILURE)
     {
       ezStringBuilder s;
-      s.Format("Reading number failed: Could not convert '%s' to a floating point value.", (const char*)&m_TempString[0]);
+      s.Printf("Reading number failed: Could not convert '%s' to a floating point value.", (const char*)&m_TempString[0]);
       ParsingError(s.GetData(), true);
     }
 

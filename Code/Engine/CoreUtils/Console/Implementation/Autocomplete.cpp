@@ -69,7 +69,7 @@ void ezConsole::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& Aut
   {
     if (ezStringUtils::StartsWith_NoCase(pCVar->GetName(), szVariable))
     {
-      sText.Format("    %s = %s", pCVar->GetName(), GetFullInfoAsString(pCVar).GetData());
+      sText.Printf("    %s = %s", pCVar->GetName(), GetFullInfoAsString(pCVar).GetData());
 
       ConsoleString cs;
       cs.m_sText = sText;
@@ -94,7 +94,7 @@ void ezConsole::FindPossibleFunctions(const char* szVariable, ezDeque<ezString>&
   {
     if (ezStringUtils::StartsWith_NoCase(pFunc->GetName(), szVariable))
     {
-      sText.Format("    %s %s", pFunc->GetName(), pFunc->GetDescription());
+      sText.Printf("    %s %s", pFunc->GetName(), pFunc->GetDescription());
 
       ConsoleString cs;
       cs.m_sText = sText;
@@ -120,7 +120,7 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
   case ezCVarType::Int:
     {
       ezCVarInt* pInt = static_cast<ezCVarInt*> (pCVar);
-      s.Format("%d", pInt->GetValue());
+      s.Printf("%d", pInt->GetValue());
     }
     break;
 
@@ -137,17 +137,17 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
   case ezCVarType::String:
     {
       ezCVarString* pString = static_cast<ezCVarString*> (pCVar);
-      s.Format("\"%s\"", pString->GetValue().GetData());
+      s.Printf("\"%s\"", pString->GetValue().GetData());
     }
     break;
 
   case ezCVarType::Float:
     {
       ezCVarFloat* pFloat = static_cast<ezCVarFloat*> (pCVar);
-      s.Format("%.3f", pFloat->GetValue());
+      s.Printf("%.3f", pFloat->GetValue());
     }
     break;
-      
+
   case ezCVarType::ENUM_COUNT:
     break;
   }

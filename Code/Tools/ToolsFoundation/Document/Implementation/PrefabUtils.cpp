@@ -18,7 +18,7 @@ ezString ToBinary(const ezUuid& guid)
 
   for (ezUInt32 i = 0; i < sizeof(ezUuid); ++i)
   {
-    s.Format("%02X", (ezUInt32)*pBytes);
+    s.Printf("%02X", (ezUInt32)*pBytes);
     ++pBytes;
 
     sResult.Append(s);
@@ -118,21 +118,21 @@ void ezPrefabUtils::WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& merge
     {
     case ezAbstractGraphDiffOperation::Op::NodeAdded:
       {
-        out_sText.AppendFormat("<add> - {%s} (%s)\n", Data.GetData(), diff.m_sProperty.GetData());
+        out_sText.AppendPrintf("<add> - {%s} (%s)\n", Data.GetData(), diff.m_sProperty.GetData());
       }
       break;
 
     case ezAbstractGraphDiffOperation::Op::NodeRemoved:
       {
-        out_sText.AppendFormat("<del> - {%s}\n", Data.GetData());
+        out_sText.AppendPrintf("<del> - {%s}\n", Data.GetData());
       }
       break;
 
     case ezAbstractGraphDiffOperation::Op::PropertyChanged:
       if (diff.m_Value.CanConvertTo<ezString>())
-        out_sText.AppendFormat("<set> - {%s} - \"%s\" = %s\n", Data.GetData(), diff.m_sProperty.GetData(), diff.m_Value.ConvertTo<ezString>().GetData());
+        out_sText.AppendPrintf("<set> - {%s} - \"%s\" = %s\n", Data.GetData(), diff.m_sProperty.GetData(), diff.m_Value.ConvertTo<ezString>().GetData());
       else
-        out_sText.AppendFormat("<set> - {%s} - \"%s\" = xxx\n", Data.GetData(), diff.m_sProperty.GetData());
+        out_sText.AppendPrintf("<set> - {%s} - \"%s\" = xxx\n", Data.GetData(), diff.m_sProperty.GetData());
       break;
 
     }

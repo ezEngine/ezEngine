@@ -60,9 +60,9 @@ void ezQtPluginsWidget::UpdatePlugins()
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TablePlugins->setCellWidget(iRow, 0, pIcon);
 
-      sTemp.Format("  %s  ", it.Key().GetData());
+      sTemp.Printf("  %s  ", it.Key().GetData());
       TablePlugins->setCellWidget(iRow, 1, new QLabel(sTemp.GetData()));
-      
+
       if (it.Value().m_bReloadable)
         TablePlugins->setCellWidget(iRow, 2, new QLabel("<p><span style=\"font-weight:600; color:#00aa00;\">  Yes  </span></p>"));
       else

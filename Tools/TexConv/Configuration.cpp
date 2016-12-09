@@ -173,7 +173,7 @@ void ezTexConv::ParseCommandLine()
 
   for (ezUInt32 i = 0; i < 32; ++i)
   {
-    tmp.Format("-in%u", i);
+    tmp.Printf("-in%u", i);
 
     res = pCmd->GetStringOption(tmp);
 

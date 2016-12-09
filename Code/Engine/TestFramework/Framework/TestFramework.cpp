@@ -675,7 +675,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
   const char* szSubTestName = GetTest(GetCurrentTestIndex())->m_SubTests[GetCurrentSubTestIndex()].m_szSubTestName;
 
   ezStringBuilder sImgName, sImgPathReference, sImgPathResult;
-  sImgName.Format("%s_%s_%03i", szTestName, szSubTestName, m_iImageCounter);
+  sImgName.Printf("%s_%s_%03i", szTestName, szSubTestName, m_iImageCounter);
   ++m_iImageCounter;
 
   ezImage img, imgRGB, imgSmall;
@@ -693,8 +693,8 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
 
   ezImageUtils::ScaleDownHalf(imgRGB, imgSmall);
 
-  sImgPathReference.Format("Images_Reference/%s.tga", sImgName.GetData());
-  sImgPathResult.Format(":imgout/Images_Result/%s.tga", sImgName.GetData());
+  sImgPathReference.Printf("Images_Reference/%s.tga", sImgName.GetData());
+  sImgPathResult.Printf(":imgout/Images_Result/%s.tga", sImgName.GetData());
 
   ezImage imgExp, imgExpRGB;
   if (imgExp.LoadFrom(sImgPathReference).Failed())
@@ -723,7 +723,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
     imgSmall.SaveTo(sImgPathResult);
 
     ezStringBuilder sImgDiffName;
-    sImgDiffName.Format(":imgout/Images_Diff/%s.tga", sImgName.GetData());
+    sImgDiffName.Printf(":imgout/Images_Diff/%s.tga", sImgName.GetData());
 
     imgDiff.SaveTo(sImgDiffName);
 

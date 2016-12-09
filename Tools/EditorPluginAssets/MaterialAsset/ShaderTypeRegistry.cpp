@@ -84,7 +84,7 @@ namespace
     }
 
     ezStringBuilder sTemp;
-    sTemp.Format("Shaders/PermutationVars/%s.ezPermVar", def.m_sName.GetData());
+    sTemp.Printf("Shaders/PermutationVars/%s.ezPermVar", def.m_sName.GetData());
 
     ezString sPath = sTemp;
     ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
@@ -123,7 +123,7 @@ namespace
         ezArrayPtr<ezPropertyAttribute* const> noAttributes;
 
         ezStringBuilder sEnumName;
-        sEnumName.Format("%s::Default", def.m_sName.GetData());
+        sEnumName.Printf("%s::Default", def.m_sName.GetData());
 
         descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
 
@@ -133,7 +133,7 @@ namespace
             continue;
 
           ezStringBuilder sEnumName;
-          sEnumName.Format("%s::%s", def.m_sName.GetData(), enumValues[i].GetData());
+          sEnumName.Printf("%s::%s", def.m_sName.GetData(), enumValues[i].GetData());
 
           descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
         }

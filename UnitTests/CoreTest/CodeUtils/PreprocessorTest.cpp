@@ -36,7 +36,7 @@ class Logger : public ezLogInterface
 public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
-    m_sOutput.AppendFormat("Log: '%s'\r\n", le.m_szText);
+    m_sOutput.AppendPrintf("Log: '%s'\r\n", le.m_szText);
   }
 
   void EventHandler(const ezPreprocessor::ProcessingEvent& ed)
@@ -62,7 +62,7 @@ public:
       const ezPreprocessor::ProcessingEvent& event = m_EventStack[i];
 
       if (event.m_pToken != nullptr)
-        m_sOutput.AppendFormat("%s: Line %u [%u]: ", event.m_pToken->m_File.GetString().GetData(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
+        m_sOutput.AppendPrintf("%s: Line %u [%u]: ", event.m_pToken->m_File.GetString().GetData(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
 
       switch (event.m_Type)
       {
@@ -73,7 +73,7 @@ public:
         m_sOutput.Append("Warning: ");
         break;
       case ezPreprocessor::ProcessingEvent::BeginExpansion:
-        m_sOutput.AppendFormat("In Macro: '%s'", ezString(event.m_pToken->m_DataView).GetData());
+        m_sOutput.AppendPrintf("In Macro: '%s'", ezString(event.m_pToken->m_DataView).GetData());
         break;
       case ezPreprocessor::ProcessingEvent::EndExpansion:
         break;
@@ -82,7 +82,7 @@ public:
         break;
       }
 
-      m_sOutput.AppendFormat("%s\r\n", event.m_szInfo);
+      m_sOutput.AppendPrintf("%s\r\n", event.m_szInfo);
     }
 
     m_EventStack.PopBack();
@@ -94,7 +94,7 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
-  
+
   ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sReadDir.AppendPath("../../Data/UnitTests/CoreTest");
 
@@ -110,7 +110,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   ezTokenizedFileCache SharedCache;
 
   /// \todo Add tests for the following:
-  /* 
+  /*
     macro expansion
     macro expansion in #if
     custom defines from outside
@@ -233,9 +233,9 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.SetPassThroughUnknownCmdsCB([](const char* s)->bool { return ezStringUtils::IsEqual(s, "version"); });//TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
-          fileName.Format("Preprocessor/%s.txt", TestSettings[i].m_szFileName);
-          fileNameExp.Format("Preprocessor/%s - Expected.txt", TestSettings[i].m_szFileName);
-          fileNameOut.Format(":output/Preprocessor/%s - Result.txt", TestSettings[i].m_szFileName);
+          fileName.Printf("Preprocessor/%s.txt", TestSettings[i].m_szFileName);
+          fileNameExp.Printf("Preprocessor/%s - Expected.txt", TestSettings[i].m_szFileName);
+          fileNameOut.Printf(":output/Preprocessor/%s - Result.txt", TestSettings[i].m_szFileName);
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
 

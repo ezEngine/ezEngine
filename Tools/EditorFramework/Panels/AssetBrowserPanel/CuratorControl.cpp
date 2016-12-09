@@ -72,7 +72,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.Format("[Un: %u, Tr: %i, Th: %u, Err: %u]", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep + uiNumMissingRef);
+  s.Printf("[Un: %u, Tr: %i, Th: %u, Err: %u]", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep + uiNumMissingRef);
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
@@ -109,7 +109,7 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
   if (uiNumAssets > 0)
   {
     const ezUInt32 uiDone = uiNumAssets - uiNumUnknown - uiNumNeedTransform - uiNumNeedThumb - uiNumMissingDep - uiNumMissingRef;
-    s.Format("Unknown: %u\nTransform Needed: %i\nThumbnail Needed: %u\nMissing Dependency: %u\nMissing Reference: %u", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
+    s.Printf("Unknown: %u\nTransform Needed: %i\nThumbnail Needed: %u\nMissing Dependency: %u\nMissing Reference: %u", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
     setToolTip(s.GetData());
   }
   else

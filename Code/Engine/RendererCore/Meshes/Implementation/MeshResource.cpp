@@ -82,7 +82,7 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
   {
     s_MeshBufferNameSuffix++;
     ezStringBuilder sMbName;
-    sMbName.Format("%s  [MeshBuffer %04X]", GetResourceID().GetData(), s_MeshBufferNameSuffix);
+    sMbName.Printf("%s  [MeshBuffer %04X]", GetResourceID().GetData(), s_MeshBufferNameSuffix);
 
     m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sMbName, desc.MeshBufferDesc(), GetResourceDescription());
   }

@@ -69,7 +69,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : Q
   m_ShowWindowAction.setCheckable(true);
 
   ezStringBuilder sStatHistory;
-  sStatHistory.Format("StatHistory%i", m_iWindowNumber);
+  sStatHistory.Printf("StatHistory%i", m_iWindowNumber);
 
   QSettings Settings;
   Settings.beginGroup(sStatHistory.GetData());
@@ -80,7 +80,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : Q
 
   EZ_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction,  SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
 
-  
+
 }
 
 void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
@@ -91,7 +91,7 @@ void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
 void ezQtStatVisWidget::on_LineName_textChanged(const QString& text)
 {
   ezStringBuilder sStatHistory;
-  sStatHistory.Format("StatHistory%i", m_iWindowNumber);
+  sStatHistory.Printf("StatHistory%i", m_iWindowNumber);
 
   QSettings Settings;
   Settings.beginGroup(sStatHistory.GetData());
@@ -105,7 +105,7 @@ void ezQtStatVisWidget::on_LineName_textChanged(const QString& text)
 void ezQtStatVisWidget::on_SpinMin_valueChanged(double val)
 {
   ezStringBuilder sStatHistory;
-  sStatHistory.Format("StatHistory%i", m_iWindowNumber);
+  sStatHistory.Printf("StatHistory%i", m_iWindowNumber);
 
   QSettings Settings;
   Settings.beginGroup(sStatHistory.GetData());
@@ -116,7 +116,7 @@ void ezQtStatVisWidget::on_SpinMin_valueChanged(double val)
 void ezQtStatVisWidget::on_SpinMax_valueChanged(double val)
 {
   ezStringBuilder sStatHistory;
-  sStatHistory.Format("StatHistory%i", m_iWindowNumber);
+  sStatHistory.Printf("StatHistory%i", m_iWindowNumber);
 
   QSettings Settings;
   Settings.beginGroup(sStatHistory.GetData());
@@ -156,7 +156,7 @@ void ezQtStatVisWidget::on_ButtonRemove_clicked()
 void ezQtStatVisWidget::Save()
 {
   ezStringBuilder sStatHistory;
-  sStatHistory.Format("/StatWindow%i.stats", m_iWindowNumber);
+  sStatHistory.Printf("/StatWindow%i.stats", m_iWindowNumber);
 
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   QDir d; d.mkpath(sFile);
@@ -185,7 +185,7 @@ void ezQtStatVisWidget::Save()
 void ezQtStatVisWidget::Load()
 {
   ezStringBuilder sStatHistory;
-  sStatHistory.Format("/StatWindow%i.stats", m_iWindowNumber);
+  sStatHistory.Printf("/StatWindow%i.stats", m_iWindowNumber);
 
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   QDir d; d.mkpath(sFile);

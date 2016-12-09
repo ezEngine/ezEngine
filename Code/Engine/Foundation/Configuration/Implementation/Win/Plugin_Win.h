@@ -18,7 +18,7 @@
     sNewPath.AppendPath(szPluginName);
 
     if (uiFileNumber > 0)
-      sNewPath.AppendFormat("%i", uiFileNumber);
+      sNewPath.AppendPrintf("%i", uiFileNumber);
 
     sNewPath.Append(".loaded");
   }

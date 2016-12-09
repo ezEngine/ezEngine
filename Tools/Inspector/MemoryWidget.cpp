@@ -25,13 +25,13 @@ namespace MemoryWidgetDetail
 void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
 {
   if (uiSize < 1024)
-    s.Format("%s%llu Bytes", szPrefix, uiSize);
+    s.Printf("%s%llu Bytes", szPrefix, uiSize);
   else if (uiSize < 1024 * 1024)
-    s.Format("%s%.1f KB", szPrefix, uiSize / 1024.0);
+    s.Printf("%s%.1f KB", szPrefix, uiSize / 1024.0);
   else if (uiSize < 1024 * 1024 * 1024)
-    s.Format("%s%.2f MB", szPrefix, uiSize / 1024.0 / 1024.0);
+    s.Printf("%s%.2f MB", szPrefix, uiSize / 1024.0 / 1024.0);
   else
-    s.Format("%s%.2f GB", szPrefix, uiSize / 1024.0 / 1024.0 / 1024.0);
+    s.Printf("%s%.2f GB", szPrefix, uiSize / 1024.0 / 1024.0 / 1024.0);
 }
 
 ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent) : QDockWidget (parent)
@@ -98,7 +98,7 @@ void ezQtMemoryWidget::UpdateStats()
 
     LabelNumAllocs->setText(QString::fromUtf8("Alloc Counter: N/A"));
     LabelNumLiveAllocs->setText(QString::fromUtf8("Live Allocs: N/A"));
-    
+
     LabelCurMemory->setText(QString::fromUtf8("Cur: N/A"));
     LabelMaxMemory->setText(QString::fromUtf8("Max: N/A"));
     LabelMinMemory->setText(QString::fromUtf8("Min: N/A"));
@@ -160,10 +160,10 @@ void ezQtMemoryWidget::UpdateStats()
       FormatSize(sMaxSize, "", it.Value().m_uiMaxUsedMemory);
 
       ezStringBuilder sText = it.Key().GetData();
-      sText.AppendFormat(" [%s]", sSize.GetData());
+      sText.AppendPrintf(" [%s]", sSize.GetData());
 
       ezStringBuilder sTooltip;
-      sTooltip.Format("<p>Current Memory Used: <b>%s</b><br>Max Memory Used: <b>%s</b><br>Live Allocations: <b>%llu</b><br>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b><br>",
+      sTooltip.Printf("<p>Current Memory Used: <b>%s</b><br>Max Memory Used: <b>%s</b><br>Live Allocations: <b>%llu</b><br>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b><br>",
         sSize.GetData(), sMaxSize.GetData(), it.Value().m_uiLiveAllocs, it.Value().m_uiAllocs, it.Value().m_uiDeallocs);
 
       it.Value().m_pListItem->setText(sText.GetData());
@@ -179,10 +179,10 @@ void ezQtMemoryWidget::UpdateStats()
       FormatSize(sMaxSize, "", m_Accu.m_uiMaxUsedMemory);
 
       ezStringBuilder sText = "<Accumulated>";
-      sText.AppendFormat(" [%s]", sSize.GetData());
+      sText.AppendPrintf(" [%s]", sSize.GetData());
 
       ezStringBuilder sTooltip;
-      sTooltip.Format("<p>Current Memory Used: <b>%s</b><br>Max Memory Used: <b>%s</b><br>Live Allocations: <b>%llu</b><br>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b><br>",
+      sTooltip.Printf("<p>Current Memory Used: <b>%s</b><br>Max Memory Used: <b>%s</b><br>Live Allocations: <b>%llu</b><br>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b><br>",
         sSize.GetData(), sMaxSize.GetData(), m_Accu.m_uiLiveAllocs, m_Accu.m_uiAllocs, m_Accu.m_uiDeallocs);
 
       m_Accu.m_pListItem->setText(sText.GetData());
@@ -316,11 +316,11 @@ void ezQtMemoryWidget::UpdateStats()
     UsedMemoryView->fitInView    (QRectF (0, uiMinUsedMemory, m_uiDisplaySamples - 1, uiMaxUsedMemory));
 
     ezStringBuilder s;
-    
+
     FormatSize(s, "Min: ", uiMinUsedMemory);
     LabelMinMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Recent Minimum Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>", 
+    s.Printf("<p>Recent Minimum Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>",
       uiMinUsedMemory / 1024.0 / 1024.0 / 1024.0,
       uiMinUsedMemory / 1024.0 / 1024.0,
       uiMinUsedMemory / 1024.0,
@@ -330,7 +330,7 @@ void ezQtMemoryWidget::UpdateStats()
     FormatSize(s, "Max: ", uiMaxUsedMemory);
     LabelMaxMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Recent Maximum Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>", 
+    s.Printf("<p>Recent Maximum Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>",
       uiMaxUsedMemory / 1024.0 / 1024.0 / 1024.0,
       uiMaxUsedMemory / 1024.0 / 1024.0,
       uiMaxUsedMemory / 1024.0,
@@ -342,20 +342,20 @@ void ezQtMemoryWidget::UpdateStats()
     FormatSize(s, "Sum: ", uiCurUsedMemory);
     LabelCurMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Current Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>", 
+    s.Printf("<p>Current Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>",
       uiCurUsedMemory / 1024.0 / 1024.0 / 1024.0,
       uiCurUsedMemory / 1024.0 / 1024.0,
       uiCurUsedMemory / 1024.0,
       uiCurUsedMemory);
     LabelCurMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
-    s.Format("Allocs: %llu", uiLiveAllocs);
+    s.Printf("Allocs: %llu", uiLiveAllocs);
     LabelNumLiveAllocs->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("Counter: %llu / %llu", uiAllocs, uiDeallocs);
+    s.Printf("Counter: %llu / %llu", uiAllocs, uiDeallocs);
     LabelNumAllocs->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b></p>", uiAllocs, uiDeallocs);
+    s.Printf("<p>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b></p>", uiAllocs, uiDeallocs);
     LabelNumAllocs->setToolTip(QString::fromUtf8(s.GetData()));
   }
 }

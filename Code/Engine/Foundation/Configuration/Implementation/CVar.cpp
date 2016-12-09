@@ -12,7 +12,7 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCVar);
 // to be informed about plugin changes.
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
 
-  // for saving and loading we need the filesystem, so make sure we are initialized after 
+  // for saving and loading we need the filesystem, so make sure we are initialized after
   // and shutdown before the filesystem is
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "FileSystem"
@@ -93,7 +93,7 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
       SaveCVars();
     }
     break;
-      
+
   default:
     break;
   }
@@ -166,7 +166,7 @@ void ezCVar::SaveCVars()
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Format("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());
+    sTemp.Printf("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());
 
     ezFileWriter File;
     if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
@@ -181,25 +181,25 @@ void ezCVar::SaveCVars()
         case ezCVarType::Int:
           {
             ezCVarInt* pInt = (ezCVarInt*) pCVar;
-            sTemp.Format("%s = %i\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
+            sTemp.Printf("%s = %i\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
           }
           break;
         case ezCVarType::Bool:
           {
             ezCVarBool* pBool = (ezCVarBool*) pCVar;
-            sTemp.Format("%s = %s\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
+            sTemp.Printf("%s = %s\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
           }
           break;
         case ezCVarType::Float:
           {
             ezCVarFloat* pFloat = (ezCVarFloat*) pCVar;
-            sTemp.Format("%s = %f\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
+            sTemp.Printf("%s = %f\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
           }
           break;
         case ezCVarType::String:
           {
             ezCVarString* pString = (ezCVarString*) pCVar;
-            sTemp.Format("%s = \"%s\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart).GetData());
+            sTemp.Printf("%s = \"%s\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart).GetData());
           }
           break;
         default:
@@ -267,8 +267,8 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
     return EZ_FAILURE;
 
   {
-    ezStringView sSubString(sLine.GetData(), szSign); 
-  
+    ezStringView sSubString(sLine.GetData(), szSign);
+
     // remove all trailing spaces
     while (sSubString.EndsWith(" "))
       sSubString.Shrink(0, 1);
@@ -277,7 +277,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
   }
 
   {
-    ezStringView sSubString(szSign + 1); 
+    ezStringView sSubString(szSign + 1);
 
     // remove all spaces
     while (sSubString.StartsWith(" "))
@@ -341,7 +341,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Format("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());
+    sTemp.Printf("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());
 
     ezFileReader File;
     if (File.Open(sTemp.GetData()) == EZ_SUCCESS)

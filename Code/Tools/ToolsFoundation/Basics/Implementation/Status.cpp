@@ -9,7 +9,7 @@ ezStatus::ezStatus(const char* szError, ...) : m_Result(EZ_FAILURE)
   va_start(args, szError);
 
   ezStringBuilder sMsg;
-  sMsg.FormatArgs(szError, args);
+  sMsg.PrintfArgs(szError, args);
 
   va_end(args);
 

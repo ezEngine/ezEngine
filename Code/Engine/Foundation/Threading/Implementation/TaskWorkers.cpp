@@ -10,14 +10,14 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
   switch (ThreadType)
   {
   case ezWorkerThreadType::ShortTasks:
-    sTemp.Format("Short Tasks %i", iThreadNumber + 1);
+    sTemp.Printf("Short Tasks %i", iThreadNumber + 1);
     break;
   case ezWorkerThreadType::LongTasks:
-    sTemp.Format("Long Tasks %i", iThreadNumber + 1);
+    sTemp.Printf("Long Tasks %i", iThreadNumber + 1);
     break;
   case ezWorkerThreadType::FileAccess:
     if (iThreadNumber > 0)
-      sTemp.Format("Resource Loading %i", iThreadNumber + 1);
+      sTemp.Printf("Resource Loading %i", iThreadNumber + 1);
     else
       sTemp = "Resource Loading";
     break;
@@ -84,7 +84,7 @@ void ezTaskSystem::StopWorkerThreads()
       }
     }
   }
-  
+
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
   {
     for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)

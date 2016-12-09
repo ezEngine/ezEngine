@@ -164,7 +164,7 @@ ezQtMainWindow::~ezQtMainWindow()
   }
 }
 
-void ezQtMainWindow::closeEvent(QCloseEvent* event) 
+void ezQtMainWindow::closeEvent(QCloseEvent* event)
 {
   const bool bMaximized = isMaximized();
 
@@ -222,7 +222,7 @@ void ezQtMainWindow::UpdateNetwork()
         bResetStats = true;
 
         ezStringBuilder s;
-        s.Format("Connected to new Server with ID %i", uiServerID);
+        s.Printf("Connected to new Server with ID %i", uiServerID);
 
         ezQtLogWidget::s_pWidget->Log(s.GetData());
       }
@@ -262,7 +262,7 @@ void ezQtMainWindow::UpdateNetwork()
     ezQtDataWidget::s_pWidget->ResetStats();
     ezQtResourceWidget::s_pWidget->ResetStats();
   }
-  
+
   UpdateStats();
 
   ezQtPluginsWidget::s_pWidget->UpdateStats();
@@ -323,7 +323,7 @@ void ezQtMainWindow::UpdateAlwaysOnTop()
     bNewState = true;
   else
     bNewState = false;
-  
+
   if (bOnTop != bNewState)
   {
     bOnTop = bNewState;

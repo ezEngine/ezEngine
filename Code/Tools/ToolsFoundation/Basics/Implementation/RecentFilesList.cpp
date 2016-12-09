@@ -34,7 +34,7 @@ void ezRecentFilesList::Save(const char* szFile)
   for (const RecentFile& file : m_Files)
   {
     ezStringBuilder sTemp;
-    sTemp.Format("%s|%i", file.m_File.GetData(), file.m_iContainerWindow);
+    sTemp.Printf("%s|%i", file.m_File.GetData(), file.m_iContainerWindow);
     File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
     File.WriteBytes("\n", sizeof(char));
   }
@@ -70,6 +70,6 @@ void ezRecentFilesList::Load(const char* szFile)
       ezConversionUtils::StringToInt(sContainer, iContainerWindow);
       m_Files.PushBack(RecentFile(Parts[0], iContainerWindow));
     }
-    
+
   }
 }

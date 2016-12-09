@@ -36,7 +36,7 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
     return;
 
   ezTelemetryMessage msg;
-  
+
   while (ezTelemetry::RetrieveMessage('TRAN', msg) == EZ_SUCCESS)
   {
     if (msg.GetMessageID() == 'CLR')
@@ -146,7 +146,7 @@ void ezQtDataWidget::on_ComboTransfers_currentIndexChanged(int index)
 
   ComboItems->setCurrentIndex(0);
   ComboItems->blockSignals(false);
-  
+
   on_ComboItems_currentIndexChanged(ComboItems->currentIndex());
 }
 
@@ -220,7 +220,7 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   else
   {
     ezStringBuilder sText;
-    sText.Format("Unknown Mime-Type '%s'", sMime.GetData());
+    sText.Printf("Unknown Mime-Type '%s'", sMime.GetData());
 
     LabelImage->setText(sText.GetData());
   }
@@ -261,7 +261,7 @@ void ezQtDataWidget::on_ButtonSave_clicked()
   }
 
   QString sFilter;
-  
+
   if (!pItem->m_sExtension.IsEmpty())
   {
     sFilter = "Default (*.";

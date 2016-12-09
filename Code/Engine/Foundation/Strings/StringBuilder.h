@@ -27,8 +27,8 @@ class ezStreamReader;
 /// That makes it difficult to modify individual characters. Instead you should prefer high-level functions
 /// such as 'ReplaceSubString'. If individual characters must be modified, it might make more sense to create
 /// a second ezStringBuilder, and iterate over the first while rebuilding the desired result in the second.
-/// For very convenient string creation, printf functionality is also available via the 'Format', 'AppendFormat' 
-/// and 'PrependFormat' functions.
+/// For very convenient string creation, printf functionality is also available via the 'Printf', 'AppendPrintf'
+/// and 'PrependPrintf' functions.
 /// Once a string is built and should only be stored for read access, it should be stored in an ezString instance.
 class EZ_FOUNDATION_DLL ezStringBuilder : public ezStringBase<ezStringBuilder>
 {
@@ -164,10 +164,10 @@ public:
   void Append(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
   /// \brief Appends the formatted string.
-  void AppendFormat(const char* szUtf8Format, ...); // [tested]
+  void AppendPrintf(const char* szUtf8Format, ...); // [tested]
 
   /// \brief Appends the formatted string.
-  void AppendFormatArgs(const char* szUtf8Format, va_list args); // [tested]
+  void AppendPrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Prepends a single Utf32 character.
   void Prepend(ezUInt32 uiChar); // [tested]
@@ -179,16 +179,16 @@ public:
   void Prepend(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
   /// \brief Prepends the formatted string.
-  void PrependFormat(const char* szUtf8Format, ...); // [tested]
+  void PrependPrintf(const char* szUtf8Format, ...); // [tested]
 
   /// \brief Prepends the formatted string.
-  void PrependFormatArgs(const char* szUtf8Format, va_list args); // [tested]
+  void PrependPrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Sets this string to the formatted string.
-  void Format(const char* szUtf8Format, ...); // [tested]
+  void Printf(const char* szUtf8Format, ...); // [tested]
 
   /// \brief Sets this string to the formatted string.
-  void FormatArgs(const char* szUtf8Format, va_list args); // [tested]
+  void PrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Removes the first n and last m characters from this string.
   ///
@@ -196,7 +196,7 @@ public:
   /// Removing characters at the back is very cheap.
   /// Removing characters at the front needs to move data around, so can be quite costly.
   void Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack); // [tested]
-  
+
   /// \brief Reserves uiNumElements bytes.
   void Reserve(ezUInt32 uiNumElements); // [tested]
 
@@ -308,7 +308,7 @@ public:
   /// All paths use slashes on all platforms. If you need to convert a path to the OS specific representation, use 'MakePathSeparatorsNative'
   /// 'MakeCleanPath' will in rare circumstances grow the string by one character. That means it is quite safe to assume that
   /// it will not waste time on memory allocations.
-  /// If it is repeatedly called on the same string, it has a minor overhead for computing the same string over and over, 
+  /// If it is repeatedly called on the same string, it has a minor overhead for computing the same string over and over,
   /// but no memory allocations will be done (everything is in-place).
   ///
   /// Removes all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes, those are kept, as they might indicate a UNC path.

@@ -286,26 +286,26 @@ void ezQtResourceWidget::UpdateTable()
       }
 
       pItem = Table->item(iTableRow, 3);
-      sTemp.Format("%u", res.m_LoadingState.m_uiQualityLevelsDiscardable);
+      sTemp.Printf("%u", res.m_LoadingState.m_uiQualityLevelsDiscardable);
       pItem->setText(sTemp.GetData());
       pItem->setToolTip("The number of quality levels that could be discarded to free up memory.");
 
       pItem = Table->item(iTableRow, 4);
-      sTemp.Format("%u", res.m_LoadingState.m_uiQualityLevelsLoadable);
+      sTemp.Printf("%u", res.m_LoadingState.m_uiQualityLevelsLoadable);
       pItem->setText(sTemp.GetData());
       pItem->setToolTip("The number of quality levels that could be additionally loaded for higher quality.");
 
       ByteSizeItem* pByteItem;
 
       pByteItem = (ByteSizeItem*)Table->item(iTableRow, 5);
-      sTemp.Format("%u Bytes", res.m_Memory.m_uiMemoryCPU);
+      sTemp.Printf("%u Bytes", res.m_Memory.m_uiMemoryCPU);
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryCPU);
       pByteItem->setText(sTemp.GetData());
       pByteItem->m_uiBytes = res.m_Memory.m_uiMemoryCPU;
 
       pByteItem = (ByteSizeItem*)Table->item(iTableRow, 6);
-      sTemp.Format("%u Bytes", res.m_Memory.m_uiMemoryGPU);
+      sTemp.Printf("%u Bytes", res.m_Memory.m_uiMemoryGPU);
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryGPU);
       pByteItem->setText(sTemp.GetData());

@@ -75,7 +75,7 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
 {
   ezUInt32 uiVersion = 0;
   stream >> uiVersion;
-  
+
   EZ_ASSERT_DEV(uiVersion >= ezShaderStateVersion::Version1 && uiVersion <= ezShaderStateVersion::Current, "Invalid version %u", uiVersion);
 
   // Blend State
@@ -155,7 +155,7 @@ ezUInt32 ezShaderStateResourceDescriptor::CalculateHash() const
 
 static const char* InsertNumber(const char* szString, ezUInt32 uiNumber, ezStringBuilder& sTemp)
 {
-  sTemp.Format(szString, uiNumber);
+  sTemp.Printf(szString, uiNumber);
   return sTemp.GetData();
 }
 
@@ -276,7 +276,7 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
     m_DepthStencilDesc.m_uiStencilReadMask = lua.GetIntVariable("StencilReadMask", m_DepthStencilDesc.m_uiStencilReadMask);
     m_DepthStencilDesc.m_uiStencilWriteMask = lua.GetIntVariable("StencilWriteMask", m_DepthStencilDesc.m_uiStencilWriteMask);
   }
-  
+
 
   return EZ_SUCCESS;
 }

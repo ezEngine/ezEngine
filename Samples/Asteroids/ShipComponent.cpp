@@ -30,8 +30,8 @@ void ShipComponent::SetVelocity(const ezVec3& vVel)
   m_vVelocity += vVel * 0.1f;
 
   ezStringBuilder s, v;
-  s.Format("Game/Player%i/Velocity", m_iPlayerIndex);
-  v.Format("%.3f | %.3f | %.3f", m_vVelocity.x, m_vVelocity.y, m_vVelocity.z);
+  s.Printf("Game/Player%i/Velocity", m_iPlayerIndex);
+  v.Printf("%.3f | %.3f | %.3f", m_vVelocity.x, m_vVelocity.y, m_vVelocity.z);
 
   ezStats::SetStat(s.GetData(), v.GetData());
 }
@@ -44,7 +44,7 @@ void ShipComponent::SetIsShooting(bool b)
   m_bIsShooting = b;
 
   ezStringBuilder s, v;
-  s.Format("Game/Player%i/Shooting", m_iPlayerIndex);
+  s.Printf("Game/Player%i/Shooting", m_iPlayerIndex);
   v = b ? "Yes" : "No";
 
   ezStats::SetStat(s.GetData(), v.GetData());
@@ -126,7 +126,7 @@ void ShipComponent::Update()
       // this only works because the materials are part of the Asset Collection and get a name like this from there
       // otherwise we would need to have the GUIDs of the 4 different material assets available
       ezStringBuilder sMaterialName;
-      sMaterialName.Format("MaterialPlayer%i", m_iPlayerIndex + 1);
+      sMaterialName.Printf("MaterialPlayer%i", m_iPlayerIndex + 1);
       pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
 
       pProjectile->AttachComponent(pMeshComponent);
@@ -157,15 +157,15 @@ void ShipComponent::Update()
   ezStringBuilder s, v;
 
   {
-    s.Format("Game/Player%i/Health", m_iPlayerIndex);
-    v.Format("%f", m_fHealth);
+    s.Printf("Game/Player%i/Health", m_iPlayerIndex);
+    v.Printf("%f", m_fHealth);
 
     ezStats::SetStat(s.GetData(), v.GetData());
   }
 
   {
-    s.Format("Game/Player%i/Ammo", m_iPlayerIndex);
-    v.Format("%f", m_fAmmunition);
+    s.Printf("Game/Player%i/Ammo", m_iPlayerIndex);
+    v.Printf("%f", m_fAmmunition);
 
     ezStats::SetStat(s.GetData(), v.GetData());
   }

@@ -400,7 +400,7 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
   m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
 
   ezStringBuilder sName;
-  sName.Format("%s Vertex Buffer", GetResourceDescription().GetData());
+  sName.Printf("%s Vertex Buffer", GetResourceDescription().GetData());
   pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
   if (descriptor.HasIndexBuffer())
@@ -408,7 +408,7 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
     m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort,
       m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
 
-    sName.Format("%s Index Buffer", GetResourceDescription().GetData());
+    sName.Printf("%s Index Buffer", GetResourceDescription().GetData());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
   }
 

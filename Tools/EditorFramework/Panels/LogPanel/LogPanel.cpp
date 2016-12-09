@@ -7,7 +7,7 @@
 
 EZ_IMPLEMENT_SINGLETON(ezQtLogPanel);
 
-ezQtLogPanel::ezQtLogPanel() 
+ezQtLogPanel::ezQtLogPanel()
   : ezQtApplicationPanel("Panel.Log")
   , m_SingletonRegistrar(this)
 {
@@ -21,7 +21,7 @@ ezQtLogPanel::ezQtLogPanel()
 
   ListViewEditorLog->setModel(&m_EditorLog);
   ListViewEditorLog->setUniformItemSizes(true);
-  connect(&m_EditorLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex &parent, int first, int last) 
+  connect(&m_EditorLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex &parent, int first, int last)
   {
     ScrollToBottomIfAtEnd(ListViewEditorLog, first);
   });
@@ -217,7 +217,7 @@ void ezQtLogModel::AddLogMsg(const LogMsg& msg)
   {
     QMetaObject::invokeMethod(this, "ProcessNewMessages", Qt::ConnectionType::QueuedConnection);
   }
- 
+
   return;
 }
 
@@ -336,7 +336,7 @@ void ezQtLogModel::ProcessNewMessages()
 
     if (msg.m_Type == ezLogMsgType::BeginGroup || msg.m_Type == ezLogMsgType::EndGroup)
     {
-      s.Format("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+      s.Printf("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
 
       if (!msg.m_sTag.IsEmpty())
         s.Append(" (", msg.m_sTag, ") >>>");
@@ -347,7 +347,7 @@ void ezQtLogModel::ProcessNewMessages()
     }
     else
     {
-      s.Format("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+      s.Printf("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
       m_AllMessages.PeekBack().m_sMsg = s;
     }
 

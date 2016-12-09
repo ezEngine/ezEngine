@@ -17,7 +17,7 @@ void ezLogWriter::HTML::BeginLog (const char* szFile, const char* szAppTitle)
       const ezStringBuilder sName = ezPathUtils::GetFileName(szFile);
 
       ezStringBuilder sNewName;
-      sNewName.Format("%s_%i", sName.GetData(), i);
+      sNewName.Printf("%s_%i", sName.GetData(), i);
 
       ezStringBuilder sPath = szFile;
       sPath.ChangeFileName(sNewName.GetData());
@@ -34,7 +34,7 @@ void ezLogWriter::HTML::BeginLog (const char* szFile, const char* szAppTitle)
   }
 
   ezStringBuilder sText;
-  sText.Format("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - %s</TITLE></HEAD><BODY>", szAppTitle);
+  sText.Printf("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - %s</TITLE></HEAD><BODY>", szAppTitle);
 
   m_File.WriteBytes(sText.GetData(), sizeof (char) * sText.GetElementCount());
 }
@@ -51,7 +51,7 @@ void ezLogWriter::HTML::EndLog()
   WriteString("", 0);
 
   ezStringBuilder sText;
-  sText.Format("</BODY></HTML>");
+  sText.Printf("</BODY></HTML>");
 
   m_File.WriteBytes(sText.GetData(), sizeof (char) * sText.GetElementCount());
 
@@ -88,36 +88,36 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   switch (eventData.m_EventType)
   {
   case ezLogMsgType::BeginGroup:
-    sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>%s</u> >>> </b> (%s) </font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText.GetData(), sTag.GetData());
+    sText.Printf("<br><font color=\"#8080FF\"><b> <<< <u>%s</u> >>> </b> (%s) </font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText.GetData(), sTag.GetData());
     break;
   case ezLogMsgType::EndGroup:
-    sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< %s >>> </b></font><br><br>\n", sOriginalText.GetData());
+    sText.Printf("</td></tr></table><font color=\"#8080FF\"><b> <<< %s >>> </b></font><br><br>\n", sOriginalText.GetData());
     break;
   case ezLogMsgType::ErrorMsg:
     bFlushWriteCache = true;
-    sText.Format("<font color=\"#FF0000\"><b><u>Error:</u> %s</b></font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#FF0000\"><b><u>Error:</u> %s</b></font><br>\n", sOriginalText.GetData());
     break;
   case ezLogMsgType::SeriousWarningMsg:
     bFlushWriteCache = true;
-    sText.Format("<font color=\"#FF4000\"><b><u>Seriously:</u> %s</b></font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#FF4000\"><b><u>Seriously:</u> %s</b></font><br>\n", sOriginalText.GetData());
     break;
   case ezLogMsgType::WarningMsg:
-    sText.Format("<font color=\"#FF8000\"><u>Warning:</u> %s</font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#FF8000\"><u>Warning:</u> %s</font><br>\n", sOriginalText.GetData());
     break;
   case ezLogMsgType::SuccessMsg:
-    sText.Format("<font color=\"#009000\">%s</font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#009000\">%s</font><br>\n", sOriginalText.GetData());
     break;
   case ezLogMsgType::InfoMsg:
-    sText.Format("<font color=\"#000000\">%s</font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#000000\">%s</font><br>\n", sOriginalText.GetData());
     break;
   case ezLogMsgType::DevMsg:
-    sText.Format("<font color=\"#3030F0\">%s</font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#3030F0\">%s</font><br>\n", sOriginalText.GetData());
     break;
   case ezLogMsgType::DebugMsg:
-    sText.Format("<font color=\"#A000FF\">%s</font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#A000FF\">%s</font><br>\n", sOriginalText.GetData());
     break;
   default:
-    sText.Format("<font color=\"#A0A0A0\">%s</font><br>\n", sOriginalText.GetData());
+    sText.Printf("<font color=\"#A0A0A0\">%s</font><br>\n", sOriginalText.GetData());
 
     ezLog::Warning ("Unknown Message Type %d", eventData.m_EventType);
     break;
@@ -133,7 +133,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
 void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
 {
   ezStringBuilder sTemp;
-  sTemp.Format("<font color=\"#%X\">%s</font>", uiColor, szString);
+  sTemp.Printf("<font color=\"#%X\">%s</font>", uiColor, szString);
 
   m_File.WriteBytes(sTemp.GetData(), sizeof (char) * sTemp.GetElementCount());
 }

@@ -83,7 +83,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
       break;
   }
 
-  StringBuilder.AppendFormat("<DirectedGraph xmlns=\"http://schemas.microsoft.com/vs/2009/dgml\" GraphDirection=\"%s\" Layout=\"%s\">\n", szDirection, szLayout);
+  StringBuilder.AppendPrintf("<DirectedGraph xmlns=\"http://schemas.microsoft.com/vs/2009/dgml\" GraphDirection=\"%s\" Layout=\"%s\">\n", szDirection, szLayout);
 
   // Write out all the nodes
   StringBuilder.Append("\t<Nodes>\n");
@@ -99,7 +99,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
 
     ezStringBuilder ColorValue = "#FF";
     ezColorGammaUB RGBA(Graph.m_Nodes[i].m_Color);
-    ColorValue.AppendFormat("%02X%02X%02X", RGBA.r, RGBA.g, RGBA.b);
+    ColorValue.AppendPrintf("%02X%02X%02X", RGBA.r, RGBA.g, RGBA.b);
 
     ezStringBuilder StyleString;
     switch (Graph.m_Nodes[i].m_Shape)
@@ -118,7 +118,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
         break;
     }
 
-    StringBuilder.AppendFormat("\t\t<Node Id=\"N_%u\" Label=\"%s\" Background=\"%s\" %s />\n", i, SanitizedName.GetData(), ColorValue.GetData(), StyleString.GetData());
+    StringBuilder.AppendPrintf("\t\t<Node Id=\"N_%u\" Label=\"%s\" Background=\"%s\" %s />\n", i, SanitizedName.GetData(), ColorValue.GetData(), StyleString.GetData());
 
   }
   StringBuilder.Append("\t</Nodes>\n");
@@ -127,7 +127,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
   StringBuilder.Append("\t<Links>\n");
   for (ezUInt32 i = 0; i < Graph.m_Connections.GetCount(); ++i)
   {
-    StringBuilder.AppendFormat("\t\t<Link Source=\"N_%u\" Target=\"N_%u\" />\n", Graph.m_Connections[i].m_Source, Graph.m_Connections[i].m_Target);
+    StringBuilder.AppendPrintf("\t\t<Link Source=\"N_%u\" Target=\"N_%u\" />\n", Graph.m_Connections[i].m_Source, Graph.m_Connections[i].m_Target);
   }
   StringBuilder.Append("\t</Links>\n");
 

@@ -153,10 +153,10 @@ void ezQtCVarsWidget::UpdateCVarsTable(bool bRecreate)
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableCVars->setCellWidget(iRow, 0, pIcon);
 
-      sTemp.Format("  %s  ", it.Value().m_sPlugin.GetData());
+      sTemp.Printf("  %s  ", it.Value().m_sPlugin.GetData());
       TableCVars->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Plugin
 
-      sTemp.Format("  %s  ", it.Key().GetData());
+      sTemp.Printf("  %s  ", it.Key().GetData());
       TableCVars->setCellWidget(iRow, 2, new QLabel(sTemp.GetData())); // Name
 
       TableCVars->setCellWidget(iRow, 4, new QLabel(it.Value().m_sDescription.GetData())); // Description
@@ -180,7 +180,7 @@ void ezQtCVarsWidget::UpdateCVarsTable(bool bRecreate)
           pValue->setMaximum( (1 << 30));
           pValue->setDecimals(4);
           pValue->setSingleStep(1.0);
-          TableCVars->setCellWidget(iRow, 3, pValue); // Value        
+          TableCVars->setCellWidget(iRow, 3, pValue); // Value
 
           QWidget::connect(pValue, SIGNAL(valueChanged(double)), this, SLOT(FloatChanged(double)));
         }

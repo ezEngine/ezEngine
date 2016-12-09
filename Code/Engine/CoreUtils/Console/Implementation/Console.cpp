@@ -127,7 +127,7 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
   }
 
   ezStringBuilder sFormat;
-  sFormat.Format("%*s%s", data.m_uiIndentation, "", data.m_szText);
+  sFormat.Printf("%*s%s", data.m_uiIndentation, "", data.m_szText);
 
   AddConsoleString(sFormat.GetData(), color, bShow);
 }

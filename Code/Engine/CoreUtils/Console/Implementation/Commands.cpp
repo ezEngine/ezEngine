@@ -18,7 +18,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
 
     const char* szKeyNameStart = ezStringUtils::SkipCharacters(szAfterCmd, ezStringUtils::IsWhiteSpace); // go to the next word
     const char* szKeyNameEnd = ezStringUtils::FindWordEnd(szKeyNameStart, ezStringUtils::IsIdentifierDelimiter_C_Code); // find its end
-    
+
     ezStringView sKey(szKeyNameStart, szKeyNameEnd);
     ezStringBuilder sKeyName = sKey; // copy the word into a zero terminated string
 
@@ -63,7 +63,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
 void ezConsole::BindKey(const char* szKey, const char* szCommand)
 {
   ezStringBuilder s;
-  s.Format("Binding key '%s' to command '%s'", szKey, szCommand);
+  s.Printf("Binding key '%s' to command '%s'", szKey, szCommand);
   AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
 
   m_BoundKeys[szKey] = szCommand;
@@ -72,7 +72,7 @@ void ezConsole::BindKey(const char* szKey, const char* szCommand)
 void ezConsole::UnbindKey(const char* szKey)
 {
   ezStringBuilder s;
-  s.Format("Unbinding key '%s'", szKey);
+  s.Printf("Unbinding key '%s'", szKey);
   AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
 
   m_BoundKeys.Remove(szKey);

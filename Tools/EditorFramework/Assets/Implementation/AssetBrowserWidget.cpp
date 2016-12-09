@@ -214,7 +214,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
         continue;
       //if (!sTypeFilter.IsEmpty() && !sTypeFilter.FindSubString(desc->m_sDocumentTypeName))
         //continue;
-      
+
 
       QAction* pAction = pSubMenu->addAction(desc->m_sDocumentTypeName.GetData());
       pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
@@ -716,7 +716,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
 
       if (!sPath.IsEmpty() && ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
       {
-        ezStringBuilder temp = sPath; 
+        ezStringBuilder temp = sPath;
         sPath = temp.GetFileDirectory();
 
         sStartDir = sPath.GetData();
@@ -726,7 +726,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
 
   ezStringBuilder title("Create ", sAssetType), sFilter;
 
-  sFilter.Format("%s (*.%s)", sAssetType.GetData(), sExtension.GetData());
+  sFilter.Printf("%s (*.%s)", sAssetType.GetData(), sExtension.GetData());
 
   QString sSelectedFilter = sExtension.GetData();
   ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();

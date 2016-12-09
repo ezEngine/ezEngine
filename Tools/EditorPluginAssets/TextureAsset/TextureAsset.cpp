@@ -59,11 +59,11 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
     const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.Format("%08X", uiHashLow32);
+    temp.Printf("%08X", uiHashLow32);
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.Format("%08X", uiHashHigh32);
+    temp.Printf("%08X", uiHashHigh32);
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -109,7 +109,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
   {
-    temp.Format("-in%i", i);
+    temp.Printf("-in%i", i);
 
     if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
       break;

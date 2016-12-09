@@ -142,7 +142,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (ezUInt32 i = 0; i < 10; ++i)
     {
       ezStringBuilder sb;
-      sb.AppendFormat("Child_%d", i);
+      sb.AppendPrintf("Child_%d", i);
       desc.m_sName.Assign(sb.GetData());
 
       desc.m_LocalPosition = ezVec3(i * 10.0f, 0.0f, 0.0f);      
@@ -154,7 +154,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
     {
       ezStringBuilder sb;
-      sb.AppendFormat("Child_%d", uiCounter);
+      sb.AppendPrintf("Child_%d", uiCounter);
 
       EZ_TEST_STRING(it->GetName(), sb.GetData());
 
@@ -182,7 +182,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
     {
       ezStringBuilder sb;
-      sb.AppendFormat("Child_%d", indices[uiCounter]);
+      sb.AppendPrintf("Child_%d", indices[uiCounter]);
 
       EZ_TEST_STRING(it->GetName(), sb.GetData());
 
@@ -203,7 +203,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
     {
       ezStringBuilder sb;
-      sb.AppendFormat("Child_%d", indices[uiCounter]);
+      sb.AppendPrintf("Child_%d", indices[uiCounter]);
 
       EZ_TEST_STRING(it->GetName(), sb.GetData());
 

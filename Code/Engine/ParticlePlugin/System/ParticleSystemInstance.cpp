@@ -325,7 +325,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
 {
   ezStringBuilder fullName(szName);
-  fullName.AppendFormat("(%i)", (int)Type);
+  fullName.AppendPrintf("(%i)", (int)Type);
 
   return m_StreamGroup.GetStreamByName(fullName);
 }
@@ -335,7 +335,7 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
   ezStringBuilder fullName(szName);
-  fullName.AppendFormat("(%i)", (int)Type);
+  fullName.AppendPrintf("(%i)", (int)Type);
 
   StreamInfo* pInfo = nullptr;
 

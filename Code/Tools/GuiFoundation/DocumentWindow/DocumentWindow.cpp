@@ -285,7 +285,7 @@ void ezQtDocumentWindow::SaveWindowLayout()
     showNormal();
 
   ezStringBuilder sGroup;
-  sGroup.Format("DocumentWnd_%s", GetWindowLayoutGroupName());
+  sGroup.Printf("DocumentWnd_%s", GetWindowLayoutGroupName());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
@@ -306,7 +306,7 @@ void ezQtDocumentWindow::RestoreWindowLayout()
   QtScopedUpdatesDisabled _(this);
 
   ezStringBuilder sGroup;
-  sGroup.Format("DocumentWnd_%s", GetWindowLayoutGroupName());
+  sGroup.Printf("DocumentWnd_%s", GetWindowLayoutGroupName());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
@@ -342,8 +342,8 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
 
     ezStringBuilder s, s2;
-    s.Format("Failed to save document:\n'%s'", m_pDocument->GetDocumentPath());
-    s2.Format("Successfully saved document:\n'%s'", m_pDocument->GetDocumentPath());
+    s.Printf("Failed to save document:\n'%s'", m_pDocument->GetDocumentPath());
+    s2.Printf("Successfully saved document:\n'%s'", m_pDocument->GetDocumentPath());
 
     ezQtUiServices::MessageBoxStatus(res, s, s2);
 
@@ -372,7 +372,7 @@ void ezQtDocumentWindow::ShowStatusBarMsg(const char* szText, ...)
   ezStringBuilder sText;
   va_list args;
   va_start(args, szText);
-  sText.FormatArgs(szText, args);
+  sText.PrintfArgs(szText, args);
   va_end(args);
 
   ShowStatusBarMsgNoArgs(sText);

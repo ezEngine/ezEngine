@@ -26,7 +26,7 @@ namespace MemoryDetail
 
     ezStringBuilder s;
 
-    s.Format("%lli", uiTotalAllocations - uiLastTotalAllocations);
+    s.Printf("%lli", uiTotalAllocations - uiLastTotalAllocations);
     ezStats::SetStat("App/Allocs Per Frame", s.GetData());
 
     uiLastTotalAllocations = uiTotalAllocations;
@@ -42,7 +42,7 @@ namespace MemoryDetail
     case ezTelemetry::TelemetryEventData::PerFrameUpdate:
       BroadcastMemoryStats();
       break;
-    
+
     default:
       break;
     }

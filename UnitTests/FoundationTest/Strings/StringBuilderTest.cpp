@@ -272,10 +272,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_STRING(sb.GetData(), sUtf2.GetData());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AppendFormat")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AppendPrintf")
   {
     ezStringBuilder s("abc");
-    s.AppendFormat("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
+    s.AppendPrintf("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"abcTest42foobär").GetData());
   }
@@ -304,10 +304,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == ezStringUtf8(L"bdü€pups").GetData());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PrependFormat")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PrependPrintf")
   {
     ezStringBuilder s("abc");
-    s.PrependFormat("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
+    s.PrependPrintf("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"Test42foobärabc").GetData());
   }
@@ -316,7 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Format")
   {
     ezStringBuilder s("abc");
-    s.Format("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
+    s.Printf("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
 
     EZ_TEST_BOOL(s == ezStringUtf8(L"Test42foobär").GetData());
   }

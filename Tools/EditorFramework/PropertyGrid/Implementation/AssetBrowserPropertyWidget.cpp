@@ -358,7 +358,7 @@ found:
     ezStringBuilder sTemp = sOutput.GetFileDirectory();
     ezStringBuilder title("Create ", sAssetType), sFilter;
 
-    sFilter.Format("%s (*.%s)", sAssetType.GetData(), sExtension.GetData());
+    sFilter.Printf("%s (*.%s)", sAssetType.GetData(), sExtension.GetData());
 
     QString sStartDir = sTemp.GetData();
     QString sSelectedFilter = sExtension.GetData();

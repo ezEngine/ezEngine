@@ -229,7 +229,7 @@ void ezCommandHistory::StartTransaction(const char* szDisplayString, ...)
 
   va_list args;
   va_start(args, szDisplayString);
-  sDisplay.FormatArgs(szDisplayString, args);
+  sDisplay.PrintfArgs(szDisplayString, args);
   va_end(args);
 
 

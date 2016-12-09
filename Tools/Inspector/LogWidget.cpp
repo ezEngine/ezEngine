@@ -69,13 +69,13 @@ QListWidgetItem* ezQtLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessage
   ezStringBuilder sFormat;
 
   if (lm.m_Type == ezLogMsgType::BeginGroup)
-    sFormat.Format("%*s>> %s (%s)", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData(), lm.m_sTag.GetData());
+    sFormat.Printf("%*s>> %s (%s)", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData(), lm.m_sTag.GetData());
   else if (lm.m_Type == ezLogMsgType::EndGroup)
-    sFormat.Format("%*s<< %s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
+    sFormat.Printf("%*s<< %s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
   else if (lm.m_sTag.IsEmpty())
-    sFormat.Format("%*s%s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
+    sFormat.Printf("%*s%s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
   else
-    sFormat.Format("%*s[%s]%s", lm.m_uiIndentation * 4, "", lm.m_sTag.GetData(), lm.m_sMsg.GetData());
+    sFormat.Printf("%*s[%s]%s", lm.m_uiIndentation * 4, "", lm.m_sTag.GetData(), lm.m_sMsg.GetData());
 
   QListWidgetItem* pItem = new QListWidgetItem;
   pItem->setText(sFormat.GetData());
@@ -207,7 +207,7 @@ void ezQtLogWidget::UpdateLogList()
   ezDeque<ezInt32> FilteredList;
 
   for (ezUInt32 i = 0; i < m_Messages.GetCount(); ++i)
-  { 
+  {
     if (IsFiltered(m_Messages[i]))
       continue;
 
@@ -235,7 +235,7 @@ void ezQtLogWidget::UpdateLogList()
       iSelectRow = i;
   }
 
-  
+
   if (iSelectRow >= 0)
     ListLog->setCurrentRow(iSelectRow);
 

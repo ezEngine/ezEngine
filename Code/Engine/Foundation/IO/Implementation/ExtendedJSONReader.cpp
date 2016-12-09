@@ -291,7 +291,7 @@ void ezExtendedJSONReader::OnEndObject()
     if (result.Failed())
     {
       ezStringBuilder s;
-      s.Format("The extended type variable '%s' could not be converted. $t = '%s', $v = '%s', $b = '%s'", Child.m_sName.GetData(), Type.ConvertTo<ezString>().GetData(), Value.ConvertTo<ezString>().GetData(), Binary.ConvertTo<ezString>().GetData());
+      s.Printf("The extended type variable '%s' could not be converted. $t = '%s', $v = '%s', $b = '%s'", Child.m_sName.GetData(), Type.ConvertTo<ezString>().GetData(), Value.ConvertTo<ezString>().GetData(), Binary.ConvertTo<ezString>().GetData());
       ParsingError(s.GetData(), false);
     }
 
@@ -315,7 +315,7 @@ void ezExtendedJSONReader::OnEndObject()
       // this would be an invalid document
 
       ezStringBuilder s;
-      s.Format("Variable '%s' is an extended type, but at the root of the document hierarchy. This is invalid.", Child.m_sName.GetData());
+      s.Printf("Variable '%s' is an extended type, but at the root of the document hierarchy. This is invalid.", Child.m_sName.GetData());
       ParsingError(s.GetData(), true);
     }
   }

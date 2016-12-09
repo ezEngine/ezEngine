@@ -28,7 +28,7 @@ ezGPUResourcePool::~ezGPUResourcePool()
     ezLog::SeriousWarning("Destructing a GPU resource pool of which textures are still in use!");
   }
 
-  // Free remaining resources 
+  // Free remaining resources
   RunGC();
 }
 
@@ -68,7 +68,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   CheckAndPotentiallyRunGC();
 
   ezGALTextureHandle hNewTexture = m_pDevice->CreateTexture(TextureDesc);
-  
+
   if (hNewTexture.IsInvalidated())
   {
     ezLog::Error("GPU resource pool couldn't create new texture for given desc (size: %d x %d, format: %d)", TextureDesc.m_uiWidth, TextureDesc.m_uiHeight, TextureDesc.m_Format);
@@ -285,7 +285,7 @@ void ezGPUResourcePool::UpdateMemoryStats() const
   float fMegaBytes = float(m_uiCurrentlyAllocatedMemory) / (1024.0f * 1024.0f);
 
   ezStringBuilder sOut;
-  sOut.Format("%.4f (Mb)", fMegaBytes);
+  sOut.Printf("%.4f (Mb)", fMegaBytes);
   ezStats::SetStat("GPU Resource Pool/Memory Consumption", sOut.GetData());
 
   #endif

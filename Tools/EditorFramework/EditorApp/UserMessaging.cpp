@@ -9,7 +9,7 @@ void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
     s_RestartRequiredReasons.Insert(szReason);
 
     ezStringBuilder s;
-    s.Format("The editor process must be restarted.\nReason: '%s'", szReason);
+    s.Printf("The editor process must be restarted.\nReason: '%s'", szReason);
 
     ezQtUiServices::MessageBoxInformation(s);
 
@@ -24,7 +24,7 @@ void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
     s_ReloadProjectRequiredReasons.Insert(szReason);
 
     ezStringBuilder s;
-    s.Format("The project must be reloaded.\nReason: '%s'", szReason);
+    s.Printf("The project must be reloaded.\nReason: '%s'", szReason);
 
     ezQtUiServices::MessageBoxInformation(s);
 

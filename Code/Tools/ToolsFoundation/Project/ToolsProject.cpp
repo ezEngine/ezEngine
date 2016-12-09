@@ -36,7 +36,7 @@ ezStatus ezToolsProject::Create()
     if (ProjectFile.Open(m_sProjectPath, ezFileMode::Write).Failed())
     {
       ezStringBuilder sError;
-      sError.Format("Could not open/create the project file for writing: '%s'", m_sProjectPath.GetData());
+      sError.Printf("Could not open/create the project file for writing: '%s'", m_sProjectPath.GetData());
       return ezStatus(sError);
     }
     else
@@ -68,7 +68,7 @@ ezStatus ezToolsProject::Open()
   if (ProjectFile.Open(m_sProjectPath, ezFileMode::Read).Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Could not open the project file for reading: '%s'", m_sProjectPath.GetData());
+    sError.Printf("Could not open the project file for reading: '%s'", m_sProjectPath.GetData());
     return ezStatus(sError);
   }
 
@@ -211,7 +211,7 @@ void ezToolsProject::AddAllowedDocumentRoot(const char* szPath)
   ezStringBuilder s = szPath;
   s.MakeCleanPath();
   s.Trim("", "/");
-  
+
   m_AllowedDocumentRoots.PushBack(s);
 }
 

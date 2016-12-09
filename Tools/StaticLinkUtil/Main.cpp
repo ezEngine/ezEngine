@@ -438,7 +438,7 @@ public:
 
     for (auto it = m_GlobalIncludes.GetIterator(); it.IsValid(); ++it)
     {
-      sAllIncludes.AppendFormat("#include <%s>\n", it.Key().GetData());
+      sAllIncludes.AppendPrintf("#include <%s>\n", it.Key().GetData());
     }
 
     sAllIncludes.ReplaceAll("\\", "/");
@@ -497,7 +497,7 @@ public:
     ezString sFileMarker = GetFileMarkerName(szFile);
 
     ezStringBuilder sNewMarker;
-    sNewMarker.Format("EZ_STATICLINK_FILE(%s, %s);", sLibraryMarker.GetData(), sFileMarker.GetData());
+    sNewMarker.Printf("EZ_STATICLINK_FILE(%s, %s);", sLibraryMarker.GetData(), sFileMarker.GetData());
 
     m_AllRefPoints.Insert(sFileMarker.GetData());
 
@@ -516,7 +516,7 @@ public:
     else
     {
       // otherwise insert it at the end of the file
-      sFileContent.AppendFormat("\n\n%s\n\n", sNewMarker.GetData());
+      sFileContent.AppendPrintf("\n\n%s\n\n", sNewMarker.GetData());
     }
 
     // rewrite the entire file
@@ -560,13 +560,13 @@ public:
     // generate the code that should be inserted into this file
     // this code will reference all the other files in the library
     {
-      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY(%s)\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName().GetData());
+      sNewGroupMarker.Printf("EZ_STATICLINK_LIBRARY(%s)\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName().GetData());
 
       auto it = m_AllRefPoints.GetIterator();
 
       while (it.IsValid())
       {
-        sNewGroupMarker.AppendFormat("  EZ_STATICLINK_REFERENCE(%s);\n", it.Key().GetData());
+        sNewGroupMarker.AppendPrintf("  EZ_STATICLINK_REFERENCE(%s);\n", it.Key().GetData());
         ++it;
       }
 
@@ -605,7 +605,7 @@ public:
     {
       // if we can't find the macro, append it to the end of the file
       // this can only happen, if we ever extend this tool such that it picks one file to auto-insert this macro
-      sFileContent.AppendFormat("\n\n%s\n\n", sNewGroupMarker.GetData());
+      sFileContent.AppendPrintf("\n\n%s\n\n", sNewGroupMarker.GetData());
     }
 
     OverwriteFile(szFile, sFileContent);

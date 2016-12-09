@@ -47,7 +47,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       ezImage image;
       {
         ezStringBuilder fileName;
-        fileName.Format("%s.bmp", testImagesGood[i]);
+        fileName.Printf("%s.bmp", testImagesGood[i]);
 
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Image file does not exist: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(image.LoadFrom(fileName.GetData()) == EZ_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
@@ -55,7 +55,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
       {
         ezStringBuilder fileName;
-        fileName.Format(":output/%s_out.bmp", testImagesGood[i]);
+        fileName.Printf(":output/%s_out.bmp", testImagesGood[i]);
 
         EZ_TEST_BOOL_MSG(image.SaveTo(fileName.GetData()) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Output image file is missing: '%s'", fileName.GetData());
@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       ezImage image;
       {
         ezStringBuilder fileName;
-        fileName.Format("%s.bmp", testImagesBad[i]);
+        fileName.Printf("%s.bmp", testImagesBad[i]);
 
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(image.LoadFrom(fileName.GetData(), &LogIgnore) == EZ_FAILURE, "Reading image should have failed: '%s'", fileName.GetData());
@@ -97,7 +97,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       ezImage image;
       {
         ezStringBuilder fileName;
-        fileName.Format("%s.tga", testImagesGood[i]);
+        fileName.Printf("%s.tga", testImagesGood[i]);
 
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Image file does not exist: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(image.LoadFrom(fileName.GetData()) == EZ_SUCCESS, "Reading image failed: '%s'", fileName.GetData());
@@ -105,10 +105,10 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
       {
         ezStringBuilder fileName;
-        fileName.Format(":output/%s_out.bmp", testImagesGood[i]);
+        fileName.Printf(":output/%s_out.bmp", testImagesGood[i]);
 
         ezStringBuilder fileNameExpected;
-        fileNameExpected.Format("%s_expected.bmp", testImagesGood[i]);
+        fileNameExpected.Printf("%s_expected.bmp", testImagesGood[i]);
 
         EZ_TEST_BOOL_MSG(image.SaveTo(fileName.GetData()) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Output image file is missing: '%s'", fileName.GetData());
@@ -118,10 +118,10 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
       {
         ezStringBuilder fileName;
-        fileName.Format(":output/%s_out.tga", testImagesGood[i]);
+        fileName.Printf(":output/%s_out.tga", testImagesGood[i]);
 
         ezStringBuilder fileNameExpected;
-        fileNameExpected.Format("%s_expected.tga", testImagesGood[i]);
+        fileNameExpected.Printf("%s_expected.tga", testImagesGood[i]);
 
         EZ_TEST_BOOL_MSG(image.SaveTo(fileName.GetData()) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Output image file is missing: '%s'", fileName.GetData());

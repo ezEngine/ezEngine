@@ -10,7 +10,7 @@ static const ezString GetNextWord(ezStringView& sString)
   const char* szEndWord = ezStringUtils::FindWordEnd(szStartWord, ezStringUtils::IsIdentifierDelimiter_C_Code, true);
 
   sString = ezStringView(szEndWord);
-  
+
   return ezStringView(szStartWord, szEndWord);
 }
 
@@ -122,7 +122,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
       bValueEmpty = false;
 
-      sCommand.AppendFormat(" not %s", sVarName.GetData());
+      sCommand.AppendPrintf(" not %s", sVarName.GetData());
     }
 
     if (bSetValue && !bValueEmpty)
@@ -139,18 +139,18 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
           pConsole->AddConsoleString("  This change takes only effect after a restart.", ezColor(1, 200.0f / 255.0f, 0));
         }
 
-        sTemp.Format("  %s = %s", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
+        sTemp.Printf("  %s = %s", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
         pConsole->AddConsoleString(sTemp.GetData(), ezColor(50.0f / 255.0f, 1, 50.0f / 255.0f));
       }
     }
     else
     {
-      sTemp.Format("%s = %s", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
+      sTemp.Printf("%s = %s", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
       pConsole->AddConsoleString(sTemp.GetData());
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
       {
-        sTemp.Format("  Description: %s", pCVAR->GetDescription());
+        sTemp.Printf("  Description: %s", pCVAR->GetDescription());
         pConsole->AddConsoleString(sTemp.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
       }
       else

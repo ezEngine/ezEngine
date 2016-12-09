@@ -8,7 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-namespace 
+namespace
 {
   static bool PlatformEnabled(const ezString& sPlatforms, const char* szPlatform)
   {
@@ -53,7 +53,7 @@ namespace
 
       if (isBoolVar)
       {
-        sTemp.Format("%s %s", var.m_sName.GetData(), var.m_sValue.GetData());
+        sTemp.Printf("%s %s", var.m_sName.GetData(), var.m_sValue.GetData());
         out_Defines.PushBack(sTemp);
       }
       else
@@ -65,18 +65,18 @@ namespace
         {
           if (!enumValues[i].IsEmpty())
           {
-            sTemp.Format("%s_%s %d", szName, enumValues[i].GetData(), i);
+            sTemp.Printf("%s_%s %d", szName, enumValues[i].GetData(), i);
             out_Defines.PushBack(sTemp);
           }
         }
 
         if (ezStringUtils::StartsWith(szValue, szName))
         {
-          sTemp.Format("%s %s", szName, szValue);
+          sTemp.Printf("%s %s", szName, szValue);
         }
         else
         {
-          sTemp.Format("%s %s_%s", szName, szName, szValue);
+          sTemp.Printf("%s %s_%s", szName, szName, szValue);
         }
         out_Defines.PushBack(sTemp);
       }
@@ -165,7 +165,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
 
     sFileContent.ReadAll(File);
   }
-  
+
   ezShaderHelper::ezTextSectionizer Sections;
   ezShaderHelper::GetShaderSections(sFileContent.GetData(), Sections);
 
@@ -212,7 +212,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
 
     // later code checks whether the string is empty, to see whether we have any shader source, so this has to be kept empty
     if (!sTemp.IsEmpty())
-      sTemp.PrependFormat("#line %u\n", uiFirstLine);
+      sTemp.PrependPrintf("#line %u\n", uiFirstLine);
 
     m_ShaderData.m_ShaderStageSource[stage] = sTemp;
   }
@@ -344,7 +344,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
         ezLog::Error("Shader preprocessing failed");
 
         sProcessed[stage].Clear();
-          
+
         spd.m_szShaderSource[stage] = m_StageSourceFile[stage].GetData();
       }
       else
@@ -398,7 +398,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
           ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
           sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform().GetData());
-          sShaderStageFile.AppendFormat("/%08X.ezShaderSource", spd.m_StageBinary[stage].m_uiSourceHash);
+          sShaderStageFile.AppendPrintf("/%08X.ezShaderSource", spd.m_StageBinary[stage].m_uiSourceHash);
 
           ezFileWriter StageFileOut;
           if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())
@@ -418,7 +418,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
       sTemp.Shrink(0, 1);
 
     const ezUInt32 uiPermutationHash = ezShaderHelper::CalculateHash(m_ShaderData.m_Permutations);
-    sTemp.AppendFormat("%08X.ezPermutation", uiPermutationHash);
+    sTemp.AppendPrintf("%08X.ezPermutation", uiPermutationHash);
 
     shaderPermutationBinary.m_DependencyFile.Clear();
     shaderPermutationBinary.m_DependencyFile.AddFileDependency(szFile);
@@ -439,7 +439,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
     {
       shaderPermutationBinary.Write(PermutationFileOut);
     }
-    
+
   }
 }
 

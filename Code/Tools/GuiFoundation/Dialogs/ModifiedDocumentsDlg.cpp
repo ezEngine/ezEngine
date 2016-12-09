@@ -12,7 +12,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybr
   TableDocuments->blockSignals(true);
 
   TableDocuments->setRowCount(m_ModifiedDocs.GetCount());
-  
+
   QStringList Headers;
   Headers.append(" Type ");
   Headers.append(" Document ");
@@ -85,8 +85,8 @@ ezResult ezQtModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
   if (res.m_Result.Failed())
   {
     ezStringBuilder s, s2;
-    s.Format("Failed to save document:\n'%s'", pDoc->GetDocumentPath());
-    s2.Format("Successfully saved document:\n'%s'", pDoc->GetDocumentPath());
+    s.Printf("Failed to save document:\n'%s'", pDoc->GetDocumentPath());
+    s2.Printf("Successfully saved document:\n'%s'", pDoc->GetDocumentPath());
 
     ezQtUiServices::MessageBoxStatus(res, s, s2);
 
@@ -113,7 +113,7 @@ void ezQtModifiedDocumentsDlg::SlotSaveDocument()
 void ezQtModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
 {
   QPushButton* pButtonSave = qobject_cast<QPushButton*>(TableDocuments->cellWidget(currentRow, 2));
-  
+
   if (!pButtonSave)
     return;
 

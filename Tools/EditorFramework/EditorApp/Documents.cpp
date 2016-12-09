@@ -27,7 +27,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     ezStringBuilder sTemp = szFile;
     ezStringBuilder sExt = sTemp.GetFileExtension();
 
-    sTemp.Format("The selected file extension '%s' is not registered with any known type.\nCannot open file '%s'", sExt.GetData(), szFile);
+    sTemp.Printf("The selected file extension '%s' is not registered with any known type.\nCannot open file '%s'", sExt.GetData(), szFile);
 
     ezQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
@@ -55,7 +55,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     if (res.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to open document: \n'%s'", szFile);
+      s.Printf("Failed to open document: \n'%s'", szFile);
 
       ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
@@ -66,13 +66,13 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
       ezStringBuilder s;
-      s.Format("The document contained %u objects of an unknown type. Necessary plugins may be missing.\n\n\
+      s.Printf("The document contained %u objects of an unknown type. Necessary plugins may be missing.\n\n\
 If you save this document, all data for these objects is lost permanently!\n\n\
 The following types are missing:\n", pDocument->GetUnknownObjectTypeInstances());
 
       for (auto it = pDocument->GetUnknownObjectTypes().GetIterator(); it.IsValid(); ++it)
       {
-        s.AppendFormat(" '%s' ", (*it).GetData());
+        s.AppendPrintf(" '%s' ", (*it).GetData());
       }
 
       ezQtUiServices::MessageBoxWarning(s);
@@ -133,7 +133,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
     {
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
-        // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED 
+        // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(r.m_pDocument);
         s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(),
           (pWindow && pWindow->GetContainerWindow()) ? pWindow->GetContainerWindow()->GetUniqueIdentifier() : 0);
