@@ -1159,7 +1159,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
 
       if (uiSize > 0)
       {
-        ezMemoryUtils::Copy((ezUInt8*)pReadBuffer, m_pData, uiSize);
+        ezMemoryUtils::Copy((ezUInt8*)pReadBuffer, m_pData, (size_t)uiSize);
         m_pData += uiSize;
       }
 
