@@ -192,10 +192,10 @@ static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid
     newGuid.GetValues(newL, newH);
 
     ezStringBuilder sOld;
-    sOld.Printf("%llu,%llu", oldL, oldH);
+    sOld.Format("{0},{1}", oldL, oldH);
 
     ezStringBuilder sNew;
-    sNew.Printf("%llu,%llu", newL, newH);
+    sNew.Format("{0},{1}", newL, newH);
 
     sContent.ReplaceAll(sOld, sNew);
   }

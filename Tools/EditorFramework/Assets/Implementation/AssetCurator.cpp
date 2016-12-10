@@ -842,7 +842,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
     const ezUuid& guid = it.Key();
     sResourcePath = it.Value()->m_pManager->GenerateRelativeResourceFileName(sDataDir, sTemp, sPlatform);
 
-    sTemp.Printf("%s;%s\n", ezConversionUtils::ToString(guid).GetData(), sResourcePath.GetData());
+    sTemp.Format("{0};{1}\n", ezConversionUtils::ToString(guid).GetData(), sResourcePath.GetData());
 
     file.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
   }

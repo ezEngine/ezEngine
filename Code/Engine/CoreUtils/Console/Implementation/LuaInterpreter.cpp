@@ -139,18 +139,18 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
           pConsole->AddConsoleString("  This change takes only effect after a restart.", ezColor(1, 200.0f / 255.0f, 0));
         }
 
-        sTemp.Printf("  %s = %s", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
+        sTemp.Format("  {0} = {1}", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
         pConsole->AddConsoleString(sTemp.GetData(), ezColor(50.0f / 255.0f, 1, 50.0f / 255.0f));
       }
     }
     else
     {
-      sTemp.Printf("%s = %s", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
+      sTemp.Format("{0} = {1}", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
       pConsole->AddConsoleString(sTemp.GetData());
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
       {
-        sTemp.Printf("  Description: %s", pCVAR->GetDescription());
+        sTemp.Format("  Description: {0}", pCVAR->GetDescription());
         pConsole->AddConsoleString(sTemp.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
       }
       else

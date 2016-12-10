@@ -27,7 +27,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     ezStringBuilder sTemp = szFile;
     ezStringBuilder sExt = sTemp.GetFileExtension();
 
-    sTemp.Printf("The selected file extension '%s' is not registered with any known type.\nCannot open file '%s'", sExt.GetData(), szFile);
+    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", sExt.GetData(), szFile);
 
     ezQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
@@ -55,7 +55,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     if (res.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Printf("Failed to open document: \n'%s'", szFile);
+      s.Format("Failed to open document: \n'{0}'", szFile);
 
       ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
@@ -66,7 +66,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
       ezStringBuilder s;
-      s.Printf("The document contained %u objects of an unknown type. Necessary plugins may be missing.\n\n\
+      s.Format("The document contained {0} objects of an unknown type. Necessary plugins may be missing.\n\n\
 If you save this document, all data for these objects is lost permanently!\n\n\
 The following types are missing:\n", pDocument->GetUnknownObjectTypeInstances());
 

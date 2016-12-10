@@ -192,13 +192,13 @@ void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
 
       for (ezUInt32 i = 0; i < MaxDiskReadTasks; ++i)
       {
-        s.Printf("Disk Resource Loader %u", i);
+        s.Format("Disk Resource Loader {0}", i);
         m_WorkerTasksDiskRead[i].SetTaskName(s.GetData());
       }
 
       for (ezUInt32 i = 0; i < MaxMainThreadTasks; ++i)
       {
-        s.Printf("Main Thread Resource Loader %u", i);
+        s.Format("Main Thread Resource Loader {0}", i);
         m_WorkerTasksMainThread[i].SetTaskName(s.GetData());
       }
     }

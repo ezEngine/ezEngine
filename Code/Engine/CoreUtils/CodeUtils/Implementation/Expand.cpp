@@ -183,7 +183,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
   if (sMacroName == "__LINE__")
   {
     ezStringBuilder sLine;
-    sLine.Printf("%i", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
+    sLine.Format("{0}", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sLine.GetData());
     pNewToken->m_iType = ezTokenType::Identifier;

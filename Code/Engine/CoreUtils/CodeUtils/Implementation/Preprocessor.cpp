@@ -17,7 +17,7 @@ ezPreprocessor::ezPreprocessor()
   ezStringBuilder s;
   for (ezUInt32 i = 0; i < 32; ++i)
   {
-    s.Printf("__Param%u__", i);
+    s.Format("__Param{0}__", i);
     s_ParamNames[i] = s;
 
     m_ParameterTokens[i].m_iType = s_MacroParameter0 + i;

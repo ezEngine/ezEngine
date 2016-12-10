@@ -63,7 +63,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
 void ezConsole::BindKey(const char* szKey, const char* szCommand)
 {
   ezStringBuilder s;
-  s.Printf("Binding key '%s' to command '%s'", szKey, szCommand);
+  s.Format("Binding key '{0}' to command '{1}'", szKey, szCommand);
   AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
 
   m_BoundKeys[szKey] = szCommand;
@@ -72,7 +72,7 @@ void ezConsole::BindKey(const char* szKey, const char* szCommand)
 void ezConsole::UnbindKey(const char* szKey)
 {
   ezStringBuilder s;
-  s.Printf("Unbinding key '%s'", szKey);
+  s.Format("Unbinding key '{0}'", szKey);
   AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
 
   m_BoundKeys.Remove(szKey);

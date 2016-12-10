@@ -220,7 +220,7 @@ public:
   void PrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief A type safe version of sprintf, see ezFormatString for details
-  void Format(ezFormatString& string);
+  void Format(const ezFormatString& string);
 
   /// \brief A type safe version of sprintf, see ezFormatString for details
   template<typename ... ARGS>

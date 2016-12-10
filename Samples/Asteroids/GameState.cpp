@@ -81,10 +81,10 @@ void AsteroidGameState::ConfigureInputActions()
     for (ezInt32 iAction = 0; iAction < MaxPlayerActions; ++iAction)
     {
       ezStringBuilder sAction;
-      sAction.Printf("Player%i_%s", iPlayer, szPlayerActions[iAction]);
+      sAction.Format("Player{0}_{1}", iPlayer, szPlayerActions[iAction]);
 
       ezStringBuilder sKey;
-      sKey.Printf("controller%i_%s", iPlayer, szControlerKeys[iAction]);
+      sKey.Format("controller{0}_{1}", iPlayer, szControlerKeys[iAction]);
 
       RegisterInputAction("Game", sAction.GetData(), sKey.GetData());
     }

@@ -119,7 +119,7 @@ void ProjectileComponent::Update()
               // this only works because the materials are part of the Asset Collection and get a name like this from there
               // otherwise we would need to have the GUIDs of the 4 different material assets available
               ezStringBuilder sMaterialName;
-              sMaterialName.Printf("MaterialPlayer%i", pShipComponent->m_iPlayerIndex + 1);
+              sMaterialName.Format("MaterialPlayer{0}", pShipComponent->m_iPlayerIndex + 1);
               pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
 
               pProjectile->AttachComponent(pMeshComponent);

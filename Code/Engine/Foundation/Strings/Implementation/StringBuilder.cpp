@@ -1046,7 +1046,7 @@ void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimChars
   Shrink(ezStringUtils::GetCharacterCount(GetData(), szNewStart), ezStringUtils::GetCharacterCount(szNewEnd, GetData() + GetElementCount()));
 }
 
-void ezStringBuilder::Format(ezFormatString& string)
+void ezStringBuilder::Format(const ezFormatString& string)
 {
   Clear();
   const char* szText = string.GetText(*this);

@@ -25,7 +25,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph
     bool Visit( ezGameObject* pObject )
     {
       ezStringBuilder name;
-      name.Printf( "GameObject: \"%s\"", ezStringUtils::IsNullOrEmpty( pObject->GetName() ) ? "<Unnamed>" : pObject->GetName() );
+      name.Format("GameObject: \"{0}\"", ezStringUtils::IsNullOrEmpty(pObject->GetName()) ? "<Unnamed>" : pObject->GetName());
 
       // Create node for game object
       auto gameObjectNodeId = m_Graph.AddNode( name.GetData(), ezColor::CornflowerBlue, ezDGMLGraph::NodeShape::Rectangle );

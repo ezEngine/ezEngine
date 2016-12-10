@@ -53,7 +53,7 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
-    s.Printf("Failed to open project:\n'%s'", szFile);
+    s.Format("Failed to open project:\n'{0}'", szFile);
 
     ezQtUiServices::MessageBoxStatus(res, s);
     return;

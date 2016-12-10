@@ -233,9 +233,9 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.SetPassThroughUnknownCmdsCB([](const char* s)->bool { return ezStringUtils::IsEqual(s, "version"); });//TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
-          fileName.Printf("Preprocessor/%s.txt", TestSettings[i].m_szFileName);
-          fileNameExp.Printf("Preprocessor/%s - Expected.txt", TestSettings[i].m_szFileName);
-          fileNameOut.Printf(":output/Preprocessor/%s - Result.txt", TestSettings[i].m_szFileName);
+          fileName.Format("Preprocessor/{0}.txt", TestSettings[i].m_szFileName);
+          fileNameExp.Format("Preprocessor/{0} - Expected.txt", TestSettings[i].m_szFileName);
+          fileNameOut.Format(":output/Preprocessor/{0} - Result.txt", TestSettings[i].m_szFileName);
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
 
