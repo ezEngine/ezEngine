@@ -6,7 +6,7 @@
 // C-style strings
 // No read equivalent for C-style strings (but can be read as ezString & ezStringBuilder instances)
 
-inline ezStreamWriter& operator << (ezStreamWriter& Stream, const char* szValue)
+ezStreamWriter& operator << (ezStreamWriter& Stream, const char* szValue)
 {
   ezUInt32 uiLength = 0;
 
@@ -23,12 +23,12 @@ inline ezStreamWriter& operator << (ezStreamWriter& Stream, const char* szValue)
 
 // ezStringBuilder
 
-inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezStringBuilder& sValue)
+ezStreamWriter& operator << (ezStreamWriter& Stream, const ezStringBuilder& sValue)
 {
   return Stream << sValue.GetData();
 }
 
-inline ezStreamReader& operator >> (ezStreamReader& Stream, ezStringBuilder& sValue)
+ezStreamReader& operator >> (ezStreamReader& Stream, ezStringBuilder& sValue)
 {
   ezUInt32 uiLength = 0;
 
