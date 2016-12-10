@@ -1,3 +1,4 @@
+#include <CoreUtils/PCH.h>
 #include <CoreUtils/Basics.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)

@@ -1,3 +1,4 @@
+#include <Foundation/PCH.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/HybridArray.h>
