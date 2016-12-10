@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1900)
 

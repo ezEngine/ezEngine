@@ -2,7 +2,6 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/StringView.h>
-#include <Foundation/Strings/String.h>
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1900)
 
