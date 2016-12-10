@@ -114,7 +114,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
   {
     ezLog::Error("Collision Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
-    return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
+    return ezStatus(ezFmt("Could not make path absolute: '{0};", sMeshFileAbs.GetData()));
   }
 
   Importer importer;

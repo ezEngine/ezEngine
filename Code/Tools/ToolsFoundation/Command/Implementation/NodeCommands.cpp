@@ -68,7 +68,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
     m_pObject = pManager->GetObject(m_Object);
     if (m_pObject == nullptr)
-      return ezStatus(EZ_FAILURE, "Remove Node: The given object does not exist!");
+      return ezStatus("Remove Node: The given object does not exist!");
 
     auto inputs = pManager->GetInputPins(m_pObject);
     for (const ezPin* pPinTarget : inputs)
@@ -89,7 +89,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         auto res = AddSubCommand(cmd);
         if (res.m_Result.Failed())
         {
-          return ezStatus("%s", res.m_sMessage.GetData());
+          return res;
         }
       }
     }
@@ -113,7 +113,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         auto res = AddSubCommand(cmd);
         if (res.m_Result.Failed())
         {
-          return ezStatus("%s", res.m_sMessage.GetData());
+          return res;
         }
       }
     }
@@ -122,7 +122,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     auto res = AddSubCommand(cmd);
     if (res.m_Result.Failed())
     {
-      return ezStatus("%s", res.m_sMessage.GetData());
+      return res;
     }
   }
   return ezStatus(EZ_SUCCESS);
@@ -159,7 +159,7 @@ ezStatus ezMoveNodeCommand::DoInternal(bool bRedo)
   {
     m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
     if (m_pObject == nullptr)
-      return ezStatus(EZ_FAILURE, "Move Node: The given object does not exist!");
+      return ezStatus("Move Node: The given object does not exist!");
 
     m_OldPos = pManager->GetNodePos(m_pObject);
     EZ_SUCCEED_OR_RETURN(pManager->CanMoveNode(m_pObject, m_NewPos));
@@ -202,19 +202,19 @@ ezStatus ezConnectNodePinsCommand::DoInternal(bool bRedo)
   {
     m_pObjectSource = pManager->GetObject(m_ObjectSource);
     if (m_pObjectSource == nullptr)
-      return ezStatus(EZ_FAILURE, "Connect Node: The given node does not exist!");
+      return ezStatus("Connect Node: The given node does not exist!");
     m_pObjectTarget = pManager->GetObject(m_ObjectTarget);
     if (m_pObjectTarget == nullptr)
-      return ezStatus(EZ_FAILURE, "Connect Node: The given node does not exist!");
+      return ezStatus("Connect Node: The given node does not exist!");
   }
 
   const ezPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
   if (pOutput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   const ezPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
   if (pInput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput));
 
@@ -229,11 +229,11 @@ ezStatus ezConnectNodePinsCommand::UndoInternal(bool bFireEvents)
 
   const ezPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
   if (pOutput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   const ezPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
   if (pInput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   EZ_SUCCEED_OR_RETURN(pManager->CanDisconnect(pOutput, pInput));
 
@@ -261,19 +261,19 @@ ezStatus ezDisconnectNodePinsCommand::DoInternal(bool bRedo)
   {
     m_pObjectSource = pManager->GetObject(m_ObjectSource);
     if (m_pObjectSource == nullptr)
-      return ezStatus(EZ_FAILURE, "Connect Node: The given node does not exist!");
+      return ezStatus("Connect Node: The given node does not exist!");
     m_pObjectTarget = pManager->GetObject(m_ObjectTarget);
     if (m_pObjectTarget == nullptr)
-      return ezStatus(EZ_FAILURE, "Connect Node: The given node does not exist!");
+      return ezStatus("Connect Node: The given node does not exist!");
   }
 
   const ezPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
   if (pOutput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   const ezPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
   if (pInput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   EZ_SUCCEED_OR_RETURN(pManager->CanDisconnect(pOutput, pInput));
 
@@ -288,11 +288,11 @@ ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
 
   const ezPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
   if (pOutput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   const ezPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
   if (pInput == nullptr)
-    return ezStatus(EZ_FAILURE, "Connect Node: The given pin does not exist!");
+    return ezStatus("Connect Node: The given pin does not exist!");
 
   EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput));
 

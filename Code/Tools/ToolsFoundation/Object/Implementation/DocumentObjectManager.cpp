@@ -165,7 +165,7 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
     const ezRTTI* pType = accessor.GetType();
     auto* pProp = pType->FindPropertyByName(szParentProperty);
     if (pProp == nullptr)
-      return ezStatus("Property '%s' could not be found in type '%s'", szParentProperty, pType->GetTypeName());
+      return ezStatus(ezFmt("Property '{0}' could not be found in type '{1}'", szParentProperty, pType->GetTypeName()));
 
     if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
     {
@@ -174,17 +174,17 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
       if (!pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-        return ezStatus("Cannot add object to the pointer property '%s' as it does not hold ownership.", szParentProperty);
+        return ezStatus(ezFmt("Cannot add object to the pointer property '{0}' as it does not hold ownership.", szParentProperty));
 
       if (!pRtti->IsDerivedFrom(pProp->GetSpecificType()))
-        return ezStatus("Cannot add object to the pointer property '%s' as its type '%s' is not derived from the property type '%s'!"
-          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
+        return ezStatus(ezFmt("Cannot add object to the pointer property '{0}' as its type '{1}' is not derived from the property type '{2}'!"
+          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName()));
     }
     else
     {
       if (pRtti != pProp->GetSpecificType())
-        return ezStatus("Cannot add object to the property '%s' as its type '%s' does not match the property type '%s'!"
-          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
+        return ezStatus(ezFmt("Cannot add object to the property '{0}' as its type '{1}' does not match the property type '{2}'!"
+          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName()));
     }
 
     if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
@@ -192,8 +192,8 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
       ezInt32 iCount = accessor.GetCount(szParentProperty);
       ezInt32 iNewIndex = index.ConvertTo<ezInt32>();
       if (iNewIndex >(ezInt32)iCount)
-        return ezStatus("Cannot add object to its new location '%i' is out of the bounds of the parent's property range '%i'!"
-          , iNewIndex, (ezInt32)iCount);
+        return ezStatus(ezFmt("Cannot add object to its new location '{0}' is out of the bounds of the parent's property range '{1}'!"
+          , iNewIndex, (ezInt32)iCount));
     }
     else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
@@ -276,7 +276,7 @@ ezStatus ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const
   auto* pProp = pType->FindPropertyByName(szParentProperty);
 
   if (pProp == nullptr)
-    return ezStatus("Property '%s' could not be found in type '%s'", szParentProperty, pType->GetTypeName());
+    return ezStatus(ezFmt("Property '{0}' could not be found in type '{1}'", szParentProperty, pType->GetTypeName()));
 
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
@@ -308,7 +308,7 @@ ezStatus ezDocumentObjectManager::CanSelect(const ezDocumentObject* pObject) con
 
   const ezDocumentObject* pOwnObject = GetObject(pObject->GetGuid());
   if (pOwnObject == nullptr)
-    return ezStatus("Object of type '%s' is not part of the document and can't be selected", pObject->GetTypeAccessor().GetType()->GetTypeName());
+    return ezStatus(ezFmt("Object of type '{0}' is not part of the document and can't be selected", pObject->GetTypeAccessor().GetType()->GetTypeName()));
 
   return InternalCanSelect(pObject);
 }

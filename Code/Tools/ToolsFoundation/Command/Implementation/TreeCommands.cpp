@@ -181,7 +181,7 @@ ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
     if (pParent == nullptr)
-      return ezStatus(EZ_FAILURE, "Add Object: The given parent does not exist!");
+      return ezStatus("Add Object: The given parent does not exist!");
   }
 
   EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(m_pType, pParent, m_sParentProperty, m_Index));
@@ -234,7 +234,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
     if (pParent == nullptr)
-      return ezStatus(EZ_FAILURE, "Paste Objects: The given parent does not exist!");
+      return ezStatus("Paste Objects: The given parent does not exist!");
   }
 
   if (!bRedo)
@@ -299,7 +299,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     }
 
     if (m_PastedObjects.IsEmpty())
-      return ezStatus(EZ_FAILURE, "Paste Objects: nothing was pasted!");
+      return ezStatus("Paste Objects: nothing was pasted!");
   }
   else
   {
@@ -358,7 +358,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
     if (pParent == nullptr)
-      return ezStatus(EZ_FAILURE, "Instantiate Prefab: The given parent does not exist!");
+      return ezStatus("Instantiate Prefab: The given parent does not exist!");
   }
 
   if (!bRedo)
@@ -408,7 +408,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     }
 
     if (m_PastedObjects.IsEmpty())
-      return ezStatus(EZ_FAILURE, "Paste Objects: nothing was pasted!");
+      return ezStatus("Paste Objects: nothing was pasted!");
 
     if (m_CreatedRootObject.IsValid())
     {
@@ -495,7 +495,7 @@ ezStatus ezUnlinkPrefabCommand::DoInternal(bool bRedo)
   ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
 
   if (pObject == nullptr)
-    return ezStatus(EZ_FAILURE, "Unlink Prefab: The given object does not exist!");
+    return ezStatus("Unlink Prefab: The given object does not exist!");
 
   // store previous values
   if (!bRedo)
@@ -525,7 +525,7 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
   ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
 
   if (pObject == nullptr)
-    return ezStatus(EZ_FAILURE, "Unlink Prefab: The given object does not exist!");
+    return ezStatus("Unlink Prefab: The given object does not exist!");
 
   // restore link
   {
@@ -560,10 +560,10 @@ ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus(EZ_FAILURE, "Remove Object: The given object does not exist!");
+        return ezStatus("Remove Object: The given object does not exist!");
     }
     else
-      return ezStatus(EZ_FAILURE, "Remove Object: The given object does not exist!");
+      return ezStatus("Remove Object: The given object does not exist!");
 
     EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanRemove(m_pObject));
 
@@ -618,14 +618,14 @@ ezStatus ezMoveObjectCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus(EZ_FAILURE, "Move Object: The given object does not exist!");
+        return ezStatus("Move Object: The given object does not exist!");
     }
 
     if (m_NewParent.IsValid())
     {
       m_pNewParent = pDocument->GetObjectManager()->GetObject(m_NewParent);
       if (m_pNewParent == nullptr)
-        return ezStatus(EZ_FAILURE, "Move Object: The new parent does not exist!");
+        return ezStatus("Move Object: The new parent does not exist!");
     }
 
     m_pOldParent = const_cast<ezDocumentObject*>(m_pObject->GetParent());
@@ -690,28 +690,28 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+        return ezStatus("Set Property: The given object does not exist!");
     }
     else
-      return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+      return ezStatus("Set Property: The given object does not exist!");
 
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
     m_OldValue = accessor0.GetValue(m_sProperty, m_Index);
     ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
     if (pProp == nullptr || !m_OldValue.IsValid())
-      return ezStatus("Set Property: The property '%s' does not exist", m_sProperty.GetData());
+      return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty.GetData()));
 
     if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
-      return ezStatus("Set Property: The property '%s' is a PointerOwner, use ezAddObjectCommand instead", m_sProperty.GetData());
+      return ezStatus(ezFmt("Set Property: The property '{0}' is a PointerOwner, use ezAddObjectCommand instead", m_sProperty.GetData()));
     }
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
   if (!accessor.SetValue(m_sProperty, m_NewValue, m_Index))
   {
-    return ezStatus("Set Property: The property '%s' does not exist", m_sProperty.GetData());
+    return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty.GetData()));
   }
 
   ezDocumentObjectPropertyEvent e;
@@ -734,7 +734,7 @@ ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
 
   if (!accessor.SetValue(m_sProperty, m_OldValue, m_Index))
   {
-    return ezStatus("Set Property: The property '%s' does not exist", m_sProperty.GetData());
+    return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty.GetData()));
   }
 
   if (bFireEvents)
@@ -772,10 +772,10 @@ ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+        return ezStatus("Set Property: The given object does not exist!");
     }
     else
-      return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+      return ezStatus("Set Property: The given object does not exist!");
 
     const ezInt32 uiIndex = m_Index.ConvertTo<ezInt32>();
 
@@ -825,10 +825,10 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus(EZ_FAILURE, "Insert Property: The given object does not exist!");
+        return ezStatus("Insert Property: The given object does not exist!");
     }
     else
-      return ezStatus(EZ_FAILURE, "Insert Property: The given object does not exist!");
+      return ezStatus("Insert Property: The given object does not exist!");
 
     if (m_Index.CanConvertTo<ezInt32>() && m_Index.ConvertTo<ezInt32>() == -1)
     {
@@ -840,7 +840,7 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
   if (!accessor.InsertValue(m_sProperty, m_Index, m_NewValue))
   {
-    return ezStatus("Insert Property: The property '%s' does not exist", m_sProperty.GetData());
+    return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", m_sProperty.GetData()));
   }
 
   ezDocumentObjectPropertyEvent e;
@@ -861,7 +861,7 @@ ezStatus ezInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
 
   if (!accessor.RemoveValue(m_sProperty, m_Index))
   {
-    return ezStatus("Insert Property: The property '%s' does not exist", m_sProperty.GetData());
+    return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", m_sProperty.GetData()));
   }
 
   if (bFireEvents)
@@ -899,20 +899,20 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus(EZ_FAILURE, "Remove Property: The given object does not exist!");
+        return ezStatus("Remove Property: The given object does not exist!");
     }
     else
-      return ezStatus(EZ_FAILURE, "Remove Property: The given object does not exist!");
+      return ezStatus("Remove Property: The given object does not exist!");
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
   m_OldValue = accessor.GetValue(m_sProperty, m_Index);
   if (!m_OldValue.IsValid())
-    return ezStatus("Remove Property: The index '%s' in property '%s' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData());
+    return ezStatus(ezFmt("Remove Property: The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData()));
 
   if (!accessor.RemoveValue(m_sProperty, m_Index))
   {
-    return ezStatus("Remove Property: The index '%s' in property '%s' does not exist!", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData());
+    return ezStatus(ezFmt("Remove Property: The index '{0}' in property '{1}' does not exist!", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData()));
   }
 
   ezDocumentObjectPropertyEvent e;
@@ -933,7 +933,7 @@ ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 
   if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
   {
-    return ezStatus("Remove Property: Undo failed! The index '%s' in property '%s' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData());
+    return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>().GetData(), m_sProperty.GetData()));
   }
 
   if (bFireEvents)
@@ -965,14 +965,14 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
   if (!m_OldIndex.CanConvertTo<ezInt32>() || !m_OldIndex.CanConvertTo<ezInt32>())
-    return ezStatus(EZ_FAILURE, "Move Property: Invalid indices provided.");
+    return ezStatus("Move Property: Invalid indices provided.");
 
   if (!bRedo)
   {
     {
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
-        return ezStatus(EZ_FAILURE, "Move Property: The given object does not exist.");
+        return ezStatus("Move Property: The given object does not exist.");
     }
 
     const ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
@@ -980,9 +980,9 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
     if (iCount < 0)
       return ezStatus("Move Property: Invalid property.");
     if (m_OldIndex.ConvertTo<ezInt32>() < 0 || m_OldIndex.ConvertTo<ezInt32>() >= iCount)
-      return ezStatus("Move Property: Invalid old index '%i'.", m_OldIndex.ConvertTo<ezInt32>());
+      return ezStatus(ezFmt("Move Property: Invalid old index '{0}'.", m_OldIndex.ConvertTo<ezInt32>()));
     if (m_NewIndex.ConvertTo<ezInt32>() < 0 || m_NewIndex.ConvertTo<ezInt32>() > iCount)
-      return ezStatus("Move Property: Invalid new index '%i'.", m_NewIndex.ConvertTo<ezInt32>());
+      return ezStatus(ezFmt("Move Property: Invalid new index '{0}'.", m_NewIndex.ConvertTo<ezInt32>()));
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();

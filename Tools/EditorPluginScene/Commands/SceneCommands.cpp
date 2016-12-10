@@ -99,7 +99,7 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 
 
     if (m_DuplicatedObjects.IsEmpty())
-      return ezStatus(EZ_FAILURE, "Paste Objects: nothing was pasted!");
+      return ezStatus("Paste Objects: nothing was pasted!");
   }
   else
   {

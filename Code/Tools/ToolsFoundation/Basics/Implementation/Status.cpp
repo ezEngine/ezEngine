@@ -3,17 +3,11 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Logging/Log.h>
 
-ezStatus::ezStatus(const char* szError, ...) : m_Result(EZ_FAILURE)
+ezStatus::ezStatus(const ezFormatString& fmt)
+  : m_Result(EZ_FAILURE)
 {
-  va_list args;
-  va_start(args, szError);
-
   ezStringBuilder sMsg;
-  sMsg.PrintfArgs(szError, args);
-
-  va_end(args);
-
-  m_sMessage = sMsg;
+  m_sMessage = fmt.GetText(sMsg);
 }
 
 void ezStatus::LogFailure(ezLogInterface* pLog)

@@ -15,6 +15,11 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezFmodPlugin"}
+	string %DependencyOf{"EditorPluginFmod"}
+}
+Plugin
+{
 	string %Path{"ezParticlePlugin"}
 	string %DependencyOf{"<manual>","EditorPluginParticle"}
 }

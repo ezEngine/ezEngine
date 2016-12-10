@@ -81,7 +81,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
   if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pTypeDesc).Failed())
-    return ezStatus("Document type is unknown: '%s'", szFile);
+    return ezStatus(ezFmt("Document type is unknown: '{0}'", szFile));
 
   pTypeDesc->m_pManager->EnsureDocumentIsClosed(szFile);
 

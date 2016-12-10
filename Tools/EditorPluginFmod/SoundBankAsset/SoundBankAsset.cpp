@@ -49,7 +49,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
   ezString sAssetFile = pProp->m_sSoundBank;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
-    return ezStatus("SoundBank file '%s' does not exist", pProp->m_sSoundBank.GetData());
+    return ezStatus(ezFmt("SoundBank file '{0}' does not exist", pProp->m_sSoundBank.GetData()));
 
   if (g_pSystem == nullptr)
   {
@@ -66,7 +66,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   FMOD::Studio::Bank* pBank = nullptr;
   auto res = g_pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
   if (res != FMOD_OK)
-    return ezStatus("SoundBank '%s' could not be loaded", pProp->m_sSoundBank.GetData());
+    return ezStatus(ezFmt("SoundBank '{0}' could not be loaded", pProp->m_sSoundBank.GetData()));
 
   ezStringBuilder sStringsBank = sAssetFile;
   sStringsBank.RemoveFileExtension();
@@ -146,7 +146,8 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   {
     ezFileWriter file;
     if (file.Open(sSubAssetFilename).Failed())
-      return ezStatus("Failed to write sub-assets file '%s'", sSubAssetFilename.GetData());
+      return ezStatus(ezFmt("Failed to write sub-assets file '{0}'", sSubAssetFilename.GetData()));
+
     file.WriteBytes(sSubAssetsFile.GetData(), sSubAssetsFile.GetElementCount());
   }
 

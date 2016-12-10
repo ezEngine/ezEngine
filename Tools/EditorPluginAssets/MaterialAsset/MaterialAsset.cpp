@@ -743,7 +743,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
     return ezStatus(EZ_SUCCESS);
   }
   else
-    return ezStatus("Failed to write auto-generated shader to '%s'", sAutoGenShader.GetData());
+    return ezStatus(ezFmt("Failed to write auto-generated shader to '{0}'", sAutoGenShader.GetData()));
 }
 
 static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)

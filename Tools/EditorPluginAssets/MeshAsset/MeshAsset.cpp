@@ -136,14 +136,14 @@ namespace ImportHelper
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
     {
       ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", outMeshFileAbs.GetData());
-      return ezStatus("Could not make path absolute: '%s;", outMeshFileAbs.GetData());
+      return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs.GetData()));
     }
 
     outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(outMeshFileAbs);
     if (!outScene)
     {
       ezLog::Error("Could not import file '%s'", outMeshFileAbs.GetData());
-      return ezStatus("Mesh Asset input file '%s' could not be imported", outMeshFileAbs.GetData());
+      return ezStatus(ezFmt("Mesh Asset input file '{0}' could not be imported", outMeshFileAbs.GetData()));
     }
 
     if (outScene->GetMeshes().GetCount() == 0)
@@ -169,7 +169,7 @@ namespace ImportHelper
 
       if (outMesh == nullptr)
       {
-        return ezStatus("Scene does not contain a mesh with name '%s'.", subMeshFilename);
+        return ezStatus(ezFmt("Scene does not contain a mesh with name '{0}'.", subMeshFilename));
       }
     }
 
@@ -332,14 +332,14 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     if (dataStreams[Position] == nullptr)
     {
       ezLog::Error("Mesh '%s' from '%s' has no position vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
-      return ezStatus("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+      return ezStatus(ezFmt("Mesh '{0}' from '{1}' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
     dataStreams[Texcoord0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
     dataStreams[Normal] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (dataStreams[Normal] == nullptr)
     {
       ezLog::Error("Mesh '%s' from '%s' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
-      return ezStatus("Mesh '%s' from '%s' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+      return ezStatus(ezFmt("Mesh '{0}' from '{1}' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
     dataStreams[Tangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
     dataStreams[BiTangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);

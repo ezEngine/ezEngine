@@ -12,7 +12,7 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
   Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
 
   const ezRTTI* pComponentType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
-  
+
   for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
   {
     if (it->IsDerivedFrom(pComponentType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
@@ -32,7 +32,7 @@ ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocum
       return ezStatus("Only ezGameObject can be added to the root of the world!");
     }
   }
-  
+
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -40,7 +40,7 @@ ezStatus ezSceneObjectManager::InternalCanSelect(const ezDocumentObject* pObject
 {
   if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
-    return ezStatus("Object of type '%s' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName());
+    return ezStatus(ezFmt("Object of type '{0}' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName()));
   }
   return ezStatus(EZ_SUCCESS);
 }

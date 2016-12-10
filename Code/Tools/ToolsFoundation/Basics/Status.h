@@ -3,7 +3,7 @@
 /// \file
 
 #include <ToolsFoundation/Basics.h>
-#include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 class ezLogInterface;
 
@@ -14,7 +14,15 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
   {
   }
 
-  explicit ezStatus(ezResult res, ezStringView sError) : m_Result(res), m_sMessage(sError)
+  explicit ezStatus(const char* szError) : m_Result(EZ_FAILURE), m_sMessage(szError)
+  {
+  }
+
+  explicit ezStatus(ezResult r, ezStringView sError) : m_Result(r), m_sMessage(sError)
+  {
+  }
+
+  explicit ezStatus(ezStringView sError) : m_Result(EZ_FAILURE), m_sMessage(sError)
   {
   }
 
@@ -22,7 +30,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
   {
   }
 
-  explicit ezStatus(const char* szError, ...);
+  explicit ezStatus(const ezFormatString& fmt);
 
   EZ_FORCE_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
   EZ_FORCE_INLINE bool Failed() const { return m_Result.Failed(); }

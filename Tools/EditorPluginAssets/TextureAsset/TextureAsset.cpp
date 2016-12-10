@@ -225,7 +225,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   }
 
   if (proc.exitCode() != 0)
-    return ezStatus("TexConv.exe returned error code %i", proc.exitCode());
+    return ezStatus(ezFmt("TexConv.exe returned error code {0}", proc.exitCode()));
 
   if (bUpdateThumbnail)
   {

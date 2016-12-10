@@ -14,7 +14,7 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
   ezFileWriter file;
   if (file.Open(sPath).Failed())
   {
-    return ezStatus("Could not open tags config file '%s' for writing", sPath.GetData());
+    return ezStatus(ezFmt("Could not open tags config file '{0}' for writing", sPath.GetData()));
   }
 
   ezToolsTagRegistry::WriteToDDL(file);

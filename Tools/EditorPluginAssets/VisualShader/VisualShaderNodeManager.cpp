@@ -156,7 +156,7 @@ ezStatus ezVisualShaderNodeManager::InternalCanAdd(const ezRTTI* pRtti, const ez
     static const ezUInt32 uiMaxTextures = 16;
     if (pDesc->m_NodeType == ezVisualShaderNodeType::Texture && CountNodesOfType(ezVisualShaderNodeType::Texture) >= uiMaxTextures)
     {
-      return ezStatus("The maximum number of texture nodes is %u", uiMaxTextures);
+      return ezStatus(ezFmt("The maximum number of texture nodes is {0}", uiMaxTextures));
     }
   }
 

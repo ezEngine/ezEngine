@@ -35,9 +35,7 @@ ezStatus ezToolsProject::Create()
     ezOSFile ProjectFile;
     if (ProjectFile.Open(m_sProjectPath, ezFileMode::Write).Failed())
     {
-      ezStringBuilder sError;
-      sError.Printf("Could not open/create the project file for writing: '%s'", m_sProjectPath.GetData());
-      return ezStatus(sError);
+      return ezStatus(ezFmt("Could not open/create the project file for writing: '{0}'", m_sProjectPath.GetData()));
     }
     else
     {
@@ -67,9 +65,7 @@ ezStatus ezToolsProject::Open()
   ezOSFile ProjectFile;
   if (ProjectFile.Open(m_sProjectPath, ezFileMode::Read).Failed())
   {
-    ezStringBuilder sError;
-    sError.Printf("Could not open the project file for reading: '%s'", m_sProjectPath.GetData());
-    return ezStatus(sError);
+    return ezStatus(ezFmt("Could not open the project file for reading: '{0}'", m_sProjectPath.GetData()));
   }
 
   ProjectFile.Close();

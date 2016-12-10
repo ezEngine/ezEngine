@@ -165,7 +165,7 @@ ezStatus ezDocument::InternalSaveDocument()
   ezFileWriter file;
   if (file.Open(m_sDocumentPath) == EZ_FAILURE)
   {
-    return ezStatus(EZ_FAILURE, "Unable to open file for writing!");
+    return ezStatus("Unable to open file for writing!");
   }
 
   ezAbstractObjectGraph graph;
@@ -219,7 +219,7 @@ ezStatus ezDocument::InternalLoadDocument()
     ezFileReader file;
     if (file.Open(m_sDocumentPath) == EZ_FAILURE)
     {
-      return ezStatus(EZ_FAILURE, "Unable to open file for reading!");
+      return ezStatus("Unable to open file for reading!");
     }
 
     storage.ReadAll(file);

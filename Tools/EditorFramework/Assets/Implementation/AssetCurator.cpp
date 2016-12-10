@@ -615,7 +615,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
   if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Failed())
   {
-    return ezStatus("The asset '%s' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sDataDirRelativePath.GetData());
+    return ezStatus(ezFmt("The asset '{0}' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sDataDirRelativePath.GetData()));
   }
 
   // Skip assets that cannot be auto-transformed.
@@ -638,7 +638,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
 
   if (state == ezAssetInfo::TransformState::MissingDependency)
   {
-    return ezStatus("Missing dependency for asset '%s', can't transform.", pAssetInfo->m_sAbsolutePath.GetData());
+    return ezStatus(ezFmt("Missing dependency for asset '{0}', can't transform.", pAssetInfo->m_sAbsolutePath.GetData()));
   }
 
   // does the document already exist and is open ?
@@ -650,7 +650,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
     pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
 
   if (pDoc == nullptr)
-    return ezStatus("Could not open asset document '%s'", pAssetInfo->m_sDataDirRelativePath.GetData());
+    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath.GetData()));
 
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
@@ -661,7 +661,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
 
   if (state == ezAssetInfo::TransformState::MissingReference)
   {
-    return ezStatus("Missing reference for asset '%s', can't create thumbnail.", pAssetInfo->m_sAbsolutePath.GetData());
+    return ezStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath.GetData()));
   }
 
   if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)
