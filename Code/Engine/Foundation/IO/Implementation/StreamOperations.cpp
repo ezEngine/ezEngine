@@ -1,6 +1,3 @@
-
-#pragma once
-
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/HybridArray.h>

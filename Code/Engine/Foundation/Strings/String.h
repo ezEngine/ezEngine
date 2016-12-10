@@ -266,5 +266,8 @@ struct CompareConstChar
   }
 };
 
+// For ezFormatString
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezString& arg);
+
 #include <Foundation/Strings/Implementation/String_inl.h>
 
