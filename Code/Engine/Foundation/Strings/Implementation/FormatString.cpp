@@ -3,11 +3,24 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
 
-#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
-
-void ezFormatString::AppendView(ezStringBuilder& sb, const ezStringView& sub)
+void ezFormatString::SBAppendView(ezStringBuilder& sb, const ezStringView& sub)
 {
   sb.Append(sub);
+}
+
+void ezFormatString::SBClear(ezStringBuilder& sb)
+{
+  sb.Clear();
+}
+
+void ezFormatString::SBAppendChar(ezStringBuilder& sb, ezUInt32 uiChar)
+{
+  sb.Append(uiChar);
+}
+
+const char* ezFormatString::SBReturn(ezStringBuilder& sb)
+{
+  return sb.GetData();
 }
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg)
@@ -89,5 +102,4 @@ const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView
   return arg;
 }
 
-#endif
 

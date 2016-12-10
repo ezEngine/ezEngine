@@ -4,8 +4,6 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
-
 void TestFormat(const ezFormatString& str, const char* szExpected)
 {
   ezStringBuilder sb;
@@ -115,4 +113,3 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
   }
 }
 
-#endif

@@ -1,7 +1,5 @@
 #pragma once
 
-#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
-
 #include <tuple>
 #include <utility>
 #include <array>
@@ -29,24 +27,24 @@ public:
 
     const char* szString = m_szString;
 
-    sb.Clear();
+    SBClear(sb);
     while (*szString != '\0')
     {
       if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
       {
         const int iParam = *(szString + 1) - '0';
-        AppendView(sb, param[iParam]);
+        SBAppendView(sb, param[iParam]);
 
         szString += 3;
       }
       else
       {
         const ezUInt32 character = ezUnicodeUtils::DecodeUtf8ToUtf32(szString);
-        sb.Append(character);
+        SBAppendChar(sb, character);
       }
     }
 
-    return sb;
+    return SBReturn(sb);
   }
 
 private:
@@ -74,4 +72,3 @@ private:
   std::tuple<ARGS...> m_Arguments;
 };
 
-#endif

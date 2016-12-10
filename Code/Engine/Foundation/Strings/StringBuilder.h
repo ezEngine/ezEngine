@@ -219,21 +219,17 @@ public:
   /// \brief Sets this string to the formatted string.
   void PrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
-#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
+  /// \brief A type safe version of sprintf, see ezFormatString for details
+  void Format(ezFormatString& string);
 
-  // Temp name, will be renamed to 'Format' later
-  void TypesafeFormat(ezFormatString& string);
-
-  // Temp name, will be renamed to 'Format' later
+  /// \brief A type safe version of sprintf, see ezFormatString for details
   template<typename ... ARGS>
-  void TypesafeFormat(const char* szFormat, ARGS... args)
+  void Format(const char* szFormat, ARGS... args)
   {
-    TypesafeFormat(ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Format(ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
 
   // Todo Add PrependFormat and AppendPrintf
-
-#endif
 
   /// \brief Removes the first n and last m characters from this string.
   ///

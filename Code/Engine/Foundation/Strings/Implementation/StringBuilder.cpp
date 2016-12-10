@@ -1046,9 +1046,7 @@ void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimChars
   Shrink(ezStringUtils::GetCharacterCount(GetData(), szNewStart), ezStringUtils::GetCharacterCount(szNewEnd, GetData() + GetElementCount()));
 }
 
-#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
-
-void ezStringBuilder::TypesafeFormat(ezFormatString& string)
+void ezStringBuilder::Format(ezFormatString& string)
 {
   Clear();
   const char* szText = string.GetText(*this);
@@ -1057,8 +1055,6 @@ void ezStringBuilder::TypesafeFormat(ezFormatString& string)
   if (szText != GetData())
     *this = szText;
 }
-
-#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);
 

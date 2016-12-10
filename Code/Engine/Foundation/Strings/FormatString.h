@@ -2,8 +2,6 @@
 
 #include <Foundation/Strings/Implementation/FormatStringArgs.h>
 
-#if (__cplusplus >= 201402L || _MSC_VER >= 1900)
-
 class ezStringBuilder;
 class ezStringView;
 
@@ -22,7 +20,10 @@ public:
 
 protected:
   // out of line function so that we don't need to include ezStringBuilder here, to break include dependency cycle
-  static void AppendView(ezStringBuilder& sb, const ezStringView& sub);
+  static void SBAppendView(ezStringBuilder& sb, const ezStringView& sub);
+  static void SBClear(ezStringBuilder& sb);
+  static void SBAppendChar(ezStringBuilder& sb, ezUInt32 uiChar);
+  static const char* SBReturn(ezStringBuilder& sb);
 
   const char* m_szString;
 };
@@ -35,4 +36,3 @@ ezFormatStringImpl<ARGS...> ezFmt(const char* szFormat, ARGS... args)
   return ezFormatStringImpl<ARGS...>(szFormat, args...);
 }
 
-#endif
