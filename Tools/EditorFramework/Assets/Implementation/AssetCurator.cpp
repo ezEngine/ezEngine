@@ -387,11 +387,8 @@ const ezAssetCurator::ezLockedAssetInfo ezAssetCurator::FindAssetInfo(const char
 
   if (sPath.IsAbsolutePath())
   {
-    ezString sPath2 = sPath;
-    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath2))
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
       return ezLockedAssetInfo();
-
-    sPath = sPath2;
   }
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)

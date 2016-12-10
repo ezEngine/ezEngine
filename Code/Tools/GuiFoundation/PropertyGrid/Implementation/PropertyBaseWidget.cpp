@@ -791,19 +791,21 @@ void ezQtPropertyStandardTypeContainerWidget::PropertyChangedHandler(const ezQtP
 /// *** ezQtPropertyTypeContainerWidget ***
 
 ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
+  : m_bNeedsUpdate(false)
 {
 }
 
 ezQtPropertyTypeContainerWidget::~ezQtPropertyTypeContainerWidget()
 {
   m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
 }
 
 void ezQtPropertyTypeContainerWidget::OnInit()
 {
   ezQtPropertyContainerWidget::OnInit();
   m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
-
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
 }
 
 void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
@@ -858,8 +860,33 @@ void ezQtPropertyTypeContainerWidget::StructureEventHandler(const ezDocumentObje
       ))
         return;
 
-      UpdateElements();
+      m_bNeedsUpdate = true;
     }
+    break;
+  }
+}
+
+void ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+{
+  if (IsUndead())
+    return;
+
+  switch (e.m_Type)
+  {
+  case ezCommandHistoryEvent::Type::UndoEnded:
+  case ezCommandHistoryEvent::Type::RedoEnded:
+  case ezCommandHistoryEvent::Type::TransactionEnded:
+  case ezCommandHistoryEvent::Type::TransactionCanceled:
+    {
+      if (m_bNeedsUpdate)
+      {
+        m_bNeedsUpdate = false;
+        UpdateElements();
+      }
+    }
+    break;
+
+  default:
     break;
   }
 }

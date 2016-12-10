@@ -18,6 +18,7 @@ class ezQtCollapsibleGroupBox;
 class ezQtAddSubElementButton;
 class ezQtPropertyGridWidget;
 class ezQtElementGroupButton;
+struct ezCommandHistoryEvent;
 
 /// \brief Base class for all property widgets
 class EZ_GUIFOUNDATION_DLL ezQtPropertyWidget : public QWidget
@@ -261,4 +262,8 @@ protected:
   virtual void UpdateElement(ezUInt32 index) override;
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+
+private:
+  bool m_bNeedsUpdate;
 };

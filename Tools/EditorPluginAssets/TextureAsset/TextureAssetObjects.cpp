@@ -122,12 +122,10 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
 ezString ezTextureAssetProperties::GetAbsoluteInputFilePath(ezInt32 iInput) const
 {
-  ezStringBuilder sTemp = m_Input[iInput];
-  sTemp.MakeCleanPath();
+  ezStringBuilder sPath = m_Input[iInput];
+  sPath.MakeCleanPath();
 
-  ezString sPath = sTemp;
-
-  if (!sTemp.IsAbsolutePath())
+  if (!sPath.IsAbsolutePath())
   {
     ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
   }

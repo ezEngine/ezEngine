@@ -76,7 +76,7 @@ void ezQtEditorApp::SetupDataDirectories()
   m_FileSystemConfig.Apply();
 }
 
-bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
+bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const
 {
   if (ezPathUtils::IsAbsolutePath(sPath))
     return true;
@@ -110,20 +110,20 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) cons
     }
   }
 
-  if (!m_FileSystemConfig.m_DataDirs.IsEmpty())
-  {
-    sTemp = ezApplicationConfig::GetSdkRootDirectory();
-    sTemp.AppendPath(m_FileSystemConfig.m_DataDirs[0].m_sSdkRootRelativePath, sPath);
-    sTemp.MakeCleanPath();
-  }
-
   return false;
 }
 
-bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString & sPath) const
+bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const
+{
+  ezStringBuilder sTemp = sPath;
+  bool bRes = MakeDataDirectoryRelativePathAbsolute(sTemp);
+  sPath = sTemp;
+  return bRes;
+}
+
+bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& sPath) const
 {
   ezStringBuilder sTemp;
-  ezStringBuilder sResult = sPath;
 
   for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {
@@ -132,17 +132,23 @@ bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString & sPath) const
     sTemp = ezApplicationConfig::GetSdkRootDirectory();
     sTemp.AppendPath(dd.m_sSdkRootRelativePath);
 
-    if (sResult.IsPathBelowFolder(sTemp))
+    if (sPath.IsPathBelowFolder(sTemp))
     {
-      sResult.MakeRelativeTo(sTemp);
-      sPath = sResult;
+      sPath.MakeRelativeTo(sTemp);
       return true;
     }
   }
 
-  sResult.MakeRelativeTo(ezApplicationConfig::GetSdkRootDirectory());
-  sPath = sResult;
-
+  sPath.MakeRelativeTo(ezApplicationConfig::GetSdkRootDirectory());
   return false;
 }
+
+bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString& sPath) const
+{
+  ezStringBuilder sTemp = sPath;
+  bool bRes = MakePathDataDirectoryRelative(sTemp);
+  sPath = sTemp;
+  return bRes;
+}
+
 

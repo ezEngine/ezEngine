@@ -118,6 +118,8 @@ void ezRTTI::GatherDynamicMessageHandlers() const
 
 void* ezRTTI::GetTypeHashTable()
 {
+  // Prevent static initialization hazard between first ezRTTI instance
+  // and the hash table and also make sure it is sufficiently sized before first use.
   auto CreateTable = []()->ezTypeHashTable*
   {
     ezTypeHashTable* table = new ezTypeHashTable();

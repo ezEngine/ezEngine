@@ -35,15 +35,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodReverbComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Min Distance", m_fMinDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Max Distance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("MinDistance", m_fMinDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_MEMBER_PROPERTY("Preset", ezFmodReverbPresets, m_ReverbPreset),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
   {
-    new ezSphereManipulatorAttribute("Max Distance", "Min Distance"),
-    new ezSphereVisualizerAttribute("Max Distance", ezColor::LightSlateGray),
+    new ezSphereManipulatorAttribute("MaxDistance", "MinDistance"),
+    new ezSphereVisualizerAttribute("MaxDistance", ezColor::LightSlateGray),
   }
   EZ_END_ATTRIBUTES
 }

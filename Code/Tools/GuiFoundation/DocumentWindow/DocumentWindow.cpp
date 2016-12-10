@@ -290,13 +290,8 @@ void ezQtDocumentWindow::SaveWindowLayout()
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
   {
-    Settings.setValue("WindowGeometry", saveGeometry());
+    // All other properties are defined by the outer container window.
     Settings.setValue("WindowState", saveState());
-    Settings.setValue("IsMaximized", bMaximized);
-    Settings.setValue("WindowPosition", pos());
-
-    if (!bMaximized)
-      Settings.setValue("WindowSize", size());
   }
   Settings.endGroup();
 }
@@ -311,13 +306,6 @@ void ezQtDocumentWindow::RestoreWindowLayout()
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
   {
-    restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
-    move(Settings.value("WindowPosition", pos()).toPoint());
-    resize(Settings.value("WindowSize", size()).toSize());
-    qApp->processEvents();
-    if (Settings.value("IsMaximized", isMaximized()).toBool())
-      showMaximized();
-
     restoreState(Settings.value("WindowState", saveState()).toByteArray());
   }
   Settings.endGroup();

@@ -255,10 +255,9 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
 
   if (sShaderPath.IsAbsolutePath())
   {
-    ezString sRelPath = sShaderPath;
-    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sRelPath))
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sShaderPath))
     {
-      sShaderPath = sRelPath;
+      ezLog::Error("Could not make shader path '%s' relative!", sShaderPath.GetData());
     }
   }
 
@@ -273,15 +272,13 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
   }
   else
   {
-    ezStringBuilder sAbsPath;
+    ezStringBuilder sAbsPath = szShaderPath;
     {
-      ezString sShaderPath = szShaderPath;
-      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sShaderPath))
+      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
       {
         ezLog::Error("Can't make path absolute: '%s'", szShaderPath);
         return nullptr;
       }
-      sAbsPath = sShaderPath;
       sAbsPath.MakeCleanPath();
     }
 

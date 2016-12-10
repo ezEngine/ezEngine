@@ -124,7 +124,9 @@ public:
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
 
+  bool MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const;
   bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
+  bool MakePathDataDirectoryRelative(ezStringBuilder& sPath) const;
   bool MakePathDataDirectoryRelative(ezString& sPath) const;
 
   void AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency);
