@@ -988,11 +988,6 @@ static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
   }
 }
 
-#else
-
-extern ezUInt64 g_uiFontFileSize;
-extern const ezUInt8 g_FontFileTGA[];
-
 #endif
 
 void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyToUnknown)

@@ -8,11 +8,6 @@
 // TGA is 512 * 256 pixels, only contains ASCII-7 characters, 1 channel 8 Bit and is RLE compressed
 // Used Bin2C to convert file to C (http://tools.garry.tv/bin2c/)
 
-#ifndef _MSC_VER
-// trying to figure out whether CI builds this at all
-#error Compiling FiraMono.cpp
-#endif
-
 ezUInt64 g_uiFontFileSize = 13281;
 const ezUInt8 g_FontFileTGA[] =
 {
