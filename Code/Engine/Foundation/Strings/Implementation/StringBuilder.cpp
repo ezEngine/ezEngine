@@ -49,6 +49,34 @@ void ezStringBuilder::SetSubString_CharacterCount(const char* pStart, ezUInt32 u
   *this = view;
 }
 
+void ezStringBuilder::Append(const ezStringView& view)
+{
+  ezUInt32 uiMoreBytes = 0;
+  ezUInt32 uiStrLen = 0;
+
+  // first figure out how much the string has to grow
+  {
+    ezUInt32 uiCharacters = 0;
+    ezStringUtils::GetCharacterAndElementCount(view.GetData(), uiCharacters, uiStrLen, view.GetEndPosition());
+    uiMoreBytes += uiStrLen;
+    m_uiCharacterCount += uiCharacters;
+  }
+
+  ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
+  EZ_ASSERT_DEBUG(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
+
+  // now resize
+  m_Data.SetCount(uiPrevCount + uiMoreBytes);
+
+  // and then append all the strings
+  {
+    // make enough room to copy the entire string, including the T-800
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen + 1, view.GetData(), view.GetData() + uiStrLen);
+
+    uiPrevCount += uiStrLen;
+  }
+}
+
 void ezStringBuilder::Append(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
   // it is not possible to find out how many parameters were passed to a vararg function

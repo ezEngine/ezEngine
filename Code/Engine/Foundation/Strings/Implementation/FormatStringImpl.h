@@ -22,10 +22,29 @@ public:
   /// string builder data for convenience.
   virtual const char* GetText(ezStringBuilder& sb) const override
   {
-    sb = m_szString;
+    ezStringView param[10];
 
-    char tmp[256];
-    ReplaceString<0>(tmp, sb);
+    char tmp[10][64];
+    ReplaceString<0>(tmp, param);
+
+    const char* szString = m_szString;
+
+    sb.Clear();
+    while (*szString != '\0')
+    {
+      if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
+      {
+        const int iParam = *(szString + 1) - '0';
+        AppendView(sb, param[iParam]);
+
+        szString += 3;
+      }
+      else
+      {
+        const ezUInt32 character = ezUnicodeUtils::DecodeUtf8ToUtf32(szString);
+        sb.Append(character);
+      }
+    }
 
     return sb;
   }
@@ -33,35 +52,20 @@ public:
 private:
 
   template<ezInt32 N>
-  typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char* tmp, ezStringBuilder& sb) const
+  typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char tmp[10][64], ezStringView* pViews) const
   {
     EZ_CHECK_AT_COMPILETIME_MSG(N < 10, "Maximum number of format arguments reached");
 
     // using a free function allows to overload with various different argument types
-    const ezStringView res = BuildString(tmp, 255, std::get<N>(m_Arguments));
-
-    // replace all occurrances of {N} with the formatted argument
-    switch (N)
-    {
-    case 0: ReplaceAll(sb, "{0}", res); break;
-    case 1: ReplaceAll(sb, "{1}", res); break;
-    case 2: ReplaceAll(sb, "{2}", res); break;
-    case 3: ReplaceAll(sb, "{3}", res); break;
-    case 4: ReplaceAll(sb, "{4}", res); break;
-    case 5: ReplaceAll(sb, "{5}", res); break;
-    case 6: ReplaceAll(sb, "{6}", res); break;
-    case 7: ReplaceAll(sb, "{7}", res); break;
-    case 8: ReplaceAll(sb, "{8}", res); break;
-    case 9: ReplaceAll(sb, "{9}", res); break;
-    }
+    pViews[N] = BuildString(tmp[N], 63, std::get<N>(m_Arguments));
 
     // Recurse, chip off one argument
-    ReplaceString<N + 1>(tmp, sb);
+    ReplaceString<N + 1>(tmp, pViews);
   }
 
   // Recursion end if we reached the number of arguments.
   template<ezInt32 N>
-  typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char* tmp, ezStringBuilder& sb) const
+  typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[10][64], ezStringView* pViews) const
   {
   }
 

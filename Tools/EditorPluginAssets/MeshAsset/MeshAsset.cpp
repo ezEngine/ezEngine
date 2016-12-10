@@ -660,7 +660,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       if (materialName.IsEmpty())
       {
         materialName = "Unnamed";
-        materialName.Append(ezConversionUtils::ToString(subMeshIdx));
+        materialName.Append(ezConversionUtils::ToString(subMeshIdx).GetData());
       }
       else
       {

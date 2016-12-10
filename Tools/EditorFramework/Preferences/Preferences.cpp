@@ -211,7 +211,7 @@ ezString ezPreferences::GetName() const
   else
   {
     ezStringBuilder name = ezPathUtils::GetFileName(m_pDocument->GetDocumentPath());
-    s.Append(name);
+    s.Append(name.GetData());
   }
 
   s.Append(": ", m_sUniqueName);

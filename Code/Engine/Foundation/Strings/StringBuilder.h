@@ -190,6 +190,8 @@ public:
   /// \brief Appends all the given strings at the back of this string in one operation.
   void Append(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
+  void Append(const ezStringView& view);
+
   /// \brief Appends the formatted string.
   void AppendPrintf(const char* szUtf8Format, ...); // [tested]
 

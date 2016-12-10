@@ -1,6 +1,8 @@
 ﻿#include <PCH.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1900)
 
@@ -12,8 +14,63 @@ void TestFormat(const ezFormatString& str, const char* szExpected)
   EZ_TEST_STRING(szText, szExpected);
 }
 
+void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char* szFormat, ...)
+{
+  va_list args;
+  va_start(args, szFormat);
+
+  char Temp1[256];
+  char Temp2[256];
+
+  ezStringUtils::vsnprintf(Temp1, 256, szFormat, args);
+  vsnprintf(Temp2, 256, szFormat, args);
+  EZ_TEST_STRING(Temp1, Temp2);
+
+  ezTime t1, t2, t3;
+  ezStopwatch sw;
+  {
+    sw.StopAndReset();
+
+    for (ezUInt32 i = 0; i < 10000; ++i)
+    {
+      ezStringUtils::vsnprintf(Temp1, 256, szFormat, args);
+    }
+
+    t1 = sw.Checkpoint();
+  }
+
+  {
+    sw.StopAndReset();
+
+    for (ezUInt32 i = 0; i < 10000; ++i)
+    {
+      vsnprintf(Temp2, 256, szFormat, args);
+    }
+
+    t2 = sw.Checkpoint();
+  }
+
+  {
+    ezStringBuilder sb;
+
+    sw.StopAndReset();
+    for (ezUInt32 i = 0; i < 10000; ++i)
+    {
+      const char* szText = str.GetText(sb);
+    }
+
+    t3 = sw.Checkpoint();
+  }
+
+  log.AppendPrintf("ez: %.2f msec, std: %.2f msec, ezFmt: %.2f msec : %s -> %s\n", t1.GetMilliseconds(), t2.GetMilliseconds(), t3.GetMilliseconds(), szFormat, Temp1);
+
+  va_end(args);
+}
+
 EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 {
+  ezStringBuilder perfLog;
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
     const char* tmp = "stringviewstuff";
@@ -31,6 +88,30 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("'{0}'", sv), "'view'");
 
     TestFormat(ezFmt("{3}, {1}, {0}, {2}", ezArgF(23.12345f, 1), ezArgI(42), 17, 12.34f), "12.34, 42, 23.1, 17");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
+  {
+    CompareSnprintf(perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World", 42, 3.141f);
+    CompareSnprintf(perfLog, ezFmt("No formatting at all"), "No formatting at all");
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE"), "%s, %s, %s, %s, %s", "AAAAAA", "BBBBBBB", "CCCCCC", "DDDDDDDDDDDDD", "EE");
+    CompareSnprintf(perfLog, ezFmt("{0}", 23), "%i", 23);
+    CompareSnprintf(perfLog, ezFmt("{0}", 23.123456789), "%f", 23.123456789);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgF(23.123456789, 2)), "%.2f", 23.123456789);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(123456789, 20, true)), "%020i", 123456789);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(123456789, 20, true, 16)), "%020X", 123456789);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(1234567890987i64, 30, false, 16)), "% 30x", 1234567890987i64);
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0, 1, 2, 3, 4), "%i, %i, %i, %i, %i", 0, 1, 2, 3, 4);
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0.1, 1.1, 2.1, 3.1, 4.1), "%.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1);
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9), "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1), "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
+
+    FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
+    if (file)
+    {
+      fwrite(perfLog.GetData(), 1, perfLog.GetElementCount(), file);
+      fclose(file);
+    }
   }
 }
 

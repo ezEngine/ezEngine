@@ -22,7 +22,7 @@ public:
 
 protected:
   // out of line function so that we don't need to include ezStringBuilder here, to break include dependency cycle
-  static void ReplaceAll(ezStringBuilder& sb, const char* szSearchFor, const ezStringView& sub);
+  static void AppendView(ezStringBuilder& sb, const ezStringView& sub);
 
   const char* m_szString;
 };

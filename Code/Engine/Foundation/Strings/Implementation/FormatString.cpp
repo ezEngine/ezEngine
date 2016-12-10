@@ -5,9 +5,9 @@
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1900)
 
-void ezFormatString::ReplaceAll(ezStringBuilder& sb, const char* szSearchFor, const ezStringView& sub)
+void ezFormatString::AppendView(ezStringBuilder& sb, const ezStringView& sub)
 {
-  sb.ReplaceAll(szSearchFor, sub);
+  sb.Append(sub);
 }
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg)

@@ -21,7 +21,7 @@ ezString ToBinary(const ezUuid& guid)
     s.Printf("%02X", (ezUInt32)*pBytes);
     ++pBytes;
 
-    sResult.Append(s);
+    sResult.Append(s.GetData());
   }
 
   return sResult;

@@ -134,7 +134,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
       sSubAssetLine.Printf("%s;%s|%s;%s\n", sGuid.GetData(), sOwnGuid.GetData(), sGuidNoSpace.GetData(), sEventName.GetData());
 
-      sSubAssetsFile.Append(sSubAssetLine);
+      sSubAssetsFile.Append(sSubAssetLine.GetData());
     }
   }
 
