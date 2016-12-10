@@ -9,7 +9,8 @@ namespace BuildMachine
   public enum VSVersion
   {
     VS2012,
-    VS2013
+    VS2013,
+    VS2015
   };
 
   /// <summary>
@@ -68,6 +69,11 @@ namespace BuildMachine
             return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" amd64\r\n";
           else
             return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" x86\r\n";
+        case VSVersion.VS2015:
+          if (_bIs64Bit)
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat\" amd64\r\n";
+          else
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat\" x86\r\n";
         default:
           return "";
       }

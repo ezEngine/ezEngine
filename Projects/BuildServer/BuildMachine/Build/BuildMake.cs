@@ -22,7 +22,7 @@ namespace BuildMachine
       res.Experimental = target.Experimental;
       res.Name = target.Name;
 
-      res.ProcessRes = ezProcessHelper.RunExternalExe("make", target.Name, sAbsWorkingDir, res);
+      res.ProcessRes = ezProcessHelper.RunExternalExe("make", target.Name + " -j4", sAbsWorkingDir, res);
       res.Success = (res.ProcessRes.ExitCode == 0);
       return res;
     }

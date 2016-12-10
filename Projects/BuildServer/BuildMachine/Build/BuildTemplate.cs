@@ -31,6 +31,10 @@ namespace BuildMachine
           {
             return new ezBuildWinVS(settings, VSVersion.VS2013, bIs64Bit);
           }
+          else if (settings.Configuration.Contains("2015"))
+          {
+            return new ezBuildWinVS(settings, VSVersion.VS2015, bIs64Bit);
+          }
         }
         else if (settings.Configuration.StartsWith("Osx"))
         {
@@ -63,6 +67,10 @@ namespace BuildMachine
           else if (settings.Configuration.Contains("2013"))
           {
             return new ezBuildWinD(settings, VSVersion.VS2013, bIs64Bit);
+          }
+          else if (settings.Configuration.Contains("2015"))
+          {
+            return new ezBuildWinD(settings, VSVersion.VS2015, bIs64Bit);
           }
         }
       }
