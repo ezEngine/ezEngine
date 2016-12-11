@@ -44,7 +44,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt32 arg)
   return BuildString(tmp, uiLength, (ezInt64)arg);
 }
 
-ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgUI& arg)
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgU& arg)
 {
   ezUInt32 writepos = 0;
   ezStringUtils::OutputFormattedUInt(tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase, arg.m_bUpperCase);

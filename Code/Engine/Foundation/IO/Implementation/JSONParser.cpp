@@ -75,7 +75,7 @@ void ezJSONParser::StartParsing()
       // document is malformed
 
       ezStringBuilder s;
-      s.Printf("Start of document: Expected a { or an empty document. Got '%c' instead.", m_uiCurByte);
+      s.Format("Start of document: Expected a { or an empty document. Got '{0}' instead.", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
     return;
@@ -215,7 +215,7 @@ void ezJSONParser::ContinueObject()
   default:
     {
       ezStringBuilder s;
-      s.Printf("While parsing object: Expected \" to begin a new variable, or } to close the object. Got '%c' instead.", m_uiCurByte);
+      s.Format("While parsing object: Expected \" to begin a new variable, or } to close the object. Got '{0}' instead.", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
     return;
@@ -263,7 +263,7 @@ void ezJSONParser::ContinueVariable()
   if (m_uiCurByte != ':')
   {
     ezStringBuilder s;
-    s.Printf("After parsing variable name: Expected : to separate variable and value, Got '%c' instead.", m_uiCurByte);
+    s.Format("After parsing variable name: Expected : to separate variable and value, Got '{0}' instead.", ezArgC(m_uiCurByte));
     ParsingError(s.GetData(), false);
   }
   else
@@ -418,7 +418,7 @@ void ezJSONParser::ContinueValue()
   default:
     {
       ezStringBuilder s;
-      s.Printf("Parsing value: Expected [, {, f, t, \", 0-1, ., +, -, or even 'e'. Got '%c' instead", m_uiCurByte);
+      s.Format("Parsing value: Expected [, {, f, t, \", 0-1, ., +, -, or even 'e'. Got '{0}' instead", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
     return;
@@ -450,7 +450,7 @@ void ezJSONParser::ContinueSeparator()
   default:
     {
       ezStringBuilder s;
-      s.Printf("After parsing value: Expected a comma or closing brackets/braces (], }). Got '%c' instead.", m_uiCurByte);
+      s.Format("After parsing value: Expected a comma or closing brackets/braces (], }). Got '{0}' instead.", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
     return;
@@ -615,7 +615,7 @@ void ezJSONParser::ReadString()
       default:
         {
           ezStringBuilder s;
-          s.Printf("Unknown escape-sequence '\\%c'", m_uiCurByte);
+          s.Format("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
           ParsingError(s, false);
         }
         break;

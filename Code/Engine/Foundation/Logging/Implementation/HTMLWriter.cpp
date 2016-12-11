@@ -133,7 +133,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
 void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
 {
   ezStringBuilder sTemp;
-  sTemp.Printf("<font color=\"#%X\">%s</font>", uiColor, szString);
+  sTemp.Format("<font color=\"#{0}\">{1}</font>", ezArgU(uiColor, 1, false, 16, true), szString);
 
   m_File.WriteBytes(sTemp.GetData(), sizeof (char) * sTemp.GetElementCount());
 }

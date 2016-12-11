@@ -582,7 +582,7 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
 
   for (ezUInt32 i = 0; i < uiBytes; ++i)
   {
-    s.Printf("%02X", (ezUInt32) *pBytes);
+    s.Format("{0}", ezArgU((ezUInt32) *pBytes, 2, true, 16, true));
     ++pBytes;
 
     OutputString(s.GetData());

@@ -85,7 +85,7 @@ void ezSkyBoxComponent::Initialize()
   for (ezUInt32 i = 0; i < 6; ++i)
   {
     ezStringBuilder temp;
-    temp.Printf("SkyBoxMaterial_%08X_%d", GetOwner()->GetHandle().GetInternalID().m_Data, i);
+    temp.Format("SkyBoxMaterial_{0}_{1}", ezArgU(GetOwner()->GetHandle().GetInternalID().m_Data, 8, true, 16, true), i);
 
     m_Materials[i] = ezResourceManager::GetExistingResource<ezMaterialResource>(temp.GetData());
     if (!m_Materials[i].IsValid())

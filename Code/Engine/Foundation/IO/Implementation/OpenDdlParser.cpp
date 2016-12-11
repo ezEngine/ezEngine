@@ -646,7 +646,7 @@ void ezOpenDdlParser::ReadString()
       default:
         {
           ezStringBuilder s;
-          s.Printf("Unknown escape-sequence '\\%c'", m_uiCurByte);
+          s.Format("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
           ParsingError(s, false);
         }
         break;

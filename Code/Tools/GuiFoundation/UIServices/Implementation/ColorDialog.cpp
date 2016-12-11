@@ -141,11 +141,11 @@ void ezQtColorDialog::ApplyColor()
 
   if (m_bAlpha)
   {
-    s.Printf("%02X%02X%02X%02X", m_GammaRed, m_GammaGreen, m_GammaBlue, m_Alpha);
+    s.Format("{0}{1}{2}{3}", ezArgU(m_GammaRed, 2, true, 16, true), ezArgU(m_GammaGreen, 2, true, 16, true), ezArgU(m_GammaBlue, 2, true, 16, true), ezArgU(m_Alpha, 2, true, 16, true));
   }
   else
   {
-    s.Printf("%02X%02X%02X", m_GammaRed, m_GammaGreen, m_GammaBlue);
+    s.Format("{0}{1}{2}", ezArgU(m_GammaRed, 2, true, 16, true), ezArgU(m_GammaGreen, 2, true, 16, true), ezArgU(m_GammaBlue, 2, true, 16, true));
   }
 
   LineHEX->setText(s.GetData());

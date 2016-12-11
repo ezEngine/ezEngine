@@ -1131,11 +1131,11 @@ namespace ezConversionUtils
 
     if (cg.a == 255)
     {
-      s.Printf("#%02X%02X%02X", cg.r, cg.g, cg.b);
+      s.Format("#{0}{1}{2}", ezArgU(cg.r, 2, true, 16, true), ezArgU(cg.g, 2, true, 16, true), ezArgU(cg.b, 2, true, 16, true));
     }
     else
     {
-      s.Printf("#%02X%02X%02X%02X", cg.r, cg.g, cg.b, cg.a);
+      s.Format("#{0}{1}{2}{3}", ezArgU(cg.r, 2, true, 16, true), ezArgU(cg.g, 2, true, 16, true), ezArgU(cg.b, 2, true, 16, true), ezArgU(cg.a, 2, true, 16, true));
     }
 
     return s;

@@ -675,7 +675,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
   const char* szSubTestName = GetTest(GetCurrentTestIndex())->m_SubTests[GetCurrentSubTestIndex()].m_szSubTestName;
 
   ezStringBuilder sImgName, sImgPathReference, sImgPathResult;
-  sImgName.Printf("%s_%s_%03i", szTestName, szSubTestName, m_iImageCounter);
+  sImgName.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(m_iImageCounter, 3, true));
   ++m_iImageCounter;
 
   ezImage img, imgRGB, imgSmall;
