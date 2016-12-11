@@ -24,11 +24,11 @@ ezCompileTimeFalseType operator%(const T&, const ezTypeIsPod&);
 
 /// \brief If there is an % operator which takes a TypeIsPod and returns a CompileTimeTrueType T is Pod. Default % operator return false.
 template <typename T>
-struct ezIsPodType : public ezTraitInt<(sizeof(*((T*)0) % *((const ezTypeIsPod*)0)) == 
+struct ezIsPodType : public ezTraitInt<(sizeof(*((T*)0) % *((const ezTypeIsPod*)0)) ==
   sizeof(ezCompileTimeTrueType)) ? 1 : 0> { };
 
 /// \brief Pointers are POD types.
-template <typename T> 
+template <typename T>
 struct ezIsPodType<T*> : public ezTypeIsPod { };
 
 /// \brief arrays are POD types
@@ -42,7 +42,7 @@ ezCompileTimeFalseType operator%(const T&, const ezTypeIsMemRelocatable&);
 /// \brief If there is an % operator which takes a ezTypeIsMemRelocatable and returns a CompileTimeTrueType T is Pod. Default % operator return false.
 template <typename T>
 struct ezGetTypeClass : public ezTraitInt<
-    (sizeof(*((T*)0) % *((const ezTypeIsMemRelocatable*)0)) == sizeof(ezCompileTimeTrueType)) ? 2 : 
+    (sizeof(*((T*)0) % *((const ezTypeIsMemRelocatable*)0)) == sizeof(ezCompileTimeTrueType)) ? 2 :
     ezIsPodType<T>::value> { };
 
 /// \brief Static Conversion Test
@@ -53,8 +53,8 @@ struct ezConversionTest
   static ezCompileTimeFalseType Test(...);
   static From MakeFrom();
 
-  enum 
-  { 
+  enum
+  {
     exists = sizeof(Test(MakeFrom())) == sizeof(ezCompileTimeTrueType),
     sameType = 0
   };
@@ -81,7 +81,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt <
 
 /// \brief Determines whether a type is a pointer.
 template<typename T>
-struct ezIsPointer 
+struct ezIsPointer
 {
   static const bool value = false;
 };
@@ -89,7 +89,7 @@ struct ezIsPointer
 template<typename T>
 struct ezIsPointer<T*>
 {
-  static const bool value = true; 
+  static const bool value = true;
 };
 
 
@@ -130,7 +130,7 @@ struct ezIsPointer<T*>
   #define EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_2(T1, T2), EZ_DETECT_TYPE_CLASS_2(T3, T4)>
   #define EZ_DETECT_TYPE_CLASS_5(T1, T2, T3, T4, T5) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4), EZ_DETECT_TYPE_CLASS_1(T5)>
   #define EZ_DETECT_TYPE_CLASS_6(T1, T2, T3, T4, T5, T6) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1,T2,T3,T4), EZ_DETECT_TYPE_CLASS_2(T5, T6)>
-  
+
   // \brief embed this into a class to automatically detect which type class it belongs to
   // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
   // As arguments you have to list the types of all the members of the class / struct.
@@ -169,63 +169,24 @@ EZ_DEFINE_AS_POD_TYPE(wchar_t);
 template <typename T>
 struct ezTypeTraits
 {
-private:
-  template <typename U>
-  struct RemoveConst
-  {
-    typedef U type;
-  };
-
-  template <typename U>
-  struct RemoveConst<const U>
-  {
-    typedef U type;
-  };
-
-  template <typename U>
-  struct RemoveReference
-  {
-    typedef U type;
-  };
-
-  template <typename U>
-  struct RemoveReference<U&>
-  {
-    typedef U type;
-  };
-
-  template <typename U>
-  struct RemovePointer
-  {
-    typedef U type;
-  };
-
-  template <typename U>
-  struct RemovePointer<U*>
-  {
-    typedef U type;
-  };
-
-public:
   /// \brief removes const qualifier
-  typedef typename RemoveConst<T>::type NonConstType;
+  typedef typename std::remove_const<T>::type NonConstType;
 
   /// \brief removes reference
-  typedef typename RemoveReference<T>::type NonReferenceType;
+  typedef typename std::remove_reference<T>::type NonReferenceType;
 
   /// \brief removes pointer
-  typedef typename RemovePointer<T>::type NonPointerType;
+  typedef typename std::remove_pointer<T>::type NonPointerType;
 
   /// \brief removes reference and const qualifier
-  typedef typename RemoveConst<typename RemoveReference<T>::type>::type NonConstReferenceType;
+  typedef typename std::remove_const<typename std::remove_reference<T>::type>::type NonConstReferenceType;
 
   /// \brief removes reference, const and pointer qualifier
   /// Note that this removes the const and reference of the type pointed too, not of the pointer.
-  typedef typename RemoveConst<typename RemoveReference<typename RemovePointer<T>::type>::type>::type NonConstReferencePointerType;
-
+  typedef typename std::remove_const<typename std::remove_reference<typename std::remove_pointer<T>::type>::type>::type NonConstReferencePointerType;
 };
 
-/// generates a template named 'checkerName' which checks for the existence of a member function with 
+/// generates a template named 'checkerName' which checks for the existence of a member function with
 /// the name 'functionName' and the signature 'Signature'
 #define EZ_MAKE_MEMBERFUNCTION_CHECKER(functionName, checkerName)                                        \
   template<typename T, typename Signature>                                                               \
