@@ -109,3 +109,9 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgC& arg)
 
   return ezStringView(&tmp[0], &tmp[1]);
 }
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgP& arg)
+{
+  ezStringUtils::snprintf(tmp, uiLength, "%p", arg.m_Value);
+  return ezStringView(tmp);
+}

@@ -67,7 +67,7 @@ public:
 
   /// \brief The default allocator can be used for any kind of allocation if no alignment is required
   EZ_FORCE_INLINE static ezAllocatorBase* GetDefaultAllocator()
-  { 
+  {
     if (s_bIsInitialized)
       return s_pDefaultAllocator;
     else // the default allocator is not yet set so we return the static allocator instead.
@@ -76,8 +76,8 @@ public:
 
   /// \brief The aligned allocator should be used for any allocations which need an alignment
   EZ_FORCE_INLINE static ezAllocatorBase* GetAlignedAllocator()
-  { 
-    EZ_ASSERT_RELEASE(s_pAlignedAllocator != nullptr, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
+  {
+    EZ_ASSERT_RELEASE(s_pAlignedAllocator != nullptr, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue.");
     return s_pAlignedAllocator;
   }
 

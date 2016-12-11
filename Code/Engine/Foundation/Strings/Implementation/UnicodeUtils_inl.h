@@ -117,7 +117,7 @@ inline ezUInt32 ezUnicodeUtils::GetSizeForCharacterInUtf8(ezUInt32 uiCharacter)
   if (uiCharacter <= 0x0000007f)
     return 1;
 
-  if (uiCharacter <= 0x000007ff) 
+  if (uiCharacter <= 0x000007ff)
     return 2;
 
   if (uiCharacter <= 0x0000ffff)
@@ -127,7 +127,7 @@ inline ezUInt32 ezUnicodeUtils::GetSizeForCharacterInUtf8(ezUInt32 uiCharacter)
   // however some committee agreed that never more than 4 bytes are used (no need for more than 21 Bits)
   // this implementation assumes in several places, that the UTF-8 encoding never uses more than 4 bytes
 
-  EZ_ASSERT_DEV(uiCharacter <= 0x0010ffff, "Invalid Unicode Codepoint %u", uiCharacter);
+  EZ_ASSERT_DEV(uiCharacter <= 0x0010ffff, "Invalid Unicode Codepoint");
   return 4;
 }
 

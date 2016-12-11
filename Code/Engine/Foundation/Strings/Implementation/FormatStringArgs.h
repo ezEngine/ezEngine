@@ -67,6 +67,16 @@ struct ezArgC
   char m_Value;
 };
 
+struct ezArgP
+{
+  inline ezArgP(const void* value)
+    : m_Value(value)
+  {
+  }
+
+  const void* m_Value;
+};
+
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt64 arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt32 arg);
@@ -79,3 +89,4 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const c
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezStringBuilder& arg);
 EZ_FOUNDATION_DLL const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgC& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgP& arg);

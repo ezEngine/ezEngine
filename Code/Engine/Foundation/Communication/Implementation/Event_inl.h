@@ -25,7 +25,7 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) cons
 
   bool bResult = m_EventHandlers.Remove(handler);
   EZ_IGNORE_UNUSED(bResult);
-  EZ_ASSERT_DEV(bResult, "ezEvent::RemoveEventHandler: Handler %p has not been registered or already been unregistered.", &handler);
+  EZ_ASSERT_DEV(bResult, "ezEvent::RemoveEventHandler: Handler has not been registered or already been unregistered.");
 }
 
 /// The notification is sent to all event handlers in the order that they were registered.
