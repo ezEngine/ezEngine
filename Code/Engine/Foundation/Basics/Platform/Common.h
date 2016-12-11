@@ -29,7 +29,7 @@
   // EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) : checks exp and displays msg
   #define EZ_CHECK_AT_COMPILETIME(exp) \
     static_assert(exp, EZ_STRINGIZE(exp) " is false.");
-  
+
   #define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
     static_assert(exp, EZ_STRINGIZE(exp) " is false. Message: " msg);
 
@@ -43,7 +43,7 @@
 
 #endif
 
-/// \brief Disallow the copy constructor and the assignment operator for this type. 
+/// \brief Disallow the copy constructor and the assignment operator for this type.
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
   private: \
     type(const type&); \
@@ -52,7 +52,7 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment) \
-    EZ_ASSERT_DEV(((size_t)ptr & (alignment - 1)) == 0, "Wrong alignment. Expected %d bytes alignment", alignment)
+    EZ_ASSERT_DEV(((size_t)ptr & (alignment - 1)) == 0, "Wrong alignment. Expected %d bytes alignment", ((ezUInt32)alignment))
 #else
   /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment)
@@ -124,7 +124,7 @@ namespace ezInternal
 #define EZ_ARRAY_SIZE(a) (sizeof(*ezInternal::ArraySizeHelper(a))+0)
 
 /// \brief Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
-template<class T> 
+template<class T>
 void EZ_IGNORE_UNUSED(const T&) {}
 
 

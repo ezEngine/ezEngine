@@ -27,8 +27,8 @@ struct ezArgU
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
-    , m_uiBase(uiBase)
     , m_bUpperCase(bUpperCase)
+    , m_uiBase(uiBase)
   {
   }
 
