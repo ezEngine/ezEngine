@@ -71,7 +71,7 @@ ezResult ezMeshResourceDescriptor::Save(const char* szFile)
   ezFileWriter file;
   if (file.Open(szFile, 1024 * 1024).Failed())
   {
-    ezLog::Error("Failed to open file '%s'", szFile);
+    ezLog::ErrorPrintf("Failed to open file '%s'", szFile);
     return EZ_FAILURE;
   }
 
@@ -195,7 +195,7 @@ ezResult ezMeshResourceDescriptor::Load(const char* szFile)
   ezFileReader file;
   if (file.Open(szFile, 1024 * 1024).Failed())
   {
-    ezLog::Error("Failed to open file '%s'", szFile);
+    ezLog::ErrorPrintf("Failed to open file '%s'", szFile);
     return EZ_FAILURE;
   }
 
@@ -225,7 +225,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::ErrorPrintf("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -247,7 +247,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::ErrorPrintf("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -272,7 +272,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion > 3)
       {
-        ezLog::Error("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::ErrorPrintf("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -333,7 +333,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::ErrorPrintf("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -349,7 +349,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::ErrorPrintf("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -371,7 +371,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     CalculateBounds();
 
     auto b = m_Bounds;
-    ezLog::Info("Calculated Bounds: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
+    ezLog::InfoPrintf("Calculated Bounds: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
   }
 
   return EZ_SUCCESS;

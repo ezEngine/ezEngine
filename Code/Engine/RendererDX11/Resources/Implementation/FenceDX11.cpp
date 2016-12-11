@@ -30,7 +30,7 @@ ezResult ezGALFenceDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else
   {
-    ezLog::Error("Creation of native DirectX fence failed!");
+    ezLog::ErrorPrintf("Creation of native DirectX fence failed!");
     return EZ_FAILURE;
   }
 }

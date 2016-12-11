@@ -138,7 +138,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
     m_pActor->release();
     m_pActor = nullptr;
 
-    ezLog::Error("Rigid Body '%s' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
+    ezLog::ErrorPrintf("Rigid Body '%s' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
     return;
   }
 
@@ -161,7 +161,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   }
   else
   {
-    ezLog::Warning("Rigid Body '%s' neither has mass nor density set to valid values.", GetOwner()->GetName());
+    ezLog::WarningPrintf("Rigid Body '%s' neither has mass nor density set to valid values.", GetOwner()->GetName());
     PxRigidBodyExt::updateMassAndInertia(*m_pActor, 1.0f);
   }
 

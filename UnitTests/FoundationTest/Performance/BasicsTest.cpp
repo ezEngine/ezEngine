@@ -179,7 +179,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
 
-    ezLog::Info("[test]Dispatch Message: %.2fns", tFC, iResult);
+    ezLog::InfoPrintf("[test]Dispatch Message: %.2fns", tFC, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Virtual")
@@ -202,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
 
-    ezLog::Info("[test]Virtual Function Calls: %.2fns", tFC, iResult);
+    ezLog::InfoPrintf("[test]Virtual Function Calls: %.2fns", tFC, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "NonVirtual")
@@ -231,7 +231,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
 
-    ezLog::Info("[test]Non-Virtual Function Calls: %.2fns", tFC, iResult);
+    ezLog::InfoPrintf("[test]Non-Virtual Function Calls: %.2fns", tFC, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FastCall")
@@ -260,7 +260,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
 
-    ezLog::Info("[test]FastCall Function Calls: %.2fns", tFC, iResult);
+    ezLog::InfoPrintf("[test]FastCall Function Calls: %.2fns", tFC, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Division")
@@ -283,7 +283,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
 
-    ezLog::Info("[test]32 Bit Integer Division: %.2fns", t, iResult);
+    ezLog::InfoPrintf("[test]32 Bit Integer Division: %.2fns", t, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Multiplication")
@@ -306,7 +306,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]32 Bit Integer Multiplication: %.2fns", t, iResult);
+    ezLog::InfoPrintf("[test]32 Bit Integer Multiplication: %.2fns", t, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Division")
@@ -329,7 +329,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
 
-    ezLog::Info("[test]64 Bit Integer Division: %.2fns", t, iResult);
+    ezLog::InfoPrintf("[test]64 Bit Integer Division: %.2fns", t, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Multiplication")
@@ -352,7 +352,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]64 Bit Integer Multiplication: %.2fns", t, iResult);
+    ezLog::InfoPrintf("[test]64 Bit Integer Multiplication: %.2fns", t, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Division")
@@ -376,7 +376,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]32 Bit Float Division: %.2fns", t, fResult);
+    ezLog::InfoPrintf("[test]32 Bit Float Division: %.2fns", t, fResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Multiplication")
@@ -400,7 +400,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]32 Bit Float Multiplication: %.2fns", t, iResult);
+    ezLog::InfoPrintf("[test]32 Bit Float Multiplication: %.2fns", t, iResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Division")
@@ -424,7 +424,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]64 Bit Double Division: %.2fns", t, fResult);
+    ezLog::InfoPrintf("[test]64 Bit Double Division: %.2fns", t, fResult);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Multiplication")
@@ -448,7 +448,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]64 Bit Double Multiplication: %.2fns", t, iResult);
+    ezLog::InfoPrintf("[test]64 Bit Double Multiplication: %.2fns", t, iResult);
   }
 }
 

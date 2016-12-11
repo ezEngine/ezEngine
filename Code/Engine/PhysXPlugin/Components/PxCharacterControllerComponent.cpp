@@ -210,11 +210,11 @@ void ezPxCharacterControllerComponent::Update()
     {
       m_pController->move(PxVec3(0, 0, -fSweepDistance), 0.5f * fGravity, 0.0f, charFilter);
 
-      //ezLog::Info("Floor Distance: %.2f (%.2f | %.2f | %.2f) -> (%.2f | %.2f | %.2f), Radius: %.2f, Height: %.2f", fSweepDistance, t.m_vPosition.x, t.m_vPosition.y, t.m_vPosition.z, vSweepPosition.x, vSweepPosition.y, vSweepPosition.z, m_fCapsuleRadius, m_fCapsuleHeight);
+      //ezLog::InfoPrintf("Floor Distance: %.2f (%.2f | %.2f | %.2f) -> (%.2f | %.2f | %.2f), Radius: %.2f, Height: %.2f", fSweepDistance, t.m_vPosition.x, t.m_vPosition.y, t.m_vPosition.z, vSweepPosition.x, vSweepPosition.y, vSweepPosition.z, m_fCapsuleRadius, m_fCapsuleHeight);
     }
     else
     {
-      //ezLog::Dev("Falling");
+      //ezLog::DevPrintf("Falling");
     }
 
     posAfter = m_pController->getPosition();
@@ -296,7 +296,7 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
 
   if (!cd.isValid())
   {
-    ezLog::Error("The Character Controller configuration is invalid.");
+    ezLog::ErrorPrintf("The Character Controller configuration is invalid.");
     return;
   }
 

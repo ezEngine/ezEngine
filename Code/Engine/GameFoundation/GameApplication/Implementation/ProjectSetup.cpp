@@ -226,7 +226,7 @@ void ezGameApplication::DoLoadTags()
   ezFileReader file;
   if (file.Open("Tags.ddl").Failed())
   {
-    ezLog::Dev("'Tags.ddl' does not exist");
+    ezLog::DevPrintf("'Tags.ddl' does not exist");
     return;
   }
 
@@ -235,7 +235,7 @@ void ezGameApplication::DoLoadTags()
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file).Failed())
   {
-    ezLog::Error("Failed to parse DDL data in tags file");
+    ezLog::ErrorPrintf("Failed to parse DDL data in tags file");
     return;
   }
 
@@ -250,7 +250,7 @@ void ezGameApplication::DoLoadTags()
 
     if (!pName)
     {
-      ezLog::Error("Incomplete tag declaration!");
+      ezLog::ErrorPrintf("Incomplete tag declaration!");
       continue;
     }
 

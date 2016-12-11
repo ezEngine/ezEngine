@@ -51,7 +51,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
       BufferDesc.BindFlags = 0;
       break;
     default:
-      ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
+      ezLog::ErrorPrintf("Unknown buffer type supplied to CreateBuffer()!");
       return EZ_FAILURE;
   }
 
@@ -102,7 +102,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
   }
   else
   {
-    ezLog::Error("Creation of native DirectX buffer failed!");
+    ezLog::ErrorPrintf("Creation of native DirectX buffer failed!");
     return EZ_FAILURE;
   }
 }

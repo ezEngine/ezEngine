@@ -30,7 +30,20 @@ public:
     SBClear(sb);
     while (*szString != '\0')
     {
-      if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
+      if (*szString == '%')
+      {
+        if (*(szString + 1) == '%')
+        {
+          SBAppendView(sb, "%");
+        }
+        else
+        {
+          EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style string? Use double percentage signs for the actual character.");
+        }
+
+        szString += 2;
+      }
+      else if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
       {
         const int iParam = *(szString + 1) - '0';
         SBAppendView(sb, param[iParam]);

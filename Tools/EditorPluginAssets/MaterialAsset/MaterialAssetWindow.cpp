@@ -255,7 +255,7 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
       sSearchDir.AppendPath("VisualShader");
 
       if (s_pNodeConfigWatcher->OpenDirectory(sSearchDir, ezDirectoryWatcher::Watch::Writes).Failed())
-        ezLog::Warning("Could not register a file system watcher for changes to '%s'", sSearchDir.GetData());
+        ezLog::WarningPrintf("Could not register a file system watcher for changes to '%s'", sSearchDir.GetData());
     }
   }
 }

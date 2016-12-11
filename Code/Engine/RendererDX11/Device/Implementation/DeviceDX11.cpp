@@ -77,13 +77,13 @@ retry:
   {
     if (m_Description.m_bDebugDevice)
     {
-      ezLog::Error("Couldn't initialize D3D11 debug device!");
+      ezLog::ErrorPrintf("Couldn't initialize D3D11 debug device!");
 
       m_Description.m_bDebugDevice = false;
       goto retry;
     }
 
-    ezLog::Error("Couldn't initialize D3D11 device!");
+    ezLog::ErrorPrintf("Couldn't initialize D3D11 device!");
     return EZ_FAILURE;
   }
   else
@@ -99,7 +99,7 @@ retry:
 
     EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
 
-    ezLog::Success("Initialized D3D11 device with feature level %s.", FeatureLevelNames[FeatureLevelIdx]);
+    ezLog::SuccessPrintf("Initialized D3D11 device with feature level %s.", FeatureLevelNames[FeatureLevelIdx]);
   }
 
   if (m_Description.m_bDebugDevice)
@@ -125,13 +125,13 @@ retry:
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void **)&m_pDXGIDevice)))
   {
-    ezLog::Error("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 installed!");
+    ezLog::ErrorPrintf("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 installed!");
     return EZ_FAILURE;
   }
 
   if (FAILED(m_pDXGIDevice->SetMaximumFrameLatency(1)))
   {
-    ezLog::Warning("Failed to set max frames latency");
+    ezLog::WarningPrintf("Failed to set max frames latency");
   }
 
   if (FAILED(m_pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&m_pDXGIAdapter)))

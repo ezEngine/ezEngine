@@ -66,7 +66,7 @@ void RecursiveGrowthComponent::OnSimulationStarted()
 
   if (m_uiRecursionDepth > 0)
   {
-    ezLog::Debug("Recursion Depth: %u, Creating %u children", m_uiRecursionDepth, m_uiNumChildren);
+    ezLog::DebugPrintf("Recursion Depth: %u, Creating %u children", m_uiRecursionDepth, m_uiNumChildren);
 
     for (ezUInt32 i = 0; i < m_uiNumChildren; ++i)
     {
@@ -98,7 +98,7 @@ void RecursiveGrowthComponent::Update()
 
 void RecursiveGrowthComponent::Initialize()
 {
-  ezLog::Info("RecursiveGrowthComponent::Initialize: Child %u, Recursions: %u", m_uiChild, m_uiRecursionDepth);
+  ezLog::InfoPrintf("RecursiveGrowthComponent::Initialize: Child %u, Recursions: %u", m_uiChild, m_uiRecursionDepth);
 
 
 }

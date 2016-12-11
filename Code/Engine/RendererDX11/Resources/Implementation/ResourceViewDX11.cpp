@@ -30,7 +30,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if(pTexture == nullptr && pBuffer == nullptr)
   {
-    ezLog::Error("No valid texture handle or buffer handle given for resource view creation!");
+    ezLog::ErrorPrintf("No valid texture handle or buffer handle given for resource view creation!");
     return EZ_FAILURE;
   }
 
@@ -50,7 +50,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if(!pBuffer->GetDescription().m_bAllowRawViews && m_Description.m_bRawView)
     {
-      ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
+      ezLog::ErrorPrintf("Trying to create a raw view for a buffer with no raw view flag is invalid!");
       return EZ_FAILURE;
     }
   }
@@ -70,7 +70,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if(DXViewFormat == DXGI_FORMAT_UNKNOWN)
   {
-    ezLog::Error("Couldn't get valid DXGI format for resource view! (%d)", ViewFormat);
+    ezLog::ErrorPrintf("Couldn't get valid DXGI format for resource view! (%d)", ViewFormat);
     return EZ_FAILURE;
   }
 

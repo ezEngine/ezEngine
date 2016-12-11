@@ -25,7 +25,7 @@ ezResult ezTexConv::GenerateMipmaps()
     if (FAILED(GenerateMipMaps(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), TEX_FILTER_SEPARATE_ALPHA, 0, *pNewScratch.get())))
     {
       SetReturnCode(TexConvReturnCodes::FAILED_MIPMAP_GENERATION);
-      ezLog::Error("Mipmap generation failed");
+      ezLog::ErrorPrintf("Mipmap generation failed");
       return EZ_FAILURE;
     }
 
@@ -47,7 +47,7 @@ ezResult ezTexConv::ConvertToOutputFormat()
     if (FAILED(PremultiplyAlpha(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), m_bSRGBOutput ? TEX_PMALPHA_SRGB : TEX_PMALPHA_IGNORE_SRGB, *pNewScratch.get())))
     {
       SetReturnCode(TexConvReturnCodes::FAILED_PREMULTIPLY_ALPHA);
-      ezLog::Error("Pre-multiplying alpha failed");
+      ezLog::ErrorPrintf("Pre-multiplying alpha failed");
       return EZ_FAILURE;
     }
 
@@ -61,7 +61,7 @@ ezResult ezTexConv::ConvertToOutputFormat()
     if (FAILED(Compress(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, *pNewScratch.get())))
     {
       SetReturnCode(TexConvReturnCodes::FAILED_BC_COMPRESSION);
-      ezLog::Error("Block compression failed");
+      ezLog::ErrorPrintf("Block compression failed");
       return EZ_FAILURE;
     }
 
@@ -76,7 +76,7 @@ ezResult ezTexConv::ConvertToOutputFormat()
       if (FAILED(Convert(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), dxgi, TEX_FILTER_DEFAULT, 0.0f, *pNewScratch.get())))
       {
         SetReturnCode(TexConvReturnCodes::FAILED_CONVERT_TO_OUTPUT_FORMAT);
-        ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
+        ezLog::ErrorPrintf("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
         return EZ_FAILURE;
       }
 
@@ -102,12 +102,12 @@ ezResult ezTexConv::ConvertToOutputFormat()
 ezResult ezTexConv::SaveResultToDDS()
 {
   const ezImageFormat::Enum dxgiOutputFormat = ezImageFormatMappings::FromDxgiFormat((ezUInt32)m_pCurrentImage->GetMetadata().format);
-  ezLog::Info("Output Format: %s", ezImageFormat::GetName(dxgiOutputFormat));
+  ezLog::InfoPrintf("Output Format: %s", ezImageFormat::GetName(dxgiOutputFormat));
 
   if (FAILED(SaveToDDSMemory(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), 0, m_outputBlob)))
   {
     SetReturnCode(TexConvReturnCodes::FAILED_SAVE_AS_DDS);
-    ezLog::Error("Failed to write image to file '%s'", m_sOutputFile.GetData());
+    ezLog::ErrorPrintf("Failed to write image to file '%s'", m_sOutputFile.GetData());
     return EZ_FAILURE;
   }
 

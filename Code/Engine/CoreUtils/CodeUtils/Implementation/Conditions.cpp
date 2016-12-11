@@ -158,7 +158,7 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
   {
     if (ParseExpressionOr(Tokens, uiCurToken, iResult).Failed())
       return EZ_FAILURE;
-    
+
     return Expect(Tokens, uiCurToken, ")");
   }
 
@@ -412,7 +412,7 @@ ezResult ezPreprocessor::ParseCondition(const TokenStream& Tokens, ezUInt32& uiC
     iResult = (iResult1 != iResult2) ? 1 : 0;
     return EZ_SUCCESS;
   case Comparison::None:
-    ezLog::Error(m_pLog, "Unknown operator");
+    ezLog::ErrorPrintfI(m_pLog, "Unknown operator");
     return EZ_FAILURE;
   }
 

@@ -71,7 +71,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
 
         if(Tex2DDesc.Format == DXGI_FORMAT_UNKNOWN)
         {
-          ezLog::Error("No storage format available for given format: %d", m_Description.m_Format);
+          ezLog::ErrorPrintf("No storage format available for given format: %d", m_Description.m_Format);
           return EZ_FAILURE;
         }
 
@@ -163,7 +163,7 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
 
         if (FAILED(pDevice->GetDXDevice()->CreateTexture2D(&Desc, nullptr, reinterpret_cast<ID3D11Texture2D**>(&m_pDXStagingTexture))))
         {
-          ezLog::Error("Couldn't create staging resource for data upload and/or read back!");
+          ezLog::ErrorPrintf("Couldn't create staging resource for data upload and/or read back!");
           return EZ_FAILURE;
         }
 

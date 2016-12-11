@@ -131,7 +131,7 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 
     if (szCurrentStart == s.GetData()) // no change -> parsing error
     {
-      ezLog::Error("Error parsing material parameter section of shader");
+      ezLog::ErrorPrintf("Error parsing material parameter section of shader");
       break;
     }
   }
@@ -168,7 +168,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
     if (sToken.IsEmpty())
     {
       ezString invalidData = s;
-      ezLog::Warning("Invalid identifier in token section at: \"%s\"", invalidData.GetData());
+      ezLog::WarningPrintf("Invalid identifier in token section at: \"%s\"", invalidData.GetData());
       break;
     }
 
@@ -204,7 +204,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
 
     if (ezStringUtils::IsNullOrEmpty(szOpenBracket) || ezStringUtils::IsNullOrEmpty(szCloseBracket))
     {
-      ezLog::Error("No brackets found for enum definition.");
+      ezLog::ErrorPrintf("No brackets found for enum definition.");
     }
 
     ezStringBuilder sEnumValues = ezStringView(szOpenBracket + 1, szCloseBracket);
@@ -236,7 +236,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
         }
         else
         {
-          ezLog::Error("Invalid enum value '%s'. Only positive numbers are allowed.", szValue);
+          ezLog::ErrorPrintf("Invalid enum value '%s'. Only positive numbers are allowed.", szValue);
         }
       }
 
@@ -257,7 +257,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
       }
       else
       {
-        ezLog::Error("A enum value with '%d' already exists: '%s'", uiCurrentValue, out_EnumValues[uiCurrentValue].GetData());
+        ezLog::ErrorPrintf("A enum value with '%d' already exists: '%s'", uiCurrentValue, out_EnumValues[uiCurrentValue].GetData());
       }
 
       ++uiCurrentValue;
@@ -267,6 +267,6 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
   }
   else
   {
-    ezLog::Error("Unknown permutation var type");
+    ezLog::ErrorPrintf("Unknown permutation var type");
   }
 }

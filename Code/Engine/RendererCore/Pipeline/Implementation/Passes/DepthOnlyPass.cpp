@@ -36,7 +36,7 @@ bool ezDepthOnyPass::GetRenderTargetDescriptions(const ezView& view, const ezArr
   }
   else
   {
-    ezLog::Error("No depth stencil input connected to pass '%s'!", GetName());
+    ezLog::ErrorPrintf("No depth stencil input connected to pass '%s'!", GetName());
     return false;
   }
 

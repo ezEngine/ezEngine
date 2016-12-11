@@ -21,7 +21,7 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 {
   if (EnsureAssetInfoUpdated(assetGuid).Failed())
   {
-    ezLog::Error("Asset with GUID %s is unknown", ezConversionUtils::ToString(assetGuid).GetData());
+    ezLog::ErrorPrintf("Asset with GUID %s is unknown", ezConversionUtils::ToString(assetGuid).GetData());
     return 0;
   }
 
@@ -30,7 +30,7 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
   ezAssetInfo* pInfo = nullptr;
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
   {
-    ezLog::Error("Asset with GUID %s is unknown", ezConversionUtils::ToString(assetGuid).GetData());
+    ezLog::ErrorPrintf("Asset with GUID %s is unknown", ezConversionUtils::ToString(assetGuid).GetData());
     return 0;
   }
 
@@ -40,7 +40,7 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 
   if (ezOSFile::GetFileStats(pInfo->m_sAbsolutePath, stat).Failed())
   {
-    ezLog::Error("Failed to retrieve file stats '%s'", pInfo->m_sAbsolutePath.GetData());
+    ezLog::ErrorPrintf("Failed to retrieve file stats '%s'", pInfo->m_sAbsolutePath.GetData());
     return 0;
   }
 
@@ -104,7 +104,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
     ezUInt64 uiAssetHash = GetAssetHash(guid, bReferences);
     if (uiAssetHash == 0)
     {
-      ezLog::Error("Failed to hash dependency asset '%s'", sPath.GetData());
+      ezLog::ErrorPrintf("Failed to hash dependency asset '%s'", sPath.GetData());
       return false;
     }
     uiHashResult += uiAssetHash;
@@ -118,13 +118,13 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
       // TODO: detect non-file assets and skip already in dependency gather function.
       return true;
     }
-    ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
+    ezLog::ErrorPrintf("Failed to make path absolute '%s'", sPath.GetData());
     return false;
   }
   ezFileStats statDep;
   if (ezOSFile::GetFileStats(sPath, statDep).Failed())
   {
-    ezLog::Error("Failed to retrieve file stats '%s'", sPath.GetData());
+    ezLog::ErrorPrintf("Failed to retrieve file stats '%s'", sPath.GetData());
     return false;
   }
 
@@ -136,7 +136,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
     ezFileReader file;
     if (file.Open(sPath).Failed())
     {
-      ezLog::Error("Failed to open file '%s'", sPath.GetData());
+      ezLog::ErrorPrintf("Failed to open file '%s'", sPath.GetData());
       return false;
     }
     fileref.m_Timestamp = statDep.m_LastModificationTime;
@@ -266,7 +266,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
         // even if we might know that changing another file makes more sense
         // This works well for when the editor is running and someone copies a file.
 
-        ezLog::Error("Two assets have identical GUIDs: '%s' and '%s'", assetInfo.m_sAbsolutePath.GetData(), pAssetInfo->m_sAbsolutePath.GetData());
+        ezLog::ErrorPrintf("Two assets have identical GUIDs: '%s' and '%s'", assetInfo.m_sAbsolutePath.GetData(), pAssetInfo->m_sAbsolutePath.GetData());
 
         const ezUuid mod = ezUuid::StableUuidForString(szAbsFilePath);
         ezUuid newGuid = assetInfo.m_Info.m_DocumentID;
@@ -274,12 +274,12 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 
         if (PatchAssetGuid(szAbsFilePath, assetInfo.m_Info.m_DocumentID, newGuid).Failed())
         {
-          ezLog::Error("Failed to adjust GUID of asset: '%s'", szAbsFilePath);
+          ezLog::ErrorPrintf("Failed to adjust GUID of asset: '%s'", szAbsFilePath);
           m_ReferencedFiles.Remove(szAbsFilePath);
           return EZ_FAILURE;
         }
 
-        ezLog::Warning("Adjusted GUID of asset to make it unique: '%s'", szAbsFilePath);
+        ezLog::WarningPrintf("Adjusted GUID of asset to make it unique: '%s'", szAbsFilePath);
 
         // now let's try that again
         m_ReferencedFiles.Remove(szAbsFilePath);
@@ -438,7 +438,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     stat.m_uiHash = 0;
     stat.m_Status = FileStatus::Status::FileLocked;
 
-    ezLog::Error("Failed to open asset file '%s'", szAbsFilePath);
+    ezLog::ErrorPrintf("Failed to open asset file '%s'", szAbsFilePath);
     return EZ_FAILURE;
   }
 
@@ -518,7 +518,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     ezStatus ret = ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader, isJSON);
     if (ret.Failed())
     {
-      ezLog::Error("Failed to read asset document info for asset file '%s'", szAbsFilePath);
+      ezLog::ErrorPrintf("Failed to read asset document info for asset file '%s'", szAbsFilePath);
       return EZ_FAILURE;
     }
 
@@ -783,11 +783,11 @@ void ezProcessTask::Execute()
   if (m_bProcessCrashed)
   {
     m_bSuccess = false;
-    ezLog::Error("AssetProcessor crashed!");
+    ezLog::ErrorPrintf("AssetProcessor crashed!");
     return;
   }
 
-  ezLog::Info("Processing '%s'", m_sAssetPath.GetData());
+  ezLog::InfoPrintf("Processing '%s'", m_sAssetPath.GetData());
   // Send and wait
   ezProcessAsset msg;
   msg.m_AssetGuid = m_assetGuid;

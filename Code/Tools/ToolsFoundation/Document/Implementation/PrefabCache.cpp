@@ -102,7 +102,7 @@ ezPrefabCache::PrefabData& ezPrefabCache::GetOrCreatePrefabCache(const ezUuid& d
     if (it.Value()->m_sAbsPath.IsEmpty())
     {
       ezString sGuid = ezConversionUtils::ToString(documentGuid);
-      ezLog::Error("Can't resolve prefab document guid '%s'. The resolved path is empty", sGuid.GetData());
+      ezLog::ErrorPrintf("Can't resolve prefab document guid '%s'. The resolved path is empty", sGuid.GetData());
     }
     else
       UpdatePrefabData(*it.Value().Borrow());
@@ -119,7 +119,7 @@ void ezPrefabCache::UpdatePrefabData(PrefabData& data)
     if (data.m_sAbsPath.IsEmpty())
     {
       ezString sGuid = ezConversionUtils::ToString(data.m_documentGuid);
-      ezLog::Error("Can't resolve prefab document guid '%s'. The resolved path is empty", sGuid.GetData());
+      ezLog::ErrorPrintf("Can't resolve prefab document guid '%s'. The resolved path is empty", sGuid.GetData());
       return;
     }
   }
@@ -129,7 +129,7 @@ void ezPrefabCache::UpdatePrefabData(PrefabData& data)
 
   if (!bStat)
   {
-    ezLog::Error("Can't update prefab file '%s', the file can't be opened.", data.m_sAbsPath.GetData());
+    ezLog::ErrorPrintf("Can't update prefab file '%s', the file can't be opened.", data.m_sAbsPath.GetData());
     return;
   }
 

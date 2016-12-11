@@ -153,10 +153,10 @@ namespace ezDataDirectory
           szLineStart = szLineEnd + 1;
         }
 
-        ezLog::Success("Redirection file contains %u entries", m_FileRedirection.GetCount());
+        ezLog::SuccessPrintf("Redirection file contains %u entries", m_FileRedirection.GetCount());
       }
       else
-        ezLog::Dev("No Redirection file found in: '%s'", sRedirectionFile.GetData());
+        ezLog::DevPrintf("No Redirection file found in: '%s'", sRedirectionFile.GetData());
     }
   }
 
@@ -218,7 +218,7 @@ namespace ezDataDirectory
       }
       else
         sFileToOpen = szFile;
-    }  
+    }
 
     // if opening the file fails, the reader state is never set to 'used', so nothing else needs to be done
     if (pReader->Open(sFileToOpen, this) == EZ_FAILURE)

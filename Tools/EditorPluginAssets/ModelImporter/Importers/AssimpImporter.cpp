@@ -180,7 +180,7 @@ namespace ezModelImporter
         vertexDataStreams.PushBack(colors);
 
         if (assimpMesh->GetNumColorChannels() > 1)
-          ezLog::Warning("Mesh '%s' in '%s' has %i sets of vertex colors, only the first set will be imported!", mesh->m_Name.GetData(), szFileName, assimpMesh->GetNumColorChannels());
+          ezLog::WarningPrintf("Mesh '%s' in '%s' has %i sets of vertex colors, only the first set will be imported!", mesh->m_Name.GetData(), szFileName, assimpMesh->GetNumColorChannels());
       }
       if (assimpMesh->HasTangentsAndBitangents())
       {
@@ -212,7 +212,7 @@ namespace ezModelImporter
       if (assimpMesh->HasBones())
       {
         /// \todo import animation data
-        ezLog::Warning("Mesh '%s' in '%s' has bone animation data. This is not yet supported and won't be imported.", mesh->m_Name.GetData(), szFileName);
+        ezLog::WarningPrintf("Mesh '%s' in '%s' has bone animation data. This is not yet supported and won't be imported.", mesh->m_Name.GetData(), szFileName);
       }
 
       // Triangles/Indices
@@ -232,7 +232,7 @@ namespace ezModelImporter
 
       // Material - an assimp mesh uses only a single material!
       if (assimpMesh->mMaterialIndex >= materialHandles.GetCount())
-        ezLog::Warning("Mesh '%s' in '%s' points to material %i, but there are only %i materials.", mesh->m_Name.GetData(), szFileName, assimpMesh->mMaterialIndex, materialHandles.GetCount());
+        ezLog::WarningPrintf("Mesh '%s' in '%s' points to material %i, but there are only %i materials.", mesh->m_Name.GetData(), szFileName, assimpMesh->mMaterialIndex, materialHandles.GetCount());
       else
       {
         SubMesh subMesh;
@@ -335,7 +335,7 @@ namespace ezModelImporter
     public:
       void write(const char* message)
       {
-        ezLog::Dev("AssImp: %s", message);
+        ezLog::DevPrintf("AssImp: %s", message);
       }
     };
     Assimp::DefaultLogger::create("", Assimp::Logger::NORMAL);
@@ -352,7 +352,7 @@ namespace ezModelImporter
     const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs);
     if (!assimpScene)
     {
-      ezLog::Error("Assimp importer failed to load model %s with error %s.", szFileName, importer.GetErrorString());
+      ezLog::ErrorPrintf("Assimp importer failed to load model %s with error %s.", szFileName, importer.GetErrorString());
       return nullptr;
     }
 

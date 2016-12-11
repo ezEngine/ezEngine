@@ -60,7 +60,7 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
   {
     if (!inputs[m_PinInput.m_uiInputIndex]->m_bAllowShaderResourceView)
     {
-      ezLog::Error("'%s' input must allow shader resource view.", GetName());
+      ezLog::ErrorPrintf("'%s' input must allow shader resource view.", GetName());
       return false;
     }
 
@@ -74,7 +74,7 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
   }
   else
   {
-    ezLog::Error("No input connected to '%s'!", GetName());
+    ezLog::ErrorPrintf("No input connected to '%s'!", GetName());
     return false;
   }
 

@@ -280,7 +280,7 @@ void ezGeometry::ComputeTangents()
   {
     if (m_Polygons[i].m_Vertices.GetCount() > 4)
     {
-      ezLog::Error("Tangent generation does not support polygons with more than 4 vertices");
+      ezLog::ErrorPrintf("Tangent generation does not support polygons with more than 4 vertices");
       break;
     }
   }

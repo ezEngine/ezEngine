@@ -9,7 +9,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph
 {
   if ( !pWorld )
   {
-    ezLog::Warning( "ezDGMLGraphCreator::FillGraphFromWorld() called with null world!" );
+    ezLog::WarningPrintf( "ezDGMLGraphCreator::FillGraphFromWorld() called with null world!" );
     return;
   }
 

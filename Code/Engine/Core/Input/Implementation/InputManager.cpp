@@ -37,7 +37,7 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
     if (it.Value().m_SlotFlags != SlotFlags)
     {
       if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
-        ezLog::Warning("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot, it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
+        ezLog::WarningPrintf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot, it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
 
       it.Value().m_SlotFlags |= SlotFlags;
     }
@@ -48,7 +48,7 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
   }
 
 
-  ezLog::Debug("Registered Input Slot: '%s'", szInputSlot);
+  ezLog::DebugPrintf("Registered Input Slot: '%s'", szInputSlot);
 
   ezInputSlot& sm = GetInternals().s_InputSlots[szInputSlot];
 
@@ -69,7 +69,7 @@ ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(const char* szInp
   if (it.IsValid())
     return it.Value().m_SlotFlags;
 
-  ezLog::Warning("ezInputManager::GetInputSlotFlags: Input Slot '%s' does not exist (yet).", szInputSlot);
+  ezLog::WarningPrintf("ezInputManager::GetInputSlotFlags: Input Slot '%s' does not exist (yet).", szInputSlot);
 
   return ezInputSlotFlags::Default;
 }
@@ -93,7 +93,7 @@ const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSlot)
   if (it.IsValid())
     return it.Value().m_sDisplayName.GetData();
 
-  ezLog::Warning("ezInputManager::GetInputSlotDisplayName: Input Slot '%s' does not exist (yet).", szInputSlot);
+  ezLog::WarningPrintf("ezInputManager::GetInputSlotDisplayName: Input Slot '%s' does not exist (yet).", szInputSlot);
   return szInputSlot;
 }
 
@@ -116,7 +116,7 @@ float ezInputManager::GetInputSlotDeadZone(const char* szInputSlot)
   if (it.IsValid())
     return it.Value().m_fDeadZone;
 
-  ezLog::Warning("ezInputManager::GetInputSlotDeadZone: Input Slot '%s' does not exist (yet).", szInputSlot);
+  ezLog::WarningPrintf("ezInputManager::GetInputSlotDeadZone: Input Slot '%s' does not exist (yet).", szInputSlot);
 
   ezInputSlot s;
   return s.m_fDeadZone; // return the default value
@@ -137,7 +137,7 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
   if (pValue)
     *pValue = 0.0f;
 
-  ezLog::Warning("ezInputManager::GetInputSlotState: Input Slot '%s' does not exist (yet). To ensure all devices are initialized, call ezInputManager::Update before querying device states, or at least call ezInputManager::PollHardware.", szInputSlot);
+  ezLog::WarningPrintf("ezInputManager::GetInputSlotState: Input Slot '%s' does not exist (yet). To ensure all devices are initialized, call ezInputManager::Update before querying device states, or at least call ezInputManager::PollHardware.", szInputSlot);
   RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::None);
 
   return ezKeyState::Up;

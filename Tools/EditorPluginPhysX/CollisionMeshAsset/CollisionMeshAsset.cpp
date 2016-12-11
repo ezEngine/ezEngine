@@ -65,7 +65,7 @@ class aiLogStream : public LogStream
 public:
   void write(const char* message)
   {
-    ezLog::Dev("AssImp: %s", message);
+    ezLog::DevPrintf("AssImp: %s", message);
   }
 };
 
@@ -113,7 +113,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
   ezString sMeshFileAbs = pProp->m_sMeshFile;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
   {
-    ezLog::Error("Collision Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
+    ezLog::ErrorPrintf("Collision Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
     return ezStatus(ezFmt("Could not make path absolute: '{0};", sMeshFileAbs.GetData()));
   }
 
@@ -133,14 +133,14 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
 
     if (!scene)
     {
-      ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
+      ezLog::ErrorPrintf("Could not import file '%s'", sMeshFileAbs.GetData());
       return ezStatus("Collision Mesh Asset input file could not be imported");
     }
   }
 
-  ezLog::Success("Mesh has been imported", sMeshFileAbs.GetData());
+  ezLog::SuccessPrintf("Mesh has been imported", sMeshFileAbs.GetData());
 
-  ezLog::Info("Number of unique Meshes: %u", scene->mNumMeshes);
+  ezLog::InfoPrintf("Number of unique Meshes: %u", scene->mNumMeshes);
 
   ezUInt32 uiVertices = 0;
   ezUInt32 uiTriangles = 0;
@@ -151,8 +151,8 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
     uiTriangles += scene->mMeshes[meshIdx]->mNumFaces;
   }
 
-  ezLog::Info("Number of Vertices: %u", uiVertices);
-  ezLog::Info("Number of Triangles: %u", uiTriangles);
+  ezLog::InfoPrintf("Number of Vertices: %u", uiVertices);
+  ezLog::InfoPrintf("Number of Triangles: %u", uiTriangles);
 
 
   {

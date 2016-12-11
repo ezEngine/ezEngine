@@ -279,7 +279,7 @@ void ezTokenizer::HandleString(char terminator)
     // not-escaped line break in string
     else if (m_uiCurChar == '\n') 
     {
-      ezLog::Error(m_pLog, "Unescaped Newline in string");
+      ezLog::ErrorPrintfI(m_pLog, "Unescaped Newline in string");
       //NextChar(); // not sure whether to include the newline in the string or not
       AddToken();
       return;
@@ -297,7 +297,7 @@ void ezTokenizer::HandleString(char terminator)
     }
   }
 
-  ezLog::Error(m_pLog, "String not closed at end of file");
+  ezLog::ErrorPrintfI(m_pLog, "String not closed at end of file");
   AddToken();
 }
 
@@ -333,7 +333,7 @@ void ezTokenizer::HandleBlockComment()
     NextChar();
   }
 
-  ezLog::Error(m_pLog, "Block comment not closed at end of file.");
+  ezLog::ErrorPrintfI(m_pLog, "Block comment not closed at end of file.");
   AddToken();
 }
 
@@ -419,7 +419,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
         {
           ezStringBuilder s1 = m_Tokens[uiFirstToken - 1].m_DataView;
           ezStringBuilder s2 = m_Tokens[uiFirstToken + 2].m_DataView;
-          ezLog::Warning("Line %u: The \\ at the line end is in the middle of an identifier name ('%s' and '%s'). However, merging identifier names is currently not supported.", m_Tokens[uiFirstToken].m_uiLine, s1.GetData(), s2.GetData());
+          ezLog::WarningPrintf("Line %u: The \\ at the line end is in the middle of an identifier name ('%s' and '%s'). However, merging identifier names is currently not supported.", m_Tokens[uiFirstToken].m_uiLine, s1.GetData(), s2.GetData());
         }
 
         // ignore this

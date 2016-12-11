@@ -202,7 +202,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 
   if (!bounds.IsValid() || bounds.IsNaN())
   {
-    ezLog::Error("Selection has no valid bounding box");
+    ezLog::ErrorPrintf("Selection has no valid bounding box");
     return;
   }
 
@@ -220,7 +220,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezSceneContext::OnSimulationEnabled()
 {
-  ezLog::Info("World Simulation enabled");
+  ezLog::InfoPrintf("World Simulation enabled");
 
   ezResourceManager::ReloadAllResources(false);
 
@@ -231,7 +231,7 @@ void ezSceneContext::OnSimulationEnabled()
 
 void ezSceneContext::OnSimulationDisabled()
 {
-  ezLog::Info("World Simulation disabled");
+  ezLog::InfoPrintf("World Simulation disabled");
 
   ezResourceManager::ResetAllResources();
 }
@@ -296,7 +296,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
 void ezSceneContext::OnPlayTheGameModeStarted()
 {
-  ezLog::Info("Starting Play-the-Game mode");
+  ezLog::InfoPrintf("Starting Play-the-Game mode");
 
   m_pWorld->GetClock().SetSpeed(1.0f);
   m_pWorld->SetWorldSimulationEnabled(true);
@@ -323,7 +323,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
   {
     if (pState != nullptr)
     {
-      ezLog::Error("Cannot start Play-the-Game, there is already a game state active for this world");
+      ezLog::ErrorPrintf("Cannot start Play-the-Game, there is already a game state active for this world");
       return;
     }
 
@@ -334,7 +334,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
     if (pState == nullptr)
       return;
 
-    ezLog::Info("Attempting to stop Play-the-Game mode");
+    ezLog::InfoPrintf("Attempting to stop Play-the-Game mode");
     pState->RequestQuit();
   }
 }

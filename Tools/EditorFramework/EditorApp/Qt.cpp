@@ -46,18 +46,18 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
   switch (type)
   {
   case QtDebugMsg:
-    ezLog::Debug("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::DebugPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
     break;
 #if QT_VERSION >= 0x050500
   case QtInfoMsg:
-    ezLog::Info("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::InfoPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
     break;
 #endif
   case QtWarningMsg:
-    ezLog::Warning("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::WarningPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
     break;
   case QtCriticalMsg:
-    ezLog::Error("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::ErrorPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
     break;
   case QtFatalMsg:
     EZ_ASSERT_DEBUG("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);

@@ -262,7 +262,7 @@ void ezWorldReader::ReadComponentInfo(ezUInt32 uiComponentTypeIdx)
 
   if (pRtti == nullptr)
   {
-    ezLog::Error("Unknown component type '%s'. Components of this type will be skipped.", sRttiName.GetData());
+    ezLog::ErrorPrintf("Unknown component type '%s'. Components of this type will be skipped.", sRttiName.GetData());
   }
 
   m_ComponentTypes[uiComponentTypeIdx] = pRtti;
@@ -284,7 +284,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
   if (pRtti == nullptr)
   {
     bSkip = true;
-    ezLog::Warning("Skipping components of unknown type");
+    ezLog::WarningPrintf("Skipping components of unknown type");
   }
   else
   {

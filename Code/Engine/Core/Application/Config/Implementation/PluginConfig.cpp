@@ -156,14 +156,14 @@ void ezApplicationPluginConfig::Load()
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::Warning("Could not open plugins config file '%s'", sPath.GetData());
+    ezLog::WarningPrintf("Could not open plugins config file '%s'", sPath.GetData());
     return;
   }
 
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
   {
-    ezLog::Error("Failed to parse plugins config file '%s'", sPath.GetData());
+    ezLog::ErrorPrintf("Failed to parse plugins config file '%s'", sPath.GetData());
     return;
   }
 

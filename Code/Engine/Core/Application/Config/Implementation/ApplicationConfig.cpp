@@ -13,7 +13,7 @@ ezResult ezApplicationConfig::DetectSdkRootDirectory()
   ezStringBuilder sdkRoot;
   if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), "Data/Base", sdkRoot).Failed())
   {
-    ezLog::Error("Could not find SDK root. Application dir is '%s'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
+    ezLog::ErrorPrintf("Could not find SDK root. Application dir is '%s'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
     return EZ_FAILURE;
   }
 

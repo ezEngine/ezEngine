@@ -116,7 +116,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& Output
 {
   if (mesh.m_VerticesInPolygon.GetCount() > 255)
   {
-    ezLog::Error("Cannot cook convex meshes with more than 255 polygons. This mesh has %u.", mesh.m_VerticesInPolygon.GetCount());
+    ezLog::ErrorPrintf("Cannot cook convex meshes with more than 255 polygons. This mesh has %u.", mesh.m_VerticesInPolygon.GetCount());
     return EZ_FAILURE;
   }
 
@@ -128,7 +128,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& Output
 
   if (desc.triangles.count > 255)
   {
-    ezLog::Error("Cannot cook convex meshes with more than 255 triangles. This mesh has %u.", desc.triangles.count);
+    ezLog::ErrorPrintf("Cannot cook convex meshes with more than 255 triangles. This mesh has %u.", desc.triangles.count);
     return EZ_FAILURE;
   }
 
@@ -140,7 +140,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& Output
   PxHullPolygon* pPolygons = nullptr;
   if (!s_pCooking->computeHullPolygons(desc, allocator, uiNumVertices, pVertices, uiNumIndices, pIndices, uiNumPolygons, pPolygons))
   {
-    ezLog::Error("Convex Hull computation failed");
+    ezLog::ErrorPrintf("Convex Hull computation failed");
     allocator.deallocate(pVertices);
     allocator.deallocate(pIndices);
     allocator.deallocate(pPolygons);
@@ -165,7 +165,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& Output
   ezPxOutStream PassThroughStream(&OutputStream);
   if (!s_pCooking->cookConvexMesh(convex, PassThroughStream))
   {
-    ezLog::Warning("Convex mesh cooking failed. Trying again with inflated mesh.");
+    ezLog::WarningPrintf("Convex mesh cooking failed. Trying again with inflated mesh.");
 
     convex.flags.set(PxConvexFlag::eCOMPUTE_CONVEX);
     convex.flags.set(PxConvexFlag::eINFLATE_CONVEX);
@@ -176,7 +176,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& Output
       allocator.deallocate(pIndices);
       allocator.deallocate(pPolygons);
 
-      ezLog::Error("Convex mesh cooking failed with inflated mesh as well.");
+      ezLog::ErrorPrintf("Convex mesh cooking failed with inflated mesh as well.");
       return EZ_FAILURE;
     }
   }

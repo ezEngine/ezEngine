@@ -982,7 +982,7 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
     if (pMsg->m_bRunningPTG)
     {
       m_GameMode = GameMode::Off;
-      ezLog::Warning("Incorrect state change from 'simulate' to 'play-the-game'");
+      ezLog::WarningPrintf("Incorrect state change from 'simulate' to 'play-the-game'");
     }
     else
     {
@@ -1184,9 +1184,9 @@ ezStatus ezSceneDocument::ExportScene()
   auto res = TransformAssetManually();
 
   if (res.m_Result.Failed())
-    ezLog::Error(res.m_sMessage);
+    ezLog::ErrorPrintf(res.m_sMessage);
   else
-    ezLog::Success(res.m_sMessage);
+    ezLog::SuccessPrintf(res.m_sMessage);
 
   ShowDocumentStatus(res.m_sMessage);
 

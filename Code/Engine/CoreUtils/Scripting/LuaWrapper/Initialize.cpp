@@ -41,13 +41,13 @@ ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugCh
     pLogInterface = ezGlobalLog::GetOrCreateInstance();
 
   int error = luaL_loadbuffer(m_pState, szString, ezStringUtils::GetStringElementCount(szString), szDebugChunkName);
-        
+
   if (error != LUA_OK)
   {
     EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
 
-    ezLog::Error(pLogInterface, "[lua]Lua compile error: %s", lua_tostring(m_pState, -1));
-    ezLog::Info("[luascript]Script: %s", szString);
+    ezLog::ErrorPrintfI(pLogInterface, "[lua]Lua compile error: %s", lua_tostring(m_pState, -1));
+    ezLog::InfoPrintf("[luascript]Script: %s", szString);
 
     return EZ_FAILURE;
   }
@@ -58,8 +58,8 @@ ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugCh
   {
     EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
 
-    ezLog::Error(pLogInterface, "[lua]Lua error: %s", lua_tostring(m_pState, -1));
-    ezLog::Info("[luascript]Script: %s", szString);
+    ezLog::ErrorPrintfI(pLogInterface, "[lua]Lua error: %s", lua_tostring(m_pState, -1));
+    ezLog::InfoPrintf("[luascript]Script: %s", szString);
 
     return EZ_FAILURE;
   }

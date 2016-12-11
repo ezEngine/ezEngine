@@ -89,7 +89,7 @@ ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& stream)
 
     if (!pName || !pCategory)
     {
-      ezLog::Error("Incomplete tag declaration!");
+      ezLog::ErrorPrintf("Incomplete tag declaration!");
       continue;
     }
 
@@ -99,7 +99,7 @@ ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& stream)
 
     if (!ezToolsTagRegistry::AddTag(tag))
     {
-      ezLog::Error("Failed to add tag '%s'", tag.m_sName.GetData());
+      ezLog::ErrorPrintf("Failed to add tag '%s'", tag.m_sName.GetData());
     }
   }
 

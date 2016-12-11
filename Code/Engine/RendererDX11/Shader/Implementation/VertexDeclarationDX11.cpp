@@ -78,7 +78,7 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
     if(DXDesc.Format == DXGI_FORMAT_UNKNOWN)
     {
-      ezLog::Error("Vertex attribute format %d of attribute at index %d is unknown!", Current.m_eFormat, i);
+      ezLog::ErrorPrintf("Vertex attribute format %d of attribute at index %d is unknown!", Current.m_eFormat, i);
       return EZ_FAILURE;
     }
 

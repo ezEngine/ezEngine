@@ -142,7 +142,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
           auto res = dMVP.Invert(0.00000001);
 
           if (res.Failed())
-            ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+            ezLog::DebugPrintf("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
 
           m_PickingInverseViewProjectionMatrix = dMVP;
         }
@@ -189,7 +189,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
         auto res = dMVP.Invert(0.00000001);
 
         if (res.Failed())
-          ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+          ezLog::DebugPrintf("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
 
         m_PickingInverseViewProjectionMatrix = dMVP;
       }
@@ -219,7 +219,7 @@ void ezPickingRenderPass::ReadBackProperties(ezView* pView)
 
   if (uiIndex >= m_PickingResultsDepth.GetCount() || x >= m_uiWindowWidth || y >= m_uiWindowHeight)
   {
-    //ezLog::Error("Picking position %u, %u is outside the available picking area of %u * %u", x, y, m_uiWindowWidth, m_uiWindowHeight);
+    //ezLog::ErrorPrintf("Picking position %u, %u is outside the available picking area of %u * %u", x, y, m_uiWindowWidth, m_uiWindowHeight);
     return;
   }
 

@@ -43,7 +43,7 @@ bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ez
   {
     if (pInput->m_SampleCount == ezGALMSAASampleCount::None)
     {
-      ezLog::Error("Input is not a valid msaa target");
+      ezLog::ErrorPrintf("Input is not a valid msaa target");
       return false;
     }
 
@@ -57,7 +57,7 @@ bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ez
   }
   else
   {
-    ezLog::Error("No input connected to '%s'!", GetName());
+    ezLog::ErrorPrintf("No input connected to '%s'!", GetName());
     return false;
   }
 

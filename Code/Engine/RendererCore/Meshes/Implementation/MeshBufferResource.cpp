@@ -144,7 +144,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
         else
         {
-          ezLog::Error("Position stream with format '%i' is not supported.", (int)si.m_Format);
+          ezLog::ErrorPrintf("Position stream with format '%i' is not supported.", (int)si.m_Format);
         }
       }
       break;
@@ -159,7 +159,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
         else
         {
-          ezLog::Error("Normal stream with format '%i' is not supported.", (int)si.m_Format);
+          ezLog::ErrorPrintf("Normal stream with format '%i' is not supported.", (int)si.m_Format);
         }
       }
       break;
@@ -174,7 +174,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
         else
         {
-          ezLog::Error("Tangent stream with format '%i' is not supported.", (int)si.m_Format);
+          ezLog::ErrorPrintf("Tangent stream with format '%i' is not supported.", (int)si.m_Format);
         }
       }
       break;
@@ -189,7 +189,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
         else
         {
-          ezLog::Error("Color stream with format '%i' is not supported.", (int)si.m_Format);
+          ezLog::ErrorPrintf("Color stream with format '%i' is not supported.", (int)si.m_Format);
         }
       }
       break;
@@ -204,13 +204,13 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
         else
         {
-          ezLog::Error("UV stream with format '%i' is not supported.", (int)si.m_Format);
+          ezLog::ErrorPrintf("UV stream with format '%i' is not supported.", (int)si.m_Format);
         }
       }
       break;
     default:
       {
-        ezLog::Error("Streams semantic '%i' is not supported.", (int)si.m_Semantic);
+        ezLog::ErrorPrintf("Streams semantic '%i' is not supported.", (int)si.m_Semantic);
       }
       break;
     }

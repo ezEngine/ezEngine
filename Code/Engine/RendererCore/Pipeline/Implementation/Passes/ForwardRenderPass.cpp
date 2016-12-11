@@ -38,7 +38,7 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
   }
   else
   {
-    ezLog::Error("No color input connected to pass '%s'!", GetName());
+    ezLog::ErrorPrintf("No color input connected to pass '%s'!", GetName());
     return false;
   }
   
@@ -49,7 +49,7 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
   }
   else
   {
-    ezLog::Error("No depth stencil input connected to pass '%s'!", GetName());
+    ezLog::ErrorPrintf("No depth stencil input connected to pass '%s'!", GetName());
     return false;
   }
 

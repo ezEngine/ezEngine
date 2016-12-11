@@ -64,7 +64,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   if (m_FileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
   {
     SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
-    ezLog::Error("Could not open output file for writing: '%s'", m_sOutputFile.GetData());
+    ezLog::ErrorPrintf("Could not open output file for writing: '%s'", m_sOutputFile.GetData());
     return ezApplication::Quit;
   }
 
@@ -73,7 +73,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
   if (CanPassThroughInput())
   {
-    ezLog::Info("Input can be passed through");
+    ezLog::InfoPrintf("Input can be passed through");
 
     if (PassImageThrough().Failed())
       return ezApplication::Quit;
@@ -145,7 +145,7 @@ ezResult ezTexConv::SaveThumbnail()
   if (m_sThumbnailFile.IsEmpty())
     return EZ_SUCCESS;
 
-  ezLog::Info("Thumbnail: '%s'", m_sThumbnailFile.GetData());
+  ezLog::InfoPrintf("Thumbnail: '%s'", m_sThumbnailFile.GetData());
 
   const ezUInt32 uiThumbnailSize = 128;
 

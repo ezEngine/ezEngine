@@ -72,7 +72,7 @@ namespace ezModelImporter
     ezString fileExtension = ezPathUtils::GetFileExtension(szFileName);
     if (fileExtension.IsEmpty())
     {
-      ezLog::Error("Unable to choose model importer since file '%s' has no file extension.", szFileName);
+      ezLog::ErrorPrintf("Unable to choose model importer since file '%s' has no file extension.", szFileName);
       return nullptr;
     }
 
@@ -95,7 +95,7 @@ namespace ezModelImporter
           scene->CreateUniqueNames();
         }
 
-        ezLog::Success("Scene '%s' has been imported (time %f.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
+        ezLog::SuccessPrintf("Scene '%s' has been imported (time %f.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
         if (addToCache)
           m_cachedScenes.Insert(szFileName, scene);
 

@@ -442,7 +442,7 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
 {
   if (m_Data.m_GlobalKeyToIdTable.Contains(sGlobalKey.GetHash()))
   {
-    ezLog::Error("Can't set global key to '%s' because an object with this global key already exists. Global key have to be unique.", sGlobalKey.GetData());
+    ezLog::ErrorPrintf("Can't set global key to '%s' because an object with this global key already exists. Global key have to be unique.", sGlobalKey.GetData());
     return;
   }
 
@@ -500,7 +500,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (entry.m_pMessage->m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
       {
-        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezComponent for message of type %u does not exist anymore.", entry.m_pMessage->GetId());
+        ezLog::WarningPrintf("ezWorld::ProcessQueuedMessage: Receiver ezComponent for message of type %u does not exist anymore.", entry.m_pMessage->GetId());
       }
 #endif
     }
@@ -519,7 +519,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (entry.m_pMessage->m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
       {
-        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type %u does not exist anymore.", entry.m_pMessage->GetId());
+        ezLog::WarningPrintf("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type %u does not exist anymore.", entry.m_pMessage->GetId());
       }
 #endif
     }
@@ -757,7 +757,7 @@ void ezWorld::ProcessComponentsToInitialize()
       {
         // in an editor setting this can happen
         // in a runtime setting this should actually not be possible, unless there is a multi-threading bug :-(
-        ezLog::Warning("Component in sim queue is invalid");
+        ezLog::WarningPrintf("Component in sim queue is invalid");
         continue;
       }
 

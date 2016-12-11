@@ -257,7 +257,7 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
   {
     if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sShaderPath))
     {
-      ezLog::Error("Could not make shader path '%s' relative!", sShaderPath.GetData());
+      ezLog::ErrorPrintf("Could not make shader path '%s' relative!", sShaderPath.GetData());
     }
   }
 
@@ -276,7 +276,7 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
     {
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
       {
-        ezLog::Error("Can't make path absolute: '%s'", szShaderPath);
+        ezLog::ErrorPrintf("Can't make path absolute: '%s'", szShaderPath);
         return nullptr;
       }
       sAbsPath.MakeCleanPath();
@@ -304,7 +304,7 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
     ezFileReader file;
     if (!bStat || file.Open(data.m_sAbsShaderPath).Failed())
     {
-      ezLog::Error("Can't update shader '%s' type information, the file can't be opened.", data.m_sShaderPath.GetData());
+      ezLog::ErrorPrintf("Can't update shader '%s' type information, the file can't be opened.", data.m_sShaderPath.GetData());
       return;
     }
 

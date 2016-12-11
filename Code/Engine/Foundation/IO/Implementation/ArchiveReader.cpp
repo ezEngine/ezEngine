@@ -116,10 +116,10 @@ void ezArchiveReader::FinishReferenceMapping()
   }
 
   if (uiRestored > 0)
-    ezLog::Success(m_pLog, "References restored: %u of %u", uiRestored, m_ObjectsToMap.GetCount());
+    ezLog::SuccessPrintf(m_pLog, "References restored: %u of %u", uiRestored, m_ObjectsToMap.GetCount());
 
   if (m_ObjectsToMap.GetCount() != uiRestored)
-    ezLog::Warning(m_pLog, "References remaining invalid: %u of %u", m_ObjectsToMap.GetCount() - uiRestored, m_ObjectsToMap.GetCount());
+    ezLog::WarningPrintf(m_pLog, "References remaining invalid: %u of %u", m_ObjectsToMap.GetCount() - uiRestored, m_ObjectsToMap.GetCount());
 
   m_ObjectsToMap.Clear();
 }
@@ -153,7 +153,7 @@ void ezArchiveReader::BeginStream()
   ezUInt32 uiMaxReferences = 0;
   m_InputStream >> uiMaxReferences;
 
-  ezLog::Info(m_pLog, "Archive Version: %u, Max references: %u", uiVersion, uiMaxReferences);
+  ezLog::InfoPrintf(m_pLog, "Archive Version: %u, Max references: %u", uiVersion, uiMaxReferences);
 
   m_ObjectIDtoPointer.SetCount(uiMaxReferences);
 
@@ -162,7 +162,7 @@ void ezArchiveReader::BeginStream()
     ezUInt32 uiRttiCount = 0;
     m_InputStream >> uiRttiCount;
 
-    ezLog::Info(m_pLog, "Types: %u", uiRttiCount);
+    ezLog::InfoPrintf(m_pLog, "Types: %u", uiRttiCount);
 
     m_Types.Reserve(uiRttiCount);
 
@@ -177,11 +177,11 @@ void ezArchiveReader::BeginStream()
 
       m_Types.PushBack(ri);
 
-      ezLog::Dev(m_pLog, "Type %u: '%s', Version = %u, Object Count = %u", i, ri.m_sTypeName.GetData(), ri.m_uiTypeVersion, ri.m_uiObjectCount);
+      ezLog::DevPrintf(m_pLog, "Type %u: '%s', Version = %u, Object Count = %u", i, ri.m_sTypeName.GetData(), ri.m_uiTypeVersion, ri.m_uiObjectCount);
 
       if (ri.m_pRTTI == nullptr)
       {
-        ezLog::SeriousWarning(m_pLog, "Stored type '%s' is unknown. Objects of this type will be skipped during deserialization.", ri.m_sTypeName.GetData());
+        ezLog::SeriousWarningPrintf(m_pLog, "Stored type '%s' is unknown. Objects of this type will be skipped during deserialization.", ri.m_sTypeName.GetData());
       }
       else
       {
@@ -193,7 +193,7 @@ void ezArchiveReader::BeginStream()
   ezUInt32 uiChunkFileSize = 0;
   m_InputStream >> uiChunkFileSize;
 
-  ezLog::Dev(m_pLog, "Chunk file Size: %u Bytes", uiChunkFileSize);
+  ezLog::DevPrintf(m_pLog, "Chunk file Size: %u Bytes", uiChunkFileSize);
 
   // now the input stream is at the proper position for the chunk file to take over
   ezChunkStreamReader::BeginStream();
@@ -256,17 +256,17 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
   if (out_pRtti)
     *out_pRtti = pRtti;
 
-  ezLog::Debug(m_pLog, "Reading object of Type '%s' (v%u), ID = %u, Size = %u", m_Types[uiTypeID].m_sTypeName.GetData(), m_Types[uiTypeID].m_uiTypeVersion, uiObjectID, uiObjectDataSize);
+  ezLog::DebugPrintf(m_pLog, "Reading object of Type '%s' (v%u), ID = %u, Size = %u", m_Types[uiTypeID].m_sTypeName.GetData(), m_Types[uiTypeID].m_uiTypeVersion, uiObjectID, uiObjectDataSize);
 
   if (pObject != nullptr)
   {
-    ezLog::Warning(m_pLog, "Duplicate object found: [%p], skipping object.", pObject);
+    ezLog::WarningPrintf(m_pLog, "Duplicate object found: [%p], skipping object.", pObject);
 
     const ezUInt32 uiPrevSize = m_ObjectIDtoPointer[uiObjectID].m_uiDataSize;
 
     if (uiPrevSize != 0xFFFFFFFF && uiPrevSize != uiObjectDataSize)
     {
-      ezLog::Error(m_pLog, "Duplicate object [%p] size mismatch. Originally deserialized size was %u bytes, duplicate's size is %u bytes", pObject, uiPrevSize, uiObjectDataSize);
+      ezLog::ErrorPrintfI(m_pLog, "Duplicate object [%p] size mismatch. Originally deserialized size was %u bytes, duplicate's size is %u bytes", pObject, uiPrevSize, uiObjectDataSize);
     }
 
     // object already known and deserialized, do not read it a second time
@@ -297,7 +297,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
   // if the type could not be created, just skip the rest of the object
   if (pObject == nullptr)
   {
-    ezLog::SeriousWarning(m_pLog, "Object of Type '%s' could not be created, skipping object.", m_Types[uiTypeID].m_sTypeName.GetData());
+    ezLog::SeriousWarningPrintf(m_pLog, "Object of Type '%s' could not be created, skipping object.", m_Types[uiTypeID].m_sTypeName.GetData());
 
     SkipBytes(uiObjectDataSize);
   }

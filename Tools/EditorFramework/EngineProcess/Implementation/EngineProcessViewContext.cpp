@@ -74,7 +74,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
   GetEditorWindow().m_uiWidth = uiWidth;
   GetEditorWindow().m_uiHeight = uiHeight;
 
-  ezLog::Debug("Creating Swapchain with size %u * %u", uiWidth, uiHeight);
+  ezLog::DebugPrintf("Creating Swapchain with size %u * %u", uiWidth, uiHeight);
 
   auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&GetEditorWindow());
   const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hPrimarySwapChain);

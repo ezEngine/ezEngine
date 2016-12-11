@@ -44,7 +44,7 @@ ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const
       goto success;
   }
 
-  ezLog::Error("Could not find shared memory to use");
+  ezLog::ErrorPrintf("Could not find shared memory to use");
   return EZ_FAILURE;
 
 success:
@@ -83,7 +83,7 @@ success:
     delete m_pSharedMemory;
     m_pSharedMemory = nullptr;
 
-    ezLog::Error("Failed to start process '%s'", sPath.GetData());
+    ezLog::ErrorPrintf("Failed to start process '%s'", sPath.GetData());
     return EZ_FAILURE;
   }
 
@@ -112,7 +112,7 @@ ezResult ezProcessCommunication::ConnectToHostProcess()
   m_iHostPID = 0;
   ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID);
 
-  ezLog::Debug("Host Process ID: %lli", m_iHostPID);
+  ezLog::DebugPrintf("Host Process ID: %lli", m_iHostPID);
 
   m_pSharedMemory = new QSharedMemory(QLatin1String(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")));
   if (!m_pSharedMemory->attach())
@@ -329,7 +329,7 @@ ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTi
       if (ezTime::Now() - tStart > tTimeout)
       {
         m_pWaitForMessageType = nullptr;
-        ezLog::Error("Reached time-out of %.1f seconds while waiting for %s", tTimeout.GetSeconds(), pMessageType->GetTypeName());
+        ezLog::ErrorPrintf("Reached time-out of %.1f seconds while waiting for %s", tTimeout.GetSeconds(), pMessageType->GetTypeName());
         return EZ_FAILURE;
       }
     }

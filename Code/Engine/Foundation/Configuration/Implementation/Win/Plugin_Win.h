@@ -37,7 +37,7 @@
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
           err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
 
-      ezLog::Error("Could not unload plugin '%s'. Error-Code %u (\"%s\")", szPluginFile, err, lpMsgBuf);
+      ezLog::ErrorPrintf("Could not unload plugin '%s'. Error-Code %u (\"%s\")", szPluginFile, err, lpMsgBuf);
 
       LocalFree(lpMsgBuf);
 
@@ -65,13 +65,13 @@
           err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
 
       if (ezUnicodeUtils::IsValidUtf8((const char*) lpMsgBuf)) // happens on localized systems
-        ezLog::Error("Could not load plugin '%s'. Error-Code %u / 0x%08X (\"%s\")", szPluginFile, err, err, lpMsgBuf);
+        ezLog::ErrorPrintf("Could not load plugin '%s'. Error-Code %u / 0x%08X (\"%s\")", szPluginFile, err, err, lpMsgBuf);
       else
-        ezLog::Error("Could not load plugin '%s'. Error-Code %u / 0x%08X", szPluginFile, err, err);
+        ezLog::ErrorPrintf("Could not load plugin '%s'. Error-Code %u / 0x%08X", szPluginFile, err, err);
 
       if (err == 126)
       {
-        ezLog::Error("Please Note: This means that the plugin exists, but a DLL dependency of the plugin is missing. You probably need to copy 3rd party DLLs next to the plugin.");
+        ezLog::ErrorPrintf("Please Note: This means that the plugin exists, but a DLL dependency of the plugin is missing. You probably need to copy 3rd party DLLs next to the plugin.");
       }
 
       LocalFree(lpMsgBuf);

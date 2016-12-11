@@ -193,7 +193,7 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const 
   ezAbstractProperty* pAbstractProperty = pClass->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
   if (pAbstractProperty == nullptr)
   {
-    ezLog::Error("The %s '%s' does not have a property called '%s', it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
+    ezLog::ErrorPrintf("The %s '%s' does not have a property called '%s', it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
 
     data.m_bIsValid = false;
     return;
@@ -201,7 +201,7 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const 
 
   if (pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
   {
-    ezLog::Error("The %s property '%s::%s' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
+    ezLog::ErrorPrintf("The %s property '%s::%s' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
 
     data.m_bIsValid = false;
     return;
@@ -237,7 +237,7 @@ void ezView::ApplyRenderPassProperties()
 
     if (pObject == nullptr)
     {
-      ezLog::Error("The render pass '%s' does not exist. Property '%s' cannot be applied.", propertyValue.m_sObjectName.GetData(), propertyValue.m_sPropertyName.GetData());
+      ezLog::ErrorPrintf("The render pass '%s' does not exist. Property '%s' cannot be applied.", propertyValue.m_sObjectName.GetData(), propertyValue.m_sPropertyName.GetData());
 
       propertyValue.m_bIsValid = false;
       continue;
@@ -259,7 +259,7 @@ void ezView::ApplyExtractorProperties()
     ezExtractor* pExtractor = m_pRenderPipeline->GetExtractorByName(it.Value().m_sObjectName);
     if (pExtractor == nullptr)
     {
-      ezLog::Error("The extractor '%s' does not exist. Property '%s' cannot be applied.", it.Value().m_sObjectName.GetData(), it.Value().m_sPropertyName.GetData());
+      ezLog::ErrorPrintf("The extractor '%s' does not exist. Property '%s' cannot be applied.", it.Value().m_sObjectName.GetData(), it.Value().m_sPropertyName.GetData());
 
       it.Value().m_bIsValid = false;
       continue;
@@ -293,7 +293,7 @@ ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const ch
   if (it.IsValid())
     return it.Value().m_Value;
 
-  ezLog::Warning("Unknown read-back property '%s::%s'", szPassName, szPropertyName);
+  ezLog::WarningPrintf("Unknown read-back property '%s::%s'", szPassName, szPropertyName);
   return ezVariant();
 }
 

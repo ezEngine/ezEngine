@@ -27,7 +27,7 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
 
   if (FAILED(m_pDXContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void **)&m_pDXAnnotation)))
   {
-    ezLog::Warning("Failed to get annotation interface. GALContext marker will not work");
+    ezLog::WarningPrintf("Failed to get annotation interface. GALContext marker will not work");
   }
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)

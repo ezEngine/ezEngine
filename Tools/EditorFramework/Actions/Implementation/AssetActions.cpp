@@ -93,7 +93,7 @@ void ezAssetAction::Execute(const ezVariant& value)
         ezStatus res = const_cast<ezDocument*>(m_Context.m_pDocument)->SaveDocument();
         if (res.m_Result.Failed())
         {
-          ezLog::Error("Failed to save document '%s': '%s'", m_Context.m_pDocument->GetDocumentPath(), res.m_sMessage.GetData());
+          ezLog::ErrorPrintf("Failed to save document '%s': '%s'", m_Context.m_pDocument->GetDocumentPath(), res.m_sMessage.GetData());
           break;
         }
       }
@@ -102,7 +102,7 @@ void ezAssetAction::Execute(const ezVariant& value)
 
       if (ret.m_Result.Failed())
       {
-        ezLog::Error("Transform failed: '%s' (%s)", ret.m_sMessage.GetData(), m_Context.m_pDocument->GetDocumentPath());
+        ezLog::ErrorPrintf("Transform failed: '%s' (%s)", ret.m_sMessage.GetData(), m_Context.m_pDocument->GetDocumentPath());
       }
 
       ezAssetCurator::GetSingleton()->WriteAssetTables();

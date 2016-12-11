@@ -15,6 +15,6 @@ void ezStatus::LogFailure(ezLogInterface* pLog)
   if (Failed())
   {
     ezLogInterface* pInterface = pLog ? pLog : ezLog::GetDefaultLogSystem();
-    ezLog::Error(pInterface, "%s", m_sMessage.GetData());
+    ezLog::ErrorPrintfI(pInterface, "%s", m_sMessage.GetData());
   }
 }

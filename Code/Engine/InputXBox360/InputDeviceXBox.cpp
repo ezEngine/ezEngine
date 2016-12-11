@@ -76,7 +76,7 @@ void ezInputDeviceXBox360::RegisterInputSlots()
   SetDeadZone("rightstick_negy");
   SetDeadZone("rightstick_posy");
 
-  ezLog::Success("Initialized XBox 360 Controller.");
+  ezLog::SuccessPrintf("Initialized XBox 360 Controller.");
 }
 
 const char* szControllerName[] =
@@ -134,7 +134,7 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
 
       if (m_bControllerConnected[iPhysical] != bIsAvailable[iPhysical])
       {
-        ezLog::Info("XBox Controller %i has been %s.", iPhysical, bIsAvailable ? "connected" : "disconnected");
+        ezLog::InfoPrintf("XBox Controller %i has been %s.", iPhysical, bIsAvailable ? "connected" : "disconnected");
 
         // this makes sure to reset all values below
         if (!bIsAvailable)

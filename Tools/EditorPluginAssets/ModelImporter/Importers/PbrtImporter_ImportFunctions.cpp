@@ -67,7 +67,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(translation));
       }
       else
-        ezLog::Error("Failed parsing Translate transform command.");
+        ezLog::ErrorPrintf("Failed parsing Translate transform command.");
     }
     void Rotate(ParseContext& context, ezStringView& remainingSceneText)
     {
@@ -79,7 +79,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), rotation));
       }
       else
-        ezLog::Error("Failed parsing Rotate transform command.");
+        ezLog::ErrorPrintf("Failed parsing Rotate transform command.");
     }
     void Scale(ParseContext& context, ezStringView& remainingSceneText)
     {
@@ -89,7 +89,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), ezQuat::IdentityQuaternion(), scale));
       }
       else
-        ezLog::Error("Failed parsing Scale transform command.");
+        ezLog::ErrorPrintf("Failed parsing Scale transform command.");
     }
 
     void LookAt(ParseContext& context, ezStringView& remainingSceneText)
@@ -102,7 +102,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(lookAt));
       }
       else
-        ezLog::Error("Failed parsing LookAt transform command.");
+        ezLog::ErrorPrintf("Failed parsing LookAt transform command.");
     }
 
     ezResult ParseMat4(ezStringView& remainingSceneText, ezMat4& outMat)
@@ -116,7 +116,7 @@ namespace ezModelImporter
       if (ParseMat4(remainingSceneText, mat).Succeeded())
         context.PeekActiveTransform() = ezTransform(mat);
       else
-        ezLog::Error("Failed parsing Transform transform command.");
+        ezLog::ErrorPrintf("Failed parsing Transform transform command.");
     }
 
     void ConcatTransform(ParseContext& context, ezStringView& remainingSceneText)
@@ -125,7 +125,7 @@ namespace ezModelImporter
       if (ParseMat4(remainingSceneText, mat).Succeeded())
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(mat));
       else
-        ezLog::Error("Failed parsing Transform transform command.");
+        ezLog::ErrorPrintf("Failed parsing Transform transform command.");
     }
 
     //void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
@@ -166,12 +166,12 @@ namespace ezModelImporter
       {
         if (parameters.IsEmpty())
         {
-          ezLog::Error("Expected at least single parameter for plymesh shape.", type.GetData());
+          ezLog::ErrorPrintf("Expected at least single parameter for plymesh shape.", type.GetData());
           return;
         }
         if (!parameters[0].name.IsEqual_NoCase("filename") || parameters[0].data.GetCount() != 1 || !parameters[0].data[0].IsA<ezString>())
         {
-          ezLog::Error("Expected filename parameter for plymesh shape.", type.GetData());
+          ezLog::ErrorPrintf("Expected filename parameter for plymesh shape.", type.GetData());
           return;
         }
 
@@ -182,7 +182,7 @@ namespace ezModelImporter
         ezSharedPtr<Scene> subScene = ezModelImporter::Importer::GetSingleton()->ImportScene(meshFilename);
         if (!subScene)
         {
-          ezLog::Error("Failed to load mesh '%s'.", meshFilename.GetData());
+          ezLog::ErrorPrintf("Failed to load mesh '%s'.", meshFilename.GetData());
           return;
         }
         mesh = EZ_DEFAULT_NEW(ezModelImporter::Mesh, std::move(*subScene->MergeAllMeshes()));
@@ -200,31 +200,31 @@ namespace ezModelImporter
           if (parameters[i].name.IsEqual_NoCase("P"))
           {
             if(parameters[i].type != ParamType::VECTOR3)
-              ezLog::Warning("PBRT triangle mesh parameter 'P' is not a vec3 array.", type.GetData());
+              ezLog::WarningPrintf("PBRT triangle mesh parameter 'P' is not a vec3 array.", type.GetData());
             CopyParamToArray(positions, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("N"))
           {
             if (parameters[i].type != ParamType::VECTOR3)
-              ezLog::Warning("PBRT triangle mesh parameter 'N' is not a vec3 array.", type.GetData());
+              ezLog::WarningPrintf("PBRT triangle mesh parameter 'N' is not a vec3 array.", type.GetData());
             CopyParamToArray(normals, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("S"))
           {
             if (parameters[i].type != ParamType::VECTOR3)
-              ezLog::Warning("PBRT triangle mesh parameter 'S' is not a vec3 array.", type.GetData());
+              ezLog::WarningPrintf("PBRT triangle mesh parameter 'S' is not a vec3 array.", type.GetData());
             CopyParamToArray(tangents, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("uv"))
           {
             if (parameters[i].type != ParamType::FLOAT)
-              ezLog::Warning("PBRT triangle mesh parameter 'uv' is not a float array.", type.GetData());
+              ezLog::WarningPrintf("PBRT triangle mesh parameter 'uv' is not a float array.", type.GetData());
             CopyParamToArray(texcoords, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("indices"))
           {
             if (parameters[i].type != ParamType::INT)
-              ezLog::Warning("PBRT triangle mesh parameter 'indece' is not an int array.", type.GetData());
+              ezLog::WarningPrintf("PBRT triangle mesh parameter 'indece' is not an int array.", type.GetData());
             CopyParamToArray(indices, parameters[i]);
           }
         }
@@ -232,22 +232,22 @@ namespace ezModelImporter
 
         if (positions.IsEmpty())
         {
-          ezLog::Error("PBRT triangle mesh has no positions.", type.GetData());
+          ezLog::ErrorPrintf("PBRT triangle mesh has no positions.", type.GetData());
           return;
         }
         if (indices.IsEmpty())
         {
-          ezLog::Error("PBRT triangle mesh has no indices.", type.GetData());
+          ezLog::ErrorPrintf("PBRT triangle mesh has no indices.", type.GetData());
           return;
         }
         if (indices.GetCount() % 3 != 0)
         {
-          ezLog::Error("PBRT triangle mesh has not n*3 indices.", type.GetData());
+          ezLog::ErrorPrintf("PBRT triangle mesh has not n*3 indices.", type.GetData());
           return;
         }
         if (texcoords.GetCount() % 2 != 0)
         {
-          ezLog::Error("PBRT triangle mesh has not n*2 floats in its texcoord array.", type.GetData());
+          ezLog::ErrorPrintf("PBRT triangle mesh has not n*2 floats in its texcoord array.", type.GetData());
           return;
         }
 
@@ -300,7 +300,7 @@ namespace ezModelImporter
       }
       else
       {
-        ezLog::Warning("PBRT '%s' shapes are not supported.", type.GetData());
+        ezLog::WarningPrintf("PBRT '%s' shapes are not supported.", type.GetData());
         return;
       }
 
@@ -524,7 +524,7 @@ namespace ezModelImporter
       if (parameters.IsEmpty() || parameters[0].type != ParamType::STRING ||
         parameters[0].data.IsEmpty() || parameters[0].name.Compare_NoCase("type"))
       {
-        ezLog::Warning("PBRT make named material should have a type parameter.", type.GetData()); // This sometimes happens and need to handle that.
+        ezLog::WarningPrintf("PBRT make named material should have a type parameter.", type.GetData()); // This sometimes happens and need to handle that.
       }
       else
       {
@@ -542,7 +542,7 @@ namespace ezModelImporter
       ezString materialName(type);
       if (context.MakeNamedMaterialActive(materialName).Failed())
       {
-        ezLog::Error("PBRT make 'NamedMaterial' material name '%s' is not known.", materialName.GetData());
+        ezLog::ErrorPrintf("PBRT make 'NamedMaterial' material name '%s' is not known.", materialName.GetData());
       }
     }
 
@@ -561,7 +561,7 @@ namespace ezModelImporter
         {
           if (param.type != ParamType::STRING || param.data.GetCount() != 1)
           {
-            ezLog::Error("Texture's filename parameter is not a string and/or does not have one value.");
+            ezLog::ErrorPrintf("Texture's filename parameter is not a string and/or does not have one value.");
             continue;
           }
 
@@ -578,7 +578,7 @@ namespace ezModelImporter
 
       if (filename.IsEmpty())
       {
-        ezLog::Warning("Texture '%s' does not have a filename, unable to import.", ezString(type).GetData());
+        ezLog::WarningPrintf("Texture '%s' does not have a filename, unable to import.", ezString(type).GetData());
       }
       else
       {
@@ -590,7 +590,7 @@ namespace ezModelImporter
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)
-        ezLog::Warning("Expected 0 parameters for ObjectBegin command (name '%s').", objectName.GetData());
+        ezLog::WarningPrintf("Expected 0 parameters for ObjectBegin command (name '%s').", objectName.GetData());
 
       context.ObjectBegin(objectName);
     }
@@ -599,12 +599,12 @@ namespace ezModelImporter
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)
-        ezLog::Warning("Expected 0 parameters for ObjectInstance command (name '%s').", objectName.GetData());
+        ezLog::WarningPrintf("Expected 0 parameters for ObjectInstance command (name '%s').", objectName.GetData());
 
       Object* object = context.LookUpObject(objectName);
       if (!object)
       {
-        ezLog::Error("Can't instantiate object: No object with name '%s' known.", objectName.GetData());
+        ezLog::ErrorPrintf("Can't instantiate object: No object with name '%s' known.", objectName.GetData());
         return;
       }
 

@@ -78,12 +78,12 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
   ezStringBuilder sPath;
   sPath.AppendPath(m_sSearchPath, szFileName);
 
-  ezLog::Dev("Loading Localization File '%s'", sPath.GetData());
+  ezLog::DevPrintf("Loading Localization File '%s'", sPath.GetData());
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::SeriousWarning("Failed to open localization file '%s'", sPath.GetData());
+    ezLog::SeriousWarningPrintf("Failed to open localization file '%s'", sPath.GetData());
     return;
   }
 
@@ -106,7 +106,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
 
     if (szSeperator == nullptr)
     {
-      ezLog::Error("Invalid line in translation file: '%s'", sLine.GetData());
+      ezLog::ErrorPrintf("Invalid line in translation file: '%s'", sLine.GetData());
       continue;
     }
 
@@ -170,7 +170,7 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiS
 
   if (ezTranslatorLogMissing::s_bActive)
   {
-    ezLog::Warning("Missing Translation for '%s'", szString);
+    ezLog::WarningPrintf("Missing Translation for '%s'", szString);
   }
 
   StoreTranslation(szString, uiStringHash, usage);

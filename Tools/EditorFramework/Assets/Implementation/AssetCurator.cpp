@@ -64,7 +64,7 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
     ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
     ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
     if (res.Failed())
-      ezLog::Error("Failed to init directory watcher for dir '%s'", sTemp.GetData());
+      ezLog::ErrorPrintf("Failed to init directory watcher for dir '%s'", sTemp.GetData());
     m_Watchers.PushBack(pWatcher);
   }
 
@@ -260,7 +260,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
     auto res = ProcessAsset(pAssetInfo, szPlatform);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("%s (%s)", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
+      ezLog::ErrorPrintf("%s (%s)", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
     }
   }
 
@@ -570,7 +570,7 @@ void ezAssetCurator::CheckFileSystem()
 
   RestartUpdateTask();
 
-  ezLog::Info("Asset Curator Refresh Time: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
+  ezLog::InfoPrintf("Asset Curator Refresh Time: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
 }
 
 
@@ -849,7 +849,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Failed to open asset lookup table file ('%s')", sFinalPath.GetData());
+    ezLog::ErrorPrintf("Failed to open asset lookup table file ('%s')", sFinalPath.GetData());
     return EZ_FAILURE;
   }
 
@@ -1254,7 +1254,7 @@ void ezAssetCurator::LoadCaches()
       }
     }
   }
-  ezLog::Info("Asset Curator LoadCaches: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
+  ezLog::InfoPrintf("Asset Curator LoadCaches: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
 }
 
 void ezAssetCurator::SaveCaches()
@@ -1315,6 +1315,6 @@ void ezAssetCurator::SaveCaches()
     writer.Close();
   }
 
-  ezLog::Info("Asset Curator SaveCaches: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
+  ezLog::InfoPrintf("Asset Curator SaveCaches: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
 }
 

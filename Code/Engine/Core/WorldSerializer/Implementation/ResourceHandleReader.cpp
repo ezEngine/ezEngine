@@ -106,7 +106,7 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
 
       if (pRtti == nullptr)
       {
-        ezLog::Error("Unknown resource type '%s'", sTemp.GetData());
+        ezLog::ErrorPrintf("Unknown resource type '%s'", sTemp.GetData());
       }
 
       // number of resources of this type

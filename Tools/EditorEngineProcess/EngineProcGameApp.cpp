@@ -183,7 +183,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
       ezResourceManager::ReloadAllResources(false);
     }
     else
-      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '%s'", pMsg->m_sWhatToDo.GetData());
+      ezLog::WarningPrintf("Unknown ezSimpleConfigMsgToEngine '%s'", pMsg->m_sWhatToDo.GetData());
   }
 
   // Document Messages:
@@ -239,7 +239,7 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
           if (sDocTypes.FindSubString(sRequestedType) != nullptr)
           {
-            ezLog::Info("Created Context of type '%s' for '%s'", pRtti->GetTypeName(), pMsg->m_sDocumentType.GetData());
+            ezLog::InfoPrintf("Created Context of type '%s' for '%s'", pRtti->GetTypeName(), pMsg->m_sDocumentType.GetData());
 
             pDocumentContext = static_cast<ezEngineProcessDocumentContext*>(pRtti->GetAllocator()->Allocate());
 

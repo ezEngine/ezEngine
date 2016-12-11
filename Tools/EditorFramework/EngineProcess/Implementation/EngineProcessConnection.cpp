@@ -89,7 +89,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   if (m_IPC.IsClientAlive())
     return;
 
-  ezLog::Info("Starting Client Engine Process");
+  ezLog::InfoPrintf("Starting Client Engine Process");
 
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
@@ -117,7 +117,7 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   if (!m_bProcessShouldBeRunning)
     return;
 
-  ezLog::Info("Shutting down Engine Process");
+  ezLog::InfoPrintf("Shutting down Engine Process");
 
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
@@ -185,16 +185,16 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
-  ezLog::Dev("Waiting for Engine Process response");
+  ezLog::DevPrintf("Waiting for Engine Process response");
 
   if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
   {
-    ezLog::Error("Failed to restart the engine process");
+    ezLog::ErrorPrintf("Failed to restart the engine process");
     ShutdownProcess();
     return EZ_FAILURE;
   }
 
-  ezLog::Dev("Transmitting open documents to Engine Process");
+  ezLog::DevPrintf("Transmitting open documents to Engine Process");
 
   // resend all open documents
   for (auto it = m_DocumentByGuid.GetIterator(); it.IsValid(); ++it)
@@ -202,7 +202,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     SendDocumentOpenMessage(it.Value(), true);
   }
 
-  ezLog::Success("Engine Process is running");
+  ezLog::SuccessPrintf("Engine Process is running");
 
   m_bClientIsConfigured = true;
   return EZ_SUCCESS;

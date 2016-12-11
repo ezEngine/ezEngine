@@ -71,7 +71,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "No conversion from format '%s' to a format suitable for TGA files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::ErrorPrintfI(pLog, "No conversion from format '%s' to a format suitable for TGA files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -296,7 +296,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) ||
     (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
   {
-    ezLog::Error(pLog, "TGA has an invalid header: Width = %i, Height = %i, BPP = %i, ImageType = %i", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
+    ezLog::ErrorPrintfI(pLog, "TGA has an invalid header: Width = %i, Height = %i, BPP = %i, ImageType = %i", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
     return EZ_FAILURE;
   }
 

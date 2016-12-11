@@ -132,50 +132,50 @@ public:
   static ezLogInterface* GetDefaultLogSystem();
 
   /// \brief An error that needs to be fixed as soon as possible.
-  static void Error(const char* szFormat, ...);
+  static void ErrorPrintf(const char* szFormat, ...);
 
   /// \brief Overload of Error() to output messages to a specific log.
-  static void Error(ezLogInterface* pInterface, const char* szFormat, ...);
+  static void ErrorPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
-  static void SeriousWarning(const char* szFormat, ...);
+  static void SeriousWarningPrintf(const char* szFormat, ...);
 
   /// \brief Overload of SeriousWarning() to output messages to a specific log.
-  static void SeriousWarning(ezLogInterface* pInterface, const char* szFormat, ...);
+  static void SeriousWarningPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
-  static void Warning(const char* szFormat, ...);
+  static void WarningPrintf(const char* szFormat, ...);
 
   /// \brief Overload of Warning() to output messages to a specific log.
-  static void Warning(ezLogInterface* pInterface, const char* szFormat, ...);
+  static void WarningPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief Status information that something was completed successfully.
-  static void Success(const char* szFormat, ...);
+  static void SuccessPrintf(const char* szFormat, ...);
 
   /// \brief Overload of Success() to output messages to a specific log.
-  static void Success(ezLogInterface* pInterface, const char* szFormat, ...);
+  static void SuccessPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief Status information that is important.
-  static void Info(const char* szFormat, ...);
+  static void InfoPrintf(const char* szFormat, ...);
 
   /// \brief Overload of Info() to output messages to a specific log.
-  static void Info(ezLogInterface* pInterface, const char* szFormat, ...);
+  static void InfoPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief Status information that is nice to have during development.
   ///
   /// This function is compiled out in non-development builds.
-  static void Dev(const char* szFormat, ...);
+  static void DevPrintf(const char* szFormat, ...);
 
   /// \brief Overload of Dev() to output messages to a specific log.
-  static void Dev(ezLogInterface* pInterface, const char* szFormat, ...);
+  static void DevPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
   ///
   /// This function is compiled out in non-debug builds.
-  static void Debug(const char* szFormat, ...);
+  static void DebugPrintf(const char* szFormat, ...);
 
   /// \brief Overload of Debug() to output messages to a specific log.
-  static void Debug(ezLogInterface* pInterface, const char* szFormat, ...);
+  static void DebugPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief This is a placeholder function for verbose logging during debugging some piece of code.
   ///
@@ -187,10 +187,10 @@ public:
   /// is inserted, which will actually redirect all logging to another function.
   /// You can commit your code that calls this logging function, but it should always be 'deactivated',
   /// e.g. the line \code{.cpp} #define VerboseDebugMessage Debug \endcode should always be commented out.
-  static void VerboseDebugMessage(const char* szFormat, ...) { }
+  static void VerboseDebugMessagePrintf(const char* szFormat, ...) { }
 
   /// \brief Overload of VerboseDebugMessage() to output messages to a specific log.
-  static void VerboseDebugMessage(ezLogInterface* pInterface, const char* szFormat, ...) { }
+  static void VerboseDebugMessagePrintfI(ezLogInterface* pInterface, const char* szFormat, ...) { }
 
 private:
   // Needed to call 'EndLogBlock'

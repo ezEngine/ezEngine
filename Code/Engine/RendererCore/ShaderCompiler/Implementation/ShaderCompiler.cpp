@@ -132,7 +132,7 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
   ezFileReader r;
   if (r.Open(szAbsoluteFile).Failed())
   {
-    ezLog::Error("Could not find include file '%s'", szAbsoluteFile);
+    ezLog::ErrorPrintf("Could not find include file '%s'", szAbsoluteFile);
     return EZ_FAILURE;
   }
 
@@ -308,13 +308,13 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
       if (pp.Process("ShaderRenderState", sOutput, false).Failed())
       {
         bSuccess = false;
-        ezLog::Error("Preprocessing the Shader State block failed");
+        ezLog::ErrorPrintf("Preprocessing the Shader State block failed");
       }
       else
       {
         if (shaderPermutationBinary.m_StateDescriptor.Load(sOutput).Failed())
         {
-          ezLog::Error("Failed to interpret the shader state block");
+          ezLog::ErrorPrintf("Failed to interpret the shader state block");
           bSuccess = false;
         }
       }
@@ -341,7 +341,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
       if (pp.Process(m_StageSourceFile[stage].GetData(), sProcessed[stage], true, true, true).Failed())
       {
         bSuccess = false;
-        ezLog::Error("Shader preprocessing failed");
+        ezLog::ErrorPrintf("Shader preprocessing failed");
 
         sProcessed[stage].Clear();
 
@@ -377,7 +377,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
     // the .ezPermutation file should be updated, however, to store the new source hash to the broken shader
     if (bSuccess && pCompiler->Compile(spd, ezGlobalLog::GetOrCreateInstance()).Failed())
     {
-      ezLog::Error("Shader compilation failed.");
+      ezLog::ErrorPrintf("Shader compilation failed.");
       bSuccess = false;
     }
 
@@ -389,7 +389,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
         {
           if (spd.m_StageBinary[stage].WriteStageBinary().Failed())
           {
-            ezLog::Error("Writing stage binary failed");
+            ezLog::ErrorPrintf("Writing stage binary failed");
             continue;
           }
         }
@@ -404,7 +404,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
           if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())
           {
             StageFileOut.WriteBytes(spd.m_szShaderSource[stage], ezStringUtils::GetStringElementCount(spd.m_szShaderSource[stage]));
-            ezLog::Info("Failed shader source written to '%s'", sShaderStageFile.GetData());
+            ezLog::InfoPrintf("Failed shader source written to '%s'", sShaderStageFile.GetData());
           }
         }
       }
@@ -433,7 +433,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
     ezFileWriter PermutationFileOut;
     if (PermutationFileOut.Open(sTemp.GetData()).Failed())
     {
-      ezLog::Error("Could not open file for writing: '%s'", sTemp.GetData());
+      ezLog::ErrorPrintf("Could not open file for writing: '%s'", sTemp.GetData());
     }
     else
     {

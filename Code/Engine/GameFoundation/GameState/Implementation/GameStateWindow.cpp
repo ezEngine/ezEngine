@@ -22,7 +22,7 @@ ezGameStateWindow::~ezGameStateWindow()
 
 void ezGameStateWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
 {
-  ezLog::Info("Resolution changed to %i * %i", newWindowSize.width, newWindowSize.height);
+  ezLog::InfoPrintf("Resolution changed to %i * %i", newWindowSize.width, newWindowSize.height);
 
   m_CreationDescription.m_ClientAreaSize = newWindowSize;
 }

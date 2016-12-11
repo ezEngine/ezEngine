@@ -40,15 +40,15 @@ void ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
   out_Screens.Clear();
   if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_Screens) == FALSE)
   {
-    ezLog::Error("Failed to enumerate screens");
+    ezLog::ErrorPrintf("Failed to enumerate screens");
     return;
   }
 
-  ezLog::Dev("Found %u screens", out_Screens.GetCount());
+  ezLog::DevPrintf("Found %u screens", out_Screens.GetCount());
 
   for (const auto& screen : out_Screens)
   {
-    ezLog::Dev("'%s': Offset = (%u, %u), Resolution = (%u, %u)", screen.m_sDisplayName.GetData(), screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY);
+    ezLog::DevPrintf("'%s': Offset = (%u, %u), Resolution = (%u, %u)", screen.m_sDisplayName.GetData(), screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY);
   }
 }
 

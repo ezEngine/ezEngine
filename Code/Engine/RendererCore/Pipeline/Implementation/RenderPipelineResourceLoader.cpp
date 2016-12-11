@@ -68,7 +68,7 @@ void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, con
   {
     if (!pRtti->GetAllocator()->CanAllocate())
     {
-      ezLog::Error("Failed to create ezRenderPipelinePass because '%s' cannot allocate!", pRtti->GetTypeName());
+      ezLog::ErrorPrintf("Failed to create ezRenderPipelinePass because '%s' cannot allocate!", pRtti->GetTypeName());
       return nullptr;
     }
    
@@ -84,7 +84,7 @@ void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, con
   {
     if (!pRtti->GetAllocator()->CanAllocate())
     {
-      ezLog::Error("Failed to create ezExtractor because '%s' cannot allocate!", pRtti->GetTypeName());
+      ezLog::ErrorPrintf("Failed to create ezExtractor because '%s' cannot allocate!", pRtti->GetTypeName());
       return nullptr;
     }
 
@@ -155,7 +155,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
       auto pPass = rttiConverter.CreateObjectFromNode(pNode);
       if (!pPass)
       {
-        ezLog::Error("Failed to deserialize ezRenderPipelinePass!");
+        ezLog::ErrorPrintf("Failed to deserialize ezRenderPipelinePass!");
       }
     }
     else if (pType && pType->IsDerivedFrom<ezExtractor>())
@@ -163,7 +163,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
       auto pExtractor = rttiConverter.CreateObjectFromNode(pNode);
       if (!pExtractor)
       {
-        ezLog::Error("Failed to deserialize ezExtractor!");
+        ezLog::ErrorPrintf("Failed to deserialize ezExtractor!");
       }
     }
   }
@@ -192,14 +192,14 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
       auto objectTarget = context.GetObjectByGUID(con.m_Target);
       if (!objectTarget.m_pObject || !objectTarget.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
       {
-        ezLog::Error("Failed to retrieve connection target '%s' with pin '%s'", ezConversionUtils::ToString(guid).GetData(), con.m_TargetPin.GetData());
+        ezLog::ErrorPrintf("Failed to retrieve connection target '%s' with pin '%s'", ezConversionUtils::ToString(guid).GetData(), con.m_TargetPin.GetData());
         continue;
       }
       ezRenderPipelinePass* pTarget = static_cast<ezRenderPipelinePass*>(objectTarget.m_pObject);
 
       if (!pPipeline->Connect(pSource, con.m_SourcePin, pTarget, con.m_TargetPin))
       {
-        ezLog::Error("Failed to connect '%s'::'%s' to '%s'::'%s'!", pSource->GetName(), con.m_SourcePin.GetData(), pTarget->GetName(), con.m_TargetPin.GetData());
+        ezLog::ErrorPrintf("Failed to connect '%s'::'%s' to '%s'::'%s'!", pSource->GetName(), con.m_SourcePin.GetData(), pTarget->GetName(), con.m_TargetPin.GetData());
       }
     }
   }

@@ -166,9 +166,9 @@ void ezOpenDdlParser::StopParsing()
 void ezOpenDdlParser::ParsingError(const char* szMessage, bool bFatal)
 {
   if (bFatal)
-    ezLog::Error(m_pLogInterface, "Line %u (%u): %s", m_uiCurLine, m_uiCurColumn, szMessage);
+    ezLog::ErrorPrintfI(m_pLogInterface, "Line %u (%u): %s", m_uiCurLine, m_uiCurColumn, szMessage);
   else
-    ezLog::Warning(m_pLogInterface, szMessage);
+    ezLog::WarningPrintfI(m_pLogInterface, szMessage);
 
   OnParsingError(szMessage, bFatal, m_uiCurLine, m_uiCurColumn);
 

@@ -61,7 +61,7 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
 {
   if (!m_hCollisionMesh.IsValid())
   {
-    ezLog::Warning("ezPxShapeConvexComponent '%s' has no collision mesh set.", GetOwner()->GetName());
+    ezLog::WarningPrintf("ezPxShapeConvexComponent '%s' has no collision mesh set.", GetOwner()->GetName());
     return;
   }
 
@@ -69,7 +69,7 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
 
   if (!pMesh->GetConvexMesh())
   {
-    ezLog::Warning("ezPxShapeConvexComponent '%s' has a collision mesh set that does not contain a convex mesh: '%s' ('%s')", GetOwner()->GetName(), pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
+    ezLog::WarningPrintf("ezPxShapeConvexComponent '%s' has a collision mesh set that does not contain a convex mesh: '%s' ('%s')", GetOwner()->GetName(), pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
     return;
   }
 

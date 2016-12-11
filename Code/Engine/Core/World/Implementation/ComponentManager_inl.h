@@ -203,7 +203,7 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
       //EZ_ASSERT_DEV(!this->GetWorldSimulationEnabled() || pComponent->IsSimulationStarted(), "Implementation error: simulation start must be called before any update method.");
 
       if (this->GetWorldSimulationEnabled() && !pComponent->IsSimulationStarted())
-        ezLog::Warning("Bad component initialization?");
+        ezLog::WarningPrintf("Bad component initialization?");
 
       pComponent->Update();
     }

@@ -85,7 +85,7 @@ namespace ezModelImporter
     const ezTransform& ParseContext::PushActiveTransform()
     {
       if (!m_inWorld)
-        ezLog::Warning("Invalid Pbrt file: Transforms can only be pushed on the stack in the world section.");
+        ezLog::WarningPrintf("Invalid Pbrt file: Transforms can only be pushed on the stack in the world section.");
 
       m_transformStack.PushBack(m_transformStack.PeekBack());
       return m_transformStack.PeekBack();
@@ -93,7 +93,7 @@ namespace ezModelImporter
     void ParseContext::PushActiveMaterial(MaterialHandle handle)
     {
       if (!m_inWorld)
-        ezLog::Warning("Invalid Pbrt file: Materials can only be pushed on the stack in the world section.");
+        ezLog::WarningPrintf("Invalid Pbrt file: Materials can only be pushed on the stack in the world section.");
 
       m_activeMaterialStack.PushBack(handle);
     }

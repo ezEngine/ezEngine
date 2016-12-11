@@ -229,14 +229,14 @@ ezStatus ezDocument::InternalLoadDocument()
       ezStopwatch sw;
       ezAbstractGraphJsonSerializer::Read(memreader, &graph, &typesGraph);
       ezTime t = sw.GetRunningTotal();
-      ezLog::Dev("JSON parsing time: %.1f msec", t.GetMilliseconds());
+      ezLog::DevPrintf("JSON parsing time: %.1f msec", t.GetMilliseconds());
     }
     else
     {
       ezStopwatch sw;
       ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph);
       ezTime t = sw.GetRunningTotal();
-      ezLog::Dev("DDL parsing time: %.1f msec", t.GetMilliseconds());
+      ezLog::DevPrintf("DDL parsing time: %.1f msec", t.GetMilliseconds());
     }
   }
 

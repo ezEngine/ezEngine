@@ -40,7 +40,7 @@ ezResult ezWindow::Initialize()
   m_WindowHandle->create(Mode, m_CreationDescription.m_Title.GetData(), uiStyle, context);
   
   m_bInitialized = true;
-  ezLog::Success("Created window successfully.");
+  ezLog::SuccessPrintf("Created window successfully.");
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(m_WindowHandle, m_CreationDescription.m_uiWindowNumber);
 
@@ -63,7 +63,7 @@ ezResult ezWindow::Destroy()
 
   m_bInitialized = false;
 
-  ezLog::Success("Window destroyed.");
+  ezLog::SuccessPrintf("Window destroyed.");
   return EZ_SUCCESS;
 
 }

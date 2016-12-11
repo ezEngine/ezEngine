@@ -181,7 +181,7 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
   ezDynamicArray<ezUInt8> Content;
   if (m_FileOpenCallback(szFile, Content, stamp).Failed())
   {
-    ezLog::Error(m_pLog, "Could not open file '%s'", szFile);
+    ezLog::ErrorPrintfI(m_pLog, "Could not open file '%s'", szFile);
     return EZ_FAILURE;
   }
 

@@ -149,7 +149,7 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
 {
   if (!m_hResource.IsValid())
   {
-    ezLog::Error("Effect Reconfigure: Effect Resource is invalid");
+    ezLog::ErrorPrintf("Effect Reconfigure: Effect Resource is invalid");
     return;
   }
 

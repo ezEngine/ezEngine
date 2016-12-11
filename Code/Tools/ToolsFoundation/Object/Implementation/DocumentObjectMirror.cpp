@@ -415,7 +415,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
     pProp = object.m_pType->FindPropertyByName(change.m_Change.m_sProperty);
     if (pProp == nullptr)
     {
-      ezLog::Error("Property '%s' not found, can't apply mirror op!", change.m_Change.m_sProperty.GetData());
+      ezLog::ErrorPrintf("Property '%s' not found, can't apply mirror op!", change.m_Change.m_sProperty.GetData());
       return;
     }
   }
@@ -493,7 +493,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         auto pSpecificProp = static_cast<ezAbstractMemberProperty*>(pProp);
         if (!pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
         {
-          ezLog::Error("Property '%s' not a pointer, can't remove object!", change.m_Change.m_sProperty.GetData());
+          ezLog::ErrorPrintf("Property '%s' not a pointer, can't remove object!", change.m_Change.m_sProperty.GetData());
           return;
         }
 

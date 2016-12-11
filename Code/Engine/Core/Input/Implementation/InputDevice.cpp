@@ -40,7 +40,7 @@ void ezInputDevice::Initialize()
 
   EZ_LOG_BLOCK("Initializing Input Device", GetDynamicRTTI()->GetTypeName());
 
-  ezLog::Info("Input Device Type: %s, Device Name: %s", GetDynamicRTTI()->GetParentType()->GetTypeName(), GetDynamicRTTI()->GetTypeName());
+  ezLog::InfoPrintf("Input Device Type: %s, Device Name: %s", GetDynamicRTTI()->GetParentType()->GetTypeName(), GetDynamicRTTI()->GetTypeName());
 
   m_bInitialized = true;
 

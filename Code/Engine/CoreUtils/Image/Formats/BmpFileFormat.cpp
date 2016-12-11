@@ -122,7 +122,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "No conversion from format '%s' to a format suitable for BMP files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::ErrorPrintfI(pLog, "No conversion from format '%s' to a format suitable for BMP files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -214,13 +214,13 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
   // Write all data
   if (stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
   {
-    ezLog::Error(pLog, "Failed to write header.");
+    ezLog::ErrorPrintfI(pLog, "Failed to write header.");
     return EZ_FAILURE;
   }
 
   if (stream.WriteBytes(&fileInfoHeader, sizeof(fileInfoHeader)) != EZ_SUCCESS)
   {
-    ezLog::Error(pLog, "Failed to write fileInfoHeader.");
+    ezLog::ErrorPrintfI(pLog, "Failed to write fileInfoHeader.");
     return EZ_FAILURE;
   }
 
@@ -236,7 +236,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
     if (stream.WriteBytes(&fileInfoHeaderV4, sizeof(fileInfoHeaderV4)) != EZ_SUCCESS)
     {
-      ezLog::Error(pLog, "Failed to write fileInfoHeaderV4.");
+      ezLog::ErrorPrintfI(pLog, "Failed to write fileInfoHeaderV4.");
       return EZ_FAILURE;
     }
   }
@@ -256,7 +256,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
     if (stream.WriteBytes(&colorMask, sizeof(colorMask)) != EZ_SUCCESS)
     {
-      ezLog::Error(pLog, "Failed to write colorMask.");
+      ezLog::ErrorPrintfI(pLog, "Failed to write colorMask.");
       return EZ_FAILURE;
     }
   }
@@ -267,7 +267,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
   {
     if (stream.WriteBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiPaddedRowPitch) != EZ_SUCCESS)
     {
-      ezLog::Error(pLog, "Failed to write data.");
+      ezLog::ErrorPrintfI(pLog, "Failed to write data.");
       return EZ_FAILURE;
     }
   }
@@ -292,14 +292,14 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   ezBmpFileHeader fileHeader;
   if (stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))
   {
-    ezLog::Error(pLog, "Failed to read header data.");
+    ezLog::ErrorPrintfI(pLog, "Failed to read header data.");
     return EZ_FAILURE;
   }
 
   // Some very old BMP variants may have different magic numbers, but we don't support them.
   if (fileHeader.m_type != ezBmpFileMagic)
   {
-    ezLog::Error(pLog, "The file is not a recognized BMP file.");
+    ezLog::ErrorPrintfI(pLog, "The file is not a recognized BMP file.");
     return EZ_FAILURE;
   }
 
@@ -308,7 +308,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   ezBmpFileInfoHeader fileInfoHeader;
   if (stream.ReadBytes(&fileInfoHeader, sizeof(ezBmpFileInfoHeader)) != sizeof(ezBmpFileInfoHeader))
   {
-    ezLog::Error(pLog, "Failed to read header data (V3).");
+    ezLog::ErrorPrintfI(pLog, "Failed to read header data (V3).");
     return EZ_FAILURE;
   }
 
@@ -317,7 +317,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   // File header shorter than expected - happens with corrupt files or e.g. with OS/2 BMP files which may have shorter headers
   if (remainingHeaderBytes < 0)
   {
-    ezLog::Error(pLog, "The file header was shorter than expected.");
+    ezLog::ErrorPrintfI(pLog, "The file header was shorter than expected.");
     return EZ_FAILURE;
   }
 
@@ -328,7 +328,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     uiHeaderVersion = 4;
     if (stream.ReadBytes(&fileInfoHeaderV4, sizeof(ezBmpFileInfoHeaderV4)) != sizeof(ezBmpFileInfoHeaderV4))
     {
-      ezLog::Error(pLog, "Failed to read header data (V4).");
+      ezLog::ErrorPrintfI(pLog, "Failed to read header data (V4).");
       return EZ_FAILURE;
     }
     remainingHeaderBytes -= sizeof(ezBmpFileInfoHeaderV4);
@@ -337,7 +337,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   // Skip rest of header
   if (stream.SkipBytes(remainingHeaderBytes) != remainingHeaderBytes)
   {
-    ezLog::Error(pLog, "Failed to skip remaining header data.");
+    ezLog::ErrorPrintfI(pLog, "Failed to skip remaining header data.");
     return EZ_FAILURE;
   }
 
@@ -436,7 +436,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(pLog, "Unknown or unsupported BMP encoding.");
+    ezLog::ErrorPrintfI(pLog, "Unknown or unsupported BMP encoding.");
     return EZ_FAILURE;
   }
 
@@ -444,7 +444,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (uiWidth > 65536)
   {
-    ezLog::Error(pLog, "Image specifies width > 65536. Header corrupted?");
+    ezLog::ErrorPrintfI(pLog, "Image specifies width > 65536. Header corrupted?");
     return EZ_FAILURE;
   }
 
@@ -452,7 +452,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (uiHeight > 65536)
   {
-    ezLog::Error(pLog, "Image specifies height > 65536. Header corrupted?");
+    ezLog::ErrorPrintfI(pLog, "Image specifies height > 65536. Header corrupted?");
     return EZ_FAILURE;
   }
 
@@ -460,7 +460,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (uiDataSize > 1024 * 1024 * 1024)
   {
-    ezLog::Error(pLog, "Image specifies data size > 1GiB. Header corrupted?");
+    ezLog::ErrorPrintfI(pLog, "Image specifies data size > 1GiB. Header corrupted?");
     return EZ_FAILURE;
   }
 
@@ -470,7 +470,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   {
     if (fileInfoHeader.m_compression != RGB)
     {
-      ezLog::Error(pLog, "The data size wasn't specified in the header.");
+      ezLog::ErrorPrintfI(pLog, "The data size wasn't specified in the header.");
       return EZ_FAILURE;
     }
     uiDataSize = uiRowPitchIn * uiHeight;
@@ -500,7 +500,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     }
     else if (paletteSize > 65536)
     {
-      ezLog::Error(pLog, "Palette size > 65536.");
+      ezLog::ErrorPrintfI(pLog, "Palette size > 65536.");
       return EZ_FAILURE;
     }
 
@@ -508,7 +508,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     palette.SetCount(paletteSize);
     if (stream.ReadBytes(&palette[0], paletteSize * sizeof(ezBmpBgrxQuad)) != paletteSize * sizeof(ezBmpBgrxQuad))
     {
-      ezLog::Error(pLog, "Failed to read palette data.");
+      ezLog::ErrorPrintfI(pLog, "Failed to read palette data.");
       return EZ_FAILURE;
     }
 
@@ -517,7 +517,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       // Compressed data is always in pairs of bytes
       if (uiDataSize % 2 != 0)
       {
-        ezLog::Error(pLog, "The data size is not a multiple of 2 bytes in an RLE-compressed file.");
+        ezLog::ErrorPrintfI(pLog, "The data size is not a multiple of 2 bytes in an RLE-compressed file.");
         return EZ_FAILURE;
       }
 
@@ -526,7 +526,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
       if (stream.ReadBytes(&compressedData[0], uiDataSize) != uiDataSize)
       {
-        ezLog::Error(pLog, "Failed to read data.");
+        ezLog::ErrorPrintfI(pLog, "Failed to read data.");
         return EZ_FAILURE;
       }
 
@@ -604,13 +604,13 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
             // Check that we really reached the end of the image.
             if (uiRow != 0 && uiCol != uiHeight - 1)
             {
-              ezLog::Error(pLog, "Unexpected end of image marker found.");
+              ezLog::ErrorPrintfI(pLog, "Unexpected end of image marker found.");
               return EZ_FAILURE;
             }
             break;
 
           case 2:
-            ezLog::Error(pLog, "Found a RLE compression position delta - this is not supported.");
+            ezLog::ErrorPrintfI(pLog, "Found a RLE compression position delta - this is not supported.");
             return EZ_FAILURE;
 
           default:
@@ -659,7 +659,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       indexedData.SetCount(uiDataSize);
       if (stream.ReadBytes(&indexedData[0], uiDataSize) != uiDataSize)
       {
-        ezLog::Error(pLog, "Failed to read data.");
+        ezLog::ErrorPrintfI(pLog, "Failed to read data.");
         return EZ_FAILURE;
       }
 
@@ -675,7 +675,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           ezUInt32 uiIndex = ExtractBits(pIn, uiCol * uiBpp, uiBpp);
           if (uiIndex >= palette.GetCount())
           {
-            ezLog::Error(pLog, "Image contains invalid palette indices.");
+            ezLog::ErrorPrintfI(pLog, "Image contains invalid palette indices.");
             return EZ_FAILURE;
           }
           pOut[uiCol] = palette[uiIndex];
@@ -688,7 +688,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     // Format must match the number of bits in the file
     if (ezImageFormat::GetBitsPerPixel(format) != uiBpp)
     {
-      ezLog::Error(pLog, "The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'.",
+      ezLog::ErrorPrintfI(pLog, "The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'.",
                    uiBpp, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
@@ -697,7 +697,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     ezUInt32 paletteSize = fileInfoHeader.m_clrUsed * sizeof(ezBmpBgrxQuad);
     if (stream.SkipBytes(paletteSize) != paletteSize)
     {
-      ezLog::Error(pLog, "Failed to skip palette data.");
+      ezLog::ErrorPrintfI(pLog, "Failed to skip palette data.");
       return EZ_FAILURE;
     }
 
@@ -706,12 +706,12 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     {
       if (stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != uiRowPitch)
       {
-        ezLog::Error(pLog, "Failed to read row data.");
+        ezLog::ErrorPrintfI(pLog, "Failed to read row data.");
         return EZ_FAILURE;
       }
       if (stream.SkipBytes(uiRowPitchIn - uiRowPitch) != uiRowPitchIn - uiRowPitch)
       {
-        ezLog::Error(pLog, "Failed to skip row data.");
+        ezLog::ErrorPrintfI(pLog, "Failed to skip row data.");
         return EZ_FAILURE;
       }
     }

@@ -58,7 +58,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     }
     else
     {
-      ezLog::Error("Failed to create ezGameObject!");
+      ezLog::ErrorPrintf("Failed to create ezGameObject!");
       return nullptr;
     }
   }
@@ -67,7 +67,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     ezComponentManagerBase* pMan = m_pWorld->GetOrCreateComponentManager(pRtti);
     if (pMan == nullptr)
     {
-      ezLog::Error("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      ezLog::ErrorPrintf("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return nullptr;
     }
     ezComponentHandle hComponent = pMan->AllocateComponent();
@@ -79,7 +79,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     }
     else
     {
-      ezLog::Error("Component of type '%s' cannot be found after creation", pRtti->GetTypeName());
+      ezLog::ErrorPrintf("Component of type '%s' cannot be found after creation", pRtti->GetTypeName());
       return nullptr;
     }
   }
@@ -106,7 +106,7 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
     ezComponentManagerBase* pMan = m_pWorld->GetOrCreateComponentManager(pRtti);
     if (pMan == nullptr)
     {
-      ezLog::Error("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      ezLog::ErrorPrintf("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return;
     }
 
@@ -351,7 +351,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     ret.m_bOutputSuccess = ExportDocument(pMsg2);
     if (!ret.m_bOutputSuccess)
     {
-      ezLog::Error("Could not export to file '%s'.", pMsg2->m_sOutputFile.GetData());
+      ezLog::ErrorPrintf("Could not export to file '%s'.", pMsg2->m_sOutputFile.GetData());
     }
 
     SendProcessMessage(&ret);
@@ -388,7 +388,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
         DestroyViewContext(m_ViewContexts[pViewMsg->m_uiViewID]);
         m_ViewContexts[pViewMsg->m_uiViewID] = nullptr;
 
-        ezLog::Info("Destroyed View %i", pViewMsg->m_uiViewID);
+        ezLog::InfoPrintf("Destroyed View %i", pViewMsg->m_uiViewID);
       }
     }
     else
@@ -440,7 +440,7 @@ void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent&
   // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with
   // broken thumbnails :-/
 
-  //ezLog::Debug("Resource changed, resetting counter");
+  //ezLog::DebugPrintf("Resource changed, resetting counter");
   //m_uiThumbnailConvergenceFrames = 0;
 }
 
@@ -485,7 +485,7 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
 
   if (pRtti == nullptr)
   {
-    ezLog::Error("Cannot sync object of type unknown '%s' to engine process", msg.m_sObjectType.GetData());
+    ezLog::ErrorPrintf("Cannot sync object of type unknown '%s' to engine process", msg.m_sObjectType.GetData());
     return;
   }
 
@@ -533,32 +533,32 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   {
     m_uiThumbnailConvergenceFrames++;
 
-    //ezLog::Debug("Updating document context for thumbnail: %u", m_uiThumbnailConvergenceFrames);
+    //ezLog::DebugPrintf("Updating document context for thumbnail: %u", m_uiThumbnailConvergenceFrames);
 
     // Once all resources are loaded and UpdateThumbnailViewContext returns true,
     // we render 'ThumbnailConvergenceFramesTarget' frames and than download it.
     if (ezResourceManager::FinishLoadingOfResources())
     {
-      //ezLog::Debug("Resources loaded, Resetting convergence counter");
+      //ezLog::DebugPrintf("Resources loaded, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
     {
-      //ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
+      //ezLog::DebugPrintf("Not updated thumbnail context, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 
     if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
     {
-      //ezLog::Debug("Convergence > threshold, storing thumbnail");
+      //ezLog::DebugPrintf("Convergence > threshold, storing thumbnail");
 
       ezCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 
       // Download image
       {
-        //ezLog::Success("Reading back Thumbnail");
+        //ezLog::SuccessPrintf("Reading back Thumbnail");
 
         ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
 
@@ -601,7 +601,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     }
     else
     {
-      //ezLog::Info("Rendering Thumbnail");
+      //ezLog::InfoPrintf("Rendering Thumbnail");
       m_pThumbnailViewContext->Redraw(false);
     }
   }
@@ -609,7 +609,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
 bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
-  ezLog::Error("Export document not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
+  ezLog::ErrorPrintf("Export document not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
   return false;
 }
 
@@ -691,7 +691,7 @@ void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
 
 bool ezEngineProcessDocumentContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezLog::Error("UpdateThumbnailViewContext not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
+  ezLog::ErrorPrintf("UpdateThumbnailViewContext not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
   return true;
 }
 

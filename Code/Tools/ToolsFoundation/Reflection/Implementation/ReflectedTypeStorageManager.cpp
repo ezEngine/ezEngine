@@ -254,7 +254,7 @@ void ezReflectedTypeStorageManager::Shutdown()
     for (auto inst : pMapping->m_Instances)
     {
       const char* sz = inst->GetType()->GetTypeName();
-      ezLog::Error("Type '%s' survived shutdown!", sz);
+      ezLog::ErrorPrintf("Type '%s' survived shutdown!", sz);
     }
 
     EZ_ASSERT_DEV(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");

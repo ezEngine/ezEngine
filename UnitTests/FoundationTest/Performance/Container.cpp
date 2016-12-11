@@ -85,7 +85,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]POD Dynamic Array Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]POD Dynamic Array Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "POD std::vector Appending")
@@ -108,7 +108,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]POD std::vector Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]POD std::vector Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<ezDynamicArray<char>> Appending")
@@ -137,7 +137,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]ezDynamicArray<ezDynamicArray<char>> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]ezDynamicArray<ezDynamicArray<char>> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<ezHybridArray<char, 64>> Appending")
@@ -166,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]ezDynamicArray<ezHybridArray<char, 64>> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]ezDynamicArray<ezHybridArray<char, 64>> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "std::vector<std::vector<char>> Appending")
@@ -195,7 +195,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]std::vector<std::vector<char>> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]std::vector<std::vector<char>> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<ezString> Appending")
@@ -226,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]ezDynamicArray<ezString> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]ezDynamicArray<ezString> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "std::vector<std::string> Appending")
@@ -254,7 +254,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]std::vector<std::string> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]std::vector<std::string> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "ezDynamicArray<SomeBigObject> Appending")
@@ -277,7 +277,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]ezDynamicArray<SomeBigObject> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]ezDynamicArray<SomeBigObject> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(EZ_PERFORMANCE_TESTS_STATE, "std::vector<SomeBigObject> Appending")
@@ -300,7 +300,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       }
 
       ezTime t1 = ezTime::Now();
-      ezLog::Info("[test]std::vector<SomeBigObject> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]std::vector<SomeBigObject> Appending %.4fms", (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Disabled, "ezMap<void*, ezUInt32>")
@@ -347,7 +347,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
       {
         free(it.Key());
       }
-      ezLog::Info("[test]ezMap<void*, ezUInt32> size = %d => %.4fms", size, (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]ezMap<void*, ezUInt32> size = %d => %.4fms", size, (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
     }
   }
 
@@ -395,7 +395,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Container)
         free(it.Key());
       }
 
-      ezLog::Info("[test]ezHashTable<void*, ezUInt32> size = %d => %.4fms", size, (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
+      ezLog::InfoPrintf("[test]ezHashTable<void*, ezUInt32> size = %d => %.4fms", size, (t1 - t0).GetMilliseconds() / static_cast<double>(NUM_SAMPLES), sum);
     }
   }
 }

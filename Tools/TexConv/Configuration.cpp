@@ -89,7 +89,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
     const char* szLastPos = nullptr;
     if (ezConversionUtils::StringToInt(tmp, num, &szLastPos).Failed())
     {
-      ezLog::Error("Could not parse input config '%s'", cfg);
+      ezLog::ErrorPrintf("Could not parse input config '%s'", cfg);
       return source;
     }
 
@@ -100,7 +100,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
     }
     else
     {
-      ezLog::Error("Invalid Input index '%u'", num);
+      ezLog::ErrorPrintf("Invalid Input index '%u'", num);
       return source;
     }
 
@@ -119,7 +119,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
 
   if (!tmp.StartsWith("."))
   {
-    ezLog::Error("Expected '.' after input index in '%s'", cfg);
+    ezLog::ErrorPrintf("Expected '.' after input index in '%s'", cfg);
     return source;
   }
 
@@ -136,7 +136,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
   // no additional info, e.g. '-rgb in2.rg' will map b to b
   if (tmp.IsEmpty())
   {
-    ezLog::Error("Bad input config '%s'", cfg);
+    ezLog::ErrorPrintf("Bad input config '%s'", cfg);
 
     source.m_uiChannelMask = EZ_BIT(iChannelIndex);
     return source;
@@ -319,28 +319,28 @@ ezResult ezTexConv::ValidateConfiguration()
   if (m_InputFileNames.IsEmpty())
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::Error("No input files are specified. Use the -in command for a single file, or -in0 ... -in31 for multiple input files");
+    ezLog::ErrorPrintf("No input files are specified. Use the -in command for a single file, or -in0 ... -in31 for multiple input files");
     return EZ_FAILURE;
   }
 
   if (m_sOutputFile.IsEmpty())
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::Error("No output file is specified. Use the -out command for this");
+    ezLog::ErrorPrintf("No output file is specified. Use the -out command for this");
     return EZ_FAILURE;
   }
 
   if (m_uiOutputChannels > 4)
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::Error("Number of target channels (%u) is invalid", m_uiOutputChannels);
+    ezLog::ErrorPrintf("Number of target channels (%u) is invalid", m_uiOutputChannels);
     return EZ_FAILURE;
   }
 
   if (m_uiOutputChannels < 3 && m_bSRGBOutput)
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::Error("-srgb flag is invalid for 1 and 2 channel textures, as they do not support sRGB output.");
+    ezLog::ErrorPrintf("-srgb flag is invalid for 1 and 2 channel textures, as they do not support sRGB output.");
     return EZ_FAILURE;
   }
 
@@ -351,38 +351,38 @@ void ezTexConv::PrintConfig()
 {
   EZ_LOG_BLOCK("Configuration");
 
-  ezLog::Info("Output: '%s'", m_sOutputFile.GetData());
+  ezLog::InfoPrintf("Output: '%s'", m_sOutputFile.GetData());
 
   for (ezUInt32 i = 0; i < m_InputFileNames.GetCount(); ++i)
   {
-    ezLog::Info("Input %u: '%s'", i, m_InputFileNames[i].GetData());
+    ezLog::InfoPrintf("Input %u: '%s'", i, m_InputFileNames[i].GetData());
   }
 
-  ezLog::Info("Generate Mipmaps: %s", m_bGeneratedMipmaps ? "yes" : "no");
-  ezLog::Info("Use Compression: %s", m_bCompress ? "yes" : "no");
-  ezLog::Info("Output Channels: %u", m_uiOutputChannels);
-  ezLog::Info("Output is %s", m_bSRGBOutput ? "sRGB" : "Linear");
-  ezLog::Info("Pre-multiply alpha: %s", m_bPremultiplyAlpha ? "yes" : "no");
+  ezLog::InfoPrintf("Generate Mipmaps: %s", m_bGeneratedMipmaps ? "yes" : "no");
+  ezLog::InfoPrintf("Use Compression: %s", m_bCompress ? "yes" : "no");
+  ezLog::InfoPrintf("Output Channels: %u", m_uiOutputChannels);
+  ezLog::InfoPrintf("Output is %s", m_bSRGBOutput ? "sRGB" : "Linear");
+  ezLog::InfoPrintf("Pre-multiply alpha: %s", m_bPremultiplyAlpha ? "yes" : "no");
 
   for (ezUInt32 i = 0; i < m_uiOutputChannels; ++i)
   {
     if (m_2dSource[i].m_iInput == -1)
     {
-      ezLog::Info("Output[%u] = %s", i, m_2dSource[i].m_uiChannelMask == 0 ? "black" : "white");
+      ezLog::InfoPrintf("Output[%u] = %s", i, m_2dSource[i].m_uiChannelMask == 0 ? "black" : "white");
     }
     else
     {
-      ezLog::Info("Output[%u] = Input[%i].%s", i, m_2dSource[i].m_iInput, ChannelMaskToString(m_2dSource[i].m_uiChannelMask).GetData());
+      ezLog::InfoPrintf("Output[%u] = Input[%i].%s", i, m_2dSource[i].m_iInput, ChannelMaskToString(m_2dSource[i].m_uiChannelMask).GetData());
     }
   }
 
   switch (m_TextureType)
   {
   case TextureType::Texture2D:
-    ezLog::Info("Type: 2D Texture");
+    ezLog::InfoPrintf("Type: 2D Texture");
     break;
   case TextureType::Cubemap:
-    ezLog::Info("Type: Cubemap");
+    ezLog::InfoPrintf("Type: Cubemap");
     break;
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;

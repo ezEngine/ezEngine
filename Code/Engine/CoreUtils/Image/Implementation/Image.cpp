@@ -52,19 +52,19 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
   ezFileReader reader;
   if (reader.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::Warning(pLog, "Failed to open image file '%s'", szFileName);
+    ezLog::WarningPrintfI(pLog, "Failed to open image file '%s'", szFileName);
     return EZ_FAILURE;
   }
 
   ezStringView it = ezPathUtils::GetFileExtension(szFileName);
-  
+
   for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
     if (pFormat->CanReadFileType(it.GetData()))
     {
       if (pFormat->ReadImage(reader, *this, pLog) != EZ_SUCCESS)
       {
-        ezLog::Warning(pLog, "Failed to read image file '%s'", szFileName);
+        ezLog::WarningPrintfI(pLog, "Failed to read image file '%s'", szFileName);
         return EZ_FAILURE;
       }
 
@@ -72,7 +72,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
     }
   }
 
-  ezLog::Warning(pLog, "No known image file format for extension '%s'", it.GetData());
+  ezLog::WarningPrintfI(pLog, "No known image file format for extension '%s'", it.GetData());
 
   return EZ_FAILURE;
 }
@@ -84,7 +84,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
   ezFileWriter writer;
   if (writer.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::Warning(pLog, "Failed to open image file '%s'", szFileName);
+    ezLog::WarningPrintfI(pLog, "Failed to open image file '%s'", szFileName);
     return EZ_FAILURE;
   }
 
@@ -96,7 +96,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
     {
       if (pFormat->WriteImage(writer, *this, pLog) != EZ_SUCCESS)
       {
-        ezLog::Warning(pLog, "Failed to write image file '%s'", szFileName);
+        ezLog::WarningPrintfI(pLog, "Failed to write image file '%s'", szFileName);
         return EZ_FAILURE;
       }
 
@@ -104,7 +104,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
     }
   }
 
-  ezLog::Warning(pLog, "No known image file format for extension '%s'", it.GetData());
+  ezLog::WarningPrintfI(pLog, "No known image file format for extension '%s'", it.GetData());
 
   return EZ_FAILURE;
 }

@@ -154,7 +154,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
   ezString sFileToOpen;
   if (m_FileLocatorCallback("", szMainFile, IncludeType::MainFile, sFileToOpen).Failed())
   {
-    ezLog::Error(m_pLog, "Could not locate file '%s'", szMainFile);
+    ezLog::ErrorPrintfI(m_pLog, "Could not locate file '%s'", szMainFile);
     return EZ_FAILURE;
   }
 
@@ -165,13 +165,13 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 
   if (!m_IfdefActiveStack.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Incomplete nesting of #if / #else / #endif");
+    ezLog::ErrorPrintfI(m_pLog, "Incomplete nesting of #if / #else / #endif");
     return EZ_FAILURE;
   }
 
   if (!m_sCurrentFileStack.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. %i elements, top stack item: '%s'", m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName.GetData());
+    ezLog::ErrorPrintfI(m_pLog, "Internal error, file stack is not empty after processing. %i elements, top stack item: '%s'", m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName.GetData());
     return EZ_FAILURE;
   }
 

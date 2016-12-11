@@ -43,7 +43,7 @@ bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ez
   {
     if (pInput->m_SampleCount != ezGALMSAASampleCount::None)
     {
-      ezLog::Error("Input must not be a msaa target");
+      ezLog::ErrorPrintf("Input must not be a msaa target");
       return false;
     }
 
@@ -54,7 +54,7 @@ bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ez
   }
   else
   {
-    ezLog::Error("No input connected to '%s'!", GetName());
+    ezLog::ErrorPrintf("No input connected to '%s'!", GetName());
     return false;
   }
 

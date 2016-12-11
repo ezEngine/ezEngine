@@ -255,7 +255,7 @@ ezString ezPrefabUtils::ReadDocumentAsString(const char* szFile)
   ezFileReader file;
   if (file.Open(szFile) == EZ_FAILURE)
   {
-    ezLog::Error("Failed to open document file '%s'", szFile);
+    ezLog::ErrorPrintf("Failed to open document file '%s'", szFile);
     return ezString();
   }
 

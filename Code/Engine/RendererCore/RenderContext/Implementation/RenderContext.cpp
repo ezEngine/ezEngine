@@ -817,7 +817,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, cons
       available, it will work.
       */
 
-      ezLog::Warning("Failed to create vertex declaration");
+      ezLog::WarningPrintf("Failed to create vertex declaration");
       return EZ_FAILURE;
     }
 
@@ -974,7 +974,7 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
     BoundConstantBuffer boundConstantBuffer;
     if (!m_BoundConstantBuffers.TryGetValue(uiResourceHash, boundConstantBuffer))
     {
-      ezLog::Error("No resource is bound for constant buffer slot '%s'", binding.m_sName.GetData());
+      ezLog::ErrorPrintf("No resource is bound for constant buffer slot '%s'", binding.m_sName.GetData());
       m_pGALContext->SetConstantBuffer(binding.m_iSlot, ezGALBufferHandle());
       continue;
     }
@@ -992,7 +992,7 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
       }
       else
       {
-        ezLog::Error("Invalid constant buffer storage is bound for slot '%s'", binding.m_sName.GetData());
+        ezLog::ErrorPrintf("Invalid constant buffer storage is bound for slot '%s'", binding.m_sName.GetData());
         m_pGALContext->SetConstantBuffer(binding.m_iSlot, ezGALBufferHandle());
       }
     }
@@ -1062,7 +1062,7 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
     ezGALResourceViewHandle hResourceView;
     if (!m_BoundBuffer[stage].TryGetValue(uiResourceHash, hResourceView))
     {
-      ezLog::Error("No buffer is bound for %s slot '%s'", ezGALShaderStage::Names[stage], binding.m_sName.GetData());
+      ezLog::ErrorPrintf("No buffer is bound for %s slot '%s'", ezGALShaderStage::Names[stage], binding.m_sName.GetData());
     }
 
     m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);

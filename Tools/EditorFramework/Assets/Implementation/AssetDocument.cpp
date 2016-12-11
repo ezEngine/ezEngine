@@ -112,7 +112,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
 
     if (ret.m_Result.Failed())
     {
-      ezLog::Error("Transform failed: '%s' (%s)", ret.m_sMessage.GetData(), GetDocumentPath());
+      ezLog::ErrorPrintf("Transform failed: '%s' (%s)", ret.m_sMessage.GetData(), GetDocumentPath());
     }
     else
     {
@@ -371,7 +371,7 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Could not open file for writing: '%s'", szTargetFile);
+    ezLog::ErrorPrintf("Could not open file for writing: '%s'", szTargetFile);
     return ezStatus("Opening the asset output file failed");
   }
 
@@ -402,7 +402,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHea
   {
     const ezStringBuilder sResourceFile = GetThumbnailFilePath();
 
-    ezLog::Error("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
+    ezLog::ErrorPrintf("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
     return ezStatus(ezFmt("Could not convert asset thumbnail to target format: '{0}'", sResourceFile.GetData()));
   }
 
@@ -455,7 +455,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ezAssetFileHe
   // save to JPEG
   if (!qimg.save(QString::fromUtf8(sResourceFile.GetData()), nullptr, 90))
   {
-    ezLog::Error("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
+    ezLog::ErrorPrintf("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
     return ezStatus(ezFmt("Could not save asset thumbnail: '{0}'", sResourceFile.GetData()));
   }
 
@@ -487,7 +487,7 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezA
 
   if (writer.Close().Failed())
   {
-    ezLog::Error("Could not open file for writing: '%s'", szThumbnailFile);
+    ezLog::ErrorPrintf("Could not open file for writing: '%s'", szThumbnailFile);
   }
 }
 
@@ -500,7 +500,7 @@ ezString ezAssetDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) co
 
 ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const
 {
-  ezLog::Info("Exporting %s to \"%s\"", QueryAssetType(), szOutputTarget);
+  ezLog::InfoPrintf("Exporting %s to \"%s\"", QueryAssetType(), szOutputTarget);
 
   if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
   {
@@ -541,7 +541,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
       return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" failed.", QueryAssetType(), msg.m_sOutputFile.GetData()));
     }
 
-    ezLog::Success("%s \"%s\" has been exported.", QueryAssetType(), msg.m_sOutputFile.GetData());
+    ezLog::SuccessPrintf("%s \"%s\" has been exported.", QueryAssetType(), msg.m_sOutputFile.GetData());
 
     ShowDocumentStatus("%s exported successfully", QueryAssetType());
 
@@ -559,7 +559,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
 {
   ezAssetCurator::GetSingleton()->WriteAssetTables();
 
-  ezLog::Info("Create %s thumbnail for \"%s\"", QueryAssetType(), GetDocumentPath());
+  ezLog::InfoPrintf("Create %s thumbnail for \"%s\"", QueryAssetType(), GetDocumentPath());
 
   if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
   {
@@ -605,7 +605,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
     ezMemoryUtils::Copy(image.GetDataPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
     SaveThumbnail(image, header);
 
-    ezLog::Success("%s thumbnail for \"%s\" has been exported.", QueryAssetType(), GetDocumentPath());
+    ezLog::SuccessPrintf("%s thumbnail for \"%s\" has been exported.", QueryAssetType(), GetDocumentPath());
 
     ShowDocumentStatus("%s thumbnail created successfully", QueryAssetType());
 

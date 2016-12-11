@@ -26,8 +26,8 @@ ezResult CompileDXShader(const char* szFile, const char* szSource, const char* s
 
     EZ_LOG_BLOCK("Shader Compilation Failed", szFile);
 
-    ezLog::Error("Could not compile shader '%s' for profile '%s'", szFile, szProfile);
-    ezLog::Error("%s", szError);
+    ezLog::ErrorPrintf("Could not compile shader '%s' for profile '%s'", szFile, szProfile);
+    ezLog::ErrorPrintf("%s", szError);
 
     pErrorBlob->Release();
     return EZ_FAILURE;
@@ -38,7 +38,7 @@ ezResult CompileDXShader(const char* szFile, const char* szSource, const char* s
     const char* szError = static_cast<const char*>(pErrorBlob->GetBufferPointer());
 
     EZ_LOG_BLOCK("Shader Compilation Error Message", szFile);
-    ezLog::Dev("%s", szError);
+    ezLog::DevPrintf("%s", szError);
 
     pErrorBlob->Release();
   }
@@ -68,7 +68,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     D3D11_SHADER_INPUT_BIND_DESC shaderInputBindDesc;
     pReflector->GetResourceBindingDesc(r, &shaderInputBindDesc);
 
-    //ezLog::Info("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
+    //ezLog::InfoPrintf("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
 
     ezShaderResourceBinding shaderResourceBinding;
     shaderResourceBinding.m_Type = ezShaderResourceBinding::Unknown;
@@ -154,7 +154,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
   }
 
   EZ_LOG_BLOCK("Constant Buffer Layout", shaderBufferDesc.Name);
-  ezLog::Debug("Constant Buffer has %u variables, Size is %u", shaderBufferDesc.Variables, shaderBufferDesc.Size);
+  ezLog::DebugPrintf("Constant Buffer has %u variables, Size is %u", shaderBufferDesc.Variables, shaderBufferDesc.Size);
 
   ezShaderConstantBufferLayout* pLayout = pStageBinary.CreateConstantBufferLayout();
 
@@ -205,7 +205,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
     {
       if (std.Type != D3D_SVT_FLOAT)
       {
-        ezLog::Error("Variable '%s': Only float matrices are supported", svd.Name);
+        ezLog::ErrorPrintf("Variable '%s': Only float matrices are supported", svd.Name);
         continue;
       }
 
@@ -219,13 +219,13 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
       }
       else
       {
-        ezLog::Error("Variable '%s': %ux%u matrices are not supported", svd.Name, std.Rows, std.Columns);
+        ezLog::ErrorPrintf("Variable '%s': %ux%u matrices are not supported", svd.Name, std.Rows, std.Columns);
         continue;
       }
     }
     else if (std.Class == D3D_SVC_MATRIX_ROWS)
     {
-      ezLog::Error("Variable '%s': Row-Major matrices are not supported", svd.Name);
+      ezLog::ErrorPrintf("Variable '%s': Row-Major matrices are not supported", svd.Name);
       continue;
     }
     else if (std.Class == D3D_SVC_STRUCT)
@@ -235,7 +235,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
 
     if (constant.m_Type == ezShaderConstantBufferLayout::Constant::Type::Default)
     {
-      ezLog::Error("Variable '%s': Variable type '%d' is unknown / not supported", svd.Name, std.Class);
+      ezLog::ErrorPrintf("Variable '%s': Variable type '%d' is unknown / not supported", svd.Name, std.Class);
       continue;
     }
 
@@ -306,7 +306,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
     // shader already compiled
     if (!inout_Data.m_StageBinary[stage].GetByteCode().IsEmpty())
     {
-      ezLog::Debug("Shader for stage '%s' is already compiled.", ezGALShaderStage::Names[stage]);
+      ezLog::DebugPrintf("Shader for stage '%s' is already compiled.", ezGALShaderStage::Names[stage]);
       continue;
     }
 

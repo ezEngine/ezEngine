@@ -60,14 +60,14 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
     const ezActionMapDescriptor* pDesc = GetDescriptor(pParent);
     if (pDesc->m_hAction.GetDescriptor()->m_Type == ezActionType::Action)
     {
-      ezLog::Error("Can't map descriptor '%s' as its parent is an action itself and thus can't have any children.", desc.m_hAction.GetDescriptor()->m_sActionName.GetData());
+      ezLog::ErrorPrintf("Can't map descriptor '%s' as its parent is an action itself and thus can't have any children.", desc.m_hAction.GetDescriptor()->m_sActionName.GetData());
       return ezUuid();
     }
   }
 
   if (GetChildByName(pParent, desc.m_hAction.GetDescriptor()->m_sActionName) != nullptr)
   {
-    ezLog::Error("Can't map descriptor as its name is already present: %s", desc.m_hAction.GetDescriptor()->m_sActionName.GetData());
+    ezLog::ErrorPrintf("Can't map descriptor as its name is already present: %s", desc.m_hAction.GetDescriptor()->m_sActionName.GetData());
     return ezUuid();
   }
 

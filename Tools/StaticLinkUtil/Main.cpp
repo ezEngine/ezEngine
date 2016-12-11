@@ -114,14 +114,14 @@ public:
 
 
     if (GetArgumentCount() != 2)
-      ezLog::Error("This tool requires exactly one command-line argument: An absolute path to the top-level folder of a library.");
+      ezLog::ErrorPrintf("This tool requires exactly one command-line argument: An absolute path to the top-level folder of a library.");
 
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     ezStringBuilder sSearchDir = GetArgument(1);
     sSearchDir.MakeCleanPath();
 
     if (!ezPathUtils::IsAbsolutePath(sSearchDir.GetData()))
-      ezLog::Error("The given path is not absolute: '%s'", sSearchDir.GetData());
+      ezLog::ErrorPrintf("The given path is not absolute: '%s'", sSearchDir.GetData());
 
     m_sSearchDir = sSearchDir;
 
@@ -138,10 +138,10 @@ public:
   virtual void BeforeCoreShutdown()
   {
     if ((m_bHadSeriousWarnings || m_bHadErrors) && m_bModifiedFiles)
-      ezLog::SeriousWarning("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
+      ezLog::SeriousWarningPrintf("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
     else if (m_bHadWarnings || m_bHadSeriousWarnings || m_bHadErrors)
     {
-      ezLog::Warning("There have been errors or warnings, see log for details.");
+      ezLog::WarningPrintf("There have been errors or warnings, see log for details.");
     }
 
     if (m_bModifiedFiles)
@@ -211,7 +211,7 @@ public:
     ezFileReader File;
     if (File.Open(szFile) == EZ_FAILURE)
     {
-      ezLog::Error("Could not open for reading: '%s'", szFile);
+      ezLog::ErrorPrintf("Could not open for reading: '%s'", szFile);
       return EZ_FAILURE;
     }
 
@@ -231,7 +231,7 @@ public:
 
     if (!ezUnicodeUtils::IsValidUtf8((const char*) &FileContent[0]))
     {
-      ezLog::Error("The file \"%s\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor that does not save the file in Utf8 encoding.");
+      ezLog::ErrorPrintf("The file \"%s\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor that does not save the file in Utf8 encoding.");
       return EZ_FAILURE;
     }
 
@@ -263,13 +263,13 @@ public:
 
     if (m_bHadSeriousWarnings || m_bHadErrors)
     {
-      ezLog::Info("There have been errors or warnings previously, no files will be modified.");
+      ezLog::InfoPrintf("There have been errors or warnings previously, no files will be modified.");
       return;
     }
 
     if (!m_bAnyFileChanged)
     {
-      ezLog::Success("No files needed modification.");
+      ezLog::SuccessPrintf("No files needed modification.");
       return;
     }
 
@@ -281,7 +281,7 @@ public:
       ezFileWriter FileOut;
       if (FileOut.Open(it.Key().GetData()) == EZ_FAILURE)
       {
-        ezLog::Error("Could not open the file for writing: '%s'", it.Key().GetData());
+        ezLog::ErrorPrintf("Could not open the file for writing: '%s'", it.Key().GetData());
         return;
       }
       else
@@ -289,7 +289,7 @@ public:
         m_bModifiedFiles = true;
         FileOut.WriteBytes(it.Value().m_sFileContent.GetData(), it.Value().m_sFileContent.GetElementCount());
 
-        ezLog::Success("File has been modified: '%s'", it.Key().GetData());
+        ezLog::SuccessPrintf("File has been modified: '%s'", it.Key().GetData());
       }
     }
   }
@@ -331,7 +331,7 @@ public:
 
         if (sInclude.ReplaceAll("\\", "/") > 0)
         {
-          ezLog::Info("Replacing backslashes in #include path with front slashes: '%s'", sInclude.GetData());
+          ezLog::InfoPrintf("Replacing backslashes in #include path with front slashes: '%s'", sInclude.GetData());
           sFileContent.ReplaceSubString(szI, szLineEnd, sInclude.GetData());
         }
 
@@ -352,7 +352,7 @@ public:
         // ignore third-party includes
         if (sInclude.FindSubString_NoCase("ThirdParty"))
         {
-          ezLog::Dev("Skipping ThirdParty Include: '%s'", sInclude.GetData());
+          ezLog::DevPrintf("Skipping ThirdParty Include: '%s'", sInclude.GetData());
           continue;
         }
 
@@ -368,17 +368,17 @@ public:
         // ignore includes to files that cannot be found (ie. they are not part of the ezEngine source tree)
         if (!ezFileSystem::ExistsFile(sCanFindInclude.GetData()) && !ezFileSystem::ExistsFile(sCanFindInclude2.GetData()))
         {
-          ezLog::Dev("Skipping non-Engine Include: '%s'", sInclude.GetData());
+          ezLog::DevPrintf("Skipping non-Engine Include: '%s'", sInclude.GetData());
           continue;
         }
 
         // warn about includes that have 'implementation' in their path
         if (sInclude.FindSubString_NoCase("Implementation"))
         {
-          ezLog::Warning("This file includes an implementation header from another library: '%s'", sInclude.GetData());
+          ezLog::WarningPrintf("This file includes an implementation header from another library: '%s'", sInclude.GetData());
         }
 
-        ezLog::Dev("Found Include: '%s'", sInclude.GetData());
+        ezLog::DevPrintf("Found Include: '%s'", sInclude.GetData());
 
         m_GlobalIncludes.Insert(sInclude);
       }
@@ -416,12 +416,12 @@ public:
       ezFileReader File;
       if (File.Open(sPCHFile.GetData()) == EZ_FAILURE)
       {
-        ezLog::Warning("This project has no PCH file.");
+        ezLog::WarningPrintf("This project has no PCH file.");
         return;
       }
     }
 
-    ezLog::Info("Rewriting PCH: '%s'", sPCHFile.GetData());
+    ezLog::InfoPrintf("Rewriting PCH: '%s'", sPCHFile.GetData());
 
     ezStringBuilder sFileContent;
     if (ReadEntireFile(sPCHFile.GetData(), sFileContent) == EZ_FAILURE)
@@ -455,7 +455,7 @@ public:
       return;
 
     if (ezStringUtils::EndsWith(szFile, "/PCH.h"))
-      ezLog::Dev("Skipping PCH for #include search: '%s'", szFile);
+      ezLog::DevPrintf("Skipping PCH for #include search: '%s'", szFile);
     else
       FindIncludes(sFileContent);
 
@@ -532,7 +532,7 @@ public:
 
     EZ_LOG_BLOCK("RewriteRefPointGroup", szFile);
 
-    ezLog::Info("Replacing macro EZ_STATICLINK_LIBRARY in file '%s'.", m_sRefPointGroupFile.GetData());
+    ezLog::InfoPrintf("Replacing macro EZ_STATICLINK_LIBRARY in file '%s'.", m_sRefPointGroupFile.GetData());
 
     ezStringBuilder sFileContent;
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
@@ -542,7 +542,7 @@ public:
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
     while (szMarker != nullptr)
     {
-      ezLog::Warning("Found macro EZ_STATICLINK_FILE inside the same file where EZ_STATICLINK_LIBRARY is located. Removing it.");
+      ezLog::WarningPrintf("Found macro EZ_STATICLINK_FILE inside the same file where EZ_STATICLINK_LIBRARY is located. Removing it.");
 
       const char* szMarkerEnd = szMarker;
 
@@ -653,7 +653,7 @@ public:
       while (it.Next() == EZ_SUCCESS);
     }
     else
-      ezLog::Error("Could not search the directory '%s'", m_sSearchDir.GetData());
+      ezLog::ErrorPrintf("Could not search the directory '%s'", m_sSearchDir.GetData());
   }
 
   void MakeSureStaticLinkLibraryMacroExists()
@@ -680,10 +680,10 @@ public:
 
       m_sRefPointGroupFile = sFilePath;
 
-      ezLog::Warning("No EZ_STATICLINK_LIBRARY found in any cpp file, inserting it into the PCH.cpp file.");
+      ezLog::WarningPrintf("No EZ_STATICLINK_LIBRARY found in any cpp file, inserting it into the PCH.cpp file.");
     }
     else
-      ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
+      ezLog::ErrorPrintf("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
   }
 
   void GatherInformation()
@@ -722,10 +722,10 @@ public:
           // part such that it will reference all the other files
           if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
           {
-            ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '%s'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
+            ezLog::InfoPrintf("Found macro 'EZ_STATICLINK_LIBRARY' in file '%s'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
-              ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '%s' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());
+              ezLog::ErrorPrintf("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '%s' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());
             else
               m_sRefPointGroupFile = sFile;
           }
@@ -734,7 +734,7 @@ public:
       while (it.Next() == EZ_SUCCESS);
     }
     else
-      ezLog::Error("Could not search the directory '%s'", m_sSearchDir.GetData());
+      ezLog::ErrorPrintf("Could not search the directory '%s'", m_sSearchDir.GetData());
 
     MakeSureStaticLinkLibraryMacroExists();
   }

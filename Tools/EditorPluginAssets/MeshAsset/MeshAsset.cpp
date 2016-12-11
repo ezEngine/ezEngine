@@ -135,14 +135,14 @@ namespace ImportHelper
     outMeshFileAbs = filename;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
     {
-      ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", outMeshFileAbs.GetData());
+      ezLog::ErrorPrintf("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", outMeshFileAbs.GetData());
       return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs.GetData()));
     }
 
     outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(outMeshFileAbs);
     if (!outScene)
     {
-      ezLog::Error("Could not import file '%s'", outMeshFileAbs.GetData());
+      ezLog::ErrorPrintf("Could not import file '%s'", outMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh Asset input file '{0}' could not be imported", outMeshFileAbs.GetData()));
     }
 
@@ -304,13 +304,13 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     return importStatus;
 
   ezUInt32 uiTriangles = mesh->GetNumTriangles();
-  ezLog::Info("Number of Triangles: %u", uiTriangles);
+  ezLog::InfoPrintf("Number of Triangles: %u", uiTriangles);
 
   {
     ezStopwatch timer;
     mesh->ComputeNormals();
     mesh->ComputeTangents();
-    ezLog::Success("Computed missing normals and tangents (time %.2fs)", timer.GetRunningTotal());
+    ezLog::SuccessPrintf("Computed missing normals and tangents (time %.2fs)", timer.GetRunningTotal());
   }
 
   // Create vertex & index buffer.
@@ -331,14 +331,14 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     dataStreams[Position] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (dataStreams[Position] == nullptr)
     {
-      ezLog::Error("Mesh '%s' from '%s' has no position vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+      ezLog::ErrorPrintf("Mesh '%s' from '%s' has no position vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh '{0}' from '{1}' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
     dataStreams[Texcoord0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
     dataStreams[Normal] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (dataStreams[Normal] == nullptr)
     {
-      ezLog::Error("Mesh '%s' from '%s' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+      ezLog::ErrorPrintf("Mesh '%s' from '%s' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh '{0}' from '{1}' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
     dataStreams[Tangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
@@ -356,8 +356,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     ezUInt32 uiNumVertices = dataIndices_to_InterleavedVertexIndices.GetCount();
     EZ_ASSERT_DEBUG(triangleVertexIndices.GetCount() == uiNumTriangles * 3, "Number of indices for index buffer is not triangles times 3");
 
-    ezLog::Info("Number of Vertices: %u", uiNumVertices);
-    ezLog::Info("Number of Triangles: %u", uiNumTriangles);
+    ezLog::InfoPrintf("Number of Vertices: %u", uiNumVertices);
+    ezLog::InfoPrintf("Number of Triangles: %u", uiNumTriangles);
 
     // Seems to be necessary with current rendering pipeline.
 #define GENERATE_FAKE_DATA
@@ -474,7 +474,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
         desc.MeshBufferDesc().SetTriangleIndices(i / 3, triangleVertexIndices[i + 0], triangleVertexIndices[i + 1], triangleVertexIndices[i + 2]);
     }
 
-    ezLog::Success("Generated Vertex and Index Buffer (total time %.2fs, vertex mapping %.2fs)", timer.GetRunningTotal().GetSeconds(), mappingTime.GetSeconds());
+    ezLog::SuccessPrintf("Generated Vertex and Index Buffer (total time %.2fs, vertex mapping %.2fs)", timer.GetRunningTotal().GetSeconds(), mappingTime.GetSeconds());
   }
 
   // Materials/Submeshes.
@@ -512,7 +512,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
       ezStopwatch sw;
       ImportMaterials(*scene, *mesh, pProp, sImportSourceDirectory, importTargetDirectory);
-      ezLog::Success("Import Materials (time %.2fs)", sw.GetRunningTotal());
+      ezLog::SuccessPrintf("Import Materials (time %.2fs)", sw.GetRunningTotal());
     }
 
     if (mesh->GetNumSubMeshes() == 0)
@@ -524,7 +524,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     ezStopwatch sw;
     ApplyNativePropertyChangesToObjectManager();
     GetObjectAccessor()->FinishTransaction();
-    ezLog::Success("Apply Native Property Changes (time %.2fs)", sw.GetRunningTotal());
+    ezLog::SuccessPrintf("Apply Native Property Changes (time %.2fs)", sw.GetRunningTotal());
 
     // Need to reacquire pProp pointer since it might be reallocated.
     pProp = GetProperties();
@@ -585,7 +585,7 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
     ezTextureAssetDocument* textureDocument = ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newAssetPathAbs, false, false));
     if (!textureDocument)
     {
-      ezLog::Error("Failed to create new texture asset '%s'", szTexturePath);
+      ezLog::ErrorPrintf("Failed to create new texture asset '%s'", szTexturePath);
       return szTexturePath;
     }
 
@@ -686,7 +686,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
       if (!materialDocument)
       {
-        ezLog::Error("Failed to create new material '%s'", material->m_Name.GetData());
+        ezLog::ErrorPrintf("Failed to create new material '%s'", material->m_Name.GetData());
         continue;
       }
 

@@ -15,7 +15,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     ezString sAbsolutePath, sRelativePath;
     if (ezFileSystem::ResolvePath(pResource->GetResourceID().GetData(), &sAbsolutePath, &sRelativePath).Failed())
     {
-      ezLog::Error("Failed to resolve resource ID to absolute path: '%s'", pResource->GetResourceID().GetData());
+      ezLog::ErrorPrintf("Failed to resolve resource ID to absolute path: '%s'", pResource->GetResourceID().GetData());
       return res;
     }
 

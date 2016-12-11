@@ -29,7 +29,7 @@ void ezLogWriter::HTML::BeginLog (const char* szFile, const char* szAppTitle)
 
   if (!m_File.IsOpen())
   {
-    ezLog::Error("Could not open Log-File \"%s\".", szFile);
+    ezLog::ErrorPrintf("Could not open Log-File \"%s\".", szFile);
     return;
   }
 
@@ -119,7 +119,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   default:
     sText.Format("<font color=\"#A0A0A0\">{0}</font><br>\n", sOriginalText.GetData());
 
-    ezLog::Warning ("Unknown Message Type %d", eventData.m_EventType);
+    ezLog::WarningPrintf ("Unknown Message Type %d", eventData.m_EventType);
     break;
   }
 

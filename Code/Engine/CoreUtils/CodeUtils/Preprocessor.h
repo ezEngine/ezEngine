@@ -379,7 +379,7 @@ private: // *** Other ***
       const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData()); \
     } \
     m_ProcessingEvents.Broadcast(pe); \
-      ezLog::Type(m_pLog, "File '%s', Line %u (%u): " FormatStr, pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn); \
+      ezLog::Type##PrintfI(m_pLog, "File '%s', Line %u (%u): " FormatStr, pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn); \
   }
 
 #define PP_LOG(Type, FormatStr, ErrorToken, ...) \
@@ -396,5 +396,5 @@ private: // *** Other ***
     sInfo.Format(FormatStr, __VA_ARGS__); \
     pe.m_szInfo = sInfo.GetData(); \
     m_ProcessingEvents.Broadcast(pe); \
-    ezLog::Type(m_pLog, "File '%s', Line %u (%u): %s", pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn, sInfo.GetData()); \
+    ezLog::Type##PrintfI(m_pLog, "File '%s', Line %u (%u): %s", pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn, sInfo.GetData()); \
   }

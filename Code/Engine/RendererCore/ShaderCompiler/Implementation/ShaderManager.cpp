@@ -130,7 +130,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
 
   if (pp.Process(sPath, sTemp, false).Failed())
   {
-    ezLog::Error("Could not read shader permutation variable '%s' from file '%s'", szName, sPath.GetData());
+    ezLog::ErrorPrintf("Could not read shader permutation variable '%s' from file '%s'", szName, sPath.GetData());
   }
 
   ezVariant defaultValue;
@@ -153,7 +153,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTemp
   const PermutationVarConfig* pConfig = FindConfig(szName, sHashedName);
   if (pConfig == nullptr)
   {
-    ezLog::Error("Permutation variable '%s' does not exist", szName);
+    ezLog::ErrorPrintf("Permutation variable '%s' does not exist", szName);
     return false;
   }
 
@@ -166,12 +166,12 @@ bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTemp
       return false;
     }
 
-    ezLog::Debug("Invalid Shader Permutation: '%s' cannot be set to value '%d' -> reloading config for variable", szName, sValue.GetHash());
+    ezLog::DebugPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%d' -> reloading config for variable", szName, sValue.GetHash());
     ReloadPermutationVarConfig(szName, sHashedName);
 
     if (!IsValueAllowed(*pConfig, sValue, out_sValue))
     {
-      ezLog::Error("Invalid Shader Permutation: '%s' cannot be set to value '%d'", szName, sValue.GetHash());
+      ezLog::ErrorPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%d'", szName, sValue.GetHash());
       return false;
     }
   }
@@ -184,7 +184,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
   const PermutationVarConfig* pConfig = FindConfig(sName);
   if (pConfig == nullptr)
   {
-    ezLog::Error("Permutation variable '%s' does not exist", sName.GetData());
+    ezLog::ErrorPrintf("Permutation variable '%s' does not exist", sName.GetData());
     return false;
   }
 
@@ -195,12 +195,12 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
       return false;
     }
 
-    ezLog::Debug("Invalid Shader Permutation: '%s' cannot be set to value '%s' -> reloading config for variable", sName.GetData(), sValue.GetData());
+    ezLog::DebugPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%s' -> reloading config for variable", sName.GetData(), sValue.GetData());
     ReloadPermutationVarConfig(sName, sName);
 
     if (!IsValueAllowed(*pConfig, sValue))
     {
-      ezLog::Error("Invalid Shader Permutation: '%s' cannot be set to value '%s'", sName.GetData(), sValue.GetData());
+      ezLog::ErrorPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%s'", sName.GetData(), sValue.GetData());
       return false;
     }
   }

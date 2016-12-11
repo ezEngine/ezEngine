@@ -55,30 +55,30 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& vie
   // Color
   if (!inputs[m_PinBlurSourceInput.m_uiInputIndex])
   {
-    ezLog::Error("No blur target connected to bilateral blur pass!");
+    ezLog::ErrorPrintf("No blur target connected to bilateral blur pass!");
     return false;
   }
   if (!inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_bAllowShaderResourceView)
   {
-    ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
+    ezLog::ErrorPrintf("All bilateral blur pass inputs must allow shader resoure view.");
     return false;
   }
 
   // Depth
   if (!inputs[m_PinDepthInput.m_uiInputIndex])
   {
-    ezLog::Error("No depth connected to bilateral blur pass!");
+    ezLog::ErrorPrintf("No depth connected to bilateral blur pass!");
     return false;
   }
   if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_bAllowShaderResourceView)
   {
-    ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
+    ezLog::ErrorPrintf("All bilateral blur pass inputs must allow shader resoure view.");
     return false;
   }
   if (inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiWidth != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiWidth ||
     inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiHeight != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiHeight)
   {
-    ezLog::Error("Blur target and depth buffer for bilateral blur pass need to have the same dimensions.");
+    ezLog::ErrorPrintf("Blur target and depth buffer for bilateral blur pass need to have the same dimensions.");
     return false;
   }
 

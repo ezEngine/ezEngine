@@ -191,7 +191,7 @@ namespace ezModelImporter
     Mesh* outMesh = mergedMesh.Borrow();
     m_Meshes.Insert(std::move(mergedMesh));
 
-    ezLog::Debug("Merged meshes in '%.2f's", timer.GetRunningTotal().GetSeconds());
+    ezLog::DebugPrintf("Merged meshes in '%.2f's", timer.GetRunningTotal().GetSeconds());
     return outMesh;
   }
 }

@@ -42,7 +42,7 @@ void ezDependencyFile::StoreCurrentTimeStamp()
   m_iMaxTimeStampStored = 0;
 
 #if EZ_DISABLED(EZ_SUPPORTS_FILE_STATS)
-  ezLog::Warning("Trying to retrieve file time stamps on a platform that does not support it");
+  ezLog::WarningPrintf("Trying to retrieve file time stamps on a platform that does not support it");
   return;
 #endif
 
@@ -59,7 +59,7 @@ void ezDependencyFile::StoreCurrentTimeStamp()
 bool ezDependencyFile::HasAnyFileChanged()
 {
 #if EZ_DISABLED(EZ_SUPPORTS_FILE_STATS)
-  ezLog::Warning("Trying to retrieve file time stamps on a platform that does not support it");
+  ezLog::WarningPrintf("Trying to retrieve file time stamps on a platform that does not support it");
   return true;
 #endif
 
@@ -71,7 +71,7 @@ bool ezDependencyFile::HasAnyFileChanged()
 
     if (ts.GetInt64(ezSIUnitOfTime::Second) > m_iMaxTimeStampStored)
     {
-      ezLog::Dev("Detected file change in '%s' (TimeStamp %lli > MaxTimeStamp %lli)", sFile.GetData(), ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
+      ezLog::DevPrintf("Detected file change in '%s' (TimeStamp %lli > MaxTimeStamp %lli)", sFile.GetData(), ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
       return true;
     }
   }
@@ -99,7 +99,7 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 
   if (uiVersion != (ezUInt8) ezDependencyFileVersion::Version1)
   {
-    ezLog::Error("Dependency file has incorrect file version (%u)", uiVersion);
+    ezLog::ErrorPrintf("Dependency file has incorrect file version (%u)", uiVersion);
     return EZ_FAILURE;
   }
   
@@ -131,14 +131,14 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
     ezString sAbsPath;
     if (ezFileSystem::ResolvePath(szFile, &sAbsPath, nullptr).Failed())
     {
-      ezLog::Error("Could not resolve path for file '%s'", szFile);
+      ezLog::ErrorPrintf("Could not resolve path for file '%s'", szFile);
       return EZ_FAILURE;
     }
 
     ezFileStats stats;
     if (ezOSFile::GetFileStats(sAbsPath.GetData(), stats).Failed())
     {
-      ezLog::Error("Could not query the file stats for '%s'", szFile);
+      ezLog::ErrorPrintf("Could not query the file stats for '%s'", szFile);
       return EZ_FAILURE;
     }
 
@@ -150,7 +150,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
 #else
 
   out_Result.SetInt64(0, ezSIUnitOfTime::Second);
-  ezLog::Warning("Trying to retrieve a file time stamp on a platform that does not support it (file: '%s')", szFile);
+  ezLog::WarningPrintf("Trying to retrieve a file time stamp on a platform that does not support it (file: '%s')", szFile);
 
 #endif
 

@@ -228,7 +228,7 @@ void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const
   else
   {
     m_HeaderColor = qRgb(255, 0, 0);
-    ezLog::Error("Could not initialize node type, node descriptor is invalid");
+    ezLog::ErrorPrintf("Could not initialize node type, node descriptor is invalid");
   }
 }
 

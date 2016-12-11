@@ -50,13 +50,13 @@ void ezStandardInputDevice::InitializeDevice()
 
     if (RegisterRawInputDevices(&Rid[0], (UINT) 2, sizeof(RAWINPUTDEVICE)) == FALSE) 
     {
-      ezLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
+      ezLog::ErrorPrintf("Could not initialize RawInput for Mouse and Keyboard input.");
     }
     else
-      ezLog::Success("Initialized RawInput for Mouse and Keyboard input.");
+      ezLog::SuccessPrintf("Initialized RawInput for Mouse and Keyboard input.");
   }
   else
-    ezLog::Info("Window %i does not need to initialize Mouse or Keyboard.", m_uiWindowNumber);
+    ezLog::InfoPrintf("Window %i does not need to initialize Mouse or Keyboard.", m_uiWindowNumber);
 }
 
 void ezStandardInputDevice::RegisterInputSlots()
@@ -617,7 +617,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         }
         else
         {
-          ezLog::Info("Unknown Mouse Move: %.1f | %.1f, Flags = %i", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY, raw->data.mouse.usFlags);
+          ezLog::InfoPrintf("Unknown Mouse Move: %.1f | %.1f, Flags = %i", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY, raw->data.mouse.usFlags);
         }
       } 
       
@@ -635,7 +635,7 @@ static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szI
 
   ezStringUtf8 sName = szKeyName;
 
-  ezLog::Dev("Translated '%s' to '%s'", ezInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
+  ezLog::DevPrintf("Translated '%s' to '%s'", ezInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
 
   ezInputManager::SetInputSlotDisplayName(szInputSlot, sName.GetData());
 }
