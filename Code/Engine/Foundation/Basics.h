@@ -58,6 +58,7 @@
 #include <Foundation/Memory/AllocatorBase.h>
 
 #include <Foundation/Configuration/StaticSubSystem.h>
+#include <Foundation/Strings/FormatString.h>
 
 class EZ_FOUNDATION_DLL ezFoundation
 {

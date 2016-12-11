@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -54,24 +55,20 @@ void ezSetAssertHandler(ezAssertHandler handler)
   g_AssertHandler = handler;
 }
 
-bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szErrorMsg, ...)
+bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* msg)
 {
   // always do a debug-break if no assert handler is installed
   if (g_AssertHandler == nullptr)
     return true;
 
-  va_list ap;
-  va_start (ap, szErrorMsg);
-
-  char szMsg[1024 * 2] = "";
-  ezStringUtils::vsnprintf(szMsg, EZ_ARRAY_SIZE(szMsg), szErrorMsg, ap);
-
-  va_end (ap);
-
-  return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, szMsg);
+  return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, msg);
 }
 
-
+bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg)
+{
+  ezStringBuilder tmp;
+  return ezFailedCheck(szSourceFile, uiLine, szFunction, szExpression, msg.GetText(tmp));
+}
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Assert);

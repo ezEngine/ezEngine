@@ -95,14 +95,14 @@ namespace
     char szBuffer[512];
     ezUInt64 uiSize = info.m_uiSize;
     ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), "Leaked %llu bytes allocated by '%s'\n", uiSize, szAllocatorName);
-    
+
     PrintHelper(szBuffer);
 
     if (info.GetStackTrace().GetPtr() != nullptr)
     {
       ezStackTracer::ResolveStackTrace(info.GetStackTrace(), &PrintHelper);
     }
-      
+
     PrintHelper("--------------------------------------------------------------------\n\n");
   }
 }
@@ -148,7 +148,7 @@ ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<
   AllocatorData data;
   data.m_sName = szName;
   data.m_Flags = flags;
-  
+
   ezAllocatorId id = s_pTrackerData->m_AllocatorData.Insert(data);
 
   if (data.m_sName == EZ_STATIC_ALLOCATOR_NAME)
@@ -172,7 +172,7 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
     {
       DumpLeak(it.Value(), data.m_sName.GetData());
     }
-    
+
     EZ_REPORT_FAILURE("Allocator '%s' leaked %llu allocation(s)", data.m_sName.GetData(), uiLiveAllocations);
   }
 
@@ -207,13 +207,13 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, const void* ptr, 
   EZ_VERIFY(!data.m_Allocations.Insert(ptr, info), "Allocation already known");
 }
 
-//static 
+//static
 void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* ptr)
 {
   EZ_LOCK(*s_pTrackerData);
 
   AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
-  
+
   AllocationInfo info;
   if (data.m_Allocations.Remove(ptr, &info))
   {
@@ -224,7 +224,7 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pt
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid Allocation '%p'. Memory corruption?", ptr);
+    EZ_REPORT_FAILURE("Invalid Allocation '{0}'. Memory corruption?", ezArgP(ptr));
   }
 }
 
@@ -252,7 +252,7 @@ const char* ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
   return s_pTrackerData->m_AllocatorData[allocatorId].m_sName.GetData();
 }
 
-//static 
+//static
 const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
 {
   EZ_LOCK(*s_pTrackerData);
@@ -260,7 +260,7 @@ const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId a
   return s_pTrackerData->m_AllocatorData[allocatorId].m_Stats;
 }
 
-//static 
+//static
 const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllocatorId allocatorId, const void* ptr)
 {
   EZ_LOCK(*s_pTrackerData);
@@ -302,7 +302,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
 
   static ezHashTable<const void*, LeakInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> leakTable;
   leakTable.Clear();
-  
+
   // first collect all leaks
   for (auto it = s_pTrackerData->m_AllocatorData.GetIterator(); it.IsValid(); ++it)
   {
@@ -343,7 +343,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
 
   // dump leaks
   ezUInt64 uiNumLeaks = 0;
-  
+
   for (auto it = leakTable.GetIterator(); it.IsValid(); ++it)
   {
     const void* ptr = it.Key();
@@ -377,14 +377,14 @@ void ezMemoryTracker::DumpMemoryLeaks()
       "Found %llu root memory leak(s)."
       "\n--------------------------------------------------------------------\n\n",
       uiNumLeaks);
-    
+
     PrintHelper(szBuffer);
 
     EZ_REPORT_FAILURE("Found %llu root memory leak(s).", uiNumLeaks);
   }
 }
 
-//static 
+//static
 ezMemoryTracker::Iterator ezMemoryTracker::GetIterator()
 {
   auto pInnerIt = EZ_NEW(s_pTrackerDataAllocator, TrackerData::AllocatorTable::Iterator, s_pTrackerData->m_AllocatorData.GetIterator());
