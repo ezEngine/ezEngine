@@ -695,15 +695,15 @@ void ezQtSceneDocumentWindow::SnapProviderEventHandler(const ezSnapProviderEvent
   switch (e.m_Type)
   {
   case ezSnapProviderEvent::Type::RotationSnapChanged:
-    ShowStatusBarMsg(ezStringUtf8(L"Snapping Angle: %f°").GetData(), ezSnapProvider::GetRotationSnapValue());
+    ShowStatusBarMsg(ezFmt(ezStringUtf8(L"Snapping Angle: {0}°").GetData(), ezSnapProvider::GetRotationSnapValue().GetDegree()));
     break;
 
   case ezSnapProviderEvent::Type::ScaleSnapChanged:
-    ShowStatusBarMsg("Snapping Value: %f", ezSnapProvider::GetScaleSnapValue());
+    ShowStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetScaleSnapValue()));
     break;
 
   case ezSnapProviderEvent::Type::TranslationSnapChanged:
-    ShowStatusBarMsg("Snapping Value: %f", ezSnapProvider::GetTranslationSnapValue());
+    ShowStatusBarMsg(ezFmt("Snapping Value: {0}", ezSnapProvider::GetTranslationSnapValue()));
     break;
   }
 }

@@ -355,15 +355,10 @@ void ezQtDocumentWindow::ShowStatusBarMsgNoArgs(const char* szText)
   statusBar()->showMessage(QString::fromUtf8(szText), 5000);
 }
 
-void ezQtDocumentWindow::ShowStatusBarMsg(const char* szText, ...)
+void ezQtDocumentWindow::ShowStatusBarMsg(const ezFormatString& sMsg)
 {
-  ezStringBuilder sText;
-  va_list args;
-  va_start(args, szText);
-  sText.PrintfArgs(szText, args);
-  va_end(args);
-
-  ShowStatusBarMsgNoArgs(sText);
+  ezStringBuilder tmp;
+  ShowStatusBarMsgNoArgs(sMsg.GetText(tmp));
 }
 
 

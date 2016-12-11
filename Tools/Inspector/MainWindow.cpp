@@ -429,17 +429,17 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
         ezQtLogWidget::s_pWidget->Log("<<< Application Assertion >>>");
         ezQtLogWidget::s_pWidget->Log("");
 
-        ezQtLogWidget::s_pWidget->Log("    Expression: '%s'", sExpression.GetData());
+        ezQtLogWidget::s_pWidget->Log(ezFmt("    Expression: '{0}'", sExpression));
         ezQtLogWidget::s_pWidget->Log("");
 
-        ezQtLogWidget::s_pWidget->Log("    Message: '%s'", sMessage.GetData());
+        ezQtLogWidget::s_pWidget->Log(ezFmt("    Message: '{0}'", sMessage));
         ezQtLogWidget::s_pWidget->Log("");
 
-        ezQtLogWidget::s_pWidget->Log("   File: '%s'", sSourceFile.GetData());
+        ezQtLogWidget::s_pWidget->Log(ezFmt("   File: '{0}'", sSourceFile));
 
-        ezQtLogWidget::s_pWidget->Log("   Line: %i", uiLine);
+        ezQtLogWidget::s_pWidget->Log(ezFmt("   Line: {0}", uiLine));
 
-        ezQtLogWidget::s_pWidget->Log("   In Function: '%s'", sFunction.GetData());
+        ezQtLogWidget::s_pWidget->Log(ezFmt("   In Function: '{0}'", sFunction));
 
         ezQtLogWidget::s_pWidget->Log("");
 

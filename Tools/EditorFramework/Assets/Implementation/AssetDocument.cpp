@@ -543,7 +543,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 
     ezLog::Success("{0} \"{1}\" has been exported.", QueryAssetType(), msg.m_sOutputFile.GetData());
 
-    ShowDocumentStatus("%s exported successfully", QueryAssetType());
+    ShowDocumentStatus(ezFmt("{0} exported successfully", QueryAssetType()));
 
     return ezStatus(EZ_SUCCESS);
   }
@@ -607,7 +607,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
 
     ezLog::Success("{0} thumbnail for \"{1}\" has been exported.", QueryAssetType(), GetDocumentPath());
 
-    ShowDocumentStatus("%s thumbnail created successfully", QueryAssetType());
+    ShowDocumentStatus(ezFmt("{0} thumbnail created successfully", QueryAssetType()));
 
     return ezStatus(EZ_SUCCESS);
   }

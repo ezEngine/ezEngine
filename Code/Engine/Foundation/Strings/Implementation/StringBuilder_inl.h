@@ -183,26 +183,6 @@ inline void ezStringBuilder::ToLower()
   m_Data.SetCount(uiNewStringLength + 1);
 }
 
-inline void ezStringBuilder::AppendPrintf(const char* szUtf8Format, ...)
-{
-  va_list args;
-  va_start (args, szUtf8Format);
-
-  AppendPrintfArgs(szUtf8Format, args);
-
-  va_end (args);
-}
-
-inline void ezStringBuilder::PrependPrintf(const char* szUtf8Format, ...)
-{
-  va_list args;
-  va_start (args, szUtf8Format);
-
-  PrependPrintfArgs(szUtf8Format, args);
-
-  va_end (args);
-}
-
 inline void ezStringBuilder::Printf(const char* szUtf8Format, ...)
 {
   va_list args;
@@ -211,17 +191,6 @@ inline void ezStringBuilder::Printf(const char* szUtf8Format, ...)
   PrintfArgs(szUtf8Format, args);
 
   va_end (args);
-}
-
-inline void ezStringBuilder::PrintfArgs(const char* szUtf8Format, va_list args0)
-{
-  va_list args;
-  va_copy(args, args0);
-
-  Clear();
-  AppendPrintfArgs(szUtf8Format, args);
-
-  va_end(args);
 }
 
 inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)

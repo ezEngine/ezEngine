@@ -331,17 +331,13 @@ void ezDocument::DeleteSelectedObjects() const
   history->FinishTransaction();
 }
 
-void ezDocument::ShowDocumentStatus(const char* szFormat, ...) const
+void ezDocument::ShowDocumentStatus(const ezFormatString& msg) const
 {
-  va_list args;
-  va_start(args, szFormat);
-  ezStringBuilder sMsg;
-  sMsg.PrintfArgs(szFormat, args);
-  va_end(args);
+  ezStringBuilder tmp;
 
   ezDocumentEvent e;
   e.m_pDocument = this;
-  e.m_szStatusMsg = sMsg;
+  e.m_szStatusMsg = msg.GetText(tmp);
   e.m_Type = ezDocumentEvent::Type::DocumentStatusMsg;
 
   m_EventsOne.Broadcast(e);

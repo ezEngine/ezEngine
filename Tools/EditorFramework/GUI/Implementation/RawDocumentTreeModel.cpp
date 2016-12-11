@@ -407,7 +407,7 @@ bool ezQtDocumentTreeModel::setData(const QModelIndex& index, const QVariant& va
 
     auto pHistory = m_pDocumentTree->GetDocument()->GetCommandHistory();
 
-    pHistory->StartTransaction("Rename to '%s'", value.toString().toUtf8().data());
+    pHistory->StartTransaction(ezFmt("Rename to '{0}'", value.toString().toUtf8().data()));
 
     ezSetObjectPropertyCommand cmd;
     cmd.m_NewValue = value.toString().toUtf8().data();

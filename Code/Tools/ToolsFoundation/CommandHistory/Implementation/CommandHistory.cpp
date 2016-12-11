@@ -209,7 +209,7 @@ const char* ezCommandHistory::GetRedoDisplayString() const
   return m_RedoHistory.PeekBack()->m_sDisplayString;
 }
 
-void ezCommandHistory::StartTransaction(const char* szDisplayString, ...)
+void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
 {
   /// \todo Allow to have a limited transaction history and clean up transactions after a while
 
@@ -225,17 +225,11 @@ void ezCommandHistory::StartTransaction(const char* szDisplayString, ...)
     return;
   }
 
-  ezStringBuilder sDisplay;
-
-  va_list args;
-  va_start(args, szDisplayString);
-  sDisplay.PrintfArgs(szDisplayString, args);
-  va_end(args);
-
+  ezStringBuilder tmp;
 
   pTransaction = (ezCommandTransaction*) ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate();
   pTransaction->m_pDocument = m_pDocument;
-  pTransaction->m_sDisplayString = sDisplay;
+  pTransaction->m_sDisplayString = sDisplayString.GetText(tmp);
 
   if (!m_TransactionStack.IsEmpty())
   {

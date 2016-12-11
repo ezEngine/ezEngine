@@ -73,7 +73,7 @@ public:
   ezQtContainerWindow* GetContainerWindow() const;
 
   void ShowStatusBarMsgNoArgs(const char* szText);
-  void ShowStatusBarMsg(const char* szText, ...);
+  void ShowStatusBarMsg(const ezFormatString& sText);
 
   /// \brief Sets at which tab order index this window is located
   void SetWindowIndex(ezUInt32 uiIndex) { m_uiWindowIndex = uiIndex; }

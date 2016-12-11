@@ -178,10 +178,12 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
   }
 }
 
-void ezStringBuilder::AppendPrintfArgs(const char* szUtf8Format, va_list args0)
+void ezStringBuilder::PrintfArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);
+
+  Clear();
 
   const ezUInt32 TempBuffer = 4096;
 
@@ -208,41 +210,6 @@ void ezStringBuilder::AppendPrintfArgs(const char* szUtf8Format, va_list args0)
   else
   {
     Append(&szTemp[0]);
-  }
-
-  va_end(args);
-}
-
-void ezStringBuilder::PrependPrintfArgs(const char* szUtf8Format, va_list args0)
-{
-  va_list args;
-  va_copy(args, args0);
-
-  const ezUInt32 TempBuffer = 4096;
-
-  char szTemp[TempBuffer];
-  const ezInt32 iCount = ezStringUtils::vsnprintf(szTemp, TempBuffer - 1, szUtf8Format, args);
-
-  EZ_ASSERT_DEV(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
-
-  if (iCount == -1)
-  {
-    va_end(args);
-    return;
-  }
-
-  if (iCount > TempBuffer - 1)
-  {
-    ezDynamicArray<char> Temp;
-    Temp.SetCount(iCount + 1);
-
-    ezStringUtils::vsnprintf(&Temp[0], iCount + 1, szUtf8Format, args);
-
-    Prepend(&Temp[0]);
-  }
-  else
-  {
-    Prepend(&szTemp[0]);
   }
 
   va_end(args);

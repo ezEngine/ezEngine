@@ -34,21 +34,14 @@ void ezQtLogWidget::ResetStats()
   ComboLogLevel->setCurrentIndex(ezLogMsgType::All - m_LogLevel);
 }
 
-void ezQtLogWidget::Log(const char* szFormat, ...)
+void ezQtLogWidget::Log(const ezFormatString& sText)
 {
-  char szString[4096];
-
-  va_list args;
-  va_start (args, szFormat);
-
-  ezStringUtils::vsnprintf(szString, 4096, szFormat, args);
-
-  va_end (args);
-
   const bool bLastSelected = (ListLog->count() == 0) || (ListLog->currentItem() == ListLog->item(ListLog->count() - 1));
 
+  ezStringBuilder tmp;
+
   LogMsg lm;
-  lm.m_sMsg = szString;
+  lm.m_sMsg = sText.GetText(tmp);
   lm.m_Type = ezLogMsgType::InfoMsg;
   lm.m_uiIndentation = 0;
 

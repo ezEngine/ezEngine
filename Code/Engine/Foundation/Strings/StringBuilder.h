@@ -29,8 +29,6 @@ class ezFormatString;
 /// That makes it difficult to modify individual characters. Instead you should prefer high-level functions
 /// such as 'ReplaceSubString'. If individual characters must be modified, it might make more sense to create
 /// a second ezStringBuilder, and iterate over the first while rebuilding the desired result in the second.
-/// For very convenient string creation, printf functionality is also available via the 'Printf', 'AppendPrintf'
-/// and 'PrependPrintf' functions.
 /// Once a string is built and should only be stored for read access, it should be stored in an ezString instance.
 class EZ_FOUNDATION_DLL ezStringBuilder : public ezStringBase<ezStringBuilder>
 {
@@ -190,13 +188,8 @@ public:
   /// \brief Appends all the given strings at the back of this string in one operation.
   void Append(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
+  /// \brief Appends the given string at the back of this string.
   void Append(const ezStringView& view);
-
-  /// \brief Appends the formatted string.
-  void AppendPrintf(const char* szUtf8Format, ...); // [tested]
-
-  /// \brief Appends the formatted string.
-  void AppendPrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Prepends a single Utf32 character.
   void Prepend(ezUInt32 uiChar); // [tested]
@@ -206,12 +199,6 @@ public:
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
   void Prepend(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
-
-  /// \brief Prepends the formatted string.
-  void PrependPrintf(const char* szUtf8Format, ...); // [tested]
-
-  /// \brief Prepends the formatted string.
-  void PrependPrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Sets this string to the formatted string.
   void Printf(const char* szUtf8Format, ...); // [tested]

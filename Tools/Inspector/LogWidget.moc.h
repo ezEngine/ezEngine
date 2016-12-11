@@ -15,7 +15,7 @@ public:
 public:
   ezQtLogWidget(QWidget* parent = 0);
 
-  void Log(const char* szFormat, ...);
+  void Log(const ezFormatString& sText);
 
   static ezQtLogWidget* s_pWidget;
 

@@ -65,7 +65,7 @@ public:
   const char* GetUndoDisplayString() const;
   const char* GetRedoDisplayString() const;
 
-  void StartTransaction(const char* szDisplayString, ...);
+  void StartTransaction(const ezFormatString& sDisplayString);
   void CancelTransaction() { EndTransaction(true); }
   void FinishTransaction() { EndTransaction(false); }
 
