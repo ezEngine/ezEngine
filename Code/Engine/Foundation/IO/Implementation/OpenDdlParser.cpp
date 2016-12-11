@@ -858,7 +858,7 @@ void ezOpenDdlParser::ContinueBool()
       if (ezConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == EZ_FAILURE)
       {
         ezStringBuilder s;
-        s.Printf("Parsing value: Expected 'true' or 'false', Got '%s' instead.", (const char*)&m_TempString[0]);
+        s.Format("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), false);
       }
 
@@ -1096,7 +1096,7 @@ void ezOpenDdlParser::ContinueFloat()
     if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], dValue) == EZ_FAILURE)
     {
       ezStringBuilder s;
-      s.Printf("Reading number failed: Could not convert '%s' to a floating point value.", (const char*)&m_TempString[0]);
+      s.Format("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*)&m_TempString[0]);
       ParsingError(s.GetData(), true);
     }
 

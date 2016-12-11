@@ -6,7 +6,7 @@ void ezExtendedJSONWriter::WriteInt32(ezInt32 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%i", value);
+  s.Format("{0}", value);
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &value, 1);
 
   WriteBinaryData("int32", &value, sizeof(value), s.GetData());
@@ -17,7 +17,7 @@ void ezExtendedJSONWriter::WriteUInt32(ezUInt32 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%u", value);
+  s.Format("{0}", value);
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &value, 1);
 
   WriteBinaryData("uint32", &value, sizeof(value), s.GetData());
@@ -28,7 +28,7 @@ void ezExtendedJSONWriter::WriteInt64(ezInt64 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%lli", value);
+  s.Format("{0}", value);
   ezEndianHelper::NativeToLittleEndian((ezUInt64*) &value, 1);
 
   WriteBinaryData("int64", &value, sizeof(value), s.GetData());
@@ -39,7 +39,7 @@ void ezExtendedJSONWriter::WriteUInt64(ezUInt64 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%llu", value);
+  s.Format("{0}", value);
   ezEndianHelper::NativeToLittleEndian((ezUInt64*) &value, 1);
 
   WriteBinaryData("uint64", &value, sizeof(value), s.GetData());

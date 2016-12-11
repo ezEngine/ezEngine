@@ -360,7 +360,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     //if (!IsValidIdentifierName(pProp->GetPropertyName()))
     //{
     //  ezStringBuilder s;
-    //  s.Printf("RTTI: %s\n", pProp->GetPropertyName());
+    //  s.Format("RTTI: {0}\n", pProp->GetPropertyName());
 
     //  OutputDebugStringA(s.GetData());
     //}

@@ -29,7 +29,7 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
   EZ_LOCK(m_Mutex);
 
   ezStringBuilder fullName;
-  fullName.Printf("{%s}-{%s}[%llu]", szSharedName, hResource.GetResourceID().GetData(), uiRandomSeed);
+  fullName.Format("{{0}}-{{1}}[{2}]", szSharedName, hResource.GetResourceID().GetData(), uiRandomSeed);
 
   bool bExisted = false;
   auto it = m_SharedEffects.FindOrAdd(fullName, &bExisted);

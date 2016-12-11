@@ -10,14 +10,14 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
   switch (ThreadType)
   {
   case ezWorkerThreadType::ShortTasks:
-    sTemp.Printf("Short Tasks %i", iThreadNumber + 1);
+    sTemp.Format("Short Tasks {0}", iThreadNumber + 1);
     break;
   case ezWorkerThreadType::LongTasks:
-    sTemp.Printf("Long Tasks %i", iThreadNumber + 1);
+    sTemp.Format("Long Tasks {0}", iThreadNumber + 1);
     break;
   case ezWorkerThreadType::FileAccess:
     if (iThreadNumber > 0)
-      sTemp.Printf("Resource Loading %i", iThreadNumber + 1);
+      sTemp.Format("Resource Loading {0}", iThreadNumber + 1);
     else
       sTemp = "Resource Loading";
     break;

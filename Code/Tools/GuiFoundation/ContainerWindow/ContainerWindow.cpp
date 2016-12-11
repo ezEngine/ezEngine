@@ -203,7 +203,7 @@ void ezQtContainerWindow::SaveWindowLayout()
     showNormal();
 
   ezStringBuilder sGroup;
-  sGroup.Printf("ContainerWnd_%s", GetUniqueName().GetData());
+  sGroup.Format("ContainerWnd_{0}", GetUniqueName().GetData());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
@@ -230,7 +230,7 @@ void ezQtContainerWindow::RestoreWindowLayout()
 
   show();
   ezStringBuilder sGroup;
-  sGroup.Printf("ContainerWnd_%s", GetUniqueName().GetData());
+  sGroup.Format("ContainerWnd_{0}", GetUniqueName().GetData());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));

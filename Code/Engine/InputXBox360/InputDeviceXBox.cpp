@@ -19,8 +19,8 @@ void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const 
 
   for (ezInt32 i = 0; i < MaxControllers; ++i)
   {
-    s.Printf("controller%i_%s", i, szButton);
-    s2.Printf("Cont %i: %s", i + 1, szName);
+    s.Format("controller{0}_{1}", i, szButton);
+    s2.Format("Cont {0}: {1}", i + 1, szName);
     RegisterInputSlot(s.GetData(), s2.GetData(), SlotFlags);
   }
 }
@@ -31,7 +31,7 @@ void ezInputDeviceXBox360::SetDeadZone(const char* szButton)
 
   for (ezInt32 i = 0; i < MaxControllers; ++i)
   {
-    s.Printf("controller%i_%s", i, szButton);
+    s.Format("controller{0}_{1}", i, szButton);
     ezInputManager::SetInputSlotDeadZone(s.GetData(), 0.23f);
   }
 }

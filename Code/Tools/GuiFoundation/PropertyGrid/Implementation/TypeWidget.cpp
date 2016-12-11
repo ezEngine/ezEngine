@@ -194,7 +194,7 @@ void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
   {
   case  ezQtPropertyWidget::Event::Type::ValueChanged:
     {
-      ezStringBuilder sTemp; sTemp.Printf("Change Property '%s'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      ezStringBuilder sTemp; sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
       pObjectAccessor->StartTransaction(sTemp);
 
       ezStatus res;
@@ -217,7 +217,7 @@ void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 
   case  ezQtPropertyWidget::Event::Type::BeginTemporary:
     {
-      ezStringBuilder sTemp; sTemp.Printf("Change Property '%s'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      ezStringBuilder sTemp; sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
       pObjectAccessor->BeginTemporaryCommands(sTemp);
     }
     break;

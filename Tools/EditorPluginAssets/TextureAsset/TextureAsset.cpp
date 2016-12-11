@@ -109,7 +109,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
   {
-    temp.Printf("-in%i", i);
+    temp.Format("-in{0}", i);
 
     if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
       break;

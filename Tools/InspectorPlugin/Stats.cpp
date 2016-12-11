@@ -82,14 +82,14 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 
       if ((Now - LastFPS).GetSeconds() >= 1.0)
       {
-        s.Printf("%u", uiFPS);
+        s.Format("{0}", uiFPS);
         ezStats::SetStat("App/FPS", s.GetData());
 
         LastFPS = Now;
         uiFPS = 0;
       }
 
-      s.Printf("%i", ezOSThread::GetThreadCount());
+      s.Format("{0}", ezOSThread::GetThreadCount());
       ezStats::SetStat("App/Active Threads", s.GetData());
 
       // Tasksystem Thread Utilization
@@ -105,7 +105,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
           ezStats::SetStat(s.GetData(), s2.GetData());
 
           s.Printf("Utilization/Short%02i_Tasks", t);
-          s2.Printf("%u", uiNumTasks);
+          s2.Format("{0}", uiNumTasks);
 
           ezStats::SetStat(s.GetData(), s2.GetData());
         }
@@ -121,7 +121,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
           ezStats::SetStat(s.GetData(), s2.GetData());
 
           s.Printf("Utilization/Long%02i_Tasks", t);
-          s2.Printf("%u", uiNumTasks);
+          s2.Format("{0}", uiNumTasks);
 
           ezStats::SetStat(s.GetData(), s2.GetData());
         }
@@ -137,7 +137,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
           ezStats::SetStat(s.GetData(), s2.GetData());
 
           s.Printf("Utilization/File%02i_Tasks", t);
-          s2.Printf("%u", uiNumTasks);
+          s2.Format("{0}", uiNumTasks);
 
           ezStats::SetStat(s.GetData(), s2.GetData());
         }

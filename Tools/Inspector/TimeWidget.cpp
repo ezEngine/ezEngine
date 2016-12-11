@@ -210,7 +210,7 @@ void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
     ezString sClockName;
     Msg.GetReader() >> sClockName;
 
-    sTemp.Printf("%s [smoothed]", sClockName.GetData());
+    sTemp.Format("{0} [smoothed]", sClockName.GetData());
 
     ClockData& ad = s_pWidget->m_ClockData[sClockName];
     ClockData& ads = s_pWidget->m_ClockData[sTemp.GetData()];

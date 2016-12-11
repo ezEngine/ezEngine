@@ -54,7 +54,7 @@ void SetAppStats()
 
   ezStats::SetStat("Platform/Name", info.GetPlatformName());
 
-  sOut.Printf("%i", info.GetCPUCoreCount());
+  sOut.Format("{0}", info.GetCPUCoreCount());
   ezStats::SetStat("Hardware/CPU Cores", sOut.GetData());
 
   sOut.Printf("%.1f GB", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);

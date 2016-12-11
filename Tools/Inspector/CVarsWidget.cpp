@@ -153,10 +153,10 @@ void ezQtCVarsWidget::UpdateCVarsTable(bool bRecreate)
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableCVars->setCellWidget(iRow, 0, pIcon);
 
-      sTemp.Printf("  %s  ", it.Value().m_sPlugin.GetData());
+      sTemp.Format("  {0}  ", it.Value().m_sPlugin.GetData());
       TableCVars->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Plugin
 
-      sTemp.Printf("  %s  ", it.Key().GetData());
+      sTemp.Format("  {0}  ", it.Key().GetData());
       TableCVars->setCellWidget(iRow, 2, new QLabel(sTemp.GetData())); // Name
 
       TableCVars->setCellWidget(iRow, 4, new QLabel(it.Value().m_sDescription.GetData())); // Description

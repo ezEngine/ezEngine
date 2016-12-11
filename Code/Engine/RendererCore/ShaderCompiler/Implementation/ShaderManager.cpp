@@ -114,7 +114,7 @@ void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntim
 void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName)
 {
   ezStringBuilder sPath;
-  sPath.Printf("%s/%s.ezPermVar", s_sPermVarSubDir.GetData(), szName);
+  sPath.Format("{0}/{1}.ezPermVar", s_sPermVarSubDir.GetData(), szName);
 
   // clear earlier data
   s_PermutationVarConfigs.Remove(sHashedName);

@@ -26,7 +26,7 @@ namespace MemoryDetail
 
     ezStringBuilder s;
 
-    s.Printf("%lli", uiTotalAllocations - uiLastTotalAllocations);
+    s.Format("{0}", uiTotalAllocations - uiLastTotalAllocations);
     ezStats::SetStat("App/Allocs Per Frame", s.GetData());
 
     uiLastTotalAllocations = uiTotalAllocations;

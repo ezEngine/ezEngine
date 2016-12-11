@@ -176,7 +176,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Printf("  %s  ", it.Key().GetData());
+      sTemp.Format("  {0}  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
       pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.png"));
@@ -318,7 +318,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Printf("  %s  ", it.Key().GetData());
+      sTemp.Format("  {0}  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
       pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.png"));

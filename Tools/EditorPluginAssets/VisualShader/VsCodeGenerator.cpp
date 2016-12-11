@@ -18,49 +18,49 @@ static ezString ToShaderString(const ezVariant& value)
   case ezVariantType::ColorGamma:
     {
       ezColor v = value.ConvertTo<ezColor>();
-      temp.Printf("float4(%f, %f, %f, %f)", v.r, v.g, v.b, v.a);
+      temp.Format("float4({0}, {1}, {2}, {3})", v.r, v.g, v.b, v.a);
     }
     break;
 
   case ezVariantType::Vector4:
     {
       ezVec4 v = value.Get<ezVec4>();
-      temp.Printf("float4(%f, %f, %f, %f)", v.x, v.y, v.z, v.w);
+      temp.Format("float4({0}, {1}, {2}, {3})", v.x, v.y, v.z, v.w);
     }
     break;
 
   case ezVariantType::Vector3:
     {
       ezVec3 v = value.Get<ezVec3>();
-      temp.Printf("float3(%f, %f, %f)", v.x, v.y, v.z);
+      temp.Format("float3({0}, {1}, {2})", v.x, v.y, v.z);
     }
     break;
 
   case ezVariantType::Vector2:
     {
       ezVec2 v = value.Get<ezVec2>();
-      temp.Printf("float2(%f, %f)", v.x, v.y);
+      temp.Format("float2({0}, {1})", v.x, v.y);
     }
     break;
 
   case ezVariantType::Float:
     {
       float v = value.Get<float>();
-      temp.Printf("%f", v);
+      temp.Format("{0}", v);
     }
     break;
 
   case ezVariantType::Time:
     {
       float v = value.Get<ezTime>().GetSeconds();
-      temp.Printf("%f", v);
+      temp.Format("{0}", v);
     }
     break;
 
   case ezVariantType::Angle:
     {
       float v = value.Get<ezAngle>().GetRadian();
-      temp.Printf("%f", v);
+      temp.Format("{0}", v);
     }
     break;
 
@@ -265,7 +265,7 @@ void ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject*
 
   for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
   {
-    sPinName.Printf("$in%u", i);
+    sPinName.Format("$in{0}", i);
 
     if (inputPins[i]->GetConnections().IsEmpty())
     {
@@ -313,7 +313,7 @@ ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObjec
   const auto& props = pDesc->m_Properties;
   for (ezUInt32 p = 0; p < props.GetCount(); ++p)
   {
-    sPropName.Printf("$prop%u", p);
+    sPropName.Format("$prop{0}", p);
 
     const ezVariant value = TypeAccess.GetValue(props[p].m_sName);
     sPropValue = ToShaderString(value);

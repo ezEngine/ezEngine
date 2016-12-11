@@ -348,7 +348,7 @@ void ezJSONParser::ContinueValue()
       if (ezConversionUtils::StringToBool((const char*) &m_TempString[0], bRes) == EZ_FAILURE)
       {
         ezStringBuilder s;
-        s.Printf("Parsing value: Expected 'true' or 'false', Got '%s' instead.", (const char*) &m_TempString[0]);
+        s.Format("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*) &m_TempString[0]);
         ParsingError(s.GetData(), false);
       }
 
@@ -374,7 +374,7 @@ void ezJSONParser::ContinueValue()
       if (!ezStringUtils::IsEqual((const char*) &m_TempString[0], "null"))
       {
         ezStringBuilder s;
-        s.Printf("Parsing value: Expected 'null', Got '%s' instead.", (const char*) &m_TempString[0]);
+        s.Format("Parsing value: Expected 'null', Got '{0}' instead.", (const char*) &m_TempString[0]);
         ParsingError(s.GetData(), !bIsNull);
       }
 
@@ -673,7 +673,7 @@ double ezJSONParser::ReadNumber()
   if (ezConversionUtils::StringToFloat((const char*) &m_TempString[0], fResult) == EZ_FAILURE)
   {
     ezStringBuilder s;
-    s.Printf("Reading number failed: Could not convert '%s' to a floating point value.", (const char*) &m_TempString[0]);
+    s.Format("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*) &m_TempString[0]);
     ParsingError(s.GetData(), true);
   }
 

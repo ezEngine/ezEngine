@@ -497,7 +497,7 @@ public:
     ezString sFileMarker = GetFileMarkerName(szFile);
 
     ezStringBuilder sNewMarker;
-    sNewMarker.Printf("EZ_STATICLINK_FILE(%s, %s);", sLibraryMarker.GetData(), sFileMarker.GetData());
+    sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker.GetData(), sFileMarker.GetData());
 
     m_AllRefPoints.Insert(sFileMarker.GetData());
 
@@ -560,7 +560,7 @@ public:
     // generate the code that should be inserted into this file
     // this code will reference all the other files in the library
     {
-      sNewGroupMarker.Printf("EZ_STATICLINK_LIBRARY(%s)\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName().GetData());
+      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY({0})\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName().GetData());
 
       auto it = m_AllRefPoints.GetIterator();
 

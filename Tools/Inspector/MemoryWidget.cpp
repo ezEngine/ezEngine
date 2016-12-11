@@ -25,7 +25,7 @@ namespace MemoryWidgetDetail
 void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
 {
   if (uiSize < 1024)
-    s.Printf("%s%llu Bytes", szPrefix, uiSize);
+    s.Format("{0}{1} Bytes", szPrefix, uiSize);
   else if (uiSize < 1024 * 1024)
     s.Printf("%s%.1f KB", szPrefix, uiSize / 1024.0);
   else if (uiSize < 1024 * 1024 * 1024)
@@ -349,13 +349,13 @@ void ezQtMemoryWidget::UpdateStats()
       uiCurUsedMemory);
     LabelCurMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
-    s.Printf("Allocs: %llu", uiLiveAllocs);
+    s.Format("Allocs: {0}", uiLiveAllocs);
     LabelNumLiveAllocs->setText(QString::fromUtf8(s.GetData()));
 
-    s.Printf("Counter: %llu / %llu", uiAllocs, uiDeallocs);
+    s.Format("Counter: {0} / {1}", uiAllocs, uiDeallocs);
     LabelNumAllocs->setText(QString::fromUtf8(s.GetData()));
 
-    s.Printf("<p>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b></p>", uiAllocs, uiDeallocs);
+    s.Format("<p>Allocations: <b>{0}</b><br>Deallocations: <b>{1}</b></p>", uiAllocs, uiDeallocs);
     LabelNumAllocs->setToolTip(QString::fromUtf8(s.GetData()));
   }
 }

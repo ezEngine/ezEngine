@@ -243,7 +243,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float 
   geom.AddGeodesicSphere(fRadius, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Printf("Sphere_%i", iSubDivs);
+  sName.Format("Sphere_{0}", iSubDivs);
 
   return CreateMesh(geom, sName);
 }
@@ -257,7 +257,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float f
   geom.AddTorus(fInnerRadius, fOuterRadius, iSubDivs, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Printf("Torus_%i", iSubDivs);
+  sName.Format("Torus_{0}", iSubDivs);
 
   return CreateMesh(geom, sName);
 }

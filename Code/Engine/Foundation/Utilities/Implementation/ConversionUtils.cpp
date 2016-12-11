@@ -487,77 +487,77 @@ namespace ezConversionUtils
   ezString ToString(ezInt8 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%i", (ezInt32)value);
+    sb.Format("{0}", (ezInt32)value);
     return sb;
   }
 
   ezString ToString(ezUInt8 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%u", (ezUInt32)value);
+    sb.Format("{0}", (ezUInt32)value);
     return sb;
   }
 
   ezString ToString(ezInt16 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%i", (ezInt32)value);
+    sb.Format("{0}", (ezInt32)value);
     return sb;
   }
 
   ezString ToString(ezUInt16 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%u", (ezUInt32)value);
+    sb.Format("{0}", (ezUInt32)value);
     return sb;
   }
 
   ezString ToString(ezInt32 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%i", value);
+    sb.Format("{0}", value);
     return sb;
   }
 
   ezString ToString(ezUInt32 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%u", value);
+    sb.Format("{0}", value);
     return sb;
   }
 
   ezString ToString(ezInt64 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%lli", value);
+    sb.Format("{0}", value);
     return sb;
   }
 
   ezString ToString(ezUInt64 value)
   {
     ezStringBuilder sb;
-    sb.Printf("%llu", value);
+    sb.Format("{0}", value);
     return sb;
   }
 
   ezString ToString(float value)
   {
     ezStringBuilder sb;
-    sb.Printf("%f", value);
+    sb.Format("{0}", value);
     return sb;
   }
 
   ezString ToString(double value)
   {
     ezStringBuilder sb;
-    sb.Printf("%f", value);
+    sb.Format("{0}", value);
     return sb;
   }
 
   ezString ToString(const ezColor& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ r=%f, g=%f, b=%f, a=%f }", value.r, value.g, value.b, value.a);
+    sb.Format("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
     return sb;
   }
 
@@ -566,56 +566,56 @@ namespace ezConversionUtils
     /// \test This is new
 
     ezStringBuilder sb;
-    sb.Printf("{ r=%u, g=%u, b=%u, a=%u }", value.r, value.g, value.b, value.a);
+    sb.Format("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
     return sb;
   }
 
   ezString ToString(const ezVec2& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ x=%f, y=%f }", value.x, value.y);
+    sb.Format("{ x={0}, y={1} }", value.x, value.y);
     return sb;
   }
 
   ezString ToString(const ezVec3& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ x=%f, y=%f, z=%f }", value.x, value.y, value.z);
+    sb.Format("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
     return sb;
   }
 
   ezString ToString(const ezVec4& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ x=%f, y=%f, z=%f, w=%f }", value.x, value.y, value.z, value.w);
+    sb.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
     return sb;
   }
 
   ezString ToString(const ezVec2I32& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ x=%i, y=%i }", value.x, value.y);
+    sb.Format("{ x={0}, y={1} }", value.x, value.y);
     return sb;
   }
 
   ezString ToString(const ezVec3I32& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ x=%i, y=%i, z=%i }", value.x, value.y, value.z);
+    sb.Format("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
     return sb;
   }
 
   ezString ToString(const ezVec4I32& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ x=%i, y=%i, z=%i, w=%i }", value.x, value.y, value.z, value.w);
+    sb.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
     return sb;
   }
 
   ezString ToString(const ezQuat& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ x=%f, y=%f, z=%f, w=%f }", value.v.x, value.v.y, value.v.z, value.w);
+    sb.Format("{ x={0}, y={1}, z={2}, w={3} }", value.v.x, value.v.y, value.v.z, value.w);
     return sb;
   }
 
@@ -648,7 +648,7 @@ namespace ezConversionUtils
   ezString ToString(const ezTransform& value)
   {
     ezStringBuilder sb;
-    sb.Printf("{ position=%s, rotation=%s }", ToString(value.m_vPosition).GetData(), ToString(value.m_Rotation).GetData());
+    sb.Format("{ position={0}, rotation={1} }", ToString(value.m_vPosition).GetData(), ToString(value.m_Rotation).GetData());
     return sb;
   }
 

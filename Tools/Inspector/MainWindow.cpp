@@ -222,7 +222,7 @@ void ezQtMainWindow::UpdateNetwork()
         bResetStats = true;
 
         ezStringBuilder s;
-        s.Printf("Connected to new Server with ID %i", uiServerID);
+        s.Format("Connected to new Server with ID {0}", uiServerID);
 
         ezQtLogWidget::s_pWidget->Log(s.GetData());
       }

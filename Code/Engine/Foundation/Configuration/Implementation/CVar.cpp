@@ -166,7 +166,7 @@ void ezCVar::SaveCVars()
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Printf("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());
+    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder.GetData(), it.Key().GetData());
 
     ezFileWriter File;
     if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
@@ -181,25 +181,25 @@ void ezCVar::SaveCVars()
         case ezCVarType::Int:
           {
             ezCVarInt* pInt = (ezCVarInt*) pCVar;
-            sTemp.Printf("%s = %i\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
+            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
           }
           break;
         case ezCVarType::Bool:
           {
             ezCVarBool* pBool = (ezCVarBool*) pCVar;
-            sTemp.Printf("%s = %s\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
+            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
           }
           break;
         case ezCVarType::Float:
           {
             ezCVarFloat* pFloat = (ezCVarFloat*) pCVar;
-            sTemp.Printf("%s = %f\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
+            sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
           }
           break;
         case ezCVarType::String:
           {
             ezCVarString* pString = (ezCVarString*) pCVar;
-            sTemp.Printf("%s = \"%s\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart).GetData());
+            sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart).GetData());
           }
           break;
         default:
@@ -341,7 +341,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Printf("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());
+    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder.GetData(), it.Key().GetData());
 
     ezFileReader File;
     if (File.Open(sTemp.GetData()) == EZ_SUCCESS)

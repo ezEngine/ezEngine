@@ -85,8 +85,8 @@ ezResult ezQtModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
   if (res.m_Result.Failed())
   {
     ezStringBuilder s, s2;
-    s.Printf("Failed to save document:\n'%s'", pDoc->GetDocumentPath());
-    s2.Printf("Successfully saved document:\n'%s'", pDoc->GetDocumentPath());
+    s.Format("Failed to save document:\n'{0}'", pDoc->GetDocumentPath());
+    s2.Format("Successfully saved document:\n'{0}'", pDoc->GetDocumentPath());
 
     ezQtUiServices::MessageBoxStatus(res, s, s2);
 

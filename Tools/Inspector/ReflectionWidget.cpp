@@ -123,7 +123,7 @@ bool ezQtReflectionWidget::UpdateTree()
       it.Value().m_pTreeItem = pItem;
 
       ezStringBuilder sText;
-      sText.Printf("%i", it.Value().m_uiSize);
+      sText.Format("{0}", it.Value().m_uiSize);
 
       pItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
       pItem->setText(0, it.Key().GetData());

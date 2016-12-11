@@ -53,7 +53,7 @@ namespace
 
       if (isBoolVar)
       {
-        sTemp.Printf("%s %s", var.m_sName.GetData(), var.m_sValue.GetData());
+        sTemp.Format("{0} {1}", var.m_sName.GetData(), var.m_sValue.GetData());
         out_Defines.PushBack(sTemp);
       }
       else
@@ -65,18 +65,18 @@ namespace
         {
           if (!enumValues[i].IsEmpty())
           {
-            sTemp.Printf("%s_%s %d", szName, enumValues[i].GetData(), i);
+            sTemp.Format("{0}_{1} {2}", szName, enumValues[i].GetData(), i);
             out_Defines.PushBack(sTemp);
           }
         }
 
         if (ezStringUtils::StartsWith(szValue, szName))
         {
-          sTemp.Printf("%s %s", szName, szValue);
+          sTemp.Format("{0} {1}", szName, szValue);
         }
         else
         {
-          sTemp.Printf("%s %s_%s", szName, szName, szValue);
+          sTemp.Format("{0} {1}_{2}", szName, szName, szValue);
         }
         out_Defines.PushBack(sTemp);
       }
