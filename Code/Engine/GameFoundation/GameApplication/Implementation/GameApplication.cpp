@@ -606,7 +606,7 @@ void ezGameApplication::RenderFps()
     if (const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
       ezStringBuilder sFps;
-      sFps.Printf("%4.4f fps, %4.4f ms", 1.0f / fElapsedTime, fElapsedTime * 1000.0f);
+      sFps.Format("{0} fps, {1} ms", ezArgF(1.0f / fElapsedTime, 4, false, 4), ezArgF(fElapsedTime * 1000.0f, 4, false, 4));
 
       ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 
