@@ -61,7 +61,7 @@ ezResult ezPreprocessor::ExtractParameterName(const TokenStream& Tokens, ezUInt3
 {
   SkipWhitespace(Tokens, uiCurToken);
 
-  if (uiCurToken + 2 < Tokens.GetCount() && 
+  if (uiCurToken + 2 < Tokens.GetCount() &&
       Tokens[uiCurToken + 0]->m_DataView == "." &&
       Tokens[uiCurToken + 1]->m_DataView == "." &&
       Tokens[uiCurToken + 2]->m_DataView == ".")
@@ -108,7 +108,7 @@ ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ez
   while (Accept(Tokens, uiCurToken, ",")); // continue with the next parameter
 
   ezString s = Tokens[uiCurToken]->m_DataView;
-  PP_LOG(Error, "',' or ')' expected, got '%s' instead", Tokens[uiCurToken], s.GetData());
+  PP_LOG(Error, "',' or ')' expected, got '{0}' instead", Tokens[uiCurToken], s.GetData());
 
   return EZ_FAILURE;
 }
@@ -152,7 +152,7 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
 
     ParamTokens.PushBack(Tokens[uiCurToken]);
   }
-  
+
   // reached the end of the stream without encountering the closing parenthesis first
   PP_LOG0(Error, "Unexpected end of file during macro parameter extraction", Tokens[uiFirstToken]);
   return EZ_FAILURE;

@@ -29,7 +29,7 @@ public:
   void Clear();
 
   /// \brief Stores \a FileContent for the file \a sFileName as the new cached data.
-  /// 
+  ///
   //// The file content is tokenized first and all #line directives are evaluated, to update the line number and file origin for each token.
   /// Any errors are written to the given log.
   const ezTokenizer* Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog);
@@ -345,7 +345,7 @@ private: // *** Macro Expansion ***
   const ezToken* m_TokenOpenParenthesis;
   const ezToken* m_TokenClosedParenthesis;
   const ezToken* m_TokenComma;
-  
+
   ezDeque<const MacroParameters*> m_MacroParamStack;
   ezDeque<const MacroParameters*> m_MacroParamStackExpanded;
   ezDeque<CustomToken> m_CustomTokens;
@@ -393,8 +393,8 @@ private: // *** Other ***
       const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData()); \
     } \
     ezStringBuilder sInfo; \
-    sInfo.Printf(FormatStr, __VA_ARGS__); \
+    sInfo.Format(FormatStr, __VA_ARGS__); \
     pe.m_szInfo = sInfo.GetData(); \
     m_ProcessingEvents.Broadcast(pe); \
-    ezLog::Type(m_pLog, "File '%s', Line %u (%u): " FormatStr, pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn, __VA_ARGS__); \
+    ezLog::Type(m_pLog, "File '%s', Line %u (%u): %s", pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn, sInfo.GetData()); \
   }

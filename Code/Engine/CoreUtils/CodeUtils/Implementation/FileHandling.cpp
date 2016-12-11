@@ -24,7 +24,7 @@ void ezTokenizedFileCache::Clear()
 
 void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
 {
-  while (uiCurToken < Tokens.GetCount() && 
+  while (uiCurToken < Tokens.GetCount() &&
           (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment ||
            Tokens[uiCurToken].m_iType == ezTokenType::LineComment ||
            Tokens[uiCurToken].m_iType == ezTokenType::Newline ||
@@ -63,14 +63,14 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, con
 
       SkipWhitespace(Tokens, uiNext);
 
-      if (uiNext < Tokens.GetCount() && 
+      if (uiNext < Tokens.GetCount() &&
           Tokens[uiNext].m_iType == ezTokenType::Identifier &&
           ezString(Tokens[uiNext].m_DataView) == "line")
       {
         ++uiNext;
         SkipWhitespace(Tokens, uiNext);
 
-        if (uiNext < Tokens.GetCount() && 
+        if (uiNext < Tokens.GetCount() &&
             Tokens[uiNext].m_iType == ezTokenType::Identifier)
         {
           ezInt32 iNextLine = 0;
@@ -244,7 +244,7 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
       sPath.Shrink(0, 1);
     else
     {
-      PP_LOG(Error, "Invalid include path '%s'", Tokens[uiAccepted], sPath.GetData());
+      PP_LOG(Error, "Invalid include path '{0}'", Tokens[uiAccepted], sPath.GetData());
       return EZ_FAILURE;
     }
   }
@@ -261,7 +261,7 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
 
   if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), sPath.GetData(), IncType, sOtherFile).Failed())
   {
-    PP_LOG(Error, "#include file '%s' could not be located", Tokens[uiAccepted], sPath.GetData());
+    PP_LOG(Error, "#include file '{0}' could not be located", Tokens[uiAccepted], sPath.GetData());
     return EZ_FAILURE;
   }
 

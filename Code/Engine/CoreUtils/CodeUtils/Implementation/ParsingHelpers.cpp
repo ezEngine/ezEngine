@@ -148,7 +148,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
 
   const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 1, uiCurToken);
   ezString sErrorToken = Tokens[uiErrorToken]->m_DataView;
-  PP_LOG(Error, "Expected token '%s' got '%s'", Tokens[uiErrorToken], szToken, sErrorToken.GetData());
+  PP_LOG(Error, "Expected token '{0}' got '{1}'", Tokens[uiErrorToken], szToken, sErrorToken.GetData());
 
   return EZ_FAILURE;
 }
@@ -165,7 +165,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
     return EZ_SUCCESS;
 
   const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 1, uiCurToken);
-  PP_LOG(Error, "Expected token of type '%s' got type '%s' instead", Tokens[uiErrorToken], ezTokenType::EnumNames[Type], ezTokenType::EnumNames[Tokens[uiErrorToken]->m_iType]);
+  PP_LOG(Error, "Expected token of type '{0}' got type '{1}' instead", Tokens[uiErrorToken], ezTokenType::EnumNames[Type], ezTokenType::EnumNames[Tokens[uiErrorToken]->m_iType]);
 
   return EZ_FAILURE;
 }
@@ -184,7 +184,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
   const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 2, uiCurToken);
   ezString sErrorToken1 = Tokens[uiErrorToken]->m_DataView;
   ezString sErrorToken2 = Tokens[uiErrorToken + 1]->m_DataView;
-  PP_LOG(Error, "Expected tokens '%s%s', got '%s%s'", Tokens[uiErrorToken], szToken1, szToken2, sErrorToken1.GetData(), sErrorToken2.GetData());
+  PP_LOG(Error, "Expected tokens '{0}{1}', got '{2}{3}'", Tokens[uiErrorToken], szToken1, szToken2, sErrorToken1.GetData(), sErrorToken2.GetData());
 
   return EZ_FAILURE;
 }
@@ -194,7 +194,7 @@ ezResult ezPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& ui
   if (!IsEndOfLine(Tokens, uiCurToken, true))
   {
     ezString sToken = Tokens[uiCurToken]->m_DataView;
-    PP_LOG(Warning, "Expected end-of-line, found token '%s'", Tokens[uiCurToken], sToken.GetData());
+    PP_LOG(Warning, "Expected end-of-line, found token '{0}'", Tokens[uiCurToken], sToken.GetData());
     return EZ_FAILURE;
   }
 

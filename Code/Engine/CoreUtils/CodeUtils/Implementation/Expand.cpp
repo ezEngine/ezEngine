@@ -22,7 +22,7 @@ ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)
   {
     if (iIterations > 10)
     {
-      PP_LOG(Error, "Macro expansion reached %i iterations", Tokens[0], iIterations);
+      PP_LOG(Error, "Macro expansion reached {0} iterations", Tokens[0], iIterations);
       return EZ_FAILURE;
     }
 
@@ -41,7 +41,7 @@ ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)
   // if we can construct a macro that needs more iterations, this limit can easily be raised
   if (iIterations > 2)
   {
-    PP_LOG(Warning, "Macro expansion reached %i iterations", Tokens[0], iIterations);
+    PP_LOG(Warning, "Macro expansion reached {0} iterations", Tokens[0], iIterations);
   }
 
   Output.PushBackRange(Temp[iCur1]);
@@ -574,7 +574,7 @@ ezResult ezPreprocessor::ExpandMacroParam(const ezToken& MacroToken, ezUInt32 ui
 
     Output.PushBack(pWhitespace);
 
-    PP_LOG(Warning, "Trying to access parameter %u, but only %u parameters were passed along", (&MacroToken), uiParam, ParamsExpanded.GetCount());
+    PP_LOG(Warning, "Trying to access parameter {0}, but only {1} parameters were passed along", (&MacroToken), uiParam, ParamsExpanded.GetCount());
     return EZ_SUCCESS;
   }
   else if (uiParam + 1 == Macro.m_iNumParameters && Macro.m_bHasVarArgs)

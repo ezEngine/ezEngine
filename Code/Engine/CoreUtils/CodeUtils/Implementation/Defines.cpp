@@ -21,7 +21,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if ((sMacroName == "defined") || (sMacroName == "__FILE__") || (sMacroName == "__LINE__"))
   {
-    PP_LOG(Error, "Macro name '%s' is reserved", pMacroNameToken, sMacroName.GetData());
+    PP_LOG(Error, "Macro name '{0}' is reserved", pMacroNameToken, sMacroName.GetData());
     return EZ_FAILURE;
   }
 
@@ -37,7 +37,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if (!md.m_Replacement.IsEmpty() && md.m_Replacement.PeekBack()->m_DataView == "#")
   {
-    PP_LOG(Error, "Macro '%s' ends with invalid character '#'", md.m_Replacement.PeekBack(), sMacroName.GetData());
+    PP_LOG(Error, "Macro '{0}' ends with invalid character '#'", md.m_Replacement.PeekBack(), sMacroName.GetData());
     return EZ_FAILURE;
   }
 
@@ -62,7 +62,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if (bExisted)
   {
-    PP_LOG(Warning, "Redefinition of macro '%s'", pMacroNameToken, sMacroName.GetData());
+    PP_LOG(Warning, "Redefinition of macro '{0}'", pMacroNameToken, sMacroName.GetData());
     //return EZ_FAILURE;
   }
 
@@ -108,7 +108,7 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
     {
       if (uiCurToken >= Tokens.GetCount())
       {
-        PP_LOG(Error, "Could not extract macro parameter %i, reached end of token stream first", Tokens[Tokens.GetCount() - 1], parameters.GetCount());
+        PP_LOG(Error, "Could not extract macro parameter {0}, reached end of token stream first", Tokens[Tokens.GetCount() - 1], parameters.GetCount());
         return EZ_FAILURE;
       }
 
@@ -117,7 +117,7 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
       ezString sParam;
       if (ExtractParameterName(Tokens, uiCurToken, sParam) == EZ_FAILURE)
       {
-        PP_LOG(Error, "Could not extract macro parameter %i", Tokens[uiCurParamToken], parameters.GetCount());
+        PP_LOG(Error, "Could not extract macro parameter {0}", Tokens[uiCurParamToken], parameters.GetCount());
         return EZ_FAILURE;
       }
 
