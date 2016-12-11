@@ -4,13 +4,13 @@
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Threading/ThreadLocalPointer.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Strings/FormatString.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
 #define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
 // Forward declaration, class is at the end of this file
 class ezLogBlock;
-class ezFormatString;
 
 
 /// \brief Describes the types of events that ezLog sends.
