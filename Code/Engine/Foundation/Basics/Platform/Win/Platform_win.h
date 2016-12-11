@@ -82,14 +82,10 @@
   #define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type))
 
   #define EZ_DEBUG_BREAK { __debugbreak(); }
-  
+
   #define EZ_SOURCE_FUNCTION __FUNCTION__
   #define EZ_SOURCE_LINE __LINE__
   #define EZ_SOURCE_FILE __FILE__
-
-  // declare platform specific types
-  typedef unsigned __int64  ezUInt64;
-  typedef __int64           ezInt64;
 
   // Set Warnings as Errors: Too few/many parameters given for Macro
   #pragma warning(error : 4002 4003)
@@ -101,7 +97,7 @@
   #pragma warning(disable: 4251)
 
   // behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
-  #pragma warning(disable: 4345)  
+  #pragma warning(disable: 4345)
 
   // EZ_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
   // unfortunately, VS 2010 still has this compiler bug which treats a __VA_ARGS__ argument as being one single parameter:
