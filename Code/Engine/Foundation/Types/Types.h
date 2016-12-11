@@ -2,15 +2,15 @@
 
 // ***** Definition of types *****
 
-typedef unsigned char     ezUInt8;
-typedef unsigned short    ezUInt16;
-typedef unsigned int      ezUInt32;
-// ezUInt64 is defined in the compiler specific header
+typedef unsigned char      ezUInt8;
+typedef unsigned short     ezUInt16;
+typedef unsigned int       ezUInt32;
+typedef unsigned long long ezUInt64;
 
 typedef char              ezInt8;
 typedef short             ezInt16;
 typedef int               ezInt32;
-// ezInt64 is defined in the compiler specific header
+typedef long long         ezInt64;
 
 // no float-types, since those are well portable
 
