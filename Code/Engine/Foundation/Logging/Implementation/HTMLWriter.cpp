@@ -88,7 +88,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   switch (eventData.m_EventType)
   {
   case ezLogMsgType::BeginGroup:
-    sText.Printf("<br><font color=\"#8080FF\"><b> <<< <u>%s</u> >>> </b> (%s) </font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText.GetData(), sTag.GetData());
+    sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>{0}</u> >>> </b> ({1}) </font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText.GetData(), sTag.GetData());
     break;
   case ezLogMsgType::EndGroup:
     sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} >>> </b></font><br><br>\n", sOriginalText.GetData());

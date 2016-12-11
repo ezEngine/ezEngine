@@ -50,7 +50,7 @@ void ezExtendedJSONWriter::WriteFloat(float value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%.4f", value);
+  s.Format("{0}", ezArgF(value, 4));
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &value, 1);
 
   WriteBinaryData("float", &value, sizeof(value), s.GetData());
@@ -61,7 +61,7 @@ void ezExtendedJSONWriter::WriteDouble(double value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%.8f", value);
+  s.Format("{0}", ezArgF(value, 8));
   ezEndianHelper::NativeToLittleEndian((ezUInt64*) &value, 1);
 
   WriteBinaryData("double", &value, sizeof(value), s.GetData());
@@ -72,7 +72,7 @@ void ezExtendedJSONWriter::WriteTime(ezTime value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%.4f", value.GetSeconds());
+  s.Format("{0}", ezArgF(value.GetSeconds(), 4));
   ezEndianHelper::NativeToLittleEndian((ezUInt64*) &value, 1);
 
   WriteBinaryData("time", &value, sizeof(value), s.GetData());
@@ -83,7 +83,7 @@ void ezExtendedJSONWriter::WriteAngle(ezAngle value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Printf("%.4f", value.GetDegree());
+  s.Format("{0}", ezArgF(value.GetDegree(), 4));
 
   ezEndianHelper::NativeToLittleEndian((ezUInt32*)&value, 1);
 

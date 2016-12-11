@@ -265,7 +265,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
           pValue->setText("");
         else
         {
-          sTemp.Printf(" %.4f ", it.Value().m_fValue);
+          sTemp.Format(" {0} ", ezArgF(it.Value().m_fValue, 4));
           pValue->setText(sTemp.GetData());
         }
       }
@@ -339,7 +339,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         if (it.Value().m_sTrigger[slot].IsEmpty())
           sTemp = "  ";
         else
-          sTemp.Printf("  [Scale: %.2f] %s  ", it.Value().m_fTriggerScaling[slot], it.Value().m_sTrigger[slot].GetData());
+          sTemp.Format("  [Scale: {0}] {1}  ", ezArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot].GetData());
 
         QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 4 + slot);
         pValue->setText(sTemp.GetData());
@@ -386,9 +386,9 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         else
         {
           if (it.Value().m_bUseTimeScaling)
-            sTemp.Printf(" %.4f (Time-Scaled) ", it.Value().m_fValue);
+            sTemp.Format(" {0} (Time-Scaled) ", ezArgF(it.Value().m_fValue, 4));
           else
-            sTemp.Printf(" %.4f (Absolute) ", it.Value().m_fValue);
+            sTemp.Format(" {0} (Absolute) ", ezArgF(it.Value().m_fValue, 4));
 
           pValue->setText(sTemp.GetData());
         }

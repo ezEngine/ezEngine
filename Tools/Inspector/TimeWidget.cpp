@@ -177,7 +177,7 @@ void ezQtTimeWidget::UpdateStats()
     m_LastUpdatedClockList = ezTime::Now();
 
     ezStringBuilder s;
-    s.Printf("Max: %.0fms", tShowMax.GetMilliseconds());
+    s.Format("Max: {0}ms", ezArgF(tShowMax.GetMilliseconds(), 0));
     LabelMaxTime->setText(s.GetData());
 
     for (ezMap<ezString, ezQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)

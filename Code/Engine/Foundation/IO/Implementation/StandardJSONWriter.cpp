@@ -206,9 +206,9 @@ void ezStandardJSONWriter::WriteColor(const ezColor& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Printf("(%.4f,%.4f,%.4f,%.4f)", value.r, value.g, value.b, value.a);
+    s.Format("({0},{1},{2},{3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
   else
-    s.Printf("(%.4f, %.4f, %.4f, %.4f)", value.r, value.g, value.b, value.a);
+    s.Format("({0}, {1}, {2}, {3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
 
   WriteBinaryData("color", &temp, sizeof(temp), s.GetData());
 }
@@ -234,9 +234,9 @@ void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Printf("(%.4f,%.4f)", value.x, value.y);
+    s.Format("({0},{1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
   else
-    s.Printf("(%.4f, %.4f)", value.x, value.y);
+    s.Format("({0}, {1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
 
   WriteBinaryData("vec2", &temp, sizeof(temp), s.GetData());
 }
@@ -250,9 +250,9 @@ void ezStandardJSONWriter::WriteVec3(const ezVec3& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Printf("(%.4f,%.4f,%.4f)", value.x, value.y, value.z);
+    s.Format("({0},{1},{2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
   else
-    s.Printf("(%.4f, %.4f, %.4f)", value.x, value.y, value.z);
+    s.Format("({0}, {1}, {2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
 
   WriteBinaryData("vec3", &temp, sizeof(temp), s.GetData());
 }
@@ -266,9 +266,9 @@ void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Printf("(%.4f,%.4f,%.4f,%.4f)", value.x, value.y, value.z, value.w);
+    s.Format("({0},{1},{2},{3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
   else
-    s.Printf("(%.4f, %.4f, %.4f, %.4f)", value.x, value.y, value.z, value.w);
+    s.Format("({0}, {1}, {2}, {3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
 
   WriteBinaryData("vec4", &temp, sizeof(temp), s.GetData());
 }

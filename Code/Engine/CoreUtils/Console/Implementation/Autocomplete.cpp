@@ -144,7 +144,7 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
   case ezCVarType::Float:
     {
       ezCVarFloat* pFloat = static_cast<ezCVarFloat*> (pCVar);
-      s.Printf("%.3f", pFloat->GetValue());
+      s.Format("{0}", ezArgF(pFloat->GetValue(), 3));
     }
     break;
 

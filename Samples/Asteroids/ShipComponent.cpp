@@ -31,7 +31,7 @@ void ShipComponent::SetVelocity(const ezVec3& vVel)
 
   ezStringBuilder s, v;
   s.Format("Game/Player{0}/Velocity", m_iPlayerIndex);
-  v.Printf("%.3f | %.3f | %.3f", m_vVelocity.x, m_vVelocity.y, m_vVelocity.z);
+  v.Format("{0} | {1} | {2}", ezArgF(m_vVelocity.x, 3), ezArgF(m_vVelocity.y, 3), ezArgF(m_vVelocity.z, 3));
 
   ezStats::SetStat(s.GetData(), v.GetData());
 }

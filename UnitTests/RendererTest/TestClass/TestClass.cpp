@@ -271,7 +271,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
   geom.AddBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Printf("Box_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
+  sName.Format("Box_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
 
   return CreateMesh(geom, sName);
 }
@@ -285,7 +285,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateLineBox(float fWidth, float fHe
   geom.AddLineBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
-  sName.Printf("LineBox_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
+  sName.Format("LineBox_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
 
   return CreateMesh(geom, sName);
 }

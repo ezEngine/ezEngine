@@ -285,7 +285,7 @@ void ezGPUResourcePool::UpdateMemoryStats() const
   float fMegaBytes = float(m_uiCurrentlyAllocatedMemory) / (1024.0f * 1024.0f);
 
   ezStringBuilder sOut;
-  sOut.Printf("%.4f (Mb)", fMegaBytes);
+  sOut.Format("{0} (Mb)", ezArgF(fMegaBytes, 4));
   ezStats::SetStat("GPU Resource Pool/Memory Consumption", sOut.GetData());
 
   #endif

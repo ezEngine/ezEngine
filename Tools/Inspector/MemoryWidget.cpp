@@ -27,11 +27,11 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
   if (uiSize < 1024)
     s.Format("{0}{1} Bytes", szPrefix, uiSize);
   else if (uiSize < 1024 * 1024)
-    s.Printf("%s%.1f KB", szPrefix, uiSize / 1024.0);
+    s.Format("{0}{1} KB", szPrefix, ezArgF(uiSize / 1024.0, 1));
   else if (uiSize < 1024 * 1024 * 1024)
-    s.Printf("%s%.2f MB", szPrefix, uiSize / 1024.0 / 1024.0);
+    s.Format("{0}{1} MB", szPrefix, ezArgF(uiSize / 1024.0 / 1024.0, 2));
   else
-    s.Printf("%s%.2f GB", szPrefix, uiSize / 1024.0 / 1024.0 / 1024.0);
+    s.Format("{0}{1} GB", szPrefix, ezArgF(uiSize / 1024.0 / 1024.0 / 1024.0, 2));
 }
 
 ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent) : QDockWidget (parent)
