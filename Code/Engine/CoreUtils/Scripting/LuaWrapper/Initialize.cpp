@@ -46,7 +46,7 @@ ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugCh
   {
     EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
 
-    ezLog::ErrorPrintfI(pLogInterface, "[lua]Lua compile error: %s", lua_tostring(m_pState, -1));
+    ezLog::Error(pLogInterface, "[lua]Lua compile error: {0}", lua_tostring(m_pState, -1));
     ezLog::Info("[luascript]Script: {0}", szString);
 
     return EZ_FAILURE;
@@ -58,7 +58,7 @@ ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugCh
   {
     EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
 
-    ezLog::ErrorPrintfI(pLogInterface, "[lua]Lua error: %s", lua_tostring(m_pState, -1));
+    ezLog::Error(pLogInterface, "[lua]Lua error: {0}", lua_tostring(m_pState, -1));
     ezLog::Info("[luascript]Script: {0}", szString);
 
     return EZ_FAILURE;

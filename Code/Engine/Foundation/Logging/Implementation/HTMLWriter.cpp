@@ -119,7 +119,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   default:
     sText.Format("<font color=\"#A0A0A0\">{0}</font><br>\n", sOriginalText.GetData());
 
-    ezLog::WarningPrintf ("Unknown Message Type %d", eventData.m_EventType);
+    ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
     break;
   }
 

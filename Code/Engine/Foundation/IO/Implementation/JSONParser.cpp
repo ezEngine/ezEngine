@@ -99,9 +99,9 @@ void ezJSONParser::ParsingError(const char* szMessage, bool bFatal)
   }
 
   if (bFatal)
-    ezLog::ErrorPrintfI(m_pLogInterface, "Line %u (%u): %s", m_uiCurLine, m_uiCurColumn, szMessage);
+    ezLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, szMessage);
   else
-    ezLog::WarningPrintfI(m_pLogInterface, szMessage);
+    ezLog::Warning(m_pLogInterface, szMessage);
 
   OnParsingError(szMessage, bFatal, m_uiCurLine, m_uiCurColumn);
 }

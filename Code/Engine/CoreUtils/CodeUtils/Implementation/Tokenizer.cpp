@@ -152,7 +152,7 @@ void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* 
     case ezTokenType::NonIdentifier:
       HandleNonIdentifier();
       break;
-        
+
     case ezTokenType::Newline:
     case ezTokenType::EndOfFile:
     case ezTokenType::ENUM_COUNT:
@@ -277,9 +277,9 @@ void ezTokenizer::HandleString(char terminator)
       m_szTokenStart = m_szCurCharStart;
     }
     // not-escaped line break in string
-    else if (m_uiCurChar == '\n') 
+    else if (m_uiCurChar == '\n')
     {
-      ezLog::ErrorPrintfI(m_pLog, "Unescaped Newline in string");
+      ezLog::Error(m_pLog, "Unescaped Newline in string");
       //NextChar(); // not sure whether to include the newline in the string or not
       AddToken();
       return;
@@ -297,7 +297,7 @@ void ezTokenizer::HandleString(char terminator)
     }
   }
 
-  ezLog::ErrorPrintfI(m_pLog, "String not closed at end of file");
+  ezLog::Error(m_pLog, "String not closed at end of file");
   AddToken();
 }
 
@@ -333,7 +333,7 @@ void ezTokenizer::HandleBlockComment()
     NextChar();
   }
 
-  ezLog::ErrorPrintfI(m_pLog, "Block comment not closed at end of file.");
+  ezLog::Error(m_pLog, "Block comment not closed at end of file.");
   AddToken();
 }
 

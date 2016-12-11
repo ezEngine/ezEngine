@@ -52,7 +52,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
   ezFileReader reader;
   if (reader.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::WarningPrintfI(pLog, "Failed to open image file '%s'", szFileName);
+    ezLog::Warning(pLog, "Failed to open image file '{0}'", szFileName);
     return EZ_FAILURE;
   }
 
@@ -64,7 +64,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
     {
       if (pFormat->ReadImage(reader, *this, pLog) != EZ_SUCCESS)
       {
-        ezLog::WarningPrintfI(pLog, "Failed to read image file '%s'", szFileName);
+        ezLog::Warning(pLog, "Failed to read image file '{0}'", szFileName);
         return EZ_FAILURE;
       }
 
@@ -72,7 +72,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
     }
   }
 
-  ezLog::WarningPrintfI(pLog, "No known image file format for extension '%s'", it.GetData());
+  ezLog::Warning(pLog, "No known image file format for extension '{0}'", it);
 
   return EZ_FAILURE;
 }
@@ -84,7 +84,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
   ezFileWriter writer;
   if (writer.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::WarningPrintfI(pLog, "Failed to open image file '%s'", szFileName);
+    ezLog::Warning(pLog, "Failed to open image file '{0}'", szFileName);
     return EZ_FAILURE;
   }
 
@@ -96,7 +96,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
     {
       if (pFormat->WriteImage(writer, *this, pLog) != EZ_SUCCESS)
       {
-        ezLog::WarningPrintfI(pLog, "Failed to write image file '%s'", szFileName);
+        ezLog::Warning(pLog, "Failed to write image file '{0}'", szFileName);
         return EZ_FAILURE;
       }
 
@@ -104,7 +104,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
     }
   }
 
-  ezLog::WarningPrintfI(pLog, "No known image file format for extension '%s'", it.GetData());
+  ezLog::Warning(pLog, "No known image file format for extension '{0}'", it);
 
   return EZ_FAILURE;
 }

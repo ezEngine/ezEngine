@@ -263,24 +263,9 @@ void ezLog::ErrorPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
   LOG_IMPL(ezLogMsgType::ErrorMsg, pInterface);
 }
 
-void ezLog::SeriousWarningPrintf(const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::SeriousWarningMsg, GetDefaultLogSystem());
-}
-
-void ezLog::SeriousWarningPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::SeriousWarningMsg, pInterface);
-}
-
 void ezLog::WarningPrintf(const char* szFormat, ...)
 {
   LOG_IMPL(ezLogMsgType::WarningMsg, GetDefaultLogSystem());
-}
-
-void ezLog::WarningPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::WarningMsg, pInterface);
 }
 
 void ezLog::SuccessPrintf(const char* szFormat, ...)
@@ -288,46 +273,16 @@ void ezLog::SuccessPrintf(const char* szFormat, ...)
   LOG_IMPL(ezLogMsgType::SuccessMsg, GetDefaultLogSystem());
 }
 
-void ezLog::SuccessPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::SuccessMsg, pInterface);
-}
-
 void ezLog::InfoPrintf(const char* szFormat, ...)
 {
   LOG_IMPL(ezLogMsgType::InfoMsg, GetDefaultLogSystem());
 }
 
-void ezLog::InfoPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::InfoMsg, pInterface);
-}
-
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-
-void ezLog::DevPrintf(const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::DevMsg, GetDefaultLogSystem());
-}
-
-void ezLog::DevPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::DevMsg, pInterface);
-}
 
 #endif
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-
-void ezLog::DebugPrintf(const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::DebugMsg, GetDefaultLogSystem());
-}
-
-void ezLog::DebugPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::DebugMsg, pInterface);
-}
 
 #endif
 

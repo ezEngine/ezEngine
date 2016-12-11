@@ -31,7 +31,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       {
         ezSizeU32 size(LOWORD(LParam), HIWORD(LParam));
         pWindow->OnResizeMessage(size);
-        ezLog::InfoPrintf("Window resized to (%i, %i)", size.width, size.height);
+        ezLog::Info("Window resized to ({0}, {1})", size.width, size.height);
       }
       break;
     }
@@ -72,7 +72,7 @@ ezResult ezWindow::Initialize()
   // setup fullscreen mode
   if (m_CreationDescription.m_bFullscreenWindow && m_CreationDescription.m_bWindowsUseDevmodeFullscreen)
   {
-    ezLog::DevPrintf("Setting up fullscreen mode.");
+    ezLog::Dev("Setting up fullscreen mode.");
 
     DEVMODEW dmScreenSettings;
 
@@ -86,7 +86,7 @@ ezResult ezWindow::Initialize()
     if (ChangeDisplaySettingsW(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
     {
       m_CreationDescription.m_bFullscreenWindow = false;
-      ezLog::SeriousWarningPrintf("Failed to created fullscreen window. Falling back to non-fullscreen mode.");
+      ezLog::SeriousWarning("Failed to created fullscreen window. Falling back to non-fullscreen mode.");
     }
   }
 
@@ -97,18 +97,18 @@ ezResult ezWindow::Initialize()
 
   if (!m_CreationDescription.m_bFullscreenWindow)
   {
-    ezLog::DevPrintf("Window is not fullscreen.");
+    ezLog::Dev("Window is not fullscreen.");
     dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE;
   }
   else
   {
-    ezLog::DevPrintf("Window is fullscreen.");
+    ezLog::Dev("Window is fullscreen.");
     dwWindowStyle |= WS_POPUP;
   }
 
   if (m_CreationDescription.m_bResizable)
   {
-    ezLog::DevPrintf("Window is resizable.");
+    ezLog::Dev("Window is resizable.");
     dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
   }
 
@@ -147,7 +147,7 @@ ezResult ezWindow::Initialize()
   const int iWidth = Rect.right - Rect.left;
   const int iHeight = Rect.bottom - Rect.top;
 
-  ezLog::InfoPrintf("Window Dimensions: %i * %i at left/top origin (%i, %i).", iWidth, iHeight, m_CreationDescription.m_WindowPosition.x, m_CreationDescription.m_WindowPosition.y);
+  ezLog::Info("Window Dimensions: {0} * {1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_WindowPosition.x, m_CreationDescription.m_WindowPosition.y);
 
 
   // create window
@@ -178,7 +178,7 @@ ezResult ezWindow::Initialize()
   m_CreationDescription.m_ClientAreaSize.height = r.bottom - r.top;
 
   m_bInitialized = true;
-  ezLog::SuccessPrintf("Created window successfully. Resolution is %u * %u", GetClientAreaSize().width, GetClientAreaSize().height);
+  ezLog::Success("Created window successfully. Resolution is {0} * {1}", GetClientAreaSize().width, GetClientAreaSize().height);
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber);
 
@@ -202,7 +202,7 @@ ezResult ezWindow::Destroy()
   HWND hWindow = GetNativeWindowHandle();
   if (!DestroyWindow(hWindow))
   {
-    ezLog::SeriousWarningPrintf("DestroyWindow failed.");
+    ezLog::SeriousWarning("DestroyWindow failed.");
     Res = EZ_FAILURE;
   }
 
@@ -212,7 +212,7 @@ ezResult ezWindow::Destroy()
 
   if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(nullptr)))
   {
-    ezLog::SeriousWarningPrintf("UnregisterClassW failed.");
+    ezLog::SeriousWarning("UnregisterClassW failed.");
     Res = EZ_FAILURE;
   }
 
@@ -220,9 +220,9 @@ ezResult ezWindow::Destroy()
   m_WindowHandle = INVALID_WINDOW_HANDLE_VALUE;
 
   if (Res == EZ_SUCCESS)
-    ezLog::SuccessPrintf("Window destroyed.");
+    ezLog::Success("Window destroyed.");
   else
-    ezLog::SeriousWarningPrintf("There were problems to destroy the window properly.");
+    ezLog::SeriousWarning("There were problems to destroy the window properly.");
 
   return Res;
 }

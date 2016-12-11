@@ -50,7 +50,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   stbi_uc* sourceImageData = stbi_load_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize(), &width, &height, &numComp, 0);
   if (!sourceImageData)
   {
-    ezLog::ErrorPrintfI(pLog, "stb_image failed to load: %s", stbi_failure_reason());
+    ezLog::Error(pLog, "stb_image failed to load: {0}", stbi_failure_reason());
     return EZ_FAILURE;
   }
   fileBuffer.Clear();

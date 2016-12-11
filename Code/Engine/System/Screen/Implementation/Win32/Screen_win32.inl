@@ -44,11 +44,11 @@ void ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
     return;
   }
 
-  ezLog::DevPrintf("Found %u screens", out_Screens.GetCount());
+  ezLog::Dev("Found {0} screens", out_Screens.GetCount());
 
   for (const auto& screen : out_Screens)
   {
-    ezLog::DevPrintf("'%s': Offset = (%u, %u), Resolution = (%u, %u)", screen.m_sDisplayName.GetData(), screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY);
+    ezLog::Dev("'{0}': Offset = ({1}, {2}), Resolution = ({3}, {4})", screen.m_sDisplayName, screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY);
   }
 }
 

@@ -172,12 +172,6 @@ public:
     SeriousWarning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
 
-  /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
-  static void SeriousWarningPrintf(const char* szFormat, ...);
-
-  /// \brief Overload of SeriousWarning() to output messages to a specific log.
-  static void SeriousWarningPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
-
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
   static void Warning(ezLogInterface* pInterface, const ezFormatString& string);
 
@@ -197,9 +191,6 @@ public:
 
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
   static void WarningPrintf(const char* szFormat, ...);
-
-  /// \brief Overload of Warning() to output messages to a specific log.
-  static void WarningPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief Status information that something was completed successfully.
   static void Success(ezLogInterface* pInterface, const ezFormatString& string);
@@ -221,9 +212,6 @@ public:
   /// \brief Status information that something was completed successfully.
   static void SuccessPrintf(const char* szFormat, ...);
 
-  /// \brief Overload of Success() to output messages to a specific log.
-  static void SuccessPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
-
   /// \brief Status information that is important.
   static void Info(ezLogInterface* pInterface, const ezFormatString& string);
 
@@ -243,9 +231,6 @@ public:
 
   /// \brief Status information that is important.
   static void InfoPrintf(const char* szFormat, ...);
-
-  /// \brief Overload of Info() to output messages to a specific log.
-  static void InfoPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
   /// \brief Status information that is nice to have during development.
   ///
@@ -268,14 +253,6 @@ public:
     Dev(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
 
-  /// \brief Status information that is nice to have during development.
-  ///
-  /// This function is compiled out in non-development builds.
-  static void DevPrintf(const char* szFormat, ...);
-
-  /// \brief Overload of Dev() to output messages to a specific log.
-  static void DevPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
-
   /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
   ///
   /// This function is compiled out in non-debug builds.
@@ -296,14 +273,6 @@ public:
   {
     Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
-
-  /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
-  ///
-  /// This function is compiled out in non-debug builds.
-  static void DebugPrintf(const char* szFormat, ...);
-
-  /// \brief Overload of Debug() to output messages to a specific log.
-  static void DebugPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
 
 private:
   // Needed to call 'EndLogBlock'

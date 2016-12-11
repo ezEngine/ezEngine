@@ -58,7 +58,7 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
     ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
     OutputDebugString (sz);
 
-    ezLog::WarningPrintf ("Unknown Message Type %d", eventData.m_EventType);
+    ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
     break;
   }
 }

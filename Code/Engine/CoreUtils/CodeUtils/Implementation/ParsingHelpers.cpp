@@ -139,7 +139,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
 {
   if (Tokens.GetCount() < 1)
   {
-    ezLog::ErrorPrintfI(m_pLog, "Expected token '%s', got empty token stream", szToken);
+    ezLog::Error(m_pLog, "Expected token '{0}', got empty token stream", szToken);
     return EZ_FAILURE;
   }
 
@@ -157,7 +157,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
 {
   if (Tokens.GetCount() < 1)
   {
-    ezLog::ErrorPrintfI(m_pLog, "Expected token of type '%s', got empty token stream", ezTokenType::EnumNames[Type]);
+    ezLog::Error(m_pLog, "Expected token of type '{0}', got empty token stream", ezTokenType::EnumNames[Type]);
     return EZ_FAILURE;
   }
 
@@ -174,7 +174,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
 {
   if (Tokens.GetCount() < 2)
   {
-    ezLog::ErrorPrintfI(m_pLog, "Expected tokens '%s%s', got empty token stream", szToken1, szToken2);
+    ezLog::Error(m_pLog, "Expected tokens '{0}{1}', got empty token stream", szToken1, szToken2);
     return EZ_FAILURE;
   }
 

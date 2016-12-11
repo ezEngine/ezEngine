@@ -53,10 +53,10 @@ void ezStandardInputDevice::InitializeDevice()
       ezLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
     }
     else
-      ezLog::SuccessPrintf("Initialized RawInput for Mouse and Keyboard input.");
+      ezLog::Success("Initialized RawInput for Mouse and Keyboard input.");
   }
   else
-    ezLog::InfoPrintf("Window %i does not need to initialize Mouse or Keyboard.", m_uiWindowNumber);
+    ezLog::Info("Window {0} does not need to initialize Mouse or Keyboard.", m_uiWindowNumber);
 }
 
 void ezStandardInputDevice::RegisterInputSlots()
@@ -635,7 +635,7 @@ static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szI
 
   ezStringUtf8 sName = szKeyName;
 
-  ezLog::DevPrintf("Translated '%s' to '%s'", ezInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
+  ezLog::Dev("Translated '{0}' to '{1}'", ezInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
 
   ezInputManager::SetInputSlotDisplayName(szInputSlot, sName.GetData());
 }

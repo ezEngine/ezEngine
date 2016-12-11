@@ -36,8 +36,8 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     ezLog::Info("{0}", "I'm making a note here:");
     ezLog::Success("{0}", "Huge Success");
     ezLog::Info("{0}", "It's hard to overstate my satisfaction.");
-    ezLog::DevPrintf("%s", "Aperture Science. We do what we must, because we can,");
-    ezLog::DebugPrintf("%s", "For the good of all of us, except the ones who are dead.");
+    ezLog::Dev("{0}", "Aperture Science. We do what we must, because we can,");
+    ezLog::Debug("{0}", "For the good of all of us, except the ones who are dead.");
 
     {
       EZ_LOG_BLOCK("Verse 2");

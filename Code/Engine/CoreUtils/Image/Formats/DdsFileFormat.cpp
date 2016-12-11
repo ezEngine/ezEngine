@@ -117,19 +117,19 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   ezDdsHeader fileHeader;
   if (stream.ReadBytes(&fileHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
   {
-    ezLog::ErrorPrintfI(pLog, "Failed to read file header.");
+    ezLog::Error(pLog, "Failed to read file header.");
     return EZ_FAILURE;
   }
 
   if (fileHeader.m_uiMagic != ezDdsMagic)
   {
-    ezLog::ErrorPrintfI(pLog, "The file is not a recognized DDS file.");
+    ezLog::Error(pLog, "The file is not a recognized DDS file.");
     return EZ_FAILURE;
   }
 
   if (fileHeader.m_uiSize != 124)
   {
-    ezLog::ErrorPrintfI(pLog, "The file header size %u doesn't match the expected size of 124.", fileHeader.m_uiSize);
+    ezLog::Error(pLog, "The file header size {0} doesn't match the expected size of 124.", fileHeader.m_uiSize);
     return EZ_FAILURE;
   }
 
@@ -139,13 +139,13 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     (fileHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 ||
     (fileHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
   {
-    ezLog::ErrorPrintfI(pLog, "The file header doesn't specify the mandatory WIDTH or HEIGHT flag.");
+    ezLog::Error(pLog, "The file header doesn't specify the mandatory WIDTH or HEIGHT flag.");
     return EZ_FAILURE;
   }
 
   if ((fileHeader.m_uiCaps & ezDdsCaps::TEXTURE) == 0)
   {
-    ezLog::ErrorPrintfI(pLog, "The file header doesn't specify the mandatory TEXTURE flag.");
+    ezLog::Error(pLog, "The file header doesn't specify the mandatory TEXTURE flag.");
     return EZ_FAILURE;
   }
 
@@ -156,7 +156,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (fileHeader.m_ddspf.m_uiSize != 32)
   {
-    ezLog::ErrorPrintfI(pLog, "The pixel format size %u doesn't match the expected value of 32.", fileHeader.m_ddspf.m_uiSize);
+    ezLog::Error(pLog, "The pixel format size {0} doesn't match the expected value of 32.", fileHeader.m_ddspf.m_uiSize);
     return EZ_FAILURE;
   }
 
@@ -182,7 +182,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     // Verify that the format we found is correct
     if (ezImageFormat::GetBitsPerPixel(format) != fileHeader.m_ddspf.m_uiRGBBitCount)
     {
-      ezLog::ErrorPrintfI(pLog, "The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'.",
+      ezLog::Error(pLog, "The number of bits per pixel specified in the file ({0}) does not match the expected value of {1} for the format '{2}'.",
         fileHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
@@ -193,7 +193,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     {
       if (stream.ReadBytes(&headerDxt10, sizeof(ezDdsHeaderDxt10)) != sizeof(ezDdsHeaderDxt10))
       {
-        ezLog::ErrorPrintfI(pLog, "Failed to read file header.");
+        ezLog::Error(pLog, "Failed to read file header.");
         return EZ_FAILURE;
       }
       bDxt10 = true;
@@ -202,7 +202,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
       if (format == ezImageFormat::UNKNOWN)
       {
-        ezLog::ErrorPrintfI(pLog, "The DXGI format %u has no equivalent image format.", headerDxt10.m_uiDxgiFormat);
+        ezLog::Error(pLog, "The DXGI format {0} has no equivalent image format.", headerDxt10.m_uiDxgiFormat);
         return EZ_FAILURE;
       }
     }
@@ -223,7 +223,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   }
   else
   {
-    ezLog::ErrorPrintfI(pLog, "The image format is neither specified as a pixel mask nor as a FourCC code.");
+    ezLog::Error(pLog, "The image format is neither specified as a pixel mask nor as a FourCC code.");
     return EZ_FAILURE;
   }
 
@@ -237,7 +237,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   // Complex flag must match cubemap or volume flag
   if (bComplex != (bCubeMap || bVolume || bHasMipMaps))
   {
-    ezLog::ErrorPrintfI(pLog, "The header specifies the COMPLEX flag, but has neither mip levels, cubemap faces or depth slices.");
+    ezLog::Error(pLog, "The header specifies the COMPLEX flag, but has neither mip levels, cubemap faces or depth slices.");
     return EZ_FAILURE;
   }
 
@@ -249,7 +249,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   // Cubemap and volume texture are mutually exclusive
   if (bVolume && bCubeMap)
   {
-    ezLog::ErrorPrintfI(pLog, "The header specifies both the VOLUME and CUBEMAP flags.");
+    ezLog::Error(pLog, "The header specifies both the VOLUME and CUBEMAP flags.");
     return EZ_FAILURE;
   }
 
@@ -267,7 +267,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   // If pitch is specified, it must match the computed value
   if (bPitch && image.GetRowPitch(0) != fileHeader.m_uiPitchOrLinearSize)
   {
-    ezLog::ErrorPrintfI(pLog, "The row pitch specified in the header doesn't match the expected pitch.");
+    ezLog::Error(pLog, "The row pitch specified in the header doesn't match the expected pitch.");
     return EZ_FAILURE;
   }
 
@@ -275,7 +275,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   if (stream.ReadBytes(image.GetDataPointer<void>(), uiDataSize) != uiDataSize)
   {
-    ezLog::ErrorPrintfI(pLog, "Failed to read image data.");
+    ezLog::Error(pLog, "Failed to read image data.");
     return EZ_FAILURE;
   }
 
@@ -326,7 +326,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
     // Volume and array are incompatible
     if (bArray)
     {
-      ezLog::ErrorPrintfI(pLog, "The image is both an array and volume texture. This is not supported.");
+      ezLog::Error(pLog, "The image is both an array and volume texture. This is not supported.");
       return EZ_FAILURE;
     }
 
@@ -347,7 +347,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
     break;
 
   default:
-    ezLog::ErrorPrintfI(pLog, "Unknown image format type.");
+    ezLog::Error(pLog, "Unknown image format type.");
     return EZ_FAILURE;
   }
 
@@ -357,13 +357,13 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
   {
     if (uiNumFaces != 6)
     {
-      ezLog::ErrorPrintfI(pLog, "The image is a cubemap, but has %u faces instead of the expected 6.", uiNumFaces);
+      ezLog::Error(pLog, "The image is a cubemap, but has {0} faces instead of the expected 6.", uiNumFaces);
       return EZ_FAILURE;
     }
 
     if (bVolume)
     {
-      ezLog::ErrorPrintfI(pLog, "The image is both a cubemap and volume texture. This is not supported.");
+      ezLog::Error(pLog, "The image is both a cubemap and volume texture. This is not supported.");
       return EZ_FAILURE;
     }
 
@@ -434,7 +434,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
     // We must write a DXT10 file, but there is no matching DXGI_FORMAT - we could also try converting, but that is rarely intended when writing .dds
     if (uiDxgiFormat == 0)
     {
-      ezLog::ErrorPrintfI(pLog, "The image needs to be written as a DXT10 file, but no matching DXGI format was found for '%s'.",
+      ezLog::Error(pLog, "The image needs to be written as a DXT10 file, but no matching DXGI format was found for '{0}'.",
         ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
@@ -471,7 +471,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
   if (stream.WriteBytes(&fileHeader, sizeof(fileHeader)) != EZ_SUCCESS)
   {
-    ezLog::ErrorPrintfI(pLog, "Failed to write image header.");
+    ezLog::Error(pLog, "Failed to write image header.");
     return EZ_FAILURE;
   }
 
@@ -479,14 +479,14 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
   {
     if (stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)
     {
-      ezLog::ErrorPrintfI(pLog, "Failed to write image DX10 header.");
+      ezLog::Error(pLog, "Failed to write image DX10 header.");
       return EZ_FAILURE;
     }
   }
 
   if (stream.WriteBytes(image.GetDataPointer<void>(), image.GetDataSize()) != EZ_SUCCESS)
   {
-    ezLog::ErrorPrintfI(pLog, "Failed to write image data.");
+    ezLog::Error(pLog, "Failed to write image data.");
     return EZ_FAILURE;
   }
 

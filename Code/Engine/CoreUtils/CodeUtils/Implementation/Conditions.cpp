@@ -412,7 +412,7 @@ ezResult ezPreprocessor::ParseCondition(const TokenStream& Tokens, ezUInt32& uiC
     iResult = (iResult1 != iResult2) ? 1 : 0;
     return EZ_SUCCESS;
   case Comparison::None:
-    ezLog::ErrorPrintfI(m_pLog, "Unknown operator");
+    ezLog::Error(m_pLog, "Unknown operator");
     return EZ_FAILURE;
   }
 

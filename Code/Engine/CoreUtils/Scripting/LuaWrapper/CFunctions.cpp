@@ -54,7 +54,7 @@ ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 iExpectedReturnValues, ezLo
 
     m_States.m_iLuaReturnValues = 0;
 
-    ezLog::ErrorPrintfI(pLogInterface, "Script-function Call: %s", lua_tostring(m_pState, -1));
+    ezLog::Error(pLogInterface, "Script-function Call: {0}", lua_tostring(m_pState, -1));
 
     lua_pop(m_pState, 1);  /* pop error message from the stack */
     return EZ_FAILURE;
