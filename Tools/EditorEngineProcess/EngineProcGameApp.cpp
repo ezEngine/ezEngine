@@ -183,7 +183,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
       ezResourceManager::ReloadAllResources(false);
     }
     else
-      ezLog::WarningPrintf("Unknown ezSimpleConfigMsgToEngine '%s'", pMsg->m_sWhatToDo.GetData());
+      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo.GetData());
   }
 
   // Document Messages:

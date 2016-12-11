@@ -34,7 +34,7 @@ void ezQtEditorApp::ReadTagRegistry()
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::WarningPrintf("Could not open tags config file '%s'", sPath.GetData());
+    ezLog::Warning("Could not open tags config file '{0}'", sPath.GetData());
 
     ezStatus res = SaveTagRegistry();
     if (res.m_Result.Failed())

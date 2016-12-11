@@ -66,7 +66,7 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
     SetConsoleColor(0x0D);
     printf("%s\n", eventData.m_szText);
 
-    ezLog::WarningPrintf("Unknown Message Type %d", eventData.m_EventType);
+    ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
     break;
   }
 

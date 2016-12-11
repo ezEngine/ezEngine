@@ -119,7 +119,7 @@ void ezArchiveReader::FinishReferenceMapping()
     ezLog::SuccessPrintf(m_pLog, "References restored: %u of %u", uiRestored, m_ObjectsToMap.GetCount());
 
   if (m_ObjectsToMap.GetCount() != uiRestored)
-    ezLog::WarningPrintf(m_pLog, "References remaining invalid: %u of %u", m_ObjectsToMap.GetCount() - uiRestored, m_ObjectsToMap.GetCount());
+    ezLog::Warning(m_pLog, "References remaining invalid: {0} of {1}", m_ObjectsToMap.GetCount() - uiRestored, m_ObjectsToMap.GetCount());
 
   m_ObjectsToMap.Clear();
 }

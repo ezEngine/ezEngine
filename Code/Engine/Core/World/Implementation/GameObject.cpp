@@ -379,12 +379,12 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
       {
         if (!m_Components.IsEmpty())
         {
-          ezLog::WarningPrintf("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type %u.", msg.GetId());
+          ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
         }
 
         if (routing == ezObjectMsgRouting::ToComponents)
         {
-          ezLog::WarningPrintf("Message of type  %u was sent 'ToComponents' only. Object with %u components did not handle this. No further message routing will happen.", msg.GetId(), m_Components.GetCount());
+          ezLog::Warning("Message of type  {0} was sent 'ToComponents' only. Object with {1} components did not handle this. No further message routing will happen.", msg.GetId(), m_Components.GetCount());
         }
       }
 #endif

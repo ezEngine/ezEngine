@@ -29,43 +29,43 @@ ezGALDevice::~ezGALDevice()
     EZ_LOG_BLOCK("ezGALDevice object leak report");
 
     if (!m_Shaders.IsEmpty())
-      ezLog::WarningPrintf("%d shaders have not been cleaned up", m_Shaders.GetCount());
+      ezLog::Warning("{0} shaders have not been cleaned up", m_Shaders.GetCount());
 
     if (!m_BlendStates.IsEmpty())
-      ezLog::WarningPrintf("%d blend states have not been cleaned up", m_BlendStates.GetCount());
+      ezLog::Warning("{0} blend states have not been cleaned up", m_BlendStates.GetCount());
 
     if (!m_DepthStencilStates.IsEmpty())
-      ezLog::WarningPrintf("%d depth stencil states have not been cleaned up", m_DepthStencilStates.GetCount());
+      ezLog::Warning("{0} depth stencil states have not been cleaned up", m_DepthStencilStates.GetCount());
 
     if (!m_RasterizerStates.IsEmpty())
-      ezLog::WarningPrintf("%d rasterizer states have not been cleaned up", m_RasterizerStates.GetCount());
+      ezLog::Warning("{0} rasterizer states have not been cleaned up", m_RasterizerStates.GetCount());
 
     if (!m_Buffers.IsEmpty())
-      ezLog::WarningPrintf("%d buffers have not been cleaned up", m_Buffers.GetCount());
+      ezLog::Warning("{0} buffers have not been cleaned up", m_Buffers.GetCount());
 
     if (!m_Textures.IsEmpty())
-      ezLog::WarningPrintf("%d textures have not been cleaned up", m_Textures.GetCount());
+      ezLog::Warning("{0} textures have not been cleaned up", m_Textures.GetCount());
 
     if (!m_ResourceViews.IsEmpty())
-      ezLog::WarningPrintf("%d resource views have not been cleaned up", m_ResourceViews.GetCount());
+      ezLog::Warning("{0} resource views have not been cleaned up", m_ResourceViews.GetCount());
 
     if (!m_RenderTargetViews.IsEmpty())
-      ezLog::WarningPrintf("%d render target views have not been cleaned up", m_RenderTargetViews.GetCount());
+      ezLog::Warning("{0} render target views have not been cleaned up", m_RenderTargetViews.GetCount());
 
     if (!m_UnorderedAccessViews.IsEmpty())
-      ezLog::WarningPrintf("%d unordered access views have not been cleaned up", m_UnorderedAccessViews.GetCount());
+      ezLog::Warning("{0} unordered access views have not been cleaned up", m_UnorderedAccessViews.GetCount());
 
     if (!m_SwapChains.IsEmpty())
-      ezLog::WarningPrintf("%d swap chains have not been cleaned up", m_SwapChains.GetCount());
+      ezLog::Warning("{0} swap chains have not been cleaned up", m_SwapChains.GetCount());
 
     if (!m_Fences.IsEmpty())
-      ezLog::WarningPrintf("%d fences have not been cleaned up", m_Fences.GetCount());
+      ezLog::Warning("{0} fences have not been cleaned up", m_Fences.GetCount());
 
     if (!m_Queries.IsEmpty())
-      ezLog::WarningPrintf("%d queries have not been cleaned up", m_Queries.GetCount());
+      ezLog::Warning("{0} queries have not been cleaned up", m_Queries.GetCount());
 
     if (!m_VertexDeclarations.IsEmpty())
-      ezLog::WarningPrintf("%d vertex declarations have not been cleaned up", m_VertexDeclarations.GetCount());
+      ezLog::Warning("{0} vertex declarations have not been cleaned up", m_VertexDeclarations.GetCount());
   }
 }
 
@@ -172,7 +172,7 @@ void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
   }
   else
   {
-    ezLog::WarningPrintf("DestroyBlendState called on invalid handle (double free?)");
+    ezLog::Warning("DestroyBlendState called on invalid handle (double free?)");
   }
 }
 
@@ -226,7 +226,7 @@ void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthSt
   }
   else
   {
-    ezLog::WarningPrintf("DestroyDepthStencilState called on invalid handle (double free?)");
+    ezLog::Warning("DestroyDepthStencilState called on invalid handle (double free?)");
   }
 }
 
@@ -280,7 +280,7 @@ void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerS
   }
   else
   {
-    ezLog::WarningPrintf("DestroyRasterizerState called on invalid handle (double free?)");
+    ezLog::Warning("DestroyRasterizerState called on invalid handle (double free?)");
   }
 }
 
@@ -336,7 +336,7 @@ void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
   }
   else
   {
-    ezLog::WarningPrintf("DestroySamplerState called on invalid handle (double free?)");
+    ezLog::Warning("DestroySamplerState called on invalid handle (double free?)");
   }
 }
 
@@ -387,7 +387,7 @@ void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
   }
   else
   {
-    ezLog::WarningPrintf("DestroyShader called on invalid handle (double free?)");
+    ezLog::Warning("DestroyShader called on invalid handle (double free?)");
   }
 }
 
@@ -457,7 +457,7 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
   }
   else
   {
-    ezLog::WarningPrintf("DestroyBuffer called on invalid handle (double free?)");
+    ezLog::Warning("DestroyBuffer called on invalid handle (double free?)");
   }
 }
 
@@ -562,7 +562,7 @@ void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
   }
   else
   {
-    ezLog::WarningPrintf("DestroyTexture called on invalid handle (double free?)");
+    ezLog::Warning("DestroyTexture called on invalid handle (double free?)");
   }
 }
 
@@ -644,7 +644,7 @@ void ezGALDevice::DestroyResourceView(ezGALResourceViewHandle hResourceView)
   }
   else
   {
-    ezLog::WarningPrintf("DestroyResourceView called on invalid handle (double free?)");
+    ezLog::Warning("DestroyResourceView called on invalid handle (double free?)");
   }
 }
 
@@ -761,7 +761,7 @@ void ezGALDevice::DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUno
   }
   else
   {
-    ezLog::WarningPrintf("DestroyUnorderedAccessView called on invalid handle (double free?)");
+    ezLog::Warning("DestroyUnorderedAccessView called on invalid handle (double free?)");
   }
 }
 
@@ -821,7 +821,7 @@ void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTar
   }
   else
   {
-    ezLog::WarningPrintf("DestroyRenderTargetView called on invalid handle (double free?)");
+    ezLog::Warning("DestroyRenderTargetView called on invalid handle (double free?)");
   }
 }
 
@@ -898,7 +898,7 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
   }
   else
   {
-    ezLog::WarningPrintf("DestroySwapChain called on invalid handle (double free?)");
+    ezLog::Warning("DestroySwapChain called on invalid handle (double free?)");
   }
 }
 
@@ -930,7 +930,7 @@ void ezGALDevice::DestroyFence(ezGALFenceHandle& hFence)
   }
   else
   {
-    ezLog::WarningPrintf("DestroyFence called on invalid handle (double free?)");
+    ezLog::Warning("DestroyFence called on invalid handle (double free?)");
   }
 }
 
@@ -964,7 +964,7 @@ void ezGALDevice::DestroyQuery(ezGALQueryHandle hQuery)
   }
   else
   {
-    ezLog::WarningPrintf("DestroyQuery called on invalid handle (double free?)");
+    ezLog::Warning("DestroyQuery called on invalid handle (double free?)");
   }
 }
 
@@ -1020,7 +1020,7 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   }
   else
   {
-    ezLog::WarningPrintf("DestroyVertexDeclaration called on invalid handle (double free?)");
+    ezLog::Warning("DestroyVertexDeclaration called on invalid handle (double free?)");
   }
 }
 

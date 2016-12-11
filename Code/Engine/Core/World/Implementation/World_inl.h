@@ -217,7 +217,7 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
-      ezLog::WarningPrintf("ezWorld::SendMessage: The receiver ezGameObject for message of type %u does not exist.", msg.GetId());
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezGameObject for message of type {0} does not exist.", msg.GetId());
 #endif
   }
 }
@@ -235,7 +235,7 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverCompo
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
-      ezLog::WarningPrintf("ezWorld::SendMessage: The receiver ezComponent for message of type %u does not exist.", msg.GetId());
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezComponent for message of type {0} does not exist.", msg.GetId());
 #endif
   }
 }

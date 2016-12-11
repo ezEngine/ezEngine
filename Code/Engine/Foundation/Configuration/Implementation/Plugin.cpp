@@ -476,7 +476,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         {
           bModified = false;
           res = EZ_FAILURE;
-          ezLog::WarningPrintf("Plugin '%s' does not exist at the moment. Plugin will not be reloaded.", pPlugin->m_sLoadedFromFile.GetData());
+          ezLog::Warning("Plugin '{0}' does not exist at the moment. Plugin will not be reloaded.", pPlugin->m_sLoadedFromFile.GetData());
         }
         else
         {

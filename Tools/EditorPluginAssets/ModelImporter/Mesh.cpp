@@ -302,9 +302,9 @@ namespace ezModelImporter
     }
 
     if (m_Triangles.GetCount() > trianglesNew.GetCount())
-      ezLog::WarningPrintf("There were some triangles in submeshes of the mesh '%s' that were not referenced by any submesh. These triangles were discarded while merging submeshes.", m_Name.GetData());
+      ezLog::Warning("There were some triangles in submeshes of the mesh '{0}' that were not referenced by any submesh. These triangles were discarded while merging submeshes.", m_Name.GetData());
     else if (m_Triangles.GetCount() < trianglesNew.GetCount())
-      ezLog::WarningPrintf("There are submeshes in '%s' with overlapping triangle use. These triangles were duplicated while merging submeshes.", m_Name.GetData());
+      ezLog::Warning("There are submeshes in '{0}' with overlapping triangle use. These triangles were duplicated while merging submeshes.", m_Name.GetData());
 
     m_Triangles = std::move(trianglesNew);
     m_SubMeshes = std::move(subMeshesNew);

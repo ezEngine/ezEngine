@@ -279,7 +279,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
           return EZ_FAILURE;
         }
 
-        ezLog::WarningPrintf("Adjusted GUID of asset to make it unique: '%s'", szAbsFilePath);
+        ezLog::Warning("Adjusted GUID of asset to make it unique: '{0}'", szAbsFilePath);
 
         // now let's try that again
         m_ReferencedFiles.Remove(szAbsFilePath);

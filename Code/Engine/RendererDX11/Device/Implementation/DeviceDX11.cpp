@@ -131,7 +131,7 @@ retry:
 
   if (FAILED(m_pDXGIDevice->SetMaximumFrameLatency(1)))
   {
-    ezLog::WarningPrintf("Failed to set max frames latency");
+    ezLog::Warning("Failed to set max frames latency");
   }
 
   if (FAILED(m_pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&m_pDXGIAdapter)))

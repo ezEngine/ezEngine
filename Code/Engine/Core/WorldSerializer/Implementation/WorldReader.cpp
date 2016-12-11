@@ -284,7 +284,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
   if (pRtti == nullptr)
   {
     bSkip = true;
-    ezLog::WarningPrintf("Skipping components of unknown type");
+    ezLog::Warning("Skipping components of unknown type");
   }
   else
   {

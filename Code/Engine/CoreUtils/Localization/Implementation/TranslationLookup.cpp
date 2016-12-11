@@ -170,7 +170,7 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiS
 
   if (ezTranslatorLogMissing::s_bActive)
   {
-    ezLog::WarningPrintf("Missing Translation for '%s'", szString);
+    ezLog::Warning("Missing Translation for '{0}'", szString);
   }
 
   StoreTranslation(szString, uiStringHash, usage);

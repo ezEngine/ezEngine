@@ -300,7 +300,7 @@ namespace ezModelImporter
       }
       else
       {
-        ezLog::WarningPrintf("PBRT '%s' shapes are not supported.", type.GetData());
+        ezLog::Warning("PBRT '{0}' shapes are not supported.", type.GetData());
         return;
       }
 
@@ -578,7 +578,7 @@ namespace ezModelImporter
 
       if (filename.IsEmpty())
       {
-        ezLog::WarningPrintf("Texture '%s' does not have a filename, unable to import.", ezString(type).GetData());
+        ezLog::Warning("Texture '{0}' does not have a filename, unable to import.", type);
       }
       else
       {
@@ -590,7 +590,7 @@ namespace ezModelImporter
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)
-        ezLog::WarningPrintf("Expected 0 parameters for ObjectBegin command (name '%s').", objectName.GetData());
+        ezLog::Warning("Expected 0 parameters for ObjectBegin command (name '{0}').", objectName);
 
       context.ObjectBegin(objectName);
     }
@@ -599,12 +599,12 @@ namespace ezModelImporter
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)
-        ezLog::WarningPrintf("Expected 0 parameters for ObjectInstance command (name '%s').", objectName.GetData());
+        ezLog::Warning("Expected 0 parameters for ObjectInstance command (name '{0}').", objectName);
 
       Object* object = context.LookUpObject(objectName);
       if (!object)
       {
-        ezLog::Error("Can't instantiate object: No object with name '{0}' known.", objectName.GetData());
+        ezLog::Error("Can't instantiate object: No object with name '{0}' known.", objectName);
         return;
       }
 

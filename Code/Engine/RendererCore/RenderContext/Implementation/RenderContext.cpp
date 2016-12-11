@@ -817,7 +817,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, cons
       available, it will work.
       */
 
-      ezLog::WarningPrintf("Failed to create vertex declaration");
+      ezLog::Warning("Failed to create vertex declaration");
       return EZ_FAILURE;
     }
 

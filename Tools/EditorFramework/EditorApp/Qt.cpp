@@ -54,7 +54,7 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
     break;
 #endif
   case QtWarningMsg:
-    ezLog::WarningPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::Warning("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
     break;
   case QtCriticalMsg:
     ezLog::Error("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);

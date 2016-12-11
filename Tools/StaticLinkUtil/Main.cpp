@@ -141,7 +141,7 @@ public:
       ezLog::SeriousWarningPrintf("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
     else if (m_bHadWarnings || m_bHadSeriousWarnings || m_bHadErrors)
     {
-      ezLog::WarningPrintf("There have been errors or warnings, see log for details.");
+      ezLog::Warning("There have been errors or warnings, see log for details.");
     }
 
     if (m_bModifiedFiles)
@@ -375,7 +375,7 @@ public:
         // warn about includes that have 'implementation' in their path
         if (sInclude.FindSubString_NoCase("Implementation"))
         {
-          ezLog::WarningPrintf("This file includes an implementation header from another library: '%s'", sInclude.GetData());
+          ezLog::Warning("This file includes an implementation header from another library: '{0}'", sInclude);
         }
 
         ezLog::DevPrintf("Found Include: '%s'", sInclude.GetData());
@@ -416,7 +416,7 @@ public:
       ezFileReader File;
       if (File.Open(sPCHFile.GetData()) == EZ_FAILURE)
       {
-        ezLog::WarningPrintf("This project has no PCH file.");
+        ezLog::Warning("This project has no PCH file.");
         return;
       }
     }
@@ -542,7 +542,7 @@ public:
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
     while (szMarker != nullptr)
     {
-      ezLog::WarningPrintf("Found macro EZ_STATICLINK_FILE inside the same file where EZ_STATICLINK_LIBRARY is located. Removing it.");
+      ezLog::Warning("Found macro EZ_STATICLINK_FILE inside the same file where EZ_STATICLINK_LIBRARY is located. Removing it.");
 
       const char* szMarkerEnd = szMarker;
 
@@ -680,7 +680,7 @@ public:
 
       m_sRefPointGroupFile = sFilePath;
 
-      ezLog::WarningPrintf("No EZ_STATICLINK_LIBRARY found in any cpp file, inserting it into the PCH.cpp file.");
+      ezLog::Warning("No EZ_STATICLINK_LIBRARY found in any cpp file, inserting it into the PCH.cpp file.");
     }
     else
       ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");

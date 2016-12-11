@@ -49,7 +49,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
     ezLog::DevPrintf("PhysX: %s", message);
     break;
   case PxErrorCode::eDEBUG_WARNING:
-    ezLog::WarningPrintf("PhysX: %s", message);
+    ezLog::Warning("PhysX: {0}", message);
     break;
   case PxErrorCode::eINTERNAL_ERROR:
     ezLog::Error("PhysX Internal: {0}", message);
@@ -64,7 +64,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
     ezLog::Error("PhysX Out-of-Memory: {0}", message);
     break;
   case PxErrorCode::ePERF_WARNING:
-    ezLog::WarningPrintf("PhysX Performance: %s", message);
+    ezLog::Warning("PhysX Performance: {0}", message);
     break;
 
   default:

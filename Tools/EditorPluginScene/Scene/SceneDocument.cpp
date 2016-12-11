@@ -982,7 +982,7 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
     if (pMsg->m_bRunningPTG)
     {
       m_GameMode = GameMode::Off;
-      ezLog::WarningPrintf("Incorrect state change from 'simulate' to 'play-the-game'");
+      ezLog::Warning("Incorrect state change from 'simulate' to 'play-the-game'");
     }
     else
     {

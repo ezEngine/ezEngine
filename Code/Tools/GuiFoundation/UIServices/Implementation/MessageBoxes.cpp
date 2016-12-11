@@ -45,7 +45,7 @@ void ezQtUiServices::MessageBoxInformation(const char* szMsg)
 void ezQtUiServices::MessageBoxWarning(const char* szMsg)
 {
   if (s_bHeadless)
-    ezLog::WarningPrintf("%s", szMsg);
+    ezLog::Warning("{0}", szMsg);
   else
     QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }

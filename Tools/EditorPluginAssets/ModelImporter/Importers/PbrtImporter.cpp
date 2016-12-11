@@ -187,7 +187,7 @@ namespace ezModelImporter
 
       else
       {
-        ezLog::WarningPrintf("Unknown Pbrt command '%s'.", commandName.GetData());
+        ezLog::Warning("Unknown Pbrt command '{0}'.", commandName.GetData());
       }
 
       // Skip lines until something does not start like a parameter.

@@ -156,7 +156,7 @@ void ezApplicationPluginConfig::Load()
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::WarningPrintf("Could not open plugins config file '%s'", sPath.GetData());
+    ezLog::Warning("Could not open plugins config file '{0}'", sPath.GetData());
     return;
   }
 

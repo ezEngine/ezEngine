@@ -69,7 +69,7 @@ void ezApplicationFileSystemConfig::Load()
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::WarningPrintf("Could not open file-system config file '%s'", sPath.GetData());
+    ezLog::Warning("Could not open file-system config file '{0}'", sPath.GetData());
     return;
   }
 

@@ -52,7 +52,7 @@ ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& strea
 
     if (pInfo == nullptr)
     {
-      ezLog::WarningPrintf("Asset in Collection is unknown: '%s'", e.m_sRedirectionAsset.GetData());
+      ezLog::Warning("Asset in Collection is unknown: '{0}'", e.m_sRedirectionAsset.GetData());
       continue;
     }
 

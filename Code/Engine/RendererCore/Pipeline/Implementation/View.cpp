@@ -293,7 +293,7 @@ ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const ch
   if (it.IsValid())
     return it.Value().m_Value;
 
-  ezLog::WarningPrintf("Unknown read-back property '%s::%s'", szPassName, szPropertyName);
+  ezLog::Warning("Unknown read-back property '{0}::{1}'", szPassName, szPropertyName);
   return ezVariant();
 }
 

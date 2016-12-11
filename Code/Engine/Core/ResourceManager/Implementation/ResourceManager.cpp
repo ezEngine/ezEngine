@@ -269,7 +269,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
       e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
       ezResourceManager::BroadcastResourceEvent(e);
 
-      //ezLog::WarningPrintf("Removing resource from preload queue due to time out");
+      //ezLog::Warning("Removing resource from preload queue due to time out");
       m_RequireLoading.RemoveAtSwap(i);
       --uiCount;
     }
@@ -358,7 +358,7 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
     pResourceToLoad = it.m_pResource;
     ezResourceManager::m_RequireLoading.PopFront();
 
-    //ezLog::WarningPrintf("Task taking item out of preload queue: %u items remain", ezResourceManager::m_RequireLoading.GetCount());
+    //ezLog::Warning("Task taking item out of preload queue: {0} items remain", ezResourceManager::m_RequireLoading.GetCount());
 
 
     if (pResourceToLoad->m_Flags.IsSet(ezResourceFlags::HasCustomDataLoader))
@@ -454,7 +454,7 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
       // this resource was finished loading, so we can immediately reduce the limbo counter
       ezResourceManager::s_ResourcesInLoadingLimbo.Decrement();
 
-      //ezLog::WarningPrintf("Resource removed from preload queue");
+      //ezLog::Warning("Resource removed from preload queue");
 
       EZ_ASSERT_DEV(pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);

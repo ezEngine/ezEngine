@@ -42,7 +42,7 @@ void ezDependencyFile::StoreCurrentTimeStamp()
   m_iMaxTimeStampStored = 0;
 
 #if EZ_DISABLED(EZ_SUPPORTS_FILE_STATS)
-  ezLog::WarningPrintf("Trying to retrieve file time stamps on a platform that does not support it");
+  ezLog::Warning("Trying to retrieve file time stamps on a platform that does not support it");
   return;
 #endif
 
@@ -59,7 +59,7 @@ void ezDependencyFile::StoreCurrentTimeStamp()
 bool ezDependencyFile::HasAnyFileChanged()
 {
 #if EZ_DISABLED(EZ_SUPPORTS_FILE_STATS)
-  ezLog::WarningPrintf("Trying to retrieve file time stamps on a platform that does not support it");
+  ezLog::Warning("Trying to retrieve file time stamps on a platform that does not support it");
   return true;
 #endif
 
@@ -150,7 +150,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
 #else
 
   out_Result.SetInt64(0, ezSIUnitOfTime::Second);
-  ezLog::WarningPrintf("Trying to retrieve a file time stamp on a platform that does not support it (file: '%s')", szFile);
+  ezLog::Warning("Trying to retrieve a file time stamp on a platform that does not support it (file: '{0}')", szFile);
 
 #endif
 

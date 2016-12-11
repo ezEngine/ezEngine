@@ -149,7 +149,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     }
     else
     {
-      ezLog::WarningPrintf("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('%s' - '%s')", pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
+      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('{0}' - '{1}')", pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
     }
   }
 

@@ -419,7 +419,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
         {
           ezStringBuilder s1 = m_Tokens[uiFirstToken - 1].m_DataView;
           ezStringBuilder s2 = m_Tokens[uiFirstToken + 2].m_DataView;
-          ezLog::WarningPrintf("Line %u: The \\ at the line end is in the middle of an identifier name ('%s' and '%s'). However, merging identifier names is currently not supported.", m_Tokens[uiFirstToken].m_uiLine, s1.GetData(), s2.GetData());
+          ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier names is currently not supported.", m_Tokens[uiFirstToken].m_uiLine, s1.GetData(), s2.GetData());
         }
 
         // ignore this

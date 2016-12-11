@@ -161,7 +161,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   }
   else
   {
-    ezLog::WarningPrintf("Rigid Body '%s' neither has mass nor density set to valid values.", GetOwner()->GetName());
+    ezLog::Warning("Rigid Body '{0}' neither has mass nor density set to valid values.", GetOwner()->GetName());
     PxRigidBodyExt::updateMassAndInertia(*m_pActor, 1.0f);
   }
 

@@ -165,7 +165,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& Output
   ezPxOutStream PassThroughStream(&OutputStream);
   if (!s_pCooking->cookConvexMesh(convex, PassThroughStream))
   {
-    ezLog::WarningPrintf("Convex mesh cooking failed. Trying again with inflated mesh.");
+    ezLog::Warning("Convex mesh cooking failed. Trying again with inflated mesh.");
 
     convex.flags.set(PxConvexFlag::eCOMPUTE_CONVEX);
     convex.flags.set(PxConvexFlag::eINFLATE_CONVEX);
