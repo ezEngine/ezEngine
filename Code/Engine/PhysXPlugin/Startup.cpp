@@ -46,7 +46,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
     ezLog::Error("PhysX: {0}", message);
     break;
   case PxErrorCode::eDEBUG_INFO:
-    ezLog::DevPrintf("PhysX: %s", message);
+    ezLog::Dev("PhysX: {0}", message);
     break;
   case PxErrorCode::eDEBUG_WARNING:
     ezLog::Warning("PhysX: {0}", message);

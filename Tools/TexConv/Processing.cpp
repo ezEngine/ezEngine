@@ -102,7 +102,7 @@ ezResult ezTexConv::ConvertToOutputFormat()
 ezResult ezTexConv::SaveResultToDDS()
 {
   const ezImageFormat::Enum dxgiOutputFormat = ezImageFormatMappings::FromDxgiFormat((ezUInt32)m_pCurrentImage->GetMetadata().format);
-  ezLog::InfoPrintf("Output Format: %s", ezImageFormat::GetName(dxgiOutputFormat));
+  ezLog::Info("Output Format: {0}", ezImageFormat::GetName(dxgiOutputFormat));
 
   if (FAILED(SaveToDDSMemory(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), 0, m_outputBlob)))
   {

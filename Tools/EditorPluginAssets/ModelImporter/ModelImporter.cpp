@@ -95,7 +95,7 @@ namespace ezModelImporter
           scene->CreateUniqueNames();
         }
 
-        ezLog::SuccessPrintf("Scene '%s' has been imported (time %f.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
+        ezLog::Success("Scene '{0}' has been imported (time {1}.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
         if (addToCache)
           m_cachedScenes.Insert(szFileName, scene);
 

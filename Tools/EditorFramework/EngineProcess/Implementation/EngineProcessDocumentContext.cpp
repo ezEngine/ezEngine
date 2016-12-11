@@ -388,7 +388,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
         DestroyViewContext(m_ViewContexts[pViewMsg->m_uiViewID]);
         m_ViewContexts[pViewMsg->m_uiViewID] = nullptr;
 
-        ezLog::InfoPrintf("Destroyed View %i", pViewMsg->m_uiViewID);
+        ezLog::Info("Destroyed View {0}", pViewMsg->m_uiViewID);
       }
     }
     else
@@ -440,7 +440,7 @@ void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent&
   // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with
   // broken thumbnails :-/
 
-  //ezLog::DebugPrintf("Resource changed, resetting counter");
+  //ezLog::Debug("Resource changed, resetting counter");
   //m_uiThumbnailConvergenceFrames = 0;
 }
 
@@ -533,32 +533,32 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   {
     m_uiThumbnailConvergenceFrames++;
 
-    //ezLog::DebugPrintf("Updating document context for thumbnail: %u", m_uiThumbnailConvergenceFrames);
+    //ezLog::Debug("Updating document context for thumbnail: {0}", m_uiThumbnailConvergenceFrames);
 
     // Once all resources are loaded and UpdateThumbnailViewContext returns true,
     // we render 'ThumbnailConvergenceFramesTarget' frames and than download it.
     if (ezResourceManager::FinishLoadingOfResources())
     {
-      //ezLog::DebugPrintf("Resources loaded, Resetting convergence counter");
+      //ezLog::Debug("Resources loaded, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
     {
-      //ezLog::DebugPrintf("Not updated thumbnail context, Resetting convergence counter");
+      //ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 
     if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
     {
-      //ezLog::DebugPrintf("Convergence > threshold, storing thumbnail");
+      //ezLog::Debug("Convergence > threshold, storing thumbnail");
 
       ezCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 
       // Download image
       {
-        //ezLog::SuccessPrintf("Reading back Thumbnail");
+        //ezLog::Success("Reading back Thumbnail");
 
         ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
 
@@ -601,7 +601,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     }
     else
     {
-      //ezLog::InfoPrintf("Rendering Thumbnail");
+      //ezLog::Info("Rendering Thumbnail");
       m_pThumbnailViewContext->Redraw(false);
     }
   }

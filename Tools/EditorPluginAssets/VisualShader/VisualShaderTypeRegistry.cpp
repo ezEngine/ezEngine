@@ -159,7 +159,7 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
 {
   EZ_LOG_BLOCK("Loading Visual Shader Config", szFile);
 
-  ezLog::DebugPrintf("Loading VSE node config '%s'", szFile);
+  ezLog::Debug("Loading VSE node config '{0}'", szFile);
 
   ezFileReader file;
   if (file.Open(szFile).Failed())

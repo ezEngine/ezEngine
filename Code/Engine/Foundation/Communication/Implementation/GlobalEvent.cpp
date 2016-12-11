@@ -78,7 +78,7 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
 
   while (it.IsValid())
   {
-    ezLog::InfoPrintf("Event: '%s', Num Handlers Regular / Once: %i / %i, Num Times Fired: %i", it.Key().GetData(), it.Value().m_uiNumEventHandlersRegular, it.Value().m_uiNumEventHandlersOnce, it.Value().m_uiNumTimesFired);
+    ezLog::Info("Event: '{0}', Num Handlers Regular / Once: {1} / {2}, Num Times Fired: {3}", it.Key().GetData(), it.Value().m_uiNumEventHandlersRegular, it.Value().m_uiNumEventHandlersOnce, it.Value().m_uiNumTimesFired);
 
     ++it;
   }

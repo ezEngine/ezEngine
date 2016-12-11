@@ -166,7 +166,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTemp
       return false;
     }
 
-    ezLog::DebugPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%d' -> reloading config for variable", szName, sValue.GetHash());
+    ezLog::Debug("Invalid Shader Permutation: '{0}' cannot be set to value '{1}' -> reloading config for variable", szName, sValue.GetHash());
     ReloadPermutationVarConfig(szName, sHashedName);
 
     if (!IsValueAllowed(*pConfig, sValue, out_sValue))
@@ -195,7 +195,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
       return false;
     }
 
-    ezLog::DebugPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%s' -> reloading config for variable", sName.GetData(), sValue.GetData());
+    ezLog::Debug("Invalid Shader Permutation: '{0}' cannot be set to value '{1}' -> reloading config for variable", sName.GetData(), sValue.GetData());
     ReloadPermutationVarConfig(sName, sName);
 
     if (!IsValueAllowed(*pConfig, sValue))

@@ -37,7 +37,7 @@ void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMs
 void ezQtUiServices::MessageBoxInformation(const char* szMsg)
 {
   if (s_bHeadless)
-    ezLog::InfoPrintf("%s", szMsg);
+    ezLog::Info("{0}", szMsg);
   else
     QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }

@@ -351,38 +351,38 @@ void ezTexConv::PrintConfig()
 {
   EZ_LOG_BLOCK("Configuration");
 
-  ezLog::InfoPrintf("Output: '%s'", m_sOutputFile.GetData());
+  ezLog::Info("Output: '{0}'", m_sOutputFile.GetData());
 
   for (ezUInt32 i = 0; i < m_InputFileNames.GetCount(); ++i)
   {
-    ezLog::InfoPrintf("Input %u: '%s'", i, m_InputFileNames[i].GetData());
+    ezLog::Info("Input {0}: '{1}'", i, m_InputFileNames[i].GetData());
   }
 
-  ezLog::InfoPrintf("Generate Mipmaps: %s", m_bGeneratedMipmaps ? "yes" : "no");
-  ezLog::InfoPrintf("Use Compression: %s", m_bCompress ? "yes" : "no");
-  ezLog::InfoPrintf("Output Channels: %u", m_uiOutputChannels);
-  ezLog::InfoPrintf("Output is %s", m_bSRGBOutput ? "sRGB" : "Linear");
-  ezLog::InfoPrintf("Pre-multiply alpha: %s", m_bPremultiplyAlpha ? "yes" : "no");
+  ezLog::Info("Generate Mipmaps: {0}", m_bGeneratedMipmaps ? "yes" : "no");
+  ezLog::Info("Use Compression: {0}", m_bCompress ? "yes" : "no");
+  ezLog::Info("Output Channels: {0}", m_uiOutputChannels);
+  ezLog::Info("Output is {0}", m_bSRGBOutput ? "sRGB" : "Linear");
+  ezLog::Info("Pre-multiply alpha: {0}", m_bPremultiplyAlpha ? "yes" : "no");
 
   for (ezUInt32 i = 0; i < m_uiOutputChannels; ++i)
   {
     if (m_2dSource[i].m_iInput == -1)
     {
-      ezLog::InfoPrintf("Output[%u] = %s", i, m_2dSource[i].m_uiChannelMask == 0 ? "black" : "white");
+      ezLog::Info("Output[{0}] = {1}", i, m_2dSource[i].m_uiChannelMask == 0 ? "black" : "white");
     }
     else
     {
-      ezLog::InfoPrintf("Output[%u] = Input[%i].%s", i, m_2dSource[i].m_iInput, ChannelMaskToString(m_2dSource[i].m_uiChannelMask).GetData());
+      ezLog::Info("Output[{0}] = Input[{1}].{2}", i, m_2dSource[i].m_iInput, ChannelMaskToString(m_2dSource[i].m_uiChannelMask).GetData());
     }
   }
 
   switch (m_TextureType)
   {
   case TextureType::Texture2D:
-    ezLog::InfoPrintf("Type: 2D Texture");
+    ezLog::Info("Type: 2D Texture");
     break;
   case TextureType::Cubemap:
-    ezLog::InfoPrintf("Type: Cubemap");
+    ezLog::Info("Type: Cubemap");
     break;
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;

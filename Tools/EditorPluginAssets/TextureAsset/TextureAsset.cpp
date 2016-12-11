@@ -201,7 +201,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::DebugPrintf("TexConv.exe%s", cmd.GetData());
+  ezLog::Debug("TexConv.exe{0}", cmd.GetData());
 
   QProcess proc;
   QString logoutput;
@@ -216,12 +216,12 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   // Output log.
   ezString test = logoutput.toUtf8().data();
-  ezLog::InfoPrintf("TexConv.exe log output:");
+  ezLog::Info("TexConv.exe log output:");
   QTextStream logoutputStream(&logoutput);
   while (!logoutputStream.atEnd())
   {
     QString line = logoutputStream.readLine();
-    ezLog::InfoPrintf("%s", line.toUtf8().data());
+    ezLog::Info("{0}", line.toUtf8().data());
   }
 
   if (proc.exitCode() != 0)

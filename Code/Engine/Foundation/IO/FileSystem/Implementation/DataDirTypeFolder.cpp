@@ -153,10 +153,10 @@ namespace ezDataDirectory
           szLineStart = szLineEnd + 1;
         }
 
-        ezLog::SuccessPrintf("Redirection file contains %u entries", m_FileRedirection.GetCount());
+        ezLog::Success("Redirection file contains {0} entries", m_FileRedirection.GetCount());
       }
       else
-        ezLog::DevPrintf("No Redirection file found in: '%s'", sRedirectionFile.GetData());
+        ezLog::Dev("No Redirection file found in: '{0}'", sRedirectionFile.GetData());
     }
   }
 

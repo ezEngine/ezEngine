@@ -88,7 +88,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
 
   if (uiVersion == 1)
   {
-    ezLog::SeriousWarningPrintf("Unsupported old particle effect version");
+    ezLog::SeriousWarning("Unsupported old particle effect version");
     return;
   }
 

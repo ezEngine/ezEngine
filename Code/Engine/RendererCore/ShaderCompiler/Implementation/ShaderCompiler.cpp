@@ -404,7 +404,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
           if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())
           {
             StageFileOut.WriteBytes(spd.m_szShaderSource[stage], ezStringUtils::GetStringElementCount(spd.m_szShaderSource[stage]));
-            ezLog::InfoPrintf("Failed shader source written to '%s'", sShaderStageFile.GetData());
+            ezLog::Info("Failed shader source written to '{0}'", sShaderStageFile.GetData());
           }
         }
       }

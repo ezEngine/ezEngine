@@ -200,7 +200,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
     s_PluginEvents.Broadcast(e);
   }
 
-  ezLog::SuccessPrintf("Plugin '%s' is unloaded.", szPluginFile);
+  ezLog::Success("Plugin '{0}' is unloaded.", szPluginFile);
 
   EndPluginChanges();
 
@@ -318,7 +318,7 @@ success:
     //EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '%s' %i ezPlugin instances were found.", szPluginFile, iNewPlugins);
   }
 
-  ezLog::SuccessPrintf("Plugin '%s' is loaded.", szPluginFile);
+  ezLog::Success("Plugin '{0}' is loaded.", szPluginFile);
   EndPluginChanges();
   return EZ_SUCCESS;
 }
@@ -332,11 +332,11 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
   if (g_LoadedPlugins.Find(szPluginFile).IsValid())
   {
     g_LoadedPlugins[szPluginFile].m_iReferenceCount++;
-    ezLog::DevPrintf("Plugin '%s' already loaded.", szPluginFile);
+    ezLog::Dev("Plugin '{0}' already loaded.", szPluginFile);
     return EZ_SUCCESS;
   }
 
-  ezLog::DevPrintf("Plugin to load: \"%s\"", szPluginFile);
+  ezLog::Dev("Plugin to load: \"{0}\"", szPluginFile);
   g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
 
   /// \todo Set "copy dll" back to true again, when we know which plugins may be copied
@@ -352,7 +352,7 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCo
 
   if (!g_LoadedPlugins.Find(szPluginFile).IsValid())
   {
-    ezLog::DevPrintf("Plugin '%s' is not loaded.", szPluginFile);
+    ezLog::Dev("Plugin '{0}' is not loaded.", szPluginFile);
     return EZ_SUCCESS;
   }
 
@@ -363,11 +363,11 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCo
 
   if (g_LoadedPlugins[szPluginFile].m_iReferenceCount > 0)
   {
-    ezLog::DevPrintf("Plugin '%s' is still referenced (RefCount: %i).", szPluginFile, g_LoadedPlugins[szPluginFile].m_iReferenceCount);
+    ezLog::Dev("Plugin '{0}' is still referenced (RefCount: {1}).", szPluginFile, g_LoadedPlugins[szPluginFile].m_iReferenceCount);
     return EZ_SUCCESS;
   }
 
-  ezLog::DevPrintf("Plugin to unload: \"%s\"", szPluginFile);
+  ezLog::Dev("Plugin to unload: \"{0}\"", szPluginFile);
   UnloadPluginInternal(szPluginFile, false);
 
   return EZ_SUCCESS;
@@ -452,7 +452,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 
   EZ_LOG_BLOCK("Reload Plugins");
 
-  ezLog::DevPrintf("Reloading Plugins");
+  ezLog::Dev("Reloading Plugins");
 
   ezHybridArray<ezString, 16> PluginsToReload;
   ezResult res = EZ_SUCCESS;
@@ -491,11 +491,11 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
               {
                 if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
                 {
-                  ezLog::DevPrintf("Plugin '%s' is not modified.", pPlugin->GetPluginName());
+                  ezLog::Dev("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
                   bModified = false;
                 }
                 else
-                  ezLog::InfoPrintf("Plugin '%s' is modified, reloading.", pPlugin->GetPluginName());
+                  ezLog::Info("Plugin '{0}' is modified, reloading.", pPlugin->GetPluginName());
               }
             }
 

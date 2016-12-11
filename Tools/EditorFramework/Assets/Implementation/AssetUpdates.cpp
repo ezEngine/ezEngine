@@ -787,7 +787,7 @@ void ezProcessTask::Execute()
     return;
   }
 
-  ezLog::InfoPrintf("Processing '%s'", m_sAssetPath.GetData());
+  ezLog::Info("Processing '{0}'", m_sAssetPath.GetData());
   // Send and wait
   ezProcessAsset msg;
   msg.m_AssetGuid = m_assetGuid;

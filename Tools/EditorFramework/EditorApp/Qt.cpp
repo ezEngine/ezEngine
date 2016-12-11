@@ -46,11 +46,11 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
   switch (type)
   {
   case QtDebugMsg:
-    ezLog::DebugPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::Debug("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
     break;
 #if QT_VERSION >= 0x050500
   case QtInfoMsg:
-    ezLog::InfoPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::Info("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
     break;
 #endif
   case QtWarningMsg:

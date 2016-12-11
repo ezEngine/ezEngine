@@ -304,13 +304,13 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     return importStatus;
 
   ezUInt32 uiTriangles = mesh->GetNumTriangles();
-  ezLog::InfoPrintf("Number of Triangles: %u", uiTriangles);
+  ezLog::Info("Number of Triangles: {0}", uiTriangles);
 
   {
     ezStopwatch timer;
     mesh->ComputeNormals();
     mesh->ComputeTangents();
-    ezLog::SuccessPrintf("Computed missing normals and tangents (time %.2fs)", timer.GetRunningTotal());
+    ezLog::Success("Computed missing normals and tangents (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
   }
 
   // Create vertex & index buffer.
@@ -356,8 +356,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     ezUInt32 uiNumVertices = dataIndices_to_InterleavedVertexIndices.GetCount();
     EZ_ASSERT_DEBUG(triangleVertexIndices.GetCount() == uiNumTriangles * 3, "Number of indices for index buffer is not triangles times 3");
 
-    ezLog::InfoPrintf("Number of Vertices: %u", uiNumVertices);
-    ezLog::InfoPrintf("Number of Triangles: %u", uiNumTriangles);
+    ezLog::Info("Number of Vertices: {0}", uiNumVertices);
+    ezLog::Info("Number of Triangles: {0}", uiNumTriangles);
 
     // Seems to be necessary with current rendering pipeline.
 #define GENERATE_FAKE_DATA
@@ -474,7 +474,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
         desc.MeshBufferDesc().SetTriangleIndices(i / 3, triangleVertexIndices[i + 0], triangleVertexIndices[i + 1], triangleVertexIndices[i + 2]);
     }
 
-    ezLog::SuccessPrintf("Generated Vertex and Index Buffer (total time %.2fs, vertex mapping %.2fs)", timer.GetRunningTotal().GetSeconds(), mappingTime.GetSeconds());
+    ezLog::Success("Generated Vertex and Index Buffer (total time {0}s, vertex mapping {1}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2), ezArgF(mappingTime.GetSeconds(), 2));
   }
 
   // Materials/Submeshes.
@@ -512,7 +512,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
       ezStopwatch sw;
       ImportMaterials(*scene, *mesh, pProp, sImportSourceDirectory, importTargetDirectory);
-      ezLog::SuccessPrintf("Import Materials (time %.2fs)", sw.GetRunningTotal());
+      ezLog::Success("Import Materials (time {0}s)", ezArgF(sw.GetRunningTotal().GetSeconds(), 2));
     }
 
     if (mesh->GetNumSubMeshes() == 0)
@@ -524,7 +524,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     ezStopwatch sw;
     ApplyNativePropertyChangesToObjectManager();
     GetObjectAccessor()->FinishTransaction();
-    ezLog::SuccessPrintf("Apply Native Property Changes (time %.2fs)", sw.GetRunningTotal());
+    ezLog::Success("Apply Native Property Changes (time {0}s)", ezArgF(sw.GetRunningTotal().GetSeconds(), 2));
 
     // Need to reacquire pProp pointer since it might be reallocated.
     pProp = GetProperties();

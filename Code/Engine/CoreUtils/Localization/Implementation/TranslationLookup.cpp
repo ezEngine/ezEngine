@@ -78,12 +78,12 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
   ezStringBuilder sPath;
   sPath.AppendPath(m_sSearchPath, szFileName);
 
-  ezLog::DevPrintf("Loading Localization File '%s'", sPath.GetData());
+  ezLog::Dev("Loading Localization File '{0}'", sPath.GetData());
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::SeriousWarningPrintf("Failed to open localization file '%s'", sPath.GetData());
+    ezLog::SeriousWarning("Failed to open localization file '{0}'", sPath.GetData());
     return;
   }
 

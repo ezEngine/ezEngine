@@ -138,7 +138,7 @@ public:
   virtual void BeforeCoreShutdown()
   {
     if ((m_bHadSeriousWarnings || m_bHadErrors) && m_bModifiedFiles)
-      ezLog::SeriousWarningPrintf("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
+      ezLog::SeriousWarning("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
     else if (m_bHadWarnings || m_bHadSeriousWarnings || m_bHadErrors)
     {
       ezLog::Warning("There have been errors or warnings, see log for details.");
@@ -263,13 +263,13 @@ public:
 
     if (m_bHadSeriousWarnings || m_bHadErrors)
     {
-      ezLog::InfoPrintf("There have been errors or warnings previously, no files will be modified.");
+      ezLog::Info("There have been errors or warnings previously, no files will be modified.");
       return;
     }
 
     if (!m_bAnyFileChanged)
     {
-      ezLog::SuccessPrintf("No files needed modification.");
+      ezLog::Success("No files needed modification.");
       return;
     }
 
@@ -289,7 +289,7 @@ public:
         m_bModifiedFiles = true;
         FileOut.WriteBytes(it.Value().m_sFileContent.GetData(), it.Value().m_sFileContent.GetElementCount());
 
-        ezLog::SuccessPrintf("File has been modified: '%s'", it.Key().GetData());
+        ezLog::Success("File has been modified: '{0}'", it.Key().GetData());
       }
     }
   }
@@ -331,7 +331,7 @@ public:
 
         if (sInclude.ReplaceAll("\\", "/") > 0)
         {
-          ezLog::InfoPrintf("Replacing backslashes in #include path with front slashes: '%s'", sInclude.GetData());
+          ezLog::Info("Replacing backslashes in #include path with front slashes: '{0}'", sInclude.GetData());
           sFileContent.ReplaceSubString(szI, szLineEnd, sInclude.GetData());
         }
 
@@ -352,7 +352,7 @@ public:
         // ignore third-party includes
         if (sInclude.FindSubString_NoCase("ThirdParty"))
         {
-          ezLog::DevPrintf("Skipping ThirdParty Include: '%s'", sInclude.GetData());
+          ezLog::Dev("Skipping ThirdParty Include: '{0}'", sInclude.GetData());
           continue;
         }
 
@@ -368,7 +368,7 @@ public:
         // ignore includes to files that cannot be found (ie. they are not part of the ezEngine source tree)
         if (!ezFileSystem::ExistsFile(sCanFindInclude.GetData()) && !ezFileSystem::ExistsFile(sCanFindInclude2.GetData()))
         {
-          ezLog::DevPrintf("Skipping non-Engine Include: '%s'", sInclude.GetData());
+          ezLog::Dev("Skipping non-Engine Include: '{0}'", sInclude.GetData());
           continue;
         }
 
@@ -378,7 +378,7 @@ public:
           ezLog::Warning("This file includes an implementation header from another library: '{0}'", sInclude);
         }
 
-        ezLog::DevPrintf("Found Include: '%s'", sInclude.GetData());
+        ezLog::Dev("Found Include: '{0}'", sInclude.GetData());
 
         m_GlobalIncludes.Insert(sInclude);
       }
@@ -421,7 +421,7 @@ public:
       }
     }
 
-    ezLog::InfoPrintf("Rewriting PCH: '%s'", sPCHFile.GetData());
+    ezLog::Info("Rewriting PCH: '{0}'", sPCHFile.GetData());
 
     ezStringBuilder sFileContent;
     if (ReadEntireFile(sPCHFile.GetData(), sFileContent) == EZ_FAILURE)
@@ -455,7 +455,7 @@ public:
       return;
 
     if (ezStringUtils::EndsWith(szFile, "/PCH.h"))
-      ezLog::DevPrintf("Skipping PCH for #include search: '%s'", szFile);
+      ezLog::Dev("Skipping PCH for #include search: '{0}'", szFile);
     else
       FindIncludes(sFileContent);
 
@@ -532,7 +532,7 @@ public:
 
     EZ_LOG_BLOCK("RewriteRefPointGroup", szFile);
 
-    ezLog::InfoPrintf("Replacing macro EZ_STATICLINK_LIBRARY in file '%s'.", m_sRefPointGroupFile.GetData());
+    ezLog::Info("Replacing macro EZ_STATICLINK_LIBRARY in file '{0}'.", m_sRefPointGroupFile.GetData());
 
     ezStringBuilder sFileContent;
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
@@ -722,7 +722,7 @@ public:
           // part such that it will reference all the other files
           if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
           {
-            ezLog::InfoPrintf("Found macro 'EZ_STATICLINK_LIBRARY' in file '%s'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
+            ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '{0}'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
               ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());

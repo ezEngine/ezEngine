@@ -335,7 +335,7 @@ namespace ezModelImporter
     public:
       void write(const char* message)
       {
-        ezLog::DevPrintf("AssImp: %s", message);
+        ezLog::Dev("AssImp: {0}", message);
       }
     };
     Assimp::DefaultLogger::create("", Assimp::Logger::NORMAL);

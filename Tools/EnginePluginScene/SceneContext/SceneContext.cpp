@@ -220,7 +220,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezSceneContext::OnSimulationEnabled()
 {
-  ezLog::InfoPrintf("World Simulation enabled");
+  ezLog::Info("World Simulation enabled");
 
   ezResourceManager::ReloadAllResources(false);
 
@@ -231,7 +231,7 @@ void ezSceneContext::OnSimulationEnabled()
 
 void ezSceneContext::OnSimulationDisabled()
 {
-  ezLog::InfoPrintf("World Simulation disabled");
+  ezLog::Info("World Simulation disabled");
 
   ezResourceManager::ResetAllResources();
 }
@@ -296,7 +296,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
 void ezSceneContext::OnPlayTheGameModeStarted()
 {
-  ezLog::InfoPrintf("Starting Play-the-Game mode");
+  ezLog::Info("Starting Play-the-Game mode");
 
   m_pWorld->GetClock().SetSpeed(1.0f);
   m_pWorld->SetWorldSimulationEnabled(true);
@@ -334,7 +334,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
     if (pState == nullptr)
       return;
 
-    ezLog::InfoPrintf("Attempting to stop Play-the-Game mode");
+    ezLog::Info("Attempting to stop Play-the-Game mode");
     pState->RequestQuit();
   }
 }

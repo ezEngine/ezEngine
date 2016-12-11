@@ -570,7 +570,7 @@ void ezAssetCurator::CheckFileSystem()
 
   RestartUpdateTask();
 
-  ezLog::InfoPrintf("Asset Curator Refresh Time: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
+  ezLog::Info("Asset Curator Refresh Time: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
 }
 
 
@@ -1254,7 +1254,7 @@ void ezAssetCurator::LoadCaches()
       }
     }
   }
-  ezLog::InfoPrintf("Asset Curator LoadCaches: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
+  ezLog::Info("Asset Curator LoadCaches: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
 }
 
 void ezAssetCurator::SaveCaches()
@@ -1315,6 +1315,6 @@ void ezAssetCurator::SaveCaches()
     writer.Close();
   }
 
-  ezLog::InfoPrintf("Asset Curator SaveCaches: %.3f ms", sw.GetRunningTotal().GetMilliseconds());
+  ezLog::Info("Asset Curator SaveCaches: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
 }
 

@@ -148,7 +148,7 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
   fDelay -= fLastFrameTimeMS;
   fDelay = ezMath::Max(fDelay, 0.0f);
 
-  //ezLog::InfoPrintf("FT: %.3f, delay: %.3f", fLastFrameTimeMS, fDelay);
+  //ezLog::Info("FT: {0}, delay: {1}", ezArgF(fLastFrameTimeMS, 3), ezArgF(fDelay, 3));
 
   QTimer::singleShot((ezInt32)ezMath::Floor(fDelay), this, SLOT(SlotRedraw()));
 }

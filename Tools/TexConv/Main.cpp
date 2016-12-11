@@ -73,7 +73,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
   if (CanPassThroughInput())
   {
-    ezLog::InfoPrintf("Input can be passed through");
+    ezLog::Info("Input can be passed through");
 
     if (PassImageThrough().Failed())
       return ezApplication::Quit;
@@ -145,7 +145,7 @@ ezResult ezTexConv::SaveThumbnail()
   if (m_sThumbnailFile.IsEmpty())
     return EZ_SUCCESS;
 
-  ezLog::InfoPrintf("Thumbnail: '%s'", m_sThumbnailFile.GetData());
+  ezLog::Info("Thumbnail: '{0}'", m_sThumbnailFile.GetData());
 
   const ezUInt32 uiThumbnailSize = 128;
 

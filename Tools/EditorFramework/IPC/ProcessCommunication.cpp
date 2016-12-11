@@ -112,7 +112,7 @@ ezResult ezProcessCommunication::ConnectToHostProcess()
   m_iHostPID = 0;
   ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID);
 
-  ezLog::DebugPrintf("Host Process ID: %lli", m_iHostPID);
+  ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
   m_pSharedMemory = new QSharedMemory(QLatin1String(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")));
   if (!m_pSharedMemory->attach())

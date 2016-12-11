@@ -80,7 +80,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
   ezInt32 iStrings = 0;
   pStringsBank->getStringCount(&iStrings);
-  ezLog::InfoPrintf("SoundBank has %i strings", iStrings);
+  ezLog::Info("SoundBank has {0} strings", iStrings);
 
   for (ezInt32 i = 0; i < iStrings; ++i)
   {
@@ -90,10 +90,10 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     pStringsBank->getStringInfo(i, &strGuid, path, 255, &len);
     path[len] = '\0';
 
-    ezLog::DebugPrintf("String %i: %s", i, path);
+    ezLog::Debug("String {0}: {1}", i, path);
   }
 
-  ezLog::DevPrintf("SoundBank has %i events", iEvents);
+  ezLog::Dev("SoundBank has {0} events", iEvents);
 
   const ezString sOwnGuid = ezConversionUtils::ToString(GetGuid());
 
@@ -130,7 +130,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
       sGuidNoSpace = sGuid;
       sGuidNoSpace.ReplaceAll(" ", "");
 
-      ezLog::InfoPrintf("Event: '%s' -> '%s'", sEventName.GetData(), sGuid.GetData());
+      ezLog::Info("Event: '{0}' -> '{1}'", sEventName.GetData(), sGuid.GetData());
 
       sSubAssetLine.Format("{0};{1}|{2};{3}\n", sGuid.GetData(), sOwnGuid.GetData(), sGuidNoSpace.GetData(), sEventName.GetData());
 

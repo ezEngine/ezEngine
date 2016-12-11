@@ -71,7 +71,7 @@ bool ezDependencyFile::HasAnyFileChanged()
 
     if (ts.GetInt64(ezSIUnitOfTime::Second) > m_iMaxTimeStampStored)
     {
-      ezLog::DevPrintf("Detected file change in '%s' (TimeStamp %lli > MaxTimeStamp %lli)", sFile.GetData(), ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
+      ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", sFile.GetData(), ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
       return true;
     }
   }

@@ -226,7 +226,7 @@ void ezGameApplication::DoLoadTags()
   ezFileReader file;
   if (file.Open("Tags.ddl").Failed())
   {
-    ezLog::DevPrintf("'Tags.ddl' does not exist");
+    ezLog::Dev("'Tags.ddl' does not exist");
     return;
   }
 

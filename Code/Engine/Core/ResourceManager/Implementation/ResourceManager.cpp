@@ -161,7 +161,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   else
     m_RequireLoading.PushBack(li);
 
-  //ezLog::DebugPrintf("Adding resource '%s' -> '%s'to preload queue: %u items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
+  //ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
 
   ezResourceEvent e;
   e.m_pResource = pResource;
@@ -285,7 +285,7 @@ void ezResourceManagerWorkerMainThread::Execute()
   if (!m_LoaderData.m_sResourceDescription.IsEmpty())
     m_pResourceToLoad->SetResourceDescription(m_LoaderData.m_sResourceDescription);
 
-  //ezLog::DebugPrintf("Updating Resource Content");
+  //ezLog::Debug("Updating Resource Content");
   ezResourceManager::s_ResourcesLoadedRecently.Increment();
   m_pResourceToLoad->CallUpdateContent(m_LoaderData.m_pDataStream);
 
@@ -315,7 +315,7 @@ void ezResourceManagerWorkerMainThread::Execute()
     EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
     m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
-    //ezLog::DevPrintf("Finished loading resource on main thread");
+    //ezLog::Dev("Finished loading resource on main thread");
     EZ_ASSERT_DEV(ezResourceManager::s_ResourcesInLoadingLimbo > 0, "ezResourceManager::s_ResourcesInLoadingLimbo is incorrect");
     ezResourceManager::s_ResourcesInLoadingLimbo.Decrement();
 
@@ -417,7 +417,7 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
     if (!LoaderData.m_sResourceDescription.IsEmpty())
       pResourceToLoad->SetResourceDescription(LoaderData.m_sResourceDescription);
 
-    //ezLog::DebugPrintf("Updating Resource Content");
+    //ezLog::Debug("Updating Resource Content");
     ezResourceManager::s_ResourcesLoadedRecently.Increment();
     pResourceToLoad->CallUpdateContent(LoaderData.m_pDataStream);
 
@@ -593,7 +593,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
       // that means some task is already working on loading it
       // therefore we should not touch it (especially unload it), it might end up in an inconsistent state
 
-      ezLog::DevPrintf("Resource '%s' is not being reloaded, because it is currently loaded already", pResource->GetResourceID().GetData());
+      ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently loaded already", pResource->GetResourceID().GetData());
       return;
     }
   }
@@ -605,12 +605,12 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
       if (!pLoader->IsResourceOutdated(pResource))
         return;
 
-      ezLog::DevPrintf("Resource '%s' is outdated and will be reloaded", pResource->GetResourceID().GetData());
+      ezLog::Dev("Resource '{0}' is outdated and will be reloaded", pResource->GetResourceID().GetData());
     }
   }
   else
   {
-    ezLog::DevPrintf("Resource '%s' is missing and will be tried to be reloaded", pResource->GetResourceID().GetData());
+    ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded", pResource->GetResourceID().GetData());
   }
 
   // make sure existing data is purged
@@ -869,7 +869,7 @@ void ezResourceManager::OnCoreShutdown()
     {
       ezResourceBase* pReference = it.Value();
 
-      ezLog::InfoPrintf("Refcount = %i, Type = '%s', ResourceID = '%s'", pReference->GetReferenceCount(), pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID().GetData());
+      ezLog::Info("Refcount = {0}, Type = '{1}', ResourceID = '{2}'", pReference->GetReferenceCount(), pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID().GetData());
     }
   }
 
@@ -957,13 +957,13 @@ bool ezResourceManager::FinishLoadingOfResources()
     //if (uiRemaining == 0 && s_ResourcesInLoadingLimbo != 0)
     //{
       //ezUInt32 i = s_ResourcesInLoadingLimbo;
-      //ezLog::DevPrintf("Waiting for %u resources on main thread", i);
+      //ezLog::Dev("Waiting for {0} resources on main thread", i);
     //}
 
     if (uiRemaining == 0 && s_ResourcesInLoadingLimbo == 0)
     {
       const bool bLoadedAny = s_ResourcesLoadedRecently.Set(0) > 0;
-      //ezLog::DebugPrintf("FinishLoadingOfResources: %s", bLoadedAny ? "true" : "false");
+      //ezLog::Debug("FinishLoadingOfResources: {0}", bLoadedAny ? "true" : "false");
       return bLoadedAny;
     }
 

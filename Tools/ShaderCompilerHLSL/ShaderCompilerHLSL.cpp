@@ -38,7 +38,7 @@ ezResult CompileDXShader(const char* szFile, const char* szSource, const char* s
     const char* szError = static_cast<const char*>(pErrorBlob->GetBufferPointer());
 
     EZ_LOG_BLOCK("Shader Compilation Error Message", szFile);
-    ezLog::DevPrintf("%s", szError);
+    ezLog::Dev("{0}", szError);
 
     pErrorBlob->Release();
   }
@@ -68,7 +68,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     D3D11_SHADER_INPUT_BIND_DESC shaderInputBindDesc;
     pReflector->GetResourceBindingDesc(r, &shaderInputBindDesc);
 
-    //ezLog::InfoPrintf("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
+    //ezLog::Info("Bound Resource: '{0}' at slot {1} (Count: {2}, Flags: {3})", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
 
     ezShaderResourceBinding shaderResourceBinding;
     shaderResourceBinding.m_Type = ezShaderResourceBinding::Unknown;
@@ -154,7 +154,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
   }
 
   EZ_LOG_BLOCK("Constant Buffer Layout", shaderBufferDesc.Name);
-  ezLog::DebugPrintf("Constant Buffer has %u variables, Size is %u", shaderBufferDesc.Variables, shaderBufferDesc.Size);
+  ezLog::Debug("Constant Buffer has {0} variables, Size is {1}", shaderBufferDesc.Variables, shaderBufferDesc.Size);
 
   ezShaderConstantBufferLayout* pLayout = pStageBinary.CreateConstantBufferLayout();
 
@@ -306,7 +306,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
     // shader already compiled
     if (!inout_Data.m_StageBinary[stage].GetByteCode().IsEmpty())
     {
-      ezLog::DebugPrintf("Shader for stage '%s' is already compiled.", ezGALShaderStage::Names[stage]);
+      ezLog::Debug("Shader for stage '{0}' is already compiled.", ezGALShaderStage::Names[stage]);
       continue;
     }
 

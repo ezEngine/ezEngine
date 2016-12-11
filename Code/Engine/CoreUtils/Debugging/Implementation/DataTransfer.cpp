@@ -104,7 +104,7 @@ void ezDataTransfer::RequestDataTransfer()
     return;
   }
 
-  ezLog::DevPrintf("Data Transfer Request: %s", m_sDataName.GetData());
+  ezLog::Dev("Data Transfer Request: {0}", m_sDataName.GetData());
 
   m_bTransferRequested = true;
 

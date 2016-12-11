@@ -99,7 +99,7 @@ retry:
 
     EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
 
-    ezLog::SuccessPrintf("Initialized D3D11 device with feature level %s.", FeatureLevelNames[FeatureLevelIdx]);
+    ezLog::Success("Initialized D3D11 device with feature level {0}.", FeatureLevelNames[FeatureLevelIdx]);
   }
 
   if (m_Description.m_bDebugDevice)

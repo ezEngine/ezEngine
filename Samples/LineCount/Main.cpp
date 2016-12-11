@@ -237,7 +237,7 @@ public:
         b.AppendPath(it.GetStats().m_sFileName.GetData());
 
         // log some info
-        ezLog::InfoPrintf("%s: %s", it.GetStats().m_bIsDirectory ? "Directory" : "File", b.GetData());
+        ezLog::Info("{0}: {1}", it.GetStats().m_bIsDirectory ? "Directory" : "File", b.GetData());
 
         if (it.GetStats().m_bIsDirectory)
           ++uiDirectories;
@@ -262,7 +262,7 @@ public:
 
 
       // now output some statistics
-      ezLog::InfoPrintf("Directories: %i, Files: %i, Avg. Files per Dir: %.1f", uiDirectories, uiFiles, uiFiles / (float) uiDirectories);
+      ezLog::Info("Directories: {0}, Files: {1}, Avg. Files per Dir: {2}", uiDirectories, uiFiles, ezArgF(uiFiles / (float) uiDirectories, 1));
 
       FileStats AllTypes;
 
@@ -270,14 +270,14 @@ public:
       ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
       while (MapIt.IsValid())
       {
-        ezLog::InfoPrintf("File Type: '%s': %i Files, %i Lines, %i Empty Lines, Bytes: %i, Non-ASCII Characters: %i, Words: %i", MapIt.Key().GetData(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
+        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key().GetData(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
 
         AllTypes += MapIt.Value();
 
         ++MapIt;
       }
 
-      ezLog::InfoPrintf("File Type: '%s': %i Files, %i Lines, %i Empty Lines, All Lines: %i, Bytes: %i, Non-ASCII Characters: %i, Words: %i", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
+      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_szSearchDir);

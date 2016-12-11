@@ -32,55 +32,55 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   {
     EZ_LOG_BLOCK("Verse 1", "Portal: Still Alive");
 
-    ezLog::SuccessPrintf("%s", "This was a triumph.");
-    ezLog::InfoPrintf("%s", "I'm making a note here:");
-    ezLog::SuccessPrintf("%s", "Huge Success");
-    ezLog::InfoPrintf("%s", "It's hard to overstate my satisfaction.");
+    ezLog::Success("{0}", "This was a triumph.");
+    ezLog::Info("{0}", "I'm making a note here:");
+    ezLog::Success("{0}", "Huge Success");
+    ezLog::Info("{0}", "It's hard to overstate my satisfaction.");
     ezLog::DevPrintf("%s", "Aperture Science. We do what we must, because we can,");
     ezLog::DebugPrintf("%s", "For the good of all of us, except the ones who are dead.");
 
     {
       EZ_LOG_BLOCK("Verse 2");
 
-      ezLog::DevPrintf("But there's no sense crying over every mistake.");
-      ezLog::DebugPrintf("You just keep on trying 'till you run out of cake.");
-      ezLog::InfoPrintf("And the science gets done, and you make a neat gun");
-      ezLog::DebugPrintf("for the people who are still alive.");
+      ezLog::Dev("But there's no sense crying over every mistake.");
+      ezLog::Debug("You just keep on trying 'till you run out of cake.");
+      ezLog::Info("And the science gets done, and you make a neat gun");
+      ezLog::Debug("for the people who are still alive.");
     }
 
     {
       EZ_LOG_BLOCK("Verse 3");
 
-      ezLog::InfoPrintf("I'm not even angry.");
-      ezLog::DebugPrintf("I'm being so sincere right now.");
-      ezLog::DevPrintf("Even though you broke my heart and killed me.");
-      ezLog::InfoPrintf("And tore me to pieces,");
-      ezLog::DevPrintf("and threw every piece into a fire.");
-      ezLog::InfoPrintf("As they burned it hurt because I was so happy for you.");
-      ezLog::DevPrintf("Now these points of data make a beautiful line");
-      ezLog::DevPrintf("and we're off the beta, we're releasing on time.");
+      ezLog::Info("I'm not even angry.");
+      ezLog::Debug("I'm being so sincere right now.");
+      ezLog::Dev("Even though you broke my heart and killed me.");
+      ezLog::Info("And tore me to pieces,");
+      ezLog::Dev("and threw every piece into a fire.");
+      ezLog::Info("As they burned it hurt because I was so happy for you.");
+      ezLog::Dev("Now these points of data make a beautiful line");
+      ezLog::Dev("and we're off the beta, we're releasing on time.");
 
       {
         EZ_LOG_BLOCK("Verse 4");
 
-        ezLog::InfoPrintf("So I'm glad I got burned,");
-        ezLog::DebugPrintf("think of all the things we learned");
-        ezLog::DebugPrintf("for the people who are still alive.");
+        ezLog::Info("So I'm glad I got burned,");
+        ezLog::Debug("think of all the things we learned");
+        ezLog::Debug("for the people who are still alive.");
 
         {
           EZ_LOG_BLOCK("Verse 5");
 
-          ezLog::DebugPrintf("Go ahead and leave me.");
-          ezLog::InfoPrintf("I think I prefer to stay inside.");
-          ezLog::DevPrintf("Maybe you'll find someone else, to help you.");
-          ezLog::DevPrintf("Maybe Black Mesa.");
-          ezLog::InfoPrintf("That was a joke. Haha. Fat chance.");
-          ezLog::SuccessPrintf("Anyway, this cake is great.");
-          ezLog::SuccessPrintf("It's so delicious and moist.");
-          ezLog::DevPrintf("Look at me still talking when there's science to do.");
-          ezLog::DebugPrintf("When I look up there it makes me glad I'm not you.");
-          ezLog::InfoPrintf("I've experiments to run,");
-          ezLog::DebugPrintf("there is research to be done on the people who are still alive.");
+          ezLog::Debug("Go ahead and leave me.");
+          ezLog::Info("I think I prefer to stay inside.");
+          ezLog::Dev("Maybe you'll find someone else, to help you.");
+          ezLog::Dev("Maybe Black Mesa.");
+          ezLog::Info("That was a joke. Haha. Fat chance.");
+          ezLog::Success("Anyway, this cake is great.");
+          ezLog::Success("It's so delicious and moist.");
+          ezLog::Dev("Look at me still talking when there's science to do.");
+          ezLog::Debug("When I look up there it makes me glad I'm not you.");
+          ezLog::Info("I've experiments to run,");
+          ezLog::Debug("there is research to be done on the people who are still alive.");
         }
       }
     }
@@ -89,12 +89,12 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   {
     EZ_LOG_BLOCK("Verse 6", "Last One");
 
-    ezLog::DevPrintf("And believe me I am still alive.");
-    ezLog::InfoPrintf("I'm doing science and I'm still alive.");
-    ezLog::SuccessPrintf("I feel fantastic and I'm still alive.");
-    ezLog::DevPrintf("While you're dying I'll be still alive.");
-    ezLog::DevPrintf("And when you're dead I will be, still alive.");
-    ezLog::DebugPrintf("Still alive, still alive.");
+    ezLog::Dev("And believe me I am still alive.");
+    ezLog::Info("I'm doing science and I'm still alive.");
+    ezLog::Success("I feel fantastic and I'm still alive.");
+    ezLog::Dev("While you're dying I'll be still alive.");
+    ezLog::Dev("And when you're dead I will be, still alive.");
+    ezLog::Debug("Still alive, still alive.");
   }
 
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);

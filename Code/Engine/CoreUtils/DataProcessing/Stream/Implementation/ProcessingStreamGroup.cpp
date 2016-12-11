@@ -40,7 +40,7 @@ void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcess
 
   if (pProcessor->m_pStreamGroup != nullptr)
   {
-    ezLog::DebugPrintf("Stream processor is already assigned to a stream group!");
+    ezLog::Debug("Stream processor is already assigned to a stream group!");
     return;
   }
 

@@ -157,7 +157,7 @@ void ezPxAllocatorCallback::VerifyAllocations()
   for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)
   {
     const char* s = it.Value().GetData();
-    ezLog::InfoPrintf(s);
+    ezLog::Info(s);
   }
 #endif
 }

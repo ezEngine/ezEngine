@@ -210,11 +210,11 @@ void ezPxCharacterControllerComponent::Update()
     {
       m_pController->move(PxVec3(0, 0, -fSweepDistance), 0.5f * fGravity, 0.0f, charFilter);
 
-      //ezLog::InfoPrintf("Floor Distance: %.2f (%.2f | %.2f | %.2f) -> (%.2f | %.2f | %.2f), Radius: %.2f, Height: %.2f", fSweepDistance, t.m_vPosition.x, t.m_vPosition.y, t.m_vPosition.z, vSweepPosition.x, vSweepPosition.y, vSweepPosition.z, m_fCapsuleRadius, m_fCapsuleHeight);
+      //ezLog::Info("Floor Distance: {0} ({1} | {2} | {3}) -> ({4} | {5} | {6}), Radius: {7}, Height: {8}", ezArgF(fSweepDistance, 2), ezArgF(t.m_vPosition.x, 2), ezArgF(t.m_vPosition.y, 2), ezArgF(t.m_vPosition.z, 2), ezArgF(vSweepPosition.x, 2), ezArgF(vSweepPosition.y, 2), ezArgF(vSweepPosition.z, 2), ezArgF(m_fCapsuleRadius, 2), ezArgF(m_fCapsuleHeight, 2));
     }
     else
     {
-      //ezLog::DevPrintf("Falling");
+      //ezLog::Dev("Falling");
     }
 
     posAfter = m_pController->getPosition();

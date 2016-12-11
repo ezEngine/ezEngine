@@ -65,7 +65,7 @@ class aiLogStream : public LogStream
 public:
   void write(const char* message)
   {
-    ezLog::DevPrintf("AssImp: %s", message);
+    ezLog::Dev("AssImp: {0}", message);
   }
 };
 
@@ -140,7 +140,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
 
   ezLog::SuccessPrintf("Mesh has been imported", sMeshFileAbs.GetData());
 
-  ezLog::InfoPrintf("Number of unique Meshes: %u", scene->mNumMeshes);
+  ezLog::Info("Number of unique Meshes: {0}", scene->mNumMeshes);
 
   ezUInt32 uiVertices = 0;
   ezUInt32 uiTriangles = 0;
@@ -151,8 +151,8 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
     uiTriangles += scene->mMeshes[meshIdx]->mNumFaces;
   }
 
-  ezLog::InfoPrintf("Number of Vertices: %u", uiVertices);
-  ezLog::InfoPrintf("Number of Triangles: %u", uiTriangles);
+  ezLog::Info("Number of Vertices: {0}", uiVertices);
+  ezLog::Info("Number of Triangles: {0}", uiTriangles);
 
 
   {

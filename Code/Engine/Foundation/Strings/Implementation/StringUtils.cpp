@@ -21,14 +21,14 @@ void ezStringUtils::PrintStringLengthStatistics()
 {
   EZ_LOG_BLOCK("String Length Statistics");
 
-  ezLog::InfoPrintf("Max String Length: %i", (ezInt32) g_MaxUsedStringLength);
+  ezLog::Info("Max String Length: {0}", (ezInt32) g_MaxUsedStringLength);
 
   ezUInt32 uiCopiedStrings = 0;
   for (ezUInt32 i = 0; i < 256; ++i)
     uiCopiedStrings += g_UsedStringLengths[i];
 
-  ezLog::InfoPrintf("Number of String Copies: %i", uiCopiedStrings);
-  ezLog::InfoPrintf("");
+  ezLog::Info("Number of String Copies: {0}", uiCopiedStrings);
+  ezLog::Info("");
 
   ezUInt32 uiPercent = 0;
   ezUInt32 uiStrings = 0;
@@ -36,7 +36,7 @@ void ezStringUtils::PrintStringLengthStatistics()
   {
     if (100.0f * (uiStrings + g_UsedStringLengths[i]) / (float) uiCopiedStrings >= uiPercent)
     {
-      ezLog::InfoPrintf("%3i%% of all Strings are shorter than %3i Elements.", uiPercent, i + 1);
+      ezLog::Info("{0}%% of all Strings are shorter than {1} Elements.", ezArgI(uiPercent, 3), ezArgI(i + 1, 3));
       uiPercent += 10;
     }
 

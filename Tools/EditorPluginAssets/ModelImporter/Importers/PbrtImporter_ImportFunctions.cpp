@@ -182,7 +182,7 @@ namespace ezModelImporter
         ezSharedPtr<Scene> subScene = ezModelImporter::Importer::GetSingleton()->ImportScene(meshFilename);
         if (!subScene)
         {
-          ezLog::Error("Failed to load mesh '{0}'.", meshFilename.GetData());
+          ezLog::Error("Failed to load mesh '{0}'.", meshFilename);
           return;
         }
         mesh = EZ_DEFAULT_NEW(ezModelImporter::Mesh, std::move(*subScene->MergeAllMeshes()));
@@ -542,7 +542,7 @@ namespace ezModelImporter
       ezString materialName(type);
       if (context.MakeNamedMaterialActive(materialName).Failed())
       {
-        ezLog::Error("PBRT make 'NamedMaterial' material name '{0}' is not known.", materialName.GetData());
+        ezLog::Error("PBRT make 'NamedMaterial' material name '{0}' is not known.", materialName);
       }
     }
 

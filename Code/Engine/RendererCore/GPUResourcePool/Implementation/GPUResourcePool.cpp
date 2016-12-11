@@ -25,7 +25,7 @@ ezGPUResourcePool::~ezGPUResourcePool()
 {
   if (!m_TexturesInUse.IsEmpty())
   {
-    ezLog::SeriousWarningPrintf("Destructing a GPU resource pool of which textures are still in use!");
+    ezLog::SeriousWarning("Destructing a GPU resource pool of which textures are still in use!");
   }
 
   // Free remaining resources

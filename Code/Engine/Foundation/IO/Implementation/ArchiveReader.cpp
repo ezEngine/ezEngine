@@ -116,7 +116,7 @@ void ezArchiveReader::FinishReferenceMapping()
   }
 
   if (uiRestored > 0)
-    ezLog::SuccessPrintf(m_pLog, "References restored: %u of %u", uiRestored, m_ObjectsToMap.GetCount());
+    ezLog::Success(m_pLog, "References restored: {0} of {1}", uiRestored, m_ObjectsToMap.GetCount());
 
   if (m_ObjectsToMap.GetCount() != uiRestored)
     ezLog::Warning(m_pLog, "References remaining invalid: {0} of {1}", m_ObjectsToMap.GetCount() - uiRestored, m_ObjectsToMap.GetCount());
@@ -153,7 +153,7 @@ void ezArchiveReader::BeginStream()
   ezUInt32 uiMaxReferences = 0;
   m_InputStream >> uiMaxReferences;
 
-  ezLog::InfoPrintf(m_pLog, "Archive Version: %u, Max references: %u", uiVersion, uiMaxReferences);
+  ezLog::Info(m_pLog, "Archive Version: {0}, Max references: {1}", uiVersion, uiMaxReferences);
 
   m_ObjectIDtoPointer.SetCount(uiMaxReferences);
 
@@ -162,7 +162,7 @@ void ezArchiveReader::BeginStream()
     ezUInt32 uiRttiCount = 0;
     m_InputStream >> uiRttiCount;
 
-    ezLog::InfoPrintf(m_pLog, "Types: %u", uiRttiCount);
+    ezLog::Info(m_pLog, "Types: {0}", uiRttiCount);
 
     m_Types.Reserve(uiRttiCount);
 
@@ -177,11 +177,11 @@ void ezArchiveReader::BeginStream()
 
       m_Types.PushBack(ri);
 
-      ezLog::DevPrintf(m_pLog, "Type %u: '%s', Version = %u, Object Count = %u", i, ri.m_sTypeName.GetData(), ri.m_uiTypeVersion, ri.m_uiObjectCount);
+      ezLog::Dev(m_pLog, "Type {0}: '{1}', Version = {2}, Object Count = {3}", i, ri.m_sTypeName.GetData(), ri.m_uiTypeVersion, ri.m_uiObjectCount);
 
       if (ri.m_pRTTI == nullptr)
       {
-        ezLog::SeriousWarningPrintf(m_pLog, "Stored type '%s' is unknown. Objects of this type will be skipped during deserialization.", ri.m_sTypeName.GetData());
+        ezLog::SeriousWarning(m_pLog, "Stored type '{0}' is unknown. Objects of this type will be skipped during deserialization.", ri.m_sTypeName.GetData());
       }
       else
       {
@@ -193,7 +193,7 @@ void ezArchiveReader::BeginStream()
   ezUInt32 uiChunkFileSize = 0;
   m_InputStream >> uiChunkFileSize;
 
-  ezLog::DevPrintf(m_pLog, "Chunk file Size: %u Bytes", uiChunkFileSize);
+  ezLog::Dev(m_pLog, "Chunk file Size: {0} Bytes", uiChunkFileSize);
 
   // now the input stream is at the proper position for the chunk file to take over
   ezChunkStreamReader::BeginStream();
@@ -256,7 +256,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
   if (out_pRtti)
     *out_pRtti = pRtti;
 
-  ezLog::DebugPrintf(m_pLog, "Reading object of Type '%s' (v%u), ID = %u, Size = %u", m_Types[uiTypeID].m_sTypeName.GetData(), m_Types[uiTypeID].m_uiTypeVersion, uiObjectID, uiObjectDataSize);
+  ezLog::Debug(m_pLog, "Reading object of Type '{0}' (v{1}), ID = {2}, Size = {3}", m_Types[uiTypeID].m_sTypeName.GetData(), m_Types[uiTypeID].m_uiTypeVersion, uiObjectID, uiObjectDataSize);
 
   if (pObject != nullptr)
   {
@@ -297,7 +297,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
   // if the type could not be created, just skip the rest of the object
   if (pObject == nullptr)
   {
-    ezLog::SeriousWarningPrintf(m_pLog, "Object of Type '%s' could not be created, skipping object.", m_Types[uiTypeID].m_sTypeName.GetData());
+    ezLog::SeriousWarning(m_pLog, "Object of Type '{0}' could not be created, skipping object.", m_Types[uiTypeID].m_sTypeName.GetData());
 
     SkipBytes(uiObjectDataSize);
   }

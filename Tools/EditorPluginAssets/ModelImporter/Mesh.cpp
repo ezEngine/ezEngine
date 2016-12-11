@@ -349,7 +349,7 @@ namespace ezModelImporter
     for (ezUInt32 n = 0; n < normalStream->m_Data.GetCount(); n += 3)
       reinterpret_cast<ezVec3*>(&normalStream->m_Data[n])->NormalizeIfNotZero();
 
-    ezLog::DebugPrintf("Computed mesh normals ('%s') in '%.2f's", m_Name.GetData(), timer.GetRunningTotal().GetSeconds());
+    ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name.GetData(), ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
     return EZ_SUCCESS;
   }
 
@@ -486,7 +486,7 @@ namespace ezModelImporter
       return EZ_FAILURE;
     }
 
-    ezLog::DebugPrintf("Computed mesh normals ('%s') in '%.2f's", m_Name.GetData(), timer.GetRunningTotal().GetSeconds());
+    ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name.GetData(), ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
     return EZ_SUCCESS;
   }
 }

@@ -171,7 +171,7 @@ void ezActionManager::LoadShortcutAssignment()
   ezFileReader file;
   if (file.Open(sFile).Failed())
   {
-    ezLog::DevPrintf("No shortcuts file '%s' was found", sFile.GetData());
+    ezLog::Dev("No shortcuts file '{0}' was found", sFile.GetData());
     return;
   }
 

@@ -352,7 +352,7 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   pView->m_IncludeTags = m_IncludeTags;
   pView->m_ExcludeTags = m_ExcludeTags;
 
-  //ezLog::InfoPrintf("EV100: %f, Exposure: %f", GetEV100(), GetExposure());
+  //ezLog::Info("EV100: {0}, Exposure: {1}", GetEV100(), GetExposure());
 
   if (m_hRenderPipeline.IsValid())
   {

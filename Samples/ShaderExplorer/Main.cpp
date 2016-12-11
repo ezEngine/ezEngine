@@ -368,7 +368,7 @@ void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcher
 {
   if (action == ezDirectoryWatcherAction::Modified)
   {
-    ezLog::InfoPrintf("The file %s was modified", filename);
+    ezLog::Info("The file {0} was modified", filename);
     m_stuffChanged = true;
   }
 }

@@ -79,7 +79,7 @@ void ezGameApplication::ProcessApplicationInput()
     if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
     {
       ezProfilingSystem::Capture(fileWriter);
-      ezLog::InfoPrintf("Profiling capture saved to '%s'.", fileWriter.GetFilePathAbsolute().GetData());
+      ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
     else
     {
