@@ -43,7 +43,7 @@ namespace ezMath
     /// \brief Returns the natural constant pi.
     static Type Pi() { return (Type) 3.1415926535897932384626433832795; }
 
-    /// \brief Returns the largest possible positive value.
+    /// \brief Returns the largest possible positive value (that is not infinity).
     static Type MaxValue();
 
     static Type SmallEpsilon()    { return (Type) 0.000001; }
@@ -229,7 +229,7 @@ namespace ezMath
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template<typename Type>
   bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
-  
+
   /// \brief Checks whether the value of the first parameter lies between the value of the second and third.
   template <typename T>
   bool IsInRange(T Value, T MinVal, T MaxVal); // [tested]
@@ -253,6 +253,7 @@ namespace ezMath
 #include <Foundation/Math/Implementation/Math_inl.h>
 #include <Foundation/Math/Implementation/MathFloat_inl.h>
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
+#include <Foundation/Math/Implementation/MathInt32_inl.h>
 #include <Foundation/Math/Implementation/MathFixedPoint_inl.h>
 
 
