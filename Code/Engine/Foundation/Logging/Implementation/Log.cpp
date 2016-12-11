@@ -1,7 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/FormatString.h>
-
+#include <Foundation/Strings/StringBuilder.h>
 
 ezThreadLocalPointer<ezGlobalLog> ezGlobalLog::s_pInstances;
 ezLogMsgType::Enum ezGlobalLog::s_LogLevel = ezLogMsgType::All;
