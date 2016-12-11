@@ -19,7 +19,7 @@ void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMs
     sResult = szSuccessMsg;
 
     if (!s.m_sMessage.IsEmpty())
-      sResult.AppendPrintf("\n\nDetails:\n%s", s.m_sMessage.GetData());
+      sResult.AppendFormat("\n\nDetails:\n{0}", s.m_sMessage.GetData());
 
     MessageBoxInformation(sResult);
   }
@@ -28,7 +28,7 @@ void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMs
     sResult = szFailureMsg;
 
     if (!s.m_sMessage.IsEmpty())
-      sResult.AppendPrintf("\n\nDetails:\n%s", s.m_sMessage.GetData());
+      sResult.AppendFormat("\n\nDetails:\n{0}", s.m_sMessage.GetData());
 
     MessageBoxWarning(sResult);
   }

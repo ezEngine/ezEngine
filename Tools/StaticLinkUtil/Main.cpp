@@ -438,7 +438,7 @@ public:
 
     for (auto it = m_GlobalIncludes.GetIterator(); it.IsValid(); ++it)
     {
-      sAllIncludes.AppendPrintf("#include <%s>\n", it.Key().GetData());
+      sAllIncludes.AppendFormat("#include <{0}>\n", it.Key().GetData());
     }
 
     sAllIncludes.ReplaceAll("\\", "/");
@@ -516,7 +516,7 @@ public:
     else
     {
       // otherwise insert it at the end of the file
-      sFileContent.AppendPrintf("\n\n%s\n\n", sNewMarker.GetData());
+      sFileContent.AppendFormat("\n\n{0}\n\n", sNewMarker.GetData());
     }
 
     // rewrite the entire file
@@ -566,7 +566,7 @@ public:
 
       while (it.IsValid())
       {
-        sNewGroupMarker.AppendPrintf("  EZ_STATICLINK_REFERENCE(%s);\n", it.Key().GetData());
+        sNewGroupMarker.AppendFormat("  EZ_STATICLINK_REFERENCE({0});\n", it.Key().GetData());
         ++it;
       }
 
@@ -605,7 +605,7 @@ public:
     {
       // if we can't find the macro, append it to the end of the file
       // this can only happen, if we ever extend this tool such that it picks one file to auto-insert this macro
-      sFileContent.AppendPrintf("\n\n%s\n\n", sNewGroupMarker.GetData());
+      sFileContent.AppendFormat("\n\n{0}\n\n", sNewGroupMarker.GetData());
     }
 
     OverwriteFile(szFile, sFileContent);

@@ -72,7 +72,7 @@ The following types are missing:\n", pDocument->GetUnknownObjectTypeInstances())
 
       for (auto it = pDocument->GetUnknownObjectTypes().GetIterator(); it.IsValid(); ++it)
       {
-        s.AppendPrintf(" '%s' ", (*it).GetData());
+        s.AppendFormat(" '{0}' ", (*it).GetData());
       }
 
       ezQtUiServices::MessageBoxWarning(s);

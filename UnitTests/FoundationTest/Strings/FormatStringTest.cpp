@@ -61,7 +61,7 @@ void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char
     t3 = sw.Checkpoint();
   }
 
-  log.AppendPrintf("ez: %.2f msec, std: %.2f msec, ezFmt: %.2f msec : %s -> %s\n", t1.GetMilliseconds(), t2.GetMilliseconds(), t3.GetMilliseconds(), szFormat, Temp1);
+  log.AppendFormat("ez: {0} msec, std: {1} msec, ezFmt: {2} msec : {3} -> {4}\n", ezArgF(t1.GetMilliseconds(), 2), ezArgF(t2.GetMilliseconds(), 2), ezArgF(t3.GetMilliseconds(), 2), szFormat, Temp1);
 
   va_end(args);
 }

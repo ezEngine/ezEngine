@@ -212,7 +212,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
 
     // later code checks whether the string is empty, to see whether we have any shader source, so this has to be kept empty
     if (!sTemp.IsEmpty())
-      sTemp.PrependPrintf("#line %u\n", uiFirstLine);
+      sTemp.PrependFormat("#line {0}\n", uiFirstLine);
 
     m_ShaderData.m_ShaderStageSource[stage] = sTemp;
   }
@@ -398,7 +398,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
           ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
           sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform().GetData());
-          sShaderStageFile.AppendPrintf("/%08X.ezShaderSource", spd.m_StageBinary[stage].m_uiSourceHash);
+          sShaderStageFile.AppendFormat("/{0}.ezShaderSource", ezArgU(spd.m_StageBinary[stage].m_uiSourceHash, 8, true, 16, true));
 
           ezFileWriter StageFileOut;
           if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())
@@ -418,7 +418,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
       sTemp.Shrink(0, 1);
 
     const ezUInt32 uiPermutationHash = ezShaderHelper::CalculateHash(m_ShaderData.m_Permutations);
-    sTemp.AppendPrintf("%08X.ezPermutation", uiPermutationHash);
+    sTemp.AppendFormat("{0}.ezPermutation", ezArgU(uiPermutationHash, 8, true, 16, true));
 
     shaderPermutationBinary.m_DependencyFile.Clear();
     shaderPermutationBinary.m_DependencyFile.AddFileDependency(szFile);

@@ -36,7 +36,7 @@ class Logger : public ezLogInterface
 public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
-    m_sOutput.AppendPrintf("Log: '%s'\r\n", le.m_szText);
+    m_sOutput.AppendFormat("Log: '{0}'\r\n", le.m_szText);
   }
 
   void EventHandler(const ezPreprocessor::ProcessingEvent& ed)
@@ -62,7 +62,7 @@ public:
       const ezPreprocessor::ProcessingEvent& event = m_EventStack[i];
 
       if (event.m_pToken != nullptr)
-        m_sOutput.AppendPrintf("%s: Line %u [%u]: ", event.m_pToken->m_File.GetString().GetData(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
+        m_sOutput.AppendFormat("{0}: Line {1} [{2}]: ", event.m_pToken->m_File.GetString().GetData(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
 
       switch (event.m_Type)
       {
@@ -73,7 +73,7 @@ public:
         m_sOutput.Append("Warning: ");
         break;
       case ezPreprocessor::ProcessingEvent::BeginExpansion:
-        m_sOutput.AppendPrintf("In Macro: '%s'", ezString(event.m_pToken->m_DataView).GetData());
+        m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView).GetData());
         break;
       case ezPreprocessor::ProcessingEvent::EndExpansion:
         break;
@@ -82,7 +82,7 @@ public:
         break;
       }
 
-      m_sOutput.AppendPrintf("%s\r\n", event.m_szInfo);
+      m_sOutput.AppendFormat("{0}\r\n", event.m_szInfo);
     }
 
     m_EventStack.PopBack();

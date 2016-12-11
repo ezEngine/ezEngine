@@ -270,7 +270,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           pSpecific->GetValue(pObject, i, pSubObject);
 
           sTemp = ezConversionUtils::ToString(pNode->GetGuid());
-          sTemp.AppendPrintf("/%s/%i", pProp->GetPropertyName(), i);
+          sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), i);
           const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
           AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
 

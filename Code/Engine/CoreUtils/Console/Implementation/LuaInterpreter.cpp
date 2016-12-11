@@ -122,7 +122,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
       bValueEmpty = false;
 
-      sCommand.AppendPrintf(" not %s", sVarName.GetData());
+      sCommand.AppendFormat(" not {0}", sVarName.GetData());
     }
 
     if (bSetValue && !bValueEmpty)

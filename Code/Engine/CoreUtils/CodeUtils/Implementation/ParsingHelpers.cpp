@@ -274,7 +274,7 @@ void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens0, ezUInt32 
     {
       if (sResult.IsEmpty())
       {
-        sResult.AppendPrintf("#line %u \"%s\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
+        sResult.AppendFormat("#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
         uiCurLine = Tokens[t]->m_uiLine;
         sCurFile = Tokens[t]->m_File;
       }
@@ -289,7 +289,7 @@ void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens0, ezUInt32 
         if (Tokens[t]->m_uiLine != uiCurLine ||
             Tokens[t]->m_File != sCurFile)
         {
-          sResult.AppendPrintf("\n#line %u \"%s\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
+          sResult.AppendFormat("\n#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
           uiCurLine = Tokens[t]->m_uiLine;
           sCurFile = Tokens[t]->m_File;
         }

@@ -208,18 +208,18 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
         const char* szNo  = "no";
 
         ezStringBuilder tt("<p>");
-        tt.AppendPrintf("ReportsRelativeValues: %s<br>",      (uiFlags & ezInputSlotFlags::ReportsRelativeValues)     ? szYes : szNo);
-        tt.AppendPrintf("ValueBinaryZeroOrOne: %s<br>",       (uiFlags & ezInputSlotFlags::ValueBinaryZeroOrOne)      ? szYes : szNo);
-        tt.AppendPrintf("ValueRangeZeroToOne: %s<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToOne)       ? szYes : szNo);
-        tt.AppendPrintf("ValueRangeZeroToInf: %s<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToInf)       ? szYes : szNo);
-        tt.AppendPrintf("Pressable: %s<br>",                  (uiFlags & ezInputSlotFlags::Pressable)                 ? szYes : szNo);
-        tt.AppendPrintf("Holdable: %s<br>",                   (uiFlags & ezInputSlotFlags::Holdable)                  ? szYes : szNo);
-        tt.AppendPrintf("HalfAxis: %s<br>",                   (uiFlags & ezInputSlotFlags::HalfAxis)                  ? szYes : szNo);
-        tt.AppendPrintf("FullAxis: %s<br>",                   (uiFlags & ezInputSlotFlags::FullAxis)                  ? szYes : szNo);
-        tt.AppendPrintf("RequiresDeadZone: %s<br>",           (uiFlags & ezInputSlotFlags::RequiresDeadZone)          ? szYes : szNo);
-        tt.AppendPrintf("ValuesAreNonContinuous: %s<br>",     (uiFlags & ezInputSlotFlags::ValuesAreNonContinuous)    ? szYes : szNo);
-        tt.AppendPrintf("ActivationDependsOnOthers: %s<br>",  (uiFlags & ezInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
-        tt.AppendPrintf("NeverTimeScale: %s<br>",             (uiFlags & ezInputSlotFlags::NeverTimeScale)            ? szYes : szNo);
+        tt.AppendFormat("ReportsRelativeValues: {0}<br>",      (uiFlags & ezInputSlotFlags::ReportsRelativeValues)     ? szYes : szNo);
+        tt.AppendFormat("ValueBinaryZeroOrOne: {0}<br>",       (uiFlags & ezInputSlotFlags::ValueBinaryZeroOrOne)      ? szYes : szNo);
+        tt.AppendFormat("ValueRangeZeroToOne: {0}<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToOne)       ? szYes : szNo);
+        tt.AppendFormat("ValueRangeZeroToInf: {0}<br>",        (uiFlags & ezInputSlotFlags::ValueRangeZeroToInf)       ? szYes : szNo);
+        tt.AppendFormat("Pressable: {0}<br>",                  (uiFlags & ezInputSlotFlags::Pressable)                 ? szYes : szNo);
+        tt.AppendFormat("Holdable: {0}<br>",                   (uiFlags & ezInputSlotFlags::Holdable)                  ? szYes : szNo);
+        tt.AppendFormat("HalfAxis: {0}<br>",                   (uiFlags & ezInputSlotFlags::HalfAxis)                  ? szYes : szNo);
+        tt.AppendFormat("FullAxis: {0}<br>",                   (uiFlags & ezInputSlotFlags::FullAxis)                  ? szYes : szNo);
+        tt.AppendFormat("RequiresDeadZone: {0}<br>",           (uiFlags & ezInputSlotFlags::RequiresDeadZone)          ? szYes : szNo);
+        tt.AppendFormat("ValuesAreNonContinuous: {0}<br>",     (uiFlags & ezInputSlotFlags::ValuesAreNonContinuous)    ? szYes : szNo);
+        tt.AppendFormat("ActivationDependsOnOthers: {0}<br>",  (uiFlags & ezInputSlotFlags::ActivationDependsOnOthers) ? szYes : szNo);
+        tt.AppendFormat("NeverTimeScale: {0}<br>",             (uiFlags & ezInputSlotFlags::NeverTimeScale)            ? szYes : szNo);
         tt.Append("</p>");
 
         TableInputSlots->cellWidget(iRow, 5)->setToolTip(tt.GetData());

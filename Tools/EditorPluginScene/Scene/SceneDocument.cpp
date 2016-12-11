@@ -231,7 +231,7 @@ void ezSceneDocument::DuplicateSpecial()
   ezStringBuilder temp;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
   {
-    temp.AppendPrintf("%s=%s;", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
+    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
   }
 
   // Serialize to string
@@ -459,7 +459,7 @@ void ezSceneDocument::DuplicateSelection()
   ezStringBuilder temp;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
   {
-    temp.AppendPrintf("%s=%s;", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
+    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
   }
 
   // Serialize to string
