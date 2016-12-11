@@ -1047,9 +1047,9 @@ void ezStringUtils::OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSi
   OutputInt(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase);
 }
 
-void ezStringUtils::OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase)
+void ezStringUtils::OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase, bool bUpperCase)
 {
-  OutputUInt(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase, false);
+  OutputUInt(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase, bUpperCase);
 }
 
 void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros, ezInt8 iPrecision, bool bScientific)

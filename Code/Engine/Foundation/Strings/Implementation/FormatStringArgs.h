@@ -23,17 +23,19 @@ struct ezArgI
 
 struct ezArgUI
 {
-  inline ezArgUI(ezUInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10)
+  inline ezArgUI(ezUInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10, bool bUpperCase = false)
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
     , m_uiBase(uiBase)
+    , m_bUpperCase(bUpperCase)
   {
   }
 
   ezUInt64 m_Value;
   ezUInt8 m_uiWidth;
   bool m_bPadWithZeros;
+  bool m_bUpperCase;
   ezUInt8 m_uiBase;
 };
 
@@ -55,6 +57,16 @@ struct ezArgF
   ezInt8 m_iPrecision;
 };
 
+struct ezArgC
+{
+  inline ezArgC(char value)
+    : m_Value(value)
+  {
+  }
+
+  char m_Value;
+};
+
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt64 arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt32 arg);
@@ -66,4 +78,4 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, double 
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const char* arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezStringBuilder& arg);
 EZ_FOUNDATION_DLL const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView& arg);
-
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgC& arg);

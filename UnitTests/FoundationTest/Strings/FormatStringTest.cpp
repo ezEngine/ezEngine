@@ -99,11 +99,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgF(23.123456789, 2)), "%.2f", 23.123456789);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(123456789, 20, true)), "%020i", 123456789);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(123456789, 20, true, 16)), "%020X", 123456789);
-    CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(1234567890987ll, 30, false, 16)), "% 30x", 1234567890987ll);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgUI(1234567890987ll, 30, false, 16)), "% 30x", 1234567890987ll);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgUI(1234567890987ll, 30, false, 16, true)), "% 30X", 1234567890987ll);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0, 1, 2, 3, 4), "%i, %i, %i, %i, %i", 0, 1, 2, 3, 4);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0.1, 1.1, 2.1, 3.1, 4.1), "%.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9), "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1), "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgC('z')), "%c", 'z');
 
     //FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
     //if (file)

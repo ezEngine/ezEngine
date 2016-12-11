@@ -235,7 +235,7 @@ public:
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
+  static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase, bool bUpperCase);
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros, ezInt8 iPrecision, bool bScientific);
 

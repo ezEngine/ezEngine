@@ -47,7 +47,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt32 arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgUI& arg)
 {
   ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedUInt(tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase);
+  ezStringUtils::OutputFormattedUInt(tmp, uiLength, writepos, arg.m_Value, arg.m_uiWidth, arg.m_bPadWithZeros, arg.m_uiBase, arg.m_bUpperCase);
   tmp[writepos] = '\0';
   return ezStringView(tmp, tmp + writepos);
 }
@@ -55,7 +55,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgUI& arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezUInt64 arg)
 {
   ezUInt32 writepos = 0;
-  ezStringUtils::OutputFormattedUInt(tmp, uiLength, writepos, arg, 1, false, 10);
+  ezStringUtils::OutputFormattedUInt(tmp, uiLength, writepos, arg, 1, false, 10, false);
   tmp[writepos] = '\0';
   return ezStringView(tmp, tmp + writepos);
 }
@@ -102,4 +102,10 @@ const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView
   return arg;
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgC& arg)
+{
+  tmp[0] = arg.m_Value;
+  tmp[1] = '\0';
 
+  return ezStringView(&tmp[0], &tmp[1]);
+}
