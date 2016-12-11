@@ -228,8 +228,25 @@ public:
   {
     Format(ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
+  /// \brief A type safe version of sprintf, see ezFormatString for details
+  void AppendFormat(const ezFormatString& string);
 
-  // Todo Add PrependFormat and AppendPrintf
+  /// \brief A type safe version of sprintf, see ezFormatString for details
+  template<typename ... ARGS>
+  void AppendFormat(const char* szFormat, ARGS... args)
+  {
+    AppendFormat(ezFormatStringImpl<ARGS...>(szFormat, args...));
+  }
+
+  /// \brief A type safe version of sprintf, see ezFormatString for details
+  void PrependFormat(const ezFormatString& string);
+
+  /// \brief A type safe version of sprintf, see ezFormatString for details
+  template<typename ... ARGS>
+  void PrependFormat(const char* szFormat, ARGS... args)
+  {
+    PrependFormat(ezFormatStringImpl<ARGS...>(szFormat, args...));
+  }
 
   /// \brief Removes the first n and last m characters from this string.
   ///

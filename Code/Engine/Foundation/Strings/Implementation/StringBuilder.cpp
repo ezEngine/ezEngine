@@ -1056,5 +1056,22 @@ void ezStringBuilder::Format(const ezFormatString& string)
     *this = szText;
 }
 
+void ezStringBuilder::AppendFormat(const ezFormatString& string)
+{
+  ezStringBuilder tmp;
+  const char* szText = string.GetText(tmp);
+
+  Append(ezStringView(tmp.GetData(), tmp.GetData() + tmp.GetElementCount()));
+}
+
+void ezStringBuilder::PrependFormat(const ezFormatString& string)
+{
+  ezStringBuilder tmp;
+  const char* szText = string.GetText(tmp);
+
+  Prepend(tmp);
+}
+
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);
 
