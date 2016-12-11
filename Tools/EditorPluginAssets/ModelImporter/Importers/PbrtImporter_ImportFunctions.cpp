@@ -166,12 +166,12 @@ namespace ezModelImporter
       {
         if (parameters.IsEmpty())
         {
-          ezLog::ErrorPrintf("Expected at least single parameter for plymesh shape.", type.GetData());
+          ezLog::Error("Expected at least single parameter for plymesh shape.");
           return;
         }
         if (!parameters[0].name.IsEqual_NoCase("filename") || parameters[0].data.GetCount() != 1 || !parameters[0].data[0].IsA<ezString>())
         {
-          ezLog::ErrorPrintf("Expected filename parameter for plymesh shape.", type.GetData());
+          ezLog::Error("Expected filename parameter for plymesh shape.");
           return;
         }
 
@@ -199,32 +199,32 @@ namespace ezModelImporter
         {
           if (parameters[i].name.IsEqual_NoCase("P"))
           {
-            if(parameters[i].type != ParamType::VECTOR3)
-              ezLog::WarningPrintf("PBRT triangle mesh parameter 'P' is not a vec3 array.", type.GetData());
+            if (parameters[i].type != ParamType::VECTOR3)
+              ezLog::Warning("PBRT triangle mesh parameter 'P' is not a vec3 array.");
             CopyParamToArray(positions, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("N"))
           {
             if (parameters[i].type != ParamType::VECTOR3)
-              ezLog::WarningPrintf("PBRT triangle mesh parameter 'N' is not a vec3 array.", type.GetData());
+              ezLog::Warning("PBRT triangle mesh parameter 'N' is not a vec3 array.");
             CopyParamToArray(normals, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("S"))
           {
             if (parameters[i].type != ParamType::VECTOR3)
-              ezLog::WarningPrintf("PBRT triangle mesh parameter 'S' is not a vec3 array.", type.GetData());
+              ezLog::Warning("PBRT triangle mesh parameter 'S' is not a vec3 array.");
             CopyParamToArray(tangents, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("uv"))
           {
             if (parameters[i].type != ParamType::FLOAT)
-              ezLog::WarningPrintf("PBRT triangle mesh parameter 'uv' is not a float array.", type.GetData());
+              ezLog::Warning("PBRT triangle mesh parameter 'uv' is not a float array.");
             CopyParamToArray(texcoords, parameters[i]);
           }
           else if (parameters[i].name.IsEqual_NoCase("indices"))
           {
             if (parameters[i].type != ParamType::INT)
-              ezLog::WarningPrintf("PBRT triangle mesh parameter 'indece' is not an int array.", type.GetData());
+              ezLog::Warning("PBRT triangle mesh parameter 'indece' is not an int array.");
             CopyParamToArray(indices, parameters[i]);
           }
         }
@@ -232,22 +232,22 @@ namespace ezModelImporter
 
         if (positions.IsEmpty())
         {
-          ezLog::ErrorPrintf("PBRT triangle mesh has no positions.", type.GetData());
+          ezLog::Error("PBRT triangle mesh has no positions.");
           return;
         }
         if (indices.IsEmpty())
         {
-          ezLog::ErrorPrintf("PBRT triangle mesh has no indices.", type.GetData());
+          ezLog::Error("PBRT triangle mesh has no indices.");
           return;
         }
         if (indices.GetCount() % 3 != 0)
         {
-          ezLog::ErrorPrintf("PBRT triangle mesh has not n*3 indices.", type.GetData());
+          ezLog::Error("PBRT triangle mesh has not n*3 indices.");
           return;
         }
         if (texcoords.GetCount() % 2 != 0)
         {
-          ezLog::ErrorPrintf("PBRT triangle mesh has not n*2 floats in its texcoord array.", type.GetData());
+          ezLog::Error("PBRT triangle mesh has not n*2 floats in its texcoord array.");
           return;
         }
 
@@ -524,7 +524,7 @@ namespace ezModelImporter
       if (parameters.IsEmpty() || parameters[0].type != ParamType::STRING ||
         parameters[0].data.IsEmpty() || parameters[0].name.Compare_NoCase("type"))
       {
-        ezLog::WarningPrintf("PBRT make named material should have a type parameter.", type.GetData()); // This sometimes happens and need to handle that.
+        ezLog::Warning("PBRT make named material '{0}' should have a type parameter.", type.GetData()); // This sometimes happens and need to handle that.
       }
       else
       {
