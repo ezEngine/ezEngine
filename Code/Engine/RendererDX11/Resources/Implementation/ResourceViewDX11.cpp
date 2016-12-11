@@ -163,8 +163,9 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
       DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
 
     DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-    DXSRVDesc.Buffer.FirstElement = m_Description.m_uiFirstElement;
-    DXSRVDesc.Buffer.NumElements = m_Description.m_uiNumElements;
+    DXSRVDesc.BufferEx.FirstElement = DXSRVDesc.Buffer.FirstElement = m_Description.m_uiFirstElement;
+    DXSRVDesc.BufferEx.NumElements = DXSRVDesc.Buffer.NumElements = m_Description.m_uiNumElements;
+    DXSRVDesc.BufferEx.Flags = m_Description.m_bRawView ? D3D11_BUFFEREX_SRV_FLAG_RAW : 0;
   }
 
   if(FAILED(pDXDevice->GetDXDevice()->CreateShaderResourceView(pDXResource, &DXSRVDesc, &m_pDXResourceView)))
