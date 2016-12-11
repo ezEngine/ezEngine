@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/FormatString.h>
 
 
 ezThreadLocalPointer<ezGlobalLog> ezGlobalLog::s_pInstances;
@@ -178,6 +179,69 @@ ezLogInterface* ezLog::GetDefaultLogSystem()
     s_DefaultLogSystem = ezGlobalLog::GetOrCreateInstance();
 
   return s_DefaultLogSystem;
+}
+
+void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::ErrorMsg, string.GetText(tmp));
+}
+
+void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::SeriousWarningMsg, string.GetText(tmp));
+}
+
+void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::WarningMsg, string.GetText(tmp));
+}
+
+void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::SuccessMsg, string.GetText(tmp));
+}
+
+void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::InfoMsg, string.GetText(tmp));
+}
+
+void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::DevMsg, string.GetText(tmp));
+}
+
+void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::DebugMsg, string.GetText(tmp));
 }
 
 #define LOG_IMPL(ThisType, pInterface) \

@@ -228,6 +228,7 @@ public:
   {
     Format(ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
+
   /// \brief A type safe version of sprintf, see ezFormatString for details
   void AppendFormat(const ezFormatString& string);
 

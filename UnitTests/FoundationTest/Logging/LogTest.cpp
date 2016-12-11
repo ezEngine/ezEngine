@@ -6,8 +6,6 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Configuration/Startup.h>
 
-#define VerboseDebugMessage Debug
-
 EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 
 EZ_CREATE_SIMPLE_TEST(Logging, Log)
@@ -47,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
       ezLog::DevPrintf("But there's no sense crying over every mistake.");
       ezLog::DebugPrintf("You just keep on trying 'till you run out of cake.");
       ezLog::InfoPrintf("And the science gets done, and you make a neat gun");
-      ezLog::VerboseDebugMessagePrintf("for the people who are still alive.");
+      ezLog::DebugPrintf("for the people who are still alive.");
     }
 
     {
@@ -67,7 +65,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
         ezLog::InfoPrintf("So I'm glad I got burned,");
         ezLog::DebugPrintf("think of all the things we learned");
-        ezLog::VerboseDebugMessagePrintf("for the people who are still alive.");
+        ezLog::DebugPrintf("for the people who are still alive.");
 
         {
           EZ_LOG_BLOCK("Verse 5");
@@ -82,7 +80,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
           ezLog::DevPrintf("Look at me still talking when there's science to do.");
           ezLog::DebugPrintf("When I look up there it makes me glad I'm not you.");
           ezLog::InfoPrintf("I've experiments to run,");
-          ezLog::VerboseDebugMessagePrintf("there is research to be done on the people who are still alive.");
+          ezLog::DebugPrintf("there is research to be done on the people who are still alive.");
         }
       }
     }
@@ -96,7 +94,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     ezLog::SuccessPrintf("I feel fantastic and I'm still alive.");
     ezLog::DevPrintf("While you're dying I'll be still alive.");
     ezLog::DevPrintf("And when you're dead I will be, still alive.");
-    ezLog::VerboseDebugMessagePrintf("Still alive, still alive.");
+    ezLog::DebugPrintf("Still alive, still alive.");
   }
 
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);

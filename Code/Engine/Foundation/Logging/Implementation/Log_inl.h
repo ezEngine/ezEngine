@@ -15,7 +15,7 @@ EZ_FORCE_INLINE void ezLog::DevPrintf(const char* szFormat, ...)
   // in non-development builds this function is completely removed from the source
 }
 
-EZ_FORCE_INLINE void ezLog::DevPrintf(ezLogInterface* pInterface, const char* szFormat, ...)
+EZ_FORCE_INLINE void ezLog::DevPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
 {
   // in non-development builds this function is completely removed from the source
 }
@@ -29,7 +29,7 @@ EZ_FORCE_INLINE void ezLog::DebugPrintf(const char* szFormat, ...)
   // in non-debug builds this function is completely removed from the source
 }
 
-EZ_FORCE_INLINE void ezLog::DebugPrintf(ezLogInterface* pInterface, const char* szFormat, ...)
+EZ_FORCE_INLINE void ezLog::DebugPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
 {
   // in non-debug builds this function is completely removed from the source
 }
