@@ -138,7 +138,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
     m_pActor->release();
     m_pActor = nullptr;
 
-    ezLog::ErrorPrintf("Rigid Body '%s' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
+    ezLog::Error("Rigid Body '{0}' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
     return;
   }
 

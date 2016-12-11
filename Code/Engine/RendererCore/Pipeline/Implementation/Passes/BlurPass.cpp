@@ -45,7 +45,7 @@ bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   {
     if (!inputs[m_PinInput.m_uiInputIndex]->m_bAllowShaderResourceView)
     {
-      ezLog::ErrorPrintf("Blur pass input must allow shader resoure view.");
+      ezLog::Error("Blur pass input must allow shader resoure view.");
       return false;
     }
 
@@ -53,7 +53,7 @@ bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   }
   else
   {
-    ezLog::ErrorPrintf("No input connected to blur pass!");
+    ezLog::Error("No input connected to blur pass!");
     return false;
   }
 

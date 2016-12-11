@@ -83,7 +83,7 @@ void ezGameApplication::ProcessApplicationInput()
     }
     else
     {
-      ezLog::ErrorPrintf("Could not write profiling capture to '%s'.", fileWriter.GetFilePathAbsolute().GetData());
+      ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }
 

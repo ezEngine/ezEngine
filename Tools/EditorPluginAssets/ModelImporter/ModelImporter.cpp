@@ -72,7 +72,7 @@ namespace ezModelImporter
     ezString fileExtension = ezPathUtils::GetFileExtension(szFileName);
     if (fileExtension.IsEmpty())
     {
-      ezLog::ErrorPrintf("Unable to choose model importer since file '%s' has no file extension.", szFileName);
+      ezLog::Error("Unable to choose model importer since file '{0}' has no file extension.", szFileName);
       return nullptr;
     }
 

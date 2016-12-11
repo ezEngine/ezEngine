@@ -383,7 +383,7 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
     ezUuid seed = GetSeedFromBaseMaterial(pBaseGraph);
     if (sNewBase.IsEmpty() || !pBaseGraph || !seed.IsValid())
     {
-      ezLog::ErrorPrintf("The selected base material '%s' is not a valid material file!", szBaseMaterial);
+      ezLog::Error("The selected base material '{0}' is not a valid material file!", szBaseMaterial);
       return;
     }
 
@@ -449,7 +449,7 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   else
   {
     ezString sGuid = ezConversionUtils::ToString(PrefabAsset);
-    ezLog::ErrorPrintf("Can't update prefab, new base graph does not exist: %s", sGuid.GetData());
+    ezLog::Error("Can't update prefab, new base graph does not exist: {0}", sGuid.GetData());
     return;
   }
   leftGraph.PruneGraph(GetMaterialNodeGuid(leftGraph));
@@ -834,7 +834,7 @@ ezUuid ezMaterialAssetDocument::GetLitBaseMaterial()
     if (assetInfo)
       s_LitBaseMaterial = assetInfo->m_Info.m_DocumentID;
     else
-      ezLog::ErrorPrintf("Can't find default lit material %s", szLitMaterialAssetPath);
+      ezLog::Error("Can't find default lit material {0}", szLitMaterialAssetPath);
   }
   return s_LitBaseMaterial;
 }
@@ -848,7 +848,7 @@ ezUuid ezMaterialAssetDocument::GetLitAlphaTextBaseMaterial()
     if (assetInfo)
       s_LitAlphaTextBaseMaterial = assetInfo->m_Info.m_DocumentID;
     else
-      ezLog::ErrorPrintf("Can't find default lit alpha test material %s", szLitAlphaTestMaterialAssetPath);
+      ezLog::Error("Can't find default lit alpha test material {0}", szLitAlphaTestMaterialAssetPath);
   }
   return s_LitAlphaTextBaseMaterial;
 }
@@ -862,7 +862,7 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
     if (assetInfo)
       s_NeutralNormalMap = assetInfo->m_Info.m_DocumentID;
     else
-      ezLog::ErrorPrintf("Can't find neutral normal map texture %s", szNeutralNormalMapAssetPath);
+      ezLog::Error("Can't find neutral normal map texture {0}", szNeutralNormalMapAssetPath);
   }
   return s_NeutralNormalMap;
 }

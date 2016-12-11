@@ -39,7 +39,7 @@ void ezQtEditorApp::ReadTagRegistry()
     ezStatus res = SaveTagRegistry();
     if (res.m_Result.Failed())
     {
-      ezLog::ErrorPrintf("%s", res.m_sMessage.GetData());
+      ezLog::Error("{0}", res.m_sMessage.GetData());
     }
   }
   else
@@ -47,7 +47,7 @@ void ezQtEditorApp::ReadTagRegistry()
     ezStatus res = ezToolsTagRegistry::ReadFromDDL(file);
     if (res.m_Result.Failed())
     {
-      ezLog::ErrorPrintf("%s", res.m_sMessage.GetData());
+      ezLog::Error("{0}", res.m_sMessage.GetData());
     }
   }
 

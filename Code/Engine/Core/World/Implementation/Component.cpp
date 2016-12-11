@@ -53,7 +53,7 @@ void ezComponent::EnsureInitialized()
 {
   if (IsInitializing())
   {
-    ezLog::ErrorPrintf("Recursive initialize call is ignored.");
+    ezLog::Error("Recursive initialize call is ignored.");
     return;
   }
 
@@ -75,7 +75,7 @@ void ezComponent::EnsureSimulationStarted()
 
   if (m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarting))
   {
-    ezLog::ErrorPrintf("Recursive simulation started call is ignored.");
+    ezLog::Error("Recursive simulation started call is ignored.");
     return;
   }
 

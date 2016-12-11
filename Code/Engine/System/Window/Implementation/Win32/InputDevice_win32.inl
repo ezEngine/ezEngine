@@ -37,20 +37,20 @@ void ezStandardInputDevice::InitializeDevice()
     RAWINPUTDEVICE Rid[2];
 
     // keyboard
-    Rid[0].usUsagePage = 0x01; 
-    Rid[0].usUsage = 0x06; 
+    Rid[0].usUsagePage = 0x01;
+    Rid[0].usUsage = 0x06;
     Rid[0].dwFlags = RIDEV_NOHOTKEYS; // Disables Windows-Key and Application-Key
     Rid[0].hwndTarget = nullptr;
 
     // mouse
-    Rid[1].usUsagePage = 0x01; 
-    Rid[1].usUsage = 0x02; 
+    Rid[1].usUsagePage = 0x01;
+    Rid[1].usUsage = 0x02;
     Rid[1].dwFlags = 0;
     Rid[1].hwndTarget = nullptr;
 
-    if (RegisterRawInputDevices(&Rid[0], (UINT) 2, sizeof(RAWINPUTDEVICE)) == FALSE) 
+    if (RegisterRawInputDevices(&Rid[0], (UINT) 2, sizeof(RAWINPUTDEVICE)) == FALSE)
     {
-      ezLog::ErrorPrintf("Could not initialize RawInput for Mouse and Keyboard input.");
+      ezLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
     }
     else
       ezLog::SuccessPrintf("Initialized RawInput for Mouse and Keyboard input.");
@@ -180,7 +180,7 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_KeyScroll, "Scroll", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyPause, "Pause", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyApps, "Application", ezInputSlotFlags::IsButton);
-  
+
   RegisterInputSlot(ezInputSlot_KeyPrevTrack, "Previous Track", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyNextTrack, "Next Track", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyPlayPause, "Play / Pause", ezInputSlotFlags::IsButton);
@@ -482,7 +482,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
       RAWINPUT* raw = (RAWINPUT*) &InputData[0];
 
-      if (raw->header.dwType == RIM_TYPEKEYBOARD) 
+      if (raw->header.dwType == RIM_TYPEKEYBOARD)
       {
         static bool bIgnoreNext = false;
 
@@ -524,7 +524,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
         int iRequest = raw->data.keyboard.MakeCode << 16;
 
-        if (raw->data.keyboard.Flags & RI_KEY_E0) 
+        if (raw->data.keyboard.Flags & RI_KEY_E0)
           iRequest |= 1 << 24;
 
         const bool bPressed = !(raw->data.keyboard.Flags & 0x01);
@@ -560,7 +560,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
               if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
                 m_InputSlotValues[szTemp] = 1.0f;
-          
+
               if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
                 m_InputSlotValues[szTemp] = 0.0f;
             }
@@ -619,8 +619,8 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         {
           ezLog::InfoPrintf("Unknown Mouse Move: %.1f | %.1f, Flags = %i", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY, raw->data.mouse.usFlags);
         }
-      } 
-      
+      }
+
     }
   }
 }
@@ -629,7 +629,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szInputSlot)
 {
   const ezUInt32 uiKeyCode = (iScanCode << 16) | (bExtended ? (1 << 24) : 0);
-  
+
   wchar_t szKeyName[32] = { 0 };
   GetKeyNameTextW(uiKeyCode, szKeyName, 30);
 
@@ -703,7 +703,7 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(52, false, ezInputSlot_KeyPeriod);
   SetKeyNameForScanCode(53, false, ezInputSlot_KeySlash);
   SetKeyNameForScanCode(54, false, ezInputSlot_KeyRightShift);
-  
+
   SetKeyNameForScanCode(55, false, ezInputSlot_KeyNumpadStar); // Overlaps with Print
 
   SetKeyNameForScanCode(56, false, ezInputSlot_KeyLeftAlt);
@@ -741,7 +741,7 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(83, false, ezInputSlot_KeyNumpadPeriod); // This overlaps with Insert
 
   SetKeyNameForScanCode(86, false, ezInputSlot_KeyPipe);
-  
+
   SetKeyNameForScanCode(87, false, "keyboard_f11");
   SetKeyNameForScanCode(88, false, "keyboard_f12");
 

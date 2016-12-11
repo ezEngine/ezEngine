@@ -219,7 +219,7 @@ void ezPickingRenderPass::ReadBackProperties(ezView* pView)
 
   if (uiIndex >= m_PickingResultsDepth.GetCount() || x >= m_uiWindowWidth || y >= m_uiWindowHeight)
   {
-    //ezLog::ErrorPrintf("Picking position %u, %u is outside the available picking area of %u * %u", x, y, m_uiWindowWidth, m_uiWindowHeight);
+    //ezLog::Error("Picking position {0}, {1} is outside the available picking area of {2} * {3}", x, y, m_uiWindowWidth, m_uiWindowHeight);
     return;
   }
 

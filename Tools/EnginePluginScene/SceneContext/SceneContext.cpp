@@ -202,7 +202,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
 
   if (!bounds.IsValid() || bounds.IsNaN())
   {
-    ezLog::ErrorPrintf("Selection has no valid bounding box");
+    ezLog::Error("Selection has no valid bounding box");
     return;
   }
 
@@ -323,7 +323,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
   {
     if (pState != nullptr)
     {
-      ezLog::ErrorPrintf("Cannot start Play-the-Game, there is already a game state active for this world");
+      ezLog::Error("Cannot start Play-the-Game, there is already a game state active for this world");
       return;
     }
 

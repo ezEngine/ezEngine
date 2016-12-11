@@ -92,7 +92,7 @@ ezResult ezGALDevice::Init()
 
     if (hSwapChain.IsInvalidated())
     {
-      ezLog::ErrorPrintf("Primary swap chain couldn't be created!");
+      ezLog::Error("Primary swap chain couldn't be created!");
       return EZ_FAILURE;
     }
 
@@ -359,7 +359,7 @@ ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription
 
   if (!bHasByteCodes)
   {
-    ezLog::ErrorPrintf("Can't create a shader which supplies no bytecodes at all!");
+    ezLog::Error("Can't create a shader which supplies no bytecodes at all!");
     return ezGALShaderHandle();
   }
 
@@ -398,7 +398,7 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
 
   if (desc.m_uiTotalSize == 0)
   {
-    ezLog::ErrorPrintf("Trying to create a buffer with size of 0 is not possible!");
+    ezLog::Error("Trying to create a buffer with size of 0 is not possible!");
     return ezGALBufferHandle();
   }
 
@@ -406,14 +406,14 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
   {
     if (pInitialData.IsEmpty())
     {
-      ezLog::ErrorPrintf("Trying to create an immutable buffer but not supplying initial data is not possible!");
+      ezLog::Error("Trying to create an immutable buffer but not supplying initial data is not possible!");
       return ezGALBufferHandle();
     }
 
     ezUInt32 uiBufferSize = desc.m_uiTotalSize;
     if (uiBufferSize != pInitialData.GetCount())
     {
-      ezLog::ErrorPrintf("Trying to create a buffer with invalid initial data!");
+      ezLog::Error("Trying to create a buffer with invalid initial data!");
       return ezGALBufferHandle();
     }
   }
@@ -506,13 +506,13 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
 
   if (desc.m_ResourceAccess.IsImmutable() && (pInitialData.IsEmpty() || pInitialData.GetCount() < desc.m_uiMipLevelCount) && !desc.m_bCreateRenderTarget)
   {
-    ezLog::ErrorPrintf("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
+    ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();
   }
 
   if (desc.m_uiWidth == 0 || desc.m_uiHeight == 0)
   {
-    ezLog::ErrorPrintf("Trying to create a texture with width or height == 0 is not possible!");
+    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
     return ezGALTextureHandle();
   }
 
@@ -600,7 +600,7 @@ ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewC
 
   if (pResource == nullptr)
   {
-    ezLog::ErrorPrintf("No valid texture handle or buffer handle given for resource view creation!");
+    ezLog::Error("No valid texture handle or buffer handle given for resource view creation!");
     return ezGALResourceViewHandle();
   }
 
@@ -664,7 +664,7 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
 
   if (!desc.m_hTexture.IsInvalidated() && !desc.m_hBuffer.IsInvalidated())
   {
-    ezLog::ErrorPrintf("Can't pass both a texture and buffer to a ezGALUnorderedAccessViewCreationDescription.");
+    ezLog::Error("Can't pass both a texture and buffer to a ezGALUnorderedAccessViewCreationDescription.");
     return ezGALUnorderedAccessViewHandle();
   }
 
@@ -683,7 +683,7 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
 
   if (pResource == nullptr)
   {
-    ezLog::ErrorPrintf("No valid texture handle or buffer handle given for unordered access view creation!");
+    ezLog::Error("No valid texture handle or buffer handle given for unordered access view creation!");
     return ezGALUnorderedAccessViewHandle();
   }
 
@@ -694,14 +694,14 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
       // Is this really platform independent?
       if (pTexture->GetDescription().m_Type == ezGALTextureType::TextureCube)
       {
-        ezLog::ErrorPrintf("Can't create unordered access view from cube textures.");
+        ezLog::Error("Can't create unordered access view from cube textures.");
         return ezGALUnorderedAccessViewHandle();
       }
 
       // Is this really platform independent?
       if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
       {
-        ezLog::ErrorPrintf("Can't create unordered access view on textures with multisampling.");
+        ezLog::Error("Can't create unordered access view on textures with multisampling.");
         return ezGALUnorderedAccessViewHandle();
       }
     }
@@ -709,13 +709,13 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
     {
       if (desc.m_OverrideViewFormat == ezGALResourceFormat::Invalid)
       {
-        ezLog::ErrorPrintf("Invalid resource format is not allowed for buffer unordered access views!");
+        ezLog::Error("Invalid resource format is not allowed for buffer unordered access views!");
         return ezGALUnorderedAccessViewHandle();
       }
 
       if (!pBuffer->GetDescription().m_bAllowRawViews && desc.m_bRawView)
       {
-        ezLog::ErrorPrintf("Trying to create a raw view for a buffer with no raw view flag is invalid!");
+        ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
         return ezGALUnorderedAccessViewHandle();
       }
     }
@@ -869,7 +869,7 @@ ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const ezGALSwapChainCreationDe
   /// \todo Platform independent validation
   if (desc.m_pWindow == nullptr)
   {
-    ezLog::ErrorPrintf("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
+    ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
     return ezGALSwapChainHandle();
   }
 
@@ -1104,7 +1104,7 @@ void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)
   }
   else
   {
-    ezLog::ErrorPrintf("Invalid swap chain handle given to SetPrimarySwapChain!");
+    ezLog::Error("Invalid swap chain handle given to SetPrimarySwapChain!");
   }
 }
 

@@ -14,7 +14,7 @@ void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pN
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
   if (pRtti == nullptr)
   {
-    ezLog::ErrorPrintf("RTTI type '%s' is unknown, CreateObjectFromNode failed.", pNode->GetType());
+    ezLog::Error("RTTI type '{0}' is unknown, CreateObjectFromNode failed.", pNode->GetType());
     return nullptr;
   }
 
@@ -75,7 +75,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           pRefrencedObject = CreateObjectFromNode(pNode);
           if (pRefrencedObject == nullptr)
           {
-            //ezLog::ErrorPrintf("Failed to set property '%s', type could not be created!", pProp->GetPropertyName());
+            //ezLog::Error("Failed to set property '{0}', type could not be created!", pProp->GetPropertyName());
             return;
           }
         }
@@ -161,7 +161,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           pRefrencedObject = CreateObjectFromNode(pNode);
           if (pRefrencedObject == nullptr)
           {
-            ezLog::ErrorPrintf("Failed to set array property '%s' element, type could not be created!", pProp->GetPropertyName());
+            ezLog::Error("Failed to set array property '{0}' element, type could not be created!", pProp->GetPropertyName());
             continue;
           }
         }
@@ -240,7 +240,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           pRefrencedObject = CreateObjectFromNode(pNode);
           if (pRefrencedObject == nullptr)
           {
-            ezLog::ErrorPrintf("Failed to insert set element in to property '%s', type could not be created!", pProp->GetPropertyName());
+            ezLog::Error("Failed to insert set element in to property '{0}', type could not be created!", pProp->GetPropertyName());
             continue;
           }
         }

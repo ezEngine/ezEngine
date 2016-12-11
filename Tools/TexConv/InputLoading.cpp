@@ -6,7 +6,7 @@ ezResult ezTexConv::LoadSingleInputFile(const char* szFile)
   ezImage& source = m_InputImages.ExpandAndGetRef();
   if (source.LoadFrom(szFile).Failed())
   {
-    ezLog::ErrorPrintf("Failed to load file '%s'", szFile);
+    ezLog::Error("Failed to load file '{0}'", szFile);
     return EZ_FAILURE;
   }
 
@@ -49,7 +49,7 @@ ezResult ezTexConv::LoadInputs()
       // Give out an error and disable compression if this is not the case.
       if (!ezMath::IsPowerOf(m_InputImages[i].GetWidth(), 2) || !ezMath::IsPowerOf(m_InputImages[i].GetHeight(), 2))
       {
-        ezLog::ErrorPrintf("Input image '%s' cannot be compressed since it's height/width is not a power of 2.", m_InputFileNames[i].GetData());
+        ezLog::Error("Input image '{0}' cannot be compressed since it's height/width is not a power of 2.", m_InputFileNames[i].GetData());
         m_bCompress = false;
         break;
       }
@@ -63,7 +63,7 @@ ezResult ezTexConv::LoadInputs()
         m_InputImages[i].GetHeight() != m_InputImages[0].GetHeight())
     {
       SetReturnCode(TexConvReturnCodes::BAD_INPUT_RESOLUTIONS);
-      ezLog::ErrorPrintf("Input image %u has a different resolution than image 0. This is currently not supported.", i);
+      ezLog::Error("Input image {0} has a different resolution than image 0. This is currently not supported.", i);
       return EZ_FAILURE;
     }
   }
@@ -78,7 +78,7 @@ ezResult ezTexConv::ConvertInputsToRGBA()
     if (ezImageConversion::Convert(m_InputImages[i], m_InputImages[i], ezImageFormat::R8G8B8A8_UNORM).Failed())
     {
       SetReturnCode(TexConvReturnCodes::FAILED_CONVERT_INPUT_TO_RGBA);
-      ezLog::ErrorPrintf("Failed to convert input %i from format %s to R8G8B8A8_UNORM. Format is not supported.", i, ezImageFormat::GetName(m_InputImages[i].GetImageFormat()));
+      ezLog::Error("Failed to convert input {0} from format {1} to R8G8B8A8_UNORM. Format is not supported.", i, ezImageFormat::GetName(m_InputImages[i].GetImageFormat()));
       return EZ_FAILURE;
     }
   }

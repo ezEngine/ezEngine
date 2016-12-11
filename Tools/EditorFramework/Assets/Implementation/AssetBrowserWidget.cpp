@@ -607,7 +607,7 @@ void ezQtAssetBrowserWidget::OnTransform()
     auto res = ezAssetCurator::GetSingleton()->TransformAsset(guid);
     if (res.m_Result.Failed())
     {
-      ezLog::ErrorPrintf("%s (%s)", res.m_sMessage.GetData(), sPath.toUtf8().data());
+      ezLog::Error("{0} ({1})", res.m_sMessage.GetData(), sPath.toUtf8().data());
     }
   }
 

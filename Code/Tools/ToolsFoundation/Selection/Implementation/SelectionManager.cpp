@@ -77,7 +77,7 @@ void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
   ezStatus res = GetDocument()->GetObjectManager()->CanSelect(pObject);
   if (res.m_Result.Failed())
   {
-    ezLog::ErrorPrintf("%s", res.m_sMessage.GetData());
+    ezLog::Error("{0}", res.m_sMessage.GetData());
     return;
   }
 
@@ -146,7 +146,7 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& Se
       ezStatus res = GetDocument()->GetObjectManager()->CanSelect(Selection[i]);
       if (res.m_Result.Failed())
       {
-        ezLog::ErrorPrintf("%s", res.m_sMessage.GetData());
+        ezLog::Error("{0}", res.m_sMessage.GetData());
         continue;
       }
       // actually == nullptr should never happen, unless we have an error somewhere else

@@ -26,8 +26,8 @@ ezResult CompileDXShader(const char* szFile, const char* szSource, const char* s
 
     EZ_LOG_BLOCK("Shader Compilation Failed", szFile);
 
-    ezLog::ErrorPrintf("Could not compile shader '%s' for profile '%s'", szFile, szProfile);
-    ezLog::ErrorPrintf("%s", szError);
+    ezLog::Error("Could not compile shader '{0}' for profile '{1}'", szFile, szProfile);
+    ezLog::Error("{0}", szError);
 
     pErrorBlob->Release();
     return EZ_FAILURE;
@@ -205,7 +205,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
     {
       if (std.Type != D3D_SVT_FLOAT)
       {
-        ezLog::ErrorPrintf("Variable '%s': Only float matrices are supported", svd.Name);
+        ezLog::Error("Variable '{0}': Only float matrices are supported", svd.Name);
         continue;
       }
 
@@ -219,13 +219,13 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
       }
       else
       {
-        ezLog::ErrorPrintf("Variable '%s': %ux%u matrices are not supported", svd.Name, std.Rows, std.Columns);
+        ezLog::Error("Variable '{0}': {1}x{2} matrices are not supported", svd.Name, std.Rows, std.Columns);
         continue;
       }
     }
     else if (std.Class == D3D_SVC_MATRIX_ROWS)
     {
-      ezLog::ErrorPrintf("Variable '%s': Row-Major matrices are not supported", svd.Name);
+      ezLog::Error("Variable '{0}': Row-Major matrices are not supported", svd.Name);
       continue;
     }
     else if (std.Class == D3D_SVC_STRUCT)
@@ -235,7 +235,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
 
     if (constant.m_Type == ezShaderConstantBufferLayout::Constant::Type::Default)
     {
-      ezLog::ErrorPrintf("Variable '%s': Variable type '%d' is unknown / not supported", svd.Name, std.Class);
+      ezLog::Error("Variable '{0}': Variable type '{1}' is unknown / not supported", svd.Name, std.Class);
       continue;
     }
 

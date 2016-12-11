@@ -163,7 +163,7 @@ void ezApplicationPluginConfig::Load()
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
   {
-    ezLog::ErrorPrintf("Failed to parse plugins config file '%s'", sPath.GetData());
+    ezLog::Error("Failed to parse plugins config file '{0}'", sPath.GetData());
     return;
   }
 

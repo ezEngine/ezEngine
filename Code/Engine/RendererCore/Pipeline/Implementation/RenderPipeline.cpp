@@ -115,30 +115,30 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
   auto itOut = m_Connections.Find(pOutputNode);
   if (!itOut.IsValid())
   {
-    ezLog::ErrorPrintf("Output node '%s' not added to pipeline!", pOutputNode->GetName());
+    ezLog::Error("Output node '{0}' not added to pipeline!", pOutputNode->GetName());
     return false;
   }
   auto itIn = m_Connections.Find(pInputNode);
   if (!itIn.IsValid())
   {
-    ezLog::ErrorPrintf("Input node '%s' not added to pipeline!", pInputNode->GetName());
+    ezLog::Error("Input node '{0}' not added to pipeline!", pInputNode->GetName());
     return false;
   }
   const ezNodePin* pPinSource = pOutputNode->GetPinByName(sOutputPinName);
   if (!pPinSource)
   {
-    ezLog::ErrorPrintf("Source pin '%s::%s' does not exist!", pOutputNode->GetName(), sOutputPinName.GetData());
+    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName.GetData());
     return false;
   }
   const ezNodePin* pPinTarget = pInputNode->GetPinByName(sInputPinName);
   if (!pPinTarget)
   {
-    ezLog::ErrorPrintf("Target pin '%s::%s' does not exist!", pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName.GetData());
     return false;
   }
   if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != nullptr)
   {
-    ezLog::ErrorPrintf("Pins already connected: '%s::%s' -> '%s::%s'!", pOutputNode->GetName(), sOutputPinName.GetData(), pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Pins already connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName.GetData(), pInputNode->GetName(), sInputPinName.GetData());
     return false;
   }
 
@@ -159,7 +159,7 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
       {
         if (pPin->m_Type == ezNodePin::Type::PassThrough)
         {
-          ezLog::ErrorPrintf("A pass through pin is already connected to the '%s' pin!", sOutputPinName.GetData());
+          ezLog::Error("A pass through pin is already connected to the '{0}' pin!", sOutputPinName.GetData());
           return false;
         }
       }
@@ -180,30 +180,30 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
   auto itOut = m_Connections.Find(pOutputNode);
   if (!itOut.IsValid())
   {
-    ezLog::ErrorPrintf("Output node '%s' not added to pipeline!", pOutputNode->GetName());
+    ezLog::Error("Output node '{0}' not added to pipeline!", pOutputNode->GetName());
     return false;
   }
   auto itIn = m_Connections.Find(pInputNode);
   if (!itIn.IsValid())
   {
-    ezLog::ErrorPrintf("Input node '%s' not added to pipeline!", pInputNode->GetName());
+    ezLog::Error("Input node '{0}' not added to pipeline!", pInputNode->GetName());
     return false;
   }
   const ezNodePin* pPinSource = pOutputNode->GetPinByName(sOutputPinName);
   if (!pPinSource)
   {
-    ezLog::ErrorPrintf("Source pin '%s::%s' does not exist!", pOutputNode->GetName(), sOutputPinName.GetData());
+    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName.GetData());
     return false;
   }
   const ezNodePin* pPinTarget = pInputNode->GetPinByName(sInputPinName);
   if (!pPinTarget)
   {
-    ezLog::ErrorPrintf("Target pin '%s::%s' does not exist!", pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName.GetData());
     return false;
   }
   if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] == nullptr || itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex])
   {
-    ezLog::ErrorPrintf("Pins not connected: '%s::%s' -> '%s::%s'!", pOutputNode->GetName(), sOutputPinName.GetData(), pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Pins not connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName.GetData(), pInputNode->GetName(), sInputPinName.GetData());
     return false;
   }
 
@@ -331,7 +331,7 @@ bool ezRenderPipeline::SortPasses()
           ezRenderPipelinePass* pTargetPass = static_cast<ezRenderPipelinePass*>(pPin->m_pParent);
           if (done.Contains(pTargetPass))
           {
-            ezLog::ErrorPrintf("Loop detected, graph not supported!");
+            ezLog::Error("Loop detected, graph not supported!");
             return false;
           }
 
@@ -359,7 +359,7 @@ bool ezRenderPipeline::SortPasses()
 
   if (done.GetCount() < m_Passes.GetCount())
   {
-    ezLog::ErrorPrintf("Pipeline: Not all nodes could be initialized");
+    ezLog::Error("Pipeline: Not all nodes could be initialized");
     return false;
   }
 
@@ -419,7 +419,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
     bool bRes = pPass->GetRenderTargetDescriptions(view, inputs, outputs);
     if (!bRes)
     {
-      ezLog::ErrorPrintf("The pass could not be successfully queried for render target descs.");
+      ezLog::Error("The pass could not be successfully queried for render target descs.");
       return false;
     }
 
@@ -442,12 +442,12 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
         {
           if (data.m_Inputs[pPin->m_uiInputIndex] == nullptr)
           {
-            //ezLog::ErrorPrintf("The pass of type '%s' has a pass through pin '%s' that has an output but no input!", pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin).GetData());
+            //ezLog::Error("The pass of type '{0}' has a pass through pin '{1}' that has an output but no input!", pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin).GetData());
             //return false;
           }
           else if (data.m_Outputs[pPin->m_uiOutputIndex]->m_Desc.CalculateHash() != data.m_Inputs[pPin->m_uiInputIndex]->m_Desc.CalculateHash())
           {
-            ezLog::ErrorPrintf("The pass has a pass through pin '%s' that has different descriptors for input and putput!", pPass->GetPinName(pPin).GetData());
+            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and putput!", pPass->GetPinName(pPin).GetData());
             return false;
           }
         }

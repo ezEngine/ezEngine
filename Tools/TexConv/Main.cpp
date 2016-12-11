@@ -64,7 +64,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   if (m_FileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
   {
     SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
-    ezLog::ErrorPrintf("Could not open output file for writing: '%s'", m_sOutputFile.GetData());
+    ezLog::Error("Could not open output file for writing: '{0}'", m_sOutputFile.GetData());
     return ezApplication::Quit;
   }
 

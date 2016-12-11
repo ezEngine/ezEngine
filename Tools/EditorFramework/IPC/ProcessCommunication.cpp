@@ -44,7 +44,7 @@ ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const
       goto success;
   }
 
-  ezLog::ErrorPrintf("Could not find shared memory to use");
+  ezLog::Error("Could not find shared memory to use");
   return EZ_FAILURE;
 
 success:
@@ -83,7 +83,7 @@ success:
     delete m_pSharedMemory;
     m_pSharedMemory = nullptr;
 
-    ezLog::ErrorPrintf("Failed to start process '%s'", sPath.GetData());
+    ezLog::Error("Failed to start process '{0}'", sPath.GetData());
     return EZ_FAILURE;
   }
 
@@ -329,7 +329,7 @@ ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTi
       if (ezTime::Now() - tStart > tTimeout)
       {
         m_pWaitForMessageType = nullptr;
-        ezLog::ErrorPrintf("Reached time-out of %.1f seconds while waiting for %s", tTimeout.GetSeconds(), pMessageType->GetTypeName());
+        ezLog::Error("Reached time-out of {0} seconds while waiting for {1}", ezArgF(tTimeout.GetSeconds(), 1), pMessageType->GetTypeName());
         return EZ_FAILURE;
       }
     }

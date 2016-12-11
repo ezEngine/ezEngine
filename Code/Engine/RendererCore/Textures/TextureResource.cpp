@@ -470,7 +470,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
     if (!bValidColor)
     {
-      ezLog::ErrorPrintf("'%s' is not a valid color name. Using 'RebeccaPurple' as fallback.", sName.GetData());
+      ezLog::Error("'{0}' is not a valid color name. Using 'RebeccaPurple' as fallback.", sName.GetData());
     }
 
     bSRGB = true;

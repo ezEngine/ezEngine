@@ -65,7 +65,7 @@ ezResult ezWindow::Initialize()
 
   if (!RegisterClassExW(&windowClass)) /// \todo test & support for multiple windows
   {
-    ezLog::ErrorPrintf("Failed to create ezWindow window class!");
+    ezLog::Error("Failed to create ezWindow window class!");
     return EZ_FAILURE;
   }
 
@@ -159,7 +159,7 @@ ezResult ezWindow::Initialize()
 
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
-    ezLog::ErrorPrintf("Failed to create window.");
+    ezLog::Error("Failed to create window.");
     return EZ_FAILURE;
   }
 

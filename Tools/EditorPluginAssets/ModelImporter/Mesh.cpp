@@ -317,7 +317,7 @@ namespace ezModelImporter
     VertexDataStream* positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (positionStream == nullptr)
     {
-      ezLog::ErrorPrintf("Can't compute vertex normals for the mesh %s, because it doesn't have vertex positions.", m_Name.GetData());
+      ezLog::Error("Can't compute vertex normals for the mesh {0}, because it doesn't have vertex positions.", m_Name.GetData());
       return EZ_FAILURE;
     }
     VertexDataStream* normalStream = AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
@@ -438,19 +438,19 @@ namespace ezModelImporter
     mikkInterface.positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (mikkInterface.positionStream == nullptr)
     {
-      ezLog::ErrorPrintf("Can't compute vertex tangents for the mesh '%s', because it doesn't have vertex positions.", m_Name.GetData());
+      ezLog::Error("Can't compute vertex tangents for the mesh '{0}', because it doesn't have vertex positions.", m_Name.GetData());
       return EZ_FAILURE;
     }
     mikkInterface.normalStream = GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (mikkInterface.normalStream == nullptr)
     {
-      ezLog::ErrorPrintf("Can't compute tangents for the mesh '%s', because it doesn't have vertex noramls.", m_Name.GetData());
+      ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have vertex noramls.", m_Name.GetData());
       return EZ_FAILURE;
     }
     mikkInterface.texStream = GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
     if (mikkInterface.texStream == nullptr || mikkInterface.texStream->GetNumElementsPerVertex() != 2)
     {
-      ezLog::ErrorPrintf("Can't compute tangents for the mesh '%s', because it doesn't have TexCoord0 stream with two components.", m_Name.GetData());
+      ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have TexCoord0 stream with two components.", m_Name.GetData());
       return EZ_FAILURE;
     }
 
@@ -482,7 +482,7 @@ namespace ezModelImporter
 
     if (!genTangSpaceDefault(&context))
     {
-      ezLog::ErrorPrintf("Failed to compute compute tangents for the mesh %s.", m_Name.GetData());
+      ezLog::Error("Failed to compute compute tangents for the mesh {0}.", m_Name.GetData());
       return EZ_FAILURE;
     }
 

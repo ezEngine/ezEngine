@@ -77,13 +77,13 @@ retry:
   {
     if (m_Description.m_bDebugDevice)
     {
-      ezLog::ErrorPrintf("Couldn't initialize D3D11 debug device!");
+      ezLog::Error("Couldn't initialize D3D11 debug device!");
 
       m_Description.m_bDebugDevice = false;
       goto retry;
     }
 
-    ezLog::ErrorPrintf("Couldn't initialize D3D11 device!");
+    ezLog::Error("Couldn't initialize D3D11 device!");
     return EZ_FAILURE;
   }
   else
@@ -125,7 +125,7 @@ retry:
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void **)&m_pDXGIDevice)))
   {
-    ezLog::ErrorPrintf("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 installed!");
+    ezLog::Error("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 installed!");
     return EZ_FAILURE;
   }
 

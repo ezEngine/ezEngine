@@ -131,7 +131,7 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 
     if (szCurrentStart == s.GetData()) // no change -> parsing error
     {
-      ezLog::ErrorPrintf("Error parsing material parameter section of shader");
+      ezLog::Error("Error parsing material parameter section of shader");
       break;
     }
   }
@@ -204,7 +204,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
 
     if (ezStringUtils::IsNullOrEmpty(szOpenBracket) || ezStringUtils::IsNullOrEmpty(szCloseBracket))
     {
-      ezLog::ErrorPrintf("No brackets found for enum definition.");
+      ezLog::Error("No brackets found for enum definition.");
     }
 
     ezStringBuilder sEnumValues = ezStringView(szOpenBracket + 1, szCloseBracket);
@@ -236,7 +236,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
         }
         else
         {
-          ezLog::ErrorPrintf("Invalid enum value '%s'. Only positive numbers are allowed.", szValue);
+          ezLog::Error("Invalid enum value '{0}'. Only positive numbers are allowed.", szValue);
         }
       }
 
@@ -257,7 +257,7 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
       }
       else
       {
-        ezLog::ErrorPrintf("A enum value with '%d' already exists: '%s'", uiCurrentValue, out_EnumValues[uiCurrentValue].GetData());
+        ezLog::Error("A enum value with '{0}' already exists: '{1}'", uiCurrentValue, out_EnumValues[uiCurrentValue].GetData());
       }
 
       ++uiCurrentValue;
@@ -267,6 +267,6 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
   }
   else
   {
-    ezLog::ErrorPrintf("Unknown permutation var type");
+    ezLog::Error("Unknown permutation var type");
   }
 }

@@ -67,7 +67,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(translation));
       }
       else
-        ezLog::ErrorPrintf("Failed parsing Translate transform command.");
+        ezLog::Error("Failed parsing Translate transform command.");
     }
     void Rotate(ParseContext& context, ezStringView& remainingSceneText)
     {
@@ -79,7 +79,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), rotation));
       }
       else
-        ezLog::ErrorPrintf("Failed parsing Rotate transform command.");
+        ezLog::Error("Failed parsing Rotate transform command.");
     }
     void Scale(ParseContext& context, ezStringView& remainingSceneText)
     {
@@ -89,7 +89,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), ezQuat::IdentityQuaternion(), scale));
       }
       else
-        ezLog::ErrorPrintf("Failed parsing Scale transform command.");
+        ezLog::Error("Failed parsing Scale transform command.");
     }
 
     void LookAt(ParseContext& context, ezStringView& remainingSceneText)
@@ -102,7 +102,7 @@ namespace ezModelImporter
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(lookAt));
       }
       else
-        ezLog::ErrorPrintf("Failed parsing LookAt transform command.");
+        ezLog::Error("Failed parsing LookAt transform command.");
     }
 
     ezResult ParseMat4(ezStringView& remainingSceneText, ezMat4& outMat)
@@ -116,7 +116,7 @@ namespace ezModelImporter
       if (ParseMat4(remainingSceneText, mat).Succeeded())
         context.PeekActiveTransform() = ezTransform(mat);
       else
-        ezLog::ErrorPrintf("Failed parsing Transform transform command.");
+        ezLog::Error("Failed parsing Transform transform command.");
     }
 
     void ConcatTransform(ParseContext& context, ezStringView& remainingSceneText)
@@ -125,7 +125,7 @@ namespace ezModelImporter
       if (ParseMat4(remainingSceneText, mat).Succeeded())
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(mat));
       else
-        ezLog::ErrorPrintf("Failed parsing Transform transform command.");
+        ezLog::Error("Failed parsing Transform transform command.");
     }
 
     //void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText)
@@ -182,7 +182,7 @@ namespace ezModelImporter
         ezSharedPtr<Scene> subScene = ezModelImporter::Importer::GetSingleton()->ImportScene(meshFilename);
         if (!subScene)
         {
-          ezLog::ErrorPrintf("Failed to load mesh '%s'.", meshFilename.GetData());
+          ezLog::Error("Failed to load mesh '{0}'.", meshFilename.GetData());
           return;
         }
         mesh = EZ_DEFAULT_NEW(ezModelImporter::Mesh, std::move(*subScene->MergeAllMeshes()));
@@ -542,7 +542,7 @@ namespace ezModelImporter
       ezString materialName(type);
       if (context.MakeNamedMaterialActive(materialName).Failed())
       {
-        ezLog::ErrorPrintf("PBRT make 'NamedMaterial' material name '%s' is not known.", materialName.GetData());
+        ezLog::Error("PBRT make 'NamedMaterial' material name '{0}' is not known.", materialName.GetData());
       }
     }
 
@@ -561,7 +561,7 @@ namespace ezModelImporter
         {
           if (param.type != ParamType::STRING || param.data.GetCount() != 1)
           {
-            ezLog::ErrorPrintf("Texture's filename parameter is not a string and/or does not have one value.");
+            ezLog::Error("Texture's filename parameter is not a string and/or does not have one value.");
             continue;
           }
 
@@ -604,7 +604,7 @@ namespace ezModelImporter
       Object* object = context.LookUpObject(objectName);
       if (!object)
       {
-        ezLog::ErrorPrintf("Can't instantiate object: No object with name '%s' known.", objectName.GetData());
+        ezLog::Error("Can't instantiate object: No object with name '{0}' known.", objectName.GetData());
         return;
       }
 

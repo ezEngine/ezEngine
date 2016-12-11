@@ -99,7 +99,7 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 
   if (uiVersion != (ezUInt8) ezDependencyFileVersion::Version1)
   {
-    ezLog::ErrorPrintf("Dependency file has incorrect file version (%u)", uiVersion);
+    ezLog::Error("Dependency file has incorrect file version ({0})", uiVersion);
     return EZ_FAILURE;
   }
   
@@ -131,14 +131,14 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
     ezString sAbsPath;
     if (ezFileSystem::ResolvePath(szFile, &sAbsPath, nullptr).Failed())
     {
-      ezLog::ErrorPrintf("Could not resolve path for file '%s'", szFile);
+      ezLog::Error("Could not resolve path for file '{0}'", szFile);
       return EZ_FAILURE;
     }
 
     ezFileStats stats;
     if (ezOSFile::GetFileStats(sAbsPath.GetData(), stats).Failed())
     {
-      ezLog::ErrorPrintf("Could not query the file stats for '%s'", szFile);
+      ezLog::Error("Could not query the file stats for '{0}'", szFile);
       return EZ_FAILURE;
     }
 

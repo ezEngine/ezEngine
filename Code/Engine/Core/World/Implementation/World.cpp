@@ -442,7 +442,7 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
 {
   if (m_Data.m_GlobalKeyToIdTable.Contains(sGlobalKey.GetHash()))
   {
-    ezLog::ErrorPrintf("Can't set global key to '%s' because an object with this global key already exists. Global key have to be unique.", sGlobalKey.GetData());
+    ezLog::Error("Can't set global key to '{0}' because an object with this global key already exists. Global key have to be unique.", sGlobalKey.GetData());
     return;
   }
 

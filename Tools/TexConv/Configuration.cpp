@@ -89,7 +89,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
     const char* szLastPos = nullptr;
     if (ezConversionUtils::StringToInt(tmp, num, &szLastPos).Failed())
     {
-      ezLog::ErrorPrintf("Could not parse input config '%s'", cfg);
+      ezLog::Error("Could not parse input config '{0}'", cfg);
       return source;
     }
 
@@ -100,7 +100,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
     }
     else
     {
-      ezLog::ErrorPrintf("Invalid Input index '%u'", num);
+      ezLog::Error("Invalid Input index '{0}'", num);
       return source;
     }
 
@@ -119,7 +119,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
 
   if (!tmp.StartsWith("."))
   {
-    ezLog::ErrorPrintf("Expected '.' after input index in '%s'", cfg);
+    ezLog::Error("Expected '.' after input index in '{0}'", cfg);
     return source;
   }
 
@@ -136,7 +136,7 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
   // no additional info, e.g. '-rgb in2.rg' will map b to b
   if (tmp.IsEmpty())
   {
-    ezLog::ErrorPrintf("Bad input config '%s'", cfg);
+    ezLog::Error("Bad input config '{0}'", cfg);
 
     source.m_uiChannelMask = EZ_BIT(iChannelIndex);
     return source;
@@ -319,28 +319,28 @@ ezResult ezTexConv::ValidateConfiguration()
   if (m_InputFileNames.IsEmpty())
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::ErrorPrintf("No input files are specified. Use the -in command for a single file, or -in0 ... -in31 for multiple input files");
+    ezLog::Error("No input files are specified. Use the -in command for a single file, or -in0 ... -in31 for multiple input files");
     return EZ_FAILURE;
   }
 
   if (m_sOutputFile.IsEmpty())
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::ErrorPrintf("No output file is specified. Use the -out command for this");
+    ezLog::Error("No output file is specified. Use the -out command for this");
     return EZ_FAILURE;
   }
 
   if (m_uiOutputChannels > 4)
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::ErrorPrintf("Number of target channels (%u) is invalid", m_uiOutputChannels);
+    ezLog::Error("Number of target channels ({0}) is invalid", m_uiOutputChannels);
     return EZ_FAILURE;
   }
 
   if (m_uiOutputChannels < 3 && m_bSRGBOutput)
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::ErrorPrintf("-srgb flag is invalid for 1 and 2 channel textures, as they do not support sRGB output.");
+    ezLog::Error("-srgb flag is invalid for 1 and 2 channel textures, as they do not support sRGB output.");
     return EZ_FAILURE;
   }
 

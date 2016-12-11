@@ -39,7 +39,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 
   if (!TextureDesc.m_bCreateRenderTarget)
   {
-    ezLog::ErrorPrintf("Texture description for render target usage has not set bCreateRenderTarget!");
+    ezLog::Error("Texture description for render target usage has not set bCreateRenderTarget!");
     return ezGALTextureHandle();
   }
 
@@ -71,7 +71,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 
   if (hNewTexture.IsInvalidated())
   {
-    ezLog::ErrorPrintf("GPU resource pool couldn't create new texture for given desc (size: %d x %d, format: %d)", TextureDesc.m_uiWidth, TextureDesc.m_uiHeight, TextureDesc.m_Format);
+    ezLog::Error("GPU resource pool couldn't create new texture for given desc (size: {0} x {1}, format: {2})", TextureDesc.m_uiWidth, TextureDesc.m_uiHeight, TextureDesc.m_Format);
     return ezGALTextureHandle();
   }
 
@@ -109,7 +109,7 @@ void ezGPUResourcePool::ReturnRenderTarget(ezGALTextureHandle hRenderTarget)
   // First check if this texture actually came from the pool
   if (!m_TexturesInUse.Contains(hRenderTarget))
   {
-    ezLog::ErrorPrintf("Returning a texture to the GPU resource pool which wasn't created by the pool is not valid!");
+    ezLog::Error("Returning a texture to the GPU resource pool which wasn't created by the pool is not valid!");
     return;
   }
 
@@ -163,7 +163,7 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
 
   if (hNewBuffer.IsInvalidated())
   {
-    ezLog::ErrorPrintf("GPU resource pool couldn't create new buffer for given desc (size: %)", BufferDesc.m_uiTotalSize);
+    ezLog::Error("GPU resource pool couldn't create new buffer for given desc (size: {0})", BufferDesc.m_uiTotalSize);
     return ezGALBufferHandle();
   }
 
@@ -187,7 +187,7 @@ void ezGPUResourcePool::ReturnBuffer(ezGALBufferHandle hBuffer)
   // First check if this texture actually came from the pool
   if (!m_BuffersInUse.Contains(hBuffer))
   {
-    ezLog::ErrorPrintf("Returning a buffer to the GPU resource pool which wasn't created by the pool is not valid!");
+    ezLog::Error("Returning a buffer to the GPU resource pool which wasn't created by the pool is not valid!");
     return;
   }
 

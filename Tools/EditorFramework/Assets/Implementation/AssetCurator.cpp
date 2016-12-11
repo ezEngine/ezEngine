@@ -64,7 +64,7 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
     ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
     ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
     if (res.Failed())
-      ezLog::ErrorPrintf("Failed to init directory watcher for dir '%s'", sTemp.GetData());
+      ezLog::Error("Failed to init directory watcher for dir '{0}'", sTemp.GetData());
     m_Watchers.PushBack(pWatcher);
   }
 
@@ -260,7 +260,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
     auto res = ProcessAsset(pAssetInfo, szPlatform);
     if (res.m_Result.Failed())
     {
-      ezLog::ErrorPrintf("%s (%s)", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
+      ezLog::Error("{0} ({1})", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
     }
   }
 
@@ -849,7 +849,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
   if (file.Close().Failed())
   {
-    ezLog::ErrorPrintf("Failed to open asset lookup table file ('%s')", sFinalPath.GetData());
+    ezLog::Error("Failed to open asset lookup table file ('{0}')", sFinalPath.GetData());
     return EZ_FAILURE;
   }
 

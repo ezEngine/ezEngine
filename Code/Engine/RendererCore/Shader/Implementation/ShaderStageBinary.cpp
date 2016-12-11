@@ -90,7 +90,7 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
     return;
   }
 
-  //ezLog::ErrorPrintf("Constant '%s' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName.GetData());
+  //ezLog::Error("Constant '{0}' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName.GetData());
   const ezUInt32 uiSize = s_TypeSize[m_Type];
   ezMemoryUtils::ZeroFill(pDest, uiSize);
 }
@@ -338,13 +338,13 @@ ezResult ezShaderStageBinary::WriteStageBinary() const
   ezFileWriter StageFileOut;
   if (StageFileOut.Open(sShaderStageFile.GetData()).Failed())
   {
-    ezLog::ErrorPrintf("Could not open shader stage file '%s' for writing", sShaderStageFile.GetData());
+    ezLog::Error("Could not open shader stage file '{0}' for writing", sShaderStageFile.GetData());
     return EZ_FAILURE;
   }
 
   if (Write(StageFileOut).Failed())
   {
-    ezLog::ErrorPrintf("Could not write shader stage file '%s'", sShaderStageFile.GetData());
+    ezLog::Error("Could not write shader stage file '{0}'", sShaderStageFile.GetData());
     return EZ_FAILURE;
   }
 
@@ -373,7 +373,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
     ezShaderStageBinary shaderStageBinary;
     if (shaderStageBinary.Read(StageFileIn).Failed())
     {
-      ezLog::ErrorPrintf("Could not read shader stage file '%s'", sShaderStageFile.GetData());
+      ezLog::Error("Could not read shader stage file '{0}'", sShaderStageFile.GetData());
       return nullptr;
     }
 

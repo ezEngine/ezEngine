@@ -280,7 +280,7 @@ public:
       ezLog::InfoPrintf("File Type: '%s': %i Files, %i Lines, %i Empty Lines, All Lines: %i, Bytes: %i, Non-ASCII Characters: %i, Words: %i", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
     else
-      ezLog::ErrorPrintf("Could not search the directory '%s'", m_szSearchDir);
+      ezLog::Error("Could not search the directory '{0}'", m_szSearchDir);
 
     return ezApplication::Quit;
   }

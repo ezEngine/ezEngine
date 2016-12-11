@@ -352,7 +352,7 @@ namespace ezModelImporter
     const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs);
     if (!assimpScene)
     {
-      ezLog::ErrorPrintf("Assimp importer failed to load model %s with error %s.", szFileName, importer.GetErrorString());
+      ezLog::Error("Assimp importer failed to load model {0} with error {1}.", szFileName, importer.GetErrorString());
       return nullptr;
     }
 

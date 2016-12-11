@@ -81,7 +81,7 @@ void ezPlayerApplication::SetupLevel()
     }
     else
     {
-      ezLog::ErrorPrintf("Could not read level '%s'", m_sSceneFile.GetData());
+      ezLog::Error("Could not read level '{0}'", m_sSceneFile.GetData());
     }
   }
 }

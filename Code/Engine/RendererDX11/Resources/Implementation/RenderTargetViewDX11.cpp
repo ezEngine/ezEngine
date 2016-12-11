@@ -26,7 +26,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     
   if (pTexture == nullptr)
   {
-    ezLog::ErrorPrintf("No valid texture handle given for rendertarget view creation!");
+    ezLog::Error("No valid texture handle given for rendertarget view creation!");
     return EZ_FAILURE;
   }
 
@@ -53,7 +53,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if(DXViewFormat == DXGI_FORMAT_UNKNOWN)
   {
-    ezLog::ErrorPrintf("Couldn't get DXGI format for view!");
+    ezLog::Error("Couldn't get DXGI format for view!");
     return EZ_FAILURE;
   }  
 
@@ -78,7 +78,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (FAILED(pDXDevice->GetDXDevice()->CreateDepthStencilView(pTexture->GetDXTexture(), &DSViewDesc, &m_pDepthStencilView)))
     {
-      ezLog::ErrorPrintf("Couldn't create depth stencil view!");
+      ezLog::Error("Couldn't create depth stencil view!");
       return EZ_FAILURE;
     }
     else
@@ -103,7 +103,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if (FAILED(pDXDevice->GetDXDevice()->CreateRenderTargetView(pTexture->GetDXTexture(), &RTViewDesc, &m_pRenderTargetView)))
     {
-      ezLog::ErrorPrintf("Couldn't create rendertarget view!");
+      ezLog::Error("Couldn't create rendertarget view!");
       return EZ_FAILURE;
     }
     else

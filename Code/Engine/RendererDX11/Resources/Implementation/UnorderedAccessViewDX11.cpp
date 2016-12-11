@@ -29,7 +29,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if(pTexture == nullptr && pBuffer == nullptr)
   {
-    ezLog::ErrorPrintf("No valid texture handle or buffer handle given for unordered access view creation!");
+    ezLog::Error("No valid texture handle or buffer handle given for unordered access view creation!");
     return EZ_FAILURE;
   }
 
@@ -59,7 +59,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if(DXViewFormat == DXGI_FORMAT_UNKNOWN)
   {
-    ezLog::ErrorPrintf("Couldn't get valid DXGI format for resource view! (%d)", ViewFormat);
+    ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", ViewFormat);
     return EZ_FAILURE;
   }
 

@@ -62,7 +62,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
       const ezGALTextureCreationDescription& desc = pTexture->GetDescription();
       if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
       {
-        ezLog::ErrorPrintf("Render target sizes don't match");
+        ezLog::Error("Render target sizes don't match");
         return false;
       }
 
@@ -70,13 +70,13 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
     }
     else
     {
-      ezLog::ErrorPrintf("View '%s' does not have a valid color target", view.GetName());
+      ezLog::Error("View '{0}' does not have a valid color target", view.GetName());
       return false;
     }
   }
   else
   {
-    ezLog::ErrorPrintf("No input connected to tonemap pass!");
+    ezLog::Error("No input connected to tonemap pass!");
     return false;
   }
 

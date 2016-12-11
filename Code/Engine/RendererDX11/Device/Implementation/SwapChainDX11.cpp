@@ -46,7 +46,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
     ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
     if (FAILED(m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture))))
     {
-      ezLog::ErrorPrintf("Couldn't access backbuffer texture of swapchain!");
+      ezLog::Error("Couldn't access backbuffer texture of swapchain!");
       EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
 
       return EZ_FAILURE;

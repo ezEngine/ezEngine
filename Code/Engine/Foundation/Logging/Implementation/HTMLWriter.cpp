@@ -29,7 +29,7 @@ void ezLogWriter::HTML::BeginLog (const char* szFile, const char* szAppTitle)
 
   if (!m_File.IsOpen())
   {
-    ezLog::ErrorPrintf("Could not open Log-File \"%s\".", szFile);
+    ezLog::Error("Could not open Log-File \"{0}\".", szFile);
     return;
   }
 

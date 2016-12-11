@@ -113,7 +113,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
   ezString sMeshFileAbs = pProp->m_sMeshFile;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
   {
-    ezLog::ErrorPrintf("Collision Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
+    ezLog::Error("Collision Mesh Asset Transform failed: Input Path '{0}' is not in any data directory", sMeshFileAbs.GetData());
     return ezStatus(ezFmt("Could not make path absolute: '{0};", sMeshFileAbs.GetData()));
   }
 
@@ -133,7 +133,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
 
     if (!scene)
     {
-      ezLog::ErrorPrintf("Could not import file '%s'", sMeshFileAbs.GetData());
+      ezLog::Error("Could not import file '{0}'", sMeshFileAbs.GetData());
       return ezStatus("Collision Mesh Asset input file could not be imported");
     }
   }

@@ -76,7 +76,7 @@ void ezApplicationFileSystemConfig::Load()
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
   {
-    ezLog::ErrorPrintf("Failed to parse file-system config file '%s'", sPath.GetData());
+    ezLog::Error("Failed to parse file-system config file '{0}'", sPath.GetData());
     return;
   }
 
@@ -147,7 +147,7 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
     ezOSFile file;
     if (file.Open(s, ezFileMode::Write).Failed())
     {
-      ezLog::ErrorPrintf("Failed to create stub file '%s'", s.GetData());
+      ezLog::Error("Failed to create stub file '{0}'", s.GetData());
       res = EZ_FAILURE;
     }
   }

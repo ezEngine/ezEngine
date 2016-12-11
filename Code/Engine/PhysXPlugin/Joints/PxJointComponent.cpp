@@ -96,13 +96,13 @@ PxJoint* ezPxJointComponent::SetupJoint()
 
   if (pChildRbComp == nullptr)
   {
-    ezLog::ErrorPrintf("%s '%s' does not have a direct child with a ezPxDynamicActorComponent component. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
+    ezLog::Error("{0} '{1}' does not have a direct child with a ezPxDynamicActorComponent component. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
     return nullptr;
   }
 
   if (pChildRbComp->GetKinematic())
   {
-    ezLog::ErrorPrintf("%s '%s' has a child with a ezPxDynamicActorComponent which is set to be kinematic. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
+    ezLog::Error("{0} '{1}' has a child with a ezPxDynamicActorComponent which is set to be kinematic. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
     return nullptr;
   }
 
@@ -118,7 +118,7 @@ PxJoint* ezPxJointComponent::SetupJoint()
 
   if (pChildActor == nullptr)
   {
-    ezLog::ErrorPrintf("%s '%s' has an invalid child. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
+    ezLog::Error("{0} '{1}' has an invalid child. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), pOwner->GetName());
     return nullptr;
   }
 

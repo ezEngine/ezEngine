@@ -302,7 +302,7 @@ ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty
   auto uiCount = pProp->GetCount(pObject);
   if (uiIndex >= uiCount)
   {
-    ezLog::ErrorPrintf("GetArrayPropertyValue: Invalid index: %u", uiIndex);
+    ezLog::Error("GetArrayPropertyValue: Invalid index: {0}", uiIndex);
     return ezVariant();
   }
 
@@ -349,7 +349,7 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
   auto uiCount = pProp->GetCount(pObject);
   if (uiIndex >= uiCount)
   {
-    ezLog::ErrorPrintf("SetArrayPropertyValue: Invalid index: %u", uiIndex);
+    ezLog::Error("SetArrayPropertyValue: Invalid index: {0}", uiIndex);
     return;
   }
 
@@ -443,7 +443,7 @@ void ezReflectionUtils::InsertArrayPropertyValue(ezAbstractArrayProperty* pProp,
   auto uiCount = pProp->GetCount(pObject);
   if (uiIndex > uiCount)
   {
-    ezLog::ErrorPrintf("InsertArrayPropertyValue: Invalid index: %u", uiIndex);
+    ezLog::Error("InsertArrayPropertyValue: Invalid index: {0}", uiIndex);
     return;
   }
 
@@ -487,7 +487,7 @@ void ezReflectionUtils::RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp,
   auto uiCount = pProp->GetCount(pObject);
   if (uiIndex >= uiCount)
   {
-    ezLog::ErrorPrintf("RemoveArrayPropertyValue: Invalid index: %u", uiIndex);
+    ezLog::Error("RemoveArrayPropertyValue: Invalid index: {0}", uiIndex);
     return;
   }
 
@@ -1033,7 +1033,7 @@ void ezReflectionUtils::DeleteObject(void* pObject, ezAbstractProperty* pOwnerPr
 
   if (!pType->GetAllocator()->CanAllocate())
   {
-    ezLog::ErrorPrintf("Tried to deallocate object of type '%s', but it has no allocator.", pType->GetTypeName());
+    ezLog::Error("Tried to deallocate object of type '{0}', but it has no allocator.", pType->GetTypeName());
     return;
   }
   pType->GetAllocator()->Deallocate(pObject);

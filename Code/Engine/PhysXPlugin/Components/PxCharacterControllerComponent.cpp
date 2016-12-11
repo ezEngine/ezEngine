@@ -296,7 +296,7 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
 
   if (!cd.isValid())
   {
-    ezLog::ErrorPrintf("The Character Controller configuration is invalid.");
+    ezLog::Error("The Character Controller configuration is invalid.");
     return;
   }
 

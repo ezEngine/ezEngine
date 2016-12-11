@@ -216,7 +216,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
 
   if (!ezOSFile::ExistsFile(sOldPlugin))
   {
-    ezLog::ErrorPrintf("The plugin '%s' does not exist.", szPluginFile);
+    ezLog::Error("The plugin '{0}' does not exist.", szPluginFile);
     return EZ_FAILURE;
   }
 
@@ -230,7 +230,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
         goto success;
     }
 
-    ezLog::ErrorPrintf("Could not copy the plugin file '%s' to '%s' (and all previous file numbers). Plugin MaxParallelInstances is set to %i.", sOldPlugin.GetData(), sNewPlugin.GetData(), ezPlugin::m_uiMaxParallelInstances);
+    ezLog::Error("Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.", sOldPlugin.GetData(), sNewPlugin.GetData(), ezPlugin::m_uiMaxParallelInstances);
 
     g_LoadedPlugins.Remove(sNewPlugin);
     return EZ_FAILURE;
@@ -548,7 +548,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
       /// \todo Set "copy dll" back to true again, when we know which plugins may be copied
       if (LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_FAILURE)
       {
-        ezLog::ErrorPrintf("Loading of Plugin '%s' failed. Falling back to backup of previous version.", PluginsToReload[i].GetData());
+        ezLog::Error("Loading of Plugin '{0}' failed. Falling back to backup of previous version.", PluginsToReload[i].GetData());
 
         res = EZ_FAILURE;
 

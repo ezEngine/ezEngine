@@ -863,7 +863,7 @@ void ezResourceManager::OnCoreShutdown()
   {
     EZ_LOG_BLOCK("Referenced Resources");
 
-    ezLog::ErrorPrintf("There are %i resource still referenced.", m_LoadedResources.GetCount());
+    ezLog::Error("There are {0} resource still referenced.", m_LoadedResources.GetCount());
 
     for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
     {

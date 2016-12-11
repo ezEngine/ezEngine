@@ -1184,9 +1184,9 @@ ezStatus ezSceneDocument::ExportScene()
   auto res = TransformAssetManually();
 
   if (res.m_Result.Failed())
-    ezLog::ErrorPrintf(res.m_sMessage);
+    ezLog::Error(res.m_sMessage);
   else
-    ezLog::SuccessPrintf(res.m_sMessage);
+    ezLog::Success(res.m_sMessage);
 
   ShowDocumentStatus(res.m_sMessage);
 

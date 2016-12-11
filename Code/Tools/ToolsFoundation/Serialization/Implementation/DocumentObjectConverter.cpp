@@ -138,7 +138,7 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
       }
       else
       {
-        ezLog::ErrorPrintf("Cannot create node of unknown type '%s'.", pNode->GetType());
+        ezLog::Error("Cannot create node of unknown type '{0}'.", pNode->GetType());
       }
     }
     break;
@@ -156,7 +156,7 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
       {
         if (!m_UnknownTypes.Contains(pNode->GetType()))
         {
-          ezLog::ErrorPrintf("Can't create objects of unknown type '%s'", pNode->GetType());
+          ezLog::Error("Can't create objects of unknown type '{0}'", pNode->GetType());
           m_UnknownTypes.Insert(pNode->GetType());
         }
 

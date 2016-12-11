@@ -40,7 +40,7 @@ void ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
   out_Screens.Clear();
   if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_Screens) == FALSE)
   {
-    ezLog::ErrorPrintf("Failed to enumerate screens");
+    ezLog::Error("Failed to enumerate screens");
     return;
   }
 

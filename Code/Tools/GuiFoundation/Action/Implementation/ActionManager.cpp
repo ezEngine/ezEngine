@@ -132,7 +132,7 @@ void ezActionManager::SaveShortcutAssignment()
   ezFileWriter file;
   if (file.Open(sFile).Failed())
   {
-    ezLog::ErrorPrintf("Failed to write shortcuts config file '%s'", sFile.GetData());
+    ezLog::Error("Failed to write shortcuts config file '{0}'", sFile.GetData());
     return;
   }
 

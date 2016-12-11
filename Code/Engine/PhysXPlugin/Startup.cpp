@@ -43,7 +43,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
   switch (code)
   {
   case PxErrorCode::eABORT:
-    ezLog::ErrorPrintf("PhysX: %s", message);
+    ezLog::Error("PhysX: {0}", message);
     break;
   case PxErrorCode::eDEBUG_INFO:
     ezLog::DevPrintf("PhysX: %s", message);
@@ -52,23 +52,23 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
     ezLog::WarningPrintf("PhysX: %s", message);
     break;
   case PxErrorCode::eINTERNAL_ERROR:
-    ezLog::ErrorPrintf("PhysX Internal: %s", message);
+    ezLog::Error("PhysX Internal: {0}", message);
     break;
   case PxErrorCode::eINVALID_OPERATION:
-    ezLog::ErrorPrintf("PhysX Invalid Operation: %s", message);
+    ezLog::Error("PhysX Invalid Operation: {0}", message);
     break;
   case PxErrorCode::eINVALID_PARAMETER:
-    ezLog::ErrorPrintf("PhysX Invalid Parameter: %s", message);
+    ezLog::Error("PhysX Invalid Parameter: {0}", message);
     break;
   case PxErrorCode::eOUT_OF_MEMORY:
-    ezLog::ErrorPrintf("PhysX Out-of-Memory: %s", message);
+    ezLog::Error("PhysX Out-of-Memory: {0}", message);
     break;
   case PxErrorCode::ePERF_WARNING:
     ezLog::WarningPrintf("PhysX Performance: %s", message);
     break;
 
   default:
-    ezLog::ErrorPrintf("PhysX: Unknown error type '%i': %s", code, message);
+    ezLog::Error("PhysX: Unknown error type '{0}': {1}", code, message);
     break;
   }
 }

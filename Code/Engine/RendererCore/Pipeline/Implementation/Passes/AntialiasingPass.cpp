@@ -53,7 +53,7 @@ bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const e
     }
     else
     {
-      ezLog::ErrorPrintf("Input is not a valid msaa target");
+      ezLog::Error("Input is not a valid msaa target");
       return false;
     }
     
@@ -64,7 +64,7 @@ bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const e
   }
   else
   {
-    ezLog::ErrorPrintf("No input connected to '%s'!", GetName());
+    ezLog::Error("No input connected to '{0}'!", GetName());
     return false;
   }
 

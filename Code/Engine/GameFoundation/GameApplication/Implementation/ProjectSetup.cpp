@@ -235,7 +235,7 @@ void ezGameApplication::DoLoadTags()
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file).Failed())
   {
-    ezLog::ErrorPrintf("Failed to parse DDL data in tags file");
+    ezLog::Error("Failed to parse DDL data in tags file");
     return;
   }
 
@@ -250,7 +250,7 @@ void ezGameApplication::DoLoadTags()
 
     if (!pName)
     {
-      ezLog::ErrorPrintf("Incomplete tag declaration!");
+      ezLog::Error("Incomplete tag declaration!");
       continue;
     }
 

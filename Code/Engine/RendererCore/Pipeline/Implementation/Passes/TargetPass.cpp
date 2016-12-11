@@ -39,7 +39,7 @@ ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNo
   //auto inputs = GetInputPins();
   if (pPin->m_pParent != this)
   {
-    ezLog::ErrorPrintf("ezTargetPass::GetTextureHandle: The given pin is not part of this pass!");
+    ezLog::Error("ezTargetPass::GetTextureHandle: The given pin is not part of this pass!");
     return ezGALTextureHandle();
   }
 

@@ -27,7 +27,7 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
 
   if (pFunc->GetNumParameters() != s.GetNumberOfFunctionParameters())
   {
-    ezLog::ErrorPrintf("Function '%s' expects %u parameters, %u were provided.", pFunc->GetName(), pFunc->GetNumParameters(), s.GetNumberOfFunctionParameters());
+    ezLog::Error("Function '{0}' expects {1} parameters, {2} were provided.", pFunc->GetName(), pFunc->GetNumParameters(), s.GetNumberOfFunctionParameters());
     return s.ReturnToScript();
   }
 
@@ -59,7 +59,7 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
       m_Params[p] = s.GetStringParameter(p);
       break;
     default:
-      ezLog::ErrorPrintf("Function '%s': Type of parameter %u is not supported by the Lua interpreter.", pFunc->GetName(), p);
+      ezLog::Error("Function '{0}': Type of parameter {1} is not supported by the Lua interpreter.", pFunc->GetName(), p);
       return s.ReturnToScript();
     }
   }

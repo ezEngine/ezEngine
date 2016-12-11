@@ -130,7 +130,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
 
   if (pp.Process(sPath, sTemp, false).Failed())
   {
-    ezLog::ErrorPrintf("Could not read shader permutation variable '%s' from file '%s'", szName, sPath.GetData());
+    ezLog::Error("Could not read shader permutation variable '{0}' from file '{1}'", szName, sPath.GetData());
   }
 
   ezVariant defaultValue;
@@ -153,7 +153,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTemp
   const PermutationVarConfig* pConfig = FindConfig(szName, sHashedName);
   if (pConfig == nullptr)
   {
-    ezLog::ErrorPrintf("Permutation variable '%s' does not exist", szName);
+    ezLog::Error("Permutation variable '{0}' does not exist", szName);
     return false;
   }
 
@@ -171,7 +171,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTemp
 
     if (!IsValueAllowed(*pConfig, sValue, out_sValue))
     {
-      ezLog::ErrorPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%d'", szName, sValue.GetHash());
+      ezLog::Error("Invalid Shader Permutation: '{0}' cannot be set to value '{1}'", szName, sValue.GetHash());
       return false;
     }
   }
@@ -184,7 +184,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
   const PermutationVarConfig* pConfig = FindConfig(sName);
   if (pConfig == nullptr)
   {
-    ezLog::ErrorPrintf("Permutation variable '%s' does not exist", sName.GetData());
+    ezLog::Error("Permutation variable '{0}' does not exist", sName.GetData());
     return false;
   }
 
@@ -200,7 +200,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
 
     if (!IsValueAllowed(*pConfig, sValue))
     {
-      ezLog::ErrorPrintf("Invalid Shader Permutation: '%s' cannot be set to value '%s'", sName.GetData(), sValue.GetData());
+      ezLog::Error("Invalid Shader Permutation: '{0}' cannot be set to value '{1}'", sName.GetData(), sValue.GetData());
       return false;
     }
   }

@@ -189,7 +189,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
 
   if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
   {
-    ezLog::ErrorPrintf("Failed to restart the engine process");
+    ezLog::Error("Failed to restart the engine process");
     ShutdownProcess();
     return EZ_FAILURE;
   }

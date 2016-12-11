@@ -112,7 +112,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
 
     if (ret.m_Result.Failed())
     {
-      ezLog::ErrorPrintf("Transform failed: '%s' (%s)", ret.m_sMessage.GetData(), GetDocumentPath());
+      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage.GetData(), GetDocumentPath());
     }
     else
     {
@@ -371,7 +371,7 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
 
   if (file.Close().Failed())
   {
-    ezLog::ErrorPrintf("Could not open file for writing: '%s'", szTargetFile);
+    ezLog::Error("Could not open file for writing: '{0}'", szTargetFile);
     return ezStatus("Opening the asset output file failed");
   }
 
@@ -402,7 +402,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHea
   {
     const ezStringBuilder sResourceFile = GetThumbnailFilePath();
 
-    ezLog::ErrorPrintf("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
+    ezLog::Error("Could not convert asset thumbnail to target format: '{0}'", sResourceFile.GetData());
     return ezStatus(ezFmt("Could not convert asset thumbnail to target format: '{0}'", sResourceFile.GetData()));
   }
 
@@ -455,7 +455,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ezAssetFileHe
   // save to JPEG
   if (!qimg.save(QString::fromUtf8(sResourceFile.GetData()), nullptr, 90))
   {
-    ezLog::ErrorPrintf("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
+    ezLog::Error("Could not save asset thumbnail: '{0}'", sResourceFile.GetData());
     return ezStatus(ezFmt("Could not save asset thumbnail: '{0}'", sResourceFile.GetData()));
   }
 
@@ -487,7 +487,7 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezA
 
   if (writer.Close().Failed())
   {
-    ezLog::ErrorPrintf("Could not open file for writing: '%s'", szThumbnailFile);
+    ezLog::Error("Could not open file for writing: '{0}'", szThumbnailFile);
   }
 }
 

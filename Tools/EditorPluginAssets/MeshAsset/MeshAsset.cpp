@@ -135,14 +135,14 @@ namespace ImportHelper
     outMeshFileAbs = filename;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
     {
-      ezLog::ErrorPrintf("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", outMeshFileAbs.GetData());
+      ezLog::Error("Mesh Asset Transform failed: Input Path '{0}' is not in any data directory", outMeshFileAbs.GetData());
       return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs.GetData()));
     }
 
     outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(outMeshFileAbs);
     if (!outScene)
     {
-      ezLog::ErrorPrintf("Could not import file '%s'", outMeshFileAbs.GetData());
+      ezLog::Error("Could not import file '{0}'", outMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh Asset input file '{0}' could not be imported", outMeshFileAbs.GetData()));
     }
 
@@ -331,14 +331,14 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     dataStreams[Position] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (dataStreams[Position] == nullptr)
     {
-      ezLog::ErrorPrintf("Mesh '%s' from '%s' has no position vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+      ezLog::Error("Mesh '{0}' from '{1}' has no position vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh '{0}' from '{1}' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
     dataStreams[Texcoord0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
     dataStreams[Normal] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (dataStreams[Normal] == nullptr)
     {
-      ezLog::ErrorPrintf("Mesh '%s' from '%s' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+      ezLog::Error("Mesh '{0}' from '{1}' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh '{0}' from '{1}' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
     dataStreams[Tangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
@@ -585,7 +585,7 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
     ezTextureAssetDocument* textureDocument = ezDynamicCast<ezTextureAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newAssetPathAbs, false, false));
     if (!textureDocument)
     {
-      ezLog::ErrorPrintf("Failed to create new texture asset '%s'", szTexturePath);
+      ezLog::Error("Failed to create new texture asset '{0}'", szTexturePath);
       return szTexturePath;
     }
 
@@ -686,7 +686,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
       if (!materialDocument)
       {
-        ezLog::ErrorPrintf("Failed to create new material '%s'", material->m_Name.GetData());
+        ezLog::Error("Failed to create new material '{0}'", material->m_Name.GetData());
         continue;
       }
 

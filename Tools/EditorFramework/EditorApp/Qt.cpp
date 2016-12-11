@@ -57,7 +57,7 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
     ezLog::WarningPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
     break;
   case QtCriticalMsg:
-    ezLog::ErrorPrintf("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::Error("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
     break;
   case QtFatalMsg:
     EZ_ASSERT_DEBUG("|Qt| %s (%s:%u, %s)", localMsg.constData(), context.file, context.line, context.function);

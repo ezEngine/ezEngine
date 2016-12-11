@@ -23,7 +23,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResource::CreateRender
 {
   if (GetLoadingState() != ezResourceState::Loaded)
   {
-    ezLog::ErrorPrintf("Can't create render pipeline '%s', the resource is not loaded!", GetResourceID().GetData());
+    ezLog::Error("Can't create render pipeline '{0}', the resource is not loaded!", GetResourceID().GetData());
     return ezInternal::NewInstance<ezRenderPipeline>(nullptr, nullptr);
   }
 

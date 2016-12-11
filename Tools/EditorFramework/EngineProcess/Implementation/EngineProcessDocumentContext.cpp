@@ -58,7 +58,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     }
     else
     {
-      ezLog::ErrorPrintf("Failed to create ezGameObject!");
+      ezLog::Error("Failed to create ezGameObject!");
       return nullptr;
     }
   }
@@ -67,7 +67,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     ezComponentManagerBase* pMan = m_pWorld->GetOrCreateComponentManager(pRtti);
     if (pMan == nullptr)
     {
-      ezLog::ErrorPrintf("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      ezLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return nullptr;
     }
     ezComponentHandle hComponent = pMan->AllocateComponent();
@@ -79,7 +79,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     }
     else
     {
-      ezLog::ErrorPrintf("Component of type '%s' cannot be found after creation", pRtti->GetTypeName());
+      ezLog::Error("Component of type '{0}' cannot be found after creation", pRtti->GetTypeName());
       return nullptr;
     }
   }
@@ -106,7 +106,7 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
     ezComponentManagerBase* pMan = m_pWorld->GetOrCreateComponentManager(pRtti);
     if (pMan == nullptr)
     {
-      ezLog::ErrorPrintf("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      ezLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return;
     }
 
@@ -351,7 +351,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     ret.m_bOutputSuccess = ExportDocument(pMsg2);
     if (!ret.m_bOutputSuccess)
     {
-      ezLog::ErrorPrintf("Could not export to file '%s'.", pMsg2->m_sOutputFile.GetData());
+      ezLog::Error("Could not export to file '{0}'.", pMsg2->m_sOutputFile.GetData());
     }
 
     SendProcessMessage(&ret);
@@ -485,7 +485,7 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
 
   if (pRtti == nullptr)
   {
-    ezLog::ErrorPrintf("Cannot sync object of type unknown '%s' to engine process", msg.m_sObjectType.GetData());
+    ezLog::Error("Cannot sync object of type unknown '{0}' to engine process", msg.m_sObjectType.GetData());
     return;
   }
 
@@ -609,7 +609,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
 bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
-  ezLog::ErrorPrintf("Export document not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
+  ezLog::Error("Export document not implemented for '{0}'", GetDynamicRTTI()->GetTypeName());
   return false;
 }
 
@@ -691,7 +691,7 @@ void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
 
 bool ezEngineProcessDocumentContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezLog::ErrorPrintf("UpdateThumbnailViewContext not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
+  ezLog::Error("UpdateThumbnailViewContext not implemented for '{0}'", GetDynamicRTTI()->GetTypeName());
   return true;
 }
 

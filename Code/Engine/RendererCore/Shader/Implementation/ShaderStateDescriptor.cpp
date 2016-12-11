@@ -234,14 +234,14 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
 
     for (ezUInt32 i = 0; i < 8; ++i)
     {
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled = lua.GetBoolVariable(InsertNumber("BlendingEnabled%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOp = (ezGALBlendOp::Enum) lua.GetIntVariable(InsertNumber("BlendOp%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOp);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha = (ezGALBlendOp::Enum) lua.GetIntVariable(InsertNumber("BlendOpAlpha%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOpAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlend = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("DestBlend%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlendAlpha = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("DestBlendAlpha%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlendAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlend = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("SourceBlend%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("SourceBlendAlpha%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlendAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_uiWriteMask = lua.GetIntVariable(InsertNumber("WriteMask%u", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_uiWriteMask);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled = lua.GetBoolVariable(InsertNumber("BlendingEnabled{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOp = (ezGALBlendOp::Enum) lua.GetIntVariable(InsertNumber("BlendOp{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOp);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha = (ezGALBlendOp::Enum) lua.GetIntVariable(InsertNumber("BlendOpAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOpAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlend = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("DestBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlendAlpha = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("DestBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlendAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlend = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("SourceBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("SourceBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlendAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_uiWriteMask = lua.GetIntVariable(InsertNumber("WriteMask{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_uiWriteMask);
     }
   }
 

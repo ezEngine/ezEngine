@@ -93,7 +93,7 @@ namespace ezModelImporter
       ezFileReader sceneFile;
       if (sceneFile.Open(szFileName).Failed())
       {
-        ezLog::ErrorPrintf("Failed to open '%s'", szFileName);
+        ezLog::Error("Failed to open '{0}'", szFileName);
         return;
       }
 
@@ -131,7 +131,7 @@ namespace ezModelImporter
         ezStringView type = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
         if (!type.IsValid())
         {
-          ezLog::ErrorPrintf("Object '%s' in pbrt file '%s' has no type specifier.", commandName.GetData(), szFileName);
+          ezLog::Error("Object '{0}' in pbrt file '{1}' has no type specifier.", commandName.GetData(), szFileName);
           continue;
         }
 
@@ -157,7 +157,7 @@ namespace ezModelImporter
             if (paramType == ParamType::INVALID)
             {
               ezString paramTypeStringInst = paramTypeString;
-              ezLog::ErrorPrintf("Unknown parameter type '%s' in pbrt file '%s' for an object '%s'.", paramTypeStringInst.GetData(), commandName.GetData(), szFileName);
+              ezLog::Error("Unknown parameter type '{0}' in pbrt file '{1}' for an object '{2}'.", paramTypeStringInst.GetData(), commandName.GetData(), szFileName);
               break;
             }
 
@@ -213,7 +213,7 @@ namespace ezModelImporter
 
     if (context.IsInWorld())
     {
-      ezLog::ErrorPrintf("Missing 'WorldEnd' in pbrt file '%s'.", szFileName);
+      ezLog::Error("Missing 'WorldEnd' in pbrt file '{0}'.", szFileName);
     }
 
     return std::move(outScene);

@@ -168,7 +168,7 @@ namespace ezModelImporter
         const char* end = params.FindSubString("\"", start);
         if (start == nullptr || end == nullptr)
         {
-          ezLog::ErrorPrintf("Failed to parse parameter, expected string.");
+          ezLog::Error("Failed to parse parameter, expected string.");
           return Parameter::DataArray();
         }
         params = ezStringView(start, end);

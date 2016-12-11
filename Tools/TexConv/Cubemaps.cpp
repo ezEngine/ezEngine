@@ -12,7 +12,7 @@ ezResult ezTexConv::CreateTextureCube()
     return CreateTextureCubeFrom6Files();
   }
 
-  ezLog::ErrorPrintf("Invalid number of inputs (%u) to create a cubemap", m_InputImages.GetCount());
+  ezLog::Error("Invalid number of inputs ({0}) to create a cubemap", m_InputImages.GetCount());
   return EZ_FAILURE;
 }
 
@@ -24,7 +24,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
   if (img.GetNumFaces() != 6)
   {
     SetReturnCode(TexConvReturnCodes::BAD_SINGLE_CUBEMAP_FILE);
-    ezLog::ErrorPrintf("The single input file is not a cubemap");
+    ezLog::Error("The single input file is not a cubemap");
     return EZ_FAILURE;
   }
 
@@ -60,7 +60,7 @@ ezResult ezTexConv::CreateTextureCubeFromSingleFile()
   if (FAILED(m_pCurrentImage->InitializeCubeFromImages(srcImg, 6)))
   {
     SetReturnCode(TexConvReturnCodes::FAILED_INITIALIZE_CUBEMAP);
-    ezLog::ErrorPrintf("Failed to create a cubemap from the given input file");
+    ezLog::Error("Failed to create a cubemap from the given input file");
     return EZ_FAILURE;
   }
 
@@ -101,7 +101,7 @@ ezResult ezTexConv::CreateTextureCubeFrom6Files()
   if (FAILED(m_pCurrentImage->InitializeCubeFromImages(srcImg, 6)))
   {
     SetReturnCode(TexConvReturnCodes::FAILED_COMBINE_CUBEMAP);
-    ezLog::ErrorPrintf("Failed to combine 6 input files into one cubemap");
+    ezLog::Error("Failed to combine 6 input files into one cubemap");
     return EZ_FAILURE;
   }
 

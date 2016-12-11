@@ -114,14 +114,14 @@ public:
 
 
     if (GetArgumentCount() != 2)
-      ezLog::ErrorPrintf("This tool requires exactly one command-line argument: An absolute path to the top-level folder of a library.");
+      ezLog::Error("This tool requires exactly one command-line argument: An absolute path to the top-level folder of a library.");
 
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     ezStringBuilder sSearchDir = GetArgument(1);
     sSearchDir.MakeCleanPath();
 
     if (!ezPathUtils::IsAbsolutePath(sSearchDir.GetData()))
-      ezLog::ErrorPrintf("The given path is not absolute: '%s'", sSearchDir.GetData());
+      ezLog::Error("The given path is not absolute: '{0}'", sSearchDir.GetData());
 
     m_sSearchDir = sSearchDir;
 
@@ -211,7 +211,7 @@ public:
     ezFileReader File;
     if (File.Open(szFile) == EZ_FAILURE)
     {
-      ezLog::ErrorPrintf("Could not open for reading: '%s'", szFile);
+      ezLog::Error("Could not open for reading: '{0}'", szFile);
       return EZ_FAILURE;
     }
 
@@ -231,7 +231,7 @@ public:
 
     if (!ezUnicodeUtils::IsValidUtf8((const char*) &FileContent[0]))
     {
-      ezLog::ErrorPrintf("The file \"%s\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor that does not save the file in Utf8 encoding.");
+      ezLog::Error("The file \"{0}\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor that does not save the file in Utf8 encoding.", szFile);
       return EZ_FAILURE;
     }
 
@@ -281,7 +281,7 @@ public:
       ezFileWriter FileOut;
       if (FileOut.Open(it.Key().GetData()) == EZ_FAILURE)
       {
-        ezLog::ErrorPrintf("Could not open the file for writing: '%s'", it.Key().GetData());
+        ezLog::Error("Could not open the file for writing: '{0}'", it.Key().GetData());
         return;
       }
       else
@@ -653,7 +653,7 @@ public:
       while (it.Next() == EZ_SUCCESS);
     }
     else
-      ezLog::ErrorPrintf("Could not search the directory '%s'", m_sSearchDir.GetData());
+      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir.GetData());
   }
 
   void MakeSureStaticLinkLibraryMacroExists()
@@ -683,7 +683,7 @@ public:
       ezLog::WarningPrintf("No EZ_STATICLINK_LIBRARY found in any cpp file, inserting it into the PCH.cpp file.");
     }
     else
-      ezLog::ErrorPrintf("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
+      ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
   }
 
   void GatherInformation()
@@ -725,7 +725,7 @@ public:
             ezLog::InfoPrintf("Found macro 'EZ_STATICLINK_LIBRARY' in file '%s'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
-              ezLog::ErrorPrintf("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '%s' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());
+              ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());
             else
               m_sRefPointGroupFile = sFile;
           }
@@ -734,7 +734,7 @@ public:
       while (it.Next() == EZ_SUCCESS);
     }
     else
-      ezLog::ErrorPrintf("Could not search the directory '%s'", m_sSearchDir.GetData());
+      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir.GetData());
 
     MakeSureStaticLinkLibraryMacroExists();
   }

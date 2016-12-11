@@ -284,11 +284,11 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
         {
           if (!sSystemsFound.Find(pSub->GetDependency(iDep)).IsValid())
           {
-            ezLog::ErrorPrintf("SubSystem '%s::%s' could not be started because dependency '%s' is unknown.", pSub->GetGroupName(), pSub->GetSubSystemName(), pSub->GetDependency(iDep));
+            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' is unknown.", pSub->GetGroupName(), pSub->GetSubSystemName(), pSub->GetDependency(iDep));
           }
           else
           {
-            ezLog::ErrorPrintf("SubSystem '%s::%s' could not be started because dependency '%s' has not been initialized.", pSub->GetGroupName(), pSub->GetSubSystemName(), pSub->GetDependency(iDep));
+            ezLog::Error("SubSystem '{0}::{1}' could not be started because dependency '{2}' has not been initialized.", pSub->GetGroupName(), pSub->GetSubSystemName(), pSub->GetDependency(iDep));
           }
 
           ++iDep;

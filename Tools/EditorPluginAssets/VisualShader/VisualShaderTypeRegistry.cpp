@@ -164,7 +164,7 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
   ezFileReader file;
   if (file.Open(szFile).Failed())
   {
-    ezLog::ErrorPrintf("Failed to open Visual Shader config file '%s'", szFile);
+    ezLog::Error("Failed to open Visual Shader config file '{0}'", szFile);
     return;
   }
 
@@ -173,7 +173,7 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
     ezOpenDdlReader ddl;
     if (ddl.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
     {
-      ezLog::ErrorPrintf("Failed to parse Visual Shader config file '%s'", szFile);
+      ezLog::Error("Failed to parse Visual Shader config file '{0}'", szFile);
       return;
     }
 
@@ -184,7 +184,7 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
     {
       if (!pNode->IsCustomType() || !ezStringUtils::IsEqual(pNode->GetCustomType(), "Node"))
       {
-        ezLog::ErrorPrintf("Top-Level object is not a 'Node' type");
+        ezLog::Error("Top-Level object is not a 'Node' type");
         continue;
       }
 
@@ -247,7 +247,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
     {
       if (!varPins[p].IsA<ezVariantDictionary>())
       {
-        ezLog::ErrorPrintf("Properties array contains values that are not dictionaries");
+        ezLog::Error("Properties array contains values that are not dictionaries");
         continue;
       }
 
@@ -256,7 +256,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
 
       if (!varPin.TryGetValue("Name", varValue) || !varValue.IsA<ezString>())
       {
-        ezLog::ErrorPrintf("Missing or invalid name for pin");
+        ezLog::Error("Missing or invalid name for pin");
         continue;
       }
 
@@ -264,7 +264,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
 
       if (!varPin.TryGetValue("Type", varValue) || !varValue.IsA<ezString>())
       {
-        ezLog::ErrorPrintf("Missing or invalid pin type");
+        ezLog::Error("Missing or invalid pin type");
         continue;
       }
 
@@ -287,7 +287,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
           pin.m_pDataType = m_pSamplerPinType;
         else
         {
-          ezLog::ErrorPrintf("Invalid pin type '%s'", sType.GetData());
+          ezLog::Error("Invalid pin type '{0}'", sType.GetData());
           continue;
         }
       }
@@ -299,7 +299,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varN
       }
       else if (bOutput)
       {
-        ezLog::ErrorPrintf("Output pin '%s' has no inline code specified", pin.m_sName.GetData());
+        ezLog::Error("Output pin '{0}' has no inline code specified", pin.m_sName.GetData());
         continue;
       }
 
@@ -362,7 +362,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
 
       if (!pElement->HasName())
       {
-        ezLog::ErrorPrintf("Missing or invalid name for pin");
+        ezLog::Error("Missing or invalid name for pin");
         continue;
       }
 
@@ -372,7 +372,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
 
       if (!pType)
       {
-        ezLog::ErrorPrintf("Missing or invalid pin type");
+        ezLog::Error("Missing or invalid pin type");
         continue;
       }
 
@@ -395,7 +395,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
           pin.m_pDataType = m_pSamplerPinType;
         else
         {
-          ezLog::ErrorPrintf("Invalid pin type '%s'", sType.GetData());
+          ezLog::Error("Invalid pin type '{0}'", sType.GetData());
           continue;
         }
       }
@@ -406,7 +406,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       }
       else if (bOutput)
       {
-        ezLog::ErrorPrintf("Output pin '%s' has no inline code specified", pin.m_sName.GetData());
+        ezLog::Error("Output pin '{0}' has no inline code specified", pin.m_sName.GetData());
         continue;
       }
 
@@ -468,7 +468,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
     {
       if (!varProperties[p].IsA<ezVariantDictionary>())
       {
-        ezLog::ErrorPrintf("Properties array contains values that are not dictionaries");
+        ezLog::Error("Properties array contains values that are not dictionaries");
         continue;
       }
 
@@ -480,7 +480,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
 
       if (!varProperty.TryGetValue("Name", varValue) || !varValue.IsA<ezString>())
       {
-        ezLog::ErrorPrintf("Property doesn't have a name");
+        ezLog::Error("Property doesn't have a name");
         continue;
       }
 
@@ -488,7 +488,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
 
       if (!varProperty.TryGetValue("Type", varValue) || !varValue.IsA<ezString>())
       {
-        ezLog::ErrorPrintf("Property doesn't have a type");
+        ezLog::Error("Property doesn't have a type");
         continue;
       }
 
@@ -524,7 +524,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary
         }
         else
         {
-          ezLog::ErrorPrintf("Invalid property type '%s'", sType.GetData());
+          ezLog::Error("Invalid property type '{0}'", sType.GetData());
           continue;
         }
       }
@@ -555,7 +555,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
       if (!pElement->HasName())
       {
-        ezLog::ErrorPrintf("Property doesn't have a name");
+        ezLog::Error("Property doesn't have a name");
         continue;
       }
 
@@ -564,7 +564,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
       const ezOpenDdlReaderElement* pType = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "Type");
       if (!pType)
       {
-        ezLog::ErrorPrintf("Property doesn't have a type");
+        ezLog::Error("Property doesn't have a type");
         continue;
       }
 
@@ -600,7 +600,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
         }
         else
         {
-          ezLog::ErrorPrintf("Invalid property type '%s'", sType.GetData());
+          ezLog::Error("Invalid property type '{0}'", sType.GetData());
           continue;
         }
       }

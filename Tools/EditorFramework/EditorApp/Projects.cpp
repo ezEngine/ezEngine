@@ -88,7 +88,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       if (ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
       {
-        ezLog::ErrorPrintf("Failed to start the engine process. Project loading incomplete.");
+        ezLog::Error("Failed to start the engine process. Project loading incomplete.");
       }
 
       m_AssetCurator.Initialize(m_FileSystemConfig);

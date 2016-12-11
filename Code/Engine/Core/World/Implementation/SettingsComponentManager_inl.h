@@ -13,7 +13,7 @@ ezComponentHandle ezSettingsComponentManager<ComponentType>::AllocateComponent()
   }
   else
   {
-    ezLog::ErrorPrintf("A component of type '%s' is already present in this world. Having more than one may lead to unexpected behavior.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    ezLog::Error("A component of type '{0}' is already present in this world. Having more than one may lead to unexpected behavior.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
   }
 
   return hComp;
