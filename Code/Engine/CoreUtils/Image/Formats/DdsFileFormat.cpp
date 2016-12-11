@@ -174,8 +174,11 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
     if (format == ezImageFormat::UNKNOWN)
     {
-      ezLog::ErrorPrintfI(pLog, "The pixel mask specified was not recognized (R: %x, G: %x, B: %x, A: %x).",
-        fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask, fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask);
+      ezLog::Error(pLog, "The pixel mask specified was not recognized (R: {0}, G: {1}, B: {2}, A: {3}).",
+                   ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16),
+                   ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
+                   ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16),
+                   ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16));
       return EZ_FAILURE;
     }
 
@@ -212,11 +215,11 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
       if (format == ezImageFormat::UNKNOWN)
       {
-        ezLog::ErrorPrintfI(pLog, "The FourCC code '%c%c%c%c' was not recognized.",
-          (fileHeader.m_ddspf.m_uiFourCC >> 0) & 0xFF,
-          (fileHeader.m_ddspf.m_uiFourCC >> 8) & 0xFF,
-          (fileHeader.m_ddspf.m_uiFourCC >> 16) & 0xFF,
-          (fileHeader.m_ddspf.m_uiFourCC >> 24) & 0xFF);
+        ezLog::Error(pLog, "The FourCC code '{0}{1}{2}{3}' was not recognized.",
+          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 0)),
+          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 8)),
+          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 16)),
+          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 24)));
         return EZ_FAILURE;
       }
     }

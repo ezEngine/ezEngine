@@ -138,7 +138,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
     }
   }
 
-  ezLog::SuccessPrintf("Mesh has been imported", sMeshFileAbs.GetData());
+  ezLog::Success("Mesh has been imported: '{0}'", sMeshFileAbs);
 
   ezLog::Info("Number of unique Meshes: {0}", scene->mNumMeshes);
 

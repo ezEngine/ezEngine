@@ -31,13 +31,17 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
 {
   ezMap<ezString, ezInputSlot>::Iterator it = GetInternals().s_InputSlots.Find(szInputSlot);
 
-  
+
   if (it.IsValid())
   {
     if (it.Value().m_SlotFlags != SlotFlags)
     {
       if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
-        ezLog::WarningPrintf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot, it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
+      {
+        ezStringBuilder tmp;
+        tmp.Printf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot, it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
+        ezLog::Warning(tmp);
+      }
 
       it.Value().m_SlotFlags |= SlotFlags;
     }

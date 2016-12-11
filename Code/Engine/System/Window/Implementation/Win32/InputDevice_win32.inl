@@ -617,7 +617,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         }
         else
         {
-          ezLog::InfoPrintf("Unknown Mouse Move: %.1f | %.1f, Flags = %i", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY, raw->data.mouse.usFlags);
+          ezLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", ezArgF(raw->data.mouse.lLastX, 1), ezArgF(raw->data.mouse.lLastY, 1), (ezUInt32)raw->data.mouse.usFlags);
         }
       }
 

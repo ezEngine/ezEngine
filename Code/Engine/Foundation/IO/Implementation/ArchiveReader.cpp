@@ -76,7 +76,7 @@ ezUInt32 ezArchiveReader::ReadObjectReference(void** ppReference)
 
   if (ppReference == nullptr)
     return om.m_ObjectID;
-  
+
   *ppReference = nullptr;
 
 #if EZ_DISABLED(EZ_COMPILE_FOR_DEBUG)
@@ -260,13 +260,13 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
 
   if (pObject != nullptr)
   {
-    ezLog::WarningPrintf(m_pLog, "Duplicate object found: [%p], skipping object.", pObject);
+    ezLog::Warning(m_pLog, "Duplicate object found, skipping object.");
 
     const ezUInt32 uiPrevSize = m_ObjectIDtoPointer[uiObjectID].m_uiDataSize;
 
     if (uiPrevSize != 0xFFFFFFFF && uiPrevSize != uiObjectDataSize)
     {
-      ezLog::ErrorPrintfI(m_pLog, "Duplicate object [%p] size mismatch. Originally deserialized size was %u bytes, duplicate's size is %u bytes", pObject, uiPrevSize, uiObjectDataSize);
+      ezLog::Error(m_pLog, "Duplicate object size mismatch. Originally deserialized size was {0} bytes, duplicate's size is {1} bytes", uiPrevSize, uiObjectDataSize);
     }
 
     // object already known and deserialized, do not read it a second time
@@ -301,7 +301,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
 
     SkipBytes(uiObjectDataSize);
   }
-  
+
 
   return pObject;
 }

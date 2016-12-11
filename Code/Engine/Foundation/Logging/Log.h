@@ -149,12 +149,6 @@ public:
     Error(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
 
-  /// \brief An error that needs to be fixed as soon as possible.
-  static void ErrorPrintf(const char* szFormat, ...);
-
-  /// \brief Overload of Error() to output messages to a specific log.
-  static void ErrorPrintfI(ezLogInterface* pInterface, const char* szFormat, ...);
-
   /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
   static void SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string);
 
@@ -189,9 +183,6 @@ public:
     Warning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
 
-  /// \brief A potential problem or a performance warning. Might be possible to ignore it.
-  static void WarningPrintf(const char* szFormat, ...);
-
   /// \brief Status information that something was completed successfully.
   static void Success(ezLogInterface* pInterface, const ezFormatString& string);
 
@@ -209,9 +200,6 @@ public:
     Success(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
 
-  /// \brief Status information that something was completed successfully.
-  static void SuccessPrintf(const char* szFormat, ...);
-
   /// \brief Status information that is important.
   static void Info(ezLogInterface* pInterface, const ezFormatString& string);
 
@@ -228,9 +216,6 @@ public:
   {
     Info(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
   }
-
-  /// \brief Status information that is important.
-  static void InfoPrintf(const char* szFormat, ...);
 
   /// \brief Status information that is nice to have during development.
   ///

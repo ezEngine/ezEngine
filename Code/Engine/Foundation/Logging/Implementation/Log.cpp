@@ -186,7 +186,7 @@ void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)
     return;
 
   ezStringBuilder tmp;
-  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::ErrorMsg, string.GetText(tmp));
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::ErrorMsg, string.GetText(tmp));
 }
 
 void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string)
@@ -195,7 +195,7 @@ void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& str
     return;
 
   ezStringBuilder tmp;
-  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::SeriousWarningMsg, string.GetText(tmp));
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::SeriousWarningMsg, string.GetText(tmp));
 }
 
 void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
@@ -204,7 +204,7 @@ void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
     return;
 
   ezStringBuilder tmp;
-  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::WarningMsg, string.GetText(tmp));
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::WarningMsg, string.GetText(tmp));
 }
 
 void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
@@ -213,7 +213,7 @@ void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
     return;
 
   ezStringBuilder tmp;
-  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::SuccessMsg, string.GetText(tmp));
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::SuccessMsg, string.GetText(tmp));
 }
 
 void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
@@ -222,25 +222,7 @@ void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
     return;
 
   ezStringBuilder tmp;
-  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::InfoMsg, string.GetText(tmp));
-}
-
-void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
-{
-  if (pInterface == nullptr)
-    return;
-
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::DevMsg, string.GetText(tmp));
-}
-
-void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
-{
-  if (pInterface == nullptr)
-    return;
-
-  ezStringBuilder tmp;
-  BroadcastLoggingEvent(GetDefaultLogSystem(), ezLogMsgType::DebugMsg, string.GetText(tmp));
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::InfoMsg, string.GetText(tmp));
 }
 
 #define LOG_IMPL(ThisType, pInterface) \
@@ -253,36 +235,29 @@ void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
   va_end (args); \
   BroadcastLoggingEvent(pInterface, ThisType, szString);
 
-void ezLog::ErrorPrintf(const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::ErrorMsg, GetDefaultLogSystem());
-}
-
-void ezLog::ErrorPrintfI(ezLogInterface* pInterface, const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::ErrorMsg, pInterface);
-}
-
-void ezLog::WarningPrintf(const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::WarningMsg, GetDefaultLogSystem());
-}
-
-void ezLog::SuccessPrintf(const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::SuccessMsg, GetDefaultLogSystem());
-}
-
-void ezLog::InfoPrintf(const char* szFormat, ...)
-{
-  LOG_IMPL(ezLogMsgType::InfoMsg, GetDefaultLogSystem());
-}
-
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
+void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::DevMsg, string.GetText(tmp));
+}
 
 #endif
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+
+void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
+{
+  if (pInterface == nullptr)
+    return;
+
+  ezStringBuilder tmp;
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::DebugMsg, string.GetText(tmp));
+}
 
 #endif
 
