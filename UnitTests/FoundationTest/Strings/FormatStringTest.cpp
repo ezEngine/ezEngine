@@ -20,6 +20,7 @@ void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char
   char Temp1[256];
   char Temp2[256];
 
+  // reusing args list crashes on GCC / Clang
   ezStringUtils::vsnprintf(Temp1, 256, szFormat, args);
   vsnprintf(Temp2, 256, szFormat, args);
   EZ_TEST_STRING(Temp1, Temp2);
@@ -88,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{3}, {1}, {0}, {2}", ezArgF(23.12345f, 1), ezArgI(42), 17, 12.34f), "12.34, 42, 23.1, 17");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
+  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Compare")
   {
     CompareSnprintf(perfLog, ezFmt("Hello {0}, i = {1}, f = {2}", "World", 42, ezArgF(3.141f, 2)), "Hello %s, i = %i, f = %.2f", "World", 42, 3.141f);
     CompareSnprintf(perfLog, ezFmt("No formatting at all"), "No formatting at all");
@@ -104,12 +105,12 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9), "%i, %i, %i, %i, %i, %i, %i, %i, %i, %i", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1), "%.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1);
 
-    FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
-    if (file)
-    {
-      fwrite(perfLog.GetData(), 1, perfLog.GetElementCount(), file);
-      fclose(file);
-    }
+    //FILE* file = fopen("D:\\snprintf_perf.txt", "wb");
+    //if (file)
+    //{
+    //  fwrite(perfLog.GetData(), 1, perfLog.GetElementCount(), file);
+    //  fclose(file);
+    //}
   }
 }
 
