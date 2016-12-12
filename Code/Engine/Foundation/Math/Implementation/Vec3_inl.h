@@ -223,7 +223,7 @@ ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, c
 template<typename Type>
 void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
-  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is %.3f", vNormal.GetLength());
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
 
   ezVec3Template<Type> vOrtho = vNormal.Cross(*this);
   *this = vOrtho.Cross(vNormal);

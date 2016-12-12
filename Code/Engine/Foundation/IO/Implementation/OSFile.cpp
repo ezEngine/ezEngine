@@ -274,7 +274,7 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s.GetData());
 
   ezStringBuilder sCurPath;
 
@@ -380,7 +380,7 @@ done:
     s.MakeCleanPath();
     s.MakePathSeparatorsNative();
 
-    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
+    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s.GetData());
 
     const ezResult Res = InternalGetFileStats(s.GetData(), out_Stats);
 
@@ -409,7 +409,7 @@ done:
     s.MakeCleanPath();
     s.MakePathSeparatorsNative();
 
-    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
+    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s.GetData());
 
     ezStringBuilder sCurPath;
 

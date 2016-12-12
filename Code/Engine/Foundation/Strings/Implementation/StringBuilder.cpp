@@ -95,7 +95,7 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
     if (ezStringUtils::IsNullOrEmpty(pStrings[i]))
       continue;
 
-    EZ_ASSERT_DEBUG(pStrings[i] < m_Data.GetData() || pStrings[i] >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter %i comes from the string builders own storage. This type assignment is not allowed.", i);
+    EZ_ASSERT_DEBUG(pStrings[i] < m_Data.GetData() || pStrings[i] >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter {0} comes from the string builders own storage. This type assignment is not allowed.", i);
 
     ezUnicodeUtils::SkipUtf8Bom(pStrings[i]);
 
@@ -104,7 +104,7 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
     uiMoreBytes += uiStrLen[i];
     m_uiCharacterCount += uiCharacters;
 
-    EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter %i is not a valid Utf8 sequence.", i + 1);
+    EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
   }
 
   ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
@@ -151,7 +151,7 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
     uiMoreBytes += uiStrLen[i];
     m_uiCharacterCount += uiCharacters;
 
-    EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter %i is not a valid Utf8 sequence.", i + 1);
+    EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
   }
 
   ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
@@ -752,7 +752,7 @@ void ezStringBuilder::MakeCleanPath()
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
   const ezUInt32 uiNewByteCount = (ezUInt32)(szCurWritePos - &m_Data[0]) + 1;
 
-  EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
+  EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: {0} Bytes, New: {1} Bytes", uiPrevByteCount, uiNewByteCount);
 
   // we will only remove characters and only ASCII ones (slash, backslash, dot)
   // so the number of characters shrinks equally to the number of bytes
@@ -965,7 +965,7 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
   const ezUInt32 uiNewByteCount = (ezUInt32)(szCurWritePos - &m_Data[0]) + 1;
 
-  EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
+  EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: {0} Bytes, New: {1} Bytes", uiPrevByteCount, uiNewByteCount);
 
   // we will only remove characters and only ASCII ones (slash, backslash)
   // so the number of characters shrinks equally to the number of bytes

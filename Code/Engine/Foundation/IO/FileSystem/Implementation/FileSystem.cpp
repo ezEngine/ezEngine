@@ -324,7 +324,7 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
     ++it;
   }
 
-  EZ_ASSERT_DEV(!it.IsEmpty(), "Cannot parse the path \"%s\". The data-dir root name starts with a ':' but does not end with '/'.", szPath);
+  EZ_ASSERT_DEV(!it.IsEmpty(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.", szPath);
 
   sCur.ToUpper();
   rootName = sCur;
@@ -406,7 +406,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
 
   if (!ezPathUtils::IsAbsolutePath(szFile))
   {
-    EZ_ASSERT_DEV(ezStringUtils::StartsWith(szFile, ":"), "Only native absolute paths or rooted paths (starting with a colon and then the data dir root name) are allowed for writing to files. This path is neither: '%s'", szFile);
+    EZ_ASSERT_DEV(ezStringUtils::StartsWith(szFile, ":"), "Only native absolute paths or rooted paths (starting with a colon and then the data dir root name) are allowed for writing to files. This path is neither: '{0}'", szFile);
     szFile = ExtractRootName(szFile, sRootName);
   }
 

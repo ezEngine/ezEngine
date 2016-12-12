@@ -346,12 +346,12 @@ EZ_FORCE_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 
 EZ_FORCE_INLINE void ezWorld::CheckForReadAccess() const
 {
-  EZ_ASSERT_DEV(m_Data.m_iReadCounter > 0, "Trying to read from World '%s', but it is not marked for reading.", GetName());
+  EZ_ASSERT_DEV(m_Data.m_iReadCounter > 0, "Trying to read from World '{0}', but it is not marked for reading.", GetName());
 }
 
 EZ_FORCE_INLINE void ezWorld::CheckForWriteAccess() const
 {
-  EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(), "Trying to write to World '%s', but it is not marked for writing.", GetName());
+  EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(), "Trying to write to World '{0}', but it is not marked for writing.", GetName());
 }
 
 EZ_FORCE_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const

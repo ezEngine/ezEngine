@@ -191,7 +191,7 @@ ezGALContextGL::ScopedBufferBinding::~ScopedBufferBinding()
 
 ezResult ezGALContextGL::BindTexture(ezGALTextureType::Enum textureType, glTextureId textureHandle, ezInt32 iBindingSlot)
 {
-  EZ_ASSERT_DEV(iBindingSlot < m_iMaxNumTextureBindings, "Can't bind texture on slot %i. Max number of texture slots available is %i!", iBindingSlot, m_iMaxNumTextureBindings);
+  EZ_ASSERT_DEV(iBindingSlot < m_iMaxNumTextureBindings, "Can't bind texture on slot {0}. Max number of texture slots available is {1}!", iBindingSlot, m_iMaxNumTextureBindings);
 
   if (iBindingSlot >= 0)
   {
@@ -394,7 +394,7 @@ void ezGALContextGL::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
       break;
     }
   }
-  EZ_ASSERT_DEV(m_IndexType != ezGALIndexType::ENUM_COUNT, "Invalid index buffer element size: %i", uiIndexSize);
+  EZ_ASSERT_DEV(m_IndexType != ezGALIndexType::ENUM_COUNT, "Invalid index buffer element size: {0}", uiIndexSize);
 
   ezGALBufferGL* pIndexBufferGL = static_cast<ezGALBufferGL*>(pIndexBuffer);
   BindBuffer(GLBufferBinding::IndexBuffer, pIndexBufferGL->GetGLBufferHandle());

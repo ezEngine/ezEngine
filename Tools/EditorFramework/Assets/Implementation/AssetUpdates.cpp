@@ -243,7 +243,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
   if (bNew)
   {
     // now the GUID must be valid
-    EZ_ASSERT_DEV(assetInfo.m_Info.m_DocumentID.IsValid(), "Asset header read for '%s', but its GUID is invalid! Corrupted document?", szAbsFilePath);
+    EZ_ASSERT_DEV(assetInfo.m_Info.m_DocumentID.IsValid(), "Asset header read for '{0}', but its GUID is invalid! Corrupted document?", szAbsFilePath);
     EZ_ASSERT_DEV(RefFile.m_AssetGuid == assetInfo.m_Info.m_DocumentID, "UpdateAssetInfo broke the GUID!");
 
     // Was the asset already known? Decide whether it was moved (ok) or duplicated (bad)

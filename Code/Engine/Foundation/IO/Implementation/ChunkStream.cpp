@@ -20,7 +20,7 @@ void ezChunkStreamWriter::BeginStream()
 void ezChunkStreamWriter::EndStream()
 {
   EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is still open for writing: '%s'", m_sChunkName.GetData());
+  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is still open for writing: '{0}'", m_sChunkName.GetData());
 
   m_bWritingFile = false;
 
@@ -31,7 +31,7 @@ void ezChunkStreamWriter::EndStream()
 void ezChunkStreamWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
 {
   EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '%s'", m_sChunkName.GetData());
+  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '{0}'", m_sChunkName.GetData());
 
   m_sChunkName = szName;
 

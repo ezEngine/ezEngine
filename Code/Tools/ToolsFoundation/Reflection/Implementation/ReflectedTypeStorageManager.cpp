@@ -298,7 +298,7 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManagerE
       const ezRTTI* pType = e.m_pChangedType;
       EZ_ASSERT_DEV(pType != nullptr, "A type was added but it has an invalid handle!");
 
-      EZ_ASSERT_DEV(!m_ReflectedTypeToStorageMapping.Find(e.m_pChangedType).IsValid(), "The type '%s' was added twice!", pType->GetTypeName());
+      EZ_ASSERT_DEV(!m_ReflectedTypeToStorageMapping.Find(e.m_pChangedType).IsValid(), "The type '{0}' was added twice!", pType->GetTypeName());
       GetTypeStorageMapping(e.m_pChangedType);
     }
     break;

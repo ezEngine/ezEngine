@@ -304,7 +304,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
       {
         ezUInt32 idx;
         chunk >> idx;                     // Vertex stream index
-        EZ_ASSERT_DEV(idx == i, "Invalid stream index (%u) in file (should be %u)", idx, i);
+        EZ_ASSERT_DEV(idx == i, "Invalid stream index ({0}) in file (should be {1})", idx, i);
 
         ezInt32 iFormat, iSemantic;
         ezUInt16 uiElementSize, uiOffset;

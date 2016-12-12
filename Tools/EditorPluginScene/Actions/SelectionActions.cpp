@@ -99,7 +99,7 @@ void ezSelectionActions::UnregisterActions()
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/SelectionCategory");
 
@@ -127,7 +127,7 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
 void ezSelectionActions::MapPrefabActions(const char* szMapping, const char* szPath, float fPriority)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sPrefabSubPath(szPath, "/Prefabs.Menu");
   pMap->MapAction(s_hPrefabMenu, szPath, fPriority);
@@ -143,7 +143,7 @@ void ezSelectionActions::MapPrefabActions(const char* szMapping, const char* szP
 void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/SelectionCategory");
 
@@ -162,7 +162,7 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
 void ezSelectionActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/SelectionCategory");
 

@@ -169,7 +169,7 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
   stream >> uiNumResources;
 
   EZ_ASSERT_DEV(uiIdentifier == 0xC0, "File does not contain a valid ezCollectionResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
 
   m_Resources.SetCount(uiNumResources);
 

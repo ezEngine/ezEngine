@@ -201,7 +201,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
     if (pMsg->m_bDocumentOpen)
     {
       pDocumentContext = CreateDocumentContext(pMsg);
-      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '%s'", pMsg->m_sDocumentType.GetData());
+      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType.GetData());
     }
     else
     {

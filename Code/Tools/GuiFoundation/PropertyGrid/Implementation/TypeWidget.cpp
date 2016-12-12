@@ -112,7 +112,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
       continue;
 
     ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
-    EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '%s'", pProp->GetPropertyName());
+    EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
     pNewWidget->setParent(this);
     pNewWidget->Init(m_pGrid, pProp);
 

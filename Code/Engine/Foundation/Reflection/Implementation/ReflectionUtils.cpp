@@ -705,7 +705,7 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
   }
   else
   {
-    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    EZ_ASSERT_DEV(false, "The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
     return false;
   }
 }
@@ -752,7 +752,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
   }
   else
   {
-    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    EZ_ASSERT_DEV(false, "The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
     return false;
   }
 }
@@ -767,7 +767,7 @@ ezInt64 ezReflectionUtils::DefaultEnumerationValue(const ezRTTI* pEnumerationRtt
   }
   else
   {
-    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    EZ_ASSERT_DEV(false, "The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
     return 0;
   }
 }
@@ -809,7 +809,7 @@ ezInt64 ezReflectionUtils::MakeEnumerationValid(const ezRTTI* pEnumerationRtti, 
   }
   else
   {
-    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    EZ_ASSERT_DEV(false, "The RTTI class '{0}' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
     return 0;
   }
 }

@@ -208,7 +208,7 @@ void ezDequeBase<T, Construct>::Reserve(ezUInt32 uiCount)
       MoveIndexChunksRight(uiSpareChunksStart - uiCurFirstChunk);
 
     EZ_ASSERT_DEBUG(m_uiFirstElement > 0, "Did not achieve the desired effect.");
-    EZ_ASSERT_DEBUG(GetCurMaxCount() >= uiCount, "Did not achieve the desired effect (%i >= %i).", GetCurMaxCount(), uiCount);
+    EZ_ASSERT_DEBUG(GetCurMaxCount() >= uiCount, "Did not achieve the desired effect ({0} >= {1}).", GetCurMaxCount(), uiCount);
   }
   else
   {
@@ -380,7 +380,7 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 template <typename T, bool Construct>
 EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has %i elements. Cannot access element %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
   const ezUInt32 uiChunkSize = CHUNK_SIZE(T);
 
@@ -395,7 +395,7 @@ EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 
 template <typename T, bool Construct>
 EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has %i elements. Cannot access element %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
@@ -408,7 +408,7 @@ EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 template <typename T, bool Construct>
 EZ_FORCE_INLINE const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has %i elements. Cannot access element %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
@@ -458,7 +458,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack(const T& element)
 template <typename T, bool Construct>
 EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
 {
-  EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove %i elements, the deque only contains %i elements.", uiElements, GetCount());
+  EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
 
   for (ezUInt32 i = 0; i < uiElements; ++i)
   {
@@ -500,7 +500,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront()
 template <typename T, bool Construct>
 EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
 {
-  EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove %i elements, the deque only contains %i elements.", uiElements, GetCount());
+  EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
 
   for (ezUInt32 i = 0; i < uiElements; ++i)
   {
@@ -585,7 +585,7 @@ void ezDequeBase<T, Construct>::RemoveAtSwap(ezUInt32 uiIndex)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Cannot remove element %i, the deque only contains %i elements.", uiIndex, m_uiCount);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Cannot remove element {0}, the deque only contains {1} elements.", uiIndex, m_uiCount);
 
   if (uiIndex + 1 < m_uiCount) // do not copy over the same element, if uiIndex is actually the last element
     operator[](uiIndex) = PeekBack();
@@ -813,7 +813,7 @@ void ezDequeBase<T, Construct>::RemoveAt(ezUInt32 uiIndex)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex);
 
   for (ezUInt32 i = uiIndex + 1; i < m_uiCount; ++i)
     ezMemoryUtils::CopyOverlapped(&operator[](i - 1), &operator[](i), 1);
@@ -855,7 +855,7 @@ void ezDequeBase<T, Construct>::Insert(const T& value, ezUInt32 uiIndex)
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
   // Index 0 inserts before the first element, Index m_uiCount inserts after the last element.
-  EZ_ASSERT_DEV(uiIndex <= m_uiCount, "The deque has %i elements. Cannot insert an element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex <= m_uiCount, "The deque has {0} elements. Cannot insert an element at index {1}.", m_uiCount, uiIndex);
 
   PushBack();
 

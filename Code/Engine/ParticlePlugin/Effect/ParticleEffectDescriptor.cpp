@@ -84,7 +84,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= (int)ParticleEffectVersion::Version_Current, "Unknown particle effect template version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)ParticleEffectVersion::Version_Current, "Unknown particle effect template version {0}", uiVersion);
 
   if (uiVersion == 1)
   {
@@ -114,7 +114,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
     stream >> sType;
 
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '%s'", sType.GetData());
+    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType.GetData());
 
     pSystem = static_cast<ezParticleSystemDescriptor*>(pRtti->GetAllocator()->Allocate());
 

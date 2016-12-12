@@ -3,7 +3,7 @@
 void* ezPageAllocator::AllocatePage(size_t uiSize)
 {
   void* ptr = ::VirtualAlloc(nullptr, uiSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-  EZ_ASSERT_DEV(ptr != nullptr, "Could not allocate memory pages. Error Code '%d'", ((ezUInt32)::GetLastError()));
+  EZ_ASSERT_DEV(ptr != nullptr, "Could not allocate memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
 
   size_t uiAlign = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);

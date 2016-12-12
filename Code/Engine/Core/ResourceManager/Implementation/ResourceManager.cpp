@@ -302,8 +302,8 @@ void ezResourceManagerWorkerMainThread::Execute()
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     m_pResourceToLoad->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '%s' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID().GetData());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '%s' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID().GetData());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID().GetData());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID().GetData());
 
     m_pResourceToLoad->m_MemoryUsage = MemUsage;
   }
@@ -376,7 +376,7 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
   if (pLoader == nullptr)
     pLoader = pResourceToLoad->GetDefaultResourceTypeLoader();
 
-  EZ_ASSERT_DEV(pLoader != nullptr, "No Loader function available for Resource Type '%s'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
+  EZ_ASSERT_DEV(pLoader != nullptr, "No Loader function available for Resource Type '{0}'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
 
   ezResourceLoadData LoaderData = pLoader->OpenDataStream(pResourceToLoad);
 
@@ -434,8 +434,8 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
       MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
       pResourceToLoad->UpdateMemoryUsage(MemUsage);
 
-      EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '%s' did not properly update its CPU memory usage", pResourceToLoad->GetResourceID().GetData());
-      EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '%s' did not properly update its GPU memory usage", pResourceToLoad->GetResourceID().GetData());
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResourceToLoad->GetResourceID().GetData());
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResourceToLoad->GetResourceID().GetData());
 
       pResourceToLoad->m_MemoryUsage = MemUsage;
     }
@@ -499,13 +499,13 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 
       const auto& CurKey = it.Key();
 
-      EZ_ASSERT_DEV(pReference->m_iLockCount == 0, "Resource '%s' has a refcount of zero, but is still in an acquired state.", pReference->GetResourceID().GetData());
+      EZ_ASSERT_DEV(pReference->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pReference->GetResourceID().GetData());
 
       bUnloadedAny = true;
       ++uiUnloaded;
       pReference->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
 
-      EZ_ASSERT_DEV(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pReference->GetResourceID().GetData());
+      EZ_ASSERT_DEV(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID().GetData());
 
       // broadcast that we are going to delete the resource
       {
@@ -616,7 +616,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
   // make sure existing data is purged
   pResource->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pResource->GetResourceID().GetData());
+  EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID().GetData());
 
   if (bAllowPreloading)
   {
@@ -894,8 +894,8 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
     return pResource;
 
-  EZ_ASSERT_DEV(pRtti != nullptr, "There is no RTTI information available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
-  EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "There is no RTTI allocator available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEV(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
   ezResourceBase* pNewResource = static_cast<ezResourceBase*>(pRtti->GetAllocator()->Allocate());
   pNewResource->SetUniqueID(szResourceID, bIsReloadable);

@@ -18,7 +18,7 @@ void ezQtMenuBarActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
-   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '%s' does not exist", context.m_sMapping.GetData());
+   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping.GetData());
 
   m_pActionMap = pMap;
   m_Context = context;

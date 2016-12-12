@@ -44,7 +44,7 @@ void ezEditActions::UnregisterActions()
 void ezEditActions::MapActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the edit actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/EditCategory");
 
@@ -60,7 +60,7 @@ void ezEditActions::MapActions(const char* szMapping, const char* szPath)
 void ezEditActions::MapContextMenuActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the edit actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/EditCategory");
 
@@ -75,7 +75,7 @@ void ezEditActions::MapContextMenuActions(const char* szMapping, const char* szP
 void ezEditActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the edit actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/EditCategory");
 

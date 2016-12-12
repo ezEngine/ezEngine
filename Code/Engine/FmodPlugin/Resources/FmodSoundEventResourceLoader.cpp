@@ -16,7 +16,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
 
   const char* szSeperator = sResID.FindSubString("|");
 
-  EZ_ASSERT_DEV(szSeperator != nullptr, "No sub-resource seperator '|' in path '%s'", sResID.GetData());
+  EZ_ASSERT_DEV(szSeperator != nullptr, "No sub-resource seperator '|' in path '{0}'", sResID.GetData());
 
   ezStringBuilder sBankPath, sSubPath;
   sBankPath.SetSubString_FromTo(sResID, szSeperator);

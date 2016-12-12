@@ -51,7 +51,7 @@ void ezFmod::Shutdown()
 
 void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)
 {
-  EZ_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "Fmod supports only up to %u listeners.", FMOD_MAX_LISTENERS);
+  EZ_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "Fmod supports only up to {0} listeners.", FMOD_MAX_LISTENERS);
 
   m_pFmodSystem->setNumListeners(uiNumListeners);
 }

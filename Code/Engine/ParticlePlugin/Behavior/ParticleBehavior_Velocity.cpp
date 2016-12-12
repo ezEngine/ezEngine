@@ -65,7 +65,7 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorVelocityVersion::Version_Current, "Invalid version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorVelocityVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   stream >> m_fRiseSpeed;
   stream >> m_fAcceleration;

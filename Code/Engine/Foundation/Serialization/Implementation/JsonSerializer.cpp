@@ -76,13 +76,13 @@ static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGrap
     return;
   }
 
-  EZ_ASSERT_DEV(pObjects->IsA<ezVariantArray>(), "'%s' node is not of type array", szName);
+  EZ_ASSERT_DEV(pObjects->IsA<ezVariantArray>(), "'{0}' node is not of type array", szName);
 
   const ezVariantArray& ObjArray = pObjects->Get<ezVariantArray>();
 
   for (const auto& object : ObjArray)
   {
-    EZ_ASSERT_DEV(object.IsA<ezVariantDictionary>(), "'%s' array contains elements that are not dictionaries", szName);
+    EZ_ASSERT_DEV(object.IsA<ezVariantDictionary>(), "'{0}' array contains elements that are not dictionaries", szName);
 
     const auto& ObjDict = object.Get<ezVariantDictionary>();
 

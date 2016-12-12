@@ -103,7 +103,7 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
     return EZ_FAILURE;
   }
   
-  EZ_ASSERT_DEV(uiVersion <= (ezUInt8) ezDependencyFileVersion::Current, "Invalid file version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (ezUInt8) ezDependencyFileVersion::Current, "Invalid file version {0}", uiVersion);
   
   stream >> m_iMaxTimeStampStored;
 

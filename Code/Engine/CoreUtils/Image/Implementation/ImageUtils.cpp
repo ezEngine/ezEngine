@@ -248,7 +248,7 @@ void ezImageUtils::ScaleDownHalf(const ezImage& Image, ezImage& out_Result)
     uiPixelBytes = 3;
   }
 
-  EZ_ASSERT_DEV(uiPixelBytes > 0, "The image format '%i' is not supported", Image.GetImageFormat());
+  EZ_ASSERT_DEV(uiPixelBytes > 0, "The image format '{0}' is not supported", Image.GetImageFormat());
   
   ezUInt8* pDataRes = out_Result.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
   const ezUInt8* pDataImg = Image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);

@@ -168,7 +168,7 @@ void ezArchiveWriter::BeginStream()
 void ezArchiveWriter::EndStream()
 {
   EZ_ASSERT_DEV(m_bWritingFile, "This function must be called after BeginStream()");
-  EZ_ASSERT_DEV(m_Temp.GetCount() == 0, "BeginTypedObject / EndTypedObject has not been called in tandem (%i)", m_Temp.GetCount());
+  EZ_ASSERT_DEV(m_Temp.GetCount() == 0, "BeginTypedObject / EndTypedObject has not been called in tandem ({0})", m_Temp.GetCount());
 
   m_bWritingFile = false;
 

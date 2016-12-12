@@ -76,7 +76,7 @@ EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
     return ezVariantHelper::CompareNumber(*this, other, ezTraitInt<TypeInfo::isNumber>());
   }
 
-  EZ_ASSERT_DEV(IsA<T>(), "Stored type '%d' does not match comparison type '%d'", m_Type, TypeDeduction<T>::value);
+  EZ_ASSERT_DEV(IsA<T>(), "Stored type '{0}' does not match comparison type '{1}'", m_Type, TypeDeduction<T>::value);
   return Cast<T>() == other;
 }
 
@@ -105,7 +105,7 @@ EZ_FORCE_INLINE ezVariant::Type::Enum ezVariant::GetType() const
 template <typename T>
 EZ_FORCE_INLINE const T& ezVariant::Get() const
 {
-  EZ_ASSERT_DEV(IsA<T>(), "Stored type '%d' does not match requested type '%d'", m_Type, TypeDeduction<T>::value);
+  EZ_ASSERT_DEV(IsA<T>(), "Stored type '{0}' does not match requested type '{1}'", m_Type, TypeDeduction<T>::value);
   return Cast<T>();
 }
 

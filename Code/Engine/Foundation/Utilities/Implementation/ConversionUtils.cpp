@@ -714,7 +714,7 @@ namespace ezConversionUtils
   ezUuid ConvertStringToUuid(const char* szText)
   {
     /// \test This is new
-    EZ_ASSERT_DEBUG(IsStringUuid(szText), "The given string is not in the correct Uuid format: '%s'", szText);
+    EZ_ASSERT_DEBUG(IsStringUuid(szText), "The given string is not in the correct Uuid format: '{0}'", szText);
 
     while (*szText == '{' || ezStringUtils::IsWhiteSpace(*szText))
       ++szText;

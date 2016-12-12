@@ -39,7 +39,7 @@ void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char
 
 const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
 {
-  EZ_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only %i arguments, cannot access argument %i.", m_uiArgumentCount, uiArgument);
+  EZ_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only {0} arguments, cannot access argument {1}.", m_uiArgumentCount, uiArgument);
 
   return m_ppArguments[uiArgument];
 }

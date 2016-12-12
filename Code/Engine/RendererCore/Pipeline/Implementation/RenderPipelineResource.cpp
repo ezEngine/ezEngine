@@ -105,7 +105,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion == 1, "Unknown ezRenderPipelineBin version %u", uiVersion);
+    EZ_ASSERT_DEV(uiVersion == 1, "Unknown ezRenderPipelineBin version {0}", uiVersion);
 
     ezUInt32 uiSize = 0;
     (*Stream) >> uiSize;

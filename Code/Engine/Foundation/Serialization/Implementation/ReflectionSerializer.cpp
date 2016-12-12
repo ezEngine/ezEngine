@@ -298,7 +298,7 @@ void* ezReflectionSerializer::Clone(const void* pObject, const ezRTTI* pType)
     pType = pRefObject->GetDynamicRTTI();
   }
 
-  EZ_ASSERT_DEV(pType->GetAllocator()->CanAllocate(), "The type '%s' can't be cloned!", pType->GetTypeName());
+  EZ_ASSERT_DEV(pType->GetAllocator()->CanAllocate(), "The type '{0}' can't be cloned!", pType->GetTypeName());
   void* pClone = pType->GetAllocator()->Allocate();
   CloneProperties(pObject, pClone, pType);
   return pClone;

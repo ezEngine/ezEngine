@@ -20,7 +20,7 @@ ezResult ezGALVertexDeclarationGL::InitPlatform(ezGALDevice* pDevice)
 {
 
   // Need to determine max vertex attribs somewhere
- // EZ_ASSERT_DEV(m_Description.m_VertexAttributes.GetCount() <= GL_MAX_VERTEX_ATTRIBUTES, "Too many vertex attributes! Only %i supported, %i were requested.", GL_MAX_VERTEX_ATTRIBUTES, m_Description.m_VertexAttributes.GetCount());
+ // EZ_ASSERT_DEV(m_Description.m_VertexAttributes.GetCount() <= GL_MAX_VERTEX_ATTRIBUTES, "Too many vertex attributes! Only {0} supported, {1} were requested.", GL_MAX_VERTEX_ATTRIBUTES, m_Description.m_VertexAttributes.GetCount());
 
   ezGALDeviceGL* pDeviceGL = static_cast<ezGALDeviceGL*>(pDevice);
 

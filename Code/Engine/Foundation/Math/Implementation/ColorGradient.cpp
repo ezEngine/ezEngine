@@ -303,7 +303,7 @@ void ezColorGradient::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion == 1, "Incorrect version '%u' for ezColorGradient", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1, "Incorrect version '{0}' for ezColorGradient", uiVersion);
 
   ezUInt32 numColor = 0;
   ezUInt32 numAlpha = 0;

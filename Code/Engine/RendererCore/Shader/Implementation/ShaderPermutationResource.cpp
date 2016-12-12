@@ -115,7 +115,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     // since it contains other useful information (resource bindings), that we need for shader binding
     m_pShaderStageBinaries[stage] = pStageBin;
 
-    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '%s', but loaded data is for stage '%s'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
+    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
 
     ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 

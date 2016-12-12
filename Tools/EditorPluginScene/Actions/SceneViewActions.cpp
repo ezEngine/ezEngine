@@ -24,7 +24,7 @@ void ezSceneViewActions::UnregisterActions()
 void ezSceneViewActions::MapActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   pMap->MapAction(s_hToggleViews, szPath, 3.0f);
   //pMap->MapAction(s_hSpawnView, szPath, 4.0f);

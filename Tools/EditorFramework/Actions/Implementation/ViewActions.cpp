@@ -31,7 +31,7 @@ void ezViewActions::UnregisterActions()
 void ezViewActions::MapActions(const char* szMapping, const char* szPath, bool bPerspective, bool bRenderMode, bool bUsageHint)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   if (bPerspective)
     pMap->MapAction(s_hPerspective, szPath, 1.0f);

@@ -41,7 +41,7 @@ void ezProcessingStream::SetSize( ezUInt64 uiNumElements )
     m_pData = ezFoundation::GetDefaultAllocator()->Allocate( static_cast<size_t>(uiNumElements * GetDataTypeSize( m_Type )), 0 );
   }
 
-  EZ_ASSERT_DEV(m_pData != nullptr, "Allocating %u elements of %u bytes each, with %u bytes alignment, failed", uiNumElements, ((ezUInt32)GetDataTypeSize(m_Type)), m_uiAlignment);
+  EZ_ASSERT_DEV(m_pData != nullptr, "Allocating {0} elements of {1} bytes each, with {2} bytes alignment, failed", uiNumElements, ((ezUInt32)GetDataTypeSize(m_Type)), m_uiAlignment);
   m_uiNumElements = uiNumElements;
 }
 

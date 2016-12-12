@@ -239,7 +239,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
   if (stream.ReadBytes(&uiVersion, sizeof(ezUInt8)) != sizeof(ezUInt8))
     return EZ_FAILURE;
 
-  EZ_ASSERT_DEV(uiVersion <= ezShaderStageBinary::VersionCurrent, "Wrong Version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= ezShaderStageBinary::VersionCurrent, "Wrong Version {0}", uiVersion);
 
   if (stream.ReadDWordValue(&m_uiSourceHash).Failed())
     return EZ_FAILURE;

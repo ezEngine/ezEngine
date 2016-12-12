@@ -71,8 +71,8 @@ namespace ezInternal
     // already locked by this thread?
     if (m_Data.m_WriteThreadID != ezThreadUtils::GetCurrentThreadID())
     {
-      EZ_ASSERT_DEV(m_Data.m_iReadCounter == 0, "World '%s' cannot be marked for writing because it is already marked for reading.", m_Data.m_sName.GetData());
-      EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0, "World '%s' cannot be marked for writing because it is already marked for writing by another thread.", m_Data.m_sName.GetData());
+      EZ_ASSERT_DEV(m_Data.m_iReadCounter == 0, "World '{0}' cannot be marked for writing because it is already marked for reading.", m_Data.m_sName.GetData());
+      EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0, "World '{0}' cannot be marked for writing because it is already marked for writing by another thread.", m_Data.m_sName.GetData());
 
       m_Data.m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
       m_Data.m_iReadCounter.Increment(); // allow reading as well

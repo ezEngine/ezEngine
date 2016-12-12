@@ -131,7 +131,7 @@ void ezCollisionFilterConfig::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid version %u for ezCollisionFilterConfig file", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1, "Invalid version {0} for ezCollisionFilterConfig file", uiVersion);
 
   stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
   stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);

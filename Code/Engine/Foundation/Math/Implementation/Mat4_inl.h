@@ -221,7 +221,7 @@ template<typename Type>
 ezVec4Template<Type> ezMat4Template<Type>::GetRow(ezUInt32 uiRow) const
 {
   EZ_NAN_ASSERT(this);
-  EZ_ASSERT_DEBUG(uiRow <= 3, "Invalid Row Index %d", uiRow);
+  EZ_ASSERT_DEBUG(uiRow <= 3, "Invalid Row Index {0}", uiRow);
 
   ezVec4Template<Type> r;
   r.x = Element(0, uiRow);
@@ -235,7 +235,7 @@ ezVec4Template<Type> ezMat4Template<Type>::GetRow(ezUInt32 uiRow) const
 template<typename Type>
 void ezMat4Template<Type>::SetRow(ezUInt32 uiRow, const ezVec4Template<Type>& row)
 {
-  EZ_ASSERT_DEBUG(uiRow <= 3, "Invalid Row Index %d", uiRow);
+  EZ_ASSERT_DEBUG(uiRow <= 3, "Invalid Row Index {0}", uiRow);
 
   Element(0, uiRow) = row.x;
   Element(1, uiRow) = row.y;
@@ -247,7 +247,7 @@ template<typename Type>
 ezVec4Template<Type> ezMat4Template<Type>::GetColumn(ezUInt32 uiColumn) const
 {
   EZ_NAN_ASSERT(this);
-  EZ_ASSERT_DEBUG(uiColumn <= 3, "Invalid Column Index %d", uiColumn);
+  EZ_ASSERT_DEBUG(uiColumn <= 3, "Invalid Column Index {0}", uiColumn);
 
   ezVec4Template<Type> r;
   r.x = Element(uiColumn, 0);
@@ -261,7 +261,7 @@ ezVec4Template<Type> ezMat4Template<Type>::GetColumn(ezUInt32 uiColumn) const
 template<typename Type>
 void ezMat4Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec4Template<Type>& column)
 {
-  EZ_ASSERT_DEBUG(uiColumn <= 3, "Invalid Column Index %d", uiColumn);
+  EZ_ASSERT_DEBUG(uiColumn <= 3, "Invalid Column Index {0}", uiColumn);
 
   Element(uiColumn, 0) = column.x;
   Element(uiColumn, 1) = column.y;

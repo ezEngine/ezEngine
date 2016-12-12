@@ -78,7 +78,7 @@ void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)TypeSpriteVersion::Version_Current, "Invalid version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)TypeSpriteVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   stream >> m_sTexture;
 

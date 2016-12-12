@@ -134,7 +134,7 @@ void ezRTTI::VerifyCorrectness() const
 {
   if (m_fnVerifyParent != nullptr)
   {
-    EZ_ASSERT_DEV(m_fnVerifyParent() == m_pParentType, "Type '%s': The given parent type '%s' does not match the actual parent type '%s'", m_szTypeName, (m_pParentType != nullptr) ? m_pParentType->GetTypeName() : "null", (m_fnVerifyParent() != nullptr) ? m_fnVerifyParent()->GetTypeName() : "null");
+    EZ_ASSERT_DEV(m_fnVerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'", m_szTypeName, (m_pParentType != nullptr) ? m_pParentType->GetTypeName() : "null", (m_fnVerifyParent() != nullptr) ? m_fnVerifyParent()->GetTypeName() : "null");
   }
 
   {
@@ -149,7 +149,7 @@ void ezRTTI::VerifyCorrectness() const
         const bool bNewProperty = !Known.Find(pInstance->m_Properties[i]->GetPropertyName()).IsValid();
         Known.Insert(pInstance->m_Properties[i]->GetPropertyName());
 
-        EZ_ASSERT_DEV(bNewProperty, "%s: The property with name '%s' is already defined in type '%s'.", m_szTypeName, pInstance->m_Properties[i]->GetPropertyName(), pInstance->GetTypeName());
+        EZ_ASSERT_DEV(bNewProperty, "{0}: The property with name '{1}' is already defined in type '{2}'.", m_szTypeName, pInstance->m_Properties[i]->GetPropertyName(), pInstance->GetTypeName());
       }
 
       pInstance = pInstance->m_pParentType;
@@ -355,7 +355,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
   {
     const ezRTTI* pSpecificType = pProp->GetSpecificType();
 
-    EZ_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '%s'", pProp->GetPropertyName());
+    EZ_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '{0}'", pProp->GetPropertyName());
 
     //if (!IsValidIdentifierName(pProp->GetPropertyName()))
     //{

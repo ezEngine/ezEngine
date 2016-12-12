@@ -74,7 +74,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
   case ezPropertyCategory::Set:
     {
       const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-      EZ_ASSERT_DEV(iCount >= 0, "Invalid array property size %i", iCount);
+      EZ_ASSERT_DEV(iCount >= 0, "Invalid array property size {0}", iCount);
 
       ezVariantArray values;
       values.SetCount(iCount);

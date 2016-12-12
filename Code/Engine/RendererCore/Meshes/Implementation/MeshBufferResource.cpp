@@ -41,7 +41,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
-    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic %u is already used by a previous stream", Semantic);
+    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic {0} is already used by a previous stream", Semantic);
   }
 
   ezVertexStreamInfo si;

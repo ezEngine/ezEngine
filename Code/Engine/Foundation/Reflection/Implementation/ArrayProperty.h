@@ -83,28 +83,28 @@ public:
 
   virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "GetValue: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "GetValue: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
     *static_cast<RealType*>(pObject) = (static_cast<const Class*>(pInstance)->*m_Getter)(uiIndex);
   }
 
   virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) override
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "SetValue: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
-    EZ_ASSERT_DEBUG(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "SetValue: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Setter)(uiIndex, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) override
   {
-    EZ_ASSERT_DEBUG(uiIndex <= GetCount(pInstance), "Insert: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
-    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '%s' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(uiIndex <= GetCount(pInstance), "Insert: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(uiIndex, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, ezUInt32 uiIndex) override
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "Remove: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
-    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "Remove: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(uiIndex);
   }
 
@@ -115,7 +115,7 @@ public:
 
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '%s' has no remove and insert function, thus it is fixed-size.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '{0}' has no remove and insert function, thus it is fixed-size.", ezAbstractProperty::GetPropertyName());
     while (uiCount < GetCount(pInstance))
     {
       Remove(pInstance, GetCount(pInstance) - 1);
@@ -182,40 +182,40 @@ public:
 
   virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const override
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "GetValue: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "GetValue: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
     *static_cast<RealType*>(pObject) = m_ConstGetter(static_cast<const Class*>(pInstance))[uiIndex];
   }
 
   virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) override
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "SetValue: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "SetValue: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance))[uiIndex] = *static_cast<const RealType*>(pObject);
   }
 
   virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) override
   {
-    EZ_ASSERT_DEBUG(uiIndex <= GetCount(pInstance), "Insert: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(uiIndex <= GetCount(pInstance), "Insert: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Insert(*static_cast<const RealType*>(pObject), uiIndex);
   }
 
   virtual void Remove(void* pInstance, ezUInt32 uiIndex) override
   {
-    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "Remove: uiIndex ('%u') is out of range ('%u')", uiIndex, GetCount(pInstance));
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(pInstance), "Remove: uiIndex ('{0}') is out of range ('{1}')", uiIndex, GetCount(pInstance));
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).RemoveAt(uiIndex);
   }
 
   virtual void Clear(void* pInstance) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const array accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetCount(uiCount);
   }
 

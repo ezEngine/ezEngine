@@ -207,10 +207,10 @@ ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<ezPin* con
   for (ezUInt32 i = 0; i < pins.GetCount(); ++i)
   {
     const ezVisualShaderPin* pPin = ezDynamicCast<const ezVisualShaderPin*>(pins[i]);
-    EZ_ASSERT_DEBUG(pPin != nullptr, "Invalid pin pointer: %p", pins[i]);
+    EZ_ASSERT_DEBUG(pPin != nullptr, "Invalid pin pointer: {0}", ezArgP(pins[i]));
 
     auto connections = pPin->GetConnections();
-    EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has %u connections", connections.GetCount());
+    EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());
 
     if (connections.IsEmpty())
       continue;

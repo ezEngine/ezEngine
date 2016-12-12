@@ -333,7 +333,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion <= 2, "Unknown ezMaterialBin version %u", uiVersion);
+    EZ_ASSERT_DEV(uiVersion <= 2, "Unknown ezMaterialBin version {0}", uiVersion);
 
     // Base material
     {

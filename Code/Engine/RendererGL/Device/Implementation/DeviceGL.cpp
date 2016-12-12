@@ -87,7 +87,7 @@ static void GLEWAPIENTRY DebugOutput(GLenum Source,
     debType = "message";
   }
 
-  EZ_ASSERT_ALWAYS(Severity != GL_DEBUG_SEVERITY_HIGH_ARB, "Fatal GL error occurred: %s: %s(high) %d: %s", debSource.GetData(), debType.GetData(), uiId, szMessage);
+  EZ_ASSERT_ALWAYS(Severity != GL_DEBUG_SEVERITY_HIGH_ARB, "Fatal GL error occurred: {0}: {1}(high) {2}: {3}", debSource.GetData(), debType.GetData(), uiId, szMessage);
 
   if (Severity == GL_DEBUG_SEVERITY_MEDIUM_ARB)
     debSev = "medium";

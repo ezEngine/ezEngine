@@ -73,7 +73,7 @@ void ezParticleTypeFragmentFactory::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)TypeFragmentVersion::Version_Current, "Invalid version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)TypeFragmentVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   if (uiVersion >= 2)
   {

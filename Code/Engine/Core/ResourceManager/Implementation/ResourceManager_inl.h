@@ -81,7 +81,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   ResourceType* pResource = (ResourceType*) hResource.m_Typeless.m_pResource;
 
   EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
-  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('%s') as the resource handle ('%s').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
+  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
   if (mode == ezResourceAcquireMode::PointerOnly ||
       (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
@@ -163,7 +163,7 @@ template<typename ResourceType>
 void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 {
   EZ_ASSERT_DEV(pResource != nullptr, "Resource Pointer cannot be nullptr.");
-  EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: %i", (ezInt32) pResource->m_iLockCount);
+  EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32) pResource->m_iLockCount);
 
   pResource->m_iLockCount.Decrement();
 }

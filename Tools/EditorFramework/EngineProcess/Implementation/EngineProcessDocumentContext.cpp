@@ -374,7 +374,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     }
 
     const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);
-    EZ_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '%s'", pMsg->GetDynamicRTTI()->GetTypeName());
+    EZ_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '{0}'", pMsg->GetDynamicRTTI()->GetTypeName());
 
     if (pViewMsg->m_uiViewID >= m_ViewContexts.GetCount())
     {
@@ -492,7 +492,7 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   if (!it.IsValid())
   {
     // object does not yet exist
-    EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '%s' does not have a default allocator", msg.m_sObjectType.GetData());
+    EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '{0}' does not have a default allocator", msg.m_sObjectType.GetData());
     void* pObject = pRtti->GetAllocator()->Allocate();
 
     pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);

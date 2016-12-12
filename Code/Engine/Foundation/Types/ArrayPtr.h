@@ -96,14 +96,14 @@ public:
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<const T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart + uiCount, GetCount());
+    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).", uiStart + uiCount, GetCount());
     return ezArrayPtr<const T>(GetPtr() + uiStart, uiCount);
   }
 
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) // [tested]
   {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart + uiCount, GetCount());
+    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).", uiStart + uiCount, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
 
@@ -111,7 +111,7 @@ public:
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
   EZ_FORCE_INLINE ezArrayPtr<const T> GetSubArray(ezUInt32 uiStart) const // [tested]
   {
-    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart (%i) has to be smaller or equal than the count (%i).", uiStart, GetCount());
+    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
     return ezArrayPtr<const T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 
@@ -119,7 +119,7 @@ public:
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart) // [tested]
   {
-    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart (%i) has to be smaller or equal than the count (%i).", uiStart, GetCount());
+    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 
@@ -132,14 +132,14 @@ public:
   /// \brief Index access.
   EZ_FORCE_INLINE const T& operator[](ezUInt32 uiIndex) const // [tested]
   {
-    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element %i, the array only holds %i elements.", uiIndex, GetCount());
+    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return GetPtr()[uiIndex];
   }
 
   /// \brief Index access.
   EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) // [tested]
   {
-    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element %i, the array only holds %i elements.", uiIndex, GetCount());
+    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return GetPtr()[uiIndex];
   }
 
@@ -164,7 +164,7 @@ public:
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {
-    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has %d elements, source %d elements", GetCount(), other.GetCount());
+    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
 
     ezMemoryUtils::Copy(GetPtr(), other.GetPtr(), GetCount());
   }

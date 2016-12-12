@@ -152,7 +152,7 @@ void ezPhysXWorldModule::InternalReinit()
 void ezPxAllocatorCallback::VerifyAllocations()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "There are %u unfreed allocations", m_Allocations.GetCount());
+  EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "There are {0} unfreed allocations", m_Allocations.GetCount());
 
   for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)
   {
@@ -240,7 +240,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
   capsule.halfHeight = fCapsuleHeight * 0.5f;
-  EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = %.2f, Height = %.2f", fCapsuleRadius, fCapsuleHeight);
+  EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = {0}, Height = {1}", ezArgF(fCapsuleRadius, 2), ezArgF(fCapsuleHeight, 2));
 
   ezQuat qFixRot;
   qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));

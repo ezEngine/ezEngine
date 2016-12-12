@@ -157,7 +157,7 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
   stream >> uiNumAnimations;
 
   EZ_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid ezPropertyAnimResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
 
   m_Animations.SetCount(uiNumAnimations);
 

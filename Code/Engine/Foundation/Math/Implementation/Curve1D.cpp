@@ -178,7 +178,7 @@ void ezCurve1D::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 2, "Incorrect version '%u' for ezCurve1D", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 2, "Incorrect version '{0}' for ezCurve1D", uiVersion);
 
   ezUInt32 numCp = 0;
 

@@ -64,7 +64,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 3, "Invalid version %u for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 3, "Invalid version {0} for surface resource", uiVersion);
 
   stream >> m_fPhysicsRestitution;
   stream >> m_fPhysicsFrictionStatic;

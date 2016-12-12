@@ -365,7 +365,7 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   if (bWillInitializeElements)
     pInfo->m_bGetsInitialized = true;
 
-  EZ_ASSERT_DEV(pStream != nullptr, "Stream creation failed ('%s' -> '%s')", szName, fullName.GetData());
+  EZ_ASSERT_DEV(pStream != nullptr, "Stream creation failed ('{0}' -> '{1}')", szName, fullName.GetData());
   *ppStream = pStream;
 
   auto& bind = binding.m_Bindings.ExpandAndGetRef();
@@ -421,7 +421,7 @@ void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGro
   for (const auto& bind : m_Bindings)
   {
     ezProcessingStream* pStream = pGroup->GetStreamByName(bind.m_sName);
-    EZ_ASSERT_DEV(pStream != nullptr, "Stream binding '%s' is invalid now", bind.m_sName.GetData());
+    EZ_ASSERT_DEV(pStream != nullptr, "Stream binding '{0}' is invalid now", bind.m_sName.GetData());
 
     *bind.m_ppStream = pStream;
   }

@@ -116,7 +116,7 @@ void ezClock::Load(ezStreamReader& Stream)
   ezUInt8 uiVersion = 0;
   Stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Wrong version for ezClock: %i", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1, "Wrong version for ezClock: {0}", uiVersion);
 
   Stream >> m_AccumulatedTime;
   Stream >> m_LastTimeDiff;

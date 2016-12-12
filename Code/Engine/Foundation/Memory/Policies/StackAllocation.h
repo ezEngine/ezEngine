@@ -41,7 +41,7 @@ namespace ezMemoryPolicies
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
     {
-      EZ_ASSERT_DEV(uiAlign <= Alignment && Alignment % uiAlign == 0, "Unsupported alignment %d", ((ezUInt32)uiAlign));
+      EZ_ASSERT_DEV(uiAlign <= Alignment && Alignment % uiAlign == 0, "Unsupported alignment {0}", ((ezUInt32)uiAlign));
       uiSize = ezMemoryUtils::AlignSize(uiSize, (size_t)Alignment);
 
       // Do we need a new bucket?

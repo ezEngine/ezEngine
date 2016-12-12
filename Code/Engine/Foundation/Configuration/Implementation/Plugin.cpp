@@ -315,7 +315,7 @@ success:
     }
 
     /// \todo this doesn't work if one dynamic (e.g. editor) plugin has a link dependency on another dynamic (runtime) plugin
-    //EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '%s' %i ezPlugin instances were found.", szPluginFile, iNewPlugins);
+    //EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '{0}' {1} ezPlugin instances were found.", szPluginFile, iNewPlugins);
   }
 
   ezLog::Success("Plugin '{0}' is loaded.", szPluginFile);

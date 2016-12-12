@@ -288,7 +288,7 @@ void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
 {
   if (!ezStringUtils::IsNullOrEmpty(szName))
   {
-    //EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '%s'", szName);
+    //EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '{0}'", szName);
 
 
     /// \test This code path is untested

@@ -107,7 +107,7 @@ static bool IsGroupName(const char* szName)
     pSub = pSub->GetNextInstance();
   }
 
-  EZ_ASSERT_ALWAYS(!bGroup || !bSubSystem, "There cannot be a SubSystem AND a Group called '%s'.", szName);
+  EZ_ASSERT_ALWAYS(!bGroup || !bSubSystem, "There cannot be a SubSystem AND a Group called '{0}'.", szName);
 
   return bGroup;
 }

@@ -114,7 +114,7 @@ void ezProjectActions::UnregisterActions()
 void ezProjectActions::MapActions(const char* szMapping)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   pMap->MapAction(s_hEditorMenu, "", -1000000000.0f);
 

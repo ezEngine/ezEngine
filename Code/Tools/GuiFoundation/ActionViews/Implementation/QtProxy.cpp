@@ -91,7 +91,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
   {
     auto pAction = pDesc->CreateAction(context);
     pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName.GetData());
     pProxy->SetAction(pAction);
     EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == context.m_pDocument, "invalid document pointer");
     return pProxy;
@@ -107,7 +107,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         auto pAction = pDesc->CreateAction(context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction);
         s_GlobalActions[hDesc] = pProxy.toWeakRef();
       }
@@ -126,7 +126,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         auto pAction = pDesc->CreateAction(context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction);
         s_DocumentActions[pDocument][hDesc] = pProxy;
       }
@@ -150,7 +150,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         auto pAction = pDesc->CreateAction(context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
-        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '{0}'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction);
         it.Value()[hDesc] = pProxy;
       }

@@ -19,7 +19,7 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_uiVersion = 0;
   stream >> m_uiVersion;
 
-  EZ_ASSERT_DEV(m_uiVersion <= 3, "Invalid version %u", m_uiVersion);
+  EZ_ASSERT_DEV(m_uiVersion <= 3, "Invalid version {0}", m_uiVersion);
 
   if (m_uiVersion >= 3)
   {
@@ -305,7 +305,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       return;
 
     // only check this after we know that we actually need to create any of this type
-    EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '%s', manager is not available.", pRtti->GetTypeName());
+    EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '{0}', manager is not available.", pRtti->GetTypeName());
 
     for (ezUInt32 i = 0; i < uiNumComponents; ++i)
     {

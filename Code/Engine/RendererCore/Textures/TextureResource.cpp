@@ -267,7 +267,7 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
 
   m_Type = texDesc.m_Type;
 
-  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
+  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID().GetData());
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 

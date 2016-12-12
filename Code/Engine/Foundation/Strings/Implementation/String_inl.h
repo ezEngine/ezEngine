@@ -132,8 +132,8 @@ void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 template<ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
 {
-  EZ_ASSERT_DEV(uiFirstCharacter < m_uiCharacterCount, "The string only has %i characters, cannot start a sub-string at character %i.", m_uiCharacterCount, uiFirstCharacter);
-  EZ_ASSERT_DEV(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount, "The string only has %i characters, cannot get a sub-string up to character %i.", m_uiCharacterCount, uiFirstCharacter + uiNumCharacters);
+  EZ_ASSERT_DEV(uiFirstCharacter < m_uiCharacterCount, "The string only has {0} characters, cannot start a sub-string at character {1}.", m_uiCharacterCount, uiFirstCharacter);
+  EZ_ASSERT_DEV(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount, "The string only has {0} characters, cannot get a sub-string up to character {1}.", m_uiCharacterCount, uiFirstCharacter + uiNumCharacters);
 
   const char* szStart = GetData();
   ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter);
@@ -153,7 +153,7 @@ ezStringView ezHybridStringBase<Size>::GetFirst(ezUInt32 uiNumCharacters) const
 template<ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) const
 {
-  EZ_ASSERT_DEV(uiNumCharacters < m_uiCharacterCount, "The string only contains %i characters, cannot return the last %i characters.", m_uiCharacterCount, uiNumCharacters);
+  EZ_ASSERT_DEV(uiNumCharacters < m_uiCharacterCount, "The string only contains {0} characters, cannot return the last {1} characters.", m_uiCharacterCount, uiNumCharacters);
   return GetSubString(m_uiCharacterCount - uiNumCharacters, uiNumCharacters);
 }
 

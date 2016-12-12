@@ -43,7 +43,7 @@ ezMap<ezString, ezString> ezActionManager::s_ShortcutOverride;
 ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescriptor& desc)
 {
   ezActionDescriptorHandle hType = GetActionHandle(desc.m_sCategoryPath, desc.m_sActionName);
-  EZ_ASSERT_DEV(hType.IsInvalidated(), "The action '%s' in category '%s' was already registered!", desc.m_sActionName.GetData(), desc.m_sCategoryPath.GetData());
+  EZ_ASSERT_DEV(hType.IsInvalidated(), "The action '{0}' in category '{1}' was already registered!", desc.m_sActionName.GetData(), desc.m_sCategoryPath.GetData());
 
   ezActionDescriptor* pDesc = CreateActionDesc(desc);
 

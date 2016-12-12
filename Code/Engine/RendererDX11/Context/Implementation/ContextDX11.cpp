@@ -686,8 +686,8 @@ void ezGALContextDX11::UpdateTexturePlatform(const ezGALTexture* pDestination, c
 
     ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(format) / 8;
     ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
-    EZ_ASSERT_DEV(pSourceData.m_uiRowPitch == uiRowPitch, "Invalid row pitch. Expected %d got %d", uiRowPitch, pSourceData.m_uiRowPitch);
-    EZ_ASSERT_DEV(pSourceData.m_uiSlicePitch == 0 || pSourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected %d got %d", uiSlicePitch, pSourceData.m_uiSlicePitch);
+    EZ_ASSERT_DEV(pSourceData.m_uiRowPitch == uiRowPitch, "Invalid row pitch. Expected {0} got {1}", uiRowPitch, pSourceData.m_uiRowPitch);
+    EZ_ASSERT_DEV(pSourceData.m_uiSlicePitch == 0 || pSourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, pSourceData.m_uiSlicePitch);
 
     memcpy(MapResult.pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
 

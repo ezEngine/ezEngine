@@ -401,7 +401,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 
         dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
-        EZ_ASSERT_DEBUG(top < STACK_SIZE, "ezMapBase's internal stack is not large enough to be able to sort %i elements.", GetCount());
+        EZ_ASSERT_DEBUG(top < STACK_SIZE, "ezMapBase's internal stack is not large enough to be able to sort {0} elements.", GetCount());
         up[top++] = it;
 
         if (it->m_pLink[dir] == pNilNode)

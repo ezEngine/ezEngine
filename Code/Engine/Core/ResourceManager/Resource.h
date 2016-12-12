@@ -137,8 +137,8 @@ private:
       MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
       UpdateMemoryUsage(MemUsage);
 
-      EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '%s' did not properly update its CPU memory usage", GetResourceID().GetData());
-      EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '%s' did not properly update its GPU memory usage", GetResourceID().GetData());
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", GetResourceID().GetData());
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", GetResourceID().GetData());
 
       m_MemoryUsage = MemUsage;
     }

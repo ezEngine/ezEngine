@@ -617,7 +617,7 @@ ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
     EZ_VERIFY(pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).m_Result.Succeeded(), "GetCount should always succeed.");
     iElements = ezMath::Min(iElements, iCount);
   }
-  EZ_ASSERT_DEV(iElements >= 0, "Mismatch between storage and RTTI (%i)", iElements);
+  EZ_ASSERT_DEV(iElements >= 0, "Mismatch between storage and RTTI ({0})", iElements);
   return ezUInt32(iElements);
 }
 

@@ -19,7 +19,7 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetElements(const ezVec3Templa
   m_vMin = vMin;
   m_vMax = vMax;
 
-  EZ_ASSERT_DEBUG(IsValid(), "The given values did not create a valid bounding box (%.2f | %.2f | %.2f - %.2f | %.2f | %.2f)", vMin.x, vMin.y, vMin.z, vMax.x, vMax.y, vMax.z);
+  EZ_ASSERT_DEBUG(IsValid(), "The given values did not create a valid bounding box ({0} | {1} | {2} - {3} | {4} | {5})", ezArgF(vMin.x, 2), ezArgF(vMin.y, 2), ezArgF(vMin.z, 2), ezArgF(vMax.x, 2), ezArgF(vMax.y, 2), ezArgF(vMax.z, 2));
 }
 
 template<typename Type>

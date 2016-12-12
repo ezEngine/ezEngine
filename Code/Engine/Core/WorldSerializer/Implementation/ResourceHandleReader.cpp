@@ -78,7 +78,7 @@ void ezResourceHandleReadContext::BeginReadingFromStream(ezStreamReader* pStream
   EZ_ASSERT_DEV(m_uiVersion == 0, "ezResourceHandleReadContext::BeginReadingFromStream cannot be called twice on the same instance");
 
   *pStream >> m_uiVersion;
-  EZ_ASSERT_DEV(m_uiVersion == 1, "Invalid version %u of ezResourceHandleReadContext", m_uiVersion);
+  EZ_ASSERT_DEV(m_uiVersion == 1, "Invalid version {0} of ezResourceHandleReadContext", m_uiVersion);
 }
 
 void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)

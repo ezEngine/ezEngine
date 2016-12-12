@@ -17,7 +17,7 @@ EZ_END_STATIC_REFLECTED_TYPE
 ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
 {
   EZ_ASSERT_DEV(IsValid(), "Can't retrieve timestamp of invalid values!");
-  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value (%d)", unitOfTime);
+  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
 
   switch (unitOfTime)
   {
@@ -35,7 +35,7 @@ ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
 
 void ezTimestamp::SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
 {
-  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value (%d)", unitOfTime);
+  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
 
   switch (unitOfTime)
   {

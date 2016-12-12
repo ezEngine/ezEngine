@@ -41,7 +41,7 @@ void ezGizmoActions::UnregisterActions()
 void ezGizmoActions::MapActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/GizmoCategory");
 
@@ -169,7 +169,7 @@ void ezRotateGizmoAction::UnregisterActions()
 void ezRotateGizmoAction::MapActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/Gizmo.Rotation.Snap.Menu");
 
@@ -251,7 +251,7 @@ void ezScaleGizmoAction::UnregisterActions()
 void ezScaleGizmoAction::MapActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/Gizmo.Scale.Snap.Menu");
 
@@ -337,7 +337,7 @@ void ezTranslateGizmoAction::UnregisterActions()
 void ezTranslateGizmoAction::MapActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
   ezStringBuilder sSubPath(szPath, "/Gizmo.Translate.Snap.Menu");
 

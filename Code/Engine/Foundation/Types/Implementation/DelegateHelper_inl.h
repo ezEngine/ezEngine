@@ -17,7 +17,7 @@ public:
   EZ_FORCE_INLINE ezDelegate(Method method, Class* pInstance)
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DATA_SIZE, "Member function pointer must not be bigger than 16 bytes");
-    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected {0} bytes alignment", EZ_ALIGNMENT_OF(Method));
 
     memcpy(m_Data, &method, sizeof(Method));
     memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
@@ -39,7 +39,7 @@ public:
   EZ_FORCE_INLINE ezDelegate(Method method, const Class* pInstance)
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DATA_SIZE, "Member function pointer must not be bigger than 16 bytes");
-    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected {0} bytes alignment", EZ_ALIGNMENT_OF(Method));
 
     memcpy(m_Data, &method, sizeof(Method));
     memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
@@ -61,7 +61,7 @@ public:
   EZ_FORCE_INLINE ezDelegate(Function function)
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Function) <= DATA_SIZE, "Function object must not be bigger than 16 bytes");
-    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Function));
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected {0} bytes alignment", EZ_ALIGNMENT_OF(Function));
 
     memcpy(m_Data, &function, sizeof(Function));
     memset(m_Data + sizeof(Function), 0, DATA_SIZE - sizeof(Function));

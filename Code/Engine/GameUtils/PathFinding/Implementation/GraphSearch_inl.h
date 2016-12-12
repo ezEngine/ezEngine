@@ -62,8 +62,8 @@ void ezPathSearch<PathStateType>::FillOutPathResult(ezInt64 iEndNodeIndex, ezDeq
 template<typename PathStateType>
 void ezPathSearch<PathStateType>::AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState)
 {
-  EZ_ASSERT_DEV(NewState.m_fCostToNode            >   m_CurState.m_fCostToNode, "The costs must grow from one node to the next.\nStart Node Costs: %.2f\nAdjacent Node Costs: %.2f", m_CurState.m_fCostToNode, NewState.m_fCostToNode);
-  //EZ_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >=  m_CurState.m_fEstimatedCostToTarget, "The estimated path costs cannot go down, the heuristic must be 'optimistic' regarding to the real costs.\nEstimated Costs from Current: %.2f\nEstimated Costs from Adjacent: %.2f", m_pCurPathState->m_fEstimatedCostToTarget, NewState.m_fEstimatedCostToTarget);
+  EZ_ASSERT_DEV(NewState.m_fCostToNode            >   m_CurState.m_fCostToNode, "The costs must grow from one node to the next.\nStart Node Costs: {0}\nAdjacent Node Costs: {1}", ezArgF(m_CurState.m_fCostToNode, 2), ezArgF(NewState.m_fCostToNode, 2));
+  //EZ_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >=  m_CurState.m_fEstimatedCostToTarget, "The estimated path costs cannot go down, the heuristic must be 'optimistic' regarding to the real costs.\nEstimated Costs from Current: {0}\nEstimated Costs from Adjacent: {1}", ezArgF(m_pCurPathState->m_fEstimatedCostToTarget, 2), ezArgF(NewState.m_fEstimatedCostToTarget, 2));
   EZ_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >=  NewState.m_fCostToNode, "Unrealistic expectations will get you nowhere.");
 
   PathStateType* pExistingState;

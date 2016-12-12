@@ -17,7 +17,7 @@ public:
 
   virtual ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const override
   {
-    EZ_ASSERT_DEV(uiParam < GetNumParameters(), "Invalid Parameter Index %d", uiParam);
+    EZ_ASSERT_DEV(uiParam < GetNumParameters(), "Invalid Parameter Index {0}", uiParam);
 
 #if (ARG_COUNT > 0)
 

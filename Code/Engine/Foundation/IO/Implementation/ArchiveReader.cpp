@@ -148,7 +148,7 @@ void ezArchiveReader::BeginStream()
   ezUInt8 uiVersion = 0;
   m_InputStream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= ezArchiveVersion::CurrentVersion, "The ezArchive version %u is not supported, expected version %u or lower.", uiVersion, ezArchiveVersion::CurrentVersion);
+  EZ_ASSERT_DEV(uiVersion <= ezArchiveVersion::CurrentVersion, "The ezArchive version {0} is not supported, expected version {1} or lower.", uiVersion, ezArchiveVersion::CurrentVersion);
 
   ezUInt32 uiMaxReferences = 0;
   m_InputStream >> uiMaxReferences;

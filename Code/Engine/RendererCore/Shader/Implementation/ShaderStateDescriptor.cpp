@@ -76,7 +76,7 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt32 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion >= ezShaderStateVersion::Version1 && uiVersion <= ezShaderStateVersion::Current, "Invalid version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion >= ezShaderStateVersion::Version1 && uiVersion <= ezShaderStateVersion::Current, "Invalid version {0}", uiVersion);
 
   // Blend State
   {

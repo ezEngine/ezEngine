@@ -148,7 +148,7 @@ ezBlockStorage<T, BlockSize, CompactStorage>::~ezBlockStorage()
         }
       }
     }
-    
+
     m_pBlockAllocator->DeallocateBlock(block);
   }
 
@@ -213,7 +213,7 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, CompactStorage>::Delete(Entry 
 template <typename T, ezUInt32 BlockSize, bool CompactStorage>
 void ezBlockStorage<T, BlockSize, CompactStorage>::Delete(Entry entry, T*& out_pMovedObject)
 {
-  EZ_ASSERT_DEV(entry.m_uiIndex < m_uiCount, "Out of bounds access. Block storage has %i objects, trying to remove object at index %i.", 
+  EZ_ASSERT_DEV(entry.m_uiIndex < m_uiCount, "Out of bounds access. Block storage has {0} objects, trying to remove object at index {1}.",
     m_uiCount, entry.m_uiIndex);
 
   const ezUInt32 uiBlockIndex = entry.m_uiIndex / ezDataBlock<T, BlockSize>::CAPACITY;

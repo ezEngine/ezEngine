@@ -26,7 +26,7 @@ float ezProgress::GetCompletion() const
 
 void ezProgress::SetCompletion(float fCompletion)
 {
-  EZ_ASSERT_DEV(fCompletion >= 0.0f && fCompletion <= 1.0f, "Completion value %f is out of valid range", fCompletion);
+  EZ_ASSERT_DEV(fCompletion >= 0.0f && fCompletion <= 1.0f, "Completion value {0} is out of valid range", fCompletion);
 
   m_fCurrentCompletion = fCompletion;
 
@@ -203,7 +203,7 @@ void ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNu
   m_sStepDisplayText = szStepDisplayText;
 
   m_uiCurrentStep += uiNumSteps;
-  EZ_ASSERT_DEBUG(m_uiCurrentStep <= m_StepWeights.GetCount(), "Too many steps completed! (%u of %u)", m_uiCurrentStep, m_StepWeights.GetCount());
+  EZ_ASSERT_DEBUG(m_uiCurrentStep <= m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep, m_StepWeights.GetCount());
 
   const double internalCompletion = ComputeInternalCompletion();
 

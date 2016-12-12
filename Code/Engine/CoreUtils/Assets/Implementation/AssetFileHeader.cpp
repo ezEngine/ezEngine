@@ -65,7 +65,7 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
   stream >> uiHash;
 
   // future version?
-  EZ_ASSERT_DEV(uiVersion <= ezAssetFileHeaderVersion::VersionCurrent, "Unknown asset header version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= ezAssetFileHeaderVersion::VersionCurrent, "Unknown asset header version {0}", uiVersion);
 
   if (uiVersion >= ezAssetFileHeaderVersion::Version2)
   {

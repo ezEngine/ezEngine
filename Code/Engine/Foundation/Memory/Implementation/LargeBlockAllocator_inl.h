@@ -36,14 +36,14 @@ EZ_FORCE_INLINE bool ezDataBlock<T, SizeInBytes>::IsFull() const
 template <typename T, ezUInt32 SizeInBytes>
 EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Data block has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Data block has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return m_pData[uiIndex];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <ezUInt32 BlockSize>
-ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags) : 
+ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags) :
   m_superBlocks(pParent),
   m_freeBlocks(pParent)
 {
@@ -55,7 +55,7 @@ ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAl
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_IGNORE_UNUSED(uiPageSize);
   EZ_ASSERT_DEV(uiPageSize <= BlockSize, "Memory Page size is bigger than block size.");
-  EZ_ASSERT_DEV(BlockSize % uiPageSize == 0, "Blocksize (%u) must be a multiple of page size (%u)", BlockSize, uiPageSize);
+  EZ_ASSERT_DEV(BlockSize % uiPageSize == 0, "Blocksize ({0}) must be a multiple of page size ({1})", BlockSize, uiPageSize);
 }
 
 template <ezUInt32 BlockSize>
@@ -149,7 +149,7 @@ void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
     superBlock.m_uiUsedBlocks = 1;
 
     m_superBlocks.PushBack(superBlock);
-    
+
     const ezUInt32 uiBlockBaseIndex = (m_superBlocks.GetCount() - 1) * SuperBlock::NUM_BLOCKS;
     for (ezUInt32 i = SuperBlock::NUM_BLOCKS - 1; i > 0; --i)
     {
@@ -186,8 +186,8 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
     }
   }
 
-  EZ_ASSERT_DEV(bFound, "'%p' was not allocated with this allocator", ptr);
-  
+  EZ_ASSERT_DEV(bFound, "'{0}' was not allocated with this allocator", ezArgP(ptr));
+
   SuperBlock& superBlock = m_superBlocks[uiSuperBlockIndex];
   --superBlock.m_uiUsedBlocks;
 
@@ -204,7 +204,7 @@ void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
     {
       const ezUInt32 uiIndex = m_freeBlocks[i];
       const ezUInt32 uiSBIndex = uiIndex / SuperBlock::NUM_BLOCKS;
-      
+
       if (uiSBIndex == uiSuperBlockIndex)
       {
         // points to the block we just removed

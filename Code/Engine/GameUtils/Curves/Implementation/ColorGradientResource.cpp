@@ -86,7 +86,7 @@ void ezColorGradientResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
 
   m_Gradient.Load(stream);
 }

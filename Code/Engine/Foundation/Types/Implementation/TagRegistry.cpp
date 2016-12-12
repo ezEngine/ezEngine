@@ -98,7 +98,7 @@ void ezTagRegistry::Load(ezStreamReader& stream)
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid ezTagRegistry version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1, "Invalid ezTagRegistry version {0}", uiVersion);
 
   ezUInt32 uiNumTags = 0;
   stream >> uiNumTags;

@@ -38,7 +38,7 @@ void ezStandardMenus::UnregisterActions()
 void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& Menus)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "'%s' does not exist", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "'{0}' does not exist", szMapping);
 
   ezActionMapDescriptor md;
 

@@ -78,7 +78,7 @@ public:
 
   virtual void Clear(void* pInstance) override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '%s' has no remove and insert function, thus it is read-only", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Insert != nullptr && m_Remove != nullptr, "The property '{0}' has no remove and insert function, thus it is read-only", ezAbstractProperty::GetPropertyName());
 
     // We must not cache the container c here as the Remove can make it invalid
     // e.g. ezArrayPtr by value.
@@ -93,13 +93,13 @@ public:
 
   virtual void Insert(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '%s' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(*static_cast<const RealType*>(pObject));
   }
 
@@ -175,19 +175,19 @@ public:
 
   virtual void Clear(void* pInstance) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Insert(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Remove(*static_cast<const RealType*>(pObject));
   }
 

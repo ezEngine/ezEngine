@@ -65,7 +65,7 @@ void ezDocumentActions::UnregisterActions()
 void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bool bForToolbar)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", szMapping);
 
   pMap->MapAction(s_hSaveCategory, szPath, 1.0f);
   ezStringBuilder sSubPath(szPath, "/SaveCategory");
@@ -89,7 +89,7 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
 void ezDocumentActions::MapToolsActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", szMapping);
 
   pMap->MapAction(s_hDocumentCategory, szPath, 1.0f);
   ezStringBuilder sSubPath(szPath, "/Tools.DocumentCategory");

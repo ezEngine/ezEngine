@@ -146,7 +146,7 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Lerp(T f1, T f2, float factor)
   {
-    EZ_ASSERT_DEBUG((factor >= -0.00001f) && (factor <= 1.0f + 0.00001f), "lerp: factor %.2f is not in the range [0; 1]", factor);
+    EZ_ASSERT_DEBUG((factor >= -0.00001f) && (factor <= 1.0f + 0.00001f), "lerp: factor {0} is not in the range [0; 1]", ezArgF(factor, 2));
 
     return (T)(f1 + (factor * (f2 - f1)));
   }
