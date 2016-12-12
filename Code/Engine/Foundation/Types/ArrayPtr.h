@@ -2,6 +2,7 @@
 
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
+#include <Foundation/Strings/FormatString.h>
 
 /// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
 ///
@@ -168,7 +169,7 @@ public:
     ezMemoryUtils::Copy(GetPtr(), other.GetPtr(), GetCount());
   }
 
-  /// \brief Resets the ezArray to be empty. 
+  /// \brief Resets the ezArray to be empty.
   EZ_FORCE_INLINE void Reset() // [tested]
   {
     m_ptr = nullptr;

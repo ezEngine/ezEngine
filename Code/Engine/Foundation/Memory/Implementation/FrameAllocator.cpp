@@ -2,6 +2,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FrameAllocator)
 
@@ -25,7 +26,7 @@ namespace
 
 ezFrameAllocator::StackAllocatorType* ezFrameAllocator::s_pCurrentAllocator;
 
-// static 
+// static
 void ezFrameAllocator::Swap()
 {
   EZ_PROFILE(g_SwapProfilingId);
@@ -34,7 +35,7 @@ void ezFrameAllocator::Swap()
   s_pCurrentAllocator->Reset();
 }
 
-// static 
+// static
 void ezFrameAllocator::Reset()
 {
   g_Allocators[0]->Reset();
@@ -50,7 +51,7 @@ void ezFrameAllocator::Startup()
   s_pCurrentAllocator = g_Allocators[0];
 }
 
-// static 
+// static
 void ezFrameAllocator::Shutdown()
 {
   g_Allocators[0]->Reset();
@@ -61,8 +62,3 @@ void ezFrameAllocator::Shutdown()
 
   s_pCurrentAllocator = nullptr;
 }
-
-
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_FrameAllocator);
-

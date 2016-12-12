@@ -52,7 +52,7 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment) \
-    EZ_ASSERT_DEV(((size_t)ptr & (alignment - 1)) == 0, "Wrong alignment. Expected %d bytes alignment", ((ezUInt32)alignment))
+    EZ_ASSERT_DEV(((size_t)ptr & (alignment - 1)) == 0, "Wrong alignment.")
 #else
   /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment)
