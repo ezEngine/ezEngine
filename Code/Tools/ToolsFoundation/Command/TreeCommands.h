@@ -83,7 +83,8 @@ public: // Properties
   ezUuid m_Parent;
   ezUuid m_CreateFromPrefab;
   ezUuid m_RemapGuid;
-  ezString m_sGraphTextFormat;
+  ezString m_sBasePrefabGraph;
+  ezString m_sObjectGraph;
   ezUuid m_CreatedRootObject;
   bool m_bAllowPickedPosition;
 

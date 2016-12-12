@@ -38,7 +38,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllo
   {
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
     EZ_MEMBER_PROPERTY("CreateFromPrefab", m_CreateFromPrefab),
-    EZ_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
+    EZ_MEMBER_PROPERTY("BaseGraph", m_sBasePrefabGraph),
+    EZ_MEMBER_PROPERTY("ObjectGraph", m_sObjectGraph),
     EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
     EZ_MEMBER_PROPERTY("CreatedObjects", m_CreatedRootObject),
     EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
@@ -364,7 +365,11 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
   if (!bRedo)
   {
     ezAbstractObjectGraph graph;
-    ezPrefabUtils::LoadGraph(graph, m_sGraphTextFormat);
+
+    if (!m_sObjectGraph.IsEmpty())
+      ezPrefabUtils::LoadGraph(graph, m_sObjectGraph);
+    else
+      ezPrefabUtils::LoadGraph(graph, m_sBasePrefabGraph);
 
     // Remap
     graph.ReMapNodeGuids(m_RemapGuid);
@@ -436,7 +441,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
       auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
       pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
       pMeta->m_PrefabSeedGuid = m_RemapGuid;
-      pMeta->m_sBasePrefab = m_sGraphTextFormat;
+      pMeta->m_sBasePrefab = m_sBasePrefabGraph;
       pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
     }
     else
