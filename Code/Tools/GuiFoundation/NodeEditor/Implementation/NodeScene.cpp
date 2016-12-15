@@ -22,6 +22,7 @@
 ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
 ezRttiMappedObjectFactory<ezQtConnection> ezQtNodeScene::s_ConnectionFactory;
+ezVec2 ezQtNodeScene::s_LastMouseInteraction(0);
 
 ezQtNodeScene::ezQtNodeScene(QObject* parent)
   : QGraphicsScene(parent), m_pManager(nullptr), m_pStartPin(nullptr), m_pTempConnection(nullptr)
@@ -107,6 +108,8 @@ ezRttiMappedObjectFactory<ezQtConnection>& ezQtNodeScene::GetConnectionFactory()
 
 void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
+  s_LastMouseInteraction = ezVec2(event->scenePos().x(), event->scenePos().y());
+
   if (m_pTempConnection)
   {
     event->accept();
@@ -274,16 +277,6 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
       connect(pAction, &QAction::triggered, this, [this](bool bChecked)
       {
         RemoveSelectedNodesAction();
-      });
-    }
-
-    // Copy
-    {
-      QAction* pAction = new QAction("Copy", &menu);
-      menu.addAction(pAction);
-      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
-      {
-        CopySelectedNodes();
       });
     }
   }
@@ -663,42 +656,6 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
     history->FinishTransaction();
 
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
-}
-
-
-void ezQtNodeScene::CopySelectedNodes()
-{
-  ezDeque<ezQtNode*> selection;
-  GetSelectedNodes(selection);
-
-  if (selection.IsEmpty())
-    return;
-
-  ezAbstractObjectGraph graph;
-  ezDocumentObjectConverterWriter writer(&graph, GetDocumentNodeManager(), true, true);
-
-  for (ezQtNode* pNode : selection)
-  {
-    // objects are required to be named root but this is not enforced or obvious by the interface.
-    writer.AddObjectToGraph(pNode->GetObject(), "root");
-  }
-
-  GetDocumentNodeManager()->AttachMetaDataBeforeSaving(graph);
-
-  // Serialize to string
-  ezMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
-  ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph, nullptr, false);
-  memoryWriter.WriteBytes("\0", 1); // null terminate
-
-  // Write to clipboard
-  QClipboard* clipboard = QApplication::clipboard();
-  QMimeData* mimeData = new QMimeData();
-  QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
-
-  mimeData->setData("application/ezEditor.NodeGraph", encodedData);
-  mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
-  clipboard->setMimeData(mimeData);
 }
 
 void ezQtNodeScene::OnMenuAction()

@@ -41,7 +41,7 @@ void ezEditActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hDelete);
 }
 
-void ezEditActions::MapActions(const char* szMapping, const char* szPath)
+void ezEditActions::MapActions(const char* szMapping, const char* szPath, bool bDeleteAction, bool bPasteAsChildAction)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the edit actions failed!", szMapping);
@@ -52,8 +52,12 @@ void ezEditActions::MapActions(const char* szMapping, const char* szPath)
 
   pMap->MapAction(s_hCopy, sSubPath, 1.0f);
   pMap->MapAction(s_hPaste, sSubPath, 2.0f);
-  pMap->MapAction(s_hPasteAsChild, sSubPath, 2.5f);
-  pMap->MapAction(s_hDelete, sSubPath, 3.0f);
+
+  if (bPasteAsChildAction)
+    pMap->MapAction(s_hPasteAsChild, sSubPath, 2.5f);
+
+  if (bDeleteAction)
+    pMap->MapAction(s_hDelete, sSubPath, 3.0f);
 }
 
 
@@ -198,7 +202,7 @@ void ezEditAction::Execute(const ezVariant& value)
 
       history->StartTransaction("Paste");
 
-      if (history->AddCommand(cmd).m_Result.Failed())
+      if (history->AddCommand(cmd).Failed())
         history->CancelTransaction();
       else
         history->FinishTransaction();

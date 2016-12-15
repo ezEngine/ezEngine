@@ -101,7 +101,7 @@ public:
 
   void Connect(const ezPin* pSource, const ezPin* pTarget);
   void Disconnect(const ezPin* pSource, const ezPin* pTarget);
-  void MoveNode(ezDocumentObject* pObject, const ezVec2& vPos);
+  void MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos);
 
   void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
   void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph);

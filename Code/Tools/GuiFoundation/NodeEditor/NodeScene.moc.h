@@ -32,6 +32,7 @@ public:
   static ezRttiMappedObjectFactory<ezQtNode>& GetNodeFactory();
   static ezRttiMappedObjectFactory<ezQtPin>& GetPinFactory();
   static ezRttiMappedObjectFactory<ezQtConnection>& GetConnectionFactory();
+  static ezVec2 GetLastMouseInteractionPos() { return s_LastMouseInteraction; }
 
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
@@ -56,7 +57,6 @@ protected:
   virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin);
   virtual void DisconnectPinsAction(ezQtConnection* pConnection);
   virtual void DisconnectPinsAction(ezQtPin* pPin);
-  virtual void CopySelectedNodes();
 
 private slots:
   void OnMenuAction();
@@ -80,6 +80,8 @@ private:
   ezDeque<const ezDocumentObject*> m_Selection;
   ezVec2 m_vPos;
   QString m_sContextMenuSearchText;
+
+  static ezVec2 s_LastMouseInteraction;
 };
 
 

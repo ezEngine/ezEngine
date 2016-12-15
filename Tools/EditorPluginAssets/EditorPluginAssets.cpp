@@ -67,7 +67,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("MaterialAssetMenuBar", "Menu.File", false);
       ezDocumentActions::MapToolsActions("MaterialAssetMenuBar", "Menu.Tools");
       ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "Menu.Edit");
-      ezEditActions::MapActions("MaterialAssetMenuBar", "Menu.Edit");
+      ezEditActions::MapActions("MaterialAssetMenuBar", "Menu.Edit", false, false);
     }
 
     // Tool Bar

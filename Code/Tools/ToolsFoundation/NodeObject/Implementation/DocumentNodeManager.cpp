@@ -239,7 +239,7 @@ void ezDocumentNodeManager::Disconnect(const ezPin* pSource, const ezPin* pTarge
   InternalDestroyConnection(pConnection);
 }
 
-void ezDocumentNodeManager::MoveNode(ezDocumentObject* pObject, const ezVec2& vPos)
+void ezDocumentNodeManager::MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos)
 {
   EZ_ASSERT_DEBUG(CanMoveNode(pObject, vPos).m_Result.Succeeded(), "MoveNode: Sanity check failed!");
 

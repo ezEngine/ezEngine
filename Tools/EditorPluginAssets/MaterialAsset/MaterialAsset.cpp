@@ -10,6 +10,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <VisualShader/VsCodeGenerator.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
+#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
@@ -875,18 +876,39 @@ void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezSt
 bool ezMaterialAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.NodeGraph";
-  return false;
+
+  const auto& selection = GetSelectionManager()->GetSelection();
+
+  if (selection.IsEmpty())
+    return false;
+
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+
+  ezDocumentObjectConverterWriter writer(&out_objectGraph, pManager, true, true);
+
+  for (const ezDocumentObject* pNode : selection)
+  {
+    // objects are required to be named root but this is not enforced or obvious by the interface.
+    writer.AddObjectToGraph(pNode, "root");
+  }
+
+  pManager->AttachMetaDataBeforeSaving(out_objectGraph);
+
+  return true;
 }
 
 bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 
+  ezDeque<const ezDocumentObject*> AddedNodes;
+
   for (const PasteInfo& pi : info)
   {
     // only add nodes that are allowed to be added
     if (GetObjectManager()->CanAdd(pi.m_pObject->GetTypeAccessor().GetType(), nullptr, "Children", -1).m_Result.Succeeded())
     {
+      AddedNodes.PushBack(pi.m_pObject);
       GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", -1);
     }
     else
@@ -899,11 +921,34 @@ bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezA
 
   RestoreMetaDataAfterLoading(objectGraph);
 
-  if (!bAddedAll)
+  if (!AddedNodes.IsEmpty() && bAllowPickedPosition)
   {
-    ezLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
+    ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+
+    ezVec2 vAvgPos(0);
+    for (const ezDocumentObject* pNode : AddedNodes)
+    {
+      vAvgPos += pManager->GetNodePos(pNode);
+    }
+
+    vAvgPos /= AddedNodes.GetCount();
+
+    const ezVec2 vMoveNode = -vAvgPos + ezQtNodeScene::GetLastMouseInteractionPos();
+
+    for (const ezDocumentObject* pNode : AddedNodes)
+    {
+      pManager->MoveNode(pNode, pManager->GetNodePos(pNode) + vMoveNode);
+    }
+
+    if (!bAddedAll)
+    {
+      ezLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
+    }
+
   }
 
+  // doesn't work because ezQtNodeScene has its own selection, which is not synchronized when this is called
+  //GetSelectionManager()->SetSelection(AddedNodes);
   return true;
 }
 

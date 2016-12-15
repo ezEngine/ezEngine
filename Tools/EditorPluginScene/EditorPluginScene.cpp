@@ -68,7 +68,7 @@ void OnLoadPlugin(bool bReloading)
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
-  ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit", true, true);
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
