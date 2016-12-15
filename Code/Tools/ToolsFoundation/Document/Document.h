@@ -104,8 +104,11 @@ public:
     ezDocumentObject* m_pParent;
   };
 
-  virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) const { return false; };
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition) { return false; };
+  /// \brief Whether this document supports pasting the given mime format into it
+  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const {}
+  /// \brief Creates the abstract graph of data to be copied and returns the mime type for the clipboard to identify the data
+  virtual bool Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const { return false; };
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) { return false; };
 
   ///@}
   /// \name Misc Functions

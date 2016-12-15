@@ -129,16 +129,15 @@ ezEditAction::~ezEditAction()
 
 void ezEditAction::Execute(const ezVariant& value)
 {
-  // if we ever want to use this action inside different types of documents and potentially copy between different document types
-  // we need to be more specific with the Mime data names
-  const char* szDataName = "ezAbstractGraph"; //m_Context.m_pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName.GetData()
-
   switch (m_ButtonType)
   {
   case ezEditAction::ButtonType::Copy:
     {
+      ezStringBuilder sMimeType;
+
       ezAbstractObjectGraph graph;
-      m_Context.m_pDocument->Copy(graph);
+      if (!m_Context.m_pDocument->Copy(graph, sMimeType))
+        break;
 
       // Serialize to string
       ezMemoryStreamStorage streamStorage;
@@ -151,7 +150,7 @@ void ezEditAction::Execute(const ezVariant& value)
       QMimeData* mimeData = new QMimeData();
       QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
 
-      mimeData->setData(szDataName, encodedData);
+      mimeData->setData(sMimeType.GetData(), encodedData);
       mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
       clipboard->setMimeData(mimeData);
     }
@@ -163,12 +162,30 @@ void ezEditAction::Execute(const ezVariant& value)
       // Check for clipboard data of the correct type.
       QClipboard* clipboard = QApplication::clipboard();
       auto mimedata = clipboard->mimeData();
-      if (!mimedata->hasFormat(szDataName))
-        return;
+
+      ezHybridArray<ezString, 4> MimeTypes;
+      m_Context.m_pDocument->GetSupportedMimeTypesForPasting(MimeTypes);
+
+      ezInt32 iFormat = -1;
+      {
+        for (ezUInt32 i = 0; i < MimeTypes.GetCount(); ++i)
+        {
+          if (mimedata->hasFormat(MimeTypes[i].GetData()))
+          {
+            iFormat = i;
+            break;
+          }
+        }
+
+        if (iFormat < 0)
+          break;
+      }
 
       // Paste at current selected object.
       ezPasteObjectsCommand cmd;
-      QByteArray ba = mimedata->data(szDataName);
+      cmd.m_sMimeType = MimeTypes[iFormat];
+
+      QByteArray ba = mimedata->data(MimeTypes[iFormat].GetData());
       cmd.m_sGraphTextFormat = ba.data();
 
       if (m_ButtonType == ButtonType::PasteAsChild)

@@ -16,12 +16,11 @@
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
-
-
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
+#include <GuiFoundation/Action/EditActions.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -68,6 +67,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("MaterialAssetMenuBar", "Menu.File", false);
       ezDocumentActions::MapToolsActions("MaterialAssetMenuBar", "Menu.Tools");
       ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "Menu.Edit");
+      ezEditActions::MapActions("MaterialAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar

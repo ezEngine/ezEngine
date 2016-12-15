@@ -27,7 +27,7 @@ public:
 
   void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);
   const ezDocumentNodeManager* GetDocumentNodeManager() const;
-  const ezDocument* ezQtNodeScene::GetDocument() const;
+  const ezDocument* GetDocument() const;
 
   static ezRttiMappedObjectFactory<ezQtNode>& GetNodeFactory();
   static ezRttiMappedObjectFactory<ezQtPin>& GetPinFactory();
@@ -57,7 +57,6 @@ protected:
   virtual void DisconnectPinsAction(ezQtConnection* pConnection);
   virtual void DisconnectPinsAction(ezQtPin* pPin);
   virtual void CopySelectedNodes();
-  virtual void PasteNodes();
 
 private slots:
   void OnMenuAction();

@@ -867,7 +867,18 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
   return s_NeutralNormalMap;
 }
 
-bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition)
+void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+{
+  out_MimeTypes.PushBack("application/ezEditor.NodeGraph");
+}
+
+bool ezMaterialAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+{
+  out_MimeType = "application/ezEditor.NodeGraph";
+  return false;
+}
+
+bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

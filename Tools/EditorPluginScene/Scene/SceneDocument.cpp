@@ -729,8 +729,14 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
   return m_bGizmoWorldSpace;
 }
 
-bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph) const
+void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
 {
+  out_MimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
+}
+
+bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezStringBuilder& out_MimeType) const
+{
+  out_MimeType = "application/ezEditor.ezAbstractGraph";
   return Copy(graph, nullptr);
 }
 
@@ -812,7 +818,7 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 

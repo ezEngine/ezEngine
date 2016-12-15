@@ -50,6 +50,7 @@ public:
 public: // Properties
   ezUuid m_Parent;
   ezString m_sGraphTextFormat;
+  ezString m_sMimeType;
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;

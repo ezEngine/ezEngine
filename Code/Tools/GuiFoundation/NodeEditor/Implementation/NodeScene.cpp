@@ -286,16 +286,6 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
         CopySelectedNodes();
       });
     }
-
-    // Paste
-    {
-      QAction* pAction = new QAction("Paste", &menu);
-      menu.addAction(pAction);
-      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
-      {
-        PasteNodes();
-      });
-    }
   }
   else if (iType == Type::Connection)
   {
@@ -689,11 +679,10 @@ void ezQtNodeScene::CopySelectedNodes()
 
   for (ezQtNode* pNode : selection)
   {
-    // TODO: objects are required to be named root but this is not enforced or obvious by the interface.
+    // objects are required to be named root but this is not enforced or obvious by the interface.
     writer.AddObjectToGraph(pNode->GetObject(), "root");
   }
 
-  // TODO: Only copy connections within the copied sub-graph
   GetDocumentNodeManager()->AttachMetaDataBeforeSaving(graph);
 
   // Serialize to string
@@ -710,31 +699,6 @@ void ezQtNodeScene::CopySelectedNodes()
   mimeData->setData("application/ezEditor.NodeGraph", encodedData);
   mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
   clipboard->setMimeData(mimeData);
-}
-
-void ezQtNodeScene::PasteNodes()
-{
-  // Check for clipboard data of the correct type.
-  QClipboard* clipboard = QApplication::clipboard();
-  auto mimedata = clipboard->mimeData();
-  if (!mimedata->hasFormat("application/ezEditor.NodeGraph"))
-    return;
-
-  // Paste at current selected object.
-  ezPasteObjectsCommand cmd;
-  QByteArray ba = mimedata->data("application/ezEditor.NodeGraph");
-  cmd.m_sGraphTextFormat = ba.data();
-
-  auto history = GetDocument()->GetCommandHistory();
-
-  history->StartTransaction("Paste Nodes");
-
-  if (history->AddCommand(cmd).m_Result.Failed())
-    history->CancelTransaction();
-  else
-  {
-    history->FinishTransaction();
-  }
 }
 
 void ezQtNodeScene::OnMenuAction()

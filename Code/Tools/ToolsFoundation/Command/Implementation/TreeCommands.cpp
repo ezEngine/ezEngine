@@ -27,6 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, 1, ezRTTIDefaultAllocator
   {
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
     EZ_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
+    EZ_MEMBER_PROPERTY("Mime", m_sMimeType),
   }
   EZ_END_PROPERTIES
 }
@@ -280,7 +281,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       }
     }
 
-    if (pDocument->Paste(ToBePasted, graph, true))
+    if (pDocument->Paste(ToBePasted, graph, true, m_sMimeType))
     {
       for (const auto& item : ToBePasted)
       {
@@ -393,7 +394,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
       }
     }
 
-    if (pDocument->Paste(ToBePasted, graph, m_bAllowPickedPosition))
+    if (pDocument->Paste(ToBePasted, graph, m_bAllowPickedPosition, "application/ezEditor.ezAbstractGraph"))
     {
       for (const auto& item : ToBePasted)
       {
