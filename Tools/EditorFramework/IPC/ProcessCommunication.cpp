@@ -137,6 +137,7 @@ void ezProcessCommunication::CloseConnection()
   delete m_pSharedMemory;
   m_pSharedMemory = nullptr;
 
+  m_pClientProcess->close();
   delete m_pClientProcess;
   m_pClientProcess = nullptr;
 

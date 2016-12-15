@@ -920,15 +920,16 @@ void ezSceneDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
   case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
       // clean up object meta data upon object destruction, because we can :-P
-      // so apparently we can't :D
-      // when we update Prefabs, we destroy the old one and create a new instance
-      // but then we remap the GUIDs, such that the new object has the same GUID as the old one
-      // however, commands referencing the old object might still be in the Redo queue (if the user undid a prefab update command)
-      // when that queue gets flushed (on any new command), commands like the InstantiatePrefab command will clean up
-      // objects that they created, but then undid, but now they SHARE THE SAME GUID (due to the remapping)
-      // which is kinda weird and potentially bad (?) and leads here to clearing meta data for the other existing object
-      //m_DocumentObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
-      //m_SceneObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
+      if (GetObjectManager()->GetObject(e.m_pObject->GetGuid()) == nullptr)
+      {
+        // make sure there is no object with this GUID still "added" to the document
+        // this can happen if two objects use the same GUID, only one object can be "added" at a time, but multiple objects with the same GUID may exist
+        // the same GUID is in use, when a prefab is recreated (updated) and the GUIDs are restored, such that references don't change
+        // the object that is being destroyed is typically referenced by a command that was in the redo-queue that got purged
+
+        m_DocumentObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
+        m_SceneObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
+      }
     }
     break;
   }

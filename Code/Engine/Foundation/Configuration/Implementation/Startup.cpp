@@ -83,7 +83,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
       ezStartup::ReinitToCurrentState();
     }
     break;
-      
+
   default:
     break;
   }
@@ -233,7 +233,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
   {
     if (!Order[i]->m_bStartupDone[stage])
     {
-      ezLog::Info("Starting Sub-System '{0}' from Group '{1}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+      ezLog::Dev("Starting Sub-System '{0}' from Group '{1}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
 
       switch (stage)
       {
@@ -246,7 +246,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
       case ezStartupStage::Engine:
         Order[i]->OnEngineStartup();
         break;
-          
+
       default:
         break;
       }
@@ -309,7 +309,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
   case ezStartupStage::Engine:
     ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_ENGINE_END);
     break;
-      
+
   default:
     break;
   }
@@ -364,11 +364,11 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
         case ezStartupStage::Core:
           Order[i]->OnCoreShutdown();
           break;
-            
+
         case ezStartupStage::Engine:
           Order[i]->OnEngineShutdown();
           break;
-            
+
         default:
           break;
         }
@@ -383,11 +383,11 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
   case ezStartupStage::Core:
     ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORE_END);
     break;
-      
+
   case ezStartupStage::Engine:
     ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END);
     break;
-      
+
   default:
     break;
   }

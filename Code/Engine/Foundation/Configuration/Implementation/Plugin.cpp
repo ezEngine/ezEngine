@@ -259,7 +259,7 @@ success:
   {
     g_LoadedPlugins.Remove(szPluginFile);
     EndPluginChanges();
-    
+
     return EZ_FAILURE;
   }
 
@@ -310,7 +310,7 @@ success:
 
         ++iNewPlugins;
       }
-      
+
       pPlugin = pPlugin->GetNextInstance();
     }
 
@@ -332,11 +332,11 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
   if (g_LoadedPlugins.Find(szPluginFile).IsValid())
   {
     g_LoadedPlugins[szPluginFile].m_iReferenceCount++;
-    ezLog::Dev("Plugin '{0}' already loaded.", szPluginFile);
+    ezLog::Debug("Plugin '{0}' already loaded.", szPluginFile);
     return EZ_SUCCESS;
   }
 
-  ezLog::Dev("Plugin to load: \"{0}\"", szPluginFile);
+  ezLog::Debug("Plugin to load: \"{0}\"", szPluginFile);
   g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
 
   /// \todo Set "copy dll" back to true again, when we know which plugins may be copied
@@ -352,7 +352,7 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCo
 
   if (!g_LoadedPlugins.Find(szPluginFile).IsValid())
   {
-    ezLog::Dev("Plugin '{0}' is not loaded.", szPluginFile);
+    ezLog::Debug("Plugin '{0}' is not loaded.", szPluginFile);
     return EZ_SUCCESS;
   }
 
@@ -363,11 +363,11 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCo
 
   if (g_LoadedPlugins[szPluginFile].m_iReferenceCount > 0)
   {
-    ezLog::Dev("Plugin '{0}' is still referenced (RefCount: {1}).", szPluginFile, g_LoadedPlugins[szPluginFile].m_iReferenceCount);
+    ezLog::Debug("Plugin '{0}' is still referenced (RefCount: {1}).", szPluginFile, g_LoadedPlugins[szPluginFile].m_iReferenceCount);
     return EZ_SUCCESS;
   }
 
-  ezLog::Dev("Plugin to unload: \"{0}\"", szPluginFile);
+  ezLog::Debug("Plugin to unload: \"{0}\"", szPluginFile);
   UnloadPluginInternal(szPluginFile, false);
 
   return EZ_SUCCESS;
@@ -491,7 +491,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
               {
                 if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
                 {
-                  ezLog::Dev("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
+                  ezLog::Debug("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
                   bModified = false;
                 }
                 else

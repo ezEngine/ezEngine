@@ -43,24 +43,32 @@ void ezQtEditorApp::SetStyleSheet()
 static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
   QByteArray localMsg = msg.toLocal8Bit();
+  ezStringBuilder sMsg = localMsg.constData();
+
   switch (type)
   {
   case QtDebugMsg:
-    ezLog::Debug("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::Debug("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
     break;
 #if QT_VERSION >= 0x050500
   case QtInfoMsg:
-    ezLog::Info("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::Info("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
     break;
 #endif
   case QtWarningMsg:
-    ezLog::Warning("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
-    break;
+    {
+      // I just hate this pointless message
+      if (sMsg.FindSubString("iCCP") != nullptr)
+        return;
+
+      ezLog::Warning("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
+      break;
+    }
   case QtCriticalMsg:
-    ezLog::Error("|Qt| {0} ({1}:{2}, {3})", localMsg.constData(), context.file, context.line, context.function);
+    ezLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
     break;
   case QtFatalMsg:
-    EZ_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", localMsg.constData(), context.file, context.line, context.function);
+    EZ_ASSERT_DEBUG("|Qt| {0} ({1}:{2} {3})", sMsg, context.file, context.line, context.function);
     break;
   }
 }

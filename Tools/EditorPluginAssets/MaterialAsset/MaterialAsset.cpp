@@ -867,6 +867,35 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
   return s_NeutralNormalMap;
 }
 
+bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition)
+{
+  bool bAddedAll = true;
+
+  for (const PasteInfo& pi : info)
+  {
+    // only add nodes that are allowed to be added
+    if (GetObjectManager()->CanAdd(pi.m_pObject->GetTypeAccessor().GetType(), nullptr, "Children", -1).m_Result.Succeeded())
+    {
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", -1);
+    }
+    else
+    {
+      bAddedAll = false;
+    }
+  }
+
+  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+
+  RestoreMetaDataAfterLoading(objectGraph);
+
+  if (!bAddedAll)
+  {
+    ezLog::Info("[EditorStatus]Not all nodes were allowed to be added to the document");
+  }
+
+  return true;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

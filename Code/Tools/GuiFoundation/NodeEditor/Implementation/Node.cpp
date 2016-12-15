@@ -30,7 +30,6 @@ ezQtNode::ezQtNode() : m_pManager(nullptr), m_pObject(nullptr)
   m_pLabel = new QGraphicsTextItem(this);
   m_pLabel->setDefaultTextColor(palette.buttonText().color());
   QFont font = QApplication::font();
-  font.setPixelSize((float)font.pixelSize() * 1.5f);
   font.setBold(true);
   m_pLabel->setFont(font);
 

@@ -88,6 +88,9 @@ public:
   static ezUuid GetLitAlphaTextBaseMaterial();
   static ezUuid GetNeutralNormalMap();
 
+
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition) override;
+
 protected:
   ezUuid GetSeedFromBaseMaterial(const ezAbstractObjectGraph* pBaseGraph);
   static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);

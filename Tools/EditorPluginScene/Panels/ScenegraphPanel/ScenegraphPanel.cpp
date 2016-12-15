@@ -21,7 +21,7 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDoc
   m_pDocument = pDocument;
 
   m_pMainWidget = new QWidget(this);
-  m_pMainWidget->setLayout(new QVBoxLayout(this));
+  m_pMainWidget->setLayout(new QVBoxLayout());
   m_pMainWidget->setContentsMargins(0, 0, 0, 0);
   m_pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
 

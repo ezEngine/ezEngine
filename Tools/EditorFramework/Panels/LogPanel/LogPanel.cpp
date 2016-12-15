@@ -41,6 +41,10 @@ ezQtLogPanel::ezQtLogPanel()
     splitter->restoreState(Settings.value("Splitter", splitter->saveState()).toByteArray());
   }
   Settings.endGroup();
+
+  // can't start with a different log level as long as filtering of groups doesn't correctly work while messages are added
+  //const int logIndex = (ezLogMsgType::All - ezLogMsgType::InfoMsg);
+  //ComboFilter->setCurrentIndex(logIndex);
 }
 
 ezQtLogPanel::~ezQtLogPanel()
@@ -87,6 +91,11 @@ void ezQtLogPanel::LogWriter(const ezLoggingEventData& e)
   msg.m_uiIndentation = e.m_uiIndentation;
 
   m_EditorLog.AddLogMsg(msg);
+
+  if (msg.m_sTag == "EditorStatus")
+  {
+    ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(msg.m_sMsg, ezTime::Seconds(5));
+  }
 }
 
 void ezQtLogPanel::ScrollToBottomIfAtEnd(QListView* pView, int iNumElements)
@@ -162,8 +171,8 @@ void ezQtLogPanel::on_ComboFilter_currentIndexChanged(int index)
 
 ezQtLogModel::ezQtLogModel()
 {
-  m_bIsValid = true;
-  m_LogLevel = ezLogMsgType::All;
+  m_bIsValid = false;
+  m_LogLevel = ezLogMsgType::All; // setting the log level to something different at start doesn't work, because filtering out groups doesn't work correctly while messages are added
 }
 
 void ezQtLogModel::Invalidate()
@@ -272,8 +281,8 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
       case ezLogMsgType::SeriousWarningMsg:   return QColor::fromRgb(255, 64, 0);
       case ezLogMsgType::WarningMsg:          return QColor::fromRgb(255, 140, 0);
       case ezLogMsgType::SuccessMsg:          return QColor::fromRgb(0, 128, 0);
-      case ezLogMsgType::DevMsg:              return QColor::fromRgb(128, 128, 128);
-      case ezLogMsgType::DebugMsg:            return QColor::fromRgb(255, 0, 255);
+      case ezLogMsgType::DevMsg:              return QColor::fromRgb(63, 143, 210);
+      case ezLogMsgType::DebugMsg:            return QColor::fromRgb(128, 128, 128);
       default:
         return QVariant();
       }

@@ -281,7 +281,14 @@ void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& gr
         for (const ezConnection* pConnection : connections)
         {
           const ezPin* pPinTarget = pConnection->m_pTargetPin;
-          data.m_Connections.PushBack(ConnectionInternal(pPinSource->GetName(), pPinTarget->GetParent()->GetGuid(), pPinTarget->GetName()));
+          const ezUuid parentGuid = pPinTarget->GetParent()->GetGuid();
+
+          // only add connections where the target node is also contained in the graph
+          // this is not the case when only a selection of nodes is copied
+          if (graph.GetNode(parentGuid) != nullptr)
+          {
+            data.m_Connections.PushBack(ConnectionInternal(pPinSource->GetName(), parentGuid, pPinTarget->GetName()));
+          }
         }
       }
 

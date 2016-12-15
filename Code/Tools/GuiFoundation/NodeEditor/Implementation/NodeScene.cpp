@@ -13,6 +13,11 @@
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
+#include <QClipboard>
+#include <QMimeData>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
@@ -75,7 +80,12 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
   }
 }
 
-const ezDocumentNodeManager* ezQtNodeScene::GetDocumentNodeManager()
+const ezDocument* ezQtNodeScene::GetDocument() const
+{
+  return m_pManager->GetDocument();
+}
+
+const ezDocumentNodeManager* ezQtNodeScene::GetDocumentNodeManager() const
 {
   return m_pManager;
 }
@@ -257,12 +267,35 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
       pNode->setSelected(true);
     }
 
-    QAction* pAction = new QAction("Remove Node", &menu);
-    menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+    // Delete Node
     {
-      RemoveSelectedNodesAction();
-    });
+      QAction* pAction = new QAction("Remove", &menu);
+      menu.addAction(pAction);
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+      {
+        RemoveSelectedNodesAction();
+      });
+    }
+
+    // Copy
+    {
+      QAction* pAction = new QAction("Copy", &menu);
+      menu.addAction(pAction);
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+      {
+        CopySelectedNodes();
+      });
+    }
+
+    // Paste
+    {
+      QAction* pAction = new QAction("Paste", &menu);
+      menu.addAction(pAction);
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+      {
+        PasteNodes();
+      });
+    }
   }
   else if (iType == Type::Connection)
   {
@@ -313,7 +346,6 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
 }
 
 void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
-
 {
   if (event->key() == Qt::Key_Delete)
   {
@@ -643,6 +675,67 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
+
+void ezQtNodeScene::CopySelectedNodes()
+{
+  ezDeque<ezQtNode*> selection;
+  GetSelectedNodes(selection);
+
+  if (selection.IsEmpty())
+    return;
+
+  ezAbstractObjectGraph graph;
+  ezDocumentObjectConverterWriter writer(&graph, GetDocumentNodeManager(), true, true);
+
+  for (ezQtNode* pNode : selection)
+  {
+    // TODO: objects are required to be named root but this is not enforced or obvious by the interface.
+    writer.AddObjectToGraph(pNode->GetObject(), "root");
+  }
+
+  // TODO: Only copy connections within the copied sub-graph
+  GetDocumentNodeManager()->AttachMetaDataBeforeSaving(graph);
+
+  // Serialize to string
+  ezMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  ezAbstractGraphDdlSerializer::Write(memoryWriter, &graph, nullptr, false);
+  memoryWriter.WriteBytes("\0", 1); // null terminate
+
+  // Write to clipboard
+  QClipboard* clipboard = QApplication::clipboard();
+  QMimeData* mimeData = new QMimeData();
+  QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
+
+  mimeData->setData("application/ezEditor.NodeGraph", encodedData);
+  mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
+  clipboard->setMimeData(mimeData);
+}
+
+void ezQtNodeScene::PasteNodes()
+{
+  // Check for clipboard data of the correct type.
+  QClipboard* clipboard = QApplication::clipboard();
+  auto mimedata = clipboard->mimeData();
+  if (!mimedata->hasFormat("application/ezEditor.NodeGraph"))
+    return;
+
+  // Paste at current selected object.
+  ezPasteObjectsCommand cmd;
+  QByteArray ba = mimedata->data("application/ezEditor.NodeGraph");
+  cmd.m_sGraphTextFormat = ba.data();
+
+  auto history = GetDocument()->GetCommandHistory();
+
+  history->StartTransaction("Paste Nodes");
+
+  if (history->AddCommand(cmd).m_Result.Failed())
+    history->CancelTransaction();
+  else
+  {
+    history->FinishTransaction();
+  }
+}
 
 void ezQtNodeScene::OnMenuAction()
 {
