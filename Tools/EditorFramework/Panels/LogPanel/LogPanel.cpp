@@ -42,9 +42,8 @@ ezQtLogPanel::ezQtLogPanel()
   }
   Settings.endGroup();
 
-  // can't start with a different log level as long as filtering of groups doesn't correctly work while messages are added
-  //const int logIndex = (ezLogMsgType::All - ezLogMsgType::InfoMsg);
-  //ComboFilter->setCurrentIndex(logIndex);
+  const int logIndex = (ezLogMsgType::All - ezLogMsgType::InfoMsg);
+  ComboFilter->setCurrentIndex(logIndex);
 }
 
 ezQtLogPanel::~ezQtLogPanel()
@@ -172,7 +171,7 @@ void ezQtLogPanel::on_ComboFilter_currentIndexChanged(int index)
 ezQtLogModel::ezQtLogModel()
 {
   m_bIsValid = false;
-  m_LogLevel = ezLogMsgType::All; // setting the log level to something different at start doesn't work, because filtering out groups doesn't work correctly while messages are added
+  m_LogLevel = ezLogMsgType::InfoMsg;
 }
 
 void ezQtLogModel::Invalidate()
@@ -364,6 +363,29 @@ void ezQtLogModel::ProcessNewMessages()
     // if the message would not be shown anyway, don't trigger an update
     if (IsFiltered(msg))
       continue;
+
+    if (msg.m_Type == ezLogMsgType::BeginGroup)
+    {
+      m_BlockQueue.PushBack(&m_AllMessages.PeekBack());
+      continue;
+    }
+    else if (msg.m_Type == ezLogMsgType::EndGroup)
+    {
+      if (!m_BlockQueue.IsEmpty())
+      {
+        m_BlockQueue.PopBack();
+        continue;
+      }
+    }
+
+    for (auto pMsg : m_BlockQueue)
+    {
+      beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
+      m_VisibleMessages.PushBack(pMsg);
+      endInsertRows();
+    }
+
+    m_BlockQueue.Clear();
 
     beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
     m_VisibleMessages.PushBack(&m_AllMessages.PeekBack());

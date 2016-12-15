@@ -54,6 +54,7 @@ private:
 
   mutable bool m_bIsValid;
   mutable ezDeque<const LogMsg*> m_VisibleMessages;
+  mutable ezHybridArray<const LogMsg*, 16> m_BlockQueue;
 
   mutable ezMutex m_NewMessagesMutex;
   ezDeque<LogMsg> m_NewMessages;
