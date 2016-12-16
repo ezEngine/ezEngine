@@ -62,7 +62,7 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
   // Get tags by categories.
   ezHybridArray<const ezToolsTag*, 16> tags;
   ezToolsTagRegistry::GetTagsByCategory(categories, tags);
-  
+
   const char* szCurrentCategory = "";
 
   // Add valid tags to menu.
@@ -71,11 +71,11 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
     if (!pTag->m_sCategory.IsEqual(szCurrentCategory))
     {
       /*QAction* pCategory = */m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"), QLatin1String("[") + QString(pTag->m_sCategory.GetData()) + QLatin1String("]"));
-      
+
       szCurrentCategory = pTag->m_sCategory;
 
       // remove category from list, as it was added once
-      
+
       /// \todo ezStringView is POD? -> array<stringview>::Remove(stringview) fails, because of memcmp
       // categories.Remove(szCurrentCategory);
 
@@ -184,7 +184,7 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
     for (auto& item : m_Items)
     {
       ezHybridArray<ezVariant, 16> currentSetValues;
-      
+
       ezStatus status = pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
       EZ_ASSERT_DEV(status.m_Result.Succeeded(), "Failed to get tag keys!");
       if (!currentSetValues.Contains(value))
@@ -192,7 +192,7 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
         auto res = pObjectAccessor->InsertValue(item.m_pObject, m_pProp, value, -1);
         if (res.m_Result.Failed())
         {
-          EZ_REPORT_FAILURE("Failed to add '%s' tag to tag set", value.Get<ezString>().GetData());
+          EZ_REPORT_FAILURE("Failed to add '{0}' tag to tag set", value.Get<ezString>().GetData());
         }
       }
     }
@@ -216,7 +216,7 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
         auto res = pObjectAccessor->RemoveValue(item.m_pObject, m_pProp, uiIndex);
         if (res.m_Result.Failed())
         {
-          EZ_REPORT_FAILURE("Failed to remove '%s' tag from tag set", value.Get<ezString>().GetData());
+          EZ_REPORT_FAILURE("Failed to remove '{0}' tag from tag set", value.Get<ezString>().GetData());
         }
       }
     }

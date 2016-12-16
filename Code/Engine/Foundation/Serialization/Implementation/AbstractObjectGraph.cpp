@@ -142,7 +142,7 @@ void ezAbstractObjectNode::ChangeProperty(const char* szName, const ezVariant& v
     }
   }
 
-  EZ_REPORT_FAILURE("Property '%s' is unknown", szName);
+  EZ_REPORT_FAILURE("Property '{0}' is unknown", szName);
 }
 
 void ezAbstractObjectNode::RenameProperty(const char* szOldName, const char* szNewName)

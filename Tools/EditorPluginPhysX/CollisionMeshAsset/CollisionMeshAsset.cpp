@@ -45,7 +45,7 @@ static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)
     return ezVec3(0.0f, 0.0f, -1.0f);
 
   default:
-    EZ_REPORT_FAILURE("Invalid basis dir %d", basisAxis);
+    EZ_REPORT_FAILURE("Invalid basis dir {0}", basisAxis);
     return ezVec3::ZeroVector();
   }
 }

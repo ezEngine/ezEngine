@@ -173,7 +173,7 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
       DumpLeak(it.Value(), data.m_sName.GetData());
     }
 
-    EZ_REPORT_FAILURE("Allocator '%s' leaked %llu allocation(s)", data.m_sName.GetData(), uiLiveAllocations);
+    EZ_REPORT_FAILURE("Allocator '{0}' leaked {1} allocation(s)", data.m_sName.GetData(), uiLiveAllocations);
   }
 
   s_pTrackerData->m_AllocatorData.Remove(allocatorId);
@@ -274,7 +274,7 @@ const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllo
 
   static AllocationInfo invalidInfo;
 
-  EZ_REPORT_FAILURE("Could not find info for allocation %p", ptr);
+  EZ_REPORT_FAILURE("Could not find info for allocation {0}", ezArgP(ptr));
   return invalidInfo;
 }
 
@@ -380,7 +380,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
 
     PrintHelper(szBuffer);
 
-    EZ_REPORT_FAILURE("Found %llu root memory leak(s).", uiNumLeaks);
+    EZ_REPORT_FAILURE("Found {0} root memory leak(s).", uiNumLeaks);
   }
 }
 

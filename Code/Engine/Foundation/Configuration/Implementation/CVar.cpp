@@ -203,7 +203,7 @@ void ezCVar::SaveCVars()
           }
           break;
         default:
-          EZ_REPORT_FAILURE("Unknown CVar Type: %i", pCVar->GetType());
+          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
           break;
         }
 
@@ -402,7 +402,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
             }
             break;
           default:
-            EZ_REPORT_FAILURE("Unknown CVar Type: %i", pCVar->GetType());
+            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
             break;
           }
 

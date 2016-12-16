@@ -118,7 +118,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
   }
   else
   {
-    EZ_REPORT_FAILURE("The file '%s' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource", sAbsFilePath.GetData());
+    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource", sAbsFilePath.GetData());
   }
 
   return res;

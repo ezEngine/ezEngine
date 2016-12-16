@@ -83,7 +83,7 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
   stream >> uiVersion;
   if (uiVersion != ezBinarySerializerVersion::CurrentVersion)
   {
-    EZ_REPORT_FAILURE("Binary serializer version %u does not match expected version %u, re-export file.", uiVersion, ezBinarySerializerVersion::CurrentVersion);
+    EZ_REPORT_FAILURE("Binary serializer version {0} does not match expected version {1}, re-export file.", uiVersion, ezBinarySerializerVersion::CurrentVersion);
     return;
   }
   ReadGraph(stream, pGraph);

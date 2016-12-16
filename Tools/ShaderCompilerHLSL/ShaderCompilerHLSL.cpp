@@ -295,7 +295,7 @@ const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
     }
   }
 
-  EZ_REPORT_FAILURE("Unknown Platform '%s' or Stage %i", szPlatform, Stage);
+  EZ_REPORT_FAILURE("Unknown Platform '{0}' or Stage {1}", szPlatform, Stage);
   return "";
 }
 

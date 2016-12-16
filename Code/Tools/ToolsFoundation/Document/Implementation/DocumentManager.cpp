@@ -237,7 +237,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
     }
   }
 
-  EZ_REPORT_FAILURE("This document manager does not support the document type '%s'", szDocumentTypeName);
+  EZ_REPORT_FAILURE("This document manager does not support the document type '{0}'", szDocumentTypeName);
   return status;
 }
 

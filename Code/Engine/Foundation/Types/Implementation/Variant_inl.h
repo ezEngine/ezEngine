@@ -311,7 +311,7 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     break;
 
   default:
-    EZ_REPORT_FAILURE("Could not dispatch type '%d'", type);
+    EZ_REPORT_FAILURE("Could not dispatch type '{0}'", type);
     break;
   }
 }

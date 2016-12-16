@@ -81,7 +81,7 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImage& ImageA, const ezImag
           break;
 
         default:
-          EZ_REPORT_FAILURE("The ezImageFormat %u is not implemented", (ezUInt32) ImageA.GetImageFormat());
+          EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32) ImageA.GetImageFormat());
           return;
         }
       }
@@ -131,7 +131,7 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImage& DifferenceImage, ez
           break;
 
         default:
-          EZ_REPORT_FAILURE("The ezImageFormat %u is not implemented", (ezUInt32) DifferenceImage.GetImageFormat());
+          EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32) DifferenceImage.GetImageFormat());
           return 0;
         }
       }
@@ -209,7 +209,7 @@ void ezImageUtils::CropImage(const ezImage& input, const ezVec2I32& offset, cons
         break;
 
       default:
-        EZ_REPORT_FAILURE("The ezImageFormat %u is not implemented", (ezUInt32) input.GetImageFormat());
+        EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32) input.GetImageFormat());
         return;
       }
     }
@@ -249,7 +249,7 @@ void ezImageUtils::ScaleDownHalf(const ezImage& Image, ezImage& out_Result)
   }
 
   EZ_ASSERT_DEV(uiPixelBytes > 0, "The image format '{0}' is not supported", Image.GetImageFormat());
-  
+
   ezUInt8* pDataRes = out_Result.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
   const ezUInt8* pDataImg = Image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
 

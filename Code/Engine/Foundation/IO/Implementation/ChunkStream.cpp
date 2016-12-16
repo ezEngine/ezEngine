@@ -133,7 +133,7 @@ void ezChunkStreamReader::TryReadChunkHeader()
 
   if (ezStringUtils::IsEqual(szTag, "END CHNK"))
     return;
-  
+
   if (ezStringUtils::IsEqual(szTag, "NXT CHNK"))
   {
     m_Stream >> m_ChunkInfo.m_sChunkName;
@@ -146,7 +146,7 @@ void ezChunkStreamReader::TryReadChunkHeader()
     return;
   }
 
-  EZ_REPORT_FAILURE("Invalid chunk file, tag is '%s'", szTag);
+  EZ_REPORT_FAILURE("Invalid chunk file, tag is '{0}'", szTag);
 }
 
 void ezChunkStreamReader::NextChunk()

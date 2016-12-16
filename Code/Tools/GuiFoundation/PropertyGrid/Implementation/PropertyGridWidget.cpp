@@ -73,7 +73,7 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
 
 
   default:
-    EZ_REPORT_FAILURE("No default property widget available for type: %s", pRtti->GetTypeName());
+    EZ_REPORT_FAILURE("No default property widget available for type: {0}", pRtti->GetTypeName());
     return nullptr;
   }
 }

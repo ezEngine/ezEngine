@@ -47,7 +47,7 @@ void ezNode::InitializePins()
     pPin->m_pParent = this;
     if (pPin->m_Type == ezNodePin::Type::Unknown)
     {
-      EZ_REPORT_FAILURE("Pin '%s' has an invalid type. Do not use ezNodePin directly as member but one of its derived types", pProp->GetPropertyName());
+      EZ_REPORT_FAILURE("Pin '{0}' has an invalid type. Do not use ezNodePin directly as member but one of its derived types", pProp->GetPropertyName());
       continue;
     }
 

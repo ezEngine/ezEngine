@@ -574,7 +574,7 @@ void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource
   }
   else
   {
-    EZ_REPORT_FAILURE("CopyBuffer failed, buffer handle invalid - destination = %p, source = %p", pDest, pSource);
+    EZ_REPORT_FAILURE("CopyBuffer failed, buffer handle invalid - destination = {0}, source = {1}", ezArgP(pDest), ezArgP(pSource));
   }
 }
 
@@ -597,7 +597,7 @@ void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffs
   }
   else
   {
-    EZ_REPORT_FAILURE("CopyBuffer failed, buffer handle invalid - destination = %p, source = %p", pDest, pSource);
+    EZ_REPORT_FAILURE("CopyBuffer failed, buffer handle invalid - destination = {0}, source = {1}", ezArgP(pDest), ezArgP(pSource));
   }
 }
 
@@ -633,7 +633,7 @@ void ezGALContext::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSou
   }
   else
   {
-    EZ_REPORT_FAILURE("CopyTexture failed, texture handle invalid - destination = %p, source = %p", pDest, pSource);
+    EZ_REPORT_FAILURE("CopyTexture failed, texture handle invalid - destination = {0}, source = {1}", ezArgP(pDest), ezArgP(pSource));
   }
 }
 
@@ -650,7 +650,7 @@ void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextur
   }
   else
   {
-    EZ_REPORT_FAILURE("CopyTextureRegion failed, texture handle invalid - destination = %p, source = %p", pDest, pSource);
+    EZ_REPORT_FAILURE("CopyTextureRegion failed, texture handle invalid - destination = {0}, source = {1}", ezArgP(pDest), ezArgP(pSource));
   }
 }
 
@@ -666,7 +666,7 @@ void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSub
   }
   else
   {
-    EZ_REPORT_FAILURE("UpdateTexture failed, texture handle invalid - destination = %p", pDest);
+    EZ_REPORT_FAILURE("UpdateTexture failed, texture handle invalid - destination = {0}", ezArgP(pDest));
   }
 }
 
@@ -683,7 +683,7 @@ void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSu
   }
   else
   {
-    EZ_REPORT_FAILURE("ResolveTexture failed, texture handle invalid - destination = %p, source = %p", pDest, pSource);
+    EZ_REPORT_FAILURE("ResolveTexture failed, texture handle invalid - destination = {0}, source = {1}", ezArgP(pDest), ezArgP(pSource));
   }
 }
 

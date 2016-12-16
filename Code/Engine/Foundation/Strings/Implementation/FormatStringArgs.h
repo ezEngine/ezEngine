@@ -7,7 +7,7 @@ class ezStringBuilder;
 
 struct ezArgI
 {
-  inline ezArgI(ezInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10)
+  inline explicit ezArgI(ezInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10)
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
@@ -23,7 +23,7 @@ struct ezArgI
 
 struct ezArgU
 {
-  inline ezArgU(ezUInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10, bool bUpperCase = false)
+  inline explicit ezArgU(ezUInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10, bool bUpperCase = false)
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
@@ -41,7 +41,7 @@ struct ezArgU
 
 struct ezArgF
 {
-  inline ezArgF(double value, ezInt8 iPrecision = -1, bool bScientific = false, ezUInt8 uiWidth = 1, bool bPadWithZeros = false)
+  inline explicit ezArgF(double value, ezInt8 iPrecision = -1, bool bScientific = false, ezUInt8 uiWidth = 1, bool bPadWithZeros = false)
     : m_Value(value)
     , m_uiWidth(uiWidth)
     , m_bPadWithZeros(bPadWithZeros)
@@ -59,7 +59,7 @@ struct ezArgF
 
 struct ezArgC
 {
-  inline ezArgC(char value)
+  inline explicit ezArgC(char value)
     : m_Value(value)
   {
   }
@@ -69,7 +69,7 @@ struct ezArgC
 
 struct ezArgP
 {
-  inline ezArgP(const void* value)
+  inline explicit ezArgP(const void* value)
     : m_Value(value)
   {
   }

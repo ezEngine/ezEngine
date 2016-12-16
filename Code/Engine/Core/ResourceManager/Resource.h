@@ -163,7 +163,7 @@ private:
   /// However, since this might be a valid use case for some resource types, it is not enforced by the resource manager.
   virtual ezResourceLoadDesc CreateResource(const SELF_DESCRIPTOR& descriptor)
   {
-    EZ_REPORT_FAILURE("The resource type '%s' does not support resource creation", GetDynamicRTTI()->GetTypeName());
+    EZ_REPORT_FAILURE("The resource type '{0}' does not support resource creation", GetDynamicRTTI()->GetTypeName());
 
     return ezResourceLoadDesc();
   }

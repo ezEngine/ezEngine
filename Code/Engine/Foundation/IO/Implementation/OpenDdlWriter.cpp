@@ -83,7 +83,7 @@ void ezOpenDdlWriter::OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType ty
     break;
 
   default:
-    EZ_REPORT_FAILURE("Unknown DDL primitive type %u", (ezUInt32)type);
+    EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
     break;
   }
 }
@@ -131,7 +131,7 @@ void ezOpenDdlWriter::OutputPrimitiveTypeNameShort(ezOpenDdlPrimitiveType type)
     break;
 
   default:
-    EZ_REPORT_FAILURE("Unknown DDL primitive type %u", (ezUInt32)type);
+    EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
     break;
   }
 }
@@ -180,7 +180,7 @@ void ezOpenDdlWriter::OutputPrimitiveTypeNameShortest(ezOpenDdlPrimitiveType typ
     break;
 
   default:
-    EZ_REPORT_FAILURE("Unknown DDL primitive type %u", (ezUInt32)type);
+    EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
     break;
   }
 }

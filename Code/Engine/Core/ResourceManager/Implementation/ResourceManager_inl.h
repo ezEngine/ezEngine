@@ -151,7 +151,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
         return (ResourceType*) BeginAcquireResource(ResourceType::GetTypeMissingResource(), ezResourceAcquireMode::NoFallback);
     }
 
-    EZ_REPORT_FAILURE("The resource '%s' of type '%s' is missing and no fallback is available", pResource->GetResourceID().GetData(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
+    EZ_REPORT_FAILURE("The resource '{0}' of type '{1}' is missing and no fallback is available", pResource->GetResourceID(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
     return nullptr;
   }
 

@@ -72,7 +72,7 @@ static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGrap
   ezVariant* pObjects;
   if (!reader.GetTopLevelObject().TryGetValue(szName, pObjects))
   {
-    EZ_REPORT_FAILURE("JSON file does not contain an '%s' node at root level", szName);
+    EZ_REPORT_FAILURE("JSON file does not contain an '{0}' node at root level", szName);
     return;
   }
 
@@ -100,7 +100,7 @@ static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGrap
     if (pGuid == nullptr || pType == nullptr || pProp == nullptr ||
       !pGuid->IsA<ezUuid>() || !pType->IsA<ezString>() || !pProp->IsA<ezVariantDictionary>())
     {
-      EZ_REPORT_FAILURE("'%s' array contains invalid elements", szName);
+      EZ_REPORT_FAILURE("'{0}' array contains invalid elements", szName);
       continue;
     }
 

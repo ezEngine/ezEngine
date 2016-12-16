@@ -501,7 +501,7 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
       return sDataDir;
   }
 
-  EZ_REPORT_FAILURE("Could not find data directory for asset '%s", szAbsoluteAssetPath);
+  EZ_REPORT_FAILURE("Could not find data directory for asset '{0}", szAbsoluteAssetPath);
   return ezApplicationConfig::GetSdkRootDirectory();
 }
 

@@ -205,7 +205,7 @@ class ezVariantHelper
   template <typename T>
   static void To(const ezVariant& value, T& result, bool& bSuccessful)
   {
-    EZ_REPORT_FAILURE("Conversion function not implemented for target type '%d'", ezVariant::TypeDeduction<T>::value);
+    EZ_REPORT_FAILURE("Conversion function not implemented for target type '{0}'", ezVariant::TypeDeduction<T>::value);
     bSuccessful = false;
   }
 

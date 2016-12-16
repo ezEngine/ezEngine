@@ -196,7 +196,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
     }
     else
     {
-      EZ_REPORT_FAILURE("No value given for permutation var '%s'. Assuming default value of zero.", usedPermutationVar.GetData());
+      EZ_REPORT_FAILURE("No value given for permutation var '{0}'. Assuming default value of zero.", usedPermutationVar.GetData());
       ezPermutationVar& finalVar = m_ShaderData.m_Permutations.ExpandAndGetRef();
       finalVar.m_sName = usedPermutationVar;
       finalVar.m_sValue.Assign("0");

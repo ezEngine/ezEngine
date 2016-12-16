@@ -350,7 +350,7 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
     break;
   }
 
-  EZ_REPORT_FAILURE("The Variant Type %i is not supported by ezJSONWriter::WriteVariant.", value.GetType());
+  EZ_REPORT_FAILURE("The Variant Type {0} is not supported by ezJSONWriter::WriteVariant.", value.GetType());
 }
 
 

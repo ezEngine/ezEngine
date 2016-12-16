@@ -646,7 +646,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
         }
         else
         {
-          EZ_REPORT_FAILURE("Invalid shader property type '%s'", pCategory->GetCategory());
+          EZ_REPORT_FAILURE("Invalid shader property type '{0}'", pCategory->GetCategory());
         }
       }
     }
@@ -674,7 +674,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
         }
         else
         {
-          EZ_REPORT_FAILURE("Invalid shader permutation property type '%s'", Permutation[p]->GetSpecificType()->GetTypeName());
+          EZ_REPORT_FAILURE("Invalid shader permutation property type '{0}'", Permutation[p]->GetSpecificType()->GetTypeName());
         }
 
         stream << szName;

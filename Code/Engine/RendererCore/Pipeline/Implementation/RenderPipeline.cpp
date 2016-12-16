@@ -770,7 +770,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   // Is this view already extracted?
   if (m_uiLastExtractionFrame == ezRenderLoop::GetFrameCounter())
   {
-    EZ_REPORT_FAILURE("View '%s' is extracted multiple times", view.GetName());
+    EZ_REPORT_FAILURE("View '{0}' is extracted multiple times", view.GetName());
     return;
   }
 

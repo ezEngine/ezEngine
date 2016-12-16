@@ -85,7 +85,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
           data.m_State = bSuccess ? OpenReading: OpenReadingFailed;
           break;
         default:
-          EZ_REPORT_FAILURE("Unknown File Open Mode %i", uiMode);
+          EZ_REPORT_FAILURE("Unknown File Open Mode {0}", uiMode);
           break;
         }
       }
@@ -305,7 +305,7 @@ QTableWidgetItem* ezQtFileWidget::GetStateString(FileOpState State) const
     pItem->setTextColor(Qt::red);
     break;
   default:
-    EZ_REPORT_FAILURE("Unknown File Operation %i", (ezInt32) State);
+    EZ_REPORT_FAILURE("Unknown File Operation {0}", (ezInt32) State);
     break;
   }
 
