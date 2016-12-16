@@ -160,7 +160,7 @@ void ezMeshRenderer::FillPerInstanceData(const ezRenderDataBatch& batch, ezUInt3
       perInstanceData.ObjectToWorldNormal = ezTransform(ezVec3::ZeroVector(), rotation);
     }
 
-    perInstanceData.GameObjectID = pRenderData->m_uiEditorPickingID;
+    perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
   }
 }
 

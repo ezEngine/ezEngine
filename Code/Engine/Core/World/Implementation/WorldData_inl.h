@@ -44,6 +44,18 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+  EZ_FORCE_INLINE void WorldData::RegisteredUpdateFunction::FillFromDesc(const ezWorldModule::UpdateFunctionDesc& desc)
+  {
+    m_Function = desc.m_Function;
+    m_szFunctionName = desc.m_szFunctionName;
+    m_uiDependencyHash = ezHashing::MurmurHash(desc.m_DependsOn.GetData(), desc.m_DependsOn.GetByteArrayPtr().GetCount());
+    m_fPriority = desc.m_fPriority;
+    m_uiGranularity = desc.m_uiGranularity;
+    m_bOnlyUpdateWhenSimulating = desc.m_bOnlyUpdateWhenSimulating;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
   EZ_FORCE_INLINE WorldData::ReadMarker::ReadMarker(const WorldData& data) : m_Data(data)
   {
   }
@@ -88,7 +100,7 @@ namespace ezInternal
     if (m_Data.m_iWriteCounter == 0)
     {
       m_Data.m_iReadCounter.Decrement();
-      m_Data.m_WriteThreadID = (ezThreadID)0;      
+      m_Data.m_WriteThreadID = (ezThreadID)0;
     }
   }
 

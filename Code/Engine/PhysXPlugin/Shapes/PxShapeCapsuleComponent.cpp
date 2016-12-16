@@ -84,7 +84,7 @@ void ezPxShapeCapsuleComponent::SetHeight(float value)
 
 void ezPxShapeCapsuleComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
 {
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
 

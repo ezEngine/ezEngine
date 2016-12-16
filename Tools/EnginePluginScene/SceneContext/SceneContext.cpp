@@ -225,8 +225,6 @@ void ezSceneContext::OnSimulationEnabled()
   ezResourceManager::ReloadAllResources(false);
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
-
-  ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
 }
 
 void ezSceneContext::OnSimulationDisabled()
@@ -302,7 +300,6 @@ void ezSceneContext::OnPlayTheGameModeStarted()
   m_pWorld->SetWorldSimulationEnabled(true);
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
-  ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
 
   ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
   ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld);

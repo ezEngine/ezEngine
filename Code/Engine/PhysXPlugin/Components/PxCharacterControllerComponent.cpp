@@ -118,7 +118,7 @@ void ezPxCharacterControllerComponent::Update()
     return;
 
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   PxControllerState state;
   m_pController->getState(state);
@@ -268,7 +268,7 @@ void ezPxCharacterControllerComponent::Update()
 
 void ezPxCharacterControllerComponent::OnSimulationStarted()
 {
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   m_vRelativeMoveDirection.SetZero();
   m_InputStateBits = 0;

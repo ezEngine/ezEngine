@@ -2,10 +2,9 @@
 #include <Core/World/World.h>
 
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
-  : m_Components(pWorld->GetAllocator())
+  : ezWorldModule(pWorld)
+  , m_Components(pWorld->GetAllocator())
 {
-  m_pWorld = pWorld;
-  m_pUserData = nullptr;
 }
 
 ezComponentManagerBase::~ezComponentManagerBase()
@@ -21,19 +20,7 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   }
 }
 
-// protected methods
-
-void ezComponentManagerBase::RegisterUpdateFunction(const UpdateFunctionDesc& desc)
-{
-  m_pWorld->RegisterUpdateFunction(desc);
-}
-
-void ezComponentManagerBase::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
-{
-  m_pWorld->DeregisterUpdateFunction(desc);
-}
-
-ezComponentHandle ezComponentManagerBase::CreateComponentEntry(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId)
+ezComponentHandle ezComponentManagerBase::CreateComponentEntry(ComponentStorageEntry storageEntry)
 {
   ezGenericComponentId newId = m_Components.Insert(storageEntry);
 
@@ -42,7 +29,7 @@ ezComponentHandle ezComponentManagerBase::CreateComponentEntry(ComponentStorageE
   pComponent->m_InternalId = newId;
 
   ezComponentHandle hComponent = pComponent->GetHandle();
-  m_pWorld->AddComponentToInitialize(hComponent);
+  GetWorld()->AddComponentToInitialize(hComponent);
 
   return hComponent;
 }
@@ -70,8 +57,8 @@ void ezComponentManagerBase::DeleteComponentEntry(ComponentStorageEntry storageE
 
   pComponent->m_InternalId.Invalidate();
   pComponent->m_ComponentFlags.Remove(ezObjectFlags::Active);
-    
-  m_pWorld->m_Data.m_DeadComponents.PushBack(storageEntry);  
+
+  GetWorld()->m_Data.m_DeadComponents.PushBack(storageEntry);
 }
 
 void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
@@ -81,26 +68,10 @@ void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEn
     m_Components[id] = storageEntry;
 }
 
-ezAllocatorBase* ezComponentManagerBase::GetAllocator()
-{
-  return m_pWorld->GetAllocator();
-}
-
-ezInternal::WorldLargeBlockAllocator* ezComponentManagerBase::GetBlockAllocator()
-{
-  return m_pWorld->GetBlockAllocator();
-}
-
-bool ezComponentManagerBase::GetWorldSimulationEnabled() const
-{
-  return m_pWorld->GetWorldSimulationEnabled();
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ezComponentManagerFactory::ezComponentManagerFactory()
 {
-  m_uiNextTypeId = 0;
 }
 
 ezComponentManagerFactory* ezComponentManagerFactory::GetInstance()
@@ -115,7 +86,7 @@ ezUInt16 ezComponentManagerFactory::GetTypeId(const ezRTTI* pRtti)
   m_TypeToId.TryGetValue(pRtti, uiTypeId);
   return uiTypeId;
 }
- 
+
 ezComponentManagerBase* ezComponentManagerFactory::CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld)
 {
   if (typeId < m_CreatorFuncs.GetCount())

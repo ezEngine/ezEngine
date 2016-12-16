@@ -91,7 +91,7 @@ void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& stream)
 
 void ezParticleBehavior_Raycast::AfterPropertiesConfigured(bool bFirstTime)
 {
-  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
 }
 
 
@@ -129,7 +129,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
         const float fMaxLen = vDirection.GetLengthAndNormalize();
 
         ezVec3 vHitPos, vHitNorm;
-        if (m_pPhysicsModule->CastRay(vLastPos, vDirection, fMaxLen, m_uiCollisionLayer, vHitPos, vHitNorm, hHitObj, hHitSurface))
+        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->CastRay(vLastPos, vDirection, fMaxLen, m_uiCollisionLayer, vHitPos, vHitNorm, hHitObj, hHitSurface))
         {
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {

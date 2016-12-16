@@ -17,13 +17,8 @@ class ezParticleComponent;
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleComponentManager : public ezComponentManagerSimple<ezParticleComponent, true>
-{
-public:
-  ezParticleComponentManager(ezWorld* pWorld);
+typedef ezComponentManagerSimple<ezParticleComponent, true> ezParticleComponentManager;
 
-  virtual void Initialize() override;
-};
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleComponent : public ezRenderComponent
 {

@@ -21,7 +21,7 @@ public:
   ezVec2 m_texCoordScale;
   ezVec2 m_texCoordOffset;
 
-  ezUInt32 m_uiEditorPickingID;
+  ezUInt32 m_uiUniqueID;
 };
 
 class ezSpriteComponent;

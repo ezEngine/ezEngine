@@ -14,7 +14,8 @@
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxSettingsComponent.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTIDefaultAllocator<ezPhysXWorldModule>);
+EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -42,11 +43,64 @@ PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterDat
 }
 
 
-ezPhysXWorldModule::ezPhysXWorldModule()
+ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
+  : ezPhysicsWorldModuleInterface(pWorld)
 {
   m_pPxScene = nullptr;
 
   SetGravity(ezVec3(0, 0, -10), ezVec3(0, 0, -12));
+}
+
+ezPhysXWorldModule::~ezPhysXWorldModule()
+{
+
+}
+
+void ezPhysXWorldModule::Initialize()
+{
+  ezPhysX::GetSingleton()->LoadCollisionFilters();
+
+  m_AccumulatedTimeSinceUpdate.SetZero();
+
+  {
+    PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
+    desc.setToDefault(PxTolerancesScale());
+
+    desc.gravity = PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z); /// \todo Scene settings
+
+    m_pCPUDispatcher = PxDefaultCpuDispatcherCreate(4);
+    desc.cpuDispatcher = m_pCPUDispatcher;
+    desc.filterShader = ezPxFilterShader;
+
+    EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
+    m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
+    EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the PhysX scene failed");
+  }
+
+  m_pCharacterManager = PxCreateControllerManager(*m_pPxScene);
+
+  {
+    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPhysXWorldModule::Update, this);
+    updateDesc.m_bOnlyUpdateWhenSimulating = true;
+    // Do physics update as late as possible in the first synchronous phase
+    // so all kinematic objects have a chance to update their transform before.
+    updateDesc.m_fPriority = -100000.0f;
+
+    RegisterUpdateFunction(updateDesc);
+  }
+}
+
+void ezPhysXWorldModule::Deinitialize()
+{
+  //m_pCharacterManager->purgeControllers();
+  m_pCharacterManager->release();
+  m_pCharacterManager = nullptr;
+
+  m_pPxScene->release();
+  m_pPxScene = nullptr;
+
+  m_pCPUDispatcher->release();
+  m_pCPUDispatcher = nullptr;
 }
 
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
@@ -60,94 +114,7 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
   }
 }
 
-void ezPhysXWorldModule::InternalStartup()
-{
-  InternalReinit();
 
-  GetWorld()->GetOrCreateComponentManager<ezPxStaticActorComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxShapeBoxComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxShapeSphereComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxShapeCapsuleComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxShapeConvexComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxCenterOfMassComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxCharacterControllerComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezPxSettingsComponentManager>()->SetUserData(this);
-
-  m_AccumulatedTimeSinceUpdate.SetZero();
-
-  PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
-  desc.setToDefault(PxTolerancesScale());
-
-  desc.gravity = PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z); /// \todo Scene settings
-
-  m_pCPUDispatcher = PxDefaultCpuDispatcherCreate(4);
-  desc.cpuDispatcher = m_pCPUDispatcher;
-  desc.filterShader = ezPxFilterShader;
-
-  EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
-  m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
-
-  m_pCharacterManager = PxCreateControllerManager(*m_pPxScene);
-
-  EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the PhysX scene failed");
-}
-
-void ezPhysXWorldModule::InternalAfterWorldDestruction()
-{
-  //m_pCharacterManager->purgeControllers();
-  m_pCharacterManager->release();
-  m_pCharacterManager = nullptr;
-
-  m_pPxScene->release();
-  m_pPxScene = nullptr;
-
-  m_pCPUDispatcher->release();
-  m_pCPUDispatcher = nullptr;
-}
-
-void ezPhysXWorldModule::InternalUpdateBefore()
-{
-  if (!GetWorld()->GetWorldSimulationEnabled())
-    return;
-
-  EZ_LOCK(GetWorld()->GetWriteMarker());
-
-  if (ezPxSettingsComponent* pSettings = GetWorld()->GetOrCreateComponentManager<ezPxSettingsComponentManager>()->GetSingletonComponent())
-  {
-    if (pSettings->IsModified())
-    {
-      SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
-
-      pSettings->ResetModified();
-    }
-  }
-
-  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
-  m_AccumulatedTimeSinceUpdate += tDiff;
-
-  const ezTime tStep = ezTime::Seconds(1.0 / 60.0);
-
-  while (m_AccumulatedTimeSinceUpdate >= tStep)
-  {
-    m_pPxScene->simulate((PxReal)tStep.GetSeconds());
-    m_pPxScene->fetchResults(true);
-
-    m_AccumulatedTimeSinceUpdate -= tStep;
-  }
-
-  // not sure where exactly this needs to go
-  m_pCharacterManager->computeInteractions((float)tDiff.GetSeconds());
-}
-
-
-void ezPhysXWorldModule::InternalReinit()
-{
-  ezPhysX::GetSingleton()->LoadCollisionFilters();
-
-}
 
 void ezPxAllocatorCallback::VerifyAllocations()
 {
@@ -270,7 +237,34 @@ bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3
   return true;
 }
 
+void ezPhysXWorldModule::Update(const ezWorldModule::UpdateContext& context)
+{
+  if (ezPxSettingsComponent* pSettings = GetWorld()->GetOrCreateComponentManager<ezPxSettingsComponentManager>()->GetSingletonComponent())
+  {
+    if (pSettings->IsModified())
+    {
+      SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
 
+      pSettings->ResetModified();
+    }
+  }
+
+  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  m_AccumulatedTimeSinceUpdate += tDiff;
+
+  const ezTime tStep = ezTime::Seconds(1.0 / 60.0);
+
+  while (m_AccumulatedTimeSinceUpdate >= tStep)
+  {
+    m_pPxScene->simulate((PxReal)tStep.GetSeconds());
+    m_pPxScene->fetchResults(true);
+
+    m_AccumulatedTimeSinceUpdate -= tStep;
+  }
+
+  // not sure where exactly this needs to go
+  m_pCharacterManager->computeInteractions((float)tDiff.GetSeconds());
+}
 
 
 

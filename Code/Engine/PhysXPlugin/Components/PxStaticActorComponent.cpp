@@ -74,7 +74,7 @@ void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
 
 void ezPxStaticActorComponent::OnSimulationStarted()
 {
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto rot = GetOwner()->GetGlobalRotation();

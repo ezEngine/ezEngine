@@ -130,8 +130,8 @@ void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTT
   {
     ezComponent* pComponent = static_cast<ezComponent*>(pObject);
     m_ComponentMap.RegisterObject(guid, pComponent->GetHandle());
-    pComponent->SetEditorPickingID(m_uiNextComponentPickingID++);
-    m_ComponentPickingMap.RegisterObject(guid, pComponent->GetEditorPickingID());
+    pComponent->SetUniqueID(m_uiNextComponentPickingID++);
+    m_ComponentPickingMap.RegisterObject(guid, pComponent->GetUniqueID());
   }
 
   ezRttiConverterContext::RegisterObject(guid, pRtti, pObject);
@@ -293,7 +293,7 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezPr
   m_DocumentGuid = DocumentGuid;
   m_pIPC = pIPC;
 
-  m_pWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(ezConversionUtils::ToString(m_DocumentGuid), true);
+  m_pWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(ezConversionUtils::ToString(m_DocumentGuid));
 
   m_Context.m_pWorld = m_pWorld;
   m_Mirror.InitReceiver(&m_Context);

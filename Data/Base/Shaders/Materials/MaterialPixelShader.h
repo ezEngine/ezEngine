@@ -65,7 +65,7 @@
     else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_NORMALS)
     {
       #if defined(USE_NORMAL)
-        return float4(SrgbToLinear(Input.Normal * 0.5 + 0.5), 1);
+        return float4(SrgbToLinear(normalize(Input.Normal) * 0.5 + 0.5), 1);
       #else
         return float4(0, 0, 0, 0);
       #endif
@@ -73,7 +73,7 @@
     else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_TANGENTS)
     {
       #if defined(USE_TANGENT)
-        return float4(SrgbToLinear(Input.Tangent * 0.5 + 0.5), 1);
+        return float4(SrgbToLinear(normalize(Input.Tangent) * 0.5 + 0.5), 1);
       #else
         return float4(0, 0, 0, 0);
       #endif

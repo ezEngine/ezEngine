@@ -98,7 +98,7 @@ ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer()
   desc.m_bUseAsStructuredBuffer = true;
   desc.m_bAllowShaderResourceView = true;
   desc.m_ResourceAccess.m_bImmutable = false;
-  
+
   return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
 }
 
@@ -123,6 +123,6 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 u
     spriteData.m_color = pRenderData->m_color;
     spriteData.m_texCoordScale = Float2ToRG16F(pRenderData->m_texCoordScale);
     spriteData.m_texCoordOffset = Float2ToRG16F(pRenderData->m_texCoordOffset);
-    spriteData.m_gameObjectID = pRenderData->m_uiEditorPickingID;
+    spriteData.m_gameObjectID = pRenderData->m_uiUniqueID;
   }
 }

@@ -73,7 +73,7 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
 
 void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
 {
-  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
 }
 
 void ezParticleBehavior_Velocity::CreateRequiredStreams()
@@ -85,7 +85,8 @@ void ezParticleBehavior_Velocity::CreateRequiredStreams()
 void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 {
   const float tDiff = (float)m_TimeDiff.GetSeconds();
-  const ezVec3 vRise = m_pPhysicsModule->GetGravity().GetNormalized() * tDiff * -m_fRiseSpeed;
+  const ezVec3 vDown = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity().GetNormalized() : ezVec3(0.0f, 0.0f, -1.0f);
+  const ezVec3 vRise = vDown * tDiff * -m_fRiseSpeed;
 
   const float fVelocityFactor = 1.0f + (m_fAcceleration * tDiff);
 

@@ -15,7 +15,7 @@ public:
 
   virtual void Initialize() override;
 
-  void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
+  void Update(const ezWorldModule::UpdateContext& context);
 
   void AddToUpdateList(ezPrefabReferenceComponent* pComponent);
 

@@ -47,7 +47,7 @@ float SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, 
 
 void SimpleMeshRendererGameState::CreateGameLevel()
 {
-  m_pMainWorld = GetApplication()->CreateWorld( "Level", true );
+  m_pMainWorld = GetApplication()->CreateWorld("Level");
   EZ_LOCK( m_pMainWorld->GetWriteMarker());
 
   ezMeshComponentManager* pMeshCompMan = m_pMainWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
@@ -65,10 +65,10 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   {
     obj.m_sName.Assign("Sponza");
     m_pMainWorld->CreateObject(obj, pObj);
-    
+
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMesh);
-    pObj->AttachComponent(pMesh);    
+    pObj->AttachComponent(pMesh);
   }
 
   // Tree Mesh
@@ -81,7 +81,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
     pObj->AttachComponent(pMesh);
-    
+
     pRotorCompMan->CreateComponent(pRotor);
     pRotor->m_fAnimationSpeed = 5.0f;
     pRotor->SetAnimatingAtStartup(true);
@@ -99,7 +99,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
-    pObj->AttachComponent(pMesh);    
+    pObj->AttachComponent(pMesh);
   }
 
   // Lights

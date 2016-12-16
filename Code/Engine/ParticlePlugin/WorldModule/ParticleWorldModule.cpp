@@ -9,27 +9,45 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleWorldModule, 1, ezRTTIDefaultAllocator<ezParticleWorldModule>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_IMPLEMENT_WORLD_MODULE(ezParticleWorldModule);
 
-ezParticleWorldModule::ezParticleWorldModule()
+ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
+  : ezWorldModule(pWorld)
 {
   m_uiExtractedFrame = 0;
 }
 
-void ezParticleWorldModule::InternalStartup()
+ezParticleWorldModule::~ezParticleWorldModule()
 {
+
+}
+
+
+void ezParticleWorldModule::Initialize()
+{
+  {
+    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::UpdateEffects, this);
+    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    updateDesc.m_bOnlyUpdateWhenSimulating = true;
+    updateDesc.m_fPriority = 1000.0f; // kick off particle tasks as early as possible
+
+    RegisterUpdateFunction(updateDesc);
+  }
+
+  {
+    auto finishDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::EnsureUpdatesFinished, this);
+    finishDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    finishDesc.m_bOnlyUpdateWhenSimulating = true;
+    finishDesc.m_fPriority = -1000.0f; // sync with particle tasks as late as possible
+
+    RegisterUpdateFunction(finishDesc);
+  }
+
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
-
-
 }
 
-void ezParticleWorldModule::InternalBeforeWorldDestruction()
-{
 
-}
-
-void ezParticleWorldModule::InternalAfterWorldDestruction()
+void ezParticleWorldModule::Deinitialize()
 {
   EZ_LOCK(m_Mutex);
 
@@ -42,29 +60,13 @@ void ezParticleWorldModule::InternalAfterWorldDestruction()
   m_ParticleSystems.Clear();
 }
 
-
-void ezParticleWorldModule::InternalUpdateBefore()
-{
-  if (!GetWorld()->GetWorldSimulationEnabled())
-    return;
-
-  EZ_LOCK(GetWorld()->GetWriteMarker());
-
-  UpdateEffects();
-}
-
-void ezParticleWorldModule::InternalUpdateAfter()
-{
-  EnsureUpdatesFinished();
-}
-
-void ezParticleWorldModule::EnsureUpdatesFinished()
+void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateContext& context)
 {
   // do NOT lock here, otherwise tasks cannot enter the lock
   ezTaskSystem::WaitForGroup(m_EffectUpdateTaskGroup);
 }
 
-void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
+void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const
 {
   EZ_ASSERT_RELEASE(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
 
@@ -75,7 +77,7 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
   for (ezUInt32 e = 0; e < m_ParticleEffects.GetCount(); ++e)
   {
-    ezParticleEffectInstance* pEffect = &m_ParticleEffects[e];
+    const ezParticleEffectInstance* pEffect = &m_ParticleEffects[e];
 
     if (pEffect->IsSharedEffect())
     {
@@ -103,7 +105,7 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 }
 
 
-void ezParticleWorldModule::ExtractEffectRenderData(ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform)
+void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const
 {
   for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
   {

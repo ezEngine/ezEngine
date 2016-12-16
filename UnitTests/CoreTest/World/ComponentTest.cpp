@@ -14,22 +14,33 @@ namespace
 
     virtual void Initialize() override
     {
-      auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::Update, this);
-      auto desc2 = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::Update2, this);
-      desc.m_DependsOn.PushBack(desc2.m_Function); // update2 will be called before update
+      auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update, this);
+      auto desc2 = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update2, this);
+      auto desc3 = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::Update3, this);
+      desc3.m_fPriority = 1000.0f;
 
-      auto descAsync = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
+      auto desc4 = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::AUpdate3, this);
+      desc4.m_fPriority = 1000.0f;
+
+      desc.m_DependsOn.PushBack(desc2.m_Function); // update2 will be called before update
+      desc.m_DependsOn.PushBack(desc3.m_Function); // update3 will be called before update
+
+      auto descAsync = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
       descAsync.m_Phase = ezComponentManagerBase::UpdateFunctionDesc::Phase::Async;
       descAsync.m_uiGranularity = 20;
 
       this->RegisterUpdateFunction(desc);
       this->RegisterUpdateFunction(desc2);
+      this->RegisterUpdateFunction(desc3);
+      this->RegisterUpdateFunction(desc4);
       this->RegisterUpdateFunction(descAsync);
     }
 
-    void Update(ezUInt32 uiStartIndex, ezUInt32 uiCount);
-    void Update2(ezUInt32 uiStartIndex, ezUInt32 uiCount);
-    void UpdateAsync(ezUInt32 uiStartIndex, ezUInt32 uiCount);
+    void Update(const ezWorldModule::UpdateContext& context);
+    void Update2(const ezWorldModule::UpdateContext& context);
+    void Update3(const ezWorldModule::UpdateContext& context);
+    void AUpdate3(const ezWorldModule::UpdateContext& context);
+    void UpdateAsync(const ezWorldModule::UpdateContext& context);
   };
 
   class TestComponent : public ezComponent
@@ -92,27 +103,35 @@ namespace
   EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1)
   EZ_END_COMPONENT_TYPE
 
-  void TestComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+  void TestComponentManager::Update(const ezWorldModule::UpdateContext& context)
   {
-    for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
+    for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
     {
       if (it->IsActive())
         it->Update();
     }
   }
 
-  void TestComponentManager::Update2(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+  void TestComponentManager::Update2(const ezWorldModule::UpdateContext& context)
   {
-    for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
+    for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
     {
       if (it->IsActive())
         it->Update2();
     }
   }
 
-  void TestComponentManager::UpdateAsync(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+  void TestComponentManager::Update3(const ezWorldModule::UpdateContext& context)
   {
-    for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
+  }
+
+  void TestComponentManager::AUpdate3(const ezWorldModule::UpdateContext& context)
+  {
+  }
+
+  void TestComponentManager::UpdateAsync(const ezWorldModule::UpdateContext& context)
+  {
+    for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
     {
       if (it->IsActive())
         it->Update();

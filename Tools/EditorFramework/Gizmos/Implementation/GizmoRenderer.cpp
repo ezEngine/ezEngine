@@ -84,7 +84,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     EZ_ASSERT_DEV(pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching (part)");
 
     ezColor color = pRenderData->m_GizmoColor;
-    if (pRenderData->m_uiEditorPickingID == m_uiHighlightID)
+    if (pRenderData->m_uiUniqueID == m_uiHighlightID)
     {
       ezColor highlight(0.1f, 0.1f, 0.1f);
       color = color * 2.0f + highlight;
@@ -94,7 +94,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
     cb.GizmoColor = color;
     cb.GizmoScale = fGizmoScale;
-    cb.GameObjectID = pRenderData->m_uiEditorPickingID;
+    cb.GameObjectID = pRenderData->m_uiUniqueID;
 
     if (renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive).Failed())
     {

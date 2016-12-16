@@ -55,8 +55,7 @@ void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& stream)
 
 void ezParticleBehavior_Gravity::AfterPropertiesConfigured(bool bFirstTime)
 {
-  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
-
+  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
 }
 
 void ezParticleBehavior_Gravity::CreateRequiredStreams()
@@ -66,7 +65,7 @@ void ezParticleBehavior_Gravity::CreateRequiredStreams()
 
 void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
 {
-  const ezVec3 vGravity = m_pPhysicsModule->GetGravity();
+  const ezVec3 vGravity = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity() : ezVec3(0.0f, 0.0f, -10.0f);
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 addGravity = vGravity * m_fGravityFactor * tDiff;

@@ -9,26 +9,21 @@
 
 #include <Core/World/Declarations.h>
 #include <Core/World/Component.h>
+#include <Core/World/WorldModule.h>
 
 /// \brief Base class for all component managers. Do not derive directly from this class, but derive from ezComponentManager instead.
 ///
-/// Every component type has its corresponding manager type. The manager stores the components in memory blocks to minimize overhead 
+/// Every component type has its corresponding manager type. The manager stores the components in memory blocks to minimize overhead
 /// on creation and deletion of components. Each manager can also register update functions to update its components during
 /// the different update phases of ezWorld.
 /// Use ezWorld::CreateComponentManager to create an instance of a component manager within a specific world.
-class EZ_CORE_DLL ezComponentManagerBase
+class EZ_CORE_DLL ezComponentManagerBase : public ezWorldModule
 {
 protected:
   ezComponentManagerBase(ezWorld* pWorld);
   virtual ~ezComponentManagerBase();
-  
+
 public:
-  /// \brief Returns the corresponding world to this manager.
-  ezWorld* GetWorld();
-
-  /// \brief Returns the corresponding world to this manager.
-  const ezWorld* GetWorld() const;
-
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
 
@@ -50,10 +45,6 @@ public:
   /// \brief Returns the rtti info of the component type that this manager handles.
   virtual const ezRTTI* GetComponentType() const = 0;
 
-  void SetUserData(void* pUserData) { m_pUserData = pUserData; }
-
-  void* GetUserData() const { return m_pUserData; }
-
   /// \brief Allows to gather all components that this manager handles into one array. Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) = 0;
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) = 0;
@@ -61,68 +52,12 @@ public:
 protected:
   friend class ezWorld;
   friend class ezInternal::WorldData;
-  friend class ezMemoryUtils;
 
-  /// \brief Update function delegate. The first parameter is the first index to the components that should be updated. The second parameter is the number of components that should be updated.
-  typedef ezDelegate<void (ezUInt32, ezUInt32)> UpdateFunction;
-
-  /// \brief Description of an update function that can be registered at the world.
-  struct UpdateFunctionDesc
-  {
-    struct Phase
-    {
-      typedef ezUInt8 StorageType;
-
-      enum Enum
-      {
-        PreAsync,
-        Async,
-        PostAsync,
-        PostTransform,
-        COUNT,
-
-        Default = PreAsync
-      };
-    };
-
-    UpdateFunctionDesc(const UpdateFunction& function, const char* szFunctionName)
-    {
-      m_Function = function;
-      m_szFunctionName = szFunctionName;
-      m_Phase = Phase::PreAsync;
-      m_bOnlyUpdateWhenSimulating = false;
-      m_uiGranularity = 0;
-    }
-
-    UpdateFunction m_Function;                    ///< Delegate to the actual update function.
-    const char* m_szFunctionName;                 ///< Name of the function. Use the EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC macro to create a description with the correct name.
-    ezHybridArray<UpdateFunction, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be called after all its dependencies have been called.
-    ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
-    bool m_bOnlyUpdateWhenSimulating;             ///< The update function is only called when the world simulation is enabled.
-    ezUInt16 m_uiGranularity;                     ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for synchronous functions.
-  };
-
-  /// \brief Registers the given update function at the world.
-  void RegisterUpdateFunction(const UpdateFunctionDesc& desc);
-
-  /// \brief Deregisters the given update function from the world. Note that only the m_Function and the m_Phase of the description have to be valid for deregistration.
-  void DeregisterUpdateFunction(const UpdateFunctionDesc& desc);
-
-  /// \brief Returns the allocator used by the world.
-  ezAllocatorBase* GetAllocator();
-
-  /// \brief Returns the block allocator used by the world.
-  ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
-
-  /// \brief Returns whether the world simulation is enabled.
-  bool GetWorldSimulationEnabled() const;
-
-protected:
   /// \cond
   // internal methods
   typedef ezBlockStorage<ezComponent, ezInternal::DEFAULT_BLOCK_SIZE, false>::Entry ComponentStorageEntry;
 
-  ezComponentHandle CreateComponentEntry(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId);
+  ezComponentHandle CreateComponentEntry(ComponentStorageEntry storageEntry);
   void DeinitializeComponent(ezComponent* pComponent);
   void DeleteComponentEntry(ComponentStorageEntry storageEntry);
   virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent);
@@ -130,17 +65,6 @@ protected:
   /// \endcond
 
   ezIdTable<ezGenericComponentId, ComponentStorageEntry> m_Components;
-
-private:
-  /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this is the method where updates function are registered.
-  virtual void Initialize() { }
-
-  /// \brief This method is called before the destructor. A derived type can override this method to do deinitialization work.
-  virtual void Deinitialize() { }
-
-  ezWorld* m_pWorld;
-
-  void* m_pUserData;
 };
 
 template <typename T, bool CompactStorage = false>
@@ -182,10 +106,13 @@ public:
 
 protected:
   friend ComponentType;
+  friend class ezComponentManagerFactory;
 
   virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent) override;
 
   void RegisterUpdateFunction(UpdateFunctionDesc& desc);
+
+  static ezUInt16 GetNextTypeId();
 
   ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage> m_ComponentStorage;
 };
@@ -204,7 +131,10 @@ public:
   virtual void Initialize() override;
 
   /// \brief A simple update function that iterates over all components and calls Update() on every component
-  void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
+  void SimpleUpdate(const ezWorldModule::UpdateContext& context);
+
+private:
+  static const char* SimpleUpdateName();
 };
 
 
@@ -229,7 +159,6 @@ public:
 private:
   ezComponentManagerFactory();
 
-  ezUInt16 m_uiNextTypeId;
   ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
 
   typedef ezComponentManagerBase* (*CreatorFunc)(ezAllocatorBase*, ezWorld*);
@@ -279,9 +208,12 @@ private:
 #define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 #define EZ_END_ABSTRACT_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 
-/// \brief Helper macro to create an update function description with proper name
-#define EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(func, instance) \
-  ezComponentManagerBase::UpdateFunctionDesc(ezComponentManagerBase::UpdateFunction(&func, instance), #func)
+#define EZ_DECLARE_COMPONENT_MANAGER EZ_DECLARE_WORLD_MODULE
+
+/// \brief Implements the given component manager type. Add this macro to a cpp outside of the type declaration.
+#define EZ_IMPLEMENT_COMPONENT_MANAGER(managerType, componentType) \
+  ezUInt16 EZ_FORCE_INLINE managerType::RegisterType() { static ezUInt16 id = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(ezWorldModule::GetNextTypeId()); return id; } \
+  ezUInt16 managerType::TYPE_ID = managerType::RegisterType();
 
 #include <Core/World/Implementation/ComponentManager_inl.h>
 

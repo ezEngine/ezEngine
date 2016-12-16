@@ -29,7 +29,7 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hPrefab;
 
-  const bool instantiate = GetEditorPickingID() != 0xFFFFFFFF;
+  const bool instantiate = GetUniqueID() != 0xFFFFFFFF;
   s << instantiate;
 }
 
@@ -129,7 +129,7 @@ ezPrefabReferenceComponentManager::~ezPrefabReferenceComponentManager()
 
 void ezPrefabReferenceComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezPrefabReferenceComponentManager::SimpleUpdate, this);
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPrefabReferenceComponentManager::Update, this);
 
   this->RegisterUpdateFunction(desc);
 }
@@ -151,23 +151,23 @@ void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEve
   }
 }
 
-static void SetEditorPickingID(ezGameObject* pObject, ezUInt32 uiPickingID, const ezTag& tag)
+static void SetUniqueIDRecursive(ezGameObject* pObject, ezUInt32 uiUniqueID, const ezTag& tag)
 {
   pObject->GetTags().Set(tag);
 
   for (auto pComponent : pObject->GetComponents())
   {
-    pComponent->SetEditorPickingID(uiPickingID);
+    pComponent->SetUniqueID(uiUniqueID);
   }
 
-  
+
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); itChild.Next())
   {
-    SetEditorPickingID(itChild, uiPickingID, tag);
+    SetUniqueIDRecursive(itChild, uiUniqueID, tag);
   }
 }
 
-void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
   for (auto hComp : m_PrefabComponentsToUpdate)
   {
@@ -182,7 +182,7 @@ void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUI
 
     // if this ID is valid, this prefab is instantiated at editor runtime
     // replicate the same ID across all instantiated sub components to get correct picking behavior
-    if (pPrefab->GetEditorPickingID() != 0xFFFFFFFF)
+    if (pPrefab->GetUniqueID() != 0xFFFFFFFF)
     {
       // while exporting a scene all game objects with this tag are ignored and not exported
       // set this tag on all game objects that were created by instantiating this prefab
@@ -190,7 +190,7 @@ void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUI
       // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
       const ezTag* tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
-      SetEditorPickingID(pPrefab->GetOwner(), pPrefab->GetEditorPickingID(), *tag);
+      SetUniqueIDRecursive(pPrefab->GetOwner(), pPrefab->GetUniqueID(), *tag);
       pPrefab->GetOwner()->GetTags().Remove(*tag); // remove it from the top level prefab game object again
     }
   }

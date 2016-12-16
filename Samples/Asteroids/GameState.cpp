@@ -104,7 +104,7 @@ void AsteroidGameState::ConfigureInputActions()
 void AsteroidGameState::CreateGameLevel()
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
-  m_pLevel->SetupLevel(GetApplication()->CreateWorld("Asteroids - World", true));
+  m_pLevel->SetupLevel(GetApplication()->CreateWorld("Asteroids - World"));
 
   ChangeMainWorld(m_pLevel->GetWorld());
 }

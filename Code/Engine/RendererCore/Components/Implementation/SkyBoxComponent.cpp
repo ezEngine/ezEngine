@@ -132,7 +132,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_uiPartIndex = i;
-      pRenderData->m_uiEditorPickingID = GetEditorPickingID() | (i << 24);
+      pRenderData->m_uiUniqueID = GetUniqueID() | (i << 24);
     }
 
     // Determine render data category.

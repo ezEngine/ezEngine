@@ -1,14 +1,4 @@
 
-EZ_FORCE_INLINE ezWorld* ezComponentManagerBase::GetWorld()
-{
-  return m_pWorld;
-}
-
-EZ_FORCE_INLINE const ezWorld* ezComponentManagerBase::GetWorld() const
-{
-  return m_pWorld;
-}
-
 EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentHandle& component) const
 {
   return m_Components.Contains(component);
@@ -38,7 +28,7 @@ EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T, bool CompactStorage>
-ezComponentManager<T, CompactStorage>::ezComponentManager(ezWorld* pWorld) : 
+ezComponentManager<T, CompactStorage>::ezComponentManager(ezWorld* pWorld) :
   ezComponentManagerBase(pWorld),
   m_ComponentStorage(GetBlockAllocator(), GetAllocator())
 {
@@ -68,13 +58,13 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::CreateC
   auto storageEntry = m_ComponentStorage.Create();
   out_pComponent = storageEntry.m_Ptr;
 
-  return ezComponentManagerBase::CreateComponentEntry(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry), ComponentType::TypeId());
+  return ezComponentManagerBase::CreateComponentEntry(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry));
 }
 
 template <typename T, bool CompactStorage>
 EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
-  EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId, 
+  EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
     ComponentType::TypeId(), component.GetInternalID().m_TypeId);
   EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
@@ -146,6 +136,13 @@ EZ_FORCE_INLINE void ezComponentManager<T, CompactStorage>::RegisterUpdateFuncti
   ezComponentManagerBase::RegisterUpdateFunction(desc);
 }
 
+//static
+template <typename T, bool CompactStorage>
+EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, CompactStorage>::GetNextTypeId()
+{
+  return ezWorldModule::GetNextTypeId();
+}
+
 
 template <typename T, bool CompactStorage /*= false*/>
 void ezComponentManager<T, CompactStorage>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
@@ -186,16 +183,16 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initiali
 {
   typedef ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating> OwnType;
 
-  auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(OwnType::SimpleUpdate, this);
+  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&OwnType::SimpleUpdate, this), SimpleUpdateName());
   desc.m_bOnlyUpdateWhenSimulating = OnlyUpdateWhenSimulating;
 
   this->RegisterUpdateFunction(desc);
 }
 
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdate(const ezWorldModule::UpdateContext& context)
 {
-  for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     ComponentType* pComponent = it;
     if (pComponent->IsActiveAndInitialized())
@@ -210,6 +207,13 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
   }
 }
 
+//static
+template <typename ComponentType, bool OnlyUpdateWhenSimulating>
+const char* ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdateName()
+{
+  return EZ_SOURCE_FUNCTION;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 template <typename ComponentType>
@@ -222,7 +226,7 @@ ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
     return uiTypeId;
   }
 
-  uiTypeId = m_uiNextTypeId++;
+  uiTypeId = ComponentType::ComponentManagerType::GetNextTypeId();
   m_TypeToId.Insert(pRtti, uiTypeId);
 
   struct Helper
@@ -233,8 +237,12 @@ ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
     }
   };
 
-  EZ_ASSERT_DEV(m_CreatorFuncs.GetCount() == uiTypeId, "");
-  m_CreatorFuncs.PushBack(&Helper::Create);
+  if (uiTypeId >= m_CreatorFuncs.GetCount())
+  {
+    m_CreatorFuncs.SetCount(uiTypeId + 1);
+  }
+
+  m_CreatorFuncs[uiTypeId] = &Helper::Create;
 
   return uiTypeId;
 }

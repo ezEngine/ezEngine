@@ -110,7 +110,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_uiPartIndex = uiPartIndex;
-      pRenderData->m_uiEditorPickingID = GetEditorPickingID() | (uiMaterialIndex << 24);
+      pRenderData->m_uiUniqueID = GetUniqueID() | (uiMaterialIndex << 24);
     }
 
     // Determine render data category.

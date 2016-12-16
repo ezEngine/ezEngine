@@ -10,7 +10,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezParticleExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
-  ezParticleWorldModule* pModule = static_cast<ezParticleWorldModule*>(ezWorldModule::FindModule(view.GetWorld(), ezParticleWorldModule::GetStaticRTTI()));
+  EZ_LOCK(view.GetWorld()->GetReadMarker());
 
-  pModule->ExtractRenderData(view, pExtractedRenderData);
+  if (const ezParticleWorldModule* pModule = view.GetWorld()->GetModule<ezParticleWorldModule>())
+  {
+    pModule->ExtractRenderData(view, pExtractedRenderData);
+  }
 }

@@ -28,7 +28,7 @@ public:
 
   /// \brief Returns the index of this world.
   ezUInt32 GetIndex() const;
-  
+
   /// \name Object Functions
   ///@{
 
@@ -49,12 +49,12 @@ public:
 
   /// \brief Returns whether the given handle corresponds to a valid object.
   bool IsValidObject(const ezGameObjectHandle& object) const;
-  
+
   /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
   bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const;
-  
+
   /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject) const;  
+  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject) const;
 
 
   /// \brief Returns the total number of objects in this world.
@@ -66,7 +66,7 @@ public:
   /// \brief Returns an iterator over all objects in this world in no specific order.
   ezInternal::WorldData::ObjectStorage::ConstIterator GetObjects() const;
 
-  /// \brief Defines a visitor function that is called for every game-object when using the traverse method. 
+  /// \brief Defines a visitor function that is called for every game-object when using the traverse method.
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort (false) traversal.
   typedef ezInternal::WorldData::VisitorFunc VisitorFunc;
 
@@ -78,6 +78,26 @@ public:
 
   /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function is called for every object.
   void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
+
+  ///@}
+  /// \name Module Functions
+  ///@{
+
+  /// \brief Creates an instance of the given module type or returns a pointer to an already existing instance.
+  template <typename ModuleType>
+  ModuleType* GetOrCreateModule();
+
+  /// \brief Deletes the module of the given type.
+  template <typename ModuleType>
+  void DeleteModule();
+
+  /// \brief Returns the instance to the given module type.
+  template <typename ModuleType>
+  const ModuleType* GetModule() const;
+
+  /// \brief Searches for a module of the given type or derived types. The result should be cached since this is an expensive function.
+  template <typename ModuleType>
+  ModuleType* GetModuleOfBaseType();
 
   ///@}
   /// \name Component Functions
@@ -107,7 +127,7 @@ public:
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
-  
+
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
   bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
@@ -117,15 +137,15 @@ public:
   ///@{
 
   /// \brief Sends a message to all components of the receiverObject. Depending on the routing options the message is also send to parents or children.
-  void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+  void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
     ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
   /// \brief Queues the message for the given phase and send it later in that phase to the receiverObject.
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
     ezObjectMsgQueueType::Enum queueType, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
     ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
 
@@ -146,7 +166,7 @@ public:
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   bool GetWorldSimulationEnabled() const;
 
-  /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of the game objects. 
+  /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of the game objects.
   /// See ezWorld for a detailed description of the update phases.
   void Update();
 
@@ -190,7 +210,7 @@ public:
   /// \brief Returns the block allocator used by this world.
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
-  /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is writing. 
+  /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is writing.
   ezInternal::WorldData::ReadMarker& GetReadMarker() const;
 
   /// \brief Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
@@ -209,9 +229,10 @@ public:
 
   /// \brief Returns the world with the given index.
   static ezWorld* GetWorld(ezUInt32 uiIndex);
-  
+
 private:
   friend class ezGameObject;
+  friend class ezWorldModule;
   friend class ezComponentManagerBase;
 
   void CheckForReadAccess() const;
@@ -229,10 +250,10 @@ private:
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
-  ezResult RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
-  ezResult RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc, bool bInsertAsUnresolved);
-  ezResult DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
-  void DeregisterUpdateFunctions(ezComponentManagerBase* pManager);
+  ezResult RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
+  ezResult RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc, bool bInsertAsUnresolved);
+  ezResult DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
+  void DeregisterUpdateFunctions(ezWorldModule* pModule);
 
   /// \brief Used by component managers to queue a new component for initialization during the next update
   void AddComponentToInitialize(ezComponentHandle hComponent);

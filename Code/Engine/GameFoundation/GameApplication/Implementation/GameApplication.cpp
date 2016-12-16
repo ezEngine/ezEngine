@@ -256,24 +256,12 @@ ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) co
   return "";
 }
 
-ezWorld* ezGameApplication::CreateWorld(const char* szWorldName, bool bCreateWorldModules)
+ezWorld* ezGameApplication::CreateWorld(const char* szWorldName)
 {
   auto& wd = m_Worlds.ExpandAndGetRef();
   wd.m_pTimeStepSmoothing = EZ_DEFAULT_NEW(ezDefaultTimeStepSmoothing);
   wd.m_pWorld = EZ_DEFAULT_NEW(ezWorld, szWorldName);
   wd.m_pWorld->GetClock().SetTimeStepSmoothing(wd.m_pTimeStepSmoothing);
-  if (bCreateWorldModules)
-  {
-    wd.CreateWorldModules();
-
-    // scene modules will most likely register component managers, so just mark it for write once here
-    EZ_LOCK(wd.m_pWorld->GetWriteMarker());
-
-    for (auto pModule : wd.m_WorldModules)
-    {
-      pModule->Startup(wd.m_pWorld);
-    }
-  }
 
   return wd.m_pWorld;
 }
@@ -298,31 +286,12 @@ void ezGameApplication::DestroyWorld(ezWorld* pWorld)
   if (wd == nullptr)
     return;
 
-  {
-    // scene modules will most likely register component managers, so just mark it for write once here
-    EZ_LOCK(pWorld->GetWriteMarker());
-
-    for (auto pModule : wd->m_WorldModules)
-    {
-      pModule->BeforeWorldDestruction();
-    }
-  }
-
   wd->m_pWorld->GetClock().SetTimeStepSmoothing(nullptr);
   wd->m_pWorld = nullptr;
   EZ_DEFAULT_DELETE(wd->m_pTimeStepSmoothing);
   wd->m_pTimeStepSmoothing = nullptr;
 
   EZ_DEFAULT_DELETE(pWorld);
-
-  {
-    for (auto pModule : wd->m_WorldModules)
-    {
-      pModule->AfterWorldDestruction();
-    }
-  }
-
-  wd->DestroyWorldModules();
 }
 
 void ezGameApplication::AfterCoreStartup()
@@ -507,12 +476,9 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   {
     ezWorld* pWorld = views[i]->GetWorld();
     if (!worldsToUpdate.Contains(pWorld))
+    {
       worldsToUpdate.PushBack(pWorld);
-  }
-
-  for (auto pWorld : worldsToUpdate)
-  {
-    UpdateWorldModulesBefore(pWorld);
+    }
   }
 
   if (ezRenderLoop::GetUseMultithreadedRendering())
@@ -534,11 +500,6 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
       pWorld->Update();
     }
-  }
-
-  for (auto pWorld : worldsToUpdate)
-  {
-    UpdateWorldModulesAfter(pWorld);
   }
 
   {

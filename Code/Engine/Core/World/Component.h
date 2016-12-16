@@ -14,9 +14,9 @@ class ezWorldReader;
 ///
 /// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.
 /// Also add a EZ_BEGIN_COMPONENT_TYPE/EZ_END_COMPONENT_TYPE block to a cpp file. In that block you can add reflected members or message handlers.
-/// Note that every component type needs a corresponding manager type. Take a look at ezComponentManagerSimple for a simple manager 
+/// Note that every component type needs a corresponding manager type. Take a look at ezComponentManagerSimple for a simple manager
 /// implementation that calls an update method on its components every frame.
-/// To create a component instance call CreateComponent on the corresponding manager. Never store a direct pointer to a component but store a 
+/// To create a component instance call CreateComponent on the corresponding manager. Never store a direct pointer to a component but store a
 /// component handle instead.
 class EZ_CORE_DLL ezComponent : public ezReflectedClass
 {
@@ -68,19 +68,16 @@ public:
   /// \brief Returns the corresponding world for this component.
   const ezWorld* GetWorld() const;
 
-  
+
   /// \brief Returns a handle to this component.
   ezComponentHandle GetHandle() const;
 
-  /// \brief Returns the type id corresponding to this component type.
-  static ezUInt16 TypeId();
+  /// \brief Returns the unique id for this component.
+  ezUInt32 GetUniqueID() const;
 
-  /// \brief Returns the editor picking id for this component.
-  ezUInt32 GetEditorPickingID() const;
+  /// \brief Sets the unique id for this component.
+  void SetUniqueID(ezUInt32 uiUniqueID);
 
-  /// \brief Sets the editor picking id for this component.
-  void SetEditorPickingID(ezUInt32 uiEditorPickingID);
-  
 
   /// \brief Override this to save the current state of the component to the given stream.
   virtual void SerializeComponent(ezWorldWriter& stream) const {}
@@ -148,7 +145,7 @@ protected:
 
 private:
   ezGenericComponentId m_InternalId;
-  ezUInt32 m_uiEditorPickingID;
+  ezUInt32 m_uiUniqueID;
 
   ezComponentManagerBase* m_pManager;
   ezGameObject* m_pOwner;

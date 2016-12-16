@@ -560,7 +560,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
   m_pGizmoComponent->SetMesh(hMesh);
 
-  m_pGizmoComponent->SetEditorPickingID(uiNextComponentPickingID);
+  m_pGizmoComponent->SetUniqueID(uiNextComponentPickingID);
 
   pObject->AttachComponent(m_pGizmoComponent);
 

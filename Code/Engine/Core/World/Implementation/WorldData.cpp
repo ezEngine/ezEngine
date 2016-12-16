@@ -25,11 +25,15 @@ namespace ezInternal
 
 void WorldData::UpdateTask::Execute()
 {
-  m_Function(m_uiStartIndex, m_uiCount);
+  ezWorldModule::UpdateContext context;
+  context.m_uiFirstComponentIndex = m_uiStartIndex;
+  context.m_uiComponentCount = m_uiCount;
+
+  m_Function(context);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
 WorldData::WorldData(const char* szWorldName) :
   m_Allocator(szWorldName, ezFoundation::GetDefaultAllocator()),
   m_AllocatorWrapper(&m_Allocator),
@@ -62,7 +66,7 @@ WorldData::WorldData(const char* szWorldName) :
 
 WorldData::~WorldData()
 {
-  EZ_ASSERT_DEV(m_ComponentManagers.IsEmpty(), "Component managers should be cleaned up already.");
+  EZ_ASSERT_DEV(m_Modules.IsEmpty(), "Modules should be cleaned up already.");
 
   // delete all transformation data
   for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
@@ -90,7 +94,7 @@ WorldData::~WorldData()
   for (ezUInt32 i = 0; i < ezObjectMsgQueueType::COUNT; ++i)
   {
     MessageQueue& queue = m_MessageQueues[i];
-    
+
     // The messages in this queue are allocated through a frame allocator and thus mustn't (and don't need to be) deallocated
     m_MessageQueues[i].Clear();
 
@@ -108,10 +112,10 @@ WorldData::~WorldData()
 ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
   ezGameObject::TransformationData*& out_pData)
 {
-  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ? 
+  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ?
     WorldData::HierarchyType::Dynamic : WorldData::HierarchyType::Static;
   Hierarchy& hierarchy = m_Hierarchies[hierarchyType];
-  
+
   if (uiHierarchyLevel >= hierarchy.m_Data.GetCount())
   {
     hierarchy.m_Data.PushBack(EZ_NEW(&m_Allocator, Hierarchy::DataBlockArray, &m_Allocator));
@@ -137,10 +141,10 @@ ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& ob
   return uiInnerIndex + (blocks.GetCount() - 1) * TRANSFORMATION_DATA_PER_BLOCK;
 }
 
-void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
+void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
   ezUInt32 uiIndex)
 {
-  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ? 
+  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ?
     WorldData::HierarchyType::Dynamic : WorldData::HierarchyType::Static;
   Hierarchy& hierarchy = m_Hierarchies[hierarchyType];
   Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];

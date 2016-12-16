@@ -111,7 +111,7 @@ PxJoint* ezPxJointComponent::SetupJoint()
 
   pChildRbComp->EnsureSimulationStarted();
 
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   PxRigidActor* pParentActor = pParentRbComp ? pParentRbComp->GetActor() : nullptr;
   PxRigidActor* pChildActor = pChildRbComp->GetActor();

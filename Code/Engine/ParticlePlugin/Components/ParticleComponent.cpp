@@ -84,7 +84,7 @@ bool ezParticleComponent::SpawnEffect()
 
   if (m_hEffectResource.IsValid())
   {
-    ezParticleWorldModule* pModule = static_cast<ezParticleWorldModule*>(GetManager()->GetUserData());
+    ezParticleWorldModule* pModule = GetWorld()->GetOrCreateModule<ezParticleWorldModule>();
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this);
 
     m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
@@ -178,22 +178,4 @@ void ezParticleComponent::Update()
   }
 
   m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-
-
-ezParticleComponentManager::ezParticleComponentManager(ezWorld* pWorld)
-  : ezComponentManagerSimple<ComponentType, true>(pWorld)
-{
-}
-
-void ezParticleComponentManager::Initialize()
-{
-  ezComponentManagerSimple<ComponentType, true>::Initialize();
-
-  ezParticleWorldModule* pModule = static_cast<ezParticleWorldModule*>(ezWorldModule::FindModule(GetWorld(), ezParticleWorldModule::GetStaticRTTI()));
-
-  SetUserData(pModule);
 }

@@ -16,8 +16,6 @@ EZ_ENUM_CONSTANTS(ezOnComponentFinishedAction::None, ezOnComponentFinishedAction
 EZ_END_STATIC_REFLECTED_ENUM()
 
 
-ezUInt16 ezComponent::TYPE_ID = -1;
-
 void ezComponent::SetActive(bool bActive)
 {
   m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bActive);

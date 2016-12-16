@@ -1,61 +1,51 @@
 #include <Core/PCH.h>
-#include <Core/World/WorldModule.h>
+#include <Core/World/World.h>
 
-ezDynamicArray<ezWorldModule*> ezWorldModule::s_AllWorldModules;
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezWorldModule::ezWorldModule()
+static ezUInt16 s_uiNextTypeId = 0;
+
+ezWorldModule::ezWorldModule(ezWorld* pWorld)
+  : m_pWorld(pWorld)
 {
-  s_AllWorldModules.PushBack(this);
+
 }
 
 ezWorldModule::~ezWorldModule()
 {
-  s_AllWorldModules.RemoveSwap(this);
 }
 
-void ezWorldModule::Startup(ezWorld* pOwner)
+// protected methods
+
+void ezWorldModule::RegisterUpdateFunction(const UpdateFunctionDesc& desc)
 {
-  m_pOwnerWorld = pOwner;
-  InternalStartup();
+  m_pWorld->RegisterUpdateFunction(desc);
 }
 
-void ezWorldModule::BeforeWorldDestruction()
+void ezWorldModule::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
 {
-  InternalBeforeWorldDestruction();
+  m_pWorld->DeregisterUpdateFunction(desc);
 }
 
-void ezWorldModule::AfterWorldDestruction()
+ezAllocatorBase* ezWorldModule::GetAllocator()
 {
-  InternalAfterWorldDestruction();
+  return m_pWorld->GetAllocator();
 }
 
-void ezWorldModule::UpdateBefore()
+ezInternal::WorldLargeBlockAllocator* ezWorldModule::GetBlockAllocator()
 {
-  InternalUpdateBefore();
+  return m_pWorld->GetBlockAllocator();
 }
 
-void ezWorldModule::UpdateAfter()
+bool ezWorldModule::GetWorldSimulationEnabled() const
 {
-  InternalUpdateAfter();
+  return m_pWorld->GetWorldSimulationEnabled();
 }
 
-void ezWorldModule::Reinit()
+ezUInt16 ezWorldModule::GetNextTypeId()
 {
-  InternalReinit();
+  return s_uiNextTypeId++;
 }
 
-ezWorldModule* ezWorldModule::FindModule(const ezWorld* pWorld, const ezRTTI* pWorldModuleType)
-{
-  EZ_ASSERT_DEV(pWorld != nullptr, "No module will be registered for the nullptr world");
 
-  for (auto pModule : s_AllWorldModules)
-  {
-    if (pModule->GetWorld() != pWorld)
-      continue;
-
-    if (pModule->GetDynamicRTTI()->IsDerivedFrom(pWorldModuleType))
-      return pModule;
-  }
-
-  return nullptr;
-}

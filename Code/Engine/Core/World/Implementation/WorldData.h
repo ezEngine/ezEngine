@@ -69,7 +69,7 @@ namespace ezInternal
     ezUInt32 CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
       ezGameObject::TransformationData*& out_pData);
 
-    void DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
+    void DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
       ezUInt32 uiIndex);
 
     template <typename VISITOR>
@@ -89,36 +89,40 @@ namespace ezInternal
     ezHashTable<ezUInt32, ezGameObjectId, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
     ezHashTable<ezUInt32, ezHashedString, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
 
-    // component manager
-    ezDynamicArray<ezComponentManagerBase*, ezLocalAllocatorWrapper> m_ComponentManagers;
+    // modules
+    ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_Modules;
 
+    // component management
     ezDynamicArray<ezComponentManagerBase::ComponentStorageEntry, ezLocalAllocatorWrapper> m_DeadComponents;
 
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize;
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation;
 
-    typedef ezComponentManagerBase::UpdateFunction UpdateFunction;
     struct RegisteredUpdateFunction
     {
       EZ_DECLARE_POD_TYPE();
 
-      UpdateFunction m_Function;
+      ezWorldModule::UpdateFunction m_Function;
       const char* m_szFunctionName;
-      bool m_bOnlyUpdateWhenSimulating;
+      ezUInt32 m_uiDependencyHash;
+      float m_fPriority;
       ezUInt16 m_uiGranularity;
+      bool m_bOnlyUpdateWhenSimulating;
+
+      void FillFromDesc(const ezWorldModule::UpdateFunctionDesc& desc);
     };
-  
+
     struct UpdateTask : public ezTask
     {
       virtual void Execute() override;
 
-      UpdateFunction m_Function;
+      ezWorldModule::UpdateFunction m_Function;
       ezUInt32 m_uiStartIndex;
       ezUInt32 m_uiCount;
     };
 
-    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::COUNT];
-    ezDynamicArray<ezComponentManagerBase::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;
+    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldModule::UpdateFunctionDesc::Phase::COUNT];
+    ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;
 
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
 
@@ -139,7 +143,7 @@ namespace ezInternal
           ezObjectMsgRouting::Enum m_Routing;
         };
 
-        struct  
+        struct
         {
           ezUInt64 m_uiReceiverComponent : 63;
           ezUInt64 m_uiReceiverIsComponent : 1;
@@ -147,7 +151,7 @@ namespace ezInternal
 
         ezUInt64 m_uiReceiverAndRouting;
       };
-      
+
       ezTime m_Due;
     };
 
@@ -173,7 +177,7 @@ namespace ezInternal
 
       ReadMarker(const WorldData& data);
       const WorldData& m_Data;
-    };    
+    };
 
     class WriteMarker
     {

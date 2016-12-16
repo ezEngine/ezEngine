@@ -21,10 +21,14 @@ class ezTaskGroupID;
 /// world module to 'destroy' it's effect, the rest is handled behind the scenes.
 class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleWorldModule, ezWorldModule);
+  EZ_DECLARE_WORLD_MODULE();
 
 public:
-  ezParticleWorldModule();
+  ezParticleWorldModule(ezWorld* pWorld);
+  ~ezParticleWorldModule();
+
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/);
 
@@ -33,13 +37,8 @@ public:
 
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
 
-  void EnsureUpdatesFinished();
-
-  /// \brief Updates all effects and deallocates those that have been destroyed and are finished.
-  void UpdateEffects();
-
   /// \brief Extracts render data for all effects that are currently active.
-  void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData);
+  void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const;
 
   ezParticleEventQueueManager& GetEventQueueManager() { return m_QueueManager; }
 
@@ -48,15 +47,18 @@ public:
 
 
 private:
+  void UpdateEffects(const ezWorldModule::UpdateContext& context);
+  void EnsureUpdatesFinished(const ezWorldModule::UpdateContext& context);
+
   void DestroyFinishedEffects();
   void ResourceEventHandler(const ezResourceEvent& e);
   void ReconfigureEffects();
   ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
   ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
 
-  void ExtractEffectRenderData(ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform);
+  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const;
 
-  ezMutex m_Mutex;
+  mutable ezMutex m_Mutex;
   ezDeque<ezParticleEffectInstance> m_ParticleEffects;
   ezDynamicArray<ezParticleEffectInstance*> m_FinishingEffects;
   ezDynamicArray<ezParticleEffectInstance*> m_EffectsToReconfigure;
@@ -64,18 +66,9 @@ private:
   ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;
   ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
   ezParticleEventQueueManager m_QueueManager;
-  ezUInt64 m_uiExtractedFrame; // Increased every frame, passed to modules such that instanced systems can prevent redundant work
+  mutable ezUInt64 m_uiExtractedFrame; // Increased every frame, passed to modules such that instanced systems can prevent redundant work
   ezDeque<ezParticleSystemInstance> m_ParticleSystems;
   ezDynamicArray<ezParticleSystemInstance*> m_ParticleSystemFreeList;
   ezTaskGroupID m_EffectUpdateTaskGroup;
-
-protected:
-  virtual void InternalStartup() override;
-  virtual void InternalBeforeWorldDestruction() override;
-  virtual void InternalAfterWorldDestruction() override;
-  virtual void InternalUpdateBefore() override;
-  virtual void InternalUpdateAfter() override;
-  virtual void InternalReinit() override {}
-
 };
 

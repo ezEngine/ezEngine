@@ -83,9 +83,9 @@ ezProjectileComponent::ezProjectileComponent()
 
 void ezProjectileComponent::Update()
 {
-  ezPhysicsWorldModuleInterface* pModule = static_cast<ezPhysicsWorldModuleInterface*>(GetManager()->GetUserData());
+  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetManager()->m_pPhysicsInterface;
 
-  if (pModule)
+  if (pPhysicsInterface)
   {
     ezGameObject* pEntity = GetOwner();
 
@@ -96,7 +96,7 @@ void ezProjectileComponent::Update()
     // gravity
     if (m_fGravityMultiplier != 0.0f && m_fMetersPerSecond > 0.0f) // mps == 0 for attached state
     {
-      const ezVec3 vGravity = pModule->GetGravity() * m_fGravityMultiplier;
+      const ezVec3 vGravity = pPhysicsInterface->GetGravity() * m_fGravityMultiplier;
 
       m_vVelocity += vGravity * fTimeDiff;
     }
@@ -110,7 +110,7 @@ void ezProjectileComponent::Update()
     ezVec3 vPos, vNormal;
     ezGameObjectHandle hObject;
     ezSurfaceResourceHandle hSurface;
-    if (pModule->CastRay(pEntity->GetGlobalPosition(), vCurDirection, fDistance, m_uiCollisionLayer, vPos, vNormal, hObject, hSurface))
+    if (pPhysicsInterface->CastRay(pEntity->GetGlobalPosition(), vCurDirection, fDistance, m_uiCollisionLayer, vPos, vNormal, hObject, hSurface))
     {
       const ezInt32 iInteraction = FindSurfaceInteraction(hSurface);
 
@@ -320,17 +320,16 @@ const char* ezProjectileComponent::GetTimeoutPrefab() const
 
 ezProjectileComponentManager::ezProjectileComponentManager(ezWorld* pWorld)
   : ezComponentManagerSimple<class ezProjectileComponent, true>(pWorld)
+  , m_pPhysicsInterface(nullptr)
 {
 
 }
 
 void ezProjectileComponentManager::Initialize()
 {
-  ezComponentManagerSimple<class ezProjectileComponent, true>::Initialize();
+  ezComponentManagerSimple<ezProjectileComponent, true>::Initialize();
 
-  ezPhysicsWorldModuleInterface* pModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
-
-  SetUserData(pModule);
+  m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
 }
 
 //////////////////////////////////////////////////////////////////////////

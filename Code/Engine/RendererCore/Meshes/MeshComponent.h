@@ -14,7 +14,7 @@ public:
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiPartIndex;
-  ezUInt32 m_uiEditorPickingID;
+  ezUInt32 m_uiUniqueID;
 };
 
 class ezMeshComponent;

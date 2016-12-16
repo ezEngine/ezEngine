@@ -20,13 +20,13 @@ ezCameraComponentManager::~ezCameraComponentManager()
 
 void ezCameraComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezCameraComponentManager::Update, this);
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezCameraComponentManager::Update, this);
   desc.m_Phase = UpdateFunctionDesc::Phase::PostTransform;
 
   this->RegisterUpdateFunction(desc);
 }
 
-void ezCameraComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
   for (auto hCameraComponent : m_modifiedCameras)
   {

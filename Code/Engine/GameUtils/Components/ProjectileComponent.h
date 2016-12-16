@@ -6,6 +6,7 @@
 #include <GameUtils/Surfaces/SurfaceResource.h>
 
 struct ezTriggerMessage;
+class ezPhysicsWorldModuleInterface;
 
 class EZ_GAMEUTILS_DLL ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, true>
 {
@@ -13,6 +14,10 @@ public:
   ezProjectileComponentManager(ezWorld* pWorld);
 
   virtual void Initialize() override;
+
+private:
+  friend class ezProjectileComponent;
+  ezPhysicsWorldModuleInterface* m_pPhysicsInterface;
 };
 
 /// \brief Defines what a projectile will do when it hits a surface

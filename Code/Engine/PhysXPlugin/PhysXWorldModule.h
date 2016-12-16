@@ -92,16 +92,21 @@ private:
   PxMaterial* m_pDefaultMaterial;
   PxVisualDebuggerConnection* m_VdbConnection;
   ezCollisionFilterConfig m_CollisionFilterConfig;
-  
+
 };
 
 
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
+  EZ_DECLARE_WORLD_MODULE();
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysXWorldModule, ezPhysicsWorldModuleInterface);
 
 public:
-  ezPhysXWorldModule();
+  ezPhysXWorldModule(ezWorld* pWorld);
+  ~ezPhysXWorldModule();
+
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   PxScene* GetPxScene() const { return m_pPxScene; }
 
@@ -116,15 +121,9 @@ public:
 
   virtual bool SweepTestCapsule(const ezTransform& start, const ezVec3& vDir, float fCapsuleRadius, float fCapsuleHeight, float fDistance, ezUInt8 uiCollisionLayer, float& out_fDistance, ezVec3& out_Position, ezVec3& out_Normal) override;
 
-protected:
-  virtual void InternalStartup() override;
-  virtual void InternalBeforeWorldDestruction() override {}
-  virtual void InternalAfterWorldDestruction() override;
-  virtual void InternalUpdateBefore() override;
-  virtual void InternalUpdateAfter() override {};
-  virtual void InternalReinit() override;
-
 private:
+  void Update(const ezWorldModule::UpdateContext& context);
+
   PxScene* m_pPxScene;
   PxDefaultCpuDispatcher* m_pCPUDispatcher;
   ezTime m_AccumulatedTimeSinceUpdate;

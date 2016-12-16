@@ -98,10 +98,10 @@ bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& h
   return m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), out_pEffect);
 }
 
-void ezParticleWorldModule::UpdateEffects()
+void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& context)
 {
   // do this outside the lock to allow tasks to enter it
-  EnsureUpdatesFinished();
+  EnsureUpdatesFinished(context);
 
   EZ_LOCK(m_Mutex);
 

@@ -74,7 +74,7 @@ void ezSpriteComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
     pRenderData->m_color = m_Color;
     pRenderData->m_texCoordScale = ezVec2(1.0f);
     pRenderData->m_texCoordOffset = ezVec2(0.0f);
-    pRenderData->m_uiEditorPickingID = GetEditorPickingID();
+    pRenderData->m_uiUniqueID = GetUniqueID();
   }
 
   // Determine render data category.

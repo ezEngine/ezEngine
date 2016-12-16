@@ -91,7 +91,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
       pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
       pRenderData->m_texCoordScale = ezVec2(1.0f);
       pRenderData->m_texCoordOffset = ezVec2(0.0f);
-      pRenderData->m_uiEditorPickingID = pComponent->GetEditorPickingID();
+      pRenderData->m_uiUniqueID = pComponent->GetUniqueID();
 
       // prefer color gamma properties
       if (pShapeIconInfo->m_pColorGammaProperty != nullptr)

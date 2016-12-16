@@ -70,7 +70,7 @@ void ezPxShapeSphereComponent::SetRadius(float f)
 
 void ezPxShapeSphereComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
 {
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
 

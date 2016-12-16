@@ -5,10 +5,6 @@
 #include <Core/World/WorldModule.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
-// no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 static ezProfilingId s_WhenInitializedMsgProfilingID = ezProfilingSystem::CreateId("When Initialized Msgs");
 static ezProfilingId s_PreAsyncProfilingID = ezProfilingSystem::CreateId("Pre-Async Phase");
 static ezProfilingId s_AsyncProfilingID = ezProfilingSystem::CreateId("Async Phase");
@@ -60,16 +56,16 @@ ezWorld::~ezWorld()
     it->m_Flags.Remove(ezObjectFlags::Active);
   }
 
-  // delete all component manager before we invalidate the world. Components can still access the world during deinitialization.
-  for (ezUInt32 i = 0; i < m_Data.m_ComponentManagers.GetCount(); ++i)
+  // delete all modules before we invalidate the world. Components can still access the world during deinitialization.
+  for (ezWorldModule* pModule : m_Data.m_Modules)
   {
-    if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[i])
+    if (pModule != nullptr)
     {
-      pManager->Deinitialize();
-      EZ_DELETE(&m_Data.m_Allocator, pManager);
+      pModule->Deinitialize();
+      EZ_DELETE(&m_Data.m_Allocator, pModule);
     }
   }
-  m_Data.m_ComponentManagers.Clear();
+  m_Data.m_Modules.Clear();
 
   s_Worlds[m_uiIndex] = nullptr;
   m_uiIndex = ezInvalidIndex;
@@ -203,21 +199,21 @@ ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti
   const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
   EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
 
-  if (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
+  if (uiTypeId >= m_Data.m_Modules.GetCount())
   {
-    m_Data.m_ComponentManagers.SetCount(uiTypeId + 1);
+    m_Data.m_Modules.SetCount(uiTypeId + 1);
   }
 
-  ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId];
-  if (pManager == nullptr)
+  ezWorldModule* pModule = m_Data.m_Modules[uiTypeId];
+  if (pModule == nullptr)
   {
-    pManager = ezComponentManagerFactory::GetInstance()->CreateComponentManager(uiTypeId, this);
-    pManager->Initialize();
+    pModule = ezComponentManagerFactory::GetInstance()->CreateComponentManager(uiTypeId, this);
+    pModule->Initialize();
 
-    m_Data.m_ComponentManagers[uiTypeId] = pManager;
+    m_Data.m_Modules[uiTypeId] = pModule;
   }
 
-  return pManager;
+  return static_cast<ezComponentManagerBase*>(pModule);
 }
 
 const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
@@ -227,9 +223,9 @@ const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) 
   const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
   EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
 
-  if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
+  if (uiTypeId < m_Data.m_Modules.GetCount())
   {
-    return m_Data.m_ComponentManagers[uiTypeId];
+    return static_cast<const ezComponentManagerBase*>(m_Data.m_Modules[uiTypeId]);
   }
 
   return nullptr;
@@ -433,7 +429,7 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
     pObject->m_ParentIndex = 0;
     pObject->m_pTransformationData->m_pParentData = nullptr;
 
-    // Note that the sibling indices must not be set to 0 here. 
+    // Note that the sibling indices must not be set to 0 here.
     // They are still needed if we currently iterate over child objects.
   }
 }
@@ -594,37 +590,27 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
   CheckForWriteAccess();
 
   EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
+  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
-
-  if (desc.m_DependsOn.IsEmpty())
+  if (RegisterUpdateFunctionInternal(desc, true).Failed())
   {
-    ezInternal::WorldData::RegisteredUpdateFunction& newFunction = updateFunctions.ExpandAndGetRef();
-    newFunction.m_Function = desc.m_Function;
-    newFunction.m_szFunctionName = desc.m_szFunctionName;
-    newFunction.m_bOnlyUpdateWhenSimulating = desc.m_bOnlyUpdateWhenSimulating;
-    newFunction.m_uiGranularity = desc.m_uiGranularity;
-  }
-  else
-  {
-    EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async, "Asynchronous update functions must not have dependencies");
-
-    if (RegisterUpdateFunctionWithDependency(desc, true) == EZ_FAILURE)
-      return EZ_FAILURE;
+    return EZ_FAILURE;
   }
 
   // new function was registered successfully, try to insert unresolved functions
   for (ezUInt32 i = m_Data.m_UnresolvedUpdateFunctions.GetCount(); i-- > 0;)
   {
-    if (RegisterUpdateFunctionWithDependency(m_Data.m_UnresolvedUpdateFunctions[i], false) == EZ_SUCCESS)
+    if (RegisterUpdateFunctionInternal(m_Data.m_UnresolvedUpdateFunctions[i], false).Succeeded())
+    {
       m_Data.m_UnresolvedUpdateFunctions.RemoveAt(i);
+    }
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc,
-                                                       bool bInsertAsUnresolved)
+ezResult ezWorld::RegisterUpdateFunctionInternal(const ezComponentManagerBase::UpdateFunctionDesc& desc,
+  bool bInsertAsUnresolved)
 {
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
   ezUInt32 uiInsertionIndex = 0;
@@ -633,8 +619,7 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
   {
     ezUInt32 uiDependencyIndex = ezInvalidIndex;
 
-    // search for dependency from back so we get the last index if the same update function is used multiple times
-    for (ezUInt32 j = updateFunctions.GetCount(); j-- > 0;)
+    for (ezUInt32 j = 0; j < updateFunctions.GetCount(); ++j)
     {
       if (updateFunctions[j].m_Function == desc.m_DependsOn[i])
       {
@@ -645,7 +630,10 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
 
     if (uiDependencyIndex == ezInvalidIndex) // dependency not found
     {
-      m_Data.m_UnresolvedUpdateFunctions.PushBack(desc);
+      if (bInsertAsUnresolved)
+      {
+        m_Data.m_UnresolvedUpdateFunctions.PushBack(desc);
+      }
       return EZ_FAILURE;
     }
     else
@@ -655,10 +643,30 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
   }
 
   ezInternal::WorldData::RegisteredUpdateFunction newFunction;
-  newFunction.m_Function = desc.m_Function;
-  newFunction.m_szFunctionName = desc.m_szFunctionName;
-  newFunction.m_bOnlyUpdateWhenSimulating = desc.m_bOnlyUpdateWhenSimulating;
-  newFunction.m_uiGranularity = desc.m_uiGranularity;
+  newFunction.FillFromDesc(desc);
+
+  while (uiInsertionIndex < updateFunctions.GetCount())
+  {
+    const auto& existingFunction = updateFunctions[uiInsertionIndex];
+    if (existingFunction.m_uiDependencyHash != newFunction.m_uiDependencyHash)
+    {
+      break;
+    }
+
+    // higher priority comes first
+    if (existingFunction.m_fPriority < newFunction.m_fPriority)
+    {
+      break;
+    }
+
+    // sort by function name to ensure determinism
+    if (ezStringUtils::Compare(existingFunction.m_szFunctionName, newFunction.m_szFunctionName) > 0)
+    {
+      break;
+    }
+
+    ++uiInsertionIndex;
+  }
 
   updateFunctions.Insert(newFunction, uiInsertionIndex);
 
@@ -685,17 +693,17 @@ ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateF
   return result;
 }
 
-void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
+void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
 {
   CheckForWriteAccess();
 
-  for (ezUInt32 phase = ezComponentManagerBase::UpdateFunctionDesc::Phase::PreAsync; phase < ezComponentManagerBase::UpdateFunctionDesc::Phase::COUNT; ++phase)
+  for (ezUInt32 phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync; phase < ezWorldModule::UpdateFunctionDesc::Phase::COUNT; ++phase)
   {
     ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
 
     for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
     {
-      if (updateFunctions[i].m_Function.GetClassInstance() == pManager)
+      if (updateFunctions[i].m_Function.GetClassInstance() == pModule)
       {
         updateFunctions.RemoveAt(i);
       }
@@ -770,12 +778,16 @@ void ezWorld::ProcessComponentsToInitialize()
 
 void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions)
 {
+  ezWorldModule::UpdateContext context;
+  context.m_uiFirstComponentIndex = 0;
+  context.m_uiComponentCount = ezInvalidIndex;
+
   for (auto& updateFunction : updateFunctions)
   {
     if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
       continue;
 
-    updateFunction.m_Function(0, ezInvalidIndex);
+    updateFunction.m_Function(context);
   }
 }
 
@@ -841,7 +853,7 @@ void ezWorld::DeleteDeadObjects()
                                     pObject->m_uiTransformationDataIndex);
     m_Data.m_ObjectStorage.Delete(entry);
 
-    // patch the id table: the last element in the storage has been moved to deleted object's location, 
+    // patch the id table: the last element in the storage has been moved to deleted object's location,
     // thus the pointer now points to another object
     ezGameObjectId id = entry.m_Ptr->m_InternalId;
     if (id.m_InstanceIndex != ezGameObjectId::INVALID_INSTANCE_INDEX)
@@ -859,7 +871,7 @@ void ezWorld::DeleteDeadComponents()
   for (ezUInt32 i = m_Data.m_DeadComponents.GetCount(); i-- > 0; )
   {
     ezComponentManagerBase::ComponentStorageEntry entry = m_Data.m_DeadComponents[i];
-    ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[entry.m_Ptr->GetTypeId()];
+    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(m_Data.m_Modules[entry.m_Ptr->GetTypeId()]);
     ezComponent* pMovedComponent = nullptr;
     pManager->DeleteDeadComponent(entry, pMovedComponent);
 

@@ -5,10 +5,10 @@ EZ_FORCE_INLINE ezComponent::ezComponent() :
   m_pManager(nullptr),
   m_pOwner(nullptr)
 {
-  m_uiEditorPickingID = 0xFFFFFFFF;
+  m_uiUniqueID = 0xFFFFFFFF;
 }
 
-EZ_FORCE_INLINE ezComponent::~ezComponent() 
+EZ_FORCE_INLINE ezComponent::~ezComponent()
 {
   m_pManager = nullptr;
   m_pOwner = nullptr;
@@ -55,20 +55,14 @@ EZ_FORCE_INLINE const ezGameObject* ezComponent::GetOwner() const
   return m_pOwner;
 }
 
-// static 
-EZ_FORCE_INLINE ezUInt16 ezComponent::TypeId()
-{ 
-  return TYPE_ID;
+EZ_FORCE_INLINE ezUInt32 ezComponent::GetUniqueID() const
+{
+  return m_uiUniqueID;
 }
 
-EZ_FORCE_INLINE ezUInt32 ezComponent::GetEditorPickingID() const
+EZ_FORCE_INLINE void ezComponent::SetUniqueID(ezUInt32 uiUniqueID)
 {
-  return m_uiEditorPickingID;
-}
-
-EZ_FORCE_INLINE void ezComponent::SetEditorPickingID(ezUInt32 uiEditorPickingID)
-{
-  m_uiEditorPickingID = uiEditorPickingID;
+  m_uiUniqueID = uiUniqueID;
 }
 
 EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg)
@@ -125,10 +119,10 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg) const
   return true;
 }
 
-template <typename T>
+template <typename ManagerType>
 EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandleInternal() const
 {
-  return ezComponentHandle(ezComponentId(m_InternalId, T::TypeId(), GetWorldIndex()));
+  return ezComponentHandle(ezComponentId(m_InternalId, ManagerType::TypeId(), GetWorldIndex()));
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsInitialized() const

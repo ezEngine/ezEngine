@@ -123,10 +123,7 @@ public:
   /// \brief Creates a new world with the given name.
   ///
   /// The world is added to the array of known worlds and as such is stepped during Run().
-  /// If \a bCreateWorldModules is set, an instance of every class derived from ezWorldModule
-  /// is created and linked with the new ezWorld.
-  /// These modules will also be stepped when the world is updated.
-  ezWorld* CreateWorld(const char* szWorldName, bool bCreateWorldModules);
+  ezWorld* CreateWorld(const char* szWorldName);
 
   /// \brief Cleanes up all data related to a world that was created through CreateWorld().
   void DestroyWorld(ezWorld* pWorld);
@@ -139,13 +136,6 @@ public:
 
   /// \brief Returns the ezGameState associated with the given world.
   ezGameState* GetGameStateForWorld(ezWorld* pWorld) const;
-
-  /// \brief Calls ezWorldModule::Update() on all modules associated with this world.
-  void UpdateWorldModulesBefore(ezWorld* pWorld);
-  void UpdateWorldModulesAfter(ezWorld* pWorld);
-
-  /// \brief Calls ezWorldModule::Reinit() on all modules associated with this world.
-  void ReinitWorldModules(ezWorld* pWorld);
 
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
   void ReinitializeInputConfig();
@@ -283,17 +273,11 @@ private:
 
   struct WorldData
   {
-    void UpdateBefore();
-    void UpdateAfter();
-    void CreateWorldModules();
-    void ReinitWorldModules();
-    void DestroyWorldModules();
+    EZ_DECLARE_POD_TYPE();
 
     ezDefaultTimeStepSmoothing* m_pTimeStepSmoothing;
-    ezHybridArray<ezWorldModule*, 8> m_WorldModules;
     ezWorld* m_pWorld;
   };
-
 
   ezString m_sAppName;
   ezDynamicArray<WindowContext> m_Windows;

@@ -71,7 +71,7 @@ void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
 
 void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
 {
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
 
@@ -80,7 +80,7 @@ void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& 
 
   ezQuat r;
   r.SetFromMat3(LocalTransform.m_Rotation);
-  
+
   PxTransform t;
   t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
