@@ -29,6 +29,7 @@ ezQtNodeScene::ezQtNodeScene(QObject* parent)
 {
   setItemIndexMethod(QGraphicsScene::NoIndex);
   m_vPos = ezVec2::ZeroVector();
+  m_bIgnoreSelectionChange = false;
 
   //setSceneRect(-1000, -1000, 2000, 2000);
 }
@@ -47,6 +48,7 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
   if (m_pManager != nullptr)
   {
     m_pManager->m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
+    m_pManager->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
   }
 
   m_pManager = pManager;
@@ -54,6 +56,7 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
   if (pManager != nullptr)
   {
     pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
+    m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
 
     // Create Nodes
     const auto& rootObjects = pManager->GetRootObject()->GetChildren();
@@ -204,8 +207,10 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   {
     ezDeque<const ezDocumentObject*> selection;
     GetSelection(selection);
-    // TODO const cast
+
+    m_bIgnoreSelectionChange = true;
     ((ezSelectionManager*)m_pManager->GetDocument()->GetSelectionManager())->SetSelection(selection);
+    m_bIgnoreSelectionChange = false;
   }
 
   if (!moved.IsEmpty())
@@ -463,6 +468,30 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
   default:
     break;
   }
+}
+
+void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
+{
+  if (m_bIgnoreSelectionChange)
+    return;
+
+  m_bIgnoreSelectionChange = true;
+
+  const ezDeque<const ezDocumentObject*>& selection = GetDocument()->GetSelectionManager()->GetSelection();
+
+  clearSelection();
+
+  QList<QGraphicsItem*> qSelection;
+  for (const ezDocumentObject* pObject : selection)
+  {
+    auto it = m_Nodes.Find(pObject);
+    if (!it.IsValid())
+      continue;
+
+    it.Value()->setSelected(true);
+  }
+
+  m_bIgnoreSelectionChange = false;
 }
 
 void ezQtNodeScene::GetSelection(ezDeque<const ezDocumentObject*>& selection) const

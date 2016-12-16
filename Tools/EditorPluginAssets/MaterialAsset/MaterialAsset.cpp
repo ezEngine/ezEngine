@@ -947,8 +947,7 @@ bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezA
 
   }
 
-  // doesn't work because ezQtNodeScene has its own selection, which is not synchronized when this is called
-  //GetSelectionManager()->SetSelection(AddedNodes);
+  GetSelectionManager()->SetSelection(AddedNodes);
   return true;
 }
 

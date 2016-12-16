@@ -10,6 +10,7 @@
 class ezQtNode;
 class ezQtPin;
 class ezQtConnection;
+struct ezSelectionManagerEvent;
 
 class EZ_GUIFOUNDATION_DLL ezQtNodeScene : public QGraphicsScene
 {
@@ -46,6 +47,7 @@ private:
   void CreateNode(const ezDocumentObject* pObject);
   void DeleteNode(const ezDocumentObject* pObject);
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
+  void SelectionEventsHandler(const ezSelectionManagerEvent& e);
   void GetSelection(ezDeque<const ezDocumentObject*>& selection) const;
   void GetSelectedNodes(ezDeque<ezQtNode*>& selection) const;
   void ConnectPins(const ezConnection* pConnection);
@@ -75,6 +77,7 @@ private:
   ezMap<const ezDocumentObject*, ezQtNode*> m_Nodes;
   ezMap<const ezConnection*, ezQtConnection*> m_ConnectionsSourceTarget;
 
+  bool m_bIgnoreSelectionChange;
   ezQtPin* m_pStartPin;
   ezQtConnection* m_pTempConnection;
   ezDeque<const ezDocumentObject*> m_Selection;
