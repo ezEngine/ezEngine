@@ -21,6 +21,7 @@ public:
 
 protected:
   friend class ezWorld;
+  friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
 
   struct UpdateContext
