@@ -32,7 +32,7 @@ Node %FromScreenSpace
   string %Category { "Transformations" }
   unsigned_int8 %Color { 38, 105, 0 }
 
-  InputPin %CameraSpace
+  InputPin %ScreenSpace
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 200, 200, 200 }
@@ -61,7 +61,7 @@ Node %FromWorldSpace
   string %Category { "Transformations" }
   unsigned_int8 %Color { 38, 105, 0 }
 
-  InputPin %CameraSpace
+  InputPin %WorldSpace
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 200, 200, 200 }

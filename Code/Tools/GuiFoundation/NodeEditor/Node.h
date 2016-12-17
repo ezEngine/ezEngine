@@ -40,7 +40,7 @@ public:
   virtual int type() const override { return ezQtNodeScene::Node; }
 
   const ezDocumentObject* GetObject() const { return m_pObject; }
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject);
+  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText = nullptr);
   void CreatePins();
 
   ezQtPin* GetInputPin(const ezPin* pPin);

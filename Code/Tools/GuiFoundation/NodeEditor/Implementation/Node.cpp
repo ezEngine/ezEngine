@@ -64,23 +64,28 @@ void ezQtNode::EnableDropShadow(bool enable)
   }
 }
 
-void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText /*= nullptr*/)
 {
   m_pManager = pManager;
   m_pObject = pObject;
   CreatePins();
   prepareGeometryChange();
 
-  m_pLabel->setPlainText(pObject->GetTypeAccessor().GetType()->GetTypeName());
+  if (szHeaderText == nullptr)
+    m_pLabel->setPlainText(pObject->GetTypeAccessor().GetType()->GetTypeName());
+  else
+    m_pLabel->setPlainText(szHeaderText);
+
   auto labelRect = m_pLabel->boundingRect();
 
   QFontMetrics fm(scene()->font());
-  int w = labelRect.width();
+  const int headerWidth = labelRect.width();
   int h = labelRect.height() + 5;
 
   int y = h;
 
   // Align inputs
+  int maxInputWidth = 0;
   for (ezUInt32 i = 0; i < m_Inputs.GetCount(); ++i)
   {
     ezQtPin* pQtPin = m_Inputs[i];
@@ -88,11 +93,15 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
 
-    w = ezMath::Max(w, (int)rectPin.width());
+    maxInputWidth = ezMath::Max(maxInputWidth, (int)rectPin.width());
     y += rectPin.height();
   }
 
+  int maxheight = y;
+  y = h;
+
   // Align outputs
+  int maxOutputWidth = 0;
   for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
   {
     ezQtPin* pQtPin = m_Outputs[i];
@@ -100,9 +109,24 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
 
-    w = ezMath::Max(w, (int)rectPin.width());
+    maxOutputWidth = ezMath::Max(maxOutputWidth, (int)rectPin.width());
     y += rectPin.height();
   }
+
+  int w = 0;
+
+  if (maxInputWidth == 0)
+    w = maxOutputWidth;
+  else if (maxOutputWidth == 0)
+    w = maxInputWidth;
+  else
+    w = ezMath::Max(maxInputWidth, maxOutputWidth) * 2;
+
+  w += 10;
+  w = ezMath::Max(w, headerWidth);
+
+
+  maxheight = ezMath::Max(maxheight, y);
 
   // Align outputs to the right
   for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
@@ -115,7 +139,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
 
   {
     QPainterPath p;
-    p.addRoundedRect(-5, -5, w + 10, y + 10, 5, 5);
+    p.addRoundedRect(-5, -5, w + 10, maxheight + 10, 5, 5);
     setPath(p);
   }
 

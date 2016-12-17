@@ -210,14 +210,13 @@ ezQtVisualShaderNode::ezQtVisualShaderNode()
   EnableDropShadow(false);
 }
 
-void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText /*= nullptr*/)
 {
-  ezQtNode::InitNode(pManager, pObject);
-
   ezStringBuilder temp = pObject->GetTypeAccessor().GetType()->GetTypeName();
   if (temp.StartsWith_NoCase("ShaderNode::"))
     temp.Shrink(12, 0);
-  m_pLabel->setPlainText(temp.GetData());
+
+  ezQtNode::InitNode(pManager, pObject, temp);
 
   const auto* pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
 
