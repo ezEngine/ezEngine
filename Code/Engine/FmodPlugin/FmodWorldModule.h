@@ -8,20 +8,16 @@
 
 class EZ_FMODPLUGIN_DLL ezFmodSceneModule : public ezWorldModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSceneModule, ezWorldModule);
+  EZ_DECLARE_WORLD_MODULE();
 
 public:
-  ezFmodSceneModule() {}
+  ezFmodSceneModule(ezWorld* pWorld);
 
-protected:
-  virtual void InternalStartup() override;
-  virtual void InternalBeforeWorldDestruction() override {}
-  virtual void InternalAfterWorldDestruction() override;
-  virtual void InternalUpdateBefore() override;
-  virtual void InternalUpdateAfter() override {}
-  virtual void InternalReinit() override;
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
 private:
+  void UpdateSound(const ezWorldModule::UpdateContext& context);
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Fmod, FmodPlugin);
 };

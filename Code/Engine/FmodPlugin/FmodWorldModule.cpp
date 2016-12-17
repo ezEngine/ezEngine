@@ -6,23 +6,23 @@
 #include <FmodPlugin/Components/FmodReverbComponent.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSceneModule, 1, ezRTTIDefaultAllocator<ezFmodSceneModule>)
-  // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_IMPLEMENT_WORLD_MODULE(ezFmodSceneModule);
 
 ezFmodSoundBankResourceHandle hRes[5];
 
-void ezFmodSceneModule::InternalStartup()
+ezFmodSceneModule::ezFmodSceneModule(ezWorld* pWorld)
+  : ezWorldModule(pWorld)
+{
+
+}
+
+void ezFmodSceneModule::Initialize()
 {
   //hRes[0] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("Sound/Soundbanks/Desktop/FleetOps.bank");
   //hRes[1] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Master Bank.strings.bank");
   //hRes[2] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Surround_Ambience.bank");
   //hRes[3] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/UI_Menu.bank");
   //hRes[4] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Weapons.bank");
-
-  GetWorld()->GetOrCreateComponentManager<ezFmodEventComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezFmodListenerComponentManager>()->SetUserData(this);
-  GetWorld()->GetOrCreateComponentManager<ezFmodReverbComponentManager>()->SetUserData(this);
 
   for (int i = 0; i < 5; ++i)
   {
@@ -32,10 +32,18 @@ void ezFmodSceneModule::InternalStartup()
     }
   }
 
-  InternalReinit();
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodSceneModule::UpdateSound, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_fPriority = 0.0f; // don't really care about priority
+
+    RegisterUpdateFunction(desc);
+  }
 }
 
-void ezFmodSceneModule::InternalAfterWorldDestruction()
+
+void ezFmodSceneModule::Deinitialize()
 {
   for (int i = 0; i < 5; ++i)
   {
@@ -43,15 +51,9 @@ void ezFmodSceneModule::InternalAfterWorldDestruction()
   }
 }
 
-void ezFmodSceneModule::InternalUpdateBefore()
+void ezFmodSceneModule::UpdateSound(const ezWorldModule::UpdateContext& context)
 {
   ezFmod::GetSingleton()->GetSystem()->update();
-
-
 }
 
-
-void ezFmodSceneModule::InternalReinit()
-{
-}
 

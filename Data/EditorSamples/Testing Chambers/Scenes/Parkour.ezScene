@@ -1352,7 +1352,7 @@ o
 			Uuid{u4{3348147617062841222,3683335819389776068}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000C8C1,0x000052C1,0x0000A040}}
+		Vec3 %LocalPosition{f{0x0000C8C1,0x000081C1,0x0000D040}}
 		Quat %LocalRotation{f{0,0,0xF40435BF,0xF204353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1694,7 +1694,7 @@ o
 			Uuid{u4{4946365759990096310,5382088752516185617}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00004040,0x000080C0,0x00000040}}
+		Vec3 %LocalPosition{f{0x0000C040,0x000080C0,0x00006040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -2762,7 +2762,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{4263621183197240498}
+		u4 %Hash{1949658198698779642}
 		VarArray %References
 		{
 			s{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
@@ -5300,7 +5300,7 @@ o
 			Uuid{u4{10127488211047799562,8480361852218642255}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000E0C1,0x0000ECC0,0x0000A040}}
+		Vec3 %LocalPosition{f{0x0000E0C1,0x000088C0,0x0000D040}}
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -5678,7 +5678,7 @@ o
 			Uuid{u4{13075002141136507757,10330509812345738104}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00004040,0x0000C0C0,0x00000040}}
+		Vec3 %LocalPosition{f{0x0000C040,0x0000C0C0,0x00006040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -6345,7 +6345,7 @@ o
 			Uuid{u4{413960571963409206,10948394319200620265}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000803F,0x0000A0C1,0x0000A040}}
+		Vec3 %LocalPosition{f{0x000000C0,0x0000A0C1,0x0000D040}}
 		Quat %LocalRotation{f{0,0,0x0000803F,0x2EBD3B33}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -7826,7 +7826,7 @@ o
 			Uuid{u4{3284139491354777013,13270672563074579538}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000D0C1,0x0000ECC0,0x0000A040}}
+		Vec3 %LocalPosition{f{0x0000D0C1,0x000088C0,0x0000D040}}
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -8667,7 +8667,7 @@ o
 			Uuid{u4{8542596953109820653,15896815379030172752}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000803F,0x0000B0C1,0x0000A040}}
+		Vec3 %LocalPosition{f{0x000000C0,0x0000B0C1,0x0000D040}}
 		Quat %LocalRotation{f{0,0,0x0000803F,0x2EBD3B33}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -9411,7 +9411,7 @@ o
 			Uuid{u4{17645488412682797259,16646559150621140022}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000D8C1,0x000052C1,0x0000A040}}
+		Vec3 %LocalPosition{f{0x0000D8C1,0x000081C1,0x0000D040}}
 		Quat %LocalRotation{f{0,0,0xF40435BF,0xF204353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -10121,7 +10121,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
 		s %ParentTypeName{"ezFmodComponent"}
 		s %PluginName{"ezFmodPlugin"}
 		VarArray %Properties
@@ -10144,7 +10144,7 @@ o
 		{
 			Uuid{u4{1636123206047010939,9656076789046550064}}
 		}
-		s %Flags{"ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezFmodPlugin"}
 		VarArray %Properties{}
