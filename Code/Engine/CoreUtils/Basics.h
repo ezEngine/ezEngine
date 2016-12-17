@@ -17,7 +17,6 @@
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)
 
-extern ezUInt64 g_uiFontFileSize;
 extern const ezUInt8 g_FontFileTGA[];
 
 #endif

@@ -1166,7 +1166,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
   };
 
   VariableReader reader;
-  reader.m_uiSize = g_uiFontFileSize;
+  reader.m_uiSize = EZ_ARRAY_SIZE(g_FontFileTGA);
   reader.m_pData = g_FontFileTGA;
 
   ezTgaFileFormat tga;

@@ -13,10 +13,10 @@ protected:
   virtual ~ezWorldModule();
 
 public:
-  /// \brief Returns the corresponding world to this manager.
+  /// \brief Returns the corresponding world to this module.
   ezWorld* GetWorld();
 
-  /// \brief Returns the corresponding world to this manager.
+  /// \brief Returns the corresponding world to this module.
   const ezWorld* GetWorld() const;
 
 protected:
@@ -63,7 +63,7 @@ protected:
     }
 
     UpdateFunction m_Function;                    ///< Delegate to the actual update function.
-    const char* m_szFunctionName;                 ///< Name of the function. Use the EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC macro to create a description with the correct name.
+    const char* m_szFunctionName;                 ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description with the correct name.
     ezHybridArray<UpdateFunction, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be called after all its dependencies have been called.
     ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
     bool m_bOnlyUpdateWhenSimulating;             ///< The update function is only called when the world simulation is enabled.

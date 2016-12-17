@@ -587,7 +587,7 @@ void ezGameApplication::RenderConsole()
 
   const float fViewWidth = pView->GetViewport().width;
   const float fViewHeight = pView->GetViewport().height;
-  const float fTextHeight = 16.0f;
+  const float fTextHeight = 20.0f;
   const float fConsoleHeight = (fViewHeight / 2.0f);
   const float fBorderWidth = 3.0f;
   const float fConsoleTextAreaHeight = fConsoleHeight - fTextHeight - (2.0f * fBorderWidth);
@@ -596,7 +596,7 @@ void ezGameApplication::RenderConsole()
   const ezInt32 iTextLeft = (ezInt32)(fBorderWidth);
 
   {
-    ezColor backgroundColor(0.3f, 0.3f, 0.3f, 0.5f);
+    ezColor backgroundColor(0.3f, 0.3f, 0.3f, 0.7f);
     ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
 
     ezColor foregroundColor(0.02f, 0.02f, 0.02f, 0.8f);
@@ -625,7 +625,7 @@ void ezGameApplication::RenderConsole()
     {
       float fCaretPosition = (float)m_pConsole->GetCaretPosition();
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
-      ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth + fCaretPosition * 10.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
+      ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
     }
   }
 }

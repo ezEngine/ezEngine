@@ -632,7 +632,7 @@ void ezGALContextDX11::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezU
     if (ID3D11Resource* pDXTempBuffer = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
     {
       D3D11_MAPPED_SUBRESOURCE MapResult;
-      HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, D3D11_MAP_FLAG_DO_NOT_WAIT, &MapResult);
+      HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, 0, &MapResult);
       EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
 
       memcpy(MapResult.pData, pSourceData.GetPtr(), pSourceData.GetCount());
@@ -681,7 +681,7 @@ void ezGALContextDX11::UpdateTexturePlatform(const ezGALTexture* pDestination, c
  if (ID3D11Resource* pDXTempTexture = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempTexture(uiWidth, uiHeight, uiDepth, format))
  {
     D3D11_MAPPED_SUBRESOURCE MapResult;
-    HRESULT hRes = m_pDXContext->Map(pDXTempTexture, 0, D3D11_MAP_WRITE, D3D11_MAP_FLAG_DO_NOT_WAIT, &MapResult);
+    HRESULT hRes = m_pDXContext->Map(pDXTempTexture, 0, D3D11_MAP_WRITE, 0, &MapResult);
     EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
 
     ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(format) / 8;

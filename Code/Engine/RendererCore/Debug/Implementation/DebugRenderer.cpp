@@ -81,7 +81,7 @@ namespace
   {
     DoubleBufferedPerContextData& doubleBufferedData = s_PerContextData[context];
 
-    const ezUInt32 uiDataIndex = ezRenderLoop::IsRenderingThread() && (doubleBufferedData.m_uiLastRenderedFrame != ezRenderLoop::GetFrameCounter()) ? 
+    const ezUInt32 uiDataIndex = ezRenderLoop::IsRenderingThread() && (doubleBufferedData.m_uiLastRenderedFrame != ezRenderLoop::GetFrameCounter()) ?
       ezRenderLoop::GetDataIndexForRendering() : ezRenderLoop::GetDataIndexForExtraction();
 
     PerContextData* pData = doubleBufferedData.m_pData[uiDataIndex];
@@ -128,7 +128,7 @@ namespace
   };
 
   ezGALBufferHandle s_hDataBuffer[BufferType::Count];
-    
+
   ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
   ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
   ezVertexDeclarationInfo s_VertexDeclarationInfo;
@@ -209,7 +209,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, DebugRenderer)
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-//static 
+//static
 void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
 {
   if (lines.IsEmpty())
@@ -238,9 +238,9 @@ void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const e
   EZ_LOCK(s_Mutex);
 
   auto& data = GetDataForExtraction(context);
-  
+
   auto& boxData = data.m_lineBoxes.ExpandAndGetRef();
-  
+
   ezMat3 scalingMat; scalingMat.SetScalingMatrix(box.GetHalfExtents());
   ezTransform boxTransform(box.GetCenter(), scalingMat);
 
@@ -347,12 +347,12 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   {
     vertices[i].m_color = color;
   }
-  
+
 
   EZ_LOCK(s_Mutex);
 
   auto& data = GetDataForExtraction(context);
- 
+
   data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
 }
 
@@ -376,8 +376,8 @@ void ezDebugRenderer::DrawText(const ezDebugRendererContext& context, const ezSt
     glyphData.m_glyphIndex = uiCharacter < 128 ? uiCharacter : 0;
     glyphData.m_sizeInPixel = (ezUInt16)uiSizeInPixel;
 
-    // Glyphs only use 10x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
-    currentPos.x += ezMath::Ceil(fSizeInPixel * (10.0f / 16.0f));
+    // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
+    currentPos.x += ezMath::Ceil(fSizeInPixel * (8.0f / 16.0f));
   }
 }
 
@@ -405,7 +405,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
   }
 
   pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderLoop::GetFrameCounter();
-  
+
   PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderLoop::GetDataIndexForRendering()];
   if (pData == nullptr)
   {
@@ -449,7 +449,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-      
+
       const Vertex* pTriangleData = pData->m_triangleVertices.GetData();
       while (uiNumTriangleVertices > 0)
       {
@@ -556,7 +556,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       renderViewContext.m_pRenderContext->BindShader(s_hDebugTextShader);
       renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "glyphData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::Glyphs]));
       renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "FontTexture", s_hDebugFontTexture);
-      
+
       const GlyphData* pGlyphData = pData->m_glyphs.GetData();
       while (uiNumGlyphs > 0)
       {
@@ -572,7 +572,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       }
     }
   }
-  
+
 }
 
 void ezDebugRenderer::OnEngineStartup()
@@ -599,7 +599,7 @@ void ezDebugRenderer::OnEngineStartup()
     s_hSolidBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", desc, "Mesh for Rendering Debug Solid Boxes");
   }
 
-  
+
   {
     ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
     si.m_Semantic = ezGALVertexAttributeSemantic::Position;
@@ -647,7 +647,7 @@ void ezDebugRenderer::OnEngineShutdown()
 
   for (ezUInt32 i = 0; i < BufferType::Count; ++i)
   {
-    DestroyBuffer(static_cast<BufferType::Enum>(i));    
+    DestroyBuffer(static_cast<BufferType::Enum>(i));
   }
 
   s_hLineBoxMeshBuffer.Invalidate();
