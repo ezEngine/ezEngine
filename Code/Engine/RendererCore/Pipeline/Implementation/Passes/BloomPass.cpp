@@ -223,12 +223,30 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   }
 }
 
+void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+  auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
+  if (pColorOutput == nullptr)
+  {
+    return;
+  }
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  ezGALRenderTagetSetup renderTargetSetup;
+  renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+  pGALContext->SetRenderTargetSetup(renderTargetSetup);
+
+  pGALContext->Clear(ezColor::Black);
+}
+
 void ezBloomPass::UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColor)
 {
   ezBloomConstants* constants = ezRenderContext::GetConstantBufferData<ezBloomConstants>(m_hConstantBuffer);
   constants->PixelSize = pixelSize;
   constants->BloomThreshold = m_fThreshold;
   constants->BloomIntensity = m_fIntensity;
-  
+
   constants->TintColor = tintColor;
 }
