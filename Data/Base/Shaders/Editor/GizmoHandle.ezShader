@@ -9,7 +9,7 @@ PREPARE_DEPTH
 
 [RENDERSTATE]
 
-CullMode = CullMode_None
+CullMode = CullMode_Back
 
 #if PREPARE_DEPTH == TRUE
 	DepthTest = true

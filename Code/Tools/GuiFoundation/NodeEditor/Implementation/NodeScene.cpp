@@ -584,9 +584,6 @@ void ezQtNodeScene::RemoveSelectedNodesAction()
   if (selection.IsEmpty())
     return;
 
-  if (ezQtUiServices::MessageBoxQuestion("Delete the selected Nodes?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
-    return;
-
   ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Nodes");
 

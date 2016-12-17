@@ -42,25 +42,7 @@ void ezVisualizerManager::SetVisualizersActive(const ezDocument* pDoc, bool bAct
 
   m_DocsSubscribed[pDoc].m_bActivated = bActive;
 
-  if (!bActive)
-  {
-    ClearActiveVisualizers(pDoc);
-  }
-  else
-  {
-    SendEvent(pDoc);
-  }
-}
-
-void ezVisualizerManager::ClearActiveVisualizers(const ezDocument* pDoc)
-{
-  ezDeque<const ezDocumentObject*> sel;
-
-  ezVisualizerManagerEvent e;
-  e.m_pSelection = &sel;
-  e.m_pDocument = pDoc;
-
-  m_Events.Broadcast(e);
+  SendEventToRecreateVisualizers(pDoc);
 }
 
 void ezVisualizerManager::SelectionEventHandler(const ezSelectionManagerEvent& event)
@@ -68,24 +50,36 @@ void ezVisualizerManager::SelectionEventHandler(const ezSelectionManagerEvent& e
   if (!m_DocsSubscribed[event.m_pDocument].m_bActivated)
     return;
 
-  SendEvent(event.m_pDocument);
+  SendEventToRecreateVisualizers(event.m_pDocument);
 }
 
-void ezVisualizerManager::SendEvent(const ezDocument* pDoc)
+void ezVisualizerManager::SendEventToRecreateVisualizers(const ezDocument* pDoc)
 {
-  const auto& sel = pDoc->GetSelectionManager()->GetSelection();
-
   if (m_DocsSubscribed[pDoc].m_bSubscribed == false)
   {
     m_DocsSubscribed[pDoc].m_bSubscribed = true;
     pDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::StructureEventHandler, this));
   }
 
-  ezVisualizerManagerEvent e;
-  e.m_pSelection = &sel;
-  e.m_pDocument = pDoc;
+  if (m_DocsSubscribed[pDoc].m_bActivated)
+  {
+    const auto& sel = pDoc->GetSelectionManager()->GetSelection();
 
-  m_Events.Broadcast(e);
+    ezVisualizerManagerEvent e;
+    e.m_pSelection = &sel;
+    e.m_pDocument = pDoc;
+    m_Events.Broadcast(e);
+  }
+  else
+  {
+    ezDeque<const ezDocumentObject*> sel;
+
+    ezVisualizerManagerEvent e;
+    e.m_pSelection = &sel;
+    e.m_pDocument = pDoc;
+
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezVisualizerManager::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
@@ -97,23 +91,19 @@ void ezVisualizerManager::DocumentManagerEventHandler(const ezDocumentManager::E
 
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
   {
-    ClearActiveVisualizers(e.m_pDocument);
+    SetVisualizersActive(e.m_pDocument, false);
   }
-
 }
 
 void ezVisualizerManager::StructureEventHandler(const ezDocumentObjectStructureEvent& event)
 {
+  if (!m_DocsSubscribed[event.m_pDocument].m_bActivated)
+    return;
+
   if (!event.m_pDocument->GetSelectionManager()->IsSelectionEmpty() &&
       (event.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded ||
        event.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved))
   {
-    const auto& sel = event.m_pDocument->GetSelectionManager()->GetSelection();
-
-    ezVisualizerManagerEvent e;
-    e.m_pSelection = &sel;
-    e.m_pDocument = event.m_pDocument;
-
-    m_Events.Broadcast(e);
+    SendEventToRecreateVisualizers(event.m_pDocument);
   }
 }

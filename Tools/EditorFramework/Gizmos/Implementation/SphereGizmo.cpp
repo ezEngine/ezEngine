@@ -72,6 +72,8 @@ ezEditorInut ezSphereGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInut::MayBeHandledByOthers;
+  if (e->modifiers() != 0)
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_InnerSphere)
   {
@@ -174,7 +176,7 @@ void ezSphereGizmo::SetInnerSphere(bool bEnabled, float fRadius)
 {
   m_fRadiusInner = fRadius;
   m_bInnerEnabled = bEnabled;
-  
+
   // update the scale
   OnTransformationChanged(GetTransformation());
 }

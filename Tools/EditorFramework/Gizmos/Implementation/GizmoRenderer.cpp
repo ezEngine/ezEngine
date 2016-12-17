@@ -86,8 +86,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     ezColor color = pRenderData->m_GizmoColor;
     if (pRenderData->m_uiUniqueID == m_uiHighlightID)
     {
-      ezColor highlight(0.1f, 0.1f, 0.1f);
-      color = color * 2.0f + highlight;
+      color = ezColor(0.9f, 0.9f, 0.1f, color.a);
     }
 
     ezGizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();

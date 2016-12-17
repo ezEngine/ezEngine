@@ -30,11 +30,10 @@ public:
 
 private:
 
-  void ClearActiveVisualizers(const ezDocument* pDoc);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void SendEvent(const ezDocument* pDoc);
+  void SendEventToRecreateVisualizers(const ezDocument* pDoc);
 
   struct DocData
   {

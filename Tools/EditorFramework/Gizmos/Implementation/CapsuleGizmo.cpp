@@ -89,6 +89,8 @@ ezEditorInut ezCapsuleGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInut::MayBeHandledByOthers;
+  if (e->modifiers() != 0)
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_Radius)
   {
@@ -181,7 +183,7 @@ ezEditorInut ezCapsuleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 void ezCapsuleGizmo::SetLength(float fRadius)
 {
   m_fLength = fRadius;
-  
+
   // update the scale
   OnTransformationChanged(GetTransformation());
 }

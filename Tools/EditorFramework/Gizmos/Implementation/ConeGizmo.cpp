@@ -73,6 +73,8 @@ ezEditorInut ezConeGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInut::MayBeHandledByOthers;
+  if (e->modifiers() != 0)
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_ConeAngle)
   {
@@ -169,7 +171,7 @@ ezEditorInut ezConeGizmo::DoMouseMoveEvent(QMouseEvent* e)
 void ezConeGizmo::SetRadius(float fRadius)
 {
   m_fRadius = fRadius;
-  
+
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
