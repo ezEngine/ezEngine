@@ -542,7 +542,7 @@ void ezGameApplication::DoUnloadPlugins()
     auto it = ToUnload.GetIterator();
 
     ezInt32 iRefCount = 0;
-    EZ_VERIFY(ezPlugin::UnloadPlugin(it.Key(), &iRefCount).Succeeded(), "Failed to unload plugin '%s'", s.GetData());
+    EZ_VERIFY(ezPlugin::UnloadPlugin(it.Key(), &iRefCount).Succeeded(), "Failed to unload plugin '{0}'", s);
 
     if (iRefCount == 0)
       ToUnload.Remove(it);

@@ -69,13 +69,11 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   if (m_iFrame == 10)
   {
-    /// \todo Christian: This format cannot be read by ezImage: The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'
     m_hTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/ezLogo_RGB_Mips_D.dds");
   }
 
   if (m_iFrame == 11)
   {
-    /// \todo Christian: This format cannot be read by ezImage: The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'
     m_hTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/ezLogo_RGB_NoMips_D.dds");
   }
 

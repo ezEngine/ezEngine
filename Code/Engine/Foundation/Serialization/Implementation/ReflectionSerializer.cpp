@@ -313,7 +313,7 @@ void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRT
     const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
     pType = pRefObject->GetDynamicRTTI();
     EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(),
-      "Object '%s' and clone '%s' have mismatching types!",
+      "Object '{0}' and clone '{1}' have mismatching types!",
       pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
   }
 

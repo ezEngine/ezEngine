@@ -23,7 +23,7 @@ ezCompressedStreamReader::ezCompressedStreamReader(ezStreamReader& InputStream) 
 
 ezCompressedStreamReader::~ezCompressedStreamReader()
 {
-  EZ_VERIFY(inflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib stream failed: '%s'", m_pZLibStream->msg);
+  EZ_VERIFY(inflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib stream failed: '{0}'", m_pZLibStream->msg);
 
   EZ_DEFAULT_DELETE(m_pZLibStream);
 }
@@ -44,7 +44,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
     m_pZLibStream->zalloc = zLibAlloc;
     m_pZLibStream->zfree = zLibFree;
 
-    EZ_VERIFY(inflateInit(m_pZLibStream) == Z_OK, "Initializing the zlib stream for decompression failed: '%s'", m_pZLibStream->msg);
+    EZ_VERIFY(inflateInit(m_pZLibStream) == Z_OK, "Initializing the zlib stream for decompression failed: '{0}'", m_pZLibStream->msg);
   }
 
   // Implement the 'skip n bytes' feature with a temp cache
@@ -87,7 +87,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
 
       if (uiCompressedSize > 0)
       {
-        EZ_VERIFY(m_InputStream.ReadBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize, "Reading the compressed chunk of size %i from the input stream failed.", uiCompressedSize);
+        EZ_VERIFY(m_InputStream.ReadBytes(&m_CompressedCache[0], sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize, "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
       }
     }
 
@@ -139,7 +139,7 @@ ezCompressedStreamWriter::ezCompressedStreamWriter(ezStreamWriter& OutputStream,
   m_pZLibStream->avail_out = 255;
   m_pZLibStream->total_out = 0;
 
-  EZ_VERIFY(deflateInit(m_pZLibStream, Ratio) == Z_OK, "Initializing the zlib stream for compression failed: '%s'", m_pZLibStream->msg);
+  EZ_VERIFY(deflateInit(m_pZLibStream, Ratio) == Z_OK, "Initializing the zlib stream for compression failed: '{0}'", m_pZLibStream->msg);
 }
 
 ezCompressedStreamWriter::~ezCompressedStreamWriter()
@@ -174,7 +174,7 @@ ezResult ezCompressedStreamWriter::CloseStream()
   if (m_OutputStream.WriteBytes(&uiTerminator, sizeof(ezUInt8)) == EZ_FAILURE)
     return EZ_FAILURE;
 
-  EZ_VERIFY(deflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib compression stream failed: '%s'", m_pZLibStream->msg);
+  EZ_VERIFY(deflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib compression stream failed: '{0}'", m_pZLibStream->msg);
   EZ_DEFAULT_DELETE(m_pZLibStream);
 
   return EZ_SUCCESS;
@@ -223,7 +223,7 @@ ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64
         return EZ_FAILURE;
     }
 
-    EZ_VERIFY(deflate(m_pZLibStream, Z_NO_FLUSH) == Z_OK, "Compressing the zlib stream failed: '%s'", m_pZLibStream->msg);
+    EZ_VERIFY(deflate(m_pZLibStream, Z_NO_FLUSH) == Z_OK, "Compressing the zlib stream failed: '{0}'", m_pZLibStream->msg);
   }
 
   return EZ_SUCCESS;

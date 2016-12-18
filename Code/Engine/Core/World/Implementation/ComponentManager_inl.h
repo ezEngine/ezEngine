@@ -65,10 +65,10 @@ template <typename T, bool CompactStorage>
 EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
-    "The given component handle is not of the expected type. Expected type id %d, got type id %d",
+    "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
     ComponentType::TypeId(), component.GetInternalID().m_TypeId);
   EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
-    "Component does not belong to this world. Expected world id %d got id %d", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
+    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
 
   ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
@@ -80,10 +80,10 @@ template <typename T, bool CompactStorage>
 EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
 {
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
-    "The given component handle is not of the expected type. Expected type id %d, got type id %d",
+                "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
     ComponentType::TypeId(), component.GetInternalID().m_TypeId);
   EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
-    "Component does not belong to this world. Expected world id %d got id %d", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
+                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
 
   const ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);

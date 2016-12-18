@@ -67,7 +67,7 @@ namespace ezMemoryPolicies
     if (!m_AllocationsToFreeLater.CanAppend())
     {
       void* pMemory = m_AllocationsToFreeLater.PeekFront();
-      EZ_VERIFY(::VirtualFree(pMemory, 0, MEM_RELEASE), "Could not free memory pages. Error Code '%d'", ((ezUInt32)::GetLastError()));
+      EZ_VERIFY(::VirtualFree(pMemory, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
 
       m_AllocationsToFreeLater.PopFront();
     }
@@ -84,7 +84,7 @@ namespace ezMemoryPolicies
     size_t uiFullPageSize = ezMemoryUtils::AlignSize(uiTotalSize, uiPageSize);
     ptr = ezMemoryUtils::AddByteOffset(ptr, ((ptrdiff_t)uiAlignedSize) - uiFullPageSize);
 
-    EZ_VERIFY(::VirtualFree(ptr, uiFullPageSize, MEM_DECOMMIT), "Could not decommit memory pages. Error Code '%d'", ((ezUInt32)::GetLastError()));
+    EZ_VERIFY(::VirtualFree(ptr, uiFullPageSize, MEM_DECOMMIT), "Could not decommit memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
 
     // Finally store the allocation so we can release it later
     void* pMemory = ezMemoryUtils::AddByteOffset(ptr, -((ptrdiff_t)uiPageSize));

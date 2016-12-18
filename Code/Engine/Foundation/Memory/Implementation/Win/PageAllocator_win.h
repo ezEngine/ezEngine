@@ -18,6 +18,6 @@ void ezPageAllocator::DeallocatePage(void* ptr)
 {
   ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
 
-  EZ_VERIFY(::VirtualFree(ptr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '%d'", ((ezUInt32)::GetLastError()));
+  EZ_VERIFY(::VirtualFree(ptr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
 }
 

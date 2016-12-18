@@ -718,7 +718,7 @@ const ezResourceCategory& ezResourceManager::GetResourceCategory(const char* szC
   ezTempHashedString sHash(szCategoryName);
 
   ezResourceCategory* pCat = nullptr;
-  EZ_VERIFY(m_ResourceCategories.TryGetValue(sHash.GetHash(), pCat), "Resource Category '%s' does not exist", szCategoryName);
+  EZ_VERIFY(m_ResourceCategories.TryGetValue(sHash.GetHash(), pCat), "Resource Category '{0}' does not exist", szCategoryName);
 
   return *pCat;
 }

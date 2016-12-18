@@ -48,7 +48,7 @@ namespace
   };
 
   static ProfilingData* s_pProfilingData;
-  
+
   static bool InitializeData()
   {
     if (s_pProfilingData == nullptr)
@@ -86,7 +86,7 @@ ezProfilingId ezProfilingSystem::CreateId(const char* szName)
   EZ_LOCK(*s_pProfilingData);
 
   EZ_ASSERT_DEV(s_pProfilingData->m_InfoTable.GetCount() < EZ_PROFILING_ID_COUNT,
-    "Max profiling id count (%d) reached. Increase EZ_PROFILING_ID_COUNT.", EZ_PROFILING_ID_COUNT);
+                "Max profiling id count ({0}) reached. Increase EZ_PROFILING_ID_COUNT.", EZ_PROFILING_ID_COUNT);
   return ezProfilingId(s_pProfilingData->m_InfoTable.Insert(RefCountedProfilingInfo(szName)));
 }
 

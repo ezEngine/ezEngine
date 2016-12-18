@@ -240,7 +240,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
 
           ezFileWriter fout;
-          EZ_VERIFY(fout.Open(fileNameOut.GetData()).Succeeded(), "Could not create output file '%s'", fileNameOut.GetData());
+          EZ_VERIFY(fout.Open(fileNameOut.GetData()).Succeeded(), "Could not create output file '{0}'", fileNameOut.GetData());
 
           if (pp.Process(fileName.GetData(), sOutput) == EZ_SUCCESS)
           {

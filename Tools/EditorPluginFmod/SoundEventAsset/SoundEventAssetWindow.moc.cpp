@@ -67,7 +67,7 @@ void ezSoundEventAssetDocumentWindow::UpdatePreview()
   const auto& prop = ((ezSoundEventAssetDocument*)GetDocument())->GetProperties();
 
   //ezStringBuilder s;
-  //s.Format("Vertices: %u\nTriangles: %u\nSubMeshes: %u", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
+  //s.Format("Vertices: {0}\nTriangles: {1}\nSubMeshes: {2}", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
 
   //for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
   //  s.AppendFormat("\nSlot {0}: {1}", m, prop->m_SlotNames[m].GetData());
