@@ -57,14 +57,23 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
 
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sTemp = ezApplicationConfig::GetSdkRootDirectory();
-    sTemp.AppendPath(dd.m_sSdkRootRelativePath);
-    sTemp.MakeCleanPath();
+    ezStringBuilder sTemp;
+    if (ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    {
+      ezLog::Error("Failed to init directory watcher for dir '{0}'", dd.m_sDataDirSpecialPath);
+      continue;
+    }
 
     ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
     ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
+
     if (res.Failed())
-      ezLog::Error("Failed to init directory watcher for dir '{0}'", sTemp.GetData());
+    {
+      EZ_DEFAULT_DELETE(pWatcher);
+      ezLog::Error("Failed to init directory watcher for dir '{0}'", sTemp);
+      continue;
+    }
+
     m_Watchers.PushBack(pWatcher);
   }
 
@@ -301,7 +310,8 @@ ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    s.Set(ezApplicationConfig::GetSdkRootDirectory(), "/", dd.m_sSdkRootRelativePath);
+    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, s);
+    s.Append("/");
 
     if (WriteAssetTable(s, szPlatform).Failed())
       res = EZ_FAILURE;
@@ -495,7 +505,8 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sDataDir(ezApplicationConfig::GetSdkRootDirectory(), "/", dd.m_sSdkRootRelativePath);
+    ezStringBuilder sDataDir;
+    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
 
     if (sAssetPath.IsPathBelowFolder(sDataDir))
       return sDataDir;
@@ -550,10 +561,10 @@ void ezAssetCurator::CheckFileSystem()
   // check every data directory
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sTemp = ezApplicationConfig::GetSdkRootDirectory();
-    sTemp.AppendPath(dd.m_sSdkRootRelativePath);
+    ezStringBuilder sTemp;
+    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp);
 
-    range.BeginNextStep(dd.m_sSdkRootRelativePath);
+    range.BeginNextStep(dd.m_sDataDirSpecialPath);
 
     IterateDataDirectory(sTemp, m_ValidAssetExtensions);
   }
@@ -863,12 +874,13 @@ void ezAssetCurator::ProcessAllCoreAssets()
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sCoreCollectionPath(ezApplicationConfig::GetSdkRootDirectory());
-    sCoreCollectionPath.AppendPath(dd.m_sSdkRootRelativePath);
-    sCoreCollectionPath.MakeCleanPath();
+    ezStringBuilder sCoreCollectionPath;
+    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sCoreCollectionPath);
+
     ezStringBuilder sName = sCoreCollectionPath.GetFileName();
     sName.Append(".ezCollectionAsset");
     sCoreCollectionPath.AppendPath(sName);
+
     QFile coreCollection(sCoreCollectionPath.GetData());
     if (coreCollection.exists())
     {
@@ -1208,8 +1220,7 @@ void ezAssetCurator::LoadCaches()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    sDataDir.Set(ezApplicationConfig::GetSdkRootDirectory(), "/", dd.m_sSdkRootRelativePath);
-    sDataDir.MakeCleanPath();
+    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
 
     ezStringBuilder sCacheFile = sDataDir;
     sCacheFile.AppendPath("AssetCache", "AssetCurator.ezCache");
@@ -1272,8 +1283,7 @@ void ezAssetCurator::SaveCaches()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    sDataDir.Set(ezApplicationConfig::GetSdkRootDirectory(), "/", dd.m_sSdkRootRelativePath);
-    sDataDir.MakeCleanPath();
+    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
 
     ezStringBuilder sCacheFile = sDataDir;
     sCacheFile.AppendPath("AssetCache", "AssetCurator.ezCache");

@@ -19,7 +19,7 @@ public:
 
   struct DataDirConfig
   {
-    ezString m_sSdkRootRelativePath;
+    ezString m_sDataDirSpecialPath;
     ezString m_sRootName;
     bool m_bWritable; ///< Whether the directory is going to be mounted for writing
     bool m_bHardCodedDependency; ///< If set to true, this indicates that it may not be removed by the user (in a config dialog)
@@ -30,7 +30,7 @@ public:
       m_bHardCodedDependency = false;
     }
 
-    bool operator==(const DataDirConfig& rhs) const { return m_bWritable == rhs.m_bWritable && m_sSdkRootRelativePath == rhs.m_sSdkRootRelativePath && m_sRootName == rhs.m_sRootName;  }
+    bool operator==(const DataDirConfig& rhs) const { return m_bWritable == rhs.m_bWritable && m_sDataDirSpecialPath == rhs.m_sDataDirSpecialPath && m_sRootName == rhs.m_sRootName;  }
   };
 
   bool operator==(const ezApplicationFileSystemConfig& rhs) const { return m_DataDirs == rhs.m_DataDirs; }

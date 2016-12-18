@@ -182,6 +182,7 @@ private:
 
   bool m_bSafeMode;
   bool m_bHeadless;
+  bool m_bSavePreferencesAfterOpenProject;
 
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;

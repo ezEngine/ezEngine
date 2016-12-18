@@ -18,7 +18,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RelativePath", m_sSdkRootRelativePath),
+    EZ_MEMBER_PROPERTY("RelativePath", m_sDataDirSpecialPath),
     EZ_MEMBER_PROPERTY("Writable", m_bWritable),
     EZ_MEMBER_PROPERTY("RootName", m_sRootName),
   }
@@ -46,7 +46,7 @@ ezResult ezApplicationFileSystemConfig::Save()
   {
     writer.BeginObject("DataDir");
 
-    ezOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sSdkRootRelativePath, "Path");
+    ezOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sDataDirSpecialPath, "Path");
     ezOpenDdlUtils::StoreString(writer, m_DataDirs[i].m_sRootName, "RootName");
     ezOpenDdlUtils::StoreBool(writer, m_DataDirs[i].m_bWritable, "Writable");
 
@@ -95,11 +95,24 @@ void ezApplicationFileSystemConfig::Load()
     const ezOpenDdlReaderElement* pWrite = pDirs->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Writable");
 
     if (pPath)
-      cfg.m_sSdkRootRelativePath = pPath->GetPrimitivesString()[0];
+      cfg.m_sDataDirSpecialPath = pPath->GetPrimitivesString()[0];
     if (pRoot)
       cfg.m_sRootName = pRoot->GetPrimitivesString()[0];
     if (pWrite)
       cfg.m_bWritable = pWrite->GetPrimitivesBool()[0];
+
+    /// \todo Temp fix for backwards compatibility
+    {
+      if (cfg.m_sRootName == "project")
+      {
+        cfg.m_sDataDirSpecialPath = ":project/";
+      }
+      else if (!cfg.m_sDataDirSpecialPath.StartsWith_NoCase(":sdk/"))
+      {
+        ezStringBuilder temp(":sdk/", cfg.m_sDataDirSpecialPath);
+        cfg.m_sDataDirSpecialPath = temp;
+      }
+    }
 
     m_DataDirs.PushBack(cfg);
   }
@@ -116,11 +129,10 @@ void ezApplicationFileSystemConfig::Apply()
 
   for (const auto& var : m_DataDirs)
   {
-    s = ezApplicationConfig::GetSdkRootDirectory();
-    s.AppendPath(var.m_sSdkRootRelativePath);
-    s.MakeCleanPath();
-
-    ezFileSystem::AddDataDirectory(s, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
+    if (ezApplicationConfig::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
+    {
+      ezFileSystem::AddDataDirectory(s, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
+    }
   }
 }
 
@@ -139,15 +151,19 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
 
   for (const auto& var : m_DataDirs)
   {
-    s = ezApplicationConfig::GetSdkRootDirectory();
-    s.AppendPath(var.m_sSdkRootRelativePath);
+    if (ezApplicationConfig::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Failed())
+    {
+      ezLog::Error("Failed to get special directory '{0}'", var.m_sDataDirSpecialPath);
+      res = EZ_FAILURE;
+      continue;
+    }
+
     s.AppendPath("DataDir.ezManifest");
-    s.MakeCleanPath();
 
     ezOSFile file;
     if (file.Open(s, ezFileMode::Write).Failed())
     {
-      ezLog::Error("Failed to create stub file '{0}'", s.GetData());
+      ezLog::Error("Failed to create stub file '{0}'", s);
       res = EZ_FAILURE;
     }
   }

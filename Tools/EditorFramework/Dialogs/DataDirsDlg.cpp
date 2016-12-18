@@ -33,11 +33,9 @@ void ezQtDataDirsDlg::FillList()
     QListWidgetItem* pItem = new QListWidgetItem(ListDataDirs);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable /*| Qt::ItemFlag::ItemIsUserCheckable*/);
 
-    QString sPath = QLatin1String(":SdkRoot/");
-    sPath += QString::fromUtf8(dd.m_sSdkRootRelativePath.GetData());
+    QString sPath = QString::fromUtf8(dd.m_sDataDirSpecialPath.GetData());
 
     pItem->setText(sPath);
-  //  pItem->setCheckState(bToBeLoaded ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
     ListDataDirs->addItem(pItem);
 
     if (dd.m_bHardCodedDependency)
@@ -118,9 +116,10 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
 
   ezStringBuilder sRelPath = sFolder.toUtf8().data();
   sRelPath.MakeRelativeTo(sRootPath);
+  sRelPath.Prepend(":sdk/");
 
   ezApplicationFileSystemConfig::DataDirConfig dd;
-  dd.m_sSdkRootRelativePath = sRelPath;
+  dd.m_sDataDirSpecialPath = sRelPath;
   dd.m_bWritable = false;
   m_Config.m_DataDirs.PushBack(dd);
 
@@ -155,8 +154,8 @@ void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
   if (m_iSelection < 0)
     return;
 
-  ezStringBuilder sPath(ezApplicationConfig::GetSdkRootDirectory(), "/", m_Config.m_DataDirs[m_iSelection].m_sSdkRootRelativePath);
-  sPath.MakeCleanPath();
+  ezStringBuilder sPath;
+  ezApplicationConfig::GetSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath);
 
   QStringList args;
   args << "/select," << QDir::toNativeSeparators(sPath.GetData());

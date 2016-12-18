@@ -1,12 +1,12 @@
 DataDir
 {
-	string %Path{"Data/Base"}
+	string %Path{":sdk/Data/Base"}
 	string %RootName{"base"}
 	bool %Writable{false}
 }
 DataDir
 {
-	string %Path{"Data/Samples/ComputeShaderHistogram/"}
+	string %Path{":project/"}
 	string %RootName{"project"}
 	bool %Writable{true}
 }

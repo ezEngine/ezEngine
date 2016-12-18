@@ -118,13 +118,13 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
       // TODO: detect non-file assets and skip already in dependency gather function.
       return true;
     }
-    ezLog::Error("Failed to make path absolute '{0}'", sPath.GetData());
+    ezLog::Error("Failed to make path absolute '{0}'", sPath);
     return false;
   }
   ezFileStats statDep;
   if (ezOSFile::GetFileStats(sPath, statDep).Failed())
   {
-    ezLog::Error("Failed to retrieve file stats '{0}'", sPath.GetData());
+    ezLog::Error("Failed to retrieve file stats '{0}'", sPath);
     return false;
   }
 

@@ -74,6 +74,10 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 {
   switch (r.m_Type)
   {
+  case ezToolsProjectEvent::Type::ProjectCreated:
+    m_bSavePreferencesAfterOpenProject = true;
+    break;
+
   case ezToolsProjectEvent::Type::ProjectOpened:
     {
       LoadProjectPreferences();
@@ -97,6 +101,13 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
 
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+
+      // make sure preferences are saved, this is important when the project was just created
+      if (m_bSavePreferencesAfterOpenProject)
+      {
+        m_bSavePreferencesAfterOpenProject = false;
+        SaveSettings();
+      }
     }
     break;
 

@@ -9,7 +9,7 @@ void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath
 
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    if (dd.m_sSdkRootRelativePath == sPath)
+    if (dd.m_sDataDirSpecialPath == sPath)
     {
       dd.m_bHardCodedDependency = true;
 
@@ -21,7 +21,7 @@ void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath
   }
 
   ezApplicationFileSystemConfig::DataDirConfig cfg;
-  cfg.m_sSdkRootRelativePath = sPath;
+  cfg.m_sDataDirSpecialPath = sPath;
   cfg.m_bWritable = bWriteable;
   cfg.m_sRootName = szRootName;
   cfg.m_bHardCodedDependency = true;
@@ -56,20 +56,18 @@ void ezQtEditorApp::SetupDataDirectories()
   m_Events.Broadcast(e);
 
   ezStringBuilder sBaseDir;
-  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency("Data/Base", "base", false);
+  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(":sdk/Data/Base", "base", false);
 
-  ezStringBuilder sProjectInSdk = sPath;
-  sProjectInSdk.MakeRelativeTo(ezApplicationConfig::GetSdkRootDirectory());
-
-  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sProjectInSdk, "project", true);
+  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(":project/", "project", true);
 
   // Tell the tools project that all data directories are ok to put documents in
   {
     for (const auto& dd : m_FileSystemConfig.m_DataDirs)
     {
-      sPath = ezApplicationConfig::GetSdkRootDirectory();
-      sPath.AppendPath(dd.m_sSdkRootRelativePath);
-      ezToolsProject::GetSingleton()->AddAllowedDocumentRoot(sPath);
+      if (ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sPath).Succeeded())
+      {
+        ezToolsProject::GetSingleton()->AddAllowedDocumentRoot(sPath);
+      }
     }
   }
 
@@ -99,8 +97,10 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath
   {
     const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
 
-    sTemp = ezApplicationConfig::GetSdkRootDirectory();
-    sTemp.AppendPath(dd.m_sSdkRootRelativePath, sPath);
+    if (ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+      continue;
+
+    sTemp.AppendPath(sPath);
     sTemp.MakeCleanPath();
 
     if (ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
@@ -129,8 +129,8 @@ bool ezQtEditorApp::MakePathDataDirectoryRelative(ezStringBuilder& sPath) const
   {
     const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
 
-    sTemp = ezApplicationConfig::GetSdkRootDirectory();
-    sTemp.AppendPath(dd.m_sSdkRootRelativePath);
+    if (ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+      continue;
 
     if (sPath.IsPathBelowFolder(sTemp))
     {

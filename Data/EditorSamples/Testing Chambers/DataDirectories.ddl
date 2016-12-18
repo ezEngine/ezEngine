@@ -1,24 +1,24 @@
 DataDir
 {
-	string %Path{"Data/Base"}
+	string %Path{":sdk/Data/Base"}
 	string %RootName{"base"}
 	bool %Writable{false}
 }
 DataDir
 {
-	string %Path{"Data/EditorSamples/Testing Chambers/"}
+	string %Path{":project/"}
 	string %RootName{"project"}
 	bool %Writable{true}
 }
 DataDir
 {
-	string %Path{"Data/FreeContent"}
+	string %Path{":sdk/Data/FreeContent"}
 	string %RootName{""}
 	bool %Writable{false}
 }
 DataDir
 {
-	string %Path{"Data/TempContent"}
+	string %Path{":sdk/Data/TempContent"}
 	string %RootName{""}
 	bool %Writable{false}
 }

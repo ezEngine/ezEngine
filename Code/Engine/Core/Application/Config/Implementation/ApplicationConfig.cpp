@@ -49,8 +49,27 @@ const char* ezApplicationConfig::GetProjectDirectory()
   return s_sProjectDir.GetData();
 }
 
+ezResult ezApplicationConfig::GetSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path)
+{
+  if (ezStringUtils::StartsWith_NoCase(szDirectory, ":sdk/"))
+  {
+    out_Path = GetSdkRootDirectory();
+    out_Path.AppendPath(&szDirectory[5]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
 
+  if (ezStringUtils::StartsWith_NoCase(szDirectory, ":project/"))
+  {
+    out_Path = GetProjectDirectory();
+    out_Path.AppendPath(&szDirectory[9]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
 
+  out_Path.Clear();
+  return EZ_FAILURE;
+}
 
 EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_ApplicationConfig);
 

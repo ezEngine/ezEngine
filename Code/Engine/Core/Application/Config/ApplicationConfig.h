@@ -18,6 +18,12 @@ public:
   static void SetProjectDirectory(const char* szProjectDir);
   static const char* GetProjectDirectory();
 
+  /// \brief Returns the absolute path to directory.
+  ///
+  /// If \a szDirectory starts with ':sdk/" the path will be relative to the Sdk root directory.
+  /// If \a szDirectory starts with ':project/' the path will be relative to the project directory.
+  static ezResult GetSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
+
 private:
   static ezString s_sSdkRootDir;
   static ezString s_sProjectDir;
