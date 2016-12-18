@@ -9,6 +9,10 @@
 // TGA is 256 * 128 pixels, only contains ASCII-7 characters, 1 channel 8 Bit and is RLE compressed
 // Used Bin2C to convert file to C (http://tools.garry.tv/bin2c/)
 
+extern ezUInt32 g_FontFileTGASize;
+extern const ezUInt8 g_FontFileTGA[];
+
+ezUInt32 g_FontFileTGASize = 7892;
 const ezUInt8 g_FontFileTGA[] =
 {
   0,0,11,0,0,0,0,0,0,0,0,0,0,1,128,0,8,0,255,0,255,0,131,0,1,144,182,146,0,1,219,102,248,0,130,255,158,0,0,58,129,255,0,219,139,0,1,58,255,139,0,0,144,129,255,0,102,167,0,131,0,1,144,182,146,0,1,219,102,

@@ -599,7 +599,7 @@ void ezGameApplication::RenderConsole()
     ezColor backgroundColor(0.3f, 0.3f, 0.3f, 0.7f);
     ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
 
-    ezColor foregroundColor(0.02f, 0.02f, 0.02f, 0.8f);
+    ezColor foregroundColor(0.0f, 0.0f, 0.0f, 0.8f);
     ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
     ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
   }

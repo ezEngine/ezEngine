@@ -3,7 +3,12 @@
 #include <CoreUtils/Image/Formats/TgaFileFormat.h>
 #include <CoreUtils/Image/ImageConversion.h>
 
-#if EZ_DISABLED(EZ_EMBED_FONT_FILE)
+#if EZ_ENABLED(EZ_EMBED_FONT_FILE)
+
+extern ezUInt32 g_FontFileTGASize;
+extern const ezUInt8 g_FontFileTGA[];
+
+#else
 
 static const char* a = "\
           \
@@ -1166,7 +1171,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
   };
 
   VariableReader reader;
-  reader.m_uiSize = EZ_ARRAY_SIZE(g_FontFileTGA);
+  reader.m_uiSize = g_FontFileTGASize;
   reader.m_pData = g_FontFileTGA;
 
   ezTgaFileFormat tga;

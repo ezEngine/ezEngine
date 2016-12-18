@@ -103,7 +103,7 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
     return;
 
   case ezLogMsgType::ErrorMsg:
-    color = ezColor(1.0f, 0.1f, 0.1f);
+    color = ezColor(1.0f, 0.2f, 0.2f);
     bShow = true;
     break;
   case ezLogMsgType::SeriousWarningMsg:
@@ -119,10 +119,10 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
   case ezLogMsgType::InfoMsg:
     break;
   case ezLogMsgType::DevMsg:
-    color = ezColor(200.0f / 255.0f, 200.0f / 255.0f, 200.0f / 255.0f);
+    color = ezColor(0.6f, 0.6f, 0.6f);
     break;
   case ezLogMsgType::DebugMsg:
-    color = ezColor(180.0f / 255.0f, 0.1f, 1.0f);
+    color = ezColor(0.4f, 0.6f, 0.8f);
     break;
   }
 

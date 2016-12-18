@@ -14,9 +14,3 @@
 #endif
 
 #define EZ_EMBED_FONT_FILE EZ_ON
-
-#if EZ_ENABLED(EZ_EMBED_FONT_FILE)
-
-extern const ezUInt8 g_FontFileTGA[];
-
-#endif
