@@ -22,4 +22,10 @@ SET (LINK_LIBRARIES
   CoreUtils
 )
 
+# Visual Studio 2017 issues warnings because DirectXTex uses deprecated functions.
+# This may be fixed in later versions of DirectXTex.
+if (BUILDSYSTEM_COMPILER_MSVC)
+  set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /wd\"4996\"")
+endif ()
+
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
