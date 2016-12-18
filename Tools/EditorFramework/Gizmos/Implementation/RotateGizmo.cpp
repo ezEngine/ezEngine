@@ -75,28 +75,18 @@ ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
-    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vRotationAxis = m_AxisX.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
   }
   else if (m_pInteractionGizmoHandle == &m_AxisY)
   {
-    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vRotationAxis = m_AxisY.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
   }
   else if (m_pInteractionGizmoHandle == &m_AxisZ)
   {
-    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vRotationAxis = m_AxisZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
   }
   else
     return ezEditorInut::MayBeHandledByOthers;
-
-  // Determine on which side of the gizmo the camera is located
-  // if it is on the wrong side, flip the rotation axis, so that the mouse move direction matches the rotation direction better
-  {
-    ezPlane p;
-    p.SetFromNormalAndPoint(m_vMoveAxis, GetTransformation().GetTranslationVector());
-
-    if (p.GetPointPosition(m_pCamera->GetPosition()) == ezPositionOnPlane::Front)
-      m_vMoveAxis = -m_vMoveAxis;
-  }
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -106,12 +96,6 @@ ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
-  //m_AxisX.SetVisible(false);
-  //m_AxisY.SetVisible(false);
-  //m_AxisZ.SetVisible(false);
-
-  //m_pInteractionGizmoHandle->SetVisible(true);
-
   m_StartRotation.SetFromMat3(GetTransformation().GetRotationalPart());
 
   ezMat4 mView, mProj, mViewProj;
@@ -119,6 +103,46 @@ ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
   m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
   mViewProj = mProj * mView;
   m_InvViewProj = mViewProj.GetInverse();
+
+  // compute screen space tangent for rotation
+  {
+    const ezVec3 vAxisWS = m_vRotationAxis.GetNormalized();
+    const ezVec3 vMousePos(e->pos().x(), m_Viewport.y - e->pos().y(), 0);
+    const ezVec3 vGizmoPosWS = GetTransformation().GetTranslationVector();
+
+    ezVec3 vPosOnNearPlane, vRayDir;
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vMousePos, vPosOnNearPlane, &vRayDir);
+
+    ezPlane plane;
+    plane.SetFromNormalAndPoint(vAxisWS, vGizmoPosWS);
+
+    ezVec3 vPointOnGizmoWS;
+    if (!plane.GetRayIntersection(vPosOnNearPlane, vRayDir, nullptr, &vPointOnGizmoWS))
+    {
+      // fallback at grazing angles, will result in fallback vDirWS during normalization
+      vPointOnGizmoWS = vGizmoPosWS;
+    }
+
+    ezVec3 vDirWS = vPointOnGizmoWS - vGizmoPosWS;
+    vDirWS.NormalizeIfNotZero(ezVec3(1, 0, 0));
+
+    ezVec3 vTangentWS = vAxisWS.Cross(vDirWS);
+    vTangentWS.Normalize();
+
+    const ezVec3 vTangentEndWS = vPointOnGizmoWS + vTangentWS;
+
+    // compute the screen space position of the end point of the tangent vector, so that we can then compute the tangent in screen space
+    ezVec3 vTangentEndSS;
+    ezGraphicsUtils::ConvertWorldPosToScreenPos(mViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vTangentEndWS, vTangentEndSS);
+    vTangentEndSS.z = 0;
+
+    const ezVec3 vTangentSS = vTangentEndSS - vMousePos;
+    m_vScreenTangent.Set(vTangentSS.x, vTangentSS.y);
+    m_vScreenTangent.NormalizeIfNotZero(ezVec2(1, 0));
+
+    // because window coordinates are flipped along Y
+    m_vScreenTangent.y = -m_vScreenTangent.y;
+  }
 
   m_LastInteraction = ezTime::Now();
 
@@ -158,13 +182,13 @@ ezEditorInut ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
+  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
+  ezVec2 vDiff = vNewMousePos - ezVec2(m_LastMousePos.x, m_LastMousePos.y);
 
   m_LastMousePos = UpdateMouseMode(e);
 
-  m_Rotation += ezAngle::Degree(vDiff.x);
-  m_Rotation -= ezAngle::Degree(vDiff.y);
+  const float dv = m_vScreenTangent.Dot(vDiff);
+  m_Rotation += ezAngle::Degree(dv);
 
   ezAngle rot = m_Rotation;
 
@@ -172,7 +196,7 @@ ezEditorInut ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (!e->modifiers().testFlag(Qt::AltModifier))
     ezSnapProvider::SnapRotation(rot);
 
-  m_CurrentRotation.SetFromAxisAndAngle(m_vMoveAxis, rot);
+  m_CurrentRotation.SetFromAxisAndAngle(m_vRotationAxis, rot);
 
   ezMat4 mTrans = GetTransformation();
   mTrans.SetRotationalPart((m_CurrentRotation * m_StartRotation).GetAsMat3());

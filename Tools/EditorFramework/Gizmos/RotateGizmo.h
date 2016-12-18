@@ -36,6 +36,7 @@ private:
   ezVec2I32 m_LastMousePos;
 
   ezTime m_LastInteraction;
-  ezVec3 m_vMoveAxis;
+  ezVec3 m_vRotationAxis;
   ezMat4 m_InvViewProj;
+  ezVec2 m_vScreenTangent;
 };

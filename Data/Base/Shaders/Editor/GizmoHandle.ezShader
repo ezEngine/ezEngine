@@ -9,7 +9,11 @@ PREPARE_DEPTH
 
 [RENDERSTATE]
 
-CullMode = CullMode_Back
+#if GIZMO_CONSTANT_SIZE == 1
+  CullMode = CullMode_None
+#else
+  CullMode = CullMode_Back
+#endif
 
 #if PREPARE_DEPTH == TRUE
 	DepthTest = true
