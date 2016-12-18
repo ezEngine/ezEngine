@@ -56,11 +56,7 @@ void ezCommandHistory::BeginTemporaryCommands(const char* szDisplayString, bool 
 {
   EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");
 
-  if (m_TransactionStack.IsEmpty())
-  {
-    StartTransaction(szDisplayString);
-    m_bTempTransaction = true;
-  }
+  StartTransaction(szDisplayString);
 
   m_bFireEventsWhenUndoingTempCommands = bFireEventsWhenUndoingTempCommands;
   m_bTemporaryMode = true;
@@ -72,13 +68,7 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 
   m_bTemporaryMode = false;
 
-  if (m_bTempTransaction)
-  {
-    EndTransaction(bCancel);
-    m_bTempTransaction = false;
-
-    EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Transaction stack should be empty now");
-  }
+  EndTransaction(bCancel);
 }
 
 ezStatus ezCommandHistory::UndoInternal()

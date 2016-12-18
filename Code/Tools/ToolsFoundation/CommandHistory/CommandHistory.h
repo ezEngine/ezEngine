@@ -103,7 +103,6 @@ private:
 
   bool m_bFireEventsWhenUndoingTempCommands;
   bool m_bTemporaryMode;
-  bool m_bTempTransaction;
   bool m_bIsInUndoRedo;
 
   ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;

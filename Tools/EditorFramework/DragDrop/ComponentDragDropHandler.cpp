@@ -103,14 +103,12 @@ void ezComponentDragDropHandler::SelectCreatedObjects()
 
 void ezComponentDragDropHandler::BeginTemporaryCommands()
 {
-  m_pDocument->GetCommandHistory()->FinishTransaction();
   m_pDocument->GetCommandHistory()->BeginTemporaryCommands("Adjust Objects");
 }
 
 void ezComponentDragDropHandler::EndTemporaryCommands()
 {
   m_pDocument->GetCommandHistory()->FinishTemporaryCommands();
-  m_pDocument->GetCommandHistory()->MergeLastTwoTransactions();
 }
 
 void ezComponentDragDropHandler::CancelTemporaryCommands()
@@ -121,7 +119,6 @@ void ezComponentDragDropHandler::CancelTemporaryCommands()
   m_pDocument->GetSelectionManager()->Clear();
 
   m_pDocument->GetCommandHistory()->CancelTemporaryCommands();
-  m_pDocument->GetCommandHistory()->Undo();
 }
 
 void ezComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
@@ -145,12 +142,15 @@ void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
 void ezComponentDragDropHandler::OnDragCancel()
 {
   CancelTemporaryCommands();
+  m_pDocument->GetCommandHistory()->CancelTransaction();
+
   m_DraggedObjects.Clear();
 }
 
 void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
 {
   EndTemporaryCommands();
+  m_pDocument->GetCommandHistory()->FinishTransaction();
 
   SelectCreatedObjects();
 
