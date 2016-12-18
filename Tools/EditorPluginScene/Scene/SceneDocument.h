@@ -128,7 +128,7 @@ public:
   void DetachFromParent();
 
   /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
-  void CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
+  ezStatus CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
 
   void DuplicateSelection();
   void ShowOrHideSelectedObjects(ShowOrHide action);

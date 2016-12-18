@@ -71,6 +71,8 @@ void ezSelectionManager::Clear()
 
 void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
 {
+  EZ_ASSERT_DEBUG(pObject, "Object must be valid");
+
   if (IsSelected(pObject))
     return;
 

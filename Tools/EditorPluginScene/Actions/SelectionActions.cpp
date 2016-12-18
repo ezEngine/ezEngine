@@ -104,7 +104,7 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   ezStringBuilder sSubPath(szPath, "/SelectionCategory");
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
-  
+
   pMap->MapAction(s_hCreateEmptyChildNode, sSubPath, 1.0f);
   pMap->MapAction(s_hCreateEmptyNodeAtPosition, sSubPath, 1.1f);
   pMap->MapAction(s_hShowInScenegraph, sSubPath, 2.0f);
@@ -148,7 +148,7 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
   ezStringBuilder sSubPath(szPath, "/SelectionCategory");
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
-  
+
   pMap->MapAction(s_hCreateEmptyChildNode, sSubPath, 0.5f);
   pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
@@ -281,11 +281,17 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->GroupSelection();
     return;
   case ActionType::CreateEmptyChildNode:
-    m_pSceneDocument->CreateEmptyNode(true, false);
-    return;
+    {
+      auto res = m_pSceneDocument->CreateEmptyNode(true, false);
+      ezQtUiServices::MessageBoxStatus(res, "Node creation failed.");
+      return;
+    }
   case ActionType::CreateEmptyNodeAtPosition:
-    m_pSceneDocument->CreateEmptyNode(false, true);
-    return;
+    {
+      auto res = m_pSceneDocument->CreateEmptyNode(false, true);
+      ezQtUiServices::MessageBoxStatus(res, "Node creation failed.");
+      return;
+    }
   case ActionType::HideSelectedObjects:
     m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
     break;
@@ -459,7 +465,7 @@ void ezSelectionAction::UpdateEnableState()
       return;
     }
 
-    
+
   }
 
   if (m_Type == ActionType::RevertPrefab ||
@@ -488,8 +494,8 @@ void ezSelectionAction::UpdateEnableState()
       return;
     }
 
-    const bool bShouldBePrefab = (m_Type == ActionType::RevertPrefab) || 
-                                 (m_Type == ActionType::OpenPrefabDocument) || 
+    const bool bShouldBePrefab = (m_Type == ActionType::RevertPrefab) ||
+                                 (m_Type == ActionType::OpenPrefabDocument) ||
                                  (m_Type == ActionType::ConvertToEnginePrefab) ||
                                  (m_Type == ActionType::UnlinkFromPrefab);
 

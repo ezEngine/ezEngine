@@ -401,7 +401,7 @@ void ezSceneDocument::DetachFromParent()
   pHistory->FinishTransaction();
 }
 
-void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition)
+ezStatus ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition)
 {
   auto history = GetCommandHistory();
 
@@ -421,7 +421,12 @@ void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPositi
     cmdAdd.m_NewObjectGuid.CreateNewUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
-    history->AddCommand(cmdAdd);
+    auto res = history->AddCommand(cmdAdd);
+    if (res.Failed())
+    {
+      history->CancelTransaction();
+      return res;
+    }
   }
   else
   {
@@ -429,7 +434,12 @@ void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPositi
     NewNode = cmdAdd.m_NewObjectGuid;
 
     cmdAdd.m_Parent = Sel[0]->GetGuid();
-    history->AddCommand(cmdAdd);
+    auto res = history->AddCommand(cmdAdd);
+    if (res.Failed())
+    {
+      history->CancelTransaction();
+      return res;
+    }
   }
 
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
@@ -441,12 +451,18 @@ void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPositi
     cmdSet.m_Object = NewNode;
     cmdSet.m_sProperty = "LocalPosition";
 
-    history->AddCommand(cmdSet);
+    auto res = history->AddCommand(cmdSet);
+    if (res.Failed())
+    {
+      history->CancelTransaction();
+      return res;
+    }
   }
 
   history->FinishTransaction();
 
   GetSelectionManager()->SetSelection(GetObjectManager()->GetObject(NewNode));
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezSceneDocument::DuplicateSelection()
