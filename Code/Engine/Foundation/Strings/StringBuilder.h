@@ -211,9 +211,9 @@ public:
 
   /// \brief A type safe version of sprintf, see ezFormatString for details
   template<typename ... ARGS>
-  void Format(const char* szFormat, ARGS... args)
+  void Format(const char* szFormat, ARGS&&... args)
   {
-    Format(ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Format(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief A type safe version of sprintf, see ezFormatString for details
@@ -221,9 +221,9 @@ public:
 
   /// \brief A type safe version of sprintf, see ezFormatString for details
   template<typename ... ARGS>
-  void AppendFormat(const char* szFormat, ARGS... args)
+  void AppendFormat(const char* szFormat, ARGS&&... args)
   {
-    AppendFormat(ezFormatStringImpl<ARGS...>(szFormat, args...));
+    AppendFormat(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief A type safe version of sprintf, see ezFormatString for details
@@ -231,9 +231,9 @@ public:
 
   /// \brief A type safe version of sprintf, see ezFormatString for details
   template<typename ... ARGS>
-  void PrependFormat(const char* szFormat, ARGS... args)
+  void PrependFormat(const char* szFormat, ARGS&&... args)
   {
-    PrependFormat(ezFormatStringImpl<ARGS...>(szFormat, args...));
+    PrependFormat(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Removes the first n and last m characters from this string.

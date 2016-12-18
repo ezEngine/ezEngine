@@ -8,8 +8,8 @@ template<typename ... ARGS>
 class ezFormatStringImpl : public ezFormatString
 {
 public:
-  ezFormatStringImpl(const char* szFormat, ARGS... args)
-    : m_Arguments(args...)
+  ezFormatStringImpl(const char* szFormat, ARGS&&... args)
+    : m_Arguments(std::forward<ARGS>(args)...)
   {
     m_szString = szFormat;
   }

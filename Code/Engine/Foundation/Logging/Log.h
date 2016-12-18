@@ -137,16 +137,16 @@ public:
 
   /// \brief An error that needs to be fixed as soon as possible.
   template<typename ... ARGS>
-  static void Error(const char* szFormat, ARGS... args)
+  static void Error(const char* szFormat, ARGS&&... args)
   {
-    Error(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Error(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Error() to output messages to a specific log.
   template<typename ... ARGS>
-  static void Error(ezLogInterface* pInterface, const char* szFormat, ARGS... args)
+  static void Error(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
-    Error(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Error(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
@@ -154,16 +154,16 @@ public:
 
   /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
   template<typename ... ARGS>
-  static void SeriousWarning(const char* szFormat, ARGS... args)
+  static void SeriousWarning(const char* szFormat, ARGS&&... args)
   {
-    SeriousWarning(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, args...));
+    SeriousWarning(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of SeriousWarning() to output messages to a specific log.
   template<typename ... ARGS>
-  static void SeriousWarning(ezLogInterface* pInterface, const char* szFormat, ARGS... args)
+  static void SeriousWarning(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
-    SeriousWarning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
+    SeriousWarning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
@@ -171,16 +171,16 @@ public:
 
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
   template<typename ... ARGS>
-  static void Warning(const char* szFormat, ARGS... args)
+  static void Warning(const char* szFormat, ARGS&&... args)
   {
-    Warning(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Warning(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Warning() to output messages to a specific log.
   template<typename ... ARGS>
-  static void Warning(ezLogInterface* pInterface, const char* szFormat, ARGS... args)
+  static void Warning(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
-    Warning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Warning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information that something was completed successfully.
@@ -188,16 +188,16 @@ public:
 
   /// \brief Status information that something was completed successfully.
   template<typename ... ARGS>
-  static void Success(const char* szFormat, ARGS... args)
+  static void Success(const char* szFormat, ARGS&&... args)
   {
-    Success(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Success(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Success() to output messages to a specific log.
   template<typename ... ARGS>
-  static void Success(ezLogInterface* pInterface, const char* szFormat, ARGS... args)
+  static void Success(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
-    Success(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Success(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information that is important.
@@ -205,16 +205,16 @@ public:
 
   /// \brief Status information that is important.
   template<typename ... ARGS>
-  static void Info(const char* szFormat, ARGS... args)
+  static void Info(const char* szFormat, ARGS&&... args)
   {
-    Info(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Info(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Info() to output messages to a specific log.
   template<typename ... ARGS>
-  static void Info(ezLogInterface* pInterface, const char* szFormat, ARGS... args)
+  static void Info(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
-    Info(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Info(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information that is nice to have during development.
@@ -226,16 +226,16 @@ public:
   ///
   /// This function is compiled out in non-development builds.
   template<typename ... ARGS>
-  static void Dev(const char* szFormat, ARGS... args)
+  static void Dev(const char* szFormat, ARGS&&... args)
   {
-    Dev(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Dev(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Dev() to output messages to a specific log.
   template<typename ... ARGS>
-  static void Dev(ezLogInterface* pInterface, const char* szFormat, ARGS... args)
+  static void Dev(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
-    Dev(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Dev(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
@@ -247,16 +247,16 @@ public:
   ///
   /// This function is compiled out in non-debug builds.
   template<typename ... ARGS>
-  static void Debug(const char* szFormat, ARGS... args)
+  static void Debug(const char* szFormat, ARGS&&... args)
   {
-    Debug(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Debug(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Debug() to output messages to a specific log.
   template<typename ... ARGS>
-  static void Debug(ezLogInterface* pInterface, const char* szFormat, ARGS... args)
+  static void Debug(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
-    Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, args...));
+    Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
 private:
