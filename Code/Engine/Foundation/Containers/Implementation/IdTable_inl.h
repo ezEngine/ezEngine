@@ -282,7 +282,7 @@ EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::operator[](co
   EZ_ASSERT_DEV(id.m_InstanceIndex < m_uiCapacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_uiCapacity, id.m_InstanceIndex);
   Entry& entry = m_pEntries[id.m_InstanceIndex];
   EZ_ASSERT_DEV(entry.id.IsIndexAndGenerationEqual(id),
-            "Stale access. Trying to access a value (generation: %i) that has been removed and replaced by a new value (generation: %i)", entry.id.m_Generation, id.m_Generation);
+            "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", entry.id.m_Generation, id.m_Generation);
 
   return entry.value;
 }
@@ -293,7 +293,7 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::operator[](const Id
   EZ_ASSERT_DEV(id.m_InstanceIndex < m_uiCapacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_uiCapacity, id.m_InstanceIndex);
   Entry& entry = m_pEntries[id.m_InstanceIndex];
   EZ_ASSERT_DEV(entry.id.IsIndexAndGenerationEqual(id),
-            "Stale access. Trying to access a value (generation: %i) that has been removed and replaced by a new value (generation: %i)", entry.id.m_Generation, id.m_Generation);
+            "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", entry.id.m_Generation, id.m_Generation);
 
   return entry.value;
 }
