@@ -35,7 +35,7 @@
       LPVOID lpMsgBuf = nullptr;
 
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-          err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
+          err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR) &lpMsgBuf, 0, nullptr);
 
       ezLog::Error("Could not unload plugin '{0}'. Error-Code {1} (\"{2}\")", szPluginFile, (ezUInt32)err, (const char*)lpMsgBuf);
 
@@ -62,7 +62,7 @@
       LPVOID lpMsgBuf = nullptr;
 
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-          err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
+          err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR) &lpMsgBuf, 0, nullptr);
 
       if (ezUnicodeUtils::IsValidUtf8((const char*) lpMsgBuf)) // happens on localized systems
         ezLog::Error("Could not load plugin '{0}'. Error-Code {1} / 0x{2} (\"{3}\")", szPluginFile, ezArgU(err, 8, true, 16, true), (ezUInt32)err, (const char*)lpMsgBuf);

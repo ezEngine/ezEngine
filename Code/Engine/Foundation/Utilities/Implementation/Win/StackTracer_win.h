@@ -21,19 +21,19 @@
 
 namespace
 {
-  typedef WORD (__stdcall *CaptureStackBackTraceFunc)(DWORD FramesToSkip, DWORD FramesToCapture, 
+  typedef WORD (__stdcall *CaptureStackBackTraceFunc)(DWORD FramesToSkip, DWORD FramesToCapture,
     PVOID *BackTrace, PDWORD BackTraceHash);
 
-  typedef BOOL (__stdcall *SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath, 
+  typedef BOOL (__stdcall *SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath,
     BOOL fInvadeProcess);
 
   typedef DWORD64 (__stdcall *SymbolLoadModuleFunc)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName,
-    PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags); 
+    PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
 
   typedef BOOL (__stdcall *SymbolGetModuleInfoFunc)(HANDLE hProcess, DWORD64 qwAddr,
     PIMAGEHLP_MODULEW64 ModuleInfo);
 
-  typedef BOOL (__stdcall *SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address, 
+  typedef BOOL (__stdcall *SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address,
     PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
 
   typedef BOOL (__stdcall *LineFromAddressFunc)(HANDLE hProcess, DWORD64 Address,
@@ -59,7 +59,7 @@ namespace
       EZ_ASSERT_DEV(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
       if (kernel32Dll != nullptr)
       {
-        captureStackBackTrace = (CaptureStackBackTraceFunc)GetProcAddress(kernel32Dll, 
+        captureStackBackTrace = (CaptureStackBackTraceFunc)GetProcAddress(kernel32Dll,
           "RtlCaptureStackBackTrace");
       }
 
@@ -79,7 +79,7 @@ namespace
           LPVOID lpMsgBuf = nullptr;
 
           FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
+            err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
           char errStr[1024];
           sprintf_s(errStr, "StackTracer could not initialize symbols. Error-Code %u (\"%s\")", err, static_cast<char*>(lpMsgBuf));
@@ -92,7 +92,7 @@ namespace
         symbolFromAddress = (SymbolFromAddressFunc)GetProcAddress(dbgHelpDll, "SymFromAddrW");
         lineFromAdress = (LineFromAddressFunc)GetProcAddress(dbgHelpDll, "SymGetLineFromAddrW64");
       }
-    }    
+    }
   };
 
   static StackTracerImplementation* s_pImplementation;
@@ -116,7 +116,7 @@ namespace
       mbstowcs(szPluginName, e.m_szPluginFile, EZ_ARRAY_SIZE(szPluginName));
 
       HANDLE currentProcess = GetCurrentProcess();
-      
+
       DWORD64 moduleAddress = (*s_pImplementation->symbolLoadModule)(currentProcess, nullptr, szPluginPath, szPluginName, 0, 0, nullptr, 0);
       if (moduleAddress == 0)
       {
@@ -126,7 +126,7 @@ namespace
           LPVOID lpMsgBuf = nullptr;
 
           FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
+            err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
           char errStr[1024];
           sprintf_s(errStr, "StackTracer could not load symbols for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
@@ -148,7 +148,7 @@ namespace
         LPVOID lpMsgBuf = nullptr;
 
         FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
+            err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
         char errStr[1024];
         sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
@@ -210,13 +210,13 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       symbolInfo.MaxNameLen = (EZ_ARRAY_SIZE(buffer) - symbolInfo.SizeOfStruct) / sizeof(WCHAR);
 
       DWORD64 displacement = 0;
-      BOOL result = (*s_pImplementation->symbolFromAddress)(currentProcess, pSymbolAddress, 
+      BOOL result = (*s_pImplementation->symbolFromAddress)(currentProcess, pSymbolAddress,
         &displacement, &symbolInfo);
       if (!result)
       {
         wcscpy_s(symbolInfo.Name, symbolInfo.MaxNameLen, L"<Unknown>");
       }
-      
+
       IMAGEHLP_LINEW64 lineInfo;
       memset(&lineInfo, 0, sizeof(lineInfo));
       lineInfo.SizeOfStruct = sizeof(lineInfo);

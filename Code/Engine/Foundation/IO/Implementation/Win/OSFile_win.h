@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Shlobj.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 // Defined in Timestamp_win.h
 ezInt64 FileTimeToEpoch(FILETIME fileTime);
@@ -17,27 +18,65 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {
-  ezStringWChar s = szFile;
+  ezUInt32 sleepTime = 10;
 
-  switch (OpenMode)
+  while (true)
   {
-  case ezFileMode::Read:
-    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,  FILE_ATTRIBUTE_NORMAL, nullptr); 
-    break;
-  case ezFileMode::Write:
-    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,  FILE_ATTRIBUTE_NORMAL, nullptr); 
-    break;
-  case ezFileMode::Append:
-    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, nullptr, OPEN_ALWAYS,  FILE_ATTRIBUTE_NORMAL, nullptr); 
+    GetLastError();
 
-    // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
-    if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
-      InternalSetFilePosition(0, ezFilePos::FromEnd);
+    ezStringWChar s = szFile;
 
-    break;
+    switch (OpenMode)
+    {
+    case ezFileMode::Read:
+      m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+      break;
+    case ezFileMode::Write:
+      m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      break;
+    case ezFileMode::Append:
+      m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+      // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
+      if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
+        InternalSetFilePosition(0, ezFilePos::FromEnd);
+
+      break;
+    }
+
+    const ezResult res = ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? EZ_SUCCESS : EZ_FAILURE;
+
+    if (res.Failed())
+    {
+      DWORD error = GetLastError();
+
+      // file does not exist
+      if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
+        return res;
+      // badly formed path, happens when two absolute paths are concatenated
+      if (error == ERROR_INVALID_NAME)
+        return res;
+
+      if (error == ERROR_SHARING_VIOLATION)
+      {
+        ezThreadUtils::Sleep(sleepTime);
+        sleepTime = ezMath::Min<ezUInt32>(sleepTime + 20, 300);
+        continue; // try again
+      }
+
+      // anything else, print an error (for now)
+      LPVOID lpMsgBuf = nullptr;
+
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                    error, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
+
+      const char* szMsg = static_cast<const char*>(lpMsgBuf);
+      ezLog::Error("CreateFile failed with error {0} ({1})", szMsg, (ezUInt32)error);
+      LocalFree(lpMsgBuf);
+    }
+
+    return res;
   }
-
-  return ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezOSFile::InternalClose()
@@ -179,7 +218,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   if (CreateDirectoryW(s.GetData(), nullptr) == FALSE)
   {
     DWORD uiError = GetLastError();
-    if (uiError == ERROR_ALREADY_EXISTS) 
+    if (uiError == ERROR_ALREADY_EXISTS)
       return EZ_SUCCESS;
 
     return EZ_FAILURE;

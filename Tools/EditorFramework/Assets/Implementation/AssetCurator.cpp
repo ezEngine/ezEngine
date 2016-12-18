@@ -147,10 +147,6 @@ void ezAssetCurator::SetActivePlatform(const char* szPlatform)
 
 void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirectoryWatcherAction action)
 {
-  // ignore everything inside the AssetCache
-  if (ezStringUtils::StartsWith(szFilename, "AssetCache"))
-    return;
-
   switch (action)
   {
   case ezDirectoryWatcherAction::Added:
