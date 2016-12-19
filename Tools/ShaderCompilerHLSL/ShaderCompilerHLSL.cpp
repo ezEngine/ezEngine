@@ -97,6 +97,8 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
         shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCube; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCubeArray; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::GenericBuffer; break;
       }
     }
 
@@ -112,8 +114,29 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
         shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::RWTexture2DArray; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX:
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::RWBuffer; break;
       }
     }
+
+    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWTYPED)
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWBuffer;
+
+    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED)
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWStructuredBuffer;
+
+    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWRawBuffer;
+
+    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED)
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWAppendBuffer;
+
+    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED)
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWConsumeBuffer;
+
+    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER)
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWStructuredBufferWithCounter;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_CBUFFER)
     {

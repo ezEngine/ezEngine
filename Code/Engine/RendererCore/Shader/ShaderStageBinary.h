@@ -96,8 +96,15 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
     RWTexture2D,
     RWTexture2DArray,
 
+    RWBuffer,
+    RWStructuredBuffer,
+    RWRawBuffer,
+    RWAppendBuffer,
+    RWConsumeBuffer,
+    RWStructuredBufferWithCounter,
+
     ConstantBuffer,
-    GenericBuffer,
+    GenericBuffer,   ///< A read only (structured) buffer
     Sampler
   };
 
