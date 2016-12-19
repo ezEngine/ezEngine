@@ -87,12 +87,12 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
 
       renderContext.BindShader(m_hHistogramComputeShader);
       renderContext.BindTexture(ezGALShaderStage::ComputeShader, "ScreenTexture", m_hScreenSRV);
-      renderContext.BindRWTexture("HistogramOutput", m_hHistogramUAV);
+      renderContext.BindUAV("HistogramOutput", m_hHistogramUAV);
       renderContext.Dispatch(g_uiWindowWidth / g_uiComputeThreadGroupSize + (g_uiWindowWidth % g_uiComputeThreadGroupSize != 0 ? 1 : 0),
                               g_uiWindowHeight / g_uiComputeThreadGroupSize + (g_uiWindowHeight % g_uiComputeThreadGroupSize != 0 ? 1 : 0));
 
       // Unbind UAV since it is used as SRV in next step. TODO: This should be handled automatically.
-      renderContext.BindRWTexture("HistogramOutput", ezGALUnorderedAccessViewHandle());
+      renderContext.BindUAV("HistogramOutput", ezGALUnorderedAccessViewHandle());
       renderContext.ApplyContextStates();
     }
 

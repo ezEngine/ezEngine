@@ -208,10 +208,10 @@ void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHash
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
-void ezRenderContext::BindRWTexture(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
+void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
 {
   ezGALUnorderedAccessViewHandle* pOldResourceView = nullptr;
-  if (m_BoundRWTextures.TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  if (m_BoundUAVs.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hUnorderedAccessView)
       return;
@@ -220,10 +220,10 @@ void ezRenderContext::BindRWTexture(const ezTempHashedString& sSlotName, ezGALUn
   }
   else
   {
-    m_BoundRWTextures.Insert(sSlotName.GetHash(), hUnorderedAccessView);
+    m_BoundUAVs.Insert(sSlotName.GetHash(), hUnorderedAccessView);
   }
 
-  m_StateFlags.Add(ezRenderContextFlags::RWTextureBindingChanged);
+  m_StateFlags.Add(ezRenderContextFlags::UAVBindingChanged);
 }
 
 
@@ -429,7 +429,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
   if (m_hActiveShaderPermutation.IsValid())
   {
-    if ((bForce || m_StateFlags.IsAnySet(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::RWTextureBindingChanged | ezRenderContextFlags::SamplerBindingChanged |
+    if ((bForce || m_StateFlags.IsAnySet(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::UAVBindingChanged | ezRenderContextFlags::SamplerBindingChanged |
                                          ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged)))
     {
       if (pShaderPermutation == nullptr)
@@ -437,19 +437,19 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     }
 
 
-    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::RWTextureBindingChanged))
+    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::UAVBindingChanged))
     {
       // RWTextures/UAV are usually only suppoprted in compute and pixel shader.
       if (auto pBin = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::ComputeShader))
       {
-        ApplyRWTextureBindings(pBin);
+        ApplyUAVBindings(pBin);
       }
       if (auto pBin = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader))
       {
-        ApplyRWTextureBindings(pBin);
+        ApplyUAVBindings(pBin);
       }
 
-      m_StateFlags.Remove(ezRenderContextFlags::RWTextureBindingChanged);
+      m_StateFlags.Remove(ezRenderContextFlags::UAVBindingChanged);
     }
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::TextureBindingChanged))
@@ -573,7 +573,7 @@ void ezRenderContext::ResetContextState()
     m_BoundSamplers[stage].Insert(ezTempHashedString("PointClampSampler").GetHash(), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
   }
 
-  m_BoundRWTextures.Clear();
+  m_BoundUAVs.Clear();
   m_BoundConstantBuffers.Clear();
 }
 
@@ -1015,17 +1015,17 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
   }
 }
 
-void ezRenderContext::ApplyRWTextureBindings(const ezShaderStageBinary* pBinary)
+void ezRenderContext::ApplyUAVBindings(const ezShaderStageBinary* pBinary)
 {
   for (const auto& binding : pBinary->m_ShaderResourceBindings)
   {
-    if (binding.m_Type < ezShaderResourceBinding::RWTexture1D || binding.m_Type > ezShaderResourceBinding::RWTexture2DArray)
+    if (binding.m_Type < ezShaderResourceBinding::RWTexture1D || binding.m_Type > ezShaderResourceBinding::RWStructuredBufferWithCounter)
       continue;
 
     const ezUInt32 uiResourceHash = binding.m_sName.GetHash();
 
     ezGALUnorderedAccessViewHandle hResourceView;
-    m_BoundRWTextures.TryGetValue(uiResourceHash, hResourceView);
+    m_BoundUAVs.TryGetValue(uiResourceHash, hResourceView);
 
     m_pGALContext->SetUnorderedAccessView(binding.m_iSlot, hResourceView);
   }
