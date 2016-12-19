@@ -46,7 +46,8 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else if(pBuffer)
   {
-    ViewFormat = ezGALResourceFormat::RUInt;
+    if (ViewFormat == ezGALResourceFormat::Invalid)
+      ViewFormat = ezGALResourceFormat::RUInt;
 
     if(!pBuffer->GetDescription().m_bAllowRawViews && m_Description.m_bRawView)
     {
