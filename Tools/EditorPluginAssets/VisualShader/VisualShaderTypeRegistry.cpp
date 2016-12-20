@@ -236,125 +236,9 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
   return ezVariant();
 }
 
-void ezVisualShaderTypeRegistry::ExtractNodePins(const ezVariantDictionary &varNodeDict, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput)
-{
-  ezVariant varValue;
-  if (varNodeDict.TryGetValue(szPinType, varValue) && varValue.IsA<ezVariantArray>())
-  {
-    const ezVariantArray& varPins = varValue.Get<ezVariantArray>();
-
-    for (ezUInt32 p = 0; p < varPins.GetCount(); ++p)
-    {
-      if (!varPins[p].IsA<ezVariantDictionary>())
-      {
-        ezLog::Error("Properties array contains values that are not dictionaries");
-        continue;
-      }
-
-      const ezVariantDictionary& varPin = varPins[p].Get<ezVariantDictionary>();
-      ezVisualShaderPinDescriptor pin;
-
-      if (!varPin.TryGetValue("Name", varValue) || !varValue.IsA<ezString>())
-      {
-        ezLog::Error("Missing or invalid name for pin");
-        continue;
-      }
-
-      pin.m_sName = varValue.Get<ezString>();
-
-      if (!varPin.TryGetValue("Type", varValue) || !varValue.IsA<ezString>())
-      {
-        ezLog::Error("Missing or invalid pin type");
-        continue;
-      }
-
-      {
-        const ezString& sType = varValue.Get<ezString>();
-
-        if (sType == "color")
-          pin.m_pDataType = ezGetStaticRTTI<ezColor>();
-        else if (sType == "float4")
-          pin.m_pDataType = ezGetStaticRTTI<ezVec4>();
-        else if (sType == "float3")
-          pin.m_pDataType = ezGetStaticRTTI<ezVec3>();
-        else if (sType == "float2")
-          pin.m_pDataType = ezGetStaticRTTI<ezVec2>();
-        else if (sType == "float")
-          pin.m_pDataType = ezGetStaticRTTI<float>();
-        else if (sType == "string")
-          pin.m_pDataType = ezGetStaticRTTI<ezString>();
-        else if (sType == "sampler")
-          pin.m_pDataType = m_pSamplerPinType;
-        else
-        {
-          ezLog::Error("Invalid pin type '{0}'", sType.GetData());
-          continue;
-        }
-      }
-
-      /// \todo Enforce this for output pins
-      if (varPin.TryGetValue("Inline", varValue) && varValue.IsA<ezString>())
-      {
-        pin.m_sShaderCodeInline = varValue.Get<ezString>();
-      }
-      else if (bOutput)
-      {
-        ezLog::Error("Output pin '{0}' has no inline code specified", pin.m_sName.GetData());
-        continue;
-      }
-
-      // this is optional
-      if (varPin.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
-      {
-        float col[3] = { 255, 255, 255 };
-        ezConversionUtils::ExtractFloatsFromString(varValue.Get<ezString>(), 3, col);
-        pin.m_Color = ezColorGammaUB((ezUInt8)col[0], (ezUInt8)col[1], (ezUInt8)col[2]);
-      }
-
-      // this is optional
-      if (varPin.TryGetValue("Tooltip", varValue) && varValue.IsA<ezString>())
-      {
-        pin.m_sTooltip = varValue.Get<ezString>();
-      }
-
-      // this is optional
-      if (varPin.TryGetValue("Fallback", varValue) && varValue.IsA<ezString>())
-      {
-        pin.m_sDefaultValue = varValue.Get<ezString>();
-      }
-
-      // this is optional
-      if (varPin.TryGetValue("Expose", varValue) && varValue.IsA<bool>())
-      {
-        pin.m_bExposeAsProperty = varValue.Get<bool>();
-      }
-
-      if (pin.m_bExposeAsProperty)
-      {
-        pin.m_PropertyDesc.m_sName = pin.m_sName;
-        pin.m_PropertyDesc.m_Category = ezPropertyCategory::Member;
-        pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
-        pin.m_PropertyDesc.m_sType = pin.m_pDataType->GetTypeName();
-
-        const ezVariant def = ExtractDefaultValue(pin.m_pDataType, pin.m_sDefaultValue);
-
-        if (def.IsValid())
-        {
-          pin.m_PropertyDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, def));
-        }
-      }
-
-      pinArray.PushBack(pin);
-    }
-  }
-}
-
-
 void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput)
 {
-  const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild();
-
-  while (pElement)
+  for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
     if (ezStringUtils::IsEqual(pElement->GetCustomType(), szPinType))
     {
@@ -451,101 +335,12 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
 
       pinArray.PushBack(pin);
     }
-
-
-    pElement = pElement->GetSibling();
   }
 }
-
-void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor &nd)
-{
-  ezVariant varValue;
-  if (varNodeDict.TryGetValue("Properties", varValue) && varValue.IsA<ezVariantArray>())
-  {
-    const ezVariantArray& varProperties = varValue.Get<ezVariantArray>();
-
-    for (ezUInt32 p = 0; p < varProperties.GetCount(); ++p)
-    {
-      if (!varProperties[p].IsA<ezVariantDictionary>())
-      {
-        ezLog::Error("Properties array contains values that are not dictionaries");
-        continue;
-      }
-
-      const ezVariantDictionary& varProperty = varProperties[p].Get<ezVariantDictionary>();
-
-      ezReflectedPropertyDescriptor prop;
-      prop.m_Category = ezPropertyCategory::Member;
-      prop.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
-
-      if (!varProperty.TryGetValue("Name", varValue) || !varValue.IsA<ezString>())
-      {
-        ezLog::Error("Property doesn't have a name");
-        continue;
-      }
-
-      prop.m_sName = varValue.Get<ezString>();
-
-      if (!varProperty.TryGetValue("Type", varValue) || !varValue.IsA<ezString>())
-      {
-        ezLog::Error("Property doesn't have a type");
-        continue;
-      }
-
-      {
-        const ezString& sType = varValue.Get<ezString>();
-
-        if (sType == "color")
-        {
-          prop.m_sType = ezGetStaticRTTI<ezColor>()->GetTypeName();
-
-          // always expose the alpha channel for color properties
-          ezExposeColorAlphaAttribute* pAttr = static_cast<ezExposeColorAlphaAttribute*>(ezExposeColorAlphaAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
-          prop.m_Attributes.PushBack(pAttr);
-        }
-        else if (sType == "float4")
-          prop.m_sType = ezGetStaticRTTI<ezVec4>()->GetTypeName();
-        else if (sType == "float3")
-          prop.m_sType = ezGetStaticRTTI<ezVec3>()->GetTypeName();
-        else if (sType == "float2")
-          prop.m_sType = ezGetStaticRTTI<ezVec2>()->GetTypeName();
-        else if (sType == "float")
-          prop.m_sType = ezGetStaticRTTI<float>()->GetTypeName();
-        else if (sType == "string")
-          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
-        else if (sType == "Texture2D")
-        {
-          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
-
-          // apparently the attributes are deallocated using the type allocator, so we must allocate them here through RTTI as well
-          ezAssetBrowserAttribute* pAttr = static_cast<ezAssetBrowserAttribute*>(ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
-          pAttr->SetTypeFilter("Texture 2D");
-          prop.m_Attributes.PushBack(pAttr);
-        }
-        else
-        {
-          ezLog::Error("Invalid property type '{0}'", sType.GetData());
-          continue;
-        }
-      }
-
-      if (varProperty.TryGetValue("Value", varValue) && varValue.IsA<ezString>())
-      {
-        // TODO Default property value
-
-      }
-
-      nd.m_Properties.PushBack(prop);
-    }
-  }
-}
-
 
 void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor &nd)
 {
-  const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild();
-
-  while (pElement)
+  for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
     if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Property"))
     {
@@ -614,99 +409,6 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
       nd.m_Properties.PushBack(prop);
     }
-
-    pElement = pElement->GetSibling();
-  }
-}
-
-void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezVariantDictionary &varNodeDict, ezVisualShaderNodeDescriptor& nd)
-{
-  ezStringBuilder temp;
-
-  ezVariant varValue;
-  if (varNodeDict.TryGetValue("Color", varValue) && varValue.IsA<ezString>())
-  {
-    float col[3] = { 255, 255, 255 };
-    ezConversionUtils::ExtractFloatsFromString(varValue.Get<ezString>(), 3, col);
-    nd.m_Color = ezColorGammaUB((ezUInt8)col[0], (ezUInt8)col[1], (ezUInt8)col[2]);
-  }
-
-  if (varNodeDict.TryGetValue("NodeType", varValue) && varValue.IsA<ezString>())
-  {
-    if (varValue.Get<ezString>() == "Main")
-      nd.m_NodeType = ezVisualShaderNodeType::Main;
-    else if (varValue.Get<ezString>() == "Texture")
-      nd.m_NodeType = ezVisualShaderNodeType::Texture;
-    else
-      nd.m_NodeType = ezVisualShaderNodeType::Generic;
-  }
-
-  if (varNodeDict.TryGetValue("Category", varValue) && varValue.IsA<ezString>())
-  {
-    nd.m_sCategory = varValue.Get<ezString>();
-  }
-
-  if (varNodeDict.TryGetValue("CodePermutations", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodePermutations = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodeRenderStates", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodeRenderState = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodeVertexShader", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodeVertexShader = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodeMaterialParams", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodeMaterialParams = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodePixelDefines", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodePixelDefines = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodePixelIncludes", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodePixelIncludes = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodePixelSamplers", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodePixelSamplers = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodePixelConstants", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodePixelConstants = temp;
-  }
-
-  if (varNodeDict.TryGetValue("CodePixelBody", varValue) && varValue.IsA<ezString>())
-  {
-    temp = varValue.Get<ezString>();
-    if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
-    nd.m_sShaderCodePixelBody = temp;
   }
 }
 
@@ -760,6 +462,11 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
         nd.m_sShaderCodeMaterialParams = temp;
+      }
+      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeMaterialCB"))
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        nd.m_sShaderCodeMaterialCB = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelDefines"))
       {

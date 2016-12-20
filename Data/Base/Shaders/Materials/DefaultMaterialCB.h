@@ -1,5 +1,9 @@
 #include <Shaders/Common/GlobalConstants.h>
 
+#ifndef VSE_CONSTANTS
+#define VSE_CONSTANTS
+#endif
+
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
   COLOR4F(BaseColor);
@@ -13,4 +17,7 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   BOOL(UseEmissiveTexture);
   COLOR4F(EmissiveColor);
   BOOL(UseOcclusionTexture);
+
+  // Insert custom Visual Shader parameters here
+  VSE_CONSTANTS
 };

@@ -159,12 +159,15 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
 
   EZ_SUCCEED_OR_RETURN(GenerateNode(m_pMainNode));
 
+  const ezStringBuilder sMaterialCBDefine("#define VSE_CONSTANTS ", m_sShaderMaterialCB);
+
   m_sFinalShaderCode.Set("[PLATFORMS]\nALL\n\n");
   m_sFinalShaderCode.Append("[PERMUTATIONS]\n\n", m_sShaderPermutations, "\n");
   m_sFinalShaderCode.Append("[MATERIALPARAMETER]\n\n", m_sShaderMaterialParam, "\n");
   m_sFinalShaderCode.Append("[RENDERSTATE]\n\n", m_sShaderRenderState, "\n");
-  m_sFinalShaderCode.Append("[VERTEXSHADER]\n\n", m_sShaderVertex, "\n");
-  m_sFinalShaderCode.Append("[PIXELSHADER]\n\n", m_sShaderPixelDefines, "\n", m_sShaderPixelIncludes, "\n");
+  m_sFinalShaderCode.Append("[VERTEXSHADER]\n\n", sMaterialCBDefine, "\n\n", m_sShaderVertex, "\n");
+  m_sFinalShaderCode.Append("[PIXELSHADER]\n\n", sMaterialCBDefine, "\n\n");
+  m_sFinalShaderCode.Append(m_sShaderPixelDefines, "\n", m_sShaderPixelIncludes, "\n");
   m_sFinalShaderCode.Append(m_sShaderPixelConstants, "\n", m_sShaderPixelSamplers, "\n", m_sShaderPixelBody, "\n");
 
   return ezStatus(EZ_SUCCESS);
@@ -189,13 +192,14 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
 
   EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
 
-  ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sPixelSamplersCode, sVsBodyCode;
+  ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sPixelSamplersCode, sVsBodyCode, sMaterialCB;
 
   sConstantsCode = pDesc->m_sShaderCodePixelConstants;
   sPsBodyCode = pDesc->m_sShaderCodePixelBody;
   sMaterialParamCode = pDesc->m_sShaderCodeMaterialParams;
   sPixelSamplersCode = pDesc->m_sShaderCodePixelSamplers;
   sVsBodyCode = pDesc->m_sShaderCodeVertexShader;
+  sMaterialCB = pDesc->m_sShaderCodeMaterialCB;
 
   ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode);
   ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode);
@@ -204,6 +208,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVsBodyCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPsBodyCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialParamCode));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialCB));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelSamplersCode));
 
   {
@@ -216,6 +221,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
     AppendStringIfUnique(m_sShaderPixelBody, sPsBodyCode);
     AppendStringIfUnique(m_sShaderPixelConstants, sConstantsCode);
     AppendStringIfUnique(m_sShaderPixelSamplers, sPixelSamplersCode);
+    AppendStringIfUnique(m_sShaderMaterialCB, sMaterialCB);
   }
 
   return ezStatus(EZ_SUCCESS);

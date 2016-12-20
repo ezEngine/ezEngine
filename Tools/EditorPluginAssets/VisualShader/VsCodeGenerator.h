@@ -66,6 +66,7 @@ private:
   ezStringBuilder m_sShaderPixelBody;
   ezStringBuilder m_sShaderVertex;
   ezStringBuilder m_sShaderMaterialParam;
+  ezStringBuilder m_sShaderMaterialCB;
   ezStringBuilder m_sShaderRenderState;
   ezStringBuilder m_sShaderPermutations;
   ezStringBuilder m_sFinalShaderCode;
