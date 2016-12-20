@@ -45,6 +45,7 @@ class ezVisualShaderNodeDescriptor
 public:
 
   ezEnum<ezVisualShaderNodeType> m_NodeType;
+  ezString m_sCfgFile; ///< from which config file this node type was loaded
   ezString m_sName;
   ezString m_sCategory;
   ezColorGammaUB m_Color;

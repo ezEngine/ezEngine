@@ -13,6 +13,7 @@ public:
 
   const char* GetFinalShaderCode() const { return m_sFinalShaderCode; }
 
+  void DetermineConfigFileDependencies(const ezDocumentNodeManager* pNodeManager, ezSet<ezString>& out_cfgFiles);
 
 private:
   struct NodeState

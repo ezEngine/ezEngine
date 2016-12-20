@@ -80,6 +80,25 @@ ezVisualShaderCodeGenerator::ezVisualShaderCodeGenerator()
   m_pMainNode = nullptr;
 }
 
+void ezVisualShaderCodeGenerator::DetermineConfigFileDependencies(const ezDocumentNodeManager* pNodeManager, ezSet<ezString>& out_cfgFiles)
+{
+  out_cfgFiles.Clear();
+
+  m_pNodeManager = pNodeManager;
+  m_pTypeRegistry = ezVisualShaderTypeRegistry::GetSingleton();
+  m_pNodeBaseRtti = m_pTypeRegistry->GetNodeBaseType();
+
+  if (GatherAllNodes(pNodeManager->GetRootObject()).Failed())
+    return;
+
+  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto pDesc = m_pTypeRegistry->GetDescriptorForType(it.Key()->GetType());
+
+    out_cfgFiles.Insert(pDesc->m_sCfgFile);
+  }
+}
+
 ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRootObj)
 {
   if (pRootObj->GetType()->IsDerivedFrom(m_pNodeBaseRtti))
@@ -125,11 +144,11 @@ ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOw
   return 0xFFFF;
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeMaanger, const char* szPlatform)
+ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, const char* szPlatform)
 {
   EZ_ASSERT_DEBUG(m_pNodeManager == nullptr, "Shader Generator cannot be used twice");
 
-  m_pNodeManager = pNodeMaanger;
+  m_pNodeManager = pNodeManager;
   m_pTypeRegistry = ezVisualShaderTypeRegistry::GetSingleton();
   m_pNodeBaseRtti = m_pTypeRegistry->GetNodeBaseType();
 

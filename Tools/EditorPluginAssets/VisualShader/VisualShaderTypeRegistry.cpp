@@ -84,8 +84,7 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
 
 void ezVisualShaderTypeRegistry::UpdateNodeData(const char* szCfgFileRelative)
 {
-  ezStringBuilder sPath = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-  sPath.AppendPath("VisualShader", szCfgFileRelative);
+  ezStringBuilder sPath(":app/VisualShader/", szCfgFileRelative);
 
   LoadConfigFile(sPath);
 }
@@ -189,6 +188,7 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
       }
 
       ezVisualShaderNodeDescriptor nd;
+      nd.m_sCfgFile = szFile;
       nd.m_sName = pNode->GetName();
 
       ExtractNodeConfig(pNode, nd);

@@ -584,6 +584,17 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
+    ezVisualShaderCodeGenerator codeGen;
+
+    ezSet<ezString> cfgFiles;
+    codeGen.DetermineConfigFileDependencies(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), cfgFiles);
+
+    for (const auto& sCfgFile : cfgFiles)
+    {
+      pInfo->m_FileDependencies.Insert(sCfgFile);
+    }
+
+
     /// \todo This doesn't work!!!
     // Dependencies are files that have to exist, otherwise asset transform fails
     // But we are actually GENERATING this file! That means when the file does not exist, transform will never be called,
@@ -728,7 +739,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
 
   ezVisualShaderCodeGenerator codeGen;
 
-  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<ezDocumentNodeManager*>(GetObjectManager()), szPlatform));
+  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), szPlatform));
 
   ezFileWriter file;
   if (file.Open(sAutoGenShader).Succeeded())

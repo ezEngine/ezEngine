@@ -79,6 +79,18 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath
   if (ezPathUtils::IsAbsolutePath(sPath))
     return true;
 
+  if (ezPathUtils::IsRootedPath(sPath))
+  {
+    ezString sAbsPath;
+    if (ezFileSystem::ResolvePath(sPath, &sAbsPath, nullptr).Succeeded())
+    {
+      sPath = sAbsPath;
+      return true;
+    }
+
+    return false;
+  }
+
   if (ezConversionUtils::IsStringUuid(sPath))
   {
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
