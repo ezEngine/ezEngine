@@ -534,7 +534,24 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  EZ_SUCCEED_OR_RETURN(RecreateVisualShaderFile(szPlatform));
+  ezStatus ret = RecreateVisualShaderFile(szPlatform);
+
+  ezMaterialVisualShaderEvent e;
+
+  if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
+  {
+    e.m_Type = ret.Succeeded() ? ezMaterialVisualShaderEvent::TransformSucceeded : ezMaterialVisualShaderEvent::TransformFailed;
+    e.m_sTransformError = ret.m_sMessage;
+  }
+  else
+  {
+    e.m_Type = ezMaterialVisualShaderEvent::VisualShaderNotUsed;
+  }
+
+  m_VisualShaderEvents.Broadcast(e);
+
+  if (ret.Failed())
+    return ret;
 
   return WriteMaterialAsset(stream, szPlatform);
 }

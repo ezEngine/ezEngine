@@ -157,6 +157,9 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
   if (m_Nodes.IsEmpty())
     return ezStatus("Visual Shader graph is empty");
 
+  if (m_pMainNode == nullptr)
+    return ezStatus("Visual Shader does not contain an output node");
+
   EZ_SUCCEED_OR_RETURN(GenerateNode(m_pMainNode));
 
   const ezStringBuilder sMaterialCBDefine("#define VSE_CONSTANTS ", m_sShaderMaterialCB);
@@ -201,8 +204,8 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   sVsBodyCode = pDesc->m_sShaderCodeVertexShader;
   sMaterialCB = pDesc->m_sShaderCodeMaterialCB;
 
-  ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode);
-  ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode);
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode));
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode));
 
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVsBodyCode));
@@ -282,7 +285,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
 
 
 
-void ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder &sInlineCode)
+ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder &sInlineCode)
 {
   const ezArrayPtr<ezPin* const> inputPins = m_pNodeManager->GetInputPins(pOwnerNode);
 
@@ -304,6 +307,11 @@ void ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject*
         sValue = pNodeDesc->m_InputPins[i].m_sDefaultValue;
       }
 
+      if (sValue.IsEmpty())
+      {
+        return ezStatus(ezFmt("Not all required input pins on a '{0}' node are connected.", pNodeDesc->m_sName));
+      }
+
       // replace all occurrences of the pin identifier with the code that was generate for the connected output pin
       sInlineCode.ReplaceAll(sPinName, sValue);
     }
@@ -318,6 +326,8 @@ void ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObject*
       sInlineCode.ReplaceAll(sPinName, pinState.m_sCodeAtPin);
     }
   }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 

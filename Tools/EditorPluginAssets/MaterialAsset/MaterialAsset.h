@@ -20,6 +20,19 @@ struct ezMaterialShaderMode
   };
 };
 
+struct ezMaterialVisualShaderEvent
+{
+  enum Type
+  {
+    TransformFailed,
+    TransformSucceeded,
+    VisualShaderNotUsed,
+  };
+
+  Type m_Type;
+  ezString m_sTransformError;
+};
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialShaderMode);
 
 class ezMaterialAssetProperties : public ezReflectedClass
@@ -91,6 +104,8 @@ public:
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
+
+  ezEvent<const ezMaterialVisualShaderEvent&> m_VisualShaderEvents;
 
 protected:
   ezUuid GetSeedFromBaseMaterial(const ezAbstractObjectGraph* pBaseGraph);

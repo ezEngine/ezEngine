@@ -21,6 +21,7 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <QSplitter>
 #include <QTimer>
+#include <QTextEdit>
 
 
 ezInt32 ezQtMaterialAssetDocumentWindow::s_iNodeConfigWatchers = 0;
@@ -32,6 +33,9 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+
+  pDocument->m_VisualShaderEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::EngineProcessMsgHandler, this));
 
   // Menu Bar
   {
@@ -88,14 +92,25 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     m_pVsePanel->setWindowTitle("Visual Shader Editor");
     m_pVsePanel->show();
 
+    QSplitter* pSplitter = new QSplitter(Qt::Orientation::Horizontal, m_pVsePanel);
+    //pSplitter->setChildrenCollapsible(false);
+
     m_pScene = new ezQtVisualShaderScene(this);
     m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
     m_pNodeView = new ezQtNodeView(m_pVsePanel);
     m_pNodeView->SetScene(m_pScene);
+    pSplitter->addWidget(m_pNodeView);
+
+    m_pOutputLine = new QTextEdit(m_pVsePanel);
+    m_pOutputLine->setText("Transform the material asset to compile the Visual Shader.");
+    m_pOutputLine->setReadOnly(true);
+    pSplitter->addWidget(m_pOutputLine);
+
+    pSplitter->setStretchFactor(0, 10);
+    pSplitter->setStretchFactor(1, 1);
 
     m_bVisualShaderEnabled = false;
-    //m_pNodeView->setEnabled(m_bVisualShaderEnabled);
-    m_pVsePanel->setWidget(m_pNodeView);
+    m_pVsePanel->setWidget(pSplitter);
 
     addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pVsePanel);
   }
@@ -111,6 +126,9 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 {
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::EngineProcessMsgHandler, this));
+  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
+
   RestoreResource();
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
@@ -273,4 +291,71 @@ void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, e
   GetMaterialDocument()->RecreateVisualShaderFile();
 }
 
+void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e)
+{
+  ezStringBuilder text;
 
+  if (e.m_Type == ezMaterialVisualShaderEvent::VisualShaderNotUsed)
+  {
+    m_ShowShaderMessages.SetZero();
+    text = "<span style=\"color:#bbbb00;\">Visual Shader is not used by the material.</span><br><br>Change the ShaderMode in the asset properties to enable Visual Shader mode.";
+  }
+  else if (e.m_Type == ezMaterialVisualShaderEvent::TransformSucceeded)
+  {
+    m_ShowShaderMessages = ezTime::Now();
+    text = "<span style=\"color:#00ff00;\">Visual Shader was transformed successfully.</span><br><br>";
+    text.Append(e.m_sTransformError.GetData());
+  }
+  else
+  {
+    m_ShowShaderMessages = ezTime::Now();
+    text = "<span style=\"color:#ff0000;\">Error generating the Visual Shader code.</span><br><br>";
+    text.Append(e.m_sTransformError.GetData());
+  }
+
+  m_pOutputLine->setAcceptRichText(true);
+  m_pOutputLine->setHtml(text.GetData());
+}
+
+void ezQtMaterialAssetDocumentWindow::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    {
+      // this is a ... workaround ... for the fact that we currently cannot get compilation status for a specific shader
+      // so whenever a material is transformed, we assume that the shader is also compiled soon and then we display
+      // all error messages with "shader" in the text in the material status window
+      if (ezTime::Now() - m_ShowShaderMessages > ezTime::Seconds(3.0f))
+        return;
+
+      if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezLogMsgToEditor>())
+      {
+        const ezLogMsgToEditor* pMsg = static_cast<const ezLogMsgToEditor*>(e.m_pMsg);
+
+        const ezLogMsgType::Enum type = (ezLogMsgType::Enum)pMsg->m_iMsgType;
+        const bool isErrorOrWarning = (type >= ezLogMsgType::ErrorMsg && type <= ezLogMsgType::WarningMsg);
+
+        if ((isErrorOrWarning && pMsg->m_sText.FindSubString_NoCase("shader") != nullptr) || pMsg->m_sTag == "shader")
+        {
+          ezStringBuilder sOutputText = m_pOutputLine->toHtml().toUtf8().data();
+
+          if (type >= ezLogMsgType::ErrorMsg)
+            sOutputText.AppendFormat("<br><br><span style=\"color:#ff0000;\">{0}</span>", pMsg->m_sText);
+          else if (type >= ezLogMsgType::SeriousWarningMsg)
+            sOutputText.AppendFormat("<br><br><span style=\"color:#ffaa00;\">{0}</span>", pMsg->m_sText);
+          else if (type >= ezLogMsgType::WarningMsg)
+            sOutputText.AppendFormat("<br><br><span style=\"color:#ffff00;\">{0}</span>", pMsg->m_sText);
+          else
+            sOutputText.AppendFormat("<br><br>{0}", pMsg->m_sText);
+
+          m_pOutputLine->setHtml(sOutputText.GetData());
+        }
+      }
+    }
+    break;
+
+  default:
+    return;
+  }
+}
