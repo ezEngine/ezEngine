@@ -100,10 +100,9 @@ namespace ezInternal
 
     struct RegisteredUpdateFunction
     {
-      EZ_DECLARE_POD_TYPE();
-
       ezWorldModule::UpdateFunction m_Function;
       const char* m_szFunctionName;
+      ezProfilingId m_ProfilingId;
       ezUInt32 m_uiDependencyHash;
       float m_fPriority;
       ezUInt16 m_uiGranularity;

@@ -19,6 +19,7 @@ protected:
 
     EZ_ASSERT_DEV(m_ResourceViews.IsEmpty(), "Dangling resource views");
     EZ_ASSERT_DEV(m_RenderTargetViews.IsEmpty(), "Dangling render target views");
+    EZ_ASSERT_DEV(m_UnorderedAccessViews.IsEmpty(), "Dangling unordered access views");
   }
 
   ezGALResourceViewHandle m_hDefaultResourceView;

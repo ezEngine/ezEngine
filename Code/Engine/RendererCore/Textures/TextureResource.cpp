@@ -74,19 +74,10 @@ ezResourceLoadDesc ezTextureResource::UnloadData(Unload WhatToUnload)
 
   if (WhatToUnload == Unload::AllQualityLevels)
   {
-    /// \todo This only works because samplers are shared.
-    /// Since they are not kept alive by ezRenderContext, this will crash if a sampler actually is deleted, but still in use by D3D.
-
     if (!m_hSamplerState.IsInvalidated())
     {
       ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
       m_hSamplerState.Invalidate();
-    }
-
-    if (!m_hOldSamplerState.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hOldSamplerState);
-      m_hOldSamplerState.Invalidate();
     }
   }
 
@@ -354,7 +345,13 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
 
   pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
 
-  SetupSamplerState(pDevice, descriptor);
+  if (!m_hSamplerState.IsInvalidated())
+  {
+    pDevice->DestroySamplerState(m_hSamplerState);
+  }
+
+  m_hSamplerState = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
+  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
 
   ++m_uiLoadedTextures;
 
@@ -404,48 +401,6 @@ void ezTextureResourceDescriptor::ConfigureSampler(ezTextureFilterSetting::Enum 
     break;
   }
 }
-
-
-void ezTextureResource::SetupSamplerState(ezGALDevice* pDevice, const ezTextureResourceDescriptor &descriptor)
-{
-  /// \todo This is a hack! The sampler state is still bound in ezRenderContext and if we destroy it here, it might be deleted entirely
-  /// we would need to do ref-counting of sampler states, but that is currently not really implemented.
-  /// Se we keep the old sampler around for a bit longer, and hope it is not in use anymore on the second change.
-
-  ezGALSamplerStateHandle hNewSampler = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
-  EZ_ASSERT_DEV(!hNewSampler.IsInvalidated(), "Sampler state error");
-
-  if (hNewSampler == m_hSamplerState)
-  {
-    // make sure ref-count is correct
-    pDevice->DestroySamplerState(m_hSamplerState);
-    m_hSamplerState = hNewSampler;
-    return;
-  }
-
-  // first time
-  if (m_hSamplerState.IsInvalidated())
-  {
-    m_hSamplerState = hNewSampler;
-    return;
-  }
-
-  {
-    // get rid of a previous sampler
-    if (!m_hOldSamplerState.IsInvalidated())
-    {
-      pDevice->DestroySamplerState(m_hOldSamplerState);
-      m_hOldSamplerState.Invalidate();
-    }
-
-    // store the old sampler
-    m_hOldSamplerState = m_hSamplerState;
-
-    // take the new one from now on
-    m_hSamplerState = hNewSampler;
-  }
-}
-
 
 ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)
 {

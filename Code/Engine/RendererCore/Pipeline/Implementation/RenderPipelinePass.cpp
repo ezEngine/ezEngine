@@ -99,6 +99,10 @@ void ezRenderPipelinePass::RemoveRenderer(ezRenderer* pRenderer)
 void ezRenderPipelinePass::SetName(const char* szName)
 {
   m_sName.Assign(szName);
+  if (!ezStringUtils::IsNullOrEmpty(szName))
+  {
+    m_ProfilingID = ezProfilingSystem::CreateId(szName);
+  }
 }
 
 const char* ezRenderPipelinePass::GetName() const

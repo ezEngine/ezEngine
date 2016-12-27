@@ -1,5 +1,8 @@
 
-#include <Foundation/Logging/Log.h>
+/// \brief Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
+#define EZ_GALDEVICE_LOCK_AND_CHECK() \
+  EZ_LOCK(m_Mutex); \
+  VerifyMultithreadedAccess()
 
 EZ_FORCE_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescription() const
 {
@@ -114,4 +117,29 @@ EZ_FORCE_INLINE ezGALDevice* ezGALDevice::GetDefaultDevice()
 {
   EZ_ASSERT_DEBUG(s_pDefaultDevice != nullptr, "Default device not set.");
   return s_pDefaultDevice;
+}
+
+template <typename HandleType>
+EZ_FORCE_INLINE void ezGALDevice::AddDeadObject(ezUInt32 uiType, HandleType handle)
+{
+  auto& deadObject = m_DeadObjects.ExpandAndGetRef();
+  deadObject.m_uiType = uiType;
+  deadObject.m_uiHandle = handle.GetInternalID().m_Data;
+}
+
+template <typename HandleType>
+void ezGALDevice::ReviveDeadObject(ezUInt32 uiType, HandleType handle)
+{
+  ezUInt32 uiHandle = handle.GetInternalID().m_Data;
+
+  for (ezUInt32 i = 0; i < m_DeadObjects.GetCount(); ++i)
+  {
+    const auto& deadObject = m_DeadObjects[i];
+
+    if (deadObject.m_uiType == uiType && deadObject.m_uiHandle == uiHandle)
+    {
+      m_DeadObjects.RemoveAt(i);
+      return;
+    }
+  }
 }

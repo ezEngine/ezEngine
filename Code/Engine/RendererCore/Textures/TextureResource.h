@@ -58,8 +58,6 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezTextureResourceDescriptor& descriptor) override;
 
-  void SetupSamplerState(ezGALDevice* pDevice, const ezTextureResourceDescriptor &descriptor);
-
 private:
   friend class ezRenderContext;
 
@@ -77,7 +75,6 @@ private:
   ezUInt32 m_uiHeight;
 
   ezGALSamplerStateHandle m_hSamplerState;
-  ezGALSamplerStateHandle m_hOldSamplerState;
 };
 
 

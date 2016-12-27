@@ -5,7 +5,8 @@
 #include <Core/World/WorldModule.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 
-static ezProfilingId s_WhenInitializedMsgProfilingID = ezProfilingSystem::CreateId("When Initialized Msgs");
+static ezProfilingId s_ComponentInitProfilingID = ezProfilingSystem::CreateId("Initialize Components");
+static ezProfilingId s_WhenInitializedProfilingID = ezProfilingSystem::CreateId("When Initialized Phase");
 static ezProfilingId s_PreAsyncProfilingID = ezProfilingSystem::CreateId("Pre-Async Phase");
 static ezProfilingId s_AsyncProfilingID = ezProfilingSystem::CreateId("Async Phase");
 static ezProfilingId s_PostAsyncProfilingID = ezProfilingSystem::CreateId("Post-Async Phase");
@@ -140,7 +141,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   LinkToParent(pNewObject);
 
   out_pObject = pNewObject;
-  return newId;
+  return ezGameObjectHandle(newId);
 }
 
 void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
@@ -299,7 +300,7 @@ void ezWorld::Update()
 
   // Send the 'WhenInitialized' messages
   {
-    EZ_PROFILE(s_WhenInitializedMsgProfilingID);
+    EZ_PROFILE(s_WhenInitializedProfilingID);
     ProcessQueuedMessages(ezObjectMsgQueueType::WhenInitialized);
   }
 
@@ -484,10 +485,10 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
   if (entry.m_MetaData.m_uiReceiverIsComponent)
   {
     ezUInt64 uiReceiverComponent = entry.m_MetaData.m_uiReceiverComponent;
-    ezComponentId componentId = *reinterpret_cast<ezComponentId*>(&uiReceiverComponent);
+    ezComponentHandle hComponent(*reinterpret_cast<ezComponentId*>(&uiReceiverComponent));
 
     ezComponent* pReceiverComponent = nullptr;
-    if (TryGetComponent(componentId, pReceiverComponent))
+    if (TryGetComponent(hComponent, pReceiverComponent))
     {
       pReceiverComponent->SendMessage(*entry.m_pMessage);
     }
@@ -503,10 +504,10 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
   }
   else
   {
-    ezGameObjectId objectId = entry.m_MetaData.m_uiReceiverObject;
+    ezGameObjectHandle hObject(ezGameObjectId(entry.m_MetaData.m_uiReceiverObject));
 
     ezGameObject* pReceiverObject = nullptr;
-    if (TryGetObject(objectId, pReceiverObject))
+    if (TryGetObject(hObject, pReceiverObject))
     {
       pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
     }
@@ -729,6 +730,8 @@ void ezWorld::ProcessComponentsToInitialize()
 {
   CheckForWriteAccess();
 
+  EZ_PROFILE(s_ComponentInitProfilingID);
+
   // Can't use foreach here because the array might be resized during iteration.
   for (ezUInt32 i = 0; i < m_Data.m_ComponentsToInitialize.GetCount(); ++i)
   {
@@ -787,7 +790,10 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
     if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
       continue;
 
-    updateFunction.m_Function(context);
+    {
+      EZ_PROFILE(updateFunction.m_ProfilingId);
+      updateFunction.m_Function(context);
+    }
   }
 }
 

@@ -18,7 +18,7 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const
     pInstance = &m_ParticleEffects.ExpandAndGetRef();
   }
 
-  ezParticleEffectHandle hEffectHandle = m_ActiveEffects.Insert(pInstance);
+  ezParticleEffectHandle hEffectHandle(m_ActiveEffects.Insert(pInstance));
   pInstance->Construct(hEffectHandle, hResource, GetWorld(), this, uiRandomSeed, bIsShared);
 
   return hEffectHandle;

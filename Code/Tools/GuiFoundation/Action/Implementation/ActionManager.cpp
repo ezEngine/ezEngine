@@ -54,7 +54,7 @@ ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescripto
       pDesc->m_sShortcut = ovride.Value();
   }
 
-  hType = s_ActionTable.Insert(pDesc);
+  hType = ezActionDescriptorHandle(s_ActionTable.Insert(pDesc));
   pDesc->m_Handle = hType;
 
   auto it = s_CategoryPathToActions.FindOrAdd(pDesc->m_sCategoryPath);

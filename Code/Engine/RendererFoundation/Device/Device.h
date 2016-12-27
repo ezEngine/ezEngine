@@ -181,6 +181,14 @@ protected:
 
   void DestroyViews(ezGALResourceBase* pResource);
 
+  template <typename HandleType>
+  void AddDeadObject(ezUInt32 uiType, HandleType handle);
+
+  template <typename HandleType>
+  void ReviveDeadObject(ezUInt32 uiType, HandleType handle);
+
+  void DestroyDeadObjects();
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
   void VerifyMultithreadedAccess() const;
@@ -256,6 +264,15 @@ protected:
   ezHashTable<ezUInt32, ezGALSamplerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateTable;
   ezHashTable<ezUInt32, ezGALVertexDeclarationHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_VertexDeclarationTable;
 
+  struct DeadObject
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt32 m_uiType;
+    ezUInt32 m_uiHandle;
+  };
+
+  ezDynamicArray<DeadObject, ezLocalAllocatorWrapper> m_DeadObjects;
 
   ezGALDeviceCreationDescription m_Description;
 
@@ -374,13 +391,6 @@ private:
   bool m_bFrameBeginCalled;
 
 };
-
-
-/// \brief Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
-#define EZ_GALDEVICE_LOCK_AND_CHECK() \
-  EZ_LOCK(m_Mutex); \
-  VerifyMultithreadedAccess()
-
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>
 

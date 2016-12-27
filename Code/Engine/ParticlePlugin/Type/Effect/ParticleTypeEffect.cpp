@@ -133,7 +133,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
 
-    ezParticleEffectHandle hInstance(pEffectID[i]);
+    ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[i]));
 
     ezParticleEffectInstance* pEffect = nullptr;
     if (pWorldModule->TryGetEffectInstance(hInstance, pEffect))
@@ -153,7 +153,7 @@ void ezParticleTypeEffect::OnParticleDeath(const ezStreamGroupElementRemovedEven
 
   const ezUInt32* pEffectID = m_pStreamEffectID->GetData<ezUInt32>();
 
-  ezParticleEffectHandle hInstance(pEffectID[e.m_uiElementIndex]);
+  ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[e.m_uiElementIndex]));
 
   pWorldModule->DestroyEffectInstance(hInstance, false, nullptr);
 }
@@ -172,7 +172,7 @@ void ezParticleTypeEffect::ClearEffects(bool bInterruptImmediately)
 
   for (ezUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
   {
-    ezParticleEffectHandle hInstance(pEffectID[elemIdx]);
+    ezParticleEffectHandle hInstance = ezParticleEffectHandle(ezParticleEffectId(pEffectID[elemIdx]));
     pEffectID[elemIdx] = 0;
 
     pWorldModule->DestroyEffectInstance(hInstance, bInterruptImmediately, nullptr);
