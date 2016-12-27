@@ -496,7 +496,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{10727202586517492365}
+		u4 %Hash{17546318004974312450}
 		VarArray %References
 		{
 			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
@@ -595,17 +595,19 @@ o
 	p
 	{
 		b %Active{1}
+		ColorGamma %InnerTintColor{u1{255,255,255,255}}
 		Uuid %Input{u4{5926232845977036727,7395707730280343645}}
-		f %Intensity{0x0000003F}
+		f %Intensity{0x9A99993E}
+		ColorGamma %MidTintColor{u1{255,255,255,255}}
 		s %Name{""}
 		VarArray %Node::Connections
 		{
 			Uuid{u4{4369789077042442791,4082881616509990760}}
 		}
 		Vec2 %Node::Pos{f{0x4BB654C1,0x4C529AC3}}
-		u3 %NumBlurPasses{5}
+		ColorGamma %OuterTintColor{u1{225,231,255,255}}
 		Uuid %Output{u4{16771062063102338720,18000939286417006261}}
-		f %Radius{0xCDCCCC3D}
+		f %Radius{0xCDCC4C3E}
 		VarArray %Renderers{}
 		f %Threshold{0x0000803F}
 	}

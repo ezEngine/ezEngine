@@ -28,11 +28,12 @@ protected:
   ezInputNodePin m_PinInput;
   ezOutputNodePin m_PinOutput;
 
-  ezUInt32 m_uiNumBlurPasses;
   float m_fRadius;
   float m_fThreshold;
   float m_fIntensity;
-  ezHybridArray<ezColor, 8> m_tintColors;
+  ezColorGammaUB m_innerTintColor;
+  ezColorGammaUB m_midTintColor;
+  ezColorGammaUB m_outerTintColor;
   ezConstantBufferStorageHandle m_hConstantBuffer;
   ezShaderResourceHandle m_hShader;
 };

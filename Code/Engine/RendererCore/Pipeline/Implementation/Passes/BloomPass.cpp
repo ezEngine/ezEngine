@@ -19,10 +19,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBloomPass, 1, ezRTTIDefaultAllocator<ezBloomPa
   {
     EZ_MEMBER_PROPERTY("Input", m_PinInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-    EZ_MEMBER_PROPERTY("NumBlurPasses", m_uiNumBlurPasses)->AddAttributes(new ezDefaultValueAttribute(5), new ezClampValueAttribute(3, 8)),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.01f, 1.0f)),
     EZ_MEMBER_PROPERTY("Threshold", m_fThreshold)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
+    EZ_MEMBER_PROPERTY("InnerTintColor", m_innerTintColor),
+    EZ_MEMBER_PROPERTY("MidTintColor", m_midTintColor),
+    EZ_MEMBER_PROPERTY("OuterTintColor", m_outerTintColor),
   }
   EZ_END_PROPERTIES
 }
@@ -30,10 +32,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezBloomPass::ezBloomPass()
   : ezRenderPipelinePass("BloomPass")
-  , m_uiNumBlurPasses(5)
-  , m_fRadius(0.1f)
+  , m_fRadius(0.2f)
   , m_fThreshold(1.0f)
-  , m_fIntensity(0.5f)
+  , m_fIntensity(0.3f)
+  , m_innerTintColor(ezColor::White)
+  , m_midTintColor(ezColor::White)
+  , m_outerTintColor(ezColor::White)
 {
   {
     // Load shader.
@@ -97,12 +101,18 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   ezUInt32 uiWidth = pColorInput->m_Desc.m_uiWidth;
   ezUInt32 uiHeight = pColorInput->m_Desc.m_uiHeight;
 
+  const float fMaxRes = (float)ezMath::Max(uiWidth, uiHeight);
+  const float fRadius = ezMath::Clamp(m_fRadius, 0.01f, 1.0f);
+  const float fDownscaledSize = 4.0f / fRadius;
+  const float fNumBlurPasses = ezMath::Log2(fMaxRes / fDownscaledSize);
+  const ezUInt32 uiNumBlurPasses = (ezUInt32)ezMath::Ceil(fNumBlurPasses);
+
   // Find temp targets
   ezHybridArray<ezVec2, 8> targetSizes;
   ezHybridArray<ezGALTextureHandle, 8> tempDownscaleTextures;
   ezHybridArray<ezGALTextureHandle, 8> tempUpscaleTextures;
 
-  for (ezUInt32 i = 0; i < m_uiNumBlurPasses; ++i)
+  for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
   {
     uiWidth = uiWidth / 2;
     uiHeight = uiHeight / 2;
@@ -111,7 +121,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     tempDownscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float));
 
     // biggest upscale target is the output and lowest is not needed
-    if (i > 0 && i < m_uiNumBlurPasses - 1)
+    if (i > 0 && i < uiNumBlurPasses - 1)
     {
       tempUpscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float));
     }
@@ -131,7 +141,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   {
     EZ_PROFILE_AND_MARKER(pGALContext, g_BloomDownscaleId);
 
-    for (ezUInt32 i = 0; i < m_uiNumBlurPasses; ++i)
+    for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
     {
       ezGALTextureHandle hInput;
       if (i == 0)
@@ -152,7 +162,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       pGALContext->SetRenderTargetSetup(renderTargetSetup);
       pGALContext->SetViewport(ezRectFloat(targetSize.x, targetSize.y));
 
-      UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), ezColor::White);
+      ezColor tintColor = (i == uiNumBlurPasses - 1) ? m_outerTintColor : ezColor::White;
+      UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
       renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
@@ -163,16 +174,16 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   {
     EZ_PROFILE_AND_MARKER(pGALContext, g_BloomUpscaleId);
 
-    const float fMaxRadius = 2.0f; // more than 2 pixels wide blur results in holes
-    const float fRadius = ezMath::Min(m_fRadius * targetSizes[m_uiNumBlurPasses - 1].x * 0.5f, fMaxRadius);
+    const float fBlurRadius = 2.0f * fNumBlurPasses / uiNumBlurPasses;
+    const float fMidPass = (uiNumBlurPasses - 1.0f) / 2.0f;
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", "UPSCALE");
 
-    for (ezUInt32 i = m_uiNumBlurPasses - 1; i-- > 0;)
+    for (ezUInt32 i = uiNumBlurPasses - 1; i-- > 0;)
     {
       ezGALTextureHandle hNextInput = tempDownscaleTextures[i];
       ezGALTextureHandle hInput;
-      if (i == m_uiNumBlurPasses - 2)
+      if (i == uiNumBlurPasses - 2)
       {
         hInput = tempDownscaleTextures[i + 1];
       }
@@ -197,7 +208,18 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       pGALContext->SetRenderTargetSetup(renderTargetSetup);
       pGALContext->SetViewport(ezRectFloat(targetSize.x, targetSize.y));
 
-      UpdateConstantBuffer(ezVec2(fRadius * 2.0f).CompDiv(targetSize), ezColor::White);
+      ezColor tintColor;
+      float fPass = (float)i;
+      if (fPass < fMidPass)
+      {
+        tintColor = ezMath::Lerp(m_innerTintColor, m_midTintColor, fPass / fMidPass);
+      }
+      else
+      {
+        tintColor = ezMath::Lerp(m_midTintColor, m_outerTintColor, (fPass - fMidPass) / fMidPass);
+      }
+
+      UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);
 
       renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "NextColorTexture", pDevice->GetDefaultResourceView(hNextInput));
       renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
