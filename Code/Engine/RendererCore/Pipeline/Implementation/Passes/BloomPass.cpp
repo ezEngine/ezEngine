@@ -100,6 +100,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   ezUInt32 uiWidth = pColorInput->m_Desc.m_uiWidth;
   ezUInt32 uiHeight = pColorInput->m_Desc.m_uiHeight;
+  bool bFastDownscale = ezMath::IsEven(uiWidth) && ezMath::IsEven(uiHeight);
 
   const float fMaxRes = (float)ezMath::Max(uiWidth, uiHeight);
   const float fRadius = ezMath::Clamp(m_fRadius, 0.01f, 1.0f);
@@ -141,18 +142,23 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   {
     EZ_PROFILE_AND_MARKER(pGALContext, g_BloomDownscaleId);
 
+    ezTempHashedString sInitialDownscale = "INITIAL_DOWNSCALE";
+    ezTempHashedString sInitialDownscaleFast = "INITIAL_DOWNSCALE_FAST";
+    ezTempHashedString sDownscale = "DOWNSCALE";
+    ezTempHashedString sDownscaleFast = "DOWNSCALE_FAST";
+
     for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
     {
       ezGALTextureHandle hInput;
       if (i == 0)
       {
         hInput = pColorInput->m_TextureHandle;
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", "INITIAL_DOWNSCALE");
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", bFastDownscale ? sInitialDownscaleFast : sInitialDownscale);
       }
       else
       {
         hInput = tempDownscaleTextures[i - 1];
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", "DOWNSCALE");
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", bFastDownscale ? sDownscaleFast : sDownscale);
       }
 
       ezGALTextureHandle hOutput = tempDownscaleTextures[i];
@@ -167,6 +173,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+      bFastDownscale = ezMath::IsEven((ezInt32)targetSize.x) && ezMath::IsEven((ezInt32)targetSize.y);
     }
   }
 

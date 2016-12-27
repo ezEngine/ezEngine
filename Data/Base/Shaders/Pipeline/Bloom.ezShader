@@ -38,6 +38,8 @@ SamplerState LinearClampSampler;
 
 #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
   #define NUM_SAMPLES 9
+#elif BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE_FAST || BLOOM_PASS_MODE == BLOOM_PASS_MODE_DOWNSCALE_FAST
+  #define NUM_SAMPLES 9
 #else
   #define NUM_SAMPLES 13
 #endif
@@ -61,6 +63,22 @@ float4 main(PS_IN Input) : SV_Target
     };
 
     float3 color = NextColorTexture.SampleLevel(LinearClampSampler, Input.TexCoord0.xy, 0.0).rgb * TintColor.rgb;
+
+  #elif BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE_FAST || BLOOM_PASS_MODE == BLOOM_PASS_MODE_DOWNSCALE_FAST
+    float3 offsetAndWeights[NUM_SAMPLES] =
+    {
+      float3( 0.0f,      0.0f,     4.0f / 16.0f),
+      float3(-0.875f,    0.0f,     2.0f / 16.0f),
+      float3( 0.875f,    0.0f,     2.0f / 16.0f),
+      float3( 0.0f,     -0.875f,   2.0f / 16.0f),
+      float3( 0.0f,      0.875f,   2.0f / 16.0f),
+      float3(-0.85256f,  0.85256f, 1.0f / 16.0f),
+      float3( 0.85256f,  0.85256f, 1.0f / 16.0f),
+      float3(-0.85256f, -0.85256f, 1.0f / 16.0f),
+      float3( 0.85256f, -0.85256f, 1.0f / 16.0f)
+    };
+
+    float3 color = 0.0f;
 
   #else
     float3 offsetAndWeights[NUM_SAMPLES] =
@@ -92,7 +110,7 @@ float4 main(PS_IN Input) : SV_Target
     float3 sampleColor = ColorTexture.SampleLevel(LinearClampSampler, texCoord, 0.0).rgb;
     float weight = offsetAndWeights[i].z;
 
-    #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE
+    #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE || BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE_FAST
       float luminance = GetLuminance(sampleColor) * Exposure;
       weight *= 1.0f / (1.0f + luminance);
     #endif
@@ -103,7 +121,7 @@ float4 main(PS_IN Input) : SV_Target
 
   color /= max(totalWeight, 0.00001f);
 
-  #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE
+  #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE || BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE_FAST
     float luminance = GetLuminance(color) * Exposure;
     float thresholdedLuminance = saturate(luminance - BloomThreshold);
     float intensity = thresholdedLuminance * BloomIntensity;
@@ -126,7 +144,7 @@ float4 main(PS_IN Input) : SV_Target
     color *= vignette;
   #endif
 
-  #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_INITIAL_DOWNSCALE || BLOOM_PASS_MODE == BLOOM_PASS_MODE_DOWNSCALE
+  #if BLOOM_PASS_MODE != BLOOM_PASS_MODE_UPSCALE
     color *= TintColor.rgb;
   #endif
 
