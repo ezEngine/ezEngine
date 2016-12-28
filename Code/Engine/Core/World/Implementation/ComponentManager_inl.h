@@ -211,7 +211,8 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>
 const char* ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdateName()
 {
-  return EZ_SOURCE_FUNCTION;
+  const char* szName = EZ_SOURCE_FUNCTION;
+  return szName + sizeof("ezComponentManagerSimple<class");
 }
 
 //////////////////////////////////////////////////////////////////////////

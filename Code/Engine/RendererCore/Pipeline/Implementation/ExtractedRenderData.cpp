@@ -2,8 +2,6 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 
 
-static ezProfilingId s_SortingProfilingId = ezProfilingSystem::CreateId("SortAndBatch");
-
 ezExtractedRenderData::ezExtractedRenderData()
 {
 }
@@ -22,7 +20,7 @@ void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRen
 
 void ezExtractedRenderData::SortAndBatch()
 {
-  EZ_PROFILE(s_SortingProfilingId);
+  EZ_PROFILE("SortAndBatch");
 
   struct RenderDataComparer
   {

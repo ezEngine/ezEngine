@@ -33,7 +33,7 @@ struct ezGameObjectId
 
   EZ_DECLARE_ID_TYPE(ezGameObjectId, 20, 6);
 
-  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, StorageType generation, 
+  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, StorageType generation,
     StorageType worldIndex = 0)
   {
     m_Data = 0;
@@ -57,7 +57,7 @@ struct ezGameObjectId
 /// \brief A handle to a game object.
 ///
 /// Never store a direct pointer to a game object. Always store a handle instead. A pointer to a game object can
-/// be received by calling ezWorld::TryGetObject with the handle. 
+/// be received by calling ezWorld::TryGetObject with the handle.
 /// Note that the object might have been deleted so always check the return value of TryGetObject.
 class ezGameObjectHandle
 {
@@ -175,10 +175,10 @@ struct ezObjectMsgQueueType
 {
   enum Enum
   {
-    PostAsync,      ///< Process the message in the PostAsync phase.
-    PostTransform,  ///< Process the message in the PostTransform phase.
-    NextFrame,      ///< Process the message in the PreAsync phase of the next frame.
-    WhenInitialized,///< Deliver this message after all components have been initialized. This is basically the same as NextFrame.
+    PostAsync,        ///< Process the message in the PostAsync phase.
+    PostTransform,    ///< Process the message in the PostTransform phase.
+    NextFrame,        ///< Process the message in the PreAsync phase of the next frame.
+    AfterInitialized, ///< Deliver this message after all components have been initialized. This is basically the same as NextFrame.
     COUNT
   };
 };

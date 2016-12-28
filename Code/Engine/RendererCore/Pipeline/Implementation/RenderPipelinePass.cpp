@@ -26,7 +26,6 @@ ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
 {
   m_bActive = true;
   m_sName.Assign(szName);
-  m_ProfilingID = ezProfilingSystem::CreateId(szName);
 
   m_pPipeline = nullptr;
 }
@@ -98,10 +97,9 @@ void ezRenderPipelinePass::RemoveRenderer(ezRenderer* pRenderer)
 
 void ezRenderPipelinePass::SetName(const char* szName)
 {
-  m_sName.Assign(szName);
   if (!ezStringUtils::IsNullOrEmpty(szName))
   {
-    m_ProfilingID = ezProfilingSystem::CreateId(szName);
+    m_sName.Assign(szName);
   }
 }
 
@@ -126,7 +124,7 @@ void ezRenderPipelinePass::ReadBackProperties(ezView* pView)
 
 void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
 {
-  EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), ezRenderData::GetCategoryProfilingID(category));
+  EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), ezRenderData::GetCategoryName(category));
 
   auto batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category, filter);
   const ezUInt32 uiBatchCount = batchList.GetBatchCount();

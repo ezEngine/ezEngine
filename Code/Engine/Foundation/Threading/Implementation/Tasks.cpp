@@ -7,7 +7,6 @@ ezTask::ezTask()
   Reset();
 
   m_bIsFinished = true;
-  m_bProfilingIDGenerated = false;
   m_sTaskName = "Unnamed Task";
 }
 
@@ -21,7 +20,6 @@ void ezTask::Reset()
 void ezTask::SetTaskName(const char* szName)
 {
   m_sTaskName = szName;
-  m_bProfilingIDGenerated = false;
 }
 
 void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
@@ -39,26 +37,13 @@ void ezTask::Run()
   }
 
   {
-    EZ_ASSERT_DEV(m_bProfilingIDGenerated, "Profiling id must be valid at this point.");
-    EZ_PROFILE(m_ProfilingID);
+    EZ_PROFILE(m_sTaskName.GetData());
 
     Execute();
   }
 
   m_bIsFinished = true;
 }
-
-const ezProfilingId& ezTask::CreateProfilingID()
-{
-  if (!m_bProfilingIDGenerated)
-  {
-    m_bProfilingIDGenerated = true;
-    m_ProfilingID = ezProfilingSystem::CreateId(m_sTaskName.GetData());
-  }
-
-  return m_ProfilingID;
-}
-
 
 void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 {
@@ -190,7 +175,7 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
   if (pTask->IsTaskFinished())
     return;
 
-  EZ_PROFILE(s_ProfileWaitForTask);
+  EZ_PROFILE("WaitForTask");
 
   const bool bIsMainThread = ezThreadUtils::IsMainThread();
   const bool bIsLoadingThread = IsLoadingThread();
@@ -256,7 +241,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   if (pTask->IsTaskFinished())
     return EZ_SUCCESS;
 
-  EZ_PROFILE(s_ProfileCancelTask);
+  EZ_PROFILE("CancelTask");
 
   EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter, "The task to be removed is in an invalid group.");
 

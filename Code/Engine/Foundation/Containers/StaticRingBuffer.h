@@ -32,6 +32,12 @@ public:
   /// \brief Appends an element at the end of the ring-buffer.
   void PushBack(const T& element); // [tested]
 
+  /// \brief Accesses the latest element in the ring-buffer.
+  T& PeekBack(); // [tested]
+
+  /// \brief Accesses the latest element in the ring-buffer.
+  const T& PeekBack() const; // [tested]
+
   /// \brief Removes the oldest element from the ring-buffer.
   void PopFront(ezUInt32 uiElements = 1); // [tested]
 
@@ -43,7 +49,7 @@ public:
 
   /// \brief Accesses the n-th element in the ring-buffer.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
-  
+
   /// \brief Accesses the n-th element in the ring-buffer.
   T& operator[](ezUInt32 uiIndex); // [tested]
 

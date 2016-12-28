@@ -2,11 +2,6 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Profiling/Profiling.h>
 
-namespace
-{
-  ezProfilingId g_PerFrameUpdateProfilingId = ezProfilingSystem::CreateId("Telemetry.PerFrameUpdate");
-}
-
 void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
 {
   // unreliable packages can just be dropped
@@ -89,7 +84,7 @@ void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, Pro
 
 void ezTelemetry::PerFrameUpdate()
 {
-  EZ_PROFILE(g_PerFrameUpdateProfilingId);
+  EZ_PROFILE("Telemetry.PerFrameUpdate");
   EZ_LOCK(GetTelemetryMutex());
 
   // Call each callback to process the incoming messages

@@ -4,7 +4,6 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Memory/FrameAllocator.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 
 /// \brief Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
@@ -22,7 +21,6 @@ public:
   static Category FindCategory(const char* szCategoryName);
 
   static const char* GetCategoryName(Category category);
-  static ezProfilingId& GetCategoryProfilingID(Category category);  
 
   /// \brief Returns the sorting key for this render data by using the sorting key function for the given category.
   ezUInt64 GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const;
@@ -41,7 +39,6 @@ private:
   struct CategoryData
   {
     ezHashedString m_sName;
-    ezProfilingId m_ProfilingID;
     SortingKeyFunc m_sortingKeyFunc;
   };
 

@@ -2,12 +2,10 @@
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Time/Time.h>
 
-namespace 
+namespace
 {
   volatile ezInt32 g_iCrossThreadVariable = 0;
   const ezUInt32 g_uiIncrementSteps = 160000;
-
-  ezProfilingId g_TestThreadProfilingId = ezProfilingSystem::CreateId("Test Thread::Run");
 
   class TestThread : public ezThread
   {
@@ -20,7 +18,7 @@ namespace
 
     virtual ezUInt32 Run()
     {
-      EZ_PROFILE(g_TestThreadProfilingId);
+      EZ_PROFILE("Test Thread::Run");
 
       for (ezUInt32 i = 0; i < g_uiIncrementSteps; i++)
       {

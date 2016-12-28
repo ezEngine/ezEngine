@@ -804,7 +804,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_RenderProfilingID);
+  EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_sName.GetData());
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
   if (m_PipelineState == PipelineState::RebuildError)
@@ -887,7 +887,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
     // Execute pass block
     {
-      EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_ProfilingID);
+      EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_sName.GetData());
 
       ConnectionData& data = m_Connections[pPass.Borrow()];
       if (pPass->m_bActive)

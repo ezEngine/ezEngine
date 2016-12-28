@@ -6,12 +6,6 @@ EZ_FORCE_INLINE const char* ezRenderData::GetCategoryName(Category category)
   return s_CategoryData[category].m_sName.GetString().GetData();
 }
 
-//static
-EZ_FORCE_INLINE ezProfilingId& ezRenderData::GetCategoryProfilingID(Category category)
-{
-  return s_CategoryData[category].m_ProfilingID;
-}
-
 EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const
 {
   return s_CategoryData[category].m_sortingKeyFunc(this, uiRenderDataSortingKey, camera);

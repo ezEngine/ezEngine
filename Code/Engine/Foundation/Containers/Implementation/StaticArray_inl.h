@@ -3,12 +3,14 @@ template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray()
 {
   this->m_pElements = GetStaticArray();
+  this->m_uiCapacity = C;
 }
 
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, C>& rhs)
 {
   this->m_pElements = GetStaticArray();
+  this->m_uiCapacity = C;
 
   *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
 }
@@ -17,7 +19,10 @@ template <typename T, ezUInt32 C>
 template <ezUInt32 OtherCapacity>
 ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
 {
+  EZ_CHECK_AT_COMPILETIME(OtherCapacity <= C);
+
   this->m_pElements = GetStaticArray();
+  this->m_uiCapacity = C;
 
   *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
 }
@@ -26,6 +31,7 @@ template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray(const ezArrayPtr<const T>& rhs)
 {
   this->m_pElements = GetStaticArray();
+  this->m_uiCapacity = C;
 
   *this = rhs;
 }

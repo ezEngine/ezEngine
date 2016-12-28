@@ -54,7 +54,7 @@ public:
 
   /// \brief For a given input pin configuration, provide the output configuration of this node.
   /// Outputs is already resized to the number of output pins.
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, 
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
 
   /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
@@ -88,7 +88,6 @@ private:
   bool m_bActive;
 
   ezHashedString m_sName;
-  ezProfilingId m_ProfilingID;
 
   ezRenderPipeline* m_pPipeline;
 

@@ -75,8 +75,6 @@ void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
   pTask->Reset();
   pTask->m_BelongsToGroup = Group;
   Group.m_pTaskGroup->m_Tasks.PushBack(pTask);
-
-  pTask->CreateProfilingID();
 }
 
 void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn)
@@ -214,7 +212,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
   // This function is less goal oriented, it does not try to pick out tasks that belong to the given group (at the moment)
   // It simply helps running tasks, until the given Group has been finished as well
 
-  EZ_PROFILE(s_ProfileWaitForGroup);
+  EZ_PROFILE("WaitForGroup");
 
   const bool bIsMainThread = ezThreadUtils::IsMainThread();
 
@@ -249,7 +247,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   if (ezTaskSystem::IsTaskGroupFinished(Group))
     return EZ_SUCCESS;
 
-  EZ_PROFILE(s_ProfileCancelGroup);
+  EZ_PROFILE("CancelGroup");
 
   EZ_LOCK(s_TaskSystemMutex);
 

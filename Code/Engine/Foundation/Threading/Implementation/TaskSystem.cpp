@@ -10,13 +10,6 @@ ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThread
 ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
 ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
 
-ezProfilingId ezTaskSystem::s_ProfileWaitForTask;
-ezProfilingId ezTaskSystem::s_ProfileWaitForGroup;
-ezProfilingId ezTaskSystem::s_ProfileCancelTask;
-ezProfilingId ezTaskSystem::s_ProfileCancelGroup;
-ezProfilingId ezTaskSystem::s_ProfileMainThreadTasks;
-ezProfilingId ezTaskSystem::s_ProfileSomeFrameTasks;
-
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -38,12 +31,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 void ezTaskSystem::Startup()
 {
-  s_ProfileWaitForTask = ezProfilingSystem::CreateId("WaitForTask");
-  s_ProfileWaitForGroup = ezProfilingSystem::CreateId("WaitForGroup");
-  s_ProfileCancelTask = ezProfilingSystem::CreateId("CancelTask");
-  s_ProfileCancelGroup = ezProfilingSystem::CreateId("CancelGroup");
-  s_ProfileMainThreadTasks = ezProfilingSystem::CreateId("ThisFrameMainThreadTasks");
-  s_ProfileSomeFrameTasks = ezProfilingSystem::CreateId("SomeFrameMainThreadTasks");
+
 }
 
 void ezTaskSystem::Shutdown()
@@ -70,7 +58,7 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum 
 
 void ezTaskSystem::FinishMainThreadTasks()
 {
-  EZ_PROFILE(s_ProfileMainThreadTasks);
+  EZ_PROFILE("ThisFrameMainThreadTasks");
 
   bool bGotStuffToDo = true;
 
@@ -137,7 +125,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   if (uiSomeFrameTasks == 0)
     return;
 
-  EZ_PROFILE(s_ProfileSomeFrameTasks);
+  EZ_PROFILE("SomeFrameMainThreadTasks");
 
   // 'SomeFrameMainThread' tasks are usually used to upload resources that have been loaded in the background
   // they do not need to be executed right away, but the earlier, the better

@@ -12,7 +12,7 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezExtractRenderDataMessage);
 
 ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
 
-//static 
+//static
 ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
 {
   Category oldCategory = FindCategory(szCategoryName);
@@ -23,7 +23,6 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
 
   auto& data = s_CategoryData.ExpandAndGetRef();
   data.m_sName.Assign(szCategoryName);
-  data.m_ProfilingID = ezProfilingSystem::CreateId(szCategoryName);
   data.m_sortingKeyFunc = sortingKeyFunc;
 
   return newCategory;

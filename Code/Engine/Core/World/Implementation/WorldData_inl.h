@@ -48,7 +48,6 @@ namespace ezInternal
   {
     m_Function = desc.m_Function;
     m_szFunctionName = desc.m_szFunctionName;
-    m_ProfilingId = ezProfilingSystem::CreateId(desc.m_szFunctionName);
     m_uiDependencyHash = ezHashing::MurmurHash(desc.m_DependsOn.GetData(), desc.m_DependsOn.GetByteArrayPtr().GetCount());
     m_fPriority = desc.m_fPriority;
     m_uiGranularity = desc.m_uiGranularity;

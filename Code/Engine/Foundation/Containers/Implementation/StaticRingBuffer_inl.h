@@ -66,6 +66,24 @@ void ezStaticRingBuffer<T, C>::PushBack(const T& element)
 }
 
 template <typename T, ezUInt32 C>
+T& ezStaticRingBuffer<T, C>::PeekBack()
+{
+  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the last element.");
+
+  const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount - 1) % C;
+  return m_pElements[uiLastElement];
+}
+
+template <typename T, ezUInt32 C>
+const T& ezStaticRingBuffer<T, C>::PeekBack() const
+{
+  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the last element.");
+
+  const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount - 1) % C;
+  return m_pElements[uiLastElement];
+}
+
+template <typename T, ezUInt32 C>
 void ezStaticRingBuffer<T, C>::PopFront(ezUInt32 uiElements)
 {
   EZ_ASSERT_DEV(m_uiCount >= uiElements, "The ring-buffer contains {0} elements, cannot remove {1} elements from it.", m_uiCount, uiElements);

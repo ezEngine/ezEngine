@@ -43,7 +43,7 @@ ezView::ezView()
 
 ezView::~ezView()
 {
-  
+
 }
 
 void ezView::SetName(const char* szName)
@@ -52,9 +52,6 @@ void ezView::SetName(const char* szName)
 
   ezStringBuilder sb = szName;
   sb.Append(".ExtractData");
-  m_ExtractDataProfilingID = ezProfilingSystem::CreateId(sb.GetData());
-
-  sb.Append(" Task");
   m_ExtractTask.SetTaskName(sb);
 }
 
@@ -111,8 +108,8 @@ void ezView::EnsureUpToDate()
     ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline, this);
 
     ezStringBuilder sb = m_sName.GetString();
-    sb.Append(".Render");
-    m_pRenderPipeline->m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());
+    sb.Append(".RenderPipeline");
+    m_pRenderPipeline->m_sName.Assign(sb.GetData());
 
     ResetAllPropertyStates(m_PassProperties);
     ResetAllPropertyStates(m_ExtractorProperties);
@@ -125,8 +122,6 @@ void ezView::EnsureUpToDate()
 void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
-
-  EZ_PROFILE(m_ExtractDataProfilingID);
 
   m_pRenderPipeline->ExtractData(*this);
 }

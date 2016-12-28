@@ -6,13 +6,6 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <CoreUtils/Console/Console.h>
 
-namespace
-{
-  ezProfilingId g_BeforeWorldUpdateProfilingId = ezProfilingSystem::CreateId("GameApplication.BeforeWorldUpdate");
-  ezProfilingId g_AfterWorldUpdateProfilingId = ezProfilingSystem::CreateId("GameApplication.AfterWorldUpdate");
-  ezProfilingId g_PresentProfilingId = ezProfilingSystem::CreateId("GameApplication.Present");
-}
-
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
 
@@ -432,7 +425,7 @@ void ezGameApplication::UpdateWorldsAndRender()
     ezTaskSystem::FinishFrameTasks();
 
     {
-      EZ_PROFILE(g_PresentProfilingId);
+      EZ_PROFILE("GameApplication.Present");
       for (auto& windowContext : m_Windows)
       {
         if (ezRenderLoop::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
@@ -456,7 +449,7 @@ void ezGameApplication::UpdateWorldsAndRender()
 void ezGameApplication::UpdateWorldsAndExtractViews()
 {
   {
-    EZ_PROFILE(g_BeforeWorldUpdateProfilingId);
+    EZ_PROFILE("GameApplication.BeforeWorldUpdate");
 
     for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
     {
@@ -503,7 +496,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   }
 
   {
-    EZ_PROFILE(g_AfterWorldUpdateProfilingId);
+    EZ_PROFILE("GameApplication.AfterWorldUpdate");
 
     for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
     {

@@ -33,11 +33,11 @@ public:
   void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const;
   void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes);
   ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
-  
+
   bool Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName);
   bool Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
   bool Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
-  
+
   const ezRenderPipelinePassConnection* GetInputConnection(ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const;
   const ezRenderPipelinePassConnection* GetOutputConnection(ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const;
 
@@ -57,7 +57,7 @@ public:
 
 private:
   friend class ezRenderLoop;
-  friend class ezView;  
+  friend class ezView;
 
   // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
   PipelineState Rebuild(const ezView& view);
@@ -85,14 +85,13 @@ private: // Member data
   // Pipeline render data
   ezExtractedRenderData m_Data[2];
 
-  // Profiling
-  ezProfilingId m_RenderProfilingID;
+  ezHashedString m_sName;
   ezUInt64 m_uiLastExtractionFrame;
   ezUInt64 m_uiLastRenderFrame;
 
   // Render pass graph data
   PipelineState m_PipelineState;
-  
+
   struct ConnectionData
   {
     // Inputs / outputs match the node pin indices. Value at index is nullptr if not connected.

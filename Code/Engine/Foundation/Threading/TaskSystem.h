@@ -4,7 +4,6 @@
 #include <Foundation/Containers/List.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
@@ -58,9 +57,6 @@ private:
   /// \brief Called by ezTaskSystem to execute the task. Calls 'Execute' internally.
   void Run();
 
-  /// \brief Allocates and returns a profiling ID for this task. Called by ezTaskSystem.
-  const ezProfilingId& CreateProfilingID();
-
   /// \brief Set to true once the task is finished or properly canceled.
   volatile bool m_bIsFinished;
 
@@ -70,15 +66,9 @@ private:
   /// \brief Whether this task has been scheduled for execution already, or is still waiting for dependencies to finish.
   bool m_bTaskIsScheduled;
 
-  /// \brief Just stores whether m_ProfilingID has been generated, to prevent doing it twice.
-  bool m_bProfilingIDGenerated;
-
-  /// \brief The profiling ID for this task.
-  ezProfilingId m_ProfilingID;
-
   /// \brief Optional callback to be fired when the task has finished or was canceled.
   OnTaskFinished m_OnTaskFinished;
-  
+
   /// \brief The parent group to which this task belongs.
   ezTaskGroupID m_BelongsToGroup;
 
@@ -173,7 +163,7 @@ public:
   /// time stays high over a longer period, 'FinishFrameTasks' will execute 'SomeFrameMainThread' tasks every once in a while,
   /// to guarantee some progress.
   ///
-  /// \note After this function returns all tasks of priority 'ThisFrameMainThread' are finished. All tasks of priority 
+  /// \note After this function returns all tasks of priority 'ThisFrameMainThread' are finished. All tasks of priority
   /// 'EarlyThisFrame' up to 'LateThisFrame' are either finished or currently running on some thread, so they will be finished soon.
   /// There is however no guarantee that they are indeed all finished, as that would introduce unnecessary stalls.
   static void FinishFrameTasks(); // [tested]
@@ -202,7 +192,7 @@ public:
   ///
   /// EZ_FAILURE is returned, if the task had already been started and thus could not be prevented from running.
   ///
-  /// In case of failure, \a bWaitForIt determines whether 'WaitForTask' is called (with all its consequences), 
+  /// In case of failure, \a bWaitForIt determines whether 'WaitForTask' is called (with all its consequences),
   /// or whether the function will return immediately.
   ///
   /// The cancel flag is set on the task, such that tasks that support canceling might terminate earlier.
@@ -292,14 +282,6 @@ private:
 
   // The target frame time used by FinishFrameTasks()
   static double s_fSmoothFrameMS;
-
-  // some data for profiling
-  static ezProfilingId s_ProfileWaitForTask;
-  static ezProfilingId s_ProfileWaitForGroup;
-  static ezProfilingId s_ProfileCancelTask;
-  static ezProfilingId s_ProfileCancelGroup;
-  static ezProfilingId s_ProfileMainThreadTasks;
-  static ezProfilingId s_ProfileSomeFrameTasks;
 };
 
 

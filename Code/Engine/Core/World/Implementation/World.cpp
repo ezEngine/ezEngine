@@ -5,15 +5,6 @@
 #include <Core/World/WorldModule.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 
-static ezProfilingId s_ComponentInitProfilingID = ezProfilingSystem::CreateId("Initialize Components");
-static ezProfilingId s_WhenInitializedProfilingID = ezProfilingSystem::CreateId("When Initialized Phase");
-static ezProfilingId s_PreAsyncProfilingID = ezProfilingSystem::CreateId("Pre-Async Phase");
-static ezProfilingId s_AsyncProfilingID = ezProfilingSystem::CreateId("Async Phase");
-static ezProfilingId s_PostAsyncProfilingID = ezProfilingSystem::CreateId("Post-Async Phase");
-static ezProfilingId s_UpdateTransformsProfilingID = ezProfilingSystem::CreateId("Update Transforms");
-static ezProfilingId s_PostTransformProfilingID = ezProfilingSystem::CreateId("Post-Transform Phase");
-static ezProfilingId s_DeleteDeadObjectsProfilingID = ezProfilingSystem::CreateId("Delete Dead Objects");
-
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 ezWorld::ezWorld(const char* szWorldName) :
@@ -24,9 +15,6 @@ ezWorld::ezWorld(const char* szWorldName) :
 
   ezStringBuilder sb = szWorldName;
   sb.Append(".Update");
-  m_UpdateProfilingID = ezProfilingSystem::CreateId(sb.GetData());
-
-  sb.Append(" Task");
   m_UpdateTask.SetTaskName(sb);
 
   m_uiIndex = ezInvalidIndex;
@@ -291,7 +279,6 @@ void ezWorld::Update()
   EZ_ASSERT_DEV(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
-  EZ_PROFILE(m_UpdateProfilingID);
 
   m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
   m_Data.m_Clock.Update();
@@ -300,13 +287,13 @@ void ezWorld::Update()
 
   // Send the 'WhenInitialized' messages
   {
-    EZ_PROFILE(s_WhenInitializedProfilingID);
-    ProcessQueuedMessages(ezObjectMsgQueueType::WhenInitialized);
+    EZ_PROFILE("After Initialized Phase");
+    ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
   }
 
   // pre-async phase
   {
-    EZ_PROFILE(s_PreAsyncProfilingID);
+    EZ_PROFILE("Pre-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PreAsync]);
   }
@@ -316,7 +303,7 @@ void ezWorld::Update()
     // remove write marker but keep the read marker. Thus no one can mark the world for writing now. Only reading is allowed in async phase.
     m_Data.m_WriteThreadID = (ezThreadID)0;
 
-    EZ_PROFILE(s_AsyncProfilingID);
+    EZ_PROFILE("Async Phase");
     UpdateAsynchronous();
 
     // restore write marker
@@ -325,14 +312,14 @@ void ezWorld::Update()
 
   // post-async phase
   {
-    EZ_PROFILE(s_PostAsyncProfilingID);
+    EZ_PROFILE("Post-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostAsync);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostAsync]);
   }
 
   // delete dead objects and update the object hierarchy
   {
-    EZ_PROFILE(s_DeleteDeadObjectsProfilingID);
+    EZ_PROFILE("Delete Dead Objects");
     DeleteDeadObjects();
     DeleteDeadComponents();
   }
@@ -346,13 +333,13 @@ void ezWorld::Update()
     if (fDelta > 0.0f)
       fInvDelta = 1.0f / fDelta;
 
-    EZ_PROFILE(s_UpdateTransformsProfilingID);
+    EZ_PROFILE("Update Transforms");
     m_Data.UpdateGlobalTransforms(fInvDelta);
   }
 
   // post-transform phase
   {
-    EZ_PROFILE(s_PostTransformProfilingID);
+    EZ_PROFILE("Post-Transform Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostTransform]);
   }
@@ -730,7 +717,7 @@ void ezWorld::ProcessComponentsToInitialize()
 {
   CheckForWriteAccess();
 
-  EZ_PROFILE(s_ComponentInitProfilingID);
+  EZ_PROFILE("Initialize Components");
 
   // Can't use foreach here because the array might be resized during iteration.
   for (ezUInt32 i = 0; i < m_Data.m_ComponentsToInitialize.GetCount(); ++i)
@@ -791,7 +778,7 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
       continue;
 
     {
-      EZ_PROFILE(updateFunction.m_ProfilingId);
+      EZ_PROFILE(updateFunction.m_szFunctionName);
       updateFunction.m_Function(context);
     }
   }

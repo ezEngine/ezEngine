@@ -7,12 +7,6 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BloomConstants.h>
 
-namespace
-{
-  ezProfilingId g_BloomDownscaleId = ezProfilingSystem::CreateId("Downscale");
-  ezProfilingId g_BloomUpscaleId = ezProfilingSystem::CreateId("Upscale");
-}
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBloomPass, 1, ezRTTIDefaultAllocator<ezBloomPass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -140,7 +134,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   // Downscale passes
   {
-    EZ_PROFILE_AND_MARKER(pGALContext, g_BloomDownscaleId);
+    EZ_PROFILE_AND_MARKER(pGALContext, "Downscale");
 
     ezTempHashedString sInitialDownscale = "INITIAL_DOWNSCALE";
     ezTempHashedString sInitialDownscaleFast = "INITIAL_DOWNSCALE_FAST";
@@ -180,7 +174,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   // Upscale passes
   {
-    EZ_PROFILE_AND_MARKER(pGALContext, g_BloomUpscaleId);
+    EZ_PROFILE_AND_MARKER(pGALContext, "Upscale");
 
     const float fBlurRadius = 2.0f * fNumBlurPasses / uiNumBlurPasses;
     const float fMidPass = (uiNumBlurPasses - 1.0f) / 2.0f;
@@ -220,11 +214,11 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       float fPass = (float)i;
       if (fPass < fMidPass)
       {
-        tintColor = ezMath::Lerp(m_innerTintColor, m_midTintColor, fPass / fMidPass);
+        tintColor = ezMath::Lerp<ezColor>(m_innerTintColor, m_midTintColor, fPass / fMidPass);
       }
       else
       {
-        tintColor = ezMath::Lerp(m_midTintColor, m_outerTintColor, (fPass - fMidPass) / fMidPass);
+        tintColor = ezMath::Lerp<ezColor>(m_midTintColor, m_outerTintColor, (fPass - fMidPass) / fMidPass);
       }
 
       UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);

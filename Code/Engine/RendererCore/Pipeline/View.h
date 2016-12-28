@@ -27,12 +27,12 @@ private:
 public:
   void SetName(const char* szName);
   const char* GetName() const;
-  
+
   void SetWorld(ezWorld* pWorld);
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 
-  
+
   void SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup);
   const ezGALRenderTagetSetup& GetRenderTargetSetup() const;
 
@@ -72,7 +72,7 @@ public:
   /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
   ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir);
-  
+
   /// \brief Returns the current projection matrix.
   const ezMat4& GetProjectionMatrix() const;
 
@@ -106,8 +106,6 @@ private:
 
   ezHashedString m_sName;
 
-  ezProfilingId m_ExtractDataProfilingID;
-
   ezDelegateTask<void> m_ExtractTask;
 
   ezWorld* m_pWorld;
@@ -136,7 +134,7 @@ private:
   mutable ezUInt32 m_uiLastCameraSettingsModification;
   mutable ezUInt32 m_uiLastCameraOrientationModification;
   mutable float m_fLastViewportAspectRatio;
-  
+
   mutable ezViewData m_Data;
 
   struct PropertyValue

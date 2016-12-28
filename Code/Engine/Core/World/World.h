@@ -267,7 +267,6 @@ private:
 
   void PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve);
 
-  ezProfilingId m_UpdateProfilingID;
   ezDelegateTask<void> m_UpdateTask;
 
   ezInternal::WorldData m_Data;
