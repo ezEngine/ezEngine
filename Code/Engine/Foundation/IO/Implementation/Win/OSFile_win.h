@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Shlobj.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
 // Defined in Timestamp_win.h

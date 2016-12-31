@@ -17,6 +17,7 @@ class ezDirectoryWatcher;
 enum class ezDirectoryWatcherAction;
 class ezQtDocumentPanel;
 class QTextEdit;
+struct ezMaterialVisualShaderEvent;
 
 class ezQtMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
 {

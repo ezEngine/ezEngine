@@ -162,7 +162,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       pGALContext->SetRenderTargetSetup(renderTargetSetup);
       pGALContext->SetViewport(ezRectFloat(targetSize.x, targetSize.y));
 
-      ezColor tintColor = (i == uiNumBlurPasses - 1) ? m_outerTintColor : ezColor::White;
+      ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_outerTintColor) : ezColor::White;
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
       renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
