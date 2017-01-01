@@ -47,7 +47,18 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   fileBuffer.ReadAll(stream);
 
   int width, height, numComp;
-  stbi_uc* sourceImageData = stbi_load_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize(), &width, &height, &numComp, 0);
+
+  bool isHDR = !!stbi_is_hdr_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize());
+
+  const void* sourceImageData = nullptr;
+  if (isHDR)
+  {
+    sourceImageData = stbi_loadf_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize(), &width, &height, &numComp, 0);
+  }
+  else
+  {
+    sourceImageData = stbi_load_from_memory(fileBuffer.GetData(), fileBuffer.GetStorageSize(), &width, &height, &numComp, 0);
+  }
   if (!sourceImageData)
   {
     ezLog::Error(pLog, "stb_image failed to load: {0}", stbi_failure_reason());
@@ -59,13 +70,18 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   switch (numComp)
   {
   case 1:
-    format = ezImageFormat::R8_UNORM;
+    format = (isHDR) ? ezImageFormat::R32_FLOAT : ezImageFormat::R8_UNORM;
     break;
   case 2:
+    // No 8-bit 2 or 3 component format, need to convert.
+    format = (isHDR) ? ezImageFormat::R32G32_FLOAT : ezImageFormat::R8G8B8A8_UNORM;
+    break;
   case 3:
+    // No 8-bit 2 or 3 component format, need to convert.
+    format = (isHDR) ? ezImageFormat::R32G32B32_FLOAT : ezImageFormat::R8G8B8A8_UNORM;
+    break;
   case 4:
-    // No 2 or 3 component format, need to convert.
-    format = ezImageFormat::R8G8B8A8_UNORM;
+    format = (isHDR) ? ezImageFormat::R32G32B32A32_FLOAT : ezImageFormat::R8G8B8A8_UNORM;
     break;
   }
 
@@ -82,53 +98,60 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   image.AllocateImageData();
 
   // Set pixels. Different strategies depending on component count.
-  unsigned char* targetImageData = image.GetDataPointer<unsigned char>();
-  int numPixels = width * height;
-  switch (numComp)
+  if (isHDR)
   {
-  case 1:
-    ezMemoryUtils::Copy(targetImageData, sourceImageData, width * height);
-    break;
-
-  case 2:
+    float* targetImageData = image.GetDataPointer<float>();
+    ezMemoryUtils::Copy(targetImageData, (const float*)sourceImageData, width * height * numComp);
+  }
+  else
   {
-    unsigned char* currentSourceImageData = sourceImageData;
-    for (int i = 0; i < numPixels; ++i)
+    ezUInt8* targetImageData = image.GetDataPointer<ezUInt8>();
+    int numPixels = width * height;
+    switch (numComp)
     {
-      *targetImageData = *currentSourceImageData;
-      *(++targetImageData) = *(++currentSourceImageData);
-      *(++targetImageData) = 0;
-      *(++targetImageData) = 0;
+    case 1:
+      ezMemoryUtils::Copy(targetImageData, (const ezUInt8*)sourceImageData, width * height);
+      break;
 
-      ++targetImageData;
-      ++currentSourceImageData;
-    }
-    break;
-  }
-
-  case 3:
-  {
-    unsigned char* currentSourceImageData = sourceImageData;
-    for (int i = 0; i < numPixels; ++i)
+    case 2:
     {
-      *targetImageData = *currentSourceImageData;
-      *(++targetImageData) = *(++currentSourceImageData);
-      *(++targetImageData) = *(++currentSourceImageData);
-      *(++targetImageData) = 0;
+      const ezUInt8* currentSourceImageData = (const ezUInt8*)sourceImageData;
+      for (int i = 0; i < numPixels; ++i)
+      {
+        *targetImageData = *currentSourceImageData;
+        *(++targetImageData) = *(++currentSourceImageData);
+        *(++targetImageData) = 0;
+        *(++targetImageData) = 0;
 
-      ++targetImageData;
-      ++currentSourceImageData;
+        ++targetImageData;
+        ++currentSourceImageData;
+      }
+      break;
     }
-    break;
+
+    case 3:
+    {
+      const ezUInt8* currentSourceImageData = (const ezUInt8*)sourceImageData;
+      for (int i = 0; i < numPixels; ++i)
+      {
+        *targetImageData = *currentSourceImageData;
+        *(++targetImageData) = *(++currentSourceImageData);
+        *(++targetImageData) = *(++currentSourceImageData);
+        *(++targetImageData) = 0;
+
+        ++targetImageData;
+        ++currentSourceImageData;
+      }
+      break;
+    }
+
+    case 4:
+      ezMemoryUtils::Copy(targetImageData, (const ezUInt8*)sourceImageData, width * height * 4);
+      break;
+    }
   }
 
-  case 4:
-    ezMemoryUtils::Copy(targetImageData, sourceImageData, width * height * 4);
-    break;
-  }
-
-
-  stbi_image_free(sourceImageData);
+  stbi_image_free((void*)sourceImageData);
 
   return EZ_SUCCESS;
 }
@@ -142,7 +165,8 @@ bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
 {
   return ezStringUtils::IsEqual_NoCase(szExtension, "png") ||
          ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg");
+         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "hdr");
 }
 
 bool ezStbImageFileFormats::CanWriteFileType(const char* szExtension) const

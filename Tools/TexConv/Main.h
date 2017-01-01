@@ -26,6 +26,8 @@
 using namespace DirectX;
 using namespace std;
 
+struct ID3D11Device;
+
 enum TexConvReturnCodes
 {
   OK,
@@ -80,6 +82,7 @@ public:
   bool m_bGeneratedMipmaps;
   bool m_bCompress;
   bool m_bSRGBOutput;
+  bool m_bHDROutput;
   bool m_bPremultiplyAlpha;
   ezUInt8 m_uiFilterSetting;
   ezUInt8 m_uiAddressU;
@@ -107,9 +110,10 @@ public:
 
   ezResult LoadSingleInputFile(const char* szFile);
   ezResult LoadInputs();
+  void CheckCompression();
   ezResult ConvertInputsToRGBA();
 
-  float GetChannelValue(const ChannelMapping& ds, const ezUInt32 rgba);
+  float GetChannelValue(const ChannelMapping& ds, const ezColor& rgba);
   bool IsImageAlphaBinaryMask(const ezImage& img);
 
   ezImage* CreateCombined2DImage(const ChannelMapping* dataSources);
@@ -135,4 +139,5 @@ public:
   bool m_bAlphaIsMaskOnly;
   Blob m_outputBlob;
   shared_ptr<ScratchImage> m_pCurrentImage;
+  ID3D11Device* m_pD3dDevice;
 };

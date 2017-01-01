@@ -376,3 +376,11 @@ EZ_FORCE_INLINE ezArrayPtr<typename ezArrayPtr<const T>::ByteType> ezArrayBase<T
 {
   return GetArrayPtr().ToByteArray();
 }
+
+template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::DoSwap(ezArrayBase<T, Derived>& other)
+{
+  ezMath::Swap(this->m_pElements, other.m_pElements);
+  ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
+  ezMath::Swap(this->m_uiCount, other.m_uiCount);
+}

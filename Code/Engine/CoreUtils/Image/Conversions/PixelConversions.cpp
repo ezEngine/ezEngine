@@ -109,6 +109,34 @@ struct ezImageConversion_F32_U8 : public ezImageConversionMixinLinear<ezImageCon
   }
 };
 
+struct ezImageConversion_U8_F32 : public ezImageConversionMixinLinear<ezImageConversion_U8_F32>
+{
+  static const ezUInt32 s_uiSourceBpp = 32;
+  static const ezUInt32 s_uiTargetBpp = 128;
+  static const ezUInt32 s_uiMultiConversionSize = 1;
+
+  typedef ezColorLinearUB SourceTypeSingle;
+  typedef ezColor TargetTypeSingle;
+
+  ezImageConversion_U8_F32()
+  {
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
+  }
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    *pTarget = *pSource;
+  }
+
+  typedef ezColorLinearUB SourceTypeMultiple;
+  typedef ezColor TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    return ConvertSingle(pSource, pTarget);
+  }
+};
+
 struct ezImageConversion_R_RGBA : public ezImageConversionMixinLinear<ezImageConversion_R_RGBA>
 {
   static const ezUInt32 s_uiSourceBpp = 8;
@@ -172,6 +200,38 @@ public:
   }
 };
 
+class ezImageConversion_RGB_RGBA_F : public ezImageConversionMixinLinear<ezImageConversion_RGB_RGBA_F>
+{
+public:
+  static const ezUInt32 s_uiSourceBpp = 96;
+  static const ezUInt32 s_uiTargetBpp = 128;
+  static const ezUInt32 s_uiMultiConversionSize = 1;
+
+  typedef float SourceTypeSingle;
+  typedef float TargetTypeSingle;
+
+  ezImageConversion_RGB_RGBA_F()
+  {
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R32G32B32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
+  }
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    pTarget[0] = pSource[0];
+    pTarget[1] = pSource[1];
+    pTarget[2] = pSource[2];
+    pTarget[3] = 1.0f;
+  }
+
+  typedef float SourceTypeMultiple;
+  typedef float TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    return ConvertSingle(pSource, pTarget);
+  }
+};
+
 class ezImageConversion_R_BGRA : public ezImageConversionMixinLinear<ezImageConversion_R_BGRA>
 {
 public:
@@ -197,6 +257,38 @@ public:
 
   typedef ezUInt8 SourceTypeMultiple;
   typedef ezUInt8 TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    return ConvertSingle(pSource, pTarget);
+  }
+};
+
+class ezImageConversion_R_RGBA_F : public ezImageConversionMixinLinear<ezImageConversion_R_RGBA_F>
+{
+public:
+  static const ezUInt32 s_uiSourceBpp = 32;
+  static const ezUInt32 s_uiTargetBpp = 128;
+  static const ezUInt32 s_uiMultiConversionSize = 1;
+
+  typedef float SourceTypeSingle;
+  typedef float TargetTypeSingle;
+
+  ezImageConversion_R_RGBA_F()
+  {
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R32_FLOAT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
+  }
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    pTarget[0] = pSource[0];
+    pTarget[1] = pSource[0];
+    pTarget[2] = pSource[0];
+    pTarget[3] = 1.0f;
+  }
+
+  typedef float SourceTypeMultiple;
+  typedef float TargetTypeMultiple;
 
   static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
   {
@@ -242,6 +334,37 @@ public:
   }
 };
 
+class ezImageConversion_RGBA_RGB_F : public ezImageConversionMixinLinear<ezImageConversion_RGBA_RGB_F>
+{
+public:
+  static const ezUInt32 s_uiSourceBpp = 128;
+  static const ezUInt32 s_uiTargetBpp = 96;
+  static const ezUInt32 s_uiMultiConversionSize = 1;
+
+  typedef float SourceTypeSingle;
+  typedef float TargetTypeSingle;
+
+  ezImageConversion_RGBA_RGB_F()
+  {
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Lossy));
+  }
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    pTarget[0] = pSource[0];
+    pTarget[1] = pSource[1];
+    pTarget[2] = pSource[2];
+  }
+
+  typedef float SourceTypeMultiple;
+  typedef float TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    return ConvertSingle(pSource, pTarget);
+  }
+};
+
 ezColorLinearUB ezDecompress565(ezUInt16 uiColor)
 {
   ezColorLinearUB result;
@@ -258,7 +381,11 @@ static ezImageConversion_BGR_BGRA g_conversionBGR_BGRA;
 static ezImageConversion_R_BGRA g_conversionR_BGRA;
 static ezImageConversion_BGRA_BGR g_conversionBGRA_BGR;
 static ezImageConversion_R_RGBA g_conversionR_RGBA;
-static ezImageConversion_F32_U8 g_conversionF32_U32;
+static ezImageConversion_F32_U8 g_conversionF32_U8;
+static ezImageConversion_U8_F32 g_conversionU8_F32;
+static ezImageConversion_RGB_RGBA_F g_conversionRGB_RGBA_F;
+static ezImageConversion_R_RGBA_F g_conversionR_RGBA_F;
+static ezImageConversion_RGBA_RGB_F g_conversion_RGBA_RGB_F;
 
 
 

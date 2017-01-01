@@ -270,8 +270,55 @@ void ezImageUtils::ScaleDownHalf(const ezImage& Image, ezImage& out_Result)
   }
 }
 
+namespace
+{
+  template <typename T>
+  void rotate180(T* start, T* end)
+  {
+    end = end - 1;
+    while (start < end)
+    {
+      ezMath::Swap(*start, *end);
+      start++;
+      end--;
+    }
+  }
+}
 
+void ezImageUtils::RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
+{
+  ezUInt8* start = image.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
+  ezUInt8* end = start + image.GetDepthPitch(uiMipLevel);
 
+  ezUInt32 bytesPerPixel = ezImageFormat::GetBitsPerPixel(image.GetImageFormat()) / 8;
+
+  switch (bytesPerPixel)
+  {
+  case 4:
+    rotate180<ezUInt32>(reinterpret_cast<ezUInt32*>(start), reinterpret_cast<ezUInt32*>(end));
+    break;
+  case 12:
+    rotate180<ezVec3>(reinterpret_cast<ezVec3*>(start), reinterpret_cast<ezVec3*>(end));
+    break;
+  case 16:
+    rotate180<ezVec4>(reinterpret_cast<ezVec4*>(start), reinterpret_cast<ezVec4*>(end));
+    break;
+  default:
+    // fallback version
+    {
+      end -= bytesPerPixel;
+      while (start < end)
+      {
+        for (ezUInt32 i = 0; i < bytesPerPixel; i++)
+        {
+          ezMath::Swap(start[i], end[i]);
+        }
+        start += bytesPerPixel;
+        end -= bytesPerPixel;
+      }
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Implementation_ImageUtils);
 

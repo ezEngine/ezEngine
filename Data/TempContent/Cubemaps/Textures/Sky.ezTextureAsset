@@ -1,0 +1,60 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{6635439164157795748,4924288305473604272}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTextureAddressMode::Wrap"}
+		s %AddressModeV{"ezTextureAddressMode::Wrap"}
+		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGB1_CUBE"}
+		b %Compression{1}
+		s %Input1{"Textures/Sky.jpg"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		s %Input5{""}
+		s %Input6{""}
+		b %Mipmaps{0}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureUsageEnum::Diffuse"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6635439164157795748,4924288305473604272}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{13925925426885276288,5424885730035344596}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture Cube"}
+		VarArray %Dependencies
+		{
+			s{"Textures/Sky.jpg"}
+		}
+		Uuid %DocumentID{u4{13925925426885276288,5424885730035344596}}
+		u4 %Hash{15640488817906586042}
+		VarArray %References{}
+	}
+}
+}
+Types{}

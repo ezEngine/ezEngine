@@ -78,7 +78,7 @@ public:
   /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
   ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
 
-  /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found. 
+  /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found.
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
   /// \brief Grows the array by one element and returns a reference to the newly created element.
@@ -142,6 +142,8 @@ public:
   typedef reverse_pointer_iterator<T> reverse_iterator;
 
 protected:
+
+  void DoSwap(ezArrayBase<T, Derived>& other);
 
   /// \brief Element-type access to m_Data.
   T* m_pElements;

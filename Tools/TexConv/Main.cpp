@@ -51,6 +51,7 @@ Cubemap channels cannot be combined from multiple input textures.
 
 */
 
+
 ezApplication::ApplicationExecution ezTexConv::Run()
 {
   // general failure
@@ -108,6 +109,10 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     {
       if (CreateTextureCube().Failed())
         return ezApplication::Quit;
+
+      // The resolution might change while converting to a cube map
+      // Check the for possible compression after conversion
+      CheckCompression();
     }
     else
     {

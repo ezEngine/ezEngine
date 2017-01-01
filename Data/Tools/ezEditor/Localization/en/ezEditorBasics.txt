@@ -95,6 +95,7 @@ ezTextureUsageEnum::Other_sRGB;Other sRGB
 ezTextureUsageEnum::Other_Linear;Other Linear
 ezTextureUsageEnum::Other_sRGB_Auto;Other sRGB (Auto)
 ezTextureUsageEnum::Other_Linear_Auto;Other Linear (Auto)
+ezTextureUsageEnum::HDR;HDR
 ezTextureTypeEnum::Unknown;Unknown
 ezTextureTypeEnum::Texture2D;Texture 2D
 ezTextureTypeEnum::Texture3D;Texture 3D

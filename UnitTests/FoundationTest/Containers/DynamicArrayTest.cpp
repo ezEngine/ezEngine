@@ -18,7 +18,7 @@ namespace DynamicArrayTestDetail
 
     Dummy() : a(0), b(g_iDummyCounter++), s("Test") { }
     Dummy(int a) : a(a), b(g_iDummyCounter++), s("Test") { }
-    
+
     bool operator<=(const Dummy& dummy) const { return a <= dummy.a; }
     bool operator>=(const Dummy& dummy) const { return a >= dummy.a; }
     bool operator>(const Dummy& dummy) const { return a > dummy.a; }
@@ -155,7 +155,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
   {
     ezDynamicArray<ezInt32> a1, a2;
-    
+
     EZ_TEST_BOOL(a1 == a1);
     EZ_TEST_BOOL(a2 == a2);
     EZ_TEST_BOOL(a1 == a2);
@@ -833,6 +833,30 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
       EZ_TEST_BOOL(a1ref.GetArrayPtr().GetCount() == 10);
       EZ_TEST_BOOL(a1ref.GetArrayPtr().GetPtr() == a1ref.GetData());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  {
+    ezDynamicArray<ezInt32> a1, a2;
+
+    ezInt32 content1[] = { 1, 2, 3, 4 };
+    ezInt32 content2[] = { 5, 6, 7, 8, 9 };
+
+    a1 = ezMakeArrayPtr(content1);
+    a2 = ezMakeArrayPtr(content2);
+
+    ezInt32* a1Ptr = a1.GetData();
+    ezInt32* a2Ptr = a2.GetData();
+
+    a1.Swap(a2);
+
+    // The pointers should be simply swapped
+    EZ_TEST_BOOL(a2Ptr == a1.GetData());
+    EZ_TEST_BOOL(a1Ptr == a2.GetData());
+
+    // The data should be swapped
+    EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
+    EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
   }
 }
 

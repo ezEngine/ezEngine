@@ -11,7 +11,7 @@
 /// This class is a lightweight container for image data and the description required for interpreting the data,
 /// such as the image format, its dimensions, number of sub-images (i.e. cubemap faces, mip levels and array sub-images).
 /// However, it does not provide any methods for interpreting or  modifying of the image data.
-/// 
+///
 /// The sub-images are stored in a predefined order compatible with the layout of DDS files, that is, it first stores
 /// the mip chain for each image, then all faces in a case of a cubemap, then the individual images of an image array.
 class EZ_COREUTILS_DLL ezImage : public ezImageHeader
@@ -99,7 +99,10 @@ public:
 
   /// \brief Returns the position in bytes in the data array of the given sub-image.
   inline ezUInt32 GetDataOffSet(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
- 
+
+  /// \brief Swaps the contents of this image with another one
+  void Swap(ezImage& other);
+
 private:
   struct SubImage
   {

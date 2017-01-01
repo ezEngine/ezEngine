@@ -58,11 +58,25 @@ ezResult ezTexConv::ConvertToOutputFormat()
   {
     shared_ptr<ScratchImage> pNewScratch = make_shared<ScratchImage>();
 
-    if (FAILED(Compress(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, *pNewScratch.get())))
+    // Somme compressions are unbearably slow on the CPU. Use the GPU version if available.
+    bool bCompressionDone = false;
+    if (m_pD3dDevice)
     {
-      SetReturnCode(TexConvReturnCodes::FAILED_BC_COMPRESSION);
-      ezLog::Error("Block compression failed");
-      return EZ_FAILURE;
+      if (SUCCEEDED(Compress(m_pD3dDevice, m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, *pNewScratch.get())))
+      {
+        // Not all formats can be compressed on the GPU. Fall back to CPU in case GPU compression fails.
+        bCompressionDone = true;
+      }
+    }
+
+    if(!bCompressionDone)
+    {
+      if (FAILED(Compress(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, *pNewScratch.get())))
+      {
+        SetReturnCode(TexConvReturnCodes::FAILED_BC_COMPRESSION);
+        ezLog::Error("Block compression failed");
+        return EZ_FAILURE;
+      }
     }
 
     m_pCurrentImage = pNewScratch;

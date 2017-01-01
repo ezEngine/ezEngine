@@ -81,6 +81,13 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
 }
 
 template <typename T>
+void ezDynamicArrayBase<T>::Swap(ezDynamicArrayBase<T>& other)
+{
+  ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
+  DoSwap(other);
+}
+
+template <typename T>
 void ezDynamicArrayBase<T>::SetCapacity(ezUInt32 uiCapacity)
 {
   this->m_uiCapacity = uiCapacity;

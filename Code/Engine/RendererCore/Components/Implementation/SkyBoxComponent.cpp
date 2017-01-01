@@ -7,18 +7,13 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("LeftTexture", GetLeftTextureFile, SetLeftTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("FrontTexture", GetFrontTextureFile, SetFrontTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("RightTexture", GetRightTextureFile, SetRightTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("BackTexture", GetBackTextureFile, SetBackTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("UpTexture", GetUpTextureFile, SetUpTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_ACCESSOR_PROPERTY("DownTexture", GetDownTextureFile, SetDownTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMap, SetCubeMap)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube"))
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -52,16 +47,11 @@ void ezSkyBoxComponent::Initialize()
   ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
   if (!hMeshBuffer.IsValid())
   {
-    ezMat4 transform;
-    transform.SetIdentity();
-    transform.SetDiagonal(ezVec4(-1.0f, 1.0f, 1.0f, 1.0f));
-
     ezGeometry geom;
-    geom.AddTexturedBox(ezVec3(1.0f), ezColor::White, transform);
+    geom.AddRectXY(ezVec2(2.0f), ezColor::White);
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, desc, szBufferResourceName);
@@ -73,28 +63,21 @@ void ezSkyBoxComponent::Initialize()
   {
     ezMeshResourceDescriptor desc;
     desc.UseExistingMeshBuffer(hMeshBuffer);
-    for (ezUInt32 i = 0; i < 6; ++i)
-    {
-      desc.AddSubMesh(2, i * 2, 0);
-    }
+    desc.AddSubMesh(2, 0, 0);
     desc.CalculateBounds();
 
     m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, desc, szMeshResourceName);
   }
 
-  for (ezUInt32 i = 0; i < 6; ++i)
+  const char* cubeMapMaterialName = "SkyBoxMaterial_CubeMap";
+
+  m_hCubeMapMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(cubeMapMaterialName);
+  if (!m_hCubeMapMaterial.IsValid())
   {
-    ezStringBuilder temp;
-    temp.Format("SkyBoxMaterial_{0}_{1}", ezArgU(GetOwner()->GetHandle().GetInternalID().m_Data, 8, true, 16, true), i);
+    ezMaterialResourceDescriptor desc;
+    desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // SkyMaterial
 
-    m_Materials[i] = ezResourceManager::GetExistingResource<ezMaterialResource>(temp.GetData());
-    if (!m_Materials[i].IsValid())
-    {
-      ezMaterialResourceDescriptor desc;
-      desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // SkyMaterial
-
-      m_Materials[i] = ezResourceManager::CreateResource<ezMaterialResource>(temp.GetData(), desc, temp.GetData());
-    }
+    m_hCubeMapMaterial = ezResourceManager::CreateResource<ezMaterialResource>(cubeMapMaterialName, desc, cubeMapMaterialName);
   }
 
   UpdateMaterials();
@@ -115,41 +98,38 @@ void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
 
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
 
-  for (ezUInt32 i = 0; i < 6; ++i)
+  ezMaterialResourceHandle hMaterial = m_hCubeMapMaterial;
+  const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
+
+  // Generate batch id from mesh, material and part index.
+  ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash };
+  ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
+
+  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
   {
-    ezMaterialResourceHandle hMaterial = m_Materials[i];
-    const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-
-    // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, i };
-    ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
-
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
-    {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-      pRenderData->m_GlobalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_uiPartIndex = i;
-      pRenderData->m_uiUniqueID = GetUniqueID() | (i << 24);
-    }
-
-    // Determine render data category.
-    ezRenderData::Category category;
-    if (msg.m_OverrideCategory != ezInvalidIndex)
-    {
-      category = msg.m_OverrideCategory;
-    }
-    else
-    {
-      category = ezDefaultRenderDataCategories::Sky;
-    }
-
-    // Sort by material and then by mesh
-    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
-    msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+    pRenderData->m_GlobalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
+    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
+    pRenderData->m_hMesh = m_hMesh;
+    pRenderData->m_hMaterial = hMaterial;
+    pRenderData->m_uiPartIndex = 0;
+    pRenderData->m_uiUniqueID = GetUniqueID();
   }
+
+  // Determine render data category.
+  ezRenderData::Category category;
+  if (msg.m_OverrideCategory != ezInvalidIndex)
+  {
+    category = msg.m_OverrideCategory;
+  }
+  else
+  {
+    category = ezDefaultRenderDataCategories::Sky;
+  }
+
+  // Sort by material and then by mesh
+  ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
+  msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
 }
 
 void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -159,29 +139,31 @@ void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_fExposureBias;
   s << m_bInverseTonemap;
-  s << m_Textures[0];
-  s << m_Textures[1];
-  s << m_Textures[2];
-  s << m_Textures[3];
-  s << m_Textures[4];
-  s << m_Textures[5];
+  s << m_hCubeMap;
 }
 
 void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fExposureBias;
   s >> m_bInverseTonemap;
-  s >> m_Textures[0];
-  s >> m_Textures[1];
-  s >> m_Textures[2];
-  s >> m_Textures[3];
-  s >> m_Textures[4];
-  s >> m_Textures[5];
+
+  if (uiVersion > 2)
+  {
+    s >> m_hCubeMap;
+  }
+  else
+  {
+    ezTextureResourceHandle dummyHandle;
+    for (int i = 0; i < 6; i++)
+    {
+      s >> dummyHandle;
+    }
+  }
 }
 
 void ezSkyBoxComponent::SetExposureBias(float fExposureBias)
@@ -198,38 +180,34 @@ void ezSkyBoxComponent::SetInverseTonemap(bool bInverseTonemap)
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::SetTextureFile(ezUInt32 uiIndex, const char* szFile)
-{
-  ezTextureResourceHandle hTexture;
 
+void ezSkyBoxComponent::SetCubeMap(const char* szFile)
+{
+  ezTextureResourceHandle hCubeMap;
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hTexture = ezResourceManager::LoadResource<ezTextureResource>(szFile);
+    hCubeMap = ezResourceManager::LoadResource<ezTextureResource>(szFile);
   }
 
-  m_Textures[uiIndex] = hTexture;
+  m_hCubeMap = hCubeMap;
 
   UpdateMaterials();
 }
 
-const char* ezSkyBoxComponent::GetTextureFile(ezUInt32 uiIndex) const
+const char* ezSkyBoxComponent::GetCubeMap() const
 {
-  return m_Textures[uiIndex].IsValid() ? m_Textures[uiIndex].GetResourceID() : "";
+  return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID() : "";
 }
 
 void ezSkyBoxComponent::UpdateMaterials()
 {
-  for (ezUInt32 i = 0; i < 6; ++i)
+  if (m_hCubeMapMaterial.IsValid())
   {
-    ezMaterialResourceHandle hMaterial = m_Materials[i];
-    if (!hMaterial.IsValid())
-      continue;
+    ezResourceLock<ezMaterialResource> pMaterial(m_hCubeMapMaterial);
 
-    ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
-
-    pMaterial->SetParameter("ExposureBias", m_fExposureBias);
-    pMaterial->SetParameter("InverseTonemap", m_bInverseTonemap);
-    pMaterial->SetTextureBinding("BaseTexture", m_Textures[i]);
+    pMaterial->SetParameter( "ExposureBias", m_fExposureBias );
+    pMaterial->SetParameter( "InverseTonemap", m_bInverseTonemap );
+    pMaterial->SetTextureBinding("CubeMap", m_hCubeMap);
 
     pMaterial->PreserveCurrentDesc();
   }

@@ -20,5 +20,8 @@ public:
   static void CropImage(const ezImage& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output);
 
   static void ScaleDownHalf(const ezImage& Image, ezImage& out_Result);
+
+  /// \brief rotates a sub image by 180 degrees in place. Only works with uncompressed images.
+  static void RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
 };
 

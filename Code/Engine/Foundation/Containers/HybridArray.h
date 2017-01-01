@@ -6,7 +6,7 @@
 /// \brief Implementation a dynamically growing array.
 ///
 /// Best-case performance for the PushBack operation is in O(1) if the ezHybridArray does not need to be expanded.
-/// In the worst case, PushBack is in O(n). 
+/// In the worst case, PushBack is in O(n).
 /// Look-up is guaranteed to always be in O(1).
 template <typename T, ezUInt32 Size>
 class ezHybridArrayBase : public ezArrayBase<T, ezHybridArrayBase<T, Size> >
@@ -14,7 +14,7 @@ class ezHybridArrayBase : public ezArrayBase<T, ezHybridArrayBase<T, Size> >
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
   ezHybridArrayBase(ezAllocatorBase* pAllocator); // [tested]
-  
+
   /// \brief Creates a copy of the given array.
   ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezAllocatorBase* pAllocator); // [tested]
 
@@ -47,6 +47,9 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
+  /// \brief Swaps the contents of this array with another one
+  void Swap(ezHybridArrayBase<T, Size>& other); //[tested]
+
 private:
   T* GetStaticArray();
 
@@ -62,7 +65,6 @@ private:
 
   void SetCapacity(ezUInt32 uiCapacity);
 };
-
 
 /// \brief \see ezHybridArrayBase
 template <typename T, ezUInt32 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>

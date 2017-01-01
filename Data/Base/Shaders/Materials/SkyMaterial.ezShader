@@ -15,6 +15,7 @@ float ExposureBias;
 bool InverseTonemap;
 
 Texture2D BaseTexture;
+TextureCube CubeMap;
 Color BaseColor @Default(1.0, 1.0, 1.0);
 
 [RENDERSTATE]
@@ -26,34 +27,37 @@ DepthWrite = false
 
 [VERTEXSHADER]
 
-#define USE_TEXCOORD0
-#define USE_WORLD_POSITION_OFFSET
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
 
 #include <Shaders/Materials/SkyMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
 
-float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data)
-{
-	return CameraPosition;
-}
-
 VS_OUT main(VS_IN Input)
 {
-	VS_OUT Output = FillVertexData(Input);
-	Output.Position.z = Output.Position.w;
+	ezPerInstanceData data = GetInstanceData(Input);
+	float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+	
+	VS_OUT Output;
+	float2 ScreenPos = sign(Input.Position.xy);
+	float4 dir = mul(ScreenToCameraMatrix, float4(ScreenPos.xy,1.0,1.0));
+	dir.w = 0.0;
+
+	Output.Position = float4(ScreenPos.xy, 0.99999, 1.0);
+	Output.ViewDirection = mul(transpose(objectToWorld), mul(CameraToWorldMatrix, dir)).xyz;
 
 	return Output;
 }
 
 [PIXELSHADER]
 
-#define USE_TEXCOORD0
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
 
 #include <Shaders/Materials/SkyMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+TextureCube CubeMap;
+SamplerState CubeMap_AutoSampler;
+
 
 float3 GetNormal(PS_IN Input)
 {
@@ -62,7 +66,9 @@ float3 GetNormal(PS_IN Input)
 
 float3 GetDiffuseColor(PS_IN Input)
 {
-	float3 color = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
+	float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).rgb;
+
+	color *= BaseColor.rgb;
 	float weight = exp2(ExposureBias);
 
 	if (InverseTonemap)
@@ -88,7 +94,7 @@ float GetRoughness(PS_IN Input)
 
 float GetOpacity(PS_IN Input)
 {
-	float opacity = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * BaseColor.a;
+	float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).a * BaseColor.a;
 
 	#if BLEND_MODE == BLEND_MODE_MASKED
 		return opacity - MaskThreshold;

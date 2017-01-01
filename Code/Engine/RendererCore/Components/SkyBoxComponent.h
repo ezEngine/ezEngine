@@ -30,36 +30,19 @@ public:
   void SetInverseTonemap(bool bInverseTonemap);
   bool GetInverseTonemap() const { return m_bInverseTonemap; }
 
-  void SetLeftTextureFile(const char* szFile) { SetTextureFile(4, szFile); }
-  const char* GetLeftTextureFile() const { return GetTextureFile(4); }
-
-  void SetFrontTextureFile(const char* szFile) { SetTextureFile(2, szFile); }
-  const char* GetFrontTextureFile() const { return GetTextureFile(2); }
-
-  void SetRightTextureFile(const char* szFile) { SetTextureFile(5, szFile); }
-  const char* GetRightTextureFile() const { return GetTextureFile(5); }
-
-  void SetBackTextureFile(const char* szFile) { SetTextureFile(3, szFile); }
-  const char* GetBackTextureFile() const { return GetTextureFile(3); }
-
-  void SetUpTextureFile(const char* szFile) { SetTextureFile(0, szFile); }
-  const char* GetUpTextureFile() const { return GetTextureFile(0); }
-
-  void SetDownTextureFile(const char* szFile) { SetTextureFile(1, szFile); }
-  const char* GetDownTextureFile() const { return GetTextureFile(1); }
+  void SetCubeMap(const char* szFile);
+  const char* GetCubeMap() const;
 
 private:
 
-  void SetTextureFile(ezUInt32 uiIndex, const char* szFile);
-  const char* GetTextureFile(ezUInt32 uiIndex) const;
   void UpdateMaterials();
 
   float m_fExposureBias;
   bool m_bInverseTonemap;
 
-  ezTextureResourceHandle m_Textures[6];
+  ezTextureResourceHandle m_hCubeMap;
 
   ezMeshResourceHandle m_hMesh;
-  ezMaterialResourceHandle m_Materials[6];
+  ezMaterialResourceHandle m_hCubeMapMaterial;
 };
 

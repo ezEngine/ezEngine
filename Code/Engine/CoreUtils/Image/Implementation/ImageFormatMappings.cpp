@@ -151,7 +151,7 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
       CASE_EZ2DXGI(R32G32_UINT);
       CASE_EZ2DXGI(R32G32_SINT);
       CASE_EZ2DXGI(R32G8X24_TYPELESS);
-      CASE_EZ2DXGI(D32_FLOAT_S8X24_UINT); 
+      CASE_EZ2DXGI(D32_FLOAT_S8X24_UINT);
       CASE_EZ2DXGI(R32_FLOAT_X8X24_TYPELESS);
       CASE_EZ2DXGI(X32_TYPELESS_G8X24_UINT);
       CASE_EZ2DXGI(R10G10B10A2_TYPELESS);
@@ -186,7 +186,7 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
       CASE_EZ2DXGI(R8G8_SINT);
       CASE_EZ2DXGI(R16_TYPELESS);
       CASE_EZ2DXGI(R16_FLOAT);
-      CASE_EZ2DXGI(D16_UNORM); 
+      CASE_EZ2DXGI(D16_UNORM);
       CASE_EZ2DXGI(R16_UNORM);
       CASE_EZ2DXGI(R16_UINT);
       CASE_EZ2DXGI(R16_SNORM);
@@ -387,6 +387,31 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
 
   case MAKE_FOURCC('A', 'T', 'I', '2'):
     return ezImageFormat::BC5_UNORM;
+
+  // old legacy DirectX formats
+  case 116: // D3DFMT_A32B32G32R32F
+    return ezImageFormat::R32G32B32A32_FLOAT;
+
+  case 115: //D3DFMT_G32R32F
+    return ezImageFormat::R32G32_FLOAT;
+
+  case 114: // D3DFMT_R32F
+    return ezImageFormat::R32_FLOAT;
+
+  case 113: // D3DFMT_A16B16G16R16F
+    return ezImageFormat::R16G16B16A16_FLOAT;
+
+  case 112: // D3DFMT_G16R16F
+    return ezImageFormat::R16G16_FLOAT;
+
+  case 111: // D3DFMT_R16F
+    return ezImageFormat::R16_FLOAT;
+
+  case 110: //D3DFMT_Q16W16V16U16
+    return ezImageFormat::R16G16B16A16_SNORM;
+
+  case 36: //D3DFMT_A16B16G16R16
+    return ezImageFormat::R16G16B16A16_UNORM;
 
   default:
     return ezImageFormat::UNKNOWN;

@@ -24,6 +24,7 @@ struct ezTextureUsageEnum
     Height,
     Mask,
     LookupTable,
+    HDR,
 
     Default = Unknown,
   };
@@ -112,6 +113,7 @@ public:
   ezInt32 GetNumChannels() const;
 
   bool IsSRGB() const;
+  bool IsHDR() const;
   bool IsTexture2D() const;
   bool IsTextureCube() const;
 

@@ -173,7 +173,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
   {
     ezHybridArray<ezInt32, 16> a1, a2;
-    
+
     EZ_TEST_BOOL(a1 == a1);
     EZ_TEST_BOOL(a2 == a2);
     EZ_TEST_BOOL(a1 == a2);
@@ -756,6 +756,30 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     // STL lower bound
     auto lb = std::lower_bound(rbegin(a2), rend(a2), 400);
     EZ_TEST_BOOL(*lb == a2[1000 - 400 - 1]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  {
+    ezHybridArray<ezInt32, 8> a1, a2;
+
+    ezInt32 content1[] = { 1, 2, 3, 4 };
+    ezInt32 content2[] = { 5, 6, 7, 8, 9 };
+
+    a1 = ezMakeArrayPtr(content1);
+    a2 = ezMakeArrayPtr(content2);
+
+    ezInt32* a1Ptr = a1.GetData();
+    ezInt32* a2Ptr = a2.GetData();
+
+    a1.Swap(a2);
+
+    // Because the data points to the internal storage the pointers shouldn't change when swapping
+    EZ_TEST_BOOL(a1Ptr == a1.GetData());
+    EZ_TEST_BOOL(a2Ptr == a2.GetData());
+
+    // The data however should be swapped
+    EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
+    EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
   }
 }
 

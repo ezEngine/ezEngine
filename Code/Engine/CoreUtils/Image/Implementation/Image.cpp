@@ -45,6 +45,21 @@ void ezImage::AllocateImageData()
   m_data.SetCount(uiDataSize + 16);
 }
 
+
+void ezImage::Swap(ezImage& other)
+{
+  ezMath::Swap(m_uiNumMipLevels, other.m_uiNumMipLevels);
+  ezMath::Swap(m_uiNumFaces, other.m_uiNumFaces);
+  ezMath::Swap(m_uiNumArrayIndices, other.m_uiNumArrayIndices);
+  ezMath::Swap(m_uiWidth, other.m_uiWidth);
+  ezMath::Swap(m_uiHeight, other.m_uiHeight);
+  ezMath::Swap(m_uiDepth, other.m_uiDepth);
+  ezMath::Swap(m_format, other.m_format);
+
+  m_subImages.Swap(other.m_subImages);
+  m_data.Swap(other.m_data);
+}
+
 ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
 {
   EZ_LOG_BLOCK(pLog, "Loading Image", szFileName);

@@ -22,8 +22,24 @@ void ezTexConv::WriteTexHeader()
 
 ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask) const
 {
+  EZ_ASSERT_DEBUG(!bSRGB || !m_bHDROutput, "Output can not be both HDR and SRGB");
   if (m_bCompress)
   {
+    if(m_bHDROutput)
+    {
+      switch (m_uiOutputChannels)
+      {
+      case 1:
+      case 2:
+      case 3:
+        return ezImageFormat::BC6H_UF16;
+      case 4:
+        return ezImageFormat::R16G16B16A16_FLOAT;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+    }
+
     if (m_uiOutputChannels == 1)
       return ezImageFormat::BC4_UNORM;
 
@@ -54,6 +70,21 @@ ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask)
   }
   else
   {
+    if (m_bHDROutput)
+    {
+      // If any of the inputs is 32-bit float use 32-bit float as output, otherwise use 16-bit float as output
+      ezImageFormat::Enum hdrFormat = m_InputImages[0].GetImageFormat();
+      for (ezUInt32 i = 1; i < m_InputImages.GetCount(); i++)
+      {
+        ezImageFormat::Enum curFormat = m_InputImages[i].GetImageFormat();
+        if (ezImageFormat::GetBitsPerPixel(curFormat) > ezImageFormat::GetBitsPerPixel(hdrFormat))
+        {
+          hdrFormat = curFormat;
+        }
+      }
+      return hdrFormat;
+    }
+
     if (m_uiOutputChannels == 1)
       return ezImageFormat::R8_UNORM;
 

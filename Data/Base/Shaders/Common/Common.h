@@ -58,3 +58,8 @@ float3 LinearToSrgb(float3 color)
 {
 	return (color < 0.0031308) ? (color * 12.92) : (1.055 * pow(color, 1.0 / 2.4) - 0.055);
 }
+
+float3 CubeMapDirection(float3 inDirection)
+{
+	return float3(inDirection.x, inDirection.z, -inDirection.y);
+}

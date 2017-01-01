@@ -14,7 +14,7 @@ class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T> >
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
   ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
-  
+
   /// \brief Creates a copy of the given array.
   ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocatorBase* pAllocator); // [tested]
 
@@ -47,6 +47,9 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
+  /// \brief swaps the contents of this array with another one
+  void Swap(ezDynamicArrayBase<T>& other); // [tested]
+
 private:
   ezAllocatorBase* m_pAllocator;
 
@@ -54,7 +57,6 @@ private:
 
   void SetCapacity(ezUInt32 uiCapacity);
 };
-
 
 /// \brief \see ezDynamicArrayBase
 template <typename T, typename AllocatorWrapper = ezDefaultAllocatorWrapper>

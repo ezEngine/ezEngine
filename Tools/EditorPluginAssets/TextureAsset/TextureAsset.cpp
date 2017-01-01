@@ -95,6 +95,9 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->IsSRGB())
     arguments << "-srgb";
 
+  if (pProp->IsHDR())
+    arguments << "-hdr";
+
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
 

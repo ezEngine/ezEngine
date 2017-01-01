@@ -19,32 +19,32 @@ ezString ezTexConv::ChannelMaskToString(ezUInt8 mask)
   return s;
 }
 
-float ezTexConv::GetChannelValue(const ChannelMapping& ds, const ezUInt32 rgba)
+float ezTexConv::GetChannelValue(const ChannelMapping& ds, const ezColor& rgba)
 {
   float numSources = 0.0f;
   float channelValue = 0.0f;
 
   if ((ds.m_uiChannelMask & Channel::Red) != 0)
   {
-    channelValue += ezMath::ColorByteToFloat(rgba & 0x000000FF);
+    channelValue += rgba.r;
     numSources += 1.0f;
   }
 
   if ((ds.m_uiChannelMask & Channel::Green) != 0)
   {
-    channelValue += ezMath::ColorByteToFloat((rgba & 0x0000FF00) >> 8);
+    channelValue += rgba.g;
     numSources += 1.0f;
   }
 
   if ((ds.m_uiChannelMask & Channel::Blue) != 0)
   {
-    channelValue += ezMath::ColorByteToFloat((rgba & 0x00FF0000) >> 16);
+    channelValue += rgba.b;
     numSources += 1.0f;
   }
 
   if ((ds.m_uiChannelMask & Channel::Alpha) != 0)
   {
-    channelValue += ezMath::ColorByteToFloat((rgba & 0xFF000000) >> 24);
+    channelValue += rgba.a;
     numSources += 1.0f;
   }
 
@@ -56,22 +56,23 @@ float ezTexConv::GetChannelValue(const ChannelMapping& ds, const ezUInt32 rgba)
 
 bool ezTexConv::IsImageAlphaBinaryMask(const ezImage& img)
 {
-  EZ_ASSERT_DEV(img.GetImageFormat() == ezImageFormat::R8G8B8A8_UNORM, "Unsupported image format");
+  EZ_ASSERT_DEV(img.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "Unsupported image format");
 
   for (ezUInt32 array = 0; array < img.GetNumArrayIndices(); ++array)
   {
     for (ezUInt32 face = 0; face < img.GetNumFaces(); ++face)
     {
-      const ezUInt8* pData = img.GetPixelPointer<ezUInt8>(0, face, array);
-      const ezUInt32 uiRowPitch = img.GetRowPitch();
+      const float* pData = img.GetPixelPointer<float>(0, face, array);
+      EZ_ASSERT_DEBUG(img.GetRowPitch() % sizeof(float) == 0, "Row pitch should be a multiple of sizeof(float)");
+      const ezUInt32 uiRowPitch = img.GetRowPitch() / sizeof(float);
 
       for (ezUInt32 y = 0; y < img.GetHeight(); ++y)
       {
         for (ezUInt32 x = 0; x < img.GetWidth(); ++x)
         {
-          const ezUInt8 alpha = pData[x * 4 + 3];
+          const float alpha = pData[x * 4 + 3];
 
-          if (alpha > 5 && alpha < 250)
+          if (alpha > 0.02 && alpha < 0.98)
             return false;
         }
 

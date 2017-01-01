@@ -198,6 +198,30 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
   case ezImageFormat::B5G6R5_UNORM:
     return ezGALResourceFormat::B5G6R5UNormalized; /// \todo Not supported by some GPUs ?
 
+  case ezImageFormat::R16_FLOAT:
+    return ezGALResourceFormat::RHalf;
+
+  case ezImageFormat::R32_FLOAT:
+    return ezGALResourceFormat::RFloat;
+
+  case ezImageFormat::R16G16_FLOAT:
+    return ezGALResourceFormat::RGHalf;
+
+  case ezImageFormat::R32G32_FLOAT:
+    return ezGALResourceFormat::RGFloat;
+
+  case ezImageFormat::R32G32B32_FLOAT:
+    return ezGALResourceFormat::RGBFloat;
+
+  case ezImageFormat::R16G16B16A16_FLOAT:
+    return ezGALResourceFormat::RGBAHalf;
+
+  case ezImageFormat::R32G32B32A32_FLOAT:
+    return ezGALResourceFormat::RGBAFloat;
+
+  case ezImageFormat::R16G16B16A16_UNORM:
+    return ezGALResourceFormat::RGBAUShortNormalized;
+
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
     break;

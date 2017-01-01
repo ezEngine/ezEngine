@@ -212,8 +212,8 @@ public:
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 private:
-  ezString m_sDialogTitle;
-  ezString m_sTypeFilter;
+  const char* m_sDialogTitle;
+  const char* m_sTypeFilter;
 };
 
 /// \brief A property attribute that indicates that the string property is actually an asset reference.
@@ -239,7 +239,7 @@ public:
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 private:
-  ezString m_sTypeFilter;
+  ezString m_sTypeFilter; //TODO can not use a ezString here because it will generate a mem leak report once the string no longer fits into the internal storage
 };
 
 /// \brief Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.
