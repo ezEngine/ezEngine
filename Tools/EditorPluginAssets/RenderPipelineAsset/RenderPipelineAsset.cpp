@@ -99,7 +99,7 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 {
 }
 
-ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;

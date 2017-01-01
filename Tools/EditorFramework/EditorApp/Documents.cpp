@@ -20,6 +20,9 @@ void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject)
 
 ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow, bool bAddToRecentFilesList)
 {
+  if (m_bHeadless)
+    bRequestWindow = false;
+
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
 
   if (ezDocumentManager::FindDocumentTypeFromPath(szFile, bCreate, pTypeDesc).Failed())

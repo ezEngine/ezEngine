@@ -2,10 +2,13 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
-#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+const char* const ezMaterialAssetDocumentManager::s_szShaderOutputTag = "VISUAL_SHADER";
 
 ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
 {
@@ -33,6 +36,49 @@ ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocumentManager::GetAssetDocumen
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::SupportsThumbnail;
 }
+
+
+ezString ezMaterialAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const char* szPlatform) const
+{
+  if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
+  {
+    ezStringBuilder sRelativePath(szDocumentPath);
+    sRelativePath.MakeRelativeTo(szDataDirectory);
+    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, szPlatform, "autogen.ezShader", false);
+    return sRelativePath;
+  }
+
+  return SUPER::GetRelativeOutputFileName(szDataDirectory, szDocumentPath, szOutputTag, szPlatform);
+}
+
+
+bool ezMaterialAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
+{
+  if (ezStringUtils::IsEqual(szOutputTag, s_szShaderOutputTag))
+  {
+    const ezString sTargetFile = GetAbsoluteOutputFileName(szDocumentPath, szOutputTag);
+
+    ezStringBuilder sExpectedHeader;
+    sExpectedHeader.Format("//{1}|{2}", uiHash, uiTypeVersion);
+
+    ezFileReader file;
+    if (file.Open(sTargetFile, 256).Failed())
+      return false;
+
+    // this might happen if writing to the file failed
+    if (file.GetFileSize() < sExpectedHeader.GetElementCount())
+      return false;
+
+    ezUInt8 Temp[256] = {0};
+    const ezUInt32 uiRead = (ezUInt32)file.ReadBytes(Temp, sExpectedHeader.GetElementCount());
+    ezStringBuilder sFileHeader = ezStringView((const char*)&Temp[0], (const char*)&Temp[uiRead]);
+
+    return sFileHeader.IsEqual(sExpectedHeader);
+  }
+
+  return ezAssetDocumentManager::IsOutputUpToDate(szDocumentPath, szOutputTag, uiHash, uiTypeVersion);
+}
+
 
 void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {

@@ -73,6 +73,11 @@ ezAssetDocumentManager* ezAssetDocument::GetAssetDocumentManager() const
   return static_cast<ezAssetDocumentManager*>(GetDocumentManager());
 }
 
+const ezAssetDocumentInfo* ezAssetDocument::GetAssetDocumentInfo() const
+{
+  return static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
+}
+
 ezBitflags<ezAssetDocumentFlags> ezAssetDocument::GetAssetFlags() const
 {
   return GetAssetDocumentManager()->GetAssetDocumentTypeFlags(GetDocumentTypeDescriptor());
@@ -89,6 +94,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
 
   pInfo->m_FileDependencies.Clear();
   pInfo->m_FileReferences.Clear();
+  pInfo->m_Outputs.Clear();
   pInfo->m_uiSettingsHash = GetDocumentHash();
   pInfo->m_sAssetTypeName = QueryAssetType();
 
@@ -283,7 +289,7 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= nullptr*/)
+ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform)
 {
   const auto flags = GetAssetFlags();
 
@@ -302,21 +308,37 @@ ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= null
   {
     ezAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
+    const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
-    const ezString sTargetFile = static_cast<ezAssetDocumentManager*>(GetDocumentTypeDescriptor()->m_pManager)->GetFinalOutputFileName(GetDocumentTypeDescriptor(), GetDocumentPath(), sPlatform);
-
-    auto ret = InternalTransformAsset(sTargetFile, sPlatform, AssetHeader);
-
-    // if writing failed, make sure the output file does not exist
-    if (ret.m_Result.Failed())
+    auto GenerateOutput = [this, szPlatform, &AssetHeader](const char* szOutputTag) -> ezStatus
     {
-      ezFileSystem::DeleteFile(sTargetFile);
+      const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
+      const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetDocumentPath(), szOutputTag, sPlatform);
+      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, sPlatform, AssetHeader);
+
+      // if writing failed, make sure the output file does not exist
+      if (ret.m_Result.Failed())
+      {
+        ezFileSystem::DeleteFile(sTargetFile);
+      }
+      ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTargetFile);
+      return ret;
+    };
+    
+    ezStatus res(EZ_SUCCESS);
+    for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
+    {
+      res = GenerateOutput(it.Key());
+      if (res.Failed())
+        return res;
     }
 
-    ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTargetFile);
+    res = GenerateOutput("");
+    if (res.Failed())
+      return res;
+
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
-    return ret;
+    return res;
   }
 }
 
@@ -359,15 +381,14 @@ ezStatus ezAssetDocument::CreateThumbnail()
   }
 }
 
-ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   ezDeferredFileWriter file;
-
   file.SetOutput(szTargetFile);
 
   AssetHeader.Write(file);
 
-  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szPlatform, AssetHeader));
+  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, szPlatform, AssetHeader));
 
   if (file.Close().Failed())
   {
@@ -491,13 +512,6 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezA
   }
 }
 
-ezString ezAssetDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) const
-{
-  ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(documentGuid);
-
-  return pAssetInfo->m_sAbsolutePath;
-}
-
 ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const
 {
   ezLog::Info("Exporting {0} to \"{1}\"", QueryAssetType(), szOutputTarget);
@@ -616,12 +630,6 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
 ezUInt16 ezAssetDocument::GetAssetTypeVersion() const
 {
   return (ezUInt16)GetDynamicRTTI()->GetTypeVersion();
-}
-
-ezString ezAssetDocument::GetFinalOutputFileName(const char* szPlatform /*= nullptr*/) const
-{
-  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
-  return GetAssetDocumentManager()->GetFinalOutputFileName(GetDocumentTypeDescriptor(), GetDocumentPath(), szPlatform);
 }
 
 void ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const

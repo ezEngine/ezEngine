@@ -223,9 +223,3 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
   GetCommandHistory()->AddCommand(rm);
   GetCommandHistory()->AddCommand(inst);
 }
-
-ezString ezDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) const
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezString();
-}

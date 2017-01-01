@@ -11,12 +11,15 @@
 #include <VisualShader/VsCodeGenerator.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 2, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 3, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -89,24 +92,38 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
 
   m_ShaderMode = mode;
 
-  /// \todo Set proper shader:
+  // If no doc is present, we are de-serializing the document so do nothing yet.
+  if (!m_pDocument)
+    return;
+  ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
+  ezObjectAccessorBase* pAccessor = m_pDocument->GetObjectAccessor();
+  // Do not make new commands if we got here in a response to an undo / redo action.
+  if (pHistory->IsInUndoRedo())
+    return;
 
   switch (m_ShaderMode)
   {
   case ezMaterialShaderMode::BaseMaterial:
-    /// \todo Reset to 'default' (ie from base)
-    break;
-
-  case ezMaterialShaderMode::Custom:
-    /// \todo Make sure this is correct
-    if (m_pDocument) // if m_pDocument == nullptr, we are deserializing
     {
-      m_sShader = GetFinalShader();
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "");
+    }
+    break;
+  case ezMaterialShaderMode::File:
+    {
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "");
+    }
+    break;
+  case ezMaterialShaderMode::Custom:
+    {
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid()));
     }
     break;
   }
 
-  UpdateShader();
+  //UpdateShader();
 }
 
 void ezMaterialAssetProperties::SetDocument(ezMaterialAssetDocument* pDocument)
@@ -131,20 +148,13 @@ void ezMaterialAssetProperties::UpdateShader(bool bForce)
   if (pHistory->IsInUndoRedo())
     return;
 
-  // If we update due to the doc being loaded we are not in a transaction so we open one here
-  // the undo stack will be cleared after loading to our patch-up won't show up in the undo history.
-  bool bOpenedTransaction = false;
-  if (!pHistory->IsInTransaction())
-  {
-    bOpenedTransaction = true;
-    pHistory->StartTransaction("Update Material Shader");
-  }
-
+  EZ_ASSERT_DEBUG(pHistory->IsInTransaction(), "Missing undo scope on stack.");
+ 
   ezDocumentObject* pPropObject = m_pDocument->GetShaderPropertyObject();
 
   // TODO: If m_sShader is empty, we need to get the shader of our base material and use that one instead
   // for the code below. The type name is the clean path to the shader at the moment.
-  ezStringBuilder sShaderPath = GetFinalShader();
+  ezStringBuilder sShaderPath = ResolveRelativeShaderPath();
   sShaderPath.MakeCleanPath();
 
   if (sShaderPath.IsEmpty())
@@ -163,7 +173,6 @@ void ezMaterialAssetProperties::UpdateShader(bool bForce)
       // it has a different type than the newly set shader. The type name
       // is the clean path to the shader at the moment.
       const ezRTTI* pType = pPropObject->GetTypeAccessor().GetType();
-
       if (sShaderPath != pType->GetTypeName() || bForce) // TODO: Is force even necessary anymore?
       {
         // Shader has changed, delete old and create new one.
@@ -183,11 +192,6 @@ void ezMaterialAssetProperties::UpdateShader(bool bForce)
       CreateProperties(sShaderPath);
     }
   }
-
-  if (bOpenedTransaction)
-  {
-    pHistory->FinishTransaction();
-  }
 }
 
 void ezMaterialAssetProperties::DeleteProperties()
@@ -206,6 +210,14 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
   ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
 
   const ezRTTI* pType = ezShaderTypeRegistry::GetSingleton()->GetShaderType(szShaderPath);
+  if (!pType && m_ShaderMode == ezMaterialShaderMode::Custom)
+  {
+    // Force generate if custom shader is missing
+    ezAssetFileHeader AssetHeader;
+    AssetHeader.SetFileHashAndVersion(0, m_pDocument->GetAssetTypeVersion());
+    m_pDocument->RecreateVisualShaderFile("", AssetHeader);
+    pType = ezShaderTypeRegistry::GetSingleton()->GetShaderType(szShaderPath);
+  }
 
   if (pType)
   {
@@ -277,13 +289,9 @@ void ezMaterialAssetProperties::LoadOldValues()
 
 ezString ezMaterialAssetProperties::GetAutoGenShaderPathAbs() const
 {
-  ezStringBuilder sPath = m_pDocument->GetDocumentPath();
-  ezStringBuilder sFilename = sPath.GetFileName();
-
-  sFilename.Append(".autogen.ezShader");
-  sPath.ChangeFileNameAndExtension(sFilename);
-
-  return sPath;
+  ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(m_pDocument->GetDocumentManager());
+  ezString sAbsOutputPath = pManager->GetAbsoluteOutputFileName(m_pDocument->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  return sAbsOutputPath;
 }
 
 void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
@@ -294,37 +302,45 @@ void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStat
 
     auto& props = *e.m_pPropertyStates;
 
-    //if (shaderMode == ezMaterialShaderMode::File)
-    //  props["Shader"].m_Visibility = ezPropertyUiState::Default;
-    //else
-    //  props["Shader"].m_Visibility = ezPropertyUiState::Invisible;
+    if (shaderMode == ezMaterialShaderMode::File)
+      props["Shader"].m_Visibility = ezPropertyUiState::Default;
+    else
+      props["Shader"].m_Visibility = ezPropertyUiState::Invisible;
 
-    //if (shaderMode == ezMaterialShaderMode::BaseMaterial)
-    //  props["BaseMaterial"].m_Visibility = ezPropertyUiState::Default;
-    //else
-    //  props["BaseMaterial"].m_Visibility = ezPropertyUiState::Invisible;
+    if (shaderMode == ezMaterialShaderMode::BaseMaterial)
+      props["BaseMaterial"].m_Visibility = ezPropertyUiState::Default;
+    else
+      props["BaseMaterial"].m_Visibility = ezPropertyUiState::Invisible;
   }
 }
 
-ezString ezMaterialAssetProperties::GetFinalShader() const
+ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 {
-  /// \todo Get rid of this function
+  bool isGuid = ezConversionUtils::IsStringUuid(m_sShader);
 
-  if (m_ShaderMode == ezMaterialShaderMode::File)
-    return m_sShader;
-
-  if (m_ShaderMode == ezMaterialShaderMode::Custom)
+  if (isGuid)
   {
-    ezString sResult = GetAutoGenShaderPathAbs();
-    ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sResult);
-
-    return sResult;
+    ezUuid guid = ezConversionUtils::ConvertStringToUuid(m_sShader);
+    auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(guid);
+    if (pAsset)
+    {
+      EZ_ASSERT_DEV(pAsset->m_pManager == m_pDocument->GetDocumentManager(), 
+        "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+      ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_sAbsolutePath);
+      ezStringBuilder sResult = pAsset->m_pManager->GetRelativeOutputFileName(sProjectDir, pAsset->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+      sResult.Prepend("AssetCache/");
+      return sResult;
+    }
+    else
+    {
+      ezLog::Error("Could not resolve guid '{0}' for the material shader.", m_sShader.GetData());
+      return "";
+    }
   }
-
-  //if (m_ShaderMode == ezMaterialShaderMode::BaseMaterial)
-  //{
-  //  return m_sShader;
-  //}
+  else
+  {
+    return m_sShader;
+  }
 
   return m_sShader;
 }
@@ -339,7 +355,13 @@ ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
 void ezMaterialAssetDocument::InitializeAfterLoading()
 {
   ezSimpleAssetDocument<ezMaterialAssetProperties>::InitializeAfterLoading();
-  GetProperties()->SetDocument(this);
+
+  {
+    ezCommandHistory* pHistory = GetCommandHistory();
+    pHistory->StartTransaction("Update Material Shader");
+    GetProperties()->SetDocument(this);
+    pHistory->FinishTransaction();
+  }
 
   bool bSetModified = false;
 
@@ -467,13 +489,13 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   ezDeque<ezAbstractGraphDiffOperation> mergedDiff;
   ezPrefabUtils::Merge(baseGraph, leftGraph, rightGraph, mergedDiff);
 
-  // Skip shader changes and add / remove calls, we want to preserve everything from base
+  // Skip 'ShaderMode' as it should not be inherited, and 'ShaderProperties' is being set by the 'Shader' property
   ezDeque<ezAbstractGraphDiffOperation> cleanedDiff;
   for (const ezAbstractGraphDiffOperation& op : mergedDiff)
   {
     if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged)
     {
-      if (op.m_sProperty == "Shader" || op.m_sProperty == "ShaderProperties")
+      if (op.m_sProperty == "ShaderMode" || op.m_sProperty == "ShaderProperties")
         continue;
 
       cleanedDiff.PushBack(op);
@@ -482,6 +504,18 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
 
   // Apply diff to base, making it the new instance
   baseGraph.ApplyDiff(cleanedDiff);
+
+  // Do not allow 'Shader' to be overridden, always use the prefab template version.
+  if (ezAbstractObjectNode* pNode = leftGraph.GetNode(GetMaterialNodeGuid(leftGraph)))
+  {
+    if (auto pProp = pNode->FindProperty("Shader"))
+    {
+      if (ezAbstractObjectNode* pNodeBase = baseGraph.GetNode(GetMaterialNodeGuid(baseGraph)))
+      {
+        pNodeBase->ChangeProperty("Shader", pProp->m_Value);
+      }
+    }
+  }
 
   // Create a new diff that changes our current instance to the new instance
   ezDeque<ezAbstractGraphDiffOperation> newInstanceToCurrentInstance;
@@ -512,6 +546,10 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   {
     if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged)
     {
+      // Never change this material's mode, as it should not be inherited from prefab base
+      if (op.m_sProperty == "ShaderMode")
+        continue;
+
       ezSetObjectPropertyCommand cmd;
       cmd.m_Object = op.m_Node;
       cmd.m_Object.CombineWithSeed(PrefabSeed);
@@ -532,10 +570,23 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   }
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  ezStatus ret = RecreateVisualShaderFile(szPlatform);
+  if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
+  {
+    return RecreateVisualShaderFile(szPlatform, AssetHeader);
+  }
+  else
+  {
+    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, szPlatform, AssetHeader);
+  }
+}
 
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+{
+  EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
+
+  ezStatus ret(EZ_SUCCESS);
   ezMaterialVisualShaderEvent e;
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
@@ -601,6 +652,10 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
+    // We write our own guid into the shader field so BaseMaterial materials can find the shader file.
+    // This would cause us to have a dependency to ourselves so we need to remove it.
+    pInfo->m_FileDependencies.Remove(ezConversionUtils::ToString(GetGuid()));
+
     ezVisualShaderCodeGenerator codeGen;
 
     ezSet<ezString> cfgFiles;
@@ -611,17 +666,9 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
       pInfo->m_FileDependencies.Insert(sCfgFile);
     }
 
+    pInfo->m_Outputs.Insert(ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
-    /// \todo This doesn't work!!!
-    // Dependencies are files that have to exist, otherwise asset transform fails
-    // But we are actually GENERATING this file! That means when the file does not exist, transform will never be called,
-    // if we put this as a dependency...
-    // But NOT having it as a dependency somehow also means the asset is never transformed when stuff changes, argh!
-    // Basically we are generating multiple outputs here ... and need to check whether any of them is out-of-date (or at least missing).
-
-    // Also the Visual Shader node configuration files would need to be a dependency of the auto-generated shader.
-
-    //pInfo->m_FileDependencies.Insert(GetProperties()->GetFinalShader());
+    /// \todo The Visual Shader node configuration files would need to be a dependency of the auto-generated shader.
   }
 }
 
@@ -635,7 +682,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
     stream << uiVersion;
     stream << pProp->m_sBaseMaterial;
-    stream << pProp->GetFinalShader();
+    stream << pProp->ResolveRelativeShaderPath();
 
     ezHybridArray<ezAbstractProperty*, 16> Textures;
     ezHybridArray<ezAbstractProperty*, 16> Permutation;
@@ -744,15 +791,15 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatform)
+ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
-
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
   {
-    ezOSFile::DeleteFile(sAutoGenShader);
     return ezStatus(EZ_SUCCESS);
   }
+
+  ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(GetDocumentManager());
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   ezVisualShaderCodeGenerator codeGen;
 
@@ -762,6 +809,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
   if (file.Open(sAutoGenShader).Succeeded())
   {
     ezStringBuilder shader = codeGen.GetFinalShaderCode();
+    shader.PrependFormat("//{1}|{2}", AssetHeader.GetFileHash(), AssetHeader.GetFileVersion());
 
     file.WriteBytes(shader.GetData(), shader.GetElementCount());
     file.Close();
@@ -1001,7 +1049,6 @@ public:
 ezMaterialAssetPropertiesPatch_1_2 g_ezMaterialAssetPropertiesPatch_1_2;
 
 
-/*
 class ezMaterialAssetPropertiesPatch_2_3 : public ezGraphPatch
 {
 public:
@@ -1011,6 +1058,7 @@ public:
   virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pBaseMatProp = pNode->FindProperty("BaseMaterial");
+    auto* pShaderModeProp = pNode->FindProperty("ShaderMode");
     if (pBaseMatProp && pBaseMatProp->m_Value.IsA<ezString>())
     {
       if (!pBaseMatProp->m_Value.Get<ezString>().IsEmpty())
@@ -1027,4 +1075,4 @@ public:
 };
 
 ezMaterialAssetPropertiesPatch_2_3 g_ezMaterialAssetPropertiesPatch_2_3;
-*/
+

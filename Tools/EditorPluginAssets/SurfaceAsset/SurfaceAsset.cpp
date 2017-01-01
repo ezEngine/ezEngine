@@ -16,7 +16,7 @@ ezSurfaceAssetDocument::ezSurfaceAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   ezResourceHandleWriteContext writer;
   writer.BeginWritingToStream(&stream);

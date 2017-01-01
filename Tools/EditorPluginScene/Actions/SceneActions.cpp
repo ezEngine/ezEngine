@@ -6,6 +6,8 @@
 #include <QProcess>
 #include <Foundation/Logging/Log.h>
 #include <Preferences/ScenePreferences.h>
+#include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -244,7 +246,9 @@ void ezSceneAction::Execute(const ezVariant& value)
       QStringList arguments;
       arguments << "-scene";
 
-      const ezStringBuilder sPath = m_pSceneDocument->GetFinalOutputFileName();
+      const ezStringBuilder sPath = 
+        m_pSceneDocument->GetAssetDocumentManager()->GetAbsoluteOutputFileName(m_pSceneDocument->GetDocumentPath(), "");
+
       const char* szPath = sPath.GetData();
       arguments << QString::fromUtf8(szPath);
 

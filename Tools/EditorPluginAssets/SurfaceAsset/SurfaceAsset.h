@@ -13,5 +13,5 @@ public:
   virtual const char* QueryAssetType() const override { return "Surface"; }
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
 };

@@ -24,6 +24,7 @@ public:
   ///@{
 
   ezAssetDocumentManager* GetAssetDocumentManager() const;
+  const ezAssetDocumentInfo* GetAssetDocumentInfo() const;
 
   ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
@@ -53,8 +54,6 @@ public:
   /// \brief Returns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
   /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
   ezUInt16 GetAssetTypeVersion() const;
-
-  ezString GetFinalOutputFileName(const char* szPlatform = nullptr) const;
 
   ///@}
   /// \name IPC Functions
@@ -136,19 +135,22 @@ protected:
   ///       In most cases that is already sufficient.
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const;
 
-  /// \brief Override this and write the transformed file into the given stream.
+  /// \brief Override this and write the transformed file for the given szOutputTag into the given stream.
   ///
   /// The stream already contains the ezAssetFileHeader. This is the function to prefer when the asset can be written
   /// directly from the editor process. AssetHeader is already written to the stream, but provided as reference.
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) = 0;
+  ///
+  /// \param stream Data stream to write the asset to.
+  /// \param szOutputTag Either empty for the default output or matches one of the tags defined in ezAssetDocumentInfo::m_Outputs.
+  /// \param szPlatform Platform for which is the output is to be created. Default is 'PC'.
+  /// \param AssetHeader Header already written to the stream, provided for reference.
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) = 0;
 
-  /// \brief Only override this function, if the transformed file must be written from another process.
+  /// \brief Only override this function, if the transformed file for the given szOutputTag must be written from another process.
   ///
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
-  /// write \a AssetHeader to the file, to make it a valid asset file.
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader);
-
-  virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const override;
+  /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader);
 
   ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
 

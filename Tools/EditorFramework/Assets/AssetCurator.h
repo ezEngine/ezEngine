@@ -336,7 +336,7 @@ private:
 class ezProcessTask : public ezTask
 {
 public:
-  ezProcessTask();
+  ezProcessTask(ezUInt32 uiProcessorID);
   ~ezProcessTask();
 
   void EventHandlerIPC(const ezProcessCommunication::Event& e);
@@ -344,6 +344,8 @@ public:
   void ShutdownProcess();
 
 private:
+  ezUInt32 m_uiProcessorID;
+
   ezUuid m_assetGuid;
   ezStringBuilder m_sAssetPath;
   ezProcessCommunication* m_pIPC;

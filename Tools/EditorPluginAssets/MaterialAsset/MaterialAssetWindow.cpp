@@ -288,7 +288,12 @@ void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, e
 
   ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(filename);
 
-  GetMaterialDocument()->RecreateVisualShaderFile();
+  // TODO: We write an invalid hash in the file, should maybe compute the correct one on the fly
+  // but that would involve the asset curator which would also save / transform everything which is
+  // not what we want.
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.SetFileHashAndVersion(0, GetMaterialDocument()->GetAssetTypeVersion());
+  GetMaterialDocument()->RecreateVisualShaderFile("", AssetHeader);
 }
 
 void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e)

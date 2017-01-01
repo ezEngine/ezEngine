@@ -60,7 +60,7 @@ public:
   void SaveOldValues();
   void LoadOldValues();
 
-  ezString GetFinalShader() const;
+  ezString ResolveRelativeShaderPath() const;
   ezString GetAutoGenShaderPathAbs() const;
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
@@ -92,7 +92,7 @@ public:
 
   /// \brief Will make sure that the visual shader is rebuilt.
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
-  ezStatus RecreateVisualShaderFile(const char* szPlatform = nullptr);
+  ezStatus RecreateVisualShaderFile(const char* szPlatform, const ezAssetFileHeader& AssetHeader);
 
   /// \brief Deletes all Visual Shader nodes that are not connected to the output
   void RemoveDisconnectedNodes();
@@ -113,7 +113,8 @@ protected:
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;
 
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
@@ -121,7 +122,6 @@ protected:
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-
 
 private:
   static ezUuid s_LitBaseMaterial;

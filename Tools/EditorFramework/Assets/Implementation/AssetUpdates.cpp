@@ -331,12 +331,13 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
   UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileDependencies, m_InverseDependency, m_UnresolvedDependencies, true);
   UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileReferences, m_InverseReferences, m_UnresolvedReferences, true);
 
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Succeeded())
+  const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
+  auto it = m_InverseReferences.FindOrAdd(sTargetFile);
+  it.Value().PushBack(pAssetInfo->m_Info.m_DocumentID);
+  for (auto outputIt = pAssetInfo->m_Info.m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(nullptr);
-    const ezString sTargetFile = pAssetInfo->m_pManager->GetFinalOutputFileName(pTypeDesc, pAssetInfo->m_sAbsolutePath, sPlatform);
-    auto it = m_InverseReferences.FindOrAdd(sTargetFile);
+    const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().PushBack(pAssetInfo->m_Info.m_DocumentID);
   }
 
@@ -349,12 +350,13 @@ void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
   UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileDependencies, m_InverseDependency, m_UnresolvedDependencies, false);
   UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileReferences, m_InverseReferences, m_UnresolvedReferences, false);
 
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Succeeded())
+  const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
+  auto it = m_InverseReferences.FindOrAdd(sTargetFile);
+  it.Value().Remove(pAssetInfo->m_Info.m_DocumentID);
+  for (auto outputIt = pAssetInfo->m_Info.m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(nullptr);
-    const ezString sTargetFile = pAssetInfo->m_pManager->GetFinalOutputFileName(pTypeDesc, pAssetInfo->m_sAbsolutePath, sPlatform);
-    auto it = m_InverseReferences.FindOrAdd(sTargetFile);
+    const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().Remove(pAssetInfo->m_Info.m_DocumentID);
   }
 }
@@ -713,8 +715,8 @@ void ezUpdateTask::Execute()
 // ezProcessTask
 ////////////////////////////////////////////////////////////////////////
 
-ezProcessTask::ezProcessTask()
-  : m_bProcessShouldBeRunning(false), m_bProcessCrashed(false), m_bWaiting(false), m_bSuccess(true)
+ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID)
+  : m_uiProcessorID(uiProcessorID), m_bProcessShouldBeRunning(false), m_bProcessCrashed(false), m_bWaiting(false), m_bSuccess(true)
 {
   m_pIPC = EZ_DEFAULT_NEW(ezProcessCommunication);
   m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));
@@ -746,7 +748,9 @@ void ezProcessTask::StartProcess()
 
   QStringList args;
   args << "-appname";
-  args << "ezEditorProcessor";
+  args << "ezEditor";
+  args << "-appid";
+  args << QString::number(m_uiProcessorID);
   args << "-project";
   args << ezToolsProject::GetSingleton()->GetProjectFile().GetData();
 

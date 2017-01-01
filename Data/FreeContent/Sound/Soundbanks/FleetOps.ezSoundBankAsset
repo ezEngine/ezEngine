@@ -15,7 +15,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x101593CF14F6904AB4E44C3DB673BF7E" },
    "t" : "ezSoundBankAssetProperties",
    "p" : {
-    "SoundBank File" : "Sound/Soundbanks/Desktop/FleetOps.bank"
+    "SoundBankFile" : "Sound/Soundbanks/Desktop/FleetOps.bank"
    }
   },
   {

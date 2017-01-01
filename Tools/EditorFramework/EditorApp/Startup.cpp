@@ -156,7 +156,10 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app"); // app specific data
   ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 
-  m_LogHTML.BeginLog(":appdata/Log_Editor.htm", "ezEditor");
+  ezString sApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appid", 0, "ezEditor");
+  ezStringBuilder sLogFile;
+  sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID.GetData());
+  m_LogHTML.BeginLog(sLogFile, sApplicationID);
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

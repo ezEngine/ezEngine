@@ -65,7 +65,7 @@ void ezParticleEffectAssetDocument::SetSimulationSpeed(float speed)
   m_Events.Broadcast(e);
 }
 
-ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   return WriteParticleEffectAsset(stream, szPlatform);
 }

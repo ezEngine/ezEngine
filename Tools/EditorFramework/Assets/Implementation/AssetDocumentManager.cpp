@@ -13,23 +13,22 @@ ezBitflags<ezAssetDocumentFlags> ezAssetDocumentManager::GetAssetDocumentTypeFla
   return ezAssetDocumentFlags::Default;
 }
 
-bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiTypeVersion, const char* szResourceFile)
+ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)
 {
-  ezFileReader file;
-  if (file.Open(szResourceFile, 256).Failed())
-    return false;
+  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);;
 
-  // this might happen if writing to the file failed
-  if (file.GetFileSize() == 0)
-    return false;
+  ezStringBuilder sRelativePath = szDocumentPath;
 
-  ezAssetFileHeader AssetHeader;
-  AssetHeader.Read(file);
+  sRelativePath.MakeRelativeTo(sProjectDir);
+  sRelativePath.Append(".jpg");
 
-  return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
+  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/Thumbnails/", sRelativePath);
+  sFinalPath.MakeCleanPath();
+
+  return sFinalPath;
 }
 
-bool ezAssetDocumentManager::IsThumbnailUpToDate(ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion, const char* szDocumentPath)
+bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion)
 {
   ezString sThumbPath = GenerateResourceThumbnailPath(szDocumentPath);
   ezFileReader file;
@@ -59,67 +58,45 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(ezUInt64 uiThumbnailHash, ezUIn
   return true;
 }
 
-ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const
+ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const char* szPlatform) const
 {
-  EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(szPlatform), "Platform string must be set");
-
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
-  ezString sPlatform;
-  if (GeneratesPlatformSpecificAssets()) /// \todo Put this into ezAssetDocumentFlag
-    sPlatform = szPlatform;
-  else
-    sPlatform = "Common";
-
-  ezStringBuilder sRelativePath = szDocumentPath;
-
-  sRelativePath.MakeRelativeTo(sProjectDir);
-  sRelativePath.ChangeFileExtension(GetResourceTypeExtension());
-
-  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/", sPlatform, "/", sRelativePath);
+  ezString sRelativePath = GetRelativeOutputFileName(sProjectDir, szDocumentPath, szOutputTag, szPlatform);
+  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/", sRelativePath);
   sFinalPath.MakeCleanPath();
 
   return sFinalPath;
 }
 
-ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)
-{
-  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);;
-
-  ezStringBuilder sRelativePath = szDocumentPath;
-
-  sRelativePath.MakeRelativeTo(sProjectDir);
-  sRelativePath.Append(".jpg");
-
-  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/Thumbnails/", sRelativePath);
-  sFinalPath.MakeCleanPath();
-
-  return sFinalPath;
-
-}
-
-ezString ezAssetDocumentManager::GetFinalOutputFileName(const ezDocumentTypeDescriptor* pDescriptor, const char* szDocumentPath, const char* szPlatform) const
+ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const char* szPlatform) const
 {
   const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
-  return GenerateResourceFileName(szDocumentPath, sPlatform);
-}
-
-ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szPlatform) const
-{
-  EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(szPlatform), "Platform string must be set");
-
+  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
   ezStringBuilder sRelativePath(szDocumentPath);
-
   sRelativePath.MakeRelativeTo(szDataDirectory);
-  sRelativePath.ChangeFileExtension(GetResourceTypeExtension());
-  sRelativePath.MakeCleanPath();
-
-  if (GeneratesPlatformSpecificAssets())
-    sRelativePath.Prepend(szPlatform, "/");
-  else
-    sRelativePath.Prepend("Common/");
+  GenerateOutputFilename(sRelativePath, sPlatform, GetResourceTypeExtension(), GeneratesPlatformSpecificAssets());
 
   return sRelativePath;
+}
+
+bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
+{
+  if (!IsOutputUpToDate(szDocumentPath, "", uiHash, uiTypeVersion))
+    return false;
+
+  for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
+  {
+    if (!IsOutputUpToDate(szDocumentPath, it.Key(), uiHash, uiTypeVersion))
+      return false;
+  }
+  return true;
+}
+
+bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
+{
+  const ezString sTargetFile = GetAbsoluteOutputFileName(szDocumentPath, szOutputTag);
+  return ezAssetDocumentManager::IsResourceUpToDate(sTargetFile, uiHash, uiTypeVersion);
 }
 
 ezString ezAssetDocumentManager::DetermineFinalTargetPlatform(const char* szPlatform)
@@ -132,3 +109,29 @@ ezString ezAssetDocumentManager::DetermineFinalTargetPlatform(const char* szPlat
   return szPlatform;
 }
 
+bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
+{
+  ezFileReader file;
+  if (file.Open(szResourceFile, 256).Failed())
+    return false;
+
+  // this might happen if writing to the file failed
+  if (file.GetFileSize() == 0)
+    return false;
+
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.Read(file);
+
+  return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
+}
+
+void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const char* szPlatform, const char* szExtension, bool bPlatformSpecific)
+{
+  inout_sRelativeDocumentPath.ChangeFileExtension(szExtension);
+  inout_sRelativeDocumentPath.MakeCleanPath();
+
+  if (bPlatformSpecific)
+    inout_sRelativeDocumentPath.Prepend(szPlatform, "/");
+  else
+    inout_sRelativeDocumentPath.Prepend("Common/");
+}

@@ -86,6 +86,9 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
 ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const char* szProperty, ezVariant index)
 {
   const ezAbstractObjectNode* pNode = graph.GetNode(objectGuid);
+  if (!pNode)
+    return ezVariant();
+
   ezUInt32 uiIndex = 0;
   const ezAbstractObjectNode::Property* pProp = pNode->FindProperty(szProperty);
   if (pProp)

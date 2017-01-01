@@ -1262,13 +1262,13 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   return RequestExportScene(szTargetFile, AssetHeader);
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 

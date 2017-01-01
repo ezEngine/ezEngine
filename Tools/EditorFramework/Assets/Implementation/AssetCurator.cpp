@@ -435,34 +435,37 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
 
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
-  out_AssetHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(assetGuid);
+  out_AssetHash = GetAssetDependencyHash(assetGuid);
   out_ThumbHash = 0;
   if (out_AssetHash == 0)
   {
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::MissingDependency);
     return ezAssetInfo::TransformState::MissingDependency;
   }
-  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
-  const ezString sTargetFile = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetFinalOutputFileName(pTypeDescriptor, GetAssetInfo(assetGuid)->m_sAbsolutePath, sPlatform);
-  auto flags = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetAssetDocumentTypeFlags(pTypeDescriptor);
 
-  if (ezAssetDocumentManager::IsResourceUpToDate(out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sTargetFile))
+  ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager);
+  auto flags = pManager->GetAssetDocumentTypeFlags(pTypeDescriptor);
+  ezString sAssetFile;
+  ezSet<ezString> outputs;
+  {
+    EZ_LOCK(m_CuratorMutex);
+    ezAssetInfo* pAssetInfo = GetAssetInfo(assetGuid);
+    sAssetFile = pAssetInfo->m_sAbsolutePath;
+    outputs = pAssetInfo->m_Info.m_Outputs;
+  }
+
+  if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
   {
     if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
     {
-      out_ThumbHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(assetGuid);
+      out_ThumbHash = GetAssetReferenceHash(assetGuid);
       if (out_ThumbHash == 0)
       {
         UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::MissingReference);
         return ezAssetInfo::TransformState::MissingReference;
       }
 
-      ezString sAssetFile;
-      {
-        EZ_LOCK(m_CuratorMutex);
-        sAssetFile = GetAssetInfo(assetGuid)->m_sAbsolutePath;
-      }
-      if (!ezAssetDocumentManager::IsThumbnailUpToDate(out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sAssetFile))
+      if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
       {
         UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsThumbnail);
         return ezAssetInfo::TransformState::NeedsThumbnail;
@@ -476,7 +479,7 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
   {
     if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
     {
-      out_ThumbHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(assetGuid);
+      out_ThumbHash = GetAssetReferenceHash(assetGuid);
     }
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsTransform);
     return ezAssetInfo::TransformState::NeedsTransform;
@@ -847,8 +850,8 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
       continue;
 
     const ezUuid& guid = it.Key();
-    sResourcePath = it.Value()->m_pManager->GenerateRelativeResourceFileName(sDataDir, sTemp, sPlatform);
-
+    // TODO: Do we need to write out additional outputs and if yes, in what format?
+    sResourcePath = it.Value()->m_pManager->GetRelativeOutputFileName(sDataDir, sTemp, "", sPlatform);
     sTemp.Format("{0};{1}\n", ezConversionUtils::ToString(guid).GetData(), sResourcePath.GetData());
 
     file.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
@@ -1094,7 +1097,7 @@ void ezAssetCurator::RunNextProcessTask()
     const ezUInt32 uiWorkerCount = 1;// ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
     for (ezUInt32 i = 0; i < uiWorkerCount; ++i)
     {
-      ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask);
+      ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i);
       pTask->SetOnTaskFinished(ezMakeDelegate(&ezAssetCurator::OnProcessTaskFinished, this));
       //ezTaskSystem::AddTaskToGroup(m_ProcessTaskGroup, pTask);
       m_ProcessTasks.PushBack(pTask);

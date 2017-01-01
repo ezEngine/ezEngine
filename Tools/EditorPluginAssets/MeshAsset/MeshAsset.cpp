@@ -182,7 +182,7 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   ezMeshAssetProperties* pProp = GetProperties();
 

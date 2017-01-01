@@ -90,7 +90,7 @@ public:
 
   const ezDocumentTypeDescriptor* GetDocumentTypeDescriptor() const { return m_pTypeDescriptor; }
 
-  const ezDocumentInfo* GetDocumentInfo() { return m_pDocumentInfo; }
+  const ezDocumentInfo* GetDocumentInfo() const { return m_pDocumentInfo; }
 
   ///@}
   /// \name Clipboard Functions
@@ -187,7 +187,6 @@ protected:
 
   virtual void UpdatePrefabsRecursive(ezDocumentObject* pObject);
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab);
-  virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const;
 
   ///@}
 

@@ -59,7 +59,7 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
     return;
   }
 
-  if (!m_bSafeMode)
+  if (!m_bSafeMode && !m_bHeadless)
   {
     const ezRecentFilesList allDocs = LoadOpenDocumentsList();
 
