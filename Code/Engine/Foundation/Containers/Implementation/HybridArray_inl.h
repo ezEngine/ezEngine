@@ -186,7 +186,7 @@ void ezHybridArrayBase<T, Size>::Swap(ezHybridArrayBase<T, Size>& other)
   }
 
   ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
-  DoSwap(other);
+  this->DoSwap(other);
 
   // Fixup pElements pointer after swap
   if (this->m_uiCapacity <= Size)

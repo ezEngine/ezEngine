@@ -84,7 +84,7 @@ template <typename T>
 void ezDynamicArrayBase<T>::Swap(ezDynamicArrayBase<T>& other)
 {
   ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
-  DoSwap(other);
+  this->DoSwap(other);
 }
 
 template <typename T>
