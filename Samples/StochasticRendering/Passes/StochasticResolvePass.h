@@ -2,6 +2,7 @@
 
 #include <StochasticRendering/Basics.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 
