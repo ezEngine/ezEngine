@@ -3,6 +3,8 @@
 #include <StochasticRendering/Basics.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
+typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+
 class EZ_STOCHASTICRENDERING_DLL ezStochasticResolvePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezStochasticResolvePass, ezRenderPipelinePass);
