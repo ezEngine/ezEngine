@@ -2762,7 +2762,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{1469412798434363469}
+		u4 %Hash{6857501959411642455}
 		VarArray %References
 		{
 			s{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
@@ -2898,7 +2898,7 @@ o
 	u3 %v{3}
 	p
 	{
-		b %Active{1}
+		b %Active{0}
 		s %CubeMap{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
 		f %ExposureBias{0x295CCF3F}
 		b %InverseTonemap{0}
