@@ -10,7 +10,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Wrap"}
 		s %AddressModeV{"ezTextureAddressMode::Wrap"}
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGBA1_2D"}
 		b %Compression{1}
 		s %Input1{"FleetOps/Raptor/romRaptor0.tga"}
 		s %Input2{""}
@@ -38,7 +38,7 @@ AssetInfo
 			s{"FleetOps/Raptor/romRaptor0.tga"}
 		}
 		Uuid %DocumentID{u4{11027266470889074870,5011170251983821777}}
-		u4 %Hash{12551785842323988752}
+		u4 %Hash{13632875751743656747}
 		VarArray %References{}
 	}
 }

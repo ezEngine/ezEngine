@@ -14,7 +14,7 @@ AssetInfo
 			s{"FleetOps/ExcelsiorII/fedExcelsiorII0.tga"}
 		}
 		Uuid %DocumentID{u4{6703208666448483508,5077350605220584747}}
-		u4 %Hash{8249754929587719663}
+		u4 %Hash{5951290580518220019}
 		VarArray %References{}
 	}
 }
@@ -42,7 +42,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Wrap"}
 		s %AddressModeV{"ezTextureAddressMode::Wrap"}
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezChannelMappingEnum::RGBA1_2D"}
 		b %Compression{1}
 		s %Input1{"FleetOps/ExcelsiorII/fedExcelsiorII0.tga"}
 		s %Input2{""}
