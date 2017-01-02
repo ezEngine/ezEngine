@@ -2762,24 +2762,21 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{1949658198698779642}
+		u4 %Hash{1469412798434363469}
 		VarArray %References
 		{
 			s{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
 			s{"{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"}
-			s{"{ 1af0db4c-d396-c608-9658-ac00753779de }"}
 			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
 			s{"{ 2f695ba0-f6b6-4769-9256-f2778a00c199 }"}
-			s{"{ 31f1f5ae-45d5-ca36-6ddf-e961f697ff1c }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
 			s{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
 			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
 			s{"{ 57eb2306-2392-497c-bc0c-6c8fa76dcf37 }"}
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
-			s{"{ 69aa1d93-6010-73f1-d826-d3f61524bba4 }"}
+			s{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
 			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
-			s{"{ 7c460c9c-2c38-60c7-ff9b-8d44e27aaf79 }"}
 			s{"{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }"}
 			s{"{ 912f4499-7b67-402b-9110-1871cc9d8a2c }"}
 			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
@@ -2792,8 +2789,6 @@ AssetInfo
 			s{"{ b7491649-7988-4bea-b145-6550ab951811 }"}
 			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
 			s{"{ ce11aaa9-e082-4a02-bb75-cf193c804c90 }"}
-			s{"{ cf6912bc-5b11-198c-1d69-6e1d705f38c1 }"}
-			s{"{ d1430c65-ec9a-e328-1a64-26dc10e69121 }"}
 			s{"{ d2764eb1-617d-475b-9638-bd6f42ca36b3 }"}
 			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
 			s{"{ e6c495bb-9dd5-43ef-9f20-618828f20781 }"}
@@ -2900,18 +2895,13 @@ o
 {
 	Uuid %id{u4{6084841500830243463,5213165637570940150}}
 	s %t{"ezSkyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
-		s %BackTexture{"{ cf6912bc-5b11-198c-1d69-6e1d705f38c1 }"}
-		s %DownTexture{"{ 1af0db4c-d396-c608-9658-ac00753779de }"}
+		s %CubeMap{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
 		f %ExposureBias{0x295CCF3F}
-		s %FrontTexture{"{ 69aa1d93-6010-73f1-d826-d3f61524bba4 }"}
-		b %InverseTonemap{1}
-		s %LeftTexture{"{ d1430c65-ec9a-e328-1a64-26dc10e69121 }"}
-		s %RightTexture{"{ 7c460c9c-2c38-60c7-ff9b-8d44e27aaf79 }"}
-		s %UpTexture{"{ 31f1f5ae-45d5-ca36-6ddf-e961f697ff1c }"}
+		b %InverseTonemap{0}
 	}
 }
 o

@@ -14,7 +14,6 @@ float MaskThreshold @Default(0.25);
 float ExposureBias;
 bool InverseTonemap;
 
-Texture2D BaseTexture;
 TextureCube CubeMap;
 Color BaseColor @Default(1.0, 1.0, 1.0);
 
@@ -42,7 +41,7 @@ VS_OUT main(VS_IN Input)
 	float4 dir = mul(ScreenToCameraMatrix, float4(ScreenPos.xy,1.0,1.0));
 	dir.w = 0.0;
 
-	Output.Position = float4(ScreenPos.xy, 0.99999, 1.0);
+	Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
 	Output.ViewDirection = mul(transpose(objectToWorld), mul(CameraToWorldMatrix, dir)).xyz;
 
 	return Output;

@@ -14,10 +14,10 @@ AssetInfo
 			s{"Shaders/Materials/SkyMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{10074911756598670976,5336416775761779484}}
-		u4 %Hash{15220178625005478479}
+		u4 %Hash{12148000333486187972}
 		VarArray %References
 		{
-			s{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
+			s{"{ da307f05-9ef4-4a09-81d4-b86f5be99412 }"}
 		}
 	}
 }
@@ -39,7 +39,7 @@ o
 {
 	Uuid %id{u4{13980508164325015977,5695856761518756783}}
 	s %t{"ezMaterialAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		s %BaseMaterial{""}
@@ -57,7 +57,8 @@ o
 	{
 		s %BLEND_MODE{"BLEND_MODE::OPAQUE"}
 		Color %BaseColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		s %BaseTexture{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
+		s %BaseTexture{""}
+		s %CubeMap{"{ da307f05-9ef4-4a09-81d4-b86f5be99412 }"}
 		f %ExposureBias{0x0000803F}
 		b %InverseTonemap{1}
 		f %MaskThreshold{0x0000803E}
@@ -66,13 +67,6 @@ o
 }
 Types
 {
-o
-{
-	Uuid %id{u4{15814630676322885252,364896421820957201}}
-	s %t{"ezExposeColorAlphaAttribute"}
-	u3 %v{1}
-	p{}
-}
 o
 {
 	Uuid %id{u4{6855408526529572370,383354614554810827}}
@@ -86,6 +80,25 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::TRANSPARENT"}
 		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{2440657170771163896,1716754925964122085}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{7434048623566182191,12737651713064459778}}
+			Uuid{u4{9573985804699087580,12442368487118567110}}
+			Uuid{u4{13579796794276105664,6233948893190447844}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"BaseColor"}
+		s %Type{"ezColor"}
 	}
 }
 o
@@ -147,12 +160,19 @@ o
 }
 o
 {
+	Uuid %id{u4{13579796794276105664,6233948893190447844}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{11808819686745867168,6573316015749076467}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		s %Filter{";Texture Cube;"}
 	}
 }
 o
@@ -162,7 +182,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		s %Category{"Texture"}
 	}
 }
 o
@@ -224,6 +244,7 @@ o
 			Uuid{u4{12754164122313136739,17742226693193850157}}
 			Uuid{u4{2523203858339236437,15470649213801683747}}
 			Uuid{u4{4675491052817943484,14294446528304183058}}
+			Uuid{u4{2440657170771163896,1716754925964122085}}
 		}
 		s %TypeName{"Shaders/Materials/SkyMaterial.ezShader"}
 		u3 %TypeSize{0}
@@ -297,6 +318,16 @@ o
 }
 o
 {
+	Uuid %id{u4{9573985804699087580,12442368487118567110}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
 	Uuid %id{u4{1879655039713855915,12546781288017295341}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{1}
@@ -314,6 +345,16 @@ o
 }
 o
 {
+	Uuid %id{u4{7434048623566182191,12737651713064459778}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
 	Uuid %id{u4{4675491052817943484,14294446528304183058}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{1}
@@ -323,12 +364,11 @@ o
 		{
 			Uuid{u4{9668882505612961779,6868599241694969135}}
 			Uuid{u4{11808819686745867168,6573316015749076467}}
-			Uuid{u4{15814630676322885252,364896421820957201}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"BaseColor"}
-		s %Type{"ezColor"}
+		s %Name{"CubeMap"}
+		s %Type{"ezString"}
 	}
 }
 o
