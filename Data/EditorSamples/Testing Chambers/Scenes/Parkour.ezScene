@@ -1743,7 +1743,7 @@ o
 		f %NearPlane{0x0000803E}
 		s %RenderPipeline{""}
 		f %ShutterTime{0x0000803F}
-		s %UsageHint{"ezCameraUsageHint::None"}
+		s %UsageHint{"ezCameraUsageHint::MainView"}
 	}
 }
 o
@@ -2306,6 +2306,23 @@ o
 }
 o
 {
+	Uuid %id{u4{14847168656001625766,4984817416655678920}}
+	s %t{"ezPxCharacterProxyComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %CapsuleHeight{0x9A99993F}
+		f %CapsuleRadius{0x9A99993E}
+		u1 %CollisionLayer{6}
+		b %ConstrainedClimbMode{0}
+		b %ForceSlopeSliding{1}
+		Angle %MaxSlopeAngle{f{0xC2B8323F}}
+		f %MaxStepHeight{0x9A99993E}
+	}
+}
+o
+{
 	Uuid %id{u4{2240340873787033762,4985812520305059805}}
 	s %t{"ezAmbientLightComponent"}
 	u3 %v{2}
@@ -2762,7 +2779,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{6857501959411642455}
+		u4 %Hash{7031942688539280183}
 		VarArray %References
 		{
 			s{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
@@ -3128,20 +3145,13 @@ o
 {
 	Uuid %id{u4{3944063209475990452,5332446421198049134}}
 	s %t{"ezPxCharacterControllerComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		f %AirFriction{0x0000003F}
 		f %AirSpeed{0x00002040}
-		f %CapsuleHeight{0x0000803F}
-		f %CapsuleRadius{0x0000803E}
-		u1 %CollisionLayer{0}
-		b %ConstrainedClimbMode{0}
-		b %ForceSlopeSliding{1}
 		f %JumpImpulse{0x0000803F}
-		Angle %MaxSlopeAngle{f{0xC2B8323F}}
-		f %MaxStepHeight{0x9A99993E}
 		Angle %RotateSpeed{f{0xDB0FC93F}}
 		f %RunSpeed{0x0000C040}
 		f %WalkSpeed{0x00004040}
@@ -3534,6 +3544,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{3944063209475990452,5332446421198049134}}
+			Uuid{u4{14847168656001625766,4984817416655678920}}
 			Uuid{u4{4968021759543384712,5357094573332117137}}
 		}
 		s %GlobalKey{""}

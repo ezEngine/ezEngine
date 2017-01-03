@@ -14,6 +14,7 @@ public:
   ~ezCameraComponentManager();
 
   virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   void Update(const ezWorldModule::UpdateContext& context);
 
@@ -21,6 +22,8 @@ public:
 
 private:
   friend class ezCameraComponent;
+
+  void OnViewCreated(ezView* pView);
 
   ezDynamicArray<ezComponentHandle> m_modifiedCameras;
 };
@@ -97,4 +100,5 @@ private:
 
   void MarkAsModified();
   bool m_bIsModified;
+  bool m_bShowStats;
 };

@@ -9,7 +9,6 @@ typedef ezComponentManager<class ezPxFixedJointComponent> ezPxFixedJointComponen
 class EZ_PHYSXPLUGIN_DLL ezPxFixedJointComponent : public ezPxJointComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxFixedJointComponent, ezPxJointComponent, ezPxFixedJointComponentManager);
-  virtual void ezPhysXComponentIsAbstract() override {}
 
 public:
   ezPxFixedJointComponent();

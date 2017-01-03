@@ -7,7 +7,6 @@ typedef ezComponentManagerSimple<class ezPxDynamicActorComponent, true> ezPxDyna
 class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponent : public ezPxActorComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxDynamicActorComponent, ezPxActorComponent, ezPxDynamicActorComponentManager);
-  virtual void ezPhysXComponentIsAbstract() override {}
 
 public:
   ezPxDynamicActorComponent();

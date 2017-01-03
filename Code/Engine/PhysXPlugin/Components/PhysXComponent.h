@@ -12,7 +12,6 @@ using namespace physx;
 class EZ_PHYSXPLUGIN_DLL ezPhysXComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPhysXComponent, ezComponent);
-  virtual void ezPhysXComponentIsAbstract() = 0; // abstract classes are not shown in the UI, since this class has no other abstract functions so far, this is a dummy
 
 public:
   ezPhysXComponent() {}

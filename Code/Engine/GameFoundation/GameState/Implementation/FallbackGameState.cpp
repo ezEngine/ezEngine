@@ -152,18 +152,7 @@ void ezFallbackGameState::ProcessInput()
   {
     auto* pCamNode = pCamComp->GetOwner();
 
-    if (pCamComp->GetCameraMode() == ezCameraMode::PerspectiveFixedFovX || pCamComp->GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
-      m_MainCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
-    else
-      m_MainCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
-
     m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), (pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized());
-
-    ezRenderPipelineResourceHandle hRenderPipeline = pCamComp->GetRenderPipeline();
-    if (hRenderPipeline.IsValid())
-    {
-      m_pMainView->SetRenderPipelineResource(hRenderPipeline);
-    }
 
     return;
   }

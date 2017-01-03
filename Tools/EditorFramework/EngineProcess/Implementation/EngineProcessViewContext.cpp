@@ -158,8 +158,12 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
 
 void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
+  bool bModeFromCamera = false;
+
   if (m_pView != nullptr && m_pView->GetWorld() != nullptr)
   {
+    m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
+
     if (pMsg->m_uiRenderMode == ezViewRenderMode::None)
     {
       bool bResetDefaultPipeline = true;
@@ -169,8 +173,8 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
         if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
         {
           bResetDefaultPipeline = !pCamera->GetRenderPipeline().IsValid();
+          bModeFromCamera = true;
 
-          m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
           pCamera->ApplySettingsToView(m_pView);
         }
       }
@@ -187,7 +191,10 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   }
 
   ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
-  m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+  if (!bModeFromCamera || cameraMode == ezCameraMode::OrthoFixedWidth || cameraMode == ezCameraMode::OrthoFixedHeight)
+  {
+    m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+  }
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
   if (m_pView)
@@ -196,7 +203,7 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
 
     // by default this stuff is disabled, derived classes can enable it
-    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);    
+    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
     m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
   }
 }

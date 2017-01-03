@@ -17,7 +17,7 @@ public:
   static void AddMainViews(const ezArrayPtr<ezView*>& views);
   static void RemoveMainView(ezView* pView);
   static void ClearMainViews();
-  
+
   EZ_FORCE_INLINE static ezArrayPtr<ezView*> GetMainViews()
   {
     return s_MainViews;
@@ -39,6 +39,8 @@ public:
   static void BeginFrame();
   static void EndFrame();
 
+  static ezEvent<ezView*> s_ViewCreatedEvent;
+  static ezEvent<ezView*> s_ViewDeletedEvent;
   static ezEvent<ezUInt64> s_BeginFrameEvent; ///< Triggered at the end of BeginFrame.
   static ezEvent<ezUInt64> s_EndFrameEvent; ///< Triggered at the beginning of EndFrame before the frame counter is incremented.
 
@@ -72,6 +74,6 @@ private:
   static ezUInt64 s_uiFrameCounter;
 
   static ezDynamicArray<ezView*> s_Views;
-  static ezDynamicArray<ezView*> s_MainViews;  
+  static ezDynamicArray<ezView*> s_MainViews;
 };
 

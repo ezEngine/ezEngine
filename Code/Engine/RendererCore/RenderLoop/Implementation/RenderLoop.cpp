@@ -7,6 +7,8 @@
 
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 
+ezEvent<ezView*> ezRenderLoop::s_ViewCreatedEvent;
+ezEvent<ezView*> ezRenderLoop::s_ViewDeletedEvent;
 ezEvent<ezUInt64> ezRenderLoop::s_BeginFrameEvent;
 ezEvent<ezUInt64> ezRenderLoop::s_EndFrameEvent;
 
@@ -32,7 +34,7 @@ namespace
     ezRenderPipeline* m_pPipeline;
     ezView* m_pView;
   };
-  
+
   static ezMutex s_PipelinesToRebuildMutex;
   static ezDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
 }
@@ -55,17 +57,21 @@ ezView* ezRenderLoop::CreateView(const char* szName)
 {
   // can't use EZ_DEFAULT_NEW because it wants to create a destructor function which is not possible since the view destructor is private
   ezView* pView = new (ezFoundation::GetDefaultAllocator()->Allocate(sizeof(ezView), EZ_ALIGNMENT_OF(ezView))) ezView();
-  
+
   pView->SetName(szName);
   pView->InitializePins();
 
   s_Views.PushBack(pView);
+
+  s_ViewCreatedEvent.Broadcast(pView);
 
   return pView;
 }
 
 void ezRenderLoop::DeleteView(ezView* pView)
 {
+  s_ViewDeletedEvent.Broadcast(pView);
+
   {
     EZ_LOCK(s_PipelinesToRebuildMutex);
 
@@ -80,7 +86,7 @@ void ezRenderLoop::DeleteView(ezView* pView)
 
   RemoveMainView(pView);
   s_Views.Remove(pView);
-  
+
   pView->~ezView();
   ezFoundation::GetDefaultAllocator()->Deallocate(pView);
 }
@@ -175,7 +181,7 @@ void ezRenderLoop::ExtractMainViews()
         s_ViewsToRender.PushBack(pView);
         ezTaskSystem::AddTaskToGroup(extractTaskID, pView->GetExtractTask());
       }
-    }    
+    }
 
     ezTaskSystem::StartTaskGroup(s_ExtractionFinishedTaskID);
     ezTaskSystem::StartTaskGroup(extractTaskID);
@@ -208,7 +214,7 @@ void ezRenderLoop::ExtractMainViews()
     }
 
     s_ViewsToRender.Clear();
-  }  
+  }
 }
 
 void ezRenderLoop::Render(ezRenderContext* pRenderContext)

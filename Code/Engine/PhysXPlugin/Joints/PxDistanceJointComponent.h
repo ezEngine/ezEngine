@@ -9,7 +9,6 @@ typedef ezComponentManager<class ezPxDistanceJointComponent> ezPxDistanceJointCo
 class EZ_PHYSXPLUGIN_DLL ezPxDistanceJointComponent : public ezPxJointComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxDistanceJointComponent, ezPxJointComponent, ezPxDistanceJointComponentManager);
-  virtual void ezPhysXComponentIsAbstract() override {}
 
 public:
   ezPxDistanceJointComponent();

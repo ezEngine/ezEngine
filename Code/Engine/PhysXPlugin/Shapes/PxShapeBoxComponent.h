@@ -7,7 +7,6 @@ typedef ezComponentManager<class ezPxShapeBoxComponent> ezPxShapeBoxComponentMan
 class EZ_PHYSXPLUGIN_DLL ezPxShapeBoxComponent : public ezPxShapeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxShapeBoxComponent, ezPxShapeComponent, ezPxShapeBoxComponentManager);
-  virtual void ezPhysXComponentIsAbstract() override {}
 
 public:
   ezPxShapeBoxComponent();

@@ -55,6 +55,9 @@ void ezGameState::OnActivation(ezWorld* pWorld)
 
 void ezGameState::OnDeactivation()
 {
+  ezRenderLoop::DeleteView(m_pMainView);
+  m_pMainView = nullptr;
+
   DestroyMainWindow();
 }
 
@@ -104,7 +107,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 
   m_pMainView = ezRenderLoop::CreateView("MainView");
   m_pMainView->SetCameraUsageHint(ezCameraUsageHint::MainView);
-    
+
   ezGALRenderTagetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, hBackBuffer);
   m_pMainView->SetRenderTargetSetup(renderTargetSetup);

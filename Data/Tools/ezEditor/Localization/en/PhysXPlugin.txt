@@ -4,6 +4,7 @@ Joints;Joints
 Shapes;Shapes
 ezPxCenterOfMassComponent;Center of Mass
 ezPxCharacterControllerComponent;Character Controller
+ezPxCharacterProxyComponent;Character Proxy
 ezPxDynamicActorComponent;Dynamic Actor
 ezPxStaticActorComponent;Static Actor
 ezPxDistanceJointComponent;Distance Joint

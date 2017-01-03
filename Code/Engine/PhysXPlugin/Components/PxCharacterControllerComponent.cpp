@@ -1,61 +1,40 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
+#include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameUtils/Components/InputComponent.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("CapsuleHeight", m_fCapsuleHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-    EZ_MEMBER_PROPERTY("CapsuleRadius", m_fCapsuleRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
-    EZ_MEMBER_PROPERTY("MaxStepHeight", m_fMaxStepHeight)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
     EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 5.0f)),
     EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
-    EZ_MEMBER_PROPERTY("MaxSlopeAngle", m_MaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(80.0f))),
-    EZ_MEMBER_PROPERTY("ForceSlopeSliding", m_bForceSlopeSliding)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ConstrainedClimbMode", m_bConstrainedClimbingMode),
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
   }
   EZ_END_MESSAGEHANDLERS
-    EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCapsuleManipulatorAttribute("CapsuleHeight", "CapsuleRadius"),
-    new ezCapsuleVisualizerAttribute("CapsuleHeight", "CapsuleRadius"),
-  }
-  EZ_END_ATTRIBUTES
 }
 EZ_END_COMPONENT_TYPE
 
 ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
 {
-  m_pController = nullptr;
   m_vRelativeMoveDirection.SetZero();
 
-  m_fCapsuleHeight = 1.0f;
-  m_fCapsuleRadius = 0.25f;
-  m_fMaxStepHeight = 0.3f;
   m_fWalkSpeed = 3.0f;
   m_fRunSpeed = 6.0f;
   m_fAirSpeed = 2.5f;
   m_fAirFriction = 0.5f;
   m_RotateSpeed = ezAngle::Degree(90.0f);
-  m_MaxClimbingSlope = ezAngle::Degree(40.0f);
-  m_bForceSlopeSliding = true;
-  m_bConstrainedClimbingMode = false;
-  m_uiCollisionLayer = 0;
   m_fJumpImpulse = 1.0f;
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
@@ -67,18 +46,11 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s << m_fCapsuleHeight;
-  s << m_fCapsuleRadius;
-  s << m_fMaxStepHeight;
-  s << m_MaxClimbingSlope;
-  s << m_bForceSlopeSliding;
-  s << m_bConstrainedClimbingMode;
   s << m_fWalkSpeed;
   s << m_fRunSpeed;
   s << m_fAirSpeed;
   s << m_fAirFriction;
   s << m_RotateSpeed;
-  s << m_uiCollisionLayer;
   s << m_fJumpImpulse;
 }
 
@@ -89,41 +61,45 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  s >> m_fCapsuleHeight;
-  s >> m_fCapsuleRadius;
-  s >> m_fMaxStepHeight;
-  s >> m_MaxClimbingSlope;
-  s >> m_bForceSlopeSliding;
-  s >> m_bConstrainedClimbingMode;
+  if (uiVersion < 2)
+  {
+    float fDummy; bool bDummy; ezAngle dummyAngle;
+
+    s >> fDummy;
+    s >> fDummy;
+    s >> fDummy;
+    s >> dummyAngle;
+    s >> bDummy;
+    s >> bDummy;
+  }
+
   s >> m_fWalkSpeed;
   s >> m_fRunSpeed;
   s >> m_fAirSpeed;
   s >> m_fAirFriction;
   s >> m_RotateSpeed;
-  s >> m_uiCollisionLayer;
-  s >> m_fJumpImpulse;
-}
 
-void ezPxCharacterControllerComponent::Initialize()
-{
-  if (IsActive())
+  if (uiVersion < 2)
   {
-    GetOwner()->UpdateLocalBounds();
+    ezUInt32 uiDummy;
+    s >> uiDummy;
   }
+
+  s >> m_fJumpImpulse;
 }
 
 void ezPxCharacterControllerComponent::Update()
 {
-  if (m_pController == nullptr)
+  ezPxCharacterProxyComponent* pProxy = nullptr;
+  if (!GetWorld()->TryGetComponent(m_hProxy, pProxy))
     return;
 
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  PxControllerState state;
-  m_pController->getState(state);
-  const bool isOnGround = (state.collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN) != 0;
-  const bool touchesCeiling = (state.collisionFlags & PxControllerCollisionFlag::eCOLLISION_UP) != 0;
+  auto collisionFlags = pProxy->GetCollisionFlags();
+  const bool isOnGround = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Below);
+  const bool touchesCeiling = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Above);
   const bool canJump = isOnGround && !touchesCeiling;
   const bool wantsJump = m_InputStateBits & InputStateBits::Jump;
 
@@ -170,31 +146,13 @@ void ezPxCharacterControllerComponent::Update()
     vNewVelocity.z = m_fVelocityUp;
   }
 
-  auto posBefore = m_pController->getPosition();
+  auto posBefore = GetOwner()->GetGlobalPosition();
   //{
     const ezVec3 vMoveDiff = vNewVelocity * tDiff;
-
-    ezPxQueryFilter CharFilter;
-
-    /// \todo Filter dynamic stuff ?
-    PxControllerFilters charFilter;
-    PxFilterData filter;
-    charFilter.mCCTFilterCallback = nullptr;
-    charFilter.mFilterCallback = &CharFilter;
-    charFilter.mFilterData = &filter;
-    charFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
-
-    {
-      filter.word0 = EZ_BIT(m_uiCollisionLayer);
-      filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-      filter.word2 = 0;
-      filter.word3 = 0;
-    }
-
-    m_pController->move(PxVec3(vMoveDiff.x, vMoveDiff.y, vMoveDiff.z), 0.5f * fGravity, tDiff, charFilter);
+    pProxy->Move(vMoveDiff);
   //}
 
-  auto posAfter = m_pController->getPosition();
+  auto posAfter = GetOwner()->GetGlobalPosition();
 
   /// After move forwards, sweep test downwards to stick character to floor and detect falling
   if (isOnGround && (!wantsJump || !canJump))
@@ -206,9 +164,9 @@ void ezPxCharacterControllerComponent::Update()
     float fSweepDistance;
     ezVec3 vSweepPosition, vSweepNormal;
 
-    if (pModule->SweepTestCapsule(t, ezVec3(0, 0, -1), m_fCapsuleRadius, m_fCapsuleHeight, m_fMaxStepHeight, m_uiCollisionLayer, fSweepDistance, vSweepPosition, vSweepNormal))
+    if (pModule->SweepTestCapsule(t, ezVec3(0, 0, -1), pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, fSweepDistance, vSweepPosition, vSweepNormal))
     {
-      m_pController->move(PxVec3(0, 0, -fSweepDistance), 0.5f * fGravity, 0.0f, charFilter);
+      pProxy->Move(ezVec3(0, 0, -fSweepDistance));
 
       //ezLog::Info("Floor Distance: {0} ({1} | {2} | {3}) -> ({4} | {5} | {6}), Radius: {7}, Height: {8}", ezArgF(fSweepDistance, 2), ezArgF(t.m_vPosition.x, 2), ezArgF(t.m_vPosition.y, 2), ezArgF(t.m_vPosition.z, 2), ezArgF(vSweepPosition.x, 2), ezArgF(vSweepPosition.y, 2), ezArgF(vSweepPosition.z, 2), ezArgF(m_fCapsuleRadius, 2), ezArgF(m_fCapsuleHeight, 2));
     }
@@ -217,7 +175,7 @@ void ezPxCharacterControllerComponent::Update()
       //ezLog::Dev("Falling");
     }
 
-    posAfter = m_pController->getPosition();
+    posAfter = GetOwner()->GetGlobalPosition();
   }
 
   {
@@ -268,58 +226,16 @@ void ezPxCharacterControllerComponent::Update()
 
 void ezPxCharacterControllerComponent::OnSimulationStarted()
 {
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-
   m_vRelativeMoveDirection.SetZero();
   m_InputStateBits = 0;
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
 
-  const auto pos = GetOwner()->GetGlobalPosition();
-  const auto rot = GetOwner()->GetGlobalRotation();
-
-  PxTransform t = PxTransform::createIdentity();
-  t.p = PxVec3(pos.x, pos.y, pos.z);
-  t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
-
-  PxCapsuleControllerDesc cd;
-  cd.climbingMode = m_bConstrainedClimbingMode ? PxCapsuleClimbingMode::eCONSTRAINED : PxCapsuleClimbingMode::eEASY;
-  cd.height = ezMath::Max(m_fCapsuleHeight, 0.0f);
-  cd.radius = ezMath::Max(m_fCapsuleRadius, 0.0f);
-  cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
-  cd.position.set(pos.x, pos.y, pos.z);
-  cd.slopeLimit = ezMath::Cos(m_MaxClimbingSlope);
-  cd.stepOffset = m_fMaxStepHeight;
-  cd.upDirection = PxVec3(0, 0, 1);
-  cd.userData = this;
-  cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
-
-  if (!cd.isValid())
+  ezPxCharacterProxyComponent* pProxy = nullptr;
+  if (GetOwner()->TryGetComponentOfBaseType(pProxy))
   {
-    ezLog::Error("The Character Controller configuration is invalid.");
-    return;
+    m_hProxy = pProxy->GetHandle();
   }
-
-  m_pController = static_cast<PxCapsuleController*>(pModule->GetCharacterManager()->createController(cd));
-
-  EZ_ASSERT_DEV(m_pController != nullptr, "Failed to create character controller");
-}
-
-void ezPxCharacterControllerComponent::Deinitialize()
-{
-  if (m_pController)
-  {
-    /// \todo world module is shut down first -> bad order
-    //m_pController->release();
-    m_pController = nullptr;
-  }
-}
-
-
-void ezPxCharacterControllerComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
-{
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0, -m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0,  m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
 }
 
 void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& msg)

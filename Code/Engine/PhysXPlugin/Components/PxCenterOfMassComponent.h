@@ -8,7 +8,6 @@ typedef ezComponentManager<class ezPxCenterOfMassComponent> ezPxCenterOfMassComp
 class EZ_PHYSXPLUGIN_DLL ezPxCenterOfMassComponent : public ezPhysXComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxCenterOfMassComponent, ezPhysXComponent, ezPxCenterOfMassComponentManager);
-  virtual void ezPhysXComponentIsAbstract() override {}
 
 public:
   ezPxCenterOfMassComponent();

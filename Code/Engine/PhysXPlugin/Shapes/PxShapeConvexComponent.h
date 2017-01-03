@@ -8,7 +8,6 @@ typedef ezComponentManager<class ezPxShapeConvexComponent> ezPxShapeConvexCompon
 class EZ_PHYSXPLUGIN_DLL ezPxShapeConvexComponent : public ezPxShapeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxShapeConvexComponent, ezPxShapeComponent, ezPxShapeConvexComponentManager);
-  virtual void ezPhysXComponentIsAbstract() override {}
 
 public:
   ezPxShapeConvexComponent();

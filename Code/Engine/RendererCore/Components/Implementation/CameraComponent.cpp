@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
@@ -24,6 +25,14 @@ void ezCameraComponentManager::Initialize()
   desc.m_Phase = UpdateFunctionDesc::Phase::PostTransform;
 
   this->RegisterUpdateFunction(desc);
+
+  ezRenderLoop::s_ViewCreatedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
+}
+
+
+void ezCameraComponentManager::Deinitialize()
+{
+  ezRenderLoop::s_ViewCreatedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
 }
 
 void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -65,6 +74,15 @@ const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCamera
   return nullptr;
 }
 
+void ezCameraComponentManager::OnViewCreated(ezView* pView)
+{
+  // Mark all cameras as modified so the new view gets the proper settings
+  for (auto it = GetComponents(); it.IsValid(); ++it)
+  {
+    it->MarkAsModified();
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 5)
@@ -73,8 +91,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 5)
   {
     EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
-    EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1000000.0f)),
-    EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
+    EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.00001f, 1000000.0f)),
+    EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.00001f, 1000000.0f)),
     EZ_ACCESSOR_PROPERTY("FOV", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 179.0f)),
     EZ_ACCESSOR_PROPERTY("Dimensions", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
@@ -84,6 +102,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 5)
     EZ_ACCESSOR_PROPERTY("ShutterTime", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f/100000.0f, 600.0f), new ezSuffixAttribute(" s")),
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
     EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
+    EZ_MEMBER_PROPERTY("ShowStats", m_bShowStats),
     /*EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Final Exposure", GetExposure),*/
   }
@@ -110,6 +129,7 @@ ezCameraComponent::ezCameraComponent()
   m_fExposureCompensation = 0.0f;
 
   m_bIsModified = false;
+  m_bShowStats = false;
 }
 
 ezCameraComponent::~ezCameraComponent()
@@ -346,13 +366,20 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   }
 
   ezCamera* pCamera = pView->GetLogicCamera();
-  pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, m_fFarPlane);
+  pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, ezMath::Max(m_fNearPlane + 0.00001f, m_fFarPlane));
   pCamera->SetExposure(GetExposure());
 
   pView->m_IncludeTags = m_IncludeTags;
   pView->m_ExcludeTags = m_ExcludeTags;
 
-  //ezLog::Info("EV100: {0}, Exposure: {1}", GetEV100(), GetExposure());
+  if (m_bShowStats)
+  {
+    const char* szName = GetOwner()->GetName();
+
+    ezStringBuilder sb;
+    sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
+    ezDebugRenderer::DrawText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
+  }
 
   if (m_hRenderPipeline.IsValid())
   {
