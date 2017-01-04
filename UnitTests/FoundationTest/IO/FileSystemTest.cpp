@@ -152,7 +152,7 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResolvePath")
   {
-    ezString sRel, sAbs;
+    ezStringBuilder sRel, sAbs;
 
     EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/FileSystemTest2.txt", &sAbs, &sRel) == EZ_SUCCESS);
 
