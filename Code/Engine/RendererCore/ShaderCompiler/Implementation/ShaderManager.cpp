@@ -208,6 +208,28 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
   return true;
 }
 
+void ezShaderManager::GetPermutationValues(const ezHashedString& sName, ezHybridArray<ezHashedString, 4>& out_Values)
+{
+  out_Values.Clear();
+
+  const PermutationVarConfig* pConfig = FindConfig(sName);
+  if (pConfig == nullptr)
+    return;
+
+  if (pConfig->m_DefaultValue.IsA<bool>())
+  {
+    out_Values.PushBack(s_sTrue);
+    out_Values.PushBack(s_sFalse);
+  }
+  else
+  {
+    for (const auto& val : pConfig->m_EnumValues)
+    {
+      out_Values.PushBack(val);
+    }
+  }
+}
+
 ezArrayPtr<const ezHashedString> ezShaderManager::GetPermutationEnumValues(const ezHashedString& sName)
 {
   const PermutationVarConfig* pConfig = FindConfig(sName);

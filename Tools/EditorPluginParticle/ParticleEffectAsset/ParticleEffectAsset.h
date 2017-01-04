@@ -41,7 +41,7 @@ public:
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
 private:

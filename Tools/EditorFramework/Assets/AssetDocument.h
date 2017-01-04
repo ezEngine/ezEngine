@@ -38,18 +38,15 @@ public:
   virtual const char* QueryAssetType() const = 0;
 
   /// \brief Transforms an asset.
-  ///   Should never be called manually. Called only by the curator which takes care of dependencies first.
-  ezStatus TransformAsset(const char* szPlatform = nullptr);
+  ///   Typically not called manually but by the curator which takes care of dependencies first.
+  ///
+  /// If bTriggeredManually is true, it will try to transform the asset, ignoring whether the transform is disabled on an asset.
+  /// Will also not try to save the document and if it encounters flags that prevent transformation, it will return an error and not silently ignore them.
+  ezStatus TransformAsset(bool bTriggeredManually, const char* szPlatform = nullptr);
 
   /// \brief Updates the thumbnail of the asset.
   ///   Should never be called manually. Called only by the curator which takes care of dependencies first.
   ezStatus CreateThumbnail();
-
-  /// \brief Will definitely try to transform the asset, ignoring whether the transform is disabled on an asset.
-  ///
-  /// Will also not try to save the document.
-  /// If this function encounters flags that prevent transformation, it will return an error and not silently ignore them.
-  ezStatus TransformAssetManually(const char* szPlatform = nullptr);
 
   /// \brief Returns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
   /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
@@ -144,13 +141,15 @@ protected:
   /// \param szOutputTag Either empty for the default output or matches one of the tags defined in ezAssetDocumentInfo::m_Outputs.
   /// \param szPlatform Platform for which is the output is to be created. Default is 'PC'.
   /// \param AssetHeader Header already written to the stream, provided for reference.
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) = 0;
+  /// \param bTriggeredManually is true when the user chose to transform a single specific asset.
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) = 0;
 
   /// \brief Only override this function, if the transformed file for the given szOutputTag must be written from another process.
   ///
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
   /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader);
+  /// bTriggeredManually is true when the user chose to transform a single specific asset.
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually);
 
   ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
 
@@ -186,6 +185,8 @@ protected:
 
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
+
+  ezStatus DoTransformAsset(const char* szPlatform, bool bTriggeredManually);
 
   EngineStatus m_EngineStatus;
   bool m_bUseIPCObjectMirror;

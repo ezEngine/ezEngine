@@ -20,7 +20,7 @@ public:
   virtual const char* QueryAssetType() const override;
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   ezStatus CreateMeshFromFile(ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream);
 

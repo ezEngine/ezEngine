@@ -183,20 +183,13 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     sPermutationFile.ChangeFileExtension("");
     sPermutationFile.Shrink(ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
 
-    auto itEnd = end(sPermutationFile);
-
-    // move the start of the iterator 8 characters from the back to the front
-    itEnd -= 8;
-
-    ezString sHash = ezStringView(itEnd.GetData(), end(sPermutationFile).GetData()); // copy the hash (last 8 characters)
-
     sPermutationFile.Shrink(0, 8); // remove the hash at the end
     sPermutationFile.Append(".ezShader");
 
     ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource)->GetPermutationVars();
 
     ezShaderCompiler sc;
-    return sc.CompileShaderPermutationForPlatforms(sPermutationFile.GetData(), permutationVars, ezShaderManager::GetActivePlatform().GetData());
+    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezShaderManager::GetActivePlatform());
   }
   else
   {

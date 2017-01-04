@@ -24,6 +24,7 @@ class ezProgress;
 class ezQtProgressbar;
 class ezQtEditorApp;
 class ezEditorTests;
+class QStringList;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -49,7 +50,12 @@ public:
   ezEvent<const ezEditorAppEvent&> m_Events;
 
   /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools, otherwise the currently compiled ones.
-  ezString GetExternalToolsFolder();
+  /// If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools are stored (app binary dir)
+  ezString GetExternalToolsFolder(bool bForceUseCustomTools = false);
+
+  ezString FindToolApplication(const char* szToolName);
+
+  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, bool bPipeOutputToLog, bool bOnlyPipeErrors);
 
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_bSafeMode; }

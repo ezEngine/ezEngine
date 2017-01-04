@@ -98,7 +98,7 @@ void ezAssetAction::Execute(const ezVariant& value)
         }
       }
 
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid());
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid(), true);
 
       if (ret.m_Result.Failed())
       {

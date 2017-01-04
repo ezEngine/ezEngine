@@ -135,7 +135,7 @@ public:
   /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data directory
   /// that would handle it.
   /// The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(const char* szPath, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath); // [tested]
+  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   /// Returns EZ_FAILURE if nothing is found. Otherwise \a result is the absolute path to the existing folder that has a given sub-folder.

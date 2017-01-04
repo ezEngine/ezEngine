@@ -85,8 +85,7 @@ void ezColorGradientAssetDocument::FillGradientData(ezColorGradient& out_Result)
   }
 }
 
-ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
-{
+ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually){
   const ezColorGradientAssetData* pProp = GetProperties();
 
   ezColorGradientResourceDescriptor desc;

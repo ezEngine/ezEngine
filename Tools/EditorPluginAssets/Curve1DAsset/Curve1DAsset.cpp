@@ -71,8 +71,7 @@ ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
   return pProp->m_Curves.GetCount();
 }
 
-ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
-{
+ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually){
   const ezCurve1DAssetData* pProp = GetProperties();
 
   ezCurve1DResourceDescriptor desc;

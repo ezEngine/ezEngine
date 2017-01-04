@@ -1,6 +1,11 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
+void ezPermutationGenerator::Clear()
+{
+  m_Permutations.Clear();
+}
+
 void ezPermutationGenerator::AddPermutation(const ezHashedString& sName, const ezHashedString& sValue)
 {
   m_Permutations[sName].Insert(sValue);

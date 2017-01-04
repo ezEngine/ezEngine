@@ -81,7 +81,7 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath
 
   if (ezPathUtils::IsRootedPath(sPath))
   {
-    ezString sAbsPath;
+    ezStringBuilder sAbsPath;
     if (ezFileSystem::ResolvePath(sPath, &sAbsPath, nullptr).Succeeded())
     {
       sPath = sAbsPath;

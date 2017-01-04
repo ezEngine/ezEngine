@@ -262,7 +262,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 
     range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetData());
 
-    auto res = ProcessAsset(pAssetInfo, szPlatform);
+    auto res = ProcessAsset(pAssetInfo, szPlatform, false);
     if (res.m_Result.Failed())
     {
       ezLog::Error("{0} ({1})", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
@@ -274,7 +274,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
   ezAssetCurator::GetSingleton()->WriteAssetTables(szPlatform);
 }
 
-ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, const char* szPlatform)
+ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const char* szPlatform)
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -282,7 +282,7 @@ ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, const char* szP
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return ezStatus("Transform failed, unknown asset.");
 
-  return ProcessAsset(pInfo, szPlatform);
+  return ProcessAsset(pInfo, szPlatform, bTriggeredManually);
 }
 
 ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
@@ -293,7 +293,7 @@ ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return ezStatus("Create thumbnail failed, unknown asset.");
 
-  return ProcessAsset(pInfo, nullptr);
+  return ProcessAsset(pInfo, nullptr, false);
 }
 
 ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
@@ -598,13 +598,13 @@ void ezAssetCurator::DocumentManagerEventHandler(const ezDocumentManager::Event&
 // ezAssetCurator Processing
 ////////////////////////////////////////////////////////////////////////
 
-ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform)
+ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform, bool bTriggeredManually)
 {
   for (const auto& dep : pAssetInfo->m_Info.m_FileDependencies)
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
     {
-      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, szPlatform));
+      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, szPlatform, bTriggeredManually));
     }
   }
 
@@ -613,7 +613,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
     {
-      resReferences = ProcessAsset(pInfo, szPlatform);
+      resReferences = ProcessAsset(pInfo, szPlatform, bTriggeredManually);
       if (resReferences.m_Result.Failed())
         break;
     }
@@ -666,7 +666,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
   if (state == ezAssetInfo::TransformState::NeedsTransform || state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform))
   {
-    ret = pAsset->TransformAsset(szPlatform);
+    ret = pAsset->TransformAsset(bTriggeredManually, szPlatform);
   }
 
   if (state == ezAssetInfo::TransformState::MissingReference)
@@ -891,7 +891,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
         {
           if (ezAssetInfo* pInfo = GetAssetInfo(ref))
           {
-            resReferences = ProcessAsset(pInfo, "PC");
+            resReferences = ProcessAsset(pInfo, "PC", false);
             if (resReferences.m_Result.Failed())
               break;
           }

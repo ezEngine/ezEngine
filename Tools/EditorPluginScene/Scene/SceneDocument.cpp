@@ -1211,7 +1211,7 @@ ezStatus ezSceneDocument::ExportScene()
   if (saveres.m_Result.Failed())
     return saveres;
 
-  auto res = TransformAssetManually();
+  auto res = TransformAsset(true);
 
   if (res.m_Result.Failed())
     ezLog::Error(res.m_sMessage);
@@ -1262,13 +1262,13 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   return RequestExportScene(szTargetFile, AssetHeader);
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 

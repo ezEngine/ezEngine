@@ -4,6 +4,8 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <QProcess>
+#include <QTextStream>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 
@@ -78,13 +80,69 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
   }
 }
 
-ezString ezQtEditorApp::GetExternalToolsFolder()
+ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
 {
   ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-  return ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(pPref->m_bUsePrecompiledTools);
+  return ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bForceUseCustomTools ? false : pPref->m_bUsePrecompiledTools);
 }
 
+ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
+{
+  ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
+  sTool.AppendPath(szToolName);
 
+  if (ezFileSystem::ExistsFile(sTool))
+    return sTool;
+
+  sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder(true);
+  sTool.AppendPath(szToolName);
+
+  if (ezFileSystem::ExistsFile(sTool))
+    return sTool;
+
+  // just try the one in the same folder as the editor
+  return szToolName;
+}
+
+ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, bool bPipeOutputToLog, bool bOnlyPipeErrors)
+{
+  QProcess proc;
+  QString logoutput;
+  proc.setProcessChannelMode(QProcess::MergedChannels);
+  proc.setReadChannel(QProcess::StandardOutput);
+  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]() { logoutput.append(proc.readAllStandardOutput()); });
+  proc.start(QString::fromUtf8(ezQtEditorApp::GetSingleton()->FindToolApplication(szTool)), arguments);
+  auto stat = proc.exitStatus();
+
+  if (!proc.waitForFinished(uiSecondsTillTimeout * 1000))
+    return ezStatus(ezFmt("{0} timed out", szTool));
+
+  if (bPipeOutputToLog)
+  {
+    EZ_LOG_BLOCK("Output", szTool);
+
+    QTextStream logoutputStream(&logoutput);
+    while (!logoutputStream.atEnd())
+    {
+      QString line = logoutputStream.readLine();
+
+      /// \todo This doesn't work because of indentation (startswith fails)
+      if (line.startsWith("Error: "))
+        ezLog::Error("{0}", &line.toUtf8().data()[7]);
+      else if (line.startsWith("Warning: "))
+        ezLog::Warning("{0}", &line.toUtf8().data()[9]);
+      else if (line.startsWith("Seriously: "))
+        ezLog::SeriousWarning("{0}", &line.toUtf8().data()[11]);
+      else if (!bOnlyPipeErrors)
+        ezLog::Info("{0}", line.toUtf8().data());
+    }
+  }
+
+  if (proc.exitCode() != 0)
+    return ezStatus(ezFmt("{0} returned error code {1}", szTool, proc.exitCode()));
+
+  return ezStatus(EZ_SUCCESS);
+}
 
 
 

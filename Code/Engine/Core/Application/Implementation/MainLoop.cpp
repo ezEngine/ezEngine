@@ -19,7 +19,6 @@ void ezRun(ezApplication* pApplicationInstance)
 
   pApplicationInstance->AfterCoreStartup();
 
-
   while (pApplicationInstance->Run() == ezApplication::Continue)
   {
   }
@@ -29,6 +28,10 @@ void ezRun(ezApplication* pApplicationInstance)
   ezStartup::ShutdownCore();
 
   pApplicationInstance->AfterCoreShutdown();
+
+  // Flush standard output to make log available.
+  fflush(stdout);
+  fflush(stderr);
 
   // Reset application instance so code running after the app will trigger asserts etc. to be cleaned up
   // Destructor is called by entry point function

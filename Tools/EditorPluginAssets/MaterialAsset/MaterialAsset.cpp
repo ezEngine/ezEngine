@@ -570,7 +570,7 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   }
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
@@ -578,11 +578,11 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
   }
   else
   {
-    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, szPlatform, AssetHeader);
+    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, szPlatform, AssetHeader, bTriggeredManually);
   }
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
@@ -593,6 +593,28 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   {
     e.m_Type = ret.Succeeded() ? ezMaterialVisualShaderEvent::TransformSucceeded : ezMaterialVisualShaderEvent::TransformFailed;
     e.m_sTransformError = ret.m_sMessage;
+
+    if (bTriggeredManually)
+    {
+      ezString sShaderCompiler = ezQtEditorApp::GetSingleton()->FindToolApplication("ShaderCompiler.exe");
+      ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
+
+      QStringList arguments;
+      ezStringBuilder temp;
+
+      arguments << "-project";
+      arguments << QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory().GetData());
+
+      arguments << "-shader";
+      arguments << QString::fromUtf8(sAutoGenShader.GetData());
+
+      arguments << "-platform";
+      arguments << "DX11_SM50";
+
+      EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, true, false));
+
+      ezLog::Success("Compiled Visual Shader successfully.");
+    }
   }
   else
   {

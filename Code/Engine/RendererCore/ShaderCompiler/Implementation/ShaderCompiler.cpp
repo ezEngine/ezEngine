@@ -196,7 +196,8 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
     }
     else
     {
-      EZ_REPORT_FAILURE("No value given for permutation var '{0}'. Assuming default value of zero.", usedPermutationVar.GetData());
+      ezLog::Error("No value given for permutation var '{0}'. Assuming default value of zero.", usedPermutationVar.GetData());
+
       ezPermutationVar& finalVar = m_ShaderData.m_Permutations.ExpandAndGetRef();
       finalVar.m_sName = usedPermutationVar;
       finalVar.m_sValue.Assign("0");
@@ -217,22 +218,25 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
     m_ShaderData.m_ShaderStageSource[stage] = sTemp;
   }
 
-  m_StageSourceFile[ezGALShaderStage::VertexShader] = szFile;
+  ezStringBuilder tmp = szFile;
+  tmp.MakeCleanPath();
+
+  m_StageSourceFile[ezGALShaderStage::VertexShader] = tmp;
   m_StageSourceFile[ezGALShaderStage::VertexShader].ChangeFileExtension("vs");
 
-  m_StageSourceFile[ezGALShaderStage::HullShader] = szFile;
+  m_StageSourceFile[ezGALShaderStage::HullShader] = tmp;
   m_StageSourceFile[ezGALShaderStage::HullShader].ChangeFileExtension("hs");
 
-  m_StageSourceFile[ezGALShaderStage::DomainShader] = szFile;
+  m_StageSourceFile[ezGALShaderStage::DomainShader] = tmp;
   m_StageSourceFile[ezGALShaderStage::DomainShader].ChangeFileExtension("ds");
 
-  m_StageSourceFile[ezGALShaderStage::GeometryShader] = szFile;
+  m_StageSourceFile[ezGALShaderStage::GeometryShader] = tmp;
   m_StageSourceFile[ezGALShaderStage::GeometryShader].ChangeFileExtension("gs");
 
-  m_StageSourceFile[ezGALShaderStage::PixelShader] = szFile;
+  m_StageSourceFile[ezGALShaderStage::PixelShader] = tmp;
   m_StageSourceFile[ezGALShaderStage::PixelShader].ChangeFileExtension("ps");
 
-  m_StageSourceFile[ezGALShaderStage::ComputeShader] = szFile;
+  m_StageSourceFile[ezGALShaderStage::ComputeShader] = tmp;
   m_StageSourceFile[ezGALShaderStage::ComputeShader].ChangeFileExtension("cs");
 
   // try out every compiler that we can find
@@ -338,7 +342,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
         pp.AddCustomDefine(define);
       }
 
-      if (pp.Process(m_StageSourceFile[stage].GetData(), sProcessed[stage], true, true, true).Failed())
+      if (pp.Process(m_StageSourceFile[stage], sProcessed[stage], true, true, true).Failed())
       {
         bSuccess = false;
         ezLog::Error("Shader preprocessing failed");

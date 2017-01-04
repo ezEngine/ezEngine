@@ -10,7 +10,7 @@ ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentP
 {
 }
 
-ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezPropertyAnimResourceDescriptor* pProp = GetProperties();
 

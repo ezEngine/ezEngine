@@ -120,7 +120,7 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
   if (thumbnailRect.contains(event->localPos().toPoint()))
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
-    ezAssetCurator::GetSingleton()->TransformAsset(guid);
+    ezAssetCurator::GetSingleton()->TransformAsset(guid, false);
     event->accept();
     return true;
   }

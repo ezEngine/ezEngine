@@ -25,7 +25,7 @@ public:
   virtual const char* QueryAssetType() const override { return "RenderPipeline"; }
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;

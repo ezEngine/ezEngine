@@ -28,18 +28,6 @@ ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
   m_iTextureLod = -1;
 }
 
-ezString ezTextureAssetDocument::FindTexConvTool() const
-{
-  ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
-  sTool.AppendPath("TexConv.exe");
-
-  if (ezFileSystem::ExistsFile(sTool))
-    return sTool;
-
-  // just try the one in the same folder as the editor
-  return "TexConv.exe";
-}
-
 ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
@@ -206,29 +194,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   ezLog::Debug("TexConv.exe{0}", cmd.GetData());
 
-  QProcess proc;
-  QString logoutput;
-  proc.setProcessChannelMode(QProcess::MergedChannels);
-  proc.setReadChannel(QProcess::StandardOutput);
-  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]() { logoutput.append(proc.readAllStandardOutput()); });
-  proc.start(QString::fromUtf8(FindTexConvTool().GetData()), arguments);
-  auto stat = proc.exitStatus();
-
-  if (!proc.waitForFinished(60000))
-    return ezStatus("TexConv.exe timed out");
-
-  // Output log.
-  ezString test = logoutput.toUtf8().data();
-  ezLog::Info("TexConv.exe log output:");
-  QTextStream logoutputStream(&logoutput);
-  while (!logoutputStream.atEnd())
-  {
-    QString line = logoutputStream.readLine();
-    ezLog::Info("{0}", line.toUtf8().data());
-  }
-
-  if (proc.exitCode() != 0)
-    return ezStatus(ezFmt("TexConv.exe returned error code {0}", proc.exitCode()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, true, false));
 
   if (bUpdateThumbnail)
   {
@@ -245,7 +211,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
 #define USE_TEXCONV
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");

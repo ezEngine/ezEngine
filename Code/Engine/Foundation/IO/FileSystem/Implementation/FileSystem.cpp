@@ -466,7 +466,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
   return nullptr;
 }
 
-ezResult ezFileSystem::ResolvePath(const char* szPath, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath)
+ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
@@ -527,7 +527,7 @@ ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const
   // ":MyRoot\blub", rather than "C:\Game\blub"
   if (sStartDirAbs.StartsWith(":"))
   {
-    ezString abs;
+    ezStringBuilder abs;
     if (ResolvePath(sStartDirAbs, &abs, nullptr).Failed())
     {
       result.Clear();
