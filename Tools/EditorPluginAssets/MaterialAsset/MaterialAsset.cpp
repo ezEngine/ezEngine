@@ -596,7 +596,6 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     if (bTriggeredManually)
     {
-      ezString sShaderCompiler = ezQtEditorApp::GetSingleton()->FindToolApplication("ShaderCompiler.exe");
       ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
 
       QStringList arguments;
@@ -610,6 +609,16 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
       arguments << "-platform";
       arguments << "DX11_SM50";
+
+      /// \todo Move this declaration into the VSE output node definition
+      arguments << "-perm";
+      arguments << "INSTANCING=FALSE";
+      arguments << "TWO_SIDED=FALSE";
+      arguments << "BLEND_MODE=OPAQUE";
+      arguments << "RENDER_PASS=FORWARD";
+      arguments << "RENDER_PASS=DEPTH_ONLY";
+      arguments << "RENDER_PASS=EDITOR";
+      arguments << "SHADING_MODE=LIT";
 
       EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, true, false));
 

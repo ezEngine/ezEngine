@@ -28,16 +28,42 @@ void ezShaderCompilerApplication::BeforeCoreStartup()
 
   ezGameApplication::BeforeCoreStartup();
 
-  m_sShaderFiles = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-shader", 0, "");
+  auto cmd = ezCommandLineUtils::GetGlobalInstance();
+
+  m_sShaderFiles = cmd->GetStringOption("-shader", 0, "");
   EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "Shader file has not been specified. Use the -shader command followed by a path");
 
-  m_sAppProjectPath = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-project", 0, "");
+  m_sAppProjectPath = cmd->GetStringOption("-project", 0, "");
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "Project directory has not been specified. Use the -project command followed by a path");
 
-  m_sPlatforms = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-platform", 0, "");
+  m_sPlatforms = cmd->GetStringOption("-platform", 0, "");
 
   if (m_sPlatforms.IsEmpty())
     m_sPlatforms = "DX11_SM50";// "ALL";
+
+  const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
+
+  for (ezUInt32 pv = 0; pv < pvs; ++pv)
+  {
+    ezStringBuilder var = cmd->GetStringOption("-perm", pv);
+    
+    const char* szEqual = var.FindSubString("=");
+
+    if (szEqual == nullptr)
+    {
+      ezLog::Error("Permutation Variable declaration contains no equal sign: '{0}'", var);
+      continue;
+    }
+
+    ezStringBuilder val = szEqual + 1;
+    var.SetSubString_FromTo(var.GetData(), szEqual);
+
+    val.Trim(" \t");
+    var.Trim(" \t");
+
+    ezLog::Dev("Fixed permutation variable: {0} = {1}", var, val);
+    m_FixedPermVars[var].PushBack(val);
+  }
 }
 
 
@@ -90,7 +116,6 @@ ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)
 
 ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* szShaderFile)
 {
-  m_PermVarValues.Clear();
   m_PermutationGenerator.Clear();
 
   ezFileReader shaderFile;
@@ -112,7 +137,6 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* sz
   }
 
   {
-    EZ_LOG_BLOCK("Permutation Var Values");
     for (const auto& s : permVars)
     {
       ezHybridArray<ezHashedString, 4> values;
@@ -120,11 +144,23 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* sz
 
       for (const auto& val : values)
       {
-        m_PermVarValues[s.GetData()].PushBack(val.GetData());
-
-        ezLog::Info("PV: {0} = {1}", s.GetData(), val.GetData());
-
         m_PermutationGenerator.AddPermutation(s, val);
+      }
+    }
+  }
+
+  {
+    for (auto it = m_FixedPermVars.GetIterator(); it.IsValid(); ++it)
+    {
+      ezHashedString hsname, hsvalue;
+      hsname.Assign(it.Key().GetData());
+      m_PermutationGenerator.RemovePermutations(hsname);
+
+      for (const auto& val : it.Value())
+      {
+        hsvalue.Assign(val.GetData());
+
+        m_PermutationGenerator.AddPermutation(hsname, hsvalue);
       }
     }
   }

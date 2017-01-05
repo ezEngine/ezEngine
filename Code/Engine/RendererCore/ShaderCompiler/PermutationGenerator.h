@@ -18,6 +18,9 @@ public:
   /// \brief Resets everything.
   void Clear();
 
+  /// \brief Removes all permutations for the given variable
+  void RemovePermutations(const ezHashedString& sPermVarName);
+
   /// \brief Adds the name and one of the possible values of a permutation variable.
   void AddPermutation(const ezHashedString& sName, const ezHashedString& sValue);
 

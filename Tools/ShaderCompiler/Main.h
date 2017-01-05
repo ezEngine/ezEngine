@@ -26,9 +26,9 @@ private:
   virtual void ProcessApplicationInput() override {}
 
   ezPermutationGenerator m_PermutationGenerator;
-  ezMap<ezString, ezHybridArray<ezString, 4> > m_PermVarValues;
   ezString m_sPlatforms;
   ezString m_sShaderFiles;
+  ezMap<ezString, ezHybridArray<ezString, 4>> m_FixedPermVars;
 };
 
 

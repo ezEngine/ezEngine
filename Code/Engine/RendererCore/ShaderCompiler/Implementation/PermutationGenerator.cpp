@@ -6,6 +6,12 @@ void ezPermutationGenerator::Clear()
   m_Permutations.Clear();
 }
 
+
+void ezPermutationGenerator::RemovePermutations(const ezHashedString& sPermVarName)
+{
+  m_Permutations.Remove(sPermVarName);
+}
+
 void ezPermutationGenerator::AddPermutation(const ezHashedString& sName, const ezHashedString& sValue)
 {
   m_Permutations[sName].Insert(sValue);
