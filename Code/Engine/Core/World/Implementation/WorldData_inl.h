@@ -47,11 +47,22 @@ namespace ezInternal
   EZ_FORCE_INLINE void WorldData::RegisteredUpdateFunction::FillFromDesc(const ezWorldModule::UpdateFunctionDesc& desc)
   {
     m_Function = desc.m_Function;
-    m_szFunctionName = desc.m_szFunctionName;
-    m_uiDependencyHash = ezHashing::MurmurHash(desc.m_DependsOn.GetData(), desc.m_DependsOn.GetByteArrayPtr().GetCount());
+    m_sFunctionName = desc.m_sFunctionName;
     m_fPriority = desc.m_fPriority;
     m_uiGranularity = desc.m_uiGranularity;
     m_bOnlyUpdateWhenSimulating = desc.m_bOnlyUpdateWhenSimulating;
+  }
+
+  EZ_FORCE_INLINE bool WorldData::RegisteredUpdateFunction::operator<(const RegisteredUpdateFunction& other) const
+  {
+    // higher priority comes first
+    if (m_fPriority != other.m_fPriority)
+      return m_fPriority > other.m_fPriority;
+
+    // sort by function name to ensure determinism
+    ezInt32 iNameComp = ezStringUtils::Compare(m_sFunctionName, other.m_sFunctionName);
+    EZ_ASSERT_DEV(iNameComp != 0, "An update function with the same name and same priority is already registered. This breaks determinism.");
+    return iNameComp < 0;
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////

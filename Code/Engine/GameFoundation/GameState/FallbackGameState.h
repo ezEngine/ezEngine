@@ -21,6 +21,7 @@ public:
   ezFallbackGameState();
 
   virtual void ProcessInput() override;
+  virtual void AfterWorldUpdate() override;
 
   /// \brief Returns -1 if pWorld == nullptr, 0 otherwise.
   virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;

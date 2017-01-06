@@ -1,10 +1,62 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <PhysXPlugin/Shapes/PxShapeComponent.h>
+
+
+ezPxDynamicActorComponentManager::ezPxDynamicActorComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ezPxDynamicActorComponent, true>(pWorld)
+{
+
+}
+
+ezPxDynamicActorComponentManager::~ezPxDynamicActorComponentManager()
+{
+
+}
+
+void ezPxDynamicActorComponentManager::UpdateKinematicActors()
+{
+  EZ_PROFILE("KinematicActors");
+
+  for (auto pKinematicActor : m_KinematicActors)
+  {
+    if (PxRigidDynamic* pActor = pKinematicActor->GetActor())
+    {
+      const auto pos = pKinematicActor->GetOwner()->GetGlobalPosition();
+      const auto rot = pKinematicActor->GetOwner()->GetGlobalRotation();
+
+      PxTransform t = PxTransform::createIdentity();
+      t.p = PxVec3(pos.x, pos.y, pos.z);
+      t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
+      pActor->setKinematicTarget(t);
+    }
+  }
+}
+
+void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxActiveTransform> activeTransforms)
+{
+  EZ_PROFILE("DynamicActors");
+
+  for (auto& activeTransform : activeTransforms)
+  {
+    if (activeTransform.userData == nullptr)
+      continue;
+
+    PxTransform t = activeTransform.actor2World;
+
+    ezVec3 pos(t.p.x, t.p.y, t.p.z);
+    ezQuat rot(t.q.x, t.q.y, t.q.z, t.q.w);
+
+    ezGameObject* pObject = static_cast<ezGameObject*>(activeTransform.userData);
+    pObject->SetGlobalTransform(ezTransform(pos, rot));
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
 {
@@ -67,12 +119,20 @@ void ezPxDynamicActorComponent::SetKinematic(bool b)
 
   m_bKinematic = b;
 
+  if (m_bKinematic)
+  {
+    GetManager()->m_KinematicActors.PushBack(this);
+  }
+  else
+  {
+    GetManager()->m_KinematicActors.RemoveSwap(this);
+  }
+
   if (m_pActor)
   {
     m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
   }
 }
-
 
 void ezPxDynamicActorComponent::SetDisableGravity(bool b)
 {
@@ -84,31 +144,6 @@ void ezPxDynamicActorComponent::SetDisableGravity(bool b)
   if (m_pActor)
   {
     m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
-  }
-}
-
-void ezPxDynamicActorComponent::Update()
-{
-  if (m_pActor == nullptr)
-    return;
-
-  if (m_bKinematic)
-  {
-    const auto pos = GetOwner()->GetGlobalPosition();
-    const auto rot = GetOwner()->GetGlobalRotation();
-
-    PxTransform t = PxTransform::createIdentity();
-    t.p = PxVec3(pos.x, pos.y, pos.z);
-    t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
-    m_pActor->setKinematicTarget(t);
-  }
-  else
-  {
-    const auto pose = m_pActor->getGlobalPose();
-
-    ezQuat qRot(pose.q.x, pose.q.y, pose.q.z, pose.q.w);
-
-    GetOwner()->SetGlobalTransform(ezTransform(ezVec3(pose.p.x, pose.p.y, pose.p.z), qRot));
   }
 }
 
@@ -128,7 +163,6 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   m_pActor->userData = GetOwner();
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
-  AddShapesFromChildren(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 
   m_pActor->setLinearDamping(ezMath::Clamp(m_fLinearDamping, 0.0f, 1000.0f));
   m_pActor->setAngularDamping(ezMath::Clamp(m_fAngularDamping, 0.0f, 1000.0f));
@@ -166,15 +200,30 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   }
 
   m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
-  pModule->GetPxScene()->addActor(*m_pActor);
-
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
+
+  if (m_bKinematic)
+  {
+    GetManager()->m_KinematicActors.PushBack(this);
+  }
+
+  {
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+    pModule->GetPxScene()->addActor(*m_pActor);
+  }
 }
 
 void ezPxDynamicActorComponent::Deinitialize()
 {
+  if (m_bKinematic)
+  {
+    GetManager()->m_KinematicActors.RemoveSwap(this);
+  }
+
   if (m_pActor)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->release();
     m_pActor = nullptr;
   }

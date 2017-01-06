@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxJointComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>

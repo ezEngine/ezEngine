@@ -1,14 +1,15 @@
 #include <PhysXPlugin/PCH.h>
-#include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
@@ -18,50 +19,49 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1)
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxManipulatorAttribute("Extents"),
-    new ezBoxVisualizerAttribute("Extents"),
+    new ezSphereManipulatorAttribute("Radius"),
+    new ezSphereVisualizerAttribute("Radius"),
   }
   EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezPxShapeBoxComponent::ezPxShapeBoxComponent()
+ezPxShapeSphereComponent::ezPxShapeSphereComponent()
 {
-  m_vExtents.Set(1.0f);
+  m_fRadius = 0.5f;
 }
 
 
-void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxShapeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
   auto& s = stream.GetStream();
-  s << m_vExtents;
+  s << m_fRadius;
 }
 
 
-void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
   auto& s = stream.GetStream();
-  s >> m_vExtents;
-
+  s >> m_fRadius;
 
 }
 
 
-void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
+void ezPxShapeSphereComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
+  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius));
 }
 
 
-void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
+void ezPxShapeSphereComponent::SetRadius(float f)
 {
-  m_vExtents = ezVec3::ZeroVector().CompMax(value);
+  m_fRadius = ezMath::Max(f, 0.0f);
 
   if (IsActiveAndInitialized())
   {
@@ -69,7 +69,7 @@ void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
   }
 }
 
-void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
+void ezPxShapeSphereComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
 {
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
@@ -85,10 +85,10 @@ void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& 
   t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
-  auto pShape = pActor->createShape(PxBoxGeometry(m_vExtents.x * 0.5f, m_vExtents.y * 0.5f, m_vExtents.z * 0.5f), *GetPxMaterial());
+  auto pShape = pActor->createShape(PxSphereGeometry(m_fRadius), *GetPxMaterial());
   pShape->setLocalPose(t);
 
-  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX box shape creation failed");
+  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX sphere shape creation failed");
 
   PxFilterData filter;
   filter.word0 = EZ_BIT(m_uiCollisionLayer);

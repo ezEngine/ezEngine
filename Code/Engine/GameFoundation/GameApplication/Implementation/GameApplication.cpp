@@ -420,6 +420,7 @@ void ezGameApplication::UpdateWorldsAndRender()
 
     if (ezRenderLoop::GetUseMultithreadedRendering())
     {
+      EZ_PROFILE("Wait for UpdateWorldsAndExtractViews");
       ezTaskSystem::WaitForGroup(updateTaskID);
     }
 

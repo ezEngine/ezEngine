@@ -1,6 +1,7 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -28,6 +29,31 @@ namespace
     return result;
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+PxControllerBehaviorFlags ezPxControllerBehaviorCallback::getBehaviorFlags(const PxShape& shape, const PxActor& actor)
+{
+  const PxRigidDynamic* pDynamicRigidBody = actor.isRigidDynamic();
+  if (pDynamicRigidBody != nullptr && pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
+  {
+    return PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT | PxControllerBehaviorFlag::eCCT_SLIDE;
+  }
+
+  return PxControllerBehaviorFlags(0);
+}
+
+PxControllerBehaviorFlags ezPxControllerBehaviorCallback::getBehaviorFlags(const PxController& controller)
+{
+  return PxControllerBehaviorFlags(0);
+}
+
+PxControllerBehaviorFlags ezPxControllerBehaviorCallback::getBehaviorFlags(const PxObstacle& obstacle)
+{
+  return PxControllerBehaviorFlags(0);
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 1)
 {
@@ -116,8 +142,9 @@ void ezPxCharacterProxyComponent::Deinitialize()
 {
   if (m_pController != nullptr)
   {
-    /// \todo world module is shut down first -> bad order
-    //m_pController->release();
+    EZ_PX_WRITE_LOCK(*(m_pController->getScene()));
+
+    m_pController->release();
     m_pController = nullptr;
   }
 }
@@ -136,6 +163,7 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   cd.slopeLimit = ezMath::Cos(m_MaxClimbingSlope);
   cd.stepOffset = m_fMaxStepHeight;
   cd.upDirection = PxVec3(0, 0, 1);
+  cd.behaviorCallback = &m_behaviorCallback;
   cd.userData = this;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
 
@@ -145,8 +173,11 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
     return;
   }
 
-  m_pController = static_cast<PxCapsuleController*>(pModule->GetCharacterManager()->createController(cd));
-  EZ_ASSERT_DEV(m_pController != nullptr, "Failed to create character controller");
+  {
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+    m_pController = static_cast<PxCapsuleController*>(pModule->GetCharacterManager()->createController(cd));
+    EZ_ASSERT_DEV(m_pController != nullptr, "Failed to create character controller");
+  }
 }
 
 void ezPxCharacterProxyComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
@@ -178,6 +209,7 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
       filter.word3 = 0;
     }
 
+    EZ_PX_WRITE_LOCK(*(m_pController->getScene()));
     PxControllerCollisionFlags collisionFlags = m_pController->move(PxVec3(vMotion.x, vMotion.y, vMotion.z), 0.0f, fElapsedTime, charFilter);
 
     auto position = toVec3(m_pController->getPosition());
@@ -201,4 +233,3 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::GetCollisio
 
   return ezPxCharacterCollisionFlags::None;
 }
-

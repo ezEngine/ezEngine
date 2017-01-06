@@ -1,6 +1,5 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxActorComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
@@ -32,28 +31,23 @@ void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
 
 }
 
-void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor* pActor, const ezTransform& ParentTransform)
+void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor* pRigidActor, const ezTransform& ParentTransform)
 {
   ezHybridArray<ezPxShapeComponent*, 8> shapes;
   pObject->TryGetComponentsOfBaseType(shapes);
 
   for (auto pShape : shapes)
   {
-    pShape->AddToActor(pActor, ParentTransform);
+    pShape->AddToActor(pRigidActor, ParentTransform);
   }
-}
 
-void ezPxActorComponent::AddShapesFromChildren(ezGameObject* pRoot, PxRigidActor* pRigidActor, const ezTransform& ParentTransform)
-{
-  for (auto itChild = pRoot->GetChildren(); itChild.IsValid(); ++itChild)
+  for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
     // ignore all children that are actors themselves
-    ezPxActorComponent* pActor;
-    if (itChild->TryGetComponentOfBaseType<ezPxActorComponent>(pActor))
+    ezPxActorComponent* pActorComponent;
+    if (itChild->TryGetComponentOfBaseType<ezPxActorComponent>(pActorComponent))
       continue;
 
     AddShapesFromObject(itChild, pRigidActor, ParentTransform);
-    AddShapesFromChildren(itChild, pRigidActor, ParentTransform);
   }
 }
-

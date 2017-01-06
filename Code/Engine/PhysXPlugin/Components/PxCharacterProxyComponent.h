@@ -24,6 +24,13 @@ struct ezPxCharacterCollisionFlags
   };
 };
 
+class ezPxControllerBehaviorCallback : public PxControllerBehaviorCallback
+{
+  virtual PxControllerBehaviorFlags getBehaviorFlags(const PxShape& shape, const PxActor& actor) override;
+  virtual PxControllerBehaviorFlags getBehaviorFlags(const PxController& controller) override;
+  virtual PxControllerBehaviorFlags getBehaviorFlags(const PxObstacle& obstacle) override;
+};
+
 typedef ezComponentManager<class ezPxCharacterProxyComponent, true> ezPxCharacterProxyComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxCharacterProxyComponent : public ezPhysXComponent
@@ -64,6 +71,8 @@ public:
 protected:
 
   PxCapsuleController* m_pController;
+
+  ezPxControllerBehaviorCallback m_behaviorCallback;
 };
 
 

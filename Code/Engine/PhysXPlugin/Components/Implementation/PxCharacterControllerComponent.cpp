@@ -1,10 +1,9 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <GameUtils/Components/InputComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 2)
 {

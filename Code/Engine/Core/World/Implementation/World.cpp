@@ -205,6 +205,21 @@ ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti
   return static_cast<ezComponentManagerBase*>(pModule);
 }
 
+ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti)
+{
+  CheckForWriteAccess();
+
+  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
+  EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
+
+  if (uiTypeId < m_Data.m_Modules.GetCount())
+  {
+    return static_cast<ezComponentManagerBase*>(m_Data.m_Modules[uiTypeId]);
+  }
+
+  return nullptr;
+}
+
 const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
 {
   CheckForReadAccess();
@@ -609,7 +624,7 @@ ezResult ezWorld::RegisterUpdateFunctionInternal(const ezComponentManagerBase::U
 
     for (ezUInt32 j = 0; j < updateFunctions.GetCount(); ++j)
     {
-      if (updateFunctions[j].m_Function == desc.m_DependsOn[i])
+      if (updateFunctions[j].m_sFunctionName == desc.m_DependsOn[i])
       {
         uiDependencyIndex = j;
         break;
@@ -636,19 +651,7 @@ ezResult ezWorld::RegisterUpdateFunctionInternal(const ezComponentManagerBase::U
   while (uiInsertionIndex < updateFunctions.GetCount())
   {
     const auto& existingFunction = updateFunctions[uiInsertionIndex];
-    if (existingFunction.m_uiDependencyHash != newFunction.m_uiDependencyHash)
-    {
-      break;
-    }
-
-    // higher priority comes first
-    if (existingFunction.m_fPriority < newFunction.m_fPriority)
-    {
-      break;
-    }
-
-    // sort by function name to ensure determinism
-    if (ezStringUtils::Compare(existingFunction.m_szFunctionName, newFunction.m_szFunctionName) > 0)
+    if (newFunction < existingFunction)
     {
       break;
     }
@@ -778,7 +781,7 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
       continue;
 
     {
-      EZ_PROFILE(updateFunction.m_szFunctionName);
+      EZ_PROFILE(updateFunction.m_sFunctionName);
       updateFunction.m_Function(context);
     }
   }
@@ -817,7 +820,7 @@ void ezWorld::UpdateAsynchronous()
         m_Data.m_UpdateTasks.PushBack(pTask);
       }
 
-      pTask->SetTaskName(updateFunction.m_szFunctionName);
+      pTask->SetTaskName(updateFunction.m_sFunctionName);
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
       pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;

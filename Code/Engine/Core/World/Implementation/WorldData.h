@@ -101,13 +101,13 @@ namespace ezInternal
     struct RegisteredUpdateFunction
     {
       ezWorldModule::UpdateFunction m_Function;
-      const char* m_szFunctionName;
-      ezUInt32 m_uiDependencyHash;
+      ezHashedString m_sFunctionName;
       float m_fPriority;
       ezUInt16 m_uiGranularity;
       bool m_bOnlyUpdateWhenSimulating;
 
       void FillFromDesc(const ezWorldModule::UpdateFunctionDesc& desc);
+      bool operator<(const RegisteredUpdateFunction& other) const;
     };
 
     struct UpdateTask : public ezTask

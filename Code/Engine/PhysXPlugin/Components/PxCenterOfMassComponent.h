@@ -3,7 +3,7 @@
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 
-typedef ezComponentManager<class ezPxCenterOfMassComponent> ezPxCenterOfMassComponentManager;
+typedef ezComponentManager<class ezPxCenterOfMassComponent, true> ezPxCenterOfMassComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxCenterOfMassComponent : public ezPhysXComponent
 {

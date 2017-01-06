@@ -1,7 +1,5 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
-#include <Core/Messages/CallDelayedStartMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 

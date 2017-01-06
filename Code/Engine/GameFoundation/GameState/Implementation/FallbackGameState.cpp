@@ -147,13 +147,8 @@ void ezFallbackGameState::ProcessInput()
     --m_iActiveCameraComponentIndex;
 
   const ezCameraComponent* pCamComp = FindActiveCameraComponent();
-
   if (pCamComp)
   {
-    auto* pCamNode = pCamComp->GetOwner();
-
-    m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), (pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized());
-
     return;
   }
 
@@ -187,5 +182,18 @@ void ezFallbackGameState::ProcessInput()
   if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
     m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(fRotateSpeed * fInput), ezAngle());
 
+}
+
+void ezFallbackGameState::AfterWorldUpdate()
+{
+  EZ_LOCK(m_pMainWorld->GetReadMarker());
+
+  // Update the camera transform after world update so the owner node has its final position for this frame.
+  // Setting the camera transform in ProcessInput introduces one frame delay.
+  if (const ezCameraComponent* pCamComp = FindActiveCameraComponent())
+  {
+    const ezGameObject* pCamNode = pCamComp->GetOwner();
+    m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), (pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized());
+  }
 }
 

@@ -2,7 +2,23 @@
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 
-typedef ezComponentManagerSimple<class ezPxDynamicActorComponent, true> ezPxDynamicActorComponentManager;
+class ezPxDynamicActorComponent;
+
+class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponentManager : public ezComponentManager<ezPxDynamicActorComponent, true>
+{
+public:
+  ezPxDynamicActorComponentManager(ezWorld* pWorld);
+  ~ezPxDynamicActorComponentManager();
+
+private:
+  friend class ezPhysXWorldModule;
+  friend class ezPxDynamicActorComponent;
+
+  void UpdateKinematicActors();
+  void UpdateDynamicActors(ezArrayPtr<const PxActiveTransform> activeTransforms);
+
+  ezDynamicArray<ezPxDynamicActorComponent*> m_KinematicActors;
+};
 
 class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponent : public ezPxActorComponent
 {
@@ -13,9 +29,6 @@ public:
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  // ************************************* PROPERTIES ***********************************
-public:
 
   bool GetKinematic() const { return m_bKinematic; }
   void SetKinematic(bool b);
@@ -28,14 +41,7 @@ public:
   float m_fLinearDamping;
   float m_fAngularDamping;
 
-protected:
-
-
-  // ************************************* FUNCTIONS *****************************
-
 public:
-  void Update();
-
   virtual void OnSimulationStarted() override;
 
   virtual void Deinitialize() override;

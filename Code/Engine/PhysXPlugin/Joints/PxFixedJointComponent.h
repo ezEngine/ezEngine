@@ -4,7 +4,7 @@
 
 struct ezCallDelayedStartMessage;
 
-typedef ezComponentManager<class ezPxFixedJointComponent> ezPxFixedJointComponentManager;
+typedef ezComponentManager<class ezPxFixedJointComponent, true> ezPxFixedJointComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxFixedJointComponent : public ezPxJointComponent
 {

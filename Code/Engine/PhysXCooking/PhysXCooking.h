@@ -1,7 +1,7 @@
 #pragma once
 
 #include <PhysXCooking/Basics.h>
-#include <PhysXPlugin/PluginInterface.h>
+#include <PhysXPlugin/PhysXInterface.h>
 
 using namespace physx;
 

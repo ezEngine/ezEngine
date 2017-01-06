@@ -3,7 +3,7 @@
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 
-typedef ezComponentManager<class ezPxStaticActorComponent> ezPxStaticActorComponentManager;
+typedef ezComponentManager<class ezPxStaticActorComponent, true> ezPxStaticActorComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
 {

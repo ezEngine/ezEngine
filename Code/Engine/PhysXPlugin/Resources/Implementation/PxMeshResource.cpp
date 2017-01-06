@@ -1,8 +1,8 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE

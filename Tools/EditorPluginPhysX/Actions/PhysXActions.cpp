@@ -3,7 +3,6 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
-#include <PhysXPlugin/PluginInterface.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXAction, 0, ezRTTINoAllocator);

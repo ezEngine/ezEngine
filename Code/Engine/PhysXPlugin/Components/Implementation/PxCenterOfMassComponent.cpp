@@ -1,6 +1,5 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 

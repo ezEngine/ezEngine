@@ -1,6 +1,7 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -88,7 +89,6 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   m_pActor->userData = GetOwner();
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
-  AddShapesFromChildren(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 
   if (m_hCollisionMesh.IsValid())
   {
@@ -173,13 +173,18 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     pShape->userData = GetOwner();
   }
 
-  pModule->GetPxScene()->addActor(*m_pActor);
+  {
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+    pModule->GetPxScene()->addActor(*m_pActor);
+  }
 }
 
 void ezPxStaticActorComponent::Deinitialize()
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->release();
     m_pActor = nullptr;
   }

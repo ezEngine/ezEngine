@@ -93,6 +93,10 @@ public:
 
   /// \brief Returns the instance to the given module type.
   template <typename ModuleType>
+  ModuleType* GetModule();
+
+  /// \brief Returns the instance to the given module type.
+  template <typename ModuleType>
   const ModuleType* GetModule() const;
 
   /// \brief Searches for a module of the given type or derived types. The result should be cached since this is an expensive function.
@@ -116,7 +120,14 @@ public:
 
   /// \brief Returns the instance to the given component manager type.
   template <typename ManagerType>
+  ManagerType* GetComponentManager();
+
+  /// \brief Returns the instance to the given component manager type.
+  template <typename ManagerType>
   const ManagerType* GetComponentManager() const;
+
+  /// \brief Returns the component manager that handles the given rtti component type.
+  ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti);
 
   /// \brief Returns the component manager that handles the given rtti component type.
   const ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti) const;

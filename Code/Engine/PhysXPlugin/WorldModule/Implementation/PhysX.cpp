@@ -1,9 +1,114 @@
 #include <PhysXPlugin/PCH.h>
-#include <PhysXPlugin/PluginInterface.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+
+void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+{
+  switch (code)
+  {
+  case PxErrorCode::eABORT:
+    ezLog::Error("PhysX: {0}", message);
+    break;
+  case PxErrorCode::eDEBUG_INFO:
+    ezLog::Dev("PhysX: {0}", message);
+    break;
+  case PxErrorCode::eDEBUG_WARNING:
+    ezLog::Warning("PhysX: {0}", message);
+    break;
+  case PxErrorCode::eINTERNAL_ERROR:
+    ezLog::Error("PhysX Internal: {0}", message);
+    break;
+  case PxErrorCode::eINVALID_OPERATION:
+    EZ_REPORT_FAILURE("PhysX Invalid Operation: {0}", message);
+    break;
+  case PxErrorCode::eINVALID_PARAMETER:
+    EZ_REPORT_FAILURE("PhysX Invalid Parameter: {0}", message);
+    break;
+  case PxErrorCode::eOUT_OF_MEMORY:
+    ezLog::Error("PhysX Out-of-Memory: {0}", message);
+    break;
+  case PxErrorCode::ePERF_WARNING:
+    ezLog::Warning("PhysX Performance: {0}", message);
+    break;
+
+  default:
+    ezLog::Error("PhysX: Unknown error type '{0}': {1}", code, message);
+    break;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezPxAllocatorCallback::ezPxAllocatorCallback()
+  : m_Allocator("PhysX", ezFoundation::GetAlignedAllocator())
+{
+
+}
+
+void* ezPxAllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
+{
+  //return new unsigned char[size];
+  void* pPtr = m_Allocator.Allocate(size, 16);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezStringBuilder s;
+  s.Set(typeName, " - ", filename);
+  m_Allocations[pPtr] = s;
+#endif
+
+  return pPtr;
+}
+
+void ezPxAllocatorCallback::deallocate(void* ptr)
+{
+  // apparently this happens
+  if (ptr == nullptr)
+    return;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  m_Allocations.Remove(ptr);
+#endif
+
+  m_Allocator.Deallocate(ptr);
+}
+
+void ezPxAllocatorCallback::VerifyAllocations()
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "There are {0} unfreed allocations", m_Allocations.GetCount());
+
+  for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)
+  {
+    const char* s = it.Value().GetData();
+    ezLog::Info(s);
+  }
+#endif
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
+{
+  queryFlags = (PxHitFlags)0;
+
+  // trigger the contact callback for pairs (A,B) where
+  // the filter mask of A contains the ID of B and vice versa.
+  if ((filterData.word0 & shape->getQueryFilterData().word1) || (shape->getQueryFilterData().word0 & filterData.word1))
+  {
+    queryFlags |= PxHitFlag::eDEFAULT;
+    return PxQueryHitType::eBLOCK;
+  }
+
+  return PxQueryHitType::eNONE;
+}
+
+PxQueryHitType::Enum ezPxQueryFilter::postFilter(const PxFilterData& filterData, const PxQueryHit& hit)
+{
+  return PxQueryHitType::eNONE;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_SINGLETON(ezPhysX);
-
 static ezPhysX g_PhysXSingleton;
 
 ezPhysX::ezPhysX()
@@ -18,19 +123,9 @@ ezPhysX::ezPhysX()
   m_VdbConnection = nullptr;
 }
 
-void ezPhysX::LoadCollisionFilters()
+ezPhysX::~ezPhysX()
 {
-  EZ_LOG_BLOCK("ezPhysX::LoadCollisionFilters");
 
-  if (m_CollisionFilterConfig.Load("Physics/CollisionLayers.cfg").Failed())
-  {
-    ezLog::Info("Collision filter config file could not be found ('Physics/CollisionLayers.cfg'). Using default values.");
-
-    // setup some default config
-
-    m_CollisionFilterConfig.SetGroupName(0, "Default");
-    m_CollisionFilterConfig.EnableCollision(0, 0);
-  }
 }
 
 void ezPhysX::Startup()
@@ -46,19 +141,19 @@ void ezPhysX::Startup()
   EZ_ASSERT_DEV(m_pFoundation != nullptr, "Initializing PhysX failed");
 
   bool bRecordMemoryAllocations = false;
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   bRecordMemoryAllocations = true;
-#  endif
+#endif
 
   /// \todo This seems to be in the Extensions library, which does not compile with VS 2015
   m_pProfileZoneManager = nullptr;// &PxProfileZoneManager::createProfileZoneManager(m_pFoundation);
-  //EZ_ASSERT_DEV(m_pProfileZoneManager != nullptr, "Initializing PhysX Profile Zone Manager failed");
+                                  //EZ_ASSERT_DEV(m_pProfileZoneManager != nullptr, "Initializing PhysX Profile Zone Manager failed");
 
   m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_pProfileZoneManager);
   EZ_ASSERT_DEV(m_pPhysX != nullptr, "Initializing PhysX API failed");
 
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
-  
+
   ezSurfaceResource::s_Events.AddEventHandler(ezMakeDelegate(&ezPhysX::SurfaceResourceEventHandler, this));
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -105,6 +200,21 @@ void ezPhysX::Shutdown()
   EZ_DEFAULT_DELETE(m_pAllocatorCallback);
 }
 
+void ezPhysX::LoadCollisionFilters()
+{
+  EZ_LOG_BLOCK("ezPhysX::LoadCollisionFilters");
+
+  if (m_CollisionFilterConfig.Load("Physics/CollisionLayers.cfg").Failed())
+  {
+    ezLog::Info("Collision filter config file could not be found ('Physics/CollisionLayers.cfg'). Using default values.");
+
+    // setup some default config
+
+    m_CollisionFilterConfig.SetGroupName(0, "Default");
+    m_CollisionFilterConfig.EnableCollision(0, 0);
+  }
+}
+
 void ezPhysX::StartupVDB()
 {
   // check if PvdConnection manager is available on this platform
@@ -132,8 +242,6 @@ void ezPhysX::ShutdownVDB()
   m_VdbConnection = nullptr;
 }
 
-
-
 void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
 {
   if (e.m_Type == ezSurfaceResource::Event::Type::Created)
@@ -156,5 +264,4 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
       e.m_pSurface->m_pPhysicsMaterial = nullptr;
     }
   }
-
 }

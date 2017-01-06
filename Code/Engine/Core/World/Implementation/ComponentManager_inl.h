@@ -183,7 +183,10 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initiali
 {
   typedef ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating> OwnType;
 
-  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&OwnType::SimpleUpdate, this), SimpleUpdateName());
+  ezStringBuilder functionName;
+  SimpleUpdateName(functionName);
+
+  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&OwnType::SimpleUpdate, this), functionName);
   desc.m_bOnlyUpdateWhenSimulating = OnlyUpdateWhenSimulating;
 
   this->RegisterUpdateFunction(desc);
@@ -209,10 +212,14 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
 
 //static
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-const char* ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdateName()
+void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdateName(ezStringBuilder& out_sName)
 {
-  const char* szName = EZ_SOURCE_FUNCTION;
-  return szName + sizeof("ezComponentManagerSimple<class");
+  ezStringView sName(EZ_SOURCE_FUNCTION);
+  const char* szEnd = sName.FindSubString(",");
+  ezStringView sChoppedName(sName.GetData() + ::strlen("ezComponentManagerSimple<class "), szEnd);
+
+  out_sName = sChoppedName;
+  out_sName.Append("::SimpleUpdate");
 }
 
 //////////////////////////////////////////////////////////////////////////

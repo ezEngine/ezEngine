@@ -22,8 +22,8 @@ namespace
       auto desc4 = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::AUpdate3, this);
       desc4.m_fPriority = 1000.0f;
 
-      desc.m_DependsOn.PushBack(desc2.m_Function); // update2 will be called before update
-      desc.m_DependsOn.PushBack(desc3.m_Function); // update3 will be called before update
+      desc.m_DependsOn.PushBack(ezMakeHashedString("TestComponentManager::Update2")); // update2 will be called before update
+      desc.m_DependsOn.PushBack(ezMakeHashedString("TestComponentManager::Update3")); // update3 will be called before update
 
       auto descAsync = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
       descAsync.m_Phase = ezComponentManagerBase::UpdateFunctionDesc::Phase::Async;

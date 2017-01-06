@@ -134,7 +134,7 @@ public:
   void SimpleUpdate(const ezWorldModule::UpdateContext& context);
 
 private:
-  static const char* SimpleUpdateName();
+  static void SimpleUpdateName(ezStringBuilder& out_sName);
 };
 
 

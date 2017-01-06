@@ -186,7 +186,10 @@ void ezRenderLoop::ExtractMainViews()
     ezTaskSystem::StartTaskGroup(s_ExtractionFinishedTaskID);
     ezTaskSystem::StartTaskGroup(extractTaskID);
 
-    ezTaskSystem::WaitForGroup(s_ExtractionFinishedTaskID);
+    {
+      EZ_PROFILE("Wait for Extraction");
+      ezTaskSystem::WaitForGroup(s_ExtractionFinishedTaskID);
+    }
   }
   else
   {

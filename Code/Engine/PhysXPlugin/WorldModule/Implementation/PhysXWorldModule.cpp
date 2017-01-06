@@ -1,50 +1,78 @@
 #include <PhysXPlugin/PCH.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
-#include <Core/World/World.h>
-
-#include <PhysXPlugin/Components/PxStaticActorComponent.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
-#include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
-#include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
-#include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
-#include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
-#include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
-#include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
-#include <PhysXPlugin/Joints/PxFixedJointComponent.h>
-#include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxSettingsComponent.h>
+#include <Core/World/World.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-
-PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+namespace
 {
-  // let triggers through
-  if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+  class ezPxTask : public ezTask
   {
-    pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-    return PxFilterFlag::eDEFAULT;
-  }
+  public:
+    virtual void Execute() override
+    {
+      m_pTask->run();
+      m_pTask->release();
+    }
 
-  pairFlags = (PxPairFlag::Enum)0;
+    PxBaseTask* m_pTask;
+  };
 
-  // trigger the contact callback for pairs (A,B) where
-  // the filter mask of A contains the ID of B and vice versa.
-  if ((filterData0.word0 & filterData1.word1) || (filterData1.word0 & filterData0.word1))
+  class ezPxCpuDispatcher : public PxCpuDispatcher
   {
-    pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
-    return PxFilterFlag::eDEFAULT;
-  }
+  public:
+    ezPxCpuDispatcher()
+    {
+    }
 
-  return PxFilterFlag::eKILL;
+    virtual void submitTask(PxBaseTask& task) override
+    {
+      ezPxTask* pTask = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezPxTask);
+      pTask->m_pTask = &task;
+      pTask->SetTaskName(task.getName());
+
+      ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
+    }
+
+    virtual PxU32 getWorkerCount() const override
+    {
+      return ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks);
+    }
+  };
+
+  static ezPxCpuDispatcher s_CpuDispatcher;
+
+  PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+  {
+    // let triggers through
+    if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+    {
+      pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+      return PxFilterFlag::eDEFAULT;
+    }
+
+    pairFlags = (PxPairFlag::Enum)0;
+
+    // trigger the contact callback for pairs (A,B) where
+    // the filter mask of A contains the ID of B and vice versa.
+    if ((filterData0.word0 & filterData1.word1) || (filterData1.word0 & filterData0.word1))
+    {
+      pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+      return PxFilterFlag::eDEFAULT;
+    }
+
+    return PxFilterFlag::eKILL;
+  }
 }
-
 
 ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
+  , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
   m_pPxScene = nullptr;
 
@@ -66,11 +94,13 @@ void ezPhysXWorldModule::Initialize()
     PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
     desc.setToDefault(PxTolerancesScale());
 
-    desc.gravity = PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z); /// \todo Scene settings
+    desc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+    desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
 
-    m_pCPUDispatcher = PxDefaultCpuDispatcherCreate(4);
-    desc.cpuDispatcher = m_pCPUDispatcher;
-    desc.filterShader = ezPxFilterShader;
+    desc.gravity = PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z);
+
+    desc.cpuDispatcher = &s_CpuDispatcher;
+    desc.filterShader = &ezPxFilterShader;
 
     EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
     m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
@@ -80,27 +110,34 @@ void ezPhysXWorldModule::Initialize()
   m_pCharacterManager = PxCreateControllerManager(*m_pPxScene);
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPhysXWorldModule::Update, this);
-    updateDesc.m_bOnlyUpdateWhenSimulating = true;
-    // Do physics update as late as possible in the first synchronous phase
+    auto startSimDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPhysXWorldModule::StartSimulation, this);
+    startSimDesc.m_bOnlyUpdateWhenSimulating = true;
+    // Start physics simulation as late as possible in the first synchronous phase
     // so all kinematic objects have a chance to update their transform before.
-    updateDesc.m_fPriority = -100000.0f;
+    startSimDesc.m_fPriority = -100000.0f;
 
-    RegisterUpdateFunction(updateDesc);
+    RegisterUpdateFunction(startSimDesc);
+  }
+
+  {
+    auto fetchResultsDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPhysXWorldModule::FetchResults, this);
+    fetchResultsDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    fetchResultsDesc.m_bOnlyUpdateWhenSimulating = true;
+    // Fetch results as close as possible to transform update
+    // so the asynchronous simulation task has enough time to finish.
+    fetchResultsDesc.m_fPriority = -100000.0f;
+
+    RegisterUpdateFunction(fetchResultsDesc);
   }
 }
 
 void ezPhysXWorldModule::Deinitialize()
 {
-  //m_pCharacterManager->purgeControllers();
   m_pCharacterManager->release();
   m_pCharacterManager = nullptr;
 
   m_pPxScene->release();
   m_pPxScene = nullptr;
-
-  m_pCPUDispatcher->release();
-  m_pCPUDispatcher = nullptr;
 }
 
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
@@ -110,25 +147,11 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
 
   if (m_pPxScene)
   {
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
+
     m_pPxScene->setGravity(PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z));
   }
 }
-
-
-
-void ezPxAllocatorCallback::VerifyAllocations()
-{
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "There are {0} unfreed allocations", m_Allocations.GetCount());
-
-  for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)
-  {
-    const char* s = it.Value().GetData();
-    ezLog::Info(s);
-  }
-#endif
-}
-
 
 bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject, ezSurfaceResourceHandle& out_hSurface)
 {
@@ -141,10 +164,12 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   filter.data.word2 = 0;
   filter.data.word3 = 0;
 
+  EZ_PX_READ_LOCK(*m_pPxScene);
+
   ezPxQueryFilter QueryFilter;
 
   PxRaycastHit hit;
-  if (GetPxScene()->raycastSingle(reinterpret_cast<const PxVec3&>(vStart), reinterpret_cast<const PxVec3&>(vDir),
+  if (m_pPxScene->raycastSingle(reinterpret_cast<const PxVec3&>(vStart), reinterpret_cast<const PxVec3&>(vDir),
                                   fMaxLen, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, hit,
                                   filter, &QueryFilter))
   {
@@ -221,10 +246,12 @@ bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3
   pxt.q = PxQuat(qRot.v.x, qRot.v.y, qRot.v.z, qRot.w);
 
 
+  EZ_PX_READ_LOCK(*m_pPxScene);
+
   ezPxSweepCallback closestHit;
 
   PxRaycastHit hit;
-  if (!GetPxScene()->sweep(capsule, pxt, *reinterpret_cast<const PxVec3*>(&vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filter, &QueryFilter))
+  if (!m_pPxScene->sweep(capsule, pxt, *reinterpret_cast<const PxVec3*>(&vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filter, &QueryFilter))
     return false;
 
   out_fDistance = closestHit.block.distance;
@@ -237,11 +264,13 @@ bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3
   return true;
 }
 
-void ezPhysXWorldModule::Update(const ezWorldModule::UpdateContext& context)
+
+void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
 {
-  if (ezPxSettingsComponent* pSettings = GetWorld()->GetOrCreateComponentManager<ezPxSettingsComponentManager>()->GetSingletonComponent())
+  if (ezPxSettingsComponentManager* pSettingsManager = GetWorld()->GetComponentManager<ezPxSettingsComponentManager>())
   {
-    if (pSettings->IsModified())
+    ezPxSettingsComponent* pSettings = pSettingsManager->GetSingletonComponent();
+    if (pSettings != nullptr && pSettings->IsModified())
     {
       SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
 
@@ -249,6 +278,39 @@ void ezPhysXWorldModule::Update(const ezWorldModule::UpdateContext& context)
     }
   }
 
+  if (ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>())
+  {
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
+
+    pDynamicActorManager->UpdateKinematicActors();
+  }
+
+  m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(&m_SimulateTask, ezTaskPriority::EarlyThisFrame);
+}
+
+void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
+{
+  {
+    EZ_PROFILE("Wait for Simulate Task");
+    ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
+  }
+
+  if (ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>())
+  {
+    EZ_PX_READ_LOCK(*m_pPxScene);
+
+    PxU32 numActiveTransforms = 0;
+    const PxActiveTransform* pActiveTransforms = m_pPxScene->getActiveTransforms(numActiveTransforms);
+
+    if (numActiveTransforms > 0)
+    {
+      pDynamicActorManager->UpdateDynamicActors(ezMakeArrayPtr(pActiveTransforms, numActiveTransforms));
+    }
+  }
+}
+
+void ezPhysXWorldModule::Simulate()
+{
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   m_AccumulatedTimeSinceUpdate += tDiff;
 
@@ -256,8 +318,17 @@ void ezPhysXWorldModule::Update(const ezWorldModule::UpdateContext& context)
 
   while (m_AccumulatedTimeSinceUpdate >= tStep)
   {
-    m_pPxScene->simulate((PxReal)tStep.GetSeconds());
-    m_pPxScene->fetchResults(true);
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
+
+    {
+      EZ_PROFILE("Simulate");
+      m_pPxScene->simulate((PxReal)tStep.GetSeconds());
+    }
+
+    {
+      EZ_PROFILE("FetchResult");
+      m_pPxScene->fetchResults(true);
+    }
 
     m_AccumulatedTimeSinceUpdate -= tStep;
   }

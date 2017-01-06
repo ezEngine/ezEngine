@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/Declarations.h>
+#include <Foundation/Strings/HashedString.h>
 
 class ezWorld;
 
@@ -55,7 +56,7 @@ protected:
     UpdateFunctionDesc(const UpdateFunction& function, const char* szFunctionName)
     {
       m_Function = function;
-      m_szFunctionName = szFunctionName;
+      m_sFunctionName.Assign(szFunctionName);
       m_Phase = Phase::PreAsync;
       m_bOnlyUpdateWhenSimulating = false;
       m_uiGranularity = 0;
@@ -63,8 +64,8 @@ protected:
     }
 
     UpdateFunction m_Function;                    ///< Delegate to the actual update function.
-    const char* m_szFunctionName;                 ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description with the correct name.
-    ezHybridArray<UpdateFunction, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be called after all its dependencies have been called.
+    ezHashedString m_sFunctionName;               ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description with the correct name.
+    ezHybridArray<ezHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be called after all its dependencies have been called.
     ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
     bool m_bOnlyUpdateWhenSimulating;             ///< The update function is only called when the world simulation is enabled.
     ezUInt16 m_uiGranularity;                     ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for synchronous functions.

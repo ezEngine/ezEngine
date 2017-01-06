@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
-typedef ezComponentManager<class ezPxShapeSphereComponent> ezPxShapeSphereComponentManager;
+typedef ezComponentManager<class ezPxShapeSphereComponent, true> ezPxShapeSphereComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeSphereComponent : public ezPxShapeComponent
 {

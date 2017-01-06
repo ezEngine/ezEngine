@@ -1,6 +1,5 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
-#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
