@@ -45,8 +45,8 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
-    if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-        (m_pElement->m_pParent == nullptr))
+    if ((m_pElement->m_pParent == nullptr) ||
+         (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;
@@ -99,8 +99,8 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
-    if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-        (m_pElement->m_pParent == nullptr))
+    if ( (m_pElement->m_pParent == nullptr) ||
+         (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;

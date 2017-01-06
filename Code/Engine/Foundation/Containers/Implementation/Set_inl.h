@@ -43,8 +43,8 @@ void ezSetBase<KeyType, Comparer>::Iterator::Next()
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
-    if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-        (m_pElement->m_pParent == nullptr))
+    if ((m_pElement->m_pParent == nullptr) ||
+        (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;
@@ -97,8 +97,8 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
-    if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-        (m_pElement->m_pParent == nullptr))
+    if ((m_pElement->m_pParent == nullptr) ||
+        (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;

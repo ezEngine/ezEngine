@@ -7,6 +7,7 @@
 
 ezGALSwapChainDX11::ezGALSwapChainDX11(const ezGALSwapChainCreationDescription& Description)
   : ezGALSwapChain(Description)
+  , m_pDXSwapChain(nullptr)
 {
 }
 

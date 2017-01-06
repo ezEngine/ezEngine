@@ -173,6 +173,9 @@ private:
 
   struct EndFrameFence
   {
+    EndFrameFence() : m_pFence(nullptr), m_uiFrame(0xFFFFFFFFFFu)
+    {}
+
     ezGALFence* m_pFence;
     ezUInt64 m_uiFrame;
   };
