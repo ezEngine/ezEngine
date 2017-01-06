@@ -258,6 +258,15 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
       m_pWidget[i]->setDisplaySuffix(pSuffix->GetSuffix());
     }
   }
+
+  const ezMinValueTextAttribute* pMinValueText = m_pProp->GetAttributeByType<ezMinValueTextAttribute>();
+  if (pMinValueText)
+  {
+    for (int i = 0; i < m_iNumComponents; ++i)
+    {
+      m_pWidget[i]->setSpecialValueText(pMinValueText->GetText());
+    }
+  }
 }
 
 void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
@@ -512,6 +521,12 @@ void ezQtPropertyEditorAngleWidget::OnInit()
   {
     m_pWidget->setDisplaySuffix(pSuffix->GetSuffix());
   }
+
+  const ezMinValueTextAttribute* pMinValueText = m_pProp->GetAttributeByType<ezMinValueTextAttribute>();
+  if (pMinValueText)
+  {
+    m_pWidget->setSpecialValueText(pMinValueText->GetText());
+  }
 }
 
 void ezQtPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
@@ -601,6 +616,12 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
   if (pSuffix)
   {
     m_pWidget->setDisplaySuffix(pSuffix->GetSuffix());
+  }
+
+  const ezMinValueTextAttribute* pMinValueText = m_pProp->GetAttributeByType<ezMinValueTextAttribute>();
+  if (pMinValueText)
+  {
+    m_pWidget->setSpecialValueText(pMinValueText->GetText());
   }
 }
 

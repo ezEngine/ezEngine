@@ -85,6 +85,24 @@ private:
   ezString m_sSuffix;
 };
 
+/// \brief Used to show a text instead of the minimum value of a property.
+class EZ_FOUNDATION_DLL ezMinValueTextAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMinValueTextAttribute, ezPropertyAttribute);
+
+public:
+  ezMinValueTextAttribute() {}
+  ezMinValueTextAttribute(const char* szText)
+  {
+    m_sText = szText;
+  }
+
+  const char* GetText() const { return m_sText; }
+
+private:
+  ezString m_sText;
+};
+
 /// \brief Sets the default value of the property.
 class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 {

@@ -11,10 +11,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f), new ezSuffixAttribute(" m")),
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("InnerSpotAngle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
     EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
-    //EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
@@ -24,7 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2)
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "OuterSpotAngle", 1.0f, "Range", "LightColor"),
+    new ezSpotLightVisualizerAttribute("OuterSpotAngle", "Range", "Intensity", "LightColor"),
     new ezConeManipulatorAttribute("OuterSpotAngle", "Range"),
   }
   EZ_END_ATTRIBUTES
@@ -32,10 +32,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2)
 EZ_END_COMPONENT_TYPE
 
 ezSpotLightComponent::ezSpotLightComponent()
-  : m_fRange(10.0f)
+  : m_fRange(0.0f)
   , m_InnerSpotAngle(ezAngle::Degree(15.0f))
   , m_OuterSpotAngle(ezAngle::Degree(30.0f))
 {
+  m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 }
 
 ezSpotLightComponent::~ezSpotLightComponent()
@@ -45,12 +46,14 @@ ezSpotLightComponent::~ezSpotLightComponent()
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 {
+  m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
+
   const float t = ezMath::Tan(m_OuterSpotAngle * 0.5f);
-  const float p = ezMath::Min(t * m_fRange, m_fRange);
+  const float p = ezMath::Min(t * m_fEffectiveRange, m_fEffectiveRange);
 
   ezBoundingBox box;
   box.m_vMin = ezVec3(0.0f, -p, -p);
-  box.m_vMax = ezVec3(m_fRange, p, p);
+  box.m_vMax = ezVec3(m_fEffectiveRange, p, p);
 
   bounds = box;
   return EZ_SUCCESS;
@@ -60,10 +63,7 @@ void ezSpotLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
 
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  TriggerLocalBoundsUpdate(true);
 }
 
 float ezSpotLightComponent::GetRange() const
@@ -85,10 +85,7 @@ void ezSpotLightComponent::SetOuterSpotAngle(ezAngle spotAngle)
 {
   m_OuterSpotAngle = ezMath::Clamp(spotAngle, m_InnerSpotAngle, ezAngle::Degree(179.0f));
 
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  TriggerLocalBoundsUpdate(true);
 }
 
 ezAngle ezSpotLightComponent::GetOuterSpotAngle() const
@@ -138,7 +135,7 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
-  pRenderData->m_fRange = m_fRange;
+  pRenderData->m_fRange = m_fEffectiveRange;
   pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
   pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
@@ -175,6 +172,20 @@ void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezSpotLightVisualizerAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
+{
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

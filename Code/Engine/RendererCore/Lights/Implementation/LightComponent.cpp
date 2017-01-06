@@ -10,9 +10,9 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("LightColor", m_LightColor),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
-    //EZ_MEMBER_PROPERTY("Cast Shadows", m_bCastShadows),
+    EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
+    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
+    //EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -44,6 +44,8 @@ ezColorGammaUB ezLightComponent::GetLightColor() const
 void ezLightComponent::SetIntensity(float fIntensity)
 {
   m_fIntensity = fIntensity;
+
+  TriggerLocalBoundsUpdate(true);
 }
 
 float ezLightComponent::GetIntensity() const
@@ -84,7 +86,18 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bCastShadows;
 }
 
+//static
+float ezLightComponent::CalculateEffectiveRange(float fRange, float fIntensity)
+{
+  const float fThreshold = 0.05f;
+  const float fEffectiveRange = ezMath::Sqrt(fIntensity) / ezMath::Sqrt(fThreshold);
+  if (fRange <= 0.0f)
+  {
+    return fEffectiveRange;
+  }
 
+  return ezMath::Min(fRange, fEffectiveRange);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

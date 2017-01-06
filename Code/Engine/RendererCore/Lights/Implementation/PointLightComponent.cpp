@@ -11,8 +11,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f), new ezSuffixAttribute(" m")),
-    //EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
+    //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
@@ -23,15 +23,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2)
     EZ_BEGIN_ATTRIBUTES
   {
     new ezSphereManipulatorAttribute("Range"),
-    new ezSphereVisualizerAttribute("Range", "LightColor"),
+    new ezPointLightVisualizerAttribute("Range", "Intensity", "LightColor"),
   }
   EZ_END_ATTRIBUTES
 }
 EZ_END_COMPONENT_TYPE
 
 ezPointLightComponent::ezPointLightComponent()
-  : m_fRange(10.0f)
+  : m_fRange(0.0f)
 {
+  m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 }
 
 ezPointLightComponent::~ezPointLightComponent()
@@ -41,7 +42,9 @@ ezPointLightComponent::~ezPointLightComponent()
 
 ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 {
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fRange);
+  m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
+
+  bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fEffectiveRange);
   return EZ_SUCCESS;
 }
 
@@ -49,10 +52,7 @@ void ezPointLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
 
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  TriggerLocalBoundsUpdate(true);
 }
 
 float ezPointLightComponent::GetRange() const
@@ -102,7 +102,7 @@ void ezPointLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
-  pRenderData->m_fRange = m_fRange;
+  pRenderData->m_fRange = m_fEffectiveRange;
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_bCastShadows = m_bCastShadows;
 
@@ -130,6 +130,20 @@ void ezPointLightComponent::DeserializeComponent(ezWorldReader& stream)
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezPointLightVisualizerAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szRangeProperty, szIntensityProperty, szColorProperty)
+{
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

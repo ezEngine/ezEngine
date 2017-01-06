@@ -34,6 +34,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  static float CalculateEffectiveRange(float fRange, float fIntensity);
+
 protected:
 
   ezColorGammaUB m_LightColor;

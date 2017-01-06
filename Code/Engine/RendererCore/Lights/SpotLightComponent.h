@@ -55,8 +55,25 @@ public:
 private:
 
   float m_fRange;
+  float m_fEffectiveRange;
+
   ezAngle m_InnerSpotAngle;
   ezAngle m_OuterSpotAngle;
 
-  ezTextureResourceHandle m_hProjectedTexture;  
+  ezTextureResourceHandle m_hProjectedTexture;
+};
+
+/// \brief A special visualizer attribute for spot lights
+class EZ_RENDERERCORE_DLL ezSpotLightVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezSpotLightVisualizerAttribute();
+  ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
+
+  const ezString& GetAngleProperty() const { return m_sProperty1; }
+  const ezString& GetRangeProperty() const { return m_sProperty2; }
+  const ezString& GetIntensityProperty() const { return m_sProperty3; }
+  const ezString& GetColorProperty() const { return m_sProperty4; }
 };

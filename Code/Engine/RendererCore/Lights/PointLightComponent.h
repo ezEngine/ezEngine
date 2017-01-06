@@ -47,6 +47,21 @@ public:
 private:
 
   float m_fRange;
+  float m_fEffectiveRange;
 
-  ezTextureResourceHandle m_hProjectedTexture;  
+  ezTextureResourceHandle m_hProjectedTexture;
+};
+
+/// \brief A special visualizer attribute for point lights
+class EZ_RENDERERCORE_DLL ezPointLightVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPointLightVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezPointLightVisualizerAttribute();
+  ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
+
+  const ezString& GetRangeProperty() const { return m_sProperty1; }
+  const ezString& GetIntensityProperty() const { return m_sProperty2; }
+  const ezString& GetColorProperty() const { return m_sProperty3; }
 };
