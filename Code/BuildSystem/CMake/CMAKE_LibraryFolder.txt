@@ -80,7 +80,14 @@ if (EZ_ENABLE_FOLDER_UNITY_FILES)
     set (FOLDER_UNITY_FILE "${CMAKE_BINARY_DIR}/${CURRENT_FOLDER_RELATIVE}/unity_${CURRENT_FOLDER_HASH}.cpp")
     set (TMP_UNITY_FILE "${CMAKE_BINARY_DIR}/temp/unity.cpp")
     #message (STATUS "Generating ${FOLDER_UNITY_FILE}")
-    file (WRITE ${TMP_UNITY_FILE} "// generated unity cpp file\n")
+
+    # if wished add the necessary comment lines to allow easy PVS static analysis
+    if (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
+      file (WRITE ${TMP_UNITY_FILE} "// This is an open source non-commercial project. Dear PVS-Studio, please check it.\n// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com \n// generated unity cpp file\n")
+    else()
+      file (WRITE ${TMP_UNITY_FILE} "// generated unity cpp file\n")	
+    endif ()
+    
     if (EZ_USE_PCH)
       set (PCH_FOUND false)
       set (PCH_FILE)

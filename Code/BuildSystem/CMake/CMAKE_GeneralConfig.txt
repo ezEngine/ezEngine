@@ -244,7 +244,8 @@ set (EZ_BUILD_GAMES OFF CACHE BOOL "Whether game projects should be added to the
 set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
-set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Wheter unity cpp files should be created per folder")
+set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
+set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessary comment to the generated unity files for PVS checking")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
 set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")

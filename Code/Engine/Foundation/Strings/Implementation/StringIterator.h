@@ -301,7 +301,7 @@ struct ezStringReverseIterator
   {
     const char* szBegin = m_String->InternalGetData();
     const char* szEnd = m_String->InternalGetDataEnd();
-    EZ_ASSERT_DEV(szCurPos == nullptr || (szCurPos >= szBegin) && (szCurPos < szEnd), "New current position must still be inside the iterator's range.");
+    EZ_ASSERT_DEV(szCurPos == nullptr || ((szCurPos >= szBegin) && (szCurPos < szEnd)), "New current position must still be inside the iterator's range.");
 
     m_pElement = szCurPos;
   }
