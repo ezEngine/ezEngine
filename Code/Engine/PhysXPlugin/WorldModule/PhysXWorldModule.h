@@ -24,14 +24,13 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  PxScene* GetPxScene() const { return m_pPxScene; }
+  physx::PxScene* GetPxScene() const { return m_pPxScene; }
+  physx::PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
   virtual ezVec3 GetGravity() const override { return m_vObjectGravity; }
   ezVec3 GetCharacterGravity() const { return m_vCharacterGravity; }
 
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
-
-  PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject, ezSurfaceResourceHandle& out_hSurface) override;
 
@@ -43,8 +42,8 @@ private:
 
   void Simulate();
 
-  PxScene* m_pPxScene;
-  PxControllerManager* m_pCharacterManager;
+  physx::PxScene* m_pPxScene;
+  physx::PxControllerManager* m_pCharacterManager;
 
   ezTime m_AccumulatedTimeSinceUpdate;
   ezVec3 m_vObjectGravity;

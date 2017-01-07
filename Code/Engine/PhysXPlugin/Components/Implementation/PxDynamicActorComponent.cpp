@@ -2,6 +2,7 @@
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
