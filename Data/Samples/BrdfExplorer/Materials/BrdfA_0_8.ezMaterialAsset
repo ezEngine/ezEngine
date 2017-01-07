@@ -1,0 +1,728 @@
+Objects
+{
+AssetInfo
+{
+	Uuid %id{u4{16609394181354497458,4822599705511767457}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Material"}
+		VarArray %Dependencies
+		{
+			s{"{ 26c88f22-3609-46e0-b8ec-2a862a4c1572 }"}
+		}
+		Uuid %DocumentID{u4{16609394181354497458,4822599705511767457}}
+		u4 %Hash{16230164642918885757}
+		VarArray %References
+		{
+			s{"{ 26c88f22-3609-46e0-b8ec-2a862a4c1572 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13387878588069180073,5762289657047123518}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13387878588069180073,5762289657047123518}}
+	s %t{"ezMaterialAssetProperties"}
+	u3 %v{3}
+	p
+	{
+		s %BaseMaterial{"{ 26c88f22-3609-46e0-b8ec-2a862a4c1572 }"}
+		s %Shader{"Shaders/brdf.ezShader"}
+		s %ShaderMode{"ezMaterialShaderMode::BaseMaterial"}
+		Uuid %ShaderProperties{u4{10364793601434783155,6578305788631562913}}
+	}
+}
+o
+{
+	Uuid %id{u4{10364793601434783155,6578305788631562913}}
+	s %t{"Shaders/brdf.ezShader"}
+	u3 %v{1}
+	p
+	{
+		s %CubeMap{"{ ba6cb75d-5767-4509-99c7-42ee599607a3 }"}
+		s %DIFFUSE_BRDF{"DIFFUSE_BRDF::LAMBERTIAN"}
+		s %DISTRIBUTION{"DISTRIBUTION::GGX"}
+		Color %DiffuseColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %ExposureBias{0x00000040}
+		s %GEOMETRY_TERM{"GEOMETRY_TERM::UE4_APPROX"}
+		b %IMPORTANCE_SAMPLE{0}
+		b %InverseTonemap{0}
+		f %Roughness{0xCDCC4C3F}
+		s %SPECULAR_BRDF{"SPECULAR_BRDF::COOK_TORRANCE"}
+		Color %SpecularColor{f{0x0AD7233D,0x0AD7233D,0x0AD7233D,0x0000803F}}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{5195496492053109770,386628853497140330}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"SPECULAR_BRDF::COOK_TORRANCE"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{13208409554016878480,1271058058959768461}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{3}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::DISNEY"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4535437679292875504,1481418835667245355}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9528829132087893799,12502315622767583048}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"IMPORTANCE_SAMPLE"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{6031511411153964961,1631242270343113482}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11024902863948983256,12652139057443451175}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"ExposureBias"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{10320927909859832628,1851595930851730693}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"GEOMETRY_TERM::SMITH"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{938549085873854819,2427698436719310518}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DISTRIBUTION::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{3974435548235623709,2650897219790739171}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{8967827001030642004,13671794006891076864}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"DIFFUSE_BRDF"}
+		s %Type{"DIFFUSE_BRDF"}
+	}
+}
+o
+{
+	Uuid %id{u4{5391679430038489856,3689991665225187984}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{2358143628920569767,4318526465474862834}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{938549085873854819,2427698436719310518}}
+			Uuid{u4{16059238649202466032,14259619942827360747}}
+			Uuid{u4{4369035252751947204,14889238811615620552}}
+		}
+		s %TypeName{"DISTRIBUTION"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12228792650850318982,4543448803333601770}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{1409703620123128314,10192709973683039902}}
+			Uuid{u4{14579367881167742958,6408873605706428876}}
+			Uuid{u4{10320927909859832628,1851595930851730693}}
+			Uuid{u4{8726228097901593597,7778499168370281872}}
+		}
+		s %TypeName{"GEOMETRY_TERM"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7322713208704629844,4890170432985969245}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Filter{";Texture Cube;"}
+	}
+}
+o
+{
+	Uuid %id{u4{5182776027571724455,5185453658931861913}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture"}
+	}
+}
+o
+{
+	Uuid %id{u4{5014321826708325414,5417483645199414509}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{17721610036792808655,6383775971404515427}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{14579367881167742958,6408873605706428876}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"GEOMETRY_TERM::UE4_APPROX"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{12849732137590184936,7001204095431254339}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{17843123590385203231,18022100882531592032}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"GEOMETRY_TERM"}
+		s %Type{"GEOMETRY_TERM"}
+	}
+}
+o
+{
+	Uuid %id{u4{8726228097901593597,7778499168370281872}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{2}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"GEOMETRY_TERM::SMITH_CORRELATED"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4278233410534846724,8056689639874868443}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::NONE"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4119219596494776385,8097091096161882458}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{12789247497384929008,8617925000138166155}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{5391679430038489856,3689991665225187984}}
+			Uuid{u4{4278233410534846724,8056689639874868443}}
+			Uuid{u4{17039526991504970575,8974920160259968971}}
+			Uuid{u4{16119812333200709464,16016078869350972628}}
+			Uuid{u4{13208409554016878480,1271058058959768461}}
+		}
+		s %TypeName{"DIFFUSE_BRDF"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11123059914217754738,8948953927071955858}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{17039526991504970575,8974920160259968971}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::LAMBERTIAN"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{3505244926294165312,9090853341995574943}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"SPECULAR_BRDF::NONE"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{1409703620123128314,10192709973683039902}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"GEOMETRY_TERM::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4075980197191202771,10512856929197241435}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{2172685589931368864,10831060721593475617}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{9528829132087893799,12502315622767583048}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{189384574776706160,12611300945541075836}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5182776027571724455,5185453658931861913}}
+			Uuid{u4{7322713208704629844,4890170432985969245}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CubeMap"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{11024902863948983256,12652139057443451175}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{20930373913307119,12843330931808628432}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5014321826708325414,5417483645199414509}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Roughness"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{1255925901271779598,13210204694502336677}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{189384574776706160,12611300945541075836}}
+			Uuid{u4{17529332818105736092,17938704215806455358}}
+			Uuid{u4{6031511411153964961,1631242270343113482}}
+			Uuid{u4{3974435548235623709,2650897219790739171}}
+			Uuid{u4{17572572217409309706,15522938382771096381}}
+			Uuid{u4{6129668461422736443,16374801213681169781}}
+			Uuid{u4{12849732137590184936,7001204095431254339}}
+			Uuid{u4{4535437679292875504,1481418835667245355}}
+			Uuid{u4{20930373913307119,12843330931808628432}}
+			Uuid{u4{12728218583997790360,13809623258013729350}}
+			Uuid{u4{15626038210845902185,18256908008202689540}}
+		}
+		s %TypeName{"Shaders/brdf.ezShader"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8967827001030642004,13671794006891076864}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{12728218583997790360,13809623258013729350}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{17721610036792808655,6383775971404515427}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"DiffuseColor"}
+		s %Type{"ezColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{16059238649202466032,14259619942827360747}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DISTRIBUTION::GGX"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4369035252751947204,14889238811615620552}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DISTRIBUTION::BECKMANN"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{17572572217409309706,15522938382771096381}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4119219596494776385,8097091096161882458}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"SPECULAR_BRDF"}
+		s %Type{"SPECULAR_BRDF"}
+	}
+}
+o
+{
+	Uuid %id{u4{16119812333200709464,16016078869350972628}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{2}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::ASHIKHMIN_SHIRLEY"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{6129668461422736443,16374801213681169781}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11123059914217754738,8948953927071955858}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"DISTRIBUTION"}
+		s %Type{"DISTRIBUTION"}
+	}
+}
+o
+{
+	Uuid %id{u4{3770612856183697793,17514070822143432005}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Name{"SPECULAR_BRDF::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{15527908896565093713,17702502441869426912}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{3770612856183697793,17514070822143432005}}
+			Uuid{u4{3505244926294165312,9090853341995574943}}
+			Uuid{u4{5195496492053109770,386628853497140330}}
+		}
+		s %TypeName{"SPECULAR_BRDF"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17529332818105736092,17938704215806455358}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4075980197191202771,10512856929197241435}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"InverseTonemap"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{17843123590385203231,18022100882531592032}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{15626038210845902185,18256908008202689540}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{2172685589931368864,10831060721593475617}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"SpecularColor"}
+		s %Type{"ezColor"}
+	}
+}
+}

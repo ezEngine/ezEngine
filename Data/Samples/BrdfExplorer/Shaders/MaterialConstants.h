@@ -5,6 +5,7 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   MAT4(ViewMatrix);
   FLOAT1(Roughness);
   FLOAT1(ExposureBias);
+  COLOR4F(DiffuseColor);
   COLOR4F(SpecularColor);
   BOOL(InverseTonemap);
 };

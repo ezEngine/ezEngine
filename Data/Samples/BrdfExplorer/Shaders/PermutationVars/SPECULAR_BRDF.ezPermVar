@@ -1,0 +1,5 @@
+enum SPECULAR_BRDF
+{
+  NONE,
+  COOK_TORRANCE
+};

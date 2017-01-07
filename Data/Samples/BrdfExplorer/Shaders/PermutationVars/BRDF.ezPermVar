@@ -1,5 +1,0 @@
-enum BRDF
-{
-  DIFFUSE,
-  COOK_TORRANCE
-};
