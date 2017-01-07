@@ -14,7 +14,7 @@ AssetInfo
 			s{"Shaders/brdf.ezShader"}
 		}
 		Uuid %DocumentID{u4{8220560440358005944,5107141390371426082}}
-		u4 %Hash{1830456835108085216}
+		u4 %Hash{36456661136429314}
 		VarArray %References
 		{
 			s{"{ ba6cb75d-5767-4509-99c7-42ee599607a3 }"}
@@ -56,7 +56,7 @@ o
 	p
 	{
 		s %CubeMap{"{ ba6cb75d-5767-4509-99c7-42ee599607a3 }"}
-		s %DIFFUSE_BRDF{"DIFFUSE_BRDF::NONE"}
+		s %DIFFUSE_BRDF{"DIFFUSE_BRDF::LAMBERTIAN"}
 		s %DISTRIBUTION{"DISTRIBUTION::GGX"}
 		Color %DiffuseColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		f %ExposureBias{0x00000040}
