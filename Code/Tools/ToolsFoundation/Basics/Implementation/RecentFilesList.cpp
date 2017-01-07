@@ -3,6 +3,8 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Logging/Log.h>
 
 void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
 {
@@ -27,9 +29,8 @@ void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
 
 void ezRecentFilesList::Save(const char* szFile)
 {
-  ezFileWriter File;
-  if (File.Open(szFile).Failed())
-    return;
+  ezDeferredFileWriter File;
+  File.SetOutput(szFile);
 
   for (const RecentFile& file : m_Files)
   {
@@ -38,6 +39,9 @@ void ezRecentFilesList::Save(const char* szFile)
     File.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
     File.WriteBytes("\n", sizeof(char));
   }
+
+  if (File.Close().Failed())
+    ezLog::Error("Unable to open file '{0}' for writing!", szFile);
 }
 
 void ezRecentFilesList::Load(const char* szFile)

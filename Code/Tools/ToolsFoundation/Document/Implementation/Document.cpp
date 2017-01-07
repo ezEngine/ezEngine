@@ -12,6 +12,7 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -162,11 +163,8 @@ void ezDocument::EnsureVisible()
 
 ezStatus ezDocument::InternalSaveDocument()
 {
-  ezFileWriter file;
-  if (file.Open(m_sDocumentPath) == EZ_FAILURE)
-  {
-    return ezStatus("Unable to open file for writing!");
-  }
+  ezDeferredFileWriter file;
+  file.SetOutput(m_sDocumentPath);
 
   ezAbstractObjectGraph graph;
   {
@@ -203,6 +201,11 @@ ezStatus ezDocument::InternalSaveDocument()
 #else
   ezAbstractGraphJsonSerializer::Write(file, &graph, &typesGraph, ezJSONWriter::WhitespaceMode::LessIndentation);
 #endif
+
+  if (file.Close() == EZ_FAILURE)
+  {
+    return ezStatus(ezFmt("Unable to open file '{0}' for writing!", m_sDocumentPath.GetData()));
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

@@ -12,6 +12,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
 
@@ -129,12 +130,8 @@ void ezActionManager::SaveShortcutAssignment()
 
   EZ_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
 
-  ezFileWriter file;
-  if (file.Open(sFile).Failed())
-  {
-    ezLog::Error("Failed to write shortcuts config file '{0}'", sFile.GetData());
-    return;
-  }
+  ezDeferredFileWriter file;
+  file.SetOutput(sFile);
 
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&file);
@@ -158,6 +155,11 @@ void ezActionManager::SaveShortcutAssignment()
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, pAction->m_sActionName);
     writer.WriteString(sKey);
     writer.EndPrimitiveList();
+  }
+
+  if (file.Close().Failed())
+  {
+    ezLog::Error("Failed to write shortcuts config file '{0}'", sFile.GetData());
   }
 }
 

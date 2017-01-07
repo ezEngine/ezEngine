@@ -667,12 +667,14 @@ void ezMaterialAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pO
 
 void ezMaterialAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
+  SUPER::AttachMetaDataBeforeSaving(graph);
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezMaterialAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
 {
+  SUPER::RestoreMetaDataAfterLoading(graph);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph);
 }

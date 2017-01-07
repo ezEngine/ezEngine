@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferences, 1, ezRTTINoAllocator)
 {
@@ -115,11 +116,13 @@ void ezPreferences::Save() const
   if (bNothingToSerialize)
     return;
 
-  ezFileWriter file;
-  if (file.Open(GetFilePath()).Failed())
-    return;
+  ezDeferredFileWriter file;
+  file.SetOutput(GetFilePath());
 
   ezReflectionSerializer::WriteObjectToDDL(file, GetDynamicRTTI(), this, false, ezOpenDdlWriter::TypeStringMode::Compliant);
+
+  if (file.Close().Failed())
+    ezLog::Error("Failed to open file for writing '{0}'.", GetFilePath().GetData());
 }
 
 

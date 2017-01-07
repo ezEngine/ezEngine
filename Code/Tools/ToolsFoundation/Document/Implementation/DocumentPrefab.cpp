@@ -15,6 +15,7 @@ void ezDocument::UpdatePrefabs()
   GetCommandHistory()->FinishTransaction();
 
   ShowDocumentStatus("Prefabs have been updated");
+  SetModified(true);
 }
 
 void ezDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection)

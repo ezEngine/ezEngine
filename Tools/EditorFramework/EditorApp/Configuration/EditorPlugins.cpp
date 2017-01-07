@@ -6,6 +6,7 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 void ezQtEditorApp::DetectAvailableEditorPlugins()
 {
@@ -36,9 +37,9 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
 {
   AddRestartRequiredReason("The set of active editor plugins was changed.");
 
-  ezFileWriter FileOut;
-  FileOut.Open(":appdata/EditorPlugins.ddl");
-
+  ezDeferredFileWriter FileOut;
+  FileOut.SetOutput(":appdata/EditorPlugins.ddl");
+ 
   ezOpenDdlWriter writer;
   writer.SetCompactMode(false);
   writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);
@@ -50,6 +51,11 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
     ezOpenDdlUtils::StoreString(writer, it.Key().GetData(), "Name");
     ezOpenDdlUtils::StoreBool(writer, it.Value().m_bToBeLoaded, "Enable");
     writer.EndObject();
+  }
+
+  if (FileOut.Close().Failed())
+  {
+    ezLog::Error("Failed to save ':appdata/EditorPlugins.ddl'");
   }
 }
 

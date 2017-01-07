@@ -2,6 +2,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 ezStatus ezQtEditorApp::SaveTagRegistry()
 {
@@ -11,13 +12,15 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
   sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("Tags.ddl");
 
-  ezFileWriter file;
-  if (file.Open(sPath).Failed())
+  ezDeferredFileWriter file;
+  file.SetOutput(sPath);
+  
+  ezToolsTagRegistry::WriteToDDL(file);
+
+  if (file.Close().Failed())
   {
     return ezStatus(ezFmt("Could not open tags config file '{0}' for writing", sPath.GetData()));
   }
-
-  ezToolsTagRegistry::WriteToDDL(file);
   return ezStatus(EZ_SUCCESS);
 }
 

@@ -2,6 +2,7 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, 1, ezRTTINoAllocator);
 // no properties or message handlers
@@ -434,16 +435,14 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
 
     shaderPermutationBinary.m_PermutationVars = m_ShaderData.m_Permutations;
 
-    ezFileWriter PermutationFileOut;
-    if (PermutationFileOut.Open(sTemp.GetData()).Failed())
+    ezDeferredFileWriter PermutationFileOut;
+    PermutationFileOut.SetOutput(sTemp.GetData());
+    shaderPermutationBinary.Write(PermutationFileOut);
+
+    if (PermutationFileOut.Close().Failed())
     {
       ezLog::Error("Could not open file for writing: '{0}'", sTemp.GetData());
     }
-    else
-    {
-      shaderPermutationBinary.Write(PermutationFileOut);
-    }
-
   }
 }
 

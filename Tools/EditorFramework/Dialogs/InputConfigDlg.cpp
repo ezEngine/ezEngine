@@ -16,6 +16,7 @@
 #include <qevent.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 void UpdateInputDynamicEnumValues()
 {
@@ -191,11 +192,13 @@ void ezQtInputConfigDlg::SaveActions()
   sPath.PathParentDirectory();
   sPath.AppendPath("InputConfig.ddl");
 
-  ezFileWriter file;
-  if (file.Open(sPath).Failed())
-    return;
+  ezDeferredFileWriter file;
+  file.SetOutput(sPath);
 
   ezGameAppInputConfig::WriteToDDL(file, m_Actions);
+
+  if (file.Close().Failed())
+    ezLog::Error("Failed to save '{0}'.", sPath.GetData());
 }
 
 void ezQtInputConfigDlg::FillList()
