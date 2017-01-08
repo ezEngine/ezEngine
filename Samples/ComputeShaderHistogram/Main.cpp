@@ -4,6 +4,7 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Foundation/Time/Clock.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 static ezUInt32 g_uiWindowWidth = 1920;
 static ezUInt32 g_uiWindowHeight = 1080;
@@ -146,6 +147,10 @@ void ezComputeShaderHistogramApp::AfterCoreStartup()
     m_pWindow->Initialize(windowDesc);
     ezGALSwapChainHandle hPrimarySwapChain = AddWindow(m_pWindow.Borrow());
     device->SetPrimarySwapChain(hPrimarySwapChain);
+
+    // Update window height/width constants with actual height/width.
+    g_uiWindowHeight = m_pWindow->GetClientAreaSize().height;
+    g_uiWindowWidth = m_pWindow->GetClientAreaSize().width;
 
     // Get backbuffer render target view.
     const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(hPrimarySwapChain);
