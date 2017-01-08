@@ -265,7 +265,8 @@ void ezGameApplication::DoShutdownGraphicsDevice()
 
   for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
   {
-    pDevice->DestroySwapChain(m_Windows[i].m_hSwapChain);
+    if(m_Windows[i].m_hSwapChain != pDevice->GetPrimarySwapChain())
+      pDevice->DestroySwapChain(m_Windows[i].m_hSwapChain);
   }
 
   // Cleanup resource pool

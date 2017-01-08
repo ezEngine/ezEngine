@@ -881,6 +881,12 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 
   ezGALSwapChain* pSwapChain = nullptr;
 
+  if (hSwapChain == m_hPrimarySwapChain)
+  {
+    ezLog::Warning("DestroySwapChain called on primary swap chain!");
+    m_hPrimarySwapChain.Invalidate();
+  }
+
   if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
   {
     AddDeadObject(GALObjectType::SwapChain, hSwapChain);
