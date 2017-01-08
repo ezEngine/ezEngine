@@ -418,8 +418,8 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-            (state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
-            (state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr ||
+            ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
+            ((state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
             (state == ezStandardJSONWriter::Variable && szName == nullptr),
             "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
             "Inside arrays you can only nest anonymous arrays, so names are forbidden.\n"
@@ -469,8 +469,8 @@ void ezStandardJSONWriter::BeginObject(const char* szName)
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-            (state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
-            (state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr ||
+            ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
+            ((state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
             (state == ezStandardJSONWriter::Variable && szName == nullptr),
             "Inside objects you can only begin objects when also giving them a (non-empty) name.\n"
             "Inside arrays you can only nest anonymous objects, so names are forbidden.\n"

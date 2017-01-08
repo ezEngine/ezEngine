@@ -237,11 +237,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezConeManipulatorAttribute::ezConeManipulatorAttribute()
   : ezManipulatorAttribute(nullptr)
 {
+  m_fScale = 1.0f;
 }
 
 ezConeManipulatorAttribute::ezConeManipulatorAttribute(const char* szAngleProperty, const char* szRadiusProperty)
   : ezManipulatorAttribute(szAngleProperty, szRadiusProperty)
 {
+  m_fScale = 1.0f;
 }
 
 
@@ -380,6 +382,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)
 {
+  m_Axis = ezBasisAxis::PositiveX;
+  m_fScale = 1.0f;
 }
 
 ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const char* szColorProperty)
@@ -415,7 +419,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezConeVisualizerAttribute::ezConeVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)
 {
-
+  m_Axis = ezBasisAxis::PositiveX;
+  m_Color = ezColor::Red;
+  m_fScale = 1.0f;
 }
 
 ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezBasisAxis::Enum axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const char* szColorProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)

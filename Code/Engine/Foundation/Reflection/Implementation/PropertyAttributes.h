@@ -219,7 +219,7 @@ class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute, ezTypeWidgetAttribute);
 
 public:
-  ezFileBrowserAttribute() {}
+  ezFileBrowserAttribute() : m_sDialogTitle(nullptr), m_sTypeFilter(nullptr) {}
   ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter)
   {
     m_sDialogTitle = szDialogTitle;

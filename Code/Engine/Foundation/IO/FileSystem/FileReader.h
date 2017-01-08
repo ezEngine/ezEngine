@@ -15,7 +15,7 @@ class EZ_FOUNDATION_DLL ezFileReader : public ezFileReaderBase
 public:
 
   /// \brief Constructor, does nothing.
-  ezFileReader() : m_bEOF(true) {}
+  ezFileReader() : m_uiBytesCached(0), m_uiCacheReadPosition(0), m_bEOF(true) {}
 
   /// \brief Destructor, closes the file, if it is still open (RAII).
   ~ezFileReader() { Close(); }

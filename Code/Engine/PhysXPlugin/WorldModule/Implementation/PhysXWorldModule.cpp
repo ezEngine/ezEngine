@@ -76,6 +76,7 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
   m_pPxScene = nullptr;
+  m_pCharacterManager = nullptr;
 
   SetGravity(ezVec3(0, 0, -10), ezVec3(0, 0, -12));
 }

@@ -4,6 +4,7 @@ ezArrayBase<T, Derived>::ezArrayBase()
 {
   m_pElements = nullptr;
   m_uiCount = 0;
+  m_uiCapacity = 0;
 }
 
 template <typename T, typename Derived>

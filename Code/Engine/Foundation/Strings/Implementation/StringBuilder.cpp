@@ -782,7 +782,7 @@ void ezStringBuilder::AppendPath(const char* szPath1, const char* szPath2, const
   {
     if (!ezStringUtils::IsNullOrEmpty(szPaths[i]))
     {
-      EZ_ASSERT_DEV(!ezPathUtils::IsPathSeparator(szPaths[i][0]) || IsEmpty() && ezPathUtils::IsAbsolutePath(szPaths[i]),
+      EZ_ASSERT_DEV(!ezPathUtils::IsPathSeparator(szPaths[i][0]) || (IsEmpty() && ezPathUtils::IsAbsolutePath(szPaths[i])),
                     "The paths to append must not start with a path separator or it must be absolute and the current value must be empty.");
 
       if (IsEmpty() || ezPathUtils::IsPathSeparator(GetIteratorBack().GetCharacter()))

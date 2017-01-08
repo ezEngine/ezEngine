@@ -43,7 +43,7 @@ public:
 
 protected:
   /// \brief Protected constructor, because this class should never be instantiated directly.
-  ezReloadableVariableBase() { }
+  ezReloadableVariableBase() : m_szVariableName(nullptr) { }
 
   /// \brief Called by 'ezReloadableVariableWrapper' to retrieve the stored state of a reloadable variable (if available).
   static void RetrieveVariable(const char* szVarName, ezReloadableVariableBase* pVariable);
@@ -68,7 +68,7 @@ class ezReloadableVariableWrapper : public ezReloadableVariableBase
 {
 public:
   ezReloadableVariableWrapper(Type& Variable, const char* szVarName);
-   
+
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReloadableVariableWrapper);
 

@@ -123,7 +123,7 @@ protected:
 
   struct DdlState
   {
-    DdlState()
+    DdlState() : m_State(Empty)
     {
       m_bPrimitivesWritten = false;
     }

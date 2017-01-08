@@ -115,6 +115,7 @@ private:
   {
     JSONState()
     {
+      m_State = NotStarted;
     }
 
     State m_State;

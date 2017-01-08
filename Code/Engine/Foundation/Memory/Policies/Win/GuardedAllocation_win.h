@@ -5,6 +5,8 @@ namespace ezMemoryPolicies
   {
     AlloctionMetaData()
     {
+      m_uiSize = 0;
+
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_magic); ++i)
       {
         m_magic[i] = 0x12345678;

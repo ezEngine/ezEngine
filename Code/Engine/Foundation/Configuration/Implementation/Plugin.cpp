@@ -23,6 +23,7 @@ struct PluginData
 {
   PluginData()
   {
+    m_hModule = 0;
     m_pPluginObject = nullptr;
     m_iReferenceCount = 0;
     m_LastModificationTime.Invalidate();

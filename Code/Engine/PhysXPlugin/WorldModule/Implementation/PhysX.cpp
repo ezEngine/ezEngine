@@ -117,6 +117,7 @@ ezPhysX::ezPhysX()
   m_bInitialized = false;
 
   m_pFoundation = nullptr;
+  m_pAllocatorCallback = nullptr;
   m_pProfileZoneManager = nullptr;
   m_pPhysX = nullptr;
   m_pDefaultMaterial = nullptr;

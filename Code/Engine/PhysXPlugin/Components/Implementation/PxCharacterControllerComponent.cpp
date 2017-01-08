@@ -27,6 +27,8 @@ EZ_END_COMPONENT_TYPE
 
 ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
 {
+  m_InputStateBits = 0;
+
   m_vRelativeMoveDirection.SetZero();
 
   m_fWalkSpeed = 3.0f;

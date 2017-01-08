@@ -119,6 +119,8 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
 template <typename KeyType, typename ValueType, typename Comparer>
 EZ_FORCE_INLINE ezMapBase<KeyType, ValueType, Comparer>::NilNode::NilNode() : m_pParent(nullptr), m_uiLevel(0)
 {
+  m_pLink[0] = nullptr;
+  m_pLink[1] = nullptr;
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>

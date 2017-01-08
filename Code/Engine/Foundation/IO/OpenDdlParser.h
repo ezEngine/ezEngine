@@ -150,7 +150,7 @@ private:
 
   struct DdlState
   {
-    DdlState() { }
+    DdlState() : m_State(Idle) { }
     DdlState(State s) : m_State(s) {}
 
     State m_State;

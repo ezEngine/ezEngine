@@ -22,7 +22,7 @@ public:
     ezVariant m_Value;
   };
 
-  ezAbstractObjectNode() : m_uiTypeVersion(0), m_szType(nullptr), m_szNodeName(nullptr) {}
+  ezAbstractObjectNode() : m_pOwner(nullptr), m_uiTypeVersion(0), m_szType(nullptr), m_szNodeName(nullptr) {}
 
   const ezHybridArray<Property, 16>& GetProperties() const { return m_Properties; }
 

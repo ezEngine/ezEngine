@@ -25,6 +25,6 @@ void ezThreadSignal::WaitForSignal()
 
 void ezThreadSignal::RaiseSignal()
 {
-  EZ_VERIFY(SetEvent(m_Data.m_hEvent) == TRUE, "Raising a signal failed.");
+  EZ_VERIFY(SetEvent(m_Data.m_hEvent) != FALSE, "Raising a signal failed.");
 }
 
