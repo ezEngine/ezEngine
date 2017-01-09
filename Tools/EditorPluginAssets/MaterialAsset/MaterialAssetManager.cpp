@@ -59,7 +59,7 @@ bool ezMaterialAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath
     const ezString sTargetFile = GetAbsoluteOutputFileName(szDocumentPath, szOutputTag);
 
     ezStringBuilder sExpectedHeader;
-    sExpectedHeader.Format("//{1}|{2}", uiHash, uiTypeVersion);
+    sExpectedHeader.Format("//{0}|{1}\n", uiHash, uiTypeVersion);
 
     ezFileReader file;
     if (file.Open(sTargetFile, 256).Failed())

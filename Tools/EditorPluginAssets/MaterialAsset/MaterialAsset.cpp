@@ -842,7 +842,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
   if (file.Open(sAutoGenShader).Succeeded())
   {
     ezStringBuilder shader = codeGen.GetFinalShaderCode();
-    shader.PrependFormat("//{1}|{2}", AssetHeader.GetFileHash(), AssetHeader.GetFileVersion());
+    shader.PrependFormat("//{0}|{1}\n", AssetHeader.GetFileHash(), AssetHeader.GetFileVersion());
 
     file.WriteBytes(shader.GetData(), shader.GetElementCount());
     file.Close();

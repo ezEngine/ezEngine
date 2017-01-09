@@ -24,6 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTINoAllocator)
   {
     EZ_SET_MEMBER_PROPERTY("Dependencies", m_FileDependencies),
     EZ_SET_MEMBER_PROPERTY("References", m_FileReferences),
+    EZ_SET_MEMBER_PROPERTY("Outputs", m_Outputs),
     EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
     EZ_MEMBER_PROPERTY("AssetType", m_sAssetTypeName),
   }
