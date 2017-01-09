@@ -2,7 +2,6 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
@@ -196,11 +195,7 @@ ezStatus ezDocument::InternalSaveDocument()
   }
 
 
-#ifdef EZ_ENABLE_DDL
   ezAbstractGraphDdlSerializer::Write(file, &graph, &typesGraph, false);
-#else
-  ezAbstractGraphJsonSerializer::Write(file, &graph, &typesGraph, ezJSONWriter::WhitespaceMode::LessIndentation);
-#endif
 
   if (file.Close() == EZ_FAILURE)
   {
@@ -227,14 +222,6 @@ ezStatus ezDocument::InternalLoadDocument()
 
     storage.ReadAll(file);
 
-    if (storage.GetData()[0] == '{') // JSON starts with a brace
-    {
-      ezStopwatch sw;
-      ezAbstractGraphJsonSerializer::Read(memreader, &graph, &typesGraph);
-      ezTime t = sw.GetRunningTotal();
-      ezLog::Debug("JSON parsing time: {0} msec", ezArgF(t.GetMilliseconds(), 1));
-    }
-    else
     {
       ezStopwatch sw;
       ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph);

@@ -3,7 +3,6 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/Serialization/DdlSerializer.h>
@@ -67,16 +66,7 @@ void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGr
     ezMemoryStreamReader stringReader(&storage);
     stringWriter.WriteBytes(sGraph.GetData(), sGraph.GetElementCount());
 
-    const bool isJSON = sGraph.GetData()[0] == '{';
-
-    if (isJSON)
-    {
-      ezAbstractGraphJsonSerializer::Read(stringReader, it.Value().Borrow());
-    }
-    else
-    {
-      ezAbstractGraphDdlSerializer::Read(stringReader, it.Value().Borrow());
-    }
+    ezAbstractGraphDdlSerializer::Read(stringReader, it.Value().Borrow());
   }
 
   it.Value()->Clone(out_graph);

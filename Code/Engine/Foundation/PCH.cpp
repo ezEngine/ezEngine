@@ -31,8 +31,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_CompressedStream);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DependencyFile);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DirectoryWatcher);
-  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ExtendedJSONReader);
-  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ExtendedJSONWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONParser);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONReader);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONWriter);

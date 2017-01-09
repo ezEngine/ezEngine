@@ -9,7 +9,6 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <IPC/ProcessCommunication.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 
@@ -515,9 +514,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   }
   else
   {
-    const bool isJSON = storage.GetData()[0] == '{';
-
-    ezStatus ret = ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader, isJSON);
+    ezStatus ret = ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
     if (ret.Failed())
     {
       ezLog::Error("Failed to read asset document info for asset file '{0}'", szAbsFilePath);
@@ -532,22 +529,14 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   return EZ_SUCCESS;
 }
 
-ezStatus ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream, bool isJSON)
+ezStatus ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream)
 {
   /// \todo PERF / DDL: We are only interested in the HEADER block, we should skip everything else !
 
   ezAbstractObjectGraph graph;
 
-  if (isJSON)
-  {
-    if (ezAbstractGraphJsonSerializer::Read(stream, &graph).Failed())
-      return ezStatus("Failed to read asset document");
-  }
-  else
-  {
-    if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
-      return ezStatus("Failed to read asset document");
-  }
+  if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
+    return ezStatus("Failed to read asset document");
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);

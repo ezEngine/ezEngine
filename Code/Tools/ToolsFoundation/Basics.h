@@ -13,5 +13,3 @@
   #define EZ_TOOLSFOUNDATION_DLL
 #endif
 
-
-#define EZ_ENABLE_DDL

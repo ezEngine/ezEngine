@@ -3,7 +3,6 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/DdlSerializer.h>
@@ -233,11 +232,7 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
       ezMemoryStreamStorage stor;
       ezMemoryStreamWriter sw(&stor);
 
-#ifdef EZ_ENABLE_DDL
       ezAbstractGraphDdlSerializer::Write(sw, &baseGraph, nullptr, true, ezOpenDdlWriter::TypeStringMode::Shortest);
-#else
-      ezAbstractGraphJsonSerializer::Write(sw, &baseGraph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
-#endif
 
       out_sNewGraph.SetSubString_ElementCount((const char*)stor.GetData(), stor.GetStorageSize());
     }

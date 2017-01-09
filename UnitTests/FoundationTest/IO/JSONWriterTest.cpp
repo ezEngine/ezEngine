@@ -1,7 +1,6 @@
 ﻿#include <PCH.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/ExtendedJSONWriter.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
 
@@ -153,7 +152,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     val[0] = 0x1122334455667788;
     val[1] = 0x99AABBCCDDEEFF00;
     ezMemoryUtils::Copy(reinterpret_cast<ezUInt64*>(&guid), val, 2);
-    
+
     StreamComparer sc("\"uuid_var\" : { \"$t\" : \"uuid\", \"$b\" : \"0x887766554433221100FFEEDDCCBBAA99\" }");
 
     ezStandardJSONWriter js;
