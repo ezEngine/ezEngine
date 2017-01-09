@@ -205,6 +205,23 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
 
 bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  if (pResource->GetLoadedFileModificationTime().IsValid())
+  {
+    ezStringBuilder sAbs;
+    if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
+      return false;
+
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(sAbs, stat).Failed())
+      return false;
+
+    if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
+      return true;
+  }
+
+#endif
+
   ezDependencyFile dep;
   if (dep.ReadDependencyFile(pResource->GetResourceID()).Failed())
     return true;
@@ -236,9 +253,17 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
         ezLog::Debug("Shader Permutation '{0}' still does not exist after recompile.", pResource->GetResourceID().GetData());
         return res;
       }
-
-      res.m_sResourceDescription = File.GetFilePathRelative().GetData();
     }
+
+    res.m_sResourceDescription = File.GetFilePathRelative().GetData();
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())
+    {
+      res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
+    }
+#endif
 
     if (permutationBinary.Read(File).Failed())
     {

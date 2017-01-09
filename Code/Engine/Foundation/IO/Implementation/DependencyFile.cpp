@@ -71,7 +71,7 @@ bool ezDependencyFile::HasAnyFileChanged()
 
     if (ts.GetInt64(ezSIUnitOfTime::Second) > m_iMaxTimeStampStored)
     {
-      ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", sFile.GetData(), ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
+      ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", sFile, ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
       return true;
     }
   }
@@ -82,7 +82,7 @@ bool ezDependencyFile::HasAnyFileChanged()
 ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
 {
   stream << (ezUInt8) ezDependencyFileVersion::Current;
-  
+
   stream << m_iMaxTimeStampStored;
   stream << m_FileDependencies.GetCount();
 
@@ -102,9 +102,9 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
     ezLog::Error("Dependency file has incorrect file version ({0})", uiVersion);
     return EZ_FAILURE;
   }
-  
+
   EZ_ASSERT_DEV(uiVersion <= (ezUInt8) ezDependencyFileVersion::Current, "Invalid file version {0}", uiVersion);
-  
+
   stream >> m_iMaxTimeStampStored;
 
   ezUInt32 count = 0;

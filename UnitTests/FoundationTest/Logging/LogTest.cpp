@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     ezLog::Error("{0}", "Huge Success");
     ezLog::Info("{0}", "It's hard to overstate my satisfaction.");
     ezLog::Dev("{0}", "Aperture Science. We do what we must, because we can,");
-    ezLog::Debug("{0}", "For the good of all of us, except the ones who are dead.");
+    ezLog::Dev("{0}", "For the good of all of us, except the ones who are dead.");
 
     {
       EZ_LOG_BLOCK("Verse 2");
@@ -139,6 +139,9 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     ezLog::Debug("Still alive, still alive.");
   }
 
+  /// \todo This test will fail if EZ_COMPILE_FOR_DEVELOPMENT is disabled.
+  /// We also currently don't test ezLog::Debug, because our build machines compile in release and then the text below would need to be different.
+
   const char* szResult = log.m_Result;
   const char* szExpected = "\
 S: This was a triumph.\n\
@@ -146,7 +149,7 @@ I: I'm making a note here:\n\
 E: Huge Success\n\
 I: It's hard to overstate my satisfaction.\n\
 E: Aperture Science. We do what we must, because we can,\n\
-D: For the good of all of us, except the ones who are dead.\n\
+E: For the good of all of us, except the ones who are dead.\n\
 E: But there's no sense crying over every mistake.\n\
 I: And the science gets done, and you make a neat gun\n\
 E: for the people who are still alive.\n\
