@@ -82,12 +82,6 @@ public:
 
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
-  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
-  static void SetLogLevel(ezLogMsgType::Enum LogLevel);
-
-  /// \brief Returns the currently set log level.
-  static ezLogMsgType::Enum GetLogLevel() { return s_LogLevel; }
-
   /// \brief Allows to register a function as an event receiver.
   static void AddLogWriter(ezLoggingEvent::Handler handler)    { s_LoggingEvent.AddEventHandler    (handler); }
 
@@ -98,8 +92,6 @@ public:
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }
 
 private:
-  /// \brief Which messages to filter out.
-  static ezLogMsgType::Enum s_LogLevel;
 
   /// \brief Counts the number of messages of each type.
   static ezAtomicInteger32 s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
@@ -131,6 +123,12 @@ public:
 
   /// \brief Returns the currently set default logging system.
   static ezLogInterface* GetDefaultLogSystem();
+
+  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
+  static void SetLogLevel(ezLogMsgType::Enum LogLevel);
+
+  /// \brief Returns the currently set log level.
+  static ezLogMsgType::Enum GetLogLevel() { return s_LogLevel; }
 
   /// \brief An error that needs to be fixed as soon as possible.
   static void Error(ezLogInterface* pInterface, const ezFormatString& string);
@@ -265,6 +263,9 @@ private:
 
   /// \brief The log system that messages are sent to when the user specifies no system himself.
   static ezThreadLocalPointer<ezLogInterface> s_DefaultLogSystem;
+
+  /// \brief Which messages to filter out.
+  static ezLogMsgType::Enum s_LogLevel;
 
   /// \brief Ends grouping log messages.
   static void EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock);

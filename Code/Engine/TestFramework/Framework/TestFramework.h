@@ -81,7 +81,7 @@ public:
 public:
   static EZ_FORCE_INLINE ezTestFramework* GetInstance() { return s_pInstance; }
 
-  /// \brief Returns whether to asset on test fail, will return false if no debugger is attached to prevent crashing. 
+  /// \brief Returns whether to asset on test fail, will return false if no debugger is attached to prevent crashing.
   static bool GetAssertOnTestFail();
 
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
@@ -91,7 +91,7 @@ public:
   // static members
 private:
   static ezTestFramework* s_pInstance;
-  
+
 private:
   std::string m_sTestName;  ///< The name of the tests being done
   std::string m_sAbsTestDir; ///< Absolute path to the output folder where results and temp data is stored
@@ -131,15 +131,11 @@ struct ezTestBlock
   };
 };
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #define safeprintf sprintf_s
-#else
-  #define safeprintf snprintf
-#endif
+#define safeprintf ezStringUtils::snprintf
 
-/// \brief Starts a small test block inside a larger test. 
+/// \brief Starts a small test block inside a larger test.
 ///
-/// First parameter allows to quickly disable a block depending on a condition (e.g. platform). 
+/// First parameter allows to quickly disable a block depending on a condition (e.g. platform).
 /// Second parameter just gives it a name for better error reporting.
 /// Also skipped tests are highlighted in the output, such that people can quickly see when a test is currently deactivated.
 #define EZ_TEST_BLOCK(enable, name) \

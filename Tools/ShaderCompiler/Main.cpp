@@ -24,7 +24,7 @@ ezShaderCompilerApplication::ezShaderCompilerApplication()
 void ezShaderCompilerApplication::BeforeCoreStartup()
 {
   // only print important messages
-  ezGlobalLog::GetOrCreateInstance()->SetLogLevel(ezLogMsgType::InfoMsg);
+  ezLog::SetLogLevel(ezLogMsgType::InfoMsg);
 
   ezGameApplication::BeforeCoreStartup();
 
@@ -46,7 +46,7 @@ void ezShaderCompilerApplication::BeforeCoreStartup()
   for (ezUInt32 pv = 0; pv < pvs; ++pv)
   {
     ezStringBuilder var = cmd->GetStringOption("-perm", pv);
-    
+
     const char* szEqual = var.FindSubString("=");
 
     if (szEqual == nullptr)

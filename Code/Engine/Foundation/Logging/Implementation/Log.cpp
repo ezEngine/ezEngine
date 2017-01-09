@@ -3,7 +3,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 
 ezThreadLocalPointer<ezGlobalLog> ezGlobalLog::s_pInstances;
-ezLogMsgType::Enum ezGlobalLog::s_LogLevel = ezLogMsgType::All;
+ezLogMsgType::Enum ezLog::s_LogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
@@ -30,13 +30,10 @@ void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
   if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
     s_uiMessageCount[ThisType].Increment();
 
-  if (s_LogLevel < ThisType)
-    return;
-
   s_LoggingEvent.Broadcast(le);
 }
 
-void ezGlobalLog::SetLogLevel(ezLogMsgType::Enum LogLevel)
+void ezLog::SetLogLevel(ezLogMsgType::Enum LogLevel)
 {
   EZ_ASSERT_DEV(LogLevel >= ezLogMsgType::None, "Invalid Log Level");
   EZ_ASSERT_DEV(LogLevel <= ezLogMsgType::All, "Invalid Log Level");
@@ -125,6 +122,9 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
 
 void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString)
 {
+  if (s_LogLevel < type)
+    return;
+
   ezLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
   ezInt32 iIndentation = 0;
 
@@ -224,16 +224,6 @@ void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
   ezStringBuilder tmp;
   BroadcastLoggingEvent(pInterface, ezLogMsgType::InfoMsg, string.GetText(tmp));
 }
-
-#define LOG_IMPL(ThisType, pInterface) \
-  if (pInterface == nullptr) \
-    return; \
-  char szString[4096]; \
-  va_list args; \
-  va_start (args, szFormat); \
-  ezStringUtils::vsnprintf(szString, 4096, szFormat, args); \
-  va_end (args); \
-  BroadcastLoggingEvent(pInterface, ThisType, szString);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
