@@ -224,7 +224,9 @@ ezStatus ezDocument::InternalLoadDocument()
 
     {
       ezStopwatch sw;
-      ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph);
+      if (ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph).Failed())
+        return ezStatus("Failed to parse DDL graph");
+
       ezTime t = sw.GetRunningTotal();
       ezLog::Debug("DDL parsing time: {0} msec", ezArgF(t.GetMilliseconds(), 1));
     }

@@ -80,7 +80,7 @@ AssetInfo
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{17367252347845481899,5099121145089259863}}
-		u4 %Hash{11636943572404222146}
+		u4 %Hash{6736301395196285342}
 		VarArray %Outputs
 		{
 			s{"VISUAL_SHADER"}
@@ -138,7 +138,7 @@ o
 		}
 		Vec2 %Node::Pos{f{0x5F6C5C44,0x65CD8943}}
 		f %a{0}
-		f %b{0x0000C842}
+		f %b{0x00007A44}
 	}
 }
 o

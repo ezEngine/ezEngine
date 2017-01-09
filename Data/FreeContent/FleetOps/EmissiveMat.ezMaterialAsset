@@ -85,6 +85,10 @@ AssetInfo
 		}
 		Uuid %DocumentID{u4{15903596662049351313,5036358118506951106}}
 		u4 %Hash{5248821621524516337}
+		VarArray %Outputs
+		{
+			s{"VISUAL_SHADER"}
+		}
 		VarArray %References
 		{
 			s{"RebeccaPurple.color"}
@@ -103,7 +107,7 @@ o
 		{
 			Uuid{u4{17910384362158937406,16226045570450516847}}
 		}
-		Vec2 %Node::Pos{f{0xC9B20844,0xEC38C742}}
+		Vec2 %Node::Pos{f{0xBD280544,0x1678DD42}}
 		s %Texture{""}
 	}
 }

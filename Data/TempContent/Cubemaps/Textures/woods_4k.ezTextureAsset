@@ -11,10 +11,11 @@ AssetInfo
 		s %AssetType{"Texture Cube"}
 		VarArray %Dependencies
 		{
-			s{"Textures/woods_4k.hdr"}
+			s{"Cubemaps/Textures/woods_4k.hdr"}
 		}
 		Uuid %DocumentID{u4{4858344355152513189,4806538659741976816}}
-		u4 %Hash{14140688629589218253}
+		u4 %Hash{2384694691296973095}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -44,7 +45,7 @@ o
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
 		s %ChannelMapping{"ezChannelMappingEnum::RGB1_CUBE"}
 		b %Compression{1}
-		s %Input1{"Textures/woods_4k.hdr"}
+		s %Input1{"Cubemaps/Textures/woods_4k.hdr"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

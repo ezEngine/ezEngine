@@ -20,6 +20,7 @@ AssetInfo
 		}
 		Uuid %DocumentID{u4{7192719381052515775,4793032050889721212}}
 		u4 %Hash{15550012787180958921}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }

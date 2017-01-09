@@ -12,7 +12,7 @@ o
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
 		s %ChannelMapping{"ezChannelMappingEnum::RGB1_CUBE"}
 		b %Compression{1}
-		s %Input1{"Textures/Sky.jpg"}
+		s %Input1{"Cubemaps/Textures/Sky.jpg"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -49,10 +49,11 @@ AssetInfo
 		s %AssetType{"Texture Cube"}
 		VarArray %Dependencies
 		{
-			s{"Textures/Sky.jpg"}
+			s{"Cubemaps/Textures/Sky.jpg"}
 		}
 		Uuid %DocumentID{u4{13925925426885276288,5424885730035344596}}
-		u4 %Hash{15640488817906586042}
+		u4 %Hash{8313415721835422974}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }

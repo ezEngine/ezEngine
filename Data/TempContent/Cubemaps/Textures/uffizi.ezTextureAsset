@@ -12,7 +12,7 @@ o
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
 		s %ChannelMapping{"ezChannelMappingEnum::RGB1_CUBE"}
 		b %Compression{1}
-		s %Input1{"Textures/uffizi_cross.hdr"}
+		s %Input1{"Cubemaps/Textures/uffizi_cross.hdr"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -35,10 +35,11 @@ AssetInfo
 		s %AssetType{"Texture Cube"}
 		VarArray %Dependencies
 		{
-			s{"Textures/uffizi_cross.hdr"}
+			s{"Cubemaps/Textures/uffizi_cross.hdr"}
 		}
 		Uuid %DocumentID{u4{16570251626035375497,5377630440112190531}}
-		u4 %Hash{1479108614619703155}
+		u4 %Hash{7283046199094031627}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }

@@ -131,7 +131,7 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
   ezOpenDdlReader reader;
   if (reader.ParseDocument(stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
   {
-    EZ_REPORT_FAILURE("Failed to parse DDL graph");
+    ezLog::Error("Failed to parse DDL graph");
     return EZ_FAILURE;
   }
 
@@ -142,7 +142,7 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
   }
   else
   {
-    EZ_REPORT_FAILURE("DDL graph does not contain an 'Objects' root object");
+    ezLog::Error("DDL graph does not contain an 'Objects' root object");
     return EZ_FAILURE;
   }
 
