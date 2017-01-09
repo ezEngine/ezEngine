@@ -4,7 +4,7 @@ o
 {
 	Uuid %id{u4{14432735668197324435,4718542166776524121}}
 	s %t{"ezMaterialAssetProperties"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		s %BaseMaterial{""}
@@ -28,6 +28,7 @@ AssetInfo
 		}
 		Uuid %DocumentID{u4{6729189396476153997,4946653575954533639}}
 		u4 %Hash{16469509247515364106}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"RebeccaPurple.color"}

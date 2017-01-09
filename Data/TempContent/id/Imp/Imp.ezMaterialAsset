@@ -55,6 +55,10 @@ AssetInfo
 		}
 		Uuid %DocumentID{u4{16220061417941925280,4641796823593829036}}
 		u4 %Hash{1638249988608534895}
+		VarArray %Outputs
+		{
+			s{"VISUAL_SHADER"}
+		}
 		VarArray %References
 		{
 			s{"{ 0a28debd-1399-4227-a934-e40ebc4b1844 }"}
