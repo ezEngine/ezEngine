@@ -325,7 +325,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/,
       ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTargetFile);
       return ret;
     };
-    
+
     ezStatus res(EZ_SUCCESS);
     for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
     {
@@ -369,7 +369,7 @@ ezStatus ezAssetDocument::CreateThumbnail()
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
   if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), nullptr, GetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
-    return ezStatus("Transformed asset is already up to date");
+    return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");

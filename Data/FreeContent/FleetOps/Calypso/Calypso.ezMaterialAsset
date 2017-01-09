@@ -57,7 +57,7 @@ o
 		f %MaskThreshold{0}
 		f %Metallic{0xCDCCCC3D}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x88788C44,0x8E280943}}
+		Vec2 %Node::Pos{f{0x4C439044,0x7706F842}}
 		f %Occlusion{0x0000803F}
 		f %Opacity{0x0000803F}
 		f %Reflectance{0x0000003F}
@@ -80,7 +80,7 @@ AssetInfo
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{17367252347845481899,5099121145089259863}}
-		u4 %Hash{6736301395196285342}
+		u4 %Hash{11636943572404222146}
 		VarArray %Outputs
 		{
 			s{"VISUAL_SHADER"}
@@ -136,9 +136,9 @@ o
 		{
 			Uuid{u4{14252332554840745040,11740000190258589677}}
 		}
-		Vec2 %Node::Pos{f{0x5F6C5C44,0x65CD8943}}
+		Vec2 %Node::Pos{f{0xEFEA5B44,0x65CD8943}}
 		f %a{0}
-		f %b{0x00007A44}
+		f %b{0x0000C842}
 	}
 }
 o

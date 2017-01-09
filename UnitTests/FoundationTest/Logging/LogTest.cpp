@@ -166,4 +166,3 @@ E: And when you're dead I will be, still alive.\n\
   ezLog::SetDefaultLogSystem(ezGlobalLog::GetOrCreateInstance());
 }
 
-

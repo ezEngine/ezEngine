@@ -242,8 +242,8 @@ inline float ToFloat(double f) { return (float) f; }
   \
   if (strcmp(internal_sz1, internal_sz2) != 0) \
   { \
-    char szLocal_TestMacro[512]; \
-    safeprintf(szLocal_TestMacro, 512, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
+    char szLocal_TestMacro[2048]; \
+    safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
