@@ -15,7 +15,7 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime RawTimeStep, const
 {
   RawTimeStep = ezMath::Clamp(RawTimeStep * pClock->GetSpeed(), pClock->GetMinimumTimeStep(), pClock->GetMaximumTimeStep());
 
-  if (m_LastTimeSteps.IsEmpty())
+  if (m_LastTimeSteps.GetCount() < 10)
   {
     m_LastTimeSteps.PushBack(RawTimeStep);
     m_LastTimeStepTaken = RawTimeStep;
@@ -37,18 +37,6 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime RawTimeStep, const
 
   ezUInt32 uiFirstSample = 2;
   ezUInt32 uiLastSample = 8;
-
-  if (Sorted.GetCount() < 7)
-  {
-    uiFirstSample = 0;
-    uiLastSample = Sorted.GetCount() - 1;
-  }
-  else
-  if (Sorted.GetCount() < 10)
-  {
-    uiFirstSample = 1;
-    uiLastSample = Sorted.GetCount() - 2;
-  }
 
   ezTime tAvg;
 
