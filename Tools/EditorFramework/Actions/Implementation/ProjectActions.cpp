@@ -435,6 +435,10 @@ void ezProjectAction::Execute(const ezVariant& value)
       msg.m_sWhatToDo = "ReloadResources";
       ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 
+      ezEditorAppEvent e;
+      e.m_Type = ezEditorAppEvent::Type::ReloadResources;
+      ezQtEditorApp::GetSingleton()->m_Events.Broadcast(e);
+
       if (m_Context.m_pDocument)
       {
         m_Context.m_pDocument->ShowDocumentStatus("Reloading Resources");

@@ -51,7 +51,6 @@ void ezQtEditorApp::SetupDataDirectories()
   m_FileSystemConfig.Load();
 
   ezEditorAppEvent e;
-  e.m_pSender = this;
   e.m_Type = ezEditorAppEvent::Type::BeforeApplyDataDirectories;
   m_Events.Broadcast(e);
 

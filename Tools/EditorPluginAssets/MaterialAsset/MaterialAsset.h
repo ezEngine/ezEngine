@@ -5,6 +5,7 @@
 
 class ezMaterialAssetDocument;
 struct ezPropertyMetaStateEvent;
+struct ezEditorAppEvent;
 
 struct ezMaterialShaderMode
 {
@@ -80,6 +81,7 @@ class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProp
 
 public:
   ezMaterialAssetDocument(const char* szDocumentPath);
+  ~ezMaterialAssetDocument();
 
   virtual const char* QueryAssetType() const override { return "Material"; }
 
@@ -122,6 +124,9 @@ protected:
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+
+  void InvalidateCachedShader();
+  void EditorEventHandler(const ezEditorAppEvent& e);
 
 private:
   static ezUuid s_LitBaseMaterial;

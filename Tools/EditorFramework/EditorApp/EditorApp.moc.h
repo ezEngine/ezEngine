@@ -31,10 +31,10 @@ struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
   enum class Type
   {
     BeforeApplyDataDirectories, ///< Sent after data directory config was loaded, but before it is applied. Allows to add custom dependencies at the right moment.
+    ReloadResources, ///< Sent when 'ReloadResources' has been triggered (and a message was sent to the engine)
   };
 
   Type m_Type;
-  ezQtEditorApp* m_pSender;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject

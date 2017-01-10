@@ -122,8 +122,6 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
     }
     break;
   }
-
-  //UpdateShader();
 }
 
 void ezMaterialAssetProperties::SetDocument(ezMaterialAssetDocument* pDocument)
@@ -149,7 +147,7 @@ void ezMaterialAssetProperties::UpdateShader(bool bForce)
     return;
 
   EZ_ASSERT_DEBUG(pHistory->IsInTransaction(), "Missing undo scope on stack.");
- 
+
   ezDocumentObject* pPropObject = m_pDocument->GetShaderPropertyObject();
 
   // TODO: If m_sShader is empty, we need to get the shader of our base material and use that one instead
@@ -324,8 +322,8 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
     auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(guid);
     if (pAsset)
     {
-      EZ_ASSERT_DEV(pAsset->m_pManager == m_pDocument->GetDocumentManager(), 
-        "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+      EZ_ASSERT_DEV(pAsset->m_pManager == m_pDocument->GetDocumentManager(),
+                    "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
       ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_sAbsolutePath);
       ezStringBuilder sResult = pAsset->m_pManager->GetRelativeOutputFileName(sProjectDir, pAsset->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
       sResult.Prepend("AssetCache/");
@@ -350,6 +348,12 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, true)
 {
+  ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
+}
+
+ezMaterialAssetDocument::~ezMaterialAssetDocument()
+{
+  ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
 }
 
 void ezMaterialAssetDocument::InitializeAfterLoading()
@@ -847,13 +851,38 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
     file.WriteBytes(shader.GetData(), shader.GetElementCount());
     file.Close();
 
-    // This should update the shader parameter section in all affected materials
-    ezShaderTypeRegistry::GetSingleton()->GetShaderType(sAutoGenShader);
+    InvalidateCachedShader();
 
     return ezStatus(EZ_SUCCESS);
   }
   else
     return ezStatus(ezFmt("Failed to write auto-generated shader to '{0}'", sAutoGenShader.GetData()));
+}
+
+void ezMaterialAssetDocument::InvalidateCachedShader()
+{
+  ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(GetDocumentManager());
+  ezString sShader;
+
+  if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
+  {
+    sShader = pManager->GetAbsoluteOutputFileName(GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  }
+  else
+  {
+    sShader = GetProperties()->GetShader();
+  }
+
+  // This should update the shader parameter section in all affected materials
+  ezShaderTypeRegistry::GetSingleton()->GetShaderType(sShader);
+}
+
+void ezMaterialAssetDocument::EditorEventHandler(const ezEditorAppEvent& e)
+{
+  if (e.m_Type == ezEditorAppEvent::Type::ReloadResources)
+  {
+    InvalidateCachedShader();
+  }
 }
 
 static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)
