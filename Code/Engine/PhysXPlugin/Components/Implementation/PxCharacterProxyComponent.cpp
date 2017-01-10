@@ -1,5 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
