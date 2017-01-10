@@ -38,7 +38,8 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
 
   for (auto pShape : shapes)
   {
-    pShape->AddToActor(pRigidActor, ParentTransform);
+    if (pShape->IsActive())
+      pShape->AddToActor(pRigidActor, ParentTransform);
   }
 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)

@@ -150,6 +150,9 @@ void ezPxDynamicActorComponent::SetDisableGravity(bool b)
 
 void ezPxDynamicActorComponent::OnSimulationStarted()
 {
+  if (!IsActive())
+    return;
+
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
   const auto pos = GetOwner()->GetGlobalPosition();
