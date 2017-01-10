@@ -1,7 +1,7 @@
 #include <PhysXPlugin/PCH.h>
-#include <PhysXPlugin/Components/PhysXComponent.h>
+#include <PhysXPlugin/Components/PxComponent.h>
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPhysXComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxComponent, 1)
 {
   //EZ_BEGIN_PROPERTIES
   //EZ_END_PROPERTIES

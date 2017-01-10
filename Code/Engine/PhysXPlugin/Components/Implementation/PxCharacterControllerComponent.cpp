@@ -1,11 +1,49 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <Core/Messages/CollisionMessage.h>
+#include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 2)
+ezPxCharacterControllerComponentManager::ezPxCharacterControllerComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ezPxCharacterControllerComponent, true>(pWorld)
+{
+}
+
+ezPxCharacterControllerComponentManager::~ezPxCharacterControllerComponentManager()
+{
+}
+
+void ezPxCharacterControllerComponentManager::Initialize()
+{
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPxCharacterControllerComponentManager::Update, this);
+  desc.m_Phase = UpdateFunctionDesc::Phase::PostTransform;
+
+  this->RegisterUpdateFunction(desc);
+}
+
+void ezPxCharacterControllerComponentManager::Deinitialize()
+{
+}
+
+void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ezPxCharacterControllerComponent* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->Update();
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -15,11 +53,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 2)
     EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("PushingForce", m_fPushingForce)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
+    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTrigger),
+    EZ_MESSAGE_HANDLER(ezCollisionMessage, OnCollision)
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -37,6 +77,7 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
   m_fAirFriction = 0.5f;
   m_RotateSpeed = ezAngle::Degree(90.0f);
   m_fJumpImpulse = 1.0f;
+  m_fPushingForce = 500.0f;
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
 }
@@ -53,6 +94,7 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
   s << m_fAirFriction;
   s << m_RotateSpeed;
   s << m_fJumpImpulse;
+  s << m_fPushingForce;
 }
 
 
@@ -87,6 +129,11 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   }
 
   s >> m_fJumpImpulse;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fPushingForce;
+  }
 }
 
 void ezPxCharacterControllerComponent::Update()
@@ -239,7 +286,7 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
   }
 }
 
-void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& msg)
+void ezPxCharacterControllerComponent::OnTrigger(ezTriggerMessage& msg)
 {
   float f = msg.m_TriggerValue.ConvertTo<float>();
 
@@ -302,4 +349,24 @@ void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& m
   }
 }
 
+void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
+{
+  ezPxDynamicActorComponent* pDynamicActorComponent = nullptr;
+  if (GetWorld()->TryGetComponent(msg.m_hComponentB, pDynamicActorComponent))
+  {
+    const ezVec3 vImpulse = msg.m_vImpulse;
+    if (ezMath::Abs(vImpulse.z) < 0.01f)
+    {
+      ezVec3 vHitPos = msg.m_vPosition;
+      ezVec3 vCenterOfMass = pDynamicActorComponent->GetGlobalCenterOfMass();
 
+      // Move the hit pos closer to the center of mass in the up direction. Otherwise we tip over objects pretty easily.
+      vHitPos.z = ezMath::Lerp(vCenterOfMass.z, vHitPos.z, 0.1f);
+
+      const ezVec3 vIntendedMovement = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection;
+      const ezVec3 vForce = vIntendedMovement * m_fPushingForce;
+
+      pDynamicActorComponent->AddForceAtPos(vForce, vHitPos);
+    }
+  }
+}

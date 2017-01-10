@@ -1,6 +1,7 @@
 #pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
 
 class ezPxDynamicActorComponent;
 
@@ -17,7 +18,7 @@ private:
   void UpdateKinematicActors();
   void UpdateDynamicActors(ezArrayPtr<const PxActiveTransform> activeTransforms);
 
-  ezDynamicArray<ezPxDynamicActorComponent*> m_KinematicActors;
+  ezDynamicArray<ezPxDynamicActorComponent*> m_KinematicActorComponents;
 };
 
 class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponent : public ezPxActorComponent
@@ -48,6 +49,18 @@ public:
 
   PxRigidDynamic* GetActor() const { return m_pActor; }
 
+  ezVec3 GetLocalCenterOfMass() const;
+  ezVec3 GetGlobalCenterOfMass() const;
+
+  void AddLinearForce(const ezVec3& vForce);
+  void AddLinearImpulse(const ezVec3& vImpulse);
+
+  void AddAngularForce(const ezVec3& vForce);
+  void AddAngularImpulse(const ezVec3& vImpulse);
+
+  void AddForceAtPos(const ezVec3& vForce, const ezVec3& vPos);
+  void AddImpulseAtPos(const ezVec3& vImpulse, const ezVec3& vPos);
+
 protected:
   bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;
 
@@ -56,4 +69,6 @@ protected:
 private:
   bool m_bDisableGravity;
   bool m_bKinematic;
+
+  ezPxUserData m_UserData;
 };

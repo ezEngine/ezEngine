@@ -31,7 +31,7 @@ EZ_FORCE_INLINE void ezGameObject::ConstChildIterator::operator++()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EZ_FORCE_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject) : 
+EZ_FORCE_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject) :
   ConstChildIterator(pObject)
 {
 }
@@ -49,7 +49,7 @@ EZ_FORCE_INLINE ezGameObject* ezGameObject::ChildIterator::operator->()
 EZ_FORCE_INLINE ezGameObject::ChildIterator::operator ezGameObject*()
 {
   return m_pObject;
-}    
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,7 @@ EZ_FORCE_INLINE bool ezGameObject::IsStatic() const
 {
   return !m_Flags.IsSet(ezObjectFlags::Dynamic);
 }
-  
+
 EZ_FORCE_INLINE bool ezGameObject::IsActive() const
 {
   return m_Flags.IsSet(ezObjectFlags::Active);
@@ -217,7 +217,7 @@ EZ_FORCE_INLINE const ezTransform& ezGameObject::GetGlobalTransform() const
 
 EZ_FORCE_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
 {
-  *reinterpret_cast<ezVec3*>(&m_pTransformationData->m_velocity) = vVelocity;
+  m_pTransformationData->m_velocity = vVelocity.GetAsVec4(1.0f);
 }
 
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetVelocity() const
@@ -281,9 +281,9 @@ EZ_FORCE_INLINE ezTagSet& ezGameObject::GetTags()
   return m_Tags;
 }
 
-EZ_FORCE_INLINE const ezTagSet& ezGameObject::GetTags() const 
+EZ_FORCE_INLINE const ezTagSet& ezGameObject::GetTags() const
 {
-  return m_Tags; 
+  return m_Tags;
 }
 
 

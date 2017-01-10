@@ -9,12 +9,12 @@
 using namespace physx;
 
 /// \brief Base class for all PhysX components, such that they all have a common ancestor
-class EZ_PHYSXPLUGIN_DLL ezPhysXComponent : public ezComponent
+class EZ_PHYSXPLUGIN_DLL ezPxComponent : public ezComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPhysXComponent, ezComponent);
+  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxComponent, ezComponent);
 
 public:
-  ezPhysXComponent() {}
+  ezPxComponent() {}
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override {}
   virtual void DeserializeComponent(ezWorldReader& stream) override {}

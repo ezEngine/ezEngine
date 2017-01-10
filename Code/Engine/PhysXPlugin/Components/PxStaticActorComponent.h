@@ -2,6 +2,7 @@
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
 
 typedef ezComponentManager<class ezPxStaticActorComponent, true> ezPxStaticActorComponentManager;
 
@@ -39,4 +40,6 @@ public:
 private:
 
   PxRigidStatic* m_pActor;
+
+  ezPxUserData m_UserData;
 };

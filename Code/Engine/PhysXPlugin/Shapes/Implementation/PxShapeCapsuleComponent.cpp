@@ -117,7 +117,7 @@ void ezPxShapeCapsuleComponent::AddToActor(PxRigidActor* pActor, const ezTransfo
   pShape->setSimulationFilterData(filter);
   pShape->setQueryFilterData(filter);
 
-  pShape->userData = GetOwner();
+  pShape->userData = &m_UserData;
 }
 
 

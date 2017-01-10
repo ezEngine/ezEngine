@@ -62,6 +62,9 @@ public:
 
   virtual void LoadCollisionFilters() override;
 
+  // helper functions
+  static void addForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode);
+
 private:
   void StartupVDB();
   void ShutdownVDB();

@@ -23,16 +23,18 @@ void ezPxDynamicActorComponentManager::UpdateKinematicActors()
 {
   EZ_PROFILE("KinematicActors");
 
-  for (auto pKinematicActor : m_KinematicActors)
+  for (auto pKinematicActorComponent : m_KinematicActorComponents)
   {
-    if (PxRigidDynamic* pActor = pKinematicActor->GetActor())
+    if (PxRigidDynamic* pActor = pKinematicActorComponent->GetActor())
     {
-      const auto pos = pKinematicActor->GetOwner()->GetGlobalPosition();
-      const auto rot = pKinematicActor->GetOwner()->GetGlobalRotation();
+      ezGameObject* pObject = pKinematicActorComponent->GetOwner();
 
-      PxTransform t = PxTransform::createIdentity();
-      t.p = PxVec3(pos.x, pos.y, pos.z);
-      t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
+      pObject->UpdateGlobalTransform();
+
+      const ezVec3 pos = pObject->GetGlobalPosition();
+      const ezQuat rot = pObject->GetGlobalRotation();
+
+      PxTransform t = ezPxConversionUtils::ToTransform(pos, rot);
       pActor->setKinematicTarget(t);
     }
   }
@@ -42,18 +44,17 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
 {
   EZ_PROFILE("DynamicActors");
 
+  const float fInvDeltaTime = 1.0f / (float)(GetWorld()->GetClock().GetTimeDiff().GetSeconds());
+
   for (auto& activeTransform : activeTransforms)
   {
-    if (activeTransform.userData == nullptr)
+    ezPxDynamicActorComponent* pComponent = ezPxUserData::GetDynamicActorComponent(activeTransform.userData);
+    if (pComponent == nullptr || pComponent->GetKinematic())
       continue;
 
-    PxTransform t = activeTransform.actor2World;
-
-    ezVec3 pos(t.p.x, t.p.y, t.p.z);
-    ezQuat rot(t.q.x, t.q.y, t.q.z, t.q.w);
-
-    ezGameObject* pObject = static_cast<ezGameObject*>(activeTransform.userData);
-    pObject->SetGlobalTransform(ezTransform(pos, rot));
+    ezGameObject* pObject = pComponent->GetOwner();
+    pObject->SetGlobalTransform(ezPxConversionUtils::ToTransform(activeTransform.actor2World));
+    pObject->SetVelocity(ezPxConversionUtils::ToVec3(activeTransform.actor->isRigidDynamic()->getLinearVelocity()));
   }
 }
 
@@ -75,6 +76,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxDynamicActorComponent::ezPxDynamicActorComponent()
+  : m_UserData(this)
 {
   m_bKinematic = false;
   m_bDisableGravity = false;
@@ -122,11 +124,11 @@ void ezPxDynamicActorComponent::SetKinematic(bool b)
 
   if (m_bKinematic)
   {
-    GetManager()->m_KinematicActors.PushBack(this);
+    GetManager()->m_KinematicActorComponents.PushBack(this);
   }
   else
   {
-    GetManager()->m_KinematicActors.RemoveSwap(this);
+    GetManager()->m_KinematicActorComponents.RemoveSwap(this);
   }
 
   if (m_pActor)
@@ -164,7 +166,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidDynamic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
-  m_pActor->userData = GetOwner();
+  m_pActor->userData = &m_UserData;
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 
@@ -180,22 +182,22 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
     return;
   }
 
-  ezVec3 vCoM(0.0f);
-  if (FindCenterOfMass(GetOwner(), vCoM))
+  ezVec3 vCenterOfMass(0.0f);
+  if (FindCenterOfMass(GetOwner(), vCenterOfMass))
   {
     ezMat4 mTransform = GetOwner()->GetGlobalTransform().GetAsMat4();
     mTransform.Invert();
 
-    vCoM = mTransform * vCoM;
+    vCenterOfMass = mTransform.TransformPosition(vCenterOfMass);
   }
 
   if (m_fMass > 0.0f)
   {
-    PxRigidBodyExt::setMassAndUpdateInertia(*m_pActor, m_fMass, (PxVec3*) &vCoM);
+    PxRigidBodyExt::setMassAndUpdateInertia(*m_pActor, m_fMass, reinterpret_cast<PxVec3*>(&vCenterOfMass));
   }
   else if (m_fDensity > 0.0f)
   {
-    PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity, (PxVec3*)&vCoM);
+    PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity, reinterpret_cast<PxVec3*>(&vCenterOfMass));
   }
   else
   {
@@ -208,7 +210,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
 
   if (m_bKinematic)
   {
-    GetManager()->m_KinematicActors.PushBack(this);
+    GetManager()->m_KinematicActorComponents.PushBack(this);
   }
 
   {
@@ -221,7 +223,7 @@ void ezPxDynamicActorComponent::Deinitialize()
 {
   if (m_bKinematic)
   {
-    GetManager()->m_KinematicActors.RemoveSwap(this);
+    GetManager()->m_KinematicActorComponents.RemoveSwap(this);
   }
 
   if (m_pActor)
@@ -230,6 +232,75 @@ void ezPxDynamicActorComponent::Deinitialize()
 
     m_pActor->release();
     m_pActor = nullptr;
+  }
+}
+
+ezVec3 ezPxDynamicActorComponent::GetLocalCenterOfMass() const
+{
+  if (m_pActor != nullptr)
+  {
+    return ezPxConversionUtils::ToVec3(m_pActor->getCMassLocalPose().p);
+  }
+
+  return ezVec3::ZeroVector();
+}
+
+ezVec3 ezPxDynamicActorComponent::GetGlobalCenterOfMass() const
+{
+  if (m_pActor != nullptr)
+  {
+    const PxTransform globalPose = m_pActor->getGlobalPose();
+    return ezPxConversionUtils::ToVec3(globalPose.transform(m_pActor->getCMassLocalPose().p));
+  }
+
+  return ezVec3::ZeroVector();
+}
+
+void ezPxDynamicActorComponent::AddLinearForce(const ezVec3& vForce)
+{
+  if (m_pActor != nullptr)
+  {
+    m_pActor->addForce(ezPxConversionUtils::ToVec3(vForce), PxForceMode::eFORCE);
+  }
+}
+
+void ezPxDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse)
+{
+  if (m_pActor != nullptr)
+  {
+    m_pActor->addForce(ezPxConversionUtils::ToVec3(vImpulse), PxForceMode::eIMPULSE);
+  }
+}
+
+void ezPxDynamicActorComponent::AddAngularForce(const ezVec3& vForce)
+{
+  if (m_pActor != nullptr)
+  {
+    m_pActor->addTorque(ezPxConversionUtils::ToVec3(vForce), PxForceMode::eFORCE);
+  }
+}
+
+void ezPxDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
+{
+  if (m_pActor != nullptr)
+  {
+    m_pActor->addTorque(ezPxConversionUtils::ToVec3(vImpulse), PxForceMode::eIMPULSE);
+  }
+}
+
+void ezPxDynamicActorComponent::AddForceAtPos(const ezVec3& vForce, const ezVec3& vPos)
+{
+  if (m_pActor != nullptr)
+  {
+    ezPhysX::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(vForce), ezPxConversionUtils::ToVec3(vPos), PxForceMode::eFORCE);
+  }
+}
+
+void ezPxDynamicActorComponent::AddImpulseAtPos(const ezVec3& vImpulse, const ezVec3& vPos)
+{
+  if (m_pActor != nullptr)
+  {
+    ezPhysX::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(vImpulse), ezPxConversionUtils::ToVec3(vPos), PxForceMode::eIMPULSE);
   }
 }
 

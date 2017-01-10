@@ -30,7 +30,10 @@ namespace ezInternal
     const ezVec3 vOldWorldPos = pData->m_globalTransform.m_vPosition;
     pData->UpdateGlobalTransform();
     pData->UpdateGlobalBounds();
-    pData->m_velocity = ((pData->m_globalTransform.m_vPosition - vOldWorldPos) * fInvDeltaSeconds).GetAsDirectionVec4();
+    if (pData->m_velocity.w == 0.0f) // a value != 0 indicates a custom velocity, don't overwrite it here
+    {
+      pData->m_velocity = ((pData->m_globalTransform.m_vPosition - vOldWorldPos) * fInvDeltaSeconds).GetAsDirectionVec4();
+    }
   }
 
   // static
@@ -39,7 +42,10 @@ namespace ezInternal
     const ezVec3 vOldWorldPos = pData->m_globalTransform.m_vPosition;
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateGlobalBounds();
-    pData->m_velocity = ((pData->m_globalTransform.m_vPosition - vOldWorldPos) * fInvDeltaSeconds).GetAsDirectionVec4();
+    if (pData->m_velocity.w == 0.0f) // a value != 0 indicates a custom velocity, don't overwrite it here
+    {
+      pData->m_velocity = ((pData->m_globalTransform.m_vPosition - vOldWorldPos) * fInvDeltaSeconds).GetAsDirectionVec4();
+    }
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////

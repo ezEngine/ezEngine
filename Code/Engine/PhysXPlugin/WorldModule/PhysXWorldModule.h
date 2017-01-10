@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXInterface.h>
 #include <Core/World/WorldModule.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <GameUtils/CollisionFilter/CollisionFilter.h>
@@ -27,8 +27,8 @@ public:
   physx::PxScene* GetPxScene() const { return m_pPxScene; }
   physx::PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
-  virtual ezVec3 GetGravity() const override { return m_vObjectGravity; }
-  ezVec3 GetCharacterGravity() const { return m_vCharacterGravity; }
+  virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
+  ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
 
@@ -41,13 +41,14 @@ private:
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
   void Simulate();
+  void SimulateStep(float fDeltaTime);
 
   physx::PxScene* m_pPxScene;
   physx::PxControllerManager* m_pCharacterManager;
 
   ezTime m_AccumulatedTimeSinceUpdate;
-  ezVec3 m_vObjectGravity;
-  ezVec3 m_vCharacterGravity;
+
+  ezPxSettings m_Settings;
 
   ezDelegateTask<void> m_SimulateTask;
   ezTaskGroupID m_SimulateTaskGroupId;

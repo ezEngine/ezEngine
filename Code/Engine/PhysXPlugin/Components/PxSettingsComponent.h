@@ -1,9 +1,8 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PhysXInterface.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
-
 
 typedef ezSettingsComponentManager<class ezPxSettingsComponent> ezPxSettingsComponentManager;
 
@@ -13,6 +12,7 @@ class EZ_PHYSXPLUGIN_DLL ezPxSettingsComponent : public ezSettingsComponent
 
 public:
   ezPxSettingsComponent();
+  ~ezPxSettingsComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -20,14 +20,23 @@ public:
   // ************************************* PROPERTIES ***********************************
 public:
 
-  const ezVec3& GetObjectGravity() const { return m_vObjectGravity; }
-  void SetObjectGravity(const ezVec3& v) { m_vObjectGravity = v; SetModified(EZ_BIT(0)); }
+  const ezVec3& GetObjectGravity() const { return m_Settings.m_vObjectGravity; }
+  void SetObjectGravity(const ezVec3& v);
 
-  const ezVec3& GetCharacterGravity() const { return m_vCharacterGravity; }
-  void SetCharacterGravity(const ezVec3& v) { m_vCharacterGravity = v; SetModified(EZ_BIT(1)); }
+  const ezVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
+  void SetCharacterGravity(const ezVec3& v);
+
+  ezPxSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; }
+  void SetSteppingMode(ezPxSteppingMode::Enum mode);
+
+  float GetFixedFrameRate() const { return m_Settings.m_fFixedFrameRate; }
+  void SetFixedFrameRate(float fFixedFrameRate);
+
+  ezUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; }
+  void SetMaxSubSteps(ezUInt32 uiMaxSubSteps);
+
+  const ezPxSettings& GetSettings() const { return m_Settings; }
 
 private:
-  ezVec3 m_vObjectGravity;
-  ezVec3 m_vCharacterGravity;
-
+  ezPxSettings m_Settings;
 };

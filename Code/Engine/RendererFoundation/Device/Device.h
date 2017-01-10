@@ -189,13 +189,8 @@ protected:
 
   void DestroyDeadObjects();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
   void VerifyMultithreadedAccess() const;
-#else
-  /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
-  EZ_FORCE_INLINE void VerifyMultithreadedAccess() const {}
-#endif
 
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;

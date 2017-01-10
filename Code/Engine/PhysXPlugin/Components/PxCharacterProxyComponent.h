@@ -1,6 +1,7 @@
 #pragma once
 
-#include <PhysXPlugin/Components/PhysXComponent.h>
+#include <PhysXPlugin/Components/PxComponent.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
 
 struct ezPxCharacterCollisionFlags
 {
@@ -31,11 +32,18 @@ class ezPxControllerBehaviorCallback : public PxControllerBehaviorCallback
   virtual PxControllerBehaviorFlags getBehaviorFlags(const PxObstacle& obstacle) override;
 };
 
+class ezPxControllerHitCallback : public PxUserControllerHitReport
+{
+  virtual void onShapeHit(const PxControllerShapeHit& hit) override;
+  virtual void onControllerHit(const PxControllersHit& hit) override;
+  virtual void onObstacleHit(const PxControllerObstacleHit& hit) override;
+};
+
 typedef ezComponentManager<class ezPxCharacterProxyComponent, true> ezPxCharacterProxyComponentManager;
 
-class EZ_PHYSXPLUGIN_DLL ezPxCharacterProxyComponent : public ezPhysXComponent
+class EZ_PHYSXPLUGIN_DLL ezPxCharacterProxyComponent : public ezPxComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterProxyComponent, ezPhysXComponent, ezPxCharacterProxyComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterProxyComponent, ezPxComponent, ezPxCharacterProxyComponentManager);
 
 public:
   ezPxCharacterProxyComponent();
@@ -61,6 +69,7 @@ public:
 
   float m_fCapsuleHeight; ///< real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
   float m_fCapsuleRadius; ///< real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
+  float m_fMass; ///< mass is used to calculate pushing force from other rigid bodies
   float m_fMaxStepHeight; ///< how tall steps the character will climb automatically
   ezAngle m_MaxClimbingSlope; ///< Max slope angle that the character can climb before being stopped
   bool m_bForceSlopeSliding; ///< If standing on a steep slope, the character either can't walk up, or is even forced to slide down
@@ -72,7 +81,13 @@ protected:
 
   PxCapsuleController* m_pController;
 
-  ezPxControllerBehaviorCallback m_behaviorCallback;
+  ezPxControllerBehaviorCallback m_BehaviorCallback;
+  ezPxControllerHitCallback m_HitCallback;
+
+  PxControllerFilters m_ControllerFilter;
+  PxFilterData m_FilterData;
+
+  ezPxUserData m_UserData;
 };
 
 

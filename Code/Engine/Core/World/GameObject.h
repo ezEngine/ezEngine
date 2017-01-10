@@ -14,9 +14,9 @@ struct ezDeleteObjectMessage;
 
 /// \brief This class represents an object inside the world.
 ///
-/// Game objects only consists of hierarchical data like transformation and a list of components. 
+/// Game objects only consists of hierarchical data like transformation and a list of components.
 /// You cannot derive from the game object class. To add functionality to an object you have to attach components to it.
-/// To create an object instance call CreateObject on the world. Never store a direct pointer to an object but store an 
+/// To create an object instance call CreateObject on the world. Never store a direct pointer to an object but store an
 /// object handle instead.
 /// \see ezWorld
 /// \see ezComponent
@@ -43,7 +43,7 @@ private:
   ezGameObject();
   ezGameObject(const ezGameObject& other);
   ~ezGameObject();
-  
+
   void operator=(const ezGameObject& other);
 
 public:
@@ -95,7 +95,7 @@ public:
 
   /// \brief Returns a handle to this object.
   ezGameObjectHandle GetHandle() const;
-  
+
   //ezGameObjectHandle Clone() const;
 
   //void MakeDynamic();
@@ -255,7 +255,7 @@ public:
   void SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default) const;
 
   /// \brief Queues the message for the given phase and processes it later in that phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, 
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
     ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
@@ -301,7 +301,7 @@ private:
     ezVec4 m_localScaling; // x,y,z = non-uniform scaling, w = uniform scaling
 
     ezTransform m_globalTransform;
-    ezVec4 m_velocity;
+    ezVec4 m_velocity; // w = 1 indicates custom velocity
 
     ezBoundingBoxSphere m_localBounds;
     ezBoundingBoxSphere m_globalBounds;

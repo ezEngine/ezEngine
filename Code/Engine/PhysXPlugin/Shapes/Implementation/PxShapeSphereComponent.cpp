@@ -98,5 +98,5 @@ void ezPxShapeSphereComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
   pShape->setSimulationFilterData(filter);
   pShape->setQueryFilterData(filter);
 
-  pShape->userData = GetOwner();
+  pShape->userData = &m_UserData;
 }

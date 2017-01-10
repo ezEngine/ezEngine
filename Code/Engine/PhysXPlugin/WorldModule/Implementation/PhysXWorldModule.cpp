@@ -3,6 +3,7 @@
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxSettingsComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/World/World.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
@@ -73,12 +74,11 @@ namespace
 
 ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
+  , m_Settings()
   , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
   m_pPxScene = nullptr;
   m_pCharacterManager = nullptr;
-
-  SetGravity(ezVec3(0, 0, -10), ezVec3(0, 0, -12));
 }
 
 ezPhysXWorldModule::~ezPhysXWorldModule()
@@ -99,10 +99,11 @@ void ezPhysXWorldModule::Initialize()
     desc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
     desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
 
-    desc.gravity = PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z);
+    desc.gravity = ezPxConversionUtils::ToVec3(m_Settings.m_vObjectGravity);
 
     desc.cpuDispatcher = &s_CpuDispatcher;
     desc.filterShader = &ezPxFilterShader;
+    //desc.simulationEventCallback = TODO
 
     EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
     m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
@@ -144,14 +145,14 @@ void ezPhysXWorldModule::Deinitialize()
 
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
 {
-  m_vObjectGravity = objectGravity;
-  m_vCharacterGravity = characterGravity;
+  m_Settings.m_vObjectGravity = objectGravity;
+  m_Settings.m_vCharacterGravity = characterGravity;
 
   if (m_pPxScene)
   {
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
-    m_pPxScene->setGravity(PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z));
+    m_pPxScene->setGravity(ezPxConversionUtils::ToVec3(m_Settings.m_vObjectGravity));
   }
 }
 
@@ -177,13 +178,13 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   {
     EZ_ASSERT_DEBUG(hit.shape != nullptr, "Raycast should have hit a shape");
 
-    out_vHitPos = reinterpret_cast<const ezVec3&>(hit.position);
-    out_vHitNormal = reinterpret_cast<const ezVec3&>(hit.normal);
+    out_vHitPos = ezPxConversionUtils::ToVec3(hit.position);
+    out_vHitNormal = ezPxConversionUtils::ToVec3(hit.normal);
 
-    ezGameObject* pGameObject = reinterpret_cast<ezGameObject*>(hit.shape->userData);
-    EZ_ASSERT_DEBUG(pGameObject != nullptr, "Shape should have set a game object as user data");
+    ezComponent* pComponent = ezPxUserData::GetComponent(hit.shape->userData);
+    EZ_ASSERT_DEBUG(pComponent != nullptr, "Shape should have set a component as user data");
 
-    out_hHitGameObject = pGameObject->GetHandle();
+    out_hHitGameObject = pComponent->GetOwner()->GetHandle();
 
     EZ_ASSERT_DEBUG(!out_vHitPos.IsNaN(), "Raycast hit Position is NaN");
     EZ_ASSERT_DEBUG(!out_vHitNormal.IsNaN(), "Raycast hit Normal is NaN");
@@ -192,7 +193,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
 
     if (pMaterial)
     {
-      ezSurfaceResource* pSurface = reinterpret_cast<ezSurfaceResource*>(pMaterial->userData);
+      ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData);
 
       out_hSurface = ezSurfaceResourceHandle(pSurface);
     }
@@ -244,8 +245,8 @@ bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3
   qRot = qFixRot * qRot;
 
   PxTransform pxt;
-  pxt.p = *reinterpret_cast<const PxVec3*>(&start.m_vPosition);
-  pxt.q = PxQuat(qRot.v.x, qRot.v.y, qRot.v.z, qRot.w);
+  pxt.p = ezPxConversionUtils::ToVec3(start.m_vPosition);
+  pxt.q = ezPxConversionUtils::ToQuat(qRot);
 
 
   EZ_PX_READ_LOCK(*m_pPxScene);
@@ -257,15 +258,14 @@ bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3
     return false;
 
   out_fDistance = closestHit.block.distance;
-  out_Position = *reinterpret_cast<ezVec3*>(&closestHit.block.position);
-  out_Normal = *reinterpret_cast<ezVec3*>(&closestHit.block.normal);
+  out_Position = ezPxConversionUtils::ToVec3(closestHit.block.position);
+  out_Normal = ezPxConversionUtils::ToVec3(closestHit.block.normal);
   //closestHit.block.shape;
   //closestHit.block.actor;
 
 
   return true;
 }
-
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
 {
@@ -275,6 +275,9 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
     if (pSettings != nullptr && pSettings->IsModified())
     {
       SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
+
+      m_Settings = pSettings->GetSettings();
+      m_AccumulatedTimeSinceUpdate.SetZero();
 
       pSettings->ResetModified();
     }
@@ -314,30 +317,68 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 void ezPhysXWorldModule::Simulate()
 {
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
-  m_AccumulatedTimeSinceUpdate += tDiff;
 
-  const ezTime tStep = ezTime::Seconds(1.0 / 60.0);
-
-  while (m_AccumulatedTimeSinceUpdate >= tStep)
+  if (m_Settings.m_SteppingMode == ezPxSteppingMode::Variable)
   {
-    EZ_PX_WRITE_LOCK(*m_pPxScene);
+    SimulateStep((float)tDiff.GetSeconds());
+  }
+  else if (m_Settings.m_SteppingMode == ezPxSteppingMode::Fixed)
+  {
+    const ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
 
+    m_AccumulatedTimeSinceUpdate += tDiff;
+    ezUInt32 uiNumSubSteps = 0;
+
+    while (m_AccumulatedTimeSinceUpdate >= tFixedStep || uiNumSubSteps == m_Settings.m_uiMaxSubSteps)
     {
-      EZ_PROFILE("Simulate");
-      m_pPxScene->simulate((PxReal)tStep.GetSeconds());
+      SimulateStep((float)tFixedStep.GetSeconds());
+
+      m_AccumulatedTimeSinceUpdate -= tFixedStep;
+      ++uiNumSubSteps;
+    }
+  }
+  else if (m_Settings.m_SteppingMode == ezPxSteppingMode::SemiFixed)
+  {
+    float fDiff = (float)tDiff.GetSeconds();
+    float fFixedStep = 1.0f / m_Settings.m_fFixedFrameRate;
+    if (fFixedStep * m_Settings.m_uiMaxSubSteps < fDiff)
+    {
+      ///\todo add warning?
+      fFixedStep = fDiff / m_Settings.m_uiMaxSubSteps;
     }
 
+    while (fDiff > 0.0f)
     {
-      EZ_PROFILE("FetchResult");
-      m_pPxScene->fetchResults(true);
-    }
+      float fDeltaTime = ezMath::Min(fFixedStep, fDiff);
 
-    m_AccumulatedTimeSinceUpdate -= tStep;
+      SimulateStep(fDeltaTime);
+
+      fDiff -= fDeltaTime;
+    }
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("Invalid stepping mode");
   }
 
   // not sure where exactly this needs to go
   m_pCharacterManager->computeInteractions((float)tDiff.GetSeconds());
 }
 
+void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
+{
+  EZ_PX_WRITE_LOCK(*m_pPxScene);
+
+  {
+    EZ_PROFILE("Simulate");
+    m_pPxScene->simulate(fDeltaTime);
+  }
+
+  {
+    ///\todo execute tasks instead of waiting
+    EZ_PROFILE("FetchResult");
+    m_pPxScene->fetchResults(true);
+  }
+}
 
 

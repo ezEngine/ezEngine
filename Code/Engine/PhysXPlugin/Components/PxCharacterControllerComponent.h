@@ -1,13 +1,25 @@
 #pragma once
 
-#include <PhysXPlugin/Components/PhysXComponent.h>
-#include <Core/Messages/TriggerMessage.h>
+#include <PhysXPlugin/Components/PxComponent.h>
 
-typedef ezComponentManagerSimple<class ezPxCharacterControllerComponent, true> ezPxCharacterControllerComponentManager;
+struct ezTriggerMessage;
+struct ezCollisionMessage;
 
-class EZ_PHYSXPLUGIN_DLL ezPxCharacterControllerComponent : public ezPhysXComponent
+class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, true>
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterControllerComponent, ezPhysXComponent, ezPxCharacterControllerComponentManager);
+public:
+  ezPxCharacterControllerComponentManager(ezWorld* pWorld);
+  ~ezPxCharacterControllerComponentManager();
+
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+};
+
+class EZ_PHYSXPLUGIN_DLL ezPxCharacterControllerComponent : public ezPxComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterControllerComponent, ezPxComponent, ezPxCharacterControllerComponentManager);
 
 public:
   ezPxCharacterControllerComponent();
@@ -29,6 +41,8 @@ public:
   ezAngle m_RotateSpeed; ///< How many degrees per second the character turns
   float m_fJumpImpulse;
 
+  float m_fPushingForce; ///< force to push other rigid bodies
+
 protected:
 
 
@@ -36,7 +50,8 @@ protected:
 
 public:
 
-  void TriggerMessageHandler(ezTriggerMessage& msg);
+  void OnTrigger(ezTriggerMessage& msg);
+  void OnCollision(ezCollisionMessage& msg);
 
 protected:
   ezComponentHandle m_hProxy;

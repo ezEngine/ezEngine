@@ -5,6 +5,7 @@
 #include <RendererFoundation/Context/ContextState.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 class ezGALDevice;
 

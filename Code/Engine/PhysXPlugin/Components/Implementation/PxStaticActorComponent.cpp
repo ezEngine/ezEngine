@@ -17,11 +17,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 1)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxStaticActorComponent::ezPxStaticActorComponent()
+  : m_uiCollisionLayer(0)
+  , m_pActor(nullptr)
+  , m_UserData(this)
 {
-  m_pActor = nullptr;
-  m_uiCollisionLayer = 0;
 }
-
 
 void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -89,7 +89,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidStatic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
-  m_pActor->userData = GetOwner();
+  m_pActor->userData = &m_UserData;
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 
@@ -134,7 +134,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
       pShape->setSimulationFilterData(filter);
       pShape->setQueryFilterData(filter);
 
-      pShape->userData = GetOwner();
+      pShape->userData = &m_UserData;
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
@@ -148,7 +148,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
       pShape->setSimulationFilterData(filter);
       pShape->setQueryFilterData(filter);
 
-      pShape->userData = GetOwner();
+      pShape->userData = &m_UserData;
     }
     else
     {
@@ -173,7 +173,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     pShape->setSimulationFilterData(filter);
     pShape->setQueryFilterData(filter);
 
-    pShape->userData = GetOwner();
+    pShape->userData = &m_UserData;
   }
 
   {

@@ -1,14 +1,16 @@
 #pragma once
 
-#include <PhysXPlugin/Components/PhysXComponent.h>
+#include <PhysXPlugin/Components/PxComponent.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 
-class EZ_PHYSXPLUGIN_DLL ezPxShapeComponent : public ezPhysXComponent
+class EZ_PHYSXPLUGIN_DLL ezPxShapeComponent : public ezPxComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, ezPhysXComponent);
+  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, ezPxComponent);
 
 public:
   ezPxShapeComponent();
+  ~ezPxShapeComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -29,6 +31,8 @@ public:
 
 protected:
   ezSurfaceResourceHandle m_hSurface;
+
+  ezPxUserData m_UserData;
 
   // ************************************* FUNCTIONS *****************************
 

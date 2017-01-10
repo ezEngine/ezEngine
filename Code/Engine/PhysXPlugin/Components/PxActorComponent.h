@@ -1,10 +1,10 @@
 #pragma once
 
-#include <PhysXPlugin/Components/PhysXComponent.h>
+#include <PhysXPlugin/Components/PxComponent.h>
 
-class EZ_PHYSXPLUGIN_DLL ezPxActorComponent : public ezPhysXComponent
+class EZ_PHYSXPLUGIN_DLL ezPxActorComponent : public ezPxComponent
 {
-  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, ezPhysXComponent);
+  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, ezPxComponent);
 
 public:
   ezPxActorComponent();

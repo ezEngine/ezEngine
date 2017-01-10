@@ -21,10 +21,15 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 1)
 EZ_END_ABSTRACT_COMPONENT_TYPE
 
 ezPxShapeComponent::ezPxShapeComponent()
+  : m_uiCollisionLayer(0)
+  , m_UserData(this)
 {
-  m_uiCollisionLayer = 0;
 }
 
+ezPxShapeComponent::~ezPxShapeComponent()
+{
+
+}
 
 void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 {

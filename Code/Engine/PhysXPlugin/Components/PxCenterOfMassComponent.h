@@ -5,9 +5,9 @@
 
 typedef ezComponentManager<class ezPxCenterOfMassComponent, true> ezPxCenterOfMassComponentManager;
 
-class EZ_PHYSXPLUGIN_DLL ezPxCenterOfMassComponent : public ezPhysXComponent
+class EZ_PHYSXPLUGIN_DLL ezPxCenterOfMassComponent : public ezPxComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPxCenterOfMassComponent, ezPhysXComponent, ezPxCenterOfMassComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezPxCenterOfMassComponent, ezPxComponent, ezPxCenterOfMassComponentManager);
 
 public:
   ezPxCenterOfMassComponent();

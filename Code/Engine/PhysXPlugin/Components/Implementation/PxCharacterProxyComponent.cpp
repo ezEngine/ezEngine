@@ -2,6 +2,8 @@
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <Core/Messages/CollisionMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -55,12 +57,52 @@ PxControllerBehaviorFlags ezPxControllerBehaviorCallback::getBehaviorFlags(const
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 1)
+void ezPxControllerHitCallback::onShapeHit(const PxControllerShapeHit& hit)
+{
+  PxRigidDynamic* pDynamicRigidBody = hit.actor->isRigidDynamic();
+  if (pDynamicRigidBody != nullptr && !pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
+  {
+    ezPxCharacterProxyComponent* pCharacterProxyComponent = ezPxUserData::GetCharacterProxyComponent(hit.controller->getUserData());
+    ezPxDynamicActorComponent* pDynamicActorComponent = ezPxUserData::GetDynamicActorComponent(hit.actor->userData);
+
+    ezGameObject* pCharacterObject = pCharacterProxyComponent->GetOwner();
+    const float fMass = hit.controller->getActor()->getMass();
+
+    ezCollisionMessage msg;
+
+    msg.m_hObjectA = pCharacterObject->GetHandle();
+    msg.m_hObjectB = pDynamicActorComponent->GetOwner()->GetHandle();
+
+    msg.m_hComponentA = pCharacterProxyComponent->GetHandle();
+    msg.m_hComponentB = pDynamicActorComponent->GetHandle();
+
+    msg.m_vPosition = ezPxConversionUtils::ToVec3(hit.worldPos);
+    msg.m_vNormal = ezPxConversionUtils::ToVec3(hit.worldNormal);
+    msg.m_vImpulse = ezPxConversionUtils::ToVec3(hit.dir) * fMass;
+
+    pCharacterObject->SendMessage(msg);
+  }
+}
+
+void ezPxControllerHitCallback::onControllerHit(const PxControllersHit& hit)
+{
+  // do nothing for now
+}
+
+void ezPxControllerHitCallback::onObstacleHit(const PxControllerObstacleHit& hit)
+{
+  // do nothing for now
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CapsuleHeight", m_fCapsuleHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("CapsuleRadius", m_fCapsuleRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
+    EZ_MEMBER_PROPERTY("Mass", m_fMass)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxStepHeight", m_fMaxStepHeight)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
     EZ_MEMBER_PROPERTY("MaxSlopeAngle", m_MaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("ForceSlopeSliding", m_bForceSlopeSliding)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -83,11 +125,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 1)
 EZ_END_COMPONENT_TYPE
 
 ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
+  : m_UserData(this)
 {
   m_pController = nullptr;
 
   m_fCapsuleHeight = 1.0f;
   m_fCapsuleRadius = 0.25f;
+  m_fMass = 100.0f;
   m_fMaxStepHeight = 0.3f;
   m_MaxClimbingSlope = ezAngle::Degree(40.0f);
   m_bForceSlopeSliding = true;
@@ -107,6 +151,7 @@ void ezPxCharacterProxyComponent::SerializeComponent(ezWorldWriter& stream) cons
 
   s << m_fCapsuleHeight;
   s << m_fCapsuleRadius;
+  s << m_fMass;
   s << m_fMaxStepHeight;
   s << m_MaxClimbingSlope;
   s << m_bForceSlopeSliding;
@@ -123,6 +168,12 @@ void ezPxCharacterProxyComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_fCapsuleHeight;
   s >> m_fCapsuleRadius;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fMass;
+  }
+
   s >> m_fMaxStepHeight;
   s >> m_MaxClimbingSlope;
   s >> m_bForceSlopeSliding;
@@ -151,21 +202,30 @@ void ezPxCharacterProxyComponent::Deinitialize()
 
 void ezPxCharacterProxyComponent::OnSimulationStarted()
 {
+  if (!IsActive())
+    return;
+
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   const ezVec3& pos = GetOwner()->GetGlobalPosition();
 
+  ezCoordinateSystem coordSystem;
+  GetWorld()->GetCoordinateSystem(pos, coordSystem);
+
   PxCapsuleControllerDesc cd;
-  cd.climbingMode = m_bConstrainedClimbingMode ? PxCapsuleClimbingMode::eCONSTRAINED : PxCapsuleClimbingMode::eEASY;
-  cd.height = ezMath::Max(m_fCapsuleHeight, 0.0f);
-  cd.radius = ezMath::Max(m_fCapsuleRadius, 0.0f);
-  cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
-  cd.position.set(pos.x, pos.y, pos.z);
+  cd.position = ezPxConversionUtils::ToExVec3(pos);
+  cd.upDirection = ezPxConversionUtils::ToVec3(coordSystem.m_vUpDir);
   cd.slopeLimit = ezMath::Cos(m_MaxClimbingSlope);
+  cd.contactOffset = ezMath::Max(m_fCapsuleRadius * 0.1f, 0.01f);
   cd.stepOffset = m_fMaxStepHeight;
-  cd.upDirection = PxVec3(0, 0, 1);
-  cd.behaviorCallback = &m_behaviorCallback;
-  cd.userData = this;
+  cd.reportCallback = &m_HitCallback;
+  cd.behaviorCallback = &m_BehaviorCallback;
+  cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
+  cd.userData = &m_UserData;
+
+  cd.radius = ezMath::Max(m_fCapsuleRadius, 0.0f);
+  cd.height = ezMath::Max(m_fCapsuleHeight, 0.0f);
+  cd.climbingMode = m_bConstrainedClimbingMode ? PxCapsuleClimbingMode::eCONSTRAINED : PxCapsuleClimbingMode::eEASY;
 
   if (!cd.isValid())
   {
@@ -173,10 +233,28 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
     return;
   }
 
+  // Setup filter data
+  m_FilterData.word0 = EZ_BIT(m_uiCollisionLayer);
+  m_FilterData.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
+  m_FilterData.word2 = 0;
+  m_FilterData.word3 = 0;
+
+  m_ControllerFilter.mCCTFilterCallback = nullptr;
+  m_ControllerFilter.mFilterCallback = nullptr;
+  m_ControllerFilter.mFilterData = &m_FilterData;
+  m_ControllerFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+
   {
     EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
     m_pController = static_cast<PxCapsuleController*>(pModule->GetCharacterManager()->createController(cd));
     EZ_ASSERT_DEV(m_pController != nullptr, "Failed to create character controller");
+
+    PxShape* pShape = nullptr;
+    m_pController->getActor()->getShapes(&pShape, 1);
+    pShape->setSimulationFilterData(m_FilterData);
+    pShape->setQueryFilterData(m_FilterData);
+
+    m_pController->getActor()->setMass(m_fMass);
   }
 }
 
@@ -190,30 +268,22 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
 {
   if (m_pController != nullptr)
   {
+    ezGameObject* pOwner = GetOwner();
+
+    ezVec3 vOldPos = pOwner->GetGlobalPosition();
     const float fElapsedTime = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
-    ezPxQueryFilter CharFilter;
-
-    /// \todo Filter dynamic stuff ?
-    PxControllerFilters charFilter;
-    PxFilterData filter;
-    charFilter.mCCTFilterCallback = nullptr;
-    charFilter.mFilterCallback = &CharFilter;
-    charFilter.mFilterData = &filter;
-    charFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
-
-    {
-      filter.word0 = EZ_BIT(m_uiCollisionLayer);
-      filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-      filter.word2 = 0;
-      filter.word3 = 0;
-    }
+    ezPxQueryFilter QueryFilter;
+    m_ControllerFilter.mFilterCallback = &QueryFilter;
 
     EZ_PX_WRITE_LOCK(*(m_pController->getScene()));
-    PxControllerCollisionFlags collisionFlags = m_pController->move(PxVec3(vMotion.x, vMotion.y, vMotion.z), 0.0f, fElapsedTime, charFilter);
+    PxControllerCollisionFlags collisionFlags = m_pController->move(ezPxConversionUtils::ToVec3(vMotion), 0.0f, fElapsedTime, m_ControllerFilter);
 
-    auto position = toVec3(m_pController->getPosition());
-    GetOwner()->SetGlobalPosition(ezVec3(position.x, position.y, position.z));
+    ezVec3 vNewPos = ezPxConversionUtils::ToVec3(m_pController->getPosition());
+    pOwner->SetGlobalPosition(vNewPos);
+    pOwner->SetVelocity((vNewPos - vOldPos) / fElapsedTime);
+
+    m_ControllerFilter.mFilterCallback = nullptr;
 
     return ConvertCollisionFlags(collisionFlags);
   }
@@ -233,3 +303,5 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::GetCollisio
 
   return ezPxCharacterCollisionFlags::None;
 }
+
+

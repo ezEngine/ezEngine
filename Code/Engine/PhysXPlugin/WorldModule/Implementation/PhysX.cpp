@@ -1,5 +1,12 @@
 #include <PhysXPlugin/PCH.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxSteppingMode, 1)
+  EZ_ENUM_CONSTANTS(ezPxSteppingMode::Variable, ezPxSteppingMode::Fixed, ezPxSteppingMode::SemiFixed)
+EZ_END_STATIC_REFLECTED_ENUM();
+
+//////////////////////////////////////////////////////////////////////////
 
 void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
 {
@@ -216,6 +223,17 @@ void ezPhysX::LoadCollisionFilters()
   }
 }
 
+//static
+void ezPhysX::addForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode)
+{
+  const PxTransform globalPose = body.getGlobalPose();
+  const PxVec3 centerOfMass = globalPose.transform(body.getCMassLocalPose().p);
+
+  const PxVec3 torque = (globalPos - centerOfMass).cross(force);
+  body.addForce(force, mode);
+  body.addTorque(torque, mode);
+}
+
 void ezPhysX::StartupVDB()
 {
   // check if PvdConnection manager is available on this platform
@@ -250,7 +268,7 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
     const auto& desc = e.m_pSurface->GetDescriptor();
 
     PxMaterial* pMaterial = m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
-    pMaterial->userData = e.m_pSurface;
+    pMaterial->userData = EZ_DEFAULT_NEW(ezPxUserData, e.m_pSurface);
 
     e.m_pSurface->m_pPhysicsMaterial = pMaterial;
   }
@@ -259,6 +277,9 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
     if (e.m_pSurface->m_pPhysicsMaterial != nullptr)
     {
       PxMaterial* pMaterial = static_cast<PxMaterial*>(e.m_pSurface->m_pPhysicsMaterial);
+
+      ezPxUserData* pUserData = static_cast<ezPxUserData*>(pMaterial->userData);
+      EZ_DEFAULT_DELETE(pUserData);
 
       pMaterial->release();
 

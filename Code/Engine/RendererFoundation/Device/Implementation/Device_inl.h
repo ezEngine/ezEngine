@@ -143,3 +143,11 @@ void ezGALDevice::ReviveDeadObject(ezUInt32 uiType, HandleType handle)
     }
   }
 }
+
+EZ_FORCE_INLINE void ezGALDevice::VerifyMultithreadedAccess() const
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  EZ_ASSERT_DEV(m_Capabilities.m_bMultithreadedResourceCreation || ezThreadUtils::IsMainThread(),
+    "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
+#endif
+}
