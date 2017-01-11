@@ -624,7 +624,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
       arguments << "RENDER_PASS=EDITOR";
       arguments << "SHADING_MODE=LIT";
 
-      EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, true, false));
+      EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, ezGlobalLog::GetOrCreateInstance()));
 
       ezLog::Success("Compiled Visual Shader successfully.");
     }

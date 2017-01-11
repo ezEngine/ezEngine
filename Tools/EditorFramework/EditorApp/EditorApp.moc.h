@@ -53,9 +53,14 @@ public:
   /// If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools are stored (app binary dir)
   ezString GetExternalToolsFolder(bool bForceUseCustomTools = false);
 
+  /// \brief Searches for an external tool by calling GetExternalToolsFolder(). Falls back to the currently compiled tools, if a tool cannot be found in the precompiled folder.
   ezString FindToolApplication(const char* szToolName);
 
-  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, bool bPipeOutputToLog, bool bOnlyPipeErrors);
+  /// \brief Executes an external tool as found by FindToolApplication().
+  ///
+  /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
+  /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
+  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
 
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_bSafeMode; }

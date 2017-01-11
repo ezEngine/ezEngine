@@ -257,6 +257,9 @@ public:
     Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
+  /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known. pInterface must be != nullptr.
+  static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
+
 private:
   // Needed to call 'EndLogBlock'
   friend class ezLogBlock;
@@ -269,8 +272,6 @@ private:
 
   /// \brief Ends grouping log messages.
   static void EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock);
-
-  static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
 
   static void WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock);
 };
