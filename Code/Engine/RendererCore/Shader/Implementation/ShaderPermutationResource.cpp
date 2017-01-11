@@ -78,7 +78,8 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
 
   ezShaderPermutationBinary PermutationBinary;
 
-  if (PermutationBinary.Read(*Stream).Failed())
+  bool bOldVersion = false;
+  if (PermutationBinary.Read(*Stream, bOldVersion).Failed())
   {
     ezLog::Error("Shader Permutation '{0}': Could not read shader permutation binary", GetResourceID().GetData());
     return res;
@@ -236,6 +237,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
   ezShaderPermutationBinary permutationBinary;
 
   bool bNeedsCompilation = true;
+  bool bOldVersion = false;
 
   {
     ezFileReader File;
@@ -265,10 +267,16 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
     }
 #endif
 
-    if (permutationBinary.Read(File).Failed())
+    if (permutationBinary.Read(File, bOldVersion).Failed())
     {
       ezLog::Error("Shader Permutation '{0}': Could not read shader permutation binary", pResource->GetResourceID().GetData());
 
+      bNeedsCompilation = true;
+    }
+
+    if (bOldVersion)
+    {
+      ezLog::Dev("Shader Permutation Binary version is outdated, recompiling shader.");
       bNeedsCompilation = true;
     }
   }
@@ -286,7 +294,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
       return res;
     }
 
-    if (permutationBinary.Read(File).Failed())
+    if (permutationBinary.Read(File, bOldVersion).Failed())
     {
       ezLog::Error("Shader Permutation '{0}': Binary data could not be read", pResource->GetResourceID().GetData());
       return res;

@@ -24,7 +24,7 @@ public:
   ezShaderPermutationBinary();
 
   ezResult Write(ezStreamWriter& Stream);
-  ezResult Read(ezStreamReader& Stream);
+  ezResult Read(ezStreamReader& Stream, bool& out_bOldVersion);
 
   ezUInt32 m_uiShaderStageHashes[ezGALShaderStage::ENUM_COUNT];
 

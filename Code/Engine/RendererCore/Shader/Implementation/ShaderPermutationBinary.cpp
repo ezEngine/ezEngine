@@ -7,6 +7,9 @@ struct ezShaderPermutationBinaryVersion
   {
     Version1 = 1,
     Version2 = 2,
+    Version3 = 3,
+
+    // Increase this version number to trigger shader recompilation
 
     ENUM_COUNT,
     Current = ENUM_COUNT - 1
@@ -39,7 +42,7 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriter& Stream)
   m_StateDescriptor.Save(Stream);
 
   Stream << m_PermutationVars.GetCount();
-  
+
   for (auto& var : m_PermutationVars)
   {
     Stream << var.m_sName.GetString();
@@ -49,7 +52,7 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriter& Stream)
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream)
+ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream, bool& out_bOldVersion)
 {
   m_DependencyFile.ReadDependencyFile(Stream);
 
@@ -59,6 +62,8 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream)
     return EZ_FAILURE;
 
   EZ_ASSERT_DEV(uiVersion <= ezShaderPermutationBinaryVersion::Current, "Wrong Version {0}", uiVersion);
+
+  out_bOldVersion = uiVersion != ezShaderPermutationBinaryVersion::Current;
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
@@ -79,7 +84,7 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream)
     for (ezUInt32 i = 0; i < uiPermutationCount; ++i)
     {
       auto& var = m_PermutationVars[i];
-      
+
       Stream >> tmp; var.m_sName.Assign(tmp.GetData());
       Stream >> tmp; var.m_sValue.Assign(tmp.GetData());
     }
