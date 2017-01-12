@@ -636,17 +636,29 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
           arguments << QString::fromUtf8(sAutoGenShader.GetData());
 
           arguments << "-platform";
-          arguments << "DX11_SM50";
+          arguments << "DX11_SM50"; /// \todo Rendering platform is currently hardcoded
 
-          /// \todo Move this declaration into the VSE output node definition
-          arguments << "-perm";
-          arguments << "INSTANCING=FALSE";
-          arguments << "TWO_SIDED=FALSE";
-          arguments << "BLEND_MODE=OPAQUE";
-          arguments << "RENDER_PASS=FORWARD";
-          arguments << "RENDER_PASS=DEPTH_ONLY";
-          arguments << "RENDER_PASS=EDITOR";
-          arguments << "SHADING_MODE=LIT";
+          // determine the permutation variables that should get fixed values
+          {
+            // m_sCheckPermutations are just all fixed perm vars from every node in the VS
+            ezStringBuilder temp = m_sCheckPermutations;
+            ezDeque<ezStringView> perms;
+            temp.Split(false, perms, "\n");
+
+            // remove duplicates
+            ezSet<ezString> uniquePerms;
+            for (const ezStringView& perm : perms)
+            {
+              uniquePerms.Insert(perm);
+            }
+
+            // pass permutation variable definitions to the compiler: "SOME_VAR=SOME_VAL"
+            arguments << "-perm";
+            for (auto it = uniquePerms.GetIterator(); it.IsValid(); ++it)
+            {
+              arguments << it.Key().GetData();
+            }
+          }
 
           ezVisualShaderErrorLog log;
 
@@ -921,7 +933,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
 
   ezVisualShaderCodeGenerator codeGen;
 
-  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), szPlatform));
+  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), szPlatform, m_sCheckPermutations));
 
   ezFileWriter file;
   if (file.Open(sAutoGenShader).Succeeded())

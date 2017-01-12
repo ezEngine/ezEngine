@@ -133,6 +133,7 @@ protected:
   void EditorEventHandler(const ezEditorAppEvent& e);
 
 private:
+  ezStringBuilder m_sCheckPermutations;
   static ezUuid s_LitBaseMaterial;
   static ezUuid s_LitAlphaTextBaseMaterial;
   static ezUuid s_NeutralNormalMap;

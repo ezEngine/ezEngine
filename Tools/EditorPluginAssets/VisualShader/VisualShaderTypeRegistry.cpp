@@ -439,6 +439,15 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
       {
         nd.m_sCategory = pElement->GetPrimitivesString()[0];
       }
+      else if (ezStringUtils::IsEqual(pElement->GetName(), "CheckPermutations"))
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        temp.ReplaceAll(" ", "");
+        temp.ReplaceAll("\r", "");
+        temp.ReplaceAll("\t", "");
+        temp.Trim("\n");
+        nd.m_sCheckPermutations = temp;
+      }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePermutations"))
       {
         temp = pElement->GetPrimitivesString()[0];

@@ -11,6 +11,15 @@ TWO_SIDED
 INSTANCING
 " }
 
+  string %CheckPermutations
+  {"
+INSTANCING=FALSE
+TWO_SIDED=FALSE
+BLEND_MODE=OPAQUE
+RENDER_PASS=FORWARD
+SHADING_MODE=LIT
+"}
+
   string %CodeRenderStates { "#include <Shaders/Materials/MaterialState.h>" }
   string %CodeVertexShader { "
 #define USE_NORMAL

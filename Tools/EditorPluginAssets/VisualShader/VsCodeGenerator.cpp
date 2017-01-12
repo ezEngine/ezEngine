@@ -144,8 +144,10 @@ ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOw
   return 0xFFFF;
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, const char* szPlatform)
+ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, const char* szPlatform, ezStringBuilder& out_sCheckPerms)
 {
+  out_sCheckPerms.Clear();
+
   EZ_ASSERT_DEBUG(m_pNodeManager == nullptr, "Shader Generator cannot be used twice");
 
   m_pNodeManager = pNodeManager;
@@ -172,6 +174,12 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
   m_sFinalShaderCode.Append("[PIXELSHADER]\n\n", sMaterialCBDefine, "\n\n");
   m_sFinalShaderCode.Append(m_sShaderPixelDefines, "\n", m_sShaderPixelIncludes, "\n");
   m_sFinalShaderCode.Append(m_sShaderPixelConstants, "\n", m_sShaderPixelSamplers, "\n", m_sShaderPixelBody, "\n");
+
+  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto pDesc = m_pTypeRegistry->GetDescriptorForType(it.Key()->GetType());
+    out_sCheckPerms.Append("\n", pDesc->m_sCheckPermutations);
+  }
 
   return ezStatus(EZ_SUCCESS);
 }
