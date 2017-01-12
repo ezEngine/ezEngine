@@ -14,11 +14,11 @@ AssetInfo
 			s{"FleetOps/Calypso/calypso.obj"}
 		}
 		Uuid %DocumentID{u4{8574195382367338661,4621612236654238203}}
-		u4 %Hash{12688619172671664856}
+		u4 %Hash{5414830414999589418}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ c02e5d4d-6169-0de1-e080-ea63cac21c36 }"}
+			s{"{ 47ba7957-b7aa-46c3-ab15-e6a5fedf04f1 }"}
 		}
 	}
 }
@@ -75,7 +75,7 @@ o
 	p
 	{
 		s %Label{"DefaultMaterial"}
-		s %Resource{"{ c02e5d4d-6169-0de1-e080-ea63cac21c36 }"}
+		s %Resource{"{ 47ba7957-b7aa-46c3-ab15-e6a5fedf04f1 }"}
 	}
 }
 }

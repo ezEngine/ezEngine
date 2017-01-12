@@ -249,42 +249,59 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
     m_KnownAssets.TryGetValue(assetInfo.m_Info.m_DocumentID, pAssetInfo);
     if (pAssetInfo != nullptr)
     {
-      ezFileStats fsOldLocation;
-      if (ezOSFile::GetFileStats(pAssetInfo->m_sAbsolutePath, fsOldLocation).Failed())
+      if (assetInfo.m_sAbsolutePath == pAssetInfo->m_sAbsolutePath)
       {
-        // Asset moved, remove old file and asset info.
-        m_ReferencedFiles.Remove(pAssetInfo->m_sAbsolutePath);
         UntrackDependencies(pAssetInfo);
-        EZ_DEFAULT_DELETE(pAssetInfo);
-        pAssetInfo = nullptr;
+        *pAssetInfo = assetInfo;
+        TrackDependencies(pAssetInfo);
+
+        pAssetInfo->m_ExistanceState = ezAssetInfo::ExistanceState::FileUnchanged;
+        RefFile.m_AssetGuid = pAssetInfo->m_Info.m_DocumentID;
+
+        UpdateAssetTransformState(RefFile.m_AssetGuid, ezAssetInfo::TransformState::Unknown);
+        return EZ_SUCCESS;
       }
       else
       {
-        // Unfortunately we only know about duplicates in the order in which the filesystem tells us about files
-        // That means we currently always adjust the GUID of the second, third, etc. file that we look at
-        // even if we might know that changing another file makes more sense
-        // This works well for when the editor is running and someone copies a file.
-
-        ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", assetInfo.m_sAbsolutePath.GetData(), pAssetInfo->m_sAbsolutePath.GetData());
-
-        const ezUuid mod = ezUuid::StableUuidForString(szAbsFilePath);
-        ezUuid newGuid = assetInfo.m_Info.m_DocumentID;
-        newGuid.CombineWithSeed(mod);
-
-        if (PatchAssetGuid(szAbsFilePath, assetInfo.m_Info.m_DocumentID, newGuid).Failed())
+        ezFileStats fsOldLocation;
+        if (ezOSFile::GetFileStats(pAssetInfo->m_sAbsolutePath, fsOldLocation).Failed())
         {
-          ezLog::Error("Failed to adjust GUID of asset: '{0}'", szAbsFilePath);
-          m_ReferencedFiles.Remove(szAbsFilePath);
-          return EZ_FAILURE;
+          // Asset moved, remove old file and asset info.
+          m_ReferencedFiles.Remove(pAssetInfo->m_sAbsolutePath);
+          UntrackDependencies(pAssetInfo);
+          EZ_DEFAULT_DELETE(pAssetInfo);
+          pAssetInfo = nullptr;
+          assetInfo.m_ExistanceState = ezAssetInfo::ExistanceState::FileUnchanged; // asset was only moved, prevent added event
         }
+        else
+        {
+          // Unfortunately we only know about duplicates in the order in which the filesystem tells us about files
+          // That means we currently always adjust the GUID of the second, third, etc. file that we look at
+          // even if we might know that changing another file makes more sense
+          // This works well for when the editor is running and someone copies a file.
 
-        ezLog::Warning("Adjusted GUID of asset to make it unique: '{0}'", szAbsFilePath);
+          ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", assetInfo.m_sAbsolutePath.GetData(), pAssetInfo->m_sAbsolutePath.GetData());
 
-        // now let's try that again
-        m_ReferencedFiles.Remove(szAbsFilePath);
-        return EnsureAssetInfoUpdated(szAbsFilePath);
+          const ezUuid mod = ezUuid::StableUuidForString(szAbsFilePath);
+          ezUuid newGuid = assetInfo.m_Info.m_DocumentID;
+          newGuid.CombineWithSeed(mod);
+
+          if (PatchAssetGuid(szAbsFilePath, assetInfo.m_Info.m_DocumentID, newGuid).Failed())
+          {
+            ezLog::Error("Failed to adjust GUID of asset: '{0}'", szAbsFilePath);
+            m_ReferencedFiles.Remove(szAbsFilePath);
+            return EZ_FAILURE;
+          }
+
+          ezLog::Warning("Adjusted GUID of asset to make it unique: '{0}'", szAbsFilePath);
+
+          // now let's try that again
+          m_ReferencedFiles.Remove(szAbsFilePath);
+          return EnsureAssetInfoUpdated(szAbsFilePath);
+        }
       }
     }
+
     // and we can store the new ezAssetInfo data under that GUID
     pAssetInfo = EZ_DEFAULT_NEW(ezAssetInfo, assetInfo);
     m_KnownAssets[RefFile.m_AssetGuid] = pAssetInfo;
