@@ -69,6 +69,8 @@ protected:
 
   float m_fVelocityUp;
   ezVec3 m_vVelocityLateral;
+
+  ezVec3 m_vExternalVelocity;
 };
 
 

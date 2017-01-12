@@ -122,6 +122,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->UpdateGlobalTransform();
   }
 
+  pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_vPosition.GetAsPositionVec4();
+
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
 

@@ -27,25 +27,27 @@ namespace ezInternal
   // static
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, float fInvDeltaSeconds)
   {
-    const ezVec3 vOldWorldPos = pData->m_globalTransform.m_vPosition;
     pData->UpdateGlobalTransform();
     pData->UpdateGlobalBounds();
     if (pData->m_velocity.w == 0.0f) // a value != 0 indicates a custom velocity, don't overwrite it here
     {
-      pData->m_velocity = ((pData->m_globalTransform.m_vPosition - vOldWorldPos) * fInvDeltaSeconds).GetAsDirectionVec4();
+      pData->m_velocity = ((pData->m_globalTransform.m_vPosition - pData->m_lastGlobalPosition.GetAsVec3()) * fInvDeltaSeconds).GetAsDirectionVec4();
     }
+    pData->m_lastGlobalPosition = pData->m_globalTransform.m_vPosition.GetAsPositionVec4();
+    pData->m_velocity.w = 0.0f;
   }
 
   // static
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, float fInvDeltaSeconds)
   {
-    const ezVec3 vOldWorldPos = pData->m_globalTransform.m_vPosition;
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateGlobalBounds();
     if (pData->m_velocity.w == 0.0f) // a value != 0 indicates a custom velocity, don't overwrite it here
     {
-      pData->m_velocity = ((pData->m_globalTransform.m_vPosition - vOldWorldPos) * fInvDeltaSeconds).GetAsDirectionVec4();
+      pData->m_velocity = ((pData->m_globalTransform.m_vPosition - pData->m_lastGlobalPosition.GetAsVec3()) * fInvDeltaSeconds).GetAsDirectionVec4();
     }
+    pData->m_lastGlobalPosition = pData->m_globalTransform.m_vPosition.GetAsPositionVec4();
+    pData->m_velocity.w = 0.0f;
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////

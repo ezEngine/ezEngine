@@ -240,8 +240,8 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
     {
       ezComponent* pComponent = nullptr;
       bool bResult = static_cast<ezComponentManagerBase*>(pModule)->TryGetComponent(component, pComponent);
-      out_pComponent = static_cast<ComponentType*>(pComponent);
-      return bResult;
+      out_pComponent = ezDynamicCast<ComponentType*>(pComponent);
+      return bResult && out_pComponent != nullptr;
     }
   }
 
@@ -263,8 +263,8 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, const C
     {
       const ezComponent* pComponent = nullptr;
       bool bResult = static_cast<const ezComponentManagerBase*>(pModule)->TryGetComponent(component, pComponent);
-      out_pComponent = static_cast<const ComponentType*>(pComponent);
-      return bResult;
+      out_pComponent = ezDynamicCast<const ComponentType*>(pComponent);
+      return bResult && out_pComponent != nullptr;
     }
   }
 

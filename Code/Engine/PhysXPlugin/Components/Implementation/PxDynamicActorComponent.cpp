@@ -45,8 +45,6 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
 {
   EZ_PROFILE("DynamicActors");
 
-  const float fInvDeltaTime = 1.0f / (float)(GetWorld()->GetClock().GetTimeDiff().GetSeconds());
-
   for (auto& activeTransform : activeTransforms)
   {
     ezPxDynamicActorComponent* pComponent = ezPxUserData::GetDynamicActorComponent(activeTransform.userData);
@@ -55,7 +53,6 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
 
     ezGameObject* pObject = pComponent->GetOwner();
     pObject->SetGlobalTransform(ezPxConversionUtils::ToTransform(activeTransform.actor2World));
-    pObject->SetVelocity(ezPxConversionUtils::ToVec3(activeTransform.actor->isRigidDynamic()->getLinearVelocity()));
   }
 }
 

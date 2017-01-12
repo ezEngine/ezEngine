@@ -3,6 +3,7 @@
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -47,9 +48,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 5.0f)),
-    EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.01f, 20.0f)),
-    EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 50.0f)),
+    EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(15.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
@@ -71,15 +72,16 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
 
   m_vRelativeMoveDirection.SetZero();
 
-  m_fWalkSpeed = 3.0f;
-  m_fRunSpeed = 6.0f;
+  m_fWalkSpeed = 5.0f;
+  m_fRunSpeed = 15.0f;
   m_fAirSpeed = 2.5f;
   m_fAirFriction = 0.5f;
   m_RotateSpeed = ezAngle::Degree(90.0f);
-  m_fJumpImpulse = 1.0f;
+  m_fJumpImpulse = 6.0f;
   m_fPushingForce = 500.0f;
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
+  m_vExternalVelocity.SetZero();
 }
 
 
@@ -176,22 +178,30 @@ void ezPxCharacterControllerComponent::Update()
 
   if (wantsJump && canJump)
   {
-    m_fVelocityUp = m_fJumpImpulse / tDiff * fJumpFactor;
+    m_fVelocityUp = m_fJumpImpulse;
   }
 
   ezVec3 vNewVelocity(0.0f);
 
-  if (isOnGround)
+  if (m_vExternalVelocity.IsZero())
   {
-    vNewVelocity = vIntendedMovement;
-    vNewVelocity.z = m_fVelocityUp;
+    if (isOnGround)
+    {
+      vNewVelocity = vIntendedMovement;
+      vNewVelocity.z = m_fVelocityUp;
+    }
+    else
+    {
+      m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, tDiff);
+
+      vNewVelocity = m_vVelocityLateral + vIntendedMovement;
+      vNewVelocity.z = m_fVelocityUp;
+    }
   }
   else
   {
-    m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, tDiff);
-
-    vNewVelocity = m_vVelocityLateral + vIntendedMovement;
-    vNewVelocity.z = m_fVelocityUp;
+    vNewVelocity = m_vExternalVelocity;
+    m_vExternalVelocity.SetZero();
   }
 
   auto posBefore = GetOwner()->GetGlobalPosition();
@@ -205,7 +215,8 @@ void ezPxCharacterControllerComponent::Update()
   /// After move forwards, sweep test downwards to stick character to floor and detect falling
   if (isOnGround && (!wantsJump || !canJump))
   {
-    ezTransform t;
+    ///\todo Activate this code again once we can exclude our self from the sweep test. Right now this code prevents jumping to work properly.
+    /*ezTransform t;
     t.SetIdentity();
     t.m_vPosition.Set((float)posAfter.x, (float)posAfter.y, (float)posAfter.z);
 
@@ -223,7 +234,7 @@ void ezPxCharacterControllerComponent::Update()
       //ezLog::Dev("Falling");
     }
 
-    posAfter = GetOwner()->GetGlobalPosition();
+    posAfter = GetOwner()->GetGlobalPosition();*/
   }
 
   {
@@ -351,22 +362,44 @@ void ezPxCharacterControllerComponent::OnTrigger(ezTriggerMessage& msg)
 
 void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
 {
-  ezPxDynamicActorComponent* pDynamicActorComponent = nullptr;
-  if (GetWorld()->TryGetComponent(msg.m_hComponentB, pDynamicActorComponent))
+  ezWorld* pWorld = GetWorld();
+  ezGameObject* pOwner = GetOwner();
+
+  if (msg.m_hObjectA == pOwner->GetHandle())
   {
-    const ezVec3 vImpulse = msg.m_vImpulse;
-    if (ezMath::Abs(vImpulse.z) < 0.01f)
+    // This object was the source of collision thus we want to push the other body.
+    ezPxDynamicActorComponent* pDynamicActorComponent = nullptr;
+    if (pWorld->TryGetComponent(msg.m_hComponentB, pDynamicActorComponent))
     {
-      ezVec3 vHitPos = msg.m_vPosition;
-      ezVec3 vCenterOfMass = pDynamicActorComponent->GetGlobalCenterOfMass();
+      const ezVec3 vImpulse = msg.m_vImpulse;
+      if (ezMath::Abs(vImpulse.z) < 0.01f)
+      {
+        ezVec3 vHitPos = msg.m_vPosition;
+        ezVec3 vCenterOfMass = pDynamicActorComponent->GetGlobalCenterOfMass();
 
-      // Move the hit pos closer to the center of mass in the up direction. Otherwise we tip over objects pretty easily.
-      vHitPos.z = ezMath::Lerp(vCenterOfMass.z, vHitPos.z, 0.1f);
+        // Move the hit pos closer to the center of mass in the up direction. Otherwise we tip over objects pretty easily.
+        vHitPos.z = ezMath::Lerp(vCenterOfMass.z, vHitPos.z, 0.1f);
 
-      const ezVec3 vIntendedMovement = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection;
-      const ezVec3 vForce = vIntendedMovement * m_fPushingForce;
+        const ezVec3 vIntendedMovement = pOwner->GetGlobalRotation() * m_vRelativeMoveDirection;
+        const ezVec3 vForce = vIntendedMovement * m_fPushingForce;
 
-      pDynamicActorComponent->AddForceAtPos(vForce, vHitPos);
+        pDynamicActorComponent->AddForceAtPos(vForce, vHitPos);
+      }
+    }
+  }
+  else if (msg.m_hObjectB == pOwner->GetHandle())
+  {
+    // Another object was the source of collision so the CC is pushed by the another body.
+    ezPxDynamicActorComponent* pDynamicActorComponent = nullptr;
+    ezPxCharacterProxyComponent* pProxy = nullptr;
+    if (pWorld->TryGetComponent(msg.m_hComponentA, pDynamicActorComponent) &&
+      pWorld->TryGetComponent(m_hProxy, pProxy))
+    {
+      if (pDynamicActorComponent->GetKinematic())
+      {
+        ezVec3 vVelocity = pDynamicActorComponent->GetOwner()->GetVelocity();
+        m_vExternalVelocity = vVelocity;
+      }
     }
   }
 }

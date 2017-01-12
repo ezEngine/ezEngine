@@ -256,11 +256,11 @@ public:
 
   /// \brief Queues the message for the given phase and processes it later in that phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default) const;
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default) const;
 
 
   /// \brief Returns the tag set associated with this object.
@@ -301,10 +301,13 @@ private:
     ezVec4 m_localScaling; // x,y,z = non-uniform scaling, w = uniform scaling
 
     ezTransform m_globalTransform;
+    ezVec4 m_lastGlobalPosition;
     ezVec4 m_velocity; // w = 1 indicates custom velocity
 
     ezBoundingBoxSphere m_localBounds;
     ezBoundingBoxSphere m_globalBounds;
+
+    ezUInt32 m_uiPadding2[14];
 
     void ConditionalUpdateGlobalTransform();
     void UpdateGlobalTransform();
@@ -358,6 +361,7 @@ private:
   ezUInt64 m_uiPadding2;
 #endif
 
+  /// \todo somehow make this more compact
   ezTagSet m_Tags;
 };
 

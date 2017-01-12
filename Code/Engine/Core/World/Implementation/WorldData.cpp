@@ -57,7 +57,7 @@ WorldData::WorldData(const char* szWorldName) :
   ObjectStorage::Entry entry = { nullptr };
   m_Objects.Insert(entry);
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 256);
   //EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo get game object size back to 128
   EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
 

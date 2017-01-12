@@ -328,13 +328,13 @@ void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPt
 }
 
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-                               ezObjectMsgRouting::Enum routing)
+                               ezObjectMsgRouting::Enum routing) const
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, routing);
 }
 
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-                               ezObjectMsgRouting::Enum routing)
+                               ezObjectMsgRouting::Enum routing) const
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, delay, routing);
 }

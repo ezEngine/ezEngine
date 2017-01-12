@@ -128,8 +128,6 @@ EZ_END_COMPONENT_TYPE
 ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
   : m_UserData(this)
 {
-  m_pController = nullptr;
-
   m_fCapsuleHeight = 1.0f;
   m_fCapsuleRadius = 0.25f;
   m_fMass = 100.0f;
@@ -138,6 +136,8 @@ ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
   m_bForceSlopeSliding = true;
   m_bConstrainedClimbingMode = false;
   m_uiCollisionLayer = 0;
+
+  m_pController = nullptr;
 }
 
 ezPxCharacterProxyComponent::~ezPxCharacterProxyComponent()
@@ -250,12 +250,14 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
     m_pController = static_cast<PxCapsuleController*>(pModule->GetCharacterManager()->createController(cd));
     EZ_ASSERT_DEV(m_pController != nullptr, "Failed to create character controller");
 
+    PxRigidDynamic* pActor = m_pController->getActor();
+    pActor->setMass(m_fMass);
+    pActor->userData = &m_UserData;
+
     PxShape* pShape = nullptr;
-    m_pController->getActor()->getShapes(&pShape, 1);
+    pActor->getShapes(&pShape, 1);
     pShape->setSimulationFilterData(m_FilterData);
     pShape->setQueryFilterData(m_FilterData);
-
-    m_pController->getActor()->setMass(m_fMass);
   }
 }
 
@@ -282,7 +284,6 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
 
     ezVec3 vNewPos = ezPxConversionUtils::ToVec3(m_pController->getPosition());
     pOwner->SetGlobalPosition(vNewPos);
-    pOwner->SetVelocity((vNewPos - vOldPos) / fElapsedTime);
 
     m_ControllerFilter.mFilterCallback = nullptr;
 
@@ -304,5 +305,4 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::GetCollisio
 
   return ezPxCharacterCollisionFlags::None;
 }
-
 

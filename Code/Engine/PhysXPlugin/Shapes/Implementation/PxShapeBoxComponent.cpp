@@ -91,11 +91,7 @@ void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& 
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX box shape creation failed");
 
-  PxFilterData filter;
-  filter.word0 = EZ_BIT(m_uiCollisionLayer);
-  filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-  filter.word2 = 0;
-  filter.word3 = 0;
+  PxFilterData filter = CreateFilterData();
   pShape->setSimulationFilterData(filter);
   pShape->setQueryFilterData(filter);
 

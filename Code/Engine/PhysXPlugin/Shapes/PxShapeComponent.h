@@ -28,6 +28,7 @@ public:
   const char* GetSurfaceFile() const;
 
   ezUInt8 m_uiCollisionLayer;
+  bool m_bReportContact;
 
 protected:
   ezSurfaceResourceHandle m_hSurface;
@@ -41,6 +42,7 @@ public:
 
 protected:
   PxMaterial* GetPxMaterial();
+  PxFilterData CreateFilterData();
 };
 
 

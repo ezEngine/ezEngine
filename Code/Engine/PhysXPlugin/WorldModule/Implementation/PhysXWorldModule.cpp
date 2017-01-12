@@ -4,6 +4,7 @@
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxSettingsComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <Core/Messages/CollisionMessage.h>
 #include <Core/World/World.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
@@ -64,7 +65,20 @@ namespace
     // the filter mask of A contains the ID of B and vice versa.
     if ((filterData0.word0 & filterData1.word1) || (filterData1.word0 & filterData0.word1))
     {
-      pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+      if (filterData0.word3 != 0 || filterData1.word3 != 0)
+      {
+        pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
+      }
+
+      if (PxFilterObjectIsKinematic(attributes0) && PxFilterObjectIsKinematic(attributes1))
+      {
+        pairFlags |= PxPairFlag::eDETECT_DISCRETE_CONTACT;
+      }
+      else
+      {
+        pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+      }
+
       return PxFilterFlag::eDEFAULT;
     }
 
@@ -72,13 +86,118 @@ namespace
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+class ezPxSimulationEventCallback : public PxSimulationEventCallback
+{
+public:
+  virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override
+  {
+
+  }
+
+  virtual void onWake(PxActor** actors, PxU32 count) override
+  {
+
+  }
+
+  virtual void onSleep(PxActor** actors, PxU32 count) override
+  {
+
+  }
+
+  virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override
+  {
+    if (pairHeader.flags & (PxContactPairHeaderFlag::eDELETED_ACTOR_0 | PxContactPairHeaderFlag::eDELETED_ACTOR_1))
+    {
+      return;
+    }
+
+    ezCollisionMessage msg;
+    msg.m_vPosition.SetZero();
+    msg.m_vNormal.SetZero();
+    msg.m_vImpulse.SetZero();
+
+    float fNumContactPoints = 0.0f;
+
+    ///\todo Not sure whether taking a simple average is the desired behavior here.
+    for (ezUInt32 uiPairIndex = 0; uiPairIndex < nbPairs; ++uiPairIndex)
+    {
+      const PxContactPair& pair = pairs[uiPairIndex];
+
+      PxContactPairPoint contactPointBuffer[16];
+      ezUInt32 uiNumContactPoints = pair.extractContacts(contactPointBuffer, 16);
+
+      for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < uiNumContactPoints; ++uiContactPointIndex)
+      {
+        const PxContactPairPoint& point = contactPointBuffer[uiContactPointIndex];
+
+        msg.m_vPosition += ezPxConversionUtils::ToVec3(point.position);
+        msg.m_vNormal += ezPxConversionUtils::ToVec3(point.normal);
+        msg.m_vImpulse += ezPxConversionUtils::ToVec3(point.impulse);
+
+        fNumContactPoints += 1.0f;
+      }
+    }
+
+    msg.m_vPosition /= fNumContactPoints;
+    msg.m_vNormal.NormalizeIfNotZero();
+    msg.m_vImpulse /= fNumContactPoints;
+
+    const PxActor* pActorA = pairHeader.actors[0];
+    const PxActor* pActorB = pairHeader.actors[1];
+
+    const ezComponent* pComponentA = ezPxUserData::GetComponent(pActorA->userData);
+    const ezComponent* pComponentB = ezPxUserData::GetComponent(pActorB->userData);
+
+    const ezGameObject* pObjectA = nullptr;
+    const ezGameObject* pObjectB = nullptr;
+
+    if (pComponentA != nullptr)
+    {
+      pObjectA = pComponentA->GetOwner();
+
+      msg.m_hObjectA = pObjectA->GetHandle();
+      msg.m_hComponentA = pComponentA->GetHandle();
+    }
+
+    if (pComponentB != nullptr)
+    {
+      pObjectB = pComponentB->GetOwner();
+
+      msg.m_hObjectB = pObjectB->GetHandle();
+      msg.m_hComponentB = pComponentB->GetHandle();
+    }
+
+
+    if (pObjectA != nullptr)
+    {
+      pObjectA->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
+    }
+
+    if (pObjectB != nullptr && pObjectB != pObjectA)
+    {
+      pObjectB->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
+    }
+  }
+
+  virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override
+  {
+
+  }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
+  , m_pPxScene(nullptr)
+  , m_pCharacterManager(nullptr)
+  , m_pSimulationEventCallback(nullptr)
   , m_Settings()
   , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
-  m_pPxScene = nullptr;
-  m_pCharacterManager = nullptr;
+
 }
 
 ezPhysXWorldModule::~ezPhysXWorldModule()
@@ -92,18 +211,22 @@ void ezPhysXWorldModule::Initialize()
 
   m_AccumulatedTimeSinceUpdate.SetZero();
 
+  m_pSimulationEventCallback = EZ_DEFAULT_NEW(ezPxSimulationEventCallback);
+
   {
     PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
     desc.setToDefault(PxTolerancesScale());
 
     desc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+    desc.flags |= PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
+    desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
     desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
 
     desc.gravity = ezPxConversionUtils::ToVec3(m_Settings.m_vObjectGravity);
 
     desc.cpuDispatcher = &s_CpuDispatcher;
     desc.filterShader = &ezPxFilterShader;
-    //desc.simulationEventCallback = TODO
+    desc.simulationEventCallback = m_pSimulationEventCallback;
 
     EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
     m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
@@ -126,9 +249,8 @@ void ezPhysXWorldModule::Initialize()
     auto fetchResultsDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPhysXWorldModule::FetchResults, this);
     fetchResultsDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
     fetchResultsDesc.m_bOnlyUpdateWhenSimulating = true;
-    // Fetch results as close as possible to transform update
-    // so the asynchronous simulation task has enough time to finish.
-    fetchResultsDesc.m_fPriority = -100000.0f;
+    // Fetch results as early as possible after async phase.
+    fetchResultsDesc.m_fPriority = 100000.0f;
 
     RegisterUpdateFunction(fetchResultsDesc);
   }
@@ -141,6 +263,8 @@ void ezPhysXWorldModule::Deinitialize()
 
   m_pPxScene->release();
   m_pPxScene = nullptr;
+
+  EZ_DEFAULT_DELETE(m_pSimulationEventCallback);
 }
 
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)

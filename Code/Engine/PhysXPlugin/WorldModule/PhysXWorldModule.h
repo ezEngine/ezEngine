@@ -12,6 +12,8 @@ namespace physx
   class PxControllerManager;
 }
 
+class ezPxSimulationEventCallback;
+
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
   EZ_DECLARE_WORLD_MODULE();
@@ -45,6 +47,7 @@ private:
 
   physx::PxScene* m_pPxScene;
   physx::PxControllerManager* m_pCharacterManager;
+  ezPxSimulationEventCallback* m_pSimulationEventCallback;
 
   ezTime m_AccumulatedTimeSinceUpdate;
 

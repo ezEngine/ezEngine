@@ -1520,6 +1520,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -1843,6 +1844,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x00008040,0x00008040,0x0000803F}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -2370,6 +2372,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		f %Radius{0x0000803F}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -3004,7 +3007,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{17375391562215571410}
+		u4 %Hash{4578511400457610622}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -3426,11 +3429,11 @@ o
 		b %Active{1}
 		f %AirFriction{0x0000003F}
 		f %AirSpeed{0x00002040}
-		f %JumpImpulse{0x0000803F}
+		f %JumpImpulse{0x0000C040}
 		f %PushingForce{0x0000FA43}
 		Angle %RotateSpeed{f{0xDB0FC93F}}
-		f %RunSpeed{0x0000C040}
-		f %WalkSpeed{0x00004040}
+		f %RunSpeed{0x00007041}
+		f %WalkSpeed{0x0000A040}
 	}
 }
 o
@@ -4048,6 +4051,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -4256,6 +4260,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x00008040,0x00008040,0x0000803F}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -4629,12 +4634,15 @@ o
 {
 	Uuid %id{u4{17309103479706075778,5736885279805763870}}
 	s %t{"ezPxSettingsComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Vec3 %CharacterGravity{f{0,0,0x000040C1}}
+		f %FixedFrameRate{0x00007042}
+		u3 %MaxSubSteps{4}
 		Vec3 %ObjectGravity{f{0,0,0xC3F51CC1}}
+		s %SteppingMode{"ezPxSteppingMode::SemiFixed"}
 	}
 }
 o
@@ -7133,6 +7141,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x00008040,0x00008040,0x00008040}}
+		b %ReportContact{1}
 		s %Surface{""}
 	}
 }
@@ -7199,6 +7208,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -7976,6 +7986,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x00008040,0x00008040,0x0000803F}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -10089,6 +10100,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }

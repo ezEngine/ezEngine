@@ -137,6 +137,16 @@ namespace
         it->Update();
     }
   }
+
+  typedef ezComponentManager<class TestComponent2> TestComponent2Manager;
+
+  class TestComponent2 : public ezComponent
+  {
+    EZ_DECLARE_COMPONENT_TYPE(TestComponent2, ezComponent, TestComponent2Manager);
+  };
+
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent2, 1)
+  EZ_END_COMPONENT_TYPE
 }
 
 
@@ -177,6 +187,9 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
     EZ_TEST_BOOL(pTest == pComponent);
     EZ_TEST_BOOL(pComponent->GetHandle() == handle);
+
+    TestComponent2* pTest2 = nullptr;
+    EZ_TEST_BOOL(!world.TryGetComponent(handle, pTest2));
 
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
     EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
