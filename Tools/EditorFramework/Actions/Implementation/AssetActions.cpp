@@ -104,8 +104,10 @@ void ezAssetAction::Execute(const ezVariant& value)
       {
         ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage.GetData(), m_Context.m_pDocument->GetDocumentPath());
       }
-
-      ezAssetCurator::GetSingleton()->WriteAssetTables();
+      else
+      {
+        ezAssetCurator::GetSingleton()->WriteAssetTables();
+      }
     }
     break;
 

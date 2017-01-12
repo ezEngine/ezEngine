@@ -96,6 +96,10 @@ public:
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
   ezStatus RecreateVisualShaderFile(const char* szPlatform, const ezAssetFileHeader& AssetHeader);
 
+  /// \brief If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full regeneration
+  /// Otherwise the AssetCurator would early out
+  void TagVisualShaderFileInvalid(const char* szPlatform, const char* szError);
+
   /// \brief Deletes all Visual Shader nodes that are not connected to the output
   void RemoveDisconnectedNodes();
 

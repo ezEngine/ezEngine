@@ -328,7 +328,7 @@ ezShaderConstantBufferLayout* ezShaderStageBinary::CreateConstantBufferLayout() 
   return EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
 }
 
-ezResult ezShaderStageBinary::WriteStageBinary() const
+ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog) const
 {
   ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
@@ -338,13 +338,13 @@ ezResult ezShaderStageBinary::WriteStageBinary() const
   ezFileWriter StageFileOut;
   if (StageFileOut.Open(sShaderStageFile.GetData()).Failed())
   {
-    ezLog::Error("Could not open shader stage file '{0}' for writing", sShaderStageFile.GetData());
+    ezLog::Error(pLog, "Could not open shader stage file '{0}' for writing", sShaderStageFile.GetData());
     return EZ_FAILURE;
   }
 
   if (Write(StageFileOut).Failed())
   {
-    ezLog::Error("Could not write shader stage file '{0}'", sShaderStageFile.GetData());
+    ezLog::Error(pLog, "Could not write shader stage file '{0}'", sShaderStageFile.GetData());
     return EZ_FAILURE;
   }
 

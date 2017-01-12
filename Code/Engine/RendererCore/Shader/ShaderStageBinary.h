@@ -158,7 +158,7 @@ private:
   ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
   ezHybridArray<ezShaderResourceBinding, 8> m_ShaderResourceBindings;
 
-  ezResult WriteStageBinary() const;
+  ezResult WriteStageBinary(ezLogInterface* pLog) const;
   static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);
 
   static void OnEngineShutdown();

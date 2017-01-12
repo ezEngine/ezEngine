@@ -42,7 +42,6 @@ private:
   void UpdateNodeEditorVisibility();
   void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action);
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
-  void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
   ezSceneViewConfig m_ViewConfig;
   ezQtMaterialViewWidget* m_pViewWidget;
@@ -51,7 +50,6 @@ private:
   ezQtDocumentPanel* m_pVsePanel;
   QTextEdit* m_pOutputLine;
   bool m_bVisualShaderEnabled;
-  ezTime m_ShowShaderMessages;
 
   static ezInt32 s_iNodeConfigWatchers;
   static ezDirectoryWatcher* s_pNodeConfigWatcher;

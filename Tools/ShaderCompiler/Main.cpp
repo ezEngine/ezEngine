@@ -103,11 +103,8 @@ ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)
 
     m_PermutationGenerator.GetPermutation(perm, PermVars);
     ezShaderCompiler sc;
-    if (sc.CompileShaderPermutationForPlatforms(szShaderFile, PermVars, m_sPlatforms).Failed())
-    {
-      ezLog::Error("Failed to compile shader permutation {0}", perm);
+    if (sc.CompileShaderPermutationForPlatforms(szShaderFile, PermVars, ezGlobalLog::GetOrCreateInstance(), m_sPlatforms).Failed())
       return EZ_FAILURE;
-    }
   }
 
   ezLog::Success("Compiled Shader '{0}'", szShaderFile);
@@ -197,10 +194,7 @@ ezApplication::ApplicationExecution ezShaderCompilerApplication::Run()
     }
 
     if (CompileShader(relPath).Failed())
-    {
-      ezLog::Error("Failed to compile shader '{0}'", relPath);
       return ezApplication::ApplicationExecution::Quit;
-    }
   }
 
   return ezApplication::ApplicationExecution::Quit;

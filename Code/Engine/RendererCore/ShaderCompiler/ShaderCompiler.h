@@ -48,11 +48,13 @@ class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
 
-  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, const char* szPlatform = "ALL");
+  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, const char* szPlatform = "ALL");
 
 private:
 
-  void RunShaderCompiler(const char* szFile, const char* szPlatform, ezShaderProgramCompiler* pCompiler);
+  ezResult RunShaderCompiler(const char* szFile, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog);
+
+  void WriteFailedShaderSource(ezShaderProgramCompiler::ezShaderProgramData &spd, ezLogInterface* pLog);
 
   bool PassThroughUnknownCommandCB(const char* szCmd)
   {

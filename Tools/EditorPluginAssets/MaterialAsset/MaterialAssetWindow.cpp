@@ -35,7 +35,6 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
 
   pDocument->m_VisualShaderEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::EngineProcessMsgHandler, this));
 
   // Menu Bar
   {
@@ -126,7 +125,6 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::EngineProcessMsgHandler, this));
   GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
   RestoreResource();
@@ -302,65 +300,32 @@ void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialV
 
   if (e.m_Type == ezMaterialVisualShaderEvent::VisualShaderNotUsed)
   {
-    m_ShowShaderMessages.SetZero();
     text = "<span style=\"color:#bbbb00;\">Visual Shader is not used by the material.</span><br><br>Change the ShaderMode in the asset properties to enable Visual Shader mode.";
-  }
-  else if (e.m_Type == ezMaterialVisualShaderEvent::TransformSucceeded)
-  {
-    m_ShowShaderMessages = ezTime::Now();
-    text = "<span style=\"color:#00ff00;\">Visual Shader was transformed successfully.</span><br><br>";
-    text.Append(e.m_sTransformError.GetData());
   }
   else
   {
-    m_ShowShaderMessages = ezTime::Now();
-    text = "<span style=\"color:#ff0000;\">Error generating the Visual Shader code.</span><br><br>";
-    text.Append(e.m_sTransformError.GetData());
+    if (e.m_Type == ezMaterialVisualShaderEvent::TransformSucceeded)
+      text = "<span style=\"color:#00ff00;\">Visual Shader was transformed successfully.</span><br><br>";
+    else
+      text = "<span style=\"color:#ff8800;\">Visual Shader is invalid:</span><br><br>";
+
+    ezStringBuilder err = e.m_sTransformError;
+
+    ezHybridArray<ezStringView, 16> lines;
+    err.Split(false, lines, "\n");
+
+    for (const ezStringView& line : lines)
+    {
+      if (line.StartsWith("Error:"))
+        text.AppendFormat("<span style=\"color:#ff2200;\">{0}</span><br>", line);
+      else if (line.StartsWith("Warning:"))
+        text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", line);
+      else
+        text.Append(line);
+    }
   }
 
   m_pOutputLine->setAcceptRichText(true);
   m_pOutputLine->setHtml(text.GetData());
 }
 
-void ezQtMaterialAssetDocumentWindow::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
-{
-  switch (e.m_Type)
-  {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
-    {
-      // this is a ... workaround ... for the fact that we currently cannot get compilation status for a specific shader
-      // so whenever a material is transformed, we assume that the shader is also compiled soon and then we display
-      // all error messages with "shader" in the text in the material status window
-      if (ezTime::Now() - m_ShowShaderMessages > ezTime::Seconds(3.0f))
-        return;
-
-      if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezLogMsgToEditor>())
-      {
-        const ezLogMsgToEditor* pMsg = static_cast<const ezLogMsgToEditor*>(e.m_pMsg);
-
-        const ezLogMsgType::Enum type = (ezLogMsgType::Enum)pMsg->m_iMsgType;
-        const bool isErrorOrWarning = (type >= ezLogMsgType::ErrorMsg && type <= ezLogMsgType::WarningMsg);
-
-        if ((isErrorOrWarning && pMsg->m_sText.FindSubString_NoCase("shader") != nullptr) || pMsg->m_sTag == "shader")
-        {
-          ezStringBuilder sOutputText = m_pOutputLine->toHtml().toUtf8().data();
-
-          if (type >= ezLogMsgType::ErrorMsg)
-            sOutputText.AppendFormat("<br><br><span style=\"color:#ff0000;\">{0}</span>", pMsg->m_sText);
-          else if (type >= ezLogMsgType::SeriousWarningMsg)
-            sOutputText.AppendFormat("<br><br><span style=\"color:#ffaa00;\">{0}</span>", pMsg->m_sText);
-          else if (type >= ezLogMsgType::WarningMsg)
-            sOutputText.AppendFormat("<br><br><span style=\"color:#ffff00;\">{0}</span>", pMsg->m_sText);
-          else
-            sOutputText.AppendFormat("<br><br>{0}", pMsg->m_sText);
-
-          m_pOutputLine->setHtml(sOutputText.GetData());
-        }
-      }
-    }
-    break;
-
-  default:
-    return;
-  }
-}

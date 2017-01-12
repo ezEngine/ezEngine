@@ -14,6 +14,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
@@ -574,11 +575,109 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   }
 }
 
+class ezVisualShaderErrorLog : public ezLogInterface
+{
+public:
+  ezStringBuilder m_sResult;
+  ezResult m_Status;
+
+  ezVisualShaderErrorLog()
+    : m_Status(EZ_SUCCESS)
+  {
+  }
+
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override
+  {
+    switch (le.m_EventType)
+    {
+    case ezLogMsgType::ErrorMsg:
+      m_Status = EZ_FAILURE;
+      m_sResult.Append("Error: ", le.m_szText, "\n");
+      break;
+
+    case ezLogMsgType::SeriousWarningMsg:
+    case ezLogMsgType::WarningMsg:
+      m_sResult.Append("Warning: ", le.m_szText, "\n");
+      break;
+
+    default:
+      return;
+    }
+  }
+};
+
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
-    return RecreateVisualShaderFile(szPlatform, AssetHeader);
+    ezStatus ret = RecreateVisualShaderFile(szPlatform, AssetHeader);
+
+    if (bTriggeredManually)
+    {
+      ezMaterialVisualShaderEvent e;
+
+      if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
+      {
+        e.m_Type = ezMaterialVisualShaderEvent::TransformFailed;
+        e.m_sTransformError = ret.m_sMessage;
+
+        if (ret.Succeeded())
+        {
+          e.m_Type = ezMaterialVisualShaderEvent::TransformSucceeded;
+          ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
+
+          QStringList arguments;
+          ezStringBuilder temp;
+
+          arguments << "-project";
+          arguments << QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory().GetData());
+
+          arguments << "-shader";
+          arguments << QString::fromUtf8(sAutoGenShader.GetData());
+
+          arguments << "-platform";
+          arguments << "DX11_SM50";
+
+          /// \todo Move this declaration into the VSE output node definition
+          arguments << "-perm";
+          arguments << "INSTANCING=FALSE";
+          arguments << "TWO_SIDED=FALSE";
+          arguments << "BLEND_MODE=OPAQUE";
+          arguments << "RENDER_PASS=FORWARD";
+          arguments << "RENDER_PASS=DEPTH_ONLY";
+          arguments << "RENDER_PASS=EDITOR";
+          arguments << "SHADING_MODE=LIT";
+
+          ezVisualShaderErrorLog log;
+
+          ret = ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, &log);
+          if (ret.Failed())
+          {
+            e.m_Type = ezMaterialVisualShaderEvent::TransformFailed;
+            e.m_sTransformError = ret.m_sMessage;
+          }
+          else
+          {
+            e.m_Type = log.m_Status.Succeeded() ? ezMaterialVisualShaderEvent::TransformSucceeded : ezMaterialVisualShaderEvent::TransformFailed;
+            e.m_sTransformError = log.m_sResult;
+            ezLog::Info("Compiled Visual Shader.");
+          }
+        }
+      }
+      else
+      {
+        e.m_Type = ezMaterialVisualShaderEvent::VisualShaderNotUsed;
+      }
+
+      if (e.m_Type == ezMaterialVisualShaderEvent::TransformFailed)
+      {
+        TagVisualShaderFileInvalid(szPlatform, e.m_sTransformError);
+      }
+
+      m_VisualShaderEvents.Broadcast(e);
+    }
+
+    return ret;
   }
   else
   {
@@ -589,55 +688,6 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
-
-  ezStatus ret(EZ_SUCCESS);
-  ezMaterialVisualShaderEvent e;
-
-  if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
-  {
-    e.m_Type = ret.Succeeded() ? ezMaterialVisualShaderEvent::TransformSucceeded : ezMaterialVisualShaderEvent::TransformFailed;
-    e.m_sTransformError = ret.m_sMessage;
-
-    if (bTriggeredManually)
-    {
-      ezStringBuilder sAutoGenShader = GetProperties()->GetAutoGenShaderPathAbs();
-
-      QStringList arguments;
-      ezStringBuilder temp;
-
-      arguments << "-project";
-      arguments << QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory().GetData());
-
-      arguments << "-shader";
-      arguments << QString::fromUtf8(sAutoGenShader.GetData());
-
-      arguments << "-platform";
-      arguments << "DX11_SM50";
-
-      /// \todo Move this declaration into the VSE output node definition
-      arguments << "-perm";
-      arguments << "INSTANCING=FALSE";
-      arguments << "TWO_SIDED=FALSE";
-      arguments << "BLEND_MODE=OPAQUE";
-      arguments << "RENDER_PASS=FORWARD";
-      arguments << "RENDER_PASS=DEPTH_ONLY";
-      arguments << "RENDER_PASS=EDITOR";
-      arguments << "SHADING_MODE=LIT";
-
-      EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ShaderCompiler.exe", arguments, 60, ezGlobalLog::GetOrCreateInstance()));
-
-      ezLog::Success("Compiled Visual Shader successfully.");
-    }
-  }
-  else
-  {
-    e.m_Type = ezMaterialVisualShaderEvent::VisualShaderNotUsed;
-  }
-
-  m_VisualShaderEvents.Broadcast(e);
-
-  if (ret.Failed())
-    return ret;
 
   return WriteMaterialAsset(stream, szPlatform);
 }
@@ -826,6 +876,37 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
   }
 
   return ezStatus(EZ_SUCCESS);
+}
+
+void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const char* szPlatform, const char* szError)
+{
+  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
+    return;
+
+  ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(GetDocumentManager());
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+
+  ezStringBuilder all;
+
+  // read shader source
+  {
+    ezFileReader file;
+    if (file.Open(sAutoGenShader).Failed())
+      return;
+
+    all.ReadAll(file);
+  }
+
+  all.PrependFormat("/*\n{0}\n*/\n", szError);
+
+  // write adjusted shader source
+  {
+    ezFileWriter fileOut;
+    if (fileOut.Open(sAutoGenShader).Failed())
+      return;
+
+    fileOut.WriteBytes(all.GetData(), all.GetElementCount());
+  }
 }
 
 ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatform, const ezAssetFileHeader& AssetHeader)
