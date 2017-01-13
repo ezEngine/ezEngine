@@ -1,0 +1,118 @@
+﻿[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+#include "SSAOConstants.h"
+#include "Utils.h"
+
+Texture2D DepthBuffer : register(t0);
+
+StructuredBuffer<LineInstruction> LineInstructions;
+//RWBuffer<float> LineSweepOutputBuffer;
+RWBuffer<float> LineSweepOutputBuffer;
+
+// Higher numbers make the algorithm more accurate but increase the GPR pressure
+#define STACK_SIZE 16
+
+// Computes occlusion from an occluder on a given position
+// As suggested by the original paper we go with the simple "strategy 3" where we assume a fixed tangent plane.
+float computeOcclusion(float occluderDotCamera, float invOccluderDist)
+{
+  const float tangentPlane = -0.85f; // Todo: Expose this parameter.
+  const float falloffConstant = 2.0f; // Todo: Expose this parameter.
+
+  float occluderFalloff = falloffConstant * invOccluderDist;
+  occluderFalloff = occluderFalloff / (occluderFalloff + 1.0f);
+
+  // saturate since occlusion values outside of 0-1 are not meaningful.
+  return saturate(tangentPlane + max(0.0f, occluderDotCamera - tangentPlane) * occluderFalloff);
+}
+
+
+[numthreads(SSAO_LINESWEEP_THREAD_GROUP, 1, 1)]
+void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
+{
+  // Determine lineId for this thread. May be invalid due to group quantization.
+  uint lineId = DispatchID.x;
+  if(lineId >= TotalLineNumber)
+    return;
+
+  int2 screenSize = int2(Viewport.zw);
+  float2 inverseScreenSize = 1.0f / screenSize;
+
+  // Unpack line instruction.
+  LineInstruction instruction = LineInstructions[lineId];
+  int2 samplePos = instruction.FirstSamplePos;
+  uint bufferOffset = instruction.LineSweepOutputBufferOffset;
+  int2 directionSampleStep = Directions[instruction.LineDirIndex].Direction;
+  float2 directionNormed = normalize(float2(directionSampleStep));
+
+  // Stack for occlusion hull.
+  // Since we can't possibly provide a stack large enough, we overwrite existing values gradually.
+  // If we do so, we still pretend the stack grew beyond/below STACK_SIZE (== never clamp currentTop but modulo on every access)
+  //
+  // Todo: Can we compress the stack to save space? Is Registers the right place for it - might want to put it in sharedmemory
+  // Note that right now the implementation assumes cheap access to hullStack
+  float2 hullStack[STACK_SIZE];
+  hullStack[0] = samplePos;
+  hullStack[1] = samplePos;
+  unsigned int currentTop = 1;  // Index of the top element == size - 1
+
+  // Walk along this line.
+  do
+  {
+    float depthBufferDepth = DepthBuffer.Load(int3(samplePos, 0)).r;
+    float2 normalizedScreenCor = samplePos * inverseScreenSize  * 2.0f - 1.0f;
+    float4 viewPos = mul(ScreenToCameraMatrix, float4(normalizedScreenCor, depthBufferDepth, 1.0f));
+    viewPos.xyz /= viewPos.w;
+
+    // All other calculations work in a 2D "line projected" space.
+    float2 position = float2(dot(viewPos.xy, directionNormed), viewPos.z);
+    float2 toCamera = -normalize(position);
+
+    // Maintain occlusion hull.
+    // Todo: Replace expensive length with something rsqrt based?
+    float2 currentOccluderDir = hullStack[currentTop % STACK_SIZE] - position;
+    float currentOccluderInvDist = rsqrt(dot(currentOccluderDir, currentOccluderDir));
+    float currentOccluderDotCamera = dot(currentOccluderDir, toCamera) * currentOccluderInvDist;
+    float currentOcclusion = computeOcclusion(currentOccluderDotCamera, currentOccluderInvDist);
+
+    // Don't pop more from the stack than it is large in a single iteration (may even lead to endless loop)
+    // On the other hand we still keep the virtual stack size in currentTop, since declaring the stack empty leads to more artefacts than using the wrong stack.
+    for(int i=0; i<STACK_SIZE && currentTop > 0; ++i)
+    {
+      // Peek top element.
+      float2 nextOccluderDir = hullStack[(currentTop-1) % STACK_SIZE] - position;
+      float nextOccluderInvDist = rsqrt(dot(nextOccluderDir, nextOccluderDir));
+      float nextOccluderDotCamera = dot(nextOccluderDir, toCamera) * nextOccluderInvDist;
+      float nextOcclusion = computeOcclusion(nextOccluderDotCamera, nextOccluderInvDist);
+
+      if(currentOccluderDotCamera > nextOccluderDotCamera + 0.001f || 
+         currentOcclusion > nextOcclusion + 0.001f)
+        break;
+
+      // Pop stack.
+      currentOccluderDotCamera = nextOccluderDotCamera;
+      currentOcclusion = nextOcclusion;
+      --currentTop;
+    }
+
+    // Push new value to the stack.
+    ++currentTop;
+    hullStack[currentTop % STACK_SIZE] = position;
+
+    // Write current occlusion value out.
+    LineSweepOutputBuffer[bufferOffset] = currentOcclusion;
+
+    // Walk until we hit the screen border
+    samplePos += directionSampleStep;
+    ++bufferOffset;
+
+    // Todo: Depending on the direction's signs we need to check only two of these.
+  } while(samplePos.x >= 0 && samplePos.y >= 0 && 
+          samplePos.x < screenSize.x && samplePos.y < screenSize.y);
+}

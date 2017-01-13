@@ -1,0 +1,121 @@
+﻿[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLUR_DIRECTION
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthTestFunc = CompareFunc_Less
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/GlobalConstants.h>
+#include "SSAOConstants.h"
+#include "Utils.h"
+
+Texture2D DepthBuffer : register(t0);
+SamplerState LinearClampSampler;
+
+StructuredBuffer<LineInstruction> LineInstructions : register(t1);
+Buffer<float> LineSweepOutputBuffer : register(t2);
+
+
+#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
+//#define ASSERT(condition)
+
+float4 main(PS_IN input) : SV_Target
+{
+  int2 screenSize = int2(Viewport.zw);
+  int2 pixelPos = int2(input.TexCoord0 * screenSize);
+  int2 pixelPosInv = screenSize - int2(1, 1) - pixelPos;
+
+  float occlusionAccum = 0.0f;
+  float numSamples = 0.0f;
+
+  //float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(LinearClampSampler, input.TexCoord0).r);
+
+  for (int dirIndex = 0; dirIndex < 8; ++dirIndex)
+  {
+
+    int2 dir = Directions[dirIndex].Direction;
+
+    uint lineInstructionIndex = Directions[dirIndex].LineInstructionOffset;
+    int lineSampleNumber;
+
+    // Compute which line is closest to this pixel.
+    // See ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection
+    // Todo: We should try to use float more often, using in in a shader that often makes me nervous.
+    int2 lineOrigin;
+    {  
+      // Just like in ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection we try to treat negative directions exactly like positive ones,
+      // except for a flip in the lineOrigin.
+      uint2 absDir = uint2(abs(dir)); // Using uint because DX11 warning says int divide is slower.
+
+      int2 virtualPixelPos;
+      virtualPixelPos.x = (absDir.x == dir.x) ? pixelPos.x : pixelPosInv.x;
+      virtualPixelPos.y = (absDir.y == dir.y) ? pixelPos.y : pixelPosInv.y;
+
+      if(absDir.x > absDir.y)
+      {
+        int numStepsToLeftBorder = virtualPixelPos.x / absDir.x;
+        int yAtBorder = virtualPixelPos.y - numStepsToLeftBorder * absDir.y;
+        lineInstructionIndex += ((screenSize.y - 1) - yAtBorder) / LineToLinePixelOffset;
+
+        lineOrigin = LineInstructions[lineInstructionIndex].FirstSamplePos;
+        lineSampleNumber = (pixelPos.x - lineOrigin.x) / dir.x;
+      }
+      else
+      {
+        int numStepsToBottomBorder = virtualPixelPos.y / absDir.y;  // + half abs dir?
+        int xAtBorder = virtualPixelPos.x - numStepsToBottomBorder * absDir.x;
+        lineInstructionIndex += ((screenSize.x - 1) - xAtBorder) / LineToLinePixelOffset;
+
+        lineOrigin = LineInstructions[lineInstructionIndex].FirstSamplePos;
+        lineSampleNumber = (pixelPos.y - lineOrigin.y) / dir.y;
+      }
+    }
+    
+    // Line instructions know the direction they belong to, use this to make sure that we're touching the right one.
+    ASSERT(LineInstructions[lineInstructionIndex].LineDirIndex == uint(dirIndex))
+
+    // If everything went as planned, lineSampleNumber is never smaller than -1
+    // Beeing smaller zero means that the start is "in front" of the pixel which can happen due to jittering. 
+    ASSERT(lineSampleNumber >= -1);
+
+    // Check depth at this sample.
+    /*int2 samplePos = lineOrigin + lineSampleNumber * dir;
+    float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
+    const float maxSampleDepthDifference = 1.1f;
+    if(abs(sampleDepth - pixelDepth) > maxSampleDepthDifference)
+      continue;*/
+
+    // Fetch sweep sample.
+    lineSampleNumber += LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
+    occlusionAccum += LineSweepOutputBuffer.Load(int3(lineSampleNumber, 0, 0)).r;
+    numSamples += 1.0f;
+
+    // Debug line sample index.
+    //return float4((lineSampleNumber* 0.01f), 0.0f, 0.0f, 1.0f);
+
+    // Debug lineInstructionIndex
+    //return float4(frac(lineInstructionIndex * 0.005f), 0.0f, 0.0f, 1.0f);
+  }
+
+  float output = 1.0f - occlusionAccum / numSamples;
+  return float4(output, output, output, 1.0f);
+}
