@@ -215,6 +215,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode));
   EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode));
 
+  EZ_SUCCEED_OR_RETURN(CheckPropertyValues(pNode, pDesc));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVsBodyCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPsBodyCode));
@@ -347,7 +348,71 @@ void ezVisualShaderCodeGenerator::AppendStringIfUnique(ezStringBuilder& inout_St
   inout_String.Append(szAppend);
 }
 
-ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString) const
+static bool IsValidIdentifier(const ezStringBuilder& val)
+{
+  if (val.IsEmpty())
+    return false;
+
+   auto it = val.GetIteratorFront();
+
+   const ezUInt32 first = it.GetCharacter();
+
+   // digits are not allowed as the first character
+   if ((first >= '0') && (first <= '9'))
+     return false;
+
+   while (it.IsValid())
+   {
+     if (ezStringUtils::IsIdentifierDelimiter_C_Code(it.GetCharacter()))
+       return false;
+
+     ++it;
+   }
+
+   return true;
+}
+
+ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc)
+{
+  const auto& TypeAccess = pNode->GetTypeAccessor();
+
+  ezStringBuilder sPropValue;
+
+  const auto& props = pDesc->m_Properties;
+  for (ezUInt32 p = 0; p < props.GetCount(); ++p)
+  {
+    const ezVariant value = TypeAccess.GetValue(props[p].m_sName);
+    sPropValue = ToShaderString(value);
+
+
+    const ezInt8 iUniqueValueGroup = pDesc->m_UniquePropertyValueGroups[p];
+    if (iUniqueValueGroup > 0)
+    {
+      if (sPropValue.IsEmpty())
+      {
+        return ezStatus(ezFmt("A '{0}' node has an empty '{1}' property.", pDesc->m_sName, props[p].m_sName));
+      }
+
+      if (!IsValidIdentifier(sPropValue))
+      {
+        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.", pDesc->m_sName, props[p].m_sName, sPropValue));
+      }
+
+      auto& set = m_UsedUniqueValues[iUniqueValueGroup];
+
+      if (set.Contains(sPropValue))
+      {
+        return ezStatus(ezFmt("A '{0}' node has a '{1}' property that has the same value ('{2}') as another parameter.", pDesc->m_sName, props[p].m_sName, sPropValue));
+      }
+
+      set.Insert(sPropValue);
+    }
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString)
 {
   const auto& TypeAccess = pNode->GetTypeAccessor();
 

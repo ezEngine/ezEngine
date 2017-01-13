@@ -344,6 +344,8 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
   {
     if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Property"))
     {
+      ezInt8 iValueGroup = -1;
+
       ezReflectedPropertyDescriptor prop;
       prop.m_Category = ezPropertyCategory::Member;
       prop.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
@@ -384,6 +386,11 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
           prop.m_sType = ezGetStaticRTTI<float>()->GetTypeName();
         else if (sType == "string")
           prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+        else if (sType == "identifier")
+        {
+          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+          iValueGroup = 1; // currently no way to specify the group
+        }
         else if (sType == "Texture2D")
         {
           prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
@@ -395,7 +402,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
         }
         else
         {
-          ezLog::Error("Invalid property type '{0}'", sType.GetData());
+          ezLog::Error("Invalid property type '{0}'", sType);
           continue;
         }
       }
@@ -408,6 +415,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
       }
 
       nd.m_Properties.PushBack(prop);
+      nd.m_UniquePropertyValueGroups.PushBack(iValueGroup);
     }
   }
 }

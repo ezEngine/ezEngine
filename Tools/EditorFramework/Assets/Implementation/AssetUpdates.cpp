@@ -177,11 +177,6 @@ static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid
     sContent.ReadAll(file);
   }
 
-  if (sContent.StartsWith("{")) // JSON
-  {
-    return EZ_FAILURE;
-  }
-  else
   {
     // DDL
     ezUInt64 oldL, oldH;

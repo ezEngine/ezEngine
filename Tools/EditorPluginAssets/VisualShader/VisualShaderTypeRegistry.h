@@ -8,19 +8,13 @@
 
 class ezOpenDdlReaderElement;
 
-class ezVisualShaderPinDescriptor
+struct ezVisualShaderPinDescriptor
 {
-public:
-  ezVisualShaderPinDescriptor()
-  {
-    m_bExposeAsProperty = false;
-  }
-
   ezString m_sName;
   const ezRTTI* m_pDataType;
   ezReflectedPropertyDescriptor m_PropertyDesc;
   ezColorGammaUB m_Color;
-  bool m_bExposeAsProperty;
+  bool m_bExposeAsProperty = false;
   ezString m_sDefaultValue;
   ezString m_sShaderCodeInline;
   ezString m_sTooltip;
@@ -40,10 +34,8 @@ struct ezVisualShaderNodeType
   };
 };
 
-class ezVisualShaderNodeDescriptor
+struct ezVisualShaderNodeDescriptor
 {
-public:
-
   ezEnum<ezVisualShaderNodeType> m_NodeType;
   ezString m_sCfgFile; ///< from which config file this node type was loaded
   ezString m_sName;
@@ -64,6 +56,7 @@ public:
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_InputPins;
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_OutputPins;
   ezHybridArray<ezReflectedPropertyDescriptor, 4> m_Properties;
+  ezHybridArray<ezInt8, 4> m_UniquePropertyValueGroups; // no property in the same group may share the same value, -1 for disabled
 };
 
 

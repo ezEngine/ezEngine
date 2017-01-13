@@ -3,7 +3,7 @@
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 
-class ezVisualShaderPinDescriptor;
+struct ezVisualShaderPinDescriptor;
 
 class ezVisualShaderPin : public ezPin
 {

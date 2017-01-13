@@ -8,7 +8,7 @@ Node %Parameter1f
 
   Property %ParamName
   {
-    string %Type { "string" }
+    string %Type { "identifier" }
     string %Value { "Parameter" }
   }
 
@@ -36,7 +36,7 @@ Node %Parameter2f
 
   Property %ParamName
   {
-    string %Type { "string" }
+    string %Type { "identifier" }
     string %Value { "Parameter" }
   }
 
@@ -64,7 +64,7 @@ Node %Parameter3f
 
   Property %ParamName
   {
-    string %Type { "string" }
+    string %Type { "identifier" }
     string %Value { "Parameter" }
   }
 
@@ -92,7 +92,7 @@ Node %Parameter4f
 
   Property %ParamName
   {
-    string %Type { "string" }
+    string %Type { "identifier" }
     string %Value { "Parameter" }
   }
 
@@ -122,7 +122,7 @@ Node %ParameterColor
 
   Property %ParamName
   {
-    string %Type { "string" }
+    string %Type { "identifier" }
     string %Value { "Parameter" }
   }
 
