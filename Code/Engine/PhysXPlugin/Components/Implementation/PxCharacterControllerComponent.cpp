@@ -188,14 +188,12 @@ void ezPxCharacterControllerComponent::Update()
     if (isOnGround)
     {
       vNewVelocity = vIntendedMovement;
-      vNewVelocity.z = m_fVelocityUp;
     }
     else
     {
       m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, tDiff);
 
       vNewVelocity = m_vVelocityLateral + vIntendedMovement;
-      vNewVelocity.z = m_fVelocityUp;
     }
   }
   else
@@ -203,6 +201,8 @@ void ezPxCharacterControllerComponent::Update()
     vNewVelocity = m_vExternalVelocity;
     m_vExternalVelocity.SetZero();
   }
+
+  vNewVelocity.z = m_fVelocityUp;
 
   auto posBefore = GetOwner()->GetGlobalPosition();
   //{
@@ -397,8 +397,9 @@ void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
     {
       if (pDynamicActorComponent->GetKinematic())
       {
+        ezVec3 vNormal = -msg.m_vNormal; // the normal is from B to A but we're interested in the other direction
         ezVec3 vVelocity = pDynamicActorComponent->GetOwner()->GetVelocity();
-        m_vExternalVelocity = vVelocity;
+        m_vExternalVelocity = vNormal * ezMath::Max(vNormal.Dot(vVelocity), 0.0f); // reduce effect if normal and velocity are in different directions
       }
     }
   }
