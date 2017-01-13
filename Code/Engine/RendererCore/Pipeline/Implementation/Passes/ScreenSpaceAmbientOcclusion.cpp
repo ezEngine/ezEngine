@@ -187,7 +187,7 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
     ezUInt32 totalLineCountBefore = lineInstructions.GetCount();
     AddLinesForDirection(imageResolution, samplingDir[dirIndex], dirIndex, lineInstructions, totalNumberOfSamples);
 
-    cb->Directions[dirIndex].Direction = samplingDir[dirIndex];
+    cb->Directions[dirIndex].Direction = ezVec2(static_cast<float>(samplingDir[dirIndex].x), static_cast<float>(samplingDir[dirIndex].y));
     cb->Directions[dirIndex].NumLines = lineInstructions.GetCount() - totalLineCountBefore;
     cb->Directions[dirIndex].LineInstructionOffset = totalLineCountBefore;
   }
@@ -275,17 +275,17 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
     for (ezInt32 y = imageResolution.y - 1; true; y -= m_uiLineToLinePixelOffset)
     {
       LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
-      newLine.FirstSamplePos = ezVec2I32(0, y); // TODO: "random" (halton sequence?) offset
+      newLine.FirstSamplePos = ezVec2(0.0f, static_cast<float>(y)); // TODO: "random" (halton sequence?) offset
 
       // If we are already outside of the screen with x, this is not a point inside the screen!
       if (y < 0)
       {
         if (walkDir.y == 0)
-          newLine.FirstSamplePos = imageResolution;
+          newLine.FirstSamplePos = ezVec2(static_cast<float>(imageResolution.x), static_cast<float>(imageResolution.y));
         else
         {
           ezVec2 floatStep = walkDirF * (static_cast<float>(-y) / walkDirF.y);
-          newLine.FirstSamplePos += ezVec2I32(static_cast<ezInt32>(floatStep.x + 0.5f), static_cast<ezInt32>(floatStep.y + 0.5f));
+          newLine.FirstSamplePos += ezVec2(ezMath::Floor(floatStep.x + 0.5f), ezMath::Floor(floatStep.y + 0.5f));
         }
 
         // Left in y. We're done.
@@ -301,10 +301,10 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
 
 
       // Compute how many samples this line will consume.
-      int stepsToXBorder = (imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1;
+      int stepsToXBorder = static_cast<int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
       if (walkDir.y > 0)
       {
-        int stepsToYBorder = (imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1;
+        int stepsToYBorder = static_cast<int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
         outinTotalNumberOfSamples += ezMath::Min(stepsToYBorder, stepsToXBorder);
       }
       else
@@ -317,17 +317,17 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
     for (ezInt32 x = imageResolution.x - 1; true; x -= m_uiLineToLinePixelOffset)
     {
       LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
-      newLine.FirstSamplePos = ezVec2I32(x, 0); // TODO: "random" (halton sequence?) offset
+      newLine.FirstSamplePos = ezVec2(static_cast<float>(x), 0); // TODO: "random" (halton sequence?) offset
 
       // If we are already outside of the screen with x, this is not a point inside the screen!
       if (x < 0)
       {
         if (walkDir.x == 0)
-          newLine.FirstSamplePos = imageResolution;
+          newLine.FirstSamplePos = ezVec2(static_cast<float>(imageResolution.x), static_cast<float>(imageResolution.y));
         else
         {
           ezVec2 floatStep = walkDirF * (static_cast<float>(-x) / walkDirF.x);
-          newLine.FirstSamplePos += ezVec2I32(static_cast<ezInt32>(floatStep.x + 0.5f), static_cast<ezInt32>(floatStep.y + 0.5f));
+          newLine.FirstSamplePos += ezVec2(ezMath::Floor(floatStep.x + 0.5f), ezMath::Floor(floatStep.y + 0.5f));
         }
 
         // Left in y. We're done.
@@ -342,10 +342,10 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
       newLine.LineSweepOutputBufferOffset = outinTotalNumberOfSamples;
 
       // Compute how many samples this line will consume.
-      int stepsToYBorder = (imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1;
+      int stepsToYBorder = static_cast<int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
       if (walkDir.x > 0)
       {
-        int stepsToXBorder = (imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1;
+        int stepsToXBorder = static_cast<int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
         outinTotalNumberOfSamples += ezMath::Min(stepsToYBorder, stepsToXBorder);
       }
       else

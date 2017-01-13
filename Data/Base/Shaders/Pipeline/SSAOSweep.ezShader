@@ -12,7 +12,6 @@ ALL
 Texture2D DepthBuffer : register(t0);
 
 StructuredBuffer<LineInstruction> LineInstructions;
-//RWBuffer<float> LineSweepOutputBuffer;
 RWBuffer<float> LineSweepOutputBuffer;
 
 // Higher numbers make the algorithm more accurate but increase the GPR pressure
@@ -41,14 +40,14 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
   if(lineId >= TotalLineNumber)
     return;
 
-  int2 screenSize = int2(Viewport.zw);
+  float2 screenSize = Viewport.zw;
   float2 inverseScreenSize = 1.0f / screenSize;
 
   // Unpack line instruction.
   LineInstruction instruction = LineInstructions[lineId];
-  int2 samplePos = instruction.FirstSamplePos;
+  float2 samplePos = instruction.FirstSamplePos;
   uint bufferOffset = instruction.LineSweepOutputBufferOffset;
-  int2 directionSampleStep = Directions[instruction.LineDirIndex].Direction;
+  float2 directionSampleStep = Directions[instruction.LineDirIndex].Direction;
   float2 directionNormed = normalize(float2(directionSampleStep));
 
   // Stack for occlusion hull.
@@ -66,7 +65,7 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
   do
   {
     float depthBufferDepth = DepthBuffer.Load(int3(samplePos, 0)).r;
-    float2 normalizedScreenCor = samplePos * inverseScreenSize  * 2.0f - 1.0f;
+    float2 normalizedScreenCor = samplePos * inverseScreenSize * 2.0f - 1.0f;
     float4 viewPos = mul(ScreenToCameraMatrix, float4(normalizedScreenCor, depthBufferDepth, 1.0f));
     viewPos.xyz /= viewPos.w;
 
