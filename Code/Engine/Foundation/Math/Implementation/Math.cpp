@@ -56,12 +56,6 @@ ezInt32 ezMath::PowerOfTwo_Ceil(ezUInt32 npot)
   return (1);
 }
 
-ezAngle ezAngle::AngleBetween(ezAngle a, ezAngle b)
-{
-  // taken from http://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
-  return ezAngle(Pi<float>() - ezMath::Abs(ezMath::Abs(a.GetRadian() - b.GetRadian()) - Pi<float>()));
-}
-
 void ezAngle::NormalizeRange()
 {
   const float fTwoPi = 2.0f * Pi<float>();

@@ -5,13 +5,13 @@
 namespace ezMath
 {
   template<>
-  EZ_FORCE_INLINE bool BasicType<float>::SupportsInfinity()
+  constexpr inline bool BasicType<float>::SupportsInfinity()
   {
     return true;
   }
 
   template<>
-  EZ_FORCE_INLINE bool BasicType<float>::SupportsNaN()
+  constexpr inline bool BasicType<float>::SupportsNaN()
   {
     return true;
   }

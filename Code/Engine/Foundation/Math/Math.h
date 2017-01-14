@@ -13,17 +13,17 @@ namespace ezMath
 {
   /// \brief Returns whether the given value is NaN under this type.
   template<typename Type>
-  static bool IsNaN(Type value) { return false; }
+  constexpr static bool IsNaN(Type value) { return false; }
 
   /// \brief Returns whether the given value represents a finite value (i.e. not +/- Infinity and not NaN)
   template<typename Type>
-  static bool IsFinite(Type value) { return true; }
+  constexpr static bool IsFinite(Type value) { return true; }
 
   template<typename Type>
   struct BasicType
   {
     /// \brief Returns whether the templated type supports NaN, at all. Usually only true for \c float and \c double.
-    static bool SupportsNaN() { return false; }
+    constexpr static bool SupportsNaN() { return false; }
 
     /// \brief Returns the value for NaN as the template type. Returns zero, if the type does not support NaN.
     ///
@@ -32,16 +32,16 @@ namespace ezMath
     static Type GetNaN() { return Type(0); }
 
     /// \brief Returns whether this templated type supports specialized values to represent Infinity.
-    static bool SupportsInfinity() { return false; }
+    constexpr static bool SupportsInfinity() { return false; }
 
     /// \brief Returns the value for Infinity as the template type. Returns zero, if the type does not support Infinity.
     static Type GetInfinity() { return Type(0); }
 
     /// \brief Returns the natural constant e.
-    static Type e() { return (Type) 2.71828182845904; }
+    constexpr static Type e() { return (Type) 2.71828182845904; }
 
     /// \brief Returns the natural constant pi.
-    static Type Pi() { return (Type) 3.1415926535897932384626433832795; }
+    constexpr static Type Pi() { return (Type) 3.1415926535897932384626433832795; }
 
     /// \brief Returns the largest possible positive value (that is not infinity).
     static Type MaxValue();
@@ -100,14 +100,14 @@ namespace ezMath
   float Pow(float base, float exp); // [tested]
 
   /// \brief Returns 2^f
-  ezInt32 Pow2(ezInt32 i);// [tested]
+  constexpr ezInt32 Pow2(ezInt32 i);// [tested]
 
   /// \brief Returns base^exp
   ezInt32 Pow(ezInt32 base, ezInt32 exp); // [tested]
 
   /// \brief Returns f * f
   template <typename T>
-  T Square(T f); // [tested]
+  constexpr T Square(T f); // [tested]
 
   /// \brief Returns the square root of f
   float Sqrt(float f); // [tested]
@@ -117,39 +117,31 @@ namespace ezMath
 
   /// \brief Returns the sign of f (i.e: -1, 1 or 0)
   template <typename T>
-  T Sign(T f); // [tested]
+  constexpr T Sign(T f); // [tested]
 
   /// \brief Returns the absolute value of f
   template <typename T>
-  T Abs(T f); // [tested]
+  constexpr T Abs(T f); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2
   template <typename T>
-  T Min(T f1, T f2); // [tested]
+  constexpr T Min(T f1, T f2); // [tested]
 
-  /// \brief Returns the smaller value, f1 or f2 or f3
-  template <typename T>
-  T Min(T f1, T f2, T f3); // [tested]
-
-  /// \brief Returns the smaller value, f1 or f2 or f3 or f4
-  template <typename T>
-  T Min(T f1, T f2, T f3, T f4); // [tested]
+  /// \brief Returns the smaller value, f1 or f2 or ...
+  template <typename T, typename ...ARGS>
+  constexpr T Min(T f1, T f2, ARGS... f); // [tested]
 
   /// \brief Returns the greater value, f1 or f2
   template <typename T>
-  T Max(T f1, T f2); // [tested]
+  constexpr T Max(T f1, T f2); // [tested]
 
-  /// \brief Returns the smaller value, f1 or f2 or f3
-  template <typename T>
-  T Max(T f1, T f2, T f3); // [tested]
-
-  /// \brief Returns the smaller value, f1 or f2 or f3 or f4
-  template <typename T>
-  T Max(T f1, T f2, T f3, T f4); // [tested]
+  /// \brief Returns the smaller value, f1 or f2 or ...
+  template <typename T, typename ...ARGS>
+  constexpr T Min(T f1, T f2, ARGS... f);// [tested]
 
   /// \brief Clamps "value" to the range [min; max]. Returns "value", if it is inside the range already
   template <typename T>
-  T Clamp(T value, T min_val, T max_val); // [tested]
+  constexpr T Clamp(T value, T min_val, T max_val); // [tested]
 
   /// \brief Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
   float Floor(float f); // [tested]
@@ -190,13 +182,13 @@ namespace ezMath
 
   /// \brief Returns 1 / f
   template<typename Type>
-  Type Invert(Type f); // [tested]
+  constexpr Type Invert(Type f); // [tested]
 
   /// \brief Returns true, if i is an odd number
-  bool IsOdd(ezInt32 i); // [tested]
+  constexpr bool IsOdd(ezInt32 i); // [tested]
 
   /// \brief Returns true, if i is an even number
-  bool IsEven(ezInt32 i); // [tested]
+  constexpr bool IsEven(ezInt32 i); // [tested]
 
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
@@ -208,7 +200,7 @@ namespace ezMath
 
   /// \brief Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
-  T Step(T value, T edge); // [tested]
+  constexpr T Step(T value, T edge); // [tested]
 
   /// \brief Returns 0, if value is <= edge1, 1 if value >= edge2 and the hermite interpolation in between
   template<typename Type>
@@ -218,7 +210,7 @@ namespace ezMath
   EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 base); // [tested]
 
   /// \brief Returns true, if there exists some x with 2^x == value
-  bool IsPowerOf2(ezInt32 value); // [tested]
+  constexpr bool IsPowerOf2(ezInt32 value); // [tested]
 
   /// \brief Returns the next power-of-two that is <= value
   EZ_FOUNDATION_DLL ezInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
@@ -228,21 +220,21 @@ namespace ezMath
 
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template<typename Type>
-  bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
+  constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
 
   /// \brief Checks whether the value of the first parameter lies between the value of the second and third.
   template <typename T>
-  bool IsInRange(T Value, T MinVal, T MaxVal); // [tested]
+  constexpr bool IsInRange(T Value, T MinVal, T MaxVal); // [tested]
 
   /// \brief Checks whether the given number is close to zero.
   template<typename Type>
   bool IsZero(Type f, Type fEpsilon); // [tested]
 
   /// \brief Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
-  ezUInt8 ColorFloatToByte(float value);
+  constexpr ezUInt8 ColorFloatToByte(float value);
 
   /// \brief Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
-  float ColorByteToFloat(ezUInt8 value);
+  constexpr float ColorByteToFloat(ezUInt8 value);
 
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4

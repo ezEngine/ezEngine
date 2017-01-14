@@ -16,7 +16,7 @@ namespace ezMath
     return (ezUInt32)ret;
   }
 
-  EZ_FORCE_INLINE int Pow2(int i)
+  constexpr EZ_FORCE_INLINE int Pow2(int i)
   {
     return (1 << i);
   }
@@ -34,65 +34,53 @@ namespace ezMath
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Square(T f)
+  constexpr EZ_FORCE_INLINE T Square(T f)
   {
     return (f * f);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Sign(T f)
+  constexpr EZ_FORCE_INLINE T Sign(T f)
   {
     return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Abs(T f)
+  constexpr EZ_FORCE_INLINE T Abs(T f)
   {
     return (f < 0 ? -f : f);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Min(T f1, T f2)
+  constexpr EZ_FORCE_INLINE T Min(T f1, T f2)
   {
     return (f2 < f1 ? f2 : f1);
   }
 
-  template <typename T>
-  EZ_FORCE_INLINE T Min(T f1, T f2, T f3)
+  template <typename T, typename ...ARGS>
+  constexpr EZ_FORCE_INLINE T Min(T f1, T f2, ARGS... f)
   {
-    return Min(Min(f1, f2), f3);
+    return Min(Min(f1, f2), f...);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Min(T f1, T f2, T f3, T f4)
-  {
-    return Min(Min(f1, f2), Min(f3, f4));
-  }
-
-  template <typename T>
-  EZ_FORCE_INLINE T Max(T f1, T f2)
+  constexpr EZ_FORCE_INLINE T Max(T f1, T f2)
   {
     return (f1 < f2 ? f2 : f1);
   }
 
-  template <typename T>
-  EZ_FORCE_INLINE T Max(T f1, T f2, T f3)
+  template <typename T, typename ...ARGS>
+  constexpr EZ_FORCE_INLINE T Max(T f1, T f2, ARGS... f)
   {
-    return Max(Max(f1, f2), f3);
+    return Max(Max(f1, f2), f...);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Max(T f1, T f2, T f3, T f4)
+  constexpr EZ_FORCE_INLINE T Clamp(T value, T min_val, T max_val)
   {
-    return Max(Max(f1, f2), Max(f3, f4));
-  }
-
-  template <typename T>
-  EZ_FORCE_INLINE T Clamp(T value, T min_val, T max_val)
-  {
-    if (value < min_val) return (min_val);
-    if (max_val < value) return (max_val);
-    return (value);
+    return value < min_val ? min_val : 
+          (max_val < value ? max_val : 
+           value);
   }
 
   inline ezInt32 Floor(ezInt32 i, ezUInt32 uiMultiple)
@@ -122,17 +110,17 @@ namespace ezMath
   }
 
   template<typename Type>
-  Type Invert(Type f)
+  constexpr Type Invert(Type f)
   {
     return ((Type)1) / f;
   }
 
-  EZ_FORCE_INLINE bool IsOdd(ezInt32 i)
+  constexpr EZ_FORCE_INLINE bool IsOdd(ezInt32 i)
   {
     return ((i & 1) != 0);
   }
 
-  EZ_FORCE_INLINE bool IsEven(ezInt32 i)
+  constexpr EZ_FORCE_INLINE bool IsEven(ezInt32 i)
   {
     return ((i & 1) == 0);
   }
@@ -153,32 +141,29 @@ namespace ezMath
 
   ///  Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
-  EZ_FORCE_INLINE T Step(T value, T edge)
+  constexpr EZ_FORCE_INLINE T Step(T value, T edge)
   {
     return (value >= edge ? T(1) : T(0));
   }
 
-  EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value)
+  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value)
   {
-    if (value < 1)
-      return false;
-
-    return ((value & (value - 1)) == 0);
+    return (value < 1) ? false :
+          ((value & (value - 1)) == 0);
   }
 
   template<typename Type>
-  bool IsEqual(Type lhs, Type rhs, Type fEpsilon)
+  constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon)
   {
     return ((rhs >= lhs - fEpsilon) && (rhs <= lhs + fEpsilon));
   }
 
   template <typename T>
-  inline bool IsInRange(T Value, T MinVal, T MaxVal)
+  constexpr inline bool IsInRange(T Value, T MinVal, T MaxVal)
   {
-    if (MinVal < MaxVal)
-      return (Value >= MinVal) && (Value <= MaxVal);
-    else
-      return (Value <= MinVal) && (Value >= MaxVal);
+    return MinVal < MaxVal ?
+      (Value >= MinVal) && (Value <= MaxVal) :
+      (Value <= MinVal) && (Value >= MaxVal);
   }
 
   template<typename Type>
@@ -238,12 +223,12 @@ namespace ezMath
     return (x * x * ((Type)3 - ((Type)2 * x)));
   }
 
-  inline ezUInt8 ColorFloatToByte(float value)
+  constexpr inline ezUInt8 ColorFloatToByte(float value)
   {
     return static_cast<ezUInt8>(ezMath::Min(255.0f, ((value * 255.0f) + 0.5f)));
   }
 
-  inline float ColorByteToFloat(ezUInt8 value)
+  constexpr inline float ColorByteToFloat(ezUInt8 value)
   {
     return value * (1.0f / 255.0f);
   }
@@ -263,3 +248,8 @@ namespace ezMath
   }
 }
 
+constexpr EZ_FORCE_INLINE ezAngle ezAngle::AngleBetween(ezAngle a, ezAngle b)
+{
+  // taken from http://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
+  return ezAngle(Pi<float>() - ezMath::Abs(ezMath::Abs(a.GetRadian() - b.GetRadian()) - Pi<float>()));
+}
