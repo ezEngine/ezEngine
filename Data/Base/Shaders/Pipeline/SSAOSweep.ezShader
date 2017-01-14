@@ -31,7 +31,6 @@ float computeOcclusion(float occluderDotCamera, float invOccluderDist)
   return saturate(tangentPlane + max(0.0f, occluderDotCamera - tangentPlane) * occluderFalloff);
 }
 
-
 [numthreads(SSAO_LINESWEEP_THREAD_GROUP, 1, 1)]
 void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
 {
@@ -41,6 +40,7 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
     return;
 
   float2 screenSize = Viewport.zw;
+  float2 screenSizeSubOne = screenSize - float2(1.0f, 1.0f);
   float2 inverseScreenSize = 1.0f / screenSize;
 
   // Unpack line instruction.
@@ -74,7 +74,6 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
     float2 toCamera = -normalize(position);
 
     // Maintain occlusion hull.
-    // Todo: Replace expensive length with something rsqrt based?
     float2 currentOccluderDir = hullStack[currentTop % STACK_SIZE] - position;
     float currentOccluderInvDist = rsqrt(dot(currentOccluderDir, currentOccluderDir));
     float currentOccluderDotCamera = dot(currentOccluderDir, toCamera) * currentOccluderInvDist;
@@ -111,7 +110,5 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
     samplePos += directionSampleStep;
     ++bufferOffset;
 
-    // Todo: Depending on the direction's signs we need to check only two of these.
-  } while(samplePos.x >= 0 && samplePos.y >= 0 && 
-          samplePos.x < screenSize.x && samplePos.y < screenSize.y);
+  } while(all(clamp(samplePos, float2(0.0f, 0.0f), screenSizeSubOne) == samplePos));
 }

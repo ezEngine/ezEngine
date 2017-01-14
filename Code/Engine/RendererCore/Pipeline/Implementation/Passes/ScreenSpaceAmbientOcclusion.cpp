@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefa
     EZ_MEMBER_PROPERTY("Depth", m_PinDepthInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
     EZ_ACCESSOR_PROPERTY("LineToLineOffset", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
-    EZ_ACCESSOR_PROPERTY("LineSampleOffset", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(3), new ezClampValueAttribute(1, 128)),
+    EZ_ACCESSOR_PROPERTY("LineSampleOffsetFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(3), new ezClampValueAttribute(1, 128)),
   }
   EZ_END_PROPERTIES
 }
@@ -24,7 +24,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
   : ezRenderPipelinePass("ScreenSpaceAmbientOcclusionPass")
   , m_uiLineToLinePixelOffset(1)
-  , m_uiLineSamplePixelOffset(1)
+  , m_uiLineSamplePixelOffsetFactor(1)
 {
   {
     // Load shader.
@@ -136,7 +136,7 @@ void ezScreenSpaceAmbientOcclusionPass::SetLineToLinePixelOffset(ezUInt32 uiPixe
 
 void ezScreenSpaceAmbientOcclusionPass::SetLineSamplePixelOffset(ezUInt32 uiPixelOffset)
 {
-  m_uiLineSamplePixelOffset = uiPixelOffset;
+  m_uiLineSamplePixelOffsetFactor = uiPixelOffset;
   //SetupLineSweepData // Necessary?
 }
 
@@ -165,8 +165,8 @@ void ezScreenSpaceAmbientOcclusionPass::DestroyLineSweepData()
 void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imageResolution)
 {
   // TODO REMOVE //////////////////////////////////////
-  //m_uiLineSamplePixelOffset = 3;
-  //m_uiLineToLinePixelOffset = 2;
+  m_uiLineSamplePixelOffsetFactor = 1;
+  m_uiLineToLinePixelOffset = 1;
   /////////////////////////////////////////////////////
 
 
@@ -175,12 +175,26 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
   ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
   cb->LineToLinePixelOffset = m_uiLineToLinePixelOffset;
 
-  // TODO: Adding trivial directions only right now. AddLinesForDirection is already prepared for complicated stuff.
-
   // Compute general information per direction and create line instructions.
-  ezVec2I32 samplingDir[] = { ezVec2I32(m_uiLineSamplePixelOffset, 0), ezVec2I32(-m_uiLineSamplePixelOffset, 0), ezVec2I32(0, m_uiLineSamplePixelOffset), ezVec2I32(0, -m_uiLineSamplePixelOffset),
-                              ezVec2I32(m_uiLineSamplePixelOffset, m_uiLineSamplePixelOffset), ezVec2I32(-m_uiLineSamplePixelOffset, -m_uiLineSamplePixelOffset),
-                              ezVec2I32(-m_uiLineSamplePixelOffset, m_uiLineSamplePixelOffset), ezVec2I32(m_uiLineSamplePixelOffset, -m_uiLineSamplePixelOffset) };
+
+  // As long as we don't span out different line samplings accross multiple frames, the number of prepared directions here is always equal to the number of directions per frame.
+  // Note that if we were to do temporal sampling with a different line set every frame, we would need to precompute all *possible* sampling directions still as a whole here!
+  ezVec2I32 samplingDir[NUM_SWEEP_DIRECTIONS_PER_FRAME];
+  {
+    constexpr int numSweepDirs = NUM_SWEEP_DIRECTIONS_PER_FRAME;
+
+    // As described in the paper, all directions are aligned so that we always hit  pixels on a square.
+    static_assert(numSweepDirs % 8 == 0, "Invalid number of sweep directions for LSAO!");
+    const int perSide = (numSweepDirs + 4) / 4 - 1; // side length of the square on which all directions lie -1 
+    const int halfPerSide = perSide / 2;
+    for(int i=0; i<perSide; ++i)
+    {
+      samplingDir[i + perSide * 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Top
+      samplingDir[i + perSide * 1] = ezVec2I32(halfPerSide, halfPerSide - i) * m_uiLineSamplePixelOffsetFactor; // Right
+      samplingDir[i + perSide * 2] = ezVec2I32(halfPerSide - i, -halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Bottom
+      samplingDir[i + perSide * 3] = ezVec2I32(-halfPerSide, i - halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Left
+    }
+  }
 
   for(int dirIndex = 0; dirIndex<EZ_ARRAY_SIZE(samplingDir); ++dirIndex)
   {

@@ -7,6 +7,15 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/SSAOConstants.h>
 
+/// Screen space ambient occlusion using "line sweep ambient occlusion" by Ville Timonen
+///
+/// Resources:
+/// Use in Quantum Break: http://wili.cc/research/quantum_break/SIGGRAPH_2015_Remedy_Notes.pdf
+/// Presentation slides EGSR: http://wili.cc/research/lsao/EGSR13_LSAO.pdf
+/// Paper: http://wili.cc/research/lsao/lsao.pdf
+///
+/// There are a few adjustments and own ideas worked into this implementation.
+/// The biggest change probably is that pixels in the gather pass compute their target linesample arithmetically instead of relying on lookups.
 class EZ_RENDERERCORE_DLL ezScreenSpaceAmbientOcclusionPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezScreenSpaceAmbientOcclusionPass, ezRenderPipelinePass);
@@ -22,7 +31,7 @@ public:
 
   ezUInt32 GetLineToLinePixelOffset() const { return m_uiLineToLinePixelOffset; }
   void SetLineToLinePixelOffset(ezUInt32 uiPixelOffset);
-  ezUInt32 GetLineSamplePixelOffset() const { return m_uiLineSamplePixelOffset; }
+  ezUInt32 GetLineSamplePixelOffset() const { return m_uiLineSamplePixelOffsetFactor; }
   void SetLineSamplePixelOffset(ezUInt32 uiPixelOffset);
 
 protected:
@@ -52,7 +61,7 @@ protected:
   ezUInt32 m_numSweepLines;
 
   ezInt32 m_uiLineToLinePixelOffset;
-  ezInt32 m_uiLineSamplePixelOffset;
+  ezInt32 m_uiLineSamplePixelOffsetFactor;
 
   ezShaderResourceHandle m_hShaderLineSweep;
   ezShaderResourceHandle m_hShaderGather;

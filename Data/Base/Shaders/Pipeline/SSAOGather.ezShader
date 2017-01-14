@@ -50,7 +50,7 @@ float4 main(PS_IN input) : SV_Target
 
   //float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(LinearClampSampler, input.TexCoord0).r);
 
-  for (int dirIndex = 0; dirIndex < 8; ++dirIndex)
+  for (int dirIndex = 0; dirIndex < NUM_SWEEP_DIRECTIONS_PER_FRAME; ++dirIndex)
   {
     float2 dir = Directions[dirIndex].Direction;
 
