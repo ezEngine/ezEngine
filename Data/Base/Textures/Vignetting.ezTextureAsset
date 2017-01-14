@@ -15,6 +15,7 @@ AssetInfo
 		}
 		Uuid %DocumentID{u4{9132907039025431446,4850155600327151795}}
 		u4 %Hash{4475609759270631385}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -25,10 +26,10 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGBA1_2D"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1_2D"}
 		b %Compression{0}
 		s %Input1{"Textures/Vignetting.tga"}
 		s %Input2{""}
@@ -39,7 +40,7 @@ o
 		b %Mipmaps{0}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::Other_Linear"}
+		s %Usage{"ezTexture2DUsageEnum::Other_Linear"}
 	}
 }
 o

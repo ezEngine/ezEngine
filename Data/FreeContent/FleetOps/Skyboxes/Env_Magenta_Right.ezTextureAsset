@@ -42,7 +42,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Clamp"}
 		s %AddressModeV{"ezTextureAddressMode::Clamp"}
 		s %AddressModeW{"ezTextureAddressMode::Clamp"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
 		b %Compression{1}
 		s %Input1{"FleetOps/Skyboxes/env_magenta1.dds"}
 		s %Input2{""}
@@ -53,7 +53,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 }

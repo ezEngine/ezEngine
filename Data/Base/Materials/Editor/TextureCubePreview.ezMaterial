@@ -1,0 +1,32 @@
+string %Shader { "Shaders/Editor/TextureCubePreview.ezShader" }
+
+Permutation
+{
+  string %Variable { "TWO_SIDED" }
+  string %Value { "TRUE" }
+}
+
+Permutation
+{
+  string %Variable { "SHADING_MODE" }
+  string %Value { "FULLBRIGHT" }
+}
+
+Permutation
+{
+  string %Variable { "BLEND_MODE" }
+  string %Value { "OPAQUE" }
+}
+
+Constant
+{
+  string %Variable { "ShowChannelMode" }
+  int32 %Value { 0 }
+}
+
+TextureCube
+{
+  string %Variable { "BaseTexture" }
+  string %Value { "Textures/MissingCubeMap.dds" }
+}
+

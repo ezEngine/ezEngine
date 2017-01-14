@@ -19,6 +19,7 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #include <GameUtils/Curves/ColorGradientResource.h>
 #include <GameUtils/Curves/Curve1DResource.h>
 #include <Foundation/IO/OpenDdlReader.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 
 void ezGameApplication::DoProjectSetup()
 {
@@ -100,13 +101,24 @@ void ezGameApplication::DoSetupDefaultResources()
     ezShaderResource::SetTypeMissingResource(hMissingShader);
   }
 
-  // Textures
+  // 2D Textures
   {
     ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/LoadingTexture_D.dds");
     ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
 
     ezTexture2DResource::SetTypeFallbackResource(hFallbackTexture);
     ezTexture2DResource::SetTypeMissingResource(hMissingTexture);
+  }
+
+  // Cube Textures
+  {
+    /// \todo Loading Cubemap Texture
+
+    ezTextureCubeResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/MissingCubeMap.dds");
+    ezTextureCubeResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/MissingCubeMap.dds");
+
+    ezTextureCubeResource::SetTypeFallbackResource(hFallbackTexture);
+    ezTextureCubeResource::SetTypeMissingResource(hMissingTexture);
   }
 
   // Materials

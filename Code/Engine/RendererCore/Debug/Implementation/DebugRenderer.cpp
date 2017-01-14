@@ -555,7 +555,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugTextShader);
       renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "glyphData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::Glyphs]));
-      renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "FontTexture", s_hDebugFontTexture);
+      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "FontTexture", s_hDebugFontTexture);
 
       const GlyphData* pGlyphData = pData->m_glyphs.GetData();
       while (uiNumGlyphs > 0)

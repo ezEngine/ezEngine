@@ -15,22 +15,35 @@ Prim.Cylinder.Radius2;Radius Bottom
 Prim.Cylinder.Angle;Angle;How much of the cylinder to use. 360 is the full cylinder, 180 is only half of it.
 Prim.Cylinder.Cap1;Cap Top;Whether to cap the top
 Prim.Cylinder.Cap2;Cap Bottom;Whether to cap the bottom
-ezChannelMappingEnum::R1_2D;Red - Single Input
-ezChannelMappingEnum::RG1_2D;Red Green - Single Input
-ezChannelMappingEnum::R1_G2_2D;RG - Input1.r, Input2.r
-ezChannelMappingEnum::RGB1_2D;RGB - Single Input
-ezChannelMappingEnum::R1_G2_B3_2D;RGB - Input1.r, Input2.r, Input3.r
-ezChannelMappingEnum::RGBA1_2D;RGBA - Single Input
-ezChannelMappingEnum::RGB1_A2_2D;RGBA - Input1.rgb, Input2.r
-ezChannelMappingEnum::R1_G2_B3_A4_2D;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
-ezChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
-ezChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
-ezChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
-ezChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs
-ezChannelMappingEnum::RGB1_ABLACK_2D;RGBA - Input1.rgb, Alpha = Black
-ezTextureAddressMode::Wrap;Wrap
-ezTextureAddressMode::Mirror;Mirror
-ezTextureAddressMode::Clamp;Clamp
+ezTexture2DChannelMappingEnum::R1_2D;Red - Single Input
+ezTexture2DChannelMappingEnum::RG1_2D;Red Green - Single Input
+ezTexture2DChannelMappingEnum::R1_G2_2D;RG - Input1.r, Input2.r
+ezTexture2DChannelMappingEnum::RGB1_2D;RGB - Single Input
+ezTexture2DChannelMappingEnum::R1_G2_B3_2D;RGB - Input1.r, Input2.r, Input3.r
+ezTexture2DChannelMappingEnum::RGBA1_2D;RGBA - Single Input
+ezTexture2DChannelMappingEnum::RGB1_A2_2D;RGBA - Input1.rgb, Input2.r
+ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
+ezTexture2DChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
+ezTexture2DChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
+ezTexture2DChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
+ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs
+ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D;RGBA - Input1.rgb, Alpha = Black
+ezTextureCubeChannelMappingEnum::R1_2D;Red - Single Input
+ezTextureCubeChannelMappingEnum::RG1_2D;Red Green - Single Input
+ezTextureCubeChannelMappingEnum::R1_G2_2D;RG - Input1.r, Input2.r
+ezTextureCubeChannelMappingEnum::RGB1_2D;RGB - Single Input
+ezTextureCubeChannelMappingEnum::R1_G2_B3_2D;RGB - Input1.r, Input2.r, Input3.r
+ezTextureCubeChannelMappingEnum::RGBA1_2D;RGBA - Single Input
+ezTextureCubeChannelMappingEnum::RGB1_A2_2D;RGBA - Input1.rgb, Input2.r
+ezTextureCubeChannelMappingEnum::R1_G2_B3_A4_2D;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
+ezTextureCubeChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
+ezTextureCubeChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
+ezTextureCubeChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
+ezTextureCubeChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs
+ezTextureCubeChannelMappingEnum::RGB1_ABLACK_2D;RGBA - Input1.rgb, Alpha = Black
+ezTexture2DAddressMode::Wrap;Wrap
+ezTexture2DAddressMode::Mirror;Mirror
+ezTexture2DAddressMode::Clamp;Clamp
 Color CPs;Color Control Points
 Alpha CPs;Alpha Control Points
 Intensity CPs;Intensity Control Points
@@ -72,11 +85,16 @@ ezMaterialShaderMode::BaseMaterial;From Base Material
 Project.SceneImport;Import Scene
 VisualShader.CleanGraph;Clean Visual Shader Graph
 TextureAsset.ChannelMode;
-ezTextureChannelMode::RGB;Display Channel: RGB
-ezTextureChannelMode::Red;Display Channel: Red
-ezTextureChannelMode::Green;Display Channel: Green
-ezTextureChannelMode::Blue;Display Channel: Blue
-ezTextureChannelMode::Alpha;Display Channel: Alpha
+ezTexture2DChannelMode::RGB;Display Channel: RGB
+ezTexture2DChannelMode::Red;Display Channel: Red
+ezTexture2DChannelMode::Green;Display Channel: Green
+ezTexture2DChannelMode::Blue;Display Channel: Blue
+ezTexture2DChannelMode::Alpha;Display Channel: Alpha
+ezTextureCubeChannelMode::RGB;Display Channel: RGB
+ezTextureCubeChannelMode::Red;Display Channel: Red
+ezTextureCubeChannelMode::Green;Display Channel: Green
+ezTextureCubeChannelMode::Blue;Display Channel: Blue
+ezTextureCubeChannelMode::Alpha;Display Channel: Alpha
 ezTextureFilterSetting::FixedNearest;Fixed: Nearest
 ezTextureFilterSetting::FixedBilinear;Fixed: Bilinear
 ezTextureFilterSetting::FixedTrilinear;Fixed: Trilinear
@@ -89,4 +107,5 @@ ezTextureFilterSetting::LowQuality;Low Quality
 ezTextureFilterSetting::DefaultQuality;Default Quality
 ezTextureFilterSetting::HighQuality;High Quality
 ezTextureFilterSetting::HighestQuality;Highest Quality
-TextureAsset.LodSlider;Mipmap
+Texture2DAsset.LodSlider;Mipmap
+TextureCubeAsset.LodSlider;Mipmap

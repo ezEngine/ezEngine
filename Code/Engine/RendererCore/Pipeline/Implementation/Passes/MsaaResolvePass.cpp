@@ -49,7 +49,7 @@ bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ez
 
     m_bIsDepth = ezGALResourceFormat::IsDepthFormat(pInput->m_Format);
     m_MsaaSampleCount = pInput->m_SampleCount;
-    
+
     ezGALTextureCreationDescription desc = *pInput;
     desc.m_SampleCount = ezGALMSAASampleCount::None;
 
@@ -91,7 +91,7 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
 
     renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }

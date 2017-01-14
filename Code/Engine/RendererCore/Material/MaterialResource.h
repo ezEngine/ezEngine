@@ -8,6 +8,7 @@
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
 
 struct ezMaterialResourceDescriptor
 {
@@ -22,19 +23,30 @@ struct ezMaterialResourceDescriptor
     }
   };
 
-  struct TextureBinding
+  struct Texture2DBinding
   {
     ezHashedString m_Name;
     ezTexture2DResourceHandle m_Value;
 
-    EZ_FORCE_INLINE bool operator==(const TextureBinding& other) const
+    EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const
+    {
+      return m_Name == other.m_Name && m_Value == other.m_Value;
+    }
+  };
+
+  struct TextureCubeBinding
+  {
+    ezHashedString m_Name;
+    ezTextureCubeResourceHandle m_Value;
+
+    EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const
     {
       return m_Name == other.m_Name && m_Value == other.m_Value;
     }
   };
 
   void Clear();
-  
+
   bool operator==(const ezMaterialResourceDescriptor& other) const;
   EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const
   {
@@ -45,7 +57,8 @@ struct ezMaterialResourceDescriptor
   ezShaderResourceHandle m_hShader;
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
   ezDynamicArray<Parameter> m_Parameters;
-  ezDynamicArray<TextureBinding> m_TextureBindings;
+  ezDynamicArray<Texture2DBinding> m_Texture2DBindings;
+  ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings;
 };
 
 class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResource, ezMaterialResourceDescriptor>
@@ -62,12 +75,16 @@ public:
   void SetParameter(const char* szName, const ezVariant& value);
   ezVariant GetParameter(const ezTempHashedString& sName);
 
-  void SetTextureBinding(const ezHashedString& sName, ezTexture2DResourceHandle value);
-  void SetTextureBinding(const char* szName, ezTexture2DResourceHandle value);
-  ezTexture2DResourceHandle GetTextureBinding(const ezTempHashedString& sName);
+  void SetTexture2DBinding(const ezHashedString& sName, const ezTexture2DResourceHandle& value);
+  void SetTexture2DBinding(const char* szName, const ezTexture2DResourceHandle& value);
+  ezTexture2DResourceHandle GetTexture2DBinding(const ezTempHashedString& sName);
+
+  void SetTextureCubeBinding(const ezHashedString& sName, const ezTextureCubeResourceHandle& value);
+  void SetTextureCubeBinding(const char* szName, const ezTextureCubeResourceHandle& value);
+  ezTextureCubeResourceHandle GetTextureCubeBinding(const ezTempHashedString& sName);
 
   /// \brief Copies current desc to original desc so the material is not modified on reset
-  void PreserveCurrentDesc(); 
+  void PreserveCurrentDesc();
   virtual void ResetResource() override;
 
 private:
@@ -103,5 +120,6 @@ private:
   ezShaderResourceHandle m_hCachedShader;
   ezHashTable<ezHashedString, ezHashedString> m_CachedPermutationVars;
   ezHashTable<ezHashedString, ezVariant> m_CachedParameters;
-  ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_CachedTextureBindings;
+  ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_CachedTexture2DBindings;
+  ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_CachedTextureCubeBindings;
 };

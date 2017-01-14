@@ -36,14 +36,11 @@ o
 o
 {
 	Uuid %id{u4{1838884283150579849,5390699116321833616}}
-	s %t{"ezTextureAssetProperties"}
+	s %t{"ezTextureCubeAssetProperties"}
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1_CUBE"}
 		b %Compression{1}
 		s %Input1{"Cubemaps/Textures/woods_4k.hdr"}
 		s %Input2{""}
@@ -54,7 +51,7 @@ o
 		b %Mipmaps{0}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::HDR"}
+		s %Usage{"ezTextureCubeUsageEnum::HDR"}
 	}
 }
 }

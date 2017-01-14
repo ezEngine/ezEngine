@@ -165,7 +165,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_outerTintColor) : ezColor::White;
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
-      renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
+      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
       bFastDownscale = ezMath::IsEven((ezInt32)targetSize.x) && ezMath::IsEven((ezInt32)targetSize.y);
@@ -223,8 +223,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);
 
-      renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "NextColorTexture", pDevice->GetDefaultResourceView(hNextInput));
-      renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
+      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "NextColorTexture", pDevice->GetDefaultResourceView(hNextInput));
+      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(hInput));
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
   }

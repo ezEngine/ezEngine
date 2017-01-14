@@ -82,20 +82,34 @@ ezBasisAxis::PositiveZ;Positive Z
 ezBasisAxis::NegativeX;Negative X
 ezBasisAxis::NegativeY;Negative Y
 ezBasisAxis::NegativeZ;Negative Z
-ezTextureUsageEnum::Unknown;Unknown
-ezTextureUsageEnum::Diffuse;Diffuse
-ezTextureUsageEnum::NormalMap;Normal Map
-ezTextureUsageEnum::Height;Height
-ezTextureUsageEnum::Mask;Mask
-ezTextureUsageEnum::LookupTable;Lookup Table
-ezTextureUsageEnum::Skybox;Skybox
-ezTextureUsageEnum::EmissiveColor;Emissive (Color)
-ezTextureUsageEnum::EmissiveMask;Emissive (Mask)
-ezTextureUsageEnum::Other_sRGB;Other sRGB
-ezTextureUsageEnum::Other_Linear;Other Linear
-ezTextureUsageEnum::Other_sRGB_Auto;Other sRGB (Auto)
-ezTextureUsageEnum::Other_Linear_Auto;Other Linear (Auto)
-ezTextureUsageEnum::HDR;HDR
+ezTexture2DUsageEnum::Unknown;Unknown
+ezTexture2DUsageEnum::Diffuse;Diffuse
+ezTexture2DUsageEnum::NormalMap;Normal Map
+ezTexture2DUsageEnum::Height;Height
+ezTexture2DUsageEnum::Mask;Mask
+ezTexture2DUsageEnum::LookupTable;Lookup Table
+ezTexture2DUsageEnum::Skybox;Skybox
+ezTexture2DUsageEnum::EmissiveColor;Emissive (Color)
+ezTexture2DUsageEnum::EmissiveMask;Emissive (Mask)
+ezTexture2DUsageEnum::Other_sRGB;Other sRGB
+ezTexture2DUsageEnum::Other_Linear;Other Linear
+ezTexture2DUsageEnum::Other_sRGB_Auto;Other sRGB (Auto)
+ezTexture2DUsageEnum::Other_Linear_Auto;Other Linear (Auto)
+ezTexture2DUsageEnum::HDR;HDR
+ezTextureCubeUsageEnum::Unknown;Unknown
+ezTextureCubeUsageEnum::Diffuse;Diffuse
+ezTextureCubeUsageEnum::NormalMap;Normal Map
+ezTextureCubeUsageEnum::Height;Height
+ezTextureCubeUsageEnum::Mask;Mask
+ezTextureCubeUsageEnum::LookupTable;Lookup Table
+ezTextureCubeUsageEnum::Skybox;Skybox
+ezTextureCubeUsageEnum::EmissiveColor;Emissive (Color)
+ezTextureCubeUsageEnum::EmissiveMask;Emissive (Mask)
+ezTextureCubeUsageEnum::Other_sRGB;Other sRGB
+ezTextureCubeUsageEnum::Other_Linear;Other Linear
+ezTextureCubeUsageEnum::Other_sRGB_Auto;Other sRGB (Auto)
+ezTextureCubeUsageEnum::Other_Linear_Auto;Other Linear (Auto)
+ezTextureCubeUsageEnum::HDR;HDR
 ezTextureTypeEnum::Unknown;Unknown
 ezTextureTypeEnum::Texture2D;Texture 2D
 ezTextureTypeEnum::Texture3D;Texture 3D

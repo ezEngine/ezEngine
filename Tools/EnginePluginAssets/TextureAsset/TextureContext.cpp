@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureContext, 1, ezRTTIDefaultAllocator<ezTe
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-void CreatePreviewRect(ezGeometry& geom)
+static void CreatePreviewRect(ezGeometry& geom)
 {
   const ezMat4 mTransform = ezMat4::IdentityMatrix();
   const ezVec2 size(1.0f);
@@ -93,7 +93,6 @@ void ezTextureContext::OnInitialize()
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidth = pTexture->GetWidth();
     m_uiTextureHeight = pTexture->GetHeight();
-    m_bIsTexture2D = pTexture->GetType() == ezGALTextureType::Texture2D;
 
     if (!pTexture->IsMissingResource())
     {
@@ -142,7 +141,7 @@ void ezTextureContext::OnInitialize()
     ezMaterialResourceDescriptor md;
     md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Editor/TexturePreview.ezMaterial");
 
-    auto& tb = md.m_TextureBindings.ExpandAndGetRef();
+    auto& tb = md.m_Texture2DBindings.ExpandAndGetRef();
     tb.m_Name.Assign("BaseTexture");
     tb.m_Value = m_hTexture;
 
@@ -197,15 +196,6 @@ void ezTextureContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloaded)
-  {
-    // once a texture gets unloaded, disable the preview,
-    // to prevent using the wrong preview method in case the texture type changes
-    // This often works, but sometimes reloading is too fast and then we can still get a D3D error,
-    // e.g. when a cubemap is bound to a 2D texture slot
-    m_bIsTexture2D = false;
-  }
-
   if (e.m_EventType == ezResourceEventType::ResourceContentUpdated)
   {
     const ezTexture2DResource* pTexture = static_cast<const ezTexture2DResource*>(e.m_pResource);
@@ -213,8 +203,6 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidth = pTexture->GetWidth();
     m_uiTextureHeight = pTexture->GetHeight();
-
-    m_bIsTexture2D = pTexture->GetType() == ezGALTextureType::Texture2D;
 
     // cannot call this here, because the event happens on another thread at any possible time
     //UpdatePreview();
@@ -224,13 +212,6 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
 void ezTextureContext::UpdatePreview()
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
-
-  // if we have a cubemap or 3D texture we should use a different method for visualization
-  ezMeshComponent* pMesh;
-  if (m_pWorld->TryGetComponent(m_hPreviewMesh2D, pMesh))
-  {
-    pMesh->SetActive(m_bIsTexture2D);
-  }
 
   if (!m_bAddedEventHandler)
   {

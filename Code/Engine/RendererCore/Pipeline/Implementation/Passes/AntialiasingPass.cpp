@@ -41,7 +41,7 @@ bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const e
   {
     if (pInput->m_SampleCount == ezGALMSAASampleCount::TwoSamples)
     {
-      m_sMsaaSampleCount.Assign("TWO");         
+      m_sMsaaSampleCount.Assign("TWO");
     }
     else if (pInput->m_SampleCount == ezGALMSAASampleCount::FourSamples)
     {
@@ -56,7 +56,7 @@ bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const e
       ezLog::Error("Input is not a valid msaa target");
       return false;
     }
-    
+
     ezGALTextureCreationDescription desc = *pInput;
     desc.m_SampleCount = ezGALMSAASampleCount::None;
 
@@ -95,7 +95,7 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
+  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
 }

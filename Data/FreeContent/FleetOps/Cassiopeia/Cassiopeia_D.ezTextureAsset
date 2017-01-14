@@ -10,7 +10,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Wrap"}
 		s %AddressModeV{"ezTextureAddressMode::Wrap"}
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGBA1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1_2D"}
 		b %Compression{1}
 		s %Input1{"FleetOps/Cassiopeia/fedCassiopeia0.tga"}
 		s %Input2{""}
@@ -21,7 +21,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 o

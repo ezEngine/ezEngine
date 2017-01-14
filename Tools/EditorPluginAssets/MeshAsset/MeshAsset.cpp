@@ -597,29 +597,29 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
     pAccessor->SetValue(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 
     // Try to map usage.
-    ezEnum<ezTextureUsageEnum> usage;
+    ezEnum<ezTexture2DUsageEnum> usage;
     switch (hint)
     {
     case ezModelImporter::SemanticHint::DIFFUSE:
-      usage = ezTextureUsageEnum::Diffuse;
+      usage = ezTexture2DUsageEnum::Diffuse;
       break;
     case ezModelImporter::SemanticHint::AMBIENT: // Making wild guesses here.
     case ezModelImporter::SemanticHint::EMISSIVE:
-      usage = ezTextureUsageEnum::Other_sRGB;
+      usage = ezTexture2DUsageEnum::Other_sRGB;
       break;
     case ezModelImporter::SemanticHint::ROUGHNESS:
     case ezModelImporter::SemanticHint::METALLIC:
     case ezModelImporter::SemanticHint::LIGHTMAP: // Lightmap linear? Modern ones likely.
-      usage = ezTextureUsageEnum::Other_Linear;
+      usage = ezTexture2DUsageEnum::Other_Linear;
       break;
     case ezModelImporter::SemanticHint::NORMAL:
-      usage = ezTextureUsageEnum::NormalMap;
+      usage = ezTexture2DUsageEnum::NormalMap;
       break;
     case ezModelImporter::SemanticHint::DISPLACEMENT:
-      usage = ezTextureUsageEnum::Height;
+      usage = ezTexture2DUsageEnum::Height;
       break;
     default:
-      usage = ezTextureUsageEnum::Unknown;
+      usage = ezTexture2DUsageEnum::Unknown;
     }
 
     pAccessor->SetValue(pTextureAsset, "Usage", usage.GetValue()).LogFailure();

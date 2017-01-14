@@ -20,7 +20,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMaterialShaderMode, 1)
 EZ_ENUM_CONSTANTS(ezMaterialShaderMode::BaseMaterial, ezMaterialShaderMode::File, ezMaterialShaderMode::Custom)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 3, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -34,7 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 3, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 2, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezUuid ezMaterialAssetDocument::s_LitBaseMaterial;
@@ -777,13 +777,14 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
   // now generate the .ezMaterialBin file
   {
-    const ezUInt8 uiVersion = 2;
+    const ezUInt8 uiVersion = 3;
 
     stream << uiVersion;
     stream << pProp->m_sBaseMaterial;
     stream << pProp->ResolveRelativeShaderPath();
 
-    ezHybridArray<ezAbstractProperty*, 16> Textures;
+    ezHybridArray<ezAbstractProperty*, 16> Textures2D;
+    ezHybridArray<ezAbstractProperty*, 16> TexturesCube;
     ezHybridArray<ezAbstractProperty*, 16> Permutation;
     ezHybridArray<ezAbstractProperty*, 16> Constants;
 
@@ -806,9 +807,13 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
         if (pCategory == nullptr)
           continue;
 
-        if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture"))
+        if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture 2D"))
         {
-          Textures.PushBack(pProp);
+          Textures2D.PushBack(pProp);
+        }
+        else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture Cube"))
+        {
+          TexturesCube.PushBack(pProp);
         }
         else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation"))
         {
@@ -856,14 +861,29 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
       }
     }
 
-    // write out the textures
+    // write out the 2D textures
     {
-      const ezUInt16 uiTextures = Textures.GetCount();
+      const ezUInt16 uiTextures = Textures2D.GetCount();
       stream << uiTextures;
 
       for (ezUInt32 p = 0; p < uiTextures; ++p)
       {
-        const char* szName = Textures[p]->GetPropertyName();
+        const char* szName = Textures2D[p]->GetPropertyName();
+        ezString sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
+
+        stream << szName;
+        stream << sValue;
+      }
+    }
+
+    // write out the Cube textures
+    {
+      const ezUInt16 uiTextures = TexturesCube.GetCount();
+      stream << uiTextures;
+
+      for (ezUInt32 p = 0; p < uiTextures; ++p)
+      {
+        const char* szName = TexturesCube[p]->GetPropertyName();
         ezString sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;

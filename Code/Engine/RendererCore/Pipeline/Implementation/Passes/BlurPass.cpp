@@ -84,7 +84,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "Input", hResourceView);
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "Input", hResourceView);
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();

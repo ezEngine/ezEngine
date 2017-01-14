@@ -41,14 +41,11 @@ o
 o
 {
 	Uuid %id{u4{3466181958545295763,5469176089432456064}}
-	s %t{"ezTextureAssetProperties"}
+	s %t{"ezTextureCubeAssetProperties"}
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1TO6_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1TO6_CUBE"}
 		b %Compression{0}
 		s %Input1{"Textures/skybox_rt.tga"}
 		s %Input2{"Textures/skybox_lt.tga"}
@@ -59,7 +56,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::Unknown"}
+		s %Usage{"ezTextureCubeUsageEnum::Unknown"}
 	}
 }
 }

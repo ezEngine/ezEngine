@@ -82,7 +82,8 @@ private:
   ezMeshBufferResourceHandle m_hTorus;
   ezMeshBufferResourceHandle m_hLongBox;
   ezMeshBufferResourceHandle m_hLineBox;
-  ezTexture2DResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture2D;
+  ezTextureCubeResourceHandle m_hTextureCube;
 };
 
 

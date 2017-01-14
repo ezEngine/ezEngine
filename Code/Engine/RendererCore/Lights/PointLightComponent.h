@@ -2,7 +2,7 @@
 
 #include <RendererCore/Lights/LightComponent.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 
 class ezPointLightComponent;
 typedef ezComponentManager<ezPointLightComponent> ezPointLightComponentManager;
@@ -14,7 +14,7 @@ class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
 
 public:
   float m_fRange;
-  ezTexture2DResourceHandle m_hProjectedTexture;
+  ezTextureCubeResourceHandle m_hProjectedTexture;
 };
 
 /// \brief The standard point light component.
@@ -33,8 +33,8 @@ public:
   void SetRange(float fRange);
   float GetRange() const;
 
-  void SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture);
-  const ezTexture2DResourceHandle& GetProjectedTexture() const;
+  void SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture);
+  const ezTextureCubeResourceHandle& GetProjectedTexture() const;
 
   void SetProjectedTextureFile(const char* szFile);
   const char* GetProjectedTextureFile() const;
@@ -49,7 +49,7 @@ private:
   float m_fRange;
   float m_fEffectiveRange;
 
-  ezTexture2DResourceHandle m_hProjectedTexture;
+  ezTextureCubeResourceHandle m_hProjectedTexture;
 };
 
 /// \brief A special visualizer attribute for point lights

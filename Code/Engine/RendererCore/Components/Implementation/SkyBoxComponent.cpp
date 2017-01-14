@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
-#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -183,10 +183,10 @@ void ezSkyBoxComponent::SetInverseTonemap(bool bInverseTonemap)
 
 void ezSkyBoxComponent::SetCubeMap(const char* szFile)
 {
-  ezTexture2DResourceHandle hCubeMap;
+  ezTextureCubeResourceHandle hCubeMap;
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hCubeMap = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
+    hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
   }
 
   m_hCubeMap = hCubeMap;
@@ -207,7 +207,7 @@ void ezSkyBoxComponent::UpdateMaterials()
 
     pMaterial->SetParameter( "ExposureBias", m_fExposureBias );
     pMaterial->SetParameter( "InverseTonemap", m_bInverseTonemap );
-    pMaterial->SetTextureBinding("CubeMap", m_hCubeMap);
+    pMaterial->SetTextureCubeBinding("CubeMap", m_hCubeMap);
 
     pMaterial->PreserveCurrentDesc();
   }

@@ -1,0 +1,84 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[MATERIALPARAMETER]
+
+int ShowChannelMode;
+
+[RENDERSTATE]
+
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+#define USE_TEXCOORD0
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+	INT1(ShowChannelMode);
+  FLOAT1(LodLevel);
+  BOOL(IsLinear);
+};
+
+#define USE_WORLDPOS
+#define USE_TEXCOORD0
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+TextureCube BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+float4 SampleTexture(PS_IN Input)
+{
+  if (LodLevel < 0)
+    return BaseTexture.Sample(BaseTexture_AutoSampler, float3(Input.TexCoords.xy, 1));
+
+  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, float3(Input.TexCoords.xy, 1), LodLevel);
+}
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float3 color = float3(1, 1, 1);
+
+  if (ShowChannelMode == 0)
+  {
+    color = SampleTexture(Input).rgb;
+  }
+  else if (ShowChannelMode == 1)
+  {
+    color = SampleTexture(Input).r;
+  }
+  else if (ShowChannelMode == 2)
+  {
+    color = SampleTexture(Input).g;
+  }
+  else if (ShowChannelMode == 3)
+  {
+    color = SampleTexture(Input).b;
+  }
+  else if (ShowChannelMode == 4)
+  {
+    color = SrgbToLinear(SampleTexture(Input).a); // alpha is always linear
+  }
+
+  if (IsLinear && ShowChannelMode < 4)
+  {
+    color = SrgbToLinear(color);
+  }
+
+  return float4(color, 1);
+}

@@ -1,6 +1,6 @@
 string %Shader { "Shaders/Materials/FallbackMaterial.ezShader" }
 
-Texture
+Texture2D
 {
   string %Variable { "BaseTexture" }
   string %Value { "Textures/MissingPrefab_D.dds" }

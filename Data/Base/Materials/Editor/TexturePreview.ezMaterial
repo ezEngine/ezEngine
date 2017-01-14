@@ -24,7 +24,7 @@ Constant
   int32 %Value { 0 }
 }
 
-Texture
+Texture2D
 {
   string %Variable { "BaseTexture" }
   string %Value { "Textures/Reference_D.dds" }

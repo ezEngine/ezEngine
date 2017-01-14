@@ -5,6 +5,7 @@
 
 class ezSkyBoxComponent;
 typedef ezComponentManager<ezSkyBoxComponent, true> ezSkyBoxComponentManager;
+typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezSkyBoxComponent : public ezRenderComponent
 {
@@ -40,7 +41,7 @@ private:
   float m_fExposureBias;
   bool m_bInverseTonemap;
 
-  ezTexture2DResourceHandle m_hCubeMap;
+  ezTextureCubeResourceHandle m_hCubeMap;
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hCubeMapMaterial;

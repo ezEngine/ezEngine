@@ -367,7 +367,7 @@ public:
           if (g_bForceImmediateLoading)
             ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::NoFallback);
 
-          ezRenderContext::GetDefaultInstance()->BindTexture(ezGALShaderStage::PixelShader, "DiffuseTexture", hTexture);
+          ezRenderContext::GetDefaultInstance()->BindTexture2D(ezGALShaderStage::PixelShader, "DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
           ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
         }

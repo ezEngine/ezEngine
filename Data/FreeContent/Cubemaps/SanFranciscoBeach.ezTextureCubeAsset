@@ -21,14 +21,11 @@ AssetInfo
 o
 {
 	Uuid %id{u4{3336002108729556632,5007116286673076272}}
-	s %t{"ezTextureAssetProperties"}
+	s %t{"ezTextureCubeAssetProperties"}
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1_CUBE"}
 		b %Compression{1}
 		s %Input1{"Cubemaps/SanFranciscoBeach.dds"}
 		s %Input2{""}
@@ -39,7 +36,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::Diffuse"}
+		s %Usage{"ezTextureCubeUsageEnum::Diffuse"}
 	}
 }
 o

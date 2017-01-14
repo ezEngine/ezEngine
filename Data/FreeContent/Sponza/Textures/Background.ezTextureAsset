@@ -14,7 +14,8 @@ AssetInfo
 			s{"Sponza/Textures/background_diff.dds"}
 		}
 		Uuid %DocumentID{u4{11916585524424793224,4933347886438987241}}
-		u4 %Hash{3004930125318764740}
+		u4 %Hash{9329508651700875259}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -39,10 +40,10 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
 		b %Compression{1}
 		s %Input1{"Sponza/Textures/background_diff.dds"}
 		s %Input2{""}
@@ -53,7 +54,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 }

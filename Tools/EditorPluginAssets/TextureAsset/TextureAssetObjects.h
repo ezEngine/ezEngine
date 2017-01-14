@@ -6,7 +6,7 @@
 
 struct ezPropertyMetaStateEvent;
 
-struct ezTextureUsageEnum
+struct ezTexture2DUsageEnum
 {
   typedef ezInt8 StorageType;
 
@@ -30,11 +30,11 @@ struct ezTextureUsageEnum
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureUsageEnum);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DUsageEnum);
 
 
 
-struct ezChannelMappingEnum
+struct ezTexture2DChannelMappingEnum
 {
   typedef ezInt8 StorageType;
 
@@ -63,10 +63,10 @@ struct ezChannelMappingEnum
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezChannelMappingEnum);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DChannelMappingEnum);
 
 
-struct ezTextureAddressMode
+struct ezTexture2DAddressMode
 {
   typedef ezInt8 StorageType;
 
@@ -80,7 +80,7 @@ struct ezTextureAddressMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureAddressMode);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DAddressMode);
 
 
 class ezTextureAssetProperties : public ezReflectedClass
@@ -107,27 +107,25 @@ public:
 
   ezString GetAbsoluteInputFilePath(ezInt32 iInput) const;
 
-  ezChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
+  ezTexture2DChannelMappingEnum::Enum GetChannelMapping() const { return m_ChannelMapping; }
 
   ezInt32 GetNumInputFiles() const;
   ezInt32 GetNumChannels() const;
 
   bool IsSRGB() const;
   bool IsHDR() const;
-  bool IsTexture2D() const;
-  bool IsTextureCube() const;
 
   bool m_bMipmaps;
   bool m_bCompression;
   bool m_bPremultipliedAlpha;
 
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
-  ezEnum<ezTextureAddressMode> m_AddressModeU;
-  ezEnum<ezTextureAddressMode> m_AddressModeV;
-  ezEnum<ezTextureAddressMode> m_AddressModeW;
+  ezEnum<ezTexture2DAddressMode> m_AddressModeU;
+  ezEnum<ezTexture2DAddressMode> m_AddressModeV;
+  ezEnum<ezTexture2DAddressMode> m_AddressModeW;
 
 private:
-  ezEnum<ezTextureUsageEnum> m_TextureUsage;
-  ezEnum<ezChannelMappingEnum> m_ChannelMapping;
+  ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
+  ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;
   ezString m_Input[6];
 };

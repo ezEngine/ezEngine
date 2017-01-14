@@ -53,9 +53,13 @@ public:
 
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
-    ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
-  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindTexture2D(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
+                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
+  void BindTextureCube(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
+                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
+
+  void BindTexture2D(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindTextureCube(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
   /// Binds a read+write texture or buffer
   void BindUAV(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle);
@@ -187,7 +191,8 @@ private:
   ezUInt32 m_uiMeshBufferPrimitiveCount;
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
 
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures2D[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTexturesCube[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
   ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer[ezGALShaderStage::ENUM_COUNT];

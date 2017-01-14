@@ -112,7 +112,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     const ezTrailParticleData* pParticleData = pRenderData->m_GpuData->m_Content.GetData();
     const ezUInt8* pParticleSegmentData = pRenderData->m_SegmentGpuData->m_Content.GetData();
 
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer
     {

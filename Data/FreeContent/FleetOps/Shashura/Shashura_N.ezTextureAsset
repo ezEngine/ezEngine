@@ -10,7 +10,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Wrap"}
 		s %AddressModeV{"ezTextureAddressMode::Wrap"}
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
 		b %Compression{0}
 		s %Input1{"FleetOps/Shashura/romShashura0_bump_Normal.tga"}
 		s %Input2{""}
@@ -21,7 +21,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::NormalMap"}
+		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
 	}
 }
 o

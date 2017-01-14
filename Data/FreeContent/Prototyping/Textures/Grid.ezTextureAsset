@@ -15,6 +15,7 @@ AssetInfo
 		}
 		Uuid %DocumentID{u4{17339766635678476197,5214154738922355752}}
 		u4 %Hash{11697153912265683583}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -39,10 +40,10 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezChannelMappingEnum::RGB1_2D"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
 		b %Compression{0}
 		s %Input1{"Prototyping/Textures/Grid.tga"}
 		s %Input2{""}
@@ -53,7 +54,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 }

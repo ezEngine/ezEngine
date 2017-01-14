@@ -89,8 +89,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
 
-  if (pProp->IsTextureCube())
-    arguments << "-cubemap";
+  //if (pProp->IsTextureCube())
+  //  arguments << "-cubemap";
 
   arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
   arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());
@@ -111,19 +111,19 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   switch (pProp->GetChannelMapping())
   {
-  case ezChannelMappingEnum::R1_2D:
+  case ezTexture2DChannelMappingEnum::R1_2D:
     {
       arguments << "-r";
       arguments << "in0.r"; // always linear
     }
     break;
-  case ezChannelMappingEnum::RG1_2D:
+  case ezTexture2DChannelMappingEnum::RG1_2D:
     {
       arguments << "-rg";
       arguments << "in0.rg"; // always linear
     }
     break;
-  case ezChannelMappingEnum::R1_G2_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2_2D:
     {
       arguments << "-r";
       arguments << "in0.r";
@@ -131,13 +131,13 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "in1.y"; // always linear
     }
     break;
-  case ezChannelMappingEnum::RGB1_2D:
+  case ezTexture2DChannelMappingEnum::RGB1_2D:
     {
       arguments << "-rgb";
       arguments << "in0.rgb";
     }
     break;
-  case ezChannelMappingEnum::RGB1_ABLACK_2D:
+  case ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D:
     {
       arguments << "-rgb";
       arguments << "in0.rgb";
@@ -145,7 +145,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "black";
     }
     break;
-  case ezChannelMappingEnum::R1_G2_B3_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3_2D:
     {
       arguments << "-r";
       arguments << "in0.r";
@@ -155,20 +155,20 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "in2.r";
     }
     break;
-  case ezChannelMappingEnum::RGBA1_2D:
+  case ezTexture2DChannelMappingEnum::RGBA1_2D:
     {
       arguments << "-rgba";
       arguments << "in0.rgba";
     }
     break;
-  case ezChannelMappingEnum::RGB1_A2_2D:
+  case ezTexture2DChannelMappingEnum::RGB1_A2_2D:
     {
       arguments << "-rgb";
       arguments << "in0.rgb";
       arguments << "-a";
       arguments << "in1.r";    }
     break;
-  case ezChannelMappingEnum::R1_G2_B3_A4_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D:
     {
       arguments << "-r";
       arguments << "in0.r";
@@ -181,10 +181,10 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     }
     break;
 
-  case ezChannelMappingEnum::RGB1_CUBE:
-  case ezChannelMappingEnum::RGBA1_CUBE:
-  case ezChannelMappingEnum::RGB1TO6_CUBE:
-  case ezChannelMappingEnum::RGBA1TO6_CUBE:
+  case ezTexture2DChannelMappingEnum::RGB1_CUBE:
+  case ezTexture2DChannelMappingEnum::RGBA1_CUBE:
+  case ezTexture2DChannelMappingEnum::RGB1TO6_CUBE:
+  case ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE:
     break;
   }
 
@@ -209,8 +209,6 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   return ezStatus(EZ_SUCCESS);
 }
 
-#define USE_TEXCONV
-
 ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
@@ -232,11 +230,5 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
 const char* ezTextureAssetDocument::QueryAssetType() const
 {
-  if (GetProperties()->IsTexture2D())
-    return "Texture 2D";
-
-  if (GetProperties()->IsTextureCube())
-    return "Texture Cube";
-
-  return "Unknown";
+  return "Texture 2D";
 }

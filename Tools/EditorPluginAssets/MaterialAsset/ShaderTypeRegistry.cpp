@@ -65,7 +65,6 @@ namespace
     s_NameToTypeTable.Insert("bool", ezGetStaticRTTI<bool>());
     s_NameToTypeTable.Insert("Color", ezGetStaticRTTI<ezColor>());
     /// \todo Are we going to support linear UB colors ?
-    s_NameToTypeTable.Insert("Texture", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("Texture2D", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("Texture3D", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("TextureCube", ezGetStaticRTTI<ezString>());
@@ -165,7 +164,6 @@ namespace
   {
     if (def.m_sType.StartsWith_NoCase("texture"))
     {
-      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture"));
     }
     else if (def.m_sType.StartsWith_NoCase("permutation"))
     {
@@ -176,16 +174,19 @@ namespace
       attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Constant"));
     }
 
-    if (def.m_sType.IsEqual("Texture2D") || def.m_sType.IsEqual("Texture"))
+    if (def.m_sType.IsEqual("Texture2D"))
     {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
       attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D"));
     }
     else if (def.m_sType.IsEqual("Texture3D"))
     {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));
       attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 3D"));
     }
     else if (def.m_sType.IsEqual("TextureCube"))
     {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture Cube"));
       attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture Cube"));
     }
 

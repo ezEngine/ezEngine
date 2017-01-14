@@ -14,8 +14,6 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 2D", "color");
-  //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 3D", "dds");
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture Cube", "dds");
 
   // texture asset source files
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");

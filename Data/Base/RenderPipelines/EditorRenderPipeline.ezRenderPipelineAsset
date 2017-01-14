@@ -497,6 +497,7 @@ AssetInfo
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
 		u4 %Hash{17546318004974312450}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
@@ -513,7 +514,7 @@ o
 		b %Active{1}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x9D5A12C2,0x21B90CC4}}
+		Vec2 %Node::Pos{f{0x3F1800C2,0x37D20AC4}}
 	}
 }
 o
@@ -1089,7 +1090,7 @@ o
 			Uuid{u4{17400899627489303928,16143989509050117712}}
 		}
 		s %TypeName{"ezEditorRenderPass"}
-		u3 %TypeSize{216}
+		u3 %TypeSize{208}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1112,7 +1113,7 @@ o
 			Uuid{u4{3900396693855734746,3142496393289830597}}
 		}
 		s %TypeName{"ezPickingRenderPass"}
-		u3 %TypeSize{392}
+		u3 %TypeSize{384}
 		u3 %TypeVersion{1}
 	}
 }

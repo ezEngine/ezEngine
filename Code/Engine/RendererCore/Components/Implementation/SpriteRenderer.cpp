@@ -68,7 +68,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "spriteData", pDevice->GetDefaultResourceView(hSpriteData));
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SpriteTexture", pRenderData->m_hTexture);
+  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SpriteTexture", pRenderData->m_hTexture);
 
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())

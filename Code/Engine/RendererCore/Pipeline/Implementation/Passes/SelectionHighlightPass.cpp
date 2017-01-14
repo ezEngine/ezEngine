@@ -104,11 +104,11 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
-    
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
+
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hDepthTexture);
-  }  
+  }
 }

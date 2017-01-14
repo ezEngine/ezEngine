@@ -37,7 +37,8 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hTorus.Invalidate();
   m_hLongBox.Invalidate();
   m_hLineBox.Invalidate();
-  m_hTexture.Invalidate();
+  m_hTexture2D.Invalidate();
+  m_hTextureCube.Invalidate();
 
   ShutdownRenderer();
 

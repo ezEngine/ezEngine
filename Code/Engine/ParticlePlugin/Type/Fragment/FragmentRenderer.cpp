@@ -92,7 +92,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
 
     const ezFragmentParticleData* pParticleData = pRenderData->m_GpuData->m_Content.GetData();
 
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer
     {
