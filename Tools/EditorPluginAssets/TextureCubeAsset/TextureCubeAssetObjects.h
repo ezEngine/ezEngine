@@ -15,16 +15,9 @@ struct ezTextureCubeUsageEnum
     Unknown,
     Other_sRGB,
     Other_Linear,
-    //Other_sRGB_Auto,
-    //Other_Linear_Auto,
-    Diffuse,
-    NormalMap,
-    EmissiveMask,
-    EmissiveColor,
-    Height,
-    Mask,
+    Skybox,
+    SkyboxHDR,
     LookupTable,
-    HDR,
 
     Default = Unknown,
   };
@@ -40,26 +33,13 @@ struct ezTextureCubeChannelMappingEnum
 
   enum Enum
   {
-    R1_2D,
+    RGB1,
+    RGBA1,
 
-    RG1_2D,
-    R1_G2_2D,
+    RGB1TO6,
+    RGBA1TO6,
 
-    RGB1_2D,
-    R1_G2_B3_2D,
-
-    RGBA1_2D,
-    RGB1_A2_2D,
-    RGB1_ABLACK_2D,
-    R1_G2_B3_A4_2D,
-
-    RGB1_CUBE,
-    RGBA1_CUBE,
-
-    RGB1TO6_CUBE,
-    RGBA1TO6_CUBE,
-
-    Default = RGB1_2D,
+    Default = RGB1,
   };
 };
 

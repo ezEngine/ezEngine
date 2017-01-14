@@ -15,32 +15,19 @@ Prim.Cylinder.Radius2;Radius Bottom
 Prim.Cylinder.Angle;Angle;How much of the cylinder to use. 360 is the full cylinder, 180 is only half of it.
 Prim.Cylinder.Cap1;Cap Top;Whether to cap the top
 Prim.Cylinder.Cap2;Cap Bottom;Whether to cap the bottom
-ezTexture2DChannelMappingEnum::R1_2D;Red - Single Input
-ezTexture2DChannelMappingEnum::RG1_2D;Red Green - Single Input
-ezTexture2DChannelMappingEnum::R1_G2_2D;RG - Input1.r, Input2.r
-ezTexture2DChannelMappingEnum::RGB1_2D;RGB - Single Input
-ezTexture2DChannelMappingEnum::R1_G2_B3_2D;RGB - Input1.r, Input2.r, Input3.r
-ezTexture2DChannelMappingEnum::RGBA1_2D;RGBA - Single Input
-ezTexture2DChannelMappingEnum::RGB1_A2_2D;RGBA - Input1.rgb, Input2.r
-ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
-ezTexture2DChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
-ezTexture2DChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
-ezTexture2DChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
-ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs
-ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D;RGBA - Input1.rgb, Alpha = Black
-ezTextureCubeChannelMappingEnum::R1_2D;Red - Single Input
-ezTextureCubeChannelMappingEnum::RG1_2D;Red Green - Single Input
-ezTextureCubeChannelMappingEnum::R1_G2_2D;RG - Input1.r, Input2.r
-ezTextureCubeChannelMappingEnum::RGB1_2D;RGB - Single Input
-ezTextureCubeChannelMappingEnum::R1_G2_B3_2D;RGB - Input1.r, Input2.r, Input3.r
-ezTextureCubeChannelMappingEnum::RGBA1_2D;RGBA - Single Input
-ezTextureCubeChannelMappingEnum::RGB1_A2_2D;RGBA - Input1.rgb, Input2.r
-ezTextureCubeChannelMappingEnum::R1_G2_B3_A4_2D;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
-ezTextureCubeChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
-ezTextureCubeChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
-ezTextureCubeChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
-ezTextureCubeChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs
-ezTextureCubeChannelMappingEnum::RGB1_ABLACK_2D;RGBA - Input1.rgb, Alpha = Black
+ezTexture2DChannelMappingEnum::R1;Red - Single Input
+ezTexture2DChannelMappingEnum::RG1;Red Green - Single Input
+ezTexture2DChannelMappingEnum::R1_G2;RG - Input1.r, Input2.r
+ezTexture2DChannelMappingEnum::RGB1;RGB - Single Input
+ezTexture2DChannelMappingEnum::R1_G2_B3;RGB - Input1.r, Input2.r, Input3.r
+ezTexture2DChannelMappingEnum::RGBA1;RGBA - Single Input
+ezTexture2DChannelMappingEnum::RGB1_A2;RGBA - Input1.rgb, Input2.r
+ezTexture2DChannelMappingEnum::R1_G2_B3_A4;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
+ezTexture2DChannelMappingEnum::RGB1_ABLACK;RGBA - Input1.rgb, Alpha = Black
+ezTextureCubeChannelMappingEnum::RGB1;Cubemap: RGB - Single Input
+ezTextureCubeChannelMappingEnum::RGBA1;Cubemap: RGBA - Single Input
+ezTextureCubeChannelMappingEnum::RGB1TO6;Cubemap: RGB - 6 Inputs
+ezTextureCubeChannelMappingEnum::RGBA1TO6;Cubemap: RGBA - 6 Inputs
 ezTexture2DAddressMode::Wrap;Wrap
 ezTexture2DAddressMode::Mirror;Mirror
 ezTexture2DAddressMode::Clamp;Clamp
@@ -109,3 +96,31 @@ ezTextureFilterSetting::HighQuality;High Quality
 ezTextureFilterSetting::HighestQuality;Highest Quality
 Texture2DAsset.LodSlider;Mipmap
 TextureCubeAsset.LodSlider;Mipmap
+ezTexture2DUsageEnum::Unknown;Unknown
+ezTexture2DUsageEnum::Diffuse;Diffuse
+ezTexture2DUsageEnum::NormalMap;Normal Map
+ezTexture2DUsageEnum::Height;Height
+ezTexture2DUsageEnum::Mask;Mask
+ezTexture2DUsageEnum::LookupTable;Lookup Table
+ezTexture2DUsageEnum::EmissiveColor;Emissive (Color)
+ezTexture2DUsageEnum::EmissiveMask;Emissive (Mask)
+ezTexture2DUsageEnum::Other_sRGB;Other sRGB
+ezTexture2DUsageEnum::Other_Linear;Other Linear
+ezTexture2DUsageEnum::HDR;HDR
+ezTextureCubeUsageEnum::Unknown;Unknown
+ezTextureCubeUsageEnum::Skybox;Skybox
+ezTextureCubeUsageEnum::LookupTable;Lookup Table
+ezTextureCubeUsageEnum::SkyboxHDR;Skybox HDR
+ezTextureCubeUsageEnum::Other_sRGB;Other sRGB
+ezTextureCubeUsageEnum::Other_Linear;Other Linear
+ezMeshPrimitive::File;From File
+ezMeshPrimitive::Box;Box
+ezMeshPrimitive::Rect;Rectangle
+ezMeshPrimitive::Cylinder;Cylinder
+ezMeshPrimitive::Cone;Cone
+ezMeshPrimitive::Pyramid;Pyramid
+ezMeshPrimitive::Sphere;Sphere
+ezMeshPrimitive::HalfSphere;Half Sphere
+ezMeshPrimitive::GeodesicSphere;Geodesic Sphere
+ezMeshPrimitive::Capsule;Capsule
+ezMeshPrimitive::Torus;Torus

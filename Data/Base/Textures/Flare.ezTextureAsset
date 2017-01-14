@@ -42,7 +42,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Clamp"}
 		s %AddressModeV{"ezTextureAddressMode::Clamp"}
 		s %AddressModeW{"ezTextureAddressMode::Clamp"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_ABLACK"}
 		b %Compression{0}
 		s %Input1{"Textures/Flare.tga"}
 		s %Input2{""}

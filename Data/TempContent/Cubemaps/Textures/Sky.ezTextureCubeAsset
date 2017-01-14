@@ -7,7 +7,7 @@ o
 	u3 %v{2}
 	p
 	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"Cubemaps/Textures/Sky.jpg"}
 		s %Input2{""}
@@ -18,7 +18,7 @@ o
 		b %Mipmaps{0}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::Diffuse"}
+		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
 	}
 }
 o
@@ -49,7 +49,7 @@ AssetInfo
 			s{"Cubemaps/Textures/Sky.jpg"}
 		}
 		Uuid %DocumentID{u4{13925925426885276288,5424885730035344596}}
-		u4 %Hash{8313415721835422974}
+		u4 %Hash{9873354751709871337}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

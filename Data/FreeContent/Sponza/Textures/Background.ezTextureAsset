@@ -43,7 +43,7 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"Sponza/Textures/background_diff.dds"}
 		s %Input2{""}

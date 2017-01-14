@@ -40,26 +40,20 @@ struct ezTexture2DChannelMappingEnum
 
   enum Enum
   {
-    R1_2D,
+    R1,
 
-    RG1_2D,
-    R1_G2_2D,
+    RG1,
+    R1_G2,
 
-    RGB1_2D,
-    R1_G2_B3_2D,
+    RGB1,
+    R1_G2_B3,
 
-    RGBA1_2D,
-    RGB1_A2_2D,
-    RGB1_ABLACK_2D,
-    R1_G2_B3_A4_2D,
+    RGBA1,
+    RGB1_A2,
+    RGB1_ABLACK,
+    R1_G2_B3_A4,
 
-    RGB1_CUBE,
-    RGBA1_CUBE,
-
-    RGB1TO6_CUBE,
-    RGBA1TO6_CUBE,
-
-    Default = RGB1_2D,
+    Default = RGB1,
   };
 };
 
@@ -100,10 +94,6 @@ public:
   const char* GetInputFile2() const { return m_Input[2]; }
   void SetInputFile3(const char* szFile) { m_Input[3] = szFile; }
   const char* GetInputFile3() const { return m_Input[3]; }
-  void SetInputFile4(const char* szFile) { m_Input[4] = szFile; }
-  const char* GetInputFile4() const { return m_Input[4]; }
-  void SetInputFile5(const char* szFile) { m_Input[5] = szFile; }
-  const char* GetInputFile5() const { return m_Input[5]; }
 
   ezString GetAbsoluteInputFilePath(ezInt32 iInput) const;
 
@@ -127,5 +117,5 @@ public:
 private:
   ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
   ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;
-  ezString m_Input[6];
+  ezString m_Input[4];
 };

@@ -10,7 +10,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Clamp"}
 		s %AddressModeV{"ezTextureAddressMode::Clamp"}
 		s %AddressModeW{"ezTextureAddressMode::Clamp"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
 		s %Input1{"Textures/skybox_ft.tga"}
 		s %Input2{""}

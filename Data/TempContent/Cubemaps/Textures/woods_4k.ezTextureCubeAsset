@@ -14,7 +14,7 @@ AssetInfo
 			s{"Cubemaps/Textures/woods_4k.hdr"}
 		}
 		Uuid %DocumentID{u4{4858344355152513189,4806538659741976816}}
-		u4 %Hash{2384694691296973095}
+		u4 %Hash{9004707794862878673}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -40,7 +40,7 @@ o
 	u3 %v{2}
 	p
 	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"Cubemaps/Textures/woods_4k.hdr"}
 		s %Input2{""}
@@ -51,7 +51,7 @@ o
 		b %Mipmaps{0}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::HDR"}
+		s %Usage{"ezTextureCubeUsageEnum::SkyboxHDR"}
 	}
 }
 }

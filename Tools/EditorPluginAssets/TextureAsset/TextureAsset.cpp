@@ -111,19 +111,19 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   switch (pProp->GetChannelMapping())
   {
-  case ezTexture2DChannelMappingEnum::R1_2D:
+  case ezTexture2DChannelMappingEnum::R1:
     {
       arguments << "-r";
       arguments << "in0.r"; // always linear
     }
     break;
-  case ezTexture2DChannelMappingEnum::RG1_2D:
+  case ezTexture2DChannelMappingEnum::RG1:
     {
       arguments << "-rg";
       arguments << "in0.rg"; // always linear
     }
     break;
-  case ezTexture2DChannelMappingEnum::R1_G2_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2:
     {
       arguments << "-r";
       arguments << "in0.r";
@@ -131,13 +131,13 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "in1.y"; // always linear
     }
     break;
-  case ezTexture2DChannelMappingEnum::RGB1_2D:
+  case ezTexture2DChannelMappingEnum::RGB1:
     {
       arguments << "-rgb";
       arguments << "in0.rgb";
     }
     break;
-  case ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D:
+  case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
     {
       arguments << "-rgb";
       arguments << "in0.rgb";
@@ -145,7 +145,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "black";
     }
     break;
-  case ezTexture2DChannelMappingEnum::R1_G2_B3_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3:
     {
       arguments << "-r";
       arguments << "in0.r";
@@ -155,20 +155,20 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "in2.r";
     }
     break;
-  case ezTexture2DChannelMappingEnum::RGBA1_2D:
+  case ezTexture2DChannelMappingEnum::RGBA1:
     {
       arguments << "-rgba";
       arguments << "in0.rgba";
     }
     break;
-  case ezTexture2DChannelMappingEnum::RGB1_A2_2D:
+  case ezTexture2DChannelMappingEnum::RGB1_A2:
     {
       arguments << "-rgb";
       arguments << "in0.rgb";
       arguments << "-a";
       arguments << "in1.r";    }
     break;
-  case ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
     {
       arguments << "-r";
       arguments << "in0.r";
@@ -179,12 +179,6 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "-a";
       arguments << "in3.r";
     }
-    break;
-
-  case ezTexture2DChannelMappingEnum::RGB1_CUBE:
-  case ezTexture2DChannelMappingEnum::RGBA1_CUBE:
-  case ezTexture2DChannelMappingEnum::RGB1TO6_CUBE:
-  case ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE:
     break;
   }
 

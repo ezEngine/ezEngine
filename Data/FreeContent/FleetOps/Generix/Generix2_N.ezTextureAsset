@@ -42,7 +42,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Wrap"}
 		s %AddressModeV{"ezTextureAddressMode::Wrap"}
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
 		s %Input1{"FleetOps/Generix/romGenerix1_bump_Normal.tga"}
 		s %Input2{""}

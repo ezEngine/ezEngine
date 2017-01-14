@@ -12,11 +12,10 @@ EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Other_sRGB, ezTexture2DUsageEnum::Other_
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
-EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::R1_2D)
-EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RG1_2D, ezTexture2DChannelMappingEnum::R1_G2_2D)
-EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGB1_2D, ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D, ezTexture2DChannelMappingEnum::R1_G2_B3_2D)
-EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBA1_2D, ezTexture2DChannelMappingEnum::RGB1_A2_2D, ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D)
-EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGB1_CUBE, ezTexture2DChannelMappingEnum::RGBA1_CUBE, ezTexture2DChannelMappingEnum::RGB1TO6_CUBE, ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE)
+EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::R1)
+EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RG1, ezTexture2DChannelMappingEnum::R1_G2)
+EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGB1, ezTexture2DChannelMappingEnum::RGB1_ABLACK, ezTexture2DChannelMappingEnum::R1_G2_B3)
+EZ_ENUM_CONSTANTS(ezTexture2DChannelMappingEnum::RGBA1, ezTexture2DChannelMappingEnum::RGB1_A2, ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DAddressMode, 1)
@@ -45,8 +44,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAlloca
     EZ_ACCESSOR_PROPERTY("Input2", GetInputFile1, SetInputFile1)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr")),
     EZ_ACCESSOR_PROPERTY("Input3", GetInputFile2, SetInputFile2)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr")),
     EZ_ACCESSOR_PROPERTY("Input4", GetInputFile3, SetInputFile3)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr")),
-    EZ_ACCESSOR_PROPERTY("Input5", GetInputFile4, SetInputFile4)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr")),
-    EZ_ACCESSOR_PROPERTY("Input6", GetInputFile5, SetInputFile5)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr")),
 
   }
   EZ_END_PROPERTIES
@@ -66,55 +63,34 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
     props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
     props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
     props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input5"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input6"].m_Visibility = ezPropertyUiState::Invisible;
 
-    if (mapping == ezTexture2DChannelMappingEnum::RGB1TO6_CUBE || mapping == ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE)
-    {
-      props["Input1"].m_sNewLabelText = "Right (+X)";
-      props["Input2"].m_sNewLabelText = "Left (-X)";
-      props["Input3"].m_sNewLabelText = "Top (+Y)";
-      props["Input4"].m_sNewLabelText = "Bottom (-Y)";
-      props["Input5"].m_sNewLabelText = "Front (+Z)";
-      props["Input6"].m_sNewLabelText = "Back (-Z)";
-    }
-    else
     {
       props["Input1"].m_sNewLabelText = "Input 1";
       props["Input2"].m_sNewLabelText = "Input 2";
       props["Input3"].m_sNewLabelText = "Input 3";
       props["Input4"].m_sNewLabelText = "Input 4";
-      props["Input5"].m_sNewLabelText = "Input 5";
-      props["Input6"].m_sNewLabelText = "Input 6";
     }
 
     switch (mapping)
     {
-    case ezTexture2DChannelMappingEnum::R1_G2_2D:
+    case ezTexture2DChannelMappingEnum::R1_G2:
       props["Input2"].m_Visibility = ezPropertyUiState::Default;
       // fall through
 
-    case ezTexture2DChannelMappingEnum::RG1_2D:
-    case ezTexture2DChannelMappingEnum::R1_2D:
+    case ezTexture2DChannelMappingEnum::RG1:
+    case ezTexture2DChannelMappingEnum::R1:
       props["Usage"].m_Visibility = ezPropertyUiState::Disabled;
       break;
 
-
-    case ezTexture2DChannelMappingEnum::RGB1TO6_CUBE:
-    case ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE:
-      props["Input6"].m_Visibility = ezPropertyUiState::Default;
-      props["Input5"].m_Visibility = ezPropertyUiState::Default;
-      // fall through
-
-    case ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D:
+    case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
       props["Input4"].m_Visibility = ezPropertyUiState::Default;
       // fall through
 
-    case ezTexture2DChannelMappingEnum::R1_G2_B3_2D:
+    case ezTexture2DChannelMappingEnum::R1_G2_B3:
       props["Input3"].m_Visibility = ezPropertyUiState::Default;
       // fall through
 
-    case ezTexture2DChannelMappingEnum::RGB1_A2_2D:
+    case ezTexture2DChannelMappingEnum::RGB1_A2:
       props["Input2"].m_Visibility = ezPropertyUiState::Default;
       // fall through
     }
@@ -139,28 +115,22 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
 {
   switch (m_ChannelMapping)
   {
-  case ezTexture2DChannelMappingEnum::R1_2D:
-  case ezTexture2DChannelMappingEnum::RG1_2D:
-  case ezTexture2DChannelMappingEnum::RGB1_2D:
-  case ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D:
-  case ezTexture2DChannelMappingEnum::RGBA1_2D:
-  case ezTexture2DChannelMappingEnum::RGB1_CUBE:
-  case ezTexture2DChannelMappingEnum::RGBA1_CUBE:
+  case ezTexture2DChannelMappingEnum::R1:
+  case ezTexture2DChannelMappingEnum::RG1:
+  case ezTexture2DChannelMappingEnum::RGB1:
+  case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
+  case ezTexture2DChannelMappingEnum::RGBA1:
     return 1;
 
-  case ezTexture2DChannelMappingEnum::R1_G2_2D:
-  case ezTexture2DChannelMappingEnum::RGB1_A2_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2:
+  case ezTexture2DChannelMappingEnum::RGB1_A2:
     return 2;
 
-  case ezTexture2DChannelMappingEnum::R1_G2_B3_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3:
     return 3;
 
-  case ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
     return 4;
-
-  case ezTexture2DChannelMappingEnum::RGB1TO6_CUBE:
-  case ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE:
-    return 6;
   }
 
   EZ_REPORT_FAILURE("Invalid Code Path");
@@ -172,25 +142,21 @@ ezInt32 ezTextureAssetProperties::GetNumChannels() const
 {
   switch (m_ChannelMapping)
   {
-  case ezTexture2DChannelMappingEnum::R1_2D:
+  case ezTexture2DChannelMappingEnum::R1:
     return 1;
 
-  case ezTexture2DChannelMappingEnum::RG1_2D:
-  case ezTexture2DChannelMappingEnum::R1_G2_2D:
+  case ezTexture2DChannelMappingEnum::RG1:
+  case ezTexture2DChannelMappingEnum::R1_G2:
     return 2;
 
-  case ezTexture2DChannelMappingEnum::RGB1_2D:
-  case ezTexture2DChannelMappingEnum::R1_G2_B3_2D:
-  case ezTexture2DChannelMappingEnum::RGB1_CUBE:
-  case ezTexture2DChannelMappingEnum::RGB1TO6_CUBE:
+  case ezTexture2DChannelMappingEnum::RGB1:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3:
     return 3;
 
-  case ezTexture2DChannelMappingEnum::RGB1_ABLACK_2D:
-  case ezTexture2DChannelMappingEnum::RGBA1_2D:
-  case ezTexture2DChannelMappingEnum::RGB1_A2_2D:
-  case ezTexture2DChannelMappingEnum::R1_G2_B3_A4_2D:
-  case ezTexture2DChannelMappingEnum::RGBA1_CUBE:
-  case ezTexture2DChannelMappingEnum::RGBA1TO6_CUBE:
+  case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
+  case ezTexture2DChannelMappingEnum::RGBA1:
+  case ezTexture2DChannelMappingEnum::RGB1_A2:
+  case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
     return 4;
   }
 
@@ -201,9 +167,9 @@ ezInt32 ezTextureAssetProperties::GetNumChannels() const
 bool ezTextureAssetProperties::IsSRGB() const
 {
   // these formats can never be sRGB
-  if (m_ChannelMapping == ezTexture2DChannelMappingEnum::R1_2D ||
-      m_ChannelMapping == ezTexture2DChannelMappingEnum::R1_G2_2D ||
-      m_ChannelMapping == ezTexture2DChannelMappingEnum::RG1_2D)
+  if (m_ChannelMapping == ezTexture2DChannelMappingEnum::R1 ||
+      m_ChannelMapping == ezTexture2DChannelMappingEnum::R1_G2 ||
+      m_ChannelMapping == ezTexture2DChannelMappingEnum::RG1)
     return false;
 
   if (m_TextureUsage == ezTexture2DUsageEnum::EmissiveMask ||
@@ -216,7 +182,6 @@ bool ezTextureAssetProperties::IsSRGB() const
       m_TextureUsage == ezTexture2DUsageEnum::Other_Linear_Auto*/)
     return false;
 
-
   return true;
 }
 
@@ -224,36 +189,3 @@ bool ezTextureAssetProperties::IsHDR() const
 {
   return m_TextureUsage == ezTexture2DUsageEnum::HDR;
 }
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-#include <Foundation/Serialization/GraphPatch.h>
-
-class ezTextureAssetPropertiesPatch_1_2 : public ezGraphPatch
-{
-public:
-  ezTextureAssetPropertiesPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezTextureAssetProperties>(), 2) {}
-
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
-  {
-    pNode->RenameProperty("Premultiplied Alpha", "PremultipliedAlpha");
-    pNode->RenameProperty("Texture Filter", "TextureFilter");
-    pNode->RenameProperty("Address Mode U", "AddressModeU");
-    pNode->RenameProperty("Address Mode V", "AddressModeV");
-    pNode->RenameProperty("Address Mode W", "AddressModeW");
-    pNode->RenameProperty("Channel Mapping", "ChannelMapping");
-    pNode->RenameProperty("Input 1", "Input1");
-    pNode->RenameProperty("Input 2", "Input2");
-    pNode->RenameProperty("Input 3", "Input3");
-    pNode->RenameProperty("Input 4", "Input4");
-    pNode->RenameProperty("Input 5", "Input5");
-    pNode->RenameProperty("Input 6", "Input6");
-  }
-};
-
-ezTextureAssetPropertiesPatch_1_2 g_ezTextureAssetPropertiesPatch_1_2;
-
-

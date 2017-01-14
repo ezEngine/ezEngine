@@ -21,6 +21,8 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
 #include <GuiFoundation/Action/EditActions.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
+#include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -30,7 +32,7 @@ void OnLoadPlugin(bool bReloading)
 
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
 
-  // Texture Asset
+  // Texture2D Asset
   {
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
 
@@ -52,6 +54,31 @@ void OnLoadPlugin(bool bReloading)
       ezCommandHistoryActions::MapActions("TextureAssetToolBar", "");
       ezAssetActions::MapActions("TextureAssetToolBar", true);
       ezTextureAssetActions::MapActions("TextureAssetToolBar", "");
+    }
+  }
+
+  // TextureCube Asset
+  {
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezTextureCubeAssetProperties::PropertyMetaStateEventHandler);
+
+    ezTextureCubeAssetActions::RegisterActions();
+
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("TextureCubeAssetMenuBar");
+      ezProjectActions::MapActions("TextureCubeAssetMenuBar");
+      ezStandardMenus::MapActions("TextureCubeAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("TextureCubeAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("TextureCubeAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("TextureCubeAssetToolBar");
+      ezDocumentActions::MapActions("TextureCubeAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("TextureCubeAssetToolBar", "");
+      ezAssetActions::MapActions("TextureCubeAssetToolBar", true);
+      ezTextureAssetActions::MapActions("TextureCubeAssetToolBar", "");
     }
   }
 

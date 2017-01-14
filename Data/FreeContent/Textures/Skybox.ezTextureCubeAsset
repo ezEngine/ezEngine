@@ -19,7 +19,7 @@ AssetInfo
 			s{"Textures/skybox_up.tga"}
 		}
 		Uuid %DocumentID{u4{7192719381052515775,4793032050889721212}}
-		u4 %Hash{15550012787180958921}
+		u4 %Hash{2436488472613570020}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,7 +45,7 @@ o
 	u3 %v{2}
 	p
 	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1TO6_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1TO6"}
 		b %Compression{0}
 		s %Input1{"Textures/skybox_rt.tga"}
 		s %Input2{"Textures/skybox_lt.tga"}
@@ -56,7 +56,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::Unknown"}
+		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
 	}
 }
 }

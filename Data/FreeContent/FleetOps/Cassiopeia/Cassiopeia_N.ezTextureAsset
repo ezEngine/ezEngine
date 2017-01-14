@@ -10,7 +10,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Wrap"}
 		s %AddressModeV{"ezTextureAddressMode::Wrap"}
 		s %AddressModeW{"ezTextureAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{0}
 		s %Input1{"FleetOps/Cassiopeia/fedCassiopeia0_bump_Normal.tga"}
 		s %Input2{""}

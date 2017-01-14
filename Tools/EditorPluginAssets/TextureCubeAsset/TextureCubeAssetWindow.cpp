@@ -71,8 +71,8 @@ ezActionDescriptorHandle ezTextureCubeAssetActions::s_hLodSlider;
 
 void ezTextureCubeAssetActions::RegisterActions()
 {
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureCubeChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
-  s_hLodSlider = EZ_REGISTER_ACTION_0("TextureAsset.LodSlider", ezActionScope::Document, "Texture Asset", "", ezTextureCubeLodSliderAction);
+  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureCubeAsset.ChannelMode", ezTextureCubeChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hLodSlider = EZ_REGISTER_ACTION_0("TextureCubeAsset.LodSlider", ezActionScope::Document, "TextureCube Asset", "", ezTextureCubeLodSliderAction);
 }
 
 void ezTextureCubeAssetActions::UnregisterActions()
@@ -102,7 +102,7 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
-    context.m_sMapping = "TextureAssetMenuBar";
+    context.m_sMapping = "TextureCubeAssetMenuBar";
     context.m_pDocument = pDocument;
     pMenuBar->SetActionContext(context);
   }
@@ -111,10 +111,10 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
   {
     ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
-    context.m_sMapping = "TextureAssetToolBar";
+    context.m_sMapping = "TextureCubeAssetToolBar";
     context.m_pDocument = pDocument;
     pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("TextureAssetWindowToolBar");
+    pToolBar->setObjectName("TextureCubeAssetWindowToolBar");
     addToolBar(pToolBar);
   }
 
@@ -134,7 +134,7 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
 
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
-    pPropertyPanel->setObjectName("TextureAssetDockWidget");
+    pPropertyPanel->setObjectName("TextureCubeAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();
 

@@ -14,7 +14,8 @@ AssetInfo
 			s{"Cubemaps/SanFranciscoBeach.dds"}
 		}
 		Uuid %DocumentID{u4{11747523466012837785,4974603366428358493}}
-		u4 %Hash{12993247531556380251}
+		u4 %Hash{15919771355186197486}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -25,7 +26,7 @@ o
 	u3 %v{2}
 	p
 	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"Cubemaps/SanFranciscoBeach.dds"}
 		s %Input2{""}
@@ -36,7 +37,7 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::Diffuse"}
+		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
 	}
 }
 o

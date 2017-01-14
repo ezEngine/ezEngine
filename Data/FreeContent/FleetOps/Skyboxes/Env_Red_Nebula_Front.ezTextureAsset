@@ -10,7 +10,7 @@ o
 		s %AddressModeU{"ezTextureAddressMode::Clamp"}
 		s %AddressModeV{"ezTextureAddressMode::Clamp"}
 		s %AddressModeW{"ezTextureAddressMode::Clamp"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"FleetOps/Skyboxes/env_red_nebula0.dds"}
 		s %Input2{""}

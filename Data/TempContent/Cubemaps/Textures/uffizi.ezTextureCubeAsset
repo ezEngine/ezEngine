@@ -7,7 +7,7 @@ o
 	u3 %v{2}
 	p
 	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1_CUBE"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"Cubemaps/Textures/uffizi_cross.hdr"}
 		s %Input2{""}
@@ -18,7 +18,7 @@ o
 		b %Mipmaps{0}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::HDR"}
+		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
 	}
 }
 AssetInfo
@@ -35,7 +35,7 @@ AssetInfo
 			s{"Cubemaps/Textures/uffizi_cross.hdr"}
 		}
 		Uuid %DocumentID{u4{16570251626035375497,5377630440112190531}}
-		u4 %Hash{7283046199094031627}
+		u4 %Hash{4943204962911677794}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

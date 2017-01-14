@@ -29,7 +29,7 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1_2D"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{0}
 		s %Input1{"Textures/Vignetting.tga"}
 		s %Input2{""}
