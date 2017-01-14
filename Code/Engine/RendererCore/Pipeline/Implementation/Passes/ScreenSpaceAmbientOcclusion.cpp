@@ -96,8 +96,8 @@ void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& rende
     // Constant buffer for both passes.
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hLineSweepCB);
     // Depth buffer for both passes.
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "DepthBuffer", hDepthInputView);
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::ComputeShader, "DepthBuffer", hDepthInputView);
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DepthBuffer", hDepthInputView);
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::ComputeShader, "DepthBuffer", hDepthInputView);
 
 
     // Line Sweep part (compute)
@@ -185,7 +185,7 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
 
     // As described in the paper, all directions are aligned so that we always hit  pixels on a square.
     static_assert(numSweepDirs % 8 == 0, "Invalid number of sweep directions for LSAO!");
-    const int perSide = (numSweepDirs + 4) / 4 - 1; // side length of the square on which all directions lie -1 
+    const int perSide = (numSweepDirs + 4) / 4 - 1; // side length of the square on which all directions lie -1
     const int halfPerSide = perSide / 2;
     for(int i=0; i<perSide; ++i)
     {
