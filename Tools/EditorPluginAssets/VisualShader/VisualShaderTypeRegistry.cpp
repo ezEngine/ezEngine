@@ -228,9 +228,14 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
     return ezVariant(ezVec3(values[0], values[1], values[2]));
   }
 
-  if (pType == ezGetStaticRTTI<ezVec4>() || pType == ezGetStaticRTTI<ezColor>())
+  if (pType == ezGetStaticRTTI<ezVec4>())
   {
     return ezVariant(ezVec4(values[0], values[1], values[2], values[3]));
+  }
+
+  if (pType == ezGetStaticRTTI<ezColor>())
+  {
+    return ezVariant(ezColorGammaUB(values[0], values[1], values[2], values[3]));
   }
 
   return ezVariant();
@@ -307,7 +312,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       }
 
       // this is optional
-      if (auto pFallback = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "Fallback"))
+      if (auto pFallback = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "DefaultValue"))
       {
         pin.m_sDefaultValue = pFallback->GetPrimitivesString()[0];
       }
@@ -365,35 +370,55 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
         continue;
       }
 
+      const ezRTTI* pRtti = nullptr;
+
       {
         const ezStringView& sType = pType->GetPrimitivesString()[0];
 
         if (sType == "color")
         {
-          prop.m_sType = ezGetStaticRTTI<ezColor>()->GetTypeName();
+          pRtti = ezGetStaticRTTI<ezColor>();
+          prop.m_sType = pRtti->GetTypeName();
 
           // always expose the alpha channel for color properties
           ezExposeColorAlphaAttribute* pAttr = static_cast<ezExposeColorAlphaAttribute*>(ezExposeColorAlphaAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
           prop.m_Attributes.PushBack(pAttr);
         }
         else if (sType == "float4")
-          prop.m_sType = ezGetStaticRTTI<ezVec4>()->GetTypeName();
+        {
+          pRtti = ezGetStaticRTTI<ezVec4>();
+          prop.m_sType = pRtti->GetTypeName();
+        }
         else if (sType == "float3")
-          prop.m_sType = ezGetStaticRTTI<ezVec3>()->GetTypeName();
+        {
+          pRtti = ezGetStaticRTTI<ezVec3>();
+          prop.m_sType = pRtti->GetTypeName();
+        }
         else if (sType == "float2")
-          prop.m_sType = ezGetStaticRTTI<ezVec2>()->GetTypeName();
+        {
+          pRtti = ezGetStaticRTTI<ezVec2>();
+          prop.m_sType = pRtti->GetTypeName();
+        }
         else if (sType == "float")
-          prop.m_sType = ezGetStaticRTTI<float>()->GetTypeName();
+        {
+          pRtti = ezGetStaticRTTI<float>();
+          prop.m_sType = pRtti->GetTypeName();
+        }
         else if (sType == "string")
-          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+        {
+          pRtti = ezGetStaticRTTI<ezString>();
+          prop.m_sType = pRtti->GetTypeName();
+        }
         else if (sType == "identifier")
         {
-          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+          pRtti = ezGetStaticRTTI<ezString>();
+          prop.m_sType = pRtti->GetTypeName();
           iValueGroup = 1; // currently no way to specify the group
         }
         else if (sType == "Texture2D")
         {
-          prop.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
+          pRtti = ezGetStaticRTTI<ezString>();
+          prop.m_sType = pRtti->GetTypeName();
 
           // apparently the attributes are deallocated using the type allocator, so we must allocate them here through RTTI as well
           ezAssetBrowserAttribute* pAttr = static_cast<ezAssetBrowserAttribute*>(ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
@@ -407,11 +432,16 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
         }
       }
 
-      const ezOpenDdlReaderElement* pValue = pElement->FindChild("Value");
-      if (pValue)
+      const ezOpenDdlReaderElement* pValue = pElement->FindChild("DefaultValue");
+      if (pValue && pRtti != nullptr && pValue->HasPrimitives(ezOpenDdlPrimitiveType::String))
       {
-        // TODO Default property value (could be any type)
+        ezStringBuilder tmp = pValue->GetPrimitivesString()[0];
+        const ezVariant def = ExtractDefaultValue(pRtti, tmp);
 
+        if (def.IsValid())
+        {
+          prop.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, def));
+        }
       }
 
       nd.m_Properties.PushBack(prop);

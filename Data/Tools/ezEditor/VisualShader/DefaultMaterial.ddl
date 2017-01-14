@@ -123,7 +123,7 @@ float GetOcclusion(PS_IN Input)
   Property %MaskThreshold
   {
     string %Type { "float" }
-    float %Value { 0.25 }
+    string %DefaultValue { "0.25" }
   }
 
   // Pin 0
@@ -132,7 +132,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float3" }
     unsigned_int8 %Color { 255, 255, 255 }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   // Pin 1
@@ -140,7 +140,7 @@ float GetOcclusion(PS_IN Input)
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 128, 255 }
-    string %Fallback { "float3(0, 0, 1)", }
+    string %DefaultValue { "0, 0, 1", }
     string %Tooltip { "Surface normal in tangent space." }
   }
 
@@ -150,7 +150,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float" }
     unsigned_int8 %Color { 128, 128, 128 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   // Pin 3
@@ -159,7 +159,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float" }
     unsigned_int8 %Color { 210, 255, 100 }
     bool %Expose { true }
-    string %Fallback { "0.5" }
+    string %DefaultValue { "0.5" }
   }
 
   // Pin 4
@@ -168,7 +168,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float" }
     unsigned_int8 %Color { 150, 64, 64 }
     bool %Expose { true }
-    string %Fallback { "0.5" }
+    string %DefaultValue { "0.5" }
   }
 
   // Pin 5
@@ -177,7 +177,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float" }
     unsigned_int8 %Color { 255, 0, 110 }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   // Pin 6
@@ -186,7 +186,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float3" }
     unsigned_int8 %Color { 255, 106, 0 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   // Pin 7
@@ -195,7 +195,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float" }
     unsigned_int8 %Color { 127, 115, 63 }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   // Pin 8
@@ -203,7 +203,7 @@ float GetOcclusion(PS_IN Input)
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 75, 145, 112 }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   // Pin 9
@@ -211,6 +211,6 @@ float GetOcclusion(PS_IN Input)
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 226, 96, 93 }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 }

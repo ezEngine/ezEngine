@@ -13,7 +13,7 @@ Node %ConstantColor
   Property %Color
   {
     string %Type { "color" }
-    Color %Value { float { 1, 1, 1, 1 } }
+    string %DefaultValue { "255, 255, 255, 255" }
   }
 }
 
@@ -32,7 +32,7 @@ Node %Constant1
   Property %Value
   {
     string %Type { "float" }
-    float %Value { 0 }
+    string %DefaultValue { "0" }
   }
 }
 
@@ -51,7 +51,7 @@ Node %Constant2
   Property %Value
   {
     string %Type { "float2" }
-    float %Value { 0, 0 }
+    string %DefaultValue { "0, 0" }
   }
 }
 
@@ -70,7 +70,7 @@ Node %Constant3
   Property %Value
   {
     string %Type { "float3" }
-    float %Value { 0, 0, 0 }
+    string %DefaultValue { "0, 0, 0" }
   }
 }
 
@@ -89,7 +89,7 @@ Node %Constant4
   Property %Value
   {
     string %Type { "float4" }
-    float %Value { 0, 0, 0, 0 }
+    string %DefaultValue { "0, 0, 0, 0" }
   }
 }
 

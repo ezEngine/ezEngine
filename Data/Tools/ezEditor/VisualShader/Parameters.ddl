@@ -9,13 +9,13 @@ Node %Parameter1f
   Property %ParamName
   {
     string %Type { "identifier" }
-    string %Value { "Parameter" }
+    string %DefaultValue { "Parameter" }
   }
 
   Property %Default
   {
     string %Type { "float" }
-    float %Value { 0 }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %Value
@@ -37,13 +37,13 @@ Node %Parameter2f
   Property %ParamName
   {
     string %Type { "identifier" }
-    string %Value { "Parameter" }
+    string %DefaultValue { "Parameter" }
   }
 
   Property %Default
   {
     string %Type { "float2" }
-    float %Value { 0, 0 }
+    string %DefaultValue { "0, 0" }
   }
 
   OutputPin %Value
@@ -65,13 +65,13 @@ Node %Parameter3f
   Property %ParamName
   {
     string %Type { "identifier" }
-    string %Value { "Parameter" }
+    string %DefaultValue { "Parameter" }
   }
 
   Property %Default
   {
     string %Type { "float3" }
-    float %Value { 0, 0, 0 }
+    string %DefaultValue { "0, 0, 0" }
   }
 
   OutputPin %Value
@@ -93,13 +93,13 @@ Node %Parameter4f
   Property %ParamName
   {
     string %Type { "identifier" }
-    string %Value { "Parameter" }
+    string %DefaultValue { "Parameter" }
   }
 
   Property %Default
   {
     string %Type { "float4" }
-    float %Value { 0, 0, 0, 0 }
+    string %DefaultValue { "0, 0, 0, 0" }
   }
 
   OutputPin %Value
@@ -115,21 +115,19 @@ Node %ParameterColor
   string %Category { "Parameters" }
   unsigned_int8 %Color { 128, 0, 0 }
 
-  // TODO: Insert default value for color
-  // (currently this creates @Default(float4(1,1,1))) which results in a parsing error
-  string %CodeMaterialParams { "Color $prop0;" }
+  string %CodeMaterialParams { "Color $prop0 @Default($prop1);" }
   string %CodeMaterialCB { "COLOR4F($prop0);" }
 
   Property %ParamName
   {
     string %Type { "identifier" }
-    string %Value { "Parameter" }
+    string %DefaultValue { "Parameter" }
   }
 
   Property %Default
   {
     string %Type { "color" }
-    float %Value { 0,0,0 }
+    string %DefaultValue { "0, 0, 0, 0" }
   }
 
   OutputPin %Value

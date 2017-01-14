@@ -156,7 +156,7 @@ Node %Pow
     unsigned_int8 %Color { 128, 50, 50 }
     string %Tooltip { "" }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   InputPin %Exponent
@@ -165,7 +165,7 @@ Node %Pow
     unsigned_int8 %Color { 50, 128, 50 }
     string %Tooltip { "" }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   OutputPin %result

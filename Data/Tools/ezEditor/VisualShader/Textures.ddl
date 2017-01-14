@@ -13,14 +13,14 @@ SamplerState BaseTexture_AutoSampler;
   Property %Texture
   {
     string %Type { "Texture2D" }
-    string %Value { "RebeccaPurple.color" }
+    string %DefaultValue { "RebeccaPurple.color" }
   }
 
   InputPin %UV
   {
     unsigned_int8 %Color { 50, 50, 128 }
     string %Type { "float2" }
-    string %Fallback { "Input.TexCoords" }
+    string %DefaultValue { "Input.TexCoords" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -75,14 +75,14 @@ SamplerState NormalTexture_AutoSampler;
   Property %Texture
   {
     string %Type { "Texture2D" }
-    string %Value {"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }" }// Neutral normal map
+    string %DefaultValue {"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }" }// Neutral normal map
   }
 
   InputPin %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Fallback { "Input.TexCoords" }
+    string %DefaultValue { "Input.TexCoords" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -110,14 +110,14 @@ SamplerState EmissiveTexture_AutoSampler;
   Property %Texture
   {
     string %Type { "Texture2D" }
-    string %Value { "" }
+    string %DefaultValue { "" }
   }
 
   InputPin %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Fallback { "Input.TexCoords" }
+    string %DefaultValue { "Input.TexCoords" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -165,14 +165,14 @@ SamplerState MetallicTexture_AutoSampler;
   Property %Texture
   {
     string %Type { "Texture2D" }
-    string %Value { "" }
+    string %DefaultValue { "" }
   }
 
   InputPin %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Fallback { "Input.TexCoords" }
+    string %DefaultValue { "Input.TexCoords" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -200,14 +200,14 @@ SamplerState RoughnessTexture_AutoSampler;
   Property %Texture
   {
     string %Type { "Texture2D" }
-    string %Value { "" }
+    string %DefaultValue { "" }
   }
 
   InputPin %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Fallback { "Input.TexCoords" }
+    string %DefaultValue { "Input.TexCoords" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -238,21 +238,21 @@ SamplerState $prop0_AutoSampler;
 
   Property %Name
   {
-    string %Type { "string" }
-    string %Value { "" }
+    string %Type { "identifier" }
+    string %DefaultValue { "CustomTexture" }
   }
 
   Property %Texture
   {
     string %Type { "Texture2D" }
-    string %Value { "" }
+    string %DefaultValue { "" }
   }
 
   InputPin %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Fallback { "Input.TexCoords" }
+    string %DefaultValue { "Input.TexCoords" }
     string %Tooltip { "Optional UV coordinates to sample the texture. Default uses the mesh UV coordinates." }
   }
 
@@ -260,7 +260,7 @@ SamplerState $prop0_AutoSampler;
   {
     string %Type { "sampler" }
     unsigned_int8 %Color { 0, 96, 96 }
-    string %Fallback { "$prop0_AutoSampler" }
+    string %DefaultValue { "$prop0_AutoSampler" }
     string %Tooltip { "Optional sampler state to use." }
   }
 

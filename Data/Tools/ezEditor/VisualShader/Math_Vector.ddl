@@ -53,14 +53,14 @@ Node %Dot
   {
     string %Type { "float" }
     unsigned_int8 %Color { 128, 50, 50 }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   InputPin %b
   {
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %result
@@ -81,14 +81,14 @@ Node %Cross
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 50, 50 }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   InputPin %b
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 50, 128, 50 }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %result

@@ -53,7 +53,7 @@ Node %MergeFloat2
     string %Type { "float" }
     unsigned_int8 %Color { 128, 0, 0 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the x component of the output." }
   }
 
@@ -62,7 +62,7 @@ Node %MergeFloat2
     string %Type { "float" }
     unsigned_int8 %Color { 0, 128, 0 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the y component of the output." }
   }
 
@@ -85,7 +85,7 @@ Node %MergeFloat3
     string %Type { "float" }
     unsigned_int8 %Color { 128, 0, 0 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the x component of the output." }
   }
 
@@ -94,7 +94,7 @@ Node %MergeFloat3
     string %Type { "float" }
     unsigned_int8 %Color { 0, 128, 0 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the y component of the output." }
   }
 
@@ -103,7 +103,7 @@ Node %MergeFloat3
     string %Type { "float" }
     unsigned_int8 %Color { 0, 0, 128 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the z component of the output." }
   }
 
@@ -126,7 +126,7 @@ Node %MergeFloat4
     string %Type { "float" }
     unsigned_int8 %Color { 128, 0, 0 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
     string %Tooltip { "The first component of the incoming data is put into the x component of the output." }
   }
 
@@ -135,7 +135,7 @@ Node %MergeFloat4
       string %Type { "float" }
       unsigned_int8 %Color { 0, 128, 0 }
       bool %Expose { true }
-      string %Fallback { "0" }
+      string %DefaultValue { "0" }
       string %Tooltip { "The first component of the incoming data is put into the y component of the output." }
   }
 
@@ -144,7 +144,7 @@ Node %MergeFloat4
       string %Type { "float" }
       unsigned_int8 %Color { 0, 0, 128 }
       bool %Expose { true }
-      string %Fallback { "0" }
+      string %DefaultValue { "0" }
       string %Tooltip { "The first component of the incoming data is put into the z component of the output." }
   }
 
@@ -153,7 +153,7 @@ Node %MergeFloat4
       string %Type { "float" }
       unsigned_int8 %Color { 175, 175, 117 }
       bool %Expose { true }
-      string %Fallback { "0" }
+      string %DefaultValue { "0" }
       string %Tooltip { "The first component of the incoming data is put into the w component of the output." }
   }
 

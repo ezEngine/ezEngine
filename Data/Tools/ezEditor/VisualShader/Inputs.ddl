@@ -44,7 +44,7 @@ Node %UV_Scroll
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
     bool %Expose { true }
-    string %Fallback { "1, 1" }
+    string %DefaultValue { "1, 1" }
   }
 
   OutputPin %UV

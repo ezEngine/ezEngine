@@ -8,7 +8,7 @@ Node %Add
     string %Type { "float" }
     unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   InputPin %b
@@ -16,7 +16,7 @@ Node %Add
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %result
@@ -38,7 +38,7 @@ Node %Subtract
     string %Type { "float" }
     unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   InputPin %b
@@ -46,7 +46,7 @@ Node %Subtract
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %result
@@ -68,7 +68,7 @@ Node %Multiply
     string %Type { "float" }
     unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   InputPin %b
@@ -76,7 +76,7 @@ Node %Multiply
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   OutputPin %result
@@ -98,7 +98,7 @@ Node %Divide
       string %Type { "float" }
       unsigned_int8 %Color { 128, 50, 50 }
       bool %Expose { true }
-      string %Fallback { "1" }
+      string %DefaultValue { "1" }
     }
 
   InputPin %b
@@ -106,7 +106,7 @@ Node %Divide
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
   }
 
   OutputPin %result
@@ -207,7 +207,7 @@ Node %Negate
   {
     string %Type { "float" }
     unsigned_int8 %Color { 200, 200, 200 }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %result

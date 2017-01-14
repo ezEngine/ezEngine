@@ -8,7 +8,7 @@ Node %Max
     string %Type { "float" }
     unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   InputPin %b
@@ -16,7 +16,7 @@ Node %Max
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %result
@@ -38,7 +38,7 @@ Node %Min
     string %Type { "float" }
     unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   InputPin %b
@@ -46,7 +46,7 @@ Node %Min
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
   }
 
   OutputPin %result
@@ -95,7 +95,7 @@ Node %Clamp
     string %Type { "float" }
     unsigned_int8 %Color { 128, 50, 50 }
     bool %Expose { true }
-    string %Fallback { "0" }
+    string %DefaultValue { "0" }
     string %Tooltip { "The minimum value to clamp against." }
   }
 
@@ -104,7 +104,7 @@ Node %Clamp
     string %Type { "float" }
     unsigned_int8 %Color { 50, 128, 50 }
     bool %Expose { true }
-    string %Fallback { "1" }
+    string %DefaultValue { "1" }
     string %Tooltip { "The maximum value to clamp against." }
   }
 
