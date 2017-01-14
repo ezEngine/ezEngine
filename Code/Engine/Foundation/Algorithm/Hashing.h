@@ -26,7 +26,7 @@ public:
 
   /// \brief Calculates the 32bit murmur hash of a string constant at compile time. Encoding does not matter here.
   template <size_t N>
-  static ezUInt32 MurmurHash(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
+  constexpr static ezUInt32 MurmurHash(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
 
   /// \brief Calculates the 32bit murmur hash of a string pointer during runtime. Encoding does not matter here.
   ///

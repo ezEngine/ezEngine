@@ -5,6 +5,10 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Algorithm);
 
+// Warning for overflow in compile time executed static_assert(ezHashing::MurmurHash...)
+// Todo: Why is this not happening elsewhere?
+#pragma warning (disable:4307)
+
 EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
 {
   // check whether compile time hashing gives the same value as runtime hashing
@@ -15,8 +19,12 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     ezUInt32 uiHashRT = ezHashing::MurmurHash(sb.GetData());
     ezUInt32 uiHashCT = ezHashing::MurmurHash("This is a test string. 1234");
 
+
     EZ_TEST_INT(uiHashRT, 0xb999d6c4);
     EZ_TEST_INT(uiHashRT, uiHashCT);
+
+    // Static assert to ensure this is happening at compile time!
+    static_assert(ezHashing::MurmurHash("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
 
     // check 64bit hashes
     ezUInt64 uiHash64 = ezHashing::MurmurHash64(sb.GetData(), sb.GetElementCount());
@@ -26,7 +34,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     ezUInt32 uiCrc = ezHashing::CRC32Hash(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiCrc, 0x73b5e898);
   }
-  
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelper")
   {
     ezUInt32 uiHash = ezHashHelper<ezStringBuilder>::Hash(sb);
