@@ -4,7 +4,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Declarations.h>
 
 class ezObjectSelectionMsgToEngine;
@@ -37,7 +37,7 @@ private:
   ezGameObjectHandle m_hPreviewObject;
   ezComponentHandle m_hPreviewMesh2D;
   ezMaterialResourceHandle m_hMaterial;
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
 
   ezGALResourceFormat::Enum m_TextureFormat;
   ezUInt32 m_uiTextureWidth;

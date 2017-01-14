@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -158,7 +158,7 @@ void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& stream)
   }
   else
   {
-    ezTextureResourceHandle dummyHandle;
+    ezTexture2DResourceHandle dummyHandle;
     for (int i = 0; i < 6; i++)
     {
       s >> dummyHandle;
@@ -183,10 +183,10 @@ void ezSkyBoxComponent::SetInverseTonemap(bool bInverseTonemap)
 
 void ezSkyBoxComponent::SetCubeMap(const char* szFile)
 {
-  ezTextureResourceHandle hCubeMap;
+  ezTexture2DResourceHandle hCubeMap;
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hCubeMap = ezResourceManager::LoadResource<ezTextureResource>(szFile);
+    hCubeMap = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
   }
 
   m_hCubeMap = hCubeMap;

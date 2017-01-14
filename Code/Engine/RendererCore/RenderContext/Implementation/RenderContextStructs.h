@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Declarations.h>
+#include <Foundation/Reflection/Reflection.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezShaderBindFlags

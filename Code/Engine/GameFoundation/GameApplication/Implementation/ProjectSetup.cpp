@@ -85,9 +85,9 @@ void ezGameApplication::DoConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
   // sound bank resource registered by Fmod plugin
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTextureResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture 3D", ezGetStaticRTTI<ezTextureResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture 3D", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTexture2DResource>());
 }
 
 void ezGameApplication::DoSetupDefaultResources()
@@ -102,11 +102,11 @@ void ezGameApplication::DoSetupDefaultResources()
 
   // Textures
   {
-    ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/LoadingTexture_D.dds");
-    ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
+    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/LoadingTexture_D.dds");
+    ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
 
-    ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
-    ezTextureResource::SetTypeMissingResource(hMissingTexture);
+    ezTexture2DResource::SetTypeFallbackResource(hFallbackTexture);
+    ezTexture2DResource::SetTypeMissingResource(hMissingTexture);
   }
 
   // Materials

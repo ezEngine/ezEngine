@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 class EZ_RENDERERCORE_DLL ezTonemapPass : public ezRenderPipelinePass
 {
@@ -27,8 +27,8 @@ protected:
   void SetVignettingTextureFile(const char* szFile);
   const char* GetVignettingTextureFile() const;
 
-  ezTextureResourceHandle m_hVignettingTexture;
-  ezTextureResourceHandle m_hNoiseTexture;
+  ezTexture2DResourceHandle m_hVignettingTexture;
+  ezTexture2DResourceHandle m_hNoiseTexture;
 
   ezColor m_MoodColor;
   float m_fMoodStrength;

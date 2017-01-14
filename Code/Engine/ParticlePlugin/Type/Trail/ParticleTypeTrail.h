@@ -6,7 +6,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
 
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 struct ezTrailParticleData;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrailFactory : public ezParticleTypeFactory
@@ -37,7 +37,7 @@ public:
 
   ezUInt16 m_uiMaxSegments;
   ezTime m_UpdateDiff;
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 

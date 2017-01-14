@@ -162,7 +162,7 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
     if (ezFileSystem::ExistsFile(sPath))
     {
       auto& shapeIconInfo = m_ShapeIconInfos[pRtti];
-      shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(sPath);
+      shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sPath);
       shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
       shapeIconInfo.m_pColorGammaProperty = FindColorGammaProperty(pRtti);
     }

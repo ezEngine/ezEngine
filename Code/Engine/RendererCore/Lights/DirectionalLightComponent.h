@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Lights/LightComponent.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 class ezDirectionalLightComponent;
 typedef ezComponentManager<ezDirectionalLightComponent> ezDirectionalLightComponentManager;

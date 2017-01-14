@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 class ezSceneContext;
 
@@ -29,7 +29,7 @@ private:
 
   struct ShapeIconInfo
   {
-    ezTextureResourceHandle m_hTexture;
+    ezTexture2DResourceHandle m_hTexture;
     const ezTypedMemberProperty<ezColor>* m_pColorProperty;
     const ezTypedMemberProperty<ezColorGammaUB>* m_pColorGammaProperty;
   };

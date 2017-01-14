@@ -6,7 +6,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Type/Fragment/FragmentRenderer.h>
 
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 struct ezFragmentParticleData;
 
 struct EZ_PARTICLEPLUGIN_DLL ezFragmentAxis
@@ -49,7 +49,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFragment : public ezParticleType
 public:
   virtual void CreateRequiredStreams() override;
 
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
   ezEnum<ezFragmentAxis> m_RotationAxis;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;

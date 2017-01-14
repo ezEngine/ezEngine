@@ -93,23 +93,23 @@ ezAngle ezSpotLightComponent::GetOuterSpotAngle() const
   return m_OuterSpotAngle;
 }
 
-void ezSpotLightComponent::SetProjectedTexture(const ezTextureResourceHandle& hProjectedTexture)
+void ezSpotLightComponent::SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture)
 {
   m_hProjectedTexture = hProjectedTexture;
 }
 
-const ezTextureResourceHandle& ezSpotLightComponent::GetProjectedTexture() const
+const ezTexture2DResourceHandle& ezSpotLightComponent::GetProjectedTexture() const
 {
   return m_hProjectedTexture;
 }
 
 void ezSpotLightComponent::SetProjectedTextureFile(const char* szFile)
 {
-  ezTextureResourceHandle hProjectedTexture;
+  ezTexture2DResourceHandle hProjectedTexture;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hProjectedTexture = ezResourceManager::LoadResource<ezTextureResource>(szFile);
+    hProjectedTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
   }
 
   SetProjectedTexture(hProjectedTexture);

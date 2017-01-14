@@ -86,9 +86,9 @@ void ezTextureContext::OnInitialize()
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
   m_hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialResource);
 
-  m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(sTextureGuid);
+  m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sTextureGuid);
   {
-    ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
 
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidth = pTexture->GetWidth();
@@ -179,7 +179,7 @@ void ezTextureContext::OnDeinitialize()
 {
   if (m_bAddedEventHandler)
   {
-    ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
 
     pTexture->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
   }
@@ -208,7 +208,7 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
 
   if (e.m_EventType == ezResourceEventType::ResourceContentUpdated)
   {
-    const ezTextureResource* pTexture = static_cast<const ezTextureResource*>(e.m_pResource);
+    const ezTexture2DResource* pTexture = static_cast<const ezTexture2DResource*>(e.m_pResource);
 
     m_TextureFormat = pTexture->GetFormat();
     m_uiTextureWidth = pTexture->GetWidth();
@@ -234,7 +234,7 @@ void ezTextureContext::UpdatePreview()
 
   if (!m_bAddedEventHandler)
   {
-    ezResourceLock<ezTextureResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::NoFallback);
 
     if (!pTexture->IsMissingResource())
     {

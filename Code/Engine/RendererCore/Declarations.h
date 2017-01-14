@@ -8,7 +8,7 @@ class ezGALContext;
 class ezShaderStageBinary;
 struct ezVertexDeclarationInfo;
 
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;

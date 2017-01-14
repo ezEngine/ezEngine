@@ -6,7 +6,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Type/Sprite/SpriteRenderer.h>
 
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 struct ezSpriteParticleData;
 
 struct EZ_PARTICLEPLUGIN_DLL ezSpriteAxis
@@ -48,7 +48,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeSprite : public ezParticleType
 public:
   virtual void CreateRequiredStreams() override;
 
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
   ezEnum<ezSpriteAxis> m_RotationAxis;
   ezAngle m_MaxDeviation;
 

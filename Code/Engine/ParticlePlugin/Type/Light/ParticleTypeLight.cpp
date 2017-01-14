@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>

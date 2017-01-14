@@ -12,7 +12,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/FragmentShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 typedef ezRefCountedContainer<ezDynamicArray<ezFragmentParticleData>> ezFragmentParticleDataContainer;
 
@@ -23,7 +23,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFragmentRenderData : public ezRenderData
 public:
   ezParticleFragmentRenderData();
 
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
   ezUInt32 m_uiNumParticles;
   ezSharedPtr<ezFragmentParticleDataContainer> m_GpuData;
 };

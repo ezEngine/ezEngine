@@ -7,7 +7,7 @@
 #include <Core/ResourceManager/Resource.h>
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 struct ezMaterialResourceDescriptor
 {
@@ -25,7 +25,7 @@ struct ezMaterialResourceDescriptor
   struct TextureBinding
   {
     ezHashedString m_Name;
-    ezTextureResourceHandle m_Value;
+    ezTexture2DResourceHandle m_Value;
 
     EZ_FORCE_INLINE bool operator==(const TextureBinding& other) const
     {
@@ -62,9 +62,9 @@ public:
   void SetParameter(const char* szName, const ezVariant& value);
   ezVariant GetParameter(const ezTempHashedString& sName);
 
-  void SetTextureBinding(const ezHashedString& sName, ezTextureResourceHandle value);
-  void SetTextureBinding(const char* szName, ezTextureResourceHandle value);
-  ezTextureResourceHandle GetTextureBinding(const ezTempHashedString& sName);
+  void SetTextureBinding(const ezHashedString& sName, ezTexture2DResourceHandle value);
+  void SetTextureBinding(const char* szName, ezTexture2DResourceHandle value);
+  ezTexture2DResourceHandle GetTextureBinding(const ezTempHashedString& sName);
 
   /// \brief Copies current desc to original desc so the material is not modified on reset
   void PreserveCurrentDesc(); 
@@ -103,5 +103,5 @@ private:
   ezShaderResourceHandle m_hCachedShader;
   ezHashTable<ezHashedString, ezHashedString> m_CachedPermutationVars;
   ezHashTable<ezHashedString, ezVariant> m_CachedParameters;
-  ezHashTable<ezHashedString, ezTextureResourceHandle> m_CachedTextureBindings;
+  ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_CachedTextureBindings;
 };

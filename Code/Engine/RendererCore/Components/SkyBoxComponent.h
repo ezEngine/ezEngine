@@ -40,7 +40,7 @@ private:
   float m_fExposureBias;
   bool m_bInverseTonemap;
 
-  ezTextureResourceHandle m_hCubeMap;
+  ezTexture2DResourceHandle m_hCubeMap;
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hCubeMapMaterial;

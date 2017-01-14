@@ -12,7 +12,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 typedef ezRefCountedContainer<ezDynamicArray<ezBillboardParticleData>> ezBillboardParticleDataContainer;
 
@@ -23,7 +23,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderData : public ezRenderData
 public:
   ezParticleBillboardRenderData();
 
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
   ezUInt32 m_uiNumParticles;
   ezSharedPtr<ezBillboardParticleDataContainer> m_GpuData;
 };

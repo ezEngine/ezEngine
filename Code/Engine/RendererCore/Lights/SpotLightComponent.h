@@ -2,7 +2,7 @@
 
 #include <RendererCore/Lights/LightComponent.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 class ezSpotLightComponent;
 typedef ezComponentManager<ezSpotLightComponent> ezSpotLightComponentManager;
@@ -16,7 +16,7 @@ public:
   float m_fRange;
   ezAngle m_InnerSpotAngle;
   ezAngle m_OuterSpotAngle;
-  ezTextureResourceHandle m_hProjectedTexture;
+  ezTexture2DResourceHandle m_hProjectedTexture;
 };
 
 /// \brief The standard spot light component.
@@ -41,8 +41,8 @@ public:
   void SetOuterSpotAngle(ezAngle fSpotAngle);
   ezAngle GetOuterSpotAngle() const;
 
-  void SetProjectedTexture(const ezTextureResourceHandle& hProjectedTexture);
-  const ezTextureResourceHandle& GetProjectedTexture() const;
+  void SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture);
+  const ezTexture2DResourceHandle& GetProjectedTexture() const;
 
   void SetProjectedTextureFile(const char* szFile);
   const char* GetProjectedTextureFile() const;
@@ -60,7 +60,7 @@ private:
   ezAngle m_InnerSpotAngle;
   ezAngle m_OuterSpotAngle;
 
-  ezTextureResourceHandle m_hProjectedTexture;
+  ezTexture2DResourceHandle m_hProjectedTexture;
 };
 
 /// \brief A special visualizer attribute for spot lights

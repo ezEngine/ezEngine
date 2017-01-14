@@ -12,7 +12,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/SpriteShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 typedef ezRefCountedContainer<ezDynamicArray<ezSpriteParticleData>> ezSpriteParticleDataContainer;
 
@@ -23,7 +23,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleSpriteRenderData : public ezRenderData
 public:
   ezParticleSpriteRenderData();
 
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
   ezUInt32 m_uiNumParticles;
   ezSharedPtr<ezSpriteParticleDataContainer> m_GpuData;
 };

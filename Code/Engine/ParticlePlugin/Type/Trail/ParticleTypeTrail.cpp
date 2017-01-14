@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <Core/World/GameObject.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
@@ -42,7 +42,7 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject) con
   pType->m_UpdateDiff = m_UpdateDiff;
 
   if (!m_sTexture.IsEmpty())
-    pType->m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(m_sTexture);
+    pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
 }
 
 enum class TypeTrailVersion

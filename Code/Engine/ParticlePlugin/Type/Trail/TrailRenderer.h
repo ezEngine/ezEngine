@@ -12,7 +12,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 typedef ezRefCountedContainer<ezDynamicArray<ezTrailParticleData>> ezTrailParticleDataContainer;
 typedef ezRefCountedContainer<ezDynamicArray<ezUInt8>> ezTrailParticleSegmentDataContainer;
@@ -24,7 +24,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData : public ezRenderData
 public:
   ezParticleTrailRenderData();
 
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
   ezUInt32 m_uiNumParticles;
   ezUInt32 m_uiMaxSegmentBucketSize;
   ezSharedPtr<ezTrailParticleDataContainer> m_GpuData;

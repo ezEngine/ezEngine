@@ -2,7 +2,7 @@
 
 #include <PCH.h>
 #include "../TestClass/TestClass.h"
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 class ezRendererTestBasics : public ezGraphicsTest
 {
@@ -82,7 +82,7 @@ private:
   ezMeshBufferResourceHandle m_hTorus;
   ezMeshBufferResourceHandle m_hLongBox;
   ezMeshBufferResourceHandle m_hLineBox;
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
 };
 
 

@@ -5,7 +5,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -175,12 +175,12 @@ void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
   m_StateFlags.Add(ezRenderContextFlags::MaterialBindingChanged);
 }
 
-void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture,
+void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
   ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
 {
   if (hTexture.IsValid())
   {
-    ezResourceLock<ezTextureResource> pTexture(hTexture, acquireMode);
+    ezResourceLock<ezTexture2DResource> pTexture(hTexture, acquireMode);
     BindTexture(stage, sSlotName, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()));
     BindSamplerState(stage, sSlotName, pTexture->GetGALSamplerState());
   }

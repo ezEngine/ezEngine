@@ -20,3 +20,4 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
+

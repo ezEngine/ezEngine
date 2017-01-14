@@ -53,7 +53,7 @@ public:
 
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture,
+  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 

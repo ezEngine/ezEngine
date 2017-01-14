@@ -27,8 +27,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezTonemapPass::ezTonemapPass() : ezRenderPipelinePass("TonemapPass")
 {
-  m_hVignettingTexture = ezResourceManager::LoadResource<ezTextureResource>("White.color");
-  m_hNoiseTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/BlueNoise.dds");
+  m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
+  m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
 
   m_MoodColor = ezColor::Orange;
   m_fMoodStrength = 0.0f;
@@ -138,7 +138,7 @@ void ezTonemapPass::SetVignettingTextureFile(const char* szFile)
 {
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    m_hVignettingTexture = ezResourceManager::LoadResource<ezTextureResource>(szFile);
+    m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
   }
 }
 

@@ -9,19 +9,16 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
 
-/// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTextureResource> to create textures from data in memory.
-struct ezTextureResourceDescriptor
+/// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTextureCubeResource> to create textures from data in memory.
+struct ezTextureCubeResourceDescriptor
 {
-  ezTextureResourceDescriptor()
+  ezTextureCubeResourceDescriptor()
   {
     m_uiQualityLevelsDiscardable = 0;
     m_uiQualityLevelsLoadable = 0;
   }
-
-  /// \brief Sets the samplers min filter, mag filter, mip filter and anisotropy according to \a filter.
-  void ConfigureSampler(ezTextureFilterSetting::Enum filter);
 
   /// Describes the texture format, etc.
   ezGALTextureCreationDescription m_DescGAL;
@@ -37,26 +34,21 @@ struct ezTextureResourceDescriptor
   ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
 };
 
-class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResource, ezTextureResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezTextureCubeResource : public ezResource<ezTextureCubeResource, ezTextureCubeResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeResource, ezResourceBase);
 
 public:
-  ezTextureResource();
+  ezTextureCubeResource();
 
   EZ_FORCE_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
-  EZ_FORCE_INLINE ezUInt32 GetWidth() const { return m_uiWidth; }
-  EZ_FORCE_INLINE ezUInt32 GetHeight() const { return m_uiHeight; }
-  EZ_FORCE_INLINE ezGALTextureType::Enum GetType() const { return m_Type; }
-
-  /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
-  static bool s_bForceFullQualityAlways;
+  EZ_FORCE_INLINE ezUInt32 GetWidthAndHeight() const { return m_uiWidthAndHeight; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezTextureResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(const ezTextureCubeResourceDescriptor& descriptor) override;
 
 private:
   friend class ezRenderContext;
@@ -69,31 +61,9 @@ private:
   ezGALTextureHandle m_hGALTexture[2];
   ezUInt32 m_uiMemoryGPU[2];
 
-  ezGALTextureType::Enum m_Type;
   ezGALResourceFormat::Enum m_Format;
-  ezUInt32 m_uiWidth;
-  ezUInt32 m_uiHeight;
+  ezUInt32 m_uiWidthAndHeight;
 
   ezGALSamplerStateHandle m_hSamplerState;
 };
-
-
-class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
-{
-public:
-
-  struct LoadedData
-  {
-    LoadedData() : m_Reader(&m_Storage) { }
-
-    ezMemoryStreamStorage m_Storage;
-    ezMemoryStreamReader m_Reader;
-    ezImage m_Image;
-  };
-
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
-};
-
 

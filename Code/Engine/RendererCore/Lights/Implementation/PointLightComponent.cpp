@@ -60,23 +60,23 @@ float ezPointLightComponent::GetRange() const
   return m_fRange;
 }
 
-void ezPointLightComponent::SetProjectedTexture(const ezTextureResourceHandle& hProjectedTexture)
+void ezPointLightComponent::SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture)
 {
   m_hProjectedTexture = hProjectedTexture;
 }
 
-const ezTextureResourceHandle& ezPointLightComponent::GetProjectedTexture() const
+const ezTexture2DResourceHandle& ezPointLightComponent::GetProjectedTexture() const
 {
   return m_hProjectedTexture;
 }
 
 void ezPointLightComponent::SetProjectedTextureFile(const char* szFile)
 {
-  ezTextureResourceHandle hProjectedTexture;
+  ezTexture2DResourceHandle hProjectedTexture;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hProjectedTexture = ezResourceManager::LoadResource<ezTextureResource>(szFile);
+    hProjectedTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
   }
 
   SetProjectedTexture(hProjectedTexture);

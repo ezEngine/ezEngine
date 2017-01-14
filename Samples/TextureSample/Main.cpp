@@ -35,7 +35,8 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/TextureLoader.h>
 
 // Constant buffer definition is shared between shader code and C++
 #include <RendererCore/../../../Data/Samples/TextureSample/Shaders/SampleConstantBuffer.h>
@@ -232,15 +233,15 @@ public:
 
     // Setup default resources
     {
-      ezTextureResourceHandle hFallback = ezResourceManager::LoadResource<ezTextureResource>("Textures/Reference_D.dds");
-      ezTextureResourceHandle hMissing = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
+      ezTexture2DResourceHandle hFallback = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/Reference_D.dds");
+      ezTexture2DResourceHandle hMissing = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
 
-      ezTextureResource::SetTypeFallbackResource(hFallback);
-      ezTextureResource::SetTypeMissingResource(hMissing);
+      ezTexture2DResource::SetTypeFallbackResource(hFallback);
+      ezTexture2DResource::SetTypeMissingResource(hMissing);
 
       // redirect all texture load operations through our custom loader, so that we can duplicate the single source texture
       // that we have as often as we like (to waste memory)
-      ezResourceManager::SetResourceTypeLoader<ezTextureResource>(&m_TextureResourceLoader);
+      ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(&m_TextureResourceLoader);
     }
 
     // Setup constant buffer that this sample uses
@@ -261,7 +262,7 @@ public:
           sResourceName.Printf("Loaded_%+03i_%+03i_D",
                                x, y);
 
-          ezTextureResourceHandle hTexture = ezResourceManager::LoadResource<ezTextureResource>(sResourceName);
+          ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
           if (g_bPreloadAllTextures)
             ezResourceManager::PreloadResource(hTexture, ezTime::Seconds(1.0));
@@ -360,11 +361,11 @@ public:
           sResourceName.Printf("Loaded_%+03i_%+03i_D",
                                x, y);
 
-          ezTextureResourceHandle hTexture = ezResourceManager::LoadResource<ezTextureResource>(sResourceName, ezResourcePriority::Highest, ezTextureResourceHandle());
+          ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName, ezResourcePriority::Highest, ezTexture2DResourceHandle());
 
           // force immediate loading
           if (g_bForceImmediateLoading)
-            ezResourceLock<ezTextureResource> l(hTexture, ezResourceAcquireMode::NoFallback);
+            ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::NoFallback);
 
           ezRenderContext::GetDefaultInstance()->BindTexture(ezGALShaderStage::PixelShader, "DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);

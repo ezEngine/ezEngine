@@ -5,14 +5,14 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderData, ezRenderData);
 
 public:
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
 
   float m_fSize;
   float m_fMaxScreenSize;
@@ -43,8 +43,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void SetTexture(const ezTextureResourceHandle& hTexture);
-  const ezTextureResourceHandle& GetTexture() const;
+  void SetTexture(const ezTexture2DResourceHandle& hTexture);
+  const ezTexture2DResourceHandle& GetTexture() const;
 
   void SetTextureFile(const char* szFile);
   const char* GetTextureFile() const;
@@ -60,7 +60,7 @@ public:
 
 private:
 
-  ezTextureResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture;
   ezColorGammaUB m_Color;
 
   float m_fSize;

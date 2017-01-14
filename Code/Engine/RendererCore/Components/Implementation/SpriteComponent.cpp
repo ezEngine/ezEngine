@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Components/SpriteComponent.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -117,23 +117,23 @@ void ezSpriteComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fMaxScreenSize;
 }
 
-void ezSpriteComponent::SetTexture(const ezTextureResourceHandle& hTexture)
+void ezSpriteComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
 {
   m_hTexture = hTexture;
 }
 
-const ezTextureResourceHandle& ezSpriteComponent::GetTexture() const
+const ezTexture2DResourceHandle& ezSpriteComponent::GetTexture() const
 {
   return m_hTexture;
 }
 
 void ezSpriteComponent::SetTextureFile(const char* szFile)
 {
-  ezTextureResourceHandle hTexture;
+  ezTexture2DResourceHandle hTexture;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hTexture = ezResourceManager::LoadResource<ezTextureResource>(szFile);
+    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
   }
 
   SetTexture(hTexture);

@@ -13,7 +13,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Foundation/Time/Clock.h>

@@ -5,7 +5,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <CoreUtils/Graphics/SimpleASCIIFont.h>
@@ -132,7 +132,7 @@ namespace
   ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
   ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
   ezVertexDeclarationInfo s_VertexDeclarationInfo;
-  ezTextureResourceHandle s_hDebugFontTexture;
+  ezTexture2DResourceHandle s_hDebugFontTexture;
 
   ezShaderResourceHandle s_hDebugGeometryShader;
   ezShaderResourceHandle s_hDebugPrimitiveShader;
@@ -625,13 +625,13 @@ void ezDebugRenderer::OnEngineStartup()
     memoryDesc.m_uiRowPitch = debugFontImage.GetRowPitch();
     memoryDesc.m_uiSlicePitch = debugFontImage.GetDepthPitch();
 
-    ezTextureResourceDescriptor desc;
+    ezTexture2DResourceDescriptor desc;
     desc.m_DescGAL.m_uiWidth = debugFontImage.GetWidth();
     desc.m_DescGAL.m_uiHeight = debugFontImage.GetHeight();
     desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
     desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
-    s_hDebugFontTexture = ezResourceManager::CreateResource<ezTextureResource>("DebugFontTexture", desc);
+    s_hDebugFontTexture = ezResourceManager::CreateResource<ezTexture2DResource>("DebugFontTexture", desc);
   }
 
   s_hDebugGeometryShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugGeometry.ezShader");

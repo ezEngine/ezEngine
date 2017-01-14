@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Material/MaterialResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
@@ -163,7 +163,7 @@ ezVariant ezMaterialResource::GetParameter(const ezTempHashedString& sName)
   return value;
 }
 
-void ezMaterialResource::SetTextureBinding(const ezHashedString& sName, ezTextureResourceHandle value)
+void ezMaterialResource::SetTextureBinding(const ezHashedString& sName, ezTexture2DResourceHandle value)
 {
   ezUInt32 uiIndex = ezInvalidIndex;
   for (ezUInt32 i = 0; i < m_Desc.m_TextureBindings.GetCount(); ++i)
@@ -201,7 +201,7 @@ void ezMaterialResource::SetTextureBinding(const ezHashedString& sName, ezTextur
   m_ModifiedEvent.Broadcast(this);
 }
 
-void ezMaterialResource::SetTextureBinding(const char* szName, ezTextureResourceHandle value)
+void ezMaterialResource::SetTextureBinding(const char* szName, ezTexture2DResourceHandle value)
 {
   ezTempHashedString sName(szName);
 
@@ -241,20 +241,20 @@ void ezMaterialResource::SetTextureBinding(const char* szName, ezTextureResource
   m_ModifiedEvent.Broadcast(this);
 }
 
-ezTextureResourceHandle ezMaterialResource::GetTextureBinding(const ezTempHashedString& sName)
+ezTexture2DResourceHandle ezMaterialResource::GetTextureBinding(const ezTempHashedString& sName)
 {
   EZ_LOCK(m_CacheMutex);
 
   UpdateCaches();
 
   // Use pointer to prevent ref counting
-  ezTextureResourceHandle* pBinding;
+  ezTexture2DResourceHandle* pBinding;
   if (m_CachedTextureBindings.TryGetValue(sName, pBinding))
   {
     return *pBinding;
   }
 
-  return ezTextureResourceHandle();
+  return ezTexture2DResourceHandle();
 }
 
 void ezMaterialResource::PreserveCurrentDesc()
@@ -389,7 +389,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTemp2);
+        tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2);
       }
     }
 
@@ -502,7 +502,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           tc.m_Name.Assign(tmp.GetData());
 
           tmp = pValue->GetPrimitivesString()[0];
-          tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(tmp);
+          tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(tmp);
         }
       }
     }
