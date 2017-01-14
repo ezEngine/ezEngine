@@ -15,49 +15,49 @@ public:
   static ezTime Now(); // [tested]
 
   /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
-  static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }
+  constexpr static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from microseconds.
-  static ezTime Microseconds(double fMicroseconds)  { return ezTime(fMicroseconds * 0.000001); }
+  constexpr static ezTime Microseconds(double fMicroseconds)  { return ezTime(fMicroseconds * 0.000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from milliseconds.
-  static ezTime Milliseconds(double fMilliseconds)  { return ezTime(fMilliseconds * 0.001); }
+  constexpr static ezTime Milliseconds(double fMilliseconds)  { return ezTime(fMilliseconds * 0.001); }
 
   /// \brief Creates an instance of ezTime that was initialized from seconds.
-  static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
+  constexpr static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
 
   /// \brief Creates an instance of ezTime that was initialized with zero.
-  static ezTime Zero() { return ezTime(0.0); }
+  constexpr static ezTime Zero() { return ezTime(0.0); }
 
   EZ_DECLARE_POD_TYPE();
 
   /// \brief The default constructor sets the time to zero.
-  ezTime() { m_fTime = 0.0; }
+  constexpr ezTime() : m_fTime(0.0) { }
 
   /// \brief Sets the time value to zero.
   void SetZero();
 
   /// \brief Returns true if the stored time is zero or negative.
-  bool IsZeroOrLess() const { return m_fTime <= 0.0; }
+  constexpr bool IsZeroOrLess() const { return m_fTime <= 0.0; }
 
   /// \brief Returns the time as a float value (in seconds).
   ///
   /// Useful for simulation time steps etc.
   /// Please note that it is not recommended to use the float value for long running
   /// time calculations since the precision can deteriorate quickly. (Only use for delta times is recommended)
-  float AsFloat() const;
+  constexpr float AsFloat() const;
 
   /// \brief Returns the nanoseconds value
-  double GetNanoseconds() const;
+  constexpr double GetNanoseconds() const;
 
   /// \brief Returns the microseconds value
-  double GetMicroseconds() const;
+  constexpr double GetMicroseconds() const;
 
   /// \brief Returns the milliseconds value
-  double GetMilliseconds() const;
+  constexpr double GetMilliseconds() const;
 
   /// \brief Returns the seconds value.
-  double GetSeconds() const;
+  constexpr double GetSeconds() const;
 
   /// \brief Subtracts the time value of "other" from this instances value.
   void operator -= (const ezTime& other);
@@ -66,22 +66,22 @@ public:
   void operator += (const ezTime& other);
 
   /// \brief Returns the difference: "this instance - other"
-  ezTime operator - (const ezTime& other) const;
+  constexpr ezTime operator - (const ezTime& other) const;
 
   /// \brief Returns the sum: "this instance + other"
-  ezTime operator + (const ezTime& other) const;
+  constexpr ezTime operator + (const ezTime& other) const;
 
-  bool operator< (const ezTime& rhs) const { return m_fTime <  rhs.m_fTime; }
-  bool operator<=(const ezTime& rhs) const { return m_fTime <= rhs.m_fTime; }
-  bool operator> (const ezTime& rhs) const { return m_fTime >  rhs.m_fTime; }
-  bool operator>=(const ezTime& rhs) const { return m_fTime >= rhs.m_fTime; }
-  bool operator==(const ezTime& rhs) const { return m_fTime == rhs.m_fTime; }
-  bool operator!=(const ezTime& rhs) const { return m_fTime != rhs.m_fTime; }
+  constexpr bool operator< (const ezTime& rhs) const { return m_fTime <  rhs.m_fTime; }
+  constexpr bool operator<=(const ezTime& rhs) const { return m_fTime <= rhs.m_fTime; }
+  constexpr bool operator> (const ezTime& rhs) const { return m_fTime >  rhs.m_fTime; }
+  constexpr bool operator>=(const ezTime& rhs) const { return m_fTime >= rhs.m_fTime; }
+  constexpr bool operator==(const ezTime& rhs) const { return m_fTime == rhs.m_fTime; }
+  constexpr bool operator!=(const ezTime& rhs) const { return m_fTime != rhs.m_fTime; }
 
 private:
 
   /// \brief For internal use only.
-  explicit ezTime(double fTime);
+  constexpr explicit ezTime(double fTime);
 
   /// \brief The time is stored in seconds
   double m_fTime;
@@ -93,11 +93,11 @@ private:
   static void Initialize();
 };
 
-ezTime operator* (ezTime t, double f);
-ezTime operator* (double f, ezTime t);
+constexpr ezTime operator* (ezTime t, double f);
+constexpr ezTime operator* (double f, ezTime t);
 
-ezTime operator/ (ezTime t, double f);
-ezTime operator/ (double f, ezTime t);
+constexpr ezTime operator/ (ezTime t, double f);
+constexpr ezTime operator/ (double f, ezTime t);
 
 
 #include <Foundation/Time/Implementation/Time_inl.h>
