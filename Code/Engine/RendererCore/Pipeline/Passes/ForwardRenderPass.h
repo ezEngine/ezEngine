@@ -18,8 +18,9 @@ public:
 
 protected:
 
-  virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext);
+  virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext, bool enableSSAO);
 
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;
+  ezInputNodePin m_PinSSAO;
 };

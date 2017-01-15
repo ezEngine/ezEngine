@@ -13,9 +13,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefa
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Depth", m_PinDepthInput),
-    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-    EZ_ACCESSOR_PROPERTY("LineToLineOffset", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
-    EZ_ACCESSOR_PROPERTY("LineSampleOffsetFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(3), new ezClampValueAttribute(1, 128)),
+    EZ_MEMBER_PROPERTY("AmbientObscurance", m_PinOutput),
+    EZ_ACCESSOR_PROPERTY("LineToLineDistance", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
+    EZ_ACCESSOR_PROPERTY("LineSampleDistanceFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
   }
   EZ_END_PROPERTIES
 }
@@ -49,8 +49,9 @@ namespace
 
 ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
   : ezRenderPipelinePass("ScreenSpaceAmbientOcclusionPass")
-  , m_uiLineToLinePixelOffset(1)
-  , m_uiLineSamplePixelOffsetFactor(1)
+  , m_uiLineToLinePixelOffset(2)
+  , m_uiLineSamplePixelOffsetFactor(2)
+  , m_bSweepDataDirty(true)
 {
   {
     // Load shader.
@@ -91,7 +92,7 @@ bool ezScreenSpaceAmbientOcclusionPass::GetRenderTargetDescriptions(const ezView
 
   // Output format maches input format but is f16.
   outputs[m_PinOutput.m_uiOutputIndex] = *inputs[m_PinDepthInput.m_uiInputIndex];
-  outputs[m_PinOutput.m_uiOutputIndex].m_Format = ezGALResourceFormat::RHalf;
+  outputs[m_PinOutput.m_uiOutputIndex].m_Format = ezGALResourceFormat::RUShortNormalized; // 16 bit integer 0-1
 
   return true;
 }
@@ -99,12 +100,14 @@ bool ezScreenSpaceAmbientOcclusionPass::GetRenderTargetDescriptions(const ezView
 void ezScreenSpaceAmbientOcclusionPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   // Todo: Support half resolution.
-  // Note: It wouldn't be a big deal to have different input and output resolutions since we're just fetching at precomputed line indices.
   SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
 }
 
 void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
+  if(m_bSweepDataDirty)
+    SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
+
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -157,13 +160,13 @@ void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& rende
 void ezScreenSpaceAmbientOcclusionPass::SetLineToLinePixelOffset(ezUInt32 uiPixelOffset)
 {
   m_uiLineToLinePixelOffset = uiPixelOffset;
-  //SetupLineSweepData // Necessary?
+  m_bSweepDataDirty = true;
 }
 
 void ezScreenSpaceAmbientOcclusionPass::SetLineSamplePixelOffset(ezUInt32 uiPixelOffset)
 {
   m_uiLineSamplePixelOffsetFactor = uiPixelOffset;
-  //SetupLineSweepData // Necessary?
+  m_bSweepDataDirty = true;
 }
 
 void ezScreenSpaceAmbientOcclusionPass::DestroyLineSweepData()
@@ -185,16 +188,11 @@ void ezScreenSpaceAmbientOcclusionPass::DestroyLineSweepData()
   if (!m_hLineInfoBuffer.IsInvalidated())
     device->DestroyBuffer(m_hLineInfoBuffer);
   m_hLineInfoBuffer.Invalidate();
-
 }
 
 void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imageResolution)
 {
-  // TODO REMOVE //////////////////////////////////////
-  m_uiLineSamplePixelOffsetFactor = 1;
-  m_uiLineToLinePixelOffset = 1;
-  /////////////////////////////////////////////////////
-
+  DestroyLineSweepData();
 
   ezDynamicArray<LineInstruction> lineInstructions;
   ezUInt32 totalNumberOfSamples = 0;
@@ -296,6 +294,8 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
       m_hLineSweepInfoSRV = device->GetDefaultResourceView(m_hLineInfoBuffer);
     }
   }
+
+  m_bSweepDataDirty = false;
 }
 
 void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples)

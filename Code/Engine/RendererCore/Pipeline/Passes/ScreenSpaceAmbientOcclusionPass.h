@@ -48,6 +48,8 @@ protected:
 
   ezConstantBufferStorageHandle m_hLineSweepCB;
 
+  bool m_bSweepDataDirty;
+
   /// Output of the line sweep pass.
   ezGALBufferHandle m_hLineSweepOutputBuffer;
   ezGALUnorderedAccessViewHandle m_hLineSweepOutputUAV;

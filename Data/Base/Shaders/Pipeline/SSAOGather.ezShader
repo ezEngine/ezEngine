@@ -29,7 +29,7 @@ struct PS_IN
 #include "Utils.h"
 
 Texture2D DepthBuffer : register(t0);
-SamplerState LinearClampSampler;
+SamplerState PointClampSampler;
 
 StructuredBuffer<LineInstruction> LineInstructions : register(t1);
 Buffer<float> LineSweepOutputBuffer : register(t2);
@@ -48,7 +48,7 @@ float4 main(PS_IN input) : SV_Target
   float occlusionAccum = 0.0f;
   float numSamples = 0.0f;
 
-  //float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(LinearClampSampler, input.TexCoord0).r);
+  //float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
 
   for (int dirIndex = 0; dirIndex < NUM_SWEEP_DIRECTIONS_PER_FRAME; ++dirIndex)
   {
@@ -117,5 +117,5 @@ float4 main(PS_IN input) : SV_Target
   }
 
   float output = 1.0f - occlusionAccum / numSamples;
-  return float4(output, output, output, 1.0f);
+  return float4(output, output, output, output);
 }
