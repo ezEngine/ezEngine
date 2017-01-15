@@ -65,17 +65,6 @@ ezViewRenderMode::EmissiveColor;Emissive Color
 ezViewRenderMode::Roughness;Roughness
 ezViewRenderMode::Occlusion;Ambient Occlusion
 ezViewRenderMode::Depth;Depth
-ezMeshPrimitive::File;From File
-ezMeshPrimitive::Box;Box
-ezMeshPrimitive::Rect;Rectangle
-ezMeshPrimitive::Cylinder;Cylinder
-ezMeshPrimitive::Cone;Cone
-ezMeshPrimitive::Pyramid;Pyramid
-ezMeshPrimitive::Sphere;Sphere
-ezMeshPrimitive::HalfSphere;Half Sphere
-ezMeshPrimitive::GeodesicSphere;Geodesic Sphere
-ezMeshPrimitive::Capsule;Capsule
-ezMeshPrimitive::Torus;Torus
 ezBasisAxis::PositiveX;Positive X
 ezBasisAxis::PositiveY;Positive Y
 ezBasisAxis::PositiveZ;Positive Z

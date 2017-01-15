@@ -39,7 +39,7 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
 
   ezDeferredFileWriter FileOut;
   FileOut.SetOutput(":appdata/EditorPlugins.ddl");
- 
+
   ezOpenDdlWriter writer;
   writer.SetCompactMode(false);
   writer.SetPrimitiveTypeStringMode(ezOpenDdlWriter::TypeStringMode::Compliant);

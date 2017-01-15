@@ -185,6 +185,9 @@ private:
   void DetectAvailableEnginePlugins();
   void ReadEditorPluginsToBeLoaded();
   void ReadEnginePluginConfig();
+
+  void ValidateEnginePluginConfig();
+
   void ReadTagRegistry();
 
   void SetupDataDirectories();
