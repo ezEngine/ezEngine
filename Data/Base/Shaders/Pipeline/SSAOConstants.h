@@ -22,7 +22,7 @@ struct DirectionInfo
 struct LineInstruction
 {
   FLOAT2(FirstSamplePos); // Screen pixel at which this line starts.
-  UINT1(LineDirIndex);    // Index that identifies the direction of this sample.
+  UINT1(LineDirIndex_NumSamples);    // Packed half half: Index that identifies the direction of this sample, number of samples this line has
   UINT1(LineSweepOutputBufferOffset); // Index of the first output sample this line should write to.
 };
 
@@ -36,4 +36,4 @@ CONSTANT_BUFFER(ezSSAOConstants, 3)
 // Very low number prooved to work nicely on GTX670, 64 threads were drastically slower than 32 (2017/01/14)
 // TODO: Isn't an AMD GCN wavefront 64 threads? This would clearly imply underutilitization. (Nvidia's warps are 32 threads)
 // Note that the Gather shader has a very high register pressure and we don't need a huge number of threads!
-#define SSAO_LINESWEEP_THREAD_GROUP 32
+#define SSAO_LINESWEEP_THREAD_GROUP 64

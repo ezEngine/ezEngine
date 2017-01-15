@@ -17,11 +17,16 @@ RWBuffer<float> LineSweepOutputBuffer;
 // Higher numbers make the algorithm more accurate but increase the GPR pressure
 #define STACK_SIZE 16
 
+// Minimum difference in occlusion to pop from the stack.
+#define OCCLUSION_BIAS 0.00001f
+// Minimum difference in orientation test to pop from the stack.
+#define HULL_BIAS 0.00001f
+
 // Computes occlusion from an occluder on a given position
 // As suggested by the original paper we go with the simple "strategy 3" where we assume a fixed tangent plane.
 float computeOcclusion(float occluderDotCamera, float invOccluderDist)
 {
-  const float tangentPlane = -0.85f; // Todo: Expose this parameter.
+  const float tangentPlane = -0.85f; // Todo: Expose this parameter?
   const float falloffConstant = 2.0f; // Todo: Expose this parameter.
 
   float occluderFalloff = falloffConstant * invOccluderDist;
@@ -30,6 +35,16 @@ float computeOcclusion(float occluderDotCamera, float invOccluderDist)
   // saturate since occlusion values outside of 0-1 are not meaningful.
   return saturate(tangentPlane + max(0.0f, occluderDotCamera - tangentPlane) * occluderFalloff);
 }
+
+void computeOccluderProps(float2 lastOccluderPos, float2 currentPos, float2 toCamera,
+                          out float occluderDotCamera, out float occlusion)
+{
+  float2 occluderDir = lastOccluderPos - currentPos;
+  float occluderInvDist = rsqrt(dot(occluderDir, occluderDir));
+  occluderDotCamera = dot(occluderDir, toCamera) * occluderInvDist;
+  occlusion = computeOcclusion(occluderDotCamera, occluderInvDist);
+}
+
 
 [numthreads(SSAO_LINESWEEP_THREAD_GROUP, 1, 1)]
 void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
@@ -47,19 +62,24 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
   LineInstruction instruction = LineInstructions[lineId];
   float2 samplePos = instruction.FirstSamplePos;
   uint bufferOffset = instruction.LineSweepOutputBufferOffset;
-  float2 directionSampleStep = Directions[instruction.LineDirIndex].Direction;
+  uint bufferOffsetEnd = bufferOffset + (instruction.LineDirIndex_NumSamples >> 16);
+  uint lineDirIndex = instruction.LineDirIndex_NumSamples & 0xFFFF;
+  float2 directionSampleStep = Directions[lineDirIndex].Direction;
   float2 directionNormed = normalize(float2(directionSampleStep));
 
   // Stack for occlusion hull.
   // Since we can't possibly provide a stack large enough, we overwrite existing values gradually.
-  // If we do so, we still pretend the stack grew beyond/below STACK_SIZE (== never clamp currentTop but modulo on every access)
-  //
-  // Todo: Can we compress the stack to save space? Is Registers the right place for it - might want to put it in sharedmemory
-  // Note that right now the implementation assumes cheap access to hullStack
+  // If we do so, we still pretend the stack grew beyond/below STACK_SIZE, i.e. we never clamp the top pointer but modulo it on every access.
+  // We effectively pretend that we actually have "currentTop" elements in the stack while we're actually reusing elements we already popped.
+  // This little trick gets around most artifacts involving stack size.
   float2 hullStack[STACK_SIZE];
   hullStack[0] = samplePos;
-  hullStack[1] = samplePos;
   uint currentTop = 1;  // Index of the top element == size - 1
+
+  // Keep last two occluders in register for fast access.
+  // These two elements represent the very top of the stack!
+  float2 occluderPos_last0 = samplePos;
+  float2 occluderPos_last1 = samplePos;
 
   // Walk along this line.
   do
@@ -72,35 +92,45 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
     float2 position = float2(dot(viewPos.xy, directionNormed), viewPos.z);
     float2 toCamera = -normalize(position);
 
-    // Maintain occlusion hull.
-    float2 currentOccluderDir = hullStack[currentTop % STACK_SIZE] - position;
-    float currentOccluderInvDist = rsqrt(dot(currentOccluderDir, currentOccluderDir));
-    float currentOccluderDotCamera = dot(currentOccluderDir, toCamera) * currentOccluderInvDist;
-    float currentOcclusion = computeOcclusion(currentOccluderDotCamera, currentOccluderInvDist);
+    // Compute occlusions.
+    float currentOccluderDotCamera, currentOcclusion;
+    computeOccluderProps(occluderPos_last0, position, toCamera, currentOccluderDotCamera, currentOcclusion);
+    float nextOccluderDotCamera, nextOcclusion;
+    computeOccluderProps(occluderPos_last1, position, toCamera, nextOccluderDotCamera, nextOcclusion);
 
-    // Don't pop more from the stack than it is large in a single iteration (may even lead to endless loop)
-    // On the other hand we still keep the virtual stack size in currentTop, since declaring the stack empty leads to more artefacts than using the wrong stack.
-    for(int i=0; i<STACK_SIZE && currentTop > 0; ++i)
+    // Don't pop more from the stack than it is large in a single iteration.
+    // On the other hand we still keep the virtual stack size in currentTop, since declaring the stack empty leads to more artefacts than using the incorrect values.
+    int stackIters = 0;
+    const int maxIter = min(STACK_SIZE, currentTop);
+    while(// Stack empty?
+          stackIters < maxIter &&
+          // Not convex?
+          currentOccluderDotCamera < nextOccluderDotCamera - OCCLUSION_BIAS && 
+          // Higher occlusion?
+          currentOcclusion < nextOcclusion - HULL_BIAS)
     {
-      // Peek top element.
-      float2 nextOccluderDir = hullStack[(currentTop-1) % STACK_SIZE] - position;
-      float nextOccluderInvDist = rsqrt(dot(nextOccluderDir, nextOccluderDir));
-      float nextOccluderDotCamera = dot(nextOccluderDir, toCamera) * nextOccluderInvDist;
-      float nextOcclusion = computeOcclusion(nextOccluderDotCamera, nextOccluderInvDist);
-
-      if(currentOccluderDotCamera > nextOccluderDotCamera + 0.001f || 
-         currentOcclusion > nextOcclusion + 0.001f)
-        break;
-
       // Pop stack.
       currentOccluderDotCamera = nextOccluderDotCamera;
       currentOcclusion = nextOcclusion;
+      occluderPos_last0 = occluderPos_last1;
+      occluderPos_last1 = hullStack[currentTop % STACK_SIZE];
       --currentTop;
+      ++stackIters;
+
+      // Peek top element.
+      float nextOccluderDotCamera, nextOcclusion;
+      computeOccluderProps(occluderPos_last1, position, toCamera, nextOccluderDotCamera, nextOcclusion);
     }
 
     // Push new value to the stack.
+    // If we just popped an element from the stack, we don't need to put write back, since it is still there (we didn't delete it)
     ++currentTop;
-    hullStack[currentTop % STACK_SIZE] = position;
+    if(stackIters == 0)
+    {
+      hullStack[currentTop % STACK_SIZE] = occluderPos_last1;
+    }
+    occluderPos_last1 = occluderPos_last0;
+    occluderPos_last0 = position;
 
     // Write current occlusion value out.
     LineSweepOutputBuffer[bufferOffset] = currentOcclusion;
@@ -109,5 +139,5 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
     samplePos += directionSampleStep;
     ++bufferOffset;
 
-  } while(all(clamp(samplePos, float2(0.0f, 0.0f), screenSizeSubOne) == samplePos));
+  } while(bufferOffset < bufferOffsetEnd);
 }

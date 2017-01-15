@@ -310,19 +310,21 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
         }
       }
 
-      newLine.LineDirIndex = lineIndex;
       newLine.LineSweepOutputBufferOffset = outinTotalNumberOfSamples;
 
-
       // Compute how many samples this line will consume.
-      int stepsToXBorder = static_cast<int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
+      unsigned int stepsToXBorder = static_cast<unsigned int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
+      unsigned int numSamples = 0;
       if (walkDir.y > 0)
       {
-        int stepsToYBorder = static_cast<int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
-        outinTotalNumberOfSamples += ezMath::Min(stepsToYBorder, stepsToXBorder);
+        unsigned int stepsToYBorder = static_cast<unsigned int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
+        numSamples = ezMath::Min(stepsToYBorder, stepsToXBorder);
       }
       else
-        outinTotalNumberOfSamples += stepsToXBorder;
+        numSamples = stepsToXBorder;
+
+      outinTotalNumberOfSamples += numSamples;
+      newLine.LineDirIndex_NumSamples = lineIndex | (numSamples << 16);
     }
   }
   else
@@ -352,18 +354,21 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
         }
       }
 
-      newLine.LineDirIndex = lineIndex;
       newLine.LineSweepOutputBufferOffset = outinTotalNumberOfSamples;
 
       // Compute how many samples this line will consume.
-      int stepsToYBorder = static_cast<int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
+      unsigned int stepsToYBorder = static_cast<unsigned int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
+      unsigned int numSamples = 0;
       if (walkDir.x > 0)
       {
-        int stepsToXBorder = static_cast<int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
-        outinTotalNumberOfSamples += ezMath::Min(stepsToYBorder, stepsToXBorder);
+        unsigned int stepsToXBorder = static_cast<unsigned int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
+        numSamples = ezMath::Min(stepsToYBorder, stepsToXBorder);
       }
       else
-        outinTotalNumberOfSamples += stepsToYBorder;
+        numSamples = stepsToYBorder;
+
+      outinTotalNumberOfSamples += numSamples;
+      newLine.LineDirIndex_NumSamples = lineIndex | (numSamples << 16);
     }
   }
 

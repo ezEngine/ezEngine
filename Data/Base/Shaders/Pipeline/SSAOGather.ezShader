@@ -35,8 +35,8 @@ StructuredBuffer<LineInstruction> LineInstructions : register(t1);
 Buffer<float> LineSweepOutputBuffer : register(t2);
 
 
-#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
-//#define ASSERT(condition)
+//#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
+#define ASSERT(condition)
 
 float4 main(PS_IN input) : SV_Target
 {
@@ -91,7 +91,7 @@ float4 main(PS_IN input) : SV_Target
     }
     
     // Line instructions know the direction they belong to, use this to make sure that we're touching the right one.
-    ASSERT(LineInstructions[lineInstructionIndex].LineDirIndex == uint(dirIndex))
+    ASSERT((LineInstructions[lineInstructionIndex].LineDirIndex_NumSamples & 0xFFFF) == uint(dirIndex))
 
     // If everything went as planned, lineSampleNumber is never smaller than -1
     // Beeing smaller zero means that the start is "in front" of the pixel which can happen due to jittering. 
