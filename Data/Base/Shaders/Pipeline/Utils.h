@@ -7,7 +7,7 @@
 // Basically removes the w division from z again.
 float LinearizeZBufferDepth(float depthFromZBuffer)
 {
-  return CameraToScreenMatrix._34 / (depthFromZBuffer - CameraToScreenMatrix._33);
+  return 1.0f / (depthFromZBuffer * ScreenToCameraMatrix._43 + ScreenToCameraMatrix._44);
 }
 
 // Computes view space coordinate for a given pixel position and depth.
@@ -21,11 +21,9 @@ float LinearizeZBufferDepth(float depthFromZBuffer)
 float3 FastScreenCoordToViewSpace(float2 normalizedScreenCor, float depthFromZBuffer)
 {
   // float4 viewPos = mul(ScreenToCameraMatrix, float4(normalizedScreenCor, depthFromZBuffer, 1.0f));
-  // viewPos.xyz /= viewPos.w;
-  // return viewPos.xyz;
+  //viewPos.xyz /= viewPos.w;
+  //return viewPos.xyz;
 
-  float divisor = 1.0f / (depthFromZBuffer - 1.0f);
-  return float3(ScreenToCameraMatrix._11 * normalizedScreenCor.x,
-                ScreenToCameraMatrix._22 * normalizedScreenCor.y,
-                ScreenToCameraMatrix._43) * divisor;
+  float linearZ = LinearizeZBufferDepth(depthFromZBuffer);
+  return float3(float2(ScreenToCameraMatrix._11, ScreenToCameraMatrix._22) * normalizedScreenCor * linearZ, linearZ);
 }
