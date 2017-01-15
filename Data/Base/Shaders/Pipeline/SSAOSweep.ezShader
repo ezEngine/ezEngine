@@ -14,9 +14,6 @@ Texture2D DepthBuffer : register(t0);
 StructuredBuffer<LineInstruction> LineInstructions;
 RWBuffer<float> LineSweepOutputBuffer;
 
-// Higher numbers make the algorithm more accurate but increase the GPR pressure
-#define STACK_SIZE 16
-
 // Minimum difference in occlusion to pop from the stack.
 #define OCCLUSION_BIAS 0.00001f
 // Minimum difference in orientation test to pop from the stack.
@@ -46,11 +43,26 @@ void computeOccluderProps(float2 lastOccluderPos, float2 currentPos, float2 toCa
 }
 
 
+// Higher numbers make the algorithm more accurate but increase the GPR pressure
+#define STACK_SIZE 16
+
+// Stack for occlusion hull.
+// Since we can't possibly provide a stack large enough, we overwrite existing values gradually.
+// If we do so, we still pretend the stack grew beyond/below STACK_SIZE, i.e. we never clamp the top pointer but modulo it on every access.
+// We effectively pretend that we actually have "currentTop" elements in the stack while we're actually reusing elements we already popped.
+// This little trick gets around most artifacts involving stack size.
+//
+// We're using groupshared to take away register pressure, but we're not actually sharing any memory!
+// Notices the organization to avoid bank conflict.
+// The code is writen in a way to minimize access to the hullstack.
+// todo: experiment with packing.
+groupshared float2 hullStack[STACK_SIZE][SSAO_LINESWEEP_THREAD_GROUP];
+
 [numthreads(SSAO_LINESWEEP_THREAD_GROUP, 1, 1)]
-void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
+void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadID)
 { 
   // Determine lineId for this thread. May be invalid due to group quantization.
-  uint lineId = DispatchID.x;
+  uint lineId = DispatchID;
   if(lineId >= TotalLineNumber)
     return;
 
@@ -67,13 +79,8 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
   float2 directionSampleStep = Directions[lineDirIndex].Direction;
   float2 directionNormed = normalize(float2(directionSampleStep));
 
-  // Stack for occlusion hull.
-  // Since we can't possibly provide a stack large enough, we overwrite existing values gradually.
-  // If we do so, we still pretend the stack grew beyond/below STACK_SIZE, i.e. we never clamp the top pointer but modulo it on every access.
-  // We effectively pretend that we actually have "currentTop" elements in the stack while we're actually reusing elements we already popped.
-  // This little trick gets around most artifacts involving stack size.
-  float2 hullStack[STACK_SIZE];
-  hullStack[0] = samplePos;
+  // Init stack.
+  hullStack[0][ThreadID] = samplePos;
   uint currentTop = 1;  // Index of the top element == size - 1
 
   // Keep last two occluders in register for fast access.
@@ -113,7 +120,7 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
       currentOccluderDotCamera = nextOccluderDotCamera;
       currentOcclusion = nextOcclusion;
       occluderPos_last0 = occluderPos_last1;
-      occluderPos_last1 = hullStack[currentTop % STACK_SIZE];
+      occluderPos_last1 = hullStack[currentTop % STACK_SIZE][ThreadID];
       --currentTop;
       ++stackIters;
 
@@ -127,7 +134,7 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
     ++currentTop;
     if(stackIters == 0)
     {
-      hullStack[currentTop % STACK_SIZE] = occluderPos_last1;
+      hullStack[currentTop % STACK_SIZE][ThreadID] = occluderPos_last1;
     }
     occluderPos_last1 = occluderPos_last0;
     occluderPos_last0 = position;

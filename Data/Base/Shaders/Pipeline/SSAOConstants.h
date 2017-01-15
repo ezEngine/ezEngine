@@ -33,7 +33,8 @@ CONSTANT_BUFFER(ezSSAOConstants, 3)
   UINT1(TotalLineNumber);
 };
 
-// Very low number prooved to work nicely on GTX670, 64 threads were drastically slower than 32 (2017/01/14)
-// TODO: Isn't an AMD GCN wavefront 64 threads? This would clearly imply underutilitization. (Nvidia's warps are 32 threads)
-// Note that the Gather shader has a very high register pressure and we don't need a huge number of threads!
+// Notes on group size:
+// Very low number proved to work nicely on GTX670
+// Without shared memory in gather, 64 threads were drastically slower than 32 (2017/01/14) (almost certainly too high register pressure)
+// With shared memory the difference between 128, 64 and 32 is negliable, 256 clearly worse (2017/01/15). Since AMD GCN wavefronts are 64, this is a desired minimum.
 #define SSAO_LINESWEEP_THREAD_GROUP 64
