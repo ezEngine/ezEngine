@@ -33,7 +33,7 @@ float computeOcclusion(float occluderDotCamera, float invOccluderDist)
 
 [numthreads(SSAO_LINESWEEP_THREAD_GROUP, 1, 1)]
 void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
-{
+{ 
   // Determine lineId for this thread. May be invalid due to group quantization.
   uint lineId = DispatchID.x;
   if(lineId >= TotalLineNumber)
@@ -59,15 +59,14 @@ void main(uint3 DispatchID : SV_DispatchThreadID, uint GroupIndex : SV_GroupInde
   float2 hullStack[STACK_SIZE];
   hullStack[0] = samplePos;
   hullStack[1] = samplePos;
-  unsigned int currentTop = 1;  // Index of the top element == size - 1
+  uint currentTop = 1;  // Index of the top element == size - 1
 
   // Walk along this line.
   do
   {
     float depthBufferDepth = DepthBuffer.Load(int3(samplePos, 0)).r;
     float2 normalizedScreenCor = samplePos * inverseScreenSize * 2.0f - 1.0f;
-    float4 viewPos = mul(ScreenToCameraMatrix, float4(normalizedScreenCor, depthBufferDepth, 1.0f));
-    viewPos.xyz /= viewPos.w;
+    float3 viewPos = FastScreenCoordToViewSpace(normalizedScreenCor, depthBufferDepth);
 
     // All other calculations work in a 2D "line projected" space.
     float2 position = float2(dot(viewPos.xy, directionNormed), viewPos.z);
