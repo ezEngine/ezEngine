@@ -200,8 +200,11 @@ o
 			Uuid{u4{515193033630936721,16283508336090425308}}
 			Uuid{u4{4006403293684682694,17082340450731333280}}
 		}
-		Vec2 %Node::Pos{f{0x0AC47EC4,0x916549C3}}
-		VarArray %Renderers{}
+		Vec2 %Node::Pos{f{0x98837EC4,0x916549C3}}
+		VarArray %Renderers
+		{
+			Uuid{u4{12004523242303465860,5313940691838364731}}
+		}
 	}
 }
 o
@@ -298,7 +301,7 @@ o
 		{
 			Uuid{u4{8885271718945736074,8038724492364506280}}
 		}
-		Vec2 %Node::Pos{f{0x00C058C4,0x6EBAF9C1}}
+		Vec2 %Node::Pos{f{0x00C058C4,0x28ACF1C1}}
 		Uuid %Output{u4{321395160873795197,15581556794423472924}}
 		VarArray %Renderers{}
 	}
@@ -307,6 +310,13 @@ o
 {
 	Uuid %id{u4{7380404801823553958,5285337044802883910}}
 	s %t{"ezParticleBillboardRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{12004523242303465860,5313940691838364731}}
+	s %t{"ezMeshRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -439,7 +449,7 @@ o
 		{
 			Uuid{u4{12840291537622090936,7120117218080742269}}
 		}
-		Vec2 %Node::Pos{f{0x6A362FC4,0x6ABAF9C1}}
+		Vec2 %Node::Pos{f{0xAB5F22C4,0x58E400C2}}
 		VarArray %Renderers{}
 	}
 }
@@ -462,7 +472,7 @@ o
 		Uuid %DepthStencil{u4{17777586325303666767,13918173746689575637}}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x0BCE3D44,0x26C466C3}}
+		Vec2 %Node::Pos{f{0xB8503F44,0x6017FBC1}}
 		VarArray %Renderers{}
 	}
 }
@@ -477,7 +487,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{16281240124943643519}
+		u4 %Hash{10272828688992820762}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -708,8 +718,8 @@ o
 	p
 	{
 		s %SourcePin{"DepthStencil"}
-		Uuid %Target{u4{17796431785515833509,5647157096127223658}}
-		s %TargetPin{"DepthStencil"}
+		Uuid %Target{u4{17158037350687856310,5273637871777512332}}
+		s %TargetPin{"Input"}
 	}
 }
 o
@@ -739,8 +749,8 @@ o
 	p
 	{
 		s %SourcePin{"DepthStencil"}
-		Uuid %Target{u4{17158037350687856310,5273637871777512332}}
-		s %TargetPin{"Input"}
+		Uuid %Target{u4{17796431785515833509,5647157096127223658}}
+		s %TargetPin{"DepthStencil"}
 	}
 }
 o
