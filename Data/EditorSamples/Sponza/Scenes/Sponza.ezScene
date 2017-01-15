@@ -4,18 +4,13 @@ o
 {
 	Uuid %id{u4{9289936928284635789,4664016142504799445}}
 	s %t{"ezSkyBoxComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
-		s %BackTexture{"{ b1a12ed8-9389-400a-8a56-f14dc856fb86 }"}
-		s %DownTexture{"{ 566d4602-16df-4df2-a5fb-0e53879a7db5 }"}
+		s %CubeMap{"{ 45d7a4d4-10d4-4b49-80b2-139e64d342c1 }"}
 		f %ExposureBias{0x0000803F}
-		s %FrontTexture{"{ 16392084-7980-4556-97a2-6f0c0312d5a0 }"}
 		b %InverseTonemap{1}
-		s %LeftTexture{"{ aa3ec83f-a932-415e-ac02-8ceffdb733c1 }"}
-		s %RightTexture{"{ ed0a89ca-d7a4-4e39-a25f-9518c1cd3aff }"}
-		s %UpTexture{"{ 626d50a0-e628-485c-bfef-33879466108d }"}
 	}
 }
 o
@@ -147,17 +142,13 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6352536487282240430,5530783045581211485}}
-		u4 %Hash{13285924800342744144}
+		u4 %Hash{12856304888612740477}
+		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 16392084-7980-4556-97a2-6f0c0312d5a0 }"}
 			s{"{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }"}
-			s{"{ 566d4602-16df-4df2-a5fb-0e53879a7db5 }"}
-			s{"{ 626d50a0-e628-485c-bfef-33879466108d }"}
-			s{"{ aa3ec83f-a932-415e-ac02-8ceffdb733c1 }"}
-			s{"{ b1a12ed8-9389-400a-8a56-f14dc856fb86 }"}
+			s{"{ 45d7a4d4-10d4-4b49-80b2-139e64d342c1 }"}
 			s{"{ cea3567e-6d36-418f-9259-f2e157979bcc }"}
-			s{"{ ed0a89ca-d7a4-4e39-a25f-9518c1cd3aff }"}
 		}
 	}
 }

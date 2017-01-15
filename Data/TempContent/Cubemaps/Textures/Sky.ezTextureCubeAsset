@@ -7,7 +7,7 @@ o
 	u3 %v{2}
 	p
 	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGBA1"}
 		b %Compression{1}
 		s %Input1{"Cubemaps/Textures/Sky.jpg"}
 		s %Input2{""}
@@ -49,7 +49,7 @@ AssetInfo
 			s{"Cubemaps/Textures/Sky.jpg"}
 		}
 		Uuid %DocumentID{u4{13925925426885276288,5424885730035344596}}
-		u4 %Hash{9873354751709871337}
+		u4 %Hash{16300706753246390582}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
