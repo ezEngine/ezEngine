@@ -21,6 +21,32 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefa
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+namespace
+{
+  float HaltonSequence(int base, int j)
+  {
+    static int primes[61] = { 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,
+      83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,
+      191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283 };
+
+    EZ_ASSERT_DEV(base < 61, "Don't have prime number for this base.");
+
+    // Halton sequence with reverse permutation
+    const int p = primes[base];
+    float h = 0.0f;
+    float f = 1.0f / static_cast<float>(p);
+    float fct = f;
+    while (j > 0)
+    {
+      int i = j % p;
+      h += (i == 0 ? i : p - i) * fct;
+      j /= p;
+      fct *= f;
+    }
+    return h;
+  }
+}
+
 ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
   : ezRenderPipelinePass("ScreenSpaceAmbientOcclusionPass")
   , m_uiLineToLinePixelOffset(1)
@@ -289,7 +315,8 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
     for (ezInt32 y = imageResolution.y - 1; true; y -= m_uiLineToLinePixelOffset)
     {
       LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
-      newLine.FirstSamplePos = ezVec2(0.0f, static_cast<float>(y)); // TODO: "random" (halton sequence?) offset
+      float offset = ezMath::Round(HaltonSequence(lineIndex, y) * walkDir.x); // Pseudo random offset in x.
+      newLine.FirstSamplePos = ezVec2(offset, static_cast<float>(y));
 
       // If we are already outside of the screen with x, this is not a point inside the screen!
       if (y < 0)
@@ -333,7 +360,8 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
     for (ezInt32 x = imageResolution.x - 1; true; x -= m_uiLineToLinePixelOffset)
     {
       LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
-      newLine.FirstSamplePos = ezVec2(static_cast<float>(x), 0); // TODO: "random" (halton sequence?) offset
+      float offset = ezMath::Round(HaltonSequence(lineIndex, x) * walkDir.y); // Pseudo random offset in y.
+      newLine.FirstSamplePos = ezVec2(static_cast<float>(x), offset);
 
       // If we are already outside of the screen with x, this is not a point inside the screen!
       if (x < 0)
