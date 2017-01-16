@@ -21,15 +21,13 @@ RWBuffer<float> LineSweepOutputBuffer;
 
 // Computes occlusion from an occluder on a given position
 // As suggested by the original paper we go with the simple "strategy 3" where we assume a fixed tangent plane.
-float computeOcclusion(float occluderDotCamera, float invOccluderDist)
+float computeOcclusion(float occluderDotCamera, float occluderDistSq)
 {
   const float tangentPlane = -0.85f; // Todo: Expose this parameter?
-  const float falloffConstant = 2.0f; // Todo: Expose this parameter.
+  const float falloffConstant = 0.25f; // Todo: Expose this parameter.
 
-  // Our falloff function is "falloffConstant / (falloffConstant + dist)"
-  // Todo: Experiment with other functions.
-  float occluderFalloff = falloffConstant * invOccluderDist;
-  occluderFalloff = occluderFalloff / (occluderFalloff + 1.0f);
+  // Alternative falloff: "falloffConstant / (falloffConstant + dist)"
+  float occluderFalloff = 1.0f / (1.0f + occluderDistSq * falloffConstant);
 
   // Don't saturate! This will get negative values for non-occluders in the stack.
   // Note: Not saturating per line occlusion until the very end in the Gather pass seems to get rid of a lot of artifacts.
@@ -43,13 +41,13 @@ void computeOccluderProps(float2 lastOccluderPos, float2 currentPos, float2 toCa
                           out float occluderDotCamera, out float occlusion)
 {
   float2 occluderDir = lastOccluderPos - currentPos;
-  float occluderInvDist = rsqrt(dot(occluderDir, occluderDir));
-  occluderDotCamera = dot(occluderDir, toCamera) * occluderInvDist;
-  occlusion = computeOcclusion(occluderDotCamera, occluderInvDist);
+  float occluderDistSq = dot(occluderDir, occluderDir);
+  occluderDotCamera = dot(occluderDir, toCamera) * rsqrt(occluderDistSq);
+  occlusion = computeOcclusion(occluderDotCamera, occluderDistSq);
 }
 
 
-// Higher numbers make the algorithm more accurate but increase the GPR pressure
+// Higher numbers make the algorithm more accurate but take more shared memory
 #define STACK_SIZE 16
 
 // Stack for occlusion hull.
