@@ -35,8 +35,8 @@ StructuredBuffer<LineInstruction> LineInstructions : register(t1);
 Buffer<float> LineSweepOutputBuffer : register(t2);
 
 
-//#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
-#define ASSERT(condition)
+#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
+//#define ASSERT(condition)
 
 float4 main(PS_IN input) : SV_Target
 {
@@ -48,7 +48,7 @@ float4 main(PS_IN input) : SV_Target
   float occlusionAccum = 0.0f;
   float numSamples = 0.0f;
 
-  float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
+  //float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
 
   for (int dirIndex = 0; dirIndex < NUM_SWEEP_DIRECTIONS_PER_FRAME; ++dirIndex)
   {
@@ -98,11 +98,11 @@ float4 main(PS_IN input) : SV_Target
     ASSERT(lineSampleNumber >= -1);
 
     // Check depth at this sample.
-    int2 samplePos = lineOrigin + lineSampleNumber * dir;
-    float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
-    const float MaxSampleDepthDifference = 1.1f;  // TODO EXPOSE
-    if(abs(sampleDepth - pixelDepth) > MaxSampleDepthDifference)
-      continue;
+    // int2 samplePos = lineOrigin + lineSampleNumber * dir;
+    // float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
+    // const float MaxSampleDepthDifference = 1.1f;  // TODO EXPOSE
+    // if(abs(sampleDepth - pixelDepth) > MaxSampleDepthDifference)
+    //   continue;
 
     // Fetch sweep sample.
     lineSampleNumber += LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
@@ -118,6 +118,6 @@ float4 main(PS_IN input) : SV_Target
 
   float output = 1.0f;
   if (numSamples > 0)
-     output = 1.0f - occlusionAccum / numSamples;
+     output = 1.0f - saturate(occlusionAccum / numSamples);
   return float4(output, output, output, output);
 }

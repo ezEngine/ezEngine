@@ -26,11 +26,17 @@ float computeOcclusion(float occluderDotCamera, float invOccluderDist)
   const float tangentPlane = -0.85f; // Todo: Expose this parameter?
   const float falloffConstant = 2.0f; // Todo: Expose this parameter.
 
+  // Our falloff function is "falloffConstant / (falloffConstant + dist)"
+  // Todo: Experiment with other functions.
   float occluderFalloff = falloffConstant * invOccluderDist;
   occluderFalloff = occluderFalloff / (occluderFalloff + 1.0f);
 
-  // saturate since occlusion values outside of 0-1 are not meaningful.
-  return saturate(tangentPlane + max(0.0f, occluderDotCamera - tangentPlane) * occluderFalloff);
+  // Don't saturate! This will get negative values for non-occluders in the stack.
+  // Note: Not saturating per line occlusion until the very end in the Gather pass seems to get rid of a lot of artifacts.
+  // However, I can't make entirely sense of the underlying whys - as I understand the ambient occlusion equation the contribution from every direction should be >= 0
+  // It might have something to do with the fact that we're not strictly integrating over the hemisphere around the normal.
+  // (todo: get a better understanding of what's going on!)
+  return tangentPlane + max(0.0f, occluderDotCamera - tangentPlane) * occluderFalloff;
 }
 
 void computeOccluderProps(float2 lastOccluderPos, float2 currentPos, float2 toCamera,
@@ -54,7 +60,7 @@ void computeOccluderProps(float2 lastOccluderPos, float2 currentPos, float2 toCa
 //
 // We're using groupshared to take away register pressure, but we're not actually sharing any memory!
 // Notices the organization to avoid bank conflict.
-// The code is writen in a way to minimize access to the hullstack.
+// The code below is trying to minimize access to the hullstack.
 // todo: experiment with packing.
 groupshared float2 hullStack[STACK_SIZE][SSAO_LINESWEEP_THREAD_GROUP];
 
@@ -132,7 +138,7 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
     // Push new value to the stack.
     // If we just popped an element from the stack, we don't need to put write back, since it is still there (we didn't delete it)
     ++currentTop;
-    if(stackIters == 0)
+    if(stackIters == maxIter)
     {
       hullStack[currentTop % STACK_SIZE][ThreadID] = occluderPos_last1;
     }

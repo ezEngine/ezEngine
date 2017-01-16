@@ -268,14 +268,14 @@ o
 		b %Active{1}
 		Uuid %AmbientObscurance{u4{15900099179954622730,16293381687200086449}}
 		Uuid %Depth{u4{16151519035897333223,13099882195196883609}}
-		u3 %LineSampleDistanceFactor{2}
-		u3 %LineToLineDistance{4}
+		u3 %LineSampleDistanceFactor{1}
+		u3 %LineToLineDistance{2}
 		s %Name{""}
 		VarArray %Node::Connections
 		{
 			Uuid{u4{8270282032429963782,1350504153506676736}}
 		}
-		Vec2 %Node::Pos{f{0xBB7D57C4,0x041BCBC2}}
+		Vec2 %Node::Pos{f{0x787454C4,0x1865E3C2}}
 		VarArray %Renderers{}
 	}
 }
@@ -369,7 +369,7 @@ o
 			Uuid{u4{7533331952155122296,16524937702742185478}}
 			Uuid{u4{9448223032224124010,12142004164289548692}}
 		}
-		Vec2 %Node::Pos{f{0x870E9FC4,0xCB8A69C3}}
+		Vec2 %Node::Pos{f{0x8DDD9EC4,0xCB8A69C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{4877479317619342001,5684774710032916123}}
@@ -545,7 +545,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{10721839574331392288}
+		u4 %Hash{4104119285488246673}
 		VarArray %Outputs{}
 		VarArray %References
 		{
