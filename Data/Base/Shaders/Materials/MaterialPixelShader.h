@@ -35,7 +35,7 @@
     }
   #endif
 
-  float3 litColor = CalculateLighting(matData);
+  float3 litColor = CalculateLighting(matData, Input.Position.xy / Viewport.zw);
   litColor += matData.emissiveColor;
 
   #if RENDER_PASS == RENDER_PASS_FORWARD

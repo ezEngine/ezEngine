@@ -86,11 +86,6 @@ SamplerState EmissiveTexture_AutoSampler;
 Texture2D OcclusionTexture;
 SamplerState OcclusionTexture_AutoSampler;
 
-#if USE_SSAO == TRUE
-  Texture2D SSAOTexture;
-  SamplerState PointClampSampler;
-#endif
-
 float3 GetNormal(PS_IN Input)
 {
   [branch]
@@ -185,23 +180,13 @@ float3 GetEmissiveColor(PS_IN Input)
 
 float GetOcclusion(PS_IN Input)
 {
-  #if USE_SSAO == TRUE
-    float occlusion = SSAOTexture.Sample(PointClampSampler, Input.Position.xy / Viewport.zw).r;
-    if (UseOcclusionTexture)
-    {
-      occlusion = min(occlusion, OcclusionTexture.Sample(OcclusionTexture_AutoSampler, Input.TexCoords.xy).r);
-    }
-    return occlusion;
-
-  #else
-    [branch]
-    if (UseOcclusionTexture)
-    {
-      return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, Input.TexCoords.xy).r;
-    }
-    else
-    {
-      return 1.0f;
-    }
-  #endif
+  [branch]
+  if (UseOcclusionTexture)
+  {
+    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, Input.TexCoords.xy).r;
+  }
+  else
+  {
+    return 1.0f;
+  }
 }

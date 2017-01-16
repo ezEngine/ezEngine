@@ -12,7 +12,7 @@ public:
   ezEditorRenderPass(const char* szName = "EditorRenderPass");
 
 protected:
-  virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext, bool enableSSAO) override;
+  virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;
 
   ezViewRenderMode::Enum m_ViewRenderMode;
 };

@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<e
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
-    EZ_MEMBER_PROPERTY("ScreenSpaceAmbientObscurance", m_PinSSAO),
+    EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
   }
   EZ_END_PROPERTIES
 }
@@ -42,7 +42,7 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
     ezLog::Error("No color input connected to pass '{0}'!", GetName());
     return false;
   }
-  
+
   // DepthStencil
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
@@ -85,16 +85,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
-  bool enableSSAO = (inputs[m_PinSSAO.m_uiInputIndex] != nullptr);
-  SetupPermutationVars(renderViewContext, enableSSAO);
-
-  // Set SSAO texture (optional)
-  if (enableSSAO)
-  {
-    ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
-    EZ_ASSERT_DEV(ssaoResourceViewHandle != ezGALResourceViewHandle(), "There is no resource view for the SSAO output texture.");
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
-  }
+  SetupPermutationVars(renderViewContext);
 
   // Setup clustered data
   ezClusteredData* pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
@@ -105,11 +96,12 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   {
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "TRUE");
     ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
-    EZ_ASSERT_DEV(ssaoResourceViewHandle != ezGALResourceViewHandle(), "There is no resource view for the SSAO output texture.");
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
   }
   else
+  {
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "FALSE");
+  }
 
   // Render
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
@@ -118,7 +110,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Sky);
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
-  
+
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 
@@ -126,12 +118,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 }
 
-void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext, bool enableSSAO)
+void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
 {
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
-
-  if(enableSSAO)
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "TRUE");
-  else
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "FALSE");
 }

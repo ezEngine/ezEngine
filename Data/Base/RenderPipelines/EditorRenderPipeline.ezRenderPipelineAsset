@@ -49,15 +49,8 @@ o
 	{
 		s %SourcePin{"AmbientObscurance"}
 		Uuid %Target{u4{8324306461288233623,4644088618433484449}}
-		s %TargetPin{"ScreenSpaceAmbientObscurance"}
+		s %TargetPin{"SSAO"}
 	}
-}
-o
-{
-	Uuid %id{u4{5287150908266856251,1399342051636196122}}
-	s %t{"ezInputNodePin"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -229,7 +222,7 @@ o
 			Uuid{u4{8572519140822481814,5115429687416637240}}
 			Uuid{u4{2525688839503522177,5256496497190223221}}
 		}
-		Uuid %ScreenSpaceAmbientObscurance{u4{5287150908266856251,1399342051636196122}}
+		Uuid %SSAO{u4{14666109703222676106,11145027234500333347}}
 		s %ViewRenderMode{"ezViewRenderMode::None"}
 	}
 }
@@ -552,7 +545,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{3606704311599690698}
+		u4 %Hash{10721839574331392288}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -883,6 +876,13 @@ o
 o
 {
 	Uuid %id{u4{4668969972891416158,10677233438368813162}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{14666109703222676106,11145027234500333347}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}

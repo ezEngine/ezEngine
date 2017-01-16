@@ -19,7 +19,7 @@ ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezForwardRenderPass
 {
 }
 
-void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext, bool enableSSAO)
+void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
 {
   ezTempHashedString sRenderPass("FORWARD");
   ezUInt32 uiRenderPass = 0;
@@ -92,11 +92,6 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
   }
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
-
-  if (enableSSAO)
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "TRUE");
-  else
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "FALSE");
 
   auto& globalConstants = renderViewContext.m_pRenderContext->WriteGlobalConstants();
   globalConstants.RenderPass = uiRenderPass;
