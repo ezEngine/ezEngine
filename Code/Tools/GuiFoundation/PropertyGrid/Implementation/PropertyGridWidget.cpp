@@ -321,7 +321,7 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
         if (pWidget != nullptr)
           return pWidget;
 
-        if (!pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
         {
           // Member struct / class
           return new ezQtPropertyTypeWidget(true);

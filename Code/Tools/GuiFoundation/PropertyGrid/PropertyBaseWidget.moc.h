@@ -134,7 +134,7 @@ protected:
 };
 
 
-/// \todo Not really sure what this is used for
+/// Used for pointers and embedded classes. Builds a ezQtTypeWidget from the property's value.
 class EZ_GUIFOUNDATION_DLL ezQtPropertyTypeWidget : public ezQtPropertyWidget
 {
   Q_OBJECT;

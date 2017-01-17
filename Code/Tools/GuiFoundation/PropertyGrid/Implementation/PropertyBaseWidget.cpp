@@ -424,19 +424,34 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<Selection, 8>& ite
     delete m_pTypeWidget;
     m_pTypeWidget = nullptr;
   }
+
+  // Retrieve the objects the property points to. This could be an embedded class or
+  // an element of an array, be it pointer or embedded class.
+  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+  ezHybridArray<ezQtPropertyWidget::Selection, 8> SubItems;
+  for (const auto& item : m_Items)
+  {
+    ezUuid ObjectGuid = pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, item.m_Index);
+    ezQtPropertyWidget::Selection sel;
+    sel.m_pObject = pObjectAccessor->GetObject(ObjectGuid);
+    //sel.m_Index; intentionally invalid as we just retrieved the value so it is a pointer to an object
+
+    SubItems.PushBack(sel);
+  }
+
   const ezRTTI* pCommonType = nullptr;
   if (m_pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
   {
-    // If we create a widget for a member struct we already determined the common base type at the parent type widget.
+    // If we create a widget for a member class we already determined the common base type at the parent type widget.
     // As we are not dealing with a pointer in this case the type must match the property exactly.
     pCommonType = m_pProp->GetSpecificType();
   }
   else
   {
-    pCommonType = ezQtPropertyWidget::GetCommonBaseType(m_Items);
+    pCommonType = ezQtPropertyWidget::GetCommonBaseType(SubItems);
   }
   m_pTypeWidget = new ezQtTypeWidget(pOwner, m_pGrid, pCommonType);
-  m_pTypeWidget->SetSelection(m_Items);
+  m_pTypeWidget->SetSelection(SubItems);
 
   pLayout->addWidget(m_pTypeWidget);
 }
@@ -816,11 +831,9 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 
   for (const auto& item : m_Items)
   {
-    ezUuid ObjectGuid = pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, index);
-
     ezQtPropertyWidget::Selection sel;
-    sel.m_pObject = pObjectAccessor->GetObject(ObjectGuid);
-    //sel.m_Index = // supposed to be invalid;
+    sel.m_pObject = item.m_pObject;
+    sel.m_Index = index;
 
     SubItems.PushBack(sel);
   }
