@@ -12,7 +12,13 @@
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <EditorPluginParticle/Widgets/VarianceWidget.moc.h>
 
+static ezQtPropertyWidget* VarianceTypeCreator(const ezRTTI* pRtti)
+{
+  return new ezQtVarianceTypeWidget();
+}
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -50,6 +56,7 @@ void OnLoadPlugin(bool bReloading)
     }
   }
 
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceType>(), VarianceTypeCreator);
 }
 
 void OnUnloadPlugin(bool bReloading)

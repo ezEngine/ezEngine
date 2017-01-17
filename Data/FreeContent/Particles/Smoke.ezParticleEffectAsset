@@ -1,0 +1,214 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{14338782419656672413,4634808259917958019}}
+	s %t{"ezParticleInitializerFactory_Life"}
+	u3 %v{1}
+	p
+	{
+		Time %LifeTimeRange{d{0x0000000000001440}}
+		Time %MinLifeTime{d{0x0000000000001440}}
+	}
+}
+o
+{
+	Uuid %id{u4{6448533828967799431,4730585293690234005}}
+	s %t{"ezParticleBehaviorFactory_SizeCurve"}
+	u3 %v{1}
+	p
+	{
+		f %MinSize{0}
+		s %SizeCurve{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
+		f %SizeRange{0x00000040}
+	}
+}
+o
+{
+	Uuid %id{u4{674240590497784451,4762084656348639882}}
+	s %t{"ezParticleSystemDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Behaviors
+		{
+			Uuid{u4{3419027045644675485,5121181451291806085}}
+			Uuid{u4{14753197304165763721,5247792729933536343}}
+			Uuid{u4{6448533828967799431,4730585293690234005}}
+			Uuid{u4{15790187478185189044,4984442529615188909}}
+		}
+		VarArray %Emitters
+		{
+			Uuid{u4{3987179142267693468,5718892920641178557}}
+		}
+		VarArray %Initializers
+		{
+			Uuid{u4{14338782419656672413,4634808259917958019}}
+			Uuid{u4{15623355747849742257,4888523337233503366}}
+			Uuid{u4{376275885510549182,5616439904354362897}}
+			Uuid{u4{4154059691644389765,4912476110705596818}}
+		}
+		u3 %MaxParticles{200}
+		s %Name{""}
+		VarArray %Types
+		{
+			Uuid{u4{8703942746860974726,4959045116417621098}}
+		}
+		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15623355747849742257,4888523337233503366}}
+	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
+	u3 %v{1}
+	p
+	{
+		Angle %RotationSpeed{f{0xC2B8B23E}}
+		f %RotationVariance{0x0000803E}
+	}
+}
+o
+{
+	Uuid %id{u4{4154059691644389765,4912476110705596818}}
+	s %t{"ezParticleInitializerFactory_BoxPosition"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Size{f{0,0,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{8703942746860974726,4959045116417621098}}
+	s %t{"ezParticleTypeBillboardFactory"}
+	u3 %v{1}
+	p
+	{
+		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15790187478185189044,4984442529615188909}}
+	s %t{"ezParticleBehaviorFactory_Velocity"}
+	u3 %v{1}
+	p
+	{
+		f %Acceleration{0}
+		f %RiseSpeed{0xCDCC4C3E}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{18423804289550068914,5029208661442092394}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Particle Effect"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
+		u4 %Hash{4868410296388275390}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+			s{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
+			s{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3419027045644675485,5121181451291806085}}
+	s %t{"ezParticleBehaviorFactory_Age"}
+	u3 %v{1}
+	p
+	{
+		s %OnDeathEvent{""}
+		Uuid %test{u4{3614387881586538906,11665716049047838934}}
+	}
+}
+o
+{
+	Uuid %id{u4{14753197304165763721,5247792729933536343}}
+	s %t{"ezParticleBehaviorFactory_ColorGradient"}
+	u3 %v{1}
+	p
+	{
+		s %Gradient{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{1205178478847375007,5517481888434976877}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1205178478847375007,5517481888434976877}}
+	s %t{"ezParticleEffectDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ParticleSystems
+		{
+			Uuid{u4{674240590497784451,4762084656348639882}}
+		}
+		Time %PreSimulateDuration{d{0}}
+		b %SimulateInLocalSpace{0}
+	}
+}
+o
+{
+	Uuid %id{u4{376275885510549182,5616439904354362897}}
+	s %t{"ezParticleInitializerFactory_VelocityCone"}
+	u3 %v{1}
+	p
+	{
+		Angle %Angle{f{0x920A863E}}
+		f %MinSpeed{0x00000040}
+		f %SpeedRange{0}
+	}
+}
+o
+{
+	Uuid %id{u4{3987179142267693468,5718892920641178557}}
+	s %t{"ezParticleEmitterFactory_Continuous"}
+	u3 %v{1}
+	p
+	{
+		s %CountCurve{""}
+		Time %CurveDuration{d{0x0000000000002440}}
+		Time %Duration{d{0}}
+		Time %IntervalRange{d{0}}
+		Time %MinInterval{d{0x9A9999999999B93F}}
+		u3 %MinSpawnCount{1}
+		u3 %SpawnCountRange{0}
+		Time %StartDelay{d{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{3614387881586538906,11665716049047838934}}
+	s %t{"ezVarianceType"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCCC241}
+		f %Variance{0x00006843}
+	}
+}
+}
+Types{}

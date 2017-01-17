@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 
 class ezQtParticleEffectAssetDocumentWindow;
 class ezOrbitCameraContext;
@@ -17,3 +18,4 @@ public:
 private:
   ezOrbitCameraContext* m_pOrbitCameraContext;
 };
+

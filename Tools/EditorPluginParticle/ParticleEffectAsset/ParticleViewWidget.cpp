@@ -5,6 +5,7 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
+#include <QBoxLayout>
 
 ezQtParticleViewWidget::ezQtParticleViewWidget(QWidget* pParent, ezQtParticleEffectAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)

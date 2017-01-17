@@ -61,12 +61,20 @@ public:
   void Init(ezQtPropertyGridWidget* pGrid, const ezAbstractProperty* pProp);
   const ezAbstractProperty* GetProperty() const { return m_pProp; }
 
+  /// \brief This is called whenever the selection in the editor changes and thus the widget may need to display a different value.
+  ///
+  /// If the array holds more than one element, the user selected multiple objects. In this case, the code should check whether
+  /// the values differ across the selected objects and if so, the widget should display "multiple values".
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items);
   const ezHybridArray<Selection, 8>& GetSelection() const { return m_Items; }
 
+  /// \brief If this returns true (default), a QLabel is created and the text that GetLabel() returns is displayed.
   virtual bool HasLabel() const { return true; }
+
+  /// \brief The return value is used to display a label, if HasLabel() returns true.
   virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
 
+  /// \brief Whether the variable that the widget represents is currently set to the default value or has been modified.
   void SetIsDefault(bool isDefault) { m_bIsDefault = isDefault; }
 
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
@@ -75,7 +83,7 @@ public:
 
 public slots:
   void OnCustomContextMenu(const QPoint& pt);
-  
+
 protected:
   void Broadcast(Event::Type type);
   virtual void OnInit() = 0;
@@ -91,8 +99,8 @@ protected:
   ezHybridArray<Selection, 8> m_Items;
 
 private:
-  bool m_bUndead;
-  bool m_bIsDefault;
+  bool m_bUndead;    ///< Widget is being destroyed
+  bool m_bIsDefault; ///< Whether the variable that the widget represents is currently set to the default value or has been modified.
 };
 
 
@@ -220,7 +228,7 @@ protected:
 
   void Clear();
   virtual void OnInit() override;
-  
+
   void DeleteItems(ezHybridArray<Selection, 8>& items);
   void MoveItems(ezHybridArray<Selection, 8>& items, ezInt32 iMove);
   virtual void DoPrepareToDie() override;
