@@ -16,6 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefa
     EZ_MEMBER_PROPERTY("AmbientObscurance", m_PinOutput),
     EZ_ACCESSOR_PROPERTY("LineToLineDistance", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
     EZ_ACCESSOR_PROPERTY("LineSampleDistanceFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
+    EZ_ACCESSOR_PROPERTY("OcclusionFalloff", GetOcclusionFalloff, SetOcclusionFalloff)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 2.0f)),
+    EZ_ACCESSOR_PROPERTY("DepthCutoffFactor", GetDepthCutoffFactor, SetDepthCutoffFactor)->AddAttributes(new ezDefaultValueAttribute(8.0f), new ezClampValueAttribute(0.0f, 15.0f)),
   }
   EZ_END_PROPERTIES
 }
@@ -63,6 +65,9 @@ ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
 
   {
     m_hLineSweepCB = ezRenderContext::CreateConstantBufferStorage<ezSSAOConstants>();
+    ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+    cb->DepthCutoffFactor = 8.0f;
+    cb->OcclusionFalloff = 0.25f;
   }
 }
 
@@ -167,6 +172,30 @@ void ezScreenSpaceAmbientOcclusionPass::SetLineSamplePixelOffset(ezUInt32 uiPixe
 {
   m_uiLineSamplePixelOffsetFactor = uiPixelOffset;
   m_bSweepDataDirty = true;
+}
+
+float ezScreenSpaceAmbientOcclusionPass::GetDepthCutoffFactor() const
+{
+  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  return cb->DepthCutoffFactor;
+}
+
+void ezScreenSpaceAmbientOcclusionPass::SetDepthCutoffFactor(float fDepthCutoffFactor)
+{
+  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  cb->DepthCutoffFactor = fDepthCutoffFactor;
+}
+
+float ezScreenSpaceAmbientOcclusionPass::GetOcclusionFalloff() const
+{
+  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  return cb->OcclusionFalloff;
+}
+
+void ezScreenSpaceAmbientOcclusionPass::SetOcclusionFalloff(float fFalloff)
+{
+  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  cb->OcclusionFalloff = fFalloff;
 }
 
 void ezScreenSpaceAmbientOcclusionPass::DestroyLineSweepData()

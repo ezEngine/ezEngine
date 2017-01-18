@@ -449,14 +449,16 @@ o
 		b %Active{1}
 		Uuid %AmbientObscurance{u4{16180297401482570119,8547799458874749730}}
 		Uuid %Depth{u4{4482823644590135140,11644057536269094221}}
-		u3 %LineSampleDistanceFactor{2}
-		u3 %LineToLineDistance{4}
+		f %DepthCutoffFactor{0x00000041}
+		u3 %LineSampleDistanceFactor{1}
+		u3 %LineToLineDistance{3}
 		s %Name{""}
 		VarArray %Node::Connections
 		{
 			Uuid{u4{12840291537622090936,7120117218080742269}}
 		}
 		Vec2 %Node::Pos{f{0xAB5F22C4,0x58E400C2}}
+		f %OcclusionFalloff{0x9A99193F}
 		VarArray %Renderers{}
 	}
 }
@@ -494,7 +496,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{17368342922058662126}
+		u4 %Hash{4500014741031474875}
 		VarArray %Outputs{}
 		VarArray %References
 		{

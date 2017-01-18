@@ -31,6 +31,11 @@ CONSTANT_BUFFER(ezSSAOConstants, 3)
   DirectionInfo Directions[NUM_SWEEP_DIRECTIONS_PER_FRAME];
   UINT1(LineToLinePixelOffset);
   UINT1(TotalLineNumber);
+
+  // 1/sigmaSq for all depth filter.
+  FLOAT1(DepthCutoffFactor);
+  // How fast occlusion attenuates with distance to the occluder.
+  FLOAT1(OcclusionFalloff);
 };
 
 // Notes on group size:

@@ -19,31 +19,34 @@ RWBuffer<float> LineSweepOutputBuffer;
 // Minimum difference in orientation test to pop from the stack.
 #define HULL_BIAS 0.00001f
 
+// As propsed in the original LSAO paper we use a fixed tangent plane which eliminates the need for normals.
+// However, this heuristic introduces quite a bit of error mostly underocclusion.
+static const float tangentPlane = -0.85f; // This is represents an angle of roughly 58 degree from viewer to surface.
+
 // Computes occlusion from an occluder on a given position
 // As suggested by the original paper we go with the simple "strategy 3" where we assume a fixed tangent plane.
-float computeOcclusion(float occluderDotCamera, float occluderDistSq)
-{
-  const float tangentPlane = -0.85f; // Todo: Expose this parameter?
-  const float falloffConstant = 0.25f; // Todo: Expose this parameter.
-
-  // Alternative falloff: "falloffConstant / (falloffConstant + dist)"
-  float occluderFalloff = 1.0f / (1.0f + occluderDistSq * falloffConstant);
-
-  // Don't saturate! This will get negative values for non-occluders in the stack.
-  // Note: Not saturating per line occlusion until the very end in the Gather pass seems to get rid of a lot of artifacts.
-  // However, I can't make entirely sense of the underlying whys - as I understand the ambient occlusion equation the contribution from every direction should be >= 0
-  // It might have something to do with the fact that we're not strictly integrating over the hemisphere around the normal.
-  // (todo: get a better understanding of what's going on!)
-  return tangentPlane + max(0.0f, occluderDotCamera - tangentPlane) * occluderFalloff;
-}
-
-void computeOccluderProps(float2 lastOccluderPos, float2 currentPos, float2 toCamera,
+void computeOccluderProps(float2 occluderPos, float2 currentPos, float2 toCamera,
                           out float occluderDotCamera, out float occlusion)
 {
-  float2 occluderDir = lastOccluderPos - currentPos;
+  float2 occluderDir = occluderPos - currentPos;
   float occluderDistSq = dot(occluderDir, occluderDir);
+
+  // This can obviously be negative (occluder beeing "behind" point, depth wise).
+  // Interestingly the reference implementation uses max(0.0f, dot(occluder, to camera) - tangentPlane) thus cutting of behind the tangent plane already here.
+  // This does have quite some effect on the build of the occlusion hull and seems incorrect to me.
   occluderDotCamera = dot(occluderDir, toCamera) * rsqrt(occluderDistSq);
-  occlusion = computeOcclusion(occluderDotCamera, occluderDistSq);
+
+  // Alternative falloff: "OcclusionFalloff / (OcclusionFalloff + dist)"
+  // That one looked much nicer in out test cases:
+  float falloff = 1.0f / (1.0f + occluderDistSq * OcclusionFalloff);
+
+  // HBAO occlusion estimator.
+  // Note that negative samples from one direction are canceled out by positive samples from the direct oposite direction (unless there is a sharp discontinuity)
+  occlusion = max(0.0f, occluderDotCamera - tangentPlane) * falloff + tangentPlane;
+
+  // todo: try GTAO estimator: http://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf
+  // will require a little bit of reformulations since it considers dir & -dir in a single integration step
+  // and more importantly angles are formulated a bit differently so far.
 }
 
 
@@ -64,7 +67,7 @@ groupshared float2 hullStack[STACK_SIZE][SSAO_LINESWEEP_THREAD_GROUP];
 
 [numthreads(SSAO_LINESWEEP_THREAD_GROUP, 1, 1)]
 void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadID)
-{ 
+{
   // Determine lineId for this thread. May be invalid due to group quantization.
   uint lineId = DispatchID;
   if(lineId >= TotalLineNumber)
@@ -81,7 +84,7 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
   uint bufferOffsetEnd = bufferOffset + (instruction.LineDirIndex_NumSamples >> 16);
   uint lineDirIndex = instruction.LineDirIndex_NumSamples & 0xFFFF;
   float2 directionSampleStep = Directions[lineDirIndex].Direction;
-  float2 directionNormed = normalize(float2(directionSampleStep));
+  float2 directionNormed = normalize(directionSampleStep);
 
   // Init stack.
   hullStack[0][ThreadID] = samplePos;

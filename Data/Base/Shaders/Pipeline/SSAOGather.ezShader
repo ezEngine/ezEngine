@@ -38,6 +38,11 @@ Buffer<float> LineSweepOutputBuffer : register(t2);
 //#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
 #define ASSERT(condition)
 
+float square(float x)
+{
+  return x * x;
+}
+
 float4 main(PS_IN input) : SV_Target
 {
   float2 screenSize = Viewport.zw;
@@ -48,7 +53,7 @@ float4 main(PS_IN input) : SV_Target
   float occlusionAccum = 0.0f;
   float numSamples = 0.0f;
 
-  //float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
+  float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
 
   for (int dirIndex = 0; dirIndex < NUM_SWEEP_DIRECTIONS_PER_FRAME; ++dirIndex)
   {
@@ -59,7 +64,7 @@ float4 main(PS_IN input) : SV_Target
     // Compute which line is closest to this pixel. See ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection
     // Note that we're using mostly float here instead of int as done by the CPU implementation.
     // This is quite a bit faster on GPU and doesn't suffer any accuracy issues since we're calculating with small integers (way below the 24bit limit).
-    int2 lineOrigin;
+    float2 lineOrigin;
     float lineSampleNumberFloat = 0.0f;
     {  
       // Just like in ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection we try to treat negative directions exactly like positive ones,
@@ -74,16 +79,16 @@ float4 main(PS_IN input) : SV_Target
       {
         float numStepsToLeftBorder = virtualPixelPos.x / absDir.x;
         float yAtBorder = virtualPixelPos.y - numStepsToLeftBorder * absDir.y;
-        lineInstructionIndex += uint((screenSizeSubOne.y - yAtBorder) / LineToLinePixelOffset);
+        lineInstructionIndex += uint((screenSizeSubOne.y - yAtBorder) / LineToLinePixelOffset + 0.5f);
 
         lineOrigin = LineInstructions[lineInstructionIndex].FirstSamplePos;
         lineSampleNumberFloat = (pixelPos.x - lineOrigin.x) / dir.x;
       }
       else
       {
-        float numStepsToBottomBorder = virtualPixelPos.y / absDir.y;  // + half abs dir?
+        float numStepsToBottomBorder = virtualPixelPos.y / absDir.y;
         float xAtBorder = virtualPixelPos.x - numStepsToBottomBorder * absDir.x;
-        lineInstructionIndex += uint((screenSizeSubOne.x - xAtBorder) / LineToLinePixelOffset);
+        lineInstructionIndex += uint((screenSizeSubOne.x - xAtBorder) / LineToLinePixelOffset + 0.5f);
 
         lineOrigin = LineInstructions[lineInstructionIndex].FirstSamplePos;
         lineSampleNumberFloat = (pixelPos.y - lineOrigin.y) / dir.y;
@@ -97,23 +102,35 @@ float4 main(PS_IN input) : SV_Target
     // Beeing smaller zero means that the start is "in front" of the pixel which can happen due to jittering. 
     ASSERT((int)lineSampleNumberFloat >= -1);
 
-    // Check depth at this sample.
-    // int2 samplePos = lineOrigin + lineSampleNumber * dir;
-    // float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
-    // const float MaxSampleDepthDifference = 1.1f;  // TODO EXPOSE
-    // if(abs(sampleDepth - pixelDepth) > MaxSampleDepthDifference)
-    //   continue;
 
     // Fetch two closest samples on this line.
     // Taking two instead of one cancels out most artifacts and further selection through depth comparision doesn't seem to be necesary anymore
-    lineSampleNumberFloat += LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
     int lineSampleNumberFloor = (int)lineSampleNumberFloat;
-    int lineSampleNumberCeil = (int)ceil(lineSampleNumberFloat);
+    int lineSampleNumberCeil = lineSampleNumberFloat + 1; //(int)ceil(lineSampleNumberFloat);
+    int lineBufferOffset = LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
 
-    occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberFloor).r;
-    occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberCeil).r;
-    numSamples += 2.0f;
+    // Apply directly
+    //occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberFloor).r;
+    //occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberCeil).r;
+    //numSamples += 2.0f;
 
+    // Apply weighted with depth filter.
+
+    //const float distFactor = 0.05f;
+
+    float2 samplePos = lineOrigin + lineSampleNumberFloor * dir;
+    //float toPixel = samplePos - pixelPos;
+    float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
+    float weight = exp(-square(sampleDepth - pixelDepth) * DepthCutoffFactor);// - dot(toPixel, toPixel) * distFactor);
+    occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberFloor + lineBufferOffset).r * weight;
+    numSamples += weight;
+
+    samplePos += dir; // = lineOrigin + lineSampleNumberCeil * dir;
+    sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
+    //toPixel = samplePos - pixelPos;
+    weight = exp(-square(sampleDepth - pixelDepth) * DepthCutoffFactor); // - dot(toPixel, toPixel) * distFactor);
+    occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberCeil + lineBufferOffset).r * weight;
+    numSamples += weight;
 
     // Debug line sample index.
     //return float4((lineSampleNumber* 0.01f), 0.0f, 0.0f, 1.0f);

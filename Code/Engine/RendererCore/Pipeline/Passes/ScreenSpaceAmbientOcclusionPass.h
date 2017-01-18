@@ -34,6 +34,14 @@ public:
   ezUInt32 GetLineSamplePixelOffset() const { return m_uiLineSamplePixelOffsetFactor; }
   void SetLineSamplePixelOffset(ezUInt32 uiPixelOffset);
 
+  // Factor used for depth cutoffs (determines when a depth difference is too large to be considered)
+  float GetDepthCutoffFactor() const;
+  void SetDepthCutoffFactor(float fDepthCutoffFactor);
+
+  // Determines how quickly the occlusion falls of.
+  float GetOcclusionFalloff() const;
+  void SetOcclusionFalloff(float fFalloff);
+
 protected:
 
   /// Destroys all GPU data that might have been created in in SetupLineSweepData
