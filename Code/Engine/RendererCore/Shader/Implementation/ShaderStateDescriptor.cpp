@@ -222,7 +222,7 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
     lua.SetVariable("StencilOp_Decrement", ezGALStencilOp::Decrement);
   }
 
-  if (lua.ExecuteString(szSource, "ShaderState", ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (lua.ExecuteString(szSource, "ShaderState", ezLog::GetThreadLocalLogSystem()).Failed())
     return EZ_FAILURE;
 
   // Retrieve Blend State

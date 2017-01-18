@@ -166,7 +166,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "-rgb";
       arguments << "in0.rgb";
       arguments << "-a";
-      arguments << "in1.r";    }
+      arguments << "in1.r";
+    }
     break;
   case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
     {
@@ -188,7 +189,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   ezLog::Debug("TexConv.exe{0}", cmd.GetData());
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezGlobalLog::GetOrCreateInstance()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {

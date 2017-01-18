@@ -127,7 +127,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
     if (bSetValue && !bValueEmpty)
     {
-      if (Script.ExecuteString(sCommand.GetData(), "console", ezLog::GetDefaultLogSystem()).Failed())
+      if (Script.ExecuteString(sCommand.GetData(), "console", ezLog::GetThreadLocalLogSystem()).Failed())
       {
         pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
         return EZ_FAILURE;
@@ -161,7 +161,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
   }
   else
   {
-    if (Script.ExecuteString(sCommand.GetData(), "console", ezLog::GetDefaultLogSystem()).Failed())
+    if (Script.ExecuteString(sCommand.GetData(), "console", ezLog::GetThreadLocalLogSystem()).Failed())
     {
       pConsole->AddConsoleString("  Error Executing Command.", ezColor(1, 0, 0));
       return EZ_FAILURE;

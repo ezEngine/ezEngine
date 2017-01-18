@@ -60,15 +60,20 @@ typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
 class EZ_FOUNDATION_DLL ezLogInterface
 {
 public:
-  ezLogInterface() { m_pCurrentBlock = nullptr; }
-
   /// \brief Override this function to handle logging events.
   virtual void HandleLogMessage(const ezLoggingEventData& le) = 0;
+
+  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
+  EZ_FORCE_INLINE void SetLogLevel(ezLogMsgType::Enum LogLevel) { m_LogLevel = LogLevel; }
+
+  /// \brief Returns the currently set log level.
+  EZ_FORCE_INLINE ezLogMsgType::Enum GetLogLevel() { return m_LogLevel; }
 
 private:
   friend class ezLog;
   friend class ezLogBlock;
-  ezLogBlock* m_pCurrentBlock;
+  ezLogBlock* m_pCurrentBlock = nullptr;
+  ezLogMsgType::Enum m_LogLevel = ezLogMsgType::All;
 };
 
 /// \brief This is the standard log system that ezLog sends all messages to.
@@ -78,7 +83,6 @@ private:
 class EZ_FOUNDATION_DLL ezGlobalLog : public ezLogInterface
 {
 public:
-  static ezGlobalLog* GetOrCreateInstance();
 
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
@@ -102,9 +106,8 @@ private:
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGlobalLog);
 
-  ezGlobalLog() { }
-
-  static ezThreadLocalPointer<ezGlobalLog> s_pInstances;
+  friend class ezLog; // only ezLog may create instances of this class
+  ezGlobalLog() {}
 };
 
 /// \brief Static class that allows to write out logging information.
@@ -118,17 +121,14 @@ private:
 class EZ_FOUNDATION_DLL ezLog
 {
 public:
-  /// \brief Allows to change which logging system is used by default. If nothing is set, ezGlobalLog is used.
-  static void SetDefaultLogSystem(ezLogInterface* pInterface);
+  /// \brief Allows to change which logging system is used by default on the current thread. If nothing is set, ezGlobalLog is used.
+  ///
+  /// Replacing the log system on a thread does not delete the previous system, so it can be reinstated later again.
+  /// This can be used to temporarily route all logging to a custom system.
+  static void SetThreadLocalLogSystem(ezLogInterface* pInterface);
 
-  /// \brief Returns the currently set default logging system.
-  static ezLogInterface* GetDefaultLogSystem();
-
-  /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
-  static void SetLogLevel(ezLogMsgType::Enum LogLevel);
-
-  /// \brief Returns the currently set log level.
-  static ezLogMsgType::Enum GetLogLevel() { return s_LogLevel; }
+  /// \brief Returns the currently set default logging system, or a thread local instance of ezGlobalLog, if nothing else was set.
+  static ezLogInterface* GetThreadLocalLogSystem();
 
   /// \brief An error that needs to be fixed as soon as possible.
   static void Error(ezLogInterface* pInterface, const ezFormatString& string);
@@ -137,7 +137,7 @@ public:
   template<typename ... ARGS>
   static void Error(const char* szFormat, ARGS&&... args)
   {
-    Error(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Error(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Error() to output messages to a specific log.
@@ -154,7 +154,7 @@ public:
   template<typename ... ARGS>
   static void SeriousWarning(const char* szFormat, ARGS&&... args)
   {
-    SeriousWarning(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    SeriousWarning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of SeriousWarning() to output messages to a specific log.
@@ -171,7 +171,7 @@ public:
   template<typename ... ARGS>
   static void Warning(const char* szFormat, ARGS&&... args)
   {
-    Warning(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Warning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Warning() to output messages to a specific log.
@@ -188,7 +188,7 @@ public:
   template<typename ... ARGS>
   static void Success(const char* szFormat, ARGS&&... args)
   {
-    Success(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Success(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Success() to output messages to a specific log.
@@ -205,7 +205,7 @@ public:
   template<typename ... ARGS>
   static void Info(const char* szFormat, ARGS&&... args)
   {
-    Info(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Info(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Info() to output messages to a specific log.
@@ -226,7 +226,7 @@ public:
   template<typename ... ARGS>
   static void Dev(const char* szFormat, ARGS&&... args)
   {
-    Dev(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Dev(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Dev() to output messages to a specific log.
@@ -247,7 +247,7 @@ public:
   template<typename ... ARGS>
   static void Debug(const char* szFormat, ARGS&&... args)
   {
-    Debug(GetDefaultLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    Debug(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Debug() to output messages to a specific log.
@@ -310,6 +310,30 @@ private:
   const char* m_szName;
   const char* m_szContextInfo;
   bool m_bWritten;
+};
+
+/// \brief A class that sets a custom ezLogInterface as the thread local default log system,
+/// and resets the previous system when it goes out of scope.
+class EZ_FOUNDATION_DLL ezLogSystemScope
+{
+public:
+  /// \brief The given ezLogInterface is passed to ezLog::SetThreadLocalLogSystem().
+  explicit ezLogSystemScope(ezLogInterface* pInterface)
+  {
+    m_pPrevious = ezLog::GetThreadLocalLogSystem();
+    ezLog::SetThreadLocalLogSystem(pInterface);
+  }
+
+  /// \brief Resets the previous ezLogInterface through ezLog::SetThreadLocalLogSystem()
+  ~ezLogSystemScope()
+  {
+    ezLog::SetThreadLocalLogSystem(m_pPrevious);
+  }
+
+private:
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezLogSystemScope);
+
+  ezLogInterface* m_pPrevious;
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>

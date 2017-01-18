@@ -14,7 +14,7 @@ void ezStatus::LogFailure(ezLogInterface* pLog)
 {
   if (Failed())
   {
-    ezLogInterface* pInterface = pLog ? pLog : ezLog::GetDefaultLogSystem();
+    ezLogInterface* pInterface = pLog ? pLog : ezLog::GetThreadLocalLogSystem();
     ezLog::Error(pInterface, "{0}", m_sMessage);
   }
 }

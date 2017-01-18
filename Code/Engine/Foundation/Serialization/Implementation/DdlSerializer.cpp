@@ -129,7 +129,7 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
 ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
   ezOpenDdlReader reader;
-  if (reader.ParseDocument(stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     ezLog::Error("Failed to parse DDL graph");
     return EZ_FAILURE;
@@ -228,7 +228,7 @@ protected:
 ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
   HeaderReader reader;
-  if (reader.ParseDocument(stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     EZ_REPORT_FAILURE("Failed to parse DDL graph");
     return EZ_FAILURE;

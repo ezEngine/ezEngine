@@ -299,7 +299,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
       ezPreprocessor pp;
       pp.SetCustomFileCache(&m_FileCache);
-      pp.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
+      pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
       pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
       pp.SetPassThroughPragma(false);
       pp.SetPassThroughLine(false);
@@ -329,7 +329,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
     {
       ezPreprocessor pp;
       pp.SetCustomFileCache(&m_FileCache);
-      pp.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
+      pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
       pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
       pp.SetPassThroughPragma(true);
       pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
@@ -377,7 +377,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
     // if compilation failed, the stage binary for the source hash will simply not exist and therefore cannot be loaded
     // the .ezPermutation file should be updated, however, to store the new source hash to the broken shader
-    if (pCompiler->Compile(spd, ezGlobalLog::GetOrCreateInstance()).Failed())
+    if (pCompiler->Compile(spd, ezLog::GetThreadLocalLogSystem()).Failed())
     {
       WriteFailedShaderSource(spd, pLog);
       return EZ_FAILURE;

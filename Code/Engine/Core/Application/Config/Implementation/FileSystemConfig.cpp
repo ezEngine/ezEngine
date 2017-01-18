@@ -74,7 +74,7 @@ void ezApplicationFileSystemConfig::Load()
   }
 
   ezOpenDdlReader reader;
-  if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     ezLog::Error("Failed to parse file-system config file '{0}'", sPath.GetData());
     return;

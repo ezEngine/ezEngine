@@ -72,7 +72,7 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
     return;
 
   ezOpenDdlReader reader;
-  if (reader.ParseDocument(FileIn, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (reader.ParseDocument(FileIn, 0, ezLog::GetThreadLocalLogSystem()).Failed())
     return;
 
   const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();

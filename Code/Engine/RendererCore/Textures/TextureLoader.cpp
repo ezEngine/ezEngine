@@ -140,7 +140,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
       }
 
       ezDdsFileFormat fmt;
-      if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetOrCreateInstance()).Failed())
+      if (fmt.ReadImage(File, pData->m_Image, ezLog::GetThreadLocalLogSystem()).Failed())
         return res;
     }
     else

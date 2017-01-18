@@ -190,7 +190,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource)->GetPermutationVars();
 
     ezShaderCompiler sc;
-    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezGlobalLog::GetOrCreateInstance(), ezShaderManager::GetActivePlatform());
+    return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezLog::GetThreadLocalLogSystem(), ezShaderManager::GetActivePlatform());
   }
   else
   {

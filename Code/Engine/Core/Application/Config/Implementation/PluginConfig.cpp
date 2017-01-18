@@ -161,7 +161,7 @@ void ezApplicationPluginConfig::Load()
   }
 
   ezOpenDdlReader reader;
-  if (reader.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     ezLog::Error("Failed to parse plugins config file '{0}'", sPath.GetData());
     return;

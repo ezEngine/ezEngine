@@ -56,13 +56,14 @@ public:
 EZ_CREATE_SIMPLE_TEST(Logging, Log)
 {
   ezTestLogInterface log;
-  ezLog::SetDefaultLogSystem(&log);
+  ezTestLogInterface log2;
+  ezLogSystemScope logScope(&log);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Output")
   {
     EZ_LOG_BLOCK("Verse 1", "Portal: Still Alive");
 
-    ezLog::SetLogLevel(ezLogMsgType::All);
+    ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::All);
 
     ezLog::Success("{0}", "This was a triumph.");
     ezLog::Info("{0}", "I'm making a note here:");
@@ -74,7 +75,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     {
       EZ_LOG_BLOCK("Verse 2");
 
-      ezLog::SetLogLevel(ezLogMsgType::DevMsg);
+      ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::DevMsg);
 
       ezLog::Dev("But there's no sense crying over every mistake.");
       ezLog::Debug("You just keep on trying 'till you run out of cake.");
@@ -85,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     {
       EZ_LOG_BLOCK("Verse 3");
 
-      ezLog::SetLogLevel(ezLogMsgType::InfoMsg);
+      ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
 
       ezLog::Info("I'm not even angry.");
       ezLog::Debug("I'm being so sincere right now.");
@@ -99,16 +100,23 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
       {
         EZ_LOG_BLOCK("Verse 4");
 
-        ezLog::SetLogLevel(ezLogMsgType::SuccessMsg);
+        ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::SuccessMsg);
 
         ezLog::Info("So I'm glad I got burned,");
         ezLog::Debug("think of all the things we learned");
         ezLog::Debug("for the people who are still alive.");
 
         {
+          ezLogSystemScope logScope(&log2);
+          EZ_LOG_BLOCK("Interlude");
+          ezLog::Info("Well here we are again. It's always such a pleasure.");
+          ezLog::Error("Remember when you tried to kill me twice?");
+        }
+
+        {
           EZ_LOG_BLOCK("Verse 5");
 
-          ezLog::SetLogLevel(ezLogMsgType::WarningMsg);
+          ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::WarningMsg);
 
           ezLog::Debug("Go ahead and leave me.");
           ezLog::Info("I think I prefer to stay inside.");
@@ -129,7 +137,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   {
     EZ_LOG_BLOCK("Verse 6", "Last One");
 
-    ezLog::SetLogLevel(ezLogMsgType::ErrorMsg);
+    ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::ErrorMsg);
 
     ezLog::Dev("And believe me I am still alive.");
     ezLog::Info("I'm doing science and I'm still alive.");
@@ -144,28 +152,49 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
   const char* szResult = log.m_Result;
   const char* szExpected = "\
+>Portal: Still Alive Verse 1\n\
 S: This was a triumph.\n\
 I: I'm making a note here:\n\
 E: Huge Success\n\
 I: It's hard to overstate my satisfaction.\n\
 E: Aperture Science. We do what we must, because we can,\n\
 E: For the good of all of us, except the ones who are dead.\n\
+> Verse 2\n\
 E: But there's no sense crying over every mistake.\n\
 I: And the science gets done, and you make a neat gun\n\
 E: for the people who are still alive.\n\
+< Verse 2\n\
+> Verse 3\n\
 I: I'm not even angry.\n\
 I: And tore me to pieces,\n\
 I: As they burned it hurt because I was so happy for you.\n\
 E: Now these points of data make a beautiful line\n\
+> Verse 4\n\
+> Verse 5\n\
 W: Anyway, this cake is great.\n\
 E: When I look up there it makes me glad I'm not you.\n\
 SW: there is research to be done on the people who are still alive.\n\
+< Verse 5\n\
+< Verse 4\n\
+< Verse 3\n\
+<Portal: Still Alive Verse 1\n\
+>Last One Verse 6\n\
 E: And when you're dead I will be, still alive.\n\
+<Last One Verse 6\n\
 ";
 
   EZ_TEST_STRING(szResult, szExpected);
 
-  ezLog::SetLogLevel(ezLogMsgType::All);
-  ezLog::SetDefaultLogSystem(ezGlobalLog::GetOrCreateInstance());
+  const char* szResult2 = log2.m_Result;
+  const char* szExpected2 = "\
+> Interlude\n\
+I: Well here we are again. It's always such a pleasure.\n\
+E: Remember when you tried to kill me twice?\n\
+< Interlude\n\
+";
+
+  EZ_TEST_STRING(szResult2, szExpected2);
+
+  ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::All);
 }
 

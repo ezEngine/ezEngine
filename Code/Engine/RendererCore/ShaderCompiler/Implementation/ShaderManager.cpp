@@ -123,7 +123,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   sTemp.Append(" 1");
 
   ezPreprocessor pp;
-  pp.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
+  pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
   pp.AddCustomDefine(sTemp.GetData());

@@ -2,26 +2,11 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-ezThreadLocalPointer<ezGlobalLog> ezGlobalLog::s_pInstances;
 ezLogMsgType::Enum ezLog::s_LogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
 ezThreadLocalPointer<ezLogInterface> ezLog::s_DefaultLogSystem;
-
-ezGlobalLog* ezGlobalLog::GetOrCreateInstance()
-{
-  ezGlobalLog* pLog = s_pInstances;
-
-  if (pLog == nullptr)
-  {
-    // use new, not EZ_DEFAULT_NEW, to prevent tracking
-    s_pInstances = new ezGlobalLog;
-    return s_pInstances;
-  }
-
-  return pLog;
-}
 
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
 {
@@ -33,18 +18,9 @@ void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
   s_LoggingEvent.Broadcast(le);
 }
 
-void ezLog::SetLogLevel(ezLogMsgType::Enum LogLevel)
-{
-  EZ_ASSERT_DEV(LogLevel >= ezLogMsgType::None, "Invalid Log Level");
-  EZ_ASSERT_DEV(LogLevel <= ezLogMsgType::All, "Invalid Log Level");
-
-  s_LogLevel = LogLevel;
-}
-
-
 ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
 {
-  m_pLogInterface = ezGlobalLog::GetOrCreateInstance();
+  m_pLogInterface = ezLog::GetThreadLocalLogSystem();
 
   if (!m_pLogInterface)
     return;
@@ -122,7 +98,7 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
 
 void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString)
 {
-  if (s_LogLevel < type)
+  if (pInterface->GetLogLevel() < type)
     return;
 
   ezLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
@@ -165,17 +141,20 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   pInterface->HandleLogMessage(le);
 }
 
-void ezLog::SetDefaultLogSystem(ezLogInterface* pInterface)
+void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
 {
   EZ_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }
 
-ezLogInterface* ezLog::GetDefaultLogSystem()
+ezLogInterface* ezLog::GetThreadLocalLogSystem()
 {
   if (s_DefaultLogSystem == nullptr)
-    s_DefaultLogSystem = ezGlobalLog::GetOrCreateInstance();
+  {
+    // use new, not EZ_DEFAULT_NEW, to prevent tracking
+    s_DefaultLogSystem = new ezGlobalLog;
+  }
 
   return s_DefaultLogSystem;
 }

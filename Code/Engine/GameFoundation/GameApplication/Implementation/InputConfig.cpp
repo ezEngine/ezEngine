@@ -73,7 +73,7 @@ void ezGameAppInputConfig::ReadFromDDL(ezStreamReader& stream, ezHybridArray<ezG
 {
   ezOpenDdlReader reader;
 
-  if (reader.ParseDocument(stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
     return;
 
   const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();

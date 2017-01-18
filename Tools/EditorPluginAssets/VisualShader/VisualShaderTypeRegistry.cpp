@@ -170,7 +170,7 @@ void ezVisualShaderTypeRegistry::LoadConfigFile(const char* szFile)
   if (ezPathUtils::HasExtension(szFile, "ddl"))
   {
     ezOpenDdlReader ddl;
-    if (ddl.ParseDocument(file, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+    if (ddl.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
     {
       ezLog::Error("Failed to parse Visual Shader config file '{0}'", szFile);
       return;

@@ -7,7 +7,7 @@ ezResult ezTexConv::PassImageThrough()
   ezImage* pImg = &m_InputImages[0];
 
   ezDdsFileFormat writer;
-  if (writer.WriteImage(m_FileOut, *pImg, ezGlobalLog::GetOrCreateInstance()).Failed())
+  if (writer.WriteImage(m_FileOut, *pImg, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     SetReturnCode(TexConvReturnCodes::FAILED_PASS_THROUGH);
     return EZ_FAILURE;

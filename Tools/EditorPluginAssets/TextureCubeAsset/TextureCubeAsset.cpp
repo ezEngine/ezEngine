@@ -111,7 +111,7 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
 
   ezLog::Debug("TexConv.exe{0}", cmd.GetData());
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezGlobalLog::GetOrCreateInstance()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {

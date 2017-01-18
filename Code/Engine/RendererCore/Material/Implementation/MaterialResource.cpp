@@ -547,7 +547,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
     ezStringBuilder tmp;
     ezOpenDdlReader reader;
 
-    if (reader.ParseDocument(*Stream, 0, ezGlobalLog::GetOrCreateInstance()).Failed())
+    if (reader.ParseDocument(*Stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
     {
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;

@@ -24,7 +24,7 @@ ezShaderCompilerApplication::ezShaderCompilerApplication()
 void ezShaderCompilerApplication::BeforeCoreStartup()
 {
   // only print important messages
-  ezLog::SetLogLevel(ezLogMsgType::InfoMsg);
+  ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
 
   ezGameApplication::BeforeCoreStartup();
 
@@ -103,7 +103,7 @@ ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)
 
     m_PermutationGenerator.GetPermutation(perm, PermVars);
     ezShaderCompiler sc;
-    if (sc.CompileShaderPermutationForPlatforms(szShaderFile, PermVars, ezGlobalLog::GetOrCreateInstance(), m_sPlatforms).Failed())
+    if (sc.CompileShaderPermutationForPlatforms(szShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms).Failed())
       return EZ_FAILURE;
   }
 
