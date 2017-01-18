@@ -63,7 +63,7 @@ void ezTextureCubeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       sText = "Unknown format";
     }
 
-    sText.PrependFormat("{0}x{1} - ", uiWidthAndHeight, uiWidthAndHeight);
+    sText.PrependFormat("{0}x{1}x6 - ", uiWidthAndHeight, uiWidthAndHeight);
 
     ezDebugRenderer::DrawText(m_pView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
   }

@@ -15,7 +15,7 @@ CullMode = CullMode_None
 
 #include <Shaders/Common/GlobalConstants.h>
 
-#define USE_TEXCOORD0
+#define USE_NORMAL
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -35,7 +35,7 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
 };
 
 #define USE_WORLDPOS
-#define USE_TEXCOORD0
+#define USE_NORMAL
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
@@ -44,10 +44,15 @@ SamplerState BaseTexture_AutoSampler;
 
 float4 SampleTexture(PS_IN Input)
 {
-  if (LodLevel < 0)
-    return BaseTexture.Sample(BaseTexture_AutoSampler, float3(Input.TexCoords.xy, 1));
+  float3 normal = normalize(Input.Normal);  
+  float3 dir = CubeMapDirection(reflect(CameraDirForwards, normal));
+  dir.x = -dir.x;
 
-  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, float3(Input.TexCoords.xy, 1), LodLevel);
+  if (LodLevel < 0)
+  {
+    return BaseTexture.Sample(BaseTexture_AutoSampler, dir);
+  }
+  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, dir, LodLevel);
 }
 
 float4 main(PS_IN Input) : SV_Target

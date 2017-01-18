@@ -24,24 +24,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeContext, 1, ezRTTIDefaultAllocator<
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-static void CreatePreviewRect(ezGeometry& geom)
-{
-  const ezMat4 mTransform = ezMat4::IdentityMatrix();
-  const ezVec2 size(1.0f);
-  const ezColor color = ezColor::White;
-
-  const ezVec2 halfSize = size * 0.5f;
-
-  ezUInt32 idx[4];
-
-  idx[0] = geom.AddVertex(ezVec3(-halfSize.x, 0, -halfSize.y), ezVec3(-1, 0, 0), ezVec2(-1, 2), color, 0, mTransform);
-  idx[1] = geom.AddVertex(ezVec3(halfSize.x, 0, -halfSize.y), ezVec3(-1, 0, 0), ezVec2(2, 2), color, 0, mTransform);
-  idx[2] = geom.AddVertex(ezVec3(halfSize.x, 0, halfSize.y), ezVec3(-1, 0, 0), ezVec2(2, -1), color, 0, mTransform);
-  idx[3] = geom.AddVertex(ezVec3(-halfSize.x, 0, halfSize.y), ezVec3(-1, 0, 0), ezVec2(-1, -1), color, 0, mTransform);
-
-  geom.AddPolygon(idx, false);
-}
-
 ezTextureCubeContext::ezTextureCubeContext()
   : m_TextureFormat(ezGALResourceFormat::Invalid)
   , m_uiTextureWidthAndHeight(0)
@@ -107,7 +89,7 @@ void ezTextureCubeContext::OnInitialize()
     {
       // Build geometry
       ezGeometry geom;
-      CreatePreviewRect(geom);
+      geom.AddSphere(0.5f, 64, 64, ezColor::White);
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
