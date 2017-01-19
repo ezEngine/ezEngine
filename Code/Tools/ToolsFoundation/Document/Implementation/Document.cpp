@@ -12,6 +12,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <CoreUtils/Other/Progress.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -207,6 +208,9 @@ ezStatus ezDocument::InternalSaveDocument()
 
 ezStatus ezDocument::InternalLoadDocument()
 {
+  // this would currently crash in Qt, due to the processEvents in the QtProgressBar
+  //ezProgressRange range("Loading Document", 5, false);
+
   ezAbstractObjectGraph graph;
   ezAbstractObjectGraph typesGraph;
 
@@ -220,8 +224,10 @@ ezStatus ezDocument::InternalLoadDocument()
       return ezStatus("Unable to open file for reading!");
     }
 
+    //range.BeginNextStep("Reading File");
     storage.ReadAll(file);
 
+    //range.BeginNextStep("Parsing Graph");
     {
       ezStopwatch sw;
       if (ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph).Failed())
@@ -233,6 +239,8 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   {
+    //range.BeginNextStep("Deserializing Types");
+
     // Deserialize and register serialized phantom types.
     ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
     ezDynamicArray<ezReflectedTypeDescriptor*> descriptors;
@@ -263,17 +271,22 @@ ezStatus ezDocument::InternalLoadDocument()
   ezRttiConverterReader rttiConverter(&graph, &context);
   ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
 
-  auto* pHeaderNode = graph.GetNodeByName("Header");
-  rttiConverter.ApplyPropertiesToObject(pHeaderNode, m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
+  {
+    //range.BeginNextStep("Restoring Objects");
 
+    auto* pHeaderNode = graph.GetNodeByName("Header");
+    rttiConverter.ApplyPropertiesToObject(pHeaderNode, m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
 
+    auto* pRootNode = graph.GetNodeByName("ObjectTree");
+    objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
 
-  auto* pRootNode = graph.GetNodeByName("ObjectTree");
-  objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
+    SetUnknownObjectTypes(objectConverter.GetUnknownObjectTypes(), objectConverter.GetNumUnknownObjectCreations());
+  }
 
-  SetUnknownObjectTypes(objectConverter.GetUnknownObjectTypes(), objectConverter.GetNumUnknownObjectCreations());
-
-  RestoreMetaDataAfterLoading(graph);
+  {
+    //range.BeginNextStep("Restoring Meta-Data");
+    RestoreMetaDataAfterLoading(graph);
+  }
 
   SetModified(false);
   return ezStatus(EZ_SUCCESS);

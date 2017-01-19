@@ -50,13 +50,11 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
   case ezProgressEvent::Type::ProgressStarted:
     {
       EnsureCreated();
-
     }
     break;
 
   case ezProgressEvent::Type::ProgressEnded:
     {
-
       EnsureDestroyed();
     }
     break;
@@ -71,8 +69,6 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
 
       const ezUInt32 uiProMille = ezMath::Clamp<ezUInt32>((ezUInt32)(e.m_pProgressbar->GetCompletion() * 1000.0), 0, 1000);
       m_pDialog->setValue(uiProMille);
-
-      
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       if (m_pWinTaskBarProgress)
@@ -91,10 +87,10 @@ void ezQtProgressbar::EnsureCreated()
     return;
 
   m_pDialog = new QProgressDialog("                                                                                ",
-                                         "Cancel", 0, 1000, QApplication::activeWindow());
+                                  "Cancel", 0, 1000, QApplication::activeWindow());
 
   m_pDialog->setWindowModality(Qt::WindowModal);
-  m_pDialog->setMinimumDuration((int) 500);
+  m_pDialog->setMinimumDuration((int)500);
   m_pDialog->setAutoReset(false);
   m_pDialog->setAutoClose(false);
   m_pDialog->show();

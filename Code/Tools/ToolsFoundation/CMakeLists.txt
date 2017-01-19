@@ -18,6 +18,7 @@ endif()
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
+  CoreUtils
 )
 
 # Enables the use of Qt in this library and sets up the required modules.

@@ -3,6 +3,7 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <CoreUtils/Other/Progress.h>
 
 void UpdateInputDynamicEnumValues();
 
@@ -63,8 +64,15 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   {
     const ezRecentFilesList allDocs = LoadOpenDocumentsList();
 
+    // Unfortunately this crashes in Qt due to the processEvents in the QtProgressBar
+    //ezProgressRange range("Restoring Documents", allDocs.GetFileList().GetCount(), true);
+
     for (auto& doc : allDocs.GetFileList())
     {
+      //if (range.WasCanceled())
+        //break;
+
+      //range.BeginNextStep(doc.m_File);
       OpenDocument(doc.m_File);
     }
   }

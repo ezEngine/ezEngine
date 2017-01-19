@@ -7,17 +7,15 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
 		s %Input1{"Textures/NeutralNormal.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
@@ -52,7 +50,8 @@ AssetInfo
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{15840237980637101481,5475314895401003152}}
-		u4 %Hash{772200185801908079}
+		u4 %Hash{3534935120940510612}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
