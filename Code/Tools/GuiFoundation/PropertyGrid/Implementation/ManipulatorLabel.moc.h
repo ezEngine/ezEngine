@@ -19,7 +19,7 @@ public:
   const bool GetManipulatorActive() const;
   void SetManipulatorActive(bool bActive);
 
-  void SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
+  void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
 
   void SetIsDefault(bool bIsDefault);
 
@@ -32,7 +32,7 @@ private:
   virtual void leaveEvent(QEvent* ev) override;
 
 private:
-  const ezHybridArray<ezQtPropertyWidget::Selection, 8>* m_pItems;
+  const ezHybridArray<ezPropertySelection, 8>* m_pItems;
   const ezManipulatorAttribute* m_pManipulator;
   bool m_bActive;
   bool m_bIsDefault;

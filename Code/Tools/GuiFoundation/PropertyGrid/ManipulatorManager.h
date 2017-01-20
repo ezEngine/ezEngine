@@ -14,7 +14,7 @@ struct EZ_GUIFOUNDATION_DLL ezManipulatorManagerEvent
 {
   const ezDocument* m_pDocument;
   const ezManipulatorAttribute* m_pManipulator;
-  const ezHybridArray<ezQtPropertyWidget::Selection, 8>* m_pSelection;
+  const ezHybridArray<ezPropertySelection, 8>* m_pSelection;
   bool m_bHideManipulators;
 };
 
@@ -27,9 +27,9 @@ public:
   ezManipulatorManager();
   ~ezManipulatorManager();
 
-  const ezManipulatorAttribute* GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezQtPropertyWidget::Selection, 8>*& out_Selection) const;
+  const ezManipulatorAttribute* GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezPropertySelection, 8>*& out_Selection) const;
 
-  void SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezQtPropertyWidget::Selection, 8>& selection);
+  void SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection);
 
   void ClearActiveManipulator(const ezDocument* pDoc);
 
@@ -47,11 +47,11 @@ private:
     }
 
     const ezManipulatorAttribute* m_pAttribute;
-    ezHybridArray<ezQtPropertyWidget::Selection, 8> m_Selection;
+    ezHybridArray<ezPropertySelection, 8> m_Selection;
     bool m_bHideManipulators;
   };
 
-  void InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezQtPropertyWidget::Selection, 8>& selection, bool bUnhide);
+  void InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection, bool bUnhide);
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);

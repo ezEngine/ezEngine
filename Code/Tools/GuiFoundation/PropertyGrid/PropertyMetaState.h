@@ -58,7 +58,7 @@ public:
   /// \brief Queries the property meta state for a multi selection of ezDocumentObject's
   ///
   /// This will query the information for every single selected object and then merge the result into one.
-  void GetPropertyState(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates);
+  void GetPropertyState(const ezHybridArray<ezPropertySelection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates);
   
   /// Attach to this event to get notified of property state queries.
   /// Add information to ezPropertyMetaStateEvent::m_pPropertyStates to return data.

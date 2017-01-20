@@ -38,7 +38,7 @@ MACRO(QT_ADD_MODULES)
     # Add our modules we stored earlier.
     qt5_use_modules(${PROJECT_NAME} ${EZ_QT_MODULES})
     
-    if (BUILDSYSTEM_PLATFORM_WINDOWS)
+    if (BUILDSYSTEM_PLATFORM_WINDOWS AND EZ_COPY_QT_DLLS)
       # For each module add a post-build command to copy over the corresponding dll.
       FOREACH(module ${EZ_QT_MODULES})
         SET(QT_ADD_MODULES_MACRO_MODULE_NAME "Qt5::${module}")

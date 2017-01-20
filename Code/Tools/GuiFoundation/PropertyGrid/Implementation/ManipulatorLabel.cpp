@@ -48,7 +48,7 @@ void ezQtManipulatorLabel::SetManipulatorActive(bool bActive)
   }
 }
 
-void ezQtManipulatorLabel::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
+void ezQtManipulatorLabel::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
   m_pItems = &items;
 }

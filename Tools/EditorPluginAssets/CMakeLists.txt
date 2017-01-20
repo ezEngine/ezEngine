@@ -67,3 +67,19 @@ SET (LINK_LIBRARIES
 endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
+
+if (BUILDSYSTEM_PLATFORM_64BIT)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/bin64/assimp.dll
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+          
+else()
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/bin32/assimp.dll
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+          
+endif()

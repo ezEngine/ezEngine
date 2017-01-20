@@ -330,7 +330,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& va
 void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -338,7 +338,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -439,7 +439,7 @@ void ezQtPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
 void ezQtPropertyEditorTimeWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -447,7 +447,7 @@ void ezQtPropertyEditorTimeWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorTimeWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -546,7 +546,7 @@ void ezQtPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
 void ezQtPropertyEditorAngleWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -554,7 +554,7 @@ void ezQtPropertyEditorAngleWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -634,7 +634,7 @@ void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value
 void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -644,7 +644,7 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -717,7 +717,7 @@ void ezQtPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value
 void ezQtPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -725,7 +725,7 @@ void ezQtPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -867,7 +867,7 @@ void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
 
 void ezQtPropertyEditorColorWidget::on_Button_triggered()
 {
-  Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+  Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   bool bShowHDR = false;
 
@@ -903,13 +903,13 @@ void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const ezColor& color
 void ezQtPropertyEditorColorWidget::on_Color_reset()
 {
   m_pWidget->SetColor(m_OriginalValue);
-  Broadcast(ezQtPropertyWidget::Event::Type::CancelTemporary);
+  Broadcast(ezPropertyEvent::Type::CancelTemporary);
 }
 
 void ezQtPropertyEditorColorWidget::on_Color_accepted()
 {
   m_OriginalValue = GetOldValue();
-  Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+  Broadcast(ezPropertyEvent::Type::EndTemporary);
 }
 
 

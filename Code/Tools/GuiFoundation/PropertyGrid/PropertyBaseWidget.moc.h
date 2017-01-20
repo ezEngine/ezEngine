@@ -3,9 +3,9 @@
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Types/Variant.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <GuiFoundation/PropertyGrid/Implementation/PropertyEventHandler.h>
 #include <QWidget>
 
 class ezDocumentObject;
@@ -25,34 +25,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyWidget : public QWidget
 {
   Q_OBJECT;
 public:
-  struct Selection
-  {
-    const ezDocumentObject* m_pObject;
-    ezVariant m_Index;
-
-    bool operator==(const Selection& rhs) const
-    {
-      return m_pObject == rhs.m_pObject && m_Index == rhs.m_Index;
-    }
-  };
-
-  struct Event
-  {
-    enum class Type
-    {
-      ValueChanged,
-      BeginTemporary,
-      EndTemporary,
-      CancelTemporary,
-    };
-
-    Type m_Type;
-    const ezAbstractProperty* m_pProperty;
-    const ezHybridArray<Selection, 8>* m_pItems;
-    ezVariant m_Value;
-  };
-
-  ezEvent<const Event&> m_Events;
+  ezEvent<const ezPropertyEvent&> m_Events;
 
 public:
   explicit ezQtPropertyWidget();
@@ -65,8 +38,8 @@ public:
   ///
   /// If the array holds more than one element, the user selected multiple objects. In this case, the code should check whether
   /// the values differ across the selected objects and if so, the widget should display "multiple values".
-  virtual void SetSelection(const ezHybridArray<Selection, 8>& items);
-  const ezHybridArray<Selection, 8>& GetSelection() const { return m_Items; }
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
+  const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
 
   /// \brief If this returns true (default), a QLabel is created and the text that GetLabel() returns is displayed.
   virtual bool HasLabel() const { return true; }
@@ -77,15 +50,15 @@ public:
   /// \brief Whether the variable that the widget represents is currently set to the default value or has been modified.
   void SetIsDefault(bool isDefault) { m_bIsDefault = isDefault; }
 
-  static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
-
+  static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
+  ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
 public slots:
   void OnCustomContextMenu(const QPoint& pt);
 
 protected:
-  void Broadcast(Event::Type type);
+  void Broadcast(ezPropertyEvent::Type type);
   virtual void OnInit() = 0;
   bool IsUndead() const { return m_bUndead; }
 
@@ -96,7 +69,7 @@ protected:
 
   ezQtPropertyGridWidget* m_pGrid;
   const ezAbstractProperty* m_pProp;
-  ezHybridArray<Selection, 8> m_Items;
+  ezHybridArray<ezPropertySelection, 8> m_Items;
 
 private:
   bool m_bUndead;    ///< Widget is being destroyed
@@ -128,7 +101,7 @@ class EZ_GUIFOUNDATION_DLL ezQtStandardPropertyWidget : public ezQtPropertyWidge
 public:
   explicit ezQtStandardPropertyWidget();
 
-  virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
 
 protected:
   void BroadcastValueChanged(const ezVariant& NewValue);
@@ -142,7 +115,41 @@ protected:
 };
 
 
-/// Used for pointers and embedded classes. Builds a ezQtTypeWidget from the property's value.
+/// \brief Base class for more 'advanced' property type widgets for Pointer or EmbeddedClass type properties.
+/// Implements some of ezQtTypeWidget functionality at property widget level.
+class EZ_GUIFOUNDATION_DLL ezQtEmbeddedClassPropertyWidget : public ezQtPropertyWidget
+{
+  Q_OBJECT;
+public:
+  explicit ezQtEmbeddedClassPropertyWidget();
+  ~ezQtEmbeddedClassPropertyWidget();
+
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+
+protected:
+  void SetPropertyValue(const ezAbstractProperty* pProperty, const ezVariant& NewValue);
+
+  virtual void OnInit() override;
+  virtual void DoPrepareToDie() override;
+  virtual void OnPropertyChanged(const ezString& sProperty) = 0;
+
+private:
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  void FlushQueuedChanges();
+
+protected:
+  bool m_bTemporaryCommand;
+  const ezRTTI* m_pResolvedType;
+  ezHybridArray<ezPropertySelection, 8> m_ResolvedObjects;
+
+  ezHybridArray<ezString, 1> m_QueuedChanges;
+};
+
+
+/// Used for pointers and embedded classes. 
+/// Does not inherit from ezQtEmbeddedClassPropertyWidget as it just embeds
+/// a ezQtTypeWidget for the property's value which handles everything already.
 class EZ_GUIFOUNDATION_DLL ezQtPropertyTypeWidget : public ezQtPropertyWidget
 {
   Q_OBJECT;
@@ -150,7 +157,7 @@ public:
   explicit ezQtPropertyTypeWidget(bool bAddCollapsibleGroup = false);
   virtual ~ezQtPropertyTypeWidget();
 
-  virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
 
 
@@ -173,7 +180,7 @@ public:
   explicit ezQtPropertyPointerWidget();
   virtual ~ezQtPropertyPointerWidget();
 
-  virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
 
 
@@ -203,7 +210,7 @@ public:
   ezQtPropertyContainerWidget();
   virtual ~ezQtPropertyContainerWidget();
 
-  virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
 
 
@@ -229,8 +236,8 @@ protected:
   void Clear();
   virtual void OnInit() override;
 
-  void DeleteItems(ezHybridArray<Selection, 8>& items);
-  void MoveItems(ezHybridArray<Selection, 8>& items, ezInt32 iMove);
+  void DeleteItems(ezHybridArray<ezPropertySelection, 8>& items);
+  void MoveItems(ezHybridArray<ezPropertySelection, 8>& items, ezInt32 iMove);
   virtual void DoPrepareToDie() override;
 
 protected:
@@ -255,7 +262,7 @@ protected:
   virtual void RemoveElement(ezUInt32 index) override;
   virtual void UpdateElement(ezUInt32 index) override;
 
-  void PropertyChangedHandler(const ezQtPropertyWidget::Event& ed);
+  void PropertyChangedHandler(const ezPropertyEvent& ed);
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyTypeContainerWidget : public ezQtPropertyContainerWidget

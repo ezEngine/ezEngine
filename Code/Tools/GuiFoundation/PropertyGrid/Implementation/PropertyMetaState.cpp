@@ -36,7 +36,7 @@ void ezPropertyMetaState::GetPropertyState(const ezDocumentObject* pObject, ezMa
   m_Events.Broadcast(eventData);
 }
 
-void ezPropertyMetaState::GetPropertyState(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates)
+void ezPropertyMetaState::GetPropertyState(const ezHybridArray<ezPropertySelection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates)
 {
   for (const auto& sel : items)
   {

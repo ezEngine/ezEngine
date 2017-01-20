@@ -29,6 +29,7 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   m_pLayout->setMargin(0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
+  m_EventHandler.Init(pGrid);
 
   m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
@@ -44,7 +45,7 @@ ezQtTypeWidget::~ezQtTypeWidget()
   ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
 }
 
-void ezQtTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
+void ezQtTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
   QtScopedUpdatesDisabled _(this);
 
@@ -81,6 +82,7 @@ void ezQtTypeWidget::PrepareToDie()
   if (!m_bUndead)
   {
     m_bUndead = true;
+    m_EventHandler.PrepareToDie();
 
     for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
     {
@@ -116,7 +118,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     pNewWidget->setParent(this);
     pNewWidget->Init(m_pGrid, pProp);
 
-    pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyChangedHandler, this));
+    pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyEventHandler::PropertyChangedHandler, &m_EventHandler));
     auto& ref = m_PropertyWidgets[pProp->GetPropertyName()];
 
     ref.m_pWidget = pNewWidget;
@@ -184,58 +186,6 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType)
   BuildUI(pType, manipulatorMap);
 }
 
-void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
-{
-  if (m_bUndead)
-    return;
-
-  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
-  switch (ed.m_Type)
-  {
-  case  ezQtPropertyWidget::Event::Type::ValueChanged:
-    {
-      ezStringBuilder sTemp; sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
-      pObjectAccessor->StartTransaction(sTemp);
-
-      ezStatus res;
-      for (const auto& sel : *ed.m_pItems)
-      {
-        res = pObjectAccessor->SetValue(sel.m_pObject, ed.m_pProperty, ed.m_Value, sel.m_Index);
-        if (res.m_Result.Failed())
-          break;
-      }
-
-      if (res.m_Result.Failed())
-        pObjectAccessor->CancelTransaction();
-      else
-        pObjectAccessor->FinishTransaction();
-
-      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Changing the property failed.");
-
-    }
-    break;
-
-  case  ezQtPropertyWidget::Event::Type::BeginTemporary:
-    {
-      ezStringBuilder sTemp; sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
-      pObjectAccessor->BeginTemporaryCommands(sTemp);
-    }
-    break;
-
-  case  ezQtPropertyWidget::Event::Type::EndTemporary:
-    {
-      pObjectAccessor->FinishTemporaryCommands();
-    }
-    break;
-
-  case  ezQtPropertyWidget::Event::Type::CancelTemporary:
-    {
-      pObjectAccessor->CancelTemporaryCommands();
-    }
-    break;
-  }
-}
-
 void ezQtTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (m_bUndead)
@@ -296,7 +246,7 @@ void ezQtTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEv
 void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
   if (std::none_of(cbegin(m_Items), cend(m_Items),
-                   [=](const ezQtPropertyWidget::Selection& sel) { return pObject == sel.m_pObject; }
+                   [=](const ezPropertySelection& sel) { return pObject == sel.m_pObject; }
   ))
     return;
 
