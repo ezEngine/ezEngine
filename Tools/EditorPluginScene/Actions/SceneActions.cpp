@@ -8,6 +8,8 @@
 #include <Preferences/ScenePreferences.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -246,11 +248,20 @@ void ezSceneAction::Execute(const ezVariant& value)
       QStringList arguments;
       arguments << "-scene";
 
-      const ezStringBuilder sPath = 
+      const ezStringBuilder sPath =
         m_pSceneDocument->GetAssetDocumentManager()->GetAbsoluteOutputFileName(m_pSceneDocument->GetDocumentPath(), "");
 
       const char* szPath = sPath.GetData();
       arguments << QString::fromUtf8(szPath);
+
+      ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+      sWndCfgPath.AppendPath("Window.ddl");
+
+      if (ezOSFile::ExistsFile(sWndCfgPath))
+      {
+        arguments << "-wnd";
+        arguments << QString::fromUtf8(sWndCfgPath);
+      }
 
       ezLog::Info("Running: Player.exe -scene \"{0}\"", sPath);
       m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: Player.exe -scene \"{0}\"", sPath));

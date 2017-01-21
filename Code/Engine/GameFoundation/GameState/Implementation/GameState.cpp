@@ -75,7 +75,25 @@ void ezGameState::CreateMainWindow()
   ezScreen::EnumerateScreens(screens);
   ezScreen::PrintScreenInfo(screens);
 
-  ezStringBuilder sWndCfg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-wnd", 0, ":project/Window.ddl");
+  ezStringBuilder sWndCfg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-wnd", 0, "");
+
+  if (!sWndCfg.IsEmpty() && !ezFileSystem::ExistsFile(sWndCfg))
+  {
+    ezLog::Warning("Window Config file does not exist: '{0}'", sWndCfg);
+    sWndCfg.Clear();
+  }
+
+  if (sWndCfg.IsEmpty())
+  {
+    if (ezFileSystem::ExistsFile(":appdata/Window.ddl"))
+      sWndCfg = ":appdata/Window.ddl";
+    else
+      sWndCfg = ":project/Window.ddl";
+  }
+
+  if (GetApplication()->GetAppType() == ezGameApplicationType::EmbeddedInTool)
+  {
+  }
 
   ezWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg);

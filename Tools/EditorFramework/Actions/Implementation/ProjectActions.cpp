@@ -15,6 +15,7 @@
 #include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/Dialogs/InputConfigDlg.moc.h>
+#include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
 #include <Dialogs/TagsDlg.moc.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
@@ -37,6 +38,7 @@ ezActionDescriptorHandle ezProjectActions::s_hShortcutEditor;
 ezActionDescriptorHandle ezProjectActions::s_hEditorPlugins;
 ezActionDescriptorHandle ezProjectActions::s_hEnginePlugins;
 ezActionDescriptorHandle ezProjectActions::s_hDataDirectories;
+ezActionDescriptorHandle ezProjectActions::s_hWindowConfig;
 ezActionDescriptorHandle ezProjectActions::s_hInputConfig;
 ezActionDescriptorHandle ezProjectActions::s_hPreferencesDlg;
 ezActionDescriptorHandle ezProjectActions::s_hEditorTests;
@@ -75,6 +77,7 @@ void ezProjectActions::RegisterActions()
 
   s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
   s_hInputConfig = EZ_REGISTER_ACTION_1("Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
+  s_hWindowConfig = EZ_REGISTER_ACTION_1("Project.WindowConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::WindowConfig);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -107,6 +110,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hPreferencesDlg);
   ezActionManager::UnregisterAction(s_hTagsDlg);
   ezActionManager::UnregisterAction(s_hDataDirectories);
+  ezActionManager::UnregisterAction(s_hWindowConfig);
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hEditorTests);
 }
@@ -147,6 +151,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hEnginePlugins, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 2.0f);
   pMap->MapAction(s_hInputConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 3.0f);
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
+  pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -288,6 +293,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::DataDirectories:
     SetIconPath(":/EditorFramework/Icons/DataDirectories16.png");
     break;
+  case ezProjectAction::ButtonType::WindowConfig:
+    SetIconPath(":/EditorFramework/Icons/WindowConfig16.png");
+    break;
   case ezProjectAction::ButtonType::InputConfig:
     SetIconPath(":/EditorFramework/Icons/Input16.png");
     break;
@@ -313,6 +321,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 
   if (m_ButtonType == ButtonType::CloseProject ||
       m_ButtonType == ButtonType::DataDirectories ||
+      m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::EnginePlugins ||
       m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine ||
@@ -329,6 +338,7 @@ ezProjectAction::~ezProjectAction()
 {
   if (m_ButtonType == ButtonType::CloseProject ||
       m_ButtonType == ButtonType::DataDirectories ||
+      m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::EnginePlugins ||
       m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine ||
@@ -374,6 +384,13 @@ void ezProjectAction::Execute(const ezVariant& value)
   case ezProjectAction::ButtonType::DataDirectories:
     {
       ezQtDataDirsDlg dlg(nullptr);
+      dlg.exec();
+    }
+    break;
+
+  case ezProjectAction::ButtonType::WindowConfig:
+    {
+      ezQtWindowCfgDlg dlg(nullptr);
       dlg.exec();
     }
     break;

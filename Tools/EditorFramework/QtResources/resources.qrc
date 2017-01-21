@@ -32,6 +32,7 @@
     <file>Icons/AssetOk16.png</file>
     <file>Icons/AssetMissingDependency16.png</file>
     <file>Icons/AssetMissingReference16.png</file>
+	<file>Icons/WindowConfig16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

@@ -33,6 +33,7 @@ public:
   static ezActionDescriptorHandle s_hEditorPlugins;
   static ezActionDescriptorHandle s_hEnginePlugins;
   static ezActionDescriptorHandle s_hDataDirectories;
+  static ezActionDescriptorHandle s_hWindowConfig;
   static ezActionDescriptorHandle s_hInputConfig;
   static ezActionDescriptorHandle s_hPreferencesDlg;
   static ezActionDescriptorHandle s_hTagsDlg;
@@ -81,6 +82,7 @@ public:
     Shortcuts,
     EditorPlugins,
     DataDirectories,
+    WindowConfig,
     InputConfig,
     PreferencesDialog,
     TagsDialog,

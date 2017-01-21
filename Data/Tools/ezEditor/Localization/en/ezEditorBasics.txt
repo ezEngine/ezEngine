@@ -9,6 +9,7 @@ Project.RecentProjects.Menu;Recent &Projects
 Project.Close;Close Project
 Project.DataDirectories;D&ata Directories
 Project.InputConfig;&Input Configuration
+Project.WindowConfig;&Window Configuration
 Settings.Open;S&ettings
 Engine.ReloadResources;Reload Resources
 Engine.ReloadEngine;Reload Engine
