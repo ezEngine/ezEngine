@@ -101,6 +101,10 @@ public:
 
   void EndQuery(ezGALQueryHandle hQuery);
 
+  /// \return Success if retrieving the query succeeded.
+  ezResult GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQueryResult);
+
+
   // Resource functions
 
   void CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource);
@@ -221,6 +225,8 @@ protected:
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) = 0;
 
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;
+
+  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult) = 0;
 
   // Resource update functions
 

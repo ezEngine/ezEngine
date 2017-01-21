@@ -237,16 +237,20 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
     constexpr int numSweepDirs = NUM_SWEEP_DIRECTIONS_PER_FRAME;
 
     // As described in the paper, all directions are aligned so that we always hit  pixels on a square.
-    static_assert(numSweepDirs % 8 == 0, "Invalid number of sweep directions for LSAO!");
+    static_assert(numSweepDirs % 4 == 0, "Invalid number of sweep directions for LSAO!");
+   // static_assert((numSweepDirs * NUM_SWEEP_DIRECTIONS_PER_PIXEL) % 9 == 0, "Invalid number of sweep directions for LSAO!");
     const int perSide = (numSweepDirs + 4) / 4 - 1; // side length of the square on which all directions lie -1
-    const int halfPerSide = perSide / 2;
+    const int halfPerSide = perSide / 2 + (perSide % 2);
     for(int i=0; i<perSide; ++i)
     {
-      samplingDir[i + perSide * 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Top
-      samplingDir[i + perSide * 1] = ezVec2I32(halfPerSide, halfPerSide - i) * m_uiLineSamplePixelOffsetFactor; // Right
-      samplingDir[i + perSide * 2] = ezVec2I32(halfPerSide - i, -halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Bottom
-      samplingDir[i + perSide * 3] = ezVec2I32(-halfPerSide, i - halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Left
+      // Put opposing directions next to each other, so that a gather pass that doesn't sample all directions, only needs to sample an even number of directions to end up with non-negative occlusion.
+      samplingDir[i*4 + 0] = ezVec2I32(i - halfPerSide, halfPerSide) * m_uiLineSamplePixelOffsetFactor; // Top
+      samplingDir[i*4 + 1] = -samplingDir[i * 4 + 0]; // Bottom
+      samplingDir[i*4 + 2] = ezVec2I32(halfPerSide, halfPerSide - i) * m_uiLineSamplePixelOffsetFactor; // Right
+      samplingDir[i*4 + 3] = -samplingDir[i * 4 + 2]; // Left
     }
+
+    // todo: Ddd debug test to check wheather any direction is duplicated. Mistakes in the equations above can easily happen!
   }
 
   for(int dirIndex = 0; dirIndex<EZ_ARRAY_SIZE(samplingDir); ++dirIndex)

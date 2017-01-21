@@ -108,12 +108,6 @@ public:
 
 
 
-  // Get Query Data
-
-  void GetQueryData(ezGALQueryHandle hQuery, ezUInt64* puiRendererdPixels);
-
-
-
   /// \todo Map functions to save on memcpys
 
   // Swap chain functions
@@ -130,6 +124,12 @@ public:
   void EndFrame();
 
   void SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain);
+
+  /// Returns timestamp frequency in ticks per second.
+  ///
+  /// Returns 0 if acquiring the frequency failed (which can happen at any point).
+  /// Note that the frequency may change over time.
+  ezUInt64 GetTimestampTicksPerSecond();
 
   ezGALSwapChainHandle GetPrimarySwapChain() const;
 
@@ -356,16 +356,6 @@ protected:
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
 
 
-
-
-  // Get Query Data
-
-  virtual void GetQueryDataPlatform(ezGALQuery* pQuery, ezUInt64* puiRendererdPixels) = 0;
-
-
-
-
-
   // Swap chain functions
 
   virtual void PresentPlatform(ezGALSwapChain* pSwapChain) = 0;
@@ -379,6 +369,8 @@ protected:
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) = 0;
 
   virtual void FillCapabilitiesPlatform() = 0;
+
+  virtual ezUInt64 GetTimestampTicksPerSecondPlatform() = 0;
 
   /// \endcond
 

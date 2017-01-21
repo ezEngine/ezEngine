@@ -933,8 +933,6 @@ ezGALQueryHandle ezGALDevice::CreateQuery(const ezGALQueryCreationDescription& d
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  /// \todo Platform independent validation
-
   ezGALQuery* pQuery = CreateQueryPlatform(desc);
 
   if (pQuery == nullptr)
@@ -1021,17 +1019,6 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   }
 }
 
-
-// No need to have a context to get query data:
-
-void ezGALDevice::GetQueryData(ezGALQueryHandle hQuery, ezUInt64* puiRendererdPixels)
-{
-  /// \todo Assert on query support?
-
-  GetQueryDataPlatform(m_Queries[hQuery], puiRendererdPixels);
-}
-
-
 // Swap chain functions
 
 void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain)
@@ -1107,6 +1094,12 @@ void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)
   }
 }
 
+ezUInt64 ezGALDevice::GetTimestampTicksPerSecond()
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  return GetTimestampTicksPerSecondPlatform();
+}
 
 const ezGALDeviceCapabilities& ezGALDevice::GetCapabilities() const
 {

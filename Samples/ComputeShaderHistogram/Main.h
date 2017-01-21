@@ -8,6 +8,7 @@
 
 class ezWindow;
 class ezDirectoryWatcher;
+class ezGPUStopwatch;
 
 /// Uses shader reloading mechanism of the ShaderExplorer sample for quick prototyping.
 class ezComputeShaderHistogramApp : public ezGameApplication
@@ -27,6 +28,8 @@ private:
   void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
 
   ezUniquePtr<ezWindow> m_pWindow;
+
+  ezUniquePtr<ezGPUStopwatch> m_pHistogramGPUStopwatch;
 
   ezGALTextureHandle m_hScreenTexture;
   ezGALRenderTargetViewHandle m_hScreenRTV;

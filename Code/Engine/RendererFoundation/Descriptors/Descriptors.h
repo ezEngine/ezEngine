@@ -325,5 +325,32 @@ struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezG
   bool m_bAppend; // Allows appending data to the end of the buffer.
 };
 
+struct ezGALQueryType
+{
+  enum Enum
+  {
+    /// Number of samples that passed the depth and stencil test between begin and end (on a context).
+    NumSamplesPassed,
+    /// Boolean version of NumSamplesPassed.
+    AnySamplesPassed,
+    /// Returns a GPU timestamp. Frequency must be queries from the context and may change over time.
+    /// You can only call EndQuery on Timestamp-queries.
+    Timestamp,
+
+    // Note:
+    // GALFence provides an implementation of "event queries".
+  };
+};
+
+struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreationDescription>
+{
+  ezGALQueryCreationDescription();
+
+  ezGALQueryType::Enum m_type;
+
+  /// In case this query is used for occlusion culling (type AnySamplesPassed), this determines whether drawing should be done if the query status is still unknown.
+  bool m_bDrawIfUnknown;
+};
+
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>

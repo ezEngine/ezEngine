@@ -8,10 +8,10 @@
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
+#include <RendererDX11/Resources/ResourceViewDX11.h>
+#include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
-#include <RendererDX11/Resources/ResourceViewDX11.h>
-
 
 #include <d3d11_1.h>
 
@@ -582,12 +582,18 @@ void ezGALContextDX11::WaitForFencePlatform(const ezGALFence* pFence)
 
 void ezGALContextDX11::BeginQueryPlatform(const ezGALQuery* pQuery)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  m_pDXContext->Begin(static_cast<const ezGALQueryDX11*>(pQuery)->GetDXQuery());
 }
 
 void ezGALContextDX11::EndQueryPlatform(const ezGALQuery* pQuery)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  m_pDXContext->End(static_cast<const ezGALQueryDX11*>(pQuery)->GetDXQuery());
+}
+
+ezResult ezGALContextDX11::GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult)
+{
+  return m_pDXContext->GetData(static_cast<const ezGALQueryDX11*>(pQuery)->GetDXQuery(), &uiQueryResult,
+                               sizeof(ezUInt64), D3D11_ASYNC_GETDATA_DONOTFLUSH) == S_FALSE ? EZ_FAILURE : EZ_SUCCESS;
 }
 
 // Resource update functions

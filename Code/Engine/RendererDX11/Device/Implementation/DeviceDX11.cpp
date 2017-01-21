@@ -8,6 +8,7 @@
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
+#include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
@@ -27,11 +28,21 @@ ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Descripti
   , m_uiCurrentEndFrameFence(0)
   , m_uiNextEndFrameFence(0)
   , m_uiFrameCounter(0)
+  , m_uiRunDisjointTimerQuery(0)
+  , m_uiLastTimerTicksPerSecond(0)
+  , m_uiNextDisjointTimerQueryToRun(0)
+  , m_bStartedDisjointQuery(false)
 {
+  m_uiRunDisjointTimerQuery = 0;
+  for (ezUInt32 i = 0; i < m_uiNumDisjointTimerQueries; ++i)
+    m_pDisjointTimerQueries[i] = nullptr;
+  m_uiNextDisjointTimerQueryToRun = 0;
 }
 
 ezGALDeviceDX11::~ezGALDeviceDX11()
 {
+  for (ezUInt32 i = 0; i < m_uiNumDisjointTimerQueries; ++i)
+    EZ_GAL_DX11_RELEASE(m_pDisjointTimerQueries[i]);
 }
 
 
@@ -464,13 +475,22 @@ void ezGALDeviceDX11::DestroyFencePlatform(ezGALFence* pFence)
 
 ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return nullptr;
+  ezGALQueryDX11* pQuery = EZ_NEW(&m_Allocator, ezGALQueryDX11, Description);
+
+  if (!pQuery->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pQuery);
+    return nullptr;
+  }
+
+  return pQuery;
 }
 
 void ezGALDeviceDX11::DestroyQueryPlatform(ezGALQuery* pQuery)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezGALQueryDX11* pQueryDX11 = static_cast<ezGALQueryDX11*>(pQuery);
+  pQueryDX11->DeInitPlatform(this);
+  EZ_DELETE(&m_Allocator, pQueryDX11);
 }
 
 ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description)
@@ -496,15 +516,6 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
 }
 
 
-void ezGALDeviceDX11::GetQueryDataPlatform(ezGALQuery* pQuery, ezUInt64* puiRendererdPixels)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  *puiRendererdPixels = 42;
-}
-
-
-
-
 
 // Swap chain functions
 
@@ -519,11 +530,55 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 
 void ezGALDeviceDX11::BeginFramePlatform()
 {
+  if (m_uiRunDisjointTimerQuery > 0)
+  {
+    // Create disjoint queries if we don't have them yet.
+    if (!m_pDisjointTimerQueries[0])
+    {
+      D3D11_QUERY_DESC queryDesc;
+      queryDesc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+      queryDesc.MiscFlags = 0;
+      for (int i = 0; i < m_uiNumDisjointTimerQueries; ++i)
+      {
+        if (FAILED(m_pDevice->CreateQuery(&queryDesc, &m_pDisjointTimerQueries[i])))
+        {
+          ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
+          m_uiRunDisjointTimerQuery = 0;
+          return;
+        }
+      }
+    }
+
+    // Start query.
+    EZ_ASSERT_DEV(!m_bStartedDisjointQuery, "Disjoint query for frequency already stated!");
+    GetPrimaryContext<ezGALContextDX11>()->GetDXContext()->Begin(m_pDisjointTimerQueries[m_uiNextDisjointTimerQueryToRun]);
+    m_bStartedDisjointQuery = true;
+  }
 }
 
 void ezGALDeviceDX11::EndFramePlatform()
 {
   ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
+
+  if (m_bStartedDisjointQuery)
+  {
+    // End current disjoint query ..
+    pContext->GetDXContext()->End(m_pDisjointTimerQueries[m_uiNextDisjointTimerQueryToRun]);
+    m_uiNextDisjointTimerQueryToRun = (m_uiNextDisjointTimerQueryToRun + 1) % m_uiNumDisjointTimerQueries;
+
+    // .. and retrieve data from oldest.
+    D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data;
+    if (SUCCEEDED(pContext->GetDXContext()->GetData(m_pDisjointTimerQueries[m_uiNextDisjointTimerQueryToRun], &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
+    {
+      if(!data.Disjoint)
+        m_uiLastTimerTicksPerSecond = data.Frequency;
+    }
+
+    m_bStartedDisjointQuery = false;
+    EZ_ASSERT_DEV(m_uiRunDisjointTimerQuery > 0, "Disjoint query started but no disjoint queries scheduled.");
+    --m_uiRunDisjointTimerQuery;
+  }
+
 
   // check if fence is reached
   {
@@ -646,9 +701,24 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     break;
 
   }
-
 }
 
+ezUInt64 ezGALDeviceDX11::GetTimestampTicksPerSecondPlatform()
+{
+  // Frequency in DX11 is odd in comparision to DX12 and Vulkan.
+  // We need a D3D11_QUERY_TIMESTAMP_DISJOINT and according to the documentation we should have only one of those around, spanning the entire frame.
+  // See https://msdn.microsoft.com/en-us/library/windows/desktop/ff476191(v=vs.85).aspx
+  // "This type of query should only be invoked once per frame or less."
+  // Also, as with all queries we need to have it around several times, otherwise we won't get any values back.
+  // This brings us into the uncomfortable situation to use frequencies from older frames while we don't know which timestamps the user plans to use these frequencies with!
+  // For the moment we just ignore this fact and hope that the frequency will be reasonable stable.
+
+  // Run disjoint timer queries if the user keeps calling this function. We count this value down each frame the user isn't calling this function to disable the timers again.
+  // (API doesn't specify how costly they are, so we better avoid all this.)
+  m_uiRunDisjointTimerQuery = 4;
+
+  return m_uiLastTimerTicksPerSecond;
+}
 
 ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
 {

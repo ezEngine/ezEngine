@@ -46,6 +46,7 @@ struct ID3D11Buffer;
 struct ID3D11ShaderResourceView;
 struct ID3D11UnorderedAccessView;
 struct ID3D11SamplerState;
+struct ID3D11Query;
 
 /// \brief The DX11 implementation of the graphics context.
 class EZ_RENDERERDX11_DLL ezGALContextDX11 : public ezGALContext
@@ -142,6 +143,9 @@ protected:
 
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;
 
+  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult) override;
+
+
   // Resource update functions
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
@@ -171,7 +175,6 @@ protected:
   virtual void PopMarkerPlatform() override;
 
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
-
 
   void FlushDeferredStateChanges();
 

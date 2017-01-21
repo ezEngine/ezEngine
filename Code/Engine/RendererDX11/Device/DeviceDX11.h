@@ -12,6 +12,7 @@ struct IDXGIFactory1;
 struct IDXGIAdapter1;
 struct IDXGIDevice1;
 struct ID3D11Resource;
+struct ID3D11Query;
 enum DXGI_FORMAT;
 enum D3D_FEATURE_LEVEL;
 
@@ -113,12 +114,6 @@ protected:
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
 
 
-  // Get Query Data
-
-  virtual void GetQueryDataPlatform(ezGALQuery* pQuery, ezUInt64* puiRendererdPixels) override;
-
-
-
 
   // Swap chain functions
 
@@ -133,6 +128,8 @@ protected:
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual void FillCapabilitiesPlatform() override;
+
+  virtual ezUInt64 GetTimestampTicksPerSecondPlatform() override;
 
   /// \endcond
 
@@ -197,6 +194,14 @@ private:
 
   ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
   ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
+
+  // Utils for getting timer frequency.
+  static const ezUInt32 m_uiNumDisjointTimerQueries = 3;
+  ezUInt32 m_uiRunDisjointTimerQuery;
+  ID3D11Query* m_pDisjointTimerQueries[m_uiNumDisjointTimerQueries];
+  ezUInt64 m_uiLastTimerTicksPerSecond;
+  ezUInt32 m_uiNextDisjointTimerQueryToRun;
+  bool m_bStartedDisjointQuery;
 };
 
 #include <RendererDX11/Device/Implementation/DeviceDX11_inl.h>

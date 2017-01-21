@@ -232,3 +232,9 @@ inline ezGALUnorderedAccessViewCreationDescription::ezGALUnorderedAccessViewCrea
   , m_bAppend(false)
 {
 }
+
+inline ezGALQueryCreationDescription::ezGALQueryCreationDescription() :
+  m_type(ezGALQueryType::Timestamp),
+  m_bDrawIfUnknown(true)
+{
+}

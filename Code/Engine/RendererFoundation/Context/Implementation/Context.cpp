@@ -8,6 +8,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
+#include <RendererFoundation/Resources/Query.h>
 
 ezGALContext::ezGALContext(ezGALDevice* pDevice)
   : m_pDevice(pDevice),
@@ -547,18 +548,32 @@ void ezGALContext::WaitForFence(ezGALFenceHandle hFence)
 void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
-  /// \todo Assert on query support?
 
-  BeginQueryPlatform(m_pDevice->GetQuery(hQuery));
+  auto query = m_pDevice->GetQuery(hQuery);
+  EZ_ASSERT_DEV(query->GetDescription().m_type != ezGALQueryType::Timestamp, "You can only call 'EndQuery' on queries of type ezGALQueryType::Timestamp.");
+  EZ_ASSERT_DEV(!query->m_bStarted, "Can't stat ezGALQuery because it is already running.");
+
+  BeginQueryPlatform(query);
 }
 
 void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
-  /// \todo Assert on query support?
-  /// \todo Assert on query started
+  
+  auto query = m_pDevice->GetQuery(hQuery);
+  EZ_ASSERT_DEV(query->m_bStarted || query->GetDescription().m_type == ezGALQueryType::Timestamp, "Can't end ezGALQuery, query hasn't started yet.");
 
-  EndQueryPlatform(m_pDevice->GetQuery(hQuery));
+  EndQueryPlatform(query);
+}
+
+ezResult ezGALContext::GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQueryResult)
+{
+  AssertRenderingThread();
+
+  auto query = m_pDevice->GetQuery(hQuery);
+  EZ_ASSERT_DEV(!query->m_bStarted, "Can't retrieve data from ezGALQuery while query is still running.");
+
+  return GetQueryResultPlatform(query, uiQueryResult);
 }
 
 void ezGALContext::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource)
