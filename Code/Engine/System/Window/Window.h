@@ -6,13 +6,16 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
 
+class ezOpenDdlWriter;
+class ezOpenDdlReader;
+class ezOpenDdlReaderElement;
 
 // Include the proper Input implementation to use
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
   #include <System/Window/Implementation/SFML/InputDevice_SFML.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <System/Window/Implementation/Win32/InputDevice_win32.h>
-#else 
+#else
   #error "Missing code for ezWindow Input!"
 #endif
 
@@ -42,44 +45,66 @@ public:
   virtual void ProcessWindowMessages() = 0;
 };
 
+/// \brief Determines how the position and resolution for a window are picked
+struct EZ_SYSTEM_DLL ezWindowMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    WindowFixedResolution, ///< The resolution and size are what the user picked and will not be changed. The window will not be resizable.
+    WindowResizable, ///< The resolution and size are what the user picked and will not be changed. Allows window resizing by the user.
+    FullscreenBorderlessNativeResolution, ///< A borderless window, the position and resolution are taken from the monitor on which the window shall appear.
+    FullscreenFixedResolution,  ///< A fullscreen window using the user provided resolution. Tries to change the monitor resolution accordingly.
+
+    Default = WindowFixedResolution
+  };
+};
+
+/// \brief Parameters for creating a window, such as position and resolution
 struct EZ_SYSTEM_DLL ezWindowCreationDesc
 {
+  /// \brief Adjusts the position and size members, depending on the current value of m_WindowMode and m_iMonitor.
+  ///
+  /// For windowed mode, this does nothing.
+  /// For fullscreen modes, the window position is taken from the given monitor.
+  /// For borderless fullscreen mode, the window resolution is also taken from the given monitor.
+  ///
+  /// This function can only fail if ezScreen::EnumerateScreens fails to enumerate the available screens.
+  ezResult AdjustWindowSizeAndPosition();
 
-  ezWindowCreationDesc()
-    : m_ClientAreaSize(1280, 720),
-    m_Title("ezWindow"),
-    m_uiWindowNumber(0),
-    m_bFullscreenWindow(false),
-    m_bResizable(false),
-    m_bWindowsUseDevmodeFullscreen(false)
-  {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    // Magic number on windows that positions the window at a 'good default position'
-    m_WindowPosition.Set(0x80000000, 0x80000000);
-#else
-    m_WindowPosition.SetZero();
-#endif
-  }
+  /// Serializes the configuration to DDL.
+  void SaveToDDL(ezOpenDdlWriter& writer);
 
-  ezVec2I32 m_WindowPosition;
-  ezSizeU32 m_ClientAreaSize;
+  /// Serializes the configuration to DDL.
+  ezResult SaveToDDL(const char* szFile);
 
-  ezString m_Title;
+  /// Deserializes the configuration from DDL.
+  void LoadFromDDL(const ezOpenDdlReaderElement* pParentElement);
 
-  /// \brief The number of the window. This is mostly used for setting up the input system, which then reports
+  /// Deserializes the configuration from DDL.
+  ezResult LoadFromDDL(const char* szFile);
+
+
+  /// The window title to be displayed.
+  ezString m_Title = "ezEngine";
+
+  /// Defines how the window size is determined.
+  ezEnum<ezWindowMode> m_WindowMode;
+
+  /// The monitor index is as given by ezScreen::EnumerateScreens.
+  /// -1 as the index means to pick the primary monitor.
+  ezInt8 m_iMonitor = -1;
+
+  /// The virtual position of the window. Determines on which monitor the window ends up.
+  ezVec2I32 m_Position = ezVec2I32(0x80000000, 0x80000000); // Magic number on windows that positions the window at a 'good default position'
+
+  /// The pixel resolution of the window.
+  ezSizeU32 m_Resolution = ezSizeU32(1280, 720);
+
+  /// The number of the window. This is mostly used for setting up the input system, which then reports
   /// different mouse positions for each window.
-  ezUInt8 m_uiWindowNumber;
-
-  bool m_bFullscreenWindow;
-
-  /// Enables window resizing by the user.
-  /// Ignored for fullscreen windows.
-  bool m_bResizable;
-
-  /// Windows only - set to true if you want to create a fullscreen window using the Windows device mode
-  /// Does not work together with DirectX device settings
-  /// \remarks will be ignored if \code{.cpp} m_bFullscreenWindow == false\endcode
-  bool m_bWindowsUseDevmodeFullscreen;
+  ezUInt8 m_uiWindowNumber = 0;
 };
 
 /// \brief A simple abstraction for platform specific window creation.
@@ -109,10 +134,10 @@ public:
     return m_CreationDescription;
   }
 
-  /// \brief Returns the size of the client area.
+  /// \brief Returns the size of the client area / ie. the window resolution.
   virtual ezSizeU32 GetClientAreaSize() const override
   {
-    return m_CreationDescription.m_ClientAreaSize;
+    return m_CreationDescription.m_Resolution;
   }
 
   /// \brief Returns the platform specific window handle.

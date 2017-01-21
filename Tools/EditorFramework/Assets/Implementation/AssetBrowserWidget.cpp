@@ -601,6 +601,9 @@ void ezQtAssetBrowserWidget::OnTransform()
 
   for (auto& index : selection)
   {
+    if (range.WasCanceled())
+      break;
+
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
     QString sPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
     range.BeginNextStep(sPath.toUtf8());

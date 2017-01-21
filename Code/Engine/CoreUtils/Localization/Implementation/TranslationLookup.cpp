@@ -83,7 +83,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::SeriousWarning("Failed to open localization file '{0}'", sPath.GetData());
+    ezLog::Warning("Failed to open localization file '{0}'", sPath.GetData());
     return;
   }
 

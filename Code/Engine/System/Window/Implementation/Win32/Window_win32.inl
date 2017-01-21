@@ -49,7 +49,7 @@ ezResult ezWindow::Initialize()
   if (m_bInitialized)
     Destroy();
 
-  EZ_ASSERT_RELEASE(m_CreationDescription.m_ClientAreaSize.HasNonZeroArea(), "The client area size can't be zero sized!");
+  EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
 
   // Initialize window class
   WNDCLASSEXW windowClass;
@@ -70,23 +70,25 @@ ezResult ezWindow::Initialize()
   }
 
   // setup fullscreen mode
-  if (m_CreationDescription.m_bFullscreenWindow && m_CreationDescription.m_bWindowsUseDevmodeFullscreen)
+  if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
   {
-    ezLog::Dev("Setting up fullscreen mode.");
+    ezLog::Dev("Changing display resolution for fullscreen mode to {0}*{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
 
     DEVMODEW dmScreenSettings;
 
     ezMemoryUtils::ZeroFill(&dmScreenSettings);
     dmScreenSettings.dmSize = sizeof(DEVMODEW);
-    dmScreenSettings.dmPelsWidth = m_CreationDescription.m_ClientAreaSize.width;
-    dmScreenSettings.dmPelsHeight = m_CreationDescription.m_ClientAreaSize.height;
+    dmScreenSettings.dmPelsWidth = m_CreationDescription.m_Resolution.width;
+    dmScreenSettings.dmPelsHeight = m_CreationDescription.m_Resolution.height;
     dmScreenSettings.dmBitsPerPel = 32;
     dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
     if (ChangeDisplaySettingsW(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
     {
-      m_CreationDescription.m_bFullscreenWindow = false;
-      ezLog::SeriousWarning("Failed to created fullscreen window. Falling back to non-fullscreen mode.");
+      m_CreationDescription.m_WindowMode = ezWindowMode::FullscreenBorderlessNativeResolution;
+      m_CreationDescription.AdjustWindowSizeAndPosition();
+
+      ezLog::Error("Failed to change display resolution for fullscreen window. Falling back to borderless window.");
     }
   }
 
@@ -95,7 +97,8 @@ ezResult ezWindow::Initialize()
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-  if (!m_CreationDescription.m_bFullscreenWindow)
+  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution ||
+      m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
   {
     ezLog::Dev("Window is not fullscreen.");
     dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE;
@@ -106,7 +109,7 @@ ezResult ezWindow::Initialize()
     dwWindowStyle |= WS_POPUP;
   }
 
-  if (m_CreationDescription.m_bResizable)
+  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
   {
     ezLog::Dev("Window is resizable.");
     dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
@@ -114,10 +117,11 @@ ezResult ezWindow::Initialize()
 
 
   // Create rectangle for window
-  RECT Rect = {0, 0, (LONG) m_CreationDescription.m_ClientAreaSize.width, (LONG)m_CreationDescription.m_ClientAreaSize.height};
+  RECT Rect = {0, 0, (LONG) m_CreationDescription.m_Resolution.width, (LONG)m_CreationDescription.m_Resolution.height};
 
   // Account for left or top placed task bars
-  if (!m_CreationDescription.m_bFullscreenWindow)
+  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution ||
+      m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
   {
     // Adjust for borders and bars etc.
     AdjustWindowRectEx(&Rect, dwWindowStyle, FALSE, dwExStyle);
@@ -127,10 +131,10 @@ ezResult ezWindow::Initialize()
     Rect.right -= Rect.left;
     Rect.bottom -= Rect.top;
     // apply user translation
-    Rect.left = m_CreationDescription.m_WindowPosition.x;
-    Rect.top = m_CreationDescription.m_WindowPosition.y;
-    Rect.right += m_CreationDescription.m_WindowPosition.x;
-    Rect.bottom += m_CreationDescription.m_WindowPosition.y;
+    Rect.left = m_CreationDescription.m_Position.x;
+    Rect.top = m_CreationDescription.m_Position.y;
+    Rect.right += m_CreationDescription.m_Position.x;
+    Rect.bottom += m_CreationDescription.m_Position.y;
 
     // move into work area
     RECT RectWorkArea = {0};
@@ -147,14 +151,14 @@ ezResult ezWindow::Initialize()
   const int iWidth = Rect.right - Rect.left;
   const int iHeight = Rect.bottom - Rect.top;
 
-  ezLog::Info("Window Dimensions: {0} * {1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_WindowPosition.x, m_CreationDescription.m_WindowPosition.y);
+  ezLog::Info("Window Dimensions: {0}*{1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
 
 
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
   m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle,
-                                   m_CreationDescription.m_WindowPosition.x, m_CreationDescription.m_WindowPosition.y, iWidth, iHeight,
+                                   m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight,
                                    nullptr, nullptr, windowClass.hInstance, nullptr);
 
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
@@ -174,11 +178,11 @@ ezResult ezWindow::Initialize()
 
   RECT r;
   GetClientRect(m_WindowHandle, &r);
-  m_CreationDescription.m_ClientAreaSize.width = r.right - r.left;
-  m_CreationDescription.m_ClientAreaSize.height = r.bottom - r.top;
+  m_CreationDescription.m_Resolution.width = r.right - r.left;
+  m_CreationDescription.m_Resolution.height = r.bottom - r.top;
 
   m_bInitialized = true;
-  ezLog::Success("Created window successfully. Resolution is {0} * {1}", GetClientAreaSize().width, GetClientAreaSize().height);
+  ezLog::Success("Created window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber);
 
@@ -196,7 +200,7 @@ ezResult ezWindow::Destroy()
 
   EZ_DEFAULT_DELETE(m_pInputDevice);
 
-  if (m_CreationDescription.m_bFullscreenWindow && m_CreationDescription.m_bWindowsUseDevmodeFullscreen)
+  if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
     ChangeDisplaySettingsW(nullptr, 0);
 
   HWND hWindow = GetNativeWindowHandle();

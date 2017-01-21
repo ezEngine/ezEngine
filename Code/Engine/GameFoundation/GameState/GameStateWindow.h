@@ -8,7 +8,7 @@
 class ezGameStateWindow : public ezWindow
 {
 public:
-  ezGameStateWindow();
+  ezGameStateWindow(const ezWindowCreationDesc& windowdesc);
   ~ezGameStateWindow();
 
 private:

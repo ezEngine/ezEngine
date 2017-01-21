@@ -73,8 +73,15 @@ void ezGameState::CreateMainWindow()
 
   ezHybridArray<ezScreenInfo, 2> screens;
   ezScreen::EnumerateScreens(screens);
+  ezScreen::PrintScreenInfo(screens);
 
-  m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow);
+  ezStringBuilder sWndCfg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-wnd", 0, ":project/Window.ddl");
+
+  ezWindowCreationDesc wndDesc;
+  wndDesc.LoadFromDDL(sWndCfg);
+  //wndDesc.SaveToDDL(":project/Window.ddl");
+
+  m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc);
   m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow);
 }
 
@@ -156,5 +163,5 @@ void ezGameState::ConfigureMainCamera()
   }
 
   m_MainCamera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
-  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
+  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
 }

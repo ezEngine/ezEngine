@@ -2,15 +2,10 @@
 #include <GameFoundation/GameState/GameStateWindow.h>
 
 
-ezGameStateWindow::ezGameStateWindow()
+ezGameStateWindow::ezGameStateWindow(const ezWindowCreationDesc& windowdesc)
 {
-  /// \todo Make this configurable
-
-  m_CreationDescription.m_ClientAreaSize.width = 720 * 16 / 9;
-  m_CreationDescription.m_ClientAreaSize.height = 720;
-  m_CreationDescription.m_Title = "SampleApp";
-  m_CreationDescription.m_bFullscreenWindow = false;
-  m_CreationDescription.m_bResizable = false;
+  m_CreationDescription = windowdesc;
+  m_CreationDescription.AdjustWindowSizeAndPosition();
 
   Initialize();
 }
@@ -24,5 +19,5 @@ void ezGameStateWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Resolution changed to {0} * {1}", newWindowSize.width, newWindowSize.height);
 
-  m_CreationDescription.m_ClientAreaSize = newWindowSize;
+  m_CreationDescription.m_Resolution = newWindowSize;
 }

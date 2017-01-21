@@ -33,23 +33,16 @@ BOOL CALLBACK ezMonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMo
   return TRUE;
 }
 
-void ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
+ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 {
-  EZ_LOG_BLOCK("EnumerateScreens");
-
   out_Screens.Clear();
   if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_Screens) == FALSE)
-  {
-    ezLog::Error("Failed to enumerate screens");
-    return;
-  }
+    return EZ_FAILURE;
 
-  ezLog::Dev("Found {0} screens", out_Screens.GetCount());
+  if (out_Screens.IsEmpty())
+    return EZ_FAILURE;
 
-  for (const auto& screen : out_Screens)
-  {
-    ezLog::Dev("'{0}': Offset = ({1}, {2}), Resolution = ({3}, {4})", screen.m_sDisplayName, screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY);
-  }
+  return EZ_SUCCESS;
 }
 
 
