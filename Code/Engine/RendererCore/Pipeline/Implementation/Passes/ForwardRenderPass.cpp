@@ -16,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
     EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
+    EZ_MEMBER_PROPERTY("ApplySSAOTheJanWay", m_applySSAOTheJanWay),
   }
   EZ_END_PROPERTIES
 }
@@ -97,6 +98,11 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "TRUE");
     ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
+
+    if(m_applySSAOTheJanWay)
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SSAO_FOR_JAN", "TRUE");
+    else
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SSAO_FOR_JAN", "FALSE");
   }
   else
   {

@@ -86,6 +86,9 @@ float3 CalculateLighting(ezMaterialData matData, float2 screenPosition)
   #if USE_SSAO
     float ssao = SSAOTexture.Sample(PointClampSampler, screenPosition.xy).r;
     occlusion = min(occlusion, ssao);
+    #if SSAO_FOR_JAN
+      totalLight *= occlusion;
+    #endif
   #endif
 
   // simple two color diffuse ambient
