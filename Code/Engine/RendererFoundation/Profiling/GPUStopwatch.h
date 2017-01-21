@@ -1,6 +1,5 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
 #include <RendererFoundation/Basics.h>
 
 class ezGALDevice;
@@ -9,7 +8,7 @@ class ezGALDevice;
 ///
 /// The timer is not suitable to be reused for different events since it will return timing result from n frames past.
 /// Keep in mind that this is unlike a CPU stopwatch a non-trivial gpu object and should not be recreated too often.
-class EZ_RENDERERCORE_DLL ezGPUStopwatch
+class EZ_RENDERERFOUNDATION_DLL ezGPUStopwatch
 {
 public:
   ezGPUStopwatch(ezGALDevice& device, ezUInt32 numFramesDelay = 3);
@@ -28,6 +27,8 @@ public:
   /// Gets result from the last successful call to End.
   ezTime GetLastResult() const { return m_lastResult; }
 
+  /// Are we between a Begin and an End call?
+  bool IsRunning() const { return m_running; }
 
   /// Scope object that calls Begin on construction and End on destruction;
   struct Scope

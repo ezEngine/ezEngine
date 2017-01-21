@@ -1,5 +1,5 @@
 
-EZ_FORCE_INLINE ezGALDevice* ezGALContext::GetDevice()
+EZ_FORCE_INLINE ezGALDevice* ezGALContext::GetDevice() const
 {
   return m_pDevice;
 }

@@ -9,6 +9,7 @@
 #include <RendererFoundation/Device/DeviceCapabilities.h>
 
 class ezColor;
+class ezGPUStopwatch;
 
 /// \brief The ezRenderDevice class is the primary interface for interactions with rendering APIs
 /// It contains a set of (non-virtual) functions to set state, create resources etc. which rely on
@@ -106,6 +107,9 @@ public:
 
   void DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
+
+  /// Gets or creates a GPU stopwatch whose livetime is managed by this context.
+  ezGPUStopwatch& GetOrCreateGPUStopwatch(const char* name);
 
 
   /// \todo Map functions to save on memcpys
@@ -376,6 +380,7 @@ protected:
 
 private:
   bool m_bFrameBeginCalled;
+  ezHashTable<ezString, ezGPUStopwatch*> m_namedStopwatches;
 
 };
 

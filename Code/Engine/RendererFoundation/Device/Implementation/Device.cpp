@@ -10,6 +10,7 @@
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Profiling/GPUStopwatch.h>
 
 namespace
 {
@@ -51,6 +52,7 @@ namespace
 }
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
+
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
@@ -147,6 +149,10 @@ ezResult ezGALDevice::Shutdown()
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   EZ_LOG_BLOCK("ezGALDevice::Shutdown");
+
+  for (auto it = m_namedStopwatches.GetIterator(); it.IsValid(); ++it)
+    EZ_DEFAULT_DELETE(it.Value());
+  m_namedStopwatches.Clear();
 
   // If we created a primary swap chain, release it
   if (!m_hPrimarySwapChain.IsInvalidated())
@@ -1017,6 +1023,18 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   {
     ezLog::Warning("DestroyVertexDeclaration called on invalid handle (double free?)");
   }
+}
+
+ezGPUStopwatch& ezGALDevice::GetOrCreateGPUStopwatch(const char* szName)
+{
+  ezGPUStopwatch* stopwatch = nullptr;
+  if (!m_namedStopwatches.TryGetValue(szName, stopwatch))
+  {
+    stopwatch = EZ_DEFAULT_NEW(ezGPUStopwatch, *this);
+    m_namedStopwatches.Insert(szName, stopwatch);
+  }
+
+  return *stopwatch;
 }
 
 // Swap chain functions

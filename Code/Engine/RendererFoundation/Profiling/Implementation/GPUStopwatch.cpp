@@ -1,5 +1,5 @@
-#include <RendererCore/PCH.h>
-#include <RendererCore/Debug/GPUStopwatch.h>
+#include <RendererFoundation/PCH.h>
+#include <RendererFoundation/Profiling/GPUStopwatch.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 
@@ -49,10 +49,11 @@ ezResult ezGPUStopwatch::End(ezGALContext& context, ezTime* outTimeDifference)
     *outTimeDifference = ezTime::Zero();
 
   // Retrieve oldest query data and convert to time.
+  // Each call may fail, but check only at the end to avoid DX giving us warnings about pointless queries.
   ezUInt64 timestampBegin, timestampEnd;
-  if (context.GetQueryResult(m_queries[m_nextQuery].beginQuery, timestampBegin).Failed())
-    return EZ_FAILURE;
-  if (context.GetQueryResult(m_queries[m_nextQuery].endQuery, timestampEnd).Failed())
+  ezResult beginResult = context.GetQueryResult(m_queries[m_nextQuery].beginQuery, timestampBegin);
+  ezResult endResult = context.GetQueryResult(m_queries[m_nextQuery].endQuery, timestampEnd);
+  if (beginResult.Failed() || endResult.Failed())
     return EZ_FAILURE;
 
   // Frequency might change and retrieval might even fail.

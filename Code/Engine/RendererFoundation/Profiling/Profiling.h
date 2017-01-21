@@ -3,6 +3,8 @@
 #include <RendererFoundation/Basics.h>
 #include <Foundation/Profiling/Profiling.h>
 
+/// Sets profiling marker for the current scope.
+/// Via a CVar GPU timing can be activated for the scopes as well.
 class EZ_RENDERERFOUNDATION_DLL ezProfilingScopeAndMarker : public ezProfilingScope
 {
 public:
@@ -12,6 +14,11 @@ public:
 
 protected:
   ezGALContext* m_pGALContext;
+
+  static void OnEngineStartup() {}
+  static void OnEngineShutdown();
+
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, ProfilingMarker);
 };
 
 /// \brief Profiles the current scope using the given name and also inserts a marker with the given GALContext.

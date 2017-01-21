@@ -128,6 +128,21 @@ retry:
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, true);
         }
 
+        // Ignore list.
+        {
+          D3D11_MESSAGE_ID hide[] =
+          {
+            // Hide messages about abandoned query results. This can easily happen when a GPUStopwatch is suddenly unused.
+            D3D11_MESSAGE_ID_QUERY_END_ABANDONING_PREVIOUS_RESULTS,
+            // Add more message IDs here as needed 
+          };
+          D3D11_INFO_QUEUE_FILTER filter;
+          ezMemoryUtils::ZeroFill(&filter);
+          filter.DenyList.NumIDs = _countof(hide);
+          filter.DenyList.pIDList = hide;
+          pInfoQueue->AddStorageFilterEntries(&filter);
+        }
+
         pInfoQueue->Release();
       }
     }

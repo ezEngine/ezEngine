@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-#include <RendererFoundation/Context/Profiling.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
 {

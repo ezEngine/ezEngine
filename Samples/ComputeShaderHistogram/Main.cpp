@@ -4,7 +4,7 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Foundation/Time/Clock.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Debug/GPUStopwatch.h>
+#include <RendererFoundation/Profiling/GPUStopwatch.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 #include <Foundation/Utilities/Stats.h>

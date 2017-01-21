@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
-#include <RendererFoundation/Context/Profiling.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 #include <CoreUtils/Geometry/GeomUtils.h>
 

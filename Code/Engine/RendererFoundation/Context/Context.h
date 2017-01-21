@@ -137,6 +137,8 @@ public:
 
   void ClearStatisticsCounters();
 
+  ezGALDevice* GetDevice() const;
+
 protected:
 
   friend class ezGALDevice;
@@ -145,7 +147,6 @@ protected:
 
   virtual ~ezGALContext();
 
-  ezGALDevice* GetDevice();
 
   // Draw functions
 

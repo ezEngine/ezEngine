@@ -10,7 +10,7 @@
 
 
 
-#include <RendererFoundation/Context/Profiling.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitialized)
 {
