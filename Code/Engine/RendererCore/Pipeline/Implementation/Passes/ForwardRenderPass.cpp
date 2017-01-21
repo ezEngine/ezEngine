@@ -16,13 +16,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
     EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
-    EZ_MEMBER_PROPERTY("ApplySSAOTheJanWay", m_applySSAOTheJanWay),
+    EZ_MEMBER_PROPERTY("ApplySSAOToDirectLighting", m_applySSAOToDirectLight),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezForwardRenderPass::ezForwardRenderPass(const char* szName) : ezRenderPipelinePass(szName)
+ezForwardRenderPass::ezForwardRenderPass(const char* szName) : ezRenderPipelinePass(szName), m_applySSAOToDirectLight(false)
 {
 }
 
@@ -99,10 +99,10 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
 
-    if(m_applySSAOTheJanWay)
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SSAO_FOR_JAN", "TRUE");
+    if(m_applySSAOToDirectLight)
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "TRUE");
     else
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SSAO_FOR_JAN", "FALSE");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "FALSE");
   }
   else
   {
