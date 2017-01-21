@@ -78,8 +78,8 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
   // Create a window for rendering
   ezWindowCreationDesc WindowCreationDesc;
-  WindowCreationDesc.m_ClientAreaSize.width = uiResolutionX;
-  WindowCreationDesc.m_ClientAreaSize.height = uiResolutionY;
+  WindowCreationDesc.m_Resolution.width = uiResolutionX;
+  WindowCreationDesc.m_Resolution.height = uiResolutionY;
   m_pWindow = EZ_DEFAULT_NEW(ezWindow);
   if (m_pWindow->Initialize(WindowCreationDesc).Failed())
     return EZ_FAILURE;

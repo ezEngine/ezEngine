@@ -141,8 +141,8 @@ void ezComputeShaderHistogramApp::AfterCoreStartup()
   {
     m_pWindow = EZ_DEFAULT_NEW(ezWindow);
     ezWindowCreationDesc windowDesc;
-    windowDesc.m_ClientAreaSize.width = g_uiWindowWidth;
-    windowDesc.m_ClientAreaSize.height = g_uiWindowHeight;
+    windowDesc.m_Resolution.width = g_uiWindowWidth;
+    windowDesc.m_Resolution.height = g_uiWindowHeight;
     windowDesc.m_Title = "Compute Shader Histogram";
     m_pWindow->Initialize(windowDesc);
     ezGALSwapChainHandle hPrimarySwapChain = AddWindow(m_pWindow.Borrow());
