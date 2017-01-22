@@ -84,6 +84,59 @@ namespace
 
     return PxFilterFlag::eKILL;
   }
+
+  class ezPxRaycastCallback : public PxRaycastCallback
+  {
+  public:
+    ezPxRaycastCallback()
+      : PxRaycastCallback(nullptr, 0)
+    {
+    }
+
+    virtual PxAgain processTouches(const PxRaycastHit* buffer, PxU32 nbHits) override
+    {
+      return false;
+    }
+  };
+
+  class ezPxSweepCallback : public PxSweepCallback
+  {
+  public:
+    ezPxSweepCallback()
+      : PxSweepCallback(nullptr, 0)
+    {
+    }
+
+    virtual PxAgain processTouches(const PxSweepHit* buffer, PxU32 nbHits) override
+    {
+      return false;
+    }
+  };
+
+  template <typename T>
+  void FillHitResult(const T& hit, ezPhysicsHitResult& out_HitResult)
+  {
+    PxShape* pHitShape = hit.shape;
+    EZ_ASSERT_DEBUG(pHitShape != nullptr, "Raycast should have hit a shape");
+
+    out_HitResult.m_vPosition = ezPxConversionUtils::ToVec3(hit.position);
+    out_HitResult.m_vNormal = ezPxConversionUtils::ToVec3(hit.normal);
+    out_HitResult.m_fDistance = hit.distance;
+    EZ_ASSERT_DEBUG(!out_HitResult.m_vPosition.IsNaN(), "Raycast hit Position is NaN");
+    EZ_ASSERT_DEBUG(!out_HitResult.m_vNormal.IsNaN(), "Raycast hit Normal is NaN");
+
+    ezComponent* pComponent = ezPxUserData::GetComponent(pHitShape->userData);
+    EZ_ASSERT_DEBUG(pComponent != nullptr, "Shape should have set a component as user data");
+
+    out_HitResult.m_hGameObject = pComponent->GetOwner()->GetHandle();
+
+    if (PxMaterial* pMaterial = pHitShape->getMaterialFromInternalFaceIndex(hit.faceIndex))
+    {
+      ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData);
+
+      out_HitResult.m_hSurface = ezSurfaceResourceHandle(pSurface);
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -194,6 +247,7 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_pPxScene(nullptr)
   , m_pCharacterManager(nullptr)
   , m_pSimulationEventCallback(nullptr)
+  , m_uiNextShapeId(0)
   , m_Settings()
   , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
@@ -267,6 +321,37 @@ void ezPhysXWorldModule::Deinitialize()
   EZ_DEFAULT_DELETE(m_pSimulationEventCallback);
 }
 
+void ezPhysXWorldModule::OnSimulationStarted()
+{
+  ezPhysX* pPhysX = ezPhysX::GetSingleton();
+
+  pPhysX->LoadCollisionFilters();
+
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    pPhysX->StartupVDB();
+  #endif
+}
+
+ezUInt32 ezPhysXWorldModule::CreateShapeId()
+{
+  if (!m_FreeShapeIds.IsEmpty())
+  {
+    ezUInt32 uiShapeId = m_FreeShapeIds.PeekBack();
+    m_FreeShapeIds.PopBack();
+
+    return uiShapeId;
+  }
+
+  return m_uiNextShapeId++;
+}
+
+void ezPhysXWorldModule::DeleteShapeId(ezUInt32 uiShapeId)
+{
+  EZ_ASSERT_DEV(uiShapeId != ezInvalidIndex, "Trying to delete an invalid shape id");
+
+  m_FreeShapeIds.PushBack(uiShapeId);
+}
+
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
 {
   m_Settings.m_vObjectGravity = objectGravity;
@@ -280,47 +365,22 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
   }
 }
 
-bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject, ezSurfaceResourceHandle& out_hSurface)
+bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
+  ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
 {
-  PxQueryFilterData filter;
-  filter.data.setToDefault();
-  filter.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+  PxQueryFilterData filterData;
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+  filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 
-  filter.data.word0 = EZ_BIT(uiCollisionLayer);
-  filter.data.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(uiCollisionLayer);
-  filter.data.word2 = 0;
-  filter.data.word3 = 0;
+  ezPxRaycastCallback closestHit;
+  ezPxQueryFilter queryFilter;
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  ezPxQueryFilter QueryFilter;
-
-  PxRaycastHit hit;
-  if (m_pPxScene->raycastSingle(reinterpret_cast<const PxVec3&>(vStart), reinterpret_cast<const PxVec3&>(vDir),
-                                  fMaxLen, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, hit,
-                                  filter, &QueryFilter))
+  if (m_pPxScene->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance,
+    closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
-    EZ_ASSERT_DEBUG(hit.shape != nullptr, "Raycast should have hit a shape");
-
-    out_vHitPos = ezPxConversionUtils::ToVec3(hit.position);
-    out_vHitNormal = ezPxConversionUtils::ToVec3(hit.normal);
-
-    ezComponent* pComponent = ezPxUserData::GetComponent(hit.shape->userData);
-    EZ_ASSERT_DEBUG(pComponent != nullptr, "Shape should have set a component as user data");
-
-    out_hHitGameObject = pComponent->GetOwner()->GetHandle();
-
-    EZ_ASSERT_DEBUG(!out_vHitPos.IsNaN(), "Raycast hit Position is NaN");
-    EZ_ASSERT_DEBUG(!out_vHitNormal.IsNaN(), "Raycast hit Normal is NaN");
-
-    auto pMaterial = hit.shape->getMaterialFromInternalFaceIndex(hit.faceIndex);
-
-    if (pMaterial)
-    {
-      ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData);
-
-      out_hSurface = ezSurfaceResourceHandle(pSurface);
-    }
+    FillHitResult(closestHit.block, out_HitResult);
 
     return true;
   }
@@ -328,34 +388,29 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   return false;
 }
 
-class ezPxSweepCallback : public PxSweepCallback
+bool ezPhysXWorldModule::SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
 {
-public:
-  ezPxSweepCallback()
-    : PxSweepCallback(nullptr, 0)
-  {
+  PxSphereGeometry sphere;
+  sphere.radius = fSphereRadius;
 
-  }
+  PxTransform transform = ezPxConversionUtils::ToTransform(vStart, ezQuat::IdentityQuaternion());
 
-  virtual PxAgain processTouches(const PxSweepHit* buffer, PxU32 nbHits) override
-  {
-    return false;
-  }
-};
+  return SweepTest(sphere, transform, vDir, fDistance, uiCollisionLayer, out_HitResult, uiIgnoreShapeId);
+}
 
-bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3& vDir, float fCapsuleRadius, float fCapsuleHeight, float fDistance, ezUInt8 uiCollisionLayer, float& out_fDistance, ezVec3& out_Position, ezVec3& out_Normal)
+bool ezPhysXWorldModule::SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
 {
-  PxQueryFilterData filter;
-  filter.data.setToDefault();
-  filter.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+  PxBoxGeometry box;
+  box.halfExtents = ezPxConversionUtils::ToVec3(vBoxExtends * 0.5f);
 
-  filter.data.word0 = EZ_BIT(uiCollisionLayer);
-  filter.data.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(uiCollisionLayer);
-  filter.data.word2 = 0;
-  filter.data.word3 = 0;
+  PxTransform transform = ezPxConversionUtils::ToTransform(start);
 
-  ezPxQueryFilter QueryFilter;
+  return SweepTest(box, transform, vDir, fDistance, uiCollisionLayer, out_HitResult, uiIgnoreShapeId);
+}
 
+bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
+  ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
+{
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
   capsule.halfHeight = fCapsuleHeight * 0.5f;
@@ -368,27 +423,32 @@ bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3
   qRot.SetFromMat3(start.m_Rotation);
   qRot = qFixRot * qRot;
 
-  PxTransform pxt;
-  pxt.p = ezPxConversionUtils::ToVec3(start.m_vPosition);
-  pxt.q = ezPxConversionUtils::ToQuat(qRot);
+  PxTransform transform = ezPxConversionUtils::ToTransform(start.m_vPosition, qRot);
 
+  return SweepTest(capsule, transform, vDir, fDistance, uiCollisionLayer, out_HitResult, uiIgnoreShapeId);
+}
+
+bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance,
+  ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
+{
+  PxQueryFilterData filterData;
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+  filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+
+  ezPxSweepCallback closestHit;
+  ezPxQueryFilter queryFilter;
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  ezPxSweepCallback closestHit;
+  if (m_pPxScene->sweep(geometry, transform, ezPxConversionUtils::ToVec3(vDir), fDistance,
+    closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
+  {
+    FillHitResult(closestHit.block, out_HitResult);
 
-  PxRaycastHit hit;
-  if (!m_pPxScene->sweep(capsule, pxt, *reinterpret_cast<const PxVec3*>(&vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filter, &QueryFilter))
-    return false;
+    return true;
+  }
 
-  out_fDistance = closestHit.block.distance;
-  out_Position = ezPxConversionUtils::ToVec3(closestHit.block.position);
-  out_Normal = ezPxConversionUtils::ToVec3(closestHit.block.normal);
-  //closestHit.block.shape;
-  //closestHit.block.actor;
-
-
-  return true;
+  return false;
 }
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)

@@ -136,6 +136,7 @@ ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
   m_bForceSlopeSliding = true;
   m_bConstrainedClimbingMode = false;
   m_uiCollisionLayer = 0;
+  m_uiShapeId = ezInvalidIndex;
 
   m_pController = nullptr;
 }
@@ -199,6 +200,15 @@ void ezPxCharacterProxyComponent::Deinitialize()
     m_pController->release();
     m_pController = nullptr;
   }
+
+  if (m_uiShapeId != ezInvalidIndex)
+  {
+    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
+    {
+      pModule->DeleteShapeId(m_uiShapeId);
+      m_uiShapeId = ezInvalidIndex;
+    }
+  }
 }
 
 void ezPxCharacterProxyComponent::OnSimulationStarted()
@@ -207,6 +217,8 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
     return;
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+  m_uiShapeId = pModule->CreateShapeId();
+
   const ezVec3& pos = GetOwner()->GetGlobalPosition();
 
   ezCoordinateSystem coordSystem;
@@ -235,10 +247,7 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   }
 
   // Setup filter data
-  m_FilterData.word0 = EZ_BIT(m_uiCollisionLayer);
-  m_FilterData.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-  m_FilterData.word2 = 0;
-  m_FilterData.word3 = 0;
+  m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId);
 
   m_ControllerFilter.mCCTFilterCallback = nullptr;
   m_ControllerFilter.mFilterCallback = nullptr;

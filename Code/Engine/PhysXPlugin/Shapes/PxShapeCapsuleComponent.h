@@ -36,7 +36,7 @@ protected:
 
 public:
 
-  virtual void AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform) override;
+  virtual PxShape* CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform) override;
 
 protected:
 

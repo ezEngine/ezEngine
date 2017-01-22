@@ -110,8 +110,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
   ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
 
-  ezGameObjectHandle hHitObj;
-  ezSurfaceResourceHandle hHitSurface;
+  ezPhysicsHitResult hitResult;
 
   ezUInt32 i = 0;
   while (!itPosition.HasReachedEnd())
@@ -128,14 +127,13 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
         ezVec3 vDirection = vChange;
         const float fMaxLen = vDirection.GetLengthAndNormalize();
 
-        ezVec3 vHitPos, vHitNorm;
-        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->CastRay(vLastPos, vDirection, fMaxLen, m_uiCollisionLayer, vHitPos, vHitNorm, hHitObj, hHitSurface))
+        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->CastRay(vLastPos, vDirection, fMaxLen, m_uiCollisionLayer, hitResult))
         {
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {
-            const ezVec3 vNewDir = vChange.GetReflectedVector(vHitNorm);
+            const ezVec3 vNewDir = vChange.GetReflectedVector(hitResult.m_vNormal);
 
-            itPosition.Current() = vHitPos + vHitNorm * 0.05f + vNewDir;
+            itPosition.Current() = hitResult.m_vPosition + hitResult.m_vNormal * 0.05f + vNewDir;
             itVelocity.Current() = vNewDir / tDiff;
           }
           else if (m_Reaction == ezParticleRaycastHitReaction::Die)
@@ -147,8 +145,8 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
           if (m_sOnCollideEvent.GetHash() != 0)
           {
             ezParticleEvent e;
-            e.m_vPosition = vHitPos;
-            e.m_vNormal = vHitNorm;
+            e.m_vPosition = hitResult.m_vPosition;
+            e.m_vNormal = hitResult.m_vNormal;
             e.m_vDirection = vDirection;
 
             GetOwnerEffect()->GetEventQueue(m_sOnCollideEvent)->AddEvent(e);

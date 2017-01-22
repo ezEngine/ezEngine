@@ -39,6 +39,8 @@ ezWorld::ezWorld(const char* szWorldName) :
 
 ezWorld::~ezWorld()
 {
+  m_Data.m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
+
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
@@ -750,6 +752,14 @@ void ezWorld::ProcessComponentsToInitialize()
 
   if (m_Data.m_bSimulateWorld)
   {
+    // Can't use foreach here because the array might be resized during iteration.
+    for (ezUInt32 i = 0; i < m_Data.m_ModulesToStartSimulation.GetCount(); ++i)
+    {
+      m_Data.m_ModulesToStartSimulation[i]->OnSimulationStarted();
+    }
+
+    m_Data.m_ModulesToStartSimulation.Clear();
+
     // Can't use foreach here because the array might be resized during iteration.
     for (ezUInt32 i = 0; i < m_Data.m_ComponentsToStartSimulation.GetCount(); ++i)
     {

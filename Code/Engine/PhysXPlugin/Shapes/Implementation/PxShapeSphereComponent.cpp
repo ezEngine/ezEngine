@@ -69,30 +69,7 @@ void ezPxShapeSphereComponent::SetRadius(float f)
   }
 }
 
-void ezPxShapeSphereComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
+PxShape* ezPxShapeSphereComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-
-  const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
-
-  ezTransform LocalTransform;
-  LocalTransform.SetLocalTransform(ParentTransform, OwnerTransform);
-
-  ezQuat r;
-  r.SetFromMat3(LocalTransform.m_Rotation);
-
-  PxTransform t;
-  t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
-  t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
-
-  auto pShape = pActor->createShape(PxSphereGeometry(m_fRadius), *GetPxMaterial());
-  pShape->setLocalPose(t);
-
-  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX sphere shape creation failed");
-
-  PxFilterData filter = CreateFilterData();
-  pShape->setSimulationFilterData(filter);
-  pShape->setQueryFilterData(filter);
-
-  pShape->userData = &m_UserData;
+  return pActor->createShape(PxSphereGeometry(m_fRadius), *GetPxMaterial());
 }

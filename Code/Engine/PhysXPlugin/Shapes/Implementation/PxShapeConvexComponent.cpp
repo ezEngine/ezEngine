@@ -58,12 +58,12 @@ const char* ezPxShapeConvexComponent::GetMeshFile() const
 }
 
 
-void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
+PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
   if (!m_hCollisionMesh.IsValid())
   {
     ezLog::Warning("ezPxShapeConvexComponent '{0}' has no collision mesh set.", GetOwner()->GetName());
-    return;
+    return nullptr;
   }
 
   ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
@@ -71,27 +71,15 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
   if (!pMesh->GetConvexMesh())
   {
     ezLog::Warning("ezPxShapeConvexComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}' ('{2}')", GetOwner()->GetName(), pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
-    return;
+    return nullptr;
   }
-
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-
-  const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
-
-  ezTransform LocalTransform;
-  LocalTransform.SetLocalTransform(ParentTransform, OwnerTransform);
-
-  ezQuat r;
-  r.SetFromMat3(LocalTransform.m_Rotation);
-
-  PxTransform t;
-  t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
-  t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
   PxMaterial* pMaterial = nullptr;
 
   if (m_hSurface.IsValid())
+  {
     pMaterial = GetPxMaterial();
+  }
   else
   {
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
@@ -105,17 +93,10 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
   }
 
   if (pMaterial == nullptr)
+  {
     pMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
+  }
 
-  auto pShape = pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *pMaterial);
-  pShape->setLocalPose(t);
-
-  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX convex shape creation failed");
-
-  PxFilterData filter = CreateFilterData();
-  pShape->setSimulationFilterData(filter);
-  pShape->setQueryFilterData(filter);
-
-  pShape->userData = &m_UserData;
+  return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *pMaterial);
 }
 

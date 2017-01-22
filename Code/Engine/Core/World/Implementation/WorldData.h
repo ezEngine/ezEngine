@@ -91,6 +91,7 @@ namespace ezInternal
 
     // modules
     ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_Modules;
+    ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_ModulesToStartSimulation;
 
     // component management
     ezDynamicArray<ezComponentManagerBase::ComponentStorageEntry, ezLocalAllocatorWrapper> m_DeadComponents;

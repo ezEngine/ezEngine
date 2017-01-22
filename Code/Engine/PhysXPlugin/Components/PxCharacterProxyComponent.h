@@ -64,6 +64,8 @@ public:
   ezBitflags<ezPxCharacterCollisionFlags> GetCollisionFlags() const;
   bool IsGrounded() const { return GetCollisionFlags().IsSet(ezPxCharacterCollisionFlags::Below); }
 
+  ezUInt32 GetShapeId() const { return m_uiShapeId; }
+
   // ************************************* PROPERTIES ***********************************
 public:
 
@@ -78,6 +80,7 @@ public:
   ezUInt8 m_uiCollisionLayer;
 
 protected:
+  ezUInt32 m_uiShapeId;
 
   PxCapsuleController* m_pController;
 

@@ -1,7 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -70,30 +69,10 @@ void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
   }
 }
 
-void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
+PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+  PxBoxGeometry box;
+  box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents * 0.5f);
 
-  const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
-
-  ezTransform LocalTransform;
-  LocalTransform.SetLocalTransform(ParentTransform, OwnerTransform);
-
-  ezQuat r;
-  r.SetFromMat3(LocalTransform.m_Rotation);
-
-  PxTransform t;
-  t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
-  t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
-
-  auto pShape = pActor->createShape(PxBoxGeometry(m_vExtents.x * 0.5f, m_vExtents.y * 0.5f, m_vExtents.z * 0.5f), *GetPxMaterial());
-  pShape->setLocalPose(t);
-
-  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX box shape creation failed");
-
-  PxFilterData filter = CreateFilterData();
-  pShape->setSimulationFilterData(filter);
-  pShape->setQueryFilterData(filter);
-
-  pShape->userData = &m_UserData;
+  return pActor->createShape(box, *GetPxMaterial());
 }

@@ -1,7 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -83,37 +82,15 @@ void ezPxShapeCapsuleComponent::SetHeight(float value)
   }
 }
 
-void ezPxShapeCapsuleComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
+PxShape* ezPxShapeCapsuleComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+  out_ShapeTransform.q = PxQuat(ezAngle::Degree(90.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f));
 
-  const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
+  PxCapsuleGeometry capsule;
+  capsule.radius = m_fRadius;
+  capsule.halfHeight = m_fHeight * 0.5f;
 
-  ezTransform LocalTransform;
-  LocalTransform.SetLocalTransform(ParentTransform, OwnerTransform);
-
-  ezQuat r;
-  r.SetFromMat3(LocalTransform.m_Rotation);
-
-  ezQuat qRot;
-  qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(270));
-
-  r = qRot * r;
-
-  PxTransform t;
-  t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
-  t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
-
-  auto pShape = pActor->createShape(PxCapsuleGeometry(m_fRadius, m_fHeight * 0.5f), *GetPxMaterial());
-  pShape->setLocalPose(t);
-
-  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX capsule shape creation failed");
-
-  PxFilterData filter = CreateFilterData();
-  pShape->setSimulationFilterData(filter);
-  pShape->setQueryFilterData(filter);
-
-  pShape->userData = &m_UserData;
+  return pActor->createShape(capsule, *GetPxMaterial());
 }
 
 

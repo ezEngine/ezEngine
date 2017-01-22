@@ -98,6 +98,9 @@ private:
   /// \brief This method is called before the destructor. A derived type can override this method to do deinitialization work.
   virtual void Deinitialize() { }
 
+  /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
+  virtual void OnSimulationStarted() { }
+
   ezWorld* m_pWorld;
 };
 

@@ -16,6 +16,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   // ************************************* PROPERTIES ***********************************
 public:
@@ -27,10 +28,14 @@ public:
   void SetSurfaceFile(const char* szFile);
   const char* GetSurfaceFile() const;
 
+  ezUInt32 GetShapeId() const { return m_uiShapeId; }
+
   ezUInt8 m_uiCollisionLayer;
   bool m_bReportContact;
 
 protected:
+  ezUInt32 m_uiShapeId;
+
   ezSurfaceResourceHandle m_hSurface;
 
   ezPxUserData m_UserData;
@@ -38,9 +43,11 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  virtual void AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform) = 0;
+  void AddToActor(PxRigidActor* pActor, const ezTransform& parentTransform);
 
 protected:
+  virtual PxShape* CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform) = 0;
+
   PxMaterial* GetPxMaterial();
   PxFilterData CreateFilterData();
 };

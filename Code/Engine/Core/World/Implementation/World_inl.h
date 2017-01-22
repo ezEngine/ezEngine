@@ -101,6 +101,7 @@ ModuleType* ezWorld::GetOrCreateModule()
     pModule->Initialize();
 
     m_Data.m_Modules[uiTypeId] = pModule;
+    m_Data.m_ModulesToStartSimulation.PushBack(pModule);
   }
 
   return pModule;
@@ -128,7 +129,7 @@ void ezWorld::DeleteModule()
 template <typename ModuleType>
 EZ_FORCE_INLINE ModuleType* ezWorld::GetModule()
 {
-  CheckForReadAccess();
+  CheckForWriteAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
     "Not a valid module type");
 

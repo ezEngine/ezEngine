@@ -42,6 +42,12 @@ namespace ezPxConversionUtils
     return ezTransform(ToVec3(t.p), ToQuat(t.q));
   }
 
+  EZ_FORCE_INLINE physx::PxTransform ToTransform(const ezTransform& t)
+  {
+    ezQuat q; q.SetFromMat3(t.m_Rotation);
+    return physx::PxTransform(ToVec3(t.m_vPosition), ToQuat(q));
+  }
+
   EZ_FORCE_INLINE physx::PxTransform ToTransform(const ezVec3& p, const ezQuat& q)
   {
     return physx::PxTransform(ToVec3(p), ToQuat(q));

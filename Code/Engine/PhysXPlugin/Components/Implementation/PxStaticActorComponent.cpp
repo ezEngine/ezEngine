@@ -2,6 +2,7 @@
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -18,8 +19,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxStaticActorComponent::ezPxStaticActorComponent()
   : m_uiCollisionLayer(0)
+  , m_uiShapeId(ezInvalidIndex)
   , m_pActor(nullptr)
   , m_UserData(this)
+{
+}
+
+ezPxStaticActorComponent::~ezPxStaticActorComponent()
 {
 }
 
@@ -45,32 +51,24 @@ void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiCollisionLayer;
 }
 
-
-void ezPxStaticActorComponent::SetMeshFile(const char* szFile)
+void ezPxStaticActorComponent::Deinitialize()
 {
-  ezPhysXMeshResourceHandle hMesh;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (m_pActor != nullptr)
   {
-    hMesh = ezResourceManager::LoadResource<ezPxMeshResource>(szFile);
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
+    m_pActor->release();
+    m_pActor = nullptr;
   }
 
-  SetMesh(hMesh);
-}
-
-
-const char* ezPxStaticActorComponent::GetMeshFile() const
-{
-  if (!m_hCollisionMesh.IsValid())
-    return "";
-
-  return m_hCollisionMesh.GetResourceID();
-}
-
-
-void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
-{
-  m_hCollisionMesh = hMesh;
+  if (m_uiShapeId != ezInvalidIndex)
+  {
+    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
+    {
+      pModule->DeleteShapeId(m_uiShapeId);
+      m_uiShapeId = ezInvalidIndex;
+    }
+  }
 }
 
 void ezPxStaticActorComponent::OnSimulationStarted()
@@ -80,12 +78,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  const auto pos = GetOwner()->GetGlobalPosition();
-  const auto rot = GetOwner()->GetGlobalRotation();
-
-  PxTransform t = PxTransform::createIdentity();
-  t.p = PxVec3(pos.x, pos.y, pos.z);
-  t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
+  PxTransform t = ezPxConversionUtils::ToTransform(GetOwner()->GetGlobalTransform());
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidStatic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
@@ -93,8 +86,12 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 
+  PxShape* pShape = nullptr;
+
   if (m_hCollisionMesh.IsValid())
   {
+    m_uiShapeId = pModule->CreateShapeId();
+
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
 
     ezHybridArray<PxMaterial*, 32> pxMaterials;
@@ -124,31 +121,11 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      auto pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
-
-      PxFilterData filter;
-      filter.word0 = EZ_BIT(m_uiCollisionLayer);
-      filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-      filter.word2 = 0;
-      filter.word3 = 0;
-      pShape->setSimulationFilterData(filter);
-      pShape->setQueryFilterData(filter);
-
-      pShape->userData = &m_UserData;
+      pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
-      auto pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
-
-      PxFilterData filter;
-      filter.word0 = EZ_BIT(m_uiCollisionLayer);
-      filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-      filter.word2 = 0;
-      filter.word3 = 0;
-      pShape->setSimulationFilterData(filter);
-      pShape->setQueryFilterData(filter);
-
-      pShape->userData = &m_UserData;
+      pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else
     {
@@ -159,19 +136,16 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   // Hacky feature to add a ground plane for static actors that have no shapes at all
   if (m_pActor->getNbShapes() == 0)
   {
-    ezQuat qRot;
-    qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(270));
+    pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+    pShape->setLocalPose(PxTransform(PxQuat(ezAngle::Degree(270.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f))));
+  }
 
-    auto pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
-    pShape->setLocalPose(PxTransform(PxQuat(qRot.v.x, qRot.v.y, qRot.v.z, qRot.w)));
+  if (pShape != nullptr)
+  {
+    PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId);
 
-    PxFilterData filter;
-    filter.word0 = EZ_BIT(m_uiCollisionLayer);
-    filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-    filter.word2 = 0;
-    filter.word3 = 0;
-    pShape->setSimulationFilterData(filter);
-    pShape->setQueryFilterData(filter);
+    pShape->setSimulationFilterData(filterData);
+    pShape->setQueryFilterData(filterData);
 
     pShape->userData = &m_UserData;
   }
@@ -182,14 +156,29 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   }
 }
 
-void ezPxStaticActorComponent::Deinitialize()
+void ezPxStaticActorComponent::SetMeshFile(const char* szFile)
 {
-  if (m_pActor != nullptr)
-  {
-    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+  ezPhysXMeshResourceHandle hMesh;
 
-    m_pActor->release();
-    m_pActor = nullptr;
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hMesh = ezResourceManager::LoadResource<ezPxMeshResource>(szFile);
   }
+
+  SetMesh(hMesh);
 }
 
+
+const char* ezPxStaticActorComponent::GetMeshFile() const
+{
+  if (!m_hCollisionMesh.IsValid())
+    return "";
+
+  return m_hCollisionMesh.GetResourceID();
+}
+
+
+void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
+{
+  m_hCollisionMesh = hMesh;
+}

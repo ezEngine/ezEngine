@@ -8,6 +8,8 @@
 
 namespace physx
 {
+  class PxTransform;
+  class PxGeometry;
   class PxScene;
   class PxControllerManager;
 }
@@ -25,20 +27,36 @@ public:
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
+  virtual void OnSimulationStarted() override;
 
   physx::PxScene* GetPxScene() const { return m_pPxScene; }
   physx::PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
+  ezUInt32 CreateShapeId();
+  void DeleteShapeId(ezUInt32 uiShapeId);
+
   virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
+  // ezPhysicsWorldModuleInterface implementation
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
 
-  virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject, ezSurfaceResourceHandle& out_hSurface) override;
+  virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
+    ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
 
-  virtual bool SweepTestCapsule(const ezTransform& start, const ezVec3& vDir, float fCapsuleRadius, float fCapsuleHeight, float fDistance, ezUInt8 uiCollisionLayer, float& out_fDistance, ezVec3& out_Position, ezVec3& out_Normal) override;
+  virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
+    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+
+  virtual bool SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance,
+    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+
+  virtual bool SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
+    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
 
 private:
+  bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance,
+    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId);
+
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
@@ -48,6 +66,9 @@ private:
   physx::PxScene* m_pPxScene;
   physx::PxControllerManager* m_pCharacterManager;
   ezPxSimulationEventCallback* m_pSimulationEventCallback;
+
+  ezUInt32 m_uiNextShapeId;
+  ezDynamicArray<ezUInt32> m_FreeShapeIds;
 
   ezTime m_AccumulatedTimeSinceUpdate;
 

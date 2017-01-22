@@ -1,6 +1,8 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -24,6 +26,7 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezPxShapeComponent::ezPxShapeComponent()
   : m_uiCollisionLayer(0)
   , m_bReportContact(false)
+  , m_uiShapeId(ezInvalidIndex)
   , m_UserData(this)
 {
 }
@@ -70,6 +73,18 @@ void ezPxShapeComponent::Initialize()
   }
 }
 
+void ezPxShapeComponent::Deinitialize()
+{
+  if (m_uiShapeId != ezInvalidIndex)
+  {
+    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
+    {
+      pModule->DeleteShapeId(m_uiShapeId);
+      m_uiShapeId = ezInvalidIndex;
+    }
+  }
+}
+
 void ezPxShapeComponent::SetSurfaceFile(const char* szFile)
 {
   if (!ezStringUtils::IsNullOrEmpty(szFile))
@@ -90,6 +105,30 @@ const char* ezPxShapeComponent::GetSurfaceFile() const
   return m_hSurface.GetResourceID();
 }
 
+void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezTransform& parentTransform)
+{
+  PxTransform shapeTransform(PxIdentity);
+  PxShape* pShape = CreateShape(pActor, shapeTransform);
+  EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX shape creation failed");
+
+  const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
+
+  ezTransform localTransform;
+  localTransform.SetLocalTransform(parentTransform, ownerTransform);
+
+  PxTransform t = ezPxConversionUtils::ToTransform(localTransform);
+  pShape->setLocalPose(shapeTransform * t);
+
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+  m_uiShapeId = pModule->CreateShapeId();
+
+  PxFilterData filter = CreateFilterData();
+  pShape->setSimulationFilterData(filter);
+  pShape->setQueryFilterData(filter);
+
+  pShape->userData = &m_UserData;
+}
+
 PxMaterial* ezPxShapeComponent::GetPxMaterial()
 {
   if (m_hSurface.IsValid())
@@ -107,11 +146,5 @@ PxMaterial* ezPxShapeComponent::GetPxMaterial()
 
 PxFilterData ezPxShapeComponent::CreateFilterData()
 {
-  PxFilterData filter;
-  filter.word0 = EZ_BIT(m_uiCollisionLayer);
-  filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-  filter.word2 = 0;
-  filter.word3 = m_bReportContact ? 1 : 0;
-
-  return filter;
+  return ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, m_bReportContact);
 }

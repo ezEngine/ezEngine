@@ -215,17 +215,14 @@ void ezPxCharacterControllerComponent::Update()
   /// After move forwards, sweep test downwards to stick character to floor and detect falling
   if (isOnGround && (!wantsJump || !canJump))
   {
-    ///\todo Activate this code again once we can exclude our self from the sweep test. Right now this code prevents jumping to work properly.
-    /*ezTransform t;
+    ezTransform t;
     t.SetIdentity();
     t.m_vPosition.Set((float)posAfter.x, (float)posAfter.y, (float)posAfter.z);
 
-    float fSweepDistance;
-    ezVec3 vSweepPosition, vSweepNormal;
-
-    if (pModule->SweepTestCapsule(t, ezVec3(0, 0, -1), pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, fSweepDistance, vSweepPosition, vSweepNormal))
+    ezPhysicsHitResult hitResult;
+    if (pModule->SweepTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
     {
-      pProxy->Move(ezVec3(0, 0, -fSweepDistance));
+      pProxy->Move(ezVec3(0, 0, -hitResult.m_fDistance));
 
       //ezLog::Info("Floor Distance: {0} ({1} | {2} | {3}) -> ({4} | {5} | {6}), Radius: {7}, Height: {8}", ezArgF(fSweepDistance, 2), ezArgF(t.m_vPosition.x, 2), ezArgF(t.m_vPosition.y, 2), ezArgF(t.m_vPosition.z, 2), ezArgF(vSweepPosition.x, 2), ezArgF(vSweepPosition.y, 2), ezArgF(vSweepPosition.z, 2), ezArgF(m_fCapsuleRadius, 2), ezArgF(m_fCapsuleHeight, 2));
     }
@@ -234,7 +231,7 @@ void ezPxCharacterControllerComponent::Update()
       //ezLog::Dev("Falling");
     }
 
-    posAfter = GetOwner()->GetGlobalPosition();*/
+    posAfter = GetOwner()->GetGlobalPosition();
   }
 
   {

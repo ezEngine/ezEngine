@@ -95,11 +95,19 @@ void ezPxAllocatorCallback::VerifyAllocations()
 
 PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
 {
+  const PxFilterData& shapeFilterData = shape->getQueryFilterData();
+
   queryFlags = (PxHitFlags)0;
+
+  // shape should be ignored
+  if (shapeFilterData.word2 == filterData.word2)
+  {
+    return PxQueryHitType::eNONE;
+  }
 
   // trigger the contact callback for pairs (A,B) where
   // the filter mask of A contains the ID of B and vice versa.
-  if ((filterData.word0 & shape->getQueryFilterData().word1) || (shape->getQueryFilterData().word0 & filterData.word1))
+  if ((filterData.word0 & shapeFilterData.word1) || (shapeFilterData.word0 & filterData.word1))
   {
     queryFlags |= PxHitFlag::eDEFAULT;
     return PxQueryHitType::eBLOCK;
@@ -208,6 +216,37 @@ void ezPhysX::Shutdown()
   EZ_DEFAULT_DELETE(m_pAllocatorCallback);
 }
 
+void ezPhysX::StartupVDB()
+{
+  // check if PvdConnection manager is available on this platform
+  if (m_pPhysX->getPvdConnectionManager() == nullptr)
+    return;
+
+  // return if we already have a connection
+  if (m_VdbConnection != nullptr)
+    return;
+
+  // setup connection parameters
+  const char* pvd_host_ip = "127.0.0.1"; // IP of the PC which is running PVD
+  int port = 5425; // TCP port to connect to, where PVD is listening
+  unsigned int timeout = 100; // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
+
+  PxVisualDebuggerConnectionFlags connectionFlags = PxVisualDebuggerExt::getAllConnectionFlags();
+
+  m_VdbConnection = PxVisualDebuggerExt::createConnection(m_pPhysX->getPvdConnectionManager(), pvd_host_ip, port, timeout, connectionFlags);
+
+  m_pPhysX->getVisualDebugger()->setVisualDebuggerFlags(PxVisualDebuggerFlag::eTRANSMIT_CONSTRAINTS | PxVisualDebuggerFlag::eTRANSMIT_CONTACTS | PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES);
+}
+
+void ezPhysX::ShutdownVDB()
+{
+  if (m_VdbConnection == nullptr)
+    return;
+
+  m_VdbConnection->release();
+  m_VdbConnection = nullptr;
+}
+
 void ezPhysX::LoadCollisionFilters()
 {
   EZ_LOG_BLOCK("ezPhysX::LoadCollisionFilters");
@@ -234,31 +273,16 @@ void ezPhysX::addForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3
   body.addTorque(torque, mode);
 }
 
-void ezPhysX::StartupVDB()
+
+PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId, bool bReportContact)
 {
-  // check if PvdConnection manager is available on this platform
-  if (m_pPhysX->getPvdConnectionManager() == nullptr)
-    return;
+  PxFilterData filter;
+  filter.word0 = EZ_BIT(uiCollisionLayer);
+  filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(uiCollisionLayer);
+  filter.word2 = uiShapeId;
+  filter.word3 = bReportContact ? 1 : 0;
 
-  // setup connection parameters
-  const char* pvd_host_ip = "127.0.0.1"; // IP of the PC which is running PVD
-  int port = 5425; // TCP port to connect to, where PVD is listening
-  unsigned int timeout = 100; // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
-
-  PxVisualDebuggerConnectionFlags connectionFlags = PxVisualDebuggerExt::getAllConnectionFlags();
-
-  m_VdbConnection = PxVisualDebuggerExt::createConnection(m_pPhysX->getPvdConnectionManager(), pvd_host_ip, port, timeout, connectionFlags);
-
-  m_pPhysX->getVisualDebugger()->setVisualDebuggerFlags(PxVisualDebuggerFlag::eTRANSMIT_CONSTRAINTS | PxVisualDebuggerFlag::eTRANSMIT_CONTACTS | PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES);
-}
-
-void ezPhysX::ShutdownVDB()
-{
-  if (m_VdbConnection == nullptr)
-    return;
-
-  m_VdbConnection->release();
-  m_VdbConnection = nullptr;
+  return filter;
 }
 
 void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)

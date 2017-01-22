@@ -158,9 +158,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto rot = GetOwner()->GetGlobalRotation();
 
-  PxTransform t = PxTransform::createIdentity();
-  t.p = PxVec3(pos.x, pos.y, pos.z);
-  t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
+  PxTransform t = ezPxConversionUtils::ToTransform(pos, rot);
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidDynamic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 

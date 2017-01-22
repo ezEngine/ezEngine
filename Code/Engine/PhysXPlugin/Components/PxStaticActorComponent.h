@@ -12,9 +12,14 @@ class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
 
 public:
   ezPxStaticActorComponent();
+  ~ezPxStaticActorComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  virtual void Deinitialize() override;
+
+  virtual void OnSimulationStarted() override;
 
   // ************************************* PROPERTIES ***********************************
 public:
@@ -22,9 +27,13 @@ public:
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
 
+  ezUInt32 GetShapeId() const { return m_uiShapeId; }
+
   ezUInt8 m_uiCollisionLayer;
 
 protected:
+  ezUInt32 m_uiShapeId;
+
   ezPhysXMeshResourceHandle m_hCollisionMesh;
 
   // ************************************* FUNCTIONS *****************************
@@ -32,10 +41,6 @@ protected:
 public:
   void SetMesh(const ezPhysXMeshResourceHandle& hMesh);
   EZ_FORCE_INLINE const ezPhysXMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
-
-  virtual void OnSimulationStarted() override;
-
-  virtual void Deinitialize() override;
 
 private:
 

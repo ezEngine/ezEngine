@@ -1,6 +1,5 @@
 #pragma once
 
-#include <PhysXPlugin/Basics.h>
 #include <PhysXPlugin/PhysXInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -54,6 +53,9 @@ public:
   void Startup();
   void Shutdown();
 
+  void StartupVDB();
+  void ShutdownVDB();
+
   virtual PxPhysics* GetPhysXAPI() override { return m_pPhysX; }
 
   PxMaterial* GetDefaultMaterial() const { return m_pDefaultMaterial; }
@@ -65,10 +67,9 @@ public:
   // helper functions
   static void addForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode);
 
-private:
-  void StartupVDB();
-  void ShutdownVDB();
+  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, bool bReportContact = false);
 
+private:
   void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);
 
   bool m_bInitialized;
