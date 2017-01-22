@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>270</width>
-    <height>226</height>
+    <width>313</width>
+    <height>269</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -54,6 +54,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="m_CheckOverrideDefault">
+       <property name="text">
+        <string>Override Project Settings</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

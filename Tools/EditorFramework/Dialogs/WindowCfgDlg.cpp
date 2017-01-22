@@ -41,6 +41,10 @@ void ezQtWindowCfgDlg::FillUI(const ezWindowCreationDesc& desc)
 
   m_ClipMouseCursor->setCheckState(desc.m_bClipMouseCursor ? Qt::Checked : Qt::Unchecked);
   m_ShowMouseCursor->setCheckState(desc.m_bShowMouseCursor ? Qt::Checked : Qt::Unchecked);
+
+  m_CheckOverrideDefault->setCheckState(m_bOverrideProjectDefault[m_uiCurDesc] ? Qt::Checked : Qt::Unchecked);
+
+  UpdateUI();
 }
 
 void ezQtWindowCfgDlg::GrabUI(ezWindowCreationDesc& desc)
@@ -54,6 +58,20 @@ void ezQtWindowCfgDlg::GrabUI(ezWindowCreationDesc& desc)
   desc.m_bShowMouseCursor = m_ShowMouseCursor->isChecked();
 }
 
+void ezQtWindowCfgDlg::UpdateUI()
+{
+  const bool bEnable = m_uiCurDesc == 0 || m_bOverrideProjectDefault[m_uiCurDesc];
+
+  m_LineEditTitle->setEnabled(bEnable);
+  m_ComboMonitor->setEnabled(bEnable);
+  m_ComboMode->setEnabled(bEnable);
+  m_SpinResX->setEnabled(bEnable);
+  m_SpinResY->setEnabled(bEnable);
+  m_ClipMouseCursor->setEnabled(bEnable);
+  m_ShowMouseCursor->setEnabled(bEnable);
+  m_CheckOverrideDefault->setVisible(m_uiCurDesc != 0);
+}
+
 void ezQtWindowCfgDlg::LoadDescs()
 {
   ezStringBuilder sPath;
@@ -62,14 +80,17 @@ void ezQtWindowCfgDlg::LoadDescs()
     sPath = ezApplicationConfig::GetProjectDirectory();
     sPath.AppendPath("Window.ddl");
 
-    m_Descs[0].LoadFromDDL(sPath);
+    if (m_Descs[0].LoadFromDDL(sPath).Failed())
+      m_Descs[0].SaveToDDL(sPath); // make sure the file exists
+
+    m_bOverrideProjectDefault[0] = false;
   }
 
   {
     sPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sPath.AppendPath("Window.ddl");
 
-    m_Descs[1].LoadFromDDL(sPath);
+    m_bOverrideProjectDefault[1] = m_Descs[1].LoadFromDDL(sPath).Succeeded();
   }
 }
 
@@ -88,7 +109,14 @@ void ezQtWindowCfgDlg::SaveDescs()
     sPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sPath.AppendPath("Window.ddl");
 
-    m_Descs[1].SaveToDDL(sPath);
+    if (m_bOverrideProjectDefault[1])
+    {
+      m_Descs[1].SaveToDDL(sPath);
+    }
+    else
+    {
+      ezOSFile::DeleteFile(sPath);
+    }
   }
 }
 
@@ -114,6 +142,19 @@ void ezQtWindowCfgDlg::on_m_ComboWnd_currentIndexChanged(int index)
 {
   GrabUI(m_Descs[m_uiCurDesc]);
   m_uiCurDesc = index;
+
+  if (!m_bOverrideProjectDefault[m_uiCurDesc])
+  {
+    m_Descs[m_uiCurDesc] = m_Descs[0];
+  }
+
   FillUI(m_Descs[m_uiCurDesc]);
+}
+
+void ezQtWindowCfgDlg::on_m_CheckOverrideDefault_stateChanged(int state)
+{
+  m_bOverrideProjectDefault[m_uiCurDesc] = m_CheckOverrideDefault->isChecked();
+
+  UpdateUI();
 }
 
