@@ -4,6 +4,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <QPushButton>
+#include <Foundation/IO/OSFile.h>
 
 ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* parent) : QDialog(parent)
 {
