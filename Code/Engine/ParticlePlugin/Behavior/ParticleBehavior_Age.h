@@ -17,7 +17,6 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sOnDeathEvent;
-  ezVarianceType m_VarianceType;
 };
 
 

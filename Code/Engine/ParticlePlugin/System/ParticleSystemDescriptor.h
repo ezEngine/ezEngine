@@ -40,6 +40,10 @@ public:
   ezUInt32 m_uiMaxParticles;
   bool m_bVisible;
 
+  ezTime m_MinLifeTime;
+  ezTime m_LifeTimeRange;
+  ezString m_sOnDeathEvent;
+
   //////////////////////////////////////////////////////////////////////////
 
   void Save(ezStreamWriter& stream) const;
@@ -50,6 +54,7 @@ private:
   void ClearInitializers();
   void ClearBehaviors();
   void ClearTypes();
+  void SetupDefaultProcessors();
 
   ezString m_sName;
   ezHybridArray<ezParticleEmitterFactory*, 2> m_EmitterFactories;

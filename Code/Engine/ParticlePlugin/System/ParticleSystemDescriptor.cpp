@@ -4,6 +4,8 @@
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <ParticlePlugin/Type/ParticleType.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_Life.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllocator<ezParticleSystemDescriptor>)
 {
@@ -12,6 +14,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("Name", m_sName),
     EZ_MEMBER_PROPERTY("Visible", m_bVisible)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("MaxParticles", m_uiMaxParticles)->AddAttributes(new ezDefaultValueAttribute(64), new ezClampValueAttribute(1, 65535)),
+    EZ_MEMBER_PROPERTY("MinLifeTime", m_MinLifeTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
+    EZ_MEMBER_PROPERTY("LifeTimeRange", m_LifeTimeRange)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
+    EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent),
     EZ_SET_ACCESSOR_PROPERTY("Emitters", GetEmitterFactories, AddEmitterFactory, RemoveEmitterFactory)->AddFlags(ezPropertyFlags::PointerOwner),
     EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(ezPropertyFlags::PointerOwner),
     EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(ezPropertyFlags::PointerOwner),
@@ -25,6 +30,8 @@ ezParticleSystemDescriptor::ezParticleSystemDescriptor()
 {
   m_bVisible = true;
   m_uiMaxParticles = 64;
+  m_MinLifeTime = ezTime::Seconds(1.0f);
+  m_LifeTimeRange = ezTime::Seconds(1.0f);
 }
 
 ezParticleSystemDescriptor::~ezParticleSystemDescriptor()
@@ -75,6 +82,25 @@ void ezParticleSystemDescriptor::ClearTypes()
   m_TypeFactories.Clear();
 }
 
+
+void ezParticleSystemDescriptor::SetupDefaultProcessors()
+{
+  // Life Initializer
+  {
+    ezParticleInitializerFactory_Life* pFactory = (ezParticleInitializerFactory_Life*)ezParticleInitializerFactory_Life::GetStaticRTTI()->GetAllocator()->Allocate();
+    pFactory->m_MinLifeTime = m_MinLifeTime;
+    pFactory->m_LifeTimeRange = m_LifeTimeRange;
+    m_InitializerFactories.PushBack(pFactory);
+  }
+
+  // Age Behavior
+  {
+    ezParticleBehaviorFactory_Age* pFactory = (ezParticleBehaviorFactory_Age*)ezParticleBehaviorFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate();
+    pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
+    m_BehaviorFactories.PushBack(pFactory);
+  }
+}
+
 enum class ParticleSystemVersion
 {
   Version_0 = 0,
@@ -82,6 +108,7 @@ enum class ParticleSystemVersion
   Version_2,
   Version_3,
   Version_4, // added Types
+  Version_5, // added default processors
 
   // insert new version numbers above
   Version_Count,
@@ -102,6 +129,9 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& stream) const
 
   stream << m_bVisible;
   stream << m_uiMaxParticles;
+  stream << m_MinLifeTime;
+  stream << m_LifeTimeRange;
+  stream << m_sOnDeathEvent;
   stream << uiNumEmitters;
   stream << uiNumInitializers;
   stream << uiNumBehaviors;
@@ -161,6 +191,13 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
   if (uiVersion >= 2)
   {
     stream >> m_uiMaxParticles;
+  }
+
+  if (uiVersion >= 5)
+  {
+    stream >> m_MinLifeTime;
+    stream >> m_LifeTimeRange;
+    stream >> m_sOnDeathEvent;
   }
 
   stream >> uiNumEmitters;
@@ -237,4 +274,6 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
       pType->Load(stream);
     }
   }
+
+  SetupDefaultProcessors();
 }

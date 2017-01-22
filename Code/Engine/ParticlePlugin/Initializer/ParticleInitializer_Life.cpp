@@ -12,6 +12,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_Life, 1, ezRTTIDefa
     EZ_MEMBER_PROPERTY("LifeTimeRange", m_LifeTimeRange)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezHiddenAttribute()
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
