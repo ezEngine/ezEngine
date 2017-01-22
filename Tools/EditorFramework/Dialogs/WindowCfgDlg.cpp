@@ -38,6 +38,9 @@ void ezQtWindowCfgDlg::FillUI(const ezWindowCreationDesc& desc)
 
   m_SpinResX->setValue(desc.m_Resolution.width);
   m_SpinResY->setValue(desc.m_Resolution.height);
+
+  m_ClipMouseCursor->setCheckState(desc.m_bClipMouseCursor ? Qt::Checked : Qt::Unchecked);
+  m_ShowMouseCursor->setCheckState(desc.m_bShowMouseCursor ? Qt::Checked : Qt::Unchecked);
 }
 
 void ezQtWindowCfgDlg::GrabUI(ezWindowCreationDesc& desc)
@@ -47,6 +50,8 @@ void ezQtWindowCfgDlg::GrabUI(ezWindowCreationDesc& desc)
   desc.m_WindowMode = (ezWindowMode::Enum)(m_ComboMode->currentIndex());
   desc.m_Resolution.width = m_SpinResX->value();
   desc.m_Resolution.height = m_SpinResY->value();
+  desc.m_bClipMouseCursor = m_ClipMouseCursor->isChecked();
+  desc.m_bShowMouseCursor = m_ShowMouseCursor->isChecked();
 }
 
 void ezQtWindowCfgDlg::LoadDescs()

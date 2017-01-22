@@ -116,8 +116,6 @@ void ezGameState::DestroyMainWindow()
 
 void ezGameState::ConfigureInputDevices()
 {
-  m_pMainWindow->GetInputDevice()->SetClipMouseCursor(true);
-  m_pMainWindow->GetInputDevice()->SetShowMouseCursor(false);
   m_pMainWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 }
 

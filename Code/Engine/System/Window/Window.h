@@ -105,6 +105,14 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   /// The number of the window. This is mostly used for setting up the input system, which then reports
   /// different mouse positions for each window.
   ezUInt8 m_uiWindowNumber = 0;
+
+  /// Whether the mouse cursor should be trapped inside the window or not.
+  /// \see ezStandardInputDevice::SetClipMouseCursor
+  bool m_bClipMouseCursor = true;
+
+  /// Whether the mouse cursor should be visilbe or not.
+  /// \see ezStandardInputDevice::SetShowMouseCursor
+  bool m_bShowMouseCursor = false;
 };
 
 /// \brief A simple abstraction for platform specific window creation.

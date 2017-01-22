@@ -43,6 +43,8 @@ ezResult ezWindow::Initialize()
   ezLog::Success("Created window successfully.");
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(m_WindowHandle, m_CreationDescription.m_uiWindowNumber);
+  m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor);
+  m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   // make sure the system knows about the actual window dimensions (especially for fullscreen windows)
   OnResizeMessage(ezSizeU32(m_WindowHandle->getSize().x, m_WindowHandle->getSize().y));

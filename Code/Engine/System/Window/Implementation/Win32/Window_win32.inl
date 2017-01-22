@@ -185,6 +185,8 @@ ezResult ezWindow::Initialize()
   ezLog::Success("Created window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber);
+  m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor);
+  m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   return EZ_SUCCESS;
 }

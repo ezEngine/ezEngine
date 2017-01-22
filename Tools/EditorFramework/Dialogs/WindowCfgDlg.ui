@@ -75,6 +75,33 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Mode:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="m_ComboMonitor"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Resolution:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Title:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="m_LineEditTitle"/>
+     </item>
      <item row="3" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -124,23 +151,6 @@
        </item>
       </layout>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="m_ComboMonitor"/>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Resolution:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Title:</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
@@ -148,18 +158,22 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
+     <item row="2" column="1">
+      <widget class="QComboBox" name="m_ComboMode"/>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QCheckBox" name="m_ShowMouseCursor">
        <property name="text">
-        <string>Mode:</string>
+        <string>Show Mouse Cursor</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="m_LineEditTitle"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="m_ComboMode"/>
+     <item row="4" column="0" colspan="2">
+      <widget class="QCheckBox" name="m_ClipMouseCursor">
+       <property name="text">
+        <string>Clip Mouse Cursor</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
