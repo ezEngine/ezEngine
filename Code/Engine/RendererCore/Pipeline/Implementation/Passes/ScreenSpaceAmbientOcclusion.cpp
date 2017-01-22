@@ -4,7 +4,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererFoundation/Profiling/Profiling.h>
-
+#include <Foundation/Configuration/CVar.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 
 
@@ -47,6 +47,8 @@ namespace
     }
     return h;
   }
+
+  ezTypedCVar<bool, ezCVarType::Bool> s_disableSSAO("Disable SSAO", false, ezCVarFlags::None, "Disables SSAO effect. Has the same effect as setting all SSAO ezRenderPipelinePass to active false.");
 }
 
 ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
@@ -110,6 +112,9 @@ void ezScreenSpaceAmbientOcclusionPass::InitRenderPipelinePass(const ezArrayPtr<
 
 void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
+  if (s_disableSSAO.GetValue())
+    return ExecuteInactive(renderViewContext, inputs, outputs);
+
   if(m_bSweepDataDirty)
     SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
 
@@ -161,6 +166,23 @@ void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& rende
   }
 }
 
+void ezScreenSpaceAmbientOcclusionPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+  auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
+  if (pColorOutput == nullptr)
+  {
+    return;
+  }
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  ezGALRenderTagetSetup renderTargetSetup;
+  renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+  pGALContext->SetRenderTargetSetup(renderTargetSetup);
+
+  pGALContext->Clear(ezColor::White);
+}
 
 void ezScreenSpaceAmbientOcclusionPass::SetLineToLinePixelOffset(ezUInt32 uiPixelOffset)
 {
