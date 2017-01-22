@@ -43,6 +43,7 @@ public:
   float GetOcclusionFalloff() const;
   void SetOcclusionFalloff(float fFalloff);
 
+
 protected:
 
   /// Destroys all GPU data that might have been created in in SetupLineSweepData
@@ -73,7 +74,9 @@ protected:
 
   ezInt32 m_uiLineToLinePixelOffset;
   ezInt32 m_uiLineSamplePixelOffsetFactor;
+  bool m_bDistributedGathering;
 
   ezShaderResourceHandle m_hShaderLineSweep;
   ezShaderResourceHandle m_hShaderGather;
+  ezShaderResourceHandle m_hShaderAverage;
 };

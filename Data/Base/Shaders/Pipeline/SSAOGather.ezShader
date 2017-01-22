@@ -3,7 +3,7 @@ ALL
 
 [PERMUTATIONS]
 
-BLUR_DIRECTION
+DISTRIBUTED_SSAO_GATHERING
 
 [RENDERSTATE]
 
@@ -25,6 +25,7 @@ struct PS_IN
 };
 
 #include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/Common.h>
 #include "SSAOConstants.h"
 #include "Utils.h"
 
@@ -35,13 +36,13 @@ StructuredBuffer<LineInstruction> LineInstructions : register(t1);
 Buffer<float> LineSweepOutputBuffer : register(t2);
 
 
+// If not defined, all pixels gather all directions, otherwise the work will be distributed to a 3x3 grid.
+#if DISTRIBUTED_SSAO_GATHERING
+  #define NUM_SAMPLES_PER_PIXEL (NUM_SWEEP_DIRECTIONS_PER_FRAME / 9)
+#endif
+
 //#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
 #define ASSERT(condition)
-
-float square(float x)
-{
-  return x * x;
-}
 
 float4 main(PS_IN input) : SV_Target
 {
@@ -55,7 +56,14 @@ float4 main(PS_IN input) : SV_Target
 
   float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
 
-  for (int dirIndex = 0; dirIndex < NUM_SWEEP_DIRECTIONS_PER_FRAME; ++dirIndex)
+#if DISTRIBUTED_SSAO_GATHERING
+  // Hardcoded 3x3 square.
+  const uint startDirIdx = ((uint(pixelPos.x) % 3) + (uint(pixelPos.y) % 3) * 3) * NUM_SAMPLES_PER_PIXEL;
+  const uint endDirIdx = startDirIdx + NUM_SAMPLES_PER_PIXEL;
+  for (uint dirIndex = startDirIdx; dirIndex < endDirIdx; ++dirIndex)
+#else
+  for (uint dirIndex = 0; dirIndex < NUM_SWEEP_DIRECTIONS_PER_FRAME; ++dirIndex)
+#endif
   {
     float2 dir = Directions[dirIndex].Direction;
 
@@ -142,5 +150,5 @@ float4 main(PS_IN input) : SV_Target
   float output = 1.0f;
   if (numSamples > 0)
      output = 1.0f - saturate(occlusionAccum / numSamples);
-  return float4(output, output, output, output);
+  return output.xxxx;
 }

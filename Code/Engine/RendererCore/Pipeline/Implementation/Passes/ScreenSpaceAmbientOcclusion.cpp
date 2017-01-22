@@ -14,10 +14,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefa
   {
     EZ_MEMBER_PROPERTY("Depth", m_PinDepthInput),
     EZ_MEMBER_PROPERTY("AmbientObscurance", m_PinOutput),
-    EZ_ACCESSOR_PROPERTY("LineToLineDistance", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
-    EZ_ACCESSOR_PROPERTY("LineSampleDistanceFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 128)),
-    EZ_ACCESSOR_PROPERTY("OcclusionFalloff", GetOcclusionFalloff, SetOcclusionFalloff)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 2.0f)),
-    EZ_ACCESSOR_PROPERTY("DepthCutoffFactor", GetDepthCutoffFactor, SetDepthCutoffFactor)->AddAttributes(new ezDefaultValueAttribute(8.0f), new ezClampValueAttribute(0.0f, 15.0f)),
+    EZ_ACCESSOR_PROPERTY("LineToLineDistance", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(3), new ezClampValueAttribute(1, 20)),
+    EZ_ACCESSOR_PROPERTY("LineSampleDistanceFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 10)),
+    EZ_ACCESSOR_PROPERTY("OcclusionFalloff", GetOcclusionFalloff, SetOcclusionFalloff)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 2.0f)),
+    EZ_ACCESSOR_PROPERTY("DepthCutoffFactor", GetDepthCutoffFactor, SetDepthCutoffFactor)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 15.0f)),
+    EZ_MEMBER_PROPERTY("DistributedGathering", m_bDistributedGathering)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES
 }
@@ -56,6 +57,7 @@ ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
   , m_uiLineToLinePixelOffset(2)
   , m_uiLineSamplePixelOffsetFactor(2)
   , m_bSweepDataDirty(true)
+  , m_bDistributedGathering(true)
 {
   {
     // Load shader.
@@ -63,6 +65,8 @@ ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
     EZ_ASSERT_DEV(m_hShaderLineSweep.IsValid(), "Could not lsao sweep shader!");
     m_hShaderGather = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SSAOGather.ezShader");
     EZ_ASSERT_DEV(m_hShaderGather.IsValid(), "Could not lsao gather shader!");
+    m_hShaderAverage = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SSAOAverage.ezShader");
+    EZ_ASSERT_DEV(m_hShaderGather.IsValid(), "Could not lsao average shader!");
   }
 
   {
@@ -118,58 +122,96 @@ void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& rende
   if(m_bSweepDataDirty)
     SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
 
-  if (outputs[m_PinOutput.m_uiOutputIndex])
-  {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+  if (outputs[m_PinOutput.m_uiOutputIndex] == nullptr)
+    return;
 
-    // Set rendertarget immediately to ensure that depth buffer is no longer bound (we need it right away in the sweeping part)
-    ezGALResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-    ezGALRenderTagetSetup renderTargetSetup;
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  // Set rendertarget immediately to ensure that depth buffer is no longer bound (we need it right away in the sweeping part)
+  ezGALRenderTagetSetup renderTargetSetup;
+  ezGALTextureHandle tempTexture;
+  if (m_bDistributedGathering)
+  {
+    ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinOutput.m_uiOutputIndex]->m_Desc;
+    tempTextureDesc.m_bAllowShaderResourceView = true;
+    tempTextureDesc.m_bCreateRenderTarget = true;
+    tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
+  }
+  else
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+  renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+
+
+  // Constant buffer for both passes.
+  renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hLineSweepCB);
+  // Depth buffer for both passes.
+  ezGALResourceViewCreationDescription rvcd;
+  rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
+  ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DepthBuffer", hDepthInputView);
+  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::ComputeShader, "DepthBuffer", hDepthInputView);
+
+
+  // Line Sweep part (compute)
+  {
+    EZ_PROFILE_AND_MARKER(pGALContext, "Line Sweep");
+
+    renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
+    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::ComputeShader, "LineInstructions", m_hLineSweepInfoSRV);
+    renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
+    renderViewContext.m_pRenderContext->Dispatch(m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0));
+  }
+
+  // Gather samples.
+  {
+    EZ_PROFILE_AND_MARKER(pGALContext, "Gather");
+
+    if (m_bDistributedGathering)
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("DISTRIBUTED_SSAO_GATHERING", "TRUE");
+    else
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("DISTRIBUTED_SSAO_GATHERING", "FALSE");
+
+    // Manually unbind UAV. TODO, this should be done automatically.
+    pGALContext->SetUnorderedAccessView(0, ezGALUnorderedAccessViewHandle());
+
+    renderViewContext.m_pRenderContext->BindShader(m_hShaderGather);
+
+    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::PixelShader, "LineInstructions", m_hLineSweepInfoSRV);
+    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::PixelShader, "LineSweepOutputBuffer", m_hLineSweepOutputSRV);
+
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->DrawMeshBuffer();
+  }
+
+  // If enabled, average distrubted gather samples and write to output.
+  if (m_bDistributedGathering)
+  {
+    EZ_PROFILE_AND_MARKER(pGALContext, "Averaging");
+
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
+    renderViewContext.m_pRenderContext->BindShader(m_hShaderAverage);
 
-    // Constant buffer for both passes.
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hLineSweepCB);
-    // Depth buffer for both passes.
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DepthBuffer", hDepthInputView);
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::ComputeShader, "DepthBuffer", hDepthInputView);
+    ezGALResourceViewCreationDescription rvcd;
+    rvcd.m_hTexture = tempTexture;
+    ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOGatherOutput", hTempTextureRView);
 
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
-    // Line Sweep part (compute)
-    {
-      EZ_PROFILE_AND_MARKER(pGALContext, "Line Sweep");
-
-      renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
-      renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::ComputeShader, "LineInstructions", m_hLineSweepInfoSRV);
-      renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
-      renderViewContext.m_pRenderContext->Dispatch(m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0));
-    }
-
-    {
-      EZ_PROFILE_AND_MARKER(pGALContext, "Gather");
-
-      // Manually unbind UAV. TODO, this should be done automatically.
-      pGALContext->SetUnorderedAccessView(0, ezGALUnorderedAccessViewHandle());
-
-      renderViewContext.m_pRenderContext->BindShader(m_hShaderGather);
-
-      renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::PixelShader, "LineInstructions", m_hLineSweepInfoSRV);
-      renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::PixelShader, "LineSweepOutputBuffer", m_hLineSweepOutputSRV);
-
-      renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer();
-    }
+    // Give back temp texture.
+    ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(tempTexture);
   }
 }
 
 void ezScreenSpaceAmbientOcclusionPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pColorOutput == nullptr)
+  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
+  if (pOutput == nullptr)
   {
     return;
   }
@@ -178,7 +220,7 @@ void ezScreenSpaceAmbientOcclusionPass::ExecuteInactive(const ezRenderViewContex
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   ezGALRenderTagetSetup renderTargetSetup;
-  renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+  renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
 
   pGALContext->Clear(ezColor::White);

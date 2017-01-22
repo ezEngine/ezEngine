@@ -63,3 +63,20 @@ float3 CubeMapDirection(float3 inDirection)
 {
 	return float3(inDirection.x, inDirection.z, -inDirection.y);
 }
+
+float square(float x)
+{
+	return x * x;
+}
+float2 square(float2 x)
+{
+	return x * x;
+}
+float3 square(float3 x)
+{
+	return x * x;
+}
+float4 square(float4 x)
+{
+	return x * x;
+}

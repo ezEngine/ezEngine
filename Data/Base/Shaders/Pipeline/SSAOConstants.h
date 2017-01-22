@@ -3,10 +3,8 @@
 #include "../Common/Platforms.h"
 #include "../Common/ConstantBufferMacros.h"
 
-// Changing these values is non-trivial!
-#define NUM_SWEEP_DIRECTIONS_PER_FRAME 16  // No temporal filtering, so this is also the total number of dirs!
-#define NUM_SWEEP_DIRECTIONS_PER_PIXEL NUM_SWEEP_DIRECTIONS_PER_FRAME
-
+// Total number of directions in the sweep pass.
+#define NUM_SWEEP_DIRECTIONS_PER_FRAME 36  // No temporal filtering, so this is also the total number of dirs!
 // Information about a direction.
 struct DirectionInfo
 {
