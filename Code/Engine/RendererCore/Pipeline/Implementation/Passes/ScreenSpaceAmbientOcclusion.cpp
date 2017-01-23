@@ -315,6 +315,13 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
     }
 
     // todo: Ddd debug test to check wheather any direction is duplicated. Mistakes in the equations above can easily happen!
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    for (int i = 0; i < numSweepDirs-1; ++i)
+    {
+      for (int j = i + 1; j < numSweepDirs; ++j)
+        EZ_ASSERT_DEBUG(samplingDir[i] != samplingDir[j], "Two SSAO sampling directions are equal. Implementation for direction determination is broken.");
+    }
+#endif
   }
 
   for(int dirIndex = 0; dirIndex<EZ_ARRAY_SIZE(samplingDir); ++dirIndex)
@@ -406,96 +413,78 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
   ezVec2 walkDirF(static_cast<float>(walkDir.x), static_cast<float>(walkDir.y));
 
   // Line "creation" always starts from 0,0 and walks along EITHER x or y depending which one is the less dominant axis.
-  if (walkDir.x > walkDir.y)
+  
+  // Helper to avoid duplication for dominant x/y
+  int domDir = walkDir.x > walkDir.y ? 0 : 1;
+  int secDir = 1 - domDir;
+#define DOM GetData()[domDir]
+#define SEC GetData()[secDir]
+
+  // Walk along secondary axis backwards.
+  for (ezInt32 sec = imageResolution.SEC - 1; true; sec -= m_uiLineToLinePixelOffset)
   {
-    // Dominant x, walk y
-    for (ezInt32 y = imageResolution.y - 1; true; y -= m_uiLineToLinePixelOffset)
+    LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
+    newLine.FirstSamplePos.DOM = 0.0f;
+    newLine.FirstSamplePos.SEC = static_cast<float>(sec);
+
+    // If we are already outside of the screen with sec, this is not a point inside the screen!
+    if (sec < 0)
     {
-      LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
-      float offset = ezMath::Round(HaltonSequence(lineIndex, y) * walkDir.x); // Pseudo random offset in x.
-      newLine.FirstSamplePos = ezVec2(offset, static_cast<float>(y));
-
-      // If we are already outside of the screen with x, this is not a point inside the screen!
-      if (y < 0)
+      // If we don't walk in the secondary direction at all this means that we're done.
+      if (walkDir.SEC == 0)
       {
-        if (walkDir.y == 0)
-          newLine.FirstSamplePos = ezVec2(static_cast<float>(imageResolution.x), static_cast<float>(imageResolution.y));
-        else
-        {
-          ezVec2 floatStep = walkDirF * (static_cast<float>(-y) / walkDirF.y);
-          newLine.FirstSamplePos += ezVec2(ezMath::Floor(floatStep.x + 0.5f), ezMath::Floor(floatStep.y + 0.5f));
-        }
+        outinLineInstructions.PopBack();
+        break;
+      }
+      // Otherwise we just need to walk long enough to hit the screen again.
+      else
+      {
+        // Find new start on the sec axis. (dom axis is fine)
+        ezVec2 minimalStepToBorder = walkDirF * ezMath::Ceil(static_cast<float>(-sec) / walkDirF.SEC);  // Remember: Only walk discrete steps!
+        newLine.FirstSamplePos.DOM += minimalStepToBorder.DOM;
+        newLine.FirstSamplePos.SEC += minimalStepToBorder.SEC;
 
-        // Left in y. We're done.
-        if (newLine.FirstSamplePos.x >= imageResolution.x)
+        // Outside, we're done.
+        if (newLine.FirstSamplePos.DOM >= imageResolution.DOM - walkDir.DOM * 2)
         {
           outinLineInstructions.PopBack();
           break;
         }
       }
-
-      newLine.LineSweepOutputBufferOffset = outinTotalNumberOfSamples;
-
-      // Compute how many samples this line will consume.
-      unsigned int stepsToXBorder = static_cast<unsigned int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
-      unsigned int numSamples = 0;
-      if (walkDir.y > 0)
-      {
-        unsigned int stepsToYBorder = static_cast<unsigned int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
-        numSamples = ezMath::Min(stepsToYBorder, stepsToXBorder);
-      }
-      else
-        numSamples = stepsToXBorder;
-
-      outinTotalNumberOfSamples += numSamples;
-      newLine.LineDirIndex_NumSamples = lineIndex | (numSamples << 16);
     }
-  }
-  else
-  {
-    // Dominant y, walk x.
-    for (ezInt32 x = imageResolution.x - 1; true; x -= m_uiLineToLinePixelOffset)
+
+    // Add a pseudo random offset to distributed the samples a bit.
+    // We still want to go from discrete pixel to discrete pixel so we have to round which can mess up our line placement.
+    // So this is introducing some error. Visual comparision clearly shows that it's worth it though.
+    float offset = HaltonSequence(lineIndex, sec);
+    newLine.FirstSamplePos.DOM += ezMath::Round(offset * walkDir.DOM);
+    newLine.FirstSamplePos.SEC += ezMath::Round(offset * walkDir.SEC);
+
+    // Compute how many samples this line will consume.
+    unsigned int stepsToDOMBorder = static_cast<unsigned int>((imageResolution.DOM - newLine.FirstSamplePos.DOM) / walkDir.DOM + 1);
+    unsigned int numSamples = 0;
+    if (walkDir.SEC > 0)
     {
-      LineInstruction& newLine = outinLineInstructions.ExpandAndGetRef();
-      float offset = ezMath::Round(HaltonSequence(lineIndex, x) * walkDir.y); // Pseudo random offset in y.
-      newLine.FirstSamplePos = ezVec2(static_cast<float>(x), offset);
-
-      // If we are already outside of the screen with x, this is not a point inside the screen!
-      if (x < 0)
-      {
-        if (walkDir.x == 0)
-          newLine.FirstSamplePos = ezVec2(static_cast<float>(imageResolution.x), static_cast<float>(imageResolution.y));
-        else
-        {
-          ezVec2 floatStep = walkDirF * (static_cast<float>(-x) / walkDirF.x);
-          newLine.FirstSamplePos += ezVec2(ezMath::Floor(floatStep.x + 0.5f), ezMath::Floor(floatStep.y + 0.5f));
-        }
-
-        // Left in y. We're done.
-        if (newLine.FirstSamplePos.y >= imageResolution.y)
-        {
-          outinLineInstructions.PopBack();
-          break;
-        }
-      }
-
-      newLine.LineSweepOutputBufferOffset = outinTotalNumberOfSamples;
-
-      // Compute how many samples this line will consume.
-      unsigned int stepsToYBorder = static_cast<unsigned int>((imageResolution.y - newLine.FirstSamplePos.y) / walkDir.y + 1);
-      unsigned int numSamples = 0;
-      if (walkDir.x > 0)
-      {
-        unsigned int stepsToXBorder = static_cast<unsigned int>((imageResolution.x - newLine.FirstSamplePos.x) / walkDir.x + 1);
-        numSamples = ezMath::Min(stepsToYBorder, stepsToXBorder);
-      }
-      else
-        numSamples = stepsToYBorder;
-
-      outinTotalNumberOfSamples += numSamples;
-      newLine.LineDirIndex_NumSamples = lineIndex | (numSamples << 16);
+      unsigned int stepsToSECBorder = static_cast<unsigned int>((imageResolution.SEC - newLine.FirstSamplePos.SEC) / walkDir.SEC + 1);
+      numSamples = ezMath::Min(stepsToSECBorder, stepsToDOMBorder);
     }
+    else
+      numSamples = stepsToDOMBorder;
+
+    // Skip everything that has 3 samples or less.
+    if (numSamples <= 3)
+    {
+      outinLineInstructions.PopBack();
+      continue;
+    }
+
+    newLine.LineSweepOutputBufferOffset = outinTotalNumberOfSamples;
+    outinTotalNumberOfSamples += numSamples;
+    newLine.LineDirIndex_NumSamples = lineIndex | (numSamples << 16);
   }
+
+#undef SEC
+#undef DOM
 
   // Now consider x/y beeing negative.
   for (int c = 0; c < 2; ++c)
