@@ -55,10 +55,11 @@ float4 main(PS_IN input) : SV_Target
   [unroll] for(int i=0; i<8; ++i)
   {
     float depth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, texcoords[i]).r);
-    float ssao = SSAOGatherOutput.Sample(PointClampSampler, texcoords[i]).r;
-    float weight = exp(-square(centerPixelDepth - depth) * DepthCutoffFactor);
-    totalSSAO += ssao * weight;
-    totalWeight += weight;
+    if (abs(centerPixelDepth - depth) < DepthCutoffDistance)
+    {
+      totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, texcoords[i]).r;
+      totalWeight += 1.0f;
+    }
   }
 
   return (totalSSAO / totalWeight).xxxx;

@@ -30,8 +30,8 @@ CONSTANT_BUFFER(ezSSAOConstants, 3)
   UINT1(LineToLinePixelOffset);
   UINT1(TotalLineNumber);
 
-  // 1/sigmaSq for all depth filter.
-  FLOAT1(DepthCutoffFactor);
+  // Distance difference from which on samples are ignored.
+  FLOAT1(DepthCutoffDistance);
   // How fast occlusion attenuates with distance to the occluder.
   FLOAT1(OcclusionFalloff);
 };

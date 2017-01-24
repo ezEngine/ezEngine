@@ -36,8 +36,8 @@ public:
   void SetLineSamplePixelOffset(ezUInt32 uiPixelOffset);
 
   // Factor used for depth cutoffs (determines when a depth difference is too large to be considered)
-  float GetDepthCutoffFactor() const;
-  void SetDepthCutoffFactor(float fDepthCutoffFactor);
+  float GetDepthCutoffDistance() const;
+  void SetDepthCutoffDistance(float fDepthCutoffDistance);
 
   // Determines how quickly the occlusion falls of.
   float GetOcclusionFalloff() const;

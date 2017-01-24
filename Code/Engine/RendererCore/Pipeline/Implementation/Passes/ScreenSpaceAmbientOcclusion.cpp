@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefa
     EZ_MEMBER_PROPERTY("AmbientObscurance", m_PinOutput),
     EZ_ACCESSOR_PROPERTY("LineToLineDistance", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(3), new ezClampValueAttribute(1, 20)),
     EZ_ACCESSOR_PROPERTY("LineSampleDistanceFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 10)),
-    EZ_ACCESSOR_PROPERTY("OcclusionFalloff", GetOcclusionFalloff, SetOcclusionFalloff)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 2.0f)),
-    EZ_ACCESSOR_PROPERTY("DepthCutoffFactor", GetDepthCutoffFactor, SetDepthCutoffFactor)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 15.0f)),
+    EZ_ACCESSOR_PROPERTY("OcclusionFalloff", GetOcclusionFalloff, SetOcclusionFalloff)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.01f, 2.0f)),
+    EZ_ACCESSOR_PROPERTY("DepthCutoffDistance", GetDepthCutoffDistance, SetDepthCutoffDistance)->AddAttributes(new ezDefaultValueAttribute(4.0f), new ezClampValueAttribute(0.1f, 100.0f)),
     EZ_MEMBER_PROPERTY("DistributedGathering", m_bDistributedGathering)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES
@@ -72,7 +72,7 @@ ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
   {
     m_hLineSweepCB = ezRenderContext::CreateConstantBufferStorage<ezSSAOConstants>();
     ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
-    cb->DepthCutoffFactor = 8.0f;
+    cb->DepthCutoffDistance = 8.0f;
     cb->OcclusionFalloff = 0.25f;
   }
 }
@@ -238,16 +238,16 @@ void ezScreenSpaceAmbientOcclusionPass::SetLineSamplePixelOffset(ezUInt32 uiPixe
   m_bSweepDataDirty = true;
 }
 
-float ezScreenSpaceAmbientOcclusionPass::GetDepthCutoffFactor() const
+float ezScreenSpaceAmbientOcclusionPass::GetDepthCutoffDistance() const
 {
   ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
-  return cb->DepthCutoffFactor;
+  return cb->DepthCutoffDistance;
 }
 
-void ezScreenSpaceAmbientOcclusionPass::SetDepthCutoffFactor(float fDepthCutoffFactor)
+void ezScreenSpaceAmbientOcclusionPass::SetDepthCutoffDistance(float fDepthCutoffDistance)
 {
   ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
-  cb->DepthCutoffFactor = fDepthCutoffFactor;
+  cb->DepthCutoffDistance = fDepthCutoffDistance;
 }
 
 float ezScreenSpaceAmbientOcclusionPass::GetOcclusionFalloff() const
@@ -456,7 +456,7 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
     // Add a pseudo random offset to distributed the samples a bit.
     // We still want to go from discrete pixel to discrete pixel so we have to round which can mess up our line placement.
     // So this is introducing some error. Visual comparision clearly shows that it's worth it though.
-    float offset = HaltonSequence(lineIndex, sec);
+    float offset = HaltonSequence(lineIndex, sec + lineIndex);
     newLine.FirstSamplePos.DOM += ezMath::Round(offset * walkDir.DOM);
     newLine.FirstSamplePos.SEC += ezMath::Round(offset * walkDir.SEC);
 

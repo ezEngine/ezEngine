@@ -116,20 +116,22 @@ float4 main(PS_IN input) : SV_Target
     //totalWeight += 2.0f;
 
     // Apply weighted with depth filter.
-    //const float distFactor = 0.05f;
     float2 samplePos = lineOrigin + lineSampleNumberFloor * dir;
     //float toPixel = samplePos - pixelPos;
     float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
-    float weight = exp(-square(sampleDepth - pixelDepth) * DepthCutoffFactor);// - dot(toPixel, toPixel) * distFactor);
-    occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberFloor + lineBufferOffset).r * weight;
-    totalWeight += weight;
+    if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
+    {
+      occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberFloor + lineBufferOffset).r;
+      totalWeight += 1.0f;
+    }
 
     samplePos += dir; // = lineOrigin + lineSampleNumberCeil * dir;
     sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
-    //toPixel = samplePos - pixelPos;
-    weight = exp(-square(sampleDepth - pixelDepth) * DepthCutoffFactor); // - dot(toPixel, toPixel) * distFactor);
-    occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberCeil + lineBufferOffset).r * weight;
-    totalWeight += weight;
+    if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
+    {
+      occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberCeil + lineBufferOffset).r;
+      totalWeight += 1.0f;
+    }
 
     // Debug line sample index.
     //return float4((lineSampleNumber* 0.01f), 0.0f, 0.0f, 1.0f);
