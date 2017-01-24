@@ -15,9 +15,9 @@ StructuredBuffer<LineInstruction> LineInstructions;
 RWBuffer<float> LineSweepOutputBuffer;
 
 // Minimum difference in occlusion to pop from the stack.
-#define OCCLUSION_BIAS 0.00001f
+#define OCCLUSION_BIAS 0.001f
 // Minimum difference in orientation test to pop from the stack.
-#define HULL_BIAS 0.00001f
+#define HULL_BIAS 0.001f
 
 // As propsed in the original LSAO paper we use a fixed tangent plane which eliminates the need for normals.
 // However, this heuristic introduces quite a bit of error mostly underocclusion.
@@ -119,9 +119,9 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
     while(// Stack empty?
           stackIters < maxIter &&
           // Not convex?
-          currentOccluderDotCamera < nextOccluderDotCamera - OCCLUSION_BIAS && 
+          currentOccluderDotCamera < nextOccluderDotCamera + OCCLUSION_BIAS && 
           // Higher occlusion?
-          currentOcclusion < nextOcclusion - HULL_BIAS)
+          currentOcclusion < nextOcclusion + HULL_BIAS)
     {
       // Pop stack.
       currentOccluderDotCamera = nextOccluderDotCamera;
@@ -132,14 +132,13 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
       ++stackIters;
 
       // Peek top element.
-      float nextOccluderDotCamera, nextOcclusion;
       computeOccluderProps(occluderPos_last1, position, toCamera, nextOccluderDotCamera, nextOcclusion);
     }
 
     // Push new value to the stack.
     // If we just popped an element from the stack, we don't need to put write back, since it is still there (we didn't delete it)
     ++currentTop;
-    if(stackIters == maxIter)
+    if(stackIters == 0)
     {
       hullStack[currentTop % STACK_SIZE][ThreadID] = occluderPos_last1;
     }

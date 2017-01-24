@@ -278,8 +278,8 @@ o
 		{
 			Uuid{u4{8270282032429963782,1350504153506676736}}
 		}
-		Vec2 %Node::Pos{f{0xC3D654C4,0x69E2C1C2}}
-		f %OcclusionFalloff{0xCDCC4C3D}
+		Vec2 %Node::Pos{f{0xC3D654C4,0x8FDDBDC2}}
+		f %OcclusionFalloff{0xCDCCCC3D}
 		VarArray %Renderers{}
 	}
 }
@@ -549,7 +549,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{10463116846474393875}
+		u4 %Hash{16975941684369151441}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -580,10 +580,7 @@ o
 		b %Active{1}
 		Uuid %Input{u4{444725397058872635,1413365726236847701}}
 		s %Name{""}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{13455173026001248985,6057195415931619403}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x9DC58144,0xC76957C3}}
 		Uuid %Output{u4{8478301407284505675,6368553485606871119}}
 		VarArray %Renderers{}
@@ -797,18 +794,6 @@ o
 		s %Name{""}
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x5F2480C3,0xEAFB0FC4}}
-	}
-}
-o
-{
-	Uuid %id{u4{13455173026001248985,6057195415931619403}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Output"}
-		Uuid %Target{u4{13322696006305406385,5091989779618512607}}
-		s %TargetPin{"Color0"}
 	}
 }
 o
