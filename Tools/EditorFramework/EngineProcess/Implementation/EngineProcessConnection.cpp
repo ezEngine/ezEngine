@@ -7,6 +7,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -100,6 +101,15 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   {
     args << "-debug";
   }
+
+  {
+    ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sWndCfgPath.AppendPath("Window.ddl");
+
+    args << "-wnd";
+    args << sWndCfgPath.GetData();
+  }
+
   if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;

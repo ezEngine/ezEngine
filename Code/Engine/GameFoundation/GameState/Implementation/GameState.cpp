@@ -79,7 +79,7 @@ void ezGameState::CreateMainWindow()
 
   if (!sWndCfg.IsEmpty() && !ezFileSystem::ExistsFile(sWndCfg))
   {
-    ezLog::Warning("Window Config file does not exist: '{0}'", sWndCfg);
+    ezLog::Dev("Window Config file does not exist: '{0}'", sWndCfg);
     sWndCfg.Clear();
   }
 
