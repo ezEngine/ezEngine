@@ -62,7 +62,7 @@ protected:
   ezProcessingStream* m_pStreamColor;
   ezProcessingStream* m_pStreamRotationSpeed;
 
-  mutable ezSharedPtr<ezFragmentParticleDataContainer> m_GpuData;
+  mutable ezArrayPtr<ezFragmentParticleData> m_ParticleData;
 };
 
 

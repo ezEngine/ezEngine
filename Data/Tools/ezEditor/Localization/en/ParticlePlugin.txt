@@ -16,6 +16,9 @@ ezParticleSystemDescriptor;Particle System
 Emitters;Emitters
 Initializers;Initializers
 Behaviors;Behaviors
+ParticleSystems;Particle Systems
+ezParticleTypeSpriteFactory;Sprites
+ezParticleTypeTrailFactory;Trails
 ezParticleBehaviorFactory_Age;Age
 ezParticleBehaviorFactory_ColorGradient;Color Gradient
 ezParticleBehaviorFactory_Velocity;Velocity

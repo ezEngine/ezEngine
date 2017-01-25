@@ -44,7 +44,7 @@ protected:
   ezProcessingStream* m_pStreamColor;
   ezProcessingStream* m_pStreamRotationSpeed;
 
-  mutable ezSharedPtr<ezBillboardParticleDataContainer> m_GpuData;
+  mutable ezArrayPtr<ezBillboardParticleData> m_ParticleData;
 };
 
 

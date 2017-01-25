@@ -72,16 +72,11 @@ ezMaterialShaderMode::BaseMaterial;From Base Material
 Project.SceneImport;Import Scene
 VisualShader.CleanGraph;Clean Visual Shader Graph
 TextureAsset.ChannelMode;
-ezTexture2DChannelMode::RGB;Display Channel: RGB
-ezTexture2DChannelMode::Red;Display Channel: Red
-ezTexture2DChannelMode::Green;Display Channel: Green
-ezTexture2DChannelMode::Blue;Display Channel: Blue
-ezTexture2DChannelMode::Alpha;Display Channel: Alpha
-ezTextureCubeChannelMode::RGB;Display Channel: RGB
-ezTextureCubeChannelMode::Red;Display Channel: Red
-ezTextureCubeChannelMode::Green;Display Channel: Green
-ezTextureCubeChannelMode::Blue;Display Channel: Blue
-ezTextureCubeChannelMode::Alpha;Display Channel: Alpha
+ezTextureChannelMode::RGB;Display Channel: RGB
+ezTextureChannelMode::Red;Display Channel: Red
+ezTextureChannelMode::Green;Display Channel: Green
+ezTextureChannelMode::Blue;Display Channel: Blue
+ezTextureChannelMode::Alpha;Display Channel: Alpha
 ezTextureFilterSetting::FixedNearest;Fixed: Nearest
 ezTextureFilterSetting::FixedBilinear;Fixed: Bilinear
 ezTextureFilterSetting::FixedTrilinear;Fixed: Trilinear
@@ -94,8 +89,7 @@ ezTextureFilterSetting::LowQuality;Low Quality
 ezTextureFilterSetting::DefaultQuality;Default Quality
 ezTextureFilterSetting::HighQuality;High Quality
 ezTextureFilterSetting::HighestQuality;Highest Quality
-Texture2DAsset.LodSlider;Mipmap
-TextureCubeAsset.LodSlider;Mipmap
+TextureAsset.LodSlider;Mipmap
 ezTexture2DUsageEnum::Unknown;Unknown
 ezTexture2DUsageEnum::Diffuse;Diffuse
 ezTexture2DUsageEnum::NormalMap;Normal Map

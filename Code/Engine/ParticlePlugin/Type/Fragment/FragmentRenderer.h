@@ -14,18 +14,13 @@
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
-typedef ezRefCountedContainer<ezDynamicArray<ezFragmentParticleData>> ezFragmentParticleDataContainer;
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleFragmentRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFragmentRenderData, ezRenderData);
 
 public:
-  ezParticleFragmentRenderData();
-
   ezTexture2DResourceHandle m_hTexture;
-  ezUInt32 m_uiNumParticles;
-  ezSharedPtr<ezFragmentParticleDataContainer> m_GpuData;
+  ezArrayPtr<ezFragmentParticleData> m_ParticleData;
 };
 
 
@@ -37,7 +32,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFragmentRenderer : public ezParticleRender
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleFragmentRenderer);
 
 public:
-  ezParticleFragmentRenderer();
+  ezParticleFragmentRenderer() {}
   ~ezParticleFragmentRenderer();
 
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;

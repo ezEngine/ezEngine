@@ -175,13 +175,10 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
     const ezVec3* pAxis = m_pStreamAxis->GetData<ezVec3>();
 
-    if (m_GpuData == nullptr)
-    {
-      m_GpuData = EZ_DEFAULT_NEW(ezSpriteParticleDataContainer);
-      m_GpuData->m_Content.SetCountUninitialized((ezUInt32)GetOwnerSystem()->GetMaxParticles());
-    }
+    // this will automatically be deallocated at the end of the frame
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezSpriteParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
-    ezSpriteParticleData* TempData = m_GpuData->m_Content.GetData();
+    ezSpriteParticleData* TempData = m_ParticleData.GetPtr();
 
     ezTransform t;
 
@@ -212,9 +209,8 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleSpriteRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_uiNumParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_GpuData = m_GpuData;
+  pRenderData->m_ParticleData = m_ParticleData;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;

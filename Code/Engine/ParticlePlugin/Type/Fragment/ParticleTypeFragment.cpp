@@ -120,20 +120,15 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
 
-    if (m_GpuData == nullptr)
-    {
-      m_GpuData = EZ_DEFAULT_NEW(ezFragmentParticleDataContainer);
-      m_GpuData->m_Content.SetCountUninitialized((ezUInt32)GetOwnerSystem()->GetMaxParticles());
-    }
-
-    ezFragmentParticleData* TempData = m_GpuData->m_Content.GetData();
+    // this will automatically be deallocated at the end of the frame
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezFragmentParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     ezTransform t;
 
     for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
     {
-      TempData[p].Size = pSize[p];
-      TempData[p].Color = pColor[p];
+      m_ParticleData[p].Size = pSize[p];
+      m_ParticleData[p].Color = pColor[p];
     }
 
     if (m_RotationAxis == ezFragmentAxis::EmitterDirection)
@@ -146,9 +141,9 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
         ezMat3 mRotation;
         mRotation.SetRotationMatrix(vEmitterDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
 
-        TempData[p].Position = pPosition[p];
-        TempData[p].TangentX = mRotation * vTangentX;
-        TempData[p].TangentZ = vTangentZ;
+        m_ParticleData[p].Position = pPosition[p];
+        m_ParticleData[p].TangentX = mRotation * vTangentX;
+        m_ParticleData[p].TangentZ = vTangentZ;
       }
     }
     else if (m_RotationAxis == ezFragmentAxis::OrthogonalEmitterDirection)
@@ -164,9 +159,9 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
         ezMat3 mRotation;
         mRotation.SetRotationMatrix(vOrthoDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
 
-        TempData[p].Position = pPosition[p];
-        TempData[p].TangentX = vOrthoDir;
-        TempData[p].TangentZ = mRotation * vTangentZ;
+        m_ParticleData[p].Position = pPosition[p];
+        m_ParticleData[p].TangentX = vOrthoDir;
+        m_ParticleData[p].TangentZ = mRotation * vTangentZ;
       }
     }
   }
@@ -176,9 +171,8 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleFragmentRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_uiNumParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_GpuData = m_GpuData;
+  pRenderData->m_ParticleData = m_ParticleData;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;

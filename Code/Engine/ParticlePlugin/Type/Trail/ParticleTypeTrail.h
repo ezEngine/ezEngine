@@ -57,8 +57,8 @@ protected:
   ezUInt8 m_uiCurLastIndex;
   ezUInt8 m_uiMaxSegmentsMask;
 
-  mutable ezSharedPtr<ezTrailParticleDataContainer> m_GpuData;
-  mutable ezSharedPtr<ezTrailParticleSegmentDataContainer> m_SegmentGpuData;
+  mutable ezArrayPtr<ezTrailParticleData> m_ParticleData;
+  mutable ezArrayPtr<ezUInt8> m_SegmentData;
 
   struct TrailData8
   {

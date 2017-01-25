@@ -91,7 +91,9 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   if (!m_hTexture.IsValid())
     return;
 
-  if (GetOwnerSystem()->GetNumActiveParticles() == 0)
+  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+
+  if (numParticles == 0)
     return;
 
   const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
@@ -106,23 +108,18 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
 
-    if (m_GpuData == nullptr)
-    {
-      m_GpuData = EZ_DEFAULT_NEW(ezBillboardParticleDataContainer);
-      m_GpuData->m_Content.SetCountUninitialized((ezUInt32)GetOwnerSystem()->GetMaxParticles());
-    }
-
-    ezBillboardParticleData* TempData = m_GpuData->m_Content.GetData();
+    // this will automatically be deallocated at the end of the frame
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
 
     ezTransform t;
 
-    for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
+    for (ezUInt32 p = 0; p < numParticles; ++p)
     {
       t.m_Rotation.SetRotationMatrixY(ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
       t.m_vPosition = pPosition[p];
-      TempData[p].Transform = t;
-      TempData[p].Size = pSize[p];
-      TempData[p].Color = pColor[p];
+      m_ParticleData[p].Transform = t;
+      m_ParticleData[p].Size = pSize[p];
+      m_ParticleData[p].Color = pColor[p];
     }
   }
 
@@ -131,9 +128,8 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleBillboardRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_uiNumParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_GpuData = m_GpuData;
+  pRenderData->m_ParticleData = m_ParticleData;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;

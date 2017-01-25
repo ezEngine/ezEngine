@@ -15,16 +15,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTrailRenderer, 1, ezRTTIDefaultAllocator<ezParticleTrailRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleTrailRenderData::ezParticleTrailRenderData()
-{
-  m_uiNumParticles = 0;
-}
-
-
-ezParticleTrailRenderer::ezParticleTrailRenderer()
-{
-}
-
 ezParticleTrailRenderer::~ezParticleTrailRenderer()
 {
   if (!m_hDataBuffer.IsInvalidated())
@@ -104,13 +94,13 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   for (auto it = batch.GetIterator<ezParticleTrailRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
     const ezParticleTrailRenderData* pRenderData = it;
-    ezUInt32 uiNumParticles = pRenderData->m_uiNumParticles;
+    ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
 
     const ezUInt32 uiBucketElementCount = pRenderData->m_uiMaxSegmentBucketSize;
     const ezUInt32 uiBucketByteSize = sizeof(ezVec3) * pRenderData->m_uiMaxSegmentBucketSize;
 
-    const ezTrailParticleData* pParticleData = pRenderData->m_GpuData->m_Content.GetData();
-    const ezUInt8* pParticleSegmentData = pRenderData->m_SegmentGpuData->m_Content.GetData();
+    const ezTrailParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
+    const ezUInt8* pParticleSegmentData = pRenderData->m_SegmentData.GetPtr();
 
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 

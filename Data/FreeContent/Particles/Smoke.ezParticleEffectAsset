@@ -2,17 +2,6 @@ Objects
 {
 o
 {
-	Uuid %id{u4{14338782419656672413,4634808259917958019}}
-	s %t{"ezParticleInitializerFactory_Life"}
-	u3 %v{1}
-	p
-	{
-		Time %LifeTimeRange{d{0x0000000000001440}}
-		Time %MinLifeTime{d{0x0000000000001440}}
-	}
-}
-o
-{
 	Uuid %id{u4{6448533828967799431,4730585293690234005}}
 	s %t{"ezParticleBehaviorFactory_SizeCurve"}
 	u3 %v{1}
@@ -20,7 +9,7 @@ o
 	{
 		f %MinSize{0}
 		s %SizeCurve{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
-		f %SizeRange{0x00000040}
+		f %SizeRange{0x00004040}
 	}
 }
 o
@@ -32,7 +21,6 @@ o
 	{
 		VarArray %Behaviors
 		{
-			Uuid{u4{3419027045644675485,5121181451291806085}}
 			Uuid{u4{14753197304165763721,5247792729933536343}}
 			Uuid{u4{6448533828967799431,4730585293690234005}}
 			Uuid{u4{15790187478185189044,4984442529615188909}}
@@ -43,29 +31,19 @@ o
 		}
 		VarArray %Initializers
 		{
-			Uuid{u4{14338782419656672413,4634808259917958019}}
-			Uuid{u4{15623355747849742257,4888523337233503366}}
 			Uuid{u4{376275885510549182,5616439904354362897}}
 			Uuid{u4{4154059691644389765,4912476110705596818}}
 		}
+		Time %LifeTimeRange{d{0x0000000000000840}}
 		u3 %MaxParticles{200}
+		Time %MinLifeTime{d{0x0000000000000040}}
 		s %Name{""}
+		s %OnDeathEvent{""}
 		VarArray %Types
 		{
 			Uuid{u4{8703942746860974726,4959045116417621098}}
 		}
 		b %Visible{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15623355747849742257,4888523337233503366}}
-	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
-	u3 %v{1}
-	p
-	{
-		Angle %RotationSpeed{f{0xC2B8B23E}}
-		f %RotationVariance{0x0000803E}
 	}
 }
 o
@@ -110,7 +88,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{4868410296388275390}
+		u4 %Hash{8888819133546450168}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -118,17 +96,6 @@ AssetInfo
 			s{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
 			s{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{3419027045644675485,5121181451291806085}}
-	s %t{"ezParticleBehaviorFactory_Age"}
-	u3 %v{1}
-	p
-	{
-		s %OnDeathEvent{""}
-		Uuid %test{u4{3614387881586538906,11665716049047838934}}
 	}
 }
 o
@@ -193,21 +160,10 @@ o
 		Time %CurveDuration{d{0x0000000000002440}}
 		Time %Duration{d{0}}
 		Time %IntervalRange{d{0}}
-		Time %MinInterval{d{0x9A9999999999B93F}}
+		Time %MinInterval{d{0x000000000000F03F}}
 		u3 %MinSpawnCount{1}
 		u3 %SpawnCountRange{0}
 		Time %StartDelay{d{0}}
-	}
-}
-o
-{
-	Uuid %id{u4{3614387881586538906,11665716049047838934}}
-	s %t{"ezVarianceType"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0xCDCCC241}
-		f %Variance{0x00006843}
 	}
 }
 }

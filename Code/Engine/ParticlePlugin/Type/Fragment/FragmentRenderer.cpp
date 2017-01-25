@@ -15,16 +15,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFragmentRenderer, 1, ezRTTIDefaultAllocator<ezParticleFragmentRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleFragmentRenderData::ezParticleFragmentRenderData()
-{
-  m_uiNumParticles = 0;
-}
-
-
-ezParticleFragmentRenderer::ezParticleFragmentRenderer()
-{
-}
-
 ezParticleFragmentRenderer::~ezParticleFragmentRenderer()
 {
   if (!m_hDataBuffer.IsInvalidated())
@@ -88,9 +78,9 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
   for (auto it = batch.GetIterator<ezParticleFragmentRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
     const ezParticleFragmentRenderData* pRenderData = it;
-    ezUInt32 uiNumParticles = pRenderData->m_uiNumParticles;
+    ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
 
-    const ezFragmentParticleData* pParticleData = pRenderData->m_GpuData->m_Content.GetData();
+    const ezFragmentParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
 
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 

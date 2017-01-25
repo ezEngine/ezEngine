@@ -144,19 +144,11 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
 
-    if (m_GpuData == nullptr)
-    {
-      m_GpuData = EZ_DEFAULT_NEW(ezTrailParticleDataContainer);
-      m_GpuData->m_Content.SetCountUninitialized((ezUInt32)GetOwnerSystem()->GetMaxParticles());
-    }
+    // this will automatically be deallocated at the end of the frame
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_SegmentData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, (ezUInt32)(uiBucketSize * sizeof(ezVec3) * (ezUInt32)GetOwnerSystem()->GetNumActiveParticles()));
 
-    if (m_SegmentGpuData == nullptr)
-    {
-      m_SegmentGpuData = EZ_DEFAULT_NEW(ezTrailParticleSegmentDataContainer);
-      m_SegmentGpuData->m_Content.SetCountUninitialized((ezUInt32)(uiBucketSize * sizeof(ezVec3) * GetOwnerSystem()->GetMaxParticles()));
-    }
-
-    ezTrailParticleData* TempData = m_GpuData->m_Content.GetData();
+    ezTrailParticleData* TempData = m_ParticleData.GetPtr();
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
@@ -170,7 +162,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       const ezVec3* pPositions = GetTrailDataPositions(pTrailData[p].m_uiTrailDataIndex);
 
       const ezUInt32 uiSegmentOffset = uiBucketSize * sizeof(ezVec3) * p;
-      ezVec3* pSegmentPositions = reinterpret_cast<ezVec3*>(&m_SegmentGpuData->m_Content[uiSegmentOffset]);
+      ezVec3* pSegmentPositions = reinterpret_cast<ezVec3*>(&m_SegmentData[uiSegmentOffset]);
 
       ezUInt32 seg = m_uiCurLastIndex;
       for (ezUInt32 i = m_uiMaxSegments; i > 0; --i)
@@ -187,11 +179,10 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_uiNumParticles = numActiveParticles;
   pRenderData->m_uiMaxSegmentBucketSize = GetMaxSegmentBucketSize();
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_GpuData = m_GpuData;
-  pRenderData->m_SegmentGpuData = m_SegmentGpuData;
+  pRenderData->m_ParticleData = m_ParticleData;
+  pRenderData->m_SegmentData = m_SegmentData;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
