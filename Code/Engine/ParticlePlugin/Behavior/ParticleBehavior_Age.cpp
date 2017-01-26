@@ -11,6 +11,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Age, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent),
+    EZ_MEMBER_PROPERTY("MinLifeTime", m_MinLifeTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
+    EZ_MEMBER_PROPERTY("LifeTimeRange", m_LifeTimeRange)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(1))),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -24,6 +26,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Age, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Age>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezParticleBehaviorFactory_Age::ezParticleBehaviorFactory_Age()
+{
+  m_MinLifeTime = ezTime::Seconds(1.0f);
+  m_LifeTimeRange = ezTime::Seconds(1.0f);
+}
+
 const ezRTTI* ezParticleBehaviorFactory_Age::GetBehaviorType() const
 {
   return ezGetStaticRTTI<ezParticleBehavior_Age>();
@@ -34,6 +42,9 @@ void ezParticleBehaviorFactory_Age::CopyBehaviorProperties(ezParticleBehavior* p
   ezParticleBehavior_Age* pBehavior = static_cast<ezParticleBehavior_Age*>(pObject);
 
   pBehavior->m_sOnDeathEvent = ezTempHashedString(m_sOnDeathEvent.GetData());
+
+  pBehavior->m_MinLifeTime = ezMath::Max(m_MinLifeTime, ezTime::Milliseconds(100)); // make sure min life time cannot be 0
+  pBehavior->m_LifeTimeRange = m_LifeTimeRange;
 }
 
 
@@ -42,6 +53,7 @@ enum class BehaviorAgeVersion
   Version_0 = 0,
   Version_1,
   Version_2,
+  Version_3,
 
   // insert new version numbers above
   Version_Count,
@@ -54,6 +66,9 @@ void ezParticleBehaviorFactory_Age::Save(ezStreamWriter& stream) const
   stream << uiVersion;
 
   stream << m_sOnDeathEvent;
+
+  stream << m_MinLifeTime;
+  stream << m_LifeTimeRange;
 }
 
 void ezParticleBehaviorFactory_Age::Load(ezStreamReader& stream)
@@ -66,6 +81,12 @@ void ezParticleBehaviorFactory_Age::Load(ezStreamReader& stream)
   if (uiVersion >= 2)
   {
     stream >> m_sOnDeathEvent;
+  }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_MinLifeTime;
+    stream >> m_LifeTimeRange;
   }
 }
 
@@ -85,7 +106,7 @@ ezParticleBehavior_Age::~ezParticleBehavior_Age()
 
 void ezParticleBehavior_Age::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, true);
 
   if (m_sOnDeathEvent.GetHash() != 0)
   {
@@ -107,6 +128,32 @@ void ezParticleBehavior_Age::AfterPropertiesConfigured(bool bFirstTime)
   {
     m_bHasOnDeathEventHandler = true;
     GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleBehavior_Age::OnParticleDeath, this));
+  }
+}
+
+void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+{
+  ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
+
+  if (m_LifeTimeRange == ezTime()) // 0 range
+  {
+    const float tLifeTime = (float)m_MinLifeTime.GetSeconds();
+
+    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    {
+      pLifeTime[i].Set(tLifeTime, tLifeTime);
+    }
+  }
+  else // random range
+  {
+    ezRandom& rng = GetRNG();
+
+    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    {
+      const float tLifeTime = (float)rng.DoubleInRange(m_MinLifeTime.GetSeconds(), m_LifeTimeRange.GetSeconds());
+
+      pLifeTime[i].Set(tLifeTime, tLifeTime);
+    }
   }
 }
 

@@ -10,6 +10,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Age : public ezParticleBeh
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Age, ezParticleBehaviorFactory);
 
 public:
+  ezParticleBehaviorFactory_Age();
+
   virtual const ezRTTI* GetBehaviorType() const override;
   virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
 
@@ -17,6 +19,9 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sOnDeathEvent;
+
+  ezTime m_MinLifeTime;
+  ezTime m_LifeTimeRange;
 };
 
 
@@ -31,9 +36,13 @@ public:
 
   ezTempHashedString m_sOnDeathEvent;
 
+  ezTime m_MinLifeTime;
+  ezTime m_LifeTimeRange;
+
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
 
 protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
