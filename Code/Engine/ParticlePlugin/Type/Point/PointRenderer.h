@@ -8,29 +8,27 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
-#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardShaderData.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/PointShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderData : public ezRenderData
+class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData : public ezRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBillboardRenderData, ezRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderData, ezRenderData);
 
 public:
-  ezTexture2DResourceHandle m_hTexture;
-  ezArrayPtr<ezBillboardParticleData> m_ParticleData;
+  ezArrayPtr<ezPointParticleData> m_ParticleData;
 };
 
 /// \brief Implements rendering of particle systems
-class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderer : public ezParticleRenderer
+class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderer : public ezParticleRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBillboardRenderer, ezParticleRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleBillboardRenderer);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderer, ezParticleRenderer);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezParticlePointRenderer);
 
 public:
-  ezParticleBillboardRenderer() {}
-  ~ezParticleBillboardRenderer();
+  ezParticlePointRenderer() {}
+  ~ezParticlePointRenderer();
 
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
   virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;

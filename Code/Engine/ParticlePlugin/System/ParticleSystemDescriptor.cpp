@@ -5,6 +5,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
+#include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllocator<ezParticleSystemDescriptor>)
 {
@@ -91,6 +92,12 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
     pFactory->m_LifeTimeRange = m_LifeTimeRange;
     pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
     m_BehaviorFactories.PushBack(pFactory);
+  }
+
+  if (m_TypeFactories.IsEmpty())
+  {
+    ezParticleTypePointFactory* pFactory = (ezParticleTypePointFactory*)ezParticleTypePointFactory::GetStaticRTTI()->GetAllocator()->Allocate();
+    m_TypeFactories.PushBack(pFactory);
   }
 }
 

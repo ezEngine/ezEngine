@@ -2,7 +2,6 @@
 
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <RendererFoundation/Basics.h>
-#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
 

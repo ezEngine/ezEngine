@@ -4,7 +4,6 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 

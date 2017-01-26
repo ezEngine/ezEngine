@@ -146,7 +146,27 @@ Milestone 8
   * ezIdTable now ensures that ID 0 is never valid.
   * Added new ezModelImporter infrastructure for loading / processing / converting mesh data.
   * Added a function to ezMath to evaluate a Bezier curve.
-  * UP TO REVISION: 1819
+  * Editor: Added a node search box to the editor scene tree.
+  * Added Sprite Component and rendering which is also used shape icons in the editor.
+  * Editor: Added "Align Camera to Object" action -> moves the camera in the hovered view to the object position.
+  * Editor: Added "Align Object with Camera" action.
+  * Editor: Added "Move Camera Here" action.
+  * Editor: Added actions "Attach to This" and "Detach from Parent".
+  * Added ambient lighting to materials, meshes and prefab thumbnails.
+  * Editor: Added an option to insert ambient light into a scene. On by default for prefabs, off for scenes.
+  * Editor: Added names to all transactions. Displayed by the Undo and Redo commands.
+  * Editor: Added actions to convert prefabs to and from Engine / Editor prefab.
+  * Editor: Nested prefabs in prefab documents are not possible anymore, they are created as regular objects instead
+  * Editor: Added hierarchical selection: First top-most parent, then gradually the children. CTRL for toggling objects, ALT to prevent hierarchy and pick an object directly.
+  * Editor: Added a grid to the translation gizmo for easier placement (can be disabled)
+  * Editor: Added ability to move windows to others containers. Currently only via document tab context menu.
+  * Editor: Implemented support for PBRT file format (mesh import).
+  * Added support for MSAA
+  * Support for png & jpeg images via stb_image (new third party lib).
+  * Editor: Added a Visual Shader Editor to material asssets.
+  * Added separated gaussian blur postprocess pass.
+  * Added emissive and occlusion to our material model.
+  * UP TO REVISION: 2000
 
 Milestone 7
 -----------
@@ -171,7 +191,7 @@ Milestone 7
   * Added rendering resources: ezConstantBufferResource, ezMaterialResource, ezMeshResource, ezShaderResource, ezTextureResource
   * Added (runtime) shader compilation and shader permutation generation
   * Added ezGPUResourcePool for sharing gpu resources
- 
+
 
 Milestone 6
 -----------
@@ -224,7 +244,7 @@ Milestone 5
   * Added ezPreprocessor, a class that allows to run a C preprocessor on text and get the result, it supports all the standard features
   * ezVariant now supports more basic types and is more efficient by using move semantics when possible.
 
-  
+
 Milestone 4
 -----------
 
@@ -252,14 +272,14 @@ Milestone 4
 
 Milestone 3
 -----------
-  
+
   * Added ezTimestamp, a platform independent timestamp for file-time and system-time stored in microseconds since Unix epoch.
   * Added ezDateTime, a class that converts an ezTimestamp into human-readable form.
   * Added an input abstraction system (ezInputManager, ezInputDevice, etc.).
      * Implements mouse/keyboard and XBox 360 controller on Windows.
      * Contains ezVirtualThumbStick, which can be used on touch devices for 'controller input'.
      * Can be extended through additional ezInputDevice's to handle more platforms and device types.
-  * Added the basics of a game object system (ezWorld, ezGameObject, ezComponent). The Asteroids game sample already shows how to do a simple game with it. The system is not yet complete but good enough for now.     
+  * Added the basics of a game object system (ezWorld, ezGameObject, ezComponent). The Asteroids game sample already shows how to do a simple game with it. The system is not yet complete but good enough for now.
   * Added a sample game, similar to Asteroids, to show how to use the Game Object system and the Input System.
   * Added ezCompressedStreamReader and ezCompressedStreamWriter, which allow to (un-)compress data while writing/reading a file or memory stream.
   * Asserts can now be intercepted with an Assert Handler

@@ -1,0 +1,58 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+BlendingEnabled0 = false
+
+DepthTest = true
+DepthWrite = true
+
+[VERTEXSHADER]
+
+#define USE_COLOR
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Particles/PointShaderData.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+VS_OUT main(uint VertexID : SV_VertexID)
+{
+  uint index = VertexID;
+
+  ezPointParticleData particle = particleData[index];
+
+  float4 position = float4(particle.Position.xyz, 1);
+
+  float4 worldPosition = mul(ObjectToWorldMatrix, position);
+  float4 screenPosition = mul(WorldToScreenMatrix, worldPosition);
+
+  VS_OUT ret;
+  ret.Position = screenPosition;
+  ret.Color = RGBA8ToFloat4(particle.Color);
+
+  return ret;
+}
+
+#endif
+
+
+[PIXELSHADER]
+
+#define USE_COLOR
+
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return Input.Color;
+}
+
+#endif
+
