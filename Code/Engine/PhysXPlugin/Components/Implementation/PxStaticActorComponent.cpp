@@ -97,20 +97,23 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     ezHybridArray<PxMaterial*, 32> pxMaterials;
 
     {
-      pxMaterials.SetCount(pMesh->GetSurfaces().GetCount());
+      const auto& surfaces = pMesh->GetSurfaces();
+      pxMaterials.SetCount(surfaces.GetCount());
 
-      for (ezUInt32 mat = 0; mat < pMesh->GetSurfaces().GetCount(); ++mat)
+      for (ezUInt32 i = 0; i < surfaces.GetCount(); ++i)
       {
-        if (pMesh->GetSurfaces()[mat].IsValid())
+        if (surfaces[i].IsValid())
         {
-          ezResourceLock<ezSurfaceResource> pSurf(pMesh->GetSurfaces()[mat]);
+          ezResourceLock<ezSurfaceResource> pSurface(surfaces[i]);
+          if (pSurface)
+          {
+            pxMaterials[i] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
 
-          pxMaterials[mat] = static_cast<PxMaterial*>(pSurf->m_pPhysicsMaterial);
+            continue;
+          }
         }
-        else
-        {
-          pxMaterials[mat] = ezPhysX::GetSingleton()->GetDefaultMaterial();
-        }
+
+        pxMaterials[i] = ezPhysX::GetSingleton()->GetDefaultMaterial();
       }
     }
 

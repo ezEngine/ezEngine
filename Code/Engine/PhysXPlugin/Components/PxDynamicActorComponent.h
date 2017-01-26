@@ -5,7 +5,7 @@
 
 class ezPxDynamicActorComponent;
 
-class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponentManager : public ezComponentManager<ezPxDynamicActorComponent, true>
+class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponentManager : public ezComponentManager<ezPxDynamicActorComponent, false>
 {
 public:
   ezPxDynamicActorComponentManager(ezWorld* pWorld);

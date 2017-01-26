@@ -10,7 +10,7 @@
 
 
 ezPxDynamicActorComponentManager::ezPxDynamicActorComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezPxDynamicActorComponent, true>(pWorld)
+  : ezComponentManager<ezPxDynamicActorComponent, false>(pWorld)
 {
 
 }

@@ -39,7 +39,7 @@ class ezPxControllerHitCallback : public PxUserControllerHitReport
   virtual void onObstacleHit(const PxControllerObstacleHit& hit) override;
 };
 
-typedef ezComponentManager<class ezPxCharacterProxyComponent, true> ezPxCharacterProxyComponentManager;
+typedef ezComponentManager<class ezPxCharacterProxyComponent, false> ezPxCharacterProxyComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxCharacterProxyComponent : public ezPxComponent
 {

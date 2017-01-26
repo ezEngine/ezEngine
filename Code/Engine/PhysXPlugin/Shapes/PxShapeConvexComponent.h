@@ -3,7 +3,7 @@
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 
-typedef ezComponentManager<class ezPxShapeConvexComponent, true> ezPxShapeConvexComponentManager;
+typedef ezComponentManager<class ezPxShapeConvexComponent, false> ezPxShapeConvexComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeConvexComponent : public ezPxShapeComponent
 {
