@@ -1,5 +1,6 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <GameUtils/Interfaces/PhysicsWorldModule.h>
@@ -10,6 +11,8 @@
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+#include <ParticlePlugin/Streams/ParticleStream.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 bool ezParticleSystemInstance::HasActiveParticles() const
 {
@@ -334,8 +337,8 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
 {
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
-  ezStringBuilder fullName(szName);
-  fullName.AppendFormat("({0})", (int)Type);
+  ezStringBuilder fullName;
+  ezParticleStreamFactory::GetFullStreamName(szName, Type, fullName);
 
   StreamInfo* pInfo = nullptr;
 
@@ -368,9 +371,11 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   EZ_ASSERT_DEV(pStream != nullptr, "Stream creation failed ('{0}' -> '{1}')", szName, fullName.GetData());
   *ppStream = pStream;
 
-  auto& bind = binding.m_Bindings.ExpandAndGetRef();
-  bind.m_ppStream = ppStream;
-  bind.m_sName = fullName;
+  {
+    auto& bind = binding.m_Bindings.ExpandAndGetRef();
+    bind.m_ppStream = ppStream;
+    bind.m_sName = fullName;
+  }
 }
 
 void ezParticleSystemInstance::CreateStreamZeroInitializers()
@@ -379,10 +384,10 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
   {
     auto& info = m_StreamInfo[i];
 
-    if ((!info.m_bInUse || info.m_bGetsInitialized) && info.m_pZeroInitializer)
+    if ((!info.m_bInUse || info.m_bGetsInitialized) && info.m_pDefaultInitializer)
     {
-      m_StreamGroup.RemoveProcessor(info.m_pZeroInitializer);
-      info.m_pZeroInitializer = nullptr;
+      m_StreamGroup.RemoveProcessor(info.m_pDefaultInitializer);
+      info.m_pDefaultInitializer = nullptr;
     }
 
     if (!info.m_bInUse)
@@ -403,15 +408,26 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     EZ_ASSERT_DEV(info.m_bInUse, "Invalid state");
 
-    if (info.m_pZeroInitializer == nullptr)
+    if (info.m_pDefaultInitializer == nullptr)
     {
-      //ezLog::Warning("Particle stream '{0}' is zero-initialized.", info.m_sName.GetData());
+      ezParticleStream* pStream = GetOwnerWorldModule()->CreateStreamDefaultInitializer(this, info.m_sName);
 
-      ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
-      pZeroInit->SetStreamName(info.m_sName);
+      if (pStream == nullptr)
+      {
+        ezLog::SeriousWarning("Particle stream '{0}' is zero-initialized.", info.m_sName.GetData());
 
-      info.m_pZeroInitializer = pZeroInit;
-      m_StreamGroup.AddProcessor(info.m_pZeroInitializer);
+        ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
+        pZeroInit->SetStreamName(info.m_sName);
+
+        info.m_pDefaultInitializer = pZeroInit;
+      }
+      else
+      {
+        ezLog::Warning("Particle stream '{0}' is default-initialized.", info.m_sName.GetData());
+        info.m_pDefaultInitializer = pStream;
+      }
+
+      m_StreamGroup.AddProcessor(info.m_pDefaultInitializer);
     }
   }
 }
@@ -429,7 +445,7 @@ void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGro
 
 ezParticleSystemInstance::StreamInfo::StreamInfo()
 {
-  m_pZeroInitializer = nullptr;
+  m_pDefaultInitializer = nullptr;
   m_bGetsInitialized = false;
   m_bInUse = false;
 }
@@ -440,6 +456,11 @@ void ezParticleSystemInstance::ProcessEventQueue(const ezParticleEventQueue* pQu
   {
     pEmitter->ProcessEventQueue(pQueue);
   }
+}
+
+ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
+{
+  return m_pOwnerEffect->GetOwnerWorldModule();
 }
 
 void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const

@@ -1,0 +1,227 @@
+#pragma once
+
+#include <ParticlePlugin/Streams/ParticleStream.h>
+
+//////////////////////////////////////////////////////////////////////////
+// POSITION STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Position, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Position, ezParticleStream);
+
+protected:
+};
+
+//////////////////////////////////////////////////////////////////////////
+// SIZE STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Size : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Size, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Size : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Size, ezParticleStream);
+
+protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+// COLOR STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Color : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Color, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Color : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Color, ezParticleStream);
+
+protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+// VELOCITY STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Velocity : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Velocity, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Velocity : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Velocity, ezParticleStream);
+
+protected:
+
+  //virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+
+};
+
+//////////////////////////////////////////////////////////////////////////
+// LIFETIME STREAM
+//////////////////////////////////////////////////////////////////////////
+
+// always default initialized by the behavior
+
+//////////////////////////////////////////////////////////////////////////
+// LAST POSITION STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_LastPosition : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_LastPosition, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_LastPosition : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_LastPosition, ezParticleStream);
+
+protected:
+};
+
+//////////////////////////////////////////////////////////////////////////
+// ROTATION SPEED STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationSpeed : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_RotationSpeed, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_RotationSpeed : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_RotationSpeed, ezParticleStream);
+
+protected:
+};
+
+//////////////////////////////////////////////////////////////////////////
+// EFFECT ID STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_EffectID : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_EffectID, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_EffectID : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_EffectID, ezParticleStream);
+
+protected:
+};
+
+//////////////////////////////////////////////////////////////////////////
+// ON OFF STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_OnOff : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_OnOff, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_OnOff : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_OnOff, ezParticleStream);
+
+protected:
+};
+
+//////////////////////////////////////////////////////////////////////////
+// AXIS STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Axis : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Axis, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Axis : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Axis, ezParticleStream);
+
+protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+// TRAIL DATA STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_TrailData, ezParticleStreamFactory);
+
+public:
+  virtual const ezRTTI* GetParticleStreamType() const override;
+  virtual const char* GetStreamName() const;
+  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_TrailData : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_TrailData, ezParticleStream);
+
+protected:
+  //virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+};
+

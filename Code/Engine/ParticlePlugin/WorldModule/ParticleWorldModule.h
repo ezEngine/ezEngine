@@ -12,6 +12,8 @@ struct ezResourceEvent;
 class ezView;
 class ezExtractedRenderData;
 class ezTaskGroupID;
+class ezParticleStream;
+class ezParticleStreamFactory;
 
 /// \brief This world module stores all particle effect data that is active in a given ezWorld instance
 ///
@@ -45,6 +47,7 @@ public:
   ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
   void DestroySystemInstance(ezParticleSystemInstance* pInstance);
 
+  ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;
 
 private:
   void UpdateEffects(const ezWorldModule::UpdateContext& context);
@@ -58,6 +61,8 @@ private:
 
   void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const;
 
+  void ConfigureParticleStreamFactories();
+
   mutable ezMutex m_Mutex;
   ezDeque<ezParticleEffectInstance> m_ParticleEffects;
   ezDynamicArray<ezParticleEffectInstance*> m_FinishingEffects;
@@ -70,5 +75,6 @@ private:
   ezDeque<ezParticleSystemInstance> m_ParticleSystems;
   ezDynamicArray<ezParticleSystemInstance*> m_ParticleSystemFreeList;
   ezTaskGroupID m_EffectUpdateTaskGroup;
+  ezMap<ezString, ezParticleStreamFactory*> m_StreamFactories;
 };
 

@@ -11,6 +11,13 @@
 #include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezHiddenAttribute()
+  }
+  EZ_END_ATTRIBUTES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePoint, 1, ezRTTIDefaultAllocator<ezParticleTypePoint>)

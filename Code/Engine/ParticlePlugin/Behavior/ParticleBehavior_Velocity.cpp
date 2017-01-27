@@ -90,8 +90,8 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 
   const float fVelocityFactor = 1.0f + (m_fAcceleration * tDiff);
 
-  ezProcessingStreamIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements);
-  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {

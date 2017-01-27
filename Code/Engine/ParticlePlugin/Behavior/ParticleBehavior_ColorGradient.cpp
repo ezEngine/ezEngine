@@ -77,8 +77,8 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   if (!m_hGradient.IsValid())
     return;
 
-  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements);
-  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, 0);
 
   ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 

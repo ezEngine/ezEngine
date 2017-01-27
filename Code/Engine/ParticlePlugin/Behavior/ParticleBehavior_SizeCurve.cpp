@@ -85,8 +85,8 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   if (!m_hCurve.IsValid())
     return;
 
-  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements);
-  ezProcessingStreamIterator<float> itSize(m_pStreamSize, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<float> itSize(m_pStreamSize, uiNumElements, 0);
 
   ezResourceLock<ezCurve1DResource> pCurve(m_hCurve, ezResourceAcquireMode::NoFallback);
 

@@ -106,9 +106,9 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 {
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
-  ezProcessingStreamIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements);
-  ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements);
-  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   ezPhysicsHitResult hitResult;
 

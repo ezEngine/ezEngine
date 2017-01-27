@@ -38,7 +38,7 @@ protected:
 
   virtual void Process(ezUInt64 uiNumElements) override
   {
-    ezProcessingStreamIterator<float> streamIterator(m_pStream, uiNumElements);
+    ezProcessingStreamIterator<float> streamIterator(m_pStream, uiNumElements, 0);
 
     while (!streamIterator.HasReachedEnd())
     {
@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
 
 
   {
-    ezProcessingStreamIterator<float> stream1Iterator(pStream1, 3);
+    ezProcessingStreamIterator<float> stream1Iterator(pStream1, 3, 0);
 
     int iElementsVisited = 0;
     while (!stream1Iterator.HasReachedEnd())
@@ -105,7 +105,7 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
   Group.Process();
 
   {
-    ezProcessingStreamIterator<ezVec3> stream2Iterator(pStream2, Group.GetNumActiveElements());
+    ezProcessingStreamIterator<ezVec3> stream2Iterator(pStream2, Group.GetNumActiveElements(), 0);
 
     int iElementsVisited = 0;
     while (!stream2Iterator.HasReachedEnd())
@@ -139,7 +139,7 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
   Group.Process();
 
   {
-    ezProcessingStreamIterator<float> stream1Iterator(pStream1, Group.GetNumActiveElements());
+    ezProcessingStreamIterator<float> stream1Iterator(pStream1, Group.GetNumActiveElements(), 0);
     while (!stream1Iterator.HasReachedEnd())
     {
       EZ_TEST_FLOAT(stream1Iterator.Current(), 1.0f, 0.001f);
@@ -151,7 +151,7 @@ EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
   Group.Process();
 
   {
-    ezProcessingStreamIterator<float> stream1Iterator(pStream1, Group.GetNumActiveElements());
+    ezProcessingStreamIterator<float> stream1Iterator(pStream1, Group.GetNumActiveElements(), 0);
     while (!stream1Iterator.HasReachedEnd())
     {
       EZ_TEST_FLOAT(stream1Iterator.Current(), 2.0f, 0.001f);

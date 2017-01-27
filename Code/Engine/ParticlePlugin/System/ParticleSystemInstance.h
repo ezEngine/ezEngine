@@ -52,6 +52,7 @@ public:
   void ProcessEventQueue(const ezParticleEventQueue* pQueue);
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
+  ezParticleWorldModule* GetOwnerWorldModule() const;
 
   void ExtractSystemRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const;
 
@@ -88,7 +89,7 @@ private:
     ezString m_sName;
     bool m_bGetsInitialized;
     bool m_bInUse;
-    ezProcessingStreamProcessor* m_pZeroInitializer;
+    ezProcessingStreamProcessor* m_pDefaultInitializer;
   };
 
   ezHybridArray<StreamInfo, 16> m_StreamInfo;

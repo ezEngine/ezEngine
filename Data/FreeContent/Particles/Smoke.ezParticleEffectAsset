@@ -2,18 +2,6 @@ Objects
 {
 o
 {
-	Uuid %id{u4{6448533828967799431,4730585293690234005}}
-	s %t{"ezParticleBehaviorFactory_SizeCurve"}
-	u3 %v{1}
-	p
-	{
-		f %MinSize{0}
-		s %SizeCurve{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
-		f %SizeRange{0x00004040}
-	}
-}
-o
-{
 	Uuid %id{u4{674240590497784451,4762084656348639882}}
 	s %t{"ezParticleSystemDescriptor"}
 	u3 %v{1}
@@ -21,7 +9,6 @@ o
 	{
 		VarArray %Behaviors
 		{
-			Uuid{u4{6448533828967799431,4730585293690234005}}
 			Uuid{u4{15790187478185189044,4984442529615188909}}
 		}
 		VarArray %Emitters
@@ -31,29 +18,14 @@ o
 		VarArray %Initializers
 		{
 			Uuid{u4{376275885510549182,5616439904354362897}}
-			Uuid{u4{4154059691644389765,4912476110705596818}}
-			Uuid{u4{9670401274291218835,5717112407067779544}}
 		}
-		Time %LifeTimeRange{d{0x0000000000000840}}
+		Time %LifeTimeRange{d{0x0000000000000040}}
 		u3 %MaxParticles{200}
-		Time %MinLifeTime{d{0x0000000000000040}}
+		Time %MinLifeTime{d{0x000000000000F03F}}
 		s %Name{""}
 		s %OnDeathEvent{""}
-		VarArray %Types
-		{
-			Uuid{u4{7294796833453362844,5428687706602669967}}
-		}
+		VarArray %Types{}
 		b %Visible{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4154059691644389765,4912476110705596818}}
-	s %t{"ezParticleInitializerFactory_BoxPosition"}
-	u3 %v{1}
-	p
-	{
-		Vec3 %Size{f{0,0,0}}
 	}
 }
 o
@@ -78,12 +50,9 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{6717048751805253711}
+		u4 %Hash{17407048215297651315}
 		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
-		}
+		VarArray %References{}
 	}
 }
 o
@@ -99,13 +68,6 @@ o
 			Uuid{u4{1205178478847375007,5517481888434976877}}
 		}
 	}
-}
-o
-{
-	Uuid %id{u4{7294796833453362844,5428687706602669967}}
-	s %t{"ezParticleTypePointFactory"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -132,18 +94,6 @@ o
 		Angle %Angle{f{0x920A863E}}
 		f %MinSpeed{0x00000040}
 		f %SpeedRange{0}
-	}
-}
-o
-{
-	Uuid %id{u4{9670401274291218835,5717112407067779544}}
-	s %t{"ezParticleInitializerFactory_RandomColor"}
-	u3 %v{1}
-	p
-	{
-		Color %Color1{f{0x0AD7633F,0x780BA43D,0x780BA43D,0x0000803F}}
-		Color %Color2{f{0x27A0813E,0x6666263F,0x00FED43B,0x0000803F}}
-		s %Gradient{""}
 	}
 }
 o

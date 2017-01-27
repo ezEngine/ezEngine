@@ -8,6 +8,7 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <ParticlePlugin/Streams/ParticleStream.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezParticleWorldModule);
 
@@ -19,12 +20,12 @@ ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
 
 ezParticleWorldModule::~ezParticleWorldModule()
 {
-
 }
-
 
 void ezParticleWorldModule::Initialize()
 {
+  ConfigureParticleStreamFactories();
+
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::UpdateEffects, this);
     updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
@@ -140,6 +141,33 @@ void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
   }
 }
 
+void ezParticleWorldModule::ConfigureParticleStreamFactories()
+{
+  m_StreamFactories.Clear();
+
+  ezStringBuilder fullName;
+
+  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    if (!pRtti->IsDerivedFrom<ezParticleStreamFactory>() || !pRtti->GetAllocator()->CanAllocate())
+      continue;
+
+    ezParticleStreamFactory* pFactory = reinterpret_cast<ezParticleStreamFactory*>(pRtti->GetAllocator()->Allocate());
+
+    ezParticleStreamFactory::GetFullStreamName(pFactory->GetStreamName(), pFactory->GetStreamDataType(), fullName);
+
+    m_StreamFactories[fullName] = pFactory;
+  }
+}
+
+ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const
+{
+  auto it = m_StreamFactories.Find(szFullStreamName);
+  if (!it.IsValid())
+    return nullptr;
+
+  return it.Value()->CreateParticleStream(pOwner);
+}
 
 
 

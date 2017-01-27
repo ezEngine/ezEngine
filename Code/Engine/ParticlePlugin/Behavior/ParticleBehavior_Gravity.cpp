@@ -70,7 +70,7 @@ void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 addGravity = vGravity * m_fGravityFactor * tDiff;
 
-  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   while (!itVelocity.HasReachedEnd())
   {

@@ -91,7 +91,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 
   if (m_uiPercentage < 100)
   {
-    CreateStream("OnOff", ezProcessingStream::DataType::Int, &m_pStreamOnOff, false); /// \todo Initialize
+    CreateStream("OnOff", ezProcessingStream::DataType::Int, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
   }
 }
 
