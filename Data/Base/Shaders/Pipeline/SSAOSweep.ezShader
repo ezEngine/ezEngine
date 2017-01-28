@@ -63,7 +63,6 @@ void computeOccluderProps(float2 occluderPos, float2 currentPos, float2 toCamera
 // We're using groupshared to take away register pressure, but we're not actually sharing any memory!
 // Notices the organization to avoid bank conflict.
 // The code below is trying to minimize access to the hullstack.
-// todo: experiment with packing.
 groupshared float2 hullStack[STACK_SIZE][SSAO_LINESWEEP_THREAD_GROUP];
 
 [numthreads(SSAO_LINESWEEP_THREAD_GROUP, 1, 1)]
@@ -98,7 +97,7 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
 
   // Walk along this line.
   uint occlusionOutput = 0;
-  do
+  while(bufferOffset < bufferOffsetEnd)
   {
     float2 screenCor = samplePos * inverseScreenSize;
     float depthBufferDepth = DepthBuffer.SampleLevel(PointClampSampler, screenCor, 0.0f);
@@ -161,5 +160,5 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
     samplePos += directionSampleStep;
     ++bufferOffset;
 
-  } while(bufferOffset < bufferOffsetEnd);
+  }
 }

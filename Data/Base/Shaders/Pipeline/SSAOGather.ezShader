@@ -66,7 +66,7 @@ float4 main(PS_IN input) : SV_Target
 #if DISTRIBUTED_SSAO_GATHERING
   // Hardcoded 3x3 square.
   const uint startDirIdx = ((uint(pixelPos.x) % 3) + (uint(pixelPos.y) % 3) * 3) * NUM_SAMPLES_PER_PIXEL;
-  [unroll] for (int i = 0; i < NUM_SAMPLES_PER_PIXEL; ++i)
+  [unroll] for (int i = 0; i < 4; ++i)
   {
     uint dirIndex = startDirIdx + i;
 #else
@@ -85,7 +85,7 @@ float4 main(PS_IN input) : SV_Target
     {  
       // Just like in ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection we try to treat negative directions exactly like positive ones,
       // except for a flip in the lineOrigin.
-      float2 absDir = abs(dir); // Using uint because DX11 warning says int divide is slower.
+      float2 absDir = abs(dir);
 
       float2 virtualPixelPos;
       virtualPixelPos.x = (absDir.x == dir.x) ? pixelPos.x : pixelPosInv.x;
@@ -101,7 +101,7 @@ float4 main(PS_IN input) : SV_Target
       lineOrigin = LineInstructions[lineInstructionIndex].FirstSamplePos;
       lineSampleNumberFloat = (pixelPos[domAxis] - lineOrigin[domAxis]) / dir[domAxis];
     }
-    
+
     // Line instructions know the direction they belong to, use this to make sure that we're touching the right one.
     ASSERT((LineInstructions[lineInstructionIndex].LineDirIndex_totalWeight & 0xFFFF) == uint(dirIndex))
 
@@ -117,7 +117,6 @@ float4 main(PS_IN input) : SV_Target
 
     uint lineSampleNumberFloor = (uint)lineSampleNumberFloat;
     uint sampleIndex = lineSampleNumberFloor + LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
-    uint rawSample = 0;
 
     // Apply weighted with depth filter.
     float2 samplePos = lineOrigin + lineSampleNumberFloor * dir;
@@ -125,13 +124,10 @@ float4 main(PS_IN input) : SV_Target
     float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)));
     if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
     {
-      rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
+      uint rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
 
-      uint sample;
-      if(sampleIndex % 2 == 0)
-        sample = rawSample >> 16;
-      else
-        sample = rawSample & 0xFFFF;
+      uint sample = rawSample >> (16 * (sampleIndex % 2 == 0));
+      sample &= 0xFFFF;
 
       occlusionAccum += f16tof32(sample);
       totalWeight += 1.0f;
@@ -144,30 +140,22 @@ float4 main(PS_IN input) : SV_Target
     if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
     {
       ++sampleIndex;
-      if(sampleIndex % 2 == 0 || rawSample == 0)
-      {
-        rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
-      }
-      uint sample;
-      if(sampleIndex % 2 == 0)
-        sample = rawSample >> 16;
-      else
-        sample = rawSample & 0xFFFF;
 
-       occlusionAccum += f16tof32(sample);
+      // Making this a dependent read comes with a suprisingly hefty perf penalty, so we just read again.
+      //if(sampleIndex % 2 == 0 || rawSample == 0)
+      uint rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
+
+      uint sample = rawSample >> (16 * (sampleIndex % 2 == 0));
+      sample &= 0xFFFF;
+
+      occlusionAccum += f16tof32(sample);
       totalWeight += 1.0f;
     }
 #endif
-
-    // Debug line sample index.
-    //return float4((lineSampleNumber* 0.01f), 0.0f, 0.0f, 1.0f);
-
-    // Debug lineInstructionIndex
-    //return float4(frac(lineInstructionIndex * 0.005f), 0.0f, 0.0f, 1.0f);
   }
 
   float output = 1.0f;
   if (totalWeight > 0.0f)
-     output = 1.0f - saturate(occlusionAccum / totalWeight);
+     output = saturate(1.0f - occlusionAccum / totalWeight);
   return output.xxxx;
 }
