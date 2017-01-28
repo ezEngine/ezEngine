@@ -1,4 +1,5 @@
 #include <Foundation/PCH.h>
+#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Image/ImageFormat.h>
 
 namespace

@@ -1,6 +1,8 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Algorithm/Hashing.h>
 
 ezDynamicArray<ezString> ezTranslatorFromFiles::s_TranslationFiles;
 ezHybridArray<ezUniquePtr<ezTranslator>, 16> ezTranslationLookup::s_pTranslators;

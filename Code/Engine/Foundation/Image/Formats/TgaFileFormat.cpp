@@ -2,6 +2,7 @@
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 
 #include <Foundation/Image/ImageConversion.h>
+#include <Foundation/IO/Stream.h>
 
 
 ezTgaFileFormat g_TgaFormat;
