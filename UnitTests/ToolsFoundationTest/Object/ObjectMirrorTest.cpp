@@ -214,10 +214,7 @@ void RecursiveModifyObject(const ezDocumentObject* pObject, ezObjectAccessorBase
   }
 }
 
-
-EZ_CREATE_SIMPLE_TEST_GROUP(ObjectMirror);
-
-EZ_CREATE_SIMPLE_TEST(ObjectMirror, ObjectMirror)
+EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
 {
   ezTestDocument doc("Test", true);
   doc.InitializeAfterLoading();

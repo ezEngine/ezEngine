@@ -13,7 +13,7 @@ ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::m_NameToPhantom;
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
-"Core"
+"Foundation"
 END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP

@@ -13,7 +13,7 @@ ezMap<const ezRTTI*, ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeStorageManager)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
-"Core",
+"Foundation",
 "ReflectedTypeManager"
 END_SUBSYSTEM_DEPENDENCIES
 
@@ -37,7 +37,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddProperties(const ezRTTI* pType)
 {
   // Mark all properties as invalid. Thus, when a property is dropped we know it is no longer valid.
-  // All others will be set to their old or new value by the AddPropertiesRecursive function. 
+  // All others will be set to their old or new value by the AddPropertiesRecursive function.
   for (auto it = m_PathToStorageInfoTable.GetIterator(); it.IsValid(); ++it)
   {
     it.Value().m_Type = ezVariant::Type::Invalid;
@@ -93,7 +93,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
     ezDynamicArray<ezVariant>& data = it.Key()->m_Data;
     EZ_ASSERT_DEV(uiIndex < data.GetCount(), "ezReflectedTypeStorageAccessor found with fewer properties that is should have!");
     ezVariant& value = data[uiIndex];
-    
+
     const ezRTTI* pSpecificType = pProperty->GetSpecificType();
     const auto SpecVarType = GetStorageType(pProperty);
 

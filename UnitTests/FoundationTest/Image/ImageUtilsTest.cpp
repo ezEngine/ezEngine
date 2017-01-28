@@ -8,10 +8,10 @@
 EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 {
   ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sReadDir.AppendPath("../../Data/UnitTests/CoreTest");
+  sReadDir.AppendPath("../../Data/UnitTests/FoundationTest");
 
   ezStringBuilder sWriteDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sWriteDir.AppendPath("CoreTest");
+  sWriteDir.AppendPath("FoundationTest");
 
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);
 

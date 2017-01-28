@@ -2,9 +2,9 @@
 #include <ToolsFoundationTest/Object/TestObjectManager.h>
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(DocumentObjectManager);
+EZ_CREATE_SIMPLE_TEST_GROUP(DocumentObject);
 
-EZ_CREATE_SIMPLE_TEST(DocumentObjectManager, DocumentObjectManager)
+EZ_CREATE_SIMPLE_TEST(DocumentObject, DocumentObjectManager)
 {
   ezTestDocumentObjectManager manager;
   ezDocumentObject* pObject = nullptr;
@@ -56,7 +56,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObjectManager, DocumentObjectManager)
       manager.AddObject(pSubElementObject[i], pObject, szProperty, i);
       EZ_TEST_INT(pObject->GetTypeAccessor().GetCount(szProperty), i + 1);
     }
-    
+
     EZ_TEST_BOOL(manager.CanRemove(pSubElementObject[0]).m_Result.Succeeded());
     manager.RemoveObject(pSubElementObject[0]);
     manager.DestroyObject(pSubElementObject[0]);

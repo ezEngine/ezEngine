@@ -11,7 +11,7 @@ ezMap<ezString, ezToolsTag> ezToolsTagRegistry::m_NameToTags;
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ToolsTagRegistry)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
-"Core"
+"Foundation"
 END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP
