@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameFoundation/GameState/FallbackGameState.h>
+#include <GameEngine/GameState/FallbackGameState.h>
 
 class SimpleMeshRendererGameState : public ezFallbackGameState
 {

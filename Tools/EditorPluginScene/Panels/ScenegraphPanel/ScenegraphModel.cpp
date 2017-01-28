@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument)
   : ezQtDocumentTreeModel(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children")

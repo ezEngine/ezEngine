@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BlurConstants.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlurPass, 1, ezRTTIDefaultAllocator<ezBlurPass>)

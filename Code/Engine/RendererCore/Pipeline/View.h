@@ -5,7 +5,7 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/TagSet.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <CoreUtils/NodeGraph/Node.h>
+#include <Foundation/Utilities/Node.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>

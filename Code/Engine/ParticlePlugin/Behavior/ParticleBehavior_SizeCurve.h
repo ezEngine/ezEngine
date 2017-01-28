@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
-#include <GameUtils/Curves/Curve1DResource.h>
+#include <GameEngine/Curves/Curve1DResource.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_SizeCurve : public ezParticleBehaviorFactory
 {

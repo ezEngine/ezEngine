@@ -15,12 +15,12 @@
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Core/Application/Application.h>
 #include <TexConv/DirectXTex/DirectXTex.h>
-#include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageConversion.h>
-#include <CoreUtils/Image/Formats/ImageFormatMappings.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Foundation/Image/Formats/ImageFormatMappings.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
-#include <CoreUtils/Image/Formats/DdsFileFormat.h>
+#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <memory>
 
 using namespace DirectX;

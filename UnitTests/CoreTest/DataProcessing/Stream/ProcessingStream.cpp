@@ -1,9 +1,9 @@
 
 #include <PCH.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/Reflection/Reflection.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(DataProcessing);

@@ -3,7 +3,7 @@
 #include <EditorFramework/Gizmos/GizmoComponent.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator)

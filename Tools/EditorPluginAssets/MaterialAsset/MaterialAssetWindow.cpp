@@ -11,7 +11,7 @@
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <SharedPluginAssets/Common/Messages.h>
 #include <VisualShader/VisualShaderScene.moc.h>

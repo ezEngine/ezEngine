@@ -9,11 +9,11 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
-#include <GameUtils/CollisionFilter/CollisionFilter.h>
+#include <GameEngine/CollisionFilter/CollisionFilter.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
 

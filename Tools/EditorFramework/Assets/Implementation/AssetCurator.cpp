@@ -2,7 +2,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <CoreUtils/Other/Progress.h>
+#include <Foundation/Utilities/Progress.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/OSFile.h>

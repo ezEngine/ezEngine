@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <RendererCore/Pipeline/Declarations.h>
 

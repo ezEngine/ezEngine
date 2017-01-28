@@ -4,7 +4,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BilateralBlurConstants.h>
 
 

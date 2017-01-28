@@ -2,7 +2,7 @@
 
 #include "Level.h"
 #include <Core/Input/VirtualThumbStick.h>
-#include <GameFoundation/GameState/GameState.h>
+#include <GameEngine/GameState/GameState.h>
 
 class AsteroidGameState : public ezGameState
 {

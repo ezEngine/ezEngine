@@ -3,8 +3,8 @@
 #include <ParticlePlugin/Basics.h>
 #include <ParticlePlugin/Declarations.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 
 class ezParticleStream;
 class ezParticleSystemInstance;

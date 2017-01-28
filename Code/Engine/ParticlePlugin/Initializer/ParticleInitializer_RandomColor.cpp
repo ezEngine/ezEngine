@@ -1,9 +1,9 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomColor.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <GameUtils/Curves/ColorGradientResource.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 

@@ -1,16 +1,16 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
-#include <GameUtils/Interfaces/PhysicsWorldModule.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Type/ParticleType.h>
-#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+#include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 

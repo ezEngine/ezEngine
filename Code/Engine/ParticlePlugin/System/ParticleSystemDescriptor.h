@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <ParticlePlugin/Util/ParticleUtils.h>
 

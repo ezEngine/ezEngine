@@ -15,12 +15,12 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <Foundation/Time/Clock.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 
 static ezUInt32 g_uiWindowWidth = 640;
 static ezUInt32 g_uiWindowHeight = 480;

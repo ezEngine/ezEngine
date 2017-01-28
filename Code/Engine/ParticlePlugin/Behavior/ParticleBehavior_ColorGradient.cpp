@@ -1,6 +1,6 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 

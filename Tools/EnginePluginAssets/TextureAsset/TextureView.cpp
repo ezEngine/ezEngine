@@ -5,7 +5,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/View.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
   : ezEngineProcessViewContext(pContext)

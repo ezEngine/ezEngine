@@ -20,8 +20,8 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Application/Config/ApplicationConfig.h>
 
-#include <CoreUtils/Geometry/GeomUtils.h>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Core/Graphics/Geometry.h>
+#include <Foundation/Image/ImageConversion.h>
 
 #include <System/Window/Window.h>
 

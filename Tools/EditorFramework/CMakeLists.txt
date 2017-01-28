@@ -32,9 +32,8 @@ SET (LINK_LIBRARIES
   RendererCore
   System
   GuiFoundation
-  CoreUtils
-  GameFoundation
   TestFramework
+  GameEngine
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

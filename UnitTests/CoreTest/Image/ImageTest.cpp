@@ -1,9 +1,9 @@
 #include <PCH.h>
-#include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageConversion.h>
-#include <CoreUtils/Image/Formats/ImageFileFormat.h>
-#include <CoreUtils/Image/Formats/BmpFileFormat.h>
-#include <CoreUtils/Image/Formats/DdsFileFormat.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Foundation/Image/Formats/ImageFileFormat.h>
+#include <Foundation/Image/Formats/BmpFileFormat.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
-#include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 class ezSceneDocument;

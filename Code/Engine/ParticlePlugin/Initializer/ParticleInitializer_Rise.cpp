@@ -1,11 +1,11 @@
 #include <ParticlePlugin/PCH.h>
 //#include <ParticlePlugin/Initializer/ParticleInitializer_Rise.h>
 //#include <Core/World/WorldModule.h>
-//#include <GameUtils/Interfaces/PhysicsWorldModule.h>
+//#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 //#include <ParticlePlugin/System/ParticleSystemInstance.h>
 //#include <Core/World/World.h>
 //#include <Foundation/Time/Clock.h>
-//#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
+//#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 //
 //EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_Rise, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_Rise>)
 //{

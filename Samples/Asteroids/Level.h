@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 

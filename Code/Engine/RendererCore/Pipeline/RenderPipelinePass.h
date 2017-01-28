@@ -4,7 +4,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <CoreUtils/NodeGraph/Node.h>
+#include <Foundation/Utilities/Node.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 

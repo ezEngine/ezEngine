@@ -18,7 +18,6 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 SET (LINK_LIBRARIES
   Foundation
   Core
-  CoreUtils
   System
   InputXBox360
   ThirdParty

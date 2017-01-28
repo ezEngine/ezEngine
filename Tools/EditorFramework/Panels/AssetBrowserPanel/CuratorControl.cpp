@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <QStatusBar>

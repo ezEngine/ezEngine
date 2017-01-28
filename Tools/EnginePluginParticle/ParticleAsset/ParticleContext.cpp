@@ -6,8 +6,8 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <Core/Graphics/Geometry.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <SharedPluginAssets/Common/Messages.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>

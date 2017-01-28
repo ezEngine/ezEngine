@@ -12,7 +12,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 

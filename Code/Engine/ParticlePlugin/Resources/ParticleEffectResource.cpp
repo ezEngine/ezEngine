@@ -1,11 +1,11 @@
 #include <ParticlePlugin/PCH.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectResource, 1, ezRTTIDefaultAllocator<ezParticleEffectResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleEffectResource::ezParticleEffectResource() 
+ezParticleEffectResource::ezParticleEffectResource()
   : ezResource<ezParticleEffectResource, ezParticleEffectResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }

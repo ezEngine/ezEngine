@@ -8,12 +8,12 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <QImage>
 #include <QPainter>
 #include <Foundation/IO/OSFile.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <EditorFramework/IPC/SyncObject.h>

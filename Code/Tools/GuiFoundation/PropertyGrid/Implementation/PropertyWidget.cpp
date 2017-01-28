@@ -19,7 +19,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 /// *** CHECKBOX ***
 

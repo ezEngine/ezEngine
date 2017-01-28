@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
-#include <GameUtils/Surfaces/SurfaceResource.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeComponent : public ezPxComponent
 {

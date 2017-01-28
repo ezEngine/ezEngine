@@ -9,7 +9,7 @@
 #include <QGridLayout>
 #include <QSettings>
 #include <InputContexts/OrthoGizmoContext.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorPluginScene/Preferences/ScenePreferences.h>

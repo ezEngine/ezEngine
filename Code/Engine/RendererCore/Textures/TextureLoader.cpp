@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Textures/TextureLoader.h>
-#include <CoreUtils/Image/Formats/DdsFileFormat.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>

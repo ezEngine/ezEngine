@@ -30,17 +30,12 @@ SET (LINK_LIBRARIES
   Foundation  
   ToolsFoundation
   EditorFramework 
-
   Core
   System
   RendererFoundation
   RendererDX11
   RendererCore
-  CoreUtils
-
-  GameFoundation
-  GameUtils
-
+  GameEngine
   SharedPluginAssets
   ParticlePlugin
 )

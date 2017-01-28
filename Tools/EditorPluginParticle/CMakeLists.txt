@@ -29,8 +29,7 @@ SET (LINK_LIBRARIES
   ToolsFoundation
 
   Core
-  CoreUtils
-  GameUtils
+  GameEngine
   ParticlePlugin
   SharedPluginAssets
 )

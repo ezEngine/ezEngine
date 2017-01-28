@@ -1,6 +1,6 @@
 #include <Core/ResourceManager/ResourceManager.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Geometry.h>
+#include <Core/Graphics/Camera.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Logging/Log.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -13,7 +13,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
-#include <GameUtils/Collection/CollectionResource.h>
+#include <GameEngine/Collection/CollectionResource.h>
 
 extern const char* szPlayerActions[MaxPlayerActions];
 

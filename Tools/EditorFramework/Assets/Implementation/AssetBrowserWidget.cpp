@@ -13,7 +13,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QFileDialog>
-#include <CoreUtils/Other/Progress.h>
+#include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent) : QWidget(parent)

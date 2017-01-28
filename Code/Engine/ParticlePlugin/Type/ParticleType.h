@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass

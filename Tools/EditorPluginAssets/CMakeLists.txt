@@ -30,17 +30,13 @@ SET (LINK_LIBRARIES
   Foundation
   EditorFramework
   ToolsFoundation
-
   ThirdParty
   Core
   System
   RendererFoundation
   RendererDX11
   RendererCore
-  CoreUtils
-  GameUtils
-  Animation
-
+  GameEngine
   SharedPluginAssets
 )
 
@@ -49,7 +45,7 @@ SET (ADDITIONAL_DEPENDENCIES
 )
 
 if (BUILDSYSTEM_PLATFORM_64BIT)
-  
+
 SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
@@ -74,12 +70,12 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
           ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/bin64/assimp.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-          
+
 else()
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
           ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/bin32/assimp.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-          
+
 endif()

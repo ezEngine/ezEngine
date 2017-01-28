@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/ModelImporter/Material.h>

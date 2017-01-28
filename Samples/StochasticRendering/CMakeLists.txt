@@ -19,7 +19,6 @@
 
 SET (LINK_LIBRARIES 
   Foundation
-  CoreUtils
   Core
   RendererFoundation
   RendererCore

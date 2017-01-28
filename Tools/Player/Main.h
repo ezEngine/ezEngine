@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 class ezPlayerApplication : public ezGameApplication
 {

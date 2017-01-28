@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 
 EZ_CREATE_SIMPLE_TEST(World, Camera)
 {

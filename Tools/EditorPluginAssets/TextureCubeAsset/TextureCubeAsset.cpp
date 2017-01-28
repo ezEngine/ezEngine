@@ -5,10 +5,10 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <CoreUtils/Image/Formats/DdsFileFormat.h>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <QProcess>
 #include <QStringList>
 #include <QTextStream>

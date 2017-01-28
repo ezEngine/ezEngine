@@ -30,12 +30,10 @@ set (COMPILER_SETTINGS_RELEASE ${COMPILER_SETTINGS_RELEASE} "/MT")
 set (COMPILER_SETTINGS_DEBUG ${COMPILER_SETTINGS_DEBUG} "/MTd")
 
 
-SET (LINK_LIBRARIES 
+SET (LINK_LIBRARIES
   Foundation
   Core
-  CoreUtils
-  GameUtils
-  GameFoundation
+  GameEngine
 
   debug PhysX3ExtensionsDEBUG
   debug PhysXVisualDebuggerSDKDEBUG
@@ -63,7 +61,7 @@ endif()
 if (${BUILDSYSTEM_PLATFORM_64BIT})
   link_directories ("${PHYSX_LIB_DIR}win64")
 
-  SET (LINK_LIBRARIES 
+  SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     debug PhysX3DEBUG_x64
     debug PhysX3CommonDEBUG_x64
@@ -76,7 +74,7 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
 else()
   link_directories ("${PHYSX_LIB_DIR}win32")
 
-  SET (LINK_LIBRARIES 
+  SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     debug PhysX3DEBUG_x86
     debug PhysX3CommonDEBUG_x86

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Material/MaterialResource.h>

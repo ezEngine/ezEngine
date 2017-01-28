@@ -12,7 +12,7 @@
 #include <QRect>
 #include <QRectF>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent), m_bCollapsed(false)
 {
@@ -106,9 +106,9 @@ void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
     QPainterPath oPath;
     oPath.addRoundedRect(wrAdjusted, iRounding, iRounding);
     p.fillPath(oPath, pal.alternateBase());
-   
+
     QRectF crAdjusted = cr;
-    crAdjusted.adjust(0.5, 0.5, iRounding, -0.5);   
+    crAdjusted.adjust(0.5, 0.5, iRounding, -0.5);
     QPainterPath path;
     path.addRoundedRect(crAdjusted, iRounding, iRounding);
     p.fillPath(path, pal.window());

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <Animation/Resources/PropertyAnimResource.h>
+#include <GameEngine/Resources/PropertyAnimResource.h>
 
 class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnimResourceDescriptor>
 {

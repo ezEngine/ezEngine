@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
 class ezShaderCompilerApplication : public ezGameApplication

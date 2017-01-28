@@ -4,7 +4,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <CoreUtils/Image/Image.h>
+#include <Foundation/Image/Image.h>
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>

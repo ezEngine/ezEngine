@@ -31,17 +31,15 @@ link_directories ("${EZ_FMOD_DIR}/api/lowlevel/lib")
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
-SET (LINK_LIBRARIES 
+SET (LINK_LIBRARIES
   Foundation
   Core
-  CoreUtils
-  GameUtils
-  GameFoundation
+  GameEngine
 )
 
 if (${BUILDSYSTEM_PLATFORM_64BIT})
 
-  SET (LINK_LIBRARIES 
+  SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
 		fmod64_vc
 		fmodstudio64_vc
@@ -49,7 +47,7 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
 
 else()
 
-  SET (LINK_LIBRARIES 
+  SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
 		fmod_vc
 		fmodstudio_vc

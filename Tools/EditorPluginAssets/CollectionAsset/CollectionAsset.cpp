@@ -5,7 +5,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <CoreUtils/Image/Image.h>
+#include <Foundation/Image/Image.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetEntry, 1, ezRTTIDefaultAllocator<ezCollectionAssetEntry>)

@@ -3,7 +3,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <QBoxLayout>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSlider>
 

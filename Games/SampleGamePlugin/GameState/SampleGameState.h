@@ -1,9 +1,9 @@
 #pragma once
 
 #include <SampleGamePlugin/SampleGamePlugin.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
-#include <GameFoundation/GameState/GameState.h>
-#include <GameFoundation/GameState/FallbackGameState.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/GameState/GameState.h>
+#include <GameEngine/GameState/FallbackGameState.h>
 #include <Core/World/Declarations.h>
 #include <Core/Input/Declarations.h>
 

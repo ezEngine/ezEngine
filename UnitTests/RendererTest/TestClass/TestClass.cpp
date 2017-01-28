@@ -3,9 +3,9 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageUtils.h>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageUtils.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

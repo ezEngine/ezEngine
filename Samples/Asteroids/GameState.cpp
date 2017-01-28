@@ -9,7 +9,7 @@
 
 #include <Core/Application/Config/ApplicationConfig.h>
 
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <System/Window/Window.h>
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", ezGameApplicationType::StandAlone, "Data/Samples/Asteroids");

@@ -9,7 +9,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>

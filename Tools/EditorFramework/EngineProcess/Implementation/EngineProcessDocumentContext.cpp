@@ -12,14 +12,14 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageUtils.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageUtils.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);

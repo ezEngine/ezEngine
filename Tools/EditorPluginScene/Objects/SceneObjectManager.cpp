@@ -2,7 +2,7 @@
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
-#include <GameUtils/Components/PrefabReferenceComponent.h>
+#include <GameEngine/Components/PrefabReferenceComponent.h>
 
 ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
 {

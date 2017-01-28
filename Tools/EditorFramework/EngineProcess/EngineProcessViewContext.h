@@ -3,7 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <System/Window/Window.h>
 #include <RendererFoundation/Device/Device.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
 class ezEngineProcessDocumentContext;

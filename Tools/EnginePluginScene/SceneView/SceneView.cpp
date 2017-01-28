@@ -10,7 +10,7 @@
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>

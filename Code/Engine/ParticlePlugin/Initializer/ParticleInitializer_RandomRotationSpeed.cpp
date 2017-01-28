@@ -1,9 +1,9 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_RandomRotationSpeed.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <GameUtils/Curves/Curve1DResource.h>
+#include <GameEngine/Curves/Curve1DResource.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 

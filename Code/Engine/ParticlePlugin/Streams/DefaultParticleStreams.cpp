@@ -1,7 +1,7 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Streams/DefaultParticleStreams.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 
 //////////////////////////////////////////////////////////////////////////
 // POSITION STREAM

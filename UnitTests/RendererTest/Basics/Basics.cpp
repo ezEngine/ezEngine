@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include "Basics.h"
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 
 ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {

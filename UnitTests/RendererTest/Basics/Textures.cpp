@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include "Basics.h"
 #include <RendererFoundation/Context/Context.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>

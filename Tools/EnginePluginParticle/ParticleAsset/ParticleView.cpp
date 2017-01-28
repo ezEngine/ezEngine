@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/View.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>

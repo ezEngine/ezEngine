@@ -7,7 +7,7 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>

@@ -7,7 +7,7 @@
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleViewWidget.moc.h>
 #include <SharedPluginAssets/Common/Messages.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
 ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument)

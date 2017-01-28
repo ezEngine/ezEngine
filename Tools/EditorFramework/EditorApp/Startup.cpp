@@ -14,14 +14,14 @@
 #include <PropertyGrid/FileBrowserPropertyWidget.moc.h>
 #include <PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <CoreUtils/Other/Progress.h>
+#include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <QClipboard>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>

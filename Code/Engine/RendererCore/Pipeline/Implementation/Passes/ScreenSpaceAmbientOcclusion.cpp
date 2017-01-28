@@ -5,7 +5,7 @@
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <Foundation/Configuration/CVar.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefaultAllocator<ezScreenSpaceAmbientOcclusionPass>)

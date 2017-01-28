@@ -3,7 +3,7 @@
 
 #include <Foundation/IO/ChunkStream.h>
 
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {

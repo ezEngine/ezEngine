@@ -3,7 +3,7 @@
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <CoreUtils/Image/Image.h>
+#include <Foundation/Image/Image.h>
 
 class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
 {

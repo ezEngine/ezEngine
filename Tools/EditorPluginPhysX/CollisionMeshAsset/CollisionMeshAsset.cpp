@@ -13,7 +13,7 @@
 #include <../ThirdParty/AssImp/include/LogStream.hpp>
 #include <../ThirdParty/AssImp/include/DefaultLogger.hpp>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <PhysXCooking/PhysXCooking.h>
 #include <Foundation/IO/ChunkStream.h>
 

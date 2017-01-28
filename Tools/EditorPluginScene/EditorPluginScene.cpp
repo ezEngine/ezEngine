@@ -18,7 +18,7 @@
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/EditActions.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <Actions/SceneActions.h>
 

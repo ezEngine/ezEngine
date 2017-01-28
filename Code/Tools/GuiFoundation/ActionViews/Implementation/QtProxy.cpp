@@ -7,7 +7,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <QMenu>
 #include <QAction>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSlider>
 #include <QWidgetAction>

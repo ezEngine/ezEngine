@@ -5,7 +5,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 3)
 {

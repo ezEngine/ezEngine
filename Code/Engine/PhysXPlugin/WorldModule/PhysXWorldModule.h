@@ -2,9 +2,9 @@
 
 #include <PhysXPlugin/PhysXInterface.h>
 #include <Core/World/WorldModule.h>
-#include <GameUtils/Surfaces/SurfaceResource.h>
-#include <GameUtils/CollisionFilter/CollisionFilter.h>
-#include <GameUtils/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Surfaces/SurfaceResource.h>
+#include <GameEngine/CollisionFilter/CollisionFilter.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 namespace physx
 {

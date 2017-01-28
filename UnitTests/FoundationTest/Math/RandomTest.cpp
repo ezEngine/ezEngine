@@ -9,7 +9,7 @@
 //#define USE_EZIMAGE
 
 #ifdef USE_EZIMAGE
-  #include <CoreUtils/Image/Image.h>
+  #include <Foundation/Image/Image.h>
 #endif
 
 

@@ -2,9 +2,9 @@
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <CoreUtils/Image/Image.h>
+#include <Foundation/Image/Image.h>
 #include <Foundation/Math/Curve1D.h>
-#include <GameUtils/Curves/Curve1DResource.h>
+#include <GameEngine/Curves/Curve1DResource.h>
 #include <QPainter>
 #include <QPaintEngine>
 

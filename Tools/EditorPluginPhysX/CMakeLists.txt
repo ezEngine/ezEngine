@@ -28,11 +28,9 @@ SET (LINK_LIBRARIES
   Foundation
   EditorFramework
   ToolsFoundation
-
   Core
-  CoreUtils
   PhysXCooking
-  GameUtils
+  GameEngine
 )
 
 if (BUILDSYSTEM_PLATFORM_64BIT)

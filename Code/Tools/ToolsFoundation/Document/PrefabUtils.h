@@ -2,7 +2,7 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <ToolsFoundation/Document/Document.h>
 
 class ezDocumentObject;

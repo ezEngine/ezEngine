@@ -28,10 +28,8 @@ SET (LINK_LIBRARIES
   Foundation
   EditorFramework
   ToolsFoundation
-
   Core
-  CoreUtils
-  GameUtils
+  GameEngine
 )
 
 include_directories ("${EZ_FMOD_DIR}/api/studio/inc")

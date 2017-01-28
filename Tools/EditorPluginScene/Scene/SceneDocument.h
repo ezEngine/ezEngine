@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 

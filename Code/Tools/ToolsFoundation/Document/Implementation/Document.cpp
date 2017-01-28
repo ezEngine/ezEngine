@@ -12,7 +12,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <CoreUtils/Other/Progress.h>
+#include <Foundation/Utilities/Progress.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {

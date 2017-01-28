@@ -1,7 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <QTableWidget>
 #include <QTreeWidget>
 #include <QKeySequenceEdit>

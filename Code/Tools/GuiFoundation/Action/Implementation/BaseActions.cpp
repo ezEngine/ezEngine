@@ -1,6 +1,6 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Action/BaseActions.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNamedAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -41,7 +41,7 @@ ezEnumerationMenuAction::ezEnumerationMenuAction(const ezActionContext& context,
 void ezEnumerationMenuAction::InitEnumerationType(const ezRTTI* pEnumerationType)
 {
   m_pEnumerationType = pEnumerationType;
-  
+
 }
 
 void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
@@ -68,13 +68,13 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item
       {
         item.m_CheckState = ((iCurrentValue & iValue) != 0) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
       }
-      
+
       out_Entries.PushBack(item);
     }
   }
 }
 
-ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable, const char* szIconPath) : ezNamedAction(context, szName, szIconPath) 
+ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable, const char* szIconPath) : ezNamedAction(context, szName, szIconPath)
 {
   m_bCheckable = false;
   m_bChecked = false;

@@ -7,7 +7,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/Image/ImageConversion.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>

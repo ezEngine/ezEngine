@@ -17,11 +17,14 @@
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
-SET (LINK_LIBRARIES 
+SET (LINK_LIBRARIES
   Foundation
   Core
   System
   ThirdParty
+  RendererFoundation
+  RendererCore
+  RendererDX11
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

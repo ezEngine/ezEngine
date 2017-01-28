@@ -5,10 +5,10 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <CoreUtils/Image/Image.h>
+#include <Foundation/Image/Image.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Math/ColorGradient.h>
-#include <GameUtils/Curves/ColorGradientResource.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorControlPoint, 1, ezRTTIDefaultAllocator<ezColorControlPoint>)
 {

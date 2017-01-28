@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/Declarations.h>
 

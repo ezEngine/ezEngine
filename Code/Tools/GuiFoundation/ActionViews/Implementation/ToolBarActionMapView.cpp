@@ -7,7 +7,7 @@
 #include <QMenu>
 #include <QToolButton>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezQtToolBarActionMapView::ezQtToolBarActionMapView(QString title, QWidget* parent) : QToolBar(title, parent)
 {

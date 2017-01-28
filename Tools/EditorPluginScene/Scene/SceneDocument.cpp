@@ -10,7 +10,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Commands/SceneCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <Core/World/GameObject.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>

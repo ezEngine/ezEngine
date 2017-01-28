@@ -13,3 +13,4 @@
   #define EZ_RENDERERCORE_DLL
 #endif
 
+#define EZ_EMBED_FONT_FILE EZ_ON

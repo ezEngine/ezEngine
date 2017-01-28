@@ -5,7 +5,7 @@
 #include <System/Window/Window.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <Foundation/Types/Uuid.h>
 
 static int a = 0, b = 1, c = 2, d = 3;

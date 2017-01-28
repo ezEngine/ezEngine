@@ -8,7 +8,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Document/Implementation/Declarations.h>
-#include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezObjectAccessorBase;

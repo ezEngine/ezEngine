@@ -30,14 +30,12 @@ SET (LINK_LIBRARIES
   Foundation
   EditorFramework
   ToolsFoundation
-
   Core
   System
   RendererFoundation
   RendererDX11
   RendererCore
-  CoreUtils
-  GameUtils
+  GameEngine
 )
 
 SET (ADDITIONAL_DEPENDENCIES

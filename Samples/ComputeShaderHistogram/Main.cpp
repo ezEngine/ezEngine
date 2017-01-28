@@ -1,7 +1,7 @@
 #include "Main.h"
 #include <System/Window/Window.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <Foundation/Time/Clock.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/GPUStopwatch.h>

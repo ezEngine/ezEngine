@@ -4,8 +4,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
-#include <CoreUtils/Geometry/OBJLoader.h>
+#include <Core/Graphics/Geometry.h>
 #include <Foundation/IO/OSFile.h>
 #include <QTimer>
 #include <QPushButton>

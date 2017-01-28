@@ -31,16 +31,12 @@ SET (LINK_LIBRARIES
   ToolsFoundation
   EditorFramework 
   InputXBox360
-
   Core
   System
   RendererFoundation
   RendererDX11
   RendererCore
-  CoreUtils
-
-  GameFoundation
-  GameUtils
+  GameEngine
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

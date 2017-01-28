@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <CoreUtils/Image/ImageUtils.h>
+#include <Foundation/Image/ImageUtils.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

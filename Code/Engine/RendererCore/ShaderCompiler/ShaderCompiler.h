@@ -7,7 +7,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Set.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
-#include <CoreUtils/CodeUtils/Preprocessor.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 

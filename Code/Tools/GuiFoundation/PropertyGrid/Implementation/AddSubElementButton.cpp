@@ -10,7 +10,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezQtAddSubElementButton::ezQtAddSubElementButton()
   : ezQtPropertyWidget()
@@ -73,7 +73,7 @@ struct TypeComparer
         return iRes < 0;
       }
     }
-      
+
     return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0;
   }
 };
@@ -159,7 +159,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
   {
     // Determine current menu
     const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
-    
+
     if (pCatA)
     {
       CreateCategoryMenu(pCatA->GetCategory(), existingMenus);

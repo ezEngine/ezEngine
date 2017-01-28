@@ -1,10 +1,10 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Raycast.h>
-#include <GameUtils/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 

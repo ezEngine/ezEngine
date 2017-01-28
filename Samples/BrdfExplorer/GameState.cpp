@@ -1,10 +1,10 @@
 #include <Core/ResourceManager/ResourceManager.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
 
-#include <GameUtils/Components/RotorComponent.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/Components/RotorComponent.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 #include "GameState.h"
 #include <RendererCore/Lights/AmbientLightComponent.h>

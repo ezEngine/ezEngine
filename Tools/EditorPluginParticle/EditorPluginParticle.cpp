@@ -9,7 +9,7 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>

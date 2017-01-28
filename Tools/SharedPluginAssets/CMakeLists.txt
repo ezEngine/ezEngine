@@ -30,15 +30,11 @@ SET (LINK_LIBRARIES
   Foundation  
   ToolsFoundation
   EditorFramework 
-
   Core
   System
   RendererFoundation
   RendererCore
-  CoreUtils
-
-  GameFoundation
-  GameUtils
+  GameEngine
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

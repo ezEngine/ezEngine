@@ -8,7 +8,7 @@
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/Graphics/Geometry.h>
 #include <SharedPluginAssets/Common/Messages.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <SharedPluginAssets/Common/Messages.h>

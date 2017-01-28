@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Containers/Deque.h>
-#include <CoreUtils/DataStructures/DynamicTree/DynamicOctree.h>
+#include <Utilities/DataStructures/DynamicOctree.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(DataStructures);
 
@@ -39,7 +39,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert Inside / Outside")
   {
-    const ezVec3 c(100, 200, 300); 
+    const ezVec3 c(100, 200, 300);
     const float e = 50;
 
     ezDynamicOctree o;
@@ -75,7 +75,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
   {
     TestObject to;
 
-  
+
     to.m_vPos.Set(-90, 50, 0);
     to.m_vExtents.Set(2.0f);
 

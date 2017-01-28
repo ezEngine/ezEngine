@@ -1,11 +1,11 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter_Continuous.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Foundation/Time/Clock.h>
 #include <Core/World/World.h>
-#include <GameUtils/Curves/Curve1DResource.h>
+#include <GameEngine/Curves/Curve1DResource.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 

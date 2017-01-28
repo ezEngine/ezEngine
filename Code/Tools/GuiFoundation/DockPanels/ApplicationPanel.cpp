@@ -1,8 +1,8 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <QTimer>
-#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 

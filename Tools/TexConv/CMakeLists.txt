@@ -19,7 +19,6 @@ BUILD_CONDITIONAL(NOT DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
 SET (LINK_LIBRARIES
   Foundation
   Core
-  CoreUtils
 )
 
 # Visual Studio 2017 issues warnings because DirectXTex uses deprecated functions.

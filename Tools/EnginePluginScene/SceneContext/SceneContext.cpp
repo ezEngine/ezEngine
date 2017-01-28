@@ -4,10 +4,10 @@
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>

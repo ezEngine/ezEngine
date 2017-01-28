@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
-#include <GameUtils/CollisionFilter/CollisionFilter.h>
+#include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <GuiFoundation/Basics.h>
 #include <QCheckBox>
 #include <QDialogButtonBox>

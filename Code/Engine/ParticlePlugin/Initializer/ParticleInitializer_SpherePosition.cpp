@@ -1,6 +1,6 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 

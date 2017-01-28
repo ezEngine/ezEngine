@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
-#include <CoreUtils/NodeGraph/Node.h>
+#include <Foundation/Utilities/Node.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualShaderPin

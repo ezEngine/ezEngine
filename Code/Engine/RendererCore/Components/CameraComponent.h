@@ -3,7 +3,7 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Core/World/World.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 
 class ezView;
 

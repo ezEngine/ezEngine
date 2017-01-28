@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <QSettings>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QThread>
 

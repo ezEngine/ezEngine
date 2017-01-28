@@ -7,7 +7,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
-#include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/Image/ImageConversion.h>
 
 ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {

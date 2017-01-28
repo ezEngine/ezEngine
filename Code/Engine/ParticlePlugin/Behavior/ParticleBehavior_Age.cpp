@@ -1,7 +1,7 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Core/World/World.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>

@@ -21,7 +21,6 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererDX11
   InputXBox360
-  CoreUtils
   RendererCore
 )
 

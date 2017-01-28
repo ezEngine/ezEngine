@@ -10,7 +10,7 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <QGridLayout>
 #include <QLabel>

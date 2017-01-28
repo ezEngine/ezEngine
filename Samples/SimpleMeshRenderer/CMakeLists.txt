@@ -18,15 +18,13 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 SET (LINK_LIBRARIES
   Foundation
   Core
-  CoreUtils
   System
   InputXBox360
   ThirdParty
   RendererFoundation
   RendererCore
   RendererDX11
-  GameFoundation
-  GameUtils
+  GameEngine
 )
 
 SET (ADDITIONAL_DEPENDENCIES

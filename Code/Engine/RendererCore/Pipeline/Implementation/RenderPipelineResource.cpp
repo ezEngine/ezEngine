@@ -5,7 +5,7 @@
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 
 void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRenderPipeline* pPipeline)
 {

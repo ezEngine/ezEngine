@@ -13,7 +13,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorPluginAssets/Actions/EditorPluginAssetsActions.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorFramework/Actions/ProjectActions.h>

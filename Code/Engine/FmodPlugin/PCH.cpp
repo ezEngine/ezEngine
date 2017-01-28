@@ -2,7 +2,7 @@
 #include <Core/PCH.h>
 #include <FmodPlugin/Basics.h>
 #include <FmodPlugin/FmodWorldModule.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 EZ_STATICLINK_LIBRARY(Fmod)
 {

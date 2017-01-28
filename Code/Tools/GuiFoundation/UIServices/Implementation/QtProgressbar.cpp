@@ -1,6 +1,6 @@
 #include <GuiFoundation/PCH.h>
 #include <Foundation/Math/Math.h>
-#include <CoreUtils/Other/Progress.h>
+#include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QProgressDialog>
 #include <QApplication>

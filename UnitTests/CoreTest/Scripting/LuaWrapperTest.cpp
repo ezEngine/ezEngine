@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <CoreUtils/Scripting/LuaWrapper.h>
+#include <Core/Scripting/LuaWrapper.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Scripting);
 
@@ -302,7 +302,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
     EZ_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "OhWhatsInHere");
     EZ_TEST_STRING(sMain.GetStringVariable("nonexisting2", "b"), "b");
     EZ_TEST_STRING(sMain.GetStringVariable("stringvar1", "a"), "zweiundvierzig");
-    EZ_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "OhWhatsInHere");  
+    EZ_TEST_STRING(sMain.GetStringVariable("stringvar2", "a"), "OhWhatsInHere");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStringVariable (Table)")

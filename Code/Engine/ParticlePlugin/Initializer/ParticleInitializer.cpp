@@ -1,6 +1,6 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
-#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory, 1, ezRTTINoAllocator)

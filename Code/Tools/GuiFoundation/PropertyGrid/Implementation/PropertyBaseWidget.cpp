@@ -12,7 +12,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <CoreUtils/Localization/TranslationLookup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <algorithm>
 #include <QHBoxLayout>
 #include <QVBoxLayout>

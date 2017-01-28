@@ -38,10 +38,8 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererDX11
   RendererCore
-  CoreUtils
   EditorFramework
-  GameFoundation
-  GameUtils
+  GameEngine
   InputXBox360
 )
 

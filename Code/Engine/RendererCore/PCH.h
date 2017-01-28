@@ -10,11 +10,11 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Core/World/World.h>
-#include <CoreUtils/CodeUtils/Preprocessor.h>
-#include <CoreUtils/Graphics/Camera.h>
-#include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageConversion.h>
-#include <CoreUtils/Scripting/LuaWrapper.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
+#include <Core/Graphics/Camera.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Core/Scripting/LuaWrapper.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Startup.h>

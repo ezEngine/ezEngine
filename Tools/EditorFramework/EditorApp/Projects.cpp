@@ -3,7 +3,7 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
-#include <CoreUtils/Other/Progress.h>
+#include <Foundation/Utilities/Progress.h>
 
 void UpdateInputDynamicEnumValues();
 

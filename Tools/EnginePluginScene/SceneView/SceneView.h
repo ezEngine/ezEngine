@@ -2,7 +2,7 @@
 
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
 class ezView;

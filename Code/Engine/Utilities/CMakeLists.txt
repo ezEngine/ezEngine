@@ -20,7 +20,6 @@
 SET (LINK_LIBRARIES 
   Foundation
   Core
-  CoreUtils
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

@@ -3,7 +3,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/Assets/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

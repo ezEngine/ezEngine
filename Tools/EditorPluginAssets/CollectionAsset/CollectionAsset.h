@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <GameUtils/Collection/CollectionResource.h>
+#include <GameEngine/Collection/CollectionResource.h>
 
 class ezCollectionAssetEntry : public ezReflectedClass
 {

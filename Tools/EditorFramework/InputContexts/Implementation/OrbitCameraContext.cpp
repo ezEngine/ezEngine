@@ -5,7 +5,7 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <CoreUtils/Graphics/Camera.h>
+#include <Core/Graphics/Camera.h>
 #include <QKeyEvent>
 #include <QDesktopWidget>
 
