@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
+#include <ParticlePlugin/Util/ParticleUtils.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;

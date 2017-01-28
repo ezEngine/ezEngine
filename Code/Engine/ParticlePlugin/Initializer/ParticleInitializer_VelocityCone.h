@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
+#include <ParticlePlugin/Util/ParticleUtils.h>
 
 class ezParticleInitializerFactory_VelocityCone : public ezParticleInitializerFactory
 {
