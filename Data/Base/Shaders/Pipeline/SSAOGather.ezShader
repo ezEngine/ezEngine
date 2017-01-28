@@ -29,11 +29,11 @@ struct PS_IN
 #include "SSAOConstants.h"
 #include "Utils.h"
 
-Texture2D DepthBuffer : register(t0);
+Texture2D<float> DepthBuffer : register(t0);
 SamplerState PointClampSampler;
 
 StructuredBuffer<LineInstruction> LineInstructions : register(t1);
-Buffer<float> LineSweepOutputBuffer : register(t2);
+Buffer<uint> LineSweepOutputBuffer : register(t2);
 
 
 // If not defined, all pixels gather all directions, otherwise the work will be distributed to a 3x3 grid.
@@ -42,6 +42,11 @@ Buffer<float> LineSweepOutputBuffer : register(t2);
 #else
   #define NUM_SAMPLES_PER_PIXEL NUM_SWEEP_DIRECTIONS_PER_FRAME
 #endif
+
+
+// If defined, the two closest samples instead of just one will be taken per direction.
+#define TWO_SAMPLES_PER_DIR
+
 
 //#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
 #define ASSERT(condition)
@@ -56,7 +61,7 @@ float4 main(PS_IN input) : SV_Target
   float occlusionAccum = 0.0f;
   float totalWeight = 0.0f;
 
-  float pixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
+  float pixelDepth = LinearizeZBufferDepth(DepthBuffer.SampleLevel(PointClampSampler, input.TexCoord0, 0.0f));
 
 #if DISTRIBUTED_SSAO_GATHERING
   // Hardcoded 3x3 square.
@@ -106,32 +111,53 @@ float4 main(PS_IN input) : SV_Target
 
     // Fetch two closest samples on this line.
     // Taking two instead of one cancels out most artifacts and further selection through depth comparision doesn't seem to be necesary anymore
-    uint lineSampleNumberFloor = (uint)lineSampleNumberFloat;
-    uint lineSampleNumberCeil = lineSampleNumberFloor + 1; //(int)ceil(lineSampleNumberFloat);
-    uint lineBufferOffset = LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
+#ifndef TWO_SAMPLES_PER_DIR
+    lineSampleNumberFloat = round(lineSampleNumberFloat);
+#endif
 
-    // Apply directly
-    //occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberFloor).r;
-    //occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberCeil).r;
-    //totalWeight += 2.0f;
+    uint lineSampleNumberFloor = (uint)lineSampleNumberFloat;
+    uint sampleIndex = lineSampleNumberFloor + LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
+    uint rawSample = 0;
 
     // Apply weighted with depth filter.
     float2 samplePos = lineOrigin + lineSampleNumberFloor * dir;
     //float toPixel = samplePos - pixelPos;
-    float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
+    float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)));
     if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
     {
-      occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberFloor + lineBufferOffset).r;
+      rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
+
+      uint sample;
+      if(sampleIndex % 2 == 0)
+        sample = rawSample >> 16;
+      else
+        sample = rawSample & 0xFFFF;
+
+      occlusionAccum += f16tof32(sample);
       totalWeight += 1.0f;
     }
 
+    // Second sample for better quality.
+#ifdef TWO_SAMPLES_PER_DIR
     samplePos += dir; // = lineOrigin + lineSampleNumberCeil * dir;
-    sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)).r);
+    sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)));
     if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
     {
-      occlusionAccum += LineSweepOutputBuffer.Load(lineSampleNumberCeil + lineBufferOffset).r;
+      ++sampleIndex;
+      if(sampleIndex % 2 == 0 || rawSample == 0)
+      {
+        rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
+      }
+      uint sample;
+      if(sampleIndex % 2 == 0)
+        sample = rawSample >> 16;
+      else
+        sample = rawSample & 0xFFFF;
+
+       occlusionAccum += f16tof32(sample);
       totalWeight += 1.0f;
     }
+#endif
 
     // Debug line sample index.
     //return float4((lineSampleNumber* 0.01f), 0.0f, 0.0f, 1.0f);

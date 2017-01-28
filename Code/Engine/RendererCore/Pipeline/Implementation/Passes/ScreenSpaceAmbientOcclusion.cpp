@@ -328,6 +328,7 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
   {
     ezUInt32 totalLineCountBefore = lineInstructions.GetCount();
     AddLinesForDirection(imageResolution, samplingDir[dirIndex], dirIndex, lineInstructions, totalNumberOfSamples);
+    EZ_ASSERT_DEBUG(totalNumberOfSamples % 2 == 0, "Only even number of line samples are allowed");
 
     cb->Directions[dirIndex].Direction = ezVec2(static_cast<float>(samplingDir[dirIndex].x), static_cast<float>(samplingDir[dirIndex].y));
     cb->Directions[dirIndex].NumLines = lineInstructions.GetCount() - totalLineCountBefore;
@@ -342,15 +343,14 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
     DestroyLineSweepData();
 
     // Output UAV for line sweep pass.
-    // It is a texture to support FP16.
+    // DX11 allows only float and int for writing RWBuffer, so we need to do manual packing.
     {
-      // TODO: Would need to use a texture if we want to use fp16
       ezGALBufferCreationDescription bufferDesc;
-      bufferDesc.m_uiStructSize = 4; // fp32
-      bufferDesc.m_uiTotalSize = 4 * totalNumberOfSamples;
+      bufferDesc.m_uiStructSize = 4;
+      bufferDesc.m_uiTotalSize = 2 * totalNumberOfSamples;
       bufferDesc.m_BufferType = ezGALBufferType::Generic;
       bufferDesc.m_bUseForIndirectArguments = false;
-      bufferDesc.m_bUseAsStructuredBuffer = false; // Just raw float32, nothing fancy
+      bufferDesc.m_bUseAsStructuredBuffer = false;
       bufferDesc.m_bAllowRawViews = false;
       bufferDesc.m_bStreamOutputTarget = false;
       bufferDesc.m_bAllowShaderResourceView = true;
@@ -362,18 +362,18 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
 
       ezGALUnorderedAccessViewCreationDescription uavDesc;
       uavDesc.m_hBuffer = m_hLineSweepOutputBuffer;
-      uavDesc.m_OverrideViewFormat = ezGALResourceFormat::RFloat;
+      uavDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
       uavDesc.m_uiFirstElement = 0;
-      uavDesc.m_uiNumElements = totalNumberOfSamples;
+      uavDesc.m_uiNumElements = totalNumberOfSamples / 2;
       uavDesc.m_bRawView = false;
       uavDesc.m_bAppend = false;
       m_hLineSweepOutputUAV = device->CreateUnorderedAccessView(uavDesc);
 
       ezGALResourceViewCreationDescription srvDesc;
       srvDesc.m_hBuffer = m_hLineSweepOutputBuffer;
-      srvDesc.m_OverrideViewFormat = ezGALResourceFormat::RFloat;
+      srvDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
       srvDesc.m_uiFirstElement = 0;
-      srvDesc.m_uiNumElements = totalNumberOfSamples;
+      srvDesc.m_uiNumElements = totalNumberOfSamples / 2;
       srvDesc.m_bRawView = false;
       m_hLineSweepOutputSRV = device->CreateResourceView(srvDesc);
     }
@@ -460,6 +460,11 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
     newLine.FirstSamplePos.DOM += ezMath::Round(offset * walkDir.DOM);
     newLine.FirstSamplePos.SEC += ezMath::Round(offset * walkDir.SEC);
 
+    // Clamp back to possible area.
+    // Due to the way we jump from pixels to line in the gather shader, we can't just discard lines.
+    newLine.FirstSamplePos.x = ezMath::Clamp<float>(newLine.FirstSamplePos.x, 0.0f, imageResolution.x - 1.0f);
+    newLine.FirstSamplePos.y = ezMath::Clamp<float>(newLine.FirstSamplePos.y, 0.0f, imageResolution.y - 1.0f);
+
     // Compute how many samples this line will consume.
     unsigned int stepsToDOMBorder = static_cast<unsigned int>((imageResolution.DOM - newLine.FirstSamplePos.DOM) / walkDir.DOM + 1);
     unsigned int numSamples = 0;
@@ -471,12 +476,9 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
     else
       numSamples = stepsToDOMBorder;
 
-    // Skip everything that has 3 samples or less.
-    if (numSamples <= 3)
-    {
-      outinLineInstructions.PopBack();
-      continue;
-    }
+    // Due to output packing restrictions only even number of samples are allowed. Remove one if necessary.
+    if (numSamples % 2 != 0)
+      --numSamples;
 
     newLine.LineSweepOutputBufferOffset = outinTotalNumberOfSamples;
     outinTotalNumberOfSamples += numSamples;

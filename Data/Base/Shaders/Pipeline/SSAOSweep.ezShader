@@ -9,10 +9,11 @@ ALL
 #include "SSAOConstants.h"
 #include "Utils.h"
 
-Texture2D DepthBuffer : register(t0);
+Texture2D<float> DepthBuffer : register(t0);
+SamplerState PointClampSampler;
 
 StructuredBuffer<LineInstruction> LineInstructions;
-RWBuffer<float> LineSweepOutputBuffer;
+RWBuffer<uint> LineSweepOutputBuffer;
 
 // Minimum difference in occlusion to pop from the stack.
 #define OCCLUSION_BIAS 0.001f
@@ -75,7 +76,7 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
 
   float2 screenSize = Viewport.zw;
   float2 screenSizeSubOne = screenSize - float2(1.0f, 1.0f);
-  float2 inverseScreenSize = 1.0f / screenSize;
+  float2 inverseScreenSize = 1.0f / screenSizeSubOne;
 
   // Unpack line instruction.
   LineInstruction instruction = LineInstructions[lineId];
@@ -96,10 +97,12 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
   float2 occluderPos_last1 = samplePos;
 
   // Walk along this line.
+  uint occlusionOutput = 0;
   do
   {
-    float depthBufferDepth = DepthBuffer.Load(int3(samplePos, 0)).r;
-    float2 normalizedScreenCor = samplePos * inverseScreenSize * 2.0f - 1.0f;
+    float2 screenCor = samplePos * inverseScreenSize;
+    float depthBufferDepth = DepthBuffer.SampleLevel(PointClampSampler, screenCor, 0.0f);
+    float2 normalizedScreenCor = screenCor * 2.0f - 1.0f;
     float3 viewPos = FastScreenCoordToViewSpace(normalizedScreenCor, depthBufferDepth);
 
     // All other calculations work in a 2D "line projected" space.
@@ -146,7 +149,13 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
     occluderPos_last0 = position;
 
     // Write current occlusion value out.
-    LineSweepOutputBuffer[bufferOffset] = currentOcclusion;
+    if(occlusionOutput == 0)
+      occlusionOutput = f32tof16(currentOcclusion) << 16;
+    else
+    {
+      LineSweepOutputBuffer[bufferOffset / 2] = (occlusionOutput | f32tof16(currentOcclusion));
+      occlusionOutput = 0;
+    }
 
     // Walk until we hit the screen border
     samplePos += directionSampleStep;
