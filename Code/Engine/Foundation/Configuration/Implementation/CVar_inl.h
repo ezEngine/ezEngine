@@ -6,6 +6,8 @@ template<typename Type, ezCVarType::Enum CVarType>
 ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
   : ezCVar(szName, Flags, szDescription)
 {
+  EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "CVar names must not contain whitespace");
+
   for (ezUInt32 i = 0; i < ezCVarValue::ENUM_COUNT; ++i)
     m_Values[i] = Value;
 }
@@ -37,9 +39,9 @@ void ezTypedCVar<Type, CVarType>::SetToRestartValue()
 }
 
 template<typename Type, ezCVarType::Enum CVarType>
-const Type& ezTypedCVar<Type, CVarType>::GetValue(ezCVarValue::Enum val) const 
-{ 
-  return (m_Values[val]); 
+const Type& ezTypedCVar<Type, CVarType>::GetValue(ezCVarValue::Enum val) const
+{
+  return (m_Values[val]);
 }
 
 template<typename Type, ezCVarType::Enum CVarType>

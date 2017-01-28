@@ -49,7 +49,7 @@ namespace
     return h;
   }
 
-  ezTypedCVar<bool, ezCVarType::Bool> s_disableSSAO("Disable SSAO", false, ezCVarFlags::None, "Disables SSAO effect. Has the same effect as setting all SSAO ezRenderPipelinePass to active false.");
+  ezCVarBool s_disableSSAO("r_DisableSSAO", false, ezCVarFlags::None, "Disables SSAO effect. Has the same effect as setting all SSAO ezRenderPipelinePass to active false.");
 }
 
 ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
@@ -413,7 +413,7 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
   ezVec2 walkDirF(static_cast<float>(walkDir.x), static_cast<float>(walkDir.y));
 
   // Line "creation" always starts from 0,0 and walks along EITHER x or y depending which one is the less dominant axis.
-  
+
   // Helper to avoid duplication for dominant x/y
   int domDir = walkDir.x > walkDir.y ? 0 : 1;
   int secDir = 1 - domDir;

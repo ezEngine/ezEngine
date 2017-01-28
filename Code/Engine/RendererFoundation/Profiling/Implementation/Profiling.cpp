@@ -11,7 +11,7 @@
 
 namespace
 {
-  ezTypedCVar<bool, ezCVarType::Bool> s_enableGPUProfiling("Enable GPU profiling", false, ezCVarFlags::None, "If true, every ezProfilingScopeAndMarker scope uses a ezGPUStopwatch to measure the passed GPU time and writes the result in ms to ezStats");
+  ezCVarBool s_enableGPUProfiling("r_EnableGPUprofiling", false, ezCVarFlags::None, "If true, every ezProfilingScopeAndMarker scope uses a ezGPUStopwatch to measure the passed GPU time and writes the result in ms to ezStats");
   ezHybridArray<ezString, 4> s_previousProfilingScopes;
 }
 
