@@ -1,5 +1,6 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Streams/DefaultParticleStreams.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -17,14 +18,16 @@ const ezRTTI* ezParticleStreamFactory_Position::GetParticleStreamType() const
   return ezGetStaticRTTI<ezParticleStream_Position>();
 }
 
-const char* ezParticleStreamFactory_Position::GetStreamName() const
+void ezParticleStream_Position::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  return "Position";
-}
+  ezProcessingStreamIterator<ezVec3> itData(m_pStream, uiNumElements, uiStartIndex);
 
-ezProcessingStream::DataType ezParticleStreamFactory_Position::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Float3;
+  const ezVec3 defValue = m_pOwner->GetTransform().m_vPosition;
+  while (!itData.HasReachedEnd())
+  {
+    itData.Current() = defValue;
+    itData.Advance();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,16 +43,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 const ezRTTI* ezParticleStreamFactory_Size::GetParticleStreamType() const
 {
   return ezGetStaticRTTI<ezParticleStream_Size>();
-}
-
-const char* ezParticleStreamFactory_Size::GetStreamName() const
-{
-  return "Size";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_Size::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Float;
 }
 
 void ezParticleStream_Size::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -79,16 +72,6 @@ const ezRTTI* ezParticleStreamFactory_Color::GetParticleStreamType() const
   return ezGetStaticRTTI<ezParticleStream_Color>();
 }
 
-const char* ezParticleStreamFactory_Color::GetStreamName() const
-{
-  return "Color";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_Color::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Float4;
-}
-
 void ezParticleStream_Color::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   ezProcessingStreamIterator<ezColor> itData(m_pStream, uiNumElements, uiStartIndex);
@@ -114,16 +97,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 const ezRTTI* ezParticleStreamFactory_Velocity::GetParticleStreamType() const
 {
   return ezGetStaticRTTI<ezParticleStream_Velocity>();
-}
-
-const char* ezParticleStreamFactory_Velocity::GetStreamName() const
-{
-  return "Velocity";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_Velocity::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Float3;
 }
 
 //void ezParticleStream_Velocity::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -153,16 +126,6 @@ const ezRTTI* ezParticleStreamFactory_LastPosition::GetParticleStreamType() cons
   return ezGetStaticRTTI<ezParticleStream_LastPosition>();
 }
 
-const char* ezParticleStreamFactory_LastPosition::GetStreamName() const
-{
-  return "LastPosition";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_LastPosition::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Float3;
-}
-
 //////////////////////////////////////////////////////////////////////////
 // ROTATION SPEED STREAM
 //////////////////////////////////////////////////////////////////////////
@@ -176,16 +139,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 const ezRTTI* ezParticleStreamFactory_RotationSpeed::GetParticleStreamType() const
 {
   return ezGetStaticRTTI<ezParticleStream_RotationSpeed>();
-}
-
-const char* ezParticleStreamFactory_RotationSpeed::GetStreamName() const
-{
-  return "RotationSpeed";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_RotationSpeed::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Float;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,16 +156,6 @@ const ezRTTI* ezParticleStreamFactory_EffectID::GetParticleStreamType() const
   return ezGetStaticRTTI<ezParticleStream_EffectID>();
 }
 
-const char* ezParticleStreamFactory_EffectID::GetStreamName() const
-{
-  return "EffectID";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_EffectID::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Int;
-}
-
 //////////////////////////////////////////////////////////////////////////
 // ON OFF STREAM
 //////////////////////////////////////////////////////////////////////////
@@ -228,16 +171,6 @@ const ezRTTI* ezParticleStreamFactory_OnOff::GetParticleStreamType() const
   return ezGetStaticRTTI<ezParticleStream_OnOff>();
 }
 
-const char* ezParticleStreamFactory_OnOff::GetStreamName() const
-{
-  return "OnOff";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_OnOff::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Int;
-}
-
 //////////////////////////////////////////////////////////////////////////
 // AXIS STREAM
 //////////////////////////////////////////////////////////////////////////
@@ -251,16 +184,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 const ezRTTI* ezParticleStreamFactory_Axis::GetParticleStreamType() const
 {
   return ezGetStaticRTTI<ezParticleStream_Axis>();
-}
-
-const char* ezParticleStreamFactory_Axis::GetStreamName() const
-{
-  return "Axis";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_Axis::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Float3;
 }
 
 void ezParticleStream_Axis::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -290,12 +213,3 @@ const ezRTTI* ezParticleStreamFactory_TrailData::GetParticleStreamType() const
   return ezGetStaticRTTI<ezParticleStream_TrailData>();
 }
 
-const char* ezParticleStreamFactory_TrailData::GetStreamName() const
-{
-  return "TrailData";
-}
-
-ezProcessingStream::DataType ezParticleStreamFactory_TrailData::GetStreamDataType() const
-{
-  return ezProcessingStream::DataType::Int;
-}

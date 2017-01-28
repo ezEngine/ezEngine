@@ -2,6 +2,7 @@
 
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <ParticlePlugin/Util/ParticleUtils.h>
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
@@ -25,8 +26,7 @@ public:
   ezUInt32 m_uiSpawnCountMin;
   ezUInt32 m_uiSpawnCountRange;
 
-  ezTime m_SpawnIntervalMin;
-  ezTime m_SpawnIntervalRange;
+  ezVarianceTypeTime m_SpawnInterval;
 
   ezCurve1DResourceHandle m_hCountCurve;
   ezTime m_CurveDuration;
@@ -49,8 +49,7 @@ public:
   ezUInt32 m_uiSpawnCountMin;
   ezUInt32 m_uiSpawnCountRange;
 
-  ezTime m_SpawnIntervalMin;
-  ezTime m_SpawnIntervalRange;
+  ezVarianceTypeTime m_SpawnInterval;
 
   ezCurve1DResourceHandle m_hCountCurve;
   ezTime m_CurveDuration;

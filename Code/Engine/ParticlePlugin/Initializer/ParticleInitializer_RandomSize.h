@@ -2,6 +2,7 @@
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <ParticlePlugin/Util/ParticleUtils.h>
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
@@ -20,9 +21,7 @@ public:
   void SetSizeCurveFile(const char* szFile);
   const char* GetSizeCurveFile() const;
 
-  float m_fMinSize;
-  float m_fSizeRange;
-
+  ezVarianceTypeFloat m_Size;
   ezCurve1DResourceHandle m_hCurve;
 };
 
@@ -33,11 +32,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomSize : public ezParticle
 
 public:
 
-  float m_fMinSize;
-  float m_fSizeRange;
-
+  ezVarianceTypeFloat m_Size;
   ezCurve1DResourceHandle m_hCurve;
-
 
   virtual void CreateRequiredStreams() override;
 

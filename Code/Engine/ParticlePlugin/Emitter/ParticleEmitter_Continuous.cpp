@@ -19,8 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDe
     EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
 
-    EZ_MEMBER_PROPERTY("MinInterval", m_SpawnIntervalMin)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(0.1))),
-    EZ_MEMBER_PROPERTY("IntervalRange", m_SpawnIntervalRange),
+    EZ_MEMBER_PROPERTY("Interval", m_SpawnInterval),
 
     EZ_ACCESSOR_PROPERTY("CountCurve", GetCountCurveFile, SetCountCurveFile)->AddAttributes(new ezAssetBrowserAttribute("Curve1D")),
     EZ_MEMBER_PROPERTY("CurveDuration", m_CurveDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0))),
@@ -36,9 +35,6 @@ ezParticleEmitterFactory_Continuous::ezParticleEmitterFactory_Continuous()
 {
   m_uiSpawnCountMin = 1;
   m_uiSpawnCountRange = 0;
-
-  m_SpawnIntervalMin = ezTime::Seconds(0.1);
-  m_SpawnIntervalRange = ezTime();
 
   m_CurveDuration = ezTime::Seconds(10.0);
 }
@@ -59,8 +55,7 @@ void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitte
   pEmitter->m_uiSpawnCountMin = m_uiSpawnCountMin;
   pEmitter->m_uiSpawnCountRange = m_uiSpawnCountRange;
 
-  pEmitter->m_SpawnIntervalMin = m_SpawnIntervalMin;
-  pEmitter->m_SpawnIntervalRange = m_SpawnIntervalRange;
+  pEmitter->m_SpawnInterval = m_SpawnInterval;
 
   pEmitter->m_hCountCurve = m_hCountCurve;
   pEmitter->m_CurveDuration = ezMath::Max(m_CurveDuration, ezTime::Seconds(1.0));
@@ -93,8 +88,8 @@ void ezParticleEmitterFactory_Continuous::Save(ezStreamWriter& stream) const
   // Version 1
   stream << m_uiSpawnCountMin;
   stream << m_uiSpawnCountRange;
-  stream << m_SpawnIntervalMin;
-  stream << m_SpawnIntervalRange;
+  stream << m_SpawnInterval.m_Value;
+  stream << m_SpawnInterval.m_fVariance;
 
   // Version 2
   stream << m_hCountCurve;
@@ -120,8 +115,8 @@ void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& stream)
 
   stream >> m_uiSpawnCountMin;
   stream >> m_uiSpawnCountRange;
-  stream >> m_SpawnIntervalMin;
-  stream >> m_SpawnIntervalRange;
+  stream >> m_SpawnInterval.m_Value;
+  stream >> m_SpawnInterval.m_fVariance;
 
   if (uiVersion >= 2)
   {
@@ -206,7 +201,7 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 
   const ezUInt32 uiSpawn = (ezUInt32)(rng.IntInRange(m_uiSpawnCountMin, 1 + m_uiSpawnCountRange) * fSpawnFactor);
 
-  const ezTime interval = ezTime::Seconds(rng.DoubleInRange(m_SpawnIntervalMin.GetSeconds(), m_SpawnIntervalRange.GetSeconds()));
+  const ezTime interval = ezTime::Seconds(rng.DoubleVariance(m_SpawnInterval.m_Value.GetSeconds(), m_SpawnInterval.m_fVariance));
 
   // we ignore the fact that with lower update frequencies (bad framerate), the actual interval will become larger and the effect
   // might visibly change

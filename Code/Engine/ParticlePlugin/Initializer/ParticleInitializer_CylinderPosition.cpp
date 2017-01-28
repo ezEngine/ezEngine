@@ -12,8 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
     EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
-    EZ_MEMBER_PROPERTY("MinSpeed", m_fMinSpeed),
-    EZ_MEMBER_PROPERTY("SpeedRange", m_fSpeedRange),
+    EZ_MEMBER_PROPERTY("Speed", m_Speed),
   }
   EZ_END_PROPERTIES
 }
@@ -28,8 +27,6 @@ ezParticleInitializerFactory_CylinderPosition::ezParticleInitializerFactory_Cyli
   m_fHeight = 1.0f;
   m_bSpawnOnSurface = false;
   m_bSetVelocity = false;
-  m_fMinSpeed = 0;
-  m_fSpeedRange = 0;
 }
 
 const ezRTTI* ezParticleInitializerFactory_CylinderPosition::GetInitializerType() const
@@ -45,8 +42,7 @@ void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ez
   pInitializer->m_fHeight = ezMath::Max(m_fHeight, 0.0f);
   pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
   pInitializer->m_bSetVelocity = m_bSetVelocity;
-  pInitializer->m_fMinSpeed = m_fMinSpeed;
-  pInitializer->m_fSpeedRange = m_fSpeedRange;
+  pInitializer->m_Speed = m_Speed;
 }
 
 void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& stream) const
@@ -58,8 +54,8 @@ void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& stream)
   stream << m_fHeight;
   stream << m_bSpawnOnSurface;
   stream << m_bSetVelocity;
-  stream << m_fMinSpeed;
-  stream << m_fSpeedRange;
+  stream << m_Speed.m_Value;
+  stream << m_Speed.m_fVariance;
 }
 
 void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
@@ -71,8 +67,8 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
   stream >> m_fHeight;
   stream >> m_bSpawnOnSurface;
   stream >> m_bSetVelocity;
-  stream >> m_fMinSpeed;
-  stream >> m_fSpeedRange;
+  stream >> m_Speed.m_Value;
+  stream >> m_Speed.m_fVariance;
 }
 
 void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
@@ -126,7 +122,7 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
     if (m_bSetVelocity)
     {
-      const float fSpeed = (float)rng.DoubleInRange(m_fMinSpeed, m_fSpeedRange);
+      const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
       /// \todo Ignore scale ?
       pVelocity[i] = GetOwnerSystem()->GetTransform().m_Rotation * normalPos * fSpeed;

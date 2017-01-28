@@ -79,6 +79,12 @@ void ezParticleEmitter_OnEvent::CreateRequiredStreams()
 
 void ezParticleEmitter_OnEvent::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
+  if (uiStartIndex + uiNumElements > m_Events.GetCount())
+  {
+    ezLog::Error("OnEvent emitter must be the only emitter on a particle system");
+    return;
+  }
+
   ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
   ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
 

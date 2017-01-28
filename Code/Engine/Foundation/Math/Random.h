@@ -53,6 +53,9 @@ public:
   /// \brief Returns a double value in range [fMinValue ; fMaxValue]
   double DoubleMinMax(double fMinValue, double fMaxValue); // [tested]
 
+  /// \brief Returns a double value around fValue with a given variance (0 - 1 range)
+  double DoubleVariance(double fValue, double fVariance);
+
 private:
   ezUInt32 m_uiIndex;
   ezUInt32 m_uiState[16];

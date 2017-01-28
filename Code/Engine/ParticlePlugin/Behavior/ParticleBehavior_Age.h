@@ -18,10 +18,8 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  ezVarianceTypeTime m_LifeTime;
   ezString m_sOnDeathEvent;
-
-  ezTime m_MinLifeTime;
-  ezTime m_LifeTimeRange;
 };
 
 
@@ -34,10 +32,8 @@ public:
 
   virtual void CreateRequiredStreams() override;
 
+  ezVarianceTypeTime m_LifeTime;
   ezTempHashedString m_sOnDeathEvent;
-
-  ezTime m_MinLifeTime;
-  ezTime m_LifeTimeRange;
 
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
+#include <ParticlePlugin/Util/ParticleUtils.h>
 
 class ezParticleInitializerFactory_SpherePosition : public ezParticleInitializerFactory
 {
@@ -19,8 +20,7 @@ public:
   float m_fRadius;
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;
-  float m_fMinSpeed;
-  float m_fSpeedRange;
+  ezVarianceTypeFloat m_Speed;
 };
 
 
@@ -33,9 +33,7 @@ public:
   float m_fRadius;
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;
-  float m_fMinSpeed;
-  float m_fSpeedRange;
-
+  ezVarianceTypeFloat m_Speed;
 
   virtual void CreateRequiredStreams() override;
 

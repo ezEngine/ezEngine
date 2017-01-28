@@ -118,7 +118,15 @@ double ezRandom::DoubleMinMax(double fMinValue, double fMaxValue)
   EZ_ASSERT_DEBUG(fMinValue <= fMaxValue, "Invalid min/max values");
 
   return fMinValue + DoubleZeroToOneExclusive() * (fMaxValue - fMinValue); /// \todo Probably not correct
+}
 
+double ezRandom::DoubleVariance(double fValue, double fVariance)
+{
+  /// \todo Test whether this is actually correct
+
+  const double dev = DoubleZeroToOneInclusive();
+  const double offset = fValue * fVariance * dev;
+  return DoubleMinMax(fValue - offset, fValue + offset);
 }
 
 static double Gauss(double x, double fSigma)

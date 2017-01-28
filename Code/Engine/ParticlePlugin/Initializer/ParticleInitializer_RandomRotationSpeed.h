@@ -17,8 +17,7 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
-  ezAngle m_RotationPerSecond;
-  float m_fRotationVariance;
+  ezVarianceTypeAngle m_RotationSpeed;
 };
 
 
@@ -28,9 +27,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomRotationSpeed : public e
 
 public:
 
-  ezAngle m_RotationPerSecond;
-  float m_fRotationVariance;
-
+  ezVarianceTypeAngle m_RotationSpeed;
 
   virtual void CreateRequiredStreams() override;
 

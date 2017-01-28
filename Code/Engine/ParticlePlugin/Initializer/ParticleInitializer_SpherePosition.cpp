@@ -11,8 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 1, 
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
     EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
-    EZ_MEMBER_PROPERTY("MinSpeed", m_fMinSpeed),
-    EZ_MEMBER_PROPERTY("SpeedRange", m_fSpeedRange),
+    EZ_MEMBER_PROPERTY("Speed", m_Speed),
   }
   EZ_END_PROPERTIES
 }
@@ -26,8 +25,6 @@ ezParticleInitializerFactory_SpherePosition::ezParticleInitializerFactory_Sphere
   m_fRadius = 0.25f;
   m_bSpawnOnSurface = false;
   m_bSetVelocity = false;
-  m_fMinSpeed = 0;
-  m_fSpeedRange = 0;
 }
 
 const ezRTTI* ezParticleInitializerFactory_SpherePosition::GetInitializerType() const
@@ -42,8 +39,7 @@ void ezParticleInitializerFactory_SpherePosition::CopyInitializerProperties(ezPa
   pInitializer->m_fRadius = ezMath::Max(m_fRadius, 0.02f); // prevent 0 radius
   pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
   pInitializer->m_bSetVelocity = m_bSetVelocity;
-  pInitializer->m_fMinSpeed = m_fMinSpeed;
-  pInitializer->m_fSpeedRange = m_fSpeedRange;
+  pInitializer->m_Speed = m_Speed;
 }
 
 void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) const
@@ -54,8 +50,8 @@ void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) c
   stream << m_fRadius;
   stream << m_bSpawnOnSurface;
   stream << m_bSetVelocity;
-  stream << m_fMinSpeed;
-  stream << m_fSpeedRange;
+  stream << m_Speed.m_Value;
+  stream << m_Speed.m_fVariance;
 }
 
 void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
@@ -66,8 +62,8 @@ void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
   stream >> m_fRadius;
   stream >> m_bSpawnOnSurface;
   stream >> m_bSetVelocity;
-  stream >> m_fMinSpeed;
-  stream >> m_fSpeedRange;
+  stream >> m_Speed.m_Value;
+  stream >> m_Speed.m_fVariance;
 }
 
 
@@ -107,7 +103,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
     if (m_bSetVelocity)
     {
-      const float fSpeed = (float)rng.DoubleInRange(m_fMinSpeed, m_fSpeedRange);
+      const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
       /// \todo Ignore scale ?
       pVelocity[i] = GetOwnerSystem()->GetTransform().m_Rotation * normalPos * fSpeed;

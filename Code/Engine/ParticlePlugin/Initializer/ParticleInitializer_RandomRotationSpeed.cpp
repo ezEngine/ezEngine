@@ -11,8 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomRotationSpeed
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RotationSpeed", m_RotationPerSecond)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90)), new ezClampValueAttribute(ezAngle::Degree(0), ezVariant())),
-    EZ_MEMBER_PROPERTY("RotationVariance", m_fRotationVariance)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("DegreesPerSecond", m_RotationSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90)), new ezClampValueAttribute(ezAngle::Degree(0), ezVariant())),
   }
   EZ_END_PROPERTIES
 }
@@ -30,8 +29,7 @@ void ezParticleInitializerFactory_RandomRotationSpeed::CopyInitializerProperties
 {
   ezParticleInitializer_RandomRotationSpeed* pInitializer = static_cast<ezParticleInitializer_RandomRotationSpeed*>(pInitializer0);
 
-  pInitializer->m_RotationPerSecond = m_RotationPerSecond;
-  pInitializer->m_fRotationVariance = m_fRotationVariance;
+  pInitializer->m_RotationSpeed = m_RotationSpeed;
 }
 
 void ezParticleInitializerFactory_RandomRotationSpeed::Save(ezStreamWriter& stream) const
@@ -39,8 +37,8 @@ void ezParticleInitializerFactory_RandomRotationSpeed::Save(ezStreamWriter& stre
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
-  stream << m_RotationPerSecond;
-  stream << m_fRotationVariance;
+  stream << m_RotationSpeed.m_Value;
+  stream << m_RotationSpeed.m_fVariance;
 }
 
 void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& stream)
@@ -48,8 +46,8 @@ void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& stre
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  stream >> m_RotationPerSecond;
-  stream >> m_fRotationVariance;
+  stream >> m_RotationSpeed.m_Value;
+  stream >> m_RotationSpeed.m_fVariance;
 }
 
 
@@ -66,15 +64,10 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    const float fAvg = m_RotationPerSecond.GetRadian();
-    const float fVar = fAvg * m_fRotationVariance;
-    const float fMin = fAvg - fVar;
-    const float fMax = fAvg + fVar;
-
-    pSpeed[i] = (float)rng.DoubleInRange(fMin, fMax);
+    pSpeed[i] = (float)rng.DoubleVariance(m_RotationSpeed.m_Value.GetRadian(), m_RotationSpeed.m_fVariance);
 
     // this can certainly be done more elegantly
-    if ((rng.UInt() & 0x1) != 0)
+    if (ezMath::IsEven(rng.UInt()))
       pSpeed[i] = -pSpeed[i];
   }
 }

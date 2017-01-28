@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
+#include <ParticlePlugin/Util/ParticleUtils.h>
 
 class ezParticleInitializerFactory_CylinderPosition : public ezParticleInitializerFactory
 {
@@ -20,8 +21,7 @@ public:
   float m_fHeight;
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;
-  float m_fMinSpeed;
-  float m_fSpeedRange;
+  ezVarianceTypeFloat m_Speed;
 };
 
 
@@ -35,8 +35,7 @@ public:
   float m_fHeight;
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;
-  float m_fMinSpeed;
-  float m_fSpeedRange;
+  ezVarianceTypeFloat m_Speed;
 
 protected:
   virtual void CreateRequiredStreams() override;

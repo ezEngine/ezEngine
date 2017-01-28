@@ -9,8 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_SizeCurve, 1, ezRTTIDe
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("SizeCurve", GetSizeCurveFile, SetSizeCurveFile)->AddAttributes(new ezAssetBrowserAttribute("Curve1D")),
-    EZ_MEMBER_PROPERTY("MinSize", m_fMinSize)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("SizeRange", m_fSizeRange)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("BaseSize", m_fBaseSize)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("CurveScale", m_fCurveScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES
 }
@@ -29,8 +29,8 @@ void ezParticleBehaviorFactory_SizeCurve::CopyBehaviorProperties(ezParticleBehav
   ezParticleBehavior_SizeCurve* pBehavior = static_cast<ezParticleBehavior_SizeCurve*>(pObject);
 
   pBehavior->m_hCurve = m_hCurve;
-  pBehavior->m_fMinSize = m_fMinSize;
-  pBehavior->m_fSizeRange = m_fSizeRange;
+  pBehavior->m_fBaseSize = m_fBaseSize;
+  pBehavior->m_fCurveScale = m_fCurveScale;
 }
 
 void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& stream) const
@@ -39,8 +39,8 @@ void ezParticleBehaviorFactory_SizeCurve::Save(ezStreamWriter& stream) const
   stream << uiVersion;
 
   stream << m_hCurve;
-  stream << m_fMinSize;
-  stream << m_fSizeRange;
+  stream << m_fBaseSize;
+  stream << m_fCurveScale;
 }
 
 void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& stream)
@@ -49,8 +49,8 @@ void ezParticleBehaviorFactory_SizeCurve::Load(ezStreamReader& stream)
   stream >> uiVersion;
 
   stream >> m_hCurve;
-  stream >> m_fMinSize;
-  stream >> m_fSizeRange;
+  stream >> m_fBaseSize;
+  stream >> m_fCurveScale;
 }
 
 void ezParticleBehaviorFactory_SizeCurve::SetSizeCurveFile(const char* szFile)
@@ -111,7 +111,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
       float val = curve.Evaluate(evalPos);
       val = curve.NormalizeValue(val);
 
-      itSize.Current() = m_fMinSize + val * m_fSizeRange;
+      itSize.Current() = m_fBaseSize + val * m_fCurveScale;
     }
 
     itLifeTime.Advance();

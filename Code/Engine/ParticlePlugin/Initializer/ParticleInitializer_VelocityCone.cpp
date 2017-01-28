@@ -9,8 +9,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 1, ez
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(45)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(70))),
-    EZ_MEMBER_PROPERTY("MinSpeed", m_fMinSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("SpeedRange", m_fSpeedRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Speed", m_Speed),
   }
   EZ_END_PROPERTIES
 }
@@ -22,8 +21,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezParticleInitializerFactory_VelocityCone::ezParticleInitializerFactory_VelocityCone()
 {
   m_Angle = ezAngle::Degree(45);
-  m_fMinSpeed = 1.0;
-  m_fSpeedRange = 0;
 }
 
 const ezRTTI* ezParticleInitializerFactory_VelocityCone::GetInitializerType() const
@@ -36,8 +33,7 @@ void ezParticleInitializerFactory_VelocityCone::CopyInitializerProperties(ezPart
   ezParticleInitializer_VelocityCone* pInitializer = static_cast<ezParticleInitializer_VelocityCone*>(pInitializer0);
 
   pInitializer->m_Angle = ezMath::Clamp(m_Angle, ezAngle::Degree(1), ezAngle::Degree(89));
-  pInitializer->m_fMinSpeed = m_fMinSpeed;
-  pInitializer->m_fSpeedRange = m_fSpeedRange;
+  pInitializer->m_Speed = m_Speed;
 }
 
 void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& stream) const
@@ -46,8 +42,8 @@ void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& stream) con
   stream << uiVersion;
 
   stream << m_Angle;
-  stream << m_fMinSpeed;
-  stream << m_fSpeedRange;
+  stream << m_Speed.m_Value;
+  stream << m_Speed.m_fVariance;
 }
 
 void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& stream)
@@ -56,8 +52,8 @@ void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& stream)
   stream >> uiVersion;
 
   stream >> m_Angle;
-  stream >> m_fMinSpeed;
-  stream >> m_fSpeedRange;
+  stream >> m_Speed.m_Value;
+  stream >> m_Speed.m_fVariance;
 }
 
 
@@ -92,7 +88,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
     dir.z = dist;
     dir.Normalize();
 
-    const float fSpeed = (float)rng.DoubleInRange(m_fMinSpeed, m_fSpeedRange);
+    const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
     pVelocity[i] = GetOwnerSystem()->GetTransform().m_Rotation * dir * fSpeed;
   }

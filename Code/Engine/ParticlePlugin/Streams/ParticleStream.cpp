@@ -21,6 +21,7 @@ ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystem
   ezParticleStream* pStream = (ezParticleStream*)pRtti->GetAllocator()->Allocate();
 
   pOwner->CreateStream(GetStreamName(), GetStreamDataType(), &pStream->m_pStream, pStream->m_StreamBinding, true);
+  pStream->Initialize(pOwner);
 
   return pStream;
 }

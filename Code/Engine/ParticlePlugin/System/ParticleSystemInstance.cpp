@@ -414,7 +414,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
       if (pStream == nullptr)
       {
-        ezLog::SeriousWarning("Particle stream '{0}' is zero-initialized.", info.m_sName.GetData());
+        ezLog::Warning("Particle stream '{0}' is zero-initialized.", info.m_sName.GetData());
 
         ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
         pZeroInit->SetStreamName(info.m_sName);
@@ -423,7 +423,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
       }
       else
       {
-        ezLog::Warning("Particle stream '{0}' is default-initialized.", info.m_sName.GetData());
+        //ezLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName.GetData());
         info.m_pDefaultInitializer = pStream;
       }
 

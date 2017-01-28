@@ -5,6 +5,8 @@
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <ParticlePlugin/Util/ParticleUtils.h>
 
+class QSlider;
+
 class ezQtVarianceTypeWidget : public ezQtEmbeddedClassPropertyWidget
 {
   Q_OBJECT
@@ -15,7 +17,8 @@ public:
   virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
 
 private slots:
-  void on_EditingFinished_triggered();
+  void onBeginTemporary();
+  void onEndTemporary();
   void SlotValueChanged();
 
 protected:
@@ -23,7 +26,8 @@ protected:
   virtual void DoPrepareToDie() override;
   virtual void OnPropertyChanged(const ezString& sProperty) override;
 
-  QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pValueWidget;
-  ezQtDoubleSpinBox* m_pVarianceWidget;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pValueWidget = nullptr;
+  QSlider* m_pVarianceWidget = nullptr;
+  const ezRTTI* m_pValueType = nullptr;
 };

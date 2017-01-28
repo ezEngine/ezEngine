@@ -17,8 +17,8 @@ public:
   void SetSizeCurveFile(const char* szFile);
   const char* GetSizeCurveFile() const;
 
-  float m_fMinSize;
-  float m_fSizeRange;
+  float m_fBaseSize;
+  float m_fCurveScale;
   ezCurve1DResourceHandle m_hCurve;
 };
 
@@ -27,8 +27,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_SizeCurve : public ezParticleBeha
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_SizeCurve, ezParticleBehavior);
 
 public:
-  float m_fMinSize;
-  float m_fSizeRange;
+  float m_fBaseSize;
+  float m_fCurveScale;
   ezCurve1DResourceHandle m_hCurve;
 
   virtual void CreateRequiredStreams() override;

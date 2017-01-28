@@ -12,8 +12,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position : public ezParticle
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "Position"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position : public ezParticleStream
@@ -21,6 +21,10 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position : public ezParticleStream
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Position, ezParticleStream);
 
 protected:
+  virtual void Initialize(ezParticleSystemInstance* pOwner) override { m_pOwner = pOwner; }
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+
+  ezParticleSystemInstance* m_pOwner;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -33,8 +37,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Size : public ezParticleStre
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "Size"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Size : public ezParticleStream
@@ -55,8 +59,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Color : public ezParticleStr
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "Color"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float4; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Color : public ezParticleStream
@@ -77,8 +81,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Velocity : public ezParticle
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "Velocity"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Velocity : public ezParticleStream
@@ -107,8 +111,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_LastPosition : public ezPart
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "LastPosition"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_LastPosition : public ezParticleStream
@@ -128,8 +132,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationSpeed : public ezPar
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "RotationSpeed"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_RotationSpeed : public ezParticleStream
@@ -149,8 +153,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_EffectID : public ezParticle
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "EffectID"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_EffectID : public ezParticleStream
@@ -170,8 +174,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_OnOff : public ezParticleStr
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "OnOff"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_OnOff : public ezParticleStream
@@ -191,8 +195,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Axis : public ezParticleStre
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "Axis"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Axis : public ezParticleStream
@@ -213,8 +217,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData : public ezParticl
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const;
-  virtual ezProcessingStream::DataType GetStreamDataType() const override;
+  virtual const char* GetStreamName() const { return "TrailData"; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_TrailData : public ezParticleStream

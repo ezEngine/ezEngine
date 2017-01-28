@@ -4,6 +4,7 @@
 #include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <ParticlePlugin/Util/ParticleUtils.h>
 
 class ezParticleEmitterFactory;
 class ezParticleBehaviorFactory;
@@ -40,8 +41,7 @@ public:
   ezUInt32 m_uiMaxParticles;
   bool m_bVisible;
 
-  ezTime m_MinLifeTime;
-  ezTime m_LifeTimeRange;
+  ezVarianceTypeTime m_LifeTime;
   ezString m_sOnDeathEvent;
 
   //////////////////////////////////////////////////////////////////////////

@@ -17,8 +17,7 @@ public:
 
 public:
   ezAngle m_Angle;
-  float m_fMinSpeed;
-  float m_fSpeedRange;
+  ezVarianceTypeFloat m_Speed;
 };
 
 
@@ -29,9 +28,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_VelocityCone : public ezPartic
 public:
 
   ezAngle m_Angle;
-  float m_fMinSpeed;
-  float m_fSpeedRange;
-
+  ezVarianceTypeFloat m_Speed;
 
   virtual void CreateRequiredStreams() override;
 

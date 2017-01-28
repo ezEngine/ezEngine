@@ -56,7 +56,7 @@ void OnLoadPlugin(bool bReloading)
     }
   }
 
-  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceType>(), VarianceTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
 }
 
 void OnUnloadPlugin(bool bReloading)
