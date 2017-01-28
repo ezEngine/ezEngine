@@ -127,3 +127,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   }
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_TrailRenderer);
+

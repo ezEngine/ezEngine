@@ -204,3 +204,7 @@ public:
 ezSpriteComponentPatch_1_2 g_ezSpriteComponentPatch_1_2;
 
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteComponent);
+

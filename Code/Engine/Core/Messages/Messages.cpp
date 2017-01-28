@@ -12,3 +12,7 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezTriggerMessage);
 EZ_IMPLEMENT_MESSAGE_TYPE(ezUpdateLocalBoundsMessage);
 
 
+
+
+EZ_STATICLINK_FILE(Core, Core_Messages_Messages);
+

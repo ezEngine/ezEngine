@@ -406,4 +406,5 @@ void ezShaderStageBinary::OnEngineShutdown()
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_ShaderStageBinary);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderStageBinary);
+

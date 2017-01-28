@@ -14,3 +14,6 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 
 
 
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodComponent);
+

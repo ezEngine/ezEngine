@@ -148,3 +148,8 @@ PxFilterData ezPxShapeComponent::CreateFilterData()
 {
   return ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId, m_bReportContact);
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeComponent);
+

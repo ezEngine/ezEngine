@@ -240,3 +240,7 @@ void ezRandomGauss::Load(ezStreamReader& stream)
 }
 
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Random);
+

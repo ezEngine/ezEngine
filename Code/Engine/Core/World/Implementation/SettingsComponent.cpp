@@ -34,3 +34,7 @@ void ezSettingsComponent::DeserializeComponent(ezWorldReader& stream)
 
 }
 
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_SettingsComponent);
+

@@ -311,3 +311,8 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_WorldModule_Implementation_PhysX);
+

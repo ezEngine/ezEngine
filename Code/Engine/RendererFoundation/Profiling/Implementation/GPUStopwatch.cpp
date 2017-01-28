@@ -67,3 +67,8 @@ ezResult ezGPUStopwatch::End(ezGALContext& context, ezTime* outTimeDifference)
 
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Profiling_Implementation_GPUStopwatch);
+

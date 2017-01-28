@@ -85,3 +85,8 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_BoxPosition);
+

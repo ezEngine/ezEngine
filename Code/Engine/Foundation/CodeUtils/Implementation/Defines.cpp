@@ -182,3 +182,6 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Defines);
+

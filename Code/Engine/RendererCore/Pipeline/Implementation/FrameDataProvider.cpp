@@ -25,3 +25,8 @@ void* ezFrameDataProviderBase::GetData(const ezRenderViewContext& renderViewCont
 
   return m_pData;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_FrameDataProvider);
+

@@ -95,5 +95,5 @@ ezUInt16 ezAssetFileHeader::GetSerializedSize()
   return s_uiSerializedHeaderSize;
 }
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Assets_Implementation_AssetFileHeader);
+EZ_STATICLINK_FILE(Core, Core_Assets_Implementation_AssetFileHeader);
 

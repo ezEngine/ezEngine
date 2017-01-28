@@ -270,3 +270,8 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
     ezLog::Error("Unknown permutation var type");
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderParser);
+

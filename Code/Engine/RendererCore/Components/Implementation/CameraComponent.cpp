@@ -424,3 +424,8 @@ public:
 };
 
 ezCameraComponentPatch_4_5 g_ezCameraComponentPatch_4_5;
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_CameraComponent);
+

@@ -125,3 +125,6 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_Image);
+

@@ -21,3 +21,8 @@ ezParticleEmitter* ezParticleEmitterFactory::CreateEmitter(ezParticleSystemInsta
 
   return pEmitter;
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter);
+

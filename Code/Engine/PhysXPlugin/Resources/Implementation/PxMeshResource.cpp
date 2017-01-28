@@ -162,3 +162,7 @@ ezResourceLoadDesc ezPxMeshResource::CreateResource(const ezPhysXMeshResourceDes
 }
 
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Resources_Implementation_PxMeshResource);
+

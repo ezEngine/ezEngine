@@ -149,3 +149,8 @@ const char* ezTonemapPass::GetVignettingTextureFile() const
 
   return m_hVignettingTexture.GetResourceID();
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TonemapPass);
+

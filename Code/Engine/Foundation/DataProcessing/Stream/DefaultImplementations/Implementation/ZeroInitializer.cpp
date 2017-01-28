@@ -38,3 +38,8 @@ void ezProcessingStreamSpawnerZeroInitialized::InitializeElements(ezUInt64 uiSta
     ezMemoryUtils::ZeroFill<ezUInt8>(static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))), static_cast<size_t>(uiElementSize));
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_DefaultImplementations_Implementation_ZeroInitializer);
+

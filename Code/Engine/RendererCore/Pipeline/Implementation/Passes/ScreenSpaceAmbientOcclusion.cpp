@@ -509,3 +509,8 @@ void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& im
   }
 #endif
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_ScreenSpaceAmbientOcclusion);
+

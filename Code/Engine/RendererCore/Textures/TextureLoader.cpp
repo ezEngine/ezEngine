@@ -211,5 +211,5 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource
   return true;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureResource);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureLoader);
 

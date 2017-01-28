@@ -118,3 +118,7 @@ void ezParticleEmitter_OnEvent::ProcessEventQueue(const ezParticleEventQueue* pQ
   }
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_OnEvent);
+

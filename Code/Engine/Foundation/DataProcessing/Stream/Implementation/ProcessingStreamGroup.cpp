@@ -278,3 +278,8 @@ void ezProcessingStreamGroup::RunPendingSpawns()
     m_uiPendingNumberOfElementsToSpawn = 0;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamGroup);
+

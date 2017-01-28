@@ -41,3 +41,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeAngle, ezVarianceTypeBase, 1, ezRTT
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Util_ParticleUtils);
+

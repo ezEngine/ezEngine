@@ -390,3 +390,6 @@ static ezImageConversion_RGBA_RGB_F g_conversion_RGBA_RGB_F;
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_PixelConversions);
+

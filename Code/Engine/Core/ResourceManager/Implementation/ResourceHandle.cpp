@@ -47,3 +47,7 @@ void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
   rhs.m_pResource = nullptr;
 }
 
+
+
+EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceHandle);
+

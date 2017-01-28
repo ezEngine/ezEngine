@@ -108,5 +108,5 @@ ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars)
 
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Helper);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_Helper);
 

@@ -342,5 +342,5 @@ void ezShaderPermutationResourceLoader::CloseDataStream(const ezResourceBase* pR
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_ShaderPermutationResource);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderPermutationResource);
 

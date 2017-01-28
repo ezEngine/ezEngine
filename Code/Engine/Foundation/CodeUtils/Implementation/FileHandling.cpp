@@ -282,3 +282,6 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_FileHandling);
+

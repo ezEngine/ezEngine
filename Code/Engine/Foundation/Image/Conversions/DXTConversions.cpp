@@ -210,3 +210,6 @@ static ezImageConversion_BC5_RG g_conversionBC5;
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_DXTConversions);
+

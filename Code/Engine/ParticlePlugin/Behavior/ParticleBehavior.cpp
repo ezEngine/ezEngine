@@ -22,3 +22,8 @@ ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemIn
 
   return pBehavior;
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior);
+

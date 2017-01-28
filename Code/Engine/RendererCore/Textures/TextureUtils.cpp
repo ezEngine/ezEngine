@@ -188,3 +188,8 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
     break;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureUtils);
+

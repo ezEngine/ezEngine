@@ -226,3 +226,7 @@ void ezPhysXCooking::CreateMeshDesc(const Mesh& mesh, PxSimpleTriangleMesh& desc
   EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
 }
 
+
+
+EZ_STATICLINK_FILE(PhysXCooking, PhysXCooking_PhysXCooking);
+

@@ -99,3 +99,8 @@ bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTexture
 
   return true;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TargetPass);
+

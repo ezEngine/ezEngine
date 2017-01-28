@@ -60,3 +60,8 @@ void ezRenderComponent::TriggerLocalBoundsUpdate(bool bIncludeOwnBounds)
     SetActive(true);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderComponent);
+

@@ -57,3 +57,7 @@ void ezFmodSceneModule::UpdateSound(const ezWorldModule::UpdateContext& context)
 }
 
 
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodWorldModule);
+

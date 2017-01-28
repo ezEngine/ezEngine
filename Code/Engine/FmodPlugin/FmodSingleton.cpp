@@ -62,3 +62,8 @@ ezUInt8 ezFmod::GetNumListeners()
   m_pFmodSystem->getNumListeners(&i);
   return i;
 }
+
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);
+

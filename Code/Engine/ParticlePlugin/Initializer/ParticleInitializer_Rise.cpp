@@ -103,3 +103,8 @@
 //  }
 //}
 //
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_Rise);
+

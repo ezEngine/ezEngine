@@ -242,3 +242,7 @@ public:
 ezSkyBoxComponentPatch_1_2 g_ezSkyBoxComponentPatch_1_2;
 
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SkyBoxComponent);
+

@@ -126,3 +126,8 @@ void ezSimpleRenderPass::SetMessage(const char* szMessage)
 {
   m_sMessage = szMessage;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SimpleRenderPass);
+

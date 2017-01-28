@@ -22,3 +22,8 @@ ezParticleInitializer* ezParticleInitializerFactory::CreateInitializer(ezParticl
 
   return pInitializer;
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer);
+

@@ -80,3 +80,7 @@ ezResourceLoadDesc ezFmodSoundBankResource::CreateResource(const ezFmodSoundBank
 }
 
 
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundBankResource);
+

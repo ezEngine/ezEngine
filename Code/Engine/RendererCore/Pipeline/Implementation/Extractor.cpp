@@ -120,3 +120,8 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
     pObject->SendMessage(msg);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Extractor);
+

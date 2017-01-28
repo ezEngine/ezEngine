@@ -137,3 +137,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
 }
 
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Billboard_ParticleTypeBillboard);
+

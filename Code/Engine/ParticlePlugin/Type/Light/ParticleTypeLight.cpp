@@ -149,3 +149,8 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
     pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Light_ParticleTypeLight);
+

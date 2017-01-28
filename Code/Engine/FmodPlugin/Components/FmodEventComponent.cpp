@@ -279,3 +279,7 @@ void ezFmodEventComponent::SetParameters3d(FMOD::Studio::EventInstance* pEventIn
 }
 
 
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);
+

@@ -93,3 +93,7 @@ ezResourceLoadDesc ezFmodSoundEventResource::CreateResource(const ezFmodSoundEve
 }
 
 
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundEventResource);
+

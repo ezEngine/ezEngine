@@ -179,3 +179,8 @@ void ezParticleComponent::Update()
 
   m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
+

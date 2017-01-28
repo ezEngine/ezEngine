@@ -315,3 +315,7 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::GetCollisio
   return ezPxCharacterCollisionFlags::None;
 }
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxCharacterProxyComponent);
+

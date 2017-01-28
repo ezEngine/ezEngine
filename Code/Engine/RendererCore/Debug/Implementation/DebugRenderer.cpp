@@ -657,3 +657,8 @@ void ezDebugRenderer::OnEngineShutdown()
   s_hDebugPrimitiveShader.Invalidate();
   s_hDebugTextShader.Invalidate();
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugRenderer);
+

@@ -93,3 +93,8 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
     pVelocity[i] = GetOwnerSystem()->GetTransform().m_Rotation * dir * fSpeed;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_VelocityCone);
+

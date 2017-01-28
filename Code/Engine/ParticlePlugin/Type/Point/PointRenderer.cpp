@@ -102,3 +102,7 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   }
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_PointRenderer);
+

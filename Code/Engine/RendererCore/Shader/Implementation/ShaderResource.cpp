@@ -71,5 +71,5 @@ ezResourceLoadDesc ezShaderResource::CreateResource(const ezShaderResourceDescri
   return ret;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_ShaderResource);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderResource);
 

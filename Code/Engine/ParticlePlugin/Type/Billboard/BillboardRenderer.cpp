@@ -105,3 +105,7 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
   }
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Billboard_BillboardRenderer);
+

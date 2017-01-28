@@ -72,3 +72,8 @@ void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph
   GraphVisitor visitor( Graph );
   pWorld->Traverse( ezWorld::VisitorFunc( &GraphVisitor::Visit, &visitor ), ezWorld::BreadthFirst );
 }
+
+
+
+EZ_STATICLINK_FILE(Utilities, Utilities_DGML_Implementation_DGMLCreator);
+

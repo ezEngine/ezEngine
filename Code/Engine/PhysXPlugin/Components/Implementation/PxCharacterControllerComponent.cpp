@@ -401,3 +401,8 @@ void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxCharacterControllerComponent);
+

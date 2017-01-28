@@ -142,3 +142,7 @@ const ezUInt8 g_FontFileTGA[] =
 
 #endif
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_Inconsolata);
+

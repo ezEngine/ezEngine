@@ -127,5 +127,5 @@ const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 iReturnValue) const
 
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Scripting_LuaWrapper_CFunctions);
+EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_CFunctions);
 

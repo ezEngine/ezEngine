@@ -17,3 +17,7 @@ ezParticleRenderer::~ezParticleRenderer()
 
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Renderer_ParticleRenderer);
+

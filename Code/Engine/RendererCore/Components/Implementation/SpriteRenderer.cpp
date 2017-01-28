@@ -126,3 +126,8 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 u
     spriteData.m_gameObjectID = pRenderData->m_uiUniqueID;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteRenderer);
+

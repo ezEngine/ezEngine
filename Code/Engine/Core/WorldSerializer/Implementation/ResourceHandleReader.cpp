@@ -137,3 +137,8 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleReader);
+

@@ -105,3 +105,7 @@ void ezParticleSpriteRenderer::RenderBatch(const ezRenderViewContext& renderView
   }
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Sprite_SpriteRenderer);
+

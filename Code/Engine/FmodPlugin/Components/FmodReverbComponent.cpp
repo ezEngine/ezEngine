@@ -172,3 +172,7 @@ void ezFmodReverbComponent::SetParameters3d()
   m_pReverb->setProperties(&ReverbProperties[m_ReverbPreset]);
 }
 
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodReverbComponent);
+

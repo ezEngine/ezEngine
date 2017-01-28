@@ -100,3 +100,7 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *pMaterial);
 }
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeConvexComponent);
+

@@ -17,3 +17,8 @@ void ezParticleExtractor::Extract(const ezView& view, ezExtractedRenderData* pEx
     pModule->ExtractRenderData(view, pExtractedRenderData);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Renderer_ParticleExtractor);
+

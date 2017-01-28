@@ -337,3 +337,8 @@ void ezColorGradient::Load(ezStreamReader& stream)
     stream >> cp.m_Intensity;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_ColorGradient);
+

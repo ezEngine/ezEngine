@@ -312,3 +312,8 @@ void ezRenderLoop::OnEngineShutdown()
 
   ClearMainViews();
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderLoop_Implementation_RenderLoop);
+

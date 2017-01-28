@@ -274,3 +274,8 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
 
   SetupDefaultProcessors();
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemDescriptor);
+

@@ -128,3 +128,8 @@ void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& render
 {
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_ForwardRenderPass);
+

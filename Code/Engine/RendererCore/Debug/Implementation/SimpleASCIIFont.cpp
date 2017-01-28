@@ -1194,5 +1194,5 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
 
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Graphics_Implementation_SimpleASCIIFont);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_SimpleASCIIFont);
 

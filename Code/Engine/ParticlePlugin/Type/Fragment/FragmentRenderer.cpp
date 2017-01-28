@@ -105,3 +105,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
   }
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Fragment_FragmentRenderer);
+

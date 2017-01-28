@@ -112,3 +112,7 @@ public:
 ezMsaaUpscalePassPatch_1_2 g_ezMsaaUpscalePassPatch_1_2;
 
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_MsaaUpscalePass);
+

@@ -115,3 +115,8 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgP& arg)
   ezStringUtils::snprintf(tmp, uiLength, "%p", arg.m_Value);
   return ezStringView(tmp);
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_FormatString);
+

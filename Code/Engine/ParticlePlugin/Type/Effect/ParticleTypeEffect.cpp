@@ -180,3 +180,7 @@ void ezParticleTypeEffect::ClearEffects(bool bInterruptImmediately)
 }
 
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Effect_ParticleTypeEffect);
+

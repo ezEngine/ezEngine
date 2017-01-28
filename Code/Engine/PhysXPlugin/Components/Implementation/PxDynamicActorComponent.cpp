@@ -324,3 +324,7 @@ bool ezPxDynamicActorComponent::FindCenterOfMass(ezGameObject* pRoot, ezVec3& ou
   return false;
 }
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxDynamicActorComponent);
+

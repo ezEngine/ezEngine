@@ -87,3 +87,8 @@ size_t ezProcessingStream::GetDataTypeSize( DataType Type )
 
   return 0;
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStream);
+

@@ -103,3 +103,8 @@ ezInt32 ezBlurPass::GetRadius() const
 {
   return m_iRadius;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BlurPass);
+

@@ -124,3 +124,8 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   context.EndReadingFromStream(&stream);
   context.EndRestoringHandles();
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectDescriptor);
+

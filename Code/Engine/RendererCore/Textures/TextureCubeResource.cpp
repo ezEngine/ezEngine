@@ -219,3 +219,7 @@ ezResourceLoadDesc ezTextureCubeResource::CreateResource(const ezTextureCubeReso
 }
 
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureCubeResource);
+

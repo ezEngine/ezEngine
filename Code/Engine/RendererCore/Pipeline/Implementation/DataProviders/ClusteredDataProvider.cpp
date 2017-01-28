@@ -180,3 +180,8 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
 
   return &m_Data;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_DataProviders_ClusteredDataProvider);
+

@@ -44,3 +44,8 @@ void ezGALContextState::Invalidate()
 
   m_Topology = ezGALPrimitiveTopology::ENUM_COUNT;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Context_Implementation_ContextState);
+

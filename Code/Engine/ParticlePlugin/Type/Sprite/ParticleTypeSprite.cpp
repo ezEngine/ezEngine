@@ -218,3 +218,7 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
 }
 
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Sprite_ParticleTypeSprite);
+

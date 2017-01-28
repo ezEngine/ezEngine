@@ -168,3 +168,8 @@ PxJoint* ezPxJointComponent::SetupJoint()
 
   return m_pJoint;
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxJointComponent);
+

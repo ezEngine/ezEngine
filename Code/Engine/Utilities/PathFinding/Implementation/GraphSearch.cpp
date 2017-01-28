@@ -2,5 +2,5 @@
 
 
 
-EZ_STATICLINK_FILE(GameUtils, GameUtils_PathFinding_Implementation_GraphSearch);
+EZ_STATICLINK_FILE(Utilities, Utilities_PathFinding_Implementation_GraphSearch);
 

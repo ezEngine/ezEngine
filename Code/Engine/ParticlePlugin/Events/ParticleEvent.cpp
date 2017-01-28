@@ -35,3 +35,8 @@ void ezParticleEventQueueManager::DestroyEventQueue(ezParticleEventQueue* pQueue
   pQueue->Clear();
   pQueue->m_bFree = true;
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEvent);
+

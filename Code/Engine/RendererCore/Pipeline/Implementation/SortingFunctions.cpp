@@ -41,3 +41,7 @@ ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderDat
   return uiSortingKey;
 }
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);
+

@@ -32,3 +32,7 @@ void ezPxCenterOfMassComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxCenterOfMassComponent);
+

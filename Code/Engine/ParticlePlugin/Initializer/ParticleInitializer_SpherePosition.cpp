@@ -112,3 +112,8 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
     pPosition[i] = GetOwnerSystem()->GetTransform() * pos;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_SpherePosition);
+

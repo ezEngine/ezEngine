@@ -17,3 +17,8 @@ ezProcessingStreamProcessor::~ezProcessingStreamProcessor()
 {
   m_pStreamGroup = nullptr;
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamProcessor);
+

@@ -232,3 +232,7 @@ bool ezProgressRange::WasCanceled() const
   return true;
 }
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Progress);
+

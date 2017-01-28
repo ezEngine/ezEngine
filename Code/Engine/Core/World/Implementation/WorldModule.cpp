@@ -49,3 +49,7 @@ ezUInt16 ezWorldModule::GetNextTypeId()
 }
 
 
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModule);
+

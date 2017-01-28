@@ -8,3 +8,8 @@
 #else
   #error "ezGuardedAllocation is not implemented on current platform"
 #endif
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Policies_GuardedAllocation);
+

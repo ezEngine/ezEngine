@@ -181,3 +181,7 @@ void ezParticleBehavior_Age::OnParticleDeath(const ezStreamGroupElementRemovedEv
   pQueue->AddEvent(pe);
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Age);
+

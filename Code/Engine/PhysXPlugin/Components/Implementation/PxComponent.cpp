@@ -16,3 +16,6 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 
 
 
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxComponent);
+

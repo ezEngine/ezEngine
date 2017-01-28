@@ -321,3 +321,7 @@ void ezImageUtils::RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel /*= 0*/
 }
 
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageUtils);
+

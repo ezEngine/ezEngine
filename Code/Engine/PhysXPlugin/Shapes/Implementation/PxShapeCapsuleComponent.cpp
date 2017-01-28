@@ -95,3 +95,7 @@ PxShape* ezPxShapeCapsuleComponent::CreateShape(PxRigidActor* pActor, PxTransfor
 
 
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeCapsuleComponent);
+

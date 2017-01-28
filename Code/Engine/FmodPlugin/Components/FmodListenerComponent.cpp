@@ -76,3 +76,7 @@ void ezFmodListenerComponent::Update()
   ezFmod::GetSingleton()->GetSystem()->setListenerAttributes(m_uiListenerIndex, &attr);
 }
 
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodListenerComponent);
+

@@ -92,3 +92,6 @@ static  ezImageSwizzleConversion32_2103_SSSE3 g_swizzle2103;
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_SwizzleConversions);
+

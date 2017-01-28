@@ -72,4 +72,5 @@ void ezGALRenderTagetSetup::DestroyAllAttachedViews()
   m_uiMaxRTIndex = 0xFFu;
 }
 
-EZ_STATICLINK_FILE( RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetSetup );
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetSetup);
+

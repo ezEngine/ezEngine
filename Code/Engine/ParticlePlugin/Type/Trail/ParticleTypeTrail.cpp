@@ -346,3 +346,8 @@ ezUInt32 ezParticleTypeTrail::GetMaxSegmentBucketSize() const
   //  return 8;
   //}
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_ParticleTypeTrail);
+

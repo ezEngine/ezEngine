@@ -482,3 +482,7 @@ void ezParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHand
   m_StreamGroup.m_ElementRemovedEvent.RemoveEventHandler(handler);
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemInstance);
+

@@ -52,3 +52,8 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
     AddShapesFromObject(itChild, pRigidActor, ParentTransform);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxActorComponent);
+

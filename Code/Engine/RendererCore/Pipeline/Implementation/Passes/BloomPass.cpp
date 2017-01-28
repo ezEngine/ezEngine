@@ -274,3 +274,8 @@ void ezBloomPass::UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColo
 
   constants->TintColor = tintColor;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BloomPass);
+

@@ -445,5 +445,5 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
 
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_DataStructures_DynamicTree_Implementation_DynamicOctree);
+EZ_STATICLINK_FILE(Utilities, Utilities_DataStructures_Implementation_DynamicOctree);
 

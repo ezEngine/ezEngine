@@ -10,6 +10,9 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Application_Config_Implementation_PluginConfig);
   EZ_STATICLINK_REFERENCE(Core_Application_Implementation_Application);
   EZ_STATICLINK_REFERENCE(Core_Application_Implementation_MainLoop);
+  EZ_STATICLINK_REFERENCE(Core_Assets_Implementation_AssetFileHeader);
+  EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Camera);
+  EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Geometry);
   EZ_STATICLINK_REFERENCE(Core_Input_DeviceTypes_DeviceTypes);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_Action);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_InputDevice);
@@ -17,15 +20,25 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_ScancodeTable);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_Startup);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_VirtualThumbStick);
+  EZ_STATICLINK_REFERENCE(Core_Messages_Messages);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_Resource);
+  EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceHandle);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceManager);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceTypeLoader);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_CFunctions);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Initialize);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Tables);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Variables);
+  EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleReader);
+  EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleWriter);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldReader);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldWriter);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_Component);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_ComponentManager);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_GameObject);
+  EZ_STATICLINK_REFERENCE(Core_World_Implementation_SettingsComponent);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_World);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldData);
+  EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldModule);
 }
 

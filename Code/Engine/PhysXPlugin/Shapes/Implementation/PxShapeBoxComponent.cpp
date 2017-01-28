@@ -76,3 +76,8 @@ PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& o
 
   return pActor->createShape(box, *GetPxMaterial());
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeBoxComponent);
+

@@ -50,3 +50,8 @@ ezStreamReader& operator >> (ezStreamReader& Stream, ezStringBuilder& sValue)
 
   return Stream;
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperations);
+

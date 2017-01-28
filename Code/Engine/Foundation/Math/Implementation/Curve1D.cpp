@@ -336,3 +336,7 @@ void ezCurve1D::ClampTangents()
   }
 }
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Curve1D);
+

@@ -39,3 +39,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
   }
 
 EZ_END_SUBSYSTEM_DECLARATION
+
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodStartup);
+

@@ -89,3 +89,7 @@ void ezPxSettingsComponent::SetMaxSubSteps(ezUInt32 uiMaxSubSteps)
 }
 
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxSettingsComponent);
+

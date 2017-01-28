@@ -124,5 +124,5 @@ const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* Defa
 
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Scripting_LuaWrapper_Variables);
+EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Variables);
 

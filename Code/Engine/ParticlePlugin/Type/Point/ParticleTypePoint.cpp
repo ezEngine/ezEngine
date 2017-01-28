@@ -108,3 +108,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
 }
 
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_ParticleTypePoint);
+

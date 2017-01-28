@@ -488,5 +488,5 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
 
 
 
-EZ_STATICLINK_FILE(GameUtils, GameUtils_PathFinding_Implementation_GridNavmesh);
+EZ_STATICLINK_FILE(Utilities, Utilities_PathFinding_Implementation_GridNavmesh);
 

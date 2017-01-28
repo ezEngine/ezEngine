@@ -175,3 +175,7 @@ bool ezStbImageFileFormats::CanWriteFileType(const char* szExtension) const
   return false;
 }
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Formats_StbImageFileFormats);
+

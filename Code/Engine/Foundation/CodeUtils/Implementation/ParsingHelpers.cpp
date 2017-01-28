@@ -304,3 +304,6 @@ void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens0, ezUInt32 
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_ParsingHelpers);
+

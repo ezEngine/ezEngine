@@ -196,3 +196,6 @@ ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(ezImageFormat
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageConversion);
+

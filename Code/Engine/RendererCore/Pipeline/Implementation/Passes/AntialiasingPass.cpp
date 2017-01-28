@@ -100,3 +100,7 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, c
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
 }
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_AntialiasingPass);
+

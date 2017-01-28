@@ -79,3 +79,8 @@ void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
     itVelocity.Advance();
   }
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Gravity);
+

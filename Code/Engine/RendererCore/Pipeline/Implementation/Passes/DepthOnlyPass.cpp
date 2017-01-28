@@ -63,3 +63,8 @@ void ezDepthOnyPass::Execute(const ezRenderViewContext& renderViewContext, const
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_DepthOnlyPass);
+

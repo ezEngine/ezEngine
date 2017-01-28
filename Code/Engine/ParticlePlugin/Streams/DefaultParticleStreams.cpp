@@ -213,3 +213,7 @@ const ezRTTI* ezParticleStreamFactory_TrailData::GetParticleStreamType() const
   return ezGetStaticRTTI<ezParticleStream_TrailData>();
 }
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Streams_DefaultParticleStreams);
+

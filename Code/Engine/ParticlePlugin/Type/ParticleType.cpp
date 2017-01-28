@@ -26,3 +26,8 @@ ezParticleType::ezParticleType()
 {
   m_uiLastExtractedFrame = 0;
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_ParticleType);
+

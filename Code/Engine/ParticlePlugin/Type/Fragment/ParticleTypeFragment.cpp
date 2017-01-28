@@ -180,3 +180,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
 }
 
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Fragment_ParticleTypeFragment);
+

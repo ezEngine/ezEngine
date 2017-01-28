@@ -79,3 +79,8 @@ void ezParticleEffectResourceDescriptor::Load(ezStreamReader& stream)
 {
   m_Effect.Load(stream);
 }
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Resources_ParticleEffectResource);
+

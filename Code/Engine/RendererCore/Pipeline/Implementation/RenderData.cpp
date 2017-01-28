@@ -52,3 +52,7 @@ ezRenderData::Category ezDefaultRenderDataCategories::SimpleTransparent = ezRend
 ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground = ezRenderData::RegisterCategory("SimpleForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderData);
+

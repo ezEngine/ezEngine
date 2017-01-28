@@ -173,5 +173,5 @@ ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezPartic
 
 
 
-
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);
 

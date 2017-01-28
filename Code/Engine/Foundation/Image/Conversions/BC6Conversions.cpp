@@ -848,3 +848,6 @@ static ezImageConversion_BC6_RGBA<false> g_conversionBC6U;
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_BC6Conversions);
+

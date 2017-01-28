@@ -185,3 +185,8 @@ void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
 {
   m_hCollisionMesh = hMesh;
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxStaticActorComponent);
+

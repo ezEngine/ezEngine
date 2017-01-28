@@ -33,3 +33,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
   }
 
 EZ_END_SUBSYSTEM_DECLARATION
+
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Startup);
+

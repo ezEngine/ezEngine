@@ -210,5 +210,5 @@ ezResourceLoadDesc ezTexture2DResource::CreateResource(const ezTexture2DResource
   return ret;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureResource);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);
 

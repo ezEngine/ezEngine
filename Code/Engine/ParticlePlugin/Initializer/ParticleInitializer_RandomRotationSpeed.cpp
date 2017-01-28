@@ -73,3 +73,7 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
 }
 
 
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomRotationSpeed);
+

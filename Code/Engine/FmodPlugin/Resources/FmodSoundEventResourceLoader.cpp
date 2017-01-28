@@ -59,3 +59,8 @@ bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResourceBase* pR
   /// \todo not sure whether this can be reduced to only reloading when the bank is outdated
   return true;
 }
+
+
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundEventResourceLoader);
+

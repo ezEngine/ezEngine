@@ -73,3 +73,8 @@ PxShape* ezPxShapeSphereComponent::CreateShape(PxRigidActor* pActor, PxTransform
 {
   return pActor->createShape(PxSphereGeometry(m_fRadius), *GetPxMaterial());
 }
+
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeSphereComponent);
+

@@ -79,3 +79,7 @@ PxJoint* ezPxDistanceJointComponent::CreateJointType(PxPhysics& api, PxRigidActo
   return PxDistanceJointCreate(api, actor0, localFrame0, actor1, localFrame1);
 }
 
+
+
+EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxDistanceJointComponent);
+
