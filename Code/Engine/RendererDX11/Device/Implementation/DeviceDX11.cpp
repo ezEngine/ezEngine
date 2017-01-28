@@ -133,6 +133,7 @@ retry:
           D3D11_MESSAGE_ID hide[] =
           {
             // Hide messages about abandoned query results. This can easily happen when a GPUStopwatch is suddenly unused.
+            D3D11_MESSAGE_ID_QUERY_BEGIN_ABANDONING_PREVIOUS_RESULTS,
             D3D11_MESSAGE_ID_QUERY_END_ABANDONING_PREVIOUS_RESULTS,
             // Add more message IDs here as needed 
           };

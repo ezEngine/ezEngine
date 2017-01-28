@@ -11,7 +11,7 @@ class ezGALDevice;
 class EZ_RENDERERFOUNDATION_DLL ezGPUStopwatch
 {
 public:
-  ezGPUStopwatch(ezGALDevice& device, ezUInt32 numFramesDelay = 3);
+  ezGPUStopwatch(ezGALDevice& device, ezUInt32 numFramesDelay = 4);
   ~ezGPUStopwatch();
 
   /// Starts the timer. 
