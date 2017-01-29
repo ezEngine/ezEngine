@@ -3,7 +3,7 @@
 #include <FmodPlugin/Components/FmodComponent.h>
 #include <Core/ResourceManager/Resource.h>
 
-typedef ezComponentManagerSimple<class ezFmodEventComponent, true> ezFmodEventComponentManager;
+typedef ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating> ezFmodEventComponentManager;
 typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
 
 class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
@@ -44,7 +44,7 @@ protected:
   float m_fPitch;
   float m_fVolume;
   ezFmodSoundEventResourceHandle m_hSoundEvent;
-  
+
 
   // ************************************* FUNCTIONS *****************************
 

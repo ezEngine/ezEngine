@@ -2,7 +2,7 @@
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
-typedef ezComponentManagerSimple<class ezFmodReverbComponent, true> ezFmodReverbComponentManager;
+typedef ezComponentManagerSimple<class ezFmodReverbComponent, ezComponentUpdateType::WhenSimulating> ezFmodReverbComponentManager;
 
 struct ezFmodReverbPresets
 {

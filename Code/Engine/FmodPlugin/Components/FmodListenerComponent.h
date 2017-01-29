@@ -2,7 +2,7 @@
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
-typedef ezComponentManagerSimple<class ezFmodListenerComponent, true> ezFmodListenerComponentManager;
+typedef ezComponentManagerSimple<class ezFmodListenerComponent, ezComponentUpdateType::WhenSimulating> ezFmodListenerComponentManager;
 
 class EZ_FMODPLUGIN_DLL ezFmodListenerComponent : public ezFmodComponent
 {

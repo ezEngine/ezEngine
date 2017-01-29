@@ -150,6 +150,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       m_ParticleDataShared[p].Size = pSize[p];
       m_ParticleDataShared[p].Color = pColor[p];
       m_ParticleDataShared[p].NumPoints = pTrailData[p].m_uiNumPoints;
+      m_ParticleDataShared[p].SnapshotFraction = m_fSnapshotFraction;
     }
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
@@ -239,6 +240,8 @@ void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
       pTrailData[i].m_uiNumPoints = ezMath::Min<ezUInt16>(pTrailData[i].m_uiNumPoints + 1, m_uiMaxPoints);
     }
   }
+
+  m_fSnapshotFraction = 1.0f - (float)((tNow - m_LastSnapshot).GetSeconds() / m_UpdateDiff.GetSeconds());
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {

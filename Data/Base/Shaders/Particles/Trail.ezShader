@@ -57,9 +57,14 @@ VS_OUT main(uint VertexID : SV_VertexID)
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
     //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
-    float uvStep = 1.0 / (particle.NumPoints - 2);
+    //float uvStep = 1.0 / (particle.NumPoints - 2);
+    float uvStep = 1.0 / (TRAIL_POINTS - 2);
     float uvCoord1 = uvStep * trailPointIndex;
     float uvCoord2 = uvCoord1 + uvStep;
+    float uvSubtract = uvStep * particle.SnapshotFraction;
+
+    if (trailPointIndex == 0 && factor < 0.5)
+      uvSubtract = 0;
 
     float3 position1 = particlePointsData[particleIndex].Positions[trailPointIndex].xyz;
     float3 position2 = particlePointsData[particleIndex].Positions[trailPointIndex + 1].xyz;
@@ -82,7 +87,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
     ret.Position = mul(WorldToScreenMatrix, position);
     ret.TexCoords = texCoords[vertexSubIndex];
-    ret.TexCoords.x = lerp(uvCoord1, uvCoord2, factor);
+    ret.TexCoords.x = lerp(uvCoord1, uvCoord2, factor) - uvSubtract;
     ret.Color = RGBA8ToFloat4(particle.Color);
   }
 
