@@ -106,10 +106,10 @@ public:
   bool IsEmpty() const;
 
   /// \brief Returns a string view to this string's data.
-  operator ezStringView() const { return GetString(); }
+  EZ_FORCE_INLINE operator ezStringView() const { return GetString(); }
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  operator const char*() const { return GetData(); }
+  EZ_FORCE_INLINE operator const char*() const { return GetData(); }
 
 private:
   static void InitHashedString();
@@ -151,7 +151,7 @@ public:
 
   /// \brief Copies the hash from the integer.
   ezTempHashedString(ezUInt32 uiHash);
-  
+
   /// \brief The hash of the given string can be computed at compile time.
   template <size_t N>
   void operator= (const char(&szString)[N]); // [tested]

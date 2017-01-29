@@ -75,17 +75,17 @@ inline bool ezHashedString::operator< (const ezTempHashedString& rhs) const
   return m_Data.Value().m_uiHash < rhs.m_uiHash;
 }
 
-inline const ezString& ezHashedString::GetString() const
+EZ_FORCE_INLINE const ezString& ezHashedString::GetString() const
 {
   return m_Data.Key();
 }
 
-inline const char* ezHashedString::GetData() const
+EZ_FORCE_INLINE const char* ezHashedString::GetData() const
 {
   return m_Data.Key().GetData();
 }
 
-inline ezUInt32 ezHashedString::GetHash() const
+EZ_FORCE_INLINE ezUInt32 ezHashedString::GetHash() const
 {
   return m_Data.Value().m_uiHash;
 }

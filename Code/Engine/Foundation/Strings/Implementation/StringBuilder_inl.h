@@ -153,7 +153,7 @@ inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData
   Prepend(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
 }
 
-inline const char* ezStringBuilder::GetData() const
+EZ_FORCE_INLINE const char* ezStringBuilder::GetData() const
 {
   EZ_ASSERT_DEBUG(!m_Data.IsEmpty(), "ezStringBuilder has been corrupted, the array can never be empty.");
 

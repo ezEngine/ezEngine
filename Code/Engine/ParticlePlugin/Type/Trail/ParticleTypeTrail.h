@@ -45,7 +45,6 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
   //void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
-  //ezUInt32 GetMaxSegmentBucketSize() const;
 
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamSize;
@@ -53,7 +52,6 @@ protected:
   ezProcessingStream* m_pStreamTrailData;
   ezTime m_LastSnapshot;
   ezUInt8 m_uiCurFirstIndex;
-  ezUInt8 m_uiCurLastIndex;
   ezUInt8 m_uiMaxPointsMask;
 
   mutable ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;

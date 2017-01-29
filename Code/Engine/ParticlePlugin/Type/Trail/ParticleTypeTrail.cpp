@@ -81,7 +81,6 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
 ezParticleTypeTrail::ezParticleTypeTrail()
 {
   m_uiCurFirstIndex = 0;
-  m_uiCurLastIndex = 0;
 }
 
 ezParticleTypeTrail::~ezParticleTypeTrail()
@@ -96,11 +95,10 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
     //GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
 
     m_LastSnapshot = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
-
-    m_uiCurLastIndex = 0;
   }
 
   //if (m_uiMaxPoints > 32)
+  m_uiMaxPoints = TRAIL_POINTS;
   m_uiMaxPointsMask = TRAIL_POINTS - 1;
   //else if (m_uiMaxPoints > 16)
   //  m_uiMaxPointsMask = 31;
@@ -109,10 +107,8 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
   //else
   //  m_uiMaxPointsMask = 7;
 
-  m_uiCurFirstIndex = (m_uiCurLastIndex + m_uiMaxPoints - 1) & m_uiMaxPointsMask;
-
-
-  m_uiCurLastIndex = 0;
+  //m_uiCurFirstIndex = (m_uiCurLastIndex + m_uiMaxPoints - 1) & m_uiMaxPointsMask;
+  m_uiCurFirstIndex = TRAIL_POINTS - 1;
   m_uiCurFirstIndex = 1;
 }
 
@@ -134,8 +130,6 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   if (numActiveParticles == 0)
     return;
 
-  //const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
-
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if (m_uiLastExtractedFrame != uiExtractedFrame)
   {
@@ -143,7 +137,6 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
     const ezUInt32 uiBucketSize = TRAIL_POINTS;
 
-    //const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
@@ -157,8 +150,6 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       m_ParticleDataShared[p].Size = pSize[p];
       m_ParticleDataShared[p].Color = pColor[p];
       m_ParticleDataShared[p].NumPoints = pTrailData[p].m_uiNumPoints;
-
-      EZ_ASSERT_DEV(m_ParticleDataShared[p].NumPoints == 2, "");
     }
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
@@ -170,13 +161,23 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       //ezUInt32 seg = m_uiCurLastIndex;
       //for (ezUInt32 i = m_uiMaxPoints; i > 0; --i)
       //{
-      //  pRenderPositions[i - 1] = pTrailPositions[seg];
+      //  renderPositions.Positions[i - 1] = pTrailPositions[seg];
 
       //  seg = (seg + 1) & m_uiMaxPointsMask;
       //}
 
-      renderPositions.Positions[0] = pTrailPositions[m_uiCurFirstIndex];
-      renderPositions.Positions[1] = pTrailPositions[m_uiCurLastIndex];
+      /// \todo This loop could be done without a condition
+      for (ezUInt32 i = 0; i < m_uiMaxPoints; ++i)
+      {
+        if (i > m_uiCurFirstIndex)
+        {
+          renderPositions.Positions[i] = pTrailPositions[m_uiCurFirstIndex - i + m_uiMaxPoints];
+        }
+        else
+        {
+          renderPositions.Positions[i] = pTrailPositions[m_uiCurFirstIndex - i];
+        }
+      }
     }
   }
 
@@ -202,10 +203,6 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
   const ezVec3* pPosData = m_pStreamPosition->GetData<ezVec3>();
 
   const ezUInt32 uiPrevIndex = (m_uiCurFirstIndex > 0) ? (m_uiCurFirstIndex - 1) : m_uiMaxPointsMask;
-  //const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : m_uiMaxPointsMask;
-
-  EZ_ASSERT_DEV(m_uiCurFirstIndex == 1, "");
-  EZ_ASSERT_DEV(uiPrevIndex == 0, "");
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
@@ -216,7 +213,6 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
     td.m_uiIndexForTrailPoints = GetIndexForTrailPoints();
 
     ezVec4* pPos = GetTrailPointsPositions(td.m_uiIndexForTrailPoints);
-    //pPos[uiPrevIndex2] = vStartPos;
     pPos[uiPrevIndex] = vStartPos;
     pPos[m_uiCurFirstIndex] = vStartPos;
   }
@@ -225,23 +221,22 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
 
 void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
 {
-  //const ezTime tNow = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+  const ezTime tNow = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
   TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>();
   const ezVec3* pPosData = m_pStreamPosition->GetData<ezVec3>();
 
-  //if (tNow - m_LastSnapshot >= m_UpdateDiff)
-  //{
-  //  m_LastSnapshot = tNow;
+  if (tNow - m_LastSnapshot >= m_UpdateDiff)
+  {
+    m_LastSnapshot = tNow;
 
-  //  m_uiCurFirstIndex = (m_uiCurFirstIndex + 1) & m_uiMaxPointsMask;
-  //  m_uiCurLastIndex = (m_uiCurLastIndex + 1) & m_uiMaxPointsMask;
+    m_uiCurFirstIndex = (m_uiCurFirstIndex + 1) & m_uiMaxPointsMask;
 
-  //  for (ezUInt64 i = 0; i < uiNumElements; ++i)
-  //  {
-  //    pTrailData[i].m_uiNumPoints = ezMath::Min<ezUInt16>(pTrailData[i].m_uiNumPoints + 1, m_uiMaxPoints);
-  //  }
-  //}
+    for (ezUInt64 i = 0; i < uiNumElements; ++i)
+    {
+      pTrailData[i].m_uiNumPoints = ezMath::Min<ezUInt16>(pTrailData[i].m_uiNumPoints + 1, m_uiMaxPoints);
+    }
+  }
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
@@ -335,28 +330,6 @@ const ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index) const
 //  // return the trail data to the list of free elements
 //  m_FreeTrailData.PushBack(pTrailData[e.m_uiElementIndex].m_uiTrailDataIndex);
 //}
-
-//ezUInt32 ezParticleTypeTrail::GetMaxSegmentBucketSize() const
-//{
-//  //if (m_uiMaxPoints > 32)
-//  //{
-//    return 64;
-//  //}
-//  //else if (m_uiMaxPoints > 16)
-//  //{
-//  //  return 32;
-//  //}
-//  //else if (m_uiMaxPoints > 8)
-//  //{
-//  //  return 16;
-//  //}
-//  //else
-//  //{
-//  //  return 8;
-//  //}
-//}
-
-
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_ParticleTypeTrail);
 
