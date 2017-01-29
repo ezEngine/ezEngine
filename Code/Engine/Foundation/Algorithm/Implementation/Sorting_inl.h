@@ -55,7 +55,7 @@ ezUInt32 ezSorting::Partition(Container& container, ezUInt32 uiLeft, ezUInt32 ui
   ezUInt32 uiIndex = uiLeft;
   for (ezUInt32 i = uiLeft; i < uiRight; ++i)
   {
-    if (comparer.Less(container[i], container[uiRight]))
+    if (DoCompare(comparer, container[i], container[uiRight]))
     {
       ezMath::Swap(container[i], container[uiIndex]);
       ++uiIndex;
@@ -99,7 +99,7 @@ ezUInt32 ezSorting::Partition(ezArrayPtr<T>& arrayPtr, ezUInt32 uiLeft, ezUInt32
   ezUInt32 uiIndex = uiLeft;
   for (ezUInt32 i = uiLeft; i < uiRight; ++i)
   {
-    if (comparer.Less(arrayPtr[i], arrayPtr[uiRight]))
+    if (DoCompare(comparer, arrayPtr[i], arrayPtr[uiRight]))
     {
       ezMath::Swap(arrayPtr[i], arrayPtr[uiIndex]);
       ++uiIndex;
@@ -118,7 +118,7 @@ void ezSorting::InsertionSort(Container& container, ezUInt32 uiStartIndex, ezUIn
   for (ezUInt32 i = uiStartIndex + 1; i <= uiEndIndex; ++i)
   { 
     ezUInt32 uiHoleIndex = i;
-    while (uiHoleIndex > uiStartIndex && comparer.Less(container[uiHoleIndex], container[uiHoleIndex - 1]))
+    while (uiHoleIndex > uiStartIndex && DoCompare(comparer, container[uiHoleIndex], container[uiHoleIndex - 1]))
     {
       ezMath::Swap(container[uiHoleIndex], container[uiHoleIndex - 1]);
       --uiHoleIndex;
@@ -136,7 +136,7 @@ void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ez
     ezUInt32 uiHoleIndex = i;
     T valueToInsert = std::move(ptr[uiHoleIndex]);
 
-    while (uiHoleIndex > uiStartIndex && comparer.Less(valueToInsert, ptr[uiHoleIndex - 1]))
+    while (uiHoleIndex > uiStartIndex && DoCompare(comparer, valueToInsert, ptr[uiHoleIndex - 1]))
     {
       --uiHoleIndex;
     }
