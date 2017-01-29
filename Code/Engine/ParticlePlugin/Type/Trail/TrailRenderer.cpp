@@ -22,6 +22,12 @@ ezParticleTrailRenderer::~ezParticleTrailRenderer()
     ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hParticleDataBuffer);
     m_hParticleDataBuffer.Invalidate();
   }
+
+  if (!m_hTrailPointsDataBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hTrailPointsDataBuffer);
+    m_hTrailPointsDataBuffer.Invalidate();
+  }
 }
 
 void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
@@ -97,15 +103,10 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     const ezParticleTrailRenderData* pRenderData = it;
     ezUInt32 uiNumParticles = pRenderData->m_ParticleDataShared.GetCount();
 
-    const ezUInt32 uiBucketElementCount = pRenderData->m_uiMaxTrailPoints;
-    EZ_ASSERT_DEV(uiBucketElementCount == TRAIL_POINTS, "");
-
-    //const ezUInt32 uiBucketByteSize = sizeof(ezVec3) * pRenderData->m_uiMaxTrailPoints;
-
     const ezTrailParticleData* pParticleData = pRenderData->m_ParticleDataShared.GetPtr();
     const ezTrailParticlePointsData* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
 
-    //renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
+    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer
     {
@@ -118,14 +119,14 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       // upload this batch of particle data
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       pGALContext->UpdateBuffer(m_hParticleDataBuffer, 0, ezMakeArrayPtr(pParticleData, uiNumParticlesInBatch).ToByteArray());
-      pGALContext->UpdateBuffer(m_hTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketElementCount).ToByteArray());
+      pGALContext->UpdateBuffer(m_hTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch).ToByteArray());
 
       // do one drawcall
       renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * TRAIL_SEGMENTS * uiPrimFactor);
 
       uiNumParticles -= uiNumParticlesInBatch;
       pParticleData += uiNumParticlesInBatch;
-      pParticlePointsData += uiNumParticlesInBatch * uiBucketElementCount;
+      pParticlePointsData += uiNumParticlesInBatch;
     }
   }
 }

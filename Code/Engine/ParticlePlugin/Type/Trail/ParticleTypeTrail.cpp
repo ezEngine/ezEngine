@@ -85,14 +85,14 @@ ezParticleTypeTrail::ezParticleTypeTrail()
 
 ezParticleTypeTrail::~ezParticleTypeTrail()
 {
-  //GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
+  GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
 }
 
 void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
 {
   if (bFirstTime)
   {
-    //GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
+    GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
 
     m_LastSnapshot = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
   }
@@ -122,8 +122,8 @@ void ezParticleTypeTrail::CreateRequiredStreams()
 
 void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
-  //if (!m_hTexture.IsValid())
-    //return;
+  if (!m_hTexture.IsValid())
+    return;
 
   const ezUInt32 numActiveParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
 
@@ -203,6 +203,7 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
   const ezVec3* pPosData = m_pStreamPosition->GetData<ezVec3>();
 
   const ezUInt32 uiPrevIndex = (m_uiCurFirstIndex > 0) ? (m_uiCurFirstIndex - 1) : m_uiMaxPointsMask;
+  const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : m_uiMaxPointsMask;
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
@@ -213,8 +214,9 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
     td.m_uiIndexForTrailPoints = GetIndexForTrailPoints();
 
     ezVec4* pPos = GetTrailPointsPositions(td.m_uiIndexForTrailPoints);
-    pPos[uiPrevIndex] = vStartPos;
     pPos[m_uiCurFirstIndex] = vStartPos;
+    pPos[uiPrevIndex] = vStartPos;
+    pPos[uiPrevIndex2] = vStartPos;
   }
 }
 
@@ -249,12 +251,12 @@ ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
 {
   ezUInt16 res = 0;
 
-  //if (!m_FreeTrailData.IsEmpty())
-  //{
-  //  res = m_FreeTrailData.PeekBack();
-  //  m_FreeTrailData.PopBack();
-  //}
-  //else
+  if (!m_FreeTrailData.IsEmpty())
+  {
+    res = m_FreeTrailData.PeekBack();
+    m_FreeTrailData.PopBack();
+  }
+  else
   {
     // expand the proper array
 
@@ -323,13 +325,13 @@ const ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index) const
   //}
 }
 
-//void ezParticleTypeTrail::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
-//{
-//  const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
-//
-//  // return the trail data to the list of free elements
-//  m_FreeTrailData.PushBack(pTrailData[e.m_uiElementIndex].m_uiTrailDataIndex);
-//}
+void ezParticleTypeTrail::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+{
+  const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
+
+  // return the trail data to the list of free elements
+  m_FreeTrailData.PushBack(pTrailData[e.m_uiElementIndex].m_uiIndexForTrailPoints);
+}
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_ParticleTypeTrail);
 

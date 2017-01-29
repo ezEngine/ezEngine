@@ -44,7 +44,7 @@ protected:
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
-  //void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
+  void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamSize;

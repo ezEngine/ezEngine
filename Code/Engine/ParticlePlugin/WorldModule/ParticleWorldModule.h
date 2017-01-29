@@ -62,6 +62,7 @@ private:
   void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const;
 
   void ConfigureParticleStreamFactories();
+  void ClearParticleStreamFactories();
 
   mutable ezMutex m_Mutex;
   ezDeque<ezParticleEffectInstance> m_ParticleEffects;

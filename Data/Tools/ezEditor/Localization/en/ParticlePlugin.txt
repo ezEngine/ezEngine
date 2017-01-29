@@ -37,9 +37,10 @@ ezParticleInitializerFactory_RandomRotationSpeed;Rotation Speed
 ezParticleInitializerFactory_SpherePosition;Sphere Position
 ezParticleBehaviorFactory_SizeCurve;Size Curve
 ezParticleTypeBillboardFactory;Billboards
-ezParticleTypeLightFactory;Light
-ezParticleTypeEffectFactory;Effect
-ezParticleTypeFragmentFactory;Fragment
+ezParticleTypeLightFactory;Lights
+ezParticleTypeEffectFactory;Effects
+ezParticleTypeFragmentFactory;Fragments
+ezParticleTypePointFactory;Points
 Types;Types
 ezParticleRaycastHitReaction::Bounce;Bounce
 ezParticleRaycastHitReaction::Die;Die

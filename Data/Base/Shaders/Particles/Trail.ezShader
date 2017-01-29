@@ -5,7 +5,7 @@ ALL
 
 [RENDERSTATE]
 
-BlendingEnabled0 = false
+BlendingEnabled0 = true
 DestBlend0 = Blend_One
 SourceBlend0 = Blend_InvSrcAlpha
 
@@ -44,7 +44,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
   VS_OUT ret;
 
-  if (trailPointIndex + 1 >= particle.NumPoints)
+  if (trailPointIndex + 2 >= particle.NumPoints)
   {
     ret.Position = float4(0, 0, 0, 0);
     ret.TexCoords = float2(0, 0);
@@ -52,23 +52,37 @@ VS_OUT main(uint VertexID : SV_VertexID)
   }
   else
   {
+    float factor = texCoords[vertexSubIndex].x;
+
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
     //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
+    float uvStep = 1.0 / (particle.NumPoints - 2);
+    float uvCoord1 = uvStep * trailPointIndex;
+    float uvCoord2 = uvCoord1 + uvStep;
+
     float3 position1 = particlePointsData[particleIndex].Positions[trailPointIndex].xyz;
     float3 position2 = particlePointsData[particleIndex].Positions[trailPointIndex + 1].xyz;
-    //float3 position3 = trail.Positions[trailPointIndex + 2];
+    float3 position3 = particlePointsData[particleIndex].Positions[trailPointIndex + 2].xyz;
 
-    float3 dirRight = mul(ObjectToWorldMatrix, float4(position2 - position1, 0)).xyz;
+    float3 thisPosition = lerp(position1, position2, factor);
+
+    float3 direction1 = position1 - position2;
+    float3 direction2 = position2 - position3;
+
+    float3 segmentDirection = -lerp(direction1, direction2, factor);
+
+    float3 dirRight = mul(ObjectToWorldMatrix, float4(segmentDirection, 0)).xyz;
     float3 dirUp = normalize(cross(dirRight, CameraDirForwards)) * particle.Size;
 
     float4 offsetRight = float4(dirRight * texCoords[vertexSubIndex].x, 0);
     float4 offsetUp = float4(dirUp * (texCoords[vertexSubIndex].y - 0.5), 0);
 
-    float4 position = mul(ObjectToWorldMatrix, float4(position1, 1)) + offsetRight + offsetUp;
+    float4 position = mul(ObjectToWorldMatrix, float4(thisPosition, 1)) + offsetUp;
 
     ret.Position = mul(WorldToScreenMatrix, position);
     ret.TexCoords = texCoords[vertexSubIndex];
+    ret.TexCoords.x = lerp(uvCoord1, uvCoord2, factor);
     ret.Color = RGBA8ToFloat4(particle.Color);
   }
 
@@ -92,10 +106,10 @@ SamplerState ParticleTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  //float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
-
-  //return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
-  return float4(Input.Color.rgb, 0.0);// 1.0 - Input.Color.a);
+  float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+  //return texCol;
+  return float4(texCol.rgb * Input.Color.rgb * Input.Color.a, texCol.a);
+  //return float4(Input.Color.rgb, 0.0);// 1.0 - Input.Color.a);
   //return float4(0, 1, 0, 0);
 }
 

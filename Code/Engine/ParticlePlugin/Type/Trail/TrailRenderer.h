@@ -42,7 +42,7 @@ public:
 protected:
   void CreateDataBuffer();
 
-  static const ezUInt32 s_uiParticlesPerBatch = 128;
+  static const ezUInt32 s_uiParticlesPerBatch = 512;
   ezGALBufferHandle m_hParticleDataBuffer;
   ezGALBufferHandle m_hTrailPointsDataBuffer;
   ezShaderResourceHandle m_hShader;

@@ -20,6 +20,7 @@ ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
 
 ezParticleWorldModule::~ezParticleWorldModule()
 {
+  ClearParticleStreamFactories();
 }
 
 void ezParticleWorldModule::Initialize()
@@ -143,7 +144,7 @@ void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 
 void ezParticleWorldModule::ConfigureParticleStreamFactories()
 {
-  m_StreamFactories.Clear();
+  ClearParticleStreamFactories();
 
   ezStringBuilder fullName;
 
@@ -158,6 +159,17 @@ void ezParticleWorldModule::ConfigureParticleStreamFactories()
 
     m_StreamFactories[fullName] = pFactory;
   }
+}
+
+
+void ezParticleWorldModule::ClearParticleStreamFactories()
+{
+  for (auto pFactory : m_StreamFactories)
+  {
+    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+  }
+
+  m_StreamFactories.Clear();
 }
 
 ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const
