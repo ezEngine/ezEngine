@@ -93,13 +93,7 @@ EZ_FORCE_INLINE T* ezUniquePtr<T>::Release(ezAllocatorBase*& out_pAllocator)
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T* ezUniquePtr<T>::Borrow() const
-{
-  return m_pInstance;
-}
-
-template <typename T>
-EZ_FORCE_INLINE T* ezUniquePtr<T>::Borrow()
+EZ_FORCE_INLINE T* ezUniquePtr<T>::Borrow() const
 {
   return m_pInstance;
 }
@@ -114,25 +108,13 @@ EZ_FORCE_INLINE void ezUniquePtr<T>::Reset()
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T& ezUniquePtr<T>::operator*() const
+EZ_FORCE_INLINE T& ezUniquePtr<T>::operator*() const
 {
   return *m_pInstance;
 }
 
 template <typename T>
-EZ_FORCE_INLINE T& ezUniquePtr<T>::operator*()
-{
-  return *m_pInstance;
-}
-
-template <typename T>
-EZ_FORCE_INLINE const T* ezUniquePtr<T>::operator->() const
-{
-  return m_pInstance;
-}
-
-template <typename T>
-EZ_FORCE_INLINE T* ezUniquePtr<T>::operator->()
+EZ_FORCE_INLINE T* ezUniquePtr<T>::operator->() const
 {
   return m_pInstance;
 }

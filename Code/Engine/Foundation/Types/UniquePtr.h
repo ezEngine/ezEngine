@@ -45,25 +45,16 @@ public:
   T* Release(ezAllocatorBase*& out_pAllocator);
 
   /// \brief Borrows the managed object. The unique ptr stays unmodified.
-  const T* Borrow() const;
-
-  /// \brief Borrows the managed object. The unique ptr stays unmodified.
-  T* Borrow();
+  T* Borrow() const;
 
   /// \brief Destroys the managed object and resets the unique ptr.
   void Reset();
 
   /// \brief Provides access to the managed object.
-  const T& operator*() const;
+  T& operator*() const;
 
   /// \brief Provides access to the managed object.
-  T& operator*();
-
-  /// \brief Provides access to the managed object.
-  const T* operator->() const;
-
-  /// \brief Provides access to the managed object.
-  T* operator->();
+  T* operator->() const;
 
   /// \brief Returns true if there is managed object and false if the unique ptr is empty.
   operator bool() const;

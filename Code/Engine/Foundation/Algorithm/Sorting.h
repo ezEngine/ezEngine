@@ -31,12 +31,12 @@ private:
 
   // Perform comparision either with "Less(a,b)" (prefered) or with operator ()(a,b)
   template <typename Element, typename Comparer>
-  EZ_FORCE_INLINE constexpr static auto DoCompare(const Comparer& comparer, const Element& a, const Element& b, int) -> decltype(comparer.Less(a, b), bool())
+  EZ_FORCE_INLINE constexpr static auto DoCompare(const Comparer& comparer, const Element& a, const Element& b, int) -> decltype(comparer.Less(a, b))
   {
     return comparer.Less(a, b);
   }
   template <typename Element, typename Comparer>
-  EZ_FORCE_INLINE constexpr static auto DoCompare(const Comparer& comparer, const Element& a, const Element& b, long) -> decltype(comparer(a, b), bool())
+  EZ_FORCE_INLINE constexpr static auto DoCompare(const Comparer& comparer, const Element& a, const Element& b, long) -> decltype(comparer(a, b))
   {
     return comparer(a, b);
   }
