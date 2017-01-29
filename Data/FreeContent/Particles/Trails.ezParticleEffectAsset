@@ -12,6 +12,13 @@ o
 		s %Gradient{""}
 	}
 }
+o
+{
+	Uuid %id{u4{10333509125679320250,4752111431108374126}}
+	s %t{"ezParticleTypePointFactory"}
+	u3 %v{1}
+	p{}
+}
 AssetInfo
 {
 	Uuid %id{u4{3591997517772925067,4762298574615070988}}
@@ -23,7 +30,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3591997517772925067,4762298574615070988}}
-		u4 %Hash{9989872098214792011}
+		u4 %Hash{14195749985865237754}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -95,6 +102,7 @@ o
 		VarArray %Types
 		{
 			Uuid{u4{14377469470218511525,5705327793872386353}}
+			Uuid{u4{10333509125679320250,4752111431108374126}}
 		}
 		b %Visible{1}
 	}
@@ -124,7 +132,7 @@ o
 		Time %CurveDuration{d{0x0000000000002440}}
 		Time %Duration{d{0}}
 		Uuid %Interval{u4{12821208263336678451,12363438559767110729}}
-		u3 %MinSpawnCount{1}
+		u3 %MinSpawnCount{2}
 		u3 %SpawnCountRange{0}
 		Time %StartDelay{d{0}}
 	}

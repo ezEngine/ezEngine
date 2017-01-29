@@ -103,7 +103,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     //const ezUInt32 uiBucketByteSize = sizeof(ezVec3) * pRenderData->m_uiMaxTrailPoints;
 
     const ezTrailParticleData* pParticleData = pRenderData->m_ParticleDataShared.GetPtr();
-    const ezVec4* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
+    const ezTrailParticlePointsData* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
 
     //renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 

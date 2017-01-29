@@ -9,7 +9,7 @@ BlendingEnabled0 = false
 DestBlend0 = Blend_One
 SourceBlend0 = Blend_InvSrcAlpha
 
-DepthTest = false
+DepthTest = true
 DepthWrite = false
 CullMode = CullMode_None
 
@@ -24,8 +24,6 @@ CullMode = CullMode_None
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-//#define TRAIL_BUCKET_DIV (TRAIL_POINTS - 2)
-
 VS_OUT main(uint VertexID : SV_VertexID)
 {
   float2 texCoords[6] =
@@ -38,31 +36,15 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float2(0.0, 1.0),
   };
 
-  // uint id = 6 * TRAIL_SEGMENTS * particleIndex;
-  // uint range = 6 * TRAIL_SEGMENTS;
-
   uint particleIndex = VertexID / (6 * TRAIL_SEGMENTS);
-  uint idx2 = (VertexID - (particleIndex * 6 * TRAIL_SEGMENTS)) / 6;
-
-  //uint idx2 = (VertexID / 6) % TRAIL_SEGMENTS;
-  //uint idx2 = (VertexID - (particleIndex * 6 * TRAIL_SEGMENTS)) / 6;
+  uint trailPointIndex = (VertexID - (particleIndex * 6 * TRAIL_SEGMENTS)) / 6;
   uint vertexSubIndex = VertexID % 6;
 
-  //particleIndex = 0;
-  //uint idx2 = idx20;
-
   ezTrailParticleData particle = particleData[particleIndex];
-  ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
   VS_OUT ret;
 
-  uint numPoints = (uint)particle.NumPoints;
-  numPoints = 2;
-
-  float fidx2 = (float)idx2;
-
-  [branch]
-  if (idx2 + 1 > 1)
+  if (trailPointIndex + 1 >= particle.NumPoints)
   {
     ret.Position = float4(0, 0, 0, 0);
     ret.TexCoords = float2(0, 0);
@@ -70,11 +52,12 @@ VS_OUT main(uint VertexID : SV_VertexID)
   }
   else
   {
-    float3 position1 = trail.Positions[idx2].xyz;
-    //float3 position2 = trail.Positions[idx2 + 1];
-    //float3 position3 = trail.Positions[idx2 + 2];
+    // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
+    //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
-     float3 position2 = position1 + float3(1, 0, 0);
+    float3 position1 = particlePointsData[particleIndex].Positions[trailPointIndex].xyz;
+    float3 position2 = particlePointsData[particleIndex].Positions[trailPointIndex + 1].xyz;
+    //float3 position3 = trail.Positions[trailPointIndex + 2];
 
     float3 dirRight = mul(ObjectToWorldMatrix, float4(position2 - position1, 0)).xyz;
     float3 dirUp = normalize(cross(dirRight, CameraDirForwards)) * particle.Size;
@@ -87,23 +70,6 @@ VS_OUT main(uint VertexID : SV_VertexID)
     ret.Position = mul(WorldToScreenMatrix, position);
     ret.TexCoords = texCoords[vertexSubIndex];
     ret.Color = RGBA8ToFloat4(particle.Color);
-
-    float4 lut[8] =
-    {
-      float4(0.5, 0, 0.2, 0),
-      float4(0, 1, 0, 0),
-      float4(0.5, 0, 1, 0),
-      float4(1, 0.1, 0, 0),
-      float4(0, 1, 1, 0),
-      float4(1, 0.5, 1, 0),
-      float4(0.5, 1, 0, 0),
-      float4(0.3, 0.1, 0.2, 0),
-    };
-
-    // if (particle.NumPoints > 7)
-    //   ret.Color = float4(1, 0, 0, 0);
-    // else
-      //ret.Color = lut[particle.NumPoints];
   }
 
   return ret;
@@ -129,8 +95,8 @@ float4 main(PS_IN Input) : SV_Target
   //float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
 
   //return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
-  //return float4(Input.Color.rgb, 0.0);// 1.0 - Input.Color.a);
-  return float4(0, 1, 0, 0);
+  return float4(Input.Color.rgb, 0.0);// 1.0 - Input.Color.a);
+  //return float4(0, 1, 0, 0);
 }
 
 #endif

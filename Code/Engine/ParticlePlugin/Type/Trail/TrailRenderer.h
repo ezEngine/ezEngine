@@ -21,7 +21,7 @@ public:
   ezTexture2DResourceHandle m_hTexture;
   ezUInt32 m_uiMaxTrailPoints;
   ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
-  ezArrayPtr<ezVec4> m_TrailPointsShared;
+  ezArrayPtr<ezTrailParticlePointsData> m_TrailPointsShared;
 };
 
 

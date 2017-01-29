@@ -57,12 +57,7 @@ protected:
   ezUInt8 m_uiMaxPointsMask;
 
   mutable ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
-  mutable ezArrayPtr<ezVec4> m_TrailPointsShared;
-
-  struct TrailPointData
-  {
-    ezVec4 m_Positions[TRAIL_POINTS];
-  };
+  mutable ezArrayPtr<ezTrailParticlePointsData> m_TrailPointsShared;
 
   struct TrailData
   {
@@ -75,7 +70,7 @@ protected:
   ezVec4* GetTrailPointsPositions(ezUInt32 index);
 
   /// \todo Use a shared freelist across effects instead
-  ezDynamicArray<TrailPointData> m_TrailPoints;
+  ezDynamicArray<ezTrailParticlePointsData> m_TrailPoints;
   ezDynamicArray<ezUInt16> m_FreeTrailData; // 16 Bit ought to be enough for anybody
 };
 

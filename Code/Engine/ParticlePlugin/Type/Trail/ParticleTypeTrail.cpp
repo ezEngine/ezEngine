@@ -150,7 +150,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
     // this will automatically be deallocated at the end of the frame
     m_ParticleDataShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
-    m_TrailPointsShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)(uiBucketSize * (ezUInt32)GetOwnerSystem()->GetNumActiveParticles()));
+    m_TrailPointsShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticlePointsData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
@@ -165,8 +165,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     {
       const ezVec4* pTrailPositions = GetTrailPointsPositions(pTrailData[p].m_uiIndexForTrailPoints);
 
-      const ezUInt32 uiSegmentOffset = uiBucketSize * p;
-      ezVec4* pRenderPositions = &m_TrailPointsShared[uiSegmentOffset];
+      ezTrailParticlePointsData& renderPositions = m_TrailPointsShared[p];
 
       //ezUInt32 seg = m_uiCurLastIndex;
       //for (ezUInt32 i = m_uiMaxPoints; i > 0; --i)
@@ -176,8 +175,8 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       //  seg = (seg + 1) & m_uiMaxPointsMask;
       //}
 
-      pRenderPositions[0] = pTrailPositions[m_uiCurFirstIndex];
-      pRenderPositions[1] = pTrailPositions[m_uiCurLastIndex];
+      renderPositions.Positions[0] = pTrailPositions[m_uiCurFirstIndex];
+      renderPositions.Positions[1] = pTrailPositions[m_uiCurLastIndex];
     }
   }
 
@@ -210,7 +209,7 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
-    const ezVec4 vStartPos = pPosData[uiStartIndex + i].GetAsVec4(1);
+    const ezVec4 vStartPos = pPosData[uiStartIndex + i].GetAsPositionVec4();
 
     TrailData& td = pTrailData[uiStartIndex + i];
     td.m_uiNumPoints = 2;
@@ -293,7 +292,7 @@ ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index)
 {
   //if (m_uiMaxPoints > 32)
   //{
-  return &m_TrailPoints[index].m_Positions[0];
+  return &m_TrailPoints[index].Positions[0];
   //}
   //else if (m_uiMaxPoints > 16)
   //{
@@ -313,7 +312,7 @@ const ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index) const
 {
   //if (m_uiMaxPoints > 32)
   //{
-  return &m_TrailPoints[index].m_Positions[0];
+  return &m_TrailPoints[index].Positions[0];
   //}
   //else if (m_uiMaxPoints > 16)
   //{
