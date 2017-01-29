@@ -86,7 +86,7 @@ public:
   /// \brief Subscribe to this event to be informed when (shortly before) items are deleted.
   ezEvent<const ezStreamGroupElementRemovedEvent&> m_ElementRemovedEvent;
 
-protected:
+private:
 
   /// \brief Internal helper function which removes any pending elements and spawns new elements as needed
   void RunPendingDeletions();
@@ -94,6 +94,8 @@ protected:
   void EnsureStreamAssignmentValid();
 
   void RunPendingSpawns();
+
+  void SortProcessorsByPriority();
 
   ezHybridArray<ezProcessingStreamProcessor*, 8> m_Processors;
 
@@ -110,5 +112,4 @@ protected:
   ezUInt64 m_uiHighestNumActiveElements;
 
   bool m_bStreamAssignmentDirty;
-
 };

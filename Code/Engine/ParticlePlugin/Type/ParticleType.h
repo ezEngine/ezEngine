@@ -26,11 +26,11 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
   friend class ezParticleSystemInstance;
 
 public:
-  ezParticleType();
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
 
 protected:
+  ezParticleType();
 
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
 

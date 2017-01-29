@@ -12,11 +12,11 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
 {
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezHiddenAttribute()
-  }
-  EZ_END_ATTRIBUTES
+  //EZ_BEGIN_ATTRIBUTES
+  //{
+  //  new ezHiddenAttribute()
+  //}
+  //EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 

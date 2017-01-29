@@ -31,7 +31,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule
   friend class ezParticleSystemInstance;
 
 protected:
-
+  ezParticleBehavior();
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
   virtual void StepParticleSystem(const ezTime& tDiff) { m_TimeDiff = tDiff; }
 

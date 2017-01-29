@@ -17,10 +17,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezParticleTrailRenderer::~ezParticleTrailRenderer()
 {
-  if (!m_hDataBuffer.IsInvalidated())
+  if (!m_hParticleDataBuffer.IsInvalidated())
   {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hDataBuffer);
-    m_hDataBuffer.Invalidate();
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hParticleDataBuffer);
+    m_hParticleDataBuffer.Invalidate();
   }
 }
 
@@ -31,7 +31,7 @@ void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
 
 void ezParticleTrailRenderer::CreateDataBuffer()
 {
-  if (m_hDataBuffer.IsInvalidated())
+  if (m_hParticleDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezTrailParticleData);
@@ -41,20 +41,20 @@ void ezParticleTrailRenderer::CreateDataBuffer()
     desc.m_bAllowShaderResourceView = true;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_hParticleDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
   }
 
-  if (m_hSegmentDataBuffer.IsInvalidated())
+  if (m_hTrailPointsDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezTrailParticlePos64Data); /// \todo other sizes
+    desc.m_uiStructSize = sizeof(ezTrailParticlePointsData); /// \todo other sizes
     desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
     desc.m_bAllowShaderResourceView = true;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hSegmentDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_hTrailPointsDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
   }
 }
 
@@ -80,29 +80,32 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
   }
 
-  const ezUInt32 uiMaxTrianglesToRender = s_uiParticlesPerBatch * 2 * (64 - 2);
+  const ezUInt32 uiPrimFactor = 2;
+  const ezUInt32 uiMaxPrimitivesToRender = s_uiParticlesPerBatch * TRAIL_SEGMENTS * uiPrimFactor;
 
   // make sure our structured buffer is allocated and bound
   {
     CreateDataBuffer();
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiMaxTrianglesToRender);
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleSegmentData", pDevice->GetDefaultResourceView(m_hSegmentDataBuffer));
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiMaxPrimitivesToRender);
+    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hParticleDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particlePointsData", pDevice->GetDefaultResourceView(m_hTrailPointsDataBuffer));
   }
 
   // now render all particle effects of type Trail
   for (auto it = batch.GetIterator<ezParticleTrailRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
     const ezParticleTrailRenderData* pRenderData = it;
-    ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
+    ezUInt32 uiNumParticles = pRenderData->m_ParticleDataShared.GetCount();
 
-    const ezUInt32 uiBucketElementCount = pRenderData->m_uiMaxSegmentBucketSize;
-    const ezUInt32 uiBucketByteSize = sizeof(ezVec3) * pRenderData->m_uiMaxSegmentBucketSize;
+    const ezUInt32 uiBucketElementCount = pRenderData->m_uiMaxTrailPoints;
+    EZ_ASSERT_DEV(uiBucketElementCount == TRAIL_POINTS, "");
 
-    const ezTrailParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
-    const ezUInt8* pParticleSegmentData = pRenderData->m_SegmentData.GetPtr();
+    //const ezUInt32 uiBucketByteSize = sizeof(ezVec3) * pRenderData->m_uiMaxTrailPoints;
 
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
+    const ezTrailParticleData* pParticleData = pRenderData->m_ParticleDataShared.GetPtr();
+    const ezVec4* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
+
+    //renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer
     {
@@ -114,15 +117,15 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     {
       // upload this batch of particle data
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
-      pGALContext->UpdateBuffer(m_hDataBuffer, 0, ezMakeArrayPtr(pParticleData, uiNumParticlesInBatch).ToByteArray());
-      pGALContext->UpdateBuffer(m_hSegmentDataBuffer, 0, ezMakeArrayPtr(pParticleSegmentData, uiNumParticlesInBatch * uiBucketByteSize).ToByteArray());
+      pGALContext->UpdateBuffer(m_hParticleDataBuffer, 0, ezMakeArrayPtr(pParticleData, uiNumParticlesInBatch).ToByteArray());
+      pGALContext->UpdateBuffer(m_hTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketElementCount).ToByteArray());
 
       // do one drawcall
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * 2 * (uiBucketElementCount - 2));
+      renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * TRAIL_SEGMENTS * uiPrimFactor);
 
       uiNumParticles -= uiNumParticlesInBatch;
       pParticleData += uiNumParticlesInBatch;
-      pParticleSegmentData += uiNumParticlesInBatch * uiBucketByteSize;
+      pParticlePointsData += uiNumParticlesInBatch * uiBucketElementCount;
     }
   }
 }

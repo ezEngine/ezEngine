@@ -19,6 +19,9 @@ public:
   /// \brief Base destructor.
   virtual ~ezProcessingStreamProcessor();
 
+  /// Used for sorting processors, to ensure a certain order. Lower priority == executed first.
+  float m_fPriority = 0.0f;
+
 protected:
 
   friend class ezProcessingStreamGroup;
@@ -36,5 +39,4 @@ protected:
   /// \brief Back pointer to the stream group - will be set to the owner stream group when adding the stream processor to the group.
   /// Can be used to get stream pointers in UpdateStreamBindings();
   ezProcessingStreamGroup* m_pStreamGroup;
-
 };

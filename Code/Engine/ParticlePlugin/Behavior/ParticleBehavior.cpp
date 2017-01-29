@@ -23,7 +23,11 @@ ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemIn
   return pBehavior;
 }
 
-
+ezParticleBehavior::ezParticleBehavior()
+{
+  // run after the initializers, before the types
+  m_fPriority = 0.0f;
+}
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior);
 

@@ -241,6 +241,8 @@ void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
   // If any stream processors or streams were added we may need to inform them.
   if (m_bStreamAssignmentDirty)
   {
+    SortProcessorsByPriority();
+
     // Set the new size on all stream.
     for (ezProcessingStream* Stream : m_DataStreams)
     {
@@ -279,7 +281,19 @@ void ezProcessingStreamGroup::RunPendingSpawns()
   }
 }
 
+struct ProcessorComparer
+{
+  EZ_FORCE_INLINE bool Less(const ezProcessingStreamProcessor* a, const ezProcessingStreamProcessor* b) const
+  {
+    return a->m_fPriority < b->m_fPriority;
+  }
+};
 
+void ezProcessingStreamGroup::SortProcessorsByPriority()
+{
+  ProcessorComparer cmp;
+  m_Processors.Sort(cmp);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamGroup);
 

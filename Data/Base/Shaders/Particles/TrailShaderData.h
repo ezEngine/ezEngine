@@ -2,32 +2,20 @@
 
 #include "ParticleSystemConstants.h"
 
+#define TRAIL_POINTS 8
+#define TRAIL_SEGMENTS (TRAIL_POINTS - 1)
+
 struct EZ_ALIGN_16(ezTrailParticleData)
 {
   COLOR4UB(Color);
   FLOAT1(Size);
-  INT1(NumSegments);
+  INT1(NumPoints);
   FLOAT1(dummy1);
 };
 
-struct EZ_ALIGN_16(ezTrailParticlePos8Data)
+struct EZ_ALIGN_16(ezTrailParticlePointsData)
 {
-  FLOAT3(Positions[8]);
-};
-
-struct EZ_ALIGN_16(ezTrailParticlePos16Data)
-{
-  FLOAT3(Positions[16]);
-};
-
-struct EZ_ALIGN_16(ezTrailParticlePos32Data)
-{
-  FLOAT3(Positions[32]);
-};
-
-struct EZ_ALIGN_16(ezTrailParticlePos64Data)
-{
-  FLOAT3(Positions[64]);
+  FLOAT4(Positions[TRAIL_POINTS]);
 };
 
 // this is only defined during shader compilation
@@ -36,7 +24,7 @@ struct EZ_ALIGN_16(ezTrailParticlePos64Data)
 StructuredBuffer<ezTrailParticleData> particleData;
 
 /// \todo Permutations
-StructuredBuffer<ezTrailParticlePos64Data> particleSegmentData;
+StructuredBuffer<ezTrailParticlePointsData> particlePointsData;
 
 #else
 

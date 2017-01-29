@@ -19,7 +19,7 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
-  ezUInt16 m_uiMaxSegments;
+  ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
   ezString m_sTexture;
 };
@@ -34,7 +34,7 @@ public:
 
   virtual void CreateRequiredStreams() override;
 
-  ezUInt16 m_uiMaxSegments;
+  ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
   ezTexture2DResourceHandle m_hTexture;
 
@@ -44,8 +44,8 @@ protected:
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
-  void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
-  ezUInt32 GetMaxSegmentBucketSize() const;
+  //void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
+  //ezUInt32 GetMaxSegmentBucketSize() const;
 
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamSize;
@@ -54,46 +54,28 @@ protected:
   ezTime m_LastSnapshot;
   ezUInt8 m_uiCurFirstIndex;
   ezUInt8 m_uiCurLastIndex;
-  ezUInt8 m_uiMaxSegmentsMask;
+  ezUInt8 m_uiMaxPointsMask;
 
-  mutable ezArrayPtr<ezTrailParticleData> m_ParticleData;
-  mutable ezArrayPtr<ezUInt8> m_SegmentData;
+  mutable ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
+  mutable ezArrayPtr<ezVec4> m_TrailPointsShared;
 
-  struct TrailData8
+  struct TrailPointData
   {
-    ezVec3 m_Positions[8];
-  };
-
-  struct TrailData16
-  {
-    ezVec3 m_Positions[16];
-  };
-
-  struct TrailData32
-  {
-    ezVec3 m_Positions[32];
-  };
-
-  struct TrailData64
-  {
-    ezVec3 m_Positions[64];
+    ezVec4 m_Positions[TRAIL_POINTS];
   };
 
   struct TrailData
   {
-    ezUInt16 m_uiNumSegments;
-    ezUInt16 m_uiTrailDataIndex;
+    ezUInt16 m_uiNumPoints;
+    ezUInt16 m_uiIndexForTrailPoints;
   };
 
-  ezUInt16 GetNewTrailDataIndex();
-  const ezVec3* GetTrailDataPositions(ezUInt32 index) const;
-  ezVec3* GetTrailDataPositions(ezUInt32 index);
+  ezUInt16 GetIndexForTrailPoints();
+  const ezVec4* GetTrailPointsPositions(ezUInt32 index) const;
+  ezVec4* GetTrailPointsPositions(ezUInt32 index);
 
   /// \todo Use a shared freelist across effects instead
-  ezDynamicArray<TrailData8> m_TrailData8;
-  ezDynamicArray<TrailData16> m_TrailData16;
-  ezDynamicArray<TrailData32> m_TrailData32;
-  ezDynamicArray<TrailData64> m_TrailData64;
+  ezDynamicArray<TrailPointData> m_TrailPoints;
   ezDynamicArray<ezUInt16> m_FreeTrailData; // 16 Bit ought to be enough for anybody
 };
 

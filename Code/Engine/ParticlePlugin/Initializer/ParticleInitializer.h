@@ -35,7 +35,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer : public ezParticleModule
   friend class ezParticleInitializerFactory;
 
 protected:
-  ezParticleInitializer() {}
+  ezParticleInitializer();
 
   virtual void Process(ezUInt64 uiNumElements) final override {}
 

@@ -33,6 +33,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStream : public ezProcessingStreamProcesso
   friend class ezParticleStreamFactory;
 
 protected:
+  ezParticleStream();
   virtual void Initialize(ezParticleSystemInstance* pOwner) {}
   virtual ezResult UpdateStreamBindings() final override;
   virtual void Process(ezUInt64 uiNumElements) final override {}

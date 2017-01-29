@@ -26,6 +26,13 @@ ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystem
   return pStream;
 }
 
+
+ezParticleStream::ezParticleStream()
+{
+  // make sure default stream initializers are run very first
+  m_fPriority = -1000.0f;
+}
+
 ezResult ezParticleStream::UpdateStreamBindings()
 {
   m_StreamBinding.UpdateBindings(m_pStreamGroup);

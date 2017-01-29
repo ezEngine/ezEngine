@@ -25,8 +25,10 @@ ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwn
 ezParticleType::ezParticleType()
 {
   m_uiLastExtractedFrame = 0;
-}
 
+  // run these as the last, after all the initializers and behaviors
+  m_fPriority = +1000.0f;
+}
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_ParticleType);

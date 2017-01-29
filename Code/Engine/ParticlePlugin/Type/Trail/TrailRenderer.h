@@ -19,9 +19,9 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData : public ezRenderData
 
 public:
   ezTexture2DResourceHandle m_hTexture;
-  ezUInt32 m_uiMaxSegmentBucketSize;
-  ezArrayPtr<ezTrailParticleData> m_ParticleData;
-  ezArrayPtr<ezUInt8> m_SegmentData;
+  ezUInt32 m_uiMaxTrailPoints;
+  ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
+  ezArrayPtr<ezVec4> m_TrailPointsShared;
 };
 
 
@@ -42,9 +42,9 @@ public:
 protected:
   void CreateDataBuffer();
 
-  static const ezUInt32 s_uiParticlesPerBatch = 512;
-  ezGALBufferHandle m_hDataBuffer;
-  ezGALBufferHandle m_hSegmentDataBuffer;
+  static const ezUInt32 s_uiParticlesPerBatch = 128;
+  ezGALBufferHandle m_hParticleDataBuffer;
+  ezGALBufferHandle m_hTrailPointsDataBuffer;
   ezShaderResourceHandle m_hShader;
 };
 

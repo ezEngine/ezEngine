@@ -23,7 +23,11 @@ ezParticleInitializer* ezParticleInitializerFactory::CreateInitializer(ezParticl
   return pInitializer;
 }
 
-
+ezParticleInitializer::ezParticleInitializer()
+{
+  // run these early, but after the stream default initializers
+  m_fPriority = -500.0f;
+}
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer);
 
