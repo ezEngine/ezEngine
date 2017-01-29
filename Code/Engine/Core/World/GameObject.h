@@ -195,6 +195,10 @@ public:
   void SetGlobalTransform(const ezTransform& transform);
   const ezTransform& GetGlobalTransform() const;
 
+  ezVec3 GetDirForwards() const;
+  ezVec3 GetDirRight() const;
+  ezVec3 GetDirUp() const;
+
   void SetVelocity(const ezVec3& vVelocity);
 
   /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this frame's position, but

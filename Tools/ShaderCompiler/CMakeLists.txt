@@ -17,9 +17,6 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 SET (LINK_LIBRARIES
   Foundation
   Core
-  System
-  ThirdParty
-  RendererFoundation
   RendererCore
   RendererDX11
   GameEngine
@@ -27,10 +24,6 @@ SET (LINK_LIBRARIES
 
 SET (ADDITIONAL_DEPENDENCIES
   ShaderCompilerHLSL
-  InspectorPlugin
-  InputXBox360
-  PhysXPlugin
-  FmodPlugin
 )
 
 # Set this to true, if your application is a real win32 app (not a console app)

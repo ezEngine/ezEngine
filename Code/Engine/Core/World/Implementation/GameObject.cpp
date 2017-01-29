@@ -220,6 +220,30 @@ void ezGameObject::SetGlobalTransform(const ezTransform& transform)
   m_pTransformationData->m_globalTransform = transform;
 }
 
+ezVec3 ezGameObject::GetDirForwards() const
+{
+  ezCoordinateSystem coordinateSystem;
+  m_pWorld->GetCoordinateSystem(m_pTransformationData->m_globalTransform.m_vPosition, coordinateSystem);
+
+  return m_pTransformationData->m_globalTransform.m_Rotation.TransformDirection(coordinateSystem.m_vForwardDir);
+}
+
+ezVec3 ezGameObject::GetDirRight() const
+{
+  ezCoordinateSystem coordinateSystem;
+  m_pWorld->GetCoordinateSystem(m_pTransformationData->m_globalTransform.m_vPosition, coordinateSystem);
+
+  return m_pTransformationData->m_globalTransform.m_Rotation.TransformDirection(coordinateSystem.m_vRightDir);
+}
+
+ezVec3 ezGameObject::GetDirUp() const
+{
+  ezCoordinateSystem coordinateSystem;
+  m_pWorld->GetCoordinateSystem(m_pTransformationData->m_globalTransform.m_vPosition, coordinateSystem);
+
+  return m_pTransformationData->m_globalTransform.m_Rotation.TransformDirection(coordinateSystem.m_vUpDir);
+}
+
 void ezGameObject::UpdateLocalBounds()
 {
   ezUpdateLocalBoundsMessage msg;

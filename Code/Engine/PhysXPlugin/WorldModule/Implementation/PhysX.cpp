@@ -171,10 +171,6 @@ void ezPhysX::Startup()
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
 
   ezSurfaceResource::s_Events.AddEventHandler(ezMakeDelegate(&ezPhysX::SurfaceResourceEventHandler, this));
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  StartupVDB();
-#endif
 }
 
 void ezPhysX::Shutdown()
@@ -235,7 +231,10 @@ void ezPhysX::StartupVDB()
 
   m_VdbConnection = PxVisualDebuggerExt::createConnection(m_pPhysX->getPvdConnectionManager(), pvd_host_ip, port, timeout, connectionFlags);
 
-  m_pPhysX->getVisualDebugger()->setVisualDebuggerFlags(PxVisualDebuggerFlag::eTRANSMIT_CONSTRAINTS | PxVisualDebuggerFlag::eTRANSMIT_CONTACTS | PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES);
+  if (m_VdbConnection != nullptr)
+  {
+    m_pPhysX->getVisualDebugger()->setVisualDebuggerFlags(PxVisualDebuggerFlag::eTRANSMIT_CONSTRAINTS | PxVisualDebuggerFlag::eTRANSMIT_CONTACTS | PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES);
+  }
 }
 
 void ezPhysX::ShutdownVDB()

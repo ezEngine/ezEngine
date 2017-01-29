@@ -14,7 +14,8 @@ AssetInfo
 			s{"Particles/Textures/Smoke.tga"}
 		}
 		Uuid %DocumentID{u4{4585678578125348250,4791111026204270759}}
-		u4 %Hash{12508746027667127780}
+		u4 %Hash{9701379071544820967}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -25,17 +26,15 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Clamp"}
-		s %AddressModeV{"ezTextureAddressMode::Clamp"}
-		s %AddressModeW{"ezTextureAddressMode::Clamp"}
+		s %AddressModeU{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{0}
 		s %Input1{"Particles/Textures/Smoke.tga"}
 		s %Input2{"Particles/Textures/Smoke.tga"}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
