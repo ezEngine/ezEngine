@@ -5,10 +5,10 @@
 namespace
 {
   class TestComponent;
-  class TestComponentManager : public ezComponentManager<TestComponent>
+  class TestComponentManager : public ezComponentManager<TestComponent, ezBlockStorageType::FreeList>
   {
   public:
-    TestComponentManager(ezWorld* pWorld) : ezComponentManager<TestComponent>(pWorld)
+    TestComponentManager(ezWorld* pWorld) : ezComponentManager<TestComponent, ezBlockStorageType::FreeList>(pWorld)
     {
     }
 
@@ -138,7 +138,7 @@ namespace
     }
   }
 
-  typedef ezComponentManager<class TestComponent2> TestComponent2Manager;
+  typedef ezComponentManager<class TestComponent2, ezBlockStorageType::FreeList> TestComponent2Manager;
 
   class TestComponent2 : public ezComponent
   {

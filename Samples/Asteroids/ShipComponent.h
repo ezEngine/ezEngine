@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 
 class ShipComponent;
-typedef ezComponentManagerSimple<ShipComponent, true> ShipComponentManager;
+typedef ezComponentManagerSimple<ShipComponent, ezComponentUpdateType::WhenSimulating> ShipComponentManager;
 
 class ShipComponent : public ezComponent
 {

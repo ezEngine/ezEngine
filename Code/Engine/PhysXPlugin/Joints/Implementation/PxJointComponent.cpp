@@ -1,9 +1,11 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxJointComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+
+using namespace physx;
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 1)
 {
@@ -111,8 +113,6 @@ PxJoint* ezPxJointComponent::SetupJoint()
 
   pChildRbComp->EnsureSimulationStarted();
 
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-
   PxRigidActor* pParentActor = pParentRbComp ? pParentRbComp->GetActor() : nullptr;
   PxRigidActor* pChildActor = pChildRbComp->GetActor();
 
@@ -144,26 +144,16 @@ PxJoint* ezPxJointComponent::SetupJoint()
     tLocalToChild = tChild * tOwn;
   }
 
-  PxTransform tPxLocalToParent = PxTransform::createIdentity();
-  {
-    const ezVec3 pos = tLocalToParent.m_vPosition;
-    ezQuat rot; rot.SetFromMat3(tLocalToParent.m_Rotation);
-    tPxLocalToParent.p = PxVec3(pos.x, pos.y, pos.z);
-    tPxLocalToParent.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
-  }
+  PxTransform tPxLocalToParent = ezPxConversionUtils::ToTransform(tLocalToParent);
+  PxTransform tPxLocalToChild = ezPxConversionUtils::ToTransform(tLocalToChild);
 
-  PxTransform tPxLocalToChild = PxTransform::createIdentity();
-  {
-    const ezVec3 pos = tLocalToChild.m_vPosition;
-    ezQuat rot; rot.SetFromMat3(tLocalToChild.m_Rotation);
-    tPxLocalToChild.p = PxVec3(pos.x, pos.y, pos.z);
-    tPxLocalToChild.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
-  }
-
-  m_pJoint = CreateJointType(pModule->GetPxScene()->getPhysics(), pParentActor, tPxLocalToParent, pChildActor, tPxLocalToChild);
+  m_pJoint = CreateJointType(pParentActor, tPxLocalToParent, pChildActor, tPxLocalToChild);
   EZ_ASSERT_DEV(m_pJoint != nullptr, "Joint creation failed");
 
-  m_pJoint->setBreakForce(m_fBreakForce <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakForce, m_fBreakTorque <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakTorque);
+  const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakForce;
+  const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakTorque;
+
+  m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
   m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
 
   return m_pJoint;

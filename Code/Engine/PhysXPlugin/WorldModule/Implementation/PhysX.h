@@ -4,7 +4,6 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <Core/World/WorldModule.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>

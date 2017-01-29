@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
-typedef ezComponentManager<class ezPxShapeSphereComponent, false> ezPxShapeSphereComponentManager;
+typedef ezComponentManager<class ezPxShapeSphereComponent, ezBlockStorageType::FreeList> ezPxShapeSphereComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeSphereComponent : public ezPxShapeComponent
 {
@@ -30,7 +30,7 @@ protected:
 
 public:
 
-  virtual PxShape* CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform) override;
+  virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
 
 protected:
 

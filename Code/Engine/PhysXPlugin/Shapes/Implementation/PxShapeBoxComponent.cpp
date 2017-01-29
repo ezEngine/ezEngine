@@ -4,6 +4,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
+using namespace physx;
+
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1)
 {
   EZ_BEGIN_PROPERTIES

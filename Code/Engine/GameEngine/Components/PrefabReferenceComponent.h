@@ -7,7 +7,7 @@
 
 class ezPrefabReferenceComponent;
 
-class EZ_GAMEENGINE_DLL ezPrefabReferenceComponentManager : public ezComponentManager<ezPrefabReferenceComponent>
+class EZ_GAMEENGINE_DLL ezPrefabReferenceComponentManager : public ezComponentManager<ezPrefabReferenceComponent, ezBlockStorageType::Compact>
 {
 public:
   ezPrefabReferenceComponentManager(ezWorld* pWorld);

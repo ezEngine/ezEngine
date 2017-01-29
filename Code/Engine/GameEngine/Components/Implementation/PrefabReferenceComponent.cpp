@@ -116,7 +116,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
 
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ComponentType>(pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
 {
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }

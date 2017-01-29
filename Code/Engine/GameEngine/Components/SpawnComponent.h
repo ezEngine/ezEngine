@@ -32,7 +32,7 @@ struct ezSpawnComponentFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 
-typedef ezComponentManager<class ezSpawnComponent> ezSpawnComponentManager;
+typedef ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact> ezSpawnComponentManager;
 
 class EZ_GAMEENGINE_DLL ezSpawnComponent : public ezComponent
 {

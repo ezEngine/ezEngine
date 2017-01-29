@@ -9,7 +9,7 @@
 
 
 ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezCameraComponent, true>(pWorld)
+  : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
 {
 
 }

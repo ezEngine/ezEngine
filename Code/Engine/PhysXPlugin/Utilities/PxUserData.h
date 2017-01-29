@@ -12,6 +12,12 @@ class ezSurfaceResource;
 class ezPxUserData
 {
 public:
+  EZ_FORCE_INLINE ezPxUserData(nullptr_t)
+    : m_Type(Invalid)
+    , m_pObject(nullptr)
+  {
+  }
+
   EZ_FORCE_INLINE ezPxUserData(ezPxDynamicActorComponent* pObject)
     : m_Type(DynamicActorComponent)
     , m_pObject(pObject)

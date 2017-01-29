@@ -7,7 +7,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Material/MaterialResource.h>
 
-typedef ezComponentManagerSimple<class ezMaterialAnimComponent, true> ezMaterialAnimComponentManager;
+typedef ezComponentManagerSimple<class ezMaterialAnimComponent, ezComponentUpdateType::WhenSimulating> ezMaterialAnimComponentManager;
 
 class EZ_GAMEENGINE_DLL ezMaterialAnimComponent : public ezComponent
 {

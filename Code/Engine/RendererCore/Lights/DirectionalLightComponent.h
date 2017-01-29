@@ -3,8 +3,7 @@
 #include <RendererCore/Lights/LightComponent.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-class ezDirectionalLightComponent;
-typedef ezComponentManager<ezDirectionalLightComponent> ezDirectionalLightComponentManager;
+typedef ezComponentManager<class ezDirectionalLightComponent, ezBlockStorageType::Compact> ezDirectionalLightComponentManager;
 
 /// \brief The render data object for directional lights.
 class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderData
@@ -27,7 +26,7 @@ public:
 
   // ezRenderComponent interface
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
-  
+
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;

@@ -2,7 +2,7 @@
 template <typename ComponentType>
 ezComponentHandle ezSettingsComponentManager<ComponentType>::AllocateComponent()
 {
-  ezComponentHandle hComp = ezComponentManager<ComponentType>::AllocateComponent();
+  ezComponentHandle hComp = ezComponentManager<ComponentType, ezBlockStorageType::Compact>::AllocateComponent();
 
   ComponentType* pComponent = nullptr;
   this->TryGetComponent(hComp, pComponent);
@@ -28,5 +28,5 @@ void ezSettingsComponentManager<ComponentType>::DeleteDeadComponent(ezComponentM
     m_pSingleton = nullptr;
   }
 
-  ezComponentManager<ComponentType>::DeleteDeadComponent(storageEntry, out_pMovedComponent);
+  ezComponentManager<ComponentType, ezBlockStorageType::Compact>::DeleteDeadComponent(storageEntry, out_pMovedComponent);
 }

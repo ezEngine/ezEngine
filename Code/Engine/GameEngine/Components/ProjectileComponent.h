@@ -8,7 +8,7 @@
 struct ezTriggerMessage;
 class ezPhysicsWorldModuleInterface;
 
-class EZ_GAMEENGINE_DLL ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, true>
+class EZ_GAMEENGINE_DLL ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>
 {
 public:
   ezProjectileComponentManager(ezWorld* pWorld);

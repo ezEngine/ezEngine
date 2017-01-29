@@ -5,7 +5,7 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
 
-typedef ezComponentManagerSimple<class RecursiveGrowthComponent, true> RecursiveGrowthComponentManager;
+typedef ezComponentManagerSimple<class RecursiveGrowthComponent, ezComponentUpdateType::WhenSimulating> RecursiveGrowthComponentManager;
 
 class RecursiveGrowthComponent : public ezComponent
 {

@@ -43,13 +43,13 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  void AddToActor(PxRigidActor* pActor, const ezTransform& parentTransform);
+  void AddToActor(physx::PxRigidActor* pActor, const ezTransform& parentTransform);
 
 protected:
-  virtual PxShape* CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform) = 0;
+  virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) = 0;
 
-  PxMaterial* GetPxMaterial();
-  PxFilterData CreateFilterData();
+  physx::PxMaterial* GetPxMaterial();
+  physx::PxFilterData CreateFilterData();
 };
 
 

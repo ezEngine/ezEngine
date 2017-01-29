@@ -25,21 +25,9 @@ struct ezPxCharacterCollisionFlags
   };
 };
 
-class ezPxControllerBehaviorCallback : public PxControllerBehaviorCallback
-{
-  virtual PxControllerBehaviorFlags getBehaviorFlags(const PxShape& shape, const PxActor& actor) override;
-  virtual PxControllerBehaviorFlags getBehaviorFlags(const PxController& controller) override;
-  virtual PxControllerBehaviorFlags getBehaviorFlags(const PxObstacle& obstacle) override;
-};
+struct ezPxCharacterProxyData;
 
-class ezPxControllerHitCallback : public PxUserControllerHitReport
-{
-  virtual void onShapeHit(const PxControllerShapeHit& hit) override;
-  virtual void onControllerHit(const PxControllersHit& hit) override;
-  virtual void onObstacleHit(const PxControllerObstacleHit& hit) override;
-};
-
-typedef ezComponentManager<class ezPxCharacterProxyComponent, false> ezPxCharacterProxyComponentManager;
+typedef ezComponentManager<class ezPxCharacterProxyComponent, ezBlockStorageType::FreeList> ezPxCharacterProxyComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxCharacterProxyComponent : public ezPxComponent
 {
@@ -82,13 +70,9 @@ public:
 protected:
   ezUInt32 m_uiShapeId;
 
-  PxCapsuleController* m_pController;
+  physx::PxCapsuleController* m_pController;
 
-  ezPxControllerBehaviorCallback m_BehaviorCallback;
-  ezPxControllerHitCallback m_HitCallback;
-
-  PxControllerFilters m_ControllerFilter;
-  PxFilterData m_FilterData;
+  ezUniquePtr<ezPxCharacterProxyData> m_Data;
 
   ezPxUserData m_UserData;
 };

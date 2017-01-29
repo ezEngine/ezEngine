@@ -11,4 +11,21 @@
   #define EZ_PHYSXPLUGIN_DLL
 #endif
 
-
+namespace physx
+{
+  struct PxFilterData;
+  struct PxActiveTransform;
+  class PxTransform;
+  class PxGeometry;
+  class PxShape;
+  class PxConvexMesh;
+  class PxTriangleMesh;
+  class PxRigidActor;
+  class PxRigidDynamic;
+  class PxRigidStatic;
+  class PxCapsuleController;
+  class PxMaterial;
+  class PxJoint;
+  class PxScene;
+  class PxControllerManager;
+}

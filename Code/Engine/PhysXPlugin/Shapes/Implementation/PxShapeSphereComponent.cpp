@@ -1,9 +1,10 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
-#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+
+using namespace physx;
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1)
 {

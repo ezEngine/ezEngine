@@ -3,7 +3,16 @@
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
 
-template <typename T, ezUInt32 BlockSizeInByte, bool CompactStorage>
+struct ezBlockStorageType
+{
+  enum Enum
+  {
+    Compact,
+    FreeList
+  };
+};
+
+template <typename T, ezUInt32 BlockSizeInByte, ezBlockStorageType::Enum StorageType>
 class ezBlockStorage
 {
 public:
@@ -14,20 +23,20 @@ public:
     const T* operator->() const;
 
     operator const T*() const;
-    
+
     void Next();
     bool IsValid() const;
-    
-    void operator++();
-    
-  protected:
-    friend class ezBlockStorage<T, BlockSizeInByte, CompactStorage>;
 
-    ConstIterator(const ezBlockStorage<T, BlockSizeInByte, CompactStorage>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
-    
+    void operator++();
+
+  protected:
+    friend class ezBlockStorage<T, BlockSizeInByte, StorageType>;
+
+    ConstIterator(const ezBlockStorage<T, BlockSizeInByte, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+
     T& CurrentElement() const;
-    
-    const ezBlockStorage<T, BlockSizeInByte, CompactStorage>& m_Storage;
+
+    const ezBlockStorage<T, BlockSizeInByte, StorageType>& m_Storage;
     ezUInt32 m_uiCurrentIndex;
     ezUInt32 m_uiEndIndex;
   };
@@ -41,9 +50,9 @@ public:
     operator T*();
 
   private:
-    friend class ezBlockStorage<T, BlockSizeInByte, CompactStorage>;
+    friend class ezBlockStorage<T, BlockSizeInByte, StorageType>;
 
-    Iterator(const ezBlockStorage<T, BlockSizeInByte, CompactStorage>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+    Iterator(const ezBlockStorage<T, BlockSizeInByte, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
   };
 
   struct Entry
@@ -60,16 +69,19 @@ public:
 
   ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocatorBase* pAllocator);
   ~ezBlockStorage();
-  
+
   Entry Create();
   void Delete(Entry entry);
   void Delete(Entry entry, T*& out_pMovedObject);
-  
+
   ezUInt32 GetCount() const;
   Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex);
   ConstIterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
-  
+
 private:
+  void Delete(Entry entry, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::Compact>);
+  void Delete(Entry entry, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::FreeList>);
+
   ezLargeBlockAllocator<BlockSizeInByte>* m_pBlockAllocator;
 
   ezDynamicArray<ezDataBlock<T, BlockSizeInByte> > m_Blocks;

@@ -5,7 +5,7 @@
 struct ezTriggerMessage;
 struct ezCollisionMessage;
 
-class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, true>
+class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
 {
 public:
   ezPxCharacterControllerComponentManager(ezWorld* pWorld);

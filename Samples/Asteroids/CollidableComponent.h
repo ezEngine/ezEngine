@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 
 class CollidableComponent;
-typedef ezComponentManager<CollidableComponent> CollidableComponentManager;
+typedef ezComponentManager<CollidableComponent, ezBlockStorageType::FreeList> CollidableComponentManager;
 
 class CollidableComponent : public ezComponent
 {

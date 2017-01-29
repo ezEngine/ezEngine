@@ -6,7 +6,7 @@
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <Foundation/Types/SharedPtr.h>
 
-typedef ezComponentManagerSimple<class ezPropertyAnimComponent, true> ezPropertyAnimComponentManager;
+typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;
 
 class EZ_GAMEENGINE_DLL ezPropertyAnimComponent : public ezComponent
 {

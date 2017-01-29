@@ -3,7 +3,7 @@
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 
-typedef ezComponentManager<class ezPxShapeConvexComponent, false> ezPxShapeConvexComponentManager;
+typedef ezComponentManager<class ezPxShapeConvexComponent, ezBlockStorageType::FreeList> ezPxShapeConvexComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeConvexComponent : public ezPxShapeComponent
 {
@@ -30,7 +30,7 @@ protected:
 
 public:
 
-  virtual PxShape* CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform) override;
+  virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
 
 protected:
 

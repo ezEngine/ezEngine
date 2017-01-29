@@ -7,7 +7,7 @@
 
 class ezView;
 
-class EZ_RENDERERCORE_DLL ezCameraComponentManager : public ezComponentManager<class ezCameraComponent, true>
+class EZ_RENDERERCORE_DLL ezCameraComponentManager : public ezComponentManager<class ezCameraComponent, ezBlockStorageType::Compact>
 {
 public:
   ezCameraComponentManager(ezWorld* pWorld);

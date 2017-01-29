@@ -10,7 +10,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 
 ezPxCharacterControllerComponentManager::ezPxCharacterControllerComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezPxCharacterControllerComponent, true>(pWorld)
+  : ezComponentManager<ezPxCharacterControllerComponent, ezBlockStorageType::Compact>(pWorld)
 {
 }
 

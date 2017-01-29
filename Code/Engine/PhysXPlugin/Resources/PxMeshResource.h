@@ -3,14 +3,6 @@
 #include <PhysXPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 
-#include <PxPhysicsAPI.h>
-using namespace physx;
-
-namespace physx
-{
-  class PxTriangleMesh;
-}
-
 typedef ezTypedResourceHandle<class ezPxMeshResource> ezPhysXMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 

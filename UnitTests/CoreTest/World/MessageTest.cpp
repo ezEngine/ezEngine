@@ -28,7 +28,7 @@ namespace
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage2);
 
   class TestComponentMsg;
-  typedef ezComponentManager<TestComponentMsg> TestComponentMsgManager;
+  typedef ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList> TestComponentMsgManager;
 
   class TestComponentMsg : public ezComponent
   {

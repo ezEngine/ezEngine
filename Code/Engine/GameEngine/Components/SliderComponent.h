@@ -3,8 +3,7 @@
 #include <GameEngine/Basics.h>
 #include <GameEngine/Components/TransformComponent.h>
 
-class ezSliderComponent;
-typedef ezComponentManagerSimple<ezSliderComponent, true> ezSliderComponentManager;
+typedef ezComponentManagerSimple<class ezSliderComponent, ezComponentUpdateType::WhenSimulating> ezSliderComponentManager;
 
 class EZ_GAMEENGINE_DLL ezSliderComponent : public ezTransformComponent
 {

@@ -8,9 +8,10 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
+using namespace physx;
 
 ezPxDynamicActorComponentManager::ezPxDynamicActorComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezPxDynamicActorComponent, false>(pWorld)
+  : ezComponentManager<ezPxDynamicActorComponent, ezBlockStorageType::FreeList>(pWorld)
 {
 
 }

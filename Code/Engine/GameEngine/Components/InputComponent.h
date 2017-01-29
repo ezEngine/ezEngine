@@ -5,7 +5,7 @@
 #include <Core/World/Component.h>
 #include <Core/Input/Declarations.h>
 
-typedef ezComponentManagerSimple<class ezInputComponent, true> ezInputComponentManager;
+typedef ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating> ezInputComponentManager;
 
 /// \brief Which types of input events are broadcast
 struct EZ_GAMEENGINE_DLL ezInputMessageGranularity

@@ -6,14 +6,6 @@
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
-namespace physx
-{
-  class PxTransform;
-  class PxGeometry;
-  class PxScene;
-  class PxControllerManager;
-}
-
 class ezPxSimulationEventCallback;
 
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface

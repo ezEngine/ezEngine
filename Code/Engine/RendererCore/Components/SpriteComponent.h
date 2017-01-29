@@ -24,8 +24,7 @@ public:
   ezUInt32 m_uiUniqueID;
 };
 
-class ezSpriteComponent;
-typedef ezComponentManager<ezSpriteComponent, true> ezSpriteComponentManager;
+typedef ezComponentManager<class ezSpriteComponent, ezBlockStorageType::Compact> ezSpriteComponentManager;
 
 class EZ_RENDERERCORE_DLL ezSpriteComponent : public ezRenderComponent
 {

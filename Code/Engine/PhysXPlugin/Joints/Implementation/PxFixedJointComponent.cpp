@@ -1,7 +1,10 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+
+using namespace physx;
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxFixedJointComponent, 1);
 {
@@ -42,9 +45,9 @@ void ezPxFixedJointComponent::OnSimulationStarted()
 
 }
 
-PxJoint* ezPxFixedJointComponent::CreateJointType(PxPhysics& api, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxJoint* ezPxFixedJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
-  return PxFixedJointCreate(api, actor0, localFrame0, actor1, localFrame1);
+  return PxFixedJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }
 
 

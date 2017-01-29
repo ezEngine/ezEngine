@@ -3,7 +3,7 @@
 #include <GameEngine/Basics.h>
 #include <GameEngine/Components/TransformComponent.h>
 
-typedef ezComponentManagerSimple<class ezRotorComponent, true> ezRotorComponentManager;
+typedef ezComponentManagerSimple<class ezRotorComponent, ezComponentUpdateType::WhenSimulating> ezRotorComponentManager;
 
 class EZ_GAMEENGINE_DLL ezRotorComponent : public ezTransformComponent
 {

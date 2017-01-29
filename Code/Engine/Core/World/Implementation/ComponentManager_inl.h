@@ -27,8 +27,8 @@ EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T, bool CompactStorage>
-ezComponentManager<T, CompactStorage>::ezComponentManager(ezWorld* pWorld) :
+template <typename T, ezBlockStorageType::Enum StorageType>
+ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld) :
   ezComponentManagerBase(pWorld),
   m_ComponentStorage(GetBlockAllocator(), GetAllocator())
 {
@@ -36,8 +36,8 @@ ezComponentManager<T, CompactStorage>::ezComponentManager(ezWorld* pWorld) :
     "Not a valid component type");
 }
 
-template <typename T, bool CompactStorage>
-ezComponentManager<T, CompactStorage>::~ezComponentManager()
+template <typename T, ezBlockStorageType::Enum StorageType>
+ezComponentManager<T, StorageType>::~ezComponentManager()
 {
   for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
   {
@@ -45,15 +45,15 @@ ezComponentManager<T, CompactStorage>::~ezComponentManager()
   }
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::AllocateComponent()
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, StorageType>::AllocateComponent()
 {
   ComponentType* pNewComponent = nullptr;
   return CreateComponent(pNewComponent);
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::CreateComponent(ComponentType*& out_pComponent)
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, StorageType>::CreateComponent(ComponentType*& out_pComponent)
 {
   auto storageEntry = m_ComponentStorage.Create();
   out_pComponent = storageEntry.m_Ptr;
@@ -61,8 +61,8 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::CreateC
   return ezComponentManagerBase::CreateComponentEntry(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry));
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
     "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
@@ -76,8 +76,8 @@ EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(cons
   return bResult;
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
 {
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
                 "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
@@ -91,43 +91,43 @@ EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(cons
   return bResult;
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::Iterator ezComponentManager<T, CompactStorage>::GetComponents()
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator ezComponentManager<T, StorageType>::GetComponents()
 {
   return m_ComponentStorage.GetIterator();
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::ConstIterator ezComponentManager<T, CompactStorage>::GetComponents() const
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator ezComponentManager<T, StorageType>::GetComponents() const
 {
   return m_ComponentStorage.GetIterator();
 }
 
-template <typename T, bool CompactStorage>
-const ezRTTI* ezComponentManager<T, CompactStorage>::GetComponentType() const
+template <typename T, ezBlockStorageType::Enum StorageType>
+const ezRTTI* ezComponentManager<T, StorageType>::GetComponentType() const
 {
   return ezGetStaticRTTI<T>();
 }
 
 //static
-template <typename T, bool CompactStorage>
-ezUInt16 ezComponentManager<T, CompactStorage>::TypeId()
+template <typename T, ezBlockStorageType::Enum StorageType>
+ezUInt16 ezComponentManager<T, StorageType>::TypeId()
 {
   return T::TypeId();
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE void ezComponentManager<T, CompactStorage>::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
 {
   T* pMovedComponent = nullptr;
-  m_ComponentStorage.Delete(*reinterpret_cast<typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::Entry*>(&storageEntry), pMovedComponent);
+  m_ComponentStorage.Delete(*reinterpret_cast<typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Entry*>(&storageEntry), pMovedComponent);
   out_pMovedComponent = pMovedComponent;
 
   ezComponentManagerBase::DeleteDeadComponent(storageEntry, out_pMovedComponent);
 }
 
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE void ezComponentManager<T, CompactStorage>::RegisterUpdateFunction(UpdateFunctionDesc& desc)
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(UpdateFunctionDesc& desc)
 {
   // round up to multiple of data block capacity so tasks only have to deal with complete data blocks
   if (desc.m_uiGranularity != 0)
@@ -137,15 +137,15 @@ EZ_FORCE_INLINE void ezComponentManager<T, CompactStorage>::RegisterUpdateFuncti
 }
 
 //static
-template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, CompactStorage>::GetNextTypeId()
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, StorageType>::GetNextTypeId()
 {
   return ezWorldModule::GetNextTypeId();
 }
 
 
-template <typename T, bool CompactStorage /*= false*/>
-void ezComponentManager<T, CompactStorage>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
+template <typename T, ezBlockStorageType::Enum StorageType>
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
 {
   out_AllComponents.Clear();
   out_AllComponents.Reserve(m_ComponentStorage.GetCount());
@@ -157,8 +157,8 @@ void ezComponentManager<T, CompactStorage>::CollectAllComponents(ezDynamicArray<
 }
 
 
-template <typename T, bool CompactStorage /*= false*/>
-void ezComponentManager<T, CompactStorage>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
+template <typename T, ezBlockStorageType::Enum StorageType>
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
 {
   out_AllComponents.Clear();
   out_AllComponents.Reserve(m_ComponentStorage.GetCount());
@@ -172,28 +172,28 @@ void ezComponentManager<T, CompactStorage>::CollectAllComponents(ezDynamicArray<
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::ezComponentManagerSimple(ezWorld* pWorld) :
-  ezComponentManager<ComponentType>(pWorld)
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
+ezComponentManagerSimple<ComponentType, UpdateType>::ezComponentManagerSimple(ezWorld* pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 
-template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initialize()
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
+void ezComponentManagerSimple<ComponentType, UpdateType>::Initialize()
 {
-  typedef ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating> OwnType;
+  typedef ezComponentManagerSimple<ComponentType, UpdateType> OwnType;
 
   ezStringBuilder functionName;
   SimpleUpdateName(functionName);
 
   auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&OwnType::SimpleUpdate, this), functionName);
-  desc.m_bOnlyUpdateWhenSimulating = OnlyUpdateWhenSimulating;
+  desc.m_bOnlyUpdateWhenSimulating = (UpdateType == ezComponentUpdateType::WhenSimulating);
 
   this->RegisterUpdateFunction(desc);
 }
 
-template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdate(const ezWorldModule::UpdateContext& context)
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
+void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdate(const ezWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -211,8 +211,8 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
 }
 
 //static
-template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdateName(ezStringBuilder& out_sName)
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
+void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStringBuilder& out_sName)
 {
   ezStringView sName(EZ_SOURCE_FUNCTION);
   const char* szEnd = sName.FindSubString(",");

@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 
 class AsteroidComponent;
-typedef ezComponentManagerSimple<AsteroidComponent, true> AsteroidComponentManager;
+typedef ezComponentManagerSimple<AsteroidComponent, ezComponentUpdateType::WhenSimulating> AsteroidComponentManager;
 
 class AsteroidComponent : public ezComponent
 {

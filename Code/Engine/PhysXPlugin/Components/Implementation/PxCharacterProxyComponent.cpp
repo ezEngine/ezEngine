@@ -8,6 +8,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
+using namespace physx;
+
 namespace
 {
   static ezBitflags<ezPxCharacterCollisionFlags> ConvertCollisionFlags(PxU32 pxFlags)
@@ -31,69 +33,84 @@ namespace
 
     return result;
   }
+
+  class ezPxControllerBehaviorCallback : public PxControllerBehaviorCallback
+  {
+    virtual PxControllerBehaviorFlags getBehaviorFlags(const PxShape& shape, const PxActor& actor) override
+    {
+      const PxRigidDynamic* pDynamicRigidBody = actor.isRigidDynamic();
+      if (pDynamicRigidBody != nullptr && pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
+      {
+        return PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT | PxControllerBehaviorFlag::eCCT_SLIDE;
+      }
+
+      return PxControllerBehaviorFlags(0);
+    }
+
+    virtual PxControllerBehaviorFlags getBehaviorFlags(const PxController& controller) override
+    {
+      return PxControllerBehaviorFlags(0);
+    }
+
+    virtual PxControllerBehaviorFlags getBehaviorFlags(const PxObstacle& obstacle) override
+    {
+      return PxControllerBehaviorFlags(0);
+    }
+  };
+
+  class ezPxControllerHitCallback : public PxUserControllerHitReport
+  {
+    virtual void onShapeHit(const PxControllerShapeHit& hit) override
+    {
+      PxRigidDynamic* pDynamicRigidBody = hit.actor->isRigidDynamic();
+      if (pDynamicRigidBody != nullptr && !pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
+      {
+        ezPxCharacterProxyComponent* pCharacterProxyComponent = ezPxUserData::GetCharacterProxyComponent(hit.controller->getUserData());
+        ezPxDynamicActorComponent* pDynamicActorComponent = ezPxUserData::GetDynamicActorComponent(hit.actor->userData);
+
+        ezGameObject* pCharacterObject = pCharacterProxyComponent->GetOwner();
+        const float fMass = hit.controller->getActor()->getMass();
+
+        ezCollisionMessage msg;
+
+        msg.m_hObjectA = pCharacterObject->GetHandle();
+        msg.m_hObjectB = pDynamicActorComponent->GetOwner()->GetHandle();
+
+        msg.m_hComponentA = pCharacterProxyComponent->GetHandle();
+        msg.m_hComponentB = pDynamicActorComponent->GetHandle();
+
+        msg.m_vPosition = ezPxConversionUtils::ToVec3(hit.worldPos);
+        msg.m_vNormal = ezPxConversionUtils::ToVec3(hit.worldNormal);
+        msg.m_vImpulse = ezPxConversionUtils::ToVec3(hit.dir) * fMass;
+
+        pCharacterObject->SendMessage(msg);
+      }
+    }
+
+    virtual void onControllerHit(const PxControllersHit& hit) override
+    {
+      // do nothing for now
+    }
+
+    virtual void onObstacleHit(const PxControllerObstacleHit& hit) override
+    {
+      // do nothing for now
+    }
+  };
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-PxControllerBehaviorFlags ezPxControllerBehaviorCallback::getBehaviorFlags(const PxShape& shape, const PxActor& actor)
+struct ezPxCharacterProxyData
 {
-  const PxRigidDynamic* pDynamicRigidBody = actor.isRigidDynamic();
-  if (pDynamicRigidBody != nullptr && pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
-  {
-    return PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT | PxControllerBehaviorFlag::eCCT_SLIDE;
-  }
+  ezPxQueryFilter m_QueryFilter;
 
-  return PxControllerBehaviorFlags(0);
-}
+  ezPxControllerBehaviorCallback m_BehaviorCallback;
+  ezPxControllerHitCallback m_HitCallback;
 
-PxControllerBehaviorFlags ezPxControllerBehaviorCallback::getBehaviorFlags(const PxController& controller)
-{
-  return PxControllerBehaviorFlags(0);
-}
-
-PxControllerBehaviorFlags ezPxControllerBehaviorCallback::getBehaviorFlags(const PxObstacle& obstacle)
-{
-  return PxControllerBehaviorFlags(0);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void ezPxControllerHitCallback::onShapeHit(const PxControllerShapeHit& hit)
-{
-  PxRigidDynamic* pDynamicRigidBody = hit.actor->isRigidDynamic();
-  if (pDynamicRigidBody != nullptr && !pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
-  {
-    ezPxCharacterProxyComponent* pCharacterProxyComponent = ezPxUserData::GetCharacterProxyComponent(hit.controller->getUserData());
-    ezPxDynamicActorComponent* pDynamicActorComponent = ezPxUserData::GetDynamicActorComponent(hit.actor->userData);
-
-    ezGameObject* pCharacterObject = pCharacterProxyComponent->GetOwner();
-    const float fMass = hit.controller->getActor()->getMass();
-
-    ezCollisionMessage msg;
-
-    msg.m_hObjectA = pCharacterObject->GetHandle();
-    msg.m_hObjectB = pDynamicActorComponent->GetOwner()->GetHandle();
-
-    msg.m_hComponentA = pCharacterProxyComponent->GetHandle();
-    msg.m_hComponentB = pDynamicActorComponent->GetHandle();
-
-    msg.m_vPosition = ezPxConversionUtils::ToVec3(hit.worldPos);
-    msg.m_vNormal = ezPxConversionUtils::ToVec3(hit.worldNormal);
-    msg.m_vImpulse = ezPxConversionUtils::ToVec3(hit.dir) * fMass;
-
-    pCharacterObject->SendMessage(msg);
-  }
-}
-
-void ezPxControllerHitCallback::onControllerHit(const PxControllersHit& hit)
-{
-  // do nothing for now
-}
-
-void ezPxControllerHitCallback::onObstacleHit(const PxControllerObstacleHit& hit)
-{
-  // do nothing for now
-}
+  PxControllerFilters m_ControllerFilter;
+  PxFilterData m_FilterData;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -139,6 +156,8 @@ ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
   m_uiShapeId = ezInvalidIndex;
 
   m_pController = nullptr;
+
+  m_Data = EZ_DEFAULT_NEW(ezPxCharacterProxyData);
 }
 
 ezPxCharacterProxyComponent::~ezPxCharacterProxyComponent()
@@ -230,8 +249,8 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   cd.slopeLimit = ezMath::Cos(m_MaxClimbingSlope);
   cd.contactOffset = ezMath::Max(m_fCapsuleRadius * 0.1f, 0.01f);
   cd.stepOffset = m_fMaxStepHeight;
-  cd.reportCallback = &m_HitCallback;
-  cd.behaviorCallback = &m_BehaviorCallback;
+  cd.reportCallback = &(m_Data->m_HitCallback);
+  cd.behaviorCallback = &(m_Data->m_BehaviorCallback);
   cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
   cd.userData = &m_UserData;
@@ -247,12 +266,12 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   }
 
   // Setup filter data
-  m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId);
+  m_Data->m_FilterData = ezPhysX::CreateFilterData(m_uiCollisionLayer, m_uiShapeId);
 
-  m_ControllerFilter.mCCTFilterCallback = nullptr;
-  m_ControllerFilter.mFilterCallback = nullptr;
-  m_ControllerFilter.mFilterData = &m_FilterData;
-  m_ControllerFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+  m_Data->m_ControllerFilter.mCCTFilterCallback = nullptr;
+  m_Data->m_ControllerFilter.mFilterCallback = &(m_Data->m_QueryFilter);
+  m_Data->m_ControllerFilter.mFilterData = &(m_Data->m_FilterData);
+  m_Data->m_ControllerFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 
   {
     EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
@@ -265,8 +284,8 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
 
     PxShape* pShape = nullptr;
     pActor->getShapes(&pShape, 1);
-    pShape->setSimulationFilterData(m_FilterData);
-    pShape->setQueryFilterData(m_FilterData);
+    pShape->setSimulationFilterData(m_Data->m_FilterData);
+    pShape->setQueryFilterData(m_Data->m_FilterData);
   }
 }
 
@@ -285,16 +304,11 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
     ezVec3 vOldPos = pOwner->GetGlobalPosition();
     const float fElapsedTime = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
-    ezPxQueryFilter QueryFilter;
-    m_ControllerFilter.mFilterCallback = &QueryFilter;
-
     EZ_PX_WRITE_LOCK(*(m_pController->getScene()));
-    PxControllerCollisionFlags collisionFlags = m_pController->move(ezPxConversionUtils::ToVec3(vMotion), 0.0f, fElapsedTime, m_ControllerFilter);
+    PxControllerCollisionFlags collisionFlags = m_pController->move(ezPxConversionUtils::ToVec3(vMotion), 0.0f, fElapsedTime, m_Data->m_ControllerFilter);
 
     ezVec3 vNewPos = ezPxConversionUtils::ToVec3(m_pController->getPosition());
     pOwner->SetGlobalPosition(vNewPos);
-
-    m_ControllerFilter.mFilterCallback = nullptr;
 
     return ConvertCollisionFlags(collisionFlags);
   }

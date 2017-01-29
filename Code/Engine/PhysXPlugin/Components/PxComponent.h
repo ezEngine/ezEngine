@@ -5,9 +5,6 @@
 #include <Core/World/Component.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 
-#include <PxPhysicsAPI.h>
-using namespace physx;
-
 /// \brief Base class for all PhysX components, such that they all have a common ancestor
 class EZ_PHYSXPLUGIN_DLL ezPxComponent : public ezComponent
 {

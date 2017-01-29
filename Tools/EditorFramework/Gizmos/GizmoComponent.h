@@ -13,7 +13,7 @@ public:
 };
 
 class ezGizmoComponent;
-typedef ezComponentManager<ezGizmoComponent> ezGizmoComponentManager;
+typedef ezComponentManager<ezGizmoComponent, ezBlockStorageType::FreeList> ezGizmoComponentManager;
 
 class EZ_EDITORFRAMEWORK_DLL ezGizmoComponent : public ezMeshComponent
 {

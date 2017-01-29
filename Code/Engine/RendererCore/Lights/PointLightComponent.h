@@ -4,8 +4,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
-class ezPointLightComponent;
-typedef ezComponentManager<ezPointLightComponent> ezPointLightComponentManager;
+typedef ezComponentManager<class ezPointLightComponent, ezBlockStorageType::Compact> ezPointLightComponentManager;
 
 /// \brief The render data object for point lights.
 class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData

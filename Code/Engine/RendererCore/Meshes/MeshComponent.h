@@ -17,8 +17,7 @@ public:
   ezUInt32 m_uiUniqueID;
 };
 
-class ezMeshComponent;
-typedef ezComponentManager<ezMeshComponent, true> ezMeshComponentManager;
+typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
 
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderComponent
 {

@@ -9,10 +9,10 @@
 /// all other components are ignored.
 /// Use this for components derived from ezSettingsComponent, of which one should only of zero or one per world.
 template <typename ComponentType>
-class ezSettingsComponentManager : public ezComponentManager<ComponentType>
+class ezSettingsComponentManager : public ezComponentManager<ComponentType, ezBlockStorageType::Compact>
 {
 public:
-  ezSettingsComponentManager(ezWorld* pWorld) : ezComponentManager<ComponentType>(pWorld)
+  ezSettingsComponentManager(ezWorld* pWorld) : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
   {
     m_pSingleton = nullptr;
   }

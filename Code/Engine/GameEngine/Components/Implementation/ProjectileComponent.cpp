@@ -318,7 +318,7 @@ const char* ezProjectileComponent::GetTimeoutPrefab() const
 
 
 ezProjectileComponentManager::ezProjectileComponentManager(ezWorld* pWorld)
-  : ezComponentManagerSimple<class ezProjectileComponent, true>(pWorld)
+  : ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>(pWorld)
   , m_pPhysicsInterface(nullptr)
 {
 
@@ -326,7 +326,7 @@ ezProjectileComponentManager::ezProjectileComponentManager(ezWorld* pWorld)
 
 void ezProjectileComponentManager::Initialize()
 {
-  ezComponentManagerSimple<ezProjectileComponent, true>::Initialize();
+  ezComponentManagerSimple<ezProjectileComponent, ezComponentUpdateType::WhenSimulating>::Initialize();
 
   m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
 }

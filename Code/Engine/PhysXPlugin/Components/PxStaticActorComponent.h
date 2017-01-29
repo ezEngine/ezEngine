@@ -4,7 +4,7 @@
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 
-typedef ezComponentManager<class ezPxStaticActorComponent, false> ezPxStaticActorComponentManager;
+typedef ezComponentManager<class ezPxStaticActorComponent, ezBlockStorageType::FreeList> ezPxStaticActorComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
 {
@@ -44,7 +44,7 @@ public:
 
 private:
 
-  PxRigidStatic* m_pActor;
+  physx::PxRigidStatic* m_pActor;
 
   ezPxUserData m_UserData;
 };

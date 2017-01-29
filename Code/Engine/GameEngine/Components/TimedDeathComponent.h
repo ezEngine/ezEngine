@@ -7,7 +7,7 @@
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-typedef ezComponentManager<class ezTimedDeathComponent> ezTimedDeathComponentManager;
+typedef ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact> ezTimedDeathComponentManager;
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
 /// \brief This component deletes the object it is attached to after a timeout.

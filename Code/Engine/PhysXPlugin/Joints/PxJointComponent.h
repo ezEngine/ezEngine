@@ -30,11 +30,11 @@ public:
 protected:
   virtual void Deinitialize() override;
 
-  PxJoint* SetupJoint();
+  physx::PxJoint* SetupJoint();
 
-  virtual PxJoint* CreateJointType(PxPhysics& api, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) = 0;
+  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) = 0;
 
-  PxJoint* m_pJoint;
+  physx::PxJoint* m_pJoint;
 };
 
 

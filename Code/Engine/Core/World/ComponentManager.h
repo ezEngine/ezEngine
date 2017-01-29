@@ -55,7 +55,7 @@ protected:
 
   /// \cond
   // internal methods
-  typedef ezBlockStorage<ezComponent, ezInternal::DEFAULT_BLOCK_SIZE, false>::Entry ComponentStorageEntry;
+  typedef ezBlockStorage<ezComponent, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::FreeList>::Entry ComponentStorageEntry;
 
   ezComponentHandle CreateComponentEntry(ComponentStorageEntry storageEntry);
   void DeinitializeComponent(ezComponent* pComponent);
@@ -67,7 +67,7 @@ protected:
   ezIdTable<ezGenericComponentId, ComponentStorageEntry> m_Components;
 };
 
-template <typename T, bool CompactStorage = false>
+template <typename T, ezBlockStorageType::Enum StorageType>
 class ezComponentManager : public ezComponentManagerBase
 {
 public:
@@ -90,10 +90,10 @@ public:
   bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 
   /// \brief Returns an iterator over all components.
-  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::Iterator GetComponents();
+  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator GetComponents();
 
   /// \brief Returns an iterator over all components.
-  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::ConstIterator GetComponents() const;
+  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator GetComponents() const;
 
   /// \brief Returns the rtti info of the component type that this manager handles.
   virtual const ezRTTI* GetComponentType() const override;
@@ -114,16 +114,24 @@ protected:
 
   static ezUInt16 GetNextTypeId();
 
-  ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage> m_ComponentStorage;
+  ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType> m_ComponentStorage;
 };
 
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezComponentUpdateType
+{
+  enum Enum
+  {
+    Always,
+    WhenSimulating
+  };
+};
 
 /// \brief Simple component manager implementation that calls an update method on all components every frame.
-template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-class ezComponentManagerSimple : public ezComponentManager<ComponentType>
+template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
+class ezComponentManagerSimple : public ezComponentManager<ComponentType, ezBlockStorageType::FreeList>
 {
 public:
   ezComponentManagerSimple(ezWorld* pWorld);

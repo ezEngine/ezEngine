@@ -39,7 +39,7 @@ namespace ezInternal
     };
 
     // object storage
-    typedef ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, true> ObjectStorage;
+    typedef ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact> ObjectStorage;
     ezIdTable<ezGameObjectId, ObjectStorage::Entry, ezLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 

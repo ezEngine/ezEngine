@@ -5,7 +5,7 @@
 #include <Core/World/Component.h>
 #include <GameEngine/Collection/CollectionResource.h>
 
-typedef ezComponentManager<class ezCollectionComponent> ezCollectionComponentManager;
+typedef ezComponentManager<class ezCollectionComponent, ezBlockStorageType::Compact> ezCollectionComponentManager;
 
 class EZ_GAMEENGINE_DLL ezCollectionComponent : public ezComponent
 {

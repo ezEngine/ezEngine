@@ -4,7 +4,7 @@
 
 struct ezCallDelayedStartMessage;
 
-typedef ezComponentManager<class ezPxDistanceJointComponent, true> ezPxDistanceJointComponentManager;
+typedef ezComponentManager<class ezPxDistanceJointComponent, ezBlockStorageType::Compact> ezPxDistanceJointComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxDistanceJointComponent : public ezPxJointComponent
 {
@@ -37,7 +37,7 @@ protected:
 
   virtual void OnSimulationStarted() override;
 
-  virtual PxJoint* CreateJointType(PxPhysics& api, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) override;
+  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 };
 
 

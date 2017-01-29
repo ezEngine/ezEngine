@@ -1,7 +1,10 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+
+using namespace physx;
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1)
 {
@@ -74,9 +77,9 @@ void ezPxDistanceJointComponent::OnSimulationStarted()
   pJoint->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, m_fSpringStiffness > 0.0f);
 }
 
-PxJoint* ezPxDistanceJointComponent::CreateJointType(PxPhysics& api, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxJoint* ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
-  return PxDistanceJointCreate(api, actor0, localFrame0, actor1, localFrame1);
+  return PxDistanceJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }
 
 

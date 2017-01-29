@@ -5,7 +5,7 @@
 
 class ezPxDynamicActorComponent;
 
-class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponentManager : public ezComponentManager<ezPxDynamicActorComponent, false>
+class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponentManager : public ezComponentManager<ezPxDynamicActorComponent, ezBlockStorageType::FreeList>
 {
 public:
   ezPxDynamicActorComponentManager(ezWorld* pWorld);
@@ -16,7 +16,7 @@ private:
   friend class ezPxDynamicActorComponent;
 
   void UpdateKinematicActors();
-  void UpdateDynamicActors(ezArrayPtr<const PxActiveTransform> activeTransforms);
+  void UpdateDynamicActors(ezArrayPtr<const physx::PxActiveTransform> activeTransforms);
 
   ezDynamicArray<ezPxDynamicActorComponent*> m_KinematicActorComponents;
 };
@@ -47,7 +47,7 @@ public:
 
   virtual void Deinitialize() override;
 
-  PxRigidDynamic* GetActor() const { return m_pActor; }
+  physx::PxRigidDynamic* GetActor() const { return m_pActor; }
 
   ezVec3 GetLocalCenterOfMass() const;
   ezVec3 GetGlobalCenterOfMass() const;
@@ -64,7 +64,7 @@ public:
 protected:
   bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;
 
-  PxRigidDynamic* m_pActor;
+  physx::PxRigidDynamic* m_pActor;
 
 private:
   bool m_bDisableGravity;
