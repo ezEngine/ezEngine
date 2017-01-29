@@ -153,31 +153,25 @@ EZ_FORCE_INLINE void ezSharedPtr<T>::operator=(std::nullptr_t)
 }
 
 template <typename T>
+EZ_FORCE_INLINE T* ezSharedPtr<T>::Borrow() const
+{
+  return m_pInstance;
+}
+
+template <typename T>
 EZ_FORCE_INLINE void ezSharedPtr<T>::Reset()
 {
   ReleaseReferenceIfValid();
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T& ezSharedPtr<T>::operator*() const
+EZ_FORCE_INLINE T& ezSharedPtr<T>::operator*() const
 {
   return *m_pInstance;
 }
 
 template <typename T>
-EZ_FORCE_INLINE T& ezSharedPtr<T>::operator*()
-{
-  return *m_pInstance;
-}
-
-template <typename T>
-EZ_FORCE_INLINE const T* ezSharedPtr<T>::operator->() const
-{
-  return m_pInstance;
-}
-
-template <typename T>
-EZ_FORCE_INLINE T* ezSharedPtr<T>::operator->()
+EZ_FORCE_INLINE T* ezSharedPtr<T>::operator->() const
 {
   return m_pInstance;
 }

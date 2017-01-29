@@ -64,20 +64,17 @@ public:
   /// \brief Assigns a nullptr to the shared ptr. Same as Reset.
   void operator=(std::nullptr_t);
 
+  /// \brief Borrows the managed object. The unique ptr stays unmodified.
+  T* Borrow() const;
+
   /// \brief Destroys the managed object if no one else references it anymore and resets the shared ptr.
   void Reset();
 
   /// \brief Provides access to the managed object.
-  const T& operator*() const;
+  T& operator*() const;
 
   /// \brief Provides access to the managed object.
-  T& operator*();
-
-  /// \brief Provides access to the managed object.
-  const T* operator->() const;
-
-  /// \brief Provides access to the managed object.
-  T* operator->();
+  T* operator->() const;
 
   /// \brief Provides access to the managed object.
   operator const T*() const;
