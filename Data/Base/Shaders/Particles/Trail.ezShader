@@ -57,19 +57,19 @@ VS_OUT main(uint VertexID : SV_VertexID)
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
     //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
-    //float uvStep = 1.0 / (particle.NumPoints - 2);
-    float uvStep = 1.0 / (TRAIL_POINTS - 2);
-    float uvCoord1 = uvStep * trailPointIndex;
-    float uvCoord2 = uvCoord1 + uvStep;
-    float uvSubtract = uvStep * particle.SnapshotFraction;
-
-    if (trailPointIndex == 0 && factor < 0.5)
-      uvSubtract = 0;
+    // UV step is currently calculated over the maximum number of segments, instead of the active number of segments
+    // this means at start the texture is cut off, instead of stretching over the full UV space
+    // doing it differently would be very complicated though
+    float uvStep = 1.0 / (TRAIL_POINTS - 3);
+    float uvCoord1 = uvStep * trailPointIndex; // coordinate at the left side of the segment
+    float uvCoord2 = uvCoord1 + uvStep; // coordinate at the right side of the segment
+    float uvSubtract = uvStep * particle.SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
 
     float3 position1 = particlePointsData[particleIndex].Positions[trailPointIndex].xyz;
     float3 position2 = particlePointsData[particleIndex].Positions[trailPointIndex + 1].xyz;
     float3 position3 = particlePointsData[particleIndex].Positions[trailPointIndex + 2].xyz;
 
+    // position for THIS vertex
     float3 thisPosition = lerp(position1, position2, factor);
 
     float3 direction1 = position1 - position2;
@@ -87,8 +87,17 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
     ret.Position = mul(WorldToScreenMatrix, position);
     ret.TexCoords = texCoords[vertexSubIndex];
-    ret.TexCoords.x = lerp(uvCoord1, uvCoord2, factor) - uvSubtract;
+    ret.TexCoords.x = lerp(uvCoord1, uvCoord2, factor);
     ret.Color = RGBA8ToFloat4(particle.Color);
+
+    // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
+    // however, DO adjust the coordinate of the LAST vertex, since that is not moving and needs to "fade away" (out of the UV space, ie > 1)
+    if (ret.TexCoords.x > 0.01)
+      ret.TexCoords.x -= uvSubtract;
+
+    // manually clamp the texCoords
+    // this could be set as a sampler state, but it would not work with sub-ranges (once we support texture atlases)
+    ret.TexCoords.x = min(1.0, ret.TexCoords.x);
   }
 
   return ret;

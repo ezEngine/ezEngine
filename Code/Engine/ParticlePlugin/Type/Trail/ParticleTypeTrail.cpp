@@ -18,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
   {
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_MEMBER_PROPERTY("Segments", m_uiMaxPoints)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 64)),
-    EZ_MEMBER_PROPERTY("UpdateTime", m_UpdateDiff)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(50)), new ezClampValueAttribute(ezTime::Milliseconds(20), ezTime::Milliseconds(300))),
+    //EZ_MEMBER_PROPERTY("UpdateTime", m_UpdateDiff)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(50)), new ezClampValueAttribute(ezTime::Milliseconds(20), ezTime::Milliseconds(300))),
   }
   EZ_END_PROPERTIES
 }
@@ -32,14 +32,15 @@ const ezRTTI* ezParticleTypeTrailFactory::GetTypeType() const
   return ezGetStaticRTTI<ezParticleTypeTrail>();
 }
 
-
 void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject) const
 {
   ezParticleTypeTrail* pType = static_cast<ezParticleTypeTrail*>(pObject);
 
   pType->m_uiMaxPoints = m_uiMaxPoints;
   pType->m_hTexture.Invalidate();
-  pType->m_UpdateDiff = m_UpdateDiff;
+
+  // fixed 25 FPS for the update rate
+  pType->m_UpdateDiff = ezTime::Seconds(1.0 / 25.0); // m_UpdateDiff;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -97,17 +98,8 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
     m_LastSnapshot = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
   }
 
-  //if (m_uiMaxPoints > 32)
   m_uiMaxPoints = TRAIL_POINTS;
-  m_uiMaxPointsMask = TRAIL_POINTS - 1;
-  //else if (m_uiMaxPoints > 16)
-  //  m_uiMaxPointsMask = 31;
-  //else if (m_uiMaxPoints > 8)
-  //  m_uiMaxPointsMask = 15;
-  //else
-  //  m_uiMaxPointsMask = 7;
 
-  //m_uiCurFirstIndex = (m_uiCurLastIndex + m_uiMaxPoints - 1) & m_uiMaxPointsMask;
   m_uiCurFirstIndex = TRAIL_POINTS - 1;
   m_uiCurFirstIndex = 1;
 }
@@ -159,14 +151,6 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
       ezTrailParticlePointsData& renderPositions = m_TrailPointsShared[p];
 
-      //ezUInt32 seg = m_uiCurLastIndex;
-      //for (ezUInt32 i = m_uiMaxPoints; i > 0; --i)
-      //{
-      //  renderPositions.Positions[i - 1] = pTrailPositions[seg];
-
-      //  seg = (seg + 1) & m_uiMaxPointsMask;
-      //}
-
       /// \todo This loop could be done without a condition
       for (ezUInt32 i = 0; i < m_uiMaxPoints; ++i)
       {
@@ -203,8 +187,8 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
 
   const ezVec3* pPosData = m_pStreamPosition->GetData<ezVec3>();
 
-  const ezUInt32 uiPrevIndex = (m_uiCurFirstIndex > 0) ? (m_uiCurFirstIndex - 1) : m_uiMaxPointsMask;
-  const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : m_uiMaxPointsMask;
+  const ezUInt32 uiPrevIndex = (m_uiCurFirstIndex > 0) ? (m_uiCurFirstIndex - 1) : (m_uiMaxPoints - 1);
+  const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : (m_uiMaxPoints - 1);
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
@@ -233,7 +217,8 @@ void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
   {
     m_LastSnapshot = tNow;
 
-    m_uiCurFirstIndex = (m_uiCurFirstIndex + 1) & m_uiMaxPointsMask;
+    /// \todo Get around the modulo
+    m_uiCurFirstIndex = (m_uiCurFirstIndex + 1) % m_uiMaxPoints;
 
     for (ezUInt64 i = 0; i < uiNumElements; ++i)
     {

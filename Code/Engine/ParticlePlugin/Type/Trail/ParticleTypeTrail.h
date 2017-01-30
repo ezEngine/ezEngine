@@ -52,7 +52,6 @@ protected:
   ezProcessingStream* m_pStreamTrailData;
   ezTime m_LastSnapshot;
   ezUInt8 m_uiCurFirstIndex;
-  ezUInt8 m_uiMaxPointsMask;
   float m_fSnapshotFraction;
 
   mutable ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
