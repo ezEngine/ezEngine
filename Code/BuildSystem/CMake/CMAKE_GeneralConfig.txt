@@ -59,6 +59,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set (BUILDSYSTEM_PLATFORM_WINDOWS ON)
   set (PLATFORM_PREFIX "Win")
   
+elseif (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+  # Windows Universal
+  message (STATUS "Platform is Windows Universal (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)")
+  set (BUILDSYSTEM_PLATFORM_WINDOWS_UWP ON)
+  set (PLATFORM_PREFIX "WinUWP")
+  
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION)
   # OS X
   message (STATUS "Platform is OS X (BUILDSYSTEM_PLATFORM_OSX, BUILDSYSTEM_PLATFORM_POSIX)")
@@ -83,7 +89,7 @@ endif ()
 
 set (BUILDSYSTEM_PREFIX "")
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS)
+if (BUILDSYSTEM_PLATFORM_WINDOWS OR BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   # Supported windows generators
   if (MSVC)
     # Visual Studio (All VS generators define MSVC)
@@ -181,7 +187,7 @@ endif ()
 
 set (ARCHITECTURE_POSTFIX "")
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
+if ((BUILDSYSTEM_PLATFORM_WINDOWS OR BUILDSYSTEM_PLATFORM_WINDOWS_UWP) AND BUILDSYSTEM_COMPILER_MSVC)
   # Detect 64-bit builds for MSVC.
   if (CMAKE_CL_64)
     message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
@@ -228,6 +234,7 @@ endif ()
 # Define GUI Variables to configure the project
 if (BUILDSYSTEM_PLATFORM_WINDOWS)
   set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
+ # set (EZ_WINDOWS_UWP OFF CACHE BOOL "Whether to compile for Universal Windows Platform (true) or classic desktop (false).")
 endif()
 
 #set (EZ_STRICT_WARNINGS OFF CACHE BOOL "Whether to compile the code with highest warning level. Good luck with that.")
@@ -380,6 +387,7 @@ add_definitions (-DBUILDSYSTEM_CONFIGURATION="${BUILDSYSTEM_CONFIGURATION}")
 
 #########################################################################################
 ## additional preprocessor definitions
+
 
 
 #########################################################################################
