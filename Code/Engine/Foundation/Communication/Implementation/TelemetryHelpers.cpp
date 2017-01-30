@@ -65,12 +65,21 @@ void ezTelemetry::FlushOutgoingQueues()
 
 ezResult ezTelemetry::ConnectToServer(const char* szConnectTo)
 {
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   return OpenConnection(Client, szConnectTo);
+#else
+  ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::ConnectToServer() will be ignored.");
+  return EZ_FAILURE;
+#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
 void ezTelemetry::CreateServer()
 {
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   EZ_VERIFY(OpenConnection(Server) == EZ_SUCCESS, "Opening a connection as a server should not be possible to fail.");
+#else
+  ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::CreateServer() will be ignored.");
+#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
 void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback, void* pPassThrough)

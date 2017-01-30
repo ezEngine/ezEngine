@@ -1,7 +1,10 @@
-/** 
+/**
  @file  win32.h
  @brief ENet Win32 header
 */
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+
 #ifndef __ENET_WIN32_H__
 #define __ENET_WIN32_H__
 
@@ -57,4 +60,5 @@ typedef fd_set ENetSocketSet;
 
 #endif /* __ENET_WIN32_H__ */
 
+#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 

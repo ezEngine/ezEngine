@@ -5,7 +5,7 @@
 #if !defined(BUILDSYSTEM_IGNORE_USERCONFIG_HEADER)
 
   /// Modify these settings as you wish.
-  /// However, they will only take effect when the CMake build setting 'EZ_USE_USERCONFIG_HEADER' is disabled
+  /// However, they will only take effect when the CMake build setting 'BUILDSYSTEM_IGNORE_USERCONFIG_HEADER' is disabled
   /// Prefer to use this file to configure these settings, as this will also work when you build your application with another
   /// build-system (and thus the pre-defined defines such as BUILDSYSTEM_COMPILE_FOR_DEVELOPMENT are not automatically there as well).
 
@@ -71,4 +71,4 @@
     #define EZ_COMPILE_ENGINE_AS_DLL EZ_OFF
   #endif
 
-#endif 
+#endif

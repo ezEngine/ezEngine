@@ -1,7 +1,10 @@
-/** 
+/**
  @file  unix.h
  @brief ENet Unix header
 */
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+
 #ifndef __ENET_UNIX_H__
 #define __ENET_UNIX_H__
 
@@ -45,6 +48,8 @@ typedef fd_set ENetSocketSet;
 #define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET (socket, & (sockset))
 #define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLEAR (socket, & (sockset))
 #define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET (socket, & (sockset))
-    
+
 #endif /* __ENET_UNIX_H__ */
+
+#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 

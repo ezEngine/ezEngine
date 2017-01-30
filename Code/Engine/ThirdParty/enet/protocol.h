@@ -1,7 +1,10 @@
-/** 
+/**
  @file  protocol.h
  @brief ENet protocol
 */
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+
 #ifndef __ENET_PROTOCOL_H__
 #define __ENET_PROTOCOL_H__
 
@@ -196,4 +199,6 @@ typedef union _ENetProtocol
 #endif
 
 #endif /* __ENET_PROTOCOL_H__ */
+
+#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 

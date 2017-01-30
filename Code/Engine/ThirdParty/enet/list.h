@@ -1,7 +1,10 @@
-/** 
+/**
  @file  list.h
- @brief ENet list management 
+ @brief ENet list management
 */
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+
 #ifndef __ENET_LIST_H__
 #define __ENET_LIST_H__
 
@@ -40,4 +43,6 @@ extern size_t enet_list_size (ENetList *);
 #define enet_list_back(list) ((void *) (list) -> sentinel.previous)
 
 #endif /* __ENET_LIST_H__ */
+
+#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
