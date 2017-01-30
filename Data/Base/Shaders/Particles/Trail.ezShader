@@ -26,6 +26,8 @@ CullMode = CullMode_None
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
+  int trailIndexOffset[6] = { 0, 1, 1, 0, 1, 0 };
+
   float2 texCoords[6] =
   {
     float2(0.0, 0.0),
@@ -36,15 +38,16 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float2(0.0, 1.0),
   };
 
-  uint particleIndex = VertexID / (6 * TRAIL_SEGMENTS);
-  uint trailPointIndex = (VertexID - (particleIndex * 6 * TRAIL_SEGMENTS)) / 6;
-  uint vertexSubIndex = VertexID % 6;
+  int particleIndex = VertexID / (6 * TRAIL_SEGMENTS);
+  int trailPointIndex = (VertexID - (particleIndex * 6 * TRAIL_SEGMENTS)) / 6;
+  int vertexSubIndex = VertexID % 6;
+  int vertexTrailPointIndex = trailPointIndex + trailIndexOffset[vertexSubIndex];
 
   ezTrailParticleData particle = particleData[particleIndex];
 
   VS_OUT ret;
 
-  if (trailPointIndex + 2 >= particle.NumPoints)
+  if (trailPointIndex + 1 >= particle.NumPoints)
   {
     ret.Position = float4(0, 0, 0, 0);
     ret.TexCoords = float2(0, 0);
@@ -52,42 +55,36 @@ VS_OUT main(uint VertexID : SV_VertexID)
   }
   else
   {
-    float factor = texCoords[vertexSubIndex].x;
-
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
     //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
     // UV step is currently calculated over the maximum number of segments, instead of the active number of segments
     // this means at start the texture is cut off, instead of stretching over the full UV space
     // doing it differently would be very complicated though
-    float uvStep = 1.0 / (TRAIL_POINTS - 3);
-    float uvCoord1 = uvStep * trailPointIndex; // coordinate at the left side of the segment
-    float uvCoord2 = uvCoord1 + uvStep; // coordinate at the right side of the segment
+    float uvStep = 1.0 / (TRAIL_POINTS - 2);
+    float uvCoord = uvStep * vertexTrailPointIndex;
     float uvSubtract = uvStep * particle.SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
 
-    float3 position1 = particlePointsData[particleIndex].Positions[trailPointIndex].xyz;
-    float3 position2 = particlePointsData[particleIndex].Positions[trailPointIndex + 1].xyz;
-    float3 position3 = particlePointsData[particleIndex].Positions[trailPointIndex + 2].xyz;
+    int prevTrailPointIdx = max(vertexTrailPointIndex - 1, 0);
+    int nextTrailPointIdx = min(vertexTrailPointIndex + 1, particle.NumPoints - 1);
 
-    // position for THIS vertex
-    float3 thisPosition = lerp(position1, position2, factor);
+    float3 position0 = particlePointsData[particleIndex].Positions[vertexTrailPointIndex].xyz;
+    float3 positionP = particlePointsData[particleIndex].Positions[prevTrailPointIdx].xyz;
+    float3 positionN = particlePointsData[particleIndex].Positions[nextTrailPointIdx].xyz;
 
-    float3 direction1 = position1 - position2;
-    float3 direction2 = position2 - position3;
+    float3 avgDirection = positionN - positionP;
 
-    float3 segmentDirection = -lerp(direction1, direction2, factor);
-
-    float3 dirRight = mul(ObjectToWorldMatrix, float4(segmentDirection, 0)).xyz;
+    float3 dirRight = mul(ObjectToWorldMatrix, float4(avgDirection, 0)).xyz;
     float3 dirUp = normalize(cross(dirRight, CameraDirForwards)) * particle.Size;
 
     float4 offsetRight = float4(dirRight * texCoords[vertexSubIndex].x, 0);
     float4 offsetUp = float4(dirUp * (texCoords[vertexSubIndex].y - 0.5), 0);
 
-    float4 position = mul(ObjectToWorldMatrix, float4(thisPosition, 1)) + offsetUp;
+    float4 position = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
 
     ret.Position = mul(WorldToScreenMatrix, position);
-    ret.TexCoords = texCoords[vertexSubIndex];
-    ret.TexCoords.x = lerp(uvCoord1, uvCoord2, factor);
+    ret.TexCoords.x = uvCoord;
+    ret.TexCoords.y = texCoords[vertexSubIndex].y;
     ret.Color = RGBA8ToFloat4(particle.Color);
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
