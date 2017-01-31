@@ -21,5 +21,5 @@ Plugin
 Plugin
 {
 	string %Path{"ezPhysXPlugin"}
-	string %DependencyOf{"<manual>","EditorPluginPhysX"}
+	string %DependencyOf{"<manual>"}
 }

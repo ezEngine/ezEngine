@@ -41,6 +41,13 @@
 #undef SendMessage
 #undef DrawText
 
+// Distinguish between windows desktop and windows uwp.
+#if WINAPI_FAMILY==WINAPI_FAMILY_APP
+  #define EZ_WINDOWS_UWP EZ_ON
+#else
+  #define EZ_WINDOWS_UWP EZ_OFF
+#endif
+
 #if defined(_MSC_VER)
 
   #undef EZ_COMPILER_MSVC

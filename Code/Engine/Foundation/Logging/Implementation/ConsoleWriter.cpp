@@ -4,7 +4,9 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 static void SetConsoleColor(WORD ui)
 {
+  #if EZ_DISABLED(EZ_WINDOWS_UWP)
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
+  #endif
 }
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 static void SetConsoleColor(ezUInt8 ui) { }
