@@ -9,6 +9,8 @@
  * factor of two increase in speed on a Power PC G4 (PPC7455) using gcc -O3.
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /* @(#) $Id$ */
 
 /*
@@ -423,3 +425,6 @@ uLong ZEXPORT crc32_combine64(crc1, crc2, len2)
 {
     return crc32_combine_(crc1, crc2, len2);
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

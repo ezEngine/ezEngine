@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /* @(#) $Id$ */
 
 #define ZLIB_INTERNAL
@@ -57,3 +59,6 @@ int ZEXPORT uncompress (dest, destLen, source, sourceLen)
     err = inflateEnd(&stream);
     return err;
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

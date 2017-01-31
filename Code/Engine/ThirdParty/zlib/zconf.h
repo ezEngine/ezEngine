@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /* @(#) $Id$ */
 
 #ifndef ZCONF_H
@@ -517,3 +519,6 @@ typedef uLong FAR uLongf;
 #endif
 
 #endif /* ZCONF_H */
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

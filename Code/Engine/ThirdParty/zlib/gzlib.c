@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 #include "gzguts.h"
 
 #if defined(_WIN32) && !defined(__BORLANDC__)
@@ -632,3 +634,6 @@ unsigned ZLIB_INTERNAL gz_intmax()
     return q >> 1;
 }
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

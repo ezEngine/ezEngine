@@ -5,6 +5,8 @@
 
 /* @(#) $Id$ */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 #include "zutil.h"
 
 #define local static
@@ -177,3 +179,6 @@ uLong ZEXPORT adler32_combine64(adler1, adler2, len2)
 {
     return adler32_combine_(adler1, adler2, len2);
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

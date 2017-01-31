@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /* @(#) $Id$ */
 
 #define ZLIB_INTERNAL
@@ -78,3 +80,6 @@ uLong ZEXPORT compressBound (sourceLen)
     return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) +
            (sourceLen >> 25) + 13;
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

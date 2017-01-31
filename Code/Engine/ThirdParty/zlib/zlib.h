@@ -28,6 +28,8 @@
   (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
 */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 #ifndef ZLIB_H
 #define ZLIB_H
 
@@ -1766,3 +1768,6 @@ ZEXTERN int            ZEXPORTVA gzvprintf Z_ARG((gzFile file,
 #endif
 
 #endif /* ZLIB_H */
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

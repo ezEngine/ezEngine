@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /* @(#) $Id$ */
 
 #include "zutil.h"
@@ -322,3 +324,6 @@ void ZLIB_INTERNAL zcfree (opaque, ptr)
 #endif /* MY_ZCALLOC */
 
 #endif /* !Z_SOLO */
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

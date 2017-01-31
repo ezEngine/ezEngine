@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /*
  *  ALGORITHM
  *
@@ -1965,3 +1967,6 @@ local block_state deflate_huff(s, flush)
         FLUSH_BLOCK(s, 0);
     return block_done;
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

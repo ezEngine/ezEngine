@@ -2,6 +2,8 @@
 #include <Foundation/IO/CompressedStream.h>
 #include <ThirdParty/zlib/zlib.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 static voidpf zLibAlloc OF((voidpf opaque, uInt items, uInt size))
 {
   return EZ_DEFAULT_NEW_RAW_BUFFER(ezUInt8, items * size);
@@ -229,7 +231,7 @@ ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64
   return EZ_SUCCESS;
 }
 
-
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_CompressedStream);
 

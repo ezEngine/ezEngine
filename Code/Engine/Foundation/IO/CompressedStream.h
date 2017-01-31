@@ -5,6 +5,8 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/DynamicArray.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 struct z_stream_s;
 
 /// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriter.
@@ -103,4 +105,6 @@ private:
 
   ezUInt8 m_CompressedCache[256];
 };
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 

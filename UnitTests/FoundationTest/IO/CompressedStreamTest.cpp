@@ -3,6 +3,8 @@
 #include <Foundation/IO/CompressedStream.h>
 #include <Foundation/IO/MemoryStream.h>
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
 {
   ezMemoryStreamStorage StreamStorage;
@@ -12,7 +14,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
 
   ezCompressedStreamReader CompressedReader(MemoryReader);
   ezCompressedStreamWriter CompressedWriter(MemoryWriter, ezCompressedStreamWriter::Fastest);
- 
+
   const ezUInt32 uiItems = 1024 * 1024 * 5; // if you change this, you might need to adjust the expected compression ratio
   const float fExpectedCompressionRatio = 2.5f; // this is a guess that is based on the current input data and size
 
@@ -52,7 +54,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncompress Data")
   {
-    
+
 
     ezDynamicArray<ezUInt32> Data;
     Data.SetCount(uiItems);
@@ -126,4 +128,6 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
     }
   }
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 

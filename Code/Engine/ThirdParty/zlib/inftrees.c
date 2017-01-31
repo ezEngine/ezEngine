@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 #include "zutil.h"
 #include "inftrees.h"
 
@@ -304,3 +306,6 @@ unsigned short FAR *work;
     *bits = root;
     return 0;
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

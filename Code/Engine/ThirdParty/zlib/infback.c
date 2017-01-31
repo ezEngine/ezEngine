@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /*
    This code is largely copied from inflate.c.  Normally either infback.o or
    inflate.o would be linked into an application--not both.  The interface
@@ -638,3 +640,6 @@ z_streamp strm;
     Tracev((stderr, "inflate: end\n"));
     return Z_OK;
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

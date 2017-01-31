@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /*
  * Change history:
  *
@@ -1510,3 +1512,6 @@ z_streamp strm;
         (state->mode == COPY ? state->length :
             (state->mode == MATCH ? state->was - state->length : 0));
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

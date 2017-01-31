@@ -4,6 +4,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 /*
  *  ALGORITHM
  *
@@ -1224,3 +1226,6 @@ local void copy_block(s, buf, len, header)
         put_byte(s, *buf++);
     }
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

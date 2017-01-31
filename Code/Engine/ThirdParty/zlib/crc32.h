@@ -2,6 +2,8 @@
  * Generated automatically by crc32.c
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 local const z_crc_t FAR crc_table[TBLS][256] =
 {
   {
@@ -439,3 +441,6 @@ local const z_crc_t FAR crc_table[TBLS][256] =
 #endif
   }
 };
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+

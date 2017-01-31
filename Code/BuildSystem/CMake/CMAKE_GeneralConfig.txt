@@ -255,6 +255,7 @@ set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should 
 set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessary comment to the generated unity files for PVS checking")
 set (EZ_ENABLE_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet. This is needed for Telemetry.")
 set (EZ_ENABLE_LUA_SUPPORT ON CACHE BOOL "Whether to add support for Lua.")
+set (EZ_ENABLE_ZLIB_SUPPORT ON CACHE BOOL "Whether to add support for zlib.")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
 set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
@@ -405,6 +406,12 @@ if (EZ_ENABLE_LUA_SUPPORT)
   add_definitions (-DBUILDSYSTEM_ENABLE_LUA_SUPPORT)
 endif()
   
+#########################################################################################
+## zlib support
+
+if (EZ_ENABLE_ZLIB_SUPPORT)
+  add_definitions (-DBUILDSYSTEM_ENABLE_ZLIB_SUPPORT)
+endif()
   
 #########################################################################################
 ## UserConfig.h and CMake Configuration

@@ -3,6 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
 #include "gzguts.h"
 
 /* gzclose() is in a separate file so that it is linked in only if it is used.
@@ -23,3 +25,6 @@ int ZEXPORT gzclose(file)
     return gzclose_r(file);
 #endif
 }
+
+#endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
