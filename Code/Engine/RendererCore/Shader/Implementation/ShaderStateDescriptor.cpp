@@ -159,136 +159,264 @@ static const char* InsertNumber(const char* szString, ezUInt32 uiNumber, ezStrin
   return sTemp.GetData();
 }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+static ezSet<ezString> s_AllAllowedVariables;
+#endif
+
+static bool GetBoolStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, bool defValue)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  s_AllAllowedVariables.Insert(szVariable);
+#endif
+
+  auto it = variables.Find(szVariable);
+
+  if (!it.IsValid())
+    return defValue;
+
+  if (it.Value() == "true")
+    return true;
+  if (it.Value() == "false")
+    return false;
+
+  ezLog::Error("Shader state variable '{0}' is set to invalid value '{1}'. Should be 'true' or 'false'", szVariable, it.Value());
+  return defValue;
+}
+
+static ezInt32 GetEnumStateVariable(const ezMap<ezString, ezString>& variables, const ezMap<ezString, ezInt32>& values, const char* szVariable, ezInt32 defValue)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  s_AllAllowedVariables.Insert(szVariable);
+#endif
+
+  auto it = variables.Find(szVariable);
+
+  if (!it.IsValid())
+    return defValue;
+
+  auto itVal = values.Find(it.Value());
+  if (!itVal.IsValid())
+  {
+    ezStringBuilder valid;
+    for (auto vv = values.GetIterator(); vv.IsValid(); ++vv)
+    {
+      valid.Append(" ", vv.Key());
+    }
+
+    ezLog::Error("Shader state variable '{0}' is set to invalid value '{1}'. Valid values are:{2}", szVariable, it.Value(), valid);
+    return defValue;
+  }
+
+  return itVal.Value();
+}
+
+static float GetFloatStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, float defValue)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  s_AllAllowedVariables.Insert(szVariable);
+#endif
+
+  auto it = variables.Find(szVariable);
+
+  if (!it.IsValid())
+    return defValue;
+
+  double result = 0;
+  if (ezConversionUtils::StringToFloat(it.Value(), result).Failed())
+  {
+    ezLog::Error("Shader state variable '{0}' is not a valid float value: '{1}'.", szVariable, it.Value());
+    return defValue;
+  }
+
+  return (float)result;
+}
+
+static ezInt32 GetIntStateVariable(const ezMap<ezString, ezString>& variables, const char* szVariable, ezInt32 defValue)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  s_AllAllowedVariables.Insert(szVariable);
+#endif
+
+  auto it = variables.Find(szVariable);
+
+  if (!it.IsValid())
+    return defValue;
+
+  ezInt32 result = 0;
+  if (ezConversionUtils::StringToInt(it.Value(), result).Failed())
+  {
+    ezLog::Error("Shader state variable '{0}' is not a valid int value: '{1}'.", szVariable, it.Value());
+    return defValue;
+  }
+
+  return result;
+}
+
 ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
 {
-  ezStringBuilder sSource = szSource;
+  ezMap<ezString, ezString> VariableValues;
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
-  ezLuaWrapper lua;
-
-  // ezGALBlend
+  // extract all state assignments
   {
-    lua.SetVariable("Blend_Zero", ezGALBlend::Zero);
-    lua.SetVariable("Blend_One", ezGALBlend::One);
-    lua.SetVariable("Blend_SrcColor", ezGALBlend::SrcColor);
-    lua.SetVariable("Blend_InvSrcColor", ezGALBlend::InvSrcColor);
-    lua.SetVariable("Blend_SrcAlpha", ezGALBlend::SrcAlpha);
-    lua.SetVariable("Blend_InvSrcAlpha", ezGALBlend::InvSrcAlpha);
-    lua.SetVariable("Blend_DestAlpha", ezGALBlend::DestAlpha);
-    lua.SetVariable("Blend_InvDestAlpha", ezGALBlend::InvDestAlpha);
-    lua.SetVariable("Blend_DestColor", ezGALBlend::DestColor);
-    lua.SetVariable("Blend_InvDestColor", ezGALBlend::InvDestColor);
-    lua.SetVariable("Blend_SrcAlphaSaturated", ezGALBlend::SrcAlphaSaturated);
-    lua.SetVariable("Blend_BlendFactor", ezGALBlend::BlendFactor);
-    lua.SetVariable("Blend_InvBlendFactor", ezGALBlend::InvBlendFactor);
+    ezStringBuilder sSource = szSource;
+
+    ezHybridArray<ezStringView, 32> allAssignments;
+    ezHybridArray<ezStringView, 4> components;
+    sSource.Split(false, allAssignments, "\n", ";", "\r");
+
+    ezStringBuilder temp1, temp2;
+    for (const ezStringView& ass : allAssignments)
+    {
+      temp1 = ass;
+
+      temp1.Split(false, components, " ", "\t", "=", "\r");
+
+      if (components.GetCount() != 2)
+      {
+        ezLog::Error("Malformed shader state assignment: '{0}'", temp1);
+        continue;
+      }
+
+      temp1 = components[0];
+      temp2 = components[1];
+
+      VariableValues[temp1] = temp2;
+    }
   }
 
-  // ezGALBlendOp
+  static ezMap<ezString, ezInt32> StateValuesBlend;
+  static ezMap<ezString, ezInt32> StateValuesBlendOp;
+  static ezMap<ezString, ezInt32> StateValuesCullMode;
+  static ezMap<ezString, ezInt32> StateValuesCompareFunc;
+  static ezMap<ezString, ezInt32> StateValuesStencilOp;
+  if (StateValuesBlend.IsEmpty())
   {
-    lua.SetVariable("BlendOp_Add", ezGALBlendOp::Add);
-    lua.SetVariable("BlendOp_Subtract", ezGALBlendOp::Subtract);
-    lua.SetVariable("BlendOp_RevSubtract", ezGALBlendOp::RevSubtract);
-    lua.SetVariable("BlendOp_Min", ezGALBlendOp::Min);
-    lua.SetVariable("BlendOp_Max", ezGALBlendOp::Max);
-  }
+    // ezGALBlend
+    {
+      StateValuesBlend["Blend_Zero"] = ezGALBlend::Zero;
+      StateValuesBlend["Blend_One"] = ezGALBlend::One;
+      StateValuesBlend["Blend_SrcColor"] = ezGALBlend::SrcColor;
+      StateValuesBlend["Blend_InvSrcColor"] = ezGALBlend::InvSrcColor;
+      StateValuesBlend["Blend_SrcAlpha"] = ezGALBlend::SrcAlpha;
+      StateValuesBlend["Blend_InvSrcAlpha"] = ezGALBlend::InvSrcAlpha;
+      StateValuesBlend["Blend_DestAlpha"] = ezGALBlend::DestAlpha;
+      StateValuesBlend["Blend_InvDestAlpha"] = ezGALBlend::InvDestAlpha;
+      StateValuesBlend["Blend_DestColor"] = ezGALBlend::DestColor;
+      StateValuesBlend["Blend_InvDestColor"] = ezGALBlend::InvDestColor;
+      StateValuesBlend["Blend_SrcAlphaSaturated"] = ezGALBlend::SrcAlphaSaturated;
+      StateValuesBlend["Blend_BlendFactor"] = ezGALBlend::BlendFactor;
+      StateValuesBlend["Blend_InvBlendFactor"] = ezGALBlend::InvBlendFactor;
+    }
 
-  // ezGALCullMode
-  {
-    lua.SetVariable("CullMode_None", ezGALCullMode::None);
-    lua.SetVariable("CullMode_Front", ezGALCullMode::Front);
-    lua.SetVariable("CullMode_Back", ezGALCullMode::Back);
-  }
+    // ezGALBlendOp
+    {
+      StateValuesBlendOp["BlendOp_Add"] = ezGALBlendOp::Add;
+      StateValuesBlendOp["BlendOp_Subtract"] = ezGALBlendOp::Subtract;
+      StateValuesBlendOp["BlendOp_RevSubtract"] = ezGALBlendOp::RevSubtract;
+      StateValuesBlendOp["BlendOp_Min"] = ezGALBlendOp::Min;
+      StateValuesBlendOp["BlendOp_Max"] = ezGALBlendOp::Max;
+    }
 
-  // ezGALCompareFunc
-  {
-    lua.SetVariable("CompareFunc_Never", ezGALCompareFunc::Never);
-    lua.SetVariable("CompareFunc_Less", ezGALCompareFunc::Less);
-    lua.SetVariable("CompareFunc_Equal", ezGALCompareFunc::Equal);
-    lua.SetVariable("CompareFunc_LessEqual", ezGALCompareFunc::LessEqual);
-    lua.SetVariable("CompareFunc_Greater", ezGALCompareFunc::Greater);
-    lua.SetVariable("CompareFunc_NotEqual", ezGALCompareFunc::NotEqual);
-    lua.SetVariable("CompareFunc_GreaterEqual", ezGALCompareFunc::GreaterEqual);
-    lua.SetVariable("CompareFunc_Always", ezGALCompareFunc::Always);
-  }
+    // ezGALCullMode
+    {
+      StateValuesCullMode["CullMode_None"] = ezGALCullMode::None;
+      StateValuesCullMode["CullMode_Front"] = ezGALCullMode::Front;
+      StateValuesCullMode["CullMode_Back"] = ezGALCullMode::Back;
+    }
 
-  // ezGALStencilOp
-  {
-    lua.SetVariable("StencilOp_Keep", ezGALStencilOp::Keep);
-    lua.SetVariable("StencilOp_Zero", ezGALStencilOp::Zero);
-    lua.SetVariable("StencilOp_Replace", ezGALStencilOp::Replace);
-    lua.SetVariable("StencilOp_IncrementSaturated", ezGALStencilOp::IncrementSaturated);
-    lua.SetVariable("StencilOp_DecrementSaturated", ezGALStencilOp::DecrementSaturated);
-    lua.SetVariable("StencilOp_Invert", ezGALStencilOp::Invert);
-    lua.SetVariable("StencilOp_Increment", ezGALStencilOp::Increment);
-    lua.SetVariable("StencilOp_Decrement", ezGALStencilOp::Decrement);
-  }
+    // ezGALCompareFunc
+    {
+      StateValuesCompareFunc["CompareFunc_Never"] = ezGALCompareFunc::Never;
+      StateValuesCompareFunc["CompareFunc_Less"] = ezGALCompareFunc::Less;
+      StateValuesCompareFunc["CompareFunc_Equal"] = ezGALCompareFunc::Equal;
+      StateValuesCompareFunc["CompareFunc_LessEqual"] = ezGALCompareFunc::LessEqual;
+      StateValuesCompareFunc["CompareFunc_Greater"] = ezGALCompareFunc::Greater;
+      StateValuesCompareFunc["CompareFunc_NotEqual"] = ezGALCompareFunc::NotEqual;
+      StateValuesCompareFunc["CompareFunc_GreaterEqual"] = ezGALCompareFunc::GreaterEqual;
+      StateValuesCompareFunc["CompareFunc_Always"] = ezGALCompareFunc::Always;
+    }
 
-  if (lua.ExecuteString(szSource, "ShaderState", ezLog::GetThreadLocalLogSystem()).Failed())
-    return EZ_FAILURE;
+    // ezGALStencilOp
+    {
+      StateValuesStencilOp["StencilOp_Keep"] = ezGALStencilOp::Keep;
+      StateValuesStencilOp["StencilOp_Zero"] = ezGALStencilOp::Zero;
+      StateValuesStencilOp["StencilOp_Replace"] = ezGALStencilOp::Replace;
+      StateValuesStencilOp["StencilOp_IncrementSaturated"] = ezGALStencilOp::IncrementSaturated;
+      StateValuesStencilOp["StencilOp_DecrementSaturated"] = ezGALStencilOp::DecrementSaturated;
+      StateValuesStencilOp["StencilOp_Invert"] = ezGALStencilOp::Invert;
+      StateValuesStencilOp["StencilOp_Increment"] = ezGALStencilOp::Increment;
+      StateValuesStencilOp["StencilOp_Decrement"] = ezGALStencilOp::Decrement;
+    }
+  }
 
   // Retrieve Blend State
   {
-    m_BlendDesc.m_bAlphaToCoverage = lua.GetBoolVariable("AlphaToCoverage", m_BlendDesc.m_bAlphaToCoverage);
-    m_BlendDesc.m_bIndependentBlend = lua.GetBoolVariable("IndependentBlend", m_BlendDesc.m_bIndependentBlend);
+    m_BlendDesc.m_bAlphaToCoverage = GetBoolStateVariable(VariableValues, "AlphaToCoverage", m_BlendDesc.m_bAlphaToCoverage);
+    m_BlendDesc.m_bIndependentBlend = GetBoolStateVariable(VariableValues, "IndependentBlend", m_BlendDesc.m_bIndependentBlend);
 
     ezStringBuilder s;
 
     for (ezUInt32 i = 0; i < 8; ++i)
     {
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled = lua.GetBoolVariable(InsertNumber("BlendingEnabled{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOp = (ezGALBlendOp::Enum) lua.GetIntVariable(InsertNumber("BlendOp{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOp);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha = (ezGALBlendOp::Enum) lua.GetIntVariable(InsertNumber("BlendOpAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOpAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlend = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("DestBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlendAlpha = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("DestBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlendAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlend = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("SourceBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha = (ezGALBlend::Enum) lua.GetIntVariable(InsertNumber("SourceBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlendAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_uiWriteMask = lua.GetIntVariable(InsertNumber("WriteMask{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_uiWriteMask);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled = GetBoolStateVariable(VariableValues, InsertNumber("BlendingEnabled{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOp = (ezGALBlendOp::Enum) GetEnumStateVariable(VariableValues, StateValuesBlendOp, InsertNumber("BlendOp{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOp);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha = (ezGALBlendOp::Enum) GetEnumStateVariable(VariableValues, StateValuesBlendOp, InsertNumber("BlendOpAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOpAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlend = (ezGALBlend::Enum) GetEnumStateVariable(VariableValues, StateValuesBlend, InsertNumber("DestBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlendAlpha = (ezGALBlend::Enum) GetEnumStateVariable(VariableValues, StateValuesBlend, InsertNumber("DestBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlendAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlend = (ezGALBlend::Enum) GetEnumStateVariable(VariableValues, StateValuesBlend, InsertNumber("SourceBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha = (ezGALBlend::Enum) GetEnumStateVariable(VariableValues, StateValuesBlend, InsertNumber("SourceBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlendAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_uiWriteMask = GetIntStateVariable(VariableValues, InsertNumber("WriteMask{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_uiWriteMask);
     }
   }
 
   // Retrieve Rasterizer State
   {
-    m_RasterizerDesc.m_bFrontCounterClockwise = lua.GetBoolVariable("FrontCounterClockwise", m_RasterizerDesc.m_bFrontCounterClockwise);
-    m_RasterizerDesc.m_bScissorTest = lua.GetBoolVariable("ScissorTest", m_RasterizerDesc.m_bScissorTest);
-    m_RasterizerDesc.m_bWireFrame = lua.GetBoolVariable("WireFrame", m_RasterizerDesc.m_bWireFrame);
-    m_RasterizerDesc.m_CullMode = (ezGALCullMode::Enum) lua.GetIntVariable("CullMode", m_RasterizerDesc.m_CullMode);
-    m_RasterizerDesc.m_fDepthBiasClamp = lua.GetFloatVariable("DepthBiasClamp", m_RasterizerDesc.m_fDepthBiasClamp);
-    m_RasterizerDesc.m_fSlopeScaledDepthBias = lua.GetFloatVariable("SlopeScaledDepthBias", m_RasterizerDesc.m_fSlopeScaledDepthBias);
-    m_RasterizerDesc.m_iDepthBias = lua.GetIntVariable("DepthBias", m_RasterizerDesc.m_iDepthBias);
+    m_RasterizerDesc.m_bFrontCounterClockwise = GetBoolStateVariable(VariableValues, "FrontCounterClockwise", m_RasterizerDesc.m_bFrontCounterClockwise);
+    m_RasterizerDesc.m_bScissorTest = GetBoolStateVariable(VariableValues, "ScissorTest", m_RasterizerDesc.m_bScissorTest);
+    m_RasterizerDesc.m_bWireFrame = GetBoolStateVariable(VariableValues, "WireFrame", m_RasterizerDesc.m_bWireFrame);
+    m_RasterizerDesc.m_CullMode = (ezGALCullMode::Enum) GetEnumStateVariable(VariableValues, StateValuesCullMode, "CullMode", m_RasterizerDesc.m_CullMode);
+    m_RasterizerDesc.m_fDepthBiasClamp = GetFloatStateVariable(VariableValues, "DepthBiasClamp", m_RasterizerDesc.m_fDepthBiasClamp);
+    m_RasterizerDesc.m_fSlopeScaledDepthBias = GetFloatStateVariable(VariableValues, "SlopeScaledDepthBias", m_RasterizerDesc.m_fSlopeScaledDepthBias);
+    m_RasterizerDesc.m_iDepthBias = GetIntStateVariable(VariableValues, "DepthBias", m_RasterizerDesc.m_iDepthBias);
   }
 
   // Retrieve Depth-Stencil State
   {
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum) lua.GetIntVariable("BackFaceDepthFailOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp);
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum) lua.GetIntVariable("BackFaceFailOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp);
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum) lua.GetIntVariable("BackFacePassOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp);
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum) lua.GetIntVariable("BackFaceStencilFunc", m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc);
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum) GetEnumStateVariable(VariableValues, StateValuesStencilOp, "BackFaceDepthFailOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp);
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum) GetEnumStateVariable(VariableValues, StateValuesStencilOp, "BackFaceFailOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp);
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum) GetEnumStateVariable(VariableValues, StateValuesStencilOp, "BackFacePassOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp);
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum) GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "BackFaceStencilFunc", m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc);
 
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum) lua.GetIntVariable("FrontFaceDepthFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp);
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum) lua.GetIntVariable("FrontFaceFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp);
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum) lua.GetIntVariable("FrontFacePassOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp);
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum) lua.GetIntVariable("FrontFaceStencilFunc", m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum) GetEnumStateVariable(VariableValues, StateValuesStencilOp, "FrontFaceDepthFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum) GetEnumStateVariable(VariableValues, StateValuesStencilOp, "FrontFaceFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum) GetEnumStateVariable(VariableValues, StateValuesStencilOp, "FrontFacePassOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum) GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "FrontFaceStencilFunc", m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc);
 
-    m_DepthStencilDesc.m_bDepthTest = lua.GetBoolVariable("DepthTest", m_DepthStencilDesc.m_bDepthTest);
-    m_DepthStencilDesc.m_bDepthWrite = lua.GetBoolVariable("DepthWrite", m_DepthStencilDesc.m_bDepthWrite);
-    m_DepthStencilDesc.m_bSeparateFrontAndBack = lua.GetBoolVariable("SeparateFrontAndBack", m_DepthStencilDesc.m_bSeparateFrontAndBack);
-    m_DepthStencilDesc.m_bStencilTest = lua.GetBoolVariable("StencilTest", m_DepthStencilDesc.m_bStencilTest);
-    m_DepthStencilDesc.m_DepthTestFunc = (ezGALCompareFunc::Enum) lua.GetIntVariable("DepthTestFunc", m_DepthStencilDesc.m_DepthTestFunc);
-    m_DepthStencilDesc.m_uiStencilReadMask = lua.GetIntVariable("StencilReadMask", m_DepthStencilDesc.m_uiStencilReadMask);
-    m_DepthStencilDesc.m_uiStencilWriteMask = lua.GetIntVariable("StencilWriteMask", m_DepthStencilDesc.m_uiStencilWriteMask);
+    m_DepthStencilDesc.m_bDepthTest = GetBoolStateVariable(VariableValues, "DepthTest", m_DepthStencilDesc.m_bDepthTest);
+    m_DepthStencilDesc.m_bDepthWrite = GetBoolStateVariable(VariableValues, "DepthWrite", m_DepthStencilDesc.m_bDepthWrite);
+    m_DepthStencilDesc.m_bSeparateFrontAndBack = GetBoolStateVariable(VariableValues, "SeparateFrontAndBack", m_DepthStencilDesc.m_bSeparateFrontAndBack);
+    m_DepthStencilDesc.m_bStencilTest = GetBoolStateVariable(VariableValues, "StencilTest", m_DepthStencilDesc.m_bStencilTest);
+    m_DepthStencilDesc.m_DepthTestFunc = (ezGALCompareFunc::Enum) GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "DepthTestFunc", m_DepthStencilDesc.m_DepthTestFunc);
+    m_DepthStencilDesc.m_uiStencilReadMask = GetIntStateVariable(VariableValues, "StencilReadMask", m_DepthStencilDesc.m_uiStencilReadMask);
+    m_DepthStencilDesc.m_uiStencilWriteMask = GetIntStateVariable(VariableValues, "StencilWriteMask", m_DepthStencilDesc.m_uiStencilWriteMask);
   }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // check for invalid variable names
+  {
+    for (auto it = VariableValues.GetIterator(); it.IsValid(); ++it)
+    {
+      if (!s_AllAllowedVariables.Contains(it.Key()))
+      {
+        ezLog::Error("The shader state variable '{0}' does not exist.", it.Key());
+      }
+    }
+  }
+#endif
+
+
   return EZ_SUCCESS;
-
-#else
-  ezLog::Error("This build has no Lua support, which is needed for parsing the shader state block.");
-  return EZ_FAILURE;
-#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 }
-
-
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderStateDescriptor);
 
