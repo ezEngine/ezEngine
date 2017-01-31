@@ -51,7 +51,15 @@
 ** By default, Lua on Windows use (some) specific Windows features
 */
 #if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
-#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)  
+  #define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+#else
+  // system and getenv are not supported on UWP
+  inline char* getenv(const char* name) { return "NOT SUPPORTED ON UWP"; }
+  inline int system(const char* command) { return 0; }
+#endif 
+
 #endif
 
 
