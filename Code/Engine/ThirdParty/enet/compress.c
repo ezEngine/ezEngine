@@ -1,4 +1,4 @@
-/**
+﻿/**
  @file compress.c
  @brief An adaptive order-2 PPM range coder
 */
@@ -131,7 +131,7 @@ enet_symbol_rescale (ENetSymbol * symbol)
         if((encodeLow ^ (encodeLow + encodeRange)) >= ENET_RANGE_CODER_TOP) \
         { \
             if(encodeRange >= ENET_RANGE_CODER_BOTTOM) break; \
-            encodeRange = -encodeLow & (ENET_RANGE_CODER_BOTTOM - 1); \
+            encodeRange = (~encodeLow+1) & (ENET_RANGE_CODER_BOTTOM - 1); \
         } \
         ENET_RANGE_CODER_OUTPUT (encodeLow >> 24); \
         encodeRange <<= 8; \
@@ -363,7 +363,7 @@ enet_range_coder_compress (void * context, const ENetBuffer * inBuffers, size_t 
         if((decodeLow ^ (decodeLow + decodeRange)) >= ENET_RANGE_CODER_TOP) \
         { \
             if(decodeRange >= ENET_RANGE_CODER_BOTTOM) break; \
-            decodeRange = -decodeLow & (ENET_RANGE_CODER_BOTTOM - 1); \
+            decodeRange = (~decodeLow+1) & (ENET_RANGE_CODER_BOTTOM - 1); \
         } \
         decodeCode <<= 8; \
         if (inData < inEnd) \
