@@ -8,6 +8,8 @@
 ** systems.
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define loadlib_c
 #define LUA_LIB
 
@@ -784,4 +786,6 @@ LUAMOD_API int luaopen_package (lua_State *L) {
   lua_pop(L, 1);  /* pop global table */
   return 1;  /* return 'package' table */
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

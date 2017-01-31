@@ -4,6 +4,7 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 #ifndef lobject_h
 #define lobject_h
@@ -546,4 +547,6 @@ LUAI_FUNC void luaO_chunkid (char *out, const char *source, size_t len);
 
 
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

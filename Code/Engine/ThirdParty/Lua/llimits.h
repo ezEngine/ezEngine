@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #ifndef llimits_h
 #define llimits_h
 
@@ -321,3 +323,6 @@ typedef unsigned long Instruction;
 #endif
 
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+

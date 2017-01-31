@@ -1,6 +1,8 @@
 #include <Core/PCH.h>
 #include <Core/Scripting/LuaWrapper.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 ezLuaWrapper::ezLuaWrapper()
 {
   m_bReleaseOnExit = true;
@@ -90,6 +92,7 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 }
 
 
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Initialize);

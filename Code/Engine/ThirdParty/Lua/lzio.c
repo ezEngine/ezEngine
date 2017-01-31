@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lzio_c
 #define LUA_CORE
 
@@ -65,4 +67,6 @@ size_t luaZ_read (ZIO *z, void *b, size_t n) {
   }
   return 0;
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

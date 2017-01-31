@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lapi_c
 #define LUA_CORE
 
@@ -1295,4 +1297,4 @@ LUA_API void lua_upvaluejoin (lua_State *L, int fidx1, int n1,
   luaC_upvalbarrier(L, *up1);
 }
 
-
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT

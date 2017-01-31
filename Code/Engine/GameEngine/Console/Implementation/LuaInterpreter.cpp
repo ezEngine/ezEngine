@@ -2,6 +2,8 @@
 #include <GameEngine/Console/LuaInterpreter.h>
 #include <Core/Scripting/LuaWrapper.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 static void AllowScriptCVarAccess(ezLuaWrapper& Script);
 
 static const ezString GetNextWord(ezStringView& sString)
@@ -290,7 +292,7 @@ __metatable = \"Access Denied\",\n\
   Script.ExecuteString(sInit.GetData());
 }
 
-
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_LuaInterpreter);

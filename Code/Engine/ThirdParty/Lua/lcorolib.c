@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lcorolib_c
 #define LUA_LIB
 
@@ -165,4 +167,6 @@ LUAMOD_API int luaopen_coroutine (lua_State *L) {
   luaL_newlib(L, co_funcs);
   return 1;
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lparser_c
 #define LUA_CORE
 
@@ -1645,4 +1647,6 @@ LClosure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
   L->top--;  /* remove scanner's table */
   return cl;  /* closure is on the stack, too */
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

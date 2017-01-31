@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #ifndef llex_h
 #define llex_h
 
@@ -84,3 +86,6 @@ LUAI_FUNC const char *luaX_token2str (LexState *ls, int token);
 
 
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+

@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lgc_c
 #define LUA_CORE
 
@@ -539,7 +541,7 @@ static lu_mem traversethread (global_State *g, lua_State *th) {
     StkId lim = th->stack + th->stacksize;  /* real end of stack */
     for (; o < lim; o++)  /* clear not-marked stack slice */
       setnilvalue(o);
-    /* 'remarkupvals' may have removed thread from 'twups' list */ 
+    /* 'remarkupvals' may have removed thread from 'twups' list */
     if (!isintwups(th) && th->openupval != NULL) {
       th->twups = g->twups;  /* link it back to the list */
       g->twups = th;
@@ -1180,4 +1182,6 @@ void luaC_fullgc (lua_State *L, int isemergency) {
 
 /* }====================================================== */
 
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define ldebug_c
 #define LUA_CORE
 
@@ -670,4 +672,6 @@ void luaG_traceexec (lua_State *L) {
     luaD_throw(L, LUA_YIELD);
   }
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

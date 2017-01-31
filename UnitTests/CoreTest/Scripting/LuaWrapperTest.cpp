@@ -1,6 +1,8 @@
 #include <PCH.h>
 #include <Core/Scripting/LuaWrapper.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 EZ_CREATE_SIMPLE_TEST_GROUP(Scripting);
 
 static const char* g_Script = "\
@@ -605,4 +607,6 @@ EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
     EZ_TEST_BOOL(sMain.CallPreparedFunction(0, &Log) == EZ_SUCCESS);
   }
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

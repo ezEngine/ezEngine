@@ -1,6 +1,8 @@
 #include <Core/PCH.h>
 #include <Core/Scripting/LuaWrapper.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 bool ezLuaWrapper::IsVariableAvailable(const char* szName) const
 {
   if (m_States.m_iOpenTables == 0)
@@ -105,7 +107,7 @@ const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* Defa
     lua_pushstring(m_pState, szName);
     lua_gettable(m_pState, -2);
   }
-  
+
   const char* ret = Default;
 
   // non strict conversion
@@ -121,8 +123,7 @@ const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* Defa
   return ret;
 }
 
-
-
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Variables);
 

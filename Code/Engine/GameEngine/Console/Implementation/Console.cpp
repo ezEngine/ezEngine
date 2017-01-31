@@ -11,7 +11,9 @@ ezConsole::ezConsole()
 
   EnableLogOutput(true);
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
   SetCommandInterpreter(ezConsoleInterpreter::Lua);
+#endif
 }
 
 ezConsole::~ezConsole()

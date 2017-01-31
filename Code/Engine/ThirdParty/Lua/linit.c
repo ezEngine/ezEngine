@@ -4,6 +4,7 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 #define linit_c
 #define LUA_LIB
@@ -65,4 +66,6 @@ LUALIB_API void luaL_openlibs (lua_State *L) {
     lua_pop(L, 1);  /* remove lib */
   }
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

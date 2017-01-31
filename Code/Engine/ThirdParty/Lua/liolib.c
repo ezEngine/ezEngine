@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define liolib_c
 #define LUA_LIB
 
@@ -762,4 +764,6 @@ LUAMOD_API int luaopen_io (lua_State *L) {
   createstdfile(L, stderr, NULL, "stderr");
   return 1;
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

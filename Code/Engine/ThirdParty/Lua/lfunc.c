@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lfunc_c
 #define LUA_CORE
 
@@ -148,4 +150,6 @@ const char *luaF_getlocalname (const Proto *f, int local_number, int pc) {
   }
   return NULL;  /* not found */
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

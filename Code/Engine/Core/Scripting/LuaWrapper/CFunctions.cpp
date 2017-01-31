@@ -1,6 +1,8 @@
 #include <Core/PCH.h>
 #include <Core/Scripting/LuaWrapper.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 void ezLuaWrapper::RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData) const
 {
   lua_pushlightuserdata(m_pState, pLightUserData);
@@ -122,8 +124,7 @@ const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 iReturnValue) const
 }
 
 
-
-
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
 

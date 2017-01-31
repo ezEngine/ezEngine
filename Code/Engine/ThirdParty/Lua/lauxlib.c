@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lauxlib_c
 #define LUA_LIB
 
@@ -1018,3 +1020,4 @@ LUALIB_API void luaL_checkversion_ (lua_State *L, lua_Number ver, size_t sz) {
                   ver, *v);
 }
 
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT

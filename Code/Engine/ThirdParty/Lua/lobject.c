@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lobject_c
 #define LUA_CORE
 
@@ -351,7 +353,7 @@ static void pushstr (lua_State *L, const char *str, size_t l) {
 }
 
 
-/* this function handles only '%d', '%c', '%f', '%p', and '%s' 
+/* this function handles only '%d', '%c', '%f', '%p', and '%s'
    conventional formats, plus Lua-specific '%I' and '%U' */
 const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
   int n = 0;
@@ -474,4 +476,6 @@ void luaO_chunkid (char *out, const char *source, size_t bufflen) {
     memcpy(out, POS, (LL(POS) + 1) * sizeof(char));
   }
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

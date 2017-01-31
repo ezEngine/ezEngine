@@ -1,6 +1,8 @@
 #include <Core/PCH.h>
 #include <Core/Scripting/LuaWrapper.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 ezResult ezLuaWrapper::OpenTable(const char* szName)
 {
   if (m_States.m_iOpenTables == 0)
@@ -60,6 +62,7 @@ void ezLuaWrapper::CloseAllTables()
   m_States.m_iOpenTables = 0;
 }
 
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Tables);

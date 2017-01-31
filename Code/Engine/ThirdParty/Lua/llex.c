@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define llex_c
 #define LUA_CORE
 
@@ -593,4 +595,6 @@ int luaX_lookahead (LexState *ls) {
   ls->lookahead.token = llex(ls, &ls->lookahead.seminfo);
   return ls->lookahead.token;
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

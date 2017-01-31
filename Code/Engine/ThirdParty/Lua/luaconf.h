@@ -4,6 +4,7 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 #ifndef luaconf_h
 #define luaconf_h
@@ -52,13 +53,13 @@
 */
 #if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)  
+//#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
   #define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
-#else
-  // system and getenv are not supported on UWP
-  inline char* getenv(const char* name) { return "NOT SUPPORTED ON UWP"; }
-  inline int system(const char* command) { return 0; }
-#endif 
+//#else
+//  // system and getenv are not supported on UWP
+//  inline char* getenv(const char* name) { return "NOT SUPPORTED ON UWP"; }
+//  inline int system(const char* command) { return 0; }
+//#endif
 
 #endif
 
@@ -617,7 +618,7 @@
 
 
 /*
-@@ lua_number2strx converts a float to an hexadecimal numeric string. 
+@@ lua_number2strx converts a float to an hexadecimal numeric string.
 ** In C99, 'sprintf' (with format specifiers '%a'/'%A') does that.
 ** Otherwise, you can leave 'lua_number2strx' undefined and Lua will
 ** provide its own implementation.
@@ -775,4 +776,6 @@
 
 
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

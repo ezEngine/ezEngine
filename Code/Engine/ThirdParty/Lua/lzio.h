@@ -4,6 +4,7 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 #ifndef lzio_h
 #define lzio_h
@@ -64,3 +65,6 @@ struct Zio {
 LUAI_FUNC int luaZ_fill (ZIO *z);
 
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+

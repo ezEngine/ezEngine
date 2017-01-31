@@ -163,6 +163,8 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
 {
   ezStringBuilder sSource = szSource;
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
   ezLuaWrapper lua;
 
   // ezGALBlend
@@ -277,8 +279,12 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
     m_DepthStencilDesc.m_uiStencilWriteMask = lua.GetIntVariable("StencilWriteMask", m_DepthStencilDesc.m_uiStencilWriteMask);
   }
 
-
   return EZ_SUCCESS;
+
+#else
+  ezLog::Error("This build has no Lua support, which is needed for parsing the shader state block.");
+  return EZ_FAILURE;
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 }
 
 

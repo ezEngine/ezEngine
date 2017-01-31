@@ -4,6 +4,8 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Logging/Log.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 extern "C"
 {
   #include <ThirdParty/Lua/lua.h>
@@ -21,14 +23,14 @@ extern "C"
 /// only simplify interaction with an already existing script (for example, when a C-Function is called in a Script,
 /// it passes its lua_State to that Function).
 ///
-/// \note Lua starts counting at 1, not at 0. However ezLuaWrapper does NOT do this, but uses the C++ convention instead! 
+/// \note Lua starts counting at 1, not at 0. However ezLuaWrapper does NOT do this, but uses the C++ convention instead!
 /// That means, when you query the first parameter or return-value passed to your function, you need to query for value 0, not for value 1.
 class EZ_CORE_DLL ezLuaWrapper
 {
 public:
 
   /// \name Setting up the Script
-  /// @{ 
+  /// @{
 
   /// Generates a NEW Lua-Script, which is empty.
   ezLuaWrapper(); // [tested]
@@ -63,7 +65,7 @@ public:
 
 
   /// \name Managing Tables
-  /// @{ 
+  /// @{
 
   /// Opens the Lua-Table with the given name for reading and writing.
   ///
@@ -86,7 +88,7 @@ public:
   /// @}
 
   /// \name Variable and Function Checks
-  /// @{ 
+  /// @{
 
   /// Checks, whether the Variable with the given Name exists.
   bool IsVariableAvailable(const char* szVariable) const; // [tested]
@@ -97,7 +99,7 @@ public:
   /// @}
 
   /// \name Reading Variables
-  /// @{ 
+  /// @{
 
   /// Returns the Value of the Variable with the given name, or the default-value, if it does not exist.
   int GetIntVariable(const char* szName, ezInt32 iDefault = 0) const; // [tested]
@@ -114,7 +116,7 @@ public:
   /// @}
 
   /// \name Modifying Variables
-  /// @{ 
+  /// @{
 
   /// Sets the Variable with the given name (in scope) to nil.
   void SetVariableNil(const char* szName) const; // [tested]
@@ -137,7 +139,7 @@ public:
   /// @}
 
   /// \name Calling Functions
-  /// @{ 
+  /// @{
 
   /// Registers a C-Function to the Script under a certain Name.
   void RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData = nullptr) const; // [tested]
@@ -172,7 +174,7 @@ public:
   /// @}
 
   /// \name Calling Function with Parameters
-  /// @{ 
+  /// @{
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
@@ -201,7 +203,7 @@ public:
   /// @}
 
   /// \name Inspecting Function Parameters
-  /// @{ 
+  /// @{
 
   /// \brief Returns the currently executed function light user data that was passed to RegisterCFunction.
   void* GetFunctionLightUserData() const;
@@ -242,7 +244,7 @@ public:
   /// @}
 
   /// \name Function Return Values
-  /// @{ 
+  /// @{
 
   /// Pushes a value as a return value for a called C-Function
   void PushReturnValue(ezInt32 iParam); // [tested]
@@ -324,6 +326,8 @@ private:
 };
 
 #include <Core/Scripting/LuaWrapper/LuaWrapper.inl>
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
 

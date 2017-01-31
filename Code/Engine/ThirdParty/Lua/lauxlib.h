@@ -4,6 +4,7 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 #ifndef lauxlib_h
 #define lauxlib_h
@@ -249,8 +250,8 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 #endif
 /* }============================================================ */
 
-
-
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 

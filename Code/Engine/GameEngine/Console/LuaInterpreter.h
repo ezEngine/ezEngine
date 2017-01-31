@@ -2,6 +2,8 @@
 
 #include <GameEngine/Console/Console.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 namespace ezConsoleInterpreter
 {
   /// \brief The default interpreter used by ezConsole. Uses Lua for parsing and execution.
@@ -27,4 +29,6 @@ namespace ezConsoleInterpreter
   EZ_GAMEENGINE_DLL ezResult Lua(const char* szCommand, ezConsole* pConsole);
 
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

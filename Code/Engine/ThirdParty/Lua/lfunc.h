@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #ifndef lfunc_h
 #define lfunc_h
 
@@ -57,5 +59,7 @@ LUAI_FUNC void luaF_freeproto (lua_State *L, Proto *f);
 LUAI_FUNC const char *luaF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
-
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+

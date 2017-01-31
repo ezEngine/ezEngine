@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #ifndef lopcodes_h
 #define lopcodes_h
 
@@ -293,3 +295,6 @@ LUAI_DDEC const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
 
 
 #endif
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+

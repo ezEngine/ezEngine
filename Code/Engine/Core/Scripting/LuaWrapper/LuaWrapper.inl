@@ -1,3 +1,5 @@
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #pragma once
 
 inline lua_State* ezLuaWrapper::GetLuaState()
@@ -5,7 +7,7 @@ inline lua_State* ezLuaWrapper::GetLuaState()
   return m_pState;
 }
 
-inline ezInt32 ezLuaWrapper::ReturnToScript() const 
+inline ezInt32 ezLuaWrapper::ReturnToScript() const
 {
   return (m_States.m_iParametersPushed);
 }
@@ -190,7 +192,7 @@ inline void ezLuaWrapper::PushTable(const char* szTableName, bool bGlobalTable)
   m_States.m_iParametersPushed++;
 }
 
-inline int ezLuaWrapper::GetIntParameter (ezUInt32 iParameter) const 
+inline int ezLuaWrapper::GetIntParameter (ezUInt32 iParameter) const
 {
   return ((int) (lua_tointeger(m_pState, iParameter + s_ParamOffset)));
 }
@@ -205,8 +207,10 @@ inline float ezLuaWrapper::GetFloatParameter (ezUInt32 iParameter) const
   return ((float) (lua_tonumber(m_pState, iParameter + s_ParamOffset)));
 }
 
-inline const char* ezLuaWrapper::GetStringParameter (ezUInt32 iParameter) const 
+inline const char* ezLuaWrapper::GetStringParameter (ezUInt32 iParameter) const
 {
   return (lua_tostring(m_pState, iParameter + s_ParamOffset));
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

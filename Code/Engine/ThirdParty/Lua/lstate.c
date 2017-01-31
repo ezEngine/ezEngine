@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define lstate_c
 #define LUA_CORE
 
@@ -344,4 +346,6 @@ LUA_API void lua_close (lua_State *L) {
   close_state(L);
 }
 
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 

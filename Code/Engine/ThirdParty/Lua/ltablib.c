@@ -4,6 +4,8 @@
 ** See Copyright Notice in lua.h
 */
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 #define ltablib_c
 #define LUA_LIB
 
@@ -446,4 +448,6 @@ LUAMOD_API int luaopen_table (lua_State *L) {
 #endif
   return 1;
 }
+
+#endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
