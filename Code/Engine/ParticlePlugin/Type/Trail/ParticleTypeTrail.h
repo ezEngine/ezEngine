@@ -40,6 +40,8 @@ public:
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
+  static ezUInt32 ComputeTrailPointBucketSize(ezUInt32 uiMaxTrailPoints);
+
 protected:
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
@@ -55,7 +57,7 @@ protected:
   float m_fSnapshotFraction;
 
   mutable ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
-  mutable ezArrayPtr<ezTrailParticlePointsData> m_TrailPointsShared;
+  mutable ezArrayPtr<ezVec4> m_TrailPointsShared;
 
   struct TrailData
   {
@@ -68,8 +70,11 @@ protected:
   ezVec4* GetTrailPointsPositions(ezUInt32 index);
 
   /// \todo Use a shared freelist across effects instead
-  ezDynamicArray<ezTrailParticlePointsData> m_TrailPoints;
-  ezDynamicArray<ezUInt16> m_FreeTrailData; // 16 Bit ought to be enough for anybody
+  //ezDynamicArray<ezTrailParticlePointsData8> m_TrailPoints8;
+  //ezDynamicArray<ezTrailParticlePointsData16> m_TrailPoints16;
+  //ezDynamicArray<ezTrailParticlePointsData32> m_TrailPoints32;
+  ezDynamicArray<ezTrailParticlePointsData64> m_TrailPoints64;
+  ezDynamicArray<ezUInt16> m_FreeTrailData;
 };
 
 

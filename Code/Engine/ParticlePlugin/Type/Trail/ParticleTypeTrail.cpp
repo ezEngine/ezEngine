@@ -98,9 +98,12 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
     m_LastSnapshot = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
   }
 
-  m_uiMaxPoints = TRAIL_POINTS;
+  //m_uiMaxPoints = ezMath::Min<ezUInt16>(8, m_uiMaxPoints);
 
-  m_uiCurFirstIndex = TRAIL_POINTS - 1;
+  // clamp the number of points to the maximum possible count
+  m_uiMaxPoints = ezMath::Min<ezUInt16>(m_uiMaxPoints, ComputeTrailPointBucketSize(m_uiMaxPoints));
+
+  m_uiCurFirstIndex = m_uiMaxPoints - 1;
   m_uiCurFirstIndex = 1;
 }
 
@@ -127,54 +130,54 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
-    const ezUInt32 uiBucketSize = TRAIL_POINTS;
-
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
 
+    const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(m_uiMaxPoints);
+
     // this will automatically be deallocated at the end of the frame
     m_ParticleDataShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
-    m_TrailPointsShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticlePointsData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_TrailPointsShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
       m_ParticleDataShared[p].Size = pSize[p];
       m_ParticleDataShared[p].Color = pColor[p];
       m_ParticleDataShared[p].NumPoints = pTrailData[p].m_uiNumPoints;
-      m_ParticleDataShared[p].SnapshotFraction = m_fSnapshotFraction;
     }
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
       const ezVec4* pTrailPositions = GetTrailPointsPositions(pTrailData[p].m_uiIndexForTrailPoints);
 
-      ezTrailParticlePointsData& renderPositions = m_TrailPointsShared[p];
+      ezVec4* pRenderPositions = &m_TrailPointsShared[p * uiBucketSize];
 
       /// \todo This loop could be done without a condition
       for (ezUInt32 i = 0; i < m_uiMaxPoints; ++i)
       {
         if (i > m_uiCurFirstIndex)
         {
-          renderPositions.Positions[i] = pTrailPositions[m_uiCurFirstIndex - i + m_uiMaxPoints];
+          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i + m_uiMaxPoints];
         }
         else
         {
-          renderPositions.Positions[i] = pTrailPositions[m_uiCurFirstIndex - i];
+          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i];
         }
       }
     }
   }
 
   /// \todo Is this batch ID correct?
-  const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash();
+  const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash() + m_uiMaxPoints;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_uiMaxTrailPoints = TRAIL_POINTS;
+  pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_ParticleDataShared = m_ParticleDataShared;
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
+  pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
@@ -250,8 +253,8 @@ ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
 
     //if (m_uiMaxPoints > 32)
     //{
-    res = m_TrailPoints.GetCount();
-    m_TrailPoints.ExpandAndGetRef();
+    res = m_TrailPoints64.GetCount();
+    m_TrailPoints64.ExpandAndGetRef();
     //}
     //else if (m_uiMaxPoints > 16)
     //{
@@ -276,41 +279,62 @@ ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
 ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index)
 {
   //if (m_uiMaxPoints > 32)
-  //{
-  return &m_TrailPoints[index].Positions[0];
-  //}
+  {
+    return &m_TrailPoints64[index].Positions[0];
+  }
   //else if (m_uiMaxPoints > 16)
   //{
-  //  return &m_TrailData32[index].m_Positions[0];
+  //  return &m_TrailPoints32[index].Positions[0];
   //}
   //else if (m_uiMaxPoints > 8)
   //{
-  //  return &m_TrailData16[index].m_Positions[0];
+  //  return &m_TrailPoints16[index].Positions[0];
   //}
   //else
   //{
-  //  return &m_TrailData8[index].m_Positions[0];
+  //  return &m_TrailPoints8[index].Positions[0];
   //}
 }
 
 const ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index) const
 {
   //if (m_uiMaxPoints > 32)
-  //{
-  return &m_TrailPoints[index].Positions[0];
-  //}
+  {
+    return &m_TrailPoints64[index].Positions[0];
+  }
   //else if (m_uiMaxPoints > 16)
   //{
-  //  return &m_TrailData32[index].m_Positions[0];
+  //  return &m_TrailPoints32[index].Positions[0];
   //}
   //else if (m_uiMaxPoints > 8)
   //{
-  //  return &m_TrailData16[index].m_Positions[0];
+  //  return &m_TrailPoints16[index].Positions[0];
   //}
   //else
   //{
-  //  return &m_TrailData8[index].m_Positions[0];
+  //  return &m_TrailPoints8[index].Positions[0];
   //}
+}
+
+
+ezUInt32 ezParticleTypeTrail::ComputeTrailPointBucketSize(ezUInt32 uiMaxTrailPoints)
+{
+  if (uiMaxTrailPoints > 32)
+  {
+    return 64;
+  }
+  else if (uiMaxTrailPoints > 16)
+  {
+    return 32;
+  }
+  else if (uiMaxTrailPoints > 8)
+  {
+    return 16;
+  }
+  else
+  {
+    return 8;
+  }
 }
 
 void ezParticleTypeTrail::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)

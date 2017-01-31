@@ -3,6 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
+PARTICLE_TRAIL_POINTS
+
 [RENDERSTATE]
 
 BlendingEnabled0 = true
@@ -24,6 +26,8 @@ CullMode = CullMode_None
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
+#define TRAIL_SEGMENTS (PARTICLE_TRAIL_POINTS - 1)
+
 VS_OUT main(uint VertexID : SV_VertexID)
 {
   int trailIndexOffset[6] = { 0, 1, 1, 0, 1, 0 };
@@ -38,6 +42,8 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float2(0.0, 1.0),
   };
 
+  // TODO: We could use NumUsedTrailPoints instead of TRAIL_SEGMENTS and then render fewer triangles
+  // However, TRAIL_SEGMENTS is a compile time constant, so not clear what might be more efficient.
   int particleIndex = VertexID / (6 * TRAIL_SEGMENTS);
   int trailPointIndex = (VertexID - (particleIndex * 6 * TRAIL_SEGMENTS)) / 6;
   int vertexSubIndex = VertexID % 6;
@@ -61,9 +67,9 @@ VS_OUT main(uint VertexID : SV_VertexID)
     // UV step is currently calculated over the maximum number of segments, instead of the active number of segments
     // this means at start the texture is cut off, instead of stretching over the full UV space
     // doing it differently would be very complicated though
-    float uvStep = 1.0 / (TRAIL_POINTS - 2);
+    float uvStep = 1.0 / (NumUsedTrailPoints - 2);
     float uvCoord = uvStep * vertexTrailPointIndex;
-    float uvSubtract = uvStep * particle.SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
+    float uvSubtract = uvStep * SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
 
     int prevTrailPointIdx = max(vertexTrailPointIndex - 1, 0);
     int nextTrailPointIdx = min(vertexTrailPointIndex + 1, particle.NumPoints - 1);
