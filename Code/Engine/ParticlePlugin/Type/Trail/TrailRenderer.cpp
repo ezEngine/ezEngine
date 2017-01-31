@@ -1,5 +1,6 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
+#include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Context/Context.h>
