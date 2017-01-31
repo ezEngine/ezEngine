@@ -256,4 +256,3 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 
 #endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
-a
