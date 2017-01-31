@@ -232,9 +232,8 @@ endif ()
 ## Add your variables here, if you need something (general) to configure from the cmake GUI
 
 # Define GUI Variables to configure the project
-if (BUILDSYSTEM_PLATFORM_WINDOWS)
+if (BUILDSYSTEM_PLATFORM_WINDOWS OR BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
- # set (EZ_WINDOWS_UWP OFF CACHE BOOL "Whether to compile for Universal Windows Platform (true) or classic desktop (false).")
 endif()
 
 #set (EZ_STRICT_WARNINGS OFF CACHE BOOL "Whether to compile the code with highest warning level. Good luck with that.")
