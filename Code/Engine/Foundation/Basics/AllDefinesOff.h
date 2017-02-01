@@ -20,7 +20,9 @@
 
 
 // All the supported Platforms
-#define EZ_PLATFORM_WINDOWS EZ_OFF
+#define EZ_PLATFORM_WINDOWS EZ_OFF // enabled for all Windows platforms, both UWP and desktop
+#define EZ_PLATFORM_WINDOWS_UWP EZ_OFF // enabled for UWP apps, together with EZ_PLATFORM_WINDOWS
+#define EZ_PLATFORM_WINDOWS_DESKTOP EZ_OFF // enabled for desktop apps, together with EZ_PLATFORM_WINDOWS
 #define EZ_PLATFORM_OSX EZ_OFF
 #define EZ_PLATFORM_LINUX EZ_OFF
 #define EZ_PLATFORM_IOS EZ_OFF

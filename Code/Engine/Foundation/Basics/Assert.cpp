@@ -11,7 +11,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
     return true;
 
   // make sure the cursor is definitely shown, since the user must be able to click buttons
-  #if EZ_ENABLED(EZ_WINDOWS_UWP)
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     // Todo: Use modern Windows API to show cursor in current window.
     // http://stackoverflow.com/questions/37956628/change-mouse-pointer-in-uwp-app
   #else
@@ -28,7 +28,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
     if (iRes == 0)
     {
       // when the user ignores the assert, restore the cursor show/hide state to the previous count
-      #if EZ_ENABLED(EZ_WINDOWS_UWP)
+      #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
         // Todo: Use modern Windows API to restore cursor.
       #else
         for (ezInt32 i = 0; i < iHideCursor; ++i)

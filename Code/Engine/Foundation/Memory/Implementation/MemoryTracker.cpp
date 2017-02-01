@@ -84,7 +84,7 @@ namespace
   static void PrintHelper(const char* szText)
   {
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    OutputDebugString(szText);
+    OutputDebugStringW(ezStringWChar(szText).GetData());
   #else
     printf("%s", szText);
   #endif

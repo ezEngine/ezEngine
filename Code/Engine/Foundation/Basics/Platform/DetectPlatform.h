@@ -4,6 +4,18 @@
   #undef EZ_PLATFORM_WINDOWS
   #define EZ_PLATFORM_WINDOWS EZ_ON
 
+# undef EZ_PLATFORM_WINDOWS_UWP
+# undef EZ_PLATFORM_WINDOWS_DESKTOP
+
+  // Distinguish between windows desktop and windows uwp.
+# if WINAPI_FAMILY==WINAPI_FAMILY_APP
+#   define EZ_PLATFORM_WINDOWS_UWP EZ_ON
+#   define EZ_PLATFORM_WINDOWS_DESKTOP EZ_OFF
+# else
+#   define EZ_PLATFORM_WINDOWS_UWP EZ_OFF
+#   define EZ_PLATFORM_WINDOWS_DESKTOP EZ_ON
+# endif
+
 #elif defined(__APPLE__) && defined(__MACH__)
   #include <TargetConditionals.h>
 
