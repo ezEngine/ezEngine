@@ -19,7 +19,7 @@ void ezStringWChar::operator=(const char* szUtf8)
     {
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
@@ -44,7 +44,7 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
     {
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
@@ -67,7 +67,7 @@ void ezStringWChar::operator=(const ezUInt32* szUtf32)
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = *szUtf32;
       ++szUtf32;
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
@@ -137,7 +137,7 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
     {
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
@@ -160,7 +160,7 @@ void ezStringUtf8::operator=(const ezUInt32* szUtf32)
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = *szUtf32;
       ++szUtf32;
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
@@ -181,7 +181,7 @@ void ezStringUtf8::operator=(const wchar_t* szWChar)
     {
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
@@ -192,7 +192,18 @@ void ezStringUtf8::operator=(const wchar_t* szWChar)
   m_Data.PushBack('\0');
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
+void ezStringUtf8::operator=(const Microsoft::WRL::Wrappers::HString& hstring)
+{
+  ezUInt32 len = 0;
+  const wchar_t* raw = hstring.GetRawBuffer(&len);
+
+  // delegate to wchar_t operator
+  *this = raw;
+}
+
+#endif
 
 
 // **************** ezStringUtf16 ****************
@@ -212,7 +223,7 @@ void ezStringUtf16::operator=(const char* szUtf8)
     {
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
@@ -257,7 +268,7 @@ void ezStringUtf16::operator=(const ezUInt32* szUtf32)
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = *szUtf32;
       ++szUtf32;
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
@@ -278,7 +289,7 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
     {
       // decode utf8 to utf32
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
-  
+
       // encode utf32 to wchar_t
       ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
@@ -375,9 +386,53 @@ void ezStringUtf32::operator=(const wchar_t* szWChar)
   m_Data.PushBack('\0');
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
+ezStringHString::ezStringHString()
+{
+}
 
+ezStringHString::ezStringHString(const char* szUtf8)
+{
+  *this = szUtf8;
+}
 
+ezStringHString::ezStringHString(const ezUInt16* szUtf16)
+{
+  *this = szUtf16;
+}
+
+ezStringHString::ezStringHString(const ezUInt32* szUtf32)
+{
+  *this = szUtf32;
+}
+
+ezStringHString::ezStringHString(const wchar_t* szWChar)
+{
+  *this = szWChar;
+}
+
+void ezStringHString::operator=(const char* szUtf8)
+{
+  m_Data.Set(ezStringWChar(szUtf8).GetData());
+}
+
+void ezStringHString::operator=(const ezUInt16* szUtf16)
+{
+  m_Data.Set(ezStringWChar(szUtf16).GetData());
+}
+
+void ezStringHString::operator=(const ezUInt32* szUtf32)
+{
+  m_Data.Set(ezStringWChar(szUtf32).GetData());
+}
+
+void ezStringHString::operator=(const wchar_t* szWChar)
+{
+  m_Data.Set(ezStringWChar(szWChar).GetData());
+}
+
+#endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringConversion);

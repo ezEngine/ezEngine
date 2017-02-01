@@ -28,6 +28,8 @@ using namespace Microsoft::WRL::Wrappers;
 
 #endif
 
+#include <Foundation/Strings/String.h>
+
 // Helper function to detect a 64-bit Windows
 bool Is64BitWindows()
 {
@@ -51,6 +53,8 @@ void ezSystemInformation::Initialize()
 {
   if (s_SystemInformation.m_bIsInitialized)
     return;
+
+  s_SystemInformation.m_sHostName[0] = '\0';
 
   // Get system information via various APIs
   SYSTEM_INFO sysInfo;
@@ -80,11 +84,9 @@ void ezSystemInformation::Initialize()
 #endif
 
   //  Get host name
-  
+
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  strcpy(s_SystemInformation.m_sHostName, "");
-
   using namespace ABI::Windows::Networking::Connectivity;
   using namespace ABI::Windows::Networking;
   ComPtr<INetworkInformationStatics> networkInformation;
@@ -112,9 +114,7 @@ void ezSystemInformation::Initialize()
             if (FAILED(hostName->get_CanonicalName(name.GetAddressOf())))
               continue;
 
-            unsigned int stringLen = 0;
-            const wchar_t* rawName = name.GetRawBuffer(&stringLen);
-            ezStringUtils::Copy(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName), ezStringUtf8(rawName).GetData());
+            ezStringUtils::Copy(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName), ezStringUtf8(name).GetData());
             break;
           }
         }
@@ -124,12 +124,8 @@ void ezSystemInformation::Initialize()
 
 #else
   DWORD bufCharCount = sizeof(s_SystemInformation.m_sHostName);
-  if (!GetComputerName(s_SystemInformation.m_sHostName, &bufCharCount))
-  {
-    strcpy(s_SystemInformation.m_sHostName, "");
-  }
+  GetComputerName(s_SystemInformation.m_sHostName, &bufCharCount);
 #endif
-
 
   s_SystemInformation.m_bIsInitialized = true;
 }

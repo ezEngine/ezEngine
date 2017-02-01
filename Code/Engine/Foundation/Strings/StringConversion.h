@@ -2,6 +2,11 @@
 
 #include <Foundation/Containers/HybridArray.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // For HString, HStringReference and co.
+  #include <wrl/wrappers/corewrappers.h>
+#endif
+
 /// \brief A very simple string class that should only be used to temporarily convert text to the OSes native wchar_t convention (16 or 32 Bit).
 ///
 /// This should be used when one needs to output text via some function that only accepts wchar_t strings.
@@ -45,10 +50,18 @@ public:
   ezStringUtf8(const ezUInt32* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringUtf8(const wchar_t* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  ezStringUtf8(const Microsoft::WRL::Wrappers::HString& hstring, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+#endif
+
   void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
   void operator=(const ezUInt32* szUtf32);
   void operator=(const wchar_t* szUtf32);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  void operator=(const Microsoft::WRL::Wrappers::HString& hstring);
+#endif
 
   const char* GetData() const { return &m_Data[0]; }
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
@@ -105,12 +118,12 @@ public:
   ezStringUtf32(const char* szUtf8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringUtf32(const ezUInt16* szUtf16, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringUtf32(const ezUInt32* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
-  ezStringUtf32(const wchar_t* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf32(const wchar_t* szWChar, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
 
   void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
   void operator=(const ezUInt32* szUtf32);
-  void operator=(const wchar_t* szUtf32);
+  void operator=(const wchar_t* szWChar);
 
   const ezUInt32* GetData() const { return &m_Data[0]; }
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
@@ -122,6 +135,40 @@ private:
   static const ezUInt32 BufferSize = 1024;
   ezHybridArray<ezUInt32, BufferSize> m_Data;
 };
+
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+
+/// \brief A very simple string class that should only be used to temporarily convert text to the OSes native HString (on UWP platforms).
+///
+/// This should be used when one needs to output text via some function that only accepts HString strings.
+/// DO NOT use this for storage or anything else that is not temporary.
+class EZ_FOUNDATION_DLL ezStringHString
+{
+public:
+  ezStringHString();
+  ezStringHString(const char* szUtf8);
+  ezStringHString(const ezUInt16* szUtf16);
+  ezStringHString(const ezUInt32* szUtf32);
+  ezStringHString(const wchar_t* szWChar);
+
+  void operator=(const char* szUtf8);
+  void operator=(const ezUInt16* szUtf16);
+  void operator=(const ezUInt32* szUtf32);
+  void operator=(const wchar_t* szWChar);
+
+  /// \brief Unfortunately you cannot assign HStrings, so you cannot copy the result to another HString, you have to use this result directly
+  const Microsoft::WRL::Wrappers::HString& GetData() const { return m_Data; }
+
+private:
+  // It is not intended to copy these things around.
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezStringHString);
+
+  Microsoft::WRL::Wrappers::HString m_Data;
+};
+
+#endif
+
 
 #include <Foundation/Strings/Implementation/StringConversion_inl.h>
 

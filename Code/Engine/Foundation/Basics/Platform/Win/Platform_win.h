@@ -26,6 +26,19 @@
 
 #include <malloc.h>
 
+# undef EZ_PLATFORM_WINDOWS_UWP
+# undef EZ_PLATFORM_WINDOWS_DESKTOP
+
+// Distinguish between Windows desktop and Windows UWP.
+# if WINAPI_FAMILY==WINAPI_FAMILY_APP
+#   define EZ_PLATFORM_WINDOWS_UWP EZ_ON
+#   define EZ_PLATFORM_WINDOWS_DESKTOP EZ_OFF
+# else
+#   define EZ_PLATFORM_WINDOWS_UWP EZ_OFF
+#   define EZ_PLATFORM_WINDOWS_DESKTOP EZ_ON
+# endif
+
+
 // unset windows macros
 #undef min
 #undef max

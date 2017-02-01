@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Strings/StringConversion.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
