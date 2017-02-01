@@ -53,7 +53,11 @@
     // reset last error code
     if (GetLastError()) { }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    Module = LoadPackagedLibrary(ezStringWChar(szFileToLoad).GetData(), 0);
+#else
     Module = LoadLibraryW(ezStringWChar(szFileToLoad).GetData());
+#endif
 
     if (Module == nullptr)
     {

@@ -4,7 +4,13 @@
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+# if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #include <Foundation/Utilities/Implementation/Win/StackTracer_uwp.h>
+# else
   #include <Foundation/Utilities/Implementation/Win/StackTracer_win.h>
+#endif
+
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <Foundation/Utilities/Implementation/Posix/StackTracer_posix.h>
 #else
