@@ -9,17 +9,19 @@
 
 # Add all the preprocessor definitions that are needed to configure this library
 
-SET (LINK_LIBRARIES 
-  
+SET (LINK_LIBRARIES
+
 )
 
 if(MSVC)
   add_definitions (-DWIN32)
 
-  SET (LINK_LIBRARIES 
+  SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     ws2_32.lib
     winmm.lib
+    Kernel32.lib
+    runtimeobject.lib
   )
 endif()
 
