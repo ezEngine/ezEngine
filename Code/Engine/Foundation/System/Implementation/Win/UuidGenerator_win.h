@@ -7,7 +7,12 @@ void ezUuid::CreateNewUuid()
 {
   ezUInt64 uiUuidData[2];
 
-  UuidCreate(reinterpret_cast<UUID*>(uiUuidData));
+  // this works on desktop Windows
+  //UuidCreate(reinterpret_cast<UUID*>(uiUuidData));
+
+  // this also works on UWP
+  GUID* guid = reinterpret_cast<GUID*>(&uiUuidData[0]);
+  CoCreateGuid(guid);
 
   m_uiHigh = uiUuidData[0];
   m_uiLow  = uiUuidData[1];
