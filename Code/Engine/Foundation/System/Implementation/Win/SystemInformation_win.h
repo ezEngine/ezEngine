@@ -4,24 +4,16 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-// TODO: Put these fundamental things into a UWP helper header.
-////////////////////////
-
+// To get from from HString to char*
+#include <Foundation/Strings/StringConversion.h>
 // For ComPtr
 #include <wrl/client.h>
-// For HString, HStringReference and co.
-#include <wrl/wrappers/corewrappers.h>
 // For Windows::Foundation::GetActivationFactory and similar.
 #include <windows.foundation.h>
 
-// Don't want to type Microsoft::WRL::ComPtr all the time.
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
 
-// To get from wchar_t (from HString) to char*
-#include <Foundation/Strings/StringConversion.h>
-
-////////////////////////
 
 
 #include <windows.networking.connectivity.h>
