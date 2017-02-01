@@ -18,7 +18,7 @@ public:
   /// \brief Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
   void SetCommandLine(ezUInt32 argc, const char** argv); // [tested]
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   /// \brief Initializes ezCommandLineUtils by querying the command line parameters directly from the OS.
   ///
   /// This function is not available on all platforms.

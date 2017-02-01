@@ -23,7 +23,7 @@ void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv)
     m_Commands.PushBack(argv[i]);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 void ezCommandLineUtils::SetCommandLine()
 {
@@ -49,7 +49,8 @@ void ezCommandLineUtils::SetCommandLine()
  EZ_DEFAULT_DELETE_ARRAY(argv);
  LocalFree(argvw);
 }
-
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // Not implemented on Windows UWP.
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   // Not implemented on OSX.
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
