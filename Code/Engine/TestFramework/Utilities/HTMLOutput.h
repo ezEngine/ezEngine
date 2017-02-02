@@ -113,7 +113,7 @@ struct ezOutputToHTML
     case ezTestOutput::Message:
     case ezTestOutput::ImportantInfo:
       bDetails = true;
-    
+
     case ezTestOutput::Details:
       details << szMsg << "<br/>";
       break;
@@ -130,7 +130,7 @@ struct ezOutputToHTML
 
         std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
         TestSettings settings = ezTestFramework::GetInstance()->GetSettings();
         if (settings.m_bOpenHtmlOutput)
         {

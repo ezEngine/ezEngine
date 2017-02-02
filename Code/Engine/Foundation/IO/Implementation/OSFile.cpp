@@ -460,11 +460,10 @@ done:
 
 #endif // EZ_SUPPORTS_FILE_STATS
 
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <Foundation/IO/Implementation/Win/OSFile_win.h>
-#elif EZ_ENABLED(EZ_USE_POSIX_FILE_API)
+#if EZ_ENABLED(EZ_USE_POSIX_FILE_API)
   #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #include <Foundation/IO/Implementation/Win/OSFile_win.h>
 #else
   #error "Unknown Platform."
 #endif

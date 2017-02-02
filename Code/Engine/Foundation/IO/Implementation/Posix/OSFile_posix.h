@@ -1,8 +1,17 @@
 #pragma once
 
-#include <unistd.h>
+//#include <unistd.h>
+#include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <direct.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_ON
+#else
+  #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
+#endif
+
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
 #include <CoreFoundation/CoreFoundation.h>
@@ -94,11 +103,29 @@ ezUInt64 ezOSFile::InternalRead(void* pBuffer, ezUInt64 uiBytes)
 
 ezUInt64 ezOSFile::InternalGetFilePosition() const
 {
+#if EZ_ENABLED(EZ_USE_OLD_POSIX_FUNCTIONS)
+  return static_cast<ezUInt64>(ftell(m_FileData.m_pFileHandle));
+#else
   return static_cast<ezUInt64>(ftello(m_FileData.m_pFileHandle));
+#endif
 }
 
 void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const
 {
+#if EZ_ENABLED(EZ_USE_OLD_POSIX_FUNCTIONS)
+  switch (Pos)
+  {
+  case ezFilePos::FromStart:
+    EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_SET) == 0, "Seek Failed");
+    break;
+  case ezFilePos::FromEnd:
+    EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_END) == 0, "Seek Failed");
+    break;
+  case ezFilePos::FromCurrent:
+    EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_CUR) == 0, "Seek Failed");
+    break;
+  }
+#else
   switch (Pos)
   {
   case ezFilePos::FromStart:
@@ -111,6 +138,7 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
     EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_CUR) == 0, "Seek Failed");
     break;
   }
+#endif
 }
 
 bool ezOSFile::InternalExistsFile(const char* szFile)
@@ -124,6 +152,11 @@ bool ezOSFile::InternalExistsFile(const char* szFile)
   return true;
 }
 
+// this might not be defined on Windows
+#ifndef S_ISDIR
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
+
 bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
 {
   struct stat sb;
@@ -132,11 +165,11 @@ bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
 
 ezResult ezOSFile::InternalDeleteFile(const char* szFile)
 {
-  int iRes = unlink(szFile);
-  
+  int iRes = _unlink(szFile);
+
   if (iRes == 0 || (iRes == -1 && errno == ENOENT))
     return EZ_SUCCESS;
-  
+
   return EZ_FAILURE;
 }
 
@@ -145,12 +178,16 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   // handle drive letters as always successful
   if (ezStringUtils::GetCharacterCount(szDirectory) <= 1) // '/'
     return EZ_SUCCESS;
-  
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  int iRes = _mkdir(szDirectory);
+#else
   int iRes = mkdir(szDirectory, 0777);
-  
+#endif
+
   if (iRes == 0 || (iRes == -1 && errno == EEXIST))
     return EZ_SUCCESS;
-    
+
   return EZ_FAILURE;
 }
 
@@ -159,15 +196,15 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 {
   struct stat tempStat;
   int iRes = stat(szFileOrFolder, &tempStat);
-  
+
   if (iRes != 0)
     return EZ_FAILURE;
-  
+
   out_Stats.m_bIsDirectory = S_ISDIR(tempStat.st_mode);
   out_Stats.m_uiFileSize = tempStat.st_size;
   out_Stats.m_sFileName = "";
   out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
-  
+
   return EZ_SUCCESS;
 }
 #endif
@@ -175,39 +212,40 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 const char* ezOSFile::GetApplicationDirectory()
 {
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
-  
+
   static ezString256 s_Path;
-  
+
   if(s_Path.IsEmpty())
   {
     CFBundleRef appBundle = CFBundleGetMainBundle();
     CFURLRef bundleURL = CFBundleCopyBundleURL(appBundle);
     CFStringRef bundlePath = CFURLCopyFileSystemPath( bundleURL, kCFURLPOSIXPathStyle );
-    
+
     if(bundlePath != nullptr)
     {
       CFIndex length = CFStringGetLength(bundlePath);
       CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
-      
+
       ezArrayPtr<char> temp = EZ_DEFAULT_NEW_ARRAY(char, maxSize);
-      
+
       if(CFStringGetCString(bundlePath, temp.GetPtr(), maxSize, kCFStringEncodingUTF8))
       {
         s_Path = temp.GetPtr();
       }
-      
+
       EZ_DEFAULT_DELETE_ARRAY(temp);
     }
-    
+
     CFRelease(bundlePath);
     CFRelease(bundleURL);
     CFRelease(appBundle);
   }
-  
+
   return s_Path.GetData();
-  
+
 #else
-  #warning Not yet implemented.
+  //#warning Not yet implemented.
+  EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
 
   return nullptr;

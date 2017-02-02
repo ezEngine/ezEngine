@@ -5,7 +5,9 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   inline void SetConsoleColorInl (WORD ui)
   {
-    SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE), ui);
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
+#endif
   }
 #else
   inline void SetConsoleColorInl (ezUInt8 ui) { }

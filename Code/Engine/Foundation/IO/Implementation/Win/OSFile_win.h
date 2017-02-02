@@ -438,7 +438,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
             HSTRING path;
             localFolderItem->get_Path(&path);
 
-            wchar_t* pPath = path;
+            //wchar_t* pPath = path;
           }
         }
       }

@@ -52,13 +52,13 @@ ezTestAppRun ezTestSetup::RunTests()
   }
 
   // Setup Qt Application
-  
+
   int argc = s_argc;
   char** argv = const_cast<char**>(s_argv);
   QApplication app(argc, argv);
 
   app.setApplicationName(pTestFramework->GetTestName());
-  
+
   ezQtTestGUI::SetDarkTheme();
   // Create main window
   ezQtTestGUI mainWindow(*static_cast<ezQtTestFramework*>(pTestFramework));
@@ -80,7 +80,7 @@ void ezTestSetup::DeInitTestFramework()
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezStringUtils::PrintStringLengthStatistics();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bKeepConsoleOpen)
   {
