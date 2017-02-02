@@ -4,11 +4,21 @@
 
 /// If set to 1, the POSIX file implementation will be used. Otherwise a platform specific implementation must be available.
 #undef EZ_USE_POSIX_FILE_API
-#define EZ_USE_POSIX_FILE_API EZ_OFF
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #define EZ_USE_POSIX_FILE_API EZ_ON
+#else
+  #define EZ_USE_POSIX_FILE_API EZ_OFF
+#endif
 
 /// Iterating through the file system is supported
 #undef EZ_SUPPORTS_FILE_ITERATORS
-#define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
+#else
+  #define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
+#endif
 
 /// Getting the stats of a file (modification times etc.) is supported.
 #undef EZ_SUPPORTS_FILE_STATS

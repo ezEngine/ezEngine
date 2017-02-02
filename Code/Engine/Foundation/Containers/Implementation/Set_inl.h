@@ -184,13 +184,13 @@ void ezSetBase<KeyType, Comparer>::Clear()
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezSetBase<KeyType, Comparer>::IsEmpty() const
 {
   return (m_uiCount == 0);
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE ezUInt32 ezSetBase<KeyType, Comparer>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezSetBase<KeyType, Comparer>::GetCount() const
 {
   return m_uiCount;
 }

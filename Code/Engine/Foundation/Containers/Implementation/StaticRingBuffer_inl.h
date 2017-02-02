@@ -132,19 +132,19 @@ EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex)
 }
 
 template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE ezUInt32 ezStaticRingBuffer<T, C>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezStaticRingBuffer<T, C>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE bool ezStaticRingBuffer<T, C>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezStaticRingBuffer<T, C>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
 template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE bool ezStaticRingBuffer<T, C>::CanAppend(ezUInt32 uiElements)
+EZ_ALWAYS_INLINE bool ezStaticRingBuffer<T, C>::CanAppend(ezUInt32 uiElements)
 {
   return (m_uiCount + uiElements) <= C;
 }
@@ -157,7 +157,7 @@ void ezStaticRingBuffer<T, C>::Clear()
 }
 
 template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE T* ezStaticRingBuffer<T, C>::GetStaticArray()
+EZ_ALWAYS_INLINE T* ezStaticRingBuffer<T, C>::GetStaticArray()
 {
   return reinterpret_cast<T*>(m_Data);
 }

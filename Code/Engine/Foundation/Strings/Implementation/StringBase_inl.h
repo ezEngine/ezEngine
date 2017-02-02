@@ -1,28 +1,28 @@
 #pragma once
 
 template <typename Derived>
-EZ_FORCE_INLINE const char* ezStringBase<Derived>::InternalGetData() const
+EZ_ALWAYS_INLINE const char* ezStringBase<Derived>::InternalGetData() const
 {
   const Derived* pDerived = static_cast<const Derived*>(this);
   return pDerived->GetData();
 }
 
 template <typename Derived>
-EZ_FORCE_INLINE const char* ezStringBase<Derived>::InternalGetDataEnd() const
+EZ_ALWAYS_INLINE const char* ezStringBase<Derived>::InternalGetDataEnd() const
 {
   const Derived* pDerived = static_cast<const Derived*>(this);
   return pDerived->GetData() + pDerived->GetElementCount();
 }
 
 template <typename Derived>
-EZ_FORCE_INLINE ezUInt32 ezStringBase<Derived>::InternalGetElementCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezStringBase<Derived>::InternalGetElementCount() const
 {
   const Derived* pDerived = static_cast<const Derived*>(this);
   return pDerived->GetElementCount();
 }
 
 template <typename Derived>
-EZ_FORCE_INLINE bool ezStringBase<Derived>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezStringBase<Derived>::IsEmpty() const
 {
   return ezStringUtils::IsNullOrEmpty(InternalGetData()) || (InternalGetData() == InternalGetDataEnd());
 }

@@ -45,7 +45,7 @@ EZ_FORCE_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
 }
 
 template<typename Type>
-void ezMat3Template<Type>::SetFromArray(const Type* EZ_RESTRICT const pData, ezMatrixLayout::Enum layout)
+void ezMat3Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout)
 {
   if (layout == ezMatrixLayout::ColumnMajor)
   {

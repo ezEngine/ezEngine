@@ -186,13 +186,13 @@ void ezMapBase<KeyType, ValueType, Comparer>::Clear()
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE bool ezMapBase<KeyType, ValueType, Comparer>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezMapBase<KeyType, ValueType, Comparer>::IsEmpty() const
 {
   return (m_uiCount == 0);
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE ezUInt32 ezMapBase<KeyType, ValueType, Comparer>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezMapBase<KeyType, ValueType, Comparer>::GetCount() const
 {
   return m_uiCount;
 }

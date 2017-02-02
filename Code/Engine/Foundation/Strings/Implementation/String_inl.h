@@ -49,7 +49,7 @@ ezHybridStringBase<Size>::~ezHybridStringBase()
 
 template<ezUInt16 Size>
 ezHybridStringBase<Size>::operator ezStringView() const
-{ 
+{
   return ezStringView(GetData(), GetData() + m_Data.GetCount() - 1);
 }
 
@@ -62,7 +62,7 @@ void ezHybridStringBase<Size>::Clear()
 }
 
 template<ezUInt16 Size>
-EZ_FORCE_INLINE const char* ezHybridStringBase<Size>::GetData() const
+EZ_ALWAYS_INLINE const char* ezHybridStringBase<Size>::GetData() const
 {
   EZ_ASSERT_DEBUG(!m_Data.IsEmpty(), "ezHybridString has been corrupted, the array can never be empty. This can happen when you access a string that was previously std::move'd into another string.");
 
@@ -70,13 +70,13 @@ EZ_FORCE_INLINE const char* ezHybridStringBase<Size>::GetData() const
 }
 
 template<ezUInt16 Size>
-EZ_FORCE_INLINE ezUInt32 ezHybridStringBase<Size>::GetElementCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetElementCount() const
 {
   return m_Data.GetCount() - 1;
 }
 
 template<ezUInt16 Size>
-EZ_FORCE_INLINE ezUInt32 ezHybridStringBase<Size>::GetCharacterCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetCharacterCount() const
 {
   return m_uiCharacterCount;
 }
@@ -159,13 +159,13 @@ ezStringView ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) const
 
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString() : 
+EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString() :
   ezHybridStringBase<Size>(A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator) : 
+EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator) :
   ezHybridStringBase<Size>(pAllocator)
 {
 }

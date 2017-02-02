@@ -378,7 +378,7 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) const
+inline ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
@@ -393,7 +393,7 @@ EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
+inline T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
@@ -406,7 +406,7 @@ EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex) const
+inline const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "The deque has {0} elements. Cannot access element {1}.", m_uiCount, uiIndex);
 
@@ -419,7 +419,7 @@ EZ_FORCE_INLINE const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::ExpandAndGetRef()
+inline T& ezDequeBase<T, Construct>::ExpandAndGetRef()
 {
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -433,7 +433,7 @@ EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::ExpandAndGetRef()
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack()
+inline void ezDequeBase<T, Construct>::PushBack()
 {
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -445,7 +445,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack()
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack(const T& element)
+inline void ezDequeBase<T, Construct>::PushBack(const T& element)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -456,7 +456,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack(const T& element)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
+inline void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
 {
   EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
 
@@ -473,7 +473,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront(const T& element)
+inline void ezDequeBase<T, Construct>::PushFront(const T& element)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -485,7 +485,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront(const T& element)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront()
+inline void ezDequeBase<T, Construct>::PushFront()
 {
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
@@ -498,7 +498,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront()
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
+inline void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
 {
   EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
 
@@ -516,37 +516,37 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE bool ezDequeBase<T, Construct>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezDequeBase<T, Construct>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE const T& ezDequeBase<T, Construct>::PeekFront() const
+EZ_ALWAYS_INLINE const T& ezDequeBase<T, Construct>::PeekFront() const
 {
   return operator[](0);
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::PeekFront()
+EZ_ALWAYS_INLINE T& ezDequeBase<T, Construct>::PeekFront()
 {
   return operator[](0);
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE const T& ezDequeBase<T, Construct>::PeekBack() const
+EZ_ALWAYS_INLINE const T& ezDequeBase<T, Construct>::PeekBack() const
 {
   return operator[](m_uiCount - 1);
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::PeekBack()
+EZ_ALWAYS_INLINE T& ezDequeBase<T, Construct>::PeekBack()
 {
   return operator[](m_uiCount - 1);
 }

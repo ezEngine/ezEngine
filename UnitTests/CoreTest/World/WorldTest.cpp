@@ -312,7 +312,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       {
         BreadthFirstTest() { m_uiCounter = 0; }
 
-        bool Visit(ezGameObject* pObject)
+        ezVisitorExecution::Enum Visit(ezGameObject* pObject)
         {
           if (m_uiCounter < EZ_ARRAY_SIZE(m_o.pObjects))
           {
@@ -320,7 +320,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
           }
 
           ++m_uiCounter;
-          return true;
+          return ezVisitorExecution::Continue;
         }
 
         ezUInt32 m_uiCounter;
@@ -341,7 +341,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       {
         DepthFirstTest() { m_uiCounter = 0; }
 
-        bool Visit(ezGameObject* pObject)
+        ezVisitorExecution::Enum Visit(ezGameObject* pObject)
         {
           if      (m_uiCounter == 0) { EZ_TEST_BOOL(pObject == m_o.pParent1); }
           else if (m_uiCounter == 1) { EZ_TEST_BOOL(pObject == m_o.pChild11); }
@@ -350,9 +350,9 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
           ++m_uiCounter;
           if (m_uiCounter >= EZ_ARRAY_SIZE(m_o.pObjects))
-            return false;
+            return ezVisitorExecution::Stop;
 
-          return true;
+          return ezVisitorExecution::Continue;
         }
 
         ezUInt32 m_uiCounter;

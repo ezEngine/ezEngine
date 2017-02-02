@@ -12,9 +12,7 @@ struct ezOSFileData;
 
 #if EZ_ENABLED(EZ_USE_POSIX_FILE_API)
   #include <Foundation/IO/Implementation/Posix/OSFileDeclarations_posix.h>
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
 #endif
 
@@ -212,7 +210,7 @@ public:
       FileOpen,     ///< A file has been (attempted) to open.
       FileClose,    ///< An open file has been closed.
       FileExists,   ///< A check whether a file exists has been done.
-      DirectoryExists, ///< A check whether a directory exists has been done. 
+      DirectoryExists, ///< A check whether a directory exists has been done.
       FileDelete,   ///< A file was attempted to be deleted.
       FileRead,     ///< From an open file data was read.
       FileWrite,    ///< Data was written to an open file.

@@ -22,13 +22,13 @@ EZ_FORCE_INLINE T* ezDataBlock<T, SizeInBytes>::PopBack()
 }
 
 template <typename T, ezUInt32 SizeInBytes>
-EZ_FORCE_INLINE bool ezDataBlock<T, SizeInBytes>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezDataBlock<T, SizeInBytes>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
 template <typename T, ezUInt32 SizeInBytes>
-EZ_FORCE_INLINE bool ezDataBlock<T, SizeInBytes>::IsFull() const
+EZ_ALWAYS_INLINE bool ezDataBlock<T, SizeInBytes>::IsFull() const
 {
   return m_uiCount == CAPACITY;
 }

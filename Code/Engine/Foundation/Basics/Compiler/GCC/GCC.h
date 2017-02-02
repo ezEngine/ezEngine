@@ -1,10 +1,9 @@
 
 #pragma once
 
-// re-investigate: attribute(always inline) does not work for some reason
+/// \todo re-investigate: attribute(always inline) does not work for some reason
+#define EZ_ALWAYS_INLINE inline
 #define EZ_FORCE_INLINE inline
-
-#define EZ_RESTRICT __restrict
 
 #define EZ_ALIGN(decl, alignment) __attribute__((aligned(alignment))) decl
 #define EZ_ALIGNMENT_OF(type) __alignof(type)

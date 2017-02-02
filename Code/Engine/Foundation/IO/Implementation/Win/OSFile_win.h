@@ -262,6 +262,8 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   return EZ_SUCCESS;
 }
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
 ezFileSystemIterator::ezFileSystemIterator()
 {
 }
@@ -390,6 +392,8 @@ ezResult ezFileSystemIterator::SkipFolder()
   return bRet;
 }
 
+#endif
+
 const char* ezOSFile::GetApplicationDirectory()
 {
   if (s_ApplicationPath.IsEmpty())
@@ -404,13 +408,46 @@ const char* ezOSFile::GetApplicationDirectory()
   return s_ApplicationPath.GetData();
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+// For ComPtr
+#include <wrl/client.h>
+#include <windows.storage.h>
+// For Windows::Foundation::GetActivationFactory and similar.
+#include <windows.foundation.h>
+using namespace Microsoft::WRL;
+using namespace Microsoft::WRL::Wrappers;
+#endif
+
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 {
   if (s_UserDataPath.IsEmpty())
   {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
+    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(InterfaceName_Windows_Storage_IApplicationDataStatics).Get(), &appDataStatics)))
+    {
+      ComPtr<ABI::Windows::Storage::IApplicationData> applicationData;
+      if (SUCCEEDED(appDataStatics->get_Current(&applicationData)))
+      {
+        ComPtr<ABI::Windows::Storage::IStorageFolder> applicationDataLocal;
+        if (SUCCEEDED(applicationData->get_LocalFolder(&applicationDataLocal)))
+        {
+          ComPtr<ABI::Windows::Storage::IStorageItem> localFolderItem;
+          if (SUCCEEDED(applicationDataLocal.As(&localFolderItem)))
+          {
+            HSTRING path;
+            localFolderItem->get_Path(&path);
+
+            wchar_t* pPath = path;
+          }
+        }
+      }
+    }
+#else
     WCHAR szPath[MAX_PATH];
     SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, szPath);
     s_UserDataPath = ezStringWChar(szPath).GetData();
+#endif
   }
 
   ezStringBuilder s = s_UserDataPath;

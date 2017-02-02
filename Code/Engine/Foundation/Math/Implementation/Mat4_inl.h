@@ -58,7 +58,7 @@ const ezMat4Template<Type> ezMat4Template<Type>::ZeroMatrix()
 }
 
 template<typename Type>
-void ezMat4Template<Type>::SetFromArray(const Type* EZ_RESTRICT const pData, ezMatrixLayout::Enum layout)
+void ezMat4Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout)
 {
   if (layout == ezMatrixLayout::ColumnMajor)
   {

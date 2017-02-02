@@ -51,7 +51,7 @@ EZ_FORCE_INLINE void ezVariant::operator=(const T& value)
   Init(value);
 }
 
-EZ_FORCE_INLINE bool ezVariant::operator!=(const ezVariant& other) const
+EZ_ALWAYS_INLINE bool ezVariant::operator!=(const ezVariant& other) const
 {
   return !(*this == other);
 }
@@ -81,46 +81,46 @@ EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezVariant::operator!=(const T& other) const
+EZ_ALWAYS_INLINE bool ezVariant::operator!=(const T& other) const
 {
   return !(*this == other);
 }
 
-EZ_FORCE_INLINE bool ezVariant::IsValid() const
+EZ_ALWAYS_INLINE bool ezVariant::IsValid() const
 {
   return m_Type != Type::Invalid;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezVariant::IsA() const
+EZ_ALWAYS_INLINE bool ezVariant::IsA() const
 {
   return m_Type == TypeDeduction<T>::value;
 }
 
-EZ_FORCE_INLINE ezVariant::Type::Enum ezVariant::GetType() const
+EZ_ALWAYS_INLINE ezVariant::Type::Enum ezVariant::GetType() const
 {
   return static_cast<Type::Enum>(m_Type);
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T& ezVariant::Get() const
+EZ_ALWAYS_INLINE const T& ezVariant::Get() const
 {
   EZ_ASSERT_DEV(IsA<T>(), "Stored type '{0}' does not match requested type '{1}'", m_Type, TypeDeduction<T>::value);
   return Cast<T>();
 }
 
-EZ_FORCE_INLINE void* ezVariant::GetData()
+EZ_ALWAYS_INLINE void* ezVariant::GetData()
 {
   return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
 }
 
-EZ_FORCE_INLINE const void* ezVariant::GetData() const
+EZ_ALWAYS_INLINE const void* ezVariant::GetData() const
 {
   return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezVariant::CanConvertTo() const
+EZ_ALWAYS_INLINE bool ezVariant::CanConvertTo() const
 {
   return CanConvertTo(static_cast<Type::Enum>(TypeDeduction<T>::value));
 }

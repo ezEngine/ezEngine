@@ -154,13 +154,13 @@ void ezIdTableBase<IdType, ValueType>::Reserve(IndexType uiCapacity)
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE typename ezIdTableBase<IdType, ValueType>::IndexType ezIdTableBase<IdType, ValueType>::GetCount() const
+EZ_ALWAYS_INLINE typename ezIdTableBase<IdType, ValueType>::IndexType ezIdTableBase<IdType, ValueType>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezIdTableBase<IdType, ValueType>::IsEmpty() const
 {
   return m_uiCount == 0;
 }

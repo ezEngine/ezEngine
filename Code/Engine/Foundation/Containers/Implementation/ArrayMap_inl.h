@@ -20,13 +20,13 @@ inline void ezArrayMapBase<KEY, VALUE>::operator=(const ezArrayMapBase& rhs)
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE ezUInt32 ezArrayMapBase<KEY, VALUE>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezArrayMapBase<KEY, VALUE>::GetCount() const
 {
   return m_Data.GetCount();
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE bool ezArrayMapBase<KEY, VALUE>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::IsEmpty() const
 {
   return m_Data.IsEmpty();
 }

@@ -17,7 +17,7 @@ ezListBase<T>::ListElement::ListElement(const T& data) : m_Data(data)
 // **** ezListBase ****
 
 template <typename T>
-ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator) : 
+ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator) :
   m_End(reinterpret_cast<ListElement*>(&m_Last)),
   m_uiCount(0),
   m_Elements(pAllocator),
@@ -28,7 +28,7 @@ ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator) :
 }
 
 template <typename T>
-ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator) : 
+ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator) :
   m_End(reinterpret_cast<ListElement*>(&m_Last)),
   m_uiCount(0),
   m_Elements(pAllocator),
@@ -111,7 +111,7 @@ EZ_FORCE_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetLastIterator(
 }
 
 template <typename T>
-EZ_FORCE_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetEndIterator()
+EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetEndIterator()
 {
   return m_End;
 }
@@ -129,19 +129,19 @@ EZ_FORCE_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetLastIter
 }
 
 template <typename T>
-EZ_FORCE_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetEndIterator() const
+EZ_ALWAYS_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetEndIterator() const
 {
   return m_End;
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezUInt32 ezListBase<T>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezListBase<T>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezListBase<T>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezListBase<T>::IsEmpty() const
 {
   return (m_uiCount == 0);
 }

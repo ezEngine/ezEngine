@@ -81,9 +81,14 @@
 
   #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
-  #define EZ_FORCE_INLINE __forceinline
-  #define EZ_RESTRICT __restrict
+  // Functions marked as EZ_ALWAYS_INLINE will be inlined even in Debug builds, which means you will step over them in a debugger
+  #define EZ_ALWAYS_INLINE __forceinline
 
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    #define EZ_FORCE_INLINE inline
+  #else
+    #define EZ_FORCE_INLINE __forceinline
+  #endif
 
   #ifdef __INTELLISENSE__
     #define EZ_ALIGN(decl, alignment) decl

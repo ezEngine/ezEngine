@@ -118,13 +118,13 @@ void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezUInt32 ezArrayBase<T, Derived>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezArrayBase<T, Derived>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE bool ezArrayBase<T, Derived>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
@@ -337,7 +337,7 @@ void ezArrayBase<T, Derived>::Sort()
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE T* ezArrayBase<T, Derived>::GetData()
+EZ_ALWAYS_INLINE T* ezArrayBase<T, Derived>::GetData()
 {
   if (IsEmpty())
     return nullptr;
@@ -346,7 +346,7 @@ EZ_FORCE_INLINE T* ezArrayBase<T, Derived>::GetData()
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE const T* ezArrayBase<T, Derived>::GetData() const
+EZ_ALWAYS_INLINE const T* ezArrayBase<T, Derived>::GetData() const
 {
   if (IsEmpty())
     return nullptr;

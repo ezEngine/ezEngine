@@ -22,7 +22,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph
       m_WorldNodeId = Graph.AddNode( "World", ezColor::DarkRed, ezDGMLGraph::NodeShape::Button );
     }
 
-    bool Visit( ezGameObject* pObject )
+    ezVisitorExecution::Enum Visit( ezGameObject* pObject )
     {
       ezStringBuilder name;
       name.Format("GameObject: \"{0}\"", ezStringUtils::IsNullOrEmpty(pObject->GetName()) ? "<Unnamed>" : pObject->GetName());
@@ -60,7 +60,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph
         m_Graph.AddConnection( componentNodeId, gameObjectNodeId );
       }
 
-      return true;
+      return ezVisitorExecution::Continue;
     }
 
     ezDGMLGraph& m_Graph;

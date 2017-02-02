@@ -75,17 +75,17 @@ inline bool ezHashedString::operator< (const ezTempHashedString& rhs) const
   return m_Data.Value().m_uiHash < rhs.m_uiHash;
 }
 
-EZ_FORCE_INLINE const ezString& ezHashedString::GetString() const
+EZ_ALWAYS_INLINE const ezString& ezHashedString::GetString() const
 {
   return m_Data.Key();
 }
 
-EZ_FORCE_INLINE const char* ezHashedString::GetData() const
+EZ_ALWAYS_INLINE const char* ezHashedString::GetData() const
 {
   return m_Data.Key().GetData();
 }
 
-EZ_FORCE_INLINE ezUInt32 ezHashedString::GetHash() const
+EZ_ALWAYS_INLINE ezUInt32 ezHashedString::GetHash() const
 {
   return m_Data.Value().m_uiHash;
 }
@@ -147,22 +147,22 @@ EZ_FORCE_INLINE void ezTempHashedString::operator= (const ezHashedString& rhs)
   m_uiHash = rhs.GetHash();
 }
 
-EZ_FORCE_INLINE bool ezTempHashedString::operator==  (const ezTempHashedString& rhs) const
+EZ_ALWAYS_INLINE bool ezTempHashedString::operator==  (const ezTempHashedString& rhs) const
 {
   return m_uiHash == rhs.m_uiHash;
 }
 
-EZ_FORCE_INLINE bool ezTempHashedString::operator!=  (const ezTempHashedString& rhs) const
+EZ_ALWAYS_INLINE bool ezTempHashedString::operator!=  (const ezTempHashedString& rhs) const
 {
   return !(m_uiHash == rhs.m_uiHash);
 }
 
-EZ_FORCE_INLINE bool ezTempHashedString::operator< (const ezTempHashedString& rhs) const
+EZ_ALWAYS_INLINE bool ezTempHashedString::operator< (const ezTempHashedString& rhs) const
 {
   return m_uiHash < rhs.m_uiHash;
 }
 
-EZ_FORCE_INLINE ezUInt32 ezTempHashedString::GetHash() const
+EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::GetHash() const
 {
   return m_uiHash;
 }
@@ -172,22 +172,22 @@ EZ_FORCE_INLINE ezUInt32 ezTempHashedString::GetHash() const
 template <>
 struct ezHashHelper<ezHashedString>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const ezHashedString& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezHashedString& value)
   {
     return value.GetHash();
   }
 
-  EZ_FORCE_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
   {
     return value.GetHash();
   }
 
-  EZ_FORCE_INLINE static bool Equal(const ezHashedString& a, const ezHashedString& b)
+  EZ_ALWAYS_INLINE static bool Equal(const ezHashedString& a, const ezHashedString& b)
   {
     return a == b;
   }
 
-  EZ_FORCE_INLINE static bool Equal(const ezHashedString& a, const ezTempHashedString& b)
+  EZ_ALWAYS_INLINE static bool Equal(const ezHashedString& a, const ezTempHashedString& b)
   {
     return a == b;
   }
@@ -196,12 +196,12 @@ struct ezHashHelper<ezHashedString>
 template <>
 struct ezHashHelper<ezTempHashedString>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
   {
     return value.GetHash();
   }
 
-  EZ_FORCE_INLINE static bool Equal(const ezTempHashedString& a, const ezTempHashedString& b)
+  EZ_ALWAYS_INLINE static bool Equal(const ezTempHashedString& a, const ezTempHashedString& b)
   {
     return a == b;
   }
