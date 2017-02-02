@@ -3,6 +3,7 @@
 #include <Shlobj.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Strings/StringConversion.h>
 
 // Defined in Timestamp_win.h
 ezInt64 FileTimeToEpoch(FILETIME fileTime);
@@ -437,8 +438,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
           {
             HSTRING path;
             localFolderItem->get_Path(&path);
-
-            //wchar_t* pPath = path;
+            s_UserDataPath = ezStringUtf8(path).GetData();
           }
         }
       }

@@ -52,6 +52,7 @@ public:
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   ezStringUtf8(const Microsoft::WRL::Wrappers::HString& hstring, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf8(const HSTRING& hstring, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
 #endif
 
   void operator=(const char* szUtf8);
@@ -61,6 +62,7 @@ public:
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   void operator=(const Microsoft::WRL::Wrappers::HString& hstring);
+  void operator=(const HSTRING& hstring);
 #endif
 
   const char* GetData() const { return &m_Data[0]; }

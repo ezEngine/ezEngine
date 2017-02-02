@@ -203,6 +203,18 @@ void ezStringUtf8::operator=(const Microsoft::WRL::Wrappers::HString& hstring)
   *this = raw;
 }
 
+void ezStringUtf8::operator=(const HSTRING& hstring)
+{
+  Microsoft::WRL::Wrappers::HString tmp;
+  tmp.Attach(hstring);
+
+  ezUInt32 len = 0;
+  const wchar_t* raw = tmp.GetRawBuffer(&len);
+
+  // delegate to wchar_t operator
+  *this = raw;
+}
+
 #endif
 
 

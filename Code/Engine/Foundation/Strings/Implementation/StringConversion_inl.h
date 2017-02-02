@@ -77,6 +77,11 @@ inline ezStringUtf8::ezStringUtf8(const Microsoft::WRL::Wrappers::HString& hstri
   *this = hstring;
 }
 
+inline ezStringUtf8::ezStringUtf8(const HSTRING& hstring, ezAllocatorBase* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+{
+  *this = hstring;
+}
+
 #endif
 
 // **************** ezStringUtf16 ****************
