@@ -11,27 +11,27 @@ ezComponentManagerBase::~ezComponentManagerBase()
 {
 }
 
-void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
+
+ezComponentHandle ezComponentManagerBase::CreateComponent()
 {
-  ComponentStorageEntry storageEntry;
-  if (m_Components.TryGetValue(component, storageEntry))
-  {
-    DeleteComponentEntry(storageEntry);
-  }
+  ezComponent* pDummy;
+  return CreateComponent(pDummy);
 }
 
-ezComponentHandle ezComponentManagerBase::CreateComponentEntry(ComponentStorageEntry storageEntry)
+void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
 {
-  ezGenericComponentId newId = m_Components.Insert(storageEntry);
+  ezComponent* pComponent = nullptr;
+  if (!m_Components.TryGetValue(component, pComponent))
+    return;
 
-  ezComponent* pComponent = storageEntry.m_Ptr;
-  pComponent->m_pManager = this;
-  pComponent->m_InternalId = newId;
+  DeinitializeComponent(pComponent);
 
-  ezComponentHandle hComponent = pComponent->GetHandle();
-  GetWorld()->AddComponentToInitialize(hComponent);
+  m_Components.Remove(pComponent->m_InternalId);
 
-  return hComponent;
+  pComponent->m_InternalId.Invalidate();
+  pComponent->m_ComponentFlags.Remove(ezObjectFlags::Active);
+
+  GetWorld()->m_Data.m_DeadComponents.PushBack(pComponent);
 }
 
 void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
@@ -48,24 +48,11 @@ void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
   }
 }
 
-void ezComponentManagerBase::DeleteComponentEntry(ComponentStorageEntry storageEntry)
+void ezComponentManagerBase::PatchIdTable(ezComponent* pComponent)
 {
-  ezComponent* pComponent = storageEntry.m_Ptr;
-  DeinitializeComponent(pComponent);
-
-  m_Components.Remove(pComponent->m_InternalId);
-
-  pComponent->m_InternalId.Invalidate();
-  pComponent->m_ComponentFlags.Remove(ezObjectFlags::Active);
-
-  GetWorld()->m_Data.m_DeadComponents.PushBack(storageEntry);
-}
-
-void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
-{
-  ezGenericComponentId id = storageEntry.m_Ptr->m_InternalId;
+  ezGenericComponentId id = pComponent->m_InternalId;
   if (id.m_InstanceIndex != ezGenericComponentId::INVALID_INSTANCE_INDEX)
-    m_Components[id] = storageEntry;
+    m_Components[id] = pComponent;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

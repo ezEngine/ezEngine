@@ -6,23 +6,42 @@ EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentH
 
 EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent)
 {
-  ComponentStorageEntry storageEntry = { nullptr };
-  bool res = m_Components.TryGetValue(component, storageEntry);
-  out_pComponent = storageEntry.m_Ptr;
-  return res;
+  return m_Components.TryGetValue(component, out_pComponent);
 }
 
 EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, const ezComponent*& out_pComponent) const
 {
-  ComponentStorageEntry storageEntry = { nullptr };
-  bool res = m_Components.TryGetValue(component, storageEntry);
-  out_pComponent = storageEntry.m_Ptr;
+  ezComponent* pComponent = nullptr;
+  bool res = m_Components.TryGetValue(component, pComponent);
+  out_pComponent = pComponent;
   return res;
 }
 
 EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 {
   return m_Components.GetCount();
+}
+
+template <typename ComponentType>
+ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentType*& out_pComponent)
+{
+  ezComponent* pComponent = CreateComponentStorage();
+  if (pComponent == nullptr)
+  {
+    return ezComponentHandle();
+  }
+
+  out_pComponent = ezStaticCast<ComponentType*>(pComponent);
+
+  ezGenericComponentId newId = m_Components.Insert(pComponent);
+
+  pComponent->m_pManager = this;
+  pComponent->m_InternalId = newId;
+
+  ezComponentHandle hComponent = pComponent->GetHandle();
+  GetWorld()->AddComponentToInitialize(hComponent);
+
+  return hComponent;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,22 +62,6 @@ ezComponentManager<T, StorageType>::~ezComponentManager()
   {
     DeinitializeComponent(it);
   }
-}
-
-template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, StorageType>::AllocateComponent()
-{
-  ComponentType* pNewComponent = nullptr;
-  return CreateComponent(pNewComponent);
-}
-
-template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, StorageType>::CreateComponent(ComponentType*& out_pComponent)
-{
-  auto storageEntry = m_ComponentStorage.Create();
-  out_pComponent = storageEntry.m_Ptr;
-
-  return ezComponentManagerBase::CreateComponentEntry(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry));
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
@@ -103,27 +106,49 @@ EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, Stora
   return m_ComponentStorage.GetIterator();
 }
 
-template <typename T, ezBlockStorageType::Enum StorageType>
-const ezRTTI* ezComponentManager<T, StorageType>::GetComponentType() const
-{
-  return ezGetStaticRTTI<T>();
-}
-
 //static
 template <typename T, ezBlockStorageType::Enum StorageType>
-ezUInt16 ezComponentManager<T, StorageType>::TypeId()
+EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, StorageType>::TypeId()
 {
   return T::TypeId();
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
+{
+  out_AllComponents.Clear();
+  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
+
+  for (auto it = GetComponents(); it.IsValid(); it.Next())
+  {
+    out_AllComponents.PushBack(it->GetHandle());
+  }
+}
+
+template <typename T, ezBlockStorageType::Enum StorageType>
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
+{
+  out_AllComponents.Clear();
+  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
+
+  for (auto it = GetComponents(); it.IsValid(); it.Next())
+  {
+    out_AllComponents.PushBack(it);
+  }
+}
+
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE ezComponent* ezComponentManager<T, StorageType>::CreateComponentStorage()
+{
+  return m_ComponentStorage.Create();
+}
+
+template <typename T, ezBlockStorageType::Enum StorageType>
+EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent)
 {
   T* pMovedComponent = nullptr;
-  m_ComponentStorage.Delete(*reinterpret_cast<typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Entry*>(&storageEntry), pMovedComponent);
+  m_ComponentStorage.Delete(static_cast<T*>(pComponent), pMovedComponent);
   out_pMovedComponent = pMovedComponent;
-
-  ezComponentManagerBase::DeleteDeadComponent(storageEntry, out_pMovedComponent);
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
@@ -142,33 +167,6 @@ EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, StorageType>::GetNextTypeId()
 {
   return ezWorldModule::GetNextTypeId();
 }
-
-
-template <typename T, ezBlockStorageType::Enum StorageType>
-void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
-{
-  out_AllComponents.Clear();
-  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
-
-  for (auto it = GetComponents(); it.IsValid(); it.Next())
-  {
-    out_AllComponents.PushBack(it->GetHandle());
-  }
-}
-
-
-template <typename T, ezBlockStorageType::Enum StorageType>
-void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
-{
-  out_AllComponents.Clear();
-  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
-
-  for (auto it = GetComponents(); it.IsValid(); it.Next())
-  {
-    out_AllComponents.PushBack(it);
-  }
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

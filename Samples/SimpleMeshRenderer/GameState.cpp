@@ -47,7 +47,8 @@ float SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, 
 
 void SimpleMeshRendererGameState::CreateGameLevel()
 {
-  m_pMainWorld = GetApplication()->CreateWorld("Level");
+  ezWorldDesc desc("Level");
+  m_pMainWorld = GetApplication()->CreateWorld(desc);
   EZ_LOCK( m_pMainWorld->GetWriteMarker());
 
   ezMeshComponentManager* pMeshCompMan = m_pMainWorld->GetOrCreateComponentManager<ezMeshComponentManager>();

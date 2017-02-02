@@ -249,11 +249,11 @@ ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) co
   return "";
 }
 
-ezWorld* ezGameApplication::CreateWorld(const char* szWorldName)
+ezWorld* ezGameApplication::CreateWorld(ezWorldDesc& desc)
 {
   auto& wd = m_Worlds.ExpandAndGetRef();
   wd.m_pTimeStepSmoothing = EZ_DEFAULT_NEW(ezDefaultTimeStepSmoothing);
-  wd.m_pWorld = EZ_DEFAULT_NEW(ezWorld, szWorldName);
+  wd.m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   wd.m_pWorld->GetClock().SetTimeStepSmoothing(wd.m_pTimeStepSmoothing);
 
   return wd.m_pWorld;

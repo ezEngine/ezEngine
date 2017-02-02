@@ -55,32 +55,20 @@ public:
     Iterator(const ezBlockStorage<T, BlockSizeInByte, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
   };
 
-  struct Entry
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    T* m_Ptr;
-    ezUInt32 m_uiIndex;
-
-    bool operator<(const Entry& rhs) const;
-    bool operator>(const Entry& rhs) const;
-    bool operator==(const Entry& rhs) const;
-  };
-
   ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocatorBase* pAllocator);
   ~ezBlockStorage();
 
-  Entry Create();
-  void Delete(Entry entry);
-  void Delete(Entry entry, T*& out_pMovedObject);
+  T* Create();
+  void Delete(T* pObject);
+  void Delete(T* pObject, T*& out_pMovedObject);
 
   ezUInt32 GetCount() const;
   Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex);
   ConstIterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
 
 private:
-  void Delete(Entry entry, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::Compact>);
-  void Delete(Entry entry, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::FreeList>);
+  void Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::Compact>);
+  void Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::FreeList>);
 
   ezLargeBlockAllocator<BlockSizeInByte>* m_pBlockAllocator;
 

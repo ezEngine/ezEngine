@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/World/Implementation/SpatialData.h>
 #include <Core/World/Implementation/WorldData.h>
 #include <Foundation/Profiling/Profiling.h>
 
@@ -13,14 +12,14 @@
 /// * Async phase: The update functions are called in batches asynchronously on multiple threads. There is absolutely no guarantee in which order the functions are called.
 ///   Thus it is not allowed to access any data other than the components own data during that phase.
 /// * Post-async phase: Another synchronous phase like the pre-async phase.
-/// * Actual deletion of dead objects and components as well as re-parenting of objects are done now.
+/// * Actual deletion of dead objects and components are done now.
 /// * Transform update: The world transformation of all dynamic objects is updated.
 /// * Post-transform phase: Another synchronous phase like the pre-async phase after the transformation has been updated.
 class EZ_CORE_DLL ezWorld
 {
 public:
   /// \brief Creates a new world with the given name.
-  ezWorld(const char* szWorldName);
+  ezWorld(ezWorldDesc& desc);
   ~ezWorld();
 
   /// \brief Returns the name of this world.
@@ -51,10 +50,16 @@ public:
   bool IsValidObject(const ezGameObjectHandle& object) const;
 
   /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const;
+  bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject);
+
+  /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
+  bool TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const;
 
   /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject) const;
+  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
+
+  /// \brief Returns if an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
+  bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const;
 
 
   /// \brief Returns the total number of objects in this world.
@@ -77,7 +82,7 @@ public:
   };
 
   /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function is called for every object.
-  void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
+  void Traverse(VisitorFunc& visitorFunc, TraversalMethod method = DepthFirst);
 
   ///@}
   /// \name Module Functions
@@ -185,8 +190,11 @@ public:
   ezTask* GetUpdateTask();
 
 
-  /// \brief
-  const ezInternal::SpatialData& GetSpatialData() const;
+  /// \brief Returns the spatial system that is associated with this world.
+  ezSpatialSystem& GetSpatialSystem();
+
+  /// \brief Returns the spatial system that is associated with this world.
+  const ezSpatialSystem& GetSpatialSystem() const;
 
 
   /// \brief Returns the coordinate system for the given position.
@@ -198,10 +206,10 @@ public:
   void SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider);
 
   /// \brief Returns the coordinate system provider that is associated with this world.
-  ezCoordinateSystemProvider* GetCoordinateSystemProvider();
+  ezCoordinateSystemProvider& GetCoordinateSystemProvider();
 
   /// \brief Returns the coordinate system provider that is associated with this world.
-  const ezCoordinateSystemProvider* GetCoordinateSystemProvider() const;
+  const ezCoordinateSystemProvider& GetCoordinateSystemProvider() const;
 
 
   /// \brief Returns the clock that is used for all updates in this game world
@@ -281,11 +289,8 @@ private:
   ezDelegateTask<void> m_UpdateTask;
 
   ezInternal::WorldData m_Data;
-  typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;
 
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
-
-  ezInternal::SpatialData m_SpatialData;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;

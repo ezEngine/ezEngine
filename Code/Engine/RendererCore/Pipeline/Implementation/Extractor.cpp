@@ -109,7 +109,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
 
   for (const auto& hObj : *pSelection)
   {
-    ezGameObject* pObject;
+    const ezGameObject* pObject;
 
     if (!view.GetWorld()->TryGetObject(hObj, pObject))
       continue;

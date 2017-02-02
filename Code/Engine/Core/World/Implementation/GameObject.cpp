@@ -74,9 +74,13 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_ChildCount = other.m_ChildCount;
 
   m_uiHierarchyLevel = other.m_uiHierarchyLevel;
-  m_uiTransformationDataIndex = other.m_uiTransformationDataIndex;
   m_pTransformationData = other.m_pTransformationData;
   m_pTransformationData->m_pObject = this;
+
+  if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
+  {
+    m_pWorld->GetSpatialSystem().UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this);
+  }
 
   m_Components = other.m_Components;
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
@@ -500,6 +504,30 @@ void ezGameObject::TransformationData::ConditionalUpdateGlobalBounds()
   UpdateGlobalBounds();
 }
 
+void ezGameObject::TransformationData::UpdateSpatialData()
+{
+  ezSpatialSystem& spatialSystem = m_pObject->GetWorld()->GetSpatialSystem();
+
+  if (m_globalBounds.IsValid())
+  {
+    if (m_hSpatialData.IsInvalidated())
+    {
+      m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject);
+    }
+    else
+    {
+      spatialSystem.UpdateSpatialData(m_hSpatialData, m_globalBounds, m_pObject);
+    }
+  }
+  else
+  {
+    if (!m_hSpatialData.IsInvalidated())
+    {
+      spatialSystem.DeleteSpatialData(m_hSpatialData);
+      m_hSpatialData.Invalidate();
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_GameObject);
 

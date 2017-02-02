@@ -98,26 +98,6 @@ EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::Iterator::operator T*
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE bool ezBlockStorage<T, BlockSize, StorageType>::Entry::operator<(const Entry& rhs) const
-{
-  return m_uiIndex < rhs.m_uiIndex;
-}
-
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE bool ezBlockStorage<T, BlockSize, StorageType>::Entry::operator>(const Entry& rhs) const
-{
-  return m_uiIndex > rhs.m_uiIndex;
-}
-
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE bool ezBlockStorage<T, BlockSize, StorageType>::Entry::operator==(const Entry& rhs) const
-{
-  return m_uiIndex == rhs.m_uiIndex;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ezBlockStorage(ezLargeBlockAllocator<BlockSize>* pBlockAllocator, ezAllocatorBase* pAllocator)
   : m_pBlockAllocator(pBlockAllocator)
   , m_Blocks(pAllocator)
@@ -156,20 +136,21 @@ ezBlockStorage<T, BlockSize, StorageType>::~ezBlockStorage()
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-typename ezBlockStorage<T, BlockSize, StorageType>::Entry ezBlockStorage<T, BlockSize, StorageType>::Create()
+typename T* ezBlockStorage<T, BlockSize, StorageType>::Create()
 {
-  Entry entry;
+  T* pNewObject = nullptr;
+  ezUInt32 uiNewIndex = ezInvalidIndex;
 
   if (StorageType == ezBlockStorageType::FreeList && m_uiFreelistStart != ezInvalidIndex)
   {
-    entry.m_uiIndex = m_uiFreelistStart;
+    uiNewIndex = m_uiFreelistStart;
 
-    const ezUInt32 uiBlockIndex = entry.m_uiIndex / ezDataBlock<T, BlockSize>::CAPACITY;
-    const ezUInt32 uiInnerIndex = entry.m_uiIndex - uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY;
+    const ezUInt32 uiBlockIndex = uiNewIndex / ezDataBlock<T, BlockSize>::CAPACITY;
+    const ezUInt32 uiInnerIndex = uiNewIndex - uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY;
 
-    entry.m_Ptr = &(m_Blocks[uiBlockIndex][uiInnerIndex]);
+    pNewObject = &(m_Blocks[uiBlockIndex][uiInnerIndex]);
 
-    m_uiFreelistStart = *reinterpret_cast<ezUInt32*>(entry.m_Ptr);
+    m_uiFreelistStart = *reinterpret_cast<ezUInt32*>(pNewObject);
   }
   else
   {
@@ -186,41 +167,34 @@ typename ezBlockStorage<T, BlockSize, StorageType>::Entry ezBlockStorage<T, Bloc
       pBlock = &m_Blocks.PeekBack();
     }
 
-    entry.m_Ptr = pBlock->ReserveBack();
-    entry.m_uiIndex = m_uiCount;
+    pNewObject = pBlock->ReserveBack();
+    uiNewIndex = m_uiCount;
 
     ++m_uiCount;
   }
 
-  ezMemoryUtils::Construct(entry.m_Ptr, 1);
+  ezMemoryUtils::Construct(pNewObject, 1);
 
   if (StorageType == ezBlockStorageType::FreeList)
   {
     m_UsedEntries.SetCount(m_uiCount);
-    m_UsedEntries.SetBit(entry.m_uiIndex);
+    m_UsedEntries.SetBit(uiNewIndex);
   }
 
-  return entry;
+  return pNewObject;
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(Entry entry)
+EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject)
 {
   T* pDummy;
-  Delete(entry, pDummy);
+  Delete(pObject, pDummy);
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-void ezBlockStorage<T, BlockSize, StorageType>::Delete(Entry entry, T*& out_pMovedObject)
+void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject)
 {
-  EZ_ASSERT_DEV(entry.m_uiIndex < m_uiCount, "Out of bounds access. Block storage has {0} objects, trying to remove object at index {1}.",
-    m_uiCount, entry.m_uiIndex);
-
-  const ezUInt32 uiBlockIndex = entry.m_uiIndex / ezDataBlock<T, BlockSize>::CAPACITY;
-  const ezUInt32 uiInnerIndex = entry.m_uiIndex - uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY;
-  EZ_ASSERT_DEV(&(m_Blocks[uiBlockIndex][uiInnerIndex]) == entry.m_Ptr, "Memory Corruption");
-
-  Delete(entry, out_pMovedObject, ezTraitInt<StorageType>());
+  Delete(pObject, out_pMovedObject, ezTraitInt<StorageType>());
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
@@ -242,15 +216,15 @@ EZ_FORCE_INLINE typename ezBlockStorage<T, BlockSize, StorageType>::ConstIterato
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(Entry entry, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::Compact>)
+EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::Compact>)
 {
   ezDataBlock<T, BlockSize>& lastBlock = m_Blocks.PeekBack();
   T* pLast = lastBlock.PopBack();
 
   --m_uiCount;
-  if (m_uiCount != entry.m_uiIndex)
+  if (pObject != pLast)
   {
-    ezMemoryUtils::Relocate(entry.m_Ptr, pLast, 1);
+    ezMemoryUtils::Relocate(pObject, pLast, 1);
   }
   else
   {
@@ -267,14 +241,27 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(Entry ent
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(Entry entry, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::FreeList>)
+EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObject, T*& out_pMovedObject, ezTraitInt<ezBlockStorageType::FreeList>)
 {
-  m_UsedEntries.ClearBit(entry.m_uiIndex);
+  ezUInt32 uiIndex = ezInvalidIndex;
+  for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < m_Blocks.GetCount(); ++uiBlockIndex)
+  {
+    ptrdiff_t diff = pObject - m_Blocks[uiBlockIndex].m_pData;
+    if (diff >= 0 && diff < ezDataBlock<T, BlockSize>::CAPACITY)
+    {
+      uiIndex = uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY + (ezInt32)diff;
+      break;
+    }
+  }
 
-  out_pMovedObject = entry.m_Ptr;
-  ezMemoryUtils::Destruct(entry.m_Ptr, 1);
+  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Invalid object {0} was not found in block storage.", (size_t)pObject);
 
-  *reinterpret_cast<ezUInt32*>(entry.m_Ptr) = m_uiFreelistStart;
-  m_uiFreelistStart = entry.m_uiIndex;
+  m_UsedEntries.ClearBit(uiIndex);
+
+  out_pMovedObject = pObject;
+  ezMemoryUtils::Destruct(pObject, 1);
+
+  *reinterpret_cast<ezUInt32*>(pObject) = m_uiFreelistStart;
+  m_uiFreelistStart = uiIndex;
 }
 

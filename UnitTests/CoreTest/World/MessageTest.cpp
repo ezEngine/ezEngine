@@ -84,7 +84,8 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(World, Messaging)
 {
-  ezWorld world("Test");
+  ezWorldDesc worldDesc("Test");
+  ezWorld world(worldDesc);
   EZ_LOCK(world.GetWriteMarker());
 
   TestComponentMsgManager* pManager = world.GetOrCreateComponentManager<TestComponentMsgManager>();

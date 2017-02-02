@@ -221,8 +221,6 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   ezGameObjectDesc& desc = godesc.m_Desc;
   ezStringBuilder sName;
 
-  desc.m_Flags = ezObjectFlags::None;
-
   *m_pStream >> godesc.m_uiParentHandleIdx;
   *m_pStream >> sName;
   *m_pStream >> desc.m_LocalPosition;
@@ -230,21 +228,13 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   *m_pStream >> desc.m_LocalScaling;
   *m_pStream >> desc.m_LocalUniformScaling;
 
-  bool bActive = true;
-  *m_pStream >> bActive;
-
-  bool bDynamic = true;
-  *m_pStream >> bDynamic;
+  *m_pStream >> desc.m_bActive;
+  *m_pStream >> desc.m_bDynamic;
 
   if (m_uiVersion >= 3)
     desc.m_Tags.Load(*m_pStream, ezTagRegistry::GetGlobalRegistry());
 
-  desc.m_Flags.AddOrRemove(ezObjectFlags::Active, bActive);
-  desc.m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
-
   desc.m_sName.Assign(sName.GetData());
-
-  // desc.m_Flags ..
 }
 
 
@@ -320,11 +310,9 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       bool bDynamic = true;
       *m_pStream >> bDynamic;
 
-      auto hComponent = pManager->AllocateComponent();
-      m_IndexToComponentHandle[uiComponentIdx] = hComponent;
-
       ezComponent* pComponent = nullptr;
-      pManager->TryGetComponent(hComponent, pComponent);
+      auto hComponent = pManager->CreateComponent(pComponent);
+      m_IndexToComponentHandle[uiComponentIdx] = hComponent;
 
       pComponent->SetActive(bActive);
       /// \todo currently everything is always dynamic

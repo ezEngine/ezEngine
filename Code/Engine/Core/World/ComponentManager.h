@@ -36,14 +36,15 @@ public:
   /// \brief Returns the number of components managed by this manager.
   ezUInt32 GetComponentCount() const;
 
-  /// \brief Create a new component instance and returns a handle to it. This method is implemented by ezComponentManager.
-  virtual ezComponentHandle AllocateComponent() = 0;
+  /// \brief Create a new component instance and returns a handle to it.
+  ezComponentHandle CreateComponent();
+
+  /// \brief Create a new component instance and returns a handle to it.
+  template <typename ComponentType>
+  ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
 
   /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent(const ezComponentHandle& component);
-
-  /// \brief Returns the rtti info of the component type that this manager handles.
-  virtual const ezRTTI* GetComponentType() const = 0;
 
   /// \brief Allows to gather all components that this manager handles into one array. Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) = 0;
@@ -55,16 +56,15 @@ protected:
 
   /// \cond
   // internal methods
-  typedef ezBlockStorage<ezComponent, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::FreeList>::Entry ComponentStorageEntry;
-
-  ezComponentHandle CreateComponentEntry(ComponentStorageEntry storageEntry);
   void DeinitializeComponent(ezComponent* pComponent);
-  void DeleteComponentEntry(ComponentStorageEntry storageEntry);
-  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent);
+  void PatchIdTable(ezComponent* pComponent);
+
+  virtual ezComponent* CreateComponentStorage() = 0;
+  virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) = 0;
 
   /// \endcond
 
-  ezIdTable<ezGenericComponentId, ComponentStorageEntry> m_Components;
+  ezIdTable<ezGenericComponentId, ezComponent*> m_Components;
 };
 
 template <typename T, ezBlockStorageType::Enum StorageType>
@@ -76,12 +76,6 @@ public:
   /// \brief Although the constructor is public always use ezWorld::CreateComponentManager to create an instance.
   ezComponentManager(ezWorld* pWorld);
   virtual ~ezComponentManager();
-
-  /// \brief Create a new component instance and returns a handle to it.
-  virtual ezComponentHandle AllocateComponent() override;
-
-  /// \brief Create a new component instance and returns a handle to it and writes a pointer to out_pComponent.
-  ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
@@ -95,20 +89,18 @@ public:
   /// \brief Returns an iterator over all components.
   typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator GetComponents() const;
 
-  /// \brief Returns the rtti info of the component type that this manager handles.
-  virtual const ezRTTI* GetComponentType() const override;
-
   /// \brief Returns the type id corresponding to the component type managed by this manager.
   static ezUInt16 TypeId();
-
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
 
 protected:
   friend ComponentType;
   friend class ezComponentManagerFactory;
 
-  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
+
+  virtual ezComponent* CreateComponentStorage() override;
+  virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) override;
 
   void RegisterUpdateFunction(UpdateFunctionDesc& desc);
 

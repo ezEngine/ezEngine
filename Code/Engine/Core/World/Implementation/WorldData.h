@@ -14,8 +14,8 @@
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Math/Random.h>
 
-#include <Core/World/CoordinateSystem.h>
 #include <Core/World/GameObject.h>
+#include <Core/World/WorldDesc.h>
 
 namespace ezInternal
 {
@@ -24,7 +24,7 @@ namespace ezInternal
     friend class ::ezWorld;
     friend class ::ezComponentManagerBase;
 
-    WorldData(const char* szWorldName);
+    WorldData(ezWorldDesc& desc);
     ~WorldData();
 
     ezHashedString m_sName;
@@ -40,10 +40,10 @@ namespace ezInternal
 
     // object storage
     typedef ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact> ObjectStorage;
-    ezIdTable<ezGameObjectId, ObjectStorage::Entry, ezLocalAllocatorWrapper> m_Objects;
+    ezIdTable<ezGameObjectId, ezGameObject*, ezLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 
-    ezDynamicArray<ObjectStorage::Entry, ezLocalAllocatorWrapper> m_DeadObjects;
+    ezDynamicArray<ezGameObject*, ezLocalAllocatorWrapper> m_DeadObjects;
 
     // hierarchy structures
     struct Hierarchy
@@ -66,19 +66,19 @@ namespace ezInternal
 
     Hierarchy m_Hierarchies[HierarchyType::COUNT];
 
-    ezUInt32 CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
-      ezGameObject::TransformationData*& out_pData);
+    static HierarchyType::Enum GetHierarchyType(bool bDynamic);
 
-    void DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
-      ezUInt32 uiIndex);
+    ezGameObject::TransformationData* CreateTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel);
+
+    void DeleteTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel, ezGameObject::TransformationData* pData);
 
     template <typename VISITOR>
-    static bool TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+    static ezVisitorExecution::Enum TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
-    typedef ezDelegate<bool(ezGameObject*)> VisitorFunc;
+    typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> VisitorFunc;
     void TraverseBreadthFirst(VisitorFunc& func);
     void TraverseDepthFirst(VisitorFunc& func);
-    static bool TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
+    static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
 
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
@@ -94,7 +94,7 @@ namespace ezInternal
     ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_ModulesToStartSimulation;
 
     // component management
-    ezDynamicArray<ezComponentManagerBase::ComponentStorageEntry, ezLocalAllocatorWrapper> m_DeadComponents;
+    ezDynamicArray<ezComponent*, ezLocalAllocatorWrapper> m_DeadComponents;
 
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize;
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation;
@@ -125,6 +125,7 @@ namespace ezInternal
 
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
 
+    ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
     ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
 
     ezClock m_Clock;

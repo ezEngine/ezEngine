@@ -58,7 +58,8 @@ void ezPlayerApplication::SetupLevel()
   ezStringBuilder sScenePath(m_sSceneFile);
   ezString sSceneFile = sScenePath.GetFileName();
 
-  m_pWorld = CreateWorld(sSceneFile);
+  ezWorldDesc desc(sSceneFile);
+  m_pWorld = CreateWorld(desc);
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 

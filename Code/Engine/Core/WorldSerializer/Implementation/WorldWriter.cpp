@@ -27,7 +27,7 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
     m_WrittenComponentHandles[ezComponentHandle()] = 0;
   }
 
-  m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
+  m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::BreadthFirst);
 
   IncludeAllComponentBaseTypes();
 
@@ -159,10 +159,10 @@ void ezWorldWriter::WriteComponentHandle(const ezComponentHandle& hComponent)
   }
 }
 
-bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
+ezVisitorExecution::Enum ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 {
   if (m_pExclude && pObject->GetTags().IsAnySet(*m_pExclude))
-    return true;
+    return ezVisitorExecution::Continue;
 
   if (pObject->GetParent())
     m_AllChildObjects.PushBack(pObject);
@@ -178,7 +178,7 @@ bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 
   m_uiNumComponents += components.GetCount();
 
-  return true;
+  return ezVisitorExecution::Continue;
 }
 
 void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)

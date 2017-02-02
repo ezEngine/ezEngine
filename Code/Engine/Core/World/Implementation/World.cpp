@@ -1,19 +1,18 @@
 #include <Core/PCH.h>
 
-
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
-ezWorld::ezWorld(const char* szWorldName) :
-  m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this)),
-  m_Data(szWorldName)
+ezWorld::ezWorld(ezWorldDesc& desc)
+  : m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this))
+  , m_Data(desc)
 {
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
-  ezStringBuilder sb = szWorldName;
+  ezStringBuilder sb = desc.m_sName.GetString();
   sb.Append(".Update");
   m_UpdateTask.SetTaskName(sb);
 
@@ -81,27 +80,26 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   }
 
   // get storage for the transformation data
-  ezGameObject::TransformationData* pTransformationData = nullptr;
-  ezUInt32 uiTransformationDataIndex = m_Data.CreateTransformationData(desc.m_Flags, uiHierarchyLevel, pTransformationData);
+  ezGameObject::TransformationData* pTransformationData = m_Data.CreateTransformationData(desc.m_bDynamic, uiHierarchyLevel);
 
   // get storage for the object itself
-  ObjectStorageEntry storageEntry = m_Data.m_ObjectStorage.Create();
-  ezGameObject* pNewObject = storageEntry.m_Ptr;
+  ezGameObject* pNewObject = m_Data.m_ObjectStorage.Create();
 
   // insert the new object into the id mapping table
-  ezGameObjectId newId = m_Data.m_Objects.Insert(storageEntry);
+  ezGameObjectId newId = m_Data.m_Objects.Insert(pNewObject);
   newId.m_WorldIndex = m_uiIndex;
 
   // fill out some data
   pNewObject->m_InternalId = newId;
-  pNewObject->m_Flags = desc.m_Flags;
+  pNewObject->m_Flags = ezObjectFlags::None;
+  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, desc.m_bDynamic);
+  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Active, desc.m_bActive);
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
   pNewObject->m_Tags = desc.m_Tags;
 
   pNewObject->m_uiHierarchyLevel = uiHierarchyLevel;
-  pNewObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
 
   // fill out the transformation data
   pTransformationData->m_pObject = pNewObject;
@@ -140,11 +138,9 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 {
   CheckForWriteAccess();
 
-  ObjectStorageEntry storageEntry;
-  if (!m_Data.m_Objects.TryGetValue(object, storageEntry))
+  ezGameObject* pObject = nullptr;
+  if (!m_Data.m_Objects.TryGetValue(object, pObject))
     return;
-
-  ezGameObject* pObject = storageEntry.m_Ptr;
 
   // set object to inactive so components and children know that they shouldn't access the object anymore.
   pObject->m_Flags.Remove(ezObjectFlags::Active);
@@ -172,7 +168,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 
   // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
-  m_Data.m_DeadObjects.PushBack(storageEntry);
+  m_Data.m_DeadObjects.PushBack(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
 }
 
@@ -445,7 +441,7 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
 {
   if (m_Data.m_GlobalKeyToIdTable.Contains(sGlobalKey.GetHash()))
   {
-    ezLog::Error("Can't set global key to '{0}' because an object with this global key already exists. Global key have to be unique.", sGlobalKey.GetData());
+    ezLog::Error("Can't set global key to '{0}' because an object with this global key already exists. Global keys have to be unique.", sGlobalKey.GetData());
     return;
   }
 
@@ -849,51 +845,69 @@ void ezWorld::UpdateAsynchronous()
 
 void ezWorld::DeleteDeadObjects()
 {
-  // Sort the dead objects by index and then delete them backwards so lower indices stay valid
-  m_Data.m_DeadObjects.Sort();
-
-  for (ezUInt32 i = m_Data.m_DeadObjects.GetCount(); i-- > 0; )
+  while (!m_Data.m_DeadObjects.IsEmpty())
   {
-    ObjectStorageEntry entry = m_Data.m_DeadObjects[i];
-    ezGameObject* pObject = entry.m_Ptr;
+    ezGameObject* pObject = m_Data.m_DeadObjects.PeekBack();
+    m_Data.m_DeadObjects.PopBack();
 
-    m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel,
-                                    pObject->m_uiTransformationDataIndex);
-    m_Data.m_ObjectStorage.Delete(entry);
+    m_Data.DeleteTransformationData(pObject->IsDynamic(), pObject->m_uiHierarchyLevel, pObject->m_pTransformationData);
 
-    // patch the id table: the last element in the storage has been moved to deleted object's location,
-    // thus the pointer now points to another object
-    ezGameObjectId id = entry.m_Ptr->m_InternalId;
-    if (id.m_InstanceIndex != ezGameObjectId::INVALID_INSTANCE_INDEX)
-      m_Data.m_Objects[id] = entry;
+    ezGameObject* pMovedObject = nullptr;
+    m_Data.m_ObjectStorage.Delete(pObject, pMovedObject);
+
+    if (pObject != pMovedObject)
+    {
+      // patch the id table: the last element in the storage has been moved to deleted object's location,
+      // thus the pointer now points to another object
+      ezGameObjectId id = pObject->m_InternalId;
+      if (id.m_InstanceIndex != ezGameObjectId::INVALID_INSTANCE_INDEX)
+        m_Data.m_Objects[id] = pObject;
+
+      // the moved object might be deleted as well so we need to patch the dead objects list
+      for (ezUInt32 i = 0; i < m_Data.m_DeadObjects.GetCount(); ++i)
+      {
+        if (m_Data.m_DeadObjects[i] == pMovedObject)
+        {
+          m_Data.m_DeadObjects[i] = pObject;
+          break;
+        }
+      }
+    }
   }
-
-  m_Data.m_DeadObjects.Clear();
 }
 
 void ezWorld::DeleteDeadComponents()
 {
-  // Sort the dead components by index and then delete them backwards so lower indices stay valid
-  m_Data.m_DeadComponents.Sort();
-
-  for (ezUInt32 i = m_Data.m_DeadComponents.GetCount(); i-- > 0; )
+  while (!m_Data.m_DeadComponents.IsEmpty())
   {
-    ezComponentManagerBase::ComponentStorageEntry entry = m_Data.m_DeadComponents[i];
-    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(m_Data.m_Modules[entry.m_Ptr->GetTypeId()]);
+    ezComponent* pComponent = m_Data.m_DeadComponents.PeekBack();
+    m_Data.m_DeadComponents.PopBack();
+
+    ezComponentManagerBase* pManager = pComponent->GetManager();
     ezComponent* pMovedComponent = nullptr;
-    pManager->DeleteDeadComponent(entry, pMovedComponent);
+    pManager->DeleteComponentStorage(pComponent, pMovedComponent);
 
     // another component has been moved to the deleted component location
-    if (entry.m_Ptr != pMovedComponent)
+    if (pComponent != pMovedComponent)
     {
-      if (ezGameObject* pOwner = entry.m_Ptr->GetOwner())
+      pManager->PatchIdTable(pComponent);
+
+      if (ezGameObject* pOwner = pComponent->GetOwner())
       {
-        pOwner->FixComponentPointer(pMovedComponent, entry.m_Ptr);
+        pOwner->FixComponentPointer(pMovedComponent, pComponent);
+      }
+
+      // the moved component might be deleted as well so we need to patch the dead components list
+      for (ezUInt32 i = 0; i < m_Data.m_DeadComponents.GetCount(); ++i)
+      {
+        if (m_Data.m_DeadComponents[i] == pMovedComponent)
+        {
+          m_Data.m_DeadComponents[i] = pComponent;
+          break;
+        }
       }
     }
   }
-
-  m_Data.m_DeadComponents.Clear();
 }
 
 void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve)
@@ -904,25 +918,16 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
 
   if (uiNewHierarchyLevel != pObject->m_uiHierarchyLevel)
   {
-    ezGameObject::TransformationData* pNewTransformationData = nullptr;
-    ezUInt32 uiTransformationDataIndex = m_Data.CreateTransformationData(pObject->m_Flags, uiNewHierarchyLevel, pNewTransformationData);
-    pNewTransformationData->m_pObject = pObject;
-    pNewTransformationData->m_localPosition = pObject->m_pTransformationData->m_localPosition;
-    pNewTransformationData->m_localRotation = pObject->m_pTransformationData->m_localRotation;
-    pNewTransformationData->m_localScaling = pObject->m_pTransformationData->m_localScaling;
-    pNewTransformationData->m_globalTransform = pObject->m_pTransformationData->m_globalTransform;
-    pNewTransformationData->m_velocity = pObject->m_pTransformationData->m_velocity;
-    pNewTransformationData->m_localBounds = pObject->m_pTransformationData->m_localBounds;
-    pNewTransformationData->m_globalBounds = pObject->m_pTransformationData->m_globalBounds;
+    ezUInt32 uiOldHierarchyLevel = pObject->m_uiHierarchyLevel;
+    ezGameObject::TransformationData* pOldTransformationData = pObject->m_pTransformationData;
 
-    ezUInt32 m_uiOldHierarchyLevel = pObject->m_uiHierarchyLevel;
-    ezUInt32 uiOldTransformationDataIndex = pObject->m_uiTransformationDataIndex;
+    ezGameObject::TransformationData* pNewTransformationData = m_Data.CreateTransformationData(pObject->IsDynamic(), uiNewHierarchyLevel);
+    ezMemoryUtils::Copy(pNewTransformationData, pOldTransformationData, 1);
 
     pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
-    pObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
     pObject->m_pTransformationData = pNewTransformationData;
 
-    m_Data.DeleteTransformationData(pObject->m_Flags, m_uiOldHierarchyLevel, uiOldTransformationDataIndex);
+    m_Data.DeleteTransformationData(pObject->IsDynamic(), uiOldHierarchyLevel, pOldTransformationData);
   }
 
   pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;

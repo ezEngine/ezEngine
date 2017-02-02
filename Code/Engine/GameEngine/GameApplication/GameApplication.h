@@ -12,6 +12,7 @@
 
 class ezDefaultTimeStepSmoothing;
 class ezConsole;
+struct ezWorldDesc;
 
 /// \brief The base class for all typical game applications made with ezEngine
 ///
@@ -120,10 +121,10 @@ public:
   /// \brief Returns what was passed to the constructor.
   ezGameApplicationType GetAppType() const { return m_AppType; }
 
-  /// \brief Creates a new world with the given name.
+  /// \brief Creates a new world with the given description.
   ///
   /// The world is added to the array of known worlds and as such is stepped during Run().
-  ezWorld* CreateWorld(const char* szWorldName);
+  ezWorld* CreateWorld(ezWorldDesc& desc);
 
   /// \brief Cleanes up all data related to a world that was created through CreateWorld().
   void DestroyWorld(ezWorld* pWorld);

@@ -70,7 +70,8 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
       ezLog::Error("Component of type '{0}' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return nullptr;
     }
-    ezComponentHandle hComponent = pMan->AllocateComponent();
+
+    ezComponentHandle hComponent = pMan->CreateComponent();
     ezComponent* pComponent;
     if (pMan->TryGetComponent(hComponent, pComponent))
     {
@@ -293,7 +294,8 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezPr
   m_DocumentGuid = DocumentGuid;
   m_pIPC = pIPC;
 
-  m_pWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(ezConversionUtils::ToString(m_DocumentGuid));
+  ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid));
+  m_pWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(desc);
 
   m_Context.m_pWorld = m_pWorld;
   m_Mirror.InitReceiver(&m_Context);

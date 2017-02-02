@@ -311,7 +311,9 @@ private:
     ezBoundingBoxSphere m_localBounds;
     ezBoundingBoxSphere m_globalBounds;
 
-    ezUInt32 m_uiPadding2[14];
+    ezSpatialDataHandle m_hSpatialData;
+
+    ezUInt32 m_uiPadding2[13];
 
     void ConditionalUpdateGlobalTransform();
     void UpdateGlobalTransform();
@@ -319,6 +321,8 @@ private:
 
     void ConditionalUpdateGlobalBounds();
     void UpdateGlobalBounds();
+
+    void UpdateSpatialData();
   };
 
   ezGameObjectId m_InternalId;
@@ -344,12 +348,9 @@ private:
   };
 
   ezUInt32 m_uiReserved;
+  ezUInt16 m_uiReserved2;
 
-  struct
-  {
-    ezUInt32 m_uiHierarchyLevel : 12;
-    ezUInt32 m_uiTransformationDataIndex : 20;
-  };
+  ezUInt16 m_uiHierarchyLevel;
   TransformationData* m_pTransformationData;
 
   ezWorld* m_pWorld;

@@ -24,25 +24,47 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
   return m_Data.m_Objects.Contains(object);
 }
 
-EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const
+EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject)
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
                 "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
-  ObjectStorageEntry storageEntry = { nullptr };
-  bool bResult = m_Data.m_Objects.TryGetValue(object, storageEntry);
-  out_pObject = storageEntry.m_Ptr;
+  return m_Data.m_Objects.TryGetValue(object, out_pObject);
+}
+
+EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const
+{
+  CheckForReadAccess();
+  EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+
+  ezGameObject* pObject = nullptr;
+  bool bResult = m_Data.m_Objects.TryGetValue(object, pObject);
+  out_pObject = pObject;
   return bResult;
 }
 
-EZ_FORCE_INLINE bool ezWorld::TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject) const
+EZ_FORCE_INLINE bool ezWorld::TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject)
 {
   CheckForReadAccess();
   ezGameObjectId id;
   if (m_Data.m_GlobalKeyToIdTable.TryGetValue(sGlobalKey.GetHash(), id))
   {
-    out_pObject = m_Data.m_Objects[id].m_Ptr;
+    out_pObject = m_Data.m_Objects[id];
+    return true;
+  }
+
+  return false;
+}
+
+EZ_FORCE_INLINE bool ezWorld::TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const
+{
+  CheckForReadAccess();
+  ezGameObjectId id;
+  if (m_Data.m_GlobalKeyToIdTable.TryGetValue(sGlobalKey.GetHash(), id))
+  {
+    out_pObject = m_Data.m_Objects[id];
     return true;
   }
 
@@ -67,7 +89,7 @@ EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::ConstIterator ezWorld::Get
   return m_Data.m_ObjectStorage.GetIterator(0);
 }
 
-EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod method /*= DepthFirst*/)
+EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc& visitorFunc, TraversalMethod method /*= DepthFirst*/)
 {
   CheckForWriteAccess();
 
@@ -324,11 +346,18 @@ EZ_FORCE_INLINE ezTask* ezWorld::GetUpdateTask()
   return &m_UpdateTask;
 }
 
-EZ_FORCE_INLINE const ezInternal::SpatialData& ezWorld::GetSpatialData() const
+EZ_FORCE_INLINE ezSpatialSystem& ezWorld::GetSpatialSystem()
+{
+  CheckForWriteAccess();
+
+  return *(m_Data.m_pSpatialSystem.Borrow());
+}
+
+EZ_FORCE_INLINE const ezSpatialSystem& ezWorld::GetSpatialSystem() const
 {
   CheckForReadAccess();
 
-  return m_SpatialData;
+  return *(m_Data.m_pSpatialSystem.Borrow());
 }
 
 EZ_FORCE_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const
@@ -338,18 +367,20 @@ EZ_FORCE_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition,
 
 EZ_FORCE_INLINE void ezWorld::SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider)
 {
+  EZ_ASSERT_DEV(pProvider != nullptr, "Coordinate System Provider must not be null");
+
   m_Data.m_pCoordinateSystemProvider = std::move(pProvider);
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 }
 
-EZ_FORCE_INLINE ezCoordinateSystemProvider* ezWorld::GetCoordinateSystemProvider()
+EZ_FORCE_INLINE ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider()
 {
-  return m_Data.m_pCoordinateSystemProvider.Borrow();
+  return *(m_Data.m_pCoordinateSystemProvider.Borrow());
 }
 
-EZ_FORCE_INLINE const ezCoordinateSystemProvider* ezWorld::GetCoordinateSystemProvider() const
+EZ_FORCE_INLINE const ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider() const
 {
-  return m_Data.m_pCoordinateSystemProvider.Borrow();
+  return *(m_Data.m_pCoordinateSystemProvider.Borrow());
 }
 
 EZ_FORCE_INLINE ezClock& ezWorld::GetClock()
@@ -425,5 +456,5 @@ EZ_FORCE_INLINE void ezWorld::CheckForWriteAccess() const
 
 EZ_FORCE_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
 {
-  return m_Data.m_Objects.GetValueUnchecked(uiIndex).m_Ptr;
+  return m_Data.m_Objects.GetValueUnchecked(uiIndex);
 }

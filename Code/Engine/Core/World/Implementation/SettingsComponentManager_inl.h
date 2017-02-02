@@ -1,32 +1,67 @@
 
 template <typename ComponentType>
-ezComponentHandle ezSettingsComponentManager<ComponentType>::AllocateComponent()
+ezSettingsComponentManager<ComponentType>::ezSettingsComponentManager(ezWorld* pWorld)
+  : ezComponentManagerBase(pWorld)
 {
-  ezComponentHandle hComp = ezComponentManager<ComponentType, ezBlockStorageType::Compact>::AllocateComponent();
-
-  ComponentType* pComponent = nullptr;
-  this->TryGetComponent(hComp, pComponent);
-
-  if (!m_pSingleton)
-  {
-    m_pSingleton = pComponent;
-  }
-  else
-  {
-    ezLog::Error("A component of type '{0}' is already present in this world. Having more than one may lead to unexpected behavior.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
-  }
-
-  return hComp;
 }
 
+template <typename ComponentType>
+ezSettingsComponentManager<ComponentType>::~ezSettingsComponentManager()
+{
+  if (m_pSingletonComponent != nullptr)
+  {
+    DeinitializeComponent(m_pSingletonComponent.Borrow());
+  }
+}
 
 template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::DeleteDeadComponent(ezComponentManagerBase::ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
+EZ_FORCE_INLINE ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent()
 {
-  if (out_pMovedComponent == m_pSingleton)
+  return m_pSingletonComponent.Borrow();
+}
+
+template <typename ComponentType>
+EZ_FORCE_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent() const
+{
+  return m_pSingletonComponent.Borrow();
+}
+
+//static
+template <typename ComponentType>
+EZ_FORCE_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::TypeId()
+{
+  return ComponentType::TypeId();
+}
+
+template <typename ComponentType>
+void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
+{
+  out_AllComponents.PushBack(m_pSingletonComponent->GetHandle());
+}
+
+template <typename ComponentType>
+void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
+{
+  out_AllComponents.PushBack(m_pSingletonComponent.Borrow());
+}
+
+template <typename ComponentType>
+ezComponent* ezSettingsComponentManager<ComponentType>::CreateComponentStorage()
+{
+  if (m_pSingletonComponent != nullptr)
   {
-    m_pSingleton = nullptr;
+    ezLog::Error("A component of type '{0}' is already present in this world. Having more than one is not allowed.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    return nullptr;
   }
 
-  ezComponentManager<ComponentType, ezBlockStorageType::Compact>::DeleteDeadComponent(storageEntry, out_pMovedComponent);
+  m_pSingletonComponent = EZ_NEW(GetAllocator(), ComponentType);
+
+  return m_pSingletonComponent.Borrow();
+}
+
+template <typename ComponentType>
+void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent)
+{
+  out_pMovedComponent = m_pSingletonComponent.Borrow();
+  m_pSingletonComponent.Reset();
 }

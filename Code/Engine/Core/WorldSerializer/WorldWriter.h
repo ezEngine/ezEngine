@@ -43,7 +43,7 @@ private:
   void IncludeAllComponentBaseTypes();
   void IncludeAllComponentBaseTypes(const ezRTTI* pRtti);
 
-  bool ObjectTraverser(ezGameObject* pObject);
+  ezVisitorExecution::Enum ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);
   void WriteComponentInfo(const ezRTTI* pRtti);
   void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components, ezResourceHandleWriteContext& ResHandleWriter);

@@ -1,10 +1,15 @@
 
 namespace ezInternal
 {
+  //static
+  EZ_FORCE_INLINE WorldData::HierarchyType::Enum WorldData::GetHierarchyType(bool bIsDynamic)
+  {
+    return bIsDynamic ? HierarchyType::Dynamic : HierarchyType::Static;
+  }
 
   // static
   template <typename VISITOR>
-  EZ_FORCE_INLINE bool WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
+  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
     for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < blocks.GetCount(); ++uiBlockIndex)
     {
@@ -14,14 +19,14 @@ namespace ezInternal
 
       while (pCurrentData < pEndData)
       {
-        if (!VISITOR::Visit(pCurrentData, pUserData))
-          return false;
+        if (VISITOR::Visit(pCurrentData, pUserData) == ezVisitorExecution::Stop)
+          return ezVisitorExecution::Stop;
 
         ++pCurrentData;
       }
     }
 
-    return true;
+    return ezVisitorExecution::Continue;
   }
 
   // static

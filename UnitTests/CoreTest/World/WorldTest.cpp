@@ -89,10 +89,9 @@ namespace
 class ezGameObjectTest
 {
 public:
-  static void TestInternals(ezGameObject* pObject, ezGameObject* pParent, ezUInt32 uiHierarchyLevel, ezUInt32 uiTransformationDataIndex)
+  static void TestInternals(ezGameObject* pObject, ezGameObject* pParent, ezUInt32 uiHierarchyLevel)
   {
     EZ_TEST_INT(pObject->m_uiHierarchyLevel, uiHierarchyLevel);
-    EZ_TEST_INT(pObject->m_uiTransformationDataIndex, uiTransformationDataIndex);
     EZ_TEST_BOOL(pObject->m_pTransformationData->m_pObject == pObject);
 
     if (pParent)
@@ -109,7 +108,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
   {
-    ezWorld world("Test");
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
     const float eps = ezMath::BasicType<float>::DefaultEpsilon();
@@ -145,8 +145,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       sb.AppendFormat("Child_{0}", i);
       desc.m_sName.Assign(sb.GetData());
 
-      desc.m_LocalPosition = ezVec3(i * 10.0f, 0.0f, 0.0f);      
-      
+      desc.m_LocalPosition = ezVec3(i * 10.0f, 0.0f, 0.0f);
+
       childObjects[i] = world.CreateObject(desc);
     }
 
@@ -215,7 +215,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     world.DeleteObjectDelayed(parentObject);
     EZ_TEST_BOOL(world.IsValidObject(parentObject));
-    
+
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(indices); ++i)
     {
       EZ_TEST_BOOL(world.IsValidObject(childObjects[indices[i]]));
@@ -236,7 +236,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 1")
   {
-    ezWorld world("Test");
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world);
@@ -249,10 +250,10 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     TestTransforms(o);
 
-    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0, 0);
-    ezGameObjectTest::TestInternals(o.pParent2, o.pParent1, 1, 1);
-    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1, 0);
-    ezGameObjectTest::TestInternals(o.pChild21, o.pParent2, 2, 0);
+    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0);
+    ezGameObjectTest::TestInternals(o.pParent2, o.pParent1, 1);
+    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1);
+    ezGameObjectTest::TestInternals(o.pChild21, o.pParent2, 2);
 
     EZ_TEST_INT(o.pParent1->GetChildCount(), 2);
     auto it = o.pParent1->GetChildren();
@@ -270,7 +271,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 2")
   {
-    ezWorld world("Test");
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world);
@@ -282,10 +284,10 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     TestTransforms(o);
 
-    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0, 0);
-    ezGameObjectTest::TestInternals(o.pParent2, nullptr, 0, 1);
-    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1, 0);
-    ezGameObjectTest::TestInternals(o.pChild21, nullptr, 0, 2);
+    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0);
+    ezGameObjectTest::TestInternals(o.pParent2, nullptr, 0);
+    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1);
+    ezGameObjectTest::TestInternals(o.pChild21, nullptr, 0);
 
     auto it = o.pParent1->GetChildren();
     EZ_TEST_BOOL(o.pChild11 == it);
@@ -299,7 +301,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Traversal")
   {
-    ezWorld world("Test");
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
     TestWorldObjects o = CreateTestWorld(world);
@@ -366,15 +369,17 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Multiple Worlds")
   {
-    ezWorld world1("Test1");
+    ezWorldDesc worldDesc1("Test1");
+    ezWorld world1(worldDesc1);
     EZ_LOCK(world1.GetWriteMarker());
 
-    ezWorld world2("Test2");
+    ezWorldDesc worldDesc2("Test2");
+    ezWorld world2(worldDesc2);
     EZ_LOCK(world2.GetWriteMarker());
 
     ezGameObjectDesc desc;
     desc.m_sName.Assign("Obj1");
-    
+
     ezGameObjectHandle hObj1 = world1.CreateObject(desc);
     EZ_TEST_BOOL(world1.IsValidObject(hObj1));
 
@@ -415,13 +420,14 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom coordinate system")
   {
-    ezWorld world("Test");
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
 
     ezUniquePtr<CustomCoordinateSystemProvider> pProvider = EZ_DEFAULT_NEW(CustomCoordinateSystemProvider, &world);
     CustomCoordinateSystemProvider* pProviderBackup = pProvider.Borrow();
 
     world.SetCoordinateSystemProvider(std::move(pProvider));
-    EZ_TEST_BOOL(world.GetCoordinateSystemProvider() == pProviderBackup);
+    EZ_TEST_BOOL(&world.GetCoordinateSystemProvider() == pProviderBackup);
 
     ezVec3 pos = ezVec3(2, 3, 0);
 

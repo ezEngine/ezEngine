@@ -1,15 +1,18 @@
 #pragma once
 
 #include <Foundation/Memory/LargeBlockAllocator.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Id.h>
 
 #include <Core/Basics.h>
 
 class ezWorld;
+class ezSpatialSystem;
+class ezCoordinateSystemProvider;
+
 namespace ezInternal
 {
-  class SpatialData;
   class WorldData;
 
   enum
@@ -199,3 +202,19 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);
+
+/// \brief Used as return value of visitor functions to define whether calling function should stop or continue visiting
+struct ezVisitorExecution
+{
+  enum Enum
+  {
+    Continue,
+    Stop
+  };
+};
+
+typedef ezGenericId<24, 8> ezSpatialDataId;
+class ezSpatialDataHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
+};

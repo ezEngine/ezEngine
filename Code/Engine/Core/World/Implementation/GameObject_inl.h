@@ -64,7 +64,6 @@ EZ_FORCE_INLINE ezGameObject::ezGameObject()
   m_ChildCount = 0;
 
   m_uiHierarchyLevel = 0;
-  m_uiTransformationDataIndex = 0;
 
   m_pTransformationData = nullptr;
   m_pWorld = nullptr;
@@ -306,8 +305,16 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWith
 
 EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
 {
+  ezBoundingBoxSphere oldGlobalBounds = m_globalBounds;
+
   m_globalBounds = m_localBounds;
   m_globalBounds.Transform(m_globalTransform.GetAsMat4());
+
+  ///\todo find a better place for this
+  if (m_globalBounds != oldGlobalBounds)
+  {
+    UpdateSpatialData();
+  }
 }
 
 

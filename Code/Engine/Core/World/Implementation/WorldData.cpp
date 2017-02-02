@@ -1,6 +1,6 @@
 #include <Core/PCH.h>
 
-
+#include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
 
 
@@ -34,34 +34,43 @@ void WorldData::UpdateTask::Execute()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-WorldData::WorldData(const char* szWorldName) :
-  m_Allocator(szWorldName, ezFoundation::GetDefaultAllocator()),
-  m_AllocatorWrapper(&m_Allocator),
-  m_BlockAllocator(szWorldName, &m_Allocator),
-  m_ObjectStorage(&m_BlockAllocator, &m_Allocator),
-  m_Clock(szWorldName),
-  m_WriteThreadID((ezThreadID)0),
-  m_iWriteCounter(0),
-  m_bSimulateWorld(true),
-  m_ReadMarker(*this),
-  m_WriteMarker(*this),
-  m_pUserData(nullptr)
+WorldData::WorldData(ezWorldDesc& desc)
+  : m_sName(desc.m_sName)
+  , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
+  , m_AllocatorWrapper(&m_Allocator)
+  , m_BlockAllocator(desc.m_sName, &m_Allocator)
+  , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
+  , m_Clock(desc.m_sName)
+  , m_WriteThreadID((ezThreadID)0)
+  , m_iWriteCounter(0)
+  , m_bSimulateWorld(true)
+  , m_ReadMarker(*this)
+  , m_WriteMarker(*this)
+  , m_pUserData(nullptr)
 {
   m_AllocatorWrapper.Reset();
-
-  m_sName.Assign(szWorldName);
 
   m_Random.InitializeFromCurrentTime();
 
   // insert dummy entry to save some checks
-  ObjectStorage::Entry entry = { nullptr };
-  m_Objects.Insert(entry);
+  m_Objects.Insert(nullptr);
 
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 256);
   //EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo get game object size back to 128
   EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
 
-  m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
+  m_pSpatialSystem = std::move(desc.m_pSpatialSystem);
+  m_pCoordinateSystemProvider = std::move(desc.m_pCoordinateSystemProvider);
+
+  if (m_pSpatialSystem == nullptr)
+  {
+    m_pSpatialSystem = EZ_NEW(&m_Allocator, ezSpatialSystem_RegularGrid);
+  }
+
+  if (m_pCoordinateSystemProvider == nullptr)
+  {
+    m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
+  }
 }
 
 WorldData::~WorldData()
@@ -109,12 +118,9 @@ WorldData::~WorldData()
   }
 }
 
-ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
-  ezGameObject::TransformationData*& out_pData)
+ezGameObject::TransformationData* WorldData::CreateTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel)
 {
-  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ?
-    WorldData::HierarchyType::Dynamic : WorldData::HierarchyType::Static;
-  Hierarchy& hierarchy = m_Hierarchies[hierarchyType];
+  Hierarchy& hierarchy = m_Hierarchies[GetHierarchyType(bDynamic)];
 
   if (uiHierarchyLevel >= hierarchy.m_Data.GetCount())
   {
@@ -135,42 +141,28 @@ ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& ob
     pBlock = &blocks.PeekBack();
   }
 
-  ezUInt32 uiInnerIndex = pBlock->m_uiCount;
-  out_pData = pBlock->ReserveBack();
-
-  return uiInnerIndex + (blocks.GetCount() - 1) * TRANSFORMATION_DATA_PER_BLOCK;
+  return pBlock->ReserveBack();
 }
 
-void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
-  ezUInt32 uiIndex)
+void WorldData::DeleteTransformationData(bool bDynamic, ezUInt32 uiHierarchyLevel, ezGameObject::TransformationData* pData)
 {
-  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ?
-    WorldData::HierarchyType::Dynamic : WorldData::HierarchyType::Static;
-  Hierarchy& hierarchy = m_Hierarchies[hierarchyType];
+  Hierarchy& hierarchy = m_Hierarchies[GetHierarchyType(bDynamic)];
   Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];
 
   Hierarchy::DataBlock& lastBlock = blocks.PeekBack();
   const ezGameObject::TransformationData* pLast = lastBlock.PopBack();
-  const ezUInt32 uiLastIndex = lastBlock.m_uiCount + (blocks.GetCount() - 1) * TRANSFORMATION_DATA_PER_BLOCK;
 
-  if (uiLastIndex != uiIndex)
+  if (pData != pLast)
   {
-    const ezUInt32 uiBlockIndex = uiIndex / TRANSFORMATION_DATA_PER_BLOCK;
-    const ezUInt32 uiInnerIndex = uiIndex - uiBlockIndex * TRANSFORMATION_DATA_PER_BLOCK;
-
-    Hierarchy::DataBlock& block = blocks[uiBlockIndex];
-    ezGameObject::TransformationData* pCurrent = &block[uiInnerIndex];
-
-    ezMemoryUtils::Copy(pCurrent, pLast, 1);
-    pCurrent->m_pObject->m_pTransformationData = pCurrent;
-    pCurrent->m_pObject->m_uiTransformationDataIndex = uiIndex;
+    ezMemoryUtils::Copy(pData, pLast, 1);
+    pData->m_pObject->m_pTransformationData = pData;
 
     // fix parent transform data for children as well
-    auto it = pCurrent->m_pObject->GetChildren();
+    auto it = pData->m_pObject->GetChildren();
     while (it.IsValid())
     {
       auto pTransformData = it->m_pTransformationData;
-      pTransformData->m_pParentData = pCurrent;
+      pTransformData->m_pParentData = pData;
       it.Next();
     }
   }
@@ -186,7 +178,7 @@ void WorldData::TraverseBreadthFirst(VisitorFunc& func)
 {
   struct Helper
   {
-    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
       return (*static_cast<VisitorFunc*>(pUserData))(pData->m_pObject);
     }
@@ -202,7 +194,7 @@ void WorldData::TraverseBreadthFirst(VisitorFunc& func)
       Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
       if (uiHierarchyLevel < hierarchy.m_Data.GetCount())
       {
-        if (!TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[uiHierarchyLevel], &func))
+        if (TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[uiHierarchyLevel], &func) == ezVisitorExecution::Stop)
           return;
       }
     }
@@ -213,7 +205,7 @@ void WorldData::TraverseDepthFirst(VisitorFunc& func)
 {
   struct Helper
   {
-    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
       return WorldData::TraverseObjectDepthFirst(pData->m_pObject, *static_cast<VisitorFunc*>(pUserData));
     }
@@ -224,44 +216,44 @@ void WorldData::TraverseDepthFirst(VisitorFunc& func)
     Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
     if (!hierarchy.m_Data.IsEmpty())
     {
-      if (!TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[0], &func))
+      if (TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[0], &func) == ezVisitorExecution::Stop)
         return;
     }
   }
 }
 
 // static
-bool WorldData::TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func)
+ezVisitorExecution::Enum WorldData::TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func)
 {
-  if (!func(pObject))
-    return false;
+  if (func(pObject) == ezVisitorExecution::Stop)
+    return ezVisitorExecution::Stop;
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
-    if (!TraverseObjectDepthFirst(it, func))
-      return false;
+    if (TraverseObjectDepthFirst(it, func) == ezVisitorExecution::Stop)
+      return ezVisitorExecution::Stop;
   }
 
-  return true;
+  return ezVisitorExecution::Continue;
 }
 
 void WorldData::UpdateGlobalTransforms(float fInvDeltaSeconds)
 {
   struct RootLevel
   {
-    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
       WorldData::UpdateGlobalTransform(pData, *static_cast<float*>(pUserData));
-      return true;
+      return ezVisitorExecution::Continue;
     }
   };
 
   struct WithParent
   {
-    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
       WorldData::UpdateGlobalTransformWithParent(pData, *static_cast<float*>(pUserData));
-      return true;
+      return ezVisitorExecution::Continue;
     }
   };
 

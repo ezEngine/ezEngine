@@ -152,7 +152,8 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(World, Components)
 {
-  ezWorld world("TestComp");
+  ezWorldDesc worldDesc("Test");
+  ezWorld world(worldDesc);
   EZ_LOCK(world.GetWriteMarker());
 
   TestComponentManager* pManager = world.GetOrCreateComponentManager<TestComponentManager>();

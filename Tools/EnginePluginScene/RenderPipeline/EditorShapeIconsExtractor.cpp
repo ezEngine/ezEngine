@@ -51,7 +51,7 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, ezExtractedRenderD
 
     for (const auto& hObject : objects)
     {
-      ezGameObject* pObject = nullptr;
+      const ezGameObject* pObject = nullptr;
       if (view.GetWorld()->TryGetObject(hObject, pObject))
       {
         if (FilterByViewTags(view, pObject))
