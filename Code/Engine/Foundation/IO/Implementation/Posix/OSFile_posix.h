@@ -164,7 +164,11 @@ bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
 
 ezResult ezOSFile::InternalDeleteFile(const char* szFile)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   int iRes = _unlink(szFile);
+#else
+  int iRes = unlink(szFile);
+#endif
 
   if (iRes == 0 || (iRes == -1 && errno == ENOENT))
     return EZ_SUCCESS;
