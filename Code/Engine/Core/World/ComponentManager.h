@@ -56,6 +56,7 @@ protected:
 
   /// \cond
   // internal methods
+  void InitializeComponent(const ezComponentHandle& hComponent);
   void DeinitializeComponent(ezComponent* pComponent);
   void PatchIdTable(ezComponent* pComponent);
 

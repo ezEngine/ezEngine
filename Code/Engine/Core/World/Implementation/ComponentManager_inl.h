@@ -39,7 +39,7 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentType*& out_pC
   pComponent->m_InternalId = newId;
 
   ezComponentHandle hComponent = pComponent->GetHandle();
-  GetWorld()->AddComponentToInitialize(hComponent);
+  InitializeComponent(hComponent);
 
   return hComponent;
 }

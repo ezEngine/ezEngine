@@ -34,6 +34,11 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   GetWorld()->m_Data.m_DeadComponents.PushBack(pComponent);
 }
 
+void ezComponentManagerBase::InitializeComponent(const ezComponentHandle& hComponent)
+{
+  GetWorld()->AddComponentToInitialize(hComponent);
+}
+
 void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
 {
   if (ezGameObject* pOwner = pComponent->GetOwner())
