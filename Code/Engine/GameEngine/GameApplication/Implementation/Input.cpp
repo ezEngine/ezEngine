@@ -1,9 +1,14 @@
 #include <GameEngine/PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/InputConfig.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <GameEngine/Console/Console.h>
-
+#include <System/Window/Window.h>
+#include <Core/Input/InputManager.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
 
 namespace
 {

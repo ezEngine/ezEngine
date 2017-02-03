@@ -5,6 +5,7 @@
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Foundation/Threading/DelegateTask.h>
 
 class ezPxSimulationEventCallback;
 

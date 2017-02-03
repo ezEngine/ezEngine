@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Bitflags.h>

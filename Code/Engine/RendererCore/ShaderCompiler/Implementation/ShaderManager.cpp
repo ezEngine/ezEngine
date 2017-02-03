@@ -4,6 +4,7 @@
 #include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
 
 bool ezShaderManager::s_bEnableRuntimeCompilation = false;
 ezString ezShaderManager::s_sPlatform;

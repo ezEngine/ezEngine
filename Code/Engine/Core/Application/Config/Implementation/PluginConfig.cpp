@@ -1,5 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>

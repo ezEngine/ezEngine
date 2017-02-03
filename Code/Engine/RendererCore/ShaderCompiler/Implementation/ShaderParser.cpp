@@ -2,6 +2,8 @@
 #include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
+#include <Foundation/Types/Variant.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 namespace
 {

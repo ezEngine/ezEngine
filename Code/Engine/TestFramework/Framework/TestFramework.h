@@ -1,7 +1,6 @@
 #pragma once
 
 #include <TestFramework/Basics.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <TestFramework/Framework/Declarations.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/SimpleTest.h>

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Utilities/Basics.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 
 /// \brief A loader class for OBJ/MTL files.
@@ -16,53 +18,53 @@ class EZ_UTILITIES_DLL ezOBJLoader
 public:
 
   /// \brief Stores the information for a vertex in a face.
-	struct FaceVertex
-	{
-		FaceVertex();
+  struct FaceVertex
+  {
+    FaceVertex();
 
     ezUInt32 m_uiPositionID; ///< Index into the m_Positions array
-		ezUInt32 m_uiNormalID;   ///< Index into the m_Normals array
-		ezUInt32 m_uiTexCoordID; ///< Index into the m_TexCoords array
-	};
+    ezUInt32 m_uiNormalID;   ///< Index into the m_Normals array
+    ezUInt32 m_uiTexCoordID; ///< Index into the m_TexCoords array
+  };
 
-	/// \brief Holds the information about one Material. 
+  /// \brief Holds the information about one Material.
   ///
-	/// Only the diffuse texture is actually read and stored by this loader, but if needed this can easily be extended.
-	///	The MaterialID is the ID of the Material itself, this is only needed by the loader.
-	struct Material
-	{
-		/// The path to the diffuse texture of this material.
-		ezString m_sDiffuseTexture;
+  /// Only the diffuse texture is actually read and stored by this loader, but if needed this can easily be extended.
+  ///	The MaterialID is the ID of the Material itself, this is only needed by the loader.
+  struct Material
+  {
+    /// The path to the diffuse texture of this material.
+    ezString m_sDiffuseTexture;
 
-		/// The ID of this material.
-		ezUInt32 m_uiMaterialID;
-	};
+    /// The ID of this material.
+    ezUInt32 m_uiMaterialID;
+  };
 
-	/// \brief Holds all data about one face (ie. polygon, not only triangles).
-	struct Face
-	{
+  /// \brief Holds all data about one face (ie. polygon, not only triangles).
+  struct Face
+  {
     Face();
 
-		/// The ID of the material, that this face uses.
+    /// The ID of the material, that this face uses.
     ezUInt32 m_uiMaterialID;
 
-		/// The face-normal, automatically computed
-		ezVec3 m_vNormal;
+    /// The face-normal, automatically computed
+    ezVec3 m_vNormal;
 
-		// These are only calculated on demand (through ComputeTangentSpaceVectors) and only if texture-coordinates are available.
-		// Useful, when doing normal-mapping in tangent-space.
-		ezVec3 m_vTangent;
-		ezVec3 m_vBiTangent;
+    // These are only calculated on demand (through ComputeTangentSpaceVectors) and only if texture-coordinates are available.
+    // Useful, when doing normal-mapping in tangent-space.
+    ezVec3 m_vTangent;
+    ezVec3 m_vBiTangent;
 
-		/// All vertices of the face.
-		ezHybridArray<FaceVertex, 4> m_Vertices;
+    /// All vertices of the face.
+    ezHybridArray<FaceVertex, 4> m_Vertices;
 
-		/// Less-than operator is needed for sorting faces by material.
-		EZ_FORCE_INLINE bool operator< (const Face& rhs) const
-		{
-			return (m_uiMaterialID < rhs.m_uiMaterialID);
-		}
-	};
+    /// Less-than operator is needed for sorting faces by material.
+    EZ_FORCE_INLINE bool operator< (const Face& rhs) const
+    {
+      return (m_uiMaterialID < rhs.m_uiMaterialID);
+    }
+  };
 
   /// \brief Clears all data. Call this before LoadOBJ() / LoadMTL(), if you want to reuse the loader object to load another OBJ file, without merging them.
   void Clear();
@@ -95,10 +97,10 @@ public:
 
   ezMap<ezString, Material> m_Materials;
 
-	ezDeque<ezVec3> m_Positions;
-	ezDeque<ezVec3> m_Normals;
-	ezDeque<ezVec3> m_TexCoords;
-	ezDeque<Face> m_Faces;
+  ezDeque<ezVec3> m_Positions;
+  ezDeque<ezVec3> m_Normals;
+  ezDeque<ezVec3> m_TexCoords;
+  ezDeque<Face> m_Faces;
 };
 
 

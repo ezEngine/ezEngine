@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Types/Id.h>
 
 struct TestId
 {
@@ -25,7 +26,7 @@ struct TestId
     };
   };
 };
-    
+
 typedef ezGenericId<32, 10> LargeTestId;
 
 EZ_CREATE_SIMPLE_TEST(Basics, Id)

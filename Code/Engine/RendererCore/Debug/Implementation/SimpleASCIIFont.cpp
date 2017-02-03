@@ -2,6 +2,7 @@
 #include <RendererCore/Debug/SimpleASCIIFont.h>
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>
+#include <Foundation/IO/Stream.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)
 

@@ -1,4 +1,5 @@
 #include <Foundation/PCH.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Configuration/Startup.h>
 

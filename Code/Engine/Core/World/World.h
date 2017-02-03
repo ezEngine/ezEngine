@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/World/Implementation/WorldData.h>
-#include <Foundation/Profiling/Profiling.h>
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
 ///

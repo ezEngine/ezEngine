@@ -1,9 +1,10 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
-
+#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/ChunkStream.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {

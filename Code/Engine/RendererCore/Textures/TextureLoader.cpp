@@ -1,10 +1,14 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Textures/TextureLoader.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
-#include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 

@@ -3,6 +3,8 @@
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
 
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 

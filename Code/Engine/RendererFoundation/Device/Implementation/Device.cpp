@@ -11,6 +11,7 @@
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Profiling/GPUStopwatch.h>
+#include <Foundation/Logging/Log.h>
 
 namespace
 {

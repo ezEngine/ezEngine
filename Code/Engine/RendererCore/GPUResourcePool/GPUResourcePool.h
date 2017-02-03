@@ -4,7 +4,6 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Threading/Mutex.h>
-#include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
 /// \brief This class serves as a pool for GPU related resources (e.g. buffers and textures required for rendering).
@@ -21,7 +20,7 @@ public:
   ezGALTextureHandle GetRenderTarget(const ezGALTextureCreationDescription& TextureDesc);
 
   /// \brief Convenience functions which creates a texture description fit for a 2d render target without a mip chains.
-  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat, 
+  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat,
     ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
 
   /// \brief Returns a render target to the pool so other consumers can use it.

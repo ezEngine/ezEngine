@@ -6,6 +6,8 @@
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/World/World.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator);

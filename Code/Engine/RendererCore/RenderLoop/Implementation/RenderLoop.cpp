@@ -2,8 +2,9 @@
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
-
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Profiling/Profiling.h>
 
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 

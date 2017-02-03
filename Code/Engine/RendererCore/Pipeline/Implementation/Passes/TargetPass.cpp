@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
-
+#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTargetPass>)
@@ -35,7 +35,7 @@ ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNo
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
-  
+
   //auto inputs = GetInputPins();
   if (pPin->m_pParent != this)
   {

@@ -2,6 +2,8 @@
 #pragma once
 
 #include <Utilities/Basics.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Strings/String.h>
 
 /// \brief This class encapsulates building a DGML compatible graph.
 class EZ_UTILITIES_DLL ezDGMLGraph
@@ -37,7 +39,7 @@ public:
   {
     NodeId m_Source;
     NodeId m_Target;
-    
+
     EZ_DECLARE_POD_TYPE();
   };
 

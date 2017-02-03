@@ -1,6 +1,6 @@
 #include <ParticlePlugin/PCH.h>
-#include <Core/PCH.h>
 #include <ParticlePlugin/Basics.h>
+#include <Foundation/Configuration/Plugin.h>
 
 EZ_STATICLINK_LIBRARY(ParticlePlugin)
 {

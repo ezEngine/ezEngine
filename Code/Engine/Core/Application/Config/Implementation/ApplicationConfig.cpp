@@ -1,5 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/ApplicationConfig.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationConfig, ezNoBase, 1, ezRTTINoAllocator );
 EZ_END_STATIC_REFLECTED_TYPE

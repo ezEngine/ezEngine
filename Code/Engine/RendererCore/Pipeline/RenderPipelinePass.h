@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Utilities/Node.h>

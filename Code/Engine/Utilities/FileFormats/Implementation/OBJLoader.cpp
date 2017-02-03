@@ -1,5 +1,7 @@
 #include <Utilities/PCH.h>
 #include <Utilities/FileFormats/OBJLoader.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 ezOBJLoader::FaceVertex::FaceVertex()
 {

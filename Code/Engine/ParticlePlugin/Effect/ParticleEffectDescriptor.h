@@ -2,6 +2,7 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <ParticlePlugin/Declarations.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectDescriptor : public ezReflectedClass
 {

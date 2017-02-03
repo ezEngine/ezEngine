@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
 

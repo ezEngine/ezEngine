@@ -7,10 +7,9 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
-
-
-
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <Core/World/World.h>
+#include <Foundation/Time/Clock.h>
 
 ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitialized)
 {

@@ -10,6 +10,8 @@ namespace physx
   class PxSimpleTriangleMesh;
 }
 
+class ezStreamWriter;
+
 class EZ_PHYSXCOOKING_DLL ezPhysXCooking
 {
 public:

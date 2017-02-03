@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/UniquePtr.h>
 
 #include <Core/World/CoordinateSystem.h>
 #include <Core/World/SpatialSystem.h>

@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <ParticlePlugin/Declarations.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 

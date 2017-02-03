@@ -1,8 +1,9 @@
 #include <PhysXCooking/PCH.h>
 #include <PhysXCooking/PhysXCooking.h>
 #include <Foundation/Configuration/Startup.h>
-#include <PxPhysicsAPI.h>
 #include <Foundation/Configuration/Singleton.h>
+
+#include <PxPhysicsAPI.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 

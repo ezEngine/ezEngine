@@ -8,6 +8,10 @@
   #error "EZ_FORCE_INLINE is not defined."
 #endif
 
+#ifndef EZ_ALWAYS_INLINE
+  #error "EZ_ALWAYS_INLINE is not defined."
+#endif
+
 #ifndef EZ_ANALYSIS_ASSUME
   #error "EZ_ANALYSIS_ASSUME is not defined."
 #endif

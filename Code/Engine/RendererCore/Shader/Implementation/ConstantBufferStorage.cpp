@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
-
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
 
 ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
   : m_bHasBeenModified(false)
@@ -14,7 +15,7 @@ ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
 ezConstantBufferStorageBase::~ezConstantBufferStorageBase()
 {
   ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGALConstantBuffer);
-  
+
   ezFoundation::GetAlignedAllocator()->Deallocate(m_Data.GetPtr());
   m_Data.Reset();
 }
@@ -36,7 +37,7 @@ void ezConstantBufferStorageBase::UploadData(ezGALContext* pContext)
     return;
 
   m_bHasBeenModified = false;
-  
+
   ezUInt32 uiNewHash = ezHashing::MurmurHash(m_Data.GetPtr(), m_Data.GetCount());
   if (m_uiLastHash != uiNewHash)
   {

@@ -1,5 +1,6 @@
 #include <GameEngine/PCH.h>
 #include <GameEngine/GameApplication/InputConfig.h>
+#include <Core/Input/InputManager.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>

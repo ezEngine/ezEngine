@@ -4,7 +4,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Types/Id.h>
 
 class ezWorld;
 class ezParticleSystemDescriptor;

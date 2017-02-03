@@ -1,6 +1,8 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Math/Vec3.h>
 #include <Foundation/Threading/Mutex.h>
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleEvent

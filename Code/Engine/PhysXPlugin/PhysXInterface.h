@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/Math/Vec3.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/Enum.h>
 #include <PhysXPlugin/Basics.h>
 
 namespace physx

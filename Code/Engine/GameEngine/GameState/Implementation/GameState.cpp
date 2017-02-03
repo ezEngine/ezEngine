@@ -2,14 +2,13 @@
 #include <GameEngine/PCH.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
-#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <RendererCore/Meshes/MeshRenderer.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererFoundation/Device/Device.h>
 #include <System/Screen/Screen.h>
+#include <Core/World/World.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

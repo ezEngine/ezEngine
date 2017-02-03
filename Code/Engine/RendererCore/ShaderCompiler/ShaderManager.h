@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Containers/HashTable.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
@@ -11,7 +12,7 @@ public:
   static const ezString& GetActivePlatform() { return s_sPlatform; }
   static const ezString& GetCacheDirectory() { return s_ShaderCacheDirectory; }
   static bool IsRuntimeCompilationEnabled() { return s_bEnableRuntimeCompilation; }
-  
+
   static void ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName);
   static bool IsPermutationValueAllowed(const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue, ezHashedString& out_sName, ezHashedString& out_sValue);
   static bool IsPermutationValueAllowed(const ezHashedString& sName, const ezHashedString& sValue);

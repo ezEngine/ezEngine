@@ -1,6 +1,8 @@
 #pragma once
 
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Math/Frustum.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Core/World/SpatialData.h>
 
 class EZ_CORE_DLL ezSpatialSystem : public ezReflectedClass

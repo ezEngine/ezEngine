@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Time/Time.h>
 

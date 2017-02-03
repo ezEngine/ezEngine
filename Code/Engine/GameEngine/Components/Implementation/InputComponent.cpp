@@ -1,8 +1,9 @@
 #include <GameEngine/PCH.h>
 #include <GameEngine/Components/InputComponent.h>
+#include <Core/Input/InputManager.h>
+#include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <Core/Messages/TriggerMessage.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)

@@ -1,5 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/ResourceManager/Resource.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
 
 struct FileResourceLoadData
 {
@@ -74,7 +76,7 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResourc
     ezFileStats stat;
     if (ezOSFile::GetFileStats(sAbs, stat).Failed())
       return false;
-  
+
     if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
       return true;
 

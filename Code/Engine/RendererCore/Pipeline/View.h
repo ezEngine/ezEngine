@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/TagSet.h>

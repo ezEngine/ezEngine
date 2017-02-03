@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Math/BoundingBoxSphere.h>
 #include <Core/World/Declarations.h>
 
 struct EZ_ALIGN_16(ezSpatialData)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Basics.h>
+#include <Foundation/Strings/String.h>
 
 class ezResourceBase;
 
@@ -131,7 +132,7 @@ public:
   }
 
   /// \brief Move constructor, no refcount change is necessary.
-  ezTypedResourceHandle(ezTypedResourceHandle<ResourceType>&& rhs) 
+  ezTypedResourceHandle(ezTypedResourceHandle<ResourceType>&& rhs)
     : m_Typeless(std::move(rhs.m_Typeless))
   {
   }

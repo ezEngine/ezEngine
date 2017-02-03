@@ -4,6 +4,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Types/RefCounted.h>
 
 class ezMemoryStreamReader;
@@ -87,7 +88,7 @@ public:
   void SetDebugSourceInformation( const char* szDebugSourceInformation );
 
 private:
-  
+
   ezScopedRefPointer<ezMemoryStreamStorage> m_pStreamStorage;
 
   ezString m_DebugSourceInformation;
@@ -109,11 +110,11 @@ public:
   /// \brief Sets the storage object upon which to operate. Resets the write position to the end of the storage stream.
   /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
   void SetStorage(ezMemoryStreamStorage* pStreamStorage)
-  { 
-    m_pStreamStorage = pStreamStorage; 
-    m_uiWritePosition = 0; 
-    if (m_pStreamStorage) 
-      m_uiWritePosition = m_pStreamStorage->GetStorageSize(); 
+  {
+    m_pStreamStorage = pStreamStorage;
+    m_uiWritePosition = 0;
+    if (m_pStreamStorage)
+      m_uiWritePosition = m_pStreamStorage->GetStorageSize();
   }
 
   /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.

@@ -26,7 +26,6 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/MemoryTracker.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Time/Time.h>

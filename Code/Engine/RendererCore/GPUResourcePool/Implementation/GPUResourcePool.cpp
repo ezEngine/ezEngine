@@ -1,6 +1,7 @@
 
 #include <RendererCore/PCH.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
 

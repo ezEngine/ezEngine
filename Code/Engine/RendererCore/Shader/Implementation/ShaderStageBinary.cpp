@@ -2,6 +2,8 @@
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/Shader/Types.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] =
 {

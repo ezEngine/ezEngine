@@ -1,6 +1,7 @@
 
 #include <Core/PCH.h>
 #include <Core/Application/Application.h>
+#include <Foundation/Configuration/Startup.h>
 
 void ezRun(ezApplication* pApplicationInstance)
 {

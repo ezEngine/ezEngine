@@ -2,6 +2,7 @@
 
 #include <Utilities/Basics.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Containers/Deque.h>
 
 /// \brief Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
 struct ezCallbackResult

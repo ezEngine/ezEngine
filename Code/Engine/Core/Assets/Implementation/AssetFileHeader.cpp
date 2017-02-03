@@ -1,5 +1,6 @@
 #include <Core/PCH.h>
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/IO/MemoryStream.h>
 
 static const char* g_szAssetTag = "ezAsset";
 ezUInt16 ezAssetFileHeader::s_uiSerializedHeaderSize = 0;

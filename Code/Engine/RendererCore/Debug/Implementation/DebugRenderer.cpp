@@ -6,8 +6,10 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <Core/Graphics/Geometry.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
+#include <Core/Graphics/Geometry.h>
+#include <Core/World/World.h>
+#include <Foundation/Configuration/Startup.h>
 
 //////////////////////////////////////////////////////////////////////////
 

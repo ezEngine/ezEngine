@@ -9,6 +9,7 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/ScopeExit.h>
 
 ezRenderContext* ezRenderContext::s_DefaultInstance = nullptr;

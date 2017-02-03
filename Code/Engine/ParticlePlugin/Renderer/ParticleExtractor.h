@@ -2,7 +2,6 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <RendererCore/Pipeline/Extractor.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 
 class ezView;
 class ezExtractedRenderData;

@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <ParticlePlugin/Util/ParticleUtils.h>
 
 class ezParticleEmitterFactory;

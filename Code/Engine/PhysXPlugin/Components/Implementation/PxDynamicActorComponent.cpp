@@ -7,6 +7,7 @@
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Foundation/Profiling/Profiling.h>
 
 using namespace physx;
 

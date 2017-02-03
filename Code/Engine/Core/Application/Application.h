@@ -6,7 +6,6 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Core/Basics.h>
 #include <Core/Application/Implementation/ApplicationEntryPoint.h>
-#include <Foundation/Reflection/Implementation/RTTI.h>
 
 class ezApplication;
 

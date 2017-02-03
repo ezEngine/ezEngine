@@ -1,5 +1,6 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisterSimpleTestHelper);
 

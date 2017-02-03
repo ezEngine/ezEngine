@@ -5,6 +5,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <Foundation/Containers/IdTable.h>
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 class ezParticleEffectInstance;

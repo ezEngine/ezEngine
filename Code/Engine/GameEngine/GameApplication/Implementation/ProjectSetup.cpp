@@ -1,25 +1,36 @@
 #include <GameEngine/PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <Core/Application/Config/PluginConfig.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <RendererDX11/Device/DeviceDX11.h>
-typedef ezGALDeviceDX11 ezGALDeviceDefault;
-#else
-/// \todo We might need a dummy graphics device type
-//#include <RendererGL/Device/DeviceGL.h>
-//typedef ezGALDeviceGL ezGALDeviceDefault;
-#endif
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Collection/CollectionResource.h>
-#include <RendererCore/Material/MaterialResource.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
-#include <Foundation/IO/OpenDdlReader.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <Core/Application/Config/FileSystemConfig.h>
+#include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #include <RendererDX11/Device/DeviceDX11.h>
+  typedef ezGALDeviceDX11 ezGALDeviceDefault;
+#else
+  /// \todo We might need a dummy graphics device type
+  //#include <RendererGL/Device/DeviceGL.h>
+  //typedef ezGALDeviceGL ezGALDeviceDefault;
+#endif
+
 
 void ezGameApplication::DoProjectSetup()
 {

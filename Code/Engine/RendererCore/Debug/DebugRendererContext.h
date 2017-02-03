@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
+#include <Foundation/Algorithm/Hashing.h>
 
 class ezWorld;
 class ezView;
@@ -12,7 +13,7 @@ public:
 
   ezDebugRendererContext(const ezWorld* pWorld);
   ezDebugRendererContext(const ezView* pView);
-  
+
   EZ_FORCE_INLINE bool operator==(const ezDebugRendererContext& other) const
   {
     return m_Id == other.m_Id;

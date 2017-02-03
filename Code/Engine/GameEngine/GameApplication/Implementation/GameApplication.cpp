@@ -1,10 +1,19 @@
 
 #include <GameEngine/PCH.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <Core/World/WorldModule.h>
-#include <Foundation/Time/DefaultTimeStepSmoothing.h>
-#include <RendererCore/Debug/DebugRenderer.h>
 #include <GameEngine/Console/Console.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererFoundation/Device/Device.h>
+#include <Core/World/World.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 

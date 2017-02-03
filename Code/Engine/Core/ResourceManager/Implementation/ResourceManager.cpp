@@ -1,5 +1,6 @@
 #include <Core/PCH.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Configuration/Startup.h>
 
 /// \todo Do not unload resources while they are acquired
 /// \todo Resource Type Memory Thresholds

@@ -2,6 +2,8 @@
 #include <System/PCH.h>
 #include <System/Window/Window.h>
 #include <System/Screen/Screen.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>

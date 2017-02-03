@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/SortingFunctions.h>
+#include <Core/Graphics/Camera.h>
 
 namespace
 {
@@ -25,8 +26,8 @@ ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderDat
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
   const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
   const ezUInt64 uiDistance = CalculateDistance(pRenderData, camera);
-  
-  const ezUInt64 uiSortingKey = (uiTypeHash << 48) | (uiRenderDataSortingKey64 << 16) | uiDistance;  
+
+  const ezUInt64 uiSortingKey = (uiTypeHash << 48) | (uiRenderDataSortingKey64 << 16) | uiDistance;
   return uiSortingKey;
 }
 

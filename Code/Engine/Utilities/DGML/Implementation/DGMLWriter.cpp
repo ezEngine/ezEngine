@@ -1,6 +1,7 @@
 
 #include <Utilities/PCH.h>
 #include <Utilities/DGML/DGMLWriter.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezDGMLGraph::ezDGMLGraph(ezDGMLGraph::Direction GraphDirection /*= LeftToRight*/, ezDGMLGraph::Layout GraphLayout /*= Tree*/)
   : m_Direction( GraphDirection ),
@@ -56,7 +57,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
 
   switch (Graph.m_Direction)
   {
-	case ezDGMLGraph::Direction::TopToBottom:
+    case ezDGMLGraph::Direction::TopToBottom:
       szDirection = "TopToBottom";
       break;
     case ezDGMLGraph::Direction::BottomToTop:
@@ -72,7 +73,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
 
   switch (Graph.m_Layout)
   {
-	  case ezDGMLGraph::Layout::Free:
+    case ezDGMLGraph::Layout::Free:
       szLayout = "None";
       break;
     case ezDGMLGraph::Layout::Tree:
@@ -104,7 +105,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
     ezStringBuilder StyleString;
     switch (Graph.m_Nodes[i].m_Shape)
     {
-		case ezDGMLGraph::NodeShape::None:
+      case ezDGMLGraph::NodeShape::None:
         StyleString = "Shape=\"None\"";
         break;
       case ezDGMLGraph::NodeShape::Rectangle:
