@@ -136,7 +136,7 @@ ezBlockStorage<T, BlockSize, StorageType>::~ezBlockStorage()
 }
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-typename T* ezBlockStorage<T, BlockSize, StorageType>::Create()
+T* ezBlockStorage<T, BlockSize, StorageType>::Create()
 {
   T* pNewObject = nullptr;
   ezUInt32 uiNewIndex = ezInvalidIndex;
