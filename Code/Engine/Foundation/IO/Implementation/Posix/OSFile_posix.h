@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <sys/stat.h>
+#include <Foundation/Logging/Log.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <direct.h>
@@ -247,8 +248,7 @@ const char* ezOSFile::GetApplicationDirectory()
   return s_Path.GetData();
 
 #else
-  //#warning Not yet implemented.
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezLog::Error("ezOSFile::GetApplicationDirectory is not implemented.");
 #endif
 
   return nullptr;

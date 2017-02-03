@@ -254,7 +254,7 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObjec
     }
   }
 
-  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Invalid object {0} was not found in block storage.", (size_t)pObject);
+  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Invalid object {0} was not found in block storage.", ezArgP(pObject));
 
   m_UsedEntries.ClearBit(uiIndex);
 
