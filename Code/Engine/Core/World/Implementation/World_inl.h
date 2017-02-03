@@ -89,7 +89,7 @@ EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::ConstIterator ezWorld::Get
   return m_Data.m_ObjectStorage.GetIterator(0);
 }
 
-EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc& visitorFunc, TraversalMethod method /*= DepthFirst*/)
+EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod method /*= DepthFirst*/)
 {
   CheckForWriteAccess();
 

@@ -81,7 +81,7 @@ public:
   };
 
   /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function is called for every object.
-  void Traverse(VisitorFunc& visitorFunc, TraversalMethod method = DepthFirst);
+  void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
 
   ///@}
   /// \name Module Functions
