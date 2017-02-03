@@ -1,14 +1,13 @@
 #pragma once
 
-//#include <unistd.h>
-#include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <direct.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #include <direct.h>
   #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_ON
 #else
+  #include <unistd.h>
   #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif
 
