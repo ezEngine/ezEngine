@@ -3,6 +3,10 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  return;
+#endif
+
   ezStringBuilder sFileContent = "Lyrics to Taste The Cake:\n\
 Turret: Who's there?\n\
 Turret: Is anyone there?\n\
@@ -121,7 +125,7 @@ Only concrete and clocks.\n\
     // On Windows the drive letter will always be made to upper case
     EZ_TEST_STRING(sCorrected.GetData(), sOutputFile2.GetData());
   }
-#endif // EZ_PLATFORM_WINDOWS 
+#endif // EZ_PLATFORM_WINDOWS
 #endif // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
@@ -222,7 +226,7 @@ Only concrete and clocks.\n\
     sOutputFile.AppendPath("SubFolder");
     EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
   }
-  
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetApplicationDirectory")
   {
     const char* szAppDir = ezOSFile::GetApplicationDirectory();

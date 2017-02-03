@@ -252,6 +252,13 @@ static ezInt32 GetIntStateVariable(const ezMap<ezString, ezString>& variables, c
   return result;
 }
 
+// Global variables don't use memory tracking, so these won't reported as memory leaks.
+static ezMap<ezString, ezInt32> StateValuesBlend;
+static ezMap<ezString, ezInt32> StateValuesBlendOp;
+static ezMap<ezString, ezInt32> StateValuesCullMode;
+static ezMap<ezString, ezInt32> StateValuesCompareFunc;
+static ezMap<ezString, ezInt32> StateValuesStencilOp;
+
 ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
 {
   ezMap<ezString, ezString> VariableValues;
@@ -284,11 +291,6 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
     }
   }
 
-  static ezMap<ezString, ezInt32> StateValuesBlend;
-  static ezMap<ezString, ezInt32> StateValuesBlendOp;
-  static ezMap<ezString, ezInt32> StateValuesCullMode;
-  static ezMap<ezString, ezInt32> StateValuesCompareFunc;
-  static ezMap<ezString, ezInt32> StateValuesStencilOp;
   if (StateValuesBlend.IsEmpty())
   {
     // ezGALBlend

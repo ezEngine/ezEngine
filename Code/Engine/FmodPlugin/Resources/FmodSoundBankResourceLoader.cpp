@@ -1,6 +1,8 @@
 #include <FmodPlugin/PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/OSFile.h>
 
 
 ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourceBase* pResource)

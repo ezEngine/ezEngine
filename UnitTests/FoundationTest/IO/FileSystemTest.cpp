@@ -6,6 +6,10 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, FileSystem)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  return;
+#endif
+
   ezStringBuilder sFileContent = "Lyrics to Taste The Cake:\n\
 Turret: Who's there?\n\
 Turret: Is anyone there?\n\

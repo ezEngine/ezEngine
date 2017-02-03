@@ -144,6 +144,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_BOOL(pConstTestClass2 == nullptr);
   }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  return;
+#endif
+
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Types From Plugin")

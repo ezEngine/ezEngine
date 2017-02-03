@@ -42,6 +42,10 @@ static void ChangedCVar(const ezCVar::CVarEvent& e)
 
 EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  return;
+#endif
+
   iChangedValue = 0;
   iChangedRestart = 0;
 
@@ -233,7 +237,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       CHECK_CVAR(pInt, 22, 22, 22, 22);
 
       pInt->m_CVarEvents.AddEventHandler(ChangedCVar);
-      
+
       *pInt = 23;
       CHECK_CVAR(pInt, 23, 22, 22, 23);
       EZ_TEST_INT(iChangedValue, 3);
@@ -263,7 +267,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
     EZ_TEST_BOOL(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
   }
-  
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Loaded Value Test")
   {
     EZ_TEST_BOOL(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
@@ -272,7 +276,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     {
       ezCVarInt* pInt = (ezCVarInt*) ezCVar::FindCVarByName("test1_Int");
       CHECK_CVAR(pInt, 12, 11, 12, 12);
-      
+
       ezCVarFloat* pFloat = (ezCVarFloat*) ezCVar::FindCVarByName("test1_Float");
       CHECK_CVAR(pFloat, 1.2f, 1.1f, 1.2f, 1.2f);
 
@@ -302,7 +306,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   }
 
 #endif
-  
+
   ezFileSystem::ClearAllDataDirectories();
   ezFileSystem::ClearAllDataDirectoryFactories();
 }

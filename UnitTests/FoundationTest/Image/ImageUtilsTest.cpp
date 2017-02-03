@@ -7,6 +7,10 @@
 
 EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  return;
+#endif
+
   ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sReadDir.AppendPath("../../Data/UnitTests/FoundationTest");
 

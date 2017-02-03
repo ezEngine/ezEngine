@@ -94,6 +94,9 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  return;
+#endif
 
   ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sReadDir.AppendPath("../../Data/UnitTests/FoundationTest");
