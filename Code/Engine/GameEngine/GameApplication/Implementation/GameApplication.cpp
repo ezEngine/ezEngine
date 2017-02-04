@@ -14,6 +14,7 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
+#include <Foundation/Communication/GlobalEvent.h>
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
@@ -406,6 +407,8 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
 
 void ezGameApplication::UpdateWorldsAndRender()
 {
+  EZ_BROADCAST_EVENT(GameApp_BeginFrame);
+
   ezRenderLoop::BeginFrame();
 
   ezTaskGroupID updateTaskID;
@@ -433,6 +436,8 @@ void ezGameApplication::UpdateWorldsAndRender()
       ezTaskSystem::WaitForGroup(updateTaskID);
     }
 
+    EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
+
     ezTelemetry::PerFrameUpdate();
     ezResourceManager::PerFrameUpdate();
     ezTaskSystem::FinishFrameTasks();
@@ -456,6 +461,9 @@ void ezGameApplication::UpdateWorldsAndRender()
   }
 
   ezRenderLoop::EndFrame();
+
+  EZ_BROADCAST_EVENT(GameApp_EndFrame);
+
   ezFrameAllocator::Swap();
 }
 

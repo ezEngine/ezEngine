@@ -17,10 +17,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
   ON_CORE_STARTUP
   {
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FileserveType::Factory, 100.0f);
+    EZ_DEFAULT_NEW(ezFileserveClient);
   }
 
   ON_CORE_SHUTDOWN
   {
+    if (ezFileserveClient::GetSingleton() != nullptr)
+    {
+      ezFileserveClient* pSingleton = ezFileserveClient::GetSingleton();
+      EZ_DEFAULT_DELETE(pSingleton);
+    }
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

@@ -1,11 +1,18 @@
 #include <PCH.h>
 #include <FileservePlugin/Network/NetworkInterface.h>
 
+ezNetworkInterface::~ezNetworkInterface()
+{
+  // unfortunately we cannot do that ourselves here, because ShutdownConnection() calls virtual functions
+  // and this object is already partially destructed here (derived class is already shut down)
+  EZ_ASSERT_DEV(m_NetworkMode == ezNetworkMode::None, "ezNetworkInterface::ShutdownConnection() has be be called before destroying the interface");
+}
+
 ezResult ezNetworkInterface::CreateConnection(ezUInt32 uiConnectionToken, ezNetworkMode mode, ezUInt16 uiPort, const char* szServerAddress, bool bStartUpdateThread)
 {
-  EZ_LOCK(GetMutex());
-
   ShutdownConnection();
+
+  EZ_LOCK(GetMutex());
 
   m_uiConnectionToken = uiConnectionToken;
   m_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
@@ -116,12 +123,60 @@ void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezU
   Transmit(tm, m_TempSendBuffer);
 }
 
+void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData /*= nullptr*/, ezUInt32 uiDataBytes /*= 0*/)
+{
+  Send(tm, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pData), uiDataBytes));
+}
+
+void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezNetworkMessage& msg)
+{
+  Send(tm, msg.GetSystemID(), msg.GetMessageID(), ezArrayPtr<const ezUInt8>(msg.GetMessageData(), msg.GetMessageSize()));
+}
+
+
+void ezNetworkInterface::SetMessageHandler(ezUInt32 uiSystemID, ezNetworkMessageHandler messageHandler)
+{
+  m_MessageQueues[uiSystemID].m_MessageHandler = messageHandler;
+}
+
+void ezNetworkInterface::ExecuteMessageHandlers(ezUInt32 uiSystem)
+{
+  EZ_LOCK(m_Mutex);
+
+  ExecuteMessageHandlersForQueue(m_MessageQueues[uiSystem]);
+}
+
+void ezNetworkInterface::ExecuteAllMessageHandlers()
+{
+  EZ_LOCK(m_Mutex);
+
+  for (auto it = m_MessageQueues.GetIterator(); it.IsValid(); ++it)
+  {
+    ExecuteMessageHandlersForQueue(it.Value());
+  }
+}
+
+void ezNetworkInterface::ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& queue)
+{
+  if (queue.m_MessageHandler.IsValid())
+  {
+    for (auto& msg : queue.m_MessageQueue)
+    {
+      queue.m_MessageHandler(msg);
+    }
+  }
+
+  queue.m_MessageQueue.Clear();
+}
+
 void ezNetworkInterface::StartUpdateThread()
 {
   StopUpdateThread();
 
   if (m_pUpdateThread == nullptr)
   {
+    EZ_LOCK(m_Mutex);
+
     m_pUpdateThread = EZ_DEFAULT_NEW(ezNetworkThread);
     m_pUpdateThread->m_pNetwork = this;
     m_pUpdateThread->Start();
@@ -135,7 +190,7 @@ void ezNetworkInterface::StopUpdateThread()
     m_pUpdateThread->m_bKeepRunning = false;
     m_pUpdateThread->Join();
 
-    EZ_LOCK(GetMutex());
+    EZ_LOCK(m_Mutex);
     EZ_DEFAULT_DELETE(m_pUpdateThread);
   }
 }
@@ -146,7 +201,10 @@ void ezNetworkInterface::ReportConnectionToServer(ezUInt32 uiServerID)
   m_uiConnectedToServerWithID = uiServerID;
 
   ezLog::Info("Connected to server with ID {0}", uiServerID);
-  /// \todo Broadcast
+
+  ezNetworkEvent e;
+  e.m_Type = ezNetworkEvent::ConnectedToServer;
+  m_NetworkEvents.Broadcast(e);
 }
 
 
@@ -155,7 +213,10 @@ void ezNetworkInterface::ReportConnectionToClient()
   m_iConnectionsToClients++;
 
   ezLog::Info("Connected with client {0}", m_iConnectionsToClients);
-  /// \todo Broadcast
+
+  ezNetworkEvent e;
+  e.m_Type = ezNetworkEvent::ConnectedToClient;
+  m_NetworkEvents.Broadcast(e);
 }
 
 void ezNetworkInterface::ReportDisconnectedFromServer()
@@ -163,8 +224,10 @@ void ezNetworkInterface::ReportDisconnectedFromServer()
   m_uiConnectedToServerWithID = 0;
 
   ezLog::Info("Disconnected from server");
-  /// \todo Broadcast
 
+  ezNetworkEvent e;
+  e.m_Type = ezNetworkEvent::DisconnectedFromServer;
+  m_NetworkEvents.Broadcast(e);
 }
 
 void ezNetworkInterface::ReportDisconnectedFromClient()
@@ -172,7 +235,27 @@ void ezNetworkInterface::ReportDisconnectedFromClient()
   ezLog::Info("Disconnected from client {0}", m_iConnectionsToClients);
 
   m_iConnectionsToClients--;
-  /// \todo Broadcast
+
+  ezNetworkEvent e;
+  e.m_Type = ezNetworkEvent::DisconnectedFromClient;
+  m_NetworkEvents.Broadcast(e);
+}
+
+
+void ezNetworkInterface::ReportMessage(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
+{
+  EZ_LOCK(m_Mutex);
+
+  auto& queue = m_MessageQueues[uiSystemID];
+
+  // discard messages for which we have no message handler
+  if (!queue.m_MessageHandler.IsValid())
+    return;
+
+  // store the data for later
+  auto& msg = queue.m_MessageQueue.ExpandAndGetRef();
+  msg.SetMessageID(uiSystemID, uiMsgID);
+  msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount());
 }
 
 ezResult ezNetworkInterface::DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port)

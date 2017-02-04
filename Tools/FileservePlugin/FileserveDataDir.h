@@ -6,6 +6,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <FileservePlugin/Network/NetworkInterface.h>
+#include <FileservePlugin/FileserveClient.h>
 
 namespace ezDataDirectory
 {
@@ -40,8 +41,6 @@ namespace ezDataDirectory
 
     /// \brief Marks the given reader/writer as reusable.
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override { }
-
-    static ezUniquePtr<ezNetworkInterface> s_Network;
   };
 
   ///// \brief Handles reading from ordinary files.

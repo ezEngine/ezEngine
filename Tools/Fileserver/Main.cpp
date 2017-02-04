@@ -28,6 +28,7 @@ void ezFileserverApp::AfterCoreStartup()
 
   m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
   m_Network->StartServer('EZFS', 1042, false);
+  m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserverApp::NetworkMsgHandler, this));
 }
 
 void ezFileserverApp::BeforeCoreShutdown()
@@ -39,12 +40,30 @@ void ezFileserverApp::BeforeCoreShutdown()
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 }
 
+void ezFileserverApp::NetworkMsgHandler(ezNetworkMessage& msg)
+{
+  ezLog::Info("FSRV: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
+
+  ezStringBuilder tmp;
+  ezNetworkMessage ret;
+
+  if (msg.GetMessageID() == 'MNT')
+  {
+    msg.GetReader() >> tmp;
+    ezLog::Info(" Mount: '{0}'", tmp);
+
+    ret.SetMessageID('FSRV', 'RMNT');
+    m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
+  }
+}
+
 ezApplication::ApplicationExecution ezFileserverApp::Run()
 {
   if (m_Network)
   {
     //ezLog::Info("Updating Network");
     m_Network->UpdateNetwork();
+    m_Network->ExecuteAllMessageHandlers();
 
     ezThreadUtils::Sleep(25);
 

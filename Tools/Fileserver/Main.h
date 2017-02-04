@@ -12,6 +12,8 @@ public:
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown();
 
+  void NetworkMsgHandler(ezNetworkMessage& msg);
+
   virtual ezApplication::ApplicationExecution Run() override;
 
   ezUniquePtr<ezNetworkInterface> m_Network;

@@ -106,7 +106,6 @@ ezResult ezNetworkInterfaceEnet::InternalTransmit(ezNetworkTransmitMode tm, cons
   return EZ_SUCCESS;
 }
 
-
 void ezNetworkInterfaceEnet::InternalUpdateNetwork()
 {
   if (!m_pEnetHost)
@@ -173,7 +172,8 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
 
           // Now try to reconnect. If the Server still exists, fine, connect to that.
           // If it does not exist anymore, this will connect to the next best Server that can be found.
-          m_pEnetConnectionToServer = enet_host_connect(m_pEnetHost, &m_EnetServerAddress, 2, GetConnectionToken());
+          const size_t maxChannels = 2;
+          m_pEnetConnectionToServer = enet_host_connect(m_pEnetHost, &m_EnetServerAddress, maxChannels, GetConnectionToken());
 
           ReportDisconnectedFromServer();
         }
@@ -215,21 +215,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
         }
         else
         {
-          /// \todo queue messages
-
-          //MessageQueue& Queue = s_SystemMessages[uiSystemID];
-
-          //if (Queue.m_bAcceptMessages)
-          //{
-          //  Queue.m_IncomingQueue.PushBack();
-          //  ezTelemetryMessage& Msg = Queue.m_IncomingQueue.PeekBack();
-
-          //  Msg.SetMessageID(uiSystemID, uiMsgID);
-
-          //  EZ_ASSERT_DEV((ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
-
-          //  Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8);
-          //}
+          ReportMessage(uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(pData, (ezUInt32)NetworkEvent.packet->dataLength - 8));
         }
 
         enet_packet_destroy(NetworkEvent.packet);
