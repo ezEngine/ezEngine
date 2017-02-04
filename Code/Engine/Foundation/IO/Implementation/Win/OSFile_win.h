@@ -425,7 +425,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
-    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(InterfaceName_Windows_Storage_IApplicationDataStatics).Get(), &appDataStatics)))
+    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), &appDataStatics)))
     {
       ComPtr<ABI::Windows::Storage::IApplicationData> applicationData;
       if (SUCCEEDED(appDataStatics->get_Current(&applicationData)))

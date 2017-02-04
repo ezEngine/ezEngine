@@ -82,7 +82,7 @@ void ezSystemInformation::Initialize()
   using namespace ABI::Windows::Networking::Connectivity;
   using namespace ABI::Windows::Networking;
   ComPtr<INetworkInformationStatics> networkInformation;
-  if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(InterfaceName_Windows_Networking_Connectivity_INetworkInformationStatics).Get(), &networkInformation)))
+  if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &networkInformation)))
   {
     ComPtr<ABI::Windows::Foundation::Collections::IVectorView<HostName*>> hostNames;
     if (SUCCEEDED(networkInformation->GetHostNames(&hostNames)))
