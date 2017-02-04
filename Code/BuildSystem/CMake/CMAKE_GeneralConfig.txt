@@ -308,7 +308,7 @@ file(APPEND ${CMAKE_BINARY_DIR}/Configuration.txt "${PLATFORM_PREFIX}${BUILDSYST
 
 #########################################################################################
 ## Compiler specific settings
-
+set(CMAKE_CXX_STANDARD 14)
 if (BUILDSYSTEM_COMPILER_MSVC)
   # Enable minimal rebuild
   #set (COMPILER_SETTINGS_DEBUG "${COMPILER_SETTINGS_DEBUG} /Gm")
