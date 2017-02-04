@@ -43,8 +43,8 @@ void ezGameApplication::DoProjectSetup()
 
   DoConfigureFileSystem();
   DoConfigureAssetManagement();
-  DoSetupDataDirectories();
   DoLoadCustomPlugins();
+  DoSetupDataDirectories();
   DoLoadPluginsFromConfig();
   DoSetupGraphicsDevice();
   DoSetupDefaultResources();

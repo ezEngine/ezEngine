@@ -33,6 +33,14 @@ ezMutex& ezFileSystem::GetFileSystemMutex()
   return s_Data->m_Mutex;
 }
 
+
+void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority /*= 0*/)
+{
+  auto& data = s_Data->m_DataDirFactories.ExpandAndGetRef();
+  data.m_Factory = Factory;
+  data.m_fPriority = fPriority;
+}
+
 void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
@@ -88,10 +96,12 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
 
   if (!failed)
   {
+    s_Data->m_DataDirFactories.Sort([](const auto& a, const auto& b) { return a.m_fPriority < b.m_fPriority; });
+
     // use the factory that was added last as the one with the highest priority -> allows to override already added factories
     for (ezInt32 i = s_Data->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
     {
-      ezDataDirectoryType* pDataDir = s_Data->m_DataDirFactories[i](sPath);
+      ezDataDirectoryType* pDataDir = s_Data->m_DataDirFactories[i].m_Factory(sPath);
 
       if (pDataDir != nullptr)
       {

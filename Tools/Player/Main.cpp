@@ -51,6 +51,15 @@ void ezPlayerApplication::BeforeCoreShutdown()
   ezGameApplication::BeforeCoreShutdown();
 }
 
+void ezPlayerApplication::DoLoadCustomPlugins()
+{
+  ezGameApplication::DoLoadCustomPlugins();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezPlugin::LoadPlugin("ezFileservePlugin"); // don't care if it fails to load
+#endif
+}
+
 void ezPlayerApplication::SetupLevel()
 {
   EZ_LOG_BLOCK("SetupLevel", m_sSceneFile.GetData());

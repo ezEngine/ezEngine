@@ -53,7 +53,7 @@ void RemoveResourceManagerEventHandler();
 
 void SetAppStats();
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation"

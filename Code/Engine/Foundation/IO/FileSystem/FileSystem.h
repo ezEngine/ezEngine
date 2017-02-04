@@ -18,7 +18,7 @@
 /// A 'threaded' or 'parallel' file reader/writer could implement a different policy, where a file is read/written
 /// in a thread and thus allows to have non-blocking file accesses.
 ///
-/// Which policy to use is defined by the user every time he needs to access a file, by simply using the desired 
+/// Which policy to use is defined by the user every time he needs to access a file, by simply using the desired
 /// reader/writer class.
 /// How to mount data directories (i.e. with which ezDataDirectoryType) is defined by the 'DataDirFactories', which
 /// are functions that create ezDataDirectoryType's. This way one can mount the same data directory (e.g. "MyTestDir")
@@ -68,7 +68,7 @@ public:
   typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
-  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory) { s_Data->m_DataDirFactories.PushBack(Factory); } // [tested]
+  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]
 
   /// \brief Will remove all known data directory factories.
   static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); } // [tested]
@@ -124,7 +124,7 @@ public:
 
   /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
   ///
-  /// If the given path is a rooted path, for instance something like ":appdata/UserData.txt", (which is necessary for writing to files), 
+  /// If the given path is a rooted path, for instance something like ":appdata/UserData.txt", (which is necessary for writing to files),
   /// the path can be converted easily and the file does not need to exist. Only the data directory with the given root name must be mounted.
   ///
   /// If the path is relative, it is attempted to open the specified file, which means it is searched in all available
@@ -185,9 +185,17 @@ private:
     ezDataDirectoryType* m_pDataDirectory;
   };
 
+  struct Factory
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    float m_fPriority;
+    ezDataDirFactory m_Factory;
+  };
+
   struct FileSystemData
   {
-    ezHybridArray<ezDataDirFactory, 4> m_DataDirFactories;
+    ezHybridArray<Factory, 4> m_DataDirFactories;
     ezHybridArray<DataDirectory, 16> m_DataDirectories;
     ezEvent<const FileEvent&> m_Event;
     ezMutex m_Mutex;

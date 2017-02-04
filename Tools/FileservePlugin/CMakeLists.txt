@@ -11,30 +11,10 @@
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
-
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation
-  Core
-  System
   ThirdParty
-  RendererFoundation
-  RendererCore
-  RendererDX11
-  GameEngine
 )
 
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-  InspectorPlugin
-  InputXBox360
-  PhysXPlugin
-  FmodPlugin
-  FileservePlugin
-)
-
-# Set this to true, if your application is a real win32 app (not a console app)
-SET (IS_WIN32_APPLICATION true)
-
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
