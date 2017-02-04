@@ -8,7 +8,7 @@
 #
 
 # Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
 BUILD_CONDITIONAL(EZ_BUILD_FMOD)
 
 set (EZ_FMOD_DIR "" CACHE PATH "Directory of the Fmod SDK")

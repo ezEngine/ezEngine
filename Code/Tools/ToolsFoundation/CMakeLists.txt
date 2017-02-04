@@ -7,6 +7,8 @@
 # *** Modify this file as required ***
 #
 
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+
 if (POLICY CMP0043)
   cmake_policy(SET CMP0043 NEW)
 endif()

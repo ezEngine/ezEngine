@@ -11,6 +11,7 @@
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
+BUILD_CONDITIONAL(EZ_ENABLE_D_SCRIPT)
 BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_PLATFORM_64BIT)
 
 # Add all the libraries that this project needs to link against here

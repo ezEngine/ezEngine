@@ -61,11 +61,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   # Windows
   message (STATUS "Platform is Windows (BUILDSYSTEM_PLATFORM_WINDOWS)")
   set (BUILDSYSTEM_PLATFORM_WINDOWS ON)
+  set (BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP ON)
   set (PLATFORM_PREFIX "Win")
   
 elseif (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
   # Windows Universal
   message (STATUS "Platform is Windows Universal (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)")
+  set (BUILDSYSTEM_PLATFORM_WINDOWS ON)
   set (BUILDSYSTEM_PLATFORM_WINDOWS_UWP ON)
   set (PLATFORM_PREFIX "WinUWP")
   
@@ -93,7 +95,7 @@ endif ()
 
 set (BUILDSYSTEM_PREFIX "")
 
-if (BUILDSYSTEM_PLATFORM_WINDOWS OR BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if (BUILDSYSTEM_PLATFORM_WINDOWS)
   # Supported windows generators
   if (MSVC)
     # Visual Studio (All VS generators define MSVC)
@@ -191,7 +193,7 @@ endif ()
 
 set (ARCHITECTURE_POSTFIX "")
 
-if ((BUILDSYSTEM_PLATFORM_WINDOWS OR BUILDSYSTEM_PLATFORM_WINDOWS_UWP) AND BUILDSYSTEM_COMPILER_MSVC)
+if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
   # Detect 64-bit builds for MSVC.
   if (CMAKE_CL_64)
     message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
@@ -236,7 +238,7 @@ endif ()
 ## Add your variables here, if you need something (general) to configure from the cmake GUI
 
 # Define GUI Variables to configure the project
-if (BUILDSYSTEM_PLATFORM_WINDOWS OR BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if (BUILDSYSTEM_PLATFORM_WINDOWS)
   set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 endif()
 

@@ -11,7 +11,7 @@ if (POLICY CMP0043)
   cmake_policy(SET CMP0043 NEW)
 endif()
 
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
 
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
@@ -27,9 +27,9 @@ BUILD_REQUIRES_DX11()
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
-  Foundation  
+  Foundation
   ToolsFoundation
-  EditorFramework 
+  EditorFramework
   Core
   System
   RendererFoundation
