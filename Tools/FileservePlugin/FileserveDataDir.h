@@ -4,6 +4,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <FileservePlugin/Network/NetworkInterface.h>
 
 namespace ezDataDirectory
 {
@@ -21,7 +23,7 @@ namespace ezDataDirectory
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
     static ezDataDirectoryType* Factory(const char* szDataDirectory);
 
-
+    static bool s_bEnableFileserve;
     virtual void ReloadExternalConfigs() override {}
 
   protected:
@@ -39,6 +41,7 @@ namespace ezDataDirectory
     /// \brief Marks the given reader/writer as reusable.
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override { }
 
+    static ezUniquePtr<ezNetworkInterface> s_Network;
   };
 
   ///// \brief Handles reading from ordinary files.
