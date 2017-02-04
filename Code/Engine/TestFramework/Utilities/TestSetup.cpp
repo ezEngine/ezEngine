@@ -8,6 +8,8 @@
 #ifdef EZ_USE_QT
   #include <TestFramework/Framework/Qt/qtTestFramework.h>
   #include <TestFramework/Framework/Qt/qtTestGUI.h>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #include <TestFramework/Framework/Uwp/uwpTestFramework.h>
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -30,6 +32,8 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 
 #ifdef EZ_USE_QT
   ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
 #else
   ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
 #endif
@@ -44,6 +48,8 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 ezTestAppRun ezTestSetup::RunTests()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
+
+  // Todo: Incorporate all the below in a virtual call of testFramework?
 #ifdef EZ_USE_QT
   TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bNoGUI)
@@ -66,6 +72,9 @@ ezTestAppRun ezTestSetup::RunTests()
 
   app.exec();
 
+  return ezTestAppRun::Quit;
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  static_cast<ezUwpTestFramework*>(pTestFramework)->Run();
   return ezTestAppRun::Quit;
 #else
   // Run all the tests with the given order
