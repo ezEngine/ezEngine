@@ -82,7 +82,7 @@ private:
 };
 
 /// \brief Use this macro to broadcast an event. Pass 0 to 4 parameters of type aeGlobalEventParam to it.
-#define EZ_BROADCAST_EVENT(name, ...) ezGlobalEvent::Broadcast(#name, __VA_ARGS__);
+#define EZ_BROADCAST_EVENT(name, ...) ezGlobalEvent::Broadcast(#name, ##__VA_ARGS__);
 
 /// \brief Use this macro to handle an event every time it is broadcast (place function code in curly brackets after it)
 #define EZ_ON_GLOBAL_EVENT(name) \

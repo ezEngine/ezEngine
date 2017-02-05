@@ -393,7 +393,7 @@ private: // *** Other ***
       const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData()); \
     } \
     ezStringBuilder sInfo; \
-    sInfo.Format(FormatStr, __VA_ARGS__); \
+    sInfo.Format(FormatStr, ##__VA_ARGS__); \
     pe.m_szInfo = sInfo.GetData(); \
     m_ProcessingEvents.Broadcast(pe); \
     ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): {3}", pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn, sInfo.GetData()); \
