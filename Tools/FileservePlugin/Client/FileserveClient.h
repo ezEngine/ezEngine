@@ -4,7 +4,7 @@
 #include <FileservePlugin/Network/NetworkInterface.h>
 #include <Foundation/Configuration/Singleton.h>
 
-class ezFileserveClient
+class EZ_FILESERVEPLUGIN_DLL ezFileserveClient
 {
   EZ_DECLARE_SINGLETON(ezFileserveClient);
 
@@ -16,12 +16,18 @@ public:
 
   void UpdateClient();
 
-  class ezDataDirectoryType* MountDataDirectory(const char* szDataDir);
+  void MountDataDirectory(const char* szDataDir);
 
   void NetworkMsgHandler(ezNetworkMessage& msg);
 
-private:
+  void DownloadFile(const char* szFile);
 
+private:
+  ezString m_sFileserveCacheFolder;
+  bool m_bDownloading = false;
+  ezUInt16 m_uiCurFileDownload = 0;
+  ezString m_sCurrentFileDownload;
   ezUniquePtr<ezNetworkInterface> m_Network;
+  ezDynamicArray<ezUInt8> m_Download;
 };
 

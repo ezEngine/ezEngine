@@ -98,7 +98,7 @@ protected:
   void ReportConnectionToClient();
   void ReportDisconnectedFromServer();
   void ReportDisconnectedFromClient();
-  void ReportMessage(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
+  void ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
 
   ezString m_ServerInfoName;
   ezString m_ServerInfoIP;

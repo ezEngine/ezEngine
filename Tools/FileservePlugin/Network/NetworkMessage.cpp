@@ -5,8 +5,6 @@ ezNetworkMessage::ezNetworkMessage()
   : m_Reader(&m_Storage)
   , m_Writer(&m_Storage)
 {
-  m_uiSystemID = 0;
-  m_uiMsgID = 0;
 }
 
 ezNetworkMessage::ezNetworkMessage(const ezNetworkMessage& rhs)
@@ -30,6 +28,7 @@ ezNetworkMessage::ezNetworkMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
 void ezNetworkMessage::operator=(const ezNetworkMessage& rhs)
 {
   m_Storage = rhs.m_Storage;
+  m_uiApplicationID = rhs.m_uiApplicationID;
   m_uiSystemID = rhs.m_uiSystemID;
   m_uiMsgID = rhs.m_uiMsgID;
   m_Reader.SetStorage(&m_Storage);

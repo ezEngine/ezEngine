@@ -110,13 +110,14 @@ void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezU
   //if (!IsConnectedToOther())
   //  return;
 
-  m_TempSendBuffer.SetCountUninitialized(8 + data.GetCount());
-  *((ezUInt32*)&m_TempSendBuffer[0]) = uiSystemID;
-  *((ezUInt32*)&m_TempSendBuffer[4]) = uiMsgID;
+  m_TempSendBuffer.SetCountUninitialized(12 + data.GetCount());
+  *((ezUInt32*)&m_TempSendBuffer[0]) = m_uiApplicationID;
+  *((ezUInt32*)&m_TempSendBuffer[4]) = uiSystemID;
+  *((ezUInt32*)&m_TempSendBuffer[8]) = uiMsgID;
 
   if (!data.IsEmpty())
   {
-    ezUInt8* pCopyDst = &m_TempSendBuffer[8];
+    ezUInt8* pCopyDst = &m_TempSendBuffer[12];
     ezMemoryUtils::Copy(pCopyDst, data.GetPtr(), data.GetCount());
   }
 
@@ -242,7 +243,7 @@ void ezNetworkInterface::ReportDisconnectedFromClient()
 }
 
 
-void ezNetworkInterface::ReportMessage(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
+void ezNetworkInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
 {
   EZ_LOCK(m_Mutex);
 
@@ -254,6 +255,7 @@ void ezNetworkInterface::ReportMessage(ezUInt32 uiSystemID, ezUInt32 uiMsgID, co
 
   // store the data for later
   auto& msg = queue.m_MessageQueue.ExpandAndGetRef();
+  msg.m_uiApplicationID = uiApplicationID;
   msg.SetMessageID(uiSystemID, uiMsgID);
   msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount());
 }

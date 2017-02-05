@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <FileservePlugin/FileserveDataDir.h>
+#include <FileservePlugin/Client/FileserveDataDir.h>
 
 void OnLoadPlugin(bool bReloading)    { }
 void OnUnloadPlugin(bool bReloading)  { }

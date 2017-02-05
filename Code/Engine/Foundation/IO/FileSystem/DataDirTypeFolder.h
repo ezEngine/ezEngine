@@ -42,12 +42,13 @@ namespace ezDataDirectory
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;
 
-  private:
     /// \brief Called by 'ezDataDirectoryType_Folder::Factory'
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
 
     /// \brief Marks the given reader/writer as reusable.
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
+
+  private:
 
     void LoadRedirectionFile();
 
@@ -65,7 +66,7 @@ namespace ezDataDirectory
     EZ_DISALLOW_COPY_AND_ASSIGN(FolderReader);
 
   public:
-    FolderReader() { m_bIsInUse = false; } 
+    FolderReader() { m_bIsInUse = false; }
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
     virtual ezUInt64 GetFileSize() const override;
 

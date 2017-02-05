@@ -7,7 +7,8 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
 #include <FileservePlugin/Network/NetworkInterfaceEnet.h>
-#include <FileservePlugin/FileserveDataDir.h>
+#include <FileservePlugin/Client/FileserveDataDir.h>
+#include <FileservePlugin/Fileserver/Fileserver.h>
 
 ezFileserverApp::ezFileserverApp()
 {
@@ -26,51 +27,25 @@ void ezFileserverApp::AfterCoreStartup()
   // Add the empty data directory to access files via absolute paths
   ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
-  m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
-  m_Network->StartServer('EZFS', 1042, false);
-  m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserverApp::NetworkMsgHandler, this));
+  EZ_DEFAULT_NEW(ezFileserver);
+
+  ezFileserver::GetSingleton()->StartServer();
 }
 
 void ezFileserverApp::BeforeCoreShutdown()
 {
-  m_Network->ShutdownConnection();
-  m_Network.Reset();
+  ezFileserver::GetSingleton()->StopServer();
 
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 }
 
-void ezFileserverApp::NetworkMsgHandler(ezNetworkMessage& msg)
-{
-  ezLog::Info("FSRV: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
-
-  ezStringBuilder tmp;
-  ezNetworkMessage ret;
-
-  if (msg.GetMessageID() == 'MNT')
-  {
-    msg.GetReader() >> tmp;
-    ezLog::Info(" Mount: '{0}'", tmp);
-
-    ret.SetMessageID('FSRV', 'RMNT');
-    m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
-  }
-}
-
 ezApplication::ApplicationExecution ezFileserverApp::Run()
 {
-  if (m_Network)
-  {
-    //ezLog::Info("Updating Network");
-    m_Network->UpdateNetwork();
-    m_Network->ExecuteAllMessageHandlers();
+  ezFileserver::GetSingleton()->UpdateServer();
 
-    ezThreadUtils::Sleep(25);
-
-    return ezApplication::Continue;
-  }
-
-  return ezApplication::Quit;
+  ezThreadUtils::Sleep(25);
+  return ezApplication::Continue;
 }
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezFileserverApp);

@@ -186,9 +186,10 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
 
     case ENET_EVENT_TYPE_RECEIVE:
       {
-        const ezUInt32 uiSystemID = *((ezUInt32*)&NetworkEvent.packet->data[0]);
-        const ezUInt32 uiMsgID = *((ezUInt32*)&NetworkEvent.packet->data[4]);
-        const ezUInt8* pData = &NetworkEvent.packet->data[8];
+        const ezUInt32 uiApplicationID = *((ezUInt32*)&NetworkEvent.packet->data[0]);
+        const ezUInt32 uiSystemID = *((ezUInt32*)&NetworkEvent.packet->data[4]);
+        const ezUInt32 uiMsgID = *((ezUInt32*)&NetworkEvent.packet->data[8]);
+        const ezUInt8* pData = &NetworkEvent.packet->data[12];
 
         if (uiSystemID == GetConnectionToken())
         {
@@ -215,7 +216,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
         }
         else
         {
-          ReportMessage(uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(pData, (ezUInt32)NetworkEvent.packet->dataLength - 8));
+          ReportMessage(uiApplicationID, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(pData, (ezUInt32)NetworkEvent.packet->dataLength - 12));
         }
 
         enet_packet_destroy(NetworkEvent.packet);
