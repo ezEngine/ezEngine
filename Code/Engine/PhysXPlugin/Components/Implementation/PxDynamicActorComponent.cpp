@@ -300,7 +300,7 @@ void ezPxDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
 
 void ezPxDynamicActorComponent::AddForceAtPos(const ezVec3& vForce, const ezVec3& vPos)
 {
-  if (m_pActor != nullptr)
+  if (m_pActor != nullptr && !m_bKinematic) // adding force on a kinematic object results in an error message by PhysX
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
