@@ -244,6 +244,11 @@ EZ_FORCE_INLINE void ezGameObject::UpdateGlobalTransformAndBounds()
   m_pTransformationData->ConditionalUpdateGlobalBounds();
 }
 
+EZ_FORCE_INLINE ezSpatialDataHandle ezGameObject::GetSpatialData() const
+{
+  return m_pTransformationData->m_hSpatialData;
+}
+
 template <typename T>
 bool ezGameObject::TryGetComponentOfBaseType(T*& out_pComponent) const
 {

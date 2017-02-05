@@ -219,6 +219,10 @@ public:
   void UpdateGlobalTransformAndBounds();
 
 
+  /// \brief Returns a handle to the internal spatial data.
+  ezSpatialDataHandle GetSpatialData() const;
+
+
   /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
   ezResult AttachComponent(const ezComponentHandle& component);
 

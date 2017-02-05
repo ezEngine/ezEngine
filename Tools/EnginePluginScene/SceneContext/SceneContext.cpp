@@ -41,7 +41,7 @@ void ezSceneContext::DrawSelectionBounds()
   if (!m_bRenderSelectionBoxes)
     return;
 
-  EZ_LOCK(m_pWorld->GetReadMarker());
+  EZ_LOCK(m_pWorld->GetWriteMarker());
 
   for (const auto& obj : m_Selection)
   {
@@ -426,13 +426,16 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
   ezGameObject* pLight;
   m_hAmbientLight = GetWorld()->CreateObject(obj, pLight);
 
-  ezDirectionalLightComponent* pDirLight;
+  ezDirectionalLightComponent* pDirLight = nullptr;
   ezDirectionalLightComponent::CreateComponent(GetWorld(), pDirLight);
   pLight->AttachComponent(pDirLight);
 
-  ezAmbientLightComponent* pAmbLight;
+  ezAmbientLightComponent* pAmbLight = nullptr;
   ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-  pLight->AttachComponent(pAmbLight);
+  if (pAmbLight != nullptr)
+  {
+    pLight->AttachComponent(pAmbLight);
+  }
 }
 
 void ezSceneContext::RemoveAmbientLight()

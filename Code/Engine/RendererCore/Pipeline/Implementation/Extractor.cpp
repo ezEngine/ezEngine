@@ -3,6 +3,87 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <Core/World/World.h>
+#include <Core/World/SpatialSystem_RegularGrid.h>
+#include <Foundation/Configuration/CVar.h>
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezCVarBool CVarVisBounds("r_VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
+  ezCVarBool CVarVisLocalBBox("r_VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
+  ezCVarBool CVarVisSpatialData("r_VisSpatialData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
+  ezCVarString CVarVisObjectName("r_VisObjectName", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
+#endif
+
+namespace
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  void VisualizeSpatialData(const ezView& view)
+  {
+    if (CVarVisSpatialData && CVarVisObjectName.GetValue().IsEmpty() &&
+      view.GetCameraUsageHint() == ezCameraUsageHint::MainView)
+    {
+      const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
+      if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
+      {
+        ezHybridArray<ezBoundingBox, 16> boxes;
+        pSpatialSystemGrid->GetAllCellBoxes(boxes);
+
+        for (auto& box : boxes)
+        {
+          ezDebugRenderer::DrawLineBox(&view, box, ezColor::Cyan);
+        }
+      }
+    }
+  }
+
+  void VisualizeObject(const ezView& view, const ezGameObject* pObject)
+  {
+    if (!CVarVisBounds && !CVarVisLocalBBox && !CVarVisSpatialData)
+      return;
+
+    if (view.GetCameraUsageHint() != ezCameraUsageHint::MainView)
+      return;
+
+    if (CVarVisObjectName.GetValue().IsEmpty() || CVarVisObjectName.GetValue() == pObject->GetName())
+    {
+      if (CVarVisLocalBBox)
+      {
+        const ezBoundingBoxSphere& localBounds = pObject->GetLocalBounds();
+        if (localBounds.IsValid())
+        {
+          ezDebugRenderer::DrawLineBox(&view, localBounds.GetBox(), ezColor::Yellow, pObject->GetGlobalTransform());
+        }
+      }
+
+      if (CVarVisBounds)
+      {
+        const ezBoundingBoxSphere& globalBounds = pObject->GetGlobalBounds();
+        if (globalBounds.IsValid())
+        {
+          ezDebugRenderer::DrawLineBox(&view, globalBounds.GetBox(), ezColor::Lime);
+          ezDebugRenderer::DrawLineSphere(&view, globalBounds.GetSphere(), ezColor::Magenta);
+        }
+      }
+
+      if (CVarVisSpatialData)
+      {
+        const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
+        if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
+        {
+          ezHybridArray<ezBoundingBox, 16> boxes;
+          pSpatialSystemGrid->GetCellBoxesForSpatialData(pObject->GetSpatialData(), boxes);
+
+          for (auto& box : boxes)
+          {
+            ezDebugRenderer::DrawLineBox(&view, box, ezColor::Cyan);
+          }
+        }
+      }
+    }
+  }
+#endif
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
 {
@@ -18,12 +99,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
   }
   EZ_END_ATTRIBUTES
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisibleObjectsExtractor, 1, ezRTTIDefaultAllocator<ezVisibleObjectsExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezExtractor::SetName(const char* szName)
@@ -47,6 +122,11 @@ bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObje
   return false;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisibleObjectsExtractor, 1, ezRTTIDefaultAllocator<ezVisibleObjectsExtractor>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
   ezExtractRenderDataMessage msg;
@@ -55,6 +135,10 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDat
   msg.m_OverrideCategory = ezInvalidIndex;
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
+
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    VisualizeSpatialData(view);
+  #endif
 
   /// \todo use spatial data to do visibility culling etc.
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
@@ -65,29 +149,16 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDat
 
     pObject->SendMessage(msg);
 
-    if (false)
-    {
-      if (pObject->GetLocalBounds().IsValid())
-      {
-        ezDebugRenderer::DrawLineBox(view.GetWorld(), pObject->GetLocalBounds().GetBox(), ezColor::LimeGreen, pObject->GetGlobalTransform());
-        ezDebugRenderer::DrawLineBox(view.GetWorld(), pObject->GetGlobalBounds().GetBox(), ezColor::Magenta);
-      }
-
-      ezVec4 screenPos = view.GetViewProjectionMatrix().Transform(pObject->GetGlobalPosition().GetAsVec4(1.0f));
-      if (screenPos.w > 0.0f)
-      {
-        ezVec2 halfScreenSize(view.GetViewport().width * 0.5f, view.GetViewport().height * 0.5f);
-
-        screenPos /= screenPos.w;
-        screenPos.x = screenPos.x * halfScreenSize.x + halfScreenSize.x;
-        screenPos.y = screenPos.y * -halfScreenSize.y + halfScreenSize.y;
-
-        ezDebugRenderer::DrawText(view.GetWorld(), pObject->GetName(), ezVec2I32((ezInt32)screenPos.x, (ezInt32)screenPos.y), ezColor::White);
-      }
-    }
+    #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      VisualizeObject(view, pObject);
+    #endif
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSelectedObjectsExtractor::ezSelectedObjectsExtractor()
 {

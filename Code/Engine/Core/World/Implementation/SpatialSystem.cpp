@@ -29,8 +29,7 @@ ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezBoundingBoxSphere
   pData->m_uiLastFrameVisible = 0;
   pData->m_Bounds = bounds;
 
-  ezBoundingBoxSphere invalidBounds; invalidBounds.SetInvalid();
-  SpatialDataBoundsChanged(pData, invalidBounds, bounds);
+  SpatialDataAdded(pData);
 
   return ezSpatialDataHandle(m_DataTable.Insert(pData));
 }
@@ -41,8 +40,7 @@ void ezSpatialSystem::DeleteSpatialData(const ezSpatialDataHandle& hData)
   if (!m_DataTable.Remove(hData.GetInternalID(), &pData))
     return;
 
-  ezBoundingBoxSphere invalidBounds; invalidBounds.SetInvalid();
-  SpatialDataBoundsChanged(pData, pData->m_Bounds, invalidBounds);
+  SpatialDataRemoved(pData);
 
   ezSpatialData* pMovedData = nullptr;
   m_DataStorage.Delete(pData, pMovedData);
@@ -74,11 +72,6 @@ void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const 
 
   if (bounds != oldBounds)
   {
-    SpatialDataBoundsChanged(pData, oldBounds, bounds);
+    SpatialDataChanged(pData, oldBounds);
   }
-}
-
-void ezSpatialSystem::FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr)
-{
-
 }

@@ -388,9 +388,7 @@ void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
   {
     // Another object was the source of collision so the CC is pushed by the another body.
     ezPxDynamicActorComponent* pDynamicActorComponent = nullptr;
-    ezPxCharacterProxyComponent* pProxy = nullptr;
-    if (pWorld->TryGetComponent(msg.m_hComponentA, pDynamicActorComponent) &&
-      pWorld->TryGetComponent(m_hProxy, pProxy))
+    if (pWorld->TryGetComponent(msg.m_hComponentA, pDynamicActorComponent))
     {
       if (pDynamicActorComponent->GetKinematic())
       {

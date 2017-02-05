@@ -45,6 +45,9 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message,
 
 //////////////////////////////////////////////////////////////////////////
 
+//#define EZ_PX_DETAILED_MEMORY_STATS EZ_ON
+#define EZ_PX_DETAILED_MEMORY_STATS EZ_OFF
+
 ezPxAllocatorCallback::ezPxAllocatorCallback()
   : m_Allocator("PhysX", ezFoundation::GetAlignedAllocator())
 {
@@ -53,10 +56,9 @@ ezPxAllocatorCallback::ezPxAllocatorCallback()
 
 void* ezPxAllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
 {
-  //return new unsigned char[size];
   void* pPtr = m_Allocator.Allocate(size, 16);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_PX_DETAILED_MEMORY_STATS)
   ezStringBuilder s;
   s.Set(typeName, " - ", filename);
   m_Allocations[pPtr] = s;
@@ -67,11 +69,10 @@ void* ezPxAllocatorCallback::allocate(size_t size, const char* typeName, const c
 
 void ezPxAllocatorCallback::deallocate(void* ptr)
 {
-  // apparently this happens
   if (ptr == nullptr)
     return;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_PX_DETAILED_MEMORY_STATS)
   m_Allocations.Remove(ptr);
 #endif
 
@@ -80,7 +81,7 @@ void ezPxAllocatorCallback::deallocate(void* ptr)
 
 void ezPxAllocatorCallback::VerifyAllocations()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_PX_DETAILED_MEMORY_STATS)
   EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "There are {0} unfreed allocations", m_Allocations.GetCount());
 
   for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)

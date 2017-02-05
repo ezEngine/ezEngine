@@ -237,6 +237,8 @@ ezVec3 ezPxDynamicActorComponent::GetLocalCenterOfMass() const
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_READ_LOCK(*(m_pActor->getScene()));
+
     return ezPxConversionUtils::ToVec3(m_pActor->getCMassLocalPose().p);
   }
 
@@ -247,6 +249,8 @@ ezVec3 ezPxDynamicActorComponent::GetGlobalCenterOfMass() const
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     const PxTransform globalPose = m_pActor->getGlobalPose();
     return ezPxConversionUtils::ToVec3(globalPose.transform(m_pActor->getCMassLocalPose().p));
   }
@@ -258,6 +262,8 @@ void ezPxDynamicActorComponent::AddLinearForce(const ezVec3& vForce)
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->addForce(ezPxConversionUtils::ToVec3(vForce), PxForceMode::eFORCE);
   }
 }
@@ -266,6 +272,8 @@ void ezPxDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse)
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->addForce(ezPxConversionUtils::ToVec3(vImpulse), PxForceMode::eIMPULSE);
   }
 }
@@ -274,6 +282,8 @@ void ezPxDynamicActorComponent::AddAngularForce(const ezVec3& vForce)
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->addTorque(ezPxConversionUtils::ToVec3(vForce), PxForceMode::eFORCE);
   }
 }
@@ -282,6 +292,8 @@ void ezPxDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->addTorque(ezPxConversionUtils::ToVec3(vImpulse), PxForceMode::eIMPULSE);
   }
 }
@@ -290,6 +302,8 @@ void ezPxDynamicActorComponent::AddForceAtPos(const ezVec3& vForce, const ezVec3
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     ezPhysX::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(vForce), ezPxConversionUtils::ToVec3(vPos), PxForceMode::eFORCE);
   }
 }
@@ -298,6 +312,8 @@ void ezPxDynamicActorComponent::AddImpulseAtPos(const ezVec3& vImpulse, const ez
 {
   if (m_pActor != nullptr)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     ezPhysX::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(vImpulse), ezPxConversionUtils::ToVec3(vPos), PxForceMode::eIMPULSE);
   }
 }

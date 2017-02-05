@@ -257,10 +257,9 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, 
   ezVec3 corners[8];
   box.GetCorners(corners);
 
-  ezMat4 matTransform = transform.GetAsMat4();
   for (ezUInt32 i = 0; i < 8; ++i)
   {
-    corners[i] = matTransform.TransformPosition(corners[i]);
+    corners[i] = transform * corners[i];
   }
 
   ezVec3 edgeEnds[12];
@@ -289,6 +288,43 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, 
 
     lines[i * 2 + 1].m_start = edgeEnd;
     lines[i * 2 + 1].m_end = edgeEnd - edgeDir * fCornerFraction;
+  }
+
+  DrawLines(context, lines, color);
+}
+
+//static
+void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform /*= ezTransform::Identity()*/)
+{
+  enum
+  {
+    NUM_SEGMENTS = 32
+  };
+
+  const ezVec3 vCenter = sphere.m_vCenter;
+  const float fRadius = sphere.m_fRadius;
+  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+
+  Line lines[NUM_SEGMENTS * 3];
+  for (ezUInt32 s = 0; s < NUM_SEGMENTS; ++s)
+  {
+    const float fS1 = (float)s;
+    const float fS2 = (float)(s + 1);
+
+    const float fCos1 = ezMath::Cos(fS1 * stepAngle);
+    const float fCos2 = ezMath::Cos(fS2 * stepAngle);
+
+    const float fSin1 = ezMath::Sin(fS1 * stepAngle);
+    const float fSin2 = ezMath::Sin(fS2 * stepAngle);
+
+    lines[s * 3 + 0].m_start = transform * (vCenter + ezVec3(0.0f, fCos1, fSin1) * fRadius);
+    lines[s * 3 + 0].m_end   = transform * (vCenter + ezVec3(0.0f, fCos2, fSin2) * fRadius);
+
+    lines[s * 3 + 1].m_start = transform * (vCenter + ezVec3(fCos1, 0.0f, fSin1) * fRadius);
+    lines[s * 3 + 1].m_end   = transform * (vCenter + ezVec3(fCos2, 0.0f, fSin2) * fRadius);
+
+    lines[s * 3 + 2].m_start = transform * (vCenter + ezVec3(fCos1, fSin1, 0.0f) * fRadius);
+    lines[s * 3 + 2].m_end   = transform * (vCenter + ezVec3(fCos2, fSin2, 0.0f) * fRadius);
   }
 
   DrawLines(context, lines, color);
