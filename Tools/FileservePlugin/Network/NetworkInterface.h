@@ -77,8 +77,8 @@ public:
 
   void SetMessageHandler(ezUInt32 uiSystemID, ezNetworkMessageHandler messageHandler);
 
-  void ExecuteMessageHandlers(ezUInt32 uiSystem);
-  void ExecuteAllMessageHandlers();
+  ezUInt32 ExecuteMessageHandlers(ezUInt32 uiSystem);
+  ezUInt32 ExecuteAllMessageHandlers();
 
   ezEvent<const ezNetworkEvent&> m_NetworkEvents;
 
@@ -105,7 +105,7 @@ protected:
 
 private:
   ezResult CreateConnection(ezUInt32 uiConnectionToken, ezNetworkMode mode, ezUInt16 uiPort, const char* szServerAddress, bool bStartUpdateThread);
-  void ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& queue);
+  ezUInt32 ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& queue);
 
   mutable ezMutex m_Mutex;
   class ezNetworkThread* m_pUpdateThread = nullptr;

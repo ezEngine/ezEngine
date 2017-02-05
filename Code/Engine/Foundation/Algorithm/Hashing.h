@@ -11,7 +11,7 @@ public:
   /// \brief helper struct to wrap a string pointer
   struct StringWrapper
   {
-    EZ_FORCE_INLINE StringWrapper(const char* str) : m_str(str) {}
+    EZ_ALWAYS_INLINE StringWrapper(const char* str) : m_str(str) {}
     const char* m_str;
   };
 

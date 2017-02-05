@@ -362,7 +362,7 @@ namespace ezModelImporter
       return ezHashing::MurmurHash(&value, sizeof(ezVec3));
     }
 
-    EZ_FORCE_INLINE static bool Equal(const ezVec3& a, const ezVec3& b)
+    EZ_ALWAYS_INLINE static bool Equal(const ezVec3& a, const ezVec3& b)
     {
       return a == b;
     }

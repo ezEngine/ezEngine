@@ -16,7 +16,7 @@ public:
   virtual void BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands = false);
   virtual void CancelTemporaryCommands();
   virtual void FinishTemporaryCommands();
- 
+
   ///@}
   /// \name Object Access Interface
   ///@{
@@ -32,7 +32,7 @@ public:
   virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid) = 0;
   virtual ezStatus RemoveObject(const ezDocumentObject* pObject) = 0;
   virtual ezStatus MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) = 0;
- 
+
   virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys) = 0;
   virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values) = 0;
 
@@ -55,7 +55,7 @@ public:
 
   template<typename T>
   T Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());
-  EZ_FORCE_INLINE ezInt32 GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
+  ezInt32 GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
 
   ///@}
 

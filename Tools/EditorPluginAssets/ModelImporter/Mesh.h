@@ -30,7 +30,7 @@ namespace ezModelImporter
     friend class Mesh;
     friend class VertexDataStream;
 
-    EZ_FORCE_INLINE operator ezUInt32 () const { return m_Value; }
+    EZ_ALWAYS_INLINE operator ezUInt32 () const { return m_Value; }
 
     ezUInt32 m_Value;
   };

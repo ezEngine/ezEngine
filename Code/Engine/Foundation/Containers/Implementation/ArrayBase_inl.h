@@ -60,20 +60,20 @@ bool ezArrayBase<T, Derived>::operator== (const ezArrayPtr<const T>& rhs) const
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE bool ezArrayBase<T, Derived>::operator!= (const ezArrayPtr<const T>& rhs) const
+EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator!= (const ezArrayPtr<const T>& rhs) const
 {
   return !(*this == rhs);
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE const T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex) const
+EZ_ALWAYS_INLINE const T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return m_pElements[uiIndex];
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex)
+EZ_ALWAYS_INLINE T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return m_pElements[uiIndex];

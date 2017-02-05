@@ -140,25 +140,30 @@ void ezNetworkInterface::SetMessageHandler(ezUInt32 uiSystemID, ezNetworkMessage
   m_MessageQueues[uiSystemID].m_MessageHandler = messageHandler;
 }
 
-void ezNetworkInterface::ExecuteMessageHandlers(ezUInt32 uiSystem)
+ezUInt32 ezNetworkInterface::ExecuteMessageHandlers(ezUInt32 uiSystem)
 {
   EZ_LOCK(m_Mutex);
 
-  ExecuteMessageHandlersForQueue(m_MessageQueues[uiSystem]);
+  return ExecuteMessageHandlersForQueue(m_MessageQueues[uiSystem]);
 }
 
-void ezNetworkInterface::ExecuteAllMessageHandlers()
+ezUInt32 ezNetworkInterface::ExecuteAllMessageHandlers()
 {
   EZ_LOCK(m_Mutex);
 
+  ezUInt32 ret = 0;
   for (auto it = m_MessageQueues.GetIterator(); it.IsValid(); ++it)
   {
-    ExecuteMessageHandlersForQueue(it.Value());
+    ret += ExecuteMessageHandlersForQueue(it.Value());
   }
+
+  return ret;
 }
 
-void ezNetworkInterface::ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& queue)
+ezUInt32 ezNetworkInterface::ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& queue)
 {
+  const ezUInt32 ret = queue.m_MessageQueue.GetCount();
+
   if (queue.m_MessageHandler.IsValid())
   {
     for (auto& msg : queue.m_MessageQueue)
@@ -168,6 +173,7 @@ void ezNetworkInterface::ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& q
   }
 
   queue.m_MessageQueue.Clear();
+  return ret;
 }
 
 void ezNetworkInterface::StartUpdateThread()

@@ -248,7 +248,7 @@ private:
     ezTime m_DueDate;
     ezResourceBase* m_pResource;
 
-    EZ_FORCE_INLINE bool operator==(const LoadingInfo& rhs) const
+    EZ_ALWAYS_INLINE bool operator==(const LoadingInfo& rhs) const
     {
       return m_pResource == rhs.m_pResource;
     }

@@ -53,7 +53,7 @@ inline ezAllocatorBase* ezStringBuilder::GetAllocator() const
   return m_Data.GetAllocator();
 }
 
-EZ_FORCE_INLINE void ezStringBuilder::operator=(const char* szUTF8)
+EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const char* szUTF8)
 {
   Set(szUTF8);
 }

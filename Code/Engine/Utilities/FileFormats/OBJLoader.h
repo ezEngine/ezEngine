@@ -60,7 +60,7 @@ public:
     ezHybridArray<FaceVertex, 4> m_Vertices;
 
     /// Less-than operator is needed for sorting faces by material.
-    EZ_FORCE_INLINE bool operator< (const Face& rhs) const
+    EZ_ALWAYS_INLINE bool operator< (const Face& rhs) const
     {
       return (m_uiMaterialID < rhs.m_uiMaterialID);
     }

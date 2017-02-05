@@ -14,6 +14,6 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override;
 
-
+  ezUInt32 m_uiSleepCounter = 0;
 };
 

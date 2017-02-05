@@ -57,8 +57,8 @@ public:
   bool operator== (ezResultEnum cmp) const { return e == cmp; }
   bool operator!= (ezResultEnum cmp) const { return e != cmp; }
 
-  bool Succeeded() const { return e == EZ_SUCCESS; }
-  bool Failed() const { return e == EZ_FAILURE; }
+  EZ_ALWAYS_INLINE bool Succeeded() const { return e == EZ_SUCCESS; }
+  EZ_ALWAYS_INLINE bool Failed() const { return e == EZ_FAILURE; }
 
 private:
   ezResultEnum e;

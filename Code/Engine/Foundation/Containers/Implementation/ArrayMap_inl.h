@@ -238,13 +238,13 @@ EZ_FORCE_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key) const
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE void ezArrayMapBase<KEY, VALUE>::Reserve(ezUInt32 size)
+EZ_ALWAYS_INLINE void ezArrayMapBase<KEY, VALUE>::Reserve(ezUInt32 size)
 {
   m_Data.Reserve(size);
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE void ezArrayMapBase<KEY, VALUE>::Compact()
+EZ_ALWAYS_INLINE void ezArrayMapBase<KEY, VALUE>::Compact()
 {
   m_Data.Compact();
 }
@@ -259,7 +259,7 @@ bool ezArrayMapBase<KEY, VALUE>::operator==(const ezArrayMapBase<KEY, VALUE>& rh
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE bool ezArrayMapBase<KEY, VALUE>::operator!=(const ezArrayMapBase<KEY, VALUE>& rhs) const
+EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::operator!=(const ezArrayMapBase<KEY, VALUE>& rhs) const
 {
   return !(*this == rhs);
 }

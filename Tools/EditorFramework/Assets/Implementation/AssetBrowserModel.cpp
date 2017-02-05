@@ -17,7 +17,7 @@ struct AssetComparer
   {
   }
 
-  EZ_FORCE_INLINE bool Less(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
+  bool Less(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
   {
     ezAssetInfo* pInfoA = nullptr;
     ezAssetInfo* pInfoB = nullptr;
@@ -35,7 +35,8 @@ struct AssetComparer
     }
     return iValue < 0;
   }
-  EZ_FORCE_INLINE bool operator()(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
+
+  EZ_ALWAYS_INLINE bool operator()(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
   {
     return Less(a, b);
   }

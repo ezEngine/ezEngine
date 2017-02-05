@@ -17,10 +17,17 @@ public:
 
   void NetworkMsgHandler(ezNetworkMessage& msg);
 
+  void HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
+
+  void HandleFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
+
+  /// \brief Searches all data directories of \a client for the requested file. On success the full path is returned.
+  ezResult FindFileInDataDirs(ezFileserveClientContext &client, const char* szRequestedFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath, ezFileserveClientContext::DataDir** ppDataDir);
+
   void StartServer();
   void StopServer();
 
-  void UpdateServer();
+  bool UpdateServer();
 
 private:
 

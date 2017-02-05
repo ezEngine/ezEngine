@@ -452,6 +452,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 
   ezStringBuilder s = s_UserDataPath;
   s.AppendPath(szSubFolder);
+  s.MakeCleanPath();
   return s;
 }
 

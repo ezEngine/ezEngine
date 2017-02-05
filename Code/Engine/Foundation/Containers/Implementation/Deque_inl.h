@@ -552,7 +552,7 @@ EZ_ALWAYS_INLINE T& ezDequeBase<T, Construct>::PeekBack()
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE bool ezDequeBase<T, Construct>::Contains(const T& value) const
+EZ_ALWAYS_INLINE bool ezDequeBase<T, Construct>::Contains(const T& value) const
 {
   return IndexOf(value) != ezInvalidIndex;
 }

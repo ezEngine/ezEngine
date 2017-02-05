@@ -4,6 +4,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 namespace ezDataDirectory
 {
@@ -19,7 +20,7 @@ namespace ezDataDirectory
     ~FolderType();
 
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(const char* szDataDirectory);
+    static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
 
     /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other file lookup.
     /// Each redirection is one line in the file (terminated by a \n).
@@ -34,10 +35,15 @@ namespace ezDataDirectory
 
     virtual void ReloadExternalConfigs() override;
 
+    virtual const ezString128& GetRedirectedDataDirectoryPath() const { return GetDataDirectoryPath(); }
+
   protected:
     // The implementations of the abstract functions.
 
     virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) override;
+
+    bool UseFileRedirection(const char* szFile, ezStringBuilder &sFileToOpen);
+
     virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;
@@ -47,8 +53,6 @@ namespace ezDataDirectory
 
     /// \brief Marks the given reader/writer as reusable.
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
-
-  private:
 
     void LoadRedirectionFile();
 

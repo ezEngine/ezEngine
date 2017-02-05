@@ -6,63 +6,89 @@
 
 bool ezDataDirectory::FileserveType::s_bEnableFileserve = true;
 
-void GetFileserveCachePath(const char* szFile, ezStringBuilder& sNewPath, const char* szCacheFolder)
-{
-  sNewPath = szFile;
-  sNewPath.RemoveFileExtension();
 
-  const ezUInt32 uiFilenameHash = ezHashing::MurmurHash(sNewPath.GetData());
-  sNewPath = szCacheFolder;
-  sNewPath.AppendFormat("/{0}.{1}", ezArgU(uiFilenameHash, 8, true, 16), ezPathUtils::GetFileExtension(szFile));
+
+void ezDataDirectory::FileserveType::ReloadExternalConfigs()
+{
+  EZ_LOCK(m_RedirectionMutex);
+  m_FileRedirection.Clear();
+
+  if (!s_sRedirectionFile.IsEmpty())
+  {
+    ezStringBuilder sRedirectionFile(GetDataDirectoryPath(), "/", s_sRedirectionFile);
+    sRedirectionFile.MakeCleanPath();
+
+    ezStringBuilder dummy1, dummy2;
+    ezFileserveClient::GetSingleton()->DownloadFile(sRedirectionFile, dummy1, dummy2);
+  }
+
+  FolderType::ReloadExternalConfigs();
 }
 
 ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char* szFile)
 {
-  ezLog::Info("Reading '{0}'", szFile);
-
-  ezStringBuilder sNewPath;
-  GetFileserveCachePath(szFile, sNewPath, m_sFileserveCacheFolder);
-
-  if (ezOSFile::ExistsFile(sNewPath))
+  ezStringBuilder sRedirected;
+  if (UseFileRedirection(szFile, sRedirected))
   {
-    ezLog::Success("File is already cached: '{0}'", szFile);
-    return FolderType::OpenFileToRead(szFile);
-  }
-  else
-  {
-    ezFileserveClient::GetSingleton()->DownloadFile(szFile);
+    /// \todo Should we prepend the data dir path, to make it absolutely clear in which data dir the file was found?
+    int i = 0;
+    (void)i;
   }
 
-  return FolderType::OpenFileToRead(szFile);
+  ezStringBuilder sRelPath, sAbsPath;
+  ezFileserveClient::GetSingleton()->DownloadFile(sRedirected, sRelPath, sAbsPath);
+
+  return FolderType::OpenFileToRead(sRelPath);
 }
 
 ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(const char* szFile)
 {
   ezLog::Info("Writing '{0}'", szFile);
 
+  //if (ezStringUtils::StartsWith(szFile, GetDataDirectoryPath()))
+  //    szFile += GetDataDirectoryPath().GetElementCount();
+
+  //while (szFile[0] == '/' || szFile[0] == '\\')
+  //  szFile += 1;
+
+  //ezStringBuilder sNewPath;
+  //ezFileserveClient::GetSingleton()->GetFileserveCachePath(szFile, sNewPath);
+
   return FolderType::OpenFileToWrite(szFile);
 }
 
 ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(const char* szDirectory)
 {
-  m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("FileserveCache");
+  ezStringBuilder sDataDir = szDirectory;
+  sDataDir.MakeCleanPath();
+  if (!sDataDir.IsEmpty() && !sDataDir.EndsWith("/"))
+    sDataDir.Append("/");
 
-  if (ezOSFile::CreateDirectoryStructure(m_sFileserveCacheFolder).Failed())
-  {
-    ezLog::Error("Could not create fileserve cache folder '{0}'", m_sFileserveCacheFolder);
-    return EZ_FAILURE;
-  }
+  ezStringBuilder sCacheFolder;
+  ezFileserveClient::GetSingleton()->GetFullDataDirCachePath(sDataDir, sCacheFolder);
+  m_sFileserveCacheFolder = sCacheFolder;
 
-  return FolderType::InternalInitializeDataDirectory(szDirectory);
+  //if (ezOSFile::CreateDirectoryStructure(m_sFileserveCacheFolder).Failed())
+  //{
+  //  ezLog::Error("Could not create fileserve cache folder '{0}'", m_sFileserveCacheFolder.GetData());
+  //  return EZ_FAILURE;
+  //}
+
+  return FolderType::InternalInitializeDataDirectory(sDataDir);
 }
 
-ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory)
+ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
 {
   if (!s_bEnableFileserve)
     return nullptr;
 
-  ezFileserveClient::GetSingleton()->EnsureConnected();
-  ezFileserveClient::GetSingleton()->MountDataDirectory(szDataDirectory);
+  //if (Usage == ezFileSystem::AllowWrites)
+    //return nullptr;
+
+  if (ezFileserveClient::GetSingleton()->EnsureConnected().Failed())
+    return nullptr;
+
+  ezFileserveClient::GetSingleton()->MountDataDirectory(szDataDirectory, szRootName);
 
   {
     ezDataDirectory::FileserveType* pDataDir = EZ_DEFAULT_NEW(ezDataDirectory::FileserveType);

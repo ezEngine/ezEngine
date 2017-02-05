@@ -8,8 +8,8 @@ class ezStringView;
 class EZ_FOUNDATION_DLL ezFormatString
 {
 public:
-  ezFormatString() { m_szString = nullptr; }
-  ezFormatString(const char* szString) { m_szString = szString; }
+  EZ_ALWAYS_INLINE ezFormatString() { m_szString = nullptr; }
+  EZ_ALWAYS_INLINE ezFormatString(const char* szString) { m_szString = szString; }
   virtual ~ezFormatString() {}
 
   /// \brief Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
@@ -31,7 +31,7 @@ protected:
 #include <Foundation/Strings/Implementation/FormatStringImpl.h>
 
 template<typename ... ARGS>
-ezFormatStringImpl<ARGS...> ezFmt(const char* szFormat, ARGS&&... args)
+EZ_ALWAYS_INLINE ezFormatStringImpl<ARGS...> ezFmt(const char* szFormat, ARGS&&... args)
 {
   return ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...);
 }

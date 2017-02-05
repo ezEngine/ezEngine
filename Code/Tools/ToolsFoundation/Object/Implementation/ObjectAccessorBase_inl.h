@@ -10,7 +10,7 @@ T ezObjectAccessorBase::Get(const ezDocumentObject* pObject, const ezAbstractPro
   return value.ConvertTo<T>();
 }
 
-ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+inline ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
 {
   ezInt32 iCount = 0;
   ezStatus res = GetCount(pObject, pProp, iCount);

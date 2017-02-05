@@ -150,7 +150,7 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL bool IsStringUuid(const char* szText);
 
   /// \brief Converts a bool to a string
-  EZ_FORCE_INLINE ezString ToString(bool value) // [tested]
+  EZ_ALWAYS_INLINE ezString ToString(bool value) // [tested]
   {
     return value ? "true" : "false";
   }

@@ -6,11 +6,11 @@
 template <typename T>
 struct ezScopeExit
 {
-  EZ_FORCE_INLINE ezScopeExit(T func) : m_func(func)
+  EZ_ALWAYS_INLINE ezScopeExit(T func) : m_func(func)
   {
   }
 
-  EZ_FORCE_INLINE ~ezScopeExit()
+  EZ_ALWAYS_INLINE ~ezScopeExit()
   {
     m_func();
   }
@@ -19,7 +19,7 @@ struct ezScopeExit
 };
 
 template <typename T>
-EZ_FORCE_INLINE ezScopeExit<T> ezMakeScopeExit(T func)
+EZ_ALWAYS_INLINE ezScopeExit<T> ezMakeScopeExit(T func)
 {
   return ezScopeExit<T>(func);
 }

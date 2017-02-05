@@ -42,13 +42,13 @@ ezDynamicArrayBase<T>::~ezDynamicArrayBase()
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<T>& rhs)
+EZ_ALWAYS_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<T>& rhs)
 {
   ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& rhs)
+inline void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& rhs)
 {
   // Clear any existing data (calls destructors if necessary)
   this->Clear();

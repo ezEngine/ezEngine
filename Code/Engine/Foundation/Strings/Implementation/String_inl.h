@@ -159,97 +159,97 @@ ezStringView ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) const
 
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString() :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString() :
   ezHybridStringBase<Size>(A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator) :
   ezHybridStringBase<Size>(pAllocator)
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridString<Size, A>& other) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridString<Size, A>& other) :
   ezHybridStringBase<Size>(other, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridStringBase<Size>& other) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridStringBase<Size>& other) :
   ezHybridStringBase<Size>(other, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridString<Size, A>&& other) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridString<Size, A>&& other) :
   ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridStringBase<Size>&& other) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridStringBase<Size>&& other) :
   ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const char* rhs) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const char* rhs) :
   ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const wchar_t* rhs) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const wchar_t* rhs) :
   ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringView& rhs) :
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringView& rhs) :
   ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezHybridString<Size, A>& rhs)
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezHybridString<Size, A>& rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezHybridStringBase<Size>& rhs)
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezHybridStringBase<Size>& rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(ezHybridString<Size, A>&& rhs)
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(ezHybridString<Size, A>&& rhs)
 {
   ezHybridStringBase<Size>::operator=(std::move(rhs));
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(ezHybridStringBase<Size>&& rhs)
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(ezHybridStringBase<Size>&& rhs)
 {
   ezHybridStringBase<Size>::operator=(std::move(rhs));
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const char* rhs)
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const char* rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const wchar_t* rhs)
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const wchar_t* rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezStringView& rhs)
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezStringView& rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
 }

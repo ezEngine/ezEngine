@@ -22,7 +22,7 @@ void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
+inline void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
 {
   m_uiCurrentCount = m_hashSet.m_uiCount;
   m_uiCurrentIndex = m_hashSet.m_uiCapacity;
@@ -37,19 +37,19 @@ EZ_FORCE_INLINE void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::ConstIterator::IsValid() const
+EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::IsValid() const
 {
   return m_uiCurrentCount < m_hashSet.m_uiCount;
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator==(const typename ezHashSetBase<K, H>::ConstIterator& it2) const
+EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator==(const typename ezHashSetBase<K, H>::ConstIterator& it2) const
 {
   return m_hashSet.m_pEntries == it2.m_hashSet.m_pEntries && m_uiCurrentIndex == it2.m_uiCurrentIndex;
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator!=(const typename ezHashSetBase<K, H>::ConstIterator& it2) const
+EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::ConstIterator::operator!=(const typename ezHashSetBase<K, H>::ConstIterator& it2) const
 {
   return !(*this == it2);
 }

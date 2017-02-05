@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
-/// \brief Provides a simple mechanism for mutual exclusion to prevent multiple threads from accessing a shared resource simultaneously. 
+/// \brief Provides a simple mechanism for mutual exclusion to prevent multiple threads from accessing a shared resource simultaneously.
 ///
 /// This can be used to protect code that is not thread-safe against race conditions.
 /// To ensure that mutexes are always properly released, use the scoped Lock class.
@@ -12,10 +12,10 @@ class EZ_FOUNDATION_DLL ezMutex
 public:
   ezMutex();
   ~ezMutex();
-  
+
   /// \brief Attempts to acquire an exclusive lock for this mutex object
   void Acquire();
-  
+
   /// \brief Releases a lock that has been previously acquired
   void Release();
 
@@ -34,10 +34,10 @@ class EZ_FOUNDATION_DLL ezNoMutex
 public:
 
   /// \brief Implements the 'Acquire' interface function, but does nothing.
-  EZ_FORCE_INLINE void Acquire() { }
+  EZ_ALWAYS_INLINE void Acquire() { }
 
   /// \brief Implements the 'Release' interface function, but does nothing.
-  EZ_FORCE_INLINE void Release() { }
+  EZ_ALWAYS_INLINE void Release() { }
 };
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

@@ -5,13 +5,13 @@ template <typename T>
 class ezLock
 {
 public:
-  EZ_FORCE_INLINE explicit ezLock(T& lock) :
+  EZ_ALWAYS_INLINE explicit ezLock(T& lock) :
     m_lock(lock)
   {
     m_lock.Acquire();
   }
 
-  EZ_FORCE_INLINE ~ezLock()
+  EZ_ALWAYS_INLINE ~ezLock()
   {
     m_lock.Release();
   }

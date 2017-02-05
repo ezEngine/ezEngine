@@ -33,20 +33,20 @@ public:
   //virtual ezResult Deserialize(ezStreamReader& stream);
 
   /// \brief Returns the id for this message type.
-  EZ_FORCE_INLINE ezMessageId GetId() const
+  EZ_ALWAYS_INLINE ezMessageId GetId() const
   {
     return m_Id;
   }
 
   /// \brief Returns the size in byte of this message.
-  EZ_FORCE_INLINE ezUInt16 GetSize() const
+  EZ_ALWAYS_INLINE ezUInt16 GetSize() const
   {
     return m_uiSize;
   }
 
   /// \brief Calculates a murmur hash of the message.
-  EZ_FORCE_INLINE ezUInt32 GetHash() const 
-  { 
+  EZ_ALWAYS_INLINE ezUInt32 GetHash() const
+  {
     return ezHashing::MurmurHash(this, m_uiSize);
   }
 
@@ -57,7 +57,7 @@ public:
 #endif
 
 protected:
-  EZ_FORCE_INLINE static ezMessageId GetNextMsgId()
+  EZ_ALWAYS_INLINE static ezMessageId GetNextMsgId()
   {
     return s_uiNextMsgId++;
   }
@@ -78,7 +78,7 @@ protected:
       static ezMessageId id = ezMessage::GetNextMsgId(); \
       return id; \
     } \
-    EZ_FORCE_INLINE messageType() \
+    EZ_ALWAYS_INLINE messageType() \
     { \
       m_Id = messageType::MSG_ID; \
       m_uiSize = sizeof(messageType); \

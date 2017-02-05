@@ -23,9 +23,14 @@ namespace ezDataDirectory
     //~FileserveType();
 
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(const char* szDataDirectory);
+    static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
 
     static bool s_bEnableFileserve;
+
+    virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sFileserveCacheFolder; }
+
+
+    virtual void ReloadExternalConfigs() override;
 
   protected:
     virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) override;
@@ -34,7 +39,7 @@ namespace ezDataDirectory
     //virtual void DeleteFile(const char* szFile) override {}
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
 
-    ezString m_sFileserveCacheFolder;
+    ezString128 m_sFileserveCacheFolder;
   };
 }
 

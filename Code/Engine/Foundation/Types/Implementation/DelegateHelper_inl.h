@@ -8,7 +8,7 @@ private:
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE ezDelegate() : m_pDispatchFunction(nullptr)
+  EZ_ALWAYS_INLINE ezDelegate() : m_pDispatchFunction(nullptr)
   {
   }
 
@@ -69,7 +69,7 @@ public:
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  EZ_FORCE_INLINE ~ezDelegate()
+  EZ_ALWAYS_INLINE ~ezDelegate()
   {
     m_pDispatchFunction = nullptr;
   }
@@ -93,13 +93,13 @@ public:
   /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
   EZ_FORCE_INLINE bool operator==(const SelfType& other) const
   {
-    return m_pInstance.m_Ptr == other.m_pInstance.m_Ptr && 
+    return m_pInstance.m_Ptr == other.m_pInstance.m_Ptr &&
       m_pDispatchFunction == other.m_pDispatchFunction &&
       memcmp(m_Data, other.m_Data, DATA_SIZE) == 0;
   }
 
   /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
-  EZ_FORCE_INLINE bool operator!=(const SelfType& other) const
+  EZ_ALWAYS_INLINE bool operator!=(const SelfType& other) const
   {
     return !(*this == other);
   }
@@ -111,7 +111,7 @@ public:
   }
 
   /// \brief Returns the class instance that is used to call a member function pointer on.
-  EZ_FORCE_INLINE void* GetClassInstance() const
+  EZ_ALWAYS_INLINE void* GetClassInstance() const
   {
     return m_pInstance.m_Ptr;
   }

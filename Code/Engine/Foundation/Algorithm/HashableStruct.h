@@ -17,10 +17,10 @@ class ezHashableStruct
 {
 public:
 
-  EZ_FORCE_INLINE ezHashableStruct();  // [tested]
+  EZ_ALWAYS_INLINE ezHashableStruct();  // [tested]
 
   /// \brief Calculates the (CRC32) hash of the struct and returns it
-  EZ_FORCE_INLINE ezUInt32 CalculateHash() const;  // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 CalculateHash() const;  // [tested]
 };
 
 #include <Foundation/Algorithm/Implementation/HashableStruct_inl.h>

@@ -106,10 +106,10 @@ public:
   bool IsEmpty() const;
 
   /// \brief Returns a string view to this string's data.
-  EZ_FORCE_INLINE operator ezStringView() const { return GetString(); }
+  EZ_ALWAYS_INLINE operator ezStringView() const { return GetString(); }
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_FORCE_INLINE operator const char*() const { return GetData(); }
+  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
 private:
   static void InitHashedString();

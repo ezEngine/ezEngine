@@ -43,31 +43,31 @@ public:
   static void VerifyCorrectnessForAllTypes();
 
   /// \brief Returns the name of this type.
-  EZ_FORCE_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
+  EZ_ALWAYS_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
 
   /// \brief Returns the hash of the name of this type.
-  EZ_FORCE_INLINE ezUInt32 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
 
   /// \brief Returns the type that is the base class of this type. May be nullptr if this type has no base class.
-  EZ_FORCE_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
+  EZ_ALWAYS_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
   /// \brief Returns the corresponding variant type for this type or Invalid if there is none.
-  EZ_FORCE_INLINE ezVariant::Type::Enum GetVariantType() const { return static_cast<ezVariant::Type::Enum>(m_uiVariantType); }
+  EZ_ALWAYS_INLINE ezVariant::Type::Enum GetVariantType() const { return static_cast<ezVariant::Type::Enum>(m_uiVariantType); }
 
   /// \brief Returns true if this type is derived from the given type.
   bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
 
   /// \brief Returns true if this type is derived from the given type.
   template<typename BASE>
-  EZ_FORCE_INLINE bool IsDerivedFrom() const { return IsDerivedFrom(ezGetStaticRTTI<BASE>()); } // [tested]
+  EZ_ALWAYS_INLINE bool IsDerivedFrom() const { return IsDerivedFrom(ezGetStaticRTTI<BASE>()); } // [tested]
 
   /// \brief Returns the object through which instances of this type can be allocated.
-  EZ_FORCE_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
+  EZ_ALWAYS_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
 
   /// \brief Returns the array of properties that this type has. Does NOT include properties from base classes.
-  EZ_FORCE_INLINE const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; } // [tested]
+  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; } // [tested]
 
-  EZ_FORCE_INLINE const ezArrayPtr<ezPropertyAttribute*>& GetAttributes() const { return m_Attributes; }
+  EZ_ALWAYS_INLINE const ezArrayPtr<ezPropertyAttribute*>& GetAttributes() const { return m_Attributes; }
 
   /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template<typename Type>
@@ -77,13 +77,13 @@ public:
   void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const; // [tested]
 
   /// \brief Returns the size (in bytes) of an instance of this type.
-  EZ_FORCE_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
 
   /// \brief Returns the version number of this type.
-  EZ_FORCE_INLINE ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
+  EZ_ALWAYS_INLINE ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
 
   /// \brief Returns the type flags.
-  EZ_FORCE_INLINE const ezBitflags<ezTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
+  EZ_ALWAYS_INLINE const ezBitflags<ezTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
 
   /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or nullptr if no such type exists.
   static ezRTTI* FindTypeByName(const char* szName); // [tested]
@@ -92,10 +92,10 @@ public:
   ezAbstractProperty* FindPropertyByName(const char* szName, bool bSearchBaseTypes = true) const; // [tested]
 
   /// \brief Returns the name of the plugin which this type is declared in.
-  EZ_FORCE_INLINE const char* GetPluginName() const { return m_szPluginName; } // [tested]
+  EZ_ALWAYS_INLINE const char* GetPluginName() const { return m_szPluginName; } // [tested]
 
   /// \brief Returns the array of message handlers that this type has.
-  EZ_FORCE_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
+  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
 
   /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message handler for this type exists.
   bool DispatchMessage(void* pInstance, ezMessage& msg) const;
@@ -105,7 +105,7 @@ public:
 
   /// \brief Returns whether this type can handle the given message type.
   template <typename MessageType>
-  EZ_FORCE_INLINE bool CanHandleMessage() const
+  EZ_ALWAYS_INLINE bool CanHandleMessage() const
   {
     return CanHandleMessage(MessageType::GetMsgId());
   }
@@ -149,7 +149,7 @@ private:
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
   mutable ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
-  
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);
 

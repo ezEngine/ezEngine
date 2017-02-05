@@ -175,7 +175,7 @@ private:
     ComponentManagerType* GetManager(); \
     const ComponentManagerType* GetManager() const; \
     virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
-    static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
+    static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
     static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent); \
   private: \
     friend managerType; \
@@ -186,7 +186,7 @@ private:
   EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
   public: \
     virtual ezUInt16 GetTypeId() const override { return -1; } \
-    static EZ_FORCE_INLINE ezUInt16 TypeId() { return -1; }
+    static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return -1; }
 
 
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
@@ -213,7 +213,7 @@ private:
 
 /// \brief Implements the given component manager type. Add this macro to a cpp outside of the type declaration.
 #define EZ_IMPLEMENT_COMPONENT_MANAGER(managerType, componentType) \
-  ezUInt16 EZ_FORCE_INLINE managerType::RegisterType() { static ezUInt16 id = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(ezWorldModule::GetNextTypeId()); return id; } \
+  ezUInt16 inline managerType::RegisterType() { static ezUInt16 id = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(ezWorldModule::GetNextTypeId()); return id; } \
   ezUInt16 managerType::TYPE_ID = managerType::RegisterType();
 
 #include <Core/World/Implementation/ComponentManager_inl.h>

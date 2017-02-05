@@ -56,6 +56,14 @@ public:
   static ezMutex& GetFileSystemMutex();
 
 public:
+
+  /// \brief Describes in which mode a data directory is mounted.
+  enum DataDirUsage
+  {
+    ReadOnly,
+    AllowWrites,
+  };
+
   /// \brief This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns nullptr.
   ///
   /// Every time a data directory is supposed to be added, the file system will query its data dir factories, which one
@@ -65,20 +73,13 @@ public:
   /// mounted in different ways. For example a simple folder could be mounted on the local system, or via a HTTP server
   /// over a network (lets call it a 'FileServer'). Thus depending on which type of factories are registered, the file system
   /// can provide data from very different sources.
-  typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory);
+  typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
   static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]
 
   /// \brief Will remove all known data directory factories.
   static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); } // [tested]
-
-  /// \brief Describes in which mode a data directory is mounted.
-  enum DataDirUsage
-  {
-    ReadOnly,
-    AllowWrites,
-  };
 
   /// \brief Adds a data directory. It will try all the registered factories to find a data directory type that can handle the given path.
   ///
@@ -92,7 +93,7 @@ public:
   /// It has to be unique to clearly identify a file within that data directory. It must be used when writing to a file in this directory.
   /// For instance, if a data dir root name is "mydata", then the path ":mydata/SomeFile.txt" can be used to write to the top level
   /// folder of this data directory. The same can be used for reading exactly that file and ignoring the other data dirs.
-  static ezResult AddDataDirectory(const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", DataDirUsage Usage = ReadOnly); // [tested]
+  static ezResult AddDataDirectory(const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", ezFileSystem::DataDirUsage Usage = ReadOnly); // [tested]
 
   /// \brief Removes all data directories that belong to the given group. Returns the number of data directories that were removed.
   static ezUInt32 RemoveDataDirectoryGroup(const char* szGroup); // [tested]

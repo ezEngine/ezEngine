@@ -107,7 +107,7 @@ private:
 /// \brief Add this macro to the declaration of your module type.
 #define EZ_DECLARE_WORLD_MODULE() \
   public: \
-    static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
+    static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
   private: \
     static ezUInt16 TYPE_ID;
 

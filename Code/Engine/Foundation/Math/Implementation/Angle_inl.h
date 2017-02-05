@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename Type>
-constexpr EZ_FORCE_INLINE Type ezAngle::Pi()
+constexpr EZ_ALWAYS_INLINE Type ezAngle::Pi()
 {
   return static_cast<Type>(3.1415926535897932384626433832795);
 }
@@ -9,7 +9,7 @@ constexpr EZ_FORCE_INLINE Type ezAngle::Pi()
 template<typename Type>
 constexpr EZ_FORCE_INLINE Type ezAngle::DegToRadMultiplier()
 {
-  return Pi<Type>() / (Type) 180; 
+  return Pi<Type>() / (Type) 180;
 }
 
 template<typename Type>
@@ -20,13 +20,13 @@ constexpr EZ_FORCE_INLINE Type ezAngle::RadToDegMultiplier()
 
 template<typename Type>
 constexpr Type ezAngle::DegToRad(Type f)
-{ 
+{
   return f * DegToRadMultiplier<Type>();
 }
 
 template<typename Type>
 constexpr Type ezAngle::RadToDeg(Type f)
-{ 
+{
   return f * RadToDegMultiplier<Type>();
 }
 
@@ -35,7 +35,7 @@ constexpr inline ezAngle ezAngle::Degree(float fDegree)
   return ezAngle(DegToRad(fDegree));
 }
 
-constexpr EZ_FORCE_INLINE ezAngle ezAngle::Radian(float fRadian)
+constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::Radian(float fRadian)
 {
   return ezAngle(fRadian);
 }
@@ -45,7 +45,7 @@ constexpr inline float ezAngle::GetDegree() const
   return RadToDeg(m_fRadian);
 }
 
-constexpr EZ_FORCE_INLINE float ezAngle::GetRadian() const
+constexpr EZ_ALWAYS_INLINE float ezAngle::GetRadian() const
 {
   return m_fRadian;
 }
@@ -97,7 +97,7 @@ constexpr inline ezAngle ezAngle::operator - (ezAngle r) const
 {
   return ezAngle(m_fRadian - r.m_fRadian);
 }
-  
+
 constexpr EZ_FORCE_INLINE bool ezAngle::operator == (const ezAngle& r) const
 {
   return m_fRadian == r.m_fRadian;

@@ -1,9 +1,9 @@
 
-EZ_FORCE_INLINE ezAllocatorBase::ezAllocatorBase()
+EZ_ALWAYS_INLINE ezAllocatorBase::ezAllocatorBase()
 {
 }
 
-EZ_FORCE_INLINE ezAllocatorBase::~ezAllocatorBase()
+EZ_ALWAYS_INLINE ezAllocatorBase::~ezAllocatorBase()
 {
 }
 
@@ -12,24 +12,24 @@ namespace ezInternal
   template <typename T>
   struct NewInstance
   {
-    EZ_FORCE_INLINE NewInstance(T* pInstance, ezAllocatorBase* pAllocator)
+    EZ_ALWAYS_INLINE NewInstance(T* pInstance, ezAllocatorBase* pAllocator)
     {
       m_pInstance = pInstance;
       m_pAllocator = pAllocator;
     }
 
-    EZ_FORCE_INLINE operator T*()
+    EZ_ALWAYS_INLINE operator T*()
     {
       return m_pInstance;
     }
 
-    EZ_FORCE_INLINE T* operator->()
+    EZ_ALWAYS_INLINE T* operator->()
     {
       return m_pInstance;
     }
 
     T* m_pInstance;
-    ezAllocatorBase* m_pAllocator;    
+    ezAllocatorBase* m_pAllocator;
   };
 
 

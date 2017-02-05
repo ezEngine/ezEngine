@@ -32,8 +32,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
 
   explicit ezStatus(const ezFormatString& fmt);
 
-  EZ_FORCE_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
-  EZ_FORCE_INLINE bool Failed() const { return m_Result.Failed(); }
+  EZ_ALWAYS_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
+  EZ_ALWAYS_INLINE bool Failed() const { return m_Result.Failed(); }
   void LogFailure(ezLogInterface* pLog = nullptr);
 
   ezResult m_Result;

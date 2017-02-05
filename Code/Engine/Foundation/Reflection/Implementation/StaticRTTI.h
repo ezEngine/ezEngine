@@ -10,7 +10,7 @@
 class ezRTTI;
 class ezReflectedClass;
 
-/// \brief Flags that describe a reflected type. 
+/// \brief Flags that describe a reflected type.
 struct ezTypeFlags
 {
   typedef ezUInt8 StorageType;
@@ -64,15 +64,15 @@ namespace ezInternal
   };
 
   template <typename T>
-  EZ_FORCE_INLINE const ezRTTI* GetStaticRTTI(ezTraitInt<1>) // class derived from ezReflectedClass
+  EZ_ALWAYS_INLINE const ezRTTI* GetStaticRTTI(ezTraitInt<1>) // class derived from ezReflectedClass
   {
     return T::GetStaticRTTI();
   }
 
   template <typename T>
-  EZ_FORCE_INLINE const ezRTTI* GetStaticRTTI(ezTraitInt<0>) // static rtti
+  EZ_ALWAYS_INLINE const ezRTTI* GetStaticRTTI(ezTraitInt<0>) // static rtti
   {
-    // Since this is pure C++ and no preprocessor macro, calling it with types such as 'int' and 'ezInt32' will 
+    // Since this is pure C++ and no preprocessor macro, calling it with types such as 'int' and 'ezInt32' will
     // actually return the same RTTI object, which would not be possible with a purely macro based solution
 
     return ezStaticRTTI<T>::GetRTTI();
@@ -95,7 +95,7 @@ namespace ezInternal
   }
 
   template <>
-  EZ_FORCE_INLINE ezBitflags<ezTypeFlags> DetermineTypeFlags<ezVariant>()
+  EZ_ALWAYS_INLINE ezBitflags<ezTypeFlags> DetermineTypeFlags<ezVariant>()
   {
     return ezTypeFlags::StandardType;
   }
@@ -103,7 +103,7 @@ namespace ezInternal
 
 /// \brief Use this function, specialized with the type that you are interested in, to get the static RTTI data for some type.
 template<typename T>
-EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
+EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 {
   return ezInternal::GetStaticRTTI<T>(ezTraitInt<EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T)>());
 }
@@ -129,7 +129,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
     template<>                                                          \
     struct ezStaticRTTI<TYPE>                                           \
     {                                                                   \
-      EZ_FORCE_INLINE static const ezRTTI* GetRTTI()                    \
+      EZ_ALWAYS_INLINE static const ezRTTI* GetRTTI()                    \
       {                                                                 \
         return &ezStaticRTTIWrapper_##TYPE::s_RTTI;                     \
       }                                                                 \
@@ -139,7 +139,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \brief Insert this into a class/struct to enable properties that are private members.
 /// All types that have dynamic reflection (\see EZ_ADD_DYNAMIC_REFLECTION) already have this ability.
 #define EZ_ALLOW_PRIVATE_PROPERTIES(SELF)                             \
-  friend struct ezRTTInfo_##SELF   
+  friend struct ezRTTInfo_##SELF
 
 /// \cond
 // internal helper macro
@@ -184,7 +184,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
   EZ_RTTIINFO_DECL(Type, BaseType, Version)                                                   \
   ezRTTI ezInternal::ezStaticRTTIWrapper_##Type::s_RTTI = ezRTTInfo_##Type::GetRTTI();        \
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
-    
+
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE.
 #define EZ_END_STATIC_REFLECTED_TYPE                                \
@@ -221,7 +221,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
   Attributes = AttributeList;                                                 \
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a function property.
-/// 
+///
 /// \param PropertyName
 ///   The unique (in this class) name under which the function property should be registered.
 /// \param FunctionName
@@ -537,7 +537,7 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
 
 
 /// \brief Within an EZ_BEGIN_MESSAGEHANDLERS / EZ_END_MESSAGEHANDLERS block, this adds another message handler.
-/// 
+///
 /// \param MessageType
 ///   The type of message that this handler function accepts. You may add 'const' in front of it.
 /// \param FunctionName

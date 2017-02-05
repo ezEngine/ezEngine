@@ -42,9 +42,26 @@ void ezFileserverApp::BeforeCoreShutdown()
 
 ezApplication::ApplicationExecution ezFileserverApp::Run()
 {
-  ezFileserver::GetSingleton()->UpdateServer();
+  if (ezFileserver::GetSingleton()->UpdateServer() == false)
+  {
+    m_uiSleepCounter++;
 
-  ezThreadUtils::Sleep(25);
+    if (m_uiSleepCounter > 1000)
+    {
+      // only sleep when no work had to be done in a while
+      ezThreadUtils::Sleep(10);
+    }
+    else if (m_uiSleepCounter > 10)
+    {
+      // only sleep when no work had to be done in a while
+      ezThreadUtils::Sleep(1);
+    }
+  }
+  else
+  {
+    m_uiSleepCounter = 0;
+  }
+
   return ezApplication::Continue;
 }
 

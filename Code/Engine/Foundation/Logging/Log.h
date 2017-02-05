@@ -67,7 +67,7 @@ public:
   EZ_FORCE_INLINE void SetLogLevel(ezLogMsgType::Enum LogLevel) { m_LogLevel = LogLevel; }
 
   /// \brief Returns the currently set log level.
-  EZ_FORCE_INLINE ezLogMsgType::Enum GetLogLevel() { return m_LogLevel; }
+  EZ_ALWAYS_INLINE ezLogMsgType::Enum GetLogLevel() { return m_LogLevel; }
 
 private:
   friend class ezLog;

@@ -80,7 +80,7 @@ struct ezHashHelper<ezGameObjectHandle>
     return value.GetInternalID().m_Data * 2654435761U;
   }
 
-  EZ_FORCE_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b)
+  EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b)
   {
     return a == b;
   }

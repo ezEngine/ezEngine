@@ -81,7 +81,7 @@ public:
   operator ezStringView() const; // [tested]
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_FORCE_INLINE operator const char*() const { return GetData(); }
+  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
   /// \brief Resets this string to an empty string.
   ///

@@ -16,7 +16,7 @@ Plugin
 Plugin
 {
 	string %Path{"ezFmodPlugin"}
-	string %DependencyOf{"EditorPluginFmod"}
+	string %DependencyOf{"<manual>","EditorPluginFmod"}
 }
 Plugin
 {

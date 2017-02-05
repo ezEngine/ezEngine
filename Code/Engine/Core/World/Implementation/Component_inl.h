@@ -35,32 +35,32 @@ EZ_FORCE_INLINE bool ezComponent::IsSimulationStarted() const
   return m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarted);
 }
 
-EZ_FORCE_INLINE ezComponentManagerBase* ezComponent::GetManager()
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezComponent::GetManager()
 {
   return m_pManager;
 }
 
-EZ_FORCE_INLINE const ezComponentManagerBase* ezComponent::GetManager() const
+EZ_ALWAYS_INLINE const ezComponentManagerBase* ezComponent::GetManager() const
 {
   return m_pManager;
 }
 
-EZ_FORCE_INLINE ezGameObject* ezComponent::GetOwner()
+EZ_ALWAYS_INLINE ezGameObject* ezComponent::GetOwner()
 {
   return m_pOwner;
 }
 
-EZ_FORCE_INLINE const ezGameObject* ezComponent::GetOwner() const
+EZ_ALWAYS_INLINE const ezGameObject* ezComponent::GetOwner() const
 {
   return m_pOwner;
 }
 
-EZ_FORCE_INLINE ezUInt32 ezComponent::GetUniqueID() const
+EZ_ALWAYS_INLINE ezUInt32 ezComponent::GetUniqueID() const
 {
   return m_uiUniqueID;
 }
 
-EZ_FORCE_INLINE void ezComponent::SetUniqueID(ezUInt32 uiUniqueID)
+EZ_ALWAYS_INLINE void ezComponent::SetUniqueID(ezUInt32 uiUniqueID)
 {
   m_uiUniqueID = uiUniqueID;
 }
