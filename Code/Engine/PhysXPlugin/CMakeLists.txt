@@ -44,23 +44,20 @@ SET (LINK_LIBRARIES
 )
 
 SET (PHYSX_LIB_DIR "${EZ_PHYSX_DIR}/Lib")
+SET (PHYSX_BIN_DIR "${EZ_PHYSX_DIR}/Bin")
 
-if (DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
-  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc11")
-endif()
-if (DEFINED BUILDSYSTEM_COMPILER_MSVC_120)
-  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc12")
-endif()
 if (DEFINED BUILDSYSTEM_COMPILER_MSVC_140)
   SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc14")
+  SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}/vc14")
 endif()
 if (DEFINED BUILDSYSTEM_COMPILER_MSVC_150)
   SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc15")
+  SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}/vc15")
 endif()
 
 if (${BUILDSYSTEM_PLATFORM_64BIT})
   link_directories ("${PHYSX_LIB_DIR}win64")
-
+  
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     debug PhysX3DEBUG_x64
@@ -70,7 +67,8 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
     optimized PhysX3Common_x64
     optimized PhysX3CharacterKinematic_x64
   )
-
+  
+  SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}win64")
 else()
   link_directories ("${PHYSX_LIB_DIR}win32")
 
@@ -83,6 +81,18 @@ else()
     optimized PhysX3Common_x86
     optimized PhysX3CharacterKinematic_x86
   )
+  
+  SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}win32")
 endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+
+
+add_custom_command(TARGET ${PROJECT_NAME}
+  COMMAND ${CMAKE_COMMAND}
+	-DMSVC_BUILD_CONFIG_DIR=${CMAKE_CFG_INTDIR}
+  -DPHYSX_SOURCE=${PHYSX_BIN_DIR}
+	-DPHYSX_TARGET=$<TARGET_FILE_DIR:${PROJECT_NAME}>
+	-P "${CMAKE_CURRENT_SOURCE_DIR}/CopyPhysXDlls.cmake"
+  VERBATIM
+)
