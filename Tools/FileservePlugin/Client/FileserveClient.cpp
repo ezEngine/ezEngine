@@ -60,15 +60,7 @@ ezResult ezFileserveClient::EnsureConnected()
     if (m_Network->ConnectToServer('EZFS', "localhost:1042").Failed())
       return EZ_FAILURE;
 
-    ezUInt32 uiMaxRounds = 20;
-    while (!m_Network->IsConnectedToServer() && uiMaxRounds > 0)
-    {
-      --uiMaxRounds;
-      m_Network->UpdateNetwork();
-      ezThreadUtils::Sleep(100);
-    }
-
-    if (uiMaxRounds == 0)
+    if (m_Network->WaitForConnectionToServer(ezTime::Seconds(3)).Failed())
     {
       m_Network->ShutdownConnection();
       ezLog::Error("Connection to ezFileserver timed out");

@@ -152,9 +152,8 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
         }
         else
         {
-          ezUInt32 uiAppID = GetApplicationID();
-          ezLog::Info("Responding to client with app ID {0}", uiAppID);
-          Send(ezNetworkTransmitMode::Reliable, GetConnectionToken(), 'EZID', ezArrayPtr<const ezUInt8>(reinterpret_cast<ezUInt8*>(&uiAppID), sizeof(ezUInt32)));
+          const ezUInt32 uiAppID = GetApplicationID();
+          Send(ezNetworkTransmitMode::Reliable, GetConnectionToken(), 'EZID', ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&uiAppID), sizeof(ezUInt32)));
 
           // then wait for its acknowledgment message
         }
@@ -198,7 +197,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
           case 'EZID':
             {
               // acknowledge that the ID has been received
-              SendShortMessage(GetConnectionToken(), 'AKID');
+              Send(GetConnectionToken(), 'AKID');
 
               // go tell the others about it
               ezUInt32 uiServerID = *((ezUInt32*)pData);
@@ -209,7 +208,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
           case 'AKID':
             {
               // the client received the server ID -> the connection has been established properly
-              ReportConnectionToClient();
+              ReportConnectionToClient(uiApplicationID);
             }
             break;
           }

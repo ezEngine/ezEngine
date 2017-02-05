@@ -16,7 +16,6 @@ ezResult ezNetworkInterface::CreateConnection(ezUInt32 uiConnectionToken, ezNetw
 
   m_uiConnectionToken = uiConnectionToken;
   m_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
-  ezLog::Dev("Application ID is {0}", m_uiApplicationID);
 
   if (InternalCreateConnection(mode, uiPort, szServerAddress).Failed())
   {
@@ -45,6 +44,27 @@ ezResult ezNetworkInterface::StartServer(ezUInt32 uiConnectionToken, ezUInt16 ui
 ezResult ezNetworkInterface::ConnectToServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread /*= true*/)
 {
   return CreateConnection(uiConnectionToken, ezNetworkMode::Client, 0, szAddress, bStartUpdateThread);
+}
+
+ezResult ezNetworkInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime::Seconds(10)*/)
+{
+  if (m_NetworkMode != ezNetworkMode::Client)
+    return EZ_FAILURE;
+
+  const ezTime tStart = ezTime::Now();
+
+  while (true)
+  {
+    UpdateNetwork();
+
+    if (IsConnectedToServer())
+      return EZ_SUCCESS;
+
+    if (ezTime::Now() - tStart > timeout)
+      return EZ_FAILURE;
+
+    ezThreadUtils::Sleep(50);
+  }
 }
 
 void ezNetworkInterface::ShutdownConnection()
@@ -97,7 +117,7 @@ ezResult ezNetworkInterface::Transmit(ezNetworkTransmitMode tm, const ezArrayPtr
 }
 
 
-void ezNetworkInterface::SendShortMessage(ezUInt32 uiSystemID, ezUInt32 uiMsgID)
+void ezNetworkInterface::Send(ezUInt32 uiSystemID, ezUInt32 uiMsgID)
 {
   Send(ezNetworkTransmitMode::Reliable, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>());
 }
@@ -207,22 +227,20 @@ void ezNetworkInterface::ReportConnectionToServer(ezUInt32 uiServerID)
 {
   m_uiConnectedToServerWithID = uiServerID;
 
-  ezLog::Info("Connected to server with ID {0}", uiServerID);
-
   ezNetworkEvent e;
   e.m_Type = ezNetworkEvent::ConnectedToServer;
+  e.m_uiOtherAppID = uiServerID;
   m_NetworkEvents.Broadcast(e);
 }
 
 
-void ezNetworkInterface::ReportConnectionToClient()
+void ezNetworkInterface::ReportConnectionToClient(ezUInt32 uiApplicationID)
 {
   m_iConnectionsToClients++;
 
-  ezLog::Info("Connected with client {0}", m_iConnectionsToClients);
-
   ezNetworkEvent e;
   e.m_Type = ezNetworkEvent::ConnectedToClient;
+  e.m_uiOtherAppID = uiApplicationID;
   m_NetworkEvents.Broadcast(e);
 }
 
@@ -230,17 +248,14 @@ void ezNetworkInterface::ReportDisconnectedFromServer()
 {
   m_uiConnectedToServerWithID = 0;
 
-  ezLog::Info("Disconnected from server");
-
   ezNetworkEvent e;
   e.m_Type = ezNetworkEvent::DisconnectedFromServer;
+  e.m_uiOtherAppID = m_uiConnectedToServerWithID;
   m_NetworkEvents.Broadcast(e);
 }
 
 void ezNetworkInterface::ReportDisconnectedFromClient()
 {
-  ezLog::Info("Disconnected from client {0}", m_iConnectionsToClients);
-
   m_iConnectionsToClients--;
 
   ezNetworkEvent e;
