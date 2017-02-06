@@ -11,6 +11,7 @@ EZ_IMPLEMENT_SINGLETON(ezFileserveClient);
 ezFileserveClient::ezFileserveClient()
   : m_SingletonRegistrar(this)
 {
+  m_sServerConnectionAddress = "localhost:1042";
 }
 
 ezFileserveClient::~ezFileserveClient()
@@ -34,7 +35,8 @@ ezResult ezFileserveClient::EnsureConnected()
     m_bFailedToConnect = true;
     m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
 
-    m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("FileserveCache");
+    m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("ezFileserve/Cache");
+    m_sFileserveCacheMetaFolder = ezOSFile::GetUserDataFolder("ezFileserve/Meta");
 
     if (ezOSFile::CreateDirectoryStructure(m_sFileserveCacheFolder).Failed())
     {
@@ -42,22 +44,13 @@ ezResult ezFileserveClient::EnsureConnected()
       return EZ_FAILURE;
     }
 
+    if (ezOSFile::CreateDirectoryStructure(m_sFileserveCacheMetaFolder).Failed())
     {
-      ezStringBuilder dummy(m_sFileserveCacheFolder, "/Dummy.txt");
-      ezOSFile file;
-      if (file.Open(dummy, ezFileMode::Write).Succeeded())
-      {
-        file.Close();
-        ezOSFile::DeleteFile(dummy);
-      }
-      else
-      {
-        ezLog::Error("Could not write to dummy file");
-        return EZ_FAILURE;
-      }
+      ezLog::Error("Could not create fileserve cache folder '{0}'", m_sFileserveCacheMetaFolder);
+      return EZ_FAILURE;
     }
 
-    if (m_Network->ConnectToServer('EZFS', "localhost:1042").Failed())
+    if (m_Network->ConnectToServer('EZFS', m_sServerConnectionAddress).Failed())
       return EZ_FAILURE;
 
     if (m_Network->WaitForConnectionToServer(ezTime::Seconds(3)).Failed())
@@ -129,13 +122,16 @@ void ezFileserveClient::GetDataDirMountPoint(const char* szDataDir, ezStringBuil
 }
 
 
-void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath) const
+void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const
 {
   ezStringBuilder sMountPoint;
   GetDataDirMountPoint(szDataDir, sMountPoint);
 
   out_sFullPath = m_sFileserveCacheFolder;
   out_sFullPath.AppendPath(sMountPoint);
+
+  out_sFullPathMeta = m_sFileserveCacheMetaFolder;
+  out_sFullPathMeta.AppendPath(sMountPoint);
 }
 
 void ezFileserveClient::NetworkMsgHandler(ezNetworkMessage& msg)
@@ -178,15 +174,22 @@ void ezFileserveClient::HandleFileTransferMsg(ezNetworkMessage &msg)
   }
   else // download finished
   {
-    bool bFileExistsOnServer = false;
-    msg.GetReader() >> bFileExistsOnServer;
+    ezInt8 iFileStatus = 0;
+    msg.GetReader() >> iFileStatus;
 
+    // iFileStatus == 0: file does not exist on server
+    // iFileStatus == 1: file was not downloaded, because it was already up to date on the client
 
-    if (bFileExistsOnServer)
+    if (iFileStatus == 2) // request successful
     {
+      ezInt64 iFileTimeStamp = 0;
+      ezUInt64 uiFileHash = 0;
+
       ezStringBuilder sMountPoint, sFoundPathRel;
       msg.GetReader() >> sMountPoint;
       msg.GetReader() >> sFoundPathRel;
+      msg.GetReader() >> iFileTimeStamp;
+      msg.GetReader() >> uiFileHash;
 
       if (uiFileSize != m_Download.GetCount())
       {
@@ -196,21 +199,39 @@ void ezFileserveClient::HandleFileTransferMsg(ezNetworkMessage &msg)
       {
         ezLog::Dev("Finished download: {0} bytes for '{1}'", m_Download.GetCount(), m_sCurrentFileDownload);
 
-        ezStringBuilder sCachedFile;
-        CreateFileserveCachePath(sFoundPathRel, sMountPoint, sCachedFile);
+        ezStringBuilder sCachedFile, sCachedMetaFile;
+        CreateFileserveCachePath(sFoundPathRel, sMountPoint, sCachedFile, sCachedMetaFile);
 
         // write the downloaded file to our cache directory
-        ezOSFile file;
-        if (file.Open(sCachedFile, ezFileMode::Write).Succeeded())
         {
-          if (!m_Download.IsEmpty())
-            file.Write(m_Download.GetData(), m_Download.GetCount());
+          ezOSFile file;
+          if (file.Open(sCachedFile, ezFileMode::Write).Succeeded())
+          {
+            if (!m_Download.IsEmpty())
+              file.Write(m_Download.GetData(), m_Download.GetCount());
 
-          file.Close();
+            file.Close();
+          }
+          else
+          {
+            ezLog::Error("Failed to write download to '{0}'", sCachedFile);
+          }
         }
-        else
+
+        // Write the meta file
         {
-          ezLog::Error("Failed to write download to '{0}'", sCachedFile);
+          ezOSFile file;
+          if (file.Open(sCachedMetaFile, ezFileMode::Write).Succeeded())
+          {
+            file.Write(&iFileTimeStamp, sizeof(ezInt64));
+            file.Write(&uiFileHash, sizeof(ezUInt64));
+
+            file.Close();
+          }
+          else
+          {
+            ezLog::Error("Failed to write meta file to '{0}'", sCachedMetaFile);
+          }
         }
       }
     }
@@ -230,8 +251,10 @@ ezResult ezFileserveClient::DownloadFile(const char* szFile, ezStringBuilder& ou
     return EZ_FAILURE;
   }
 
-  if (IsFileCached(szFile, out_sRelPath, out_sAbsPath))
-    return EZ_SUCCESS;
+  ezInt64 iKnownTimestamp = 0;
+  ezUInt64 uiKnownHash = 0;
+
+  IsFileCached(szFile, out_sRelPath, out_sAbsPath, &iKnownTimestamp, &uiKnownHash);
 
   m_Download.Clear();
 
@@ -242,6 +265,8 @@ ezResult ezFileserveClient::DownloadFile(const char* szFile, ezStringBuilder& ou
   ezNetworkMessage msg('FSRV', 'READ');
   msg.GetWriter() << szFile;
   msg.GetWriter() << m_uiCurFileDownload;
+  msg.GetWriter() << iKnownTimestamp;
+  msg.GetWriter() << uiKnownHash;
 
   m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
 
@@ -259,8 +284,15 @@ ezResult ezFileserveClient::DownloadFile(const char* szFile, ezStringBuilder& ou
   return EZ_FAILURE;
 }
 
-bool ezFileserveClient::IsFileCached(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath) const
+bool ezFileserveClient::IsFileCached(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath, ezInt64* out_pTimeStamp, ezUInt64* out_pFileHash) const
 {
+  if (out_pTimeStamp)
+    *out_pTimeStamp = 0;
+  if (out_pFileHash)
+    *out_pFileHash = 0;
+
+  ezStringBuilder sMetaFile;
+
   for (ezUInt32 i = m_MountedDataDirs.GetCount(); i > 0; --i)
   {
     const auto& dd = m_MountedDataDirs[i - 1];
@@ -282,23 +314,53 @@ bool ezFileserveClient::IsFileCached(const char* szFile, ezStringBuilder& out_sR
     out_sAbsPath.MakeCleanPath();
 
     if (ezOSFile::ExistsFile(out_sAbsPath))
+    {
+      sMetaFile = m_sFileserveCacheMetaFolder;
+      sMetaFile.AppendPath(dd.m_sMountPoint, szRelSubPath);
+      sMetaFile.MakeCleanPath();
+
+      ezOSFile meta;
+      if (meta.Open(sMetaFile, ezFileMode::Read).Failed())
+        return false;
+
+      if (out_pTimeStamp && out_pFileHash)
+      {
+        meta.Read(out_pTimeStamp, sizeof(ezInt64));
+        meta.Read(out_pFileHash, sizeof(ezUInt64));
+      }
+
       return true;
+    }
   }
 
   return false;
 }
 
-void ezFileserveClient::CreateFileserveCachePath(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath) const
+void ezFileserveClient::CreateFileserveCachePath(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const
 {
-  out_sAbsPath = m_sFileserveCacheFolder;
-  out_sAbsPath.AppendPath(szMountPoint);
+  {
+    out_sAbsPath = m_sFileserveCacheFolder;
+    out_sAbsPath.AppendPath(szMountPoint);
 
-  if (szFile[1] == ':')
-    out_sAbsPath.AppendPath(&szFile[3]);
-  else
-    out_sAbsPath.AppendPath(szFile);
+    if (szFile[1] == ':')
+      out_sAbsPath.AppendPath(&szFile[3]);
+    else
+      out_sAbsPath.AppendPath(szFile);
 
-  out_sAbsPath.MakeCleanPath();
+    out_sAbsPath.MakeCleanPath();
+  }
+
+  {
+    out_sFullPathMeta = m_sFileserveCacheMetaFolder;
+    out_sFullPathMeta.AppendPath(szMountPoint);
+
+    if (szFile[1] == ':')
+      out_sFullPathMeta.AppendPath(&szFile[3]);
+    else
+      out_sFullPathMeta.AppendPath(szFile);
+
+    out_sFullPathMeta.MakeCleanPath();
+  }
 }
 
 EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)

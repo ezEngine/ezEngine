@@ -91,59 +91,83 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   ezUInt16 uiDownloadID;
   msg.GetReader() >> uiDownloadID;
 
-  bool bSuccess = false;
+  ezInt64 iClientTimestamp = 0;
+  ezUInt64 uiClientHash = 0;
+  msg.GetReader() >> iClientTimestamp;
+  msg.GetReader() >> uiClientHash;
+
+  ezInt64 iServerTimestamp = -1; // client will send 0, if not existing, make sure the values are different
+  ezUInt64 uiServerHash = 0;
+
+  ezInt8 iSuccess = 0;
   ezUInt32 uiFileSize = 0;
 
   ezStringBuilder sFoundPathRel, sFoundPathAbs;
-  ezFileserveClientContext::DataDir* pDataDir = nullptr;
-  if (FindFileInDataDirs(client, sRequestedFile, sFoundPathRel, sFoundPathAbs, &pDataDir).Succeeded())
+  const ezFileserveClientContext::DataDir* pDataDir = nullptr;
+  if (client.FindFileInDataDirs(sRequestedFile, sFoundPathRel, sFoundPathAbs, &pDataDir).Succeeded())
   {
-    ezFileReader file;
-    if (file.Open(sFoundPathAbs).Succeeded())
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(sFoundPathAbs, stat).Succeeded())
     {
-      uiFileSize = (ezUInt32)file.GetFileSize();
-      ezUInt64 uiSentFileSize = 0;
+      iServerTimestamp = stat.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond);
+    }
 
-      ezUInt8 chunk[1024];
-
-      while (true)
+    if (iServerTimestamp == iClientTimestamp)
+    {
+      iSuccess = 1;
+      ezLog::Info("File unchanged on client: '{0}'", sRequestedFile);
+    }
+    else
+    {
+      ezFileReader file;
+      if (file.Open(sFoundPathAbs).Succeeded())
       {
-        const ezUInt64 uiRead = file.ReadBytes(chunk, 1024);
+        uiFileSize = (ezUInt32)file.GetFileSize();
+        ezUInt64 uiSentFileSize = 0;
 
-        if (uiRead == 0)
-          break;
+        ezUInt8 chunk[1024];
 
-        ezNetworkMessage ret;
-        ret.GetWriter() << uiDownloadID;
-        ret.GetWriter() << (ezUInt16)uiRead;
-        ret.GetWriter() << uiFileSize;
-        ret.GetWriter().WriteBytes(chunk, uiRead);
+        while (true)
+        {
+          const ezUInt64 uiRead = file.ReadBytes(chunk, 1024);
 
-        ret.SetMessageID('FSRV', 'FILE');
-        m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
+          if (uiRead == 0)
+            break;
 
-        uiSentFileSize += uiRead;
+          uiServerHash = ezHashing::MurmurHash64(chunk, uiRead, uiServerHash);
 
-        if (uiRead < 1024)
-          break;
-      }
+          ezNetworkMessage ret;
+          ret.GetWriter() << uiDownloadID;
+          ret.GetWriter() << (ezUInt16)uiRead;
+          ret.GetWriter() << uiFileSize;
+          ret.GetWriter().WriteBytes(chunk, uiRead);
 
-      if (uiSentFileSize == uiFileSize)
-      {
-        bSuccess = true;
-        ezLog::Success("Sent {0} bytes of '{1}'", uiSentFileSize, sRequestedFile);
+          ret.SetMessageID('FSRV', 'FILE');
+          m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
+
+          uiSentFileSize += uiRead;
+
+          if (uiRead < 1024)
+            break;
+        }
+
+        if (uiSentFileSize == uiFileSize)
+        {
+          iSuccess = 2;
+          ezLog::Success("Sent file to client: '{0}'", sRequestedFile);
+        }
       }
     }
   }
 
   {
-    if (bSuccess)
+    if (iSuccess > 0)
     {
       //ezLog::Info("Finished sending '{0}'", sRequestedFile);
     }
     else
     {
-      ezLog::Info("File does not exist '{0}'", sRequestedFile);
+      //ezLog::Info("File does not exist '{0}'", sRequestedFile);
     }
 
     const ezUInt16 uiEndToken = 0;
@@ -152,61 +176,17 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
     ret.GetWriter() << uiDownloadID;
     ret.GetWriter() << uiEndToken;
     ret.GetWriter() << uiFileSize;
-    ret.GetWriter() << bSuccess;
+    ret.GetWriter() << iSuccess;
 
-    if (bSuccess)
+    if (iSuccess == 2)
     {
       ret.GetWriter() << pDataDir->m_sMountPoint;
       ret.GetWriter() << sFoundPathRel;
+      ret.GetWriter() << iServerTimestamp;
+      ret.GetWriter() << uiServerHash;
     }
 
     m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
   }
-}
-
-ezResult ezFileserver::FindFileInDataDirs(ezFileserveClientContext &client, const char* szRequestedFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath, ezFileserveClientContext::DataDir** ppDataDir)
-{
-  for (ezUInt32 i = client.m_MountedDataDirs.GetCount(); i > 0; --i)
-  {
-    auto& dd = client.m_MountedDataDirs[i - 1];
-
-    const char* szSubPathToUse = szRequestedFile;
-
-    if (szRequestedFile[0] == ':') // a rooted path
-    {
-      ezLog::Warning("Path is rooted: {0}", szRequestedFile);
-
-      // skip all data dirs that do not have the same root name
-      // dd.m_sRootName already ends with a / to prevent incorrect matches
-      if (!ezStringUtils::StartsWith(szRequestedFile, dd.m_sRootName))
-        continue;
-
-      szSubPathToUse = szRequestedFile + dd.m_sRootName.GetElementCount();
-      ezLog::Warning("Found data dir for rooted path: '{0}' -> '{1}'", szRequestedFile, szSubPathToUse);
-    }
-    else if (ezStringUtils::StartsWith(szRequestedFile, dd.m_sPathOnClient))
-    {
-      szSubPathToUse = szRequestedFile + dd.m_sPathOnClient.GetElementCount();
-
-      ezLog::Warning("Found file with client prefix: '{0}' | '{1}'", dd.m_sPathOnClient, szSubPathToUse);
-    }
-
-    out_sAbsPath = dd.m_sPathOnServer;
-    out_sAbsPath.AppendPath(szSubPathToUse);
-
-    if (ezOSFile::ExistsFile(out_sAbsPath))
-    {
-      out_sRelPath = szSubPathToUse;
-
-      if (ppDataDir)
-      {
-        *ppDataDir = &dd;
-      }
-
-      return EZ_SUCCESS;
-    }
-  }
-
-  return EZ_FAILURE;
 }
 

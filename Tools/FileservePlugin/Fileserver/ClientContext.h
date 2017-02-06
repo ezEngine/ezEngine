@@ -15,6 +15,9 @@ public:
     ezString m_sMountPoint;
   };
 
+  /// \brief Searches all data directories of \a client for the requested file. On success the full path is returned.
+  ezResult FindFileInDataDirs(const char* szRequestedFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath, const ezFileserveClientContext::DataDir** ppDataDir) const;
+
   ezUInt32 m_uiApplicationID = 0;
   ezHybridArray<DataDir, 8> m_MountedDataDirs;
 };

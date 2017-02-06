@@ -40,6 +40,7 @@ namespace ezDataDirectory
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
 
     ezString128 m_sFileserveCacheFolder;
+    ezString128 m_sFileserveCacheMetaFolder;
   };
 }
 

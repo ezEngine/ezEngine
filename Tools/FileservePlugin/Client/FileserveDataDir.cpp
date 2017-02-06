@@ -64,9 +64,10 @@ ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(const c
   if (!sDataDir.IsEmpty() && !sDataDir.EndsWith("/"))
     sDataDir.Append("/");
 
-  ezStringBuilder sCacheFolder;
-  ezFileserveClient::GetSingleton()->GetFullDataDirCachePath(sDataDir, sCacheFolder);
+  ezStringBuilder sCacheFolder, sCacheMetaFolder;
+  ezFileserveClient::GetSingleton()->GetFullDataDirCachePath(sDataDir, sCacheFolder, sCacheMetaFolder);
   m_sFileserveCacheFolder = sCacheFolder;
+  m_sFileserveCacheMetaFolder = sCacheMetaFolder;
 
   //if (ezOSFile::CreateDirectoryStructure(m_sFileserveCacheFolder).Failed())
   //{

@@ -12,6 +12,8 @@ public:
   ezFileserveClient();
   ~ezFileserveClient();
 
+  void SetServerConnectionAddress(const char* szAddress) { m_sServerConnectionAddress = szAddress; }
+
   ezResult EnsureConnected();
 
   void UpdateClient();
@@ -19,7 +21,9 @@ public:
   void MountDataDirectory(const char* szDataDir, const char* szRootName);
 
   void GetDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint) const;
-  void GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath) const;
+
+  void CreateFileserveCachePath(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const;
+  void GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const;
 
   void NetworkMsgHandler(ezNetworkMessage& msg);
 
@@ -27,11 +31,12 @@ public:
 
   ezResult DownloadFile(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath);
 
-  bool IsFileCached(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath) const;
-  void CreateFileserveCachePath(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath) const;
+  bool IsFileCached(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath, ezInt64* out_pTimeStamp = nullptr, ezUInt64* out_pFileHash = nullptr) const;
 
 private:
+  ezString m_sServerConnectionAddress;
   ezString m_sFileserveCacheFolder;
+  ezString m_sFileserveCacheMetaFolder;
   bool m_bDownloading = false;
   bool m_bFailedToConnect = false;
   ezUInt16 m_uiCurFileDownload = 0;
