@@ -108,9 +108,7 @@ ezResult ezApplicationPluginConfig::Save()
   m_Plugins.Sort();
 
   ezStringBuilder sPath;
-  sPath = ":";
-  sPath.AppendPath(ezApplicationConfig::GetProjectDirectory());
-  sPath.AppendPath("Plugins.ddl");
+  sPath = ":project/Plugins.ddl";
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
@@ -152,8 +150,7 @@ void ezApplicationPluginConfig::Load()
   m_Plugins.Clear();
 
   ezStringBuilder sPath;
-  sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("Plugins.ddl");
+  sPath = ":project/Plugins.ddl";
 
   ezFileReader file;
   if (file.Open(sPath).Failed())

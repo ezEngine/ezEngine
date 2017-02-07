@@ -18,7 +18,7 @@ public:
 
   void UpdateClient();
 
-  void MountDataDirectory(const char* szDataDir, const char* szRootName);
+  ezUInt16 MountDataDirectory(const char* szDataDir, const char* szRootName);
 
   void GetDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint) const;
 
@@ -29,7 +29,7 @@ public:
 
   void HandleFileTransferMsg(ezNetworkMessage &msg);
 
-  ezResult DownloadFile(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath);
+  ezResult DownloadFile(ezUInt16 uiDataDirID, const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath);
 
   bool IsFileCached(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath, ezInt64* out_pTimeStamp = nullptr, ezUInt64* out_pFileHash = nullptr) const;
 

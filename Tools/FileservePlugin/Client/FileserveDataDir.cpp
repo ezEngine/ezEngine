@@ -19,7 +19,7 @@ void ezDataDirectory::FileserveType::ReloadExternalConfigs()
     sRedirectionFile.MakeCleanPath();
 
     ezStringBuilder dummy1, dummy2;
-    ezFileserveClient::GetSingleton()->DownloadFile(sRedirectionFile, dummy1, dummy2);
+    ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirectionFile, dummy1, dummy2);
   }
 
   FolderType::ReloadExternalConfigs();
@@ -36,13 +36,23 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
   }
 
   ezStringBuilder sRelPath, sAbsPath;
-  ezFileserveClient::GetSingleton()->DownloadFile(sRedirected, sRelPath, sAbsPath);
+  ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, sRelPath, sAbsPath);
 
   return FolderType::OpenFileToRead(sRelPath);
 }
 
 ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(const char* szFile)
 {
+  if (ezPathUtils::IsRootedPath(szFile))
+  {
+    ezLog::Error("rooted path");
+  }
+
+  if (ezPathUtils::IsAbsolutePath(szFile))
+  {
+    ezLog::Error("abs path");
+  }
+
   ezLog::Info("Writing '{0}'", szFile);
 
   //if (ezStringUtils::StartsWith(szFile, GetDataDirectoryPath()))
@@ -83,21 +93,29 @@ ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataD
   if (!s_bEnableFileserve)
     return nullptr;
 
+  // ignore the empty data dir, which handles absolute paths, as we cannot translate these paths to the fileserve host OS
+  if (ezStringUtils::IsNullOrEmpty(szDataDirectory))
+    return nullptr;
+
   //if (Usage == ezFileSystem::AllowWrites)
     //return nullptr;
 
   if (ezFileserveClient::GetSingleton()->EnsureConnected().Failed())
     return nullptr;
 
-  ezFileserveClient::GetSingleton()->MountDataDirectory(szDataDirectory, szRootName);
+  ezDataDirectory::FileserveType* pDataDir = EZ_DEFAULT_NEW(ezDataDirectory::FileserveType);
 
+  if (pDataDir->InitializeDataDirectory(szDataDirectory) == EZ_SUCCESS)
   {
-    ezDataDirectory::FileserveType* pDataDir = EZ_DEFAULT_NEW(ezDataDirectory::FileserveType);
+    const ezUInt16 uiDataDirID = ezFileserveClient::GetSingleton()->MountDataDirectory(szDataDirectory, szRootName);
 
-    if (pDataDir->InitializeDataDirectory(szDataDirectory) == EZ_SUCCESS)
+    if (uiDataDirID < 0xffff)
+    {
+      pDataDir->m_uiDataDirID = uiDataDirID;
       return pDataDir;
-
-    EZ_DEFAULT_DELETE(pDataDir);
-    return nullptr;
+    }
   }
+
+  EZ_DEFAULT_DELETE(pDataDir);
+  return nullptr;
 }

@@ -34,8 +34,7 @@ EZ_END_STATIC_REFLECTED_TYPE
 ezResult ezApplicationFileSystemConfig::Save()
 {
   ezStringBuilder sPath;
-  sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("DataDirectories.ddl");
+  sPath = ":project/DataDirectories.ddl";
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
@@ -60,15 +59,13 @@ ezResult ezApplicationFileSystemConfig::Save()
   return EZ_SUCCESS;
 }
 
-void ezApplicationFileSystemConfig::Load()
+void ezApplicationFileSystemConfig::Load(const char* szPath /*= ":project/DataDirectories.ddl"*/)
 {
   EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Load()");
 
   m_DataDirs.Clear();
 
-  ezStringBuilder sPath;
-  sPath = ezApplicationConfig::GetProjectDirectory();
-  sPath.AppendPath("DataDirectories.ddl");
+  ezStringBuilder sPath = szPath;
 
   ezFileReader file;
   if (file.Open(sPath).Failed())

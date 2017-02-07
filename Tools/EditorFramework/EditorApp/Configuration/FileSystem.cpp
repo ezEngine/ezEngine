@@ -48,15 +48,18 @@ void ezQtEditorApp::SetupDataDirectories()
   sPath.PathParentDirectory();
 
   ezApplicationConfig::SetProjectDirectory(sPath);
-  m_FileSystemConfig.Load();
+
+  sPath = ezApplicationConfig::GetProjectDirectory();
+  sPath.AppendPath("DataDirectories.ddl");
+  // we cannot use the default ":project/" path here, because that data directory will only be configured a few lines below
+  // so instead we use the absolute path directly
+  m_FileSystemConfig.Load(sPath);
 
   ezEditorAppEvent e;
   e.m_Type = ezEditorAppEvent::Type::BeforeApplyDataDirectories;
   m_Events.Broadcast(e);
 
-  ezStringBuilder sBaseDir;
   ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(":sdk/Data/Base", "base", false);
-
   ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(":project/", "project", true);
 
   // Tell the tools project that all data directories are ok to put documents in

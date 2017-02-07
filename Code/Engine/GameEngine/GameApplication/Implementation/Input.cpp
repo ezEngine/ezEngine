@@ -44,7 +44,7 @@ void ezGameApplication::DoConfigureInput(bool bReinitialize)
 
   {
     ezFileReader file;
-    if (file.Open("InputConfig.ddl").Succeeded())
+    if (file.Open(":project/InputConfig.ddl").Succeeded())
     {
       ezHybridArray<ezGameAppInputConfig, 32> InputActions;
 

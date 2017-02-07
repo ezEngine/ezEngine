@@ -82,10 +82,10 @@ void ezFileserveClient::UpdateClient()
   m_Network->ExecuteAllMessageHandlers();
 }
 
-void ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
+ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
 {
   if (!m_Network->IsConnectedToServer())
-    return;
+    return 0xffff;
 
   ezStringBuilder sDataDirPath = szDataDirectory;
   sDataDirPath.MakeCleanPath();
@@ -95,10 +95,13 @@ void ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const ch
   ezStringBuilder sMountPoint;
   GetDataDirMountPoint(sDataDirPath, sMountPoint);
 
+  const ezUInt16 uiDataDirID = m_MountedDataDirs.GetCount();
+
   ezNetworkMessage msg('FSRV', 'MNT');
   msg.GetWriter() << sDataDirPath;
   msg.GetWriter() << szRootName;
   msg.GetWriter() << sMountPoint;
+  msg.GetWriter() << uiDataDirID;
 
   m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
 
@@ -110,6 +113,8 @@ void ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const ch
   dd.m_sPathOnClient = sDataDirPath;
   dd.m_sRootName = sRoot;
   dd.m_sMountPoint = sMountPoint;
+
+  return uiDataDirID;
 }
 
 
@@ -184,12 +189,15 @@ void ezFileserveClient::HandleFileTransferMsg(ezNetworkMessage &msg)
     {
       ezInt64 iFileTimeStamp = 0;
       ezUInt64 uiFileHash = 0;
+      ezUInt16 uiDataDirID = 0xffff;
 
-      ezStringBuilder sMountPoint, sFoundPathRel;
-      msg.GetReader() >> sMountPoint;
+      ezStringBuilder sFoundPathRel;
+      msg.GetReader() >> uiDataDirID;
       msg.GetReader() >> sFoundPathRel;
       msg.GetReader() >> iFileTimeStamp;
       msg.GetReader() >> uiFileHash;
+
+      const ezString& sMountPoint = m_MountedDataDirs[uiDataDirID].m_sMountPoint;
 
       if (uiFileSize != m_Download.GetCount())
       {
@@ -242,9 +250,9 @@ void ezFileserveClient::HandleFileTransferMsg(ezNetworkMessage &msg)
   }
 }
 
-ezResult ezFileserveClient::DownloadFile(const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath)
+ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, ezStringBuilder& out_sRelPath, ezStringBuilder& out_sAbsPath)
 {
-  if (!m_Network->IsConnectedToServer())
+  if (!m_Network->IsConnectedToServer() || uiDataDirID >= m_MountedDataDirs.GetCount())
   {
     out_sRelPath = szFile;
     out_sAbsPath = szFile;
@@ -263,6 +271,7 @@ ezResult ezFileserveClient::DownloadFile(const char* szFile, ezStringBuilder& ou
   ++m_uiCurFileDownload;
 
   ezNetworkMessage msg('FSRV', 'READ');
+  msg.GetWriter() << uiDataDirID;
   msg.GetWriter() << szFile;
   msg.GetWriter() << m_uiCurFileDownload;
   msg.GetWriter() << iKnownTimestamp;

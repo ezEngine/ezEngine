@@ -77,8 +77,39 @@ void ezGameApplication::DoSetupDataDirectories()
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "GameApplication", "shadercache", ezFileSystem::AllowWrites); // for shader files
   ezFileSystem::AddDataDirectory(sUserData, "GameApplication", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 
+  // setup the main data directories ":base/" and ":project/"
+  {
+    ezStringBuilder s;
+
+    if (ezApplicationConfig::GetSpecialDirectory(":sdk/Data/Base", s).Succeeded())
+    {
+      ezFileSystem::AddDataDirectory(s, "GameApplication", "base", ezFileSystem::DataDirUsage::ReadOnly);
+    }
+
+    if (ezApplicationConfig::GetSpecialDirectory(":project/", s).Succeeded())
+    {
+      ezFileSystem::AddDataDirectory(s, "GameApplication", "project", ezFileSystem::DataDirUsage::ReadOnly);
+    }
+  }
+
   ezApplicationFileSystemConfig appFileSystemConfig;
   appFileSystemConfig.Load();
+
+  // get rid of duplicates that we already hardcoded above
+  for (ezUInt32 i = appFileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+  {
+    const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
+    if (name.IsEqual_NoCase("base") ||
+        name.IsEqual_NoCase("project") ||
+        name.IsEqual_NoCase("bin") ||
+        name.IsEqual_NoCase("shadercache") ||
+        name.IsEqual_NoCase(":") ||
+        name.IsEqual_NoCase("appdata"))
+    {
+      appFileSystemConfig.m_DataDirs.RemoveAt(i - 1);
+    }
+  }
+
   appFileSystemConfig.Apply();
 }
 
@@ -248,7 +279,7 @@ void ezGameApplication::DoLoadTags()
   EZ_LOG_BLOCK("Reading Tags", "Tags.ddl");
 
   ezFileReader file;
-  if (file.Open("Tags.ddl").Failed())
+  if (file.Open(":project/Tags.ddl").Failed())
   {
     ezLog::Dev("'Tags.ddl' does not exist");
     return;

@@ -64,19 +64,24 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
 void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
 {
   ezStringBuilder sDataDir, sRootName, sMountPoint;
+  ezUInt16 uiDataDirID = 0xffff;
 
   msg.GetReader() >> sDataDir;
   msg.GetReader() >> sRootName;
   msg.GetReader() >> sMountPoint;
+  msg.GetReader() >> uiDataDirID;
 
-  ezLog::Info(" Mounting: '{0}', RootName = '{1}', MountPoint = '{2}'", sDataDir, sRootName, sMountPoint);
+  ezLog::Info(" Mounting: '{0}', RootName = '{1}', MountPoint = '{2}', ID = {3}", sDataDir, sRootName, sMountPoint, uiDataDirID);
 
   if (!sRootName.IsEmpty() && !sRootName.EndsWith("/"))
   {
     sRootName.Append("/");
   }
 
-  auto& dir = client.m_MountedDataDirs.ExpandAndGetRef();
+  EZ_ASSERT_DEV(uiDataDirID >= client.m_MountedDataDirs.GetCount(), "Data dir ID should be larger than previous IDs");
+
+  client.m_MountedDataDirs.SetCount(ezMath::Max<ezUInt32>(uiDataDirID + 1, client.m_MountedDataDirs.GetCount()));
+  auto& dir = client.m_MountedDataDirs[uiDataDirID];
   dir.m_sPathOnClient = sDataDir;
   dir.m_sPathOnServer = sDataDir; /// \todo Redirect path
   dir.m_sRootName = sRootName;
@@ -85,6 +90,10 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
 
 void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
 {
+  ezUInt16 uiDataDirID = 0;
+
+  msg.GetReader() >> uiDataDirID;
+
   ezStringBuilder sRequestedFile;
   msg.GetReader() >> sRequestedFile;
 
@@ -104,7 +113,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
 
   ezStringBuilder sFoundPathRel, sFoundPathAbs;
   const ezFileserveClientContext::DataDir* pDataDir = nullptr;
-  if (client.FindFileInDataDirs(sRequestedFile, sFoundPathRel, sFoundPathAbs, &pDataDir).Succeeded())
+  if (client.FindFileInDataDirs(uiDataDirID, sRequestedFile, sFoundPathRel, sFoundPathAbs, &pDataDir).Succeeded())
   {
     ezFileStats stat;
     if (ezOSFile::GetFileStats(sFoundPathAbs, stat).Succeeded())
@@ -180,7 +189,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
 
     if (iSuccess == 2)
     {
-      ret.GetWriter() << pDataDir->m_sMountPoint;
+      ret.GetWriter() << uiDataDirID;
       ret.GetWriter() << sFoundPathRel;
       ret.GetWriter() << iServerTimestamp;
       ret.GetWriter() << uiServerHash;
