@@ -19,6 +19,10 @@ void ezFileserver::StartServer(ezUInt16 uiPort /*= 1042*/)
   m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
   m_Network->StartServer('EZFS', uiPort, false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
+
+  ezFileserverEvent e;
+  e.m_Type = ezFileserverEvent::Type::ServerStarted;
+  m_Events.Broadcast(e);
 }
 
 void ezFileserver::StopServer()
@@ -28,6 +32,10 @@ void ezFileserver::StopServer()
 
   m_Network->ShutdownConnection();
   m_Network.Reset();
+
+  ezFileserverEvent e;
+  e.m_Type = ezFileserverEvent::Type::ServerStopped;
+  m_Events.Broadcast(e);
 }
 
 bool ezFileserver::UpdateServer()
@@ -41,13 +49,7 @@ bool ezFileserver::UpdateServer()
 
 void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
 {
-  auto& client = m_Clients[msg.GetApplicationID()];
-
-  if (client.m_uiApplicationID != msg.GetApplicationID())
-  {
-    client.m_uiApplicationID = msg.GetApplicationID();
-    ezLog::Info("Connected to new client with ID {0}", msg.GetApplicationID());
-  }
+  auto& client = DetermineClient(msg);
 
   if (msg.GetMessageID() == 'MNT')
   {
@@ -64,6 +66,22 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
   ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
 }
 
+ezFileserveClientContext& ezFileserver::DetermineClient(ezNetworkMessage &msg)
+{
+  ezFileserveClientContext& client = m_Clients[msg.GetApplicationID()];
+
+  if (client.m_uiApplicationID != msg.GetApplicationID())
+  {
+    client.m_uiApplicationID = msg.GetApplicationID();
+
+    ezFileserverEvent e;
+    e.m_Type = ezFileserverEvent::Type::ConnectedNewClient;
+    m_Events.Broadcast(e);
+  }
+
+  return client;
+}
+
 void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
 {
   ezStringBuilder sDataDir, sRootName, sMountPoint;
@@ -74,8 +92,6 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
   msg.GetReader() >> sMountPoint;
   msg.GetReader() >> uiDataDirID;
 
-  ezLog::Info(" Mounting: '{0}', RootName = '{1}', MountPoint = '{2}', ID = {3}", sDataDir, sRootName, sMountPoint, uiDataDirID);
-
   EZ_ASSERT_DEV(uiDataDirID >= client.m_MountedDataDirs.GetCount(), "Data dir ID should be larger than previous IDs");
 
   client.m_MountedDataDirs.SetCount(ezMath::Max<ezUInt32>(uiDataDirID + 1, client.m_MountedDataDirs.GetCount()));
@@ -84,6 +100,12 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
   dir.m_sPathOnServer = sDataDir; /// \todo Redirect path
   dir.m_sRootName = sRootName;
   dir.m_sMountPoint = sMountPoint;
+
+  ezFileserverEvent e;
+  e.m_Type = ezFileserverEvent::Type::MountDataDir;
+  e.m_szPath = sDataDir;
+  e.m_szDataDirRootName = sRootName;
+  m_Events.Broadcast(e);
 }
 
 void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
@@ -102,7 +124,18 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   msg.GetReader() >> status.m_iTimestamp;
   msg.GetReader() >> status.m_uiHash;
 
+  ezFileserverEvent e;
+  e.m_szPath = sRequestedFile;
+  e.m_uiSentTotal = 0;
+
   const ezFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_Upload);
+
+  {
+    e.m_Type = ezFileserverEvent::Type::FileRequest;
+    e.m_uiSizeTotal = m_Upload.GetCount();
+    e.m_FileState = filestate;
+    m_Events.Broadcast(e);
+  }
 
   if (filestate == ezFileserveFileState::Different)
   {
@@ -127,6 +160,13 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
       m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
 
       uiNextByte += uiChunkSize;
+
+      // reuse previous values
+      {
+        e.m_Type = ezFileserverEvent::Type::FileTranser;
+        e.m_uiSentTotal = uiNextByte;
+        m_Events.Broadcast(e);
+      }
     }
     while (uiNextByte < m_Upload.GetCount());
   }
@@ -142,6 +182,12 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
     ret.GetWriter() << status.m_uiHash;
 
     m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
+  }
+
+  // reuse previous values
+  {
+    e.m_Type = ezFileserverEvent::Type::FileTranserFinished;
+    m_Events.Broadcast(e);
   }
 }
 

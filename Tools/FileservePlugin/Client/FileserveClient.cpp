@@ -210,7 +210,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
   msg.GetReader() >> uiFileHash;
 
   // nothing changed
-  if (fileState == ezFileserveFileState::SameTimestamp)
+  if (fileState == ezFileserveFileState::SameTimestamp || fileState == ezFileserveFileState::NonExistantEither)
     return;
 
   bool bWriteDownloadToDisk = false;

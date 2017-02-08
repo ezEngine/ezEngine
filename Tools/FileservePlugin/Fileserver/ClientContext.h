@@ -5,10 +5,12 @@
 
 enum class ezFileserveFileState
 {
-  NonExistant = 0,
-  SameTimestamp = 1,
-  SameHash = 2,
-  Different = 3,
+  None = 0,
+  NonExistant = 1,
+  NonExistantEither = 2,
+  SameTimestamp = 3,
+  SameHash = 4,
+  Different = 5,
 };
 
 class EZ_FILESERVEPLUGIN_DLL ezFileserveClientContext

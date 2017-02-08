@@ -16,7 +16,7 @@ ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16 uiDataDirI
     // the client doesn't have the file either
     // this is an optimization to prevent redundant file deletions on the client
     if (inout_Status.m_iTimestamp == 0 && inout_Status.m_uiHash == 0)
-      return ezFileserveFileState::SameTimestamp;
+      return ezFileserveFileState::NonExistantEither;
 
     return ezFileserveFileState::NonExistant;
   }
