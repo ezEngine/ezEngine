@@ -6,6 +6,9 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 {
   ezStringBuilder sPath = szDataDirPath;
   sPath.MakeCleanPath();
+
+  EZ_ASSERT_DEV(sPath.IsEmpty() || sPath.EndsWith("/"), "Data directory path must end with a slash.");
+
   m_sDataDirectoryPath = sPath;
 
   return InternalInitializeDataDirectory(m_sDataDirectoryPath.GetData());
@@ -13,7 +16,7 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 
 bool ezDataDirectoryType::ExistsFile(const char* szFile)
 {
-  ezStringBuilder sPath = m_sDataDirectoryPath;
+  ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
   sPath.AppendPath(szFile);
   return ezOSFile::ExistsFile(sPath.GetData());
 }

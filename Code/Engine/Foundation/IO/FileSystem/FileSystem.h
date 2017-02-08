@@ -237,18 +237,16 @@ struct ezFileSystem::FileEventType
 /// \brief The event data that is broadcast by the ezFileSystem upon certain file operations.
 struct ezFileSystem::FileEvent
 {
-  FileEvent();
-
   /// \brief The exact event that occurred.
-  ezFileSystem::FileEventType::Enum m_EventType;
+  ezFileSystem::FileEventType::Enum m_EventType = FileEventType::None;
 
   /// \brief Path to the file or directory that was involved.
-  const char* m_szFileOrDirectory;
+  const char* m_szFileOrDirectory = nullptr;
 
   /// \brief Additional Path / Name that might be of interest.
-  const char* m_szOther;
+  const char* m_szOther = nullptr;
 
   /// \brief The data-directory, that was involved.
-  const ezDataDirectoryType* m_pDataDir;
+  const ezDataDirectoryType* m_pDataDir = nullptr;
 };
 

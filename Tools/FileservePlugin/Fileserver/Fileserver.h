@@ -23,7 +23,7 @@ public:
 
 
 
-  void StartServer();
+  void StartServer(ezUInt16 uiPort = 1042);
   void StopServer();
 
   bool UpdateServer();
@@ -32,5 +32,6 @@ private:
 
   ezHashTable<ezUInt32, ezFileserveClientContext> m_Clients;
   ezUniquePtr<ezNetworkInterface> m_Network;
+  ezDynamicArray<ezUInt8> m_Upload;
 };
 

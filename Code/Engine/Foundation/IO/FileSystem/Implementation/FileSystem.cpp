@@ -20,14 +20,6 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 ezFileSystem::FileSystemData* ezFileSystem::s_Data = nullptr;
 
-ezFileSystem::FileEvent::FileEvent()
-{
-  m_EventType = FileEventType::None;
-  m_szFileOrDirectory = nullptr;
-  m_szOther = nullptr;
-  m_pDataDir = nullptr;
-}
-
 ezMutex& ezFileSystem::GetFileSystemMutex()
 {
   return s_Data->m_Mutex;
@@ -68,6 +60,9 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
 
   ezStringBuilder sPath = szDataDirectory;
   sPath.MakeCleanPath();
+
+  if (!sPath.IsEmpty() && !sPath.EndsWith("/"))
+    sPath.Append("/");
 
   // this cleaning might actually make the root name empty
   // e.g. ":" becomes ""
@@ -159,6 +154,7 @@ ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
         fe.m_EventType = FileEventType::RemoveDataDirectory;
         fe.m_szFileOrDirectory = s_Data->m_DataDirectories[i].m_pDataDirectory->GetDataDirectoryPath();
         fe.m_szOther = s_Data->m_DataDirectories[i].m_sRootName;
+        fe.m_pDataDir = s_Data->m_DataDirectories[i].m_pDataDirectory;
         s_Data->m_Event.Broadcast(fe);
       }
 
@@ -188,6 +184,7 @@ void ezFileSystem::ClearAllDataDirectories()
       fe.m_EventType = FileEventType::RemoveDataDirectory;
       fe.m_szFileOrDirectory = s_Data->m_DataDirectories[i].m_pDataDirectory->GetDataDirectoryPath();
       fe.m_szOther = s_Data->m_DataDirectories[i].m_sRootName;
+      fe.m_pDataDir = s_Data->m_DataDirectories[i].m_pDataDirectory;
       s_Data->m_Event.Broadcast(fe);
     }
 

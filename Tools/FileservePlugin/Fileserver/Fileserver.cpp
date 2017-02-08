@@ -3,18 +3,21 @@
 #include <FileservePlugin/Network/NetworkInterfaceEnet.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <FileservePlugin/Client/FileserveClient.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFileserver);
 
 ezFileserver::ezFileserver()
   : m_SingletonRegistrar(this)
 {
+  // once a server exists, the client should stay inactive
+  ezFileserveClient::s_bEnableFileserve = false;
 }
 
-void ezFileserver::StartServer()
+void ezFileserver::StartServer(ezUInt16 uiPort /*= 1042*/)
 {
   m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
-  m_Network->StartServer('EZFS', 1042, false);
+  m_Network->StartServer('EZFS', uiPort, false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
 }
 
@@ -58,7 +61,7 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
     return;
   }
 
-  ezLog::Warning("FSRV: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
+  ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
 }
 
 void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
@@ -72,11 +75,6 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
   msg.GetReader() >> uiDataDirID;
 
   ezLog::Info(" Mounting: '{0}', RootName = '{1}', MountPoint = '{2}', ID = {3}", sDataDir, sRootName, sMountPoint, uiDataDirID);
-
-  if (!sRootName.IsEmpty() && !sRootName.EndsWith("/"))
-  {
-    sRootName.Append("/");
-  }
 
   EZ_ASSERT_DEV(uiDataDirID >= client.m_MountedDataDirs.GetCount(), "Data dir ID should be larger than previous IDs");
 
@@ -100,100 +98,48 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   ezUInt16 uiDownloadID;
   msg.GetReader() >> uiDownloadID;
 
-  ezInt64 iClientTimestamp = 0;
-  ezUInt64 uiClientHash = 0;
-  msg.GetReader() >> iClientTimestamp;
-  msg.GetReader() >> uiClientHash;
+  ezFileserveClientContext::FileStatus status;
+  msg.GetReader() >> status.m_iTimestamp;
+  msg.GetReader() >> status.m_uiHash;
 
-  ezInt64 iServerTimestamp = -1; // client will send 0, if not existing, make sure the values are different
-  ezUInt64 uiServerHash = 0;
+  const ezFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_Upload);
 
-  ezInt8 iSuccess = 0;
-  ezUInt32 uiFileSize = 0;
-
-  ezStringBuilder sFoundPathRel, sFoundPathAbs;
-  const ezFileserveClientContext::DataDir* pDataDir = nullptr;
-  if (client.FindFileInDataDirs(uiDataDirID, sRequestedFile, sFoundPathRel, sFoundPathAbs, &pDataDir).Succeeded())
+  if (filestate == ezFileserveFileState::Different)
   {
-    ezFileStats stat;
-    if (ezOSFile::GetFileStats(sFoundPathAbs, stat).Succeeded())
+    ezUInt32 uiNextByte = 0;
+    const ezUInt32 uiFileSize = m_Upload.GetCount();
+
+    // send the file over in multiple packages of 1KB each
+    // send at least one package, even for empty files
+    do
     {
-      iServerTimestamp = stat.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond);
+      const ezUInt16 uiChunkSize = (ezUInt16)ezMath::Min<ezUInt32>(1024, m_Upload.GetCount() - uiNextByte);
+
+      ezNetworkMessage ret;
+      ret.GetWriter() << uiDownloadID;
+      ret.GetWriter() << uiChunkSize;
+      ret.GetWriter() << uiFileSize;
+
+      if (!m_Upload.IsEmpty())
+        ret.GetWriter().WriteBytes(&m_Upload[uiNextByte], uiChunkSize);
+
+      ret.SetMessageID('FSRV', 'FILE');
+      m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
+
+      uiNextByte += uiChunkSize;
     }
-
-    if (iServerTimestamp == iClientTimestamp)
-    {
-      iSuccess = 1;
-      ezLog::Info("File unchanged on client: '{0}'", sRequestedFile);
-    }
-    else
-    {
-      ezFileReader file;
-      if (file.Open(sFoundPathAbs).Succeeded())
-      {
-        uiFileSize = (ezUInt32)file.GetFileSize();
-        ezUInt64 uiSentFileSize = 0;
-
-        ezUInt8 chunk[1024];
-
-        while (true)
-        {
-          const ezUInt64 uiRead = file.ReadBytes(chunk, 1024);
-
-          if (uiRead == 0)
-            break;
-
-          uiServerHash = ezHashing::MurmurHash64(chunk, (size_t)uiRead, uiServerHash);
-
-          ezNetworkMessage ret;
-          ret.GetWriter() << uiDownloadID;
-          ret.GetWriter() << (ezUInt16)uiRead;
-          ret.GetWriter() << uiFileSize;
-          ret.GetWriter().WriteBytes(chunk, uiRead);
-
-          ret.SetMessageID('FSRV', 'FILE');
-          m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
-
-          uiSentFileSize += uiRead;
-
-          if (uiRead < 1024)
-            break;
-        }
-
-        if (uiSentFileSize == uiFileSize)
-        {
-          iSuccess = 2;
-          ezLog::Success("Sent file to client: '{0}'", sRequestedFile);
-        }
-      }
-    }
+    while (uiNextByte < m_Upload.GetCount());
   }
 
+  // final answer to client
   {
-    if (iSuccess > 0)
-    {
-      //ezLog::Info("Finished sending '{0}'", sRequestedFile);
-    }
-    else
-    {
-      //ezLog::Info("File does not exist '{0}'", sRequestedFile);
-    }
+    const ezUInt16 uiEndToken = 0; // chunk size
 
-    const ezUInt16 uiEndToken = 0;
-
-    ezNetworkMessage ret('FSRV', 'FILE');
+    ezNetworkMessage ret('FSRV', 'FINE');
     ret.GetWriter() << uiDownloadID;
-    ret.GetWriter() << uiEndToken;
-    ret.GetWriter() << uiFileSize;
-    ret.GetWriter() << iSuccess;
-
-    if (iSuccess == 2)
-    {
-      ret.GetWriter() << uiDataDirID;
-      ret.GetWriter() << sFoundPathRel;
-      ret.GetWriter() << iServerTimestamp;
-      ret.GetWriter() << uiServerHash;
-    }
+    ret.GetWriter() << (ezInt8)filestate;
+    ret.GetWriter() << status.m_iTimestamp;
+    ret.GetWriter() << status.m_uiHash;
 
     m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
   }

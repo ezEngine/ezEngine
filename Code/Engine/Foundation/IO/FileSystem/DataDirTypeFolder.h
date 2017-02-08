@@ -33,9 +33,8 @@ namespace ezDataDirectory
     /// If a redirection file is used AND the redirection lookup was successful, s_sRedirectionPrefix is prepended to the redirected file access.
     static ezString s_sRedirectionPrefix;
 
+    /// \brief When s_sRedirectionFile and s_sRedirectionPrefix are used to enable file redirection, this will reload those config files.
     virtual void ReloadExternalConfigs() override;
-
-    virtual const ezString128& GetRedirectedDataDirectoryPath() const { return GetDataDirectoryPath(); }
 
   protected:
     // The implementations of the abstract functions.

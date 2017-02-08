@@ -9,7 +9,7 @@ class ezDataDirectoryWriter;
 
 /// \brief The base class for all data directory types.
 ///
-/// There are different data directory types, such as a simple folder, a ZIP file or some kind of library 
+/// There are different data directory types, such as a simple folder, a ZIP file or some kind of library
 /// (e.g. image files from procedural data). Even a HTTP server that actually transmits files over a network
 /// can provided by implementing it as a data directory type.
 /// Data directories are added through ezFileSystem, which uses factories to decide which ezDataDirectoryType
@@ -25,6 +25,9 @@ public:
   /// \brief Returns the absolute path to the data directory.
   const ezString128& GetDataDirectoryPath() const { return m_sDataDirectoryPath; }
 
+  /// \brief By default this is the same as GetDataDirectoryPath(), but derived implementations may use a different location where they actually get the files from.
+  virtual const ezString128& GetRedirectedDataDirectoryPath() const { return GetDataDirectoryPath(); }
+
   /// \brief Some data directory types may use external configuration files (e.g. asset lookup tables)
   ///        that may get updated, while the directory is mounted. This function allows each directory type to implement
   ///        reloading and reapplying of configurations, without dismounting and remounting the data directory.
@@ -39,7 +42,7 @@ protected:
   /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be opened.
   virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) = 0;
 
-  /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be opened. 
+  /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be opened.
   ///
   /// If it always returns nullptr (default) the data directory is read-only (at least through this type).
   virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) { return nullptr; }
@@ -69,7 +72,7 @@ private:
 
   /// \brief This function should only be used by a Factory (which should be a static function in the respective ezDataDirectoryType).
   ///
-  /// It is used to initialize the data directory. If this ezDataDirectoryType cannot handle the given type, 
+  /// It is used to initialize the data directory. If this ezDataDirectoryType cannot handle the given type,
   /// it must return EZ_FAILURE and the Factory needs to clean it up properly.
   virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) = 0;
 

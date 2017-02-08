@@ -16,8 +16,6 @@ ezFileserverApp::ezFileserverApp()
 
 void ezFileserverApp::AfterCoreStartup()
 {
-  ezDataDirectory::FileserveType::s_bEnableFileserve = false;
-
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
