@@ -143,7 +143,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
           if (uiRead == 0)
             break;
 
-          uiServerHash = ezHashing::MurmurHash64(chunk, uiRead, uiServerHash);
+          uiServerHash = ezHashing::MurmurHash64(chunk, (size_t)uiRead, uiServerHash);
 
           ezNetworkMessage ret;
           ret.GetWriter() << uiDownloadID;
