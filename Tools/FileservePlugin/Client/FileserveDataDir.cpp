@@ -26,6 +26,10 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
   ezStringBuilder sRedirected;
   UseFileRedirection(szFile, sRedirected);
 
+  // we know that the server cannot resolve asset GUIDs, so don't even ask
+  if (ezConversionUtils::IsStringUuid(sRedirected))
+    return nullptr;
+
   if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected).Failed())
     return nullptr;
 

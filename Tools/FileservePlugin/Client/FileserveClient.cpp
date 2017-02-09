@@ -108,8 +108,8 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
   m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
 
   auto& dd = m_MountedDataDirs.ExpandAndGetRef();
-  dd.m_sPathOnClient = szDataDirectory;
-  dd.m_sRootName = sRoot;
+  //dd.m_sPathOnClient = szDataDirectory;
+  //dd.m_sRootName = sRoot;
   dd.m_sMountPoint = sMountPoint;
 
   return uiDataDirID;
@@ -271,6 +271,12 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
     {
       ezLog::Error("Failed to write meta file to '{0}'", sCachedMetaFile);
     }
+
+    auto& ref = m_CachedFileStatus[m_sCurFileRequest];
+    ref.m_LastCheck = ezTime::Now();
+    ref.m_FileHash = uiFileHash;
+    ref.m_TimeStamp = iFileTimeStamp;
+    ref.m_uiDataDir = m_uiCurFileRequestDataDir;
   }
 }
 
@@ -284,8 +290,22 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
 
   m_Download.Clear();
 
-  FileCacheStatus status;
-  DetermineCacheStatus(uiDataDirID, szFile, status);
+  bool bAlreadyCached = false;
+  auto itCache = m_CachedFileStatus.FindOrAdd(szFile, &bAlreadyCached);
+
+  if (bAlreadyCached && itCache.Value().m_uiDataDir != 0xffff)
+  {
+    if (itCache.Value().m_uiDataDir == uiDataDirID)
+      return EZ_SUCCESS;
+
+    /// \todo if last check too long ago ...
+
+    return EZ_FAILURE;
+  }
+  else
+  {
+    DetermineCacheStatus(uiDataDirID, szFile, itCache.Value());
+  }
 
   m_Download.Clear();
 
@@ -298,8 +318,8 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
   msg.GetWriter() << uiDataDirID;
   msg.GetWriter() << szFile;
   msg.GetWriter() << m_uiCurFileRequestID;
-  msg.GetWriter() << status.m_TimeStamp;
-  msg.GetWriter() << status.m_FileHash;
+  msg.GetWriter() << itCache.Value().m_TimeStamp;
+  msg.GetWriter() << itCache.Value().m_FileHash;
 
   m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
 
@@ -309,8 +329,7 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
     m_Network->ExecuteAllMessageHandlers();
   }
 
-  DetermineCacheStatus(uiDataDirID, szFile, status);
-  if (status.m_bExists)
+  if (itCache.Value().m_uiDataDir == uiDataDirID)
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
@@ -339,7 +358,7 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
     meta.Read(&out_Status.m_TimeStamp, sizeof(ezInt64));
     meta.Read(&out_Status.m_FileHash, sizeof(ezUInt64));
 
-    out_Status.m_bExists = true;
+    out_Status.m_uiDataDir = uiDataDirID;
   }
 }
 

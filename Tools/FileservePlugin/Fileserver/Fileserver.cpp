@@ -128,6 +128,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   e.m_szPath = sRequestedFile;
   e.m_uiSentTotal = 0;
 
+  /// \todo Cache the file state on the server side as well
   const ezFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_Upload);
 
   {
