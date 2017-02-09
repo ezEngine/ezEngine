@@ -190,7 +190,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Normalize()
 }
 
 template<int N, ezMathAcc::Enum acc>
-ezResult ezSimdVec4f::NormalizeIfNotZero(const ezSimdVec4f& vFallback, ezSimdFloat fEpsilon)
+ezResult ezSimdVec4f::NormalizeIfNotZero(const ezSimdVec4f& vFallback, const ezSimdFloat& fEpsilon)
 {
   ezSimdFloat sqLength = GetLengthSquared<N>();
 
@@ -213,7 +213,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero() const
 }
 
 template<int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4f::IsNormalized(ezSimdFloat fEpsilon) const
+EZ_ALWAYS_INLINE bool ezSimdVec4f::IsNormalized(const ezSimdFloat& fEpsilon) const
 {
   const ezSimdFloat sqLength = GetLengthSquared<N>();
   return sqLength.IsEqual(1.0f, fEpsilon);
@@ -366,13 +366,13 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Abs() const
   return _mm_andnot_ps(_mm_set1_ps(-0.0f), m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(ezSimdVec4b cmp) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& cmp) const
 {
   return _mm_xor_ps(m_v, _mm_and_ps(cmp.m_v, _mm_set1_ps(-0.0f)));
 }
 
 //static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(ezSimdVec4f ifFalse, ezSimdVec4f ifTrue, ezSimdVec4b cmp)
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_blendv_ps(ifFalse.m_v, ifTrue.m_v, cmp.m_v);
@@ -405,7 +405,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f& ezSimdVec4f::operator/=(const ezSimdFloat& f)
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::IsEqual(const ezSimdVec4f& rhs, ezSimdFloat fEpsilon) const
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::IsEqual(const ezSimdVec4f& rhs, const ezSimdFloat& fEpsilon) const
 {
   ezSimdVec4f minusEps = rhs - ezSimdVec4f(fEpsilon);
   ezSimdVec4f plusEps = rhs + ezSimdVec4f(fEpsilon);

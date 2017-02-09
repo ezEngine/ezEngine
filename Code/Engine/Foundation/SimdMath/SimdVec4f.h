@@ -4,10 +4,7 @@
 #include <Foundation/SimdMath/SimdSwizzle.h>
 #include <Foundation/SimdMath/SimdVec4b.h>
 
-class ezSimdFloat;
-class ezSimdVec4i;
-
-/// \brief A 4-component vector class
+/// \brief A 4-component SIMD vector class
 class ezSimdVec4f
 {
 public:
@@ -58,16 +55,16 @@ public:
   void Normalize();
 
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezResult NormalizeIfNotZero(const ezSimdVec4f& vFallback = ezSimdVec4f(1, 0, 0, 0), ezSimdFloat fEpsilon = ezMath::BasicType<float>::SmallEpsilon());
+  ezResult NormalizeIfNotZero(const ezSimdVec4f& vFallback = ezSimdVec4f(1, 0, 0, 0), const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon());
 
   template<int N>
   bool IsZero() const;
 
   template<int N>
-  bool IsZero(ezSimdFloat fEpsilon) const;
+  bool IsZero(const ezSimdFloat& fEpsilon) const;
 
   template<int N>
-  bool IsNormalized(ezSimdFloat fEpsilon = ezMath::BasicType<float>::HugeEpsilon()) const;
+  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::HugeEpsilon()) const;
 
   template<int N>
   bool IsNaN() const;
@@ -105,9 +102,9 @@ public:
   ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const;
   ezSimdVec4f Abs() const;
 
-  ezSimdVec4f FlipSign(ezSimdVec4b cmp) const;
+  ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const;
 
-  static ezSimdVec4f Select(ezSimdVec4f ifFalse, ezSimdVec4f ifTrue, ezSimdVec4b cmp);
+  static ezSimdVec4f Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp);
 
   ezSimdVec4f& operator+=(const ezSimdVec4f& v);
   ezSimdVec4f& operator-=(const ezSimdVec4f& v);
@@ -115,7 +112,7 @@ public:
   ezSimdVec4f& operator*=(const ezSimdFloat& f);
   ezSimdVec4f& operator/=(const ezSimdFloat& f);
 
-  ezSimdVec4b IsEqual(const ezSimdVec4f& rhs, ezSimdFloat fEpsilon) const;
+  ezSimdVec4b IsEqual(const ezSimdVec4f& rhs, const ezSimdFloat& fEpsilon) const;
 
   ezSimdVec4b operator==(const ezSimdVec4f& v) const;
   ezSimdVec4b operator!=(const ezSimdVec4f& v) const;
