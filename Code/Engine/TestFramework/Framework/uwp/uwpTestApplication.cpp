@@ -28,7 +28,7 @@ HRESULT ezUwpTestApplication::CreateView(IFrameworkView** viewProvider)
 
 HRESULT ezUwpTestApplication::Initialize(ICoreApplicationView * applicationView)
 {
-  
+  ezStartup::StartupBase();
   return S_OK;
 }
 
@@ -53,7 +53,7 @@ HRESULT ezUwpTestApplication::Run()
 
   while (m_testFramework.RunTestExecutionLoop() == ezTestAppRun::Continue)
   {
-    dispatcher->ProcessEvents(ABI::Windows::UI::Core::CoreProcessEventsOption_ProcessOneAndAllPending);
+    dispatcher->ProcessEvents(ABI::Windows::UI::Core::CoreProcessEventsOption_ProcessAllIfPresent);
   }
 
   return S_OK;

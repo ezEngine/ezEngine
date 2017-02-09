@@ -133,7 +133,6 @@ void ezTestFramework::GatherAllTests()
 
 void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv)
 {
-  ezStartup::StartupBase();
   {
     ezCommandLineUtils cmd;
     cmd.SetCommandLine(argc, argv);
@@ -167,7 +166,6 @@ void ezTestFramework::LoadTestOrder()
 
 void ezTestFramework::CreateOutputFolder()
 {
-  ezStartup::StartupBase();
   ezOSFile::CreateDirectoryStructure(m_sAbsTestDir.c_str());
 }
 

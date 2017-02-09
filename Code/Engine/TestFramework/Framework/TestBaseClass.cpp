@@ -12,8 +12,6 @@ void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& config) const
   // if the information it knows about is already present.
   if (config.m_uiInstalledMainMemory == 0)
   {
-    ezStartup::StartupBase();
-
     const ezSystemInformation& pSysInfo = ezSystemInformation::Get();
     config.m_uiInstalledMainMemory = pSysInfo.GetInstalledMainMemory();
     config.m_uiMemoryPageSize = pSysInfo.GetMemoryPageSize();

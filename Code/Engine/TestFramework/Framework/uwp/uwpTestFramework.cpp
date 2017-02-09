@@ -14,13 +14,10 @@ using namespace Microsoft::WRL::Wrappers;
 ezUwpTestFramework::ezUwpTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
   : ezTestFramework(szTestName, szAbsTestDir, argc, argv)
 {
-  // Todo: Should RoInitialize/RoUninitialize be moved to foundation?
   if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
   {
-    ezLog::Error("Failed to init WinRT.");
+    std::cout << "Failed to init WinRT." << std::endl;
   }
-
-  m_application = Make<ezUwpTestApplication>(*this);
 }
 
 ezUwpTestFramework::~ezUwpTestFramework()
@@ -34,12 +31,14 @@ void ezUwpTestFramework::Run()
   HRESULT result = ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
   if (FAILED(result))
   {
-    ezLog::Error("Failed to create core application.");
+    std::cout << "Failed to create core application." << std::endl;
     return;
   }
   else
   {
-    coreApplication->Run(m_application.Get());
+    ComPtr<ezUwpTestApplication> application = Make<ezUwpTestApplication>(*this);
+    coreApplication->Run(application.Get());
+    application.Detach();      // Was already deleted by uwp.
   }
 }
 
