@@ -260,7 +260,7 @@ ezVec3 ezPxDynamicActorComponent::GetGlobalCenterOfMass() const
 
 void ezPxDynamicActorComponent::AddLinearForce(const ezVec3& vForce)
 {
-  if (m_pActor != nullptr)
+  if (m_pActor != nullptr && !m_bKinematic)
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
@@ -270,7 +270,7 @@ void ezPxDynamicActorComponent::AddLinearForce(const ezVec3& vForce)
 
 void ezPxDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse)
 {
-  if (m_pActor != nullptr)
+  if (m_pActor != nullptr && !m_bKinematic)
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
@@ -280,7 +280,7 @@ void ezPxDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse)
 
 void ezPxDynamicActorComponent::AddAngularForce(const ezVec3& vForce)
 {
-  if (m_pActor != nullptr)
+  if (m_pActor != nullptr && !m_bKinematic)
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
@@ -290,7 +290,7 @@ void ezPxDynamicActorComponent::AddAngularForce(const ezVec3& vForce)
 
 void ezPxDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
 {
-  if (m_pActor != nullptr)
+  if (m_pActor != nullptr && !m_bKinematic)
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
@@ -310,7 +310,7 @@ void ezPxDynamicActorComponent::AddForceAtPos(const ezVec3& vForce, const ezVec3
 
 void ezPxDynamicActorComponent::AddImpulseAtPos(const ezVec3& vImpulse, const ezVec3& vPos)
 {
-  if (m_pActor != nullptr)
+  if (m_pActor != nullptr && !m_bKinematic)
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
