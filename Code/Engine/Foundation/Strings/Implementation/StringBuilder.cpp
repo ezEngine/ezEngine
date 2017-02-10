@@ -665,7 +665,8 @@ enum PathUpState
   NotStarted,
   OneDot,
   TwoDots,
-  FoundIt,
+  FoundDotSlash,
+  FoundDotDotSlash,
   Invalid,
 };
 
@@ -678,10 +679,11 @@ void ezStringBuilder::MakeCleanPath()
 
   Trim(" \t\r\n");
 
-  const char* szStartPos = &m_Data[0];
-  const char* szEndPos = &m_Data[m_Data.GetCount() - 1];
+  const char* const szStartPos = &m_Data[0];
+  const char* const szEndPos = &m_Data[m_Data.GetCount() - 1];
   const char* szCurReadPos = &m_Data[0];
-  char* szCurWritePos = &m_Data[0];
+  char* const szCurWritePos = &m_Data[0];
+  int writeOffset = 0;
 
   ezInt32 iLevelsDown = 0;
   PathUpState FoundPathUp = NotStarted;
@@ -694,63 +696,72 @@ void ezStringBuilder::MakeCleanPath()
     {
       if (FoundPathUp == NotStarted)
         FoundPathUp = OneDot;
+      else if (FoundPathUp == OneDot)
+        FoundPathUp = TwoDots;
       else
-        if (FoundPathUp == OneDot)
-          FoundPathUp = TwoDots;
-        else
-          FoundPathUp = Invalid;
+        FoundPathUp = Invalid;
     }
-    else
-      if (ezPathUtils::IsPathSeparator(CurChar))
-      {
-        CurChar = '/';
+    else if (ezPathUtils::IsPathSeparator(CurChar))
+    {
+      CurChar = '/';
 
-        if (FoundPathUp == OneDot)
-        {
-          szCurWritePos -= 2; // go back, skip two dots, one slash
-          FoundPathUp = NotStarted;
-        }
-        else
-          if (FoundPathUp == TwoDots)
-            FoundPathUp = FoundIt;
-          else
-          {
-            ++iLevelsDown;
-            FoundPathUp = NotStarted;
-          }
+      if (FoundPathUp == OneDot)
+      {
+        FoundPathUp = FoundDotSlash;
+      }
+      else if (FoundPathUp == TwoDots)
+      {
+        FoundPathUp = FoundDotDotSlash;
       }
       else
+      {
+        ++iLevelsDown;
         FoundPathUp = NotStarted;
+      }
+    }
+    else
+      FoundPathUp = NotStarted;
 
-    if (FoundPathUp == FoundIt)
+    if (FoundPathUp == FoundDotDotSlash)
     {
       if (iLevelsDown > 0)
       {
         --iLevelsDown;
-        szCurWritePos -= 3; // go back, skip two dots, one slash
+        EZ_ASSERT_DEBUG(writeOffset >= 3, "invalid write offset");
+        writeOffset -= 3; // go back, skip two dots, one slash
 
-        while ((szCurWritePos > szStartPos) && (*(szCurWritePos - 1) != '/'))
-          --szCurWritePos;
+        while ((writeOffset > 0) && (szCurWritePos[writeOffset - 1] != '/'))
+        {
+          EZ_ASSERT_DEBUG(writeOffset > 0, "invalid write offset");
+          --writeOffset;
+        }
       }
       else
       {
-        *szCurWritePos = '/';
-        ++szCurWritePos;
+        szCurWritePos[writeOffset] = '/';
+        ++writeOffset;
       }
+
+      FoundPathUp = NotStarted;
+    }
+    else if (FoundPathUp == FoundDotSlash)
+    {
+      EZ_ASSERT_DEBUG(writeOffset > 0, "invalid write offset");
+      writeOffset -= 1; // go back to where we wrote the dot
 
       FoundPathUp = NotStarted;
     }
     else
     {
-      *szCurWritePos = CurChar;
-      ++szCurWritePos;
+      szCurWritePos[writeOffset] = CurChar;
+      ++writeOffset;
     }
 
     ++szCurReadPos;
   }
 
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
-  const ezUInt32 uiNewByteCount = (ezUInt32)(szCurWritePos - &m_Data[0]) + 1;
+  const ezUInt32 uiNewByteCount = (ezUInt32)(writeOffset) + 1;
 
   EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: {0} Bytes, New: {1} Bytes", uiPrevByteCount, uiNewByteCount);
 
@@ -759,7 +770,7 @@ void ezStringBuilder::MakeCleanPath()
   m_uiCharacterCount -= (uiPrevByteCount - uiNewByteCount);
 
   // make sure to write the terminating \0 and reset the count
-  *szCurWritePos = '\0';
+  szCurWritePos[writeOffset] = '\0';
   m_Data.SetCount(uiNewByteCount);
 
 }
