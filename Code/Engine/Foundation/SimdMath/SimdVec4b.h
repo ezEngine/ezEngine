@@ -2,7 +2,7 @@
 
 #include <Foundation/SimdMath/SimdMath.h>
 
-class ezSimdVec4b
+class EZ_FOUNDATION_DLL ezSimdVec4b
 {
 public:
   EZ_DECLARE_POD_TYPE();

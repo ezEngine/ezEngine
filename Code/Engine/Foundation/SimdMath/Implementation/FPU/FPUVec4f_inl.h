@@ -1,46 +1,46 @@
 #pragma once
 
-ezSimdVec4f::ezSimdVec4f()
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f()
 {
 }
 
-ezSimdVec4f::ezSimdVec4f(float xyzw)
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float xyzw)
 {
   m_v.Set(xyzw);
 }
 
-ezSimdVec4f::ezSimdVec4f(const ezSimdFloat& xyzw)
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(const ezSimdFloat& xyzw)
 {
   m_v = xyzw.m_v;
 }
 
-ezSimdVec4f::ezSimdVec4f(float x, float y, float z, float w)
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float x, float y, float z, float w)
 {
   m_v.Set(x, y, z, w);
 }
 
-ezSimdVec4f::ezSimdVec4f(ezInternal::QuadFloat v)
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(ezInternal::QuadFloat v)
 {
   m_v = v;
 }
 
-void ezSimdVec4f::Set(float xyzw)
+EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float xyzw)
 {
   m_v.Set(xyzw);
 }
 
-void ezSimdVec4f::Set(float x, float y, float z, float w)
+EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float x, float y, float z, float w)
 {
   m_v.Set(x, y, z, w);
 }
 
-void ezSimdVec4f::SetZero()
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetZero()
 {
   m_v.SetZero();
 }
 
 template<int N>
-void ezSimdVec4f::Load(const float* pFloats)
+EZ_ALWAYS_INLINE void ezSimdVec4f::Load(const float* pFloats)
 {
   for (int i = 0; i < N; ++i)
   {
@@ -49,7 +49,7 @@ void ezSimdVec4f::Load(const float* pFloats)
 }
 
 template<int N>
-void ezSimdVec4f::Store(float* pFloats) const
+EZ_ALWAYS_INLINE void ezSimdVec4f::Store(float* pFloats) const
 {
   for (int i = 0; i < N; ++i)
   {
@@ -96,14 +96,14 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::w() const
 
 
 //static
-ezSimdVec4f ezSimdVec4f::ZeroVector()
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::ZeroVector()
 {
   return ezVec4::ZeroVector();
 }
 
 
 #if 0
-ezSimdVec4f ezSimdVec4f::operator+(const ezSimdVec4f& f) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator+(const ezSimdVec4f& f) const
 {
   ezSimdVec4f result;
   result.x = m_impl.x + f.m_impl.x;
@@ -113,7 +113,7 @@ ezSimdVec4f ezSimdVec4f::operator+(const ezSimdVec4f& f) const
   return result;
 }
 
-ezSimdVec4f ezSimdVec4f::operator-(const ezSimdVec4f& f) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator-(const ezSimdVec4f& f) const
 {
   ezSimdVec4f result;
   result.x = m_impl.x - f.m_impl.x;
@@ -124,7 +124,7 @@ ezSimdVec4f ezSimdVec4f::operator-(const ezSimdVec4f& f) const
 }
 
 
-ezSimdVec4f ezSimdVec4f::operator*(const ezSimdFloat& f) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator*(const ezSimdFloat& f) const
 {
   ezSimdVec4f result;
   result.x = m_impl.x * f.m_impl;
@@ -134,7 +134,7 @@ ezSimdVec4f ezSimdVec4f::operator*(const ezSimdFloat& f) const
   return result;
 }
 
-ezSimdVec4f operator/(const ezSimdFloat& f) const
+EZ_ALWAYS_INLINE ezSimdVec4f operator/(const ezSimdFloat& f) const
 {
   ezSimdVec4f result;
   result.x = m_impl.x / f.m_impl;
@@ -144,7 +144,7 @@ ezSimdVec4f operator/(const ezSimdFloat& f) const
   return result;
 }
 
-ezSimdVec4f& operator+=(const ezSimdVec4f& f)
+EZ_ALWAYS_INLINE ezSimdVec4f& operator+=(const ezSimdVec4f& f)
 {
   m_impl.x += f.m_impl.x;
   m_impl.y += f.m_impl.y;
@@ -153,7 +153,7 @@ ezSimdVec4f& operator+=(const ezSimdVec4f& f)
   return *this;
 }
 
-ezSimdVec4f& operator-=(const ezSimdVec4f& f)
+EZ_ALWAYS_INLINE ezSimdVec4f& operator-=(const ezSimdVec4f& f)
 {
   m_impl.x -= f.m_impl.x;
   m_impl.y -= f.m_impl.y;
@@ -162,7 +162,7 @@ ezSimdVec4f& operator-=(const ezSimdVec4f& f)
   return *this;
 }
 
-ezSimdVec4f& operator*=(const ezSimdFloat& f)
+EZ_ALWAYS_INLINE ezSimdVec4f& operator*=(const ezSimdFloat& f)
 {
   m_impl.x *= f.m_impl;
   m_impl.y *= f.m_impl;
@@ -171,7 +171,7 @@ ezSimdVec4f& operator*=(const ezSimdFloat& f)
   return *this;
 }
 
-ezSimdVec4f& operator/=(const ezSimdFloat& f)
+EZ_ALWAYS_INLINE ezSimdVec4f& operator/=(const ezSimdFloat& f)
 {
   m_impl.x /= f.m_impl;
   m_impl.y /= f.m_impl;
@@ -180,7 +180,7 @@ ezSimdVec4f& operator/=(const ezSimdFloat& f)
   return *this;
 }
 
-ezSimdVec4f ezSimdVec4f::cross(const ezSimdFloat& f) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::cross(const ezSimdFloat& f) const
 {
   ezSimdVec4f result;
   result.m_impl.x = m_impl.y * f.m_impl.z - m_impl.z * f.m_impl.y;
@@ -190,25 +190,25 @@ ezSimdVec4f ezSimdVec4f::cross(const ezSimdFloat& f) const
 }
 
 template<>
-ezSimdFloat ezSimdVec4f::dot<1>(const ezSimdVec4f& f) const
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::dot<1>(const ezSimdVec4f& f) const
 {
   return ezSimdFloat::FromImpl(m_impl.x * f.m_impl.x);
 }
 
 template<>
-ezSimdFloat ezSimdVec4f::dot<2>(const ezSimdVec4f& f) const
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::dot<2>(const ezSimdVec4f& f) const
 {
   return ezSimdFloat::FromImpl(m_impl.x * f.m_impl.x + m_impl.y * f.m_impl.y);
 }
 
 template<>
-ezSimdFloat ezSimdVec4f::dot<3>(const ezSimdVec4f& f) const
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::dot<3>(const ezSimdVec4f& f) const
 {
   return ezSimdFloat::FromImpl(m_impl.x * f.m_impl.x + m_impl.y * f.m_impl.y + m_impl.z * f.m_impl.z);
 }
 
 template<>
-ezSimdFloat ezSimdVec4f::dot<4>(const ezSimdVec4f& f) const
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::dot<4>(const ezSimdVec4f& f) const
 {
   return ezSimdFloat::FromImpl(m_impl.x * f.m_impl.x + m_impl.y * f.m_impl.y + m_impl.z * f.m_impl.z + m_impl.w * f.m_impl.w);
 }

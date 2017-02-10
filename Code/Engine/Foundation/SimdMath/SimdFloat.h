@@ -2,7 +2,7 @@
 
 #include <Foundation/SimdMath/SimdMath.h>
 
-class ezSimdFloat
+class EZ_FOUNDATION_DLL ezSimdFloat
 {
 public:
   EZ_DECLARE_POD_TYPE();

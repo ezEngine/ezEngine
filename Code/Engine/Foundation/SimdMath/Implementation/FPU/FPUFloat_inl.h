@@ -1,30 +1,30 @@
 #pragma once
 
-ezSimdFloat::ezSimdFloat()
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat()
 {
 }
 
-ezSimdFloat::ezSimdFloat(float f)
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(float f)
 {
   m_v.Set(f);
 }
 
-ezSimdFloat::ezSimdFloat(ezInt32 i)
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInt32 i)
 {
   m_v.Set((float)i);
 }
 
-ezSimdFloat::ezSimdFloat(ezUInt32 i)
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
 {
   m_v.Set((float)i);
 }
 
-ezSimdFloat::ezSimdFloat(ezInternal::QuadFloat v)
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInternal::QuadFloat v)
 {
   m_v = v;
 }
 
-ezSimdFloat::operator float() const
+EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
 {
   return m_v.x;
 }

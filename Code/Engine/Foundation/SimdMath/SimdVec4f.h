@@ -5,7 +5,7 @@
 #include <Foundation/SimdMath/SimdVec4b.h>
 
 /// \brief A 4-component SIMD vector class
-class ezSimdVec4f
+class EZ_FOUNDATION_DLL ezSimdVec4f
 {
 public:
   EZ_DECLARE_POD_TYPE();
