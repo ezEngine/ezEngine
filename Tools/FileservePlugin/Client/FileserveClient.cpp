@@ -86,33 +86,17 @@ void ezFileserveClient::UpdateClient()
   m_Network->ExecuteAllMessageHandlers();
 }
 
-ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
+void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const
 {
-  if (!m_Network->IsConnectedToServer())
-    return 0xffff;
+  EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
 
-  ezStringBuilder sRoot = szRootName;
-  sRoot.Trim(":/");
+  out_sAbsPath = m_sFileserveCacheFolder;
+  out_sAbsPath.AppendPath(szMountPoint, szFile);
+  out_sAbsPath.MakeCleanPath();
 
-  ezStringBuilder sMountPoint;
-  ComputeDataDirMountPoint(szDataDirectory, sMountPoint);
-
-  const ezUInt16 uiDataDirID = m_MountedDataDirs.GetCount();
-
-  ezNetworkMessage msg('FSRV', 'MNT');
-  msg.GetWriter() << szDataDirectory;
-  msg.GetWriter() << sRoot;
-  msg.GetWriter() << sMountPoint;
-  msg.GetWriter() << uiDataDirID;
-
-  m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
-
-  auto& dd = m_MountedDataDirs.ExpandAndGetRef();
-  //dd.m_sPathOnClient = szDataDirectory;
-  //dd.m_sRootName = sRoot;
-  dd.m_sMountPoint = sMountPoint;
-
-  return uiDataDirID;
+  out_sFullPathMeta = m_sFileserveCacheMetaFolder;
+  out_sFullPathMeta.AppendPath(szMountPoint, szFile);
+  out_sFullPathMeta.MakeCleanPath();
 }
 
 void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint) const
@@ -152,6 +136,34 @@ void ezFileserveClient::NetworkMsgHandler(ezNetworkMessage& msg)
   ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
 }
 
+ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
+{
+  if (!m_Network->IsConnectedToServer())
+    return 0xffff;
+
+  ezStringBuilder sRoot = szRootName;
+  sRoot.Trim(":/");
+
+  ezStringBuilder sMountPoint;
+  ComputeDataDirMountPoint(szDataDirectory, sMountPoint);
+
+  const ezUInt16 uiDataDirID = m_MountedDataDirs.GetCount();
+
+  ezNetworkMessage msg('FSRV', 'MNT');
+  msg.GetWriter() << szDataDirectory;
+  msg.GetWriter() << sRoot;
+  msg.GetWriter() << sMountPoint;
+  msg.GetWriter() << uiDataDirID;
+
+  m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
+
+  auto& dd = m_MountedDataDirs.ExpandAndGetRef();
+  //dd.m_sPathOnClient = szDataDirectory;
+  //dd.m_sRootName = sRoot;
+  dd.m_sMountPoint = sMountPoint;
+
+  return uiDataDirID;
+}
 
 void ezFileserveClient::HandleFileTransferMsg(ezNetworkMessage &msg)
 {
@@ -272,7 +284,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
       ezLog::Error("Failed to write meta file to '{0}'", sCachedMetaFile);
     }
 
-    auto& ref = m_CachedFileStatus[m_sCurFileRequest];
+    auto& ref = m_CachedFileStatus[m_sCurFileRequestCacheName];
     ref.m_LastCheck = ezTime::Now();
     ref.m_FileHash = uiFileHash;
     ref.m_TimeStamp = iFileTimeStamp;
@@ -280,7 +292,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
   }
 }
 
-ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile)
+ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir)
 {
   EZ_ASSERT_DEV(uiDataDirID < m_MountedDataDirs.GetCount(), "Invalid data dir index {0}", uiDataDirID);
   EZ_ASSERT_DEV(!m_bDownloading, "Cannot start a download, while one is still running");
@@ -290,22 +302,34 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
 
   m_Download.Clear();
 
-  bool bAlreadyCached = false;
-  auto itCache = m_CachedFileStatus.FindOrAdd(szFile, &bAlreadyCached);
-
-  if (bAlreadyCached && itCache.Value().m_uiDataDir != 0xffff)
-  {
-    if (itCache.Value().m_uiDataDir == uiDataDirID)
-      return EZ_SUCCESS;
-
-    /// \todo if last check too long ago ...
-
-    return EZ_FAILURE;
-  }
+  if (bForceThisDataDir)
+    m_sCurFileRequestCacheName.Set(":", m_MountedDataDirs[uiDataDirID].m_sMountPoint, "/", szFile);
   else
+    m_sCurFileRequestCacheName = szFile;
+
+  bool bAlreadyCached = false;
+  auto itCache = m_CachedFileStatus.FindOrAdd(m_sCurFileRequestCacheName, &bAlreadyCached);
+
+  if (bAlreadyCached)
   {
-    DetermineCacheStatus(uiDataDirID, szFile, itCache.Value());
+    const ezUInt16 uiCachedDataDir = itCache.Value().m_uiDataDir;
+
+    if (uiCachedDataDir != 0xffff) // 0xffff means status is indeterminate
+    {
+      if (ezTime::Now() - itCache.Value().m_LastCheck < ezTime::Seconds(5.0f)) // only use cached state, if it wasn't too long ago
+      {
+        if (uiCachedDataDir >= 0xff00) // file simply does not exist
+          return EZ_FAILURE;
+
+        if (uiCachedDataDir == uiDataDirID) // file exists in THIS data directory, yay!
+          return EZ_SUCCESS;
+
+        return EZ_FAILURE; // file exists, but in another data directory (kinda yay)
+      }
+    }
   }
+
+  DetermineCacheStatus(uiDataDirID, szFile, itCache.Value());
 
   m_Download.Clear();
 
@@ -337,42 +361,26 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
 
 void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* szFile, FileCacheStatus& out_Status) const
 {
-  ezStringBuilder sAbsPath;
-
+  ezStringBuilder sAbsPathFile, sAbsPathMeta;
   const auto& dd = m_MountedDataDirs[uiDataDirID];
 
-  sAbsPath = m_sFileserveCacheFolder;
-  sAbsPath.AppendPath(dd.m_sMountPoint, szFile);
-  sAbsPath.MakeCleanPath();
+  BuildPathInCache(szFile, dd.m_sMountPoint, sAbsPathFile, sAbsPathMeta);
 
-  if (ezOSFile::ExistsFile(sAbsPath))
+  if (ezOSFile::ExistsFile(sAbsPathFile))
   {
-    sAbsPath = m_sFileserveCacheMetaFolder;
-    sAbsPath.AppendPath(dd.m_sMountPoint, szFile);
-    sAbsPath.MakeCleanPath();
-
     ezOSFile meta;
-    if (meta.Open(sAbsPath, ezFileMode::Read).Failed())
+    if (meta.Open(sAbsPathMeta, ezFileMode::Read).Failed())
+    {
+      // cleanup, when the meta file does not exist, the data file is useless
+      ezOSFile::DeleteFile(sAbsPathFile);
       return;
+    }
 
     meta.Read(&out_Status.m_TimeStamp, sizeof(ezInt64));
     meta.Read(&out_Status.m_FileHash, sizeof(ezUInt64));
 
     out_Status.m_uiDataDir = uiDataDirID;
   }
-}
-
-void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const
-{
-  EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
-
-  out_sAbsPath = m_sFileserveCacheFolder;
-  out_sAbsPath.AppendPath(szMountPoint, szFile);
-  out_sAbsPath.MakeCleanPath();
-
-  out_sFullPathMeta = m_sFileserveCacheMetaFolder;
-  out_sFullPathMeta.AppendPath(szMountPoint, szFile);
-  out_sFullPathMeta.MakeCleanPath();
 }
 
 EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)

@@ -190,6 +190,13 @@ namespace ezDataDirectory
 
   ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile)
   {
+    ezStringBuilder sFileToOpen;
+    UseFileRedirection(szFile, sFileToOpen);
+
+    // we know that these files cannot be opened, so don't even try
+    if (ezConversionUtils::IsStringUuid(sFileToOpen))
+      return nullptr;
+
     FolderReader* pReader = nullptr;
 
     for (ezUInt32 i = 0; i < m_Readers.GetCount(); ++i)
@@ -203,9 +210,6 @@ namespace ezDataDirectory
       m_Readers.PushBack(EZ_DEFAULT_NEW(FolderReader));
       pReader = m_Readers.PeekBack();
     }
-
-    ezStringBuilder sFileToOpen;
-    UseFileRedirection(szFile, sFileToOpen);
 
     // if opening the file fails, the reader state is never set to 'used', so nothing else needs to be done
     if (pReader->Open(sFileToOpen, this) == EZ_FAILURE)

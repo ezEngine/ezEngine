@@ -11,7 +11,7 @@ void ezDataDirectory::FileserveType::ReloadExternalConfigs()
 
   if (!s_sRedirectionFile.IsEmpty())
   {
-    ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, s_sRedirectionFile);
+    ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, s_sRedirectionFile, true);
   }
 
   FolderType::ReloadExternalConfigs();
@@ -30,7 +30,7 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
   if (ezConversionUtils::IsStringUuid(sRedirected))
     return nullptr;
 
-  if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected).Failed())
+  if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, false).Failed())
     return nullptr;
 
   return FolderType::OpenFileToRead(sRedirected);

@@ -49,7 +49,7 @@ private:
   void NetworkMsgHandler(ezNetworkMessage& msg);
   void HandleFileTransferMsg(ezNetworkMessage &msg);
   void HandleFileTransferFinishedMsg(ezNetworkMessage &msg);
-  ezResult DownloadFile(ezUInt16 uiDataDirID, const char* szFile);
+  ezResult DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir);
   void DetermineCacheStatus(ezUInt16 uiDataDirID, const char* szFile, FileCacheStatus& out_Status) const;
 
   ezString m_sServerConnectionAddress;
@@ -60,6 +60,7 @@ private:
   ezUInt16 m_uiCurFileRequestID = 0;
   ezUInt16 m_uiCurFileRequestDataDir = 0;
   ezStringBuilder m_sCurFileRequest;
+  ezStringBuilder m_sCurFileRequestCacheName;
   ezUniquePtr<ezNetworkInterface> m_Network;
   ezDynamicArray<ezUInt8> m_Download;
   ezMap<ezString, FileCacheStatus> m_CachedFileStatus;
