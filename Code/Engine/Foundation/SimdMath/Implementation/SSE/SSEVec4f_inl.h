@@ -258,7 +258,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent() const
   return _mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(N, N, N, N));
 }
 
-ezSimdFloat ezSimdVec4f::GetComponent(int i) const
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent(int i) const
 {
   switch(i)
   {
