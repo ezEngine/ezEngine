@@ -3,9 +3,9 @@
 
 #include <Windows.Applicationmodel.h>
 #include <Windows.ApplicationModel.core.h>
-#include <wrl/implements.h>
 
-using namespace Microsoft::WRL;
+#include <Foundation/Utilities/UWPUtils.h>
+
 using namespace ABI::Windows::ApplicationModel::Core;
 
 class ezTestFramework;

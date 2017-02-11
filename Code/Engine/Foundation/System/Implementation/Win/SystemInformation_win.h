@@ -3,21 +3,8 @@
 /// \cond
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-
-// To get from from HString to char*
-#include <Foundation/Strings/StringConversion.h>
-// For ComPtr
-#include <wrl/client.h>
-// For Windows::Foundation::GetActivationFactory and similar.
-#include <windows.foundation.h>
-
-using namespace Microsoft::WRL;
-using namespace Microsoft::WRL::Wrappers;
-
-
-
-#include <windows.networking.connectivity.h>
-
+  #include <Foundation/Utilities/UWPUtils.h>
+  #include <windows.networking.connectivity.h>
 #endif
 
 #include <Foundation/Strings/String.h>

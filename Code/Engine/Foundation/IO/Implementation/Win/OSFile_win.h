@@ -410,13 +410,7 @@ const char* ezOSFile::GetApplicationDirectory()
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-// For ComPtr
-#include <wrl/client.h>
-#include <windows.storage.h>
-// For Windows::Foundation::GetActivationFactory and similar.
-#include <windows.foundation.h>
-using namespace Microsoft::WRL;
-using namespace Microsoft::WRL::Wrappers;
+  #include <Foundation/Utilities/UWPUtils.h>
 #endif
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)

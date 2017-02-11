@@ -6,11 +6,6 @@
 
 #include <Foundation/Logging/Log.h>
 
-#include <wrl/wrappers/corewrappers.h>
-#include <windows.foundation.h>
-
-using namespace Microsoft::WRL::Wrappers;
-
 ezUwpTestFramework::ezUwpTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
   : ezTestFramework(szTestName, szAbsTestDir, argc, argv)
 {
