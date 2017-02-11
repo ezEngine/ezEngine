@@ -66,8 +66,10 @@ private:
 
 /// \brief Helper macro to call functions that return ezStatus or ezResult in a function that returns ezStatus (or ezResult) as well.
 /// If the called function fails, its return value is returned from the calling scope.
+#ifndef EZ_SUCCEED_OR_RETURN
 #define EZ_SUCCEED_OR_RETURN(code) \
   do { auto s = (code); if (s.Failed()) return s; } while(false)
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 

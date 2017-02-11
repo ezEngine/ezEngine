@@ -23,6 +23,4 @@ void ezScreen::PrintScreenInfo(const ezHybridArray<ezScreenInfo, 2>& screens, ez
 }
 
 
-
 EZ_STATICLINK_FILE(System, System_Screen_Implementation_Screen);
-

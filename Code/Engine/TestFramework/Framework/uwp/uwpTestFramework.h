@@ -4,7 +4,7 @@
 #include <TestFramework/Basics.h>
 #include <TestFramework/Framework/TestFramework.h>
 
-#include <Foundation/Utilities/UWPUtils.h>
+#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 
 /// \brief Derived ezTestFramework which signals the GUI to update whenever a new tests result comes in.
 class EZ_TEST_DLL ezUwpTestFramework : public ezTestFramework

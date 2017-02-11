@@ -3,7 +3,7 @@
 /// \cond
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #include <Foundation/Utilities/UWPUtils.h>
+  #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
   #include <windows.networking.connectivity.h>
 #endif
 

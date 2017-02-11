@@ -4,7 +4,7 @@
 #include <Windows.Applicationmodel.h>
 #include <Windows.ApplicationModel.core.h>
 
-#include <Foundation/Utilities/UWPUtils.h>
+#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 
 using namespace ABI::Windows::ApplicationModel::Core;
 

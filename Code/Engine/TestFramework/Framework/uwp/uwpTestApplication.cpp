@@ -40,11 +40,11 @@ HRESULT ezUwpTestApplication::Load(HSTRING entryPoint)
 HRESULT ezUwpTestApplication::Run()
 {
   ComPtr<ABI::Windows::UI::Core::ICoreWindowStatic> coreWindowStatics;
-  EZ_RET_FAILED_HRESULT(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Core_CoreWindow).Get(), &coreWindowStatics));
+  EZ_SUCCEED_OR_RETURN_HRESULT(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Core_CoreWindow).Get(), &coreWindowStatics));
   ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow;
-  EZ_RET_FAILED_HRESULT(coreWindowStatics->GetForCurrentThread(&coreWindow));
+  EZ_SUCCEED_OR_RETURN_HRESULT(coreWindowStatics->GetForCurrentThread(&coreWindow));
   ComPtr<ABI::Windows::UI::Core::ICoreDispatcher> dispatcher;
-  EZ_RET_FAILED_HRESULT(coreWindow->get_Dispatcher(&dispatcher));
+  EZ_SUCCEED_OR_RETURN_HRESULT(coreWindow->get_Dispatcher(&dispatcher));
 
   while (m_testFramework.RunTestExecutionLoop() == ezTestAppRun::Continue)
   {
