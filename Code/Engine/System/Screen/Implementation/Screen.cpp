@@ -2,8 +2,10 @@
 #include <System/PCH.h>
 #include <System/Screen/Screen.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   #include <System/Screen/Implementation/Win32/Screen_win32.inl>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #include <System/Screen/Implementation/uwp/Screen_uwp.inl>
 #else
   #error "ezScreen is not implemented on this platform"
 #endif
