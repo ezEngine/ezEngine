@@ -17,9 +17,11 @@ struct ezFileserverEvent
     ServerStopped,
     ConnectedNewClient,
     MountDataDir,
+    UnmountDataDir,
     FileRequest,
     FileTranser,
     FileTranserFinished,
+    FileDeleteRequest,
   };
 
   Type m_Type = Type::None;
@@ -47,7 +49,9 @@ private:
   ezFileserveClientContext& DetermineClient(ezNetworkMessage &msg);
   void NetworkMsgHandler(ezNetworkMessage& msg);
   void HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
+  void HandleUnmountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
   void HandleFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
+  void HandleDeleteFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
 
   ezHashTable<ezUInt32, ezFileserveClientContext> m_Clients;
   ezUniquePtr<ezNetworkInterface> m_Network;

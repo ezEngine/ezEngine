@@ -17,7 +17,7 @@ void ezDataDirectory::FileserveType::ReloadExternalConfigs()
   FolderType::ReloadExternalConfigs();
 }
 
-ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char* szFile)
+ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
   if (ezPathUtils::IsAbsolutePath(szFile))
@@ -30,10 +30,10 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
   if (ezConversionUtils::IsStringUuid(sRedirected))
     return nullptr;
 
-  if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, false).Failed())
+  if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bSpecificallyThisDataDir).Failed())
     return nullptr;
 
-  return FolderType::OpenFileToRead(sRedirected);
+  return FolderType::OpenFileToRead(sRedirected, bSpecificallyThisDataDir);
 }
 
 ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(const char* szFile)
@@ -56,6 +56,28 @@ ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(const c
   m_sFileserveCacheMetaFolder = sCacheMetaFolder;
 
   return FolderType::InternalInitializeDataDirectory(sDataDir);
+}
+
+
+void ezDataDirectory::FileserveType::RemoveDataDirectory()
+{
+  if (ezFileserveClient::GetSingleton())
+  {
+    ezFileserveClient::GetSingleton()->UnmountDataDirectory(m_uiDataDirID);
+  }
+
+  FolderType::RemoveDataDirectory();
+}
+
+
+void ezDataDirectory::FileserveType::DeleteFile(const char* szFile)
+{
+  if (ezFileserveClient::GetSingleton())
+  {
+    ezFileserveClient::GetSingleton()->DeleteFile(m_uiDataDirID, szFile);
+  }
+
+  FolderType::DeleteFile(szFile);
 }
 
 ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)

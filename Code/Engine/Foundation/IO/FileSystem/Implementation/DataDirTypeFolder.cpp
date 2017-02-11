@@ -188,7 +188,7 @@ namespace ezDataDirectory
     }
   }
 
-  ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile)
+  ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
   {
     ezStringBuilder sFileToOpen;
     UseFileRedirection(szFile, sFileToOpen);

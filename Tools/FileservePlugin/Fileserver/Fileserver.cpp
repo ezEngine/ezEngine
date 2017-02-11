@@ -51,15 +51,27 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
 {
   auto& client = DetermineClient(msg);
 
+  if (msg.GetMessageID() == 'READ')
+  {
+    HandleFileRequest(client, msg);
+    return;
+  }
+
+  if (msg.GetMessageID() == 'DELF')
+  {
+    HandleDeleteFileRequest(client, msg);
+    return;
+  }
+
   if (msg.GetMessageID() == 'MNT')
   {
     HandleMountRequest(client, msg);
     return;
   }
 
-  if (msg.GetMessageID() == 'READ')
+  if (msg.GetMessageID() == 'UMNT')
   {
-    HandleFileRequest(client, msg);
+    HandleUnmountRequest(client, msg);
     return;
   }
 
@@ -100,11 +112,30 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
   dir.m_sPathOnServer = sDataDir; /// \todo Redirect path
   dir.m_sRootName = sRootName;
   dir.m_sMountPoint = sMountPoint;
+  dir.m_bMounted = true;
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::MountDataDir;
   e.m_szPath = sDataDir;
   e.m_szDataDirRootName = sRootName;
+  m_Events.Broadcast(e);
+}
+
+
+void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
+{
+  ezUInt16 uiDataDirID = 0xffff;
+  msg.GetReader() >> uiDataDirID;
+
+  EZ_ASSERT_DEV(uiDataDirID < client.m_MountedDataDirs.GetCount(), "Invalid data dir ID to unmount");
+
+  auto& dir = client.m_MountedDataDirs[uiDataDirID];
+  dir.m_bMounted = false;
+
+  ezFileserverEvent e;
+  e.m_Type = ezFileserverEvent::Type::UnmountDataDir;
+  e.m_szPath = dir.m_sPathOnClient;
+  e.m_szDataDirRootName = dir.m_sRootName;
   m_Events.Broadcast(e);
 }
 
@@ -190,5 +221,29 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
     e.m_Type = ezFileserverEvent::Type::FileTranserFinished;
     m_Events.Broadcast(e);
   }
+}
+
+void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
+{
+  ezUInt16 uiDataDirID = 0xffff;
+  msg.GetReader() >> uiDataDirID;
+
+  ezStringBuilder sFile;
+  msg.GetReader() >> sFile;
+
+  EZ_ASSERT_DEV(uiDataDirID < client.m_MountedDataDirs.GetCount(), "Invalid data dir ID to unmount");
+
+  ezFileserverEvent e;
+  e.m_Type = ezFileserverEvent::Type::FileDeleteRequest;
+  e.m_szPath = sFile;
+  m_Events.Broadcast(e);
+
+  const auto& dd = client.m_MountedDataDirs[uiDataDirID];
+
+  ezStringBuilder sAbsPath;
+  sAbsPath = dd.m_sPathOnServer;
+  sAbsPath.AppendPath(sFile);
+
+  ezOSFile::DeleteFile(sAbsPath);
 }
 

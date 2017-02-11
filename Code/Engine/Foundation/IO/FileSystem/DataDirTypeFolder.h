@@ -39,7 +39,7 @@ namespace ezDataDirectory
   protected:
     // The implementations of the abstract functions.
 
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) override;
+    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
 
     bool UseFileRedirection(const char* szFile, ezStringBuilder &sFileToOpen);
 

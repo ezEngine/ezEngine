@@ -161,8 +161,36 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
   //dd.m_sPathOnClient = szDataDirectory;
   //dd.m_sRootName = sRoot;
   dd.m_sMountPoint = sMountPoint;
+  dd.m_bMounted = true;
 
   return uiDataDirID;
+}
+
+
+void ezFileserveClient::UnmountDataDirectory(ezUInt16 uiDataDir)
+{
+  if (!m_Network->IsConnectedToServer())
+    return;
+
+  ezNetworkMessage msg('FSRV', 'UMNT');
+  msg.GetWriter() << uiDataDir;
+
+  m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
+
+  auto& dd = m_MountedDataDirs[uiDataDir];
+  dd.m_bMounted = false;
+}
+
+void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
+{
+  if (!m_Network->IsConnectedToServer())
+    return;
+
+  ezNetworkMessage msg('FSRV', 'DELF');
+  msg.GetWriter() << uiDataDir;
+  msg.GetWriter() << szFile;
+
+  m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
 }
 
 void ezFileserveClient::HandleFileTransferMsg(ezNetworkMessage &msg)
@@ -295,6 +323,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
 ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir)
 {
   EZ_ASSERT_DEV(uiDataDirID < m_MountedDataDirs.GetCount(), "Invalid data dir index {0}", uiDataDirID);
+  EZ_ASSERT_DEV(m_MountedDataDirs[uiDataDirID].m_bMounted, "Data directory {0} is not mounted", uiDataDirID);
   EZ_ASSERT_DEV(!m_bDownloading, "Cannot start a download, while one is still running");
 
   if (!m_Network->IsConnectedToServer())
@@ -363,6 +392,8 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
 {
   ezStringBuilder sAbsPathFile, sAbsPathMeta;
   const auto& dd = m_MountedDataDirs[uiDataDirID];
+
+  EZ_ASSERT_DEV(dd.m_bMounted, "Data directory {0} is not mounted", uiDataDirID);
 
   BuildPathInCache(szFile, dd.m_sMountPoint, sAbsPathFile, sAbsPathMeta);
 

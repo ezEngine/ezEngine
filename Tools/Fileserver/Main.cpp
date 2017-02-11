@@ -97,6 +97,12 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
+  case ezFileserverEvent::Type::UnmountDataDir:
+    {
+      ezLog::Info("Unmount request for data directory '{0}' ({1})", e.m_szDataDirRootName, e.m_szPath);
+    }
+    break;
+
   case ezFileserverEvent::Type::FileRequest:
     {
       if (e.m_FileState == ezFileserveFileState::NonExistant)
@@ -126,6 +132,12 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
     {
       if (e.m_FileState == ezFileserveFileState::Different)
         ezLog::Info("Transfer done.");
+    }
+    break;
+
+  case ezFileserverEvent::Type::FileDeleteRequest:
+    {
+      ezLog::Warning("File Deletion: '{0}'", e.m_szPath);
     }
     break;
   }

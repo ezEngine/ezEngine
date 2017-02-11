@@ -40,7 +40,15 @@ protected:
   ezResult InitializeDataDirectory(const char* szDataDirPath);
 
   /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be opened.
-  virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) = 0;
+  ///
+  /// \param szFile is given as a path relative to the data directory's path.
+  /// So unless the data directory path is empty, this will never be an absolute path.
+  /// If a rooted path was given, the root name is also removed and only the relative part is passed along.
+  /// \param bSpecificallyThisDataDir This is true when the original path specified to open the file through exactly this data directory,
+  /// by using a rooted path.
+  /// If an absolute path is used, which incidentally matches the prefix of this data directory, bSpecificallyThisDataDir is NOT set to true,
+  /// as there might be other data directories that also match.
+  virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) = 0;
 
   /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be opened.
   ///

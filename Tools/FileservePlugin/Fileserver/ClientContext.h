@@ -23,6 +23,7 @@ public:
     ezString m_sPathOnClient;
     ezString m_sPathOnServer;
     ezString m_sMountPoint;
+    bool m_bMounted = false;
   };
 
   struct FileStatus

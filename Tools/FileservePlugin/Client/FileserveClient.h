@@ -40,9 +40,12 @@ private:
     //ezString m_sRootName;
     //ezString m_sPathOnClient;
     ezString m_sMountPoint;
+    bool m_bMounted = false;
   };
 
+  void DeleteFile(ezUInt16 uiDataDir, const char* szFile);
   ezUInt16 MountDataDirectory(const char* szDataDir, const char* szRootName);
+  void UnmountDataDirectory(ezUInt16 uiDataDir);
   void ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint) const;
   void BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const;
   void GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const;

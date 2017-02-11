@@ -353,11 +353,13 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
   ezStringBuilder sPath = szFile;
   sPath.MakeCleanPath();
 
+  const bool bOneSpecificDataDir = !sRootName.IsEmpty();
+
   // the last added data directory has the highest priority
   for (ezInt32 i = (ezInt32)s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
     // if a root is used, ignore all directories that do not have the same root name
-    if (!sRootName.IsEmpty() && s_Data->m_DataDirectories[i].m_sRootName != sRootName)
+    if (bOneSpecificDataDir && s_Data->m_DataDirectories[i].m_sRootName != sRootName)
       continue;
 
     const char* szRelPath = GetDataDirRelativePath(sPath, i);
@@ -375,7 +377,7 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
     }
 
     // Let the data directory try to open the file.
-    ezDataDirectoryReader* pReader = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToRead(szRelPath);
+    ezDataDirectoryReader* pReader = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToRead(szRelPath, bOneSpecificDataDir);
 
     if (bAllowFileEvents && pReader != nullptr)
     {

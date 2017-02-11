@@ -25,13 +25,11 @@ namespace ezDataDirectory
     virtual void ReloadExternalConfigs() override;
 
   protected:
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) override;
+    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
     virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
-
-    /// \todo Implement these
-    //virtual void RemoveDataDirectory() override {}
-    //virtual void DeleteFile(const char* szFile) override {}
+    virtual void RemoveDataDirectory() override;
+    virtual void DeleteFile(const char* szFile) override;
 
     ezUInt16 m_uiDataDirID = 0xffff;
     ezString128 m_sFileserveCacheFolder;
