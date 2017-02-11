@@ -4,6 +4,7 @@
 #include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>
 
+#include <Foundation/Utilities/StackTracer.h>
 
 #ifdef EZ_USE_QT
   #include <TestFramework/Framework/Qt/qtTestFramework.h>
@@ -14,7 +15,81 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <conio.h>
+#else if EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+  #include <cxxabi.h>
 #endif
+
+namespace ExceptionHandler
+{
+  static void PrintHelper(const char* szText)
+  {
+    printf("%s", szText);
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    OutputDebugStringW(ezStringWChar(szText).GetData());
+#endif
+    fflush(stdout);
+    fflush(stderr);
+  };
+
+  static void Print(const char* szFormat, ...)
+  {
+    char buff[1024];
+    va_list args;
+    va_start(args, szFormat);
+    vsprintf(buff, szFormat, args);
+    va_end(args);
+    PrintHelper(buff);
+  }
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  LONG WINAPI TopLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
+  {
+    Print("***Unhandled Exception:***\n");
+    Print("Exception: %08x", (ezUInt32)pExceptionInfo->ExceptionRecord->ExceptionCode);
+    
+    {
+      Print("\n\n***Stack Trace:***\n");
+      void* pBuffer[64];
+      ezArrayPtr<void*> tempTrace(pBuffer);
+      const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace);
+
+      ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+  }
+#else if EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+  void TopLevelExceptionHandler() noexcept
+  {
+    Print("***Unhandled Exception:***\n");
+
+    // Print exception type
+    if (std::type_info* type = abi::__cxa_current_exception_type())
+    {
+      if (const char* szName = type->name())
+      {
+        int status = -1;
+        // Try to print nice name
+        if (char* szNiceName = abi::__cxa_demangle(szName, 0, 0, &status))
+          Print("Exception: %s\n", szNiceName);
+        else
+          Print("Exception: %s\n", szName);
+      }
+    }
+
+    {
+      Print("\n\n***Stack Trace:***\n");
+      void* pBuffer[64];
+      ezArrayPtr<void*> tempTrace(pBuffer);
+      const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace);
+
+      ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
+    }
+    std::_Exit(EXIT_FAILURE);
+  }
+
+  static const auto g_pOldExceptionHandler = std::set_terminate(TopLevelExceptionHandler);
+#endif
+}
 
 int ezTestSetup::s_argc = 0;
 const char** ezTestSetup::s_argv = nullptr;
@@ -23,6 +98,10 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 {
   s_argc = argc;
   s_argv = argv;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  SetUnhandledExceptionFilter(ExceptionHandler::TopLevelExceptionHandler);
+#endif
 
   // without at proper file system the current working directory is pretty much useless
   std::string sTestFolder = std::string(BUILDSYSTEM_OUTPUT_FOLDER);

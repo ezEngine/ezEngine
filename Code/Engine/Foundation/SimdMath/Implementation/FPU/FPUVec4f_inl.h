@@ -42,6 +42,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::SetZero()
 template<int N>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Load(const float* pFloats)
 {
+  m_v.SetZero();
   for (int i = 0; i < N; ++i)
   {
     (&m_v.x)[i] = pFloats[i];

@@ -30,14 +30,19 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 
   GetTestSettingsFromCommandLine(argc, argv);
 
-  // figure out which tests exist
-  GatherAllTests();
+  // Startup needed for time on OSX.
+  ezStartup::StartupCore();
+  {
+    // figure out which tests exist
+    GatherAllTests();
 
-  // load the test order from file, if that file does not exist, the array is not modified
-  LoadTestOrder();
+    // load the test order from file, if that file does not exist, the array is not modified
+    LoadTestOrder();
 
-  // save the current order back to the same file
-  SaveTestOrder();
+    // save the current order back to the same file
+    SaveTestOrder();
+  }
+  ezStartup::ShutdownCore();
 }
 
 ezTestFramework::~ezTestFramework()

@@ -59,5 +59,10 @@ inline void OutputToConsole (ezTestOutput::Enum Type, const char* szMsg)
 
   printf ("%*s%s\n", iIndentation, "", szMsg);
   SetConsoleColorInl (0x07);
+
+  if (Type >= ezTestOutput::Error)
+  {
+    fflush(stdout);
+  }
 }
 
