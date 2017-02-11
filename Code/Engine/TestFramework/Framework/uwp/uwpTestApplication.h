@@ -17,14 +17,14 @@ public:
   virtual ~ezUwpTestApplication();
 
   // Inherited via IFrameworkViewSource
-  virtual HRESULT CreateView(IFrameworkView** viewProvider) override;
+  virtual HRESULT __stdcall CreateView(IFrameworkView** viewProvider) override;
 
   // Inherited via IFrameworkView
-  virtual HRESULT Initialize(ICoreApplicationView * applicationView) override;
-  virtual HRESULT SetWindow(ABI::Windows::UI::Core::ICoreWindow* window) override;
-  virtual HRESULT Load(HSTRING entryPoint) override;
-  virtual HRESULT Run() override;
-  virtual HRESULT Uninitialize() override;
+  virtual HRESULT __stdcall Initialize(ICoreApplicationView * applicationView) override;
+  virtual HRESULT __stdcall SetWindow(ABI::Windows::UI::Core::ICoreWindow* window) override;
+  virtual HRESULT __stdcall Load(HSTRING entryPoint) override;
+  virtual HRESULT __stdcall Run() override;
+  virtual HRESULT __stdcall Uninitialize() override;
 
 private:
   ezTestFramework& m_testFramework;
