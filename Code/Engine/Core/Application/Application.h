@@ -12,7 +12,16 @@ class ezApplication;
 /// \brief Platform independent run function for main loop based systems (e.g. Win32, ..)
 ///
 /// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().
+///
+/// ezRun simply calls ezRun_Startup(), ezRun_MainLoop() and ezRun_Shutdown().
 EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
+
+/// \brief [internal] Called by ezRun()
+EZ_CORE_DLL void ezRun_Startup(ezApplication* pApplicationInstance);
+/// \brief [internal] Called by ezRun()
+EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
+/// \brief [internal] Called by ezRun()
+EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 
 /// \brief Base class to be used by applications based on ezEngine.
 ///
@@ -191,5 +200,8 @@ private:
   static ezApplication* s_pApplicationInstance;
 
   friend EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
-  };
+  friend EZ_CORE_DLL void ezRun_Startup(ezApplication* pApplicationInstance);
+  friend EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
+  friend EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
+};
 

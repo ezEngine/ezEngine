@@ -8,7 +8,6 @@
 class ezFileserverApp : public ezApplication
 {
 public:
-  ezFileserverApp();
 
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown();

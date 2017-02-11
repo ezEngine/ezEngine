@@ -3,7 +3,7 @@
 #include <Core/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 
-void ezRun(ezApplication* pApplicationInstance)
+void ezRun_Startup(ezApplication* pApplicationInstance)
 {
   EZ_ASSERT_ALWAYS(pApplicationInstance != nullptr, "ezRun() requires a valid non-null application instance pointer.");
   EZ_ASSERT_ALWAYS(ezApplication::s_pApplicationInstance == nullptr, "There can only be one ezApplication.");
@@ -19,11 +19,17 @@ void ezRun(ezApplication* pApplicationInstance)
   ezStartup::StartupCore();
 
   pApplicationInstance->AfterCoreStartup();
+}
 
+void ezRun_MainLoop(ezApplication* pApplicationInstance)
+{
   while (pApplicationInstance->Run() == ezApplication::Continue)
   {
   }
+}
 
+void ezRun_Shutdown(ezApplication* pApplicationInstance)
+{
   pApplicationInstance->BeforeCoreShutdown();
 
   ezStartup::ShutdownCore();
@@ -39,6 +45,13 @@ void ezRun(ezApplication* pApplicationInstance)
   ezApplication::s_pApplicationInstance = nullptr;
 
   // memory leak reporting cannot be done here, because the application instance is still alive and may still hold on to memory that needs to be freed first
+}
+
+void ezRun(ezApplication* pApplicationInstance)
+{
+  ezRun_Startup(pApplicationInstance);
+  ezRun_MainLoop(pApplicationInstance);
+  ezRun_Shutdown(pApplicationInstance);
 }
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);
