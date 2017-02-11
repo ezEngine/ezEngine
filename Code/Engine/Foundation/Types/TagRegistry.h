@@ -54,3 +54,4 @@ protected:
   ezMap<ezTempHashedString, ezTag> m_RegisteredTags;
   ezDeque<ezTag*> m_TagsByIndex;
 };
+

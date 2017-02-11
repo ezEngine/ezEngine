@@ -113,3 +113,4 @@ public:
 
   static Iterator GetIterator();
 };
+

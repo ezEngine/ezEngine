@@ -185,4 +185,3 @@ bool operator< (const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2);
 
 
 
-

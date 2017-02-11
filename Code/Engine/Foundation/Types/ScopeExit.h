@@ -25,3 +25,4 @@ EZ_ALWAYS_INLINE ezScopeExit<T> ezMakeScopeExit(T func)
 }
 
 #define EZ_SCOPE_EXIT(code) auto EZ_CONCAT(scopeExit_, EZ_SOURCE_LINE) = ezMakeScopeExit([&](){code;})
+

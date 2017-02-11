@@ -124,3 +124,4 @@ private:
 };
 
 #include <Foundation/Image/Implementation/Image_inl.h>
+

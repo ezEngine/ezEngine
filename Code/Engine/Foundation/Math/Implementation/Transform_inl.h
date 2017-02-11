@@ -211,3 +211,4 @@ inline void ezTransformTemplate<Type>::GetAsArray(Type* out_pData, ezMatrixLayou
     out_pData[11]= m_vPosition.z;
   }
 }
+

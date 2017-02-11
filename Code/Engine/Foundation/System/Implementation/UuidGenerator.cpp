@@ -35,3 +35,4 @@ ezUuid ezUuid::StableUuidForInt(ezInt64 iInt)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_UuidGenerator);
+

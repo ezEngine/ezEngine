@@ -130,4 +130,3 @@ bool operator!= (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
 
 
 
-

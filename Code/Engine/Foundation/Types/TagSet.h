@@ -130,3 +130,4 @@ template <typename BlockStorageAllocator>
 typename ezTagSetTemplate<BlockStorageAllocator>::Iterator end(const ezTagSetTemplate<BlockStorageAllocator>& cont) { return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont, true); }
 
 #include <Foundation/Types/Implementation/TagSet_inl.h>
+

@@ -113,3 +113,4 @@ private:
 };
 
 #include <Foundation/Types/Implementation/SharedPtr_inl.h>
+

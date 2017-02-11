@@ -55,3 +55,4 @@ struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
 private:
   static ezThreadLocalPointer<ezAllocatorBase> m_pAllocator;
 };
+

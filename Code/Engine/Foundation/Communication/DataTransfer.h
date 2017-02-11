@@ -119,3 +119,4 @@ private:
   ezString m_sDataName;
   static ezSet<ezDataTransfer*> s_AllTransfers;
 };
+

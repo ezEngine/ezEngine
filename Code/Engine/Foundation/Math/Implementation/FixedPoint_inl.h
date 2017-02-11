@@ -145,4 +145,3 @@ ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, ezInt
 
 
 
-

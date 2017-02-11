@@ -98,3 +98,4 @@ private:
 
   ezStreamReader& m_Stream;
 };
+

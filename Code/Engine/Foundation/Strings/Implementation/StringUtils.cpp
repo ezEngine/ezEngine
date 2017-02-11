@@ -862,3 +862,4 @@ bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringUtils);
+

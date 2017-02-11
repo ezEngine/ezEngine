@@ -44,3 +44,4 @@ typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method
 {
   return typename ezMakeDelegateHelper<Method>::DelegateType(method, pClass);
 }
+

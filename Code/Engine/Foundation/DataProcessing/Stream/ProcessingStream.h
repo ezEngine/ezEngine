@@ -108,3 +108,4 @@ class EZ_FOUNDATION_DLL ezProcessingStream
 
     ezHashedString m_Name;
 };
+

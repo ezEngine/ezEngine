@@ -222,4 +222,3 @@ bool operator!= (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rh
 
 
 
-

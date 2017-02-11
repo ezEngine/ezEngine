@@ -31,3 +31,4 @@ protected:
 
   ezProcessingStream* m_pStream;
 };
+

@@ -58,3 +58,4 @@ private:
 
   ezHashTable<VersionKey, const ezGraphPatch*, GraphVersioningHash> m_Patches;
 };
+

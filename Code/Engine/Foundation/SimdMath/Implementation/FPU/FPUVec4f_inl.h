@@ -213,3 +213,4 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::dot<4>(const ezSimdVec4f& f) const
   return ezSimdFloat::FromImpl(m_impl.x * f.m_impl.x + m_impl.y * f.m_impl.y + m_impl.z * f.m_impl.z + m_impl.w * f.m_impl.w);
 }
 #endif
+

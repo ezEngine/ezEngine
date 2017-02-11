@@ -211,3 +211,4 @@ EZ_FORCE_INLINE bool operator<(const ezColor& c1, const ezColor& c2)
 
   return (c1.a < c2.a);
 }
+

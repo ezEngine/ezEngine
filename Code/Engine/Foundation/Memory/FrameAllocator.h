@@ -25,3 +25,4 @@ private:
 
   static StackAllocatorType* s_pCurrentAllocator;
 };
+

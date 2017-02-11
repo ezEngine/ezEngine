@@ -12,3 +12,4 @@ public:
   virtual bool CanWriteFileType(const char* szExtension) const override;
 
 };
+

@@ -153,3 +153,4 @@ protected:
 
   ezHybridArray<DdlState, 16> m_StateStack;
 };
+

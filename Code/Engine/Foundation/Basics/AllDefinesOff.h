@@ -61,3 +61,4 @@
 
 // Math Debug Checks
 #define EZ_MATH_CHECK_FOR_NAN EZ_OFF
+

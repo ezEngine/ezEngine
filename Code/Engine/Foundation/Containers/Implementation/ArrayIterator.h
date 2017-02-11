@@ -149,3 +149,4 @@ public:
   EZ_ALWAYS_INLINE T* operator->() { return this->m_ptr; }
 
 };
+

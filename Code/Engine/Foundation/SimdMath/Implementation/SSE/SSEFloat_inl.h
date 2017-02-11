@@ -236,3 +236,4 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Abs() const
 {
   return _mm_andnot_ps(_mm_set1_ps(-0.0f), m_v);
 }
+

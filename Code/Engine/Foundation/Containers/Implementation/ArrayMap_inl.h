@@ -295,3 +295,4 @@ void ezArrayMap<KEY, VALUE, A>::operator=(const ezArrayMapBase<KEY, VALUE>& rhs)
 {
   ezArrayMapBase<KEY, VALUE>::operator=(rhs);
 }
+

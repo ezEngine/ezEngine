@@ -147,3 +147,4 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
     }
   }
 }
+

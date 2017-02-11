@@ -57,3 +57,4 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet()
   return _mm_movemask_ps(m_v) == 0;
 #endif
 }
+

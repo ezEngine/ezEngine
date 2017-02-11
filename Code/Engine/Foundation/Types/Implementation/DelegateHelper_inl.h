@@ -158,3 +158,4 @@ struct ezMakeDelegateHelper< R(Class::*)(EZ_LIST(ARG, ARG_COUNT)) const >
 {
   typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> DelegateType;
 };
+

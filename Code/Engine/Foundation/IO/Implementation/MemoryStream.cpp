@@ -129,3 +129,4 @@ void ezMemoryStreamStorage::ReadAll(ezStreamReader& Stream)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);
+

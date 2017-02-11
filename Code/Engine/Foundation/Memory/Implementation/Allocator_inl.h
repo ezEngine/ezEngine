@@ -152,3 +152,4 @@ void* ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::Reallocate
   }
   return pNewMem;
 }
+

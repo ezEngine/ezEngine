@@ -122,3 +122,4 @@ template <> struct ezSizeToType<6> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<7> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<8> { typedef ezUInt64 Type; };
 /// \endcond
+

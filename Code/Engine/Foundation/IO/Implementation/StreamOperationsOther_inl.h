@@ -39,3 +39,4 @@ EZ_FOUNDATION_DLL void operator<< (ezStreamWriter& Stream, const ezVariant& Valu
 
 /// \brief Operator to serialize ezVariant objects.
 EZ_FOUNDATION_DLL void operator>> (ezStreamReader& Stream, ezVariant& Value);
+

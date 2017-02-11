@@ -170,3 +170,4 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Abs() const
 {
   return ezVec4(ezMath::Abs(m_v.x));
 }
+

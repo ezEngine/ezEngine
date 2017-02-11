@@ -35,3 +35,4 @@ bool ezTag::IsValid() const
 {
   return m_uiBlockIndex != 0xFFFFFFFEu;
 }
+

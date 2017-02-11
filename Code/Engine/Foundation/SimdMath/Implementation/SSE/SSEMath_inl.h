@@ -40,3 +40,4 @@ namespace ezInternal
   typedef __m128 QuadBool;
   typedef __m128i QuadInt;
 }
+

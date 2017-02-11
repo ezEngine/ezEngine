@@ -9,3 +9,4 @@ public:
   static void* AllocatePage(size_t uiSize);
   static void DeallocatePage(void* ptr);
 };
+

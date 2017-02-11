@@ -189,3 +189,4 @@ struct EZ_FOUNDATION_DLL ezImageFormat
   /// \brief Finds a format matching the given component masks.
   static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask);
 };
+

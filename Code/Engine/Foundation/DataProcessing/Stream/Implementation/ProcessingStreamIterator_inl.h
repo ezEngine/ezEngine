@@ -30,3 +30,4 @@ EZ_FORCE_INLINE void ezProcessingStreamIterator<Type>::Advance()
 {
   m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<ptrdiff_t>(m_uiElementStride));
 }
+

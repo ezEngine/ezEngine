@@ -68,3 +68,4 @@ public:
   /// actually have a different type.
   static void Clone(const void* pObject, void* pClone, const ezRTTI* pType); // [tested]
 };
+

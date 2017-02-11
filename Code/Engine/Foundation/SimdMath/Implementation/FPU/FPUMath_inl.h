@@ -12,3 +12,4 @@ namespace ezInternal
     bool x, y, z, w;
   };
 }
+

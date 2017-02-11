@@ -63,3 +63,4 @@ void ezStackAllocator<TrackingFlags>::Reset()
     ezMemoryTracker::RemoveAllAllocations(this->m_Id);
   }
 }
+

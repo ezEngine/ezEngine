@@ -24,3 +24,4 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func)
 {
 }
+

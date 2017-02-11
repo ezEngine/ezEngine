@@ -59,3 +59,4 @@ protected:
 private:
   static void RebuildConversionTable();
 };
+

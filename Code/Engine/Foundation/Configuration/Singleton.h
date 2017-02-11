@@ -118,3 +118,4 @@ public:
     TYPE::UnregisterSingleton();
   }
 };
+

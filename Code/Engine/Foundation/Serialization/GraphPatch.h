@@ -36,3 +36,4 @@ private:
   const ezRTTI* m_pType;
   ezUInt32 m_uiTypeVersion;
 };
+

@@ -18,3 +18,4 @@ namespace ezMemoryPolicies
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 }
+

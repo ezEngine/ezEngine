@@ -113,3 +113,4 @@ void ezTagRegistry::Load(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_TagRegistry);
+

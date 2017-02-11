@@ -271,3 +271,4 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   s.MakeCleanPath();
   return s;
 }
+

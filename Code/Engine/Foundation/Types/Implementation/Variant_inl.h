@@ -464,3 +464,4 @@ struct ezHashHelper<ezVariant>
     return a == b;
   }
 };
+

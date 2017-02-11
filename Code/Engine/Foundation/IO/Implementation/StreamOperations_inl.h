@@ -214,5 +214,3 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezEnum<T>& value)
 
 
 
-
-

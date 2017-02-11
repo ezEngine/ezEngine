@@ -101,3 +101,4 @@ struct ezSwizzle
     WWWW = 0x3333
   };
 };
+

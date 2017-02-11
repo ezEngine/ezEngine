@@ -95,3 +95,4 @@ public:
   /// \brief Deletes pObject using the allocator found in the owning property's type.
   static void DeleteObject(void* pObject, ezAbstractProperty* pOwnerProperty);
 };
+

@@ -157,3 +157,4 @@ public:
 #else
   #include <Foundation/SimdMath/Implementation/FPU/FPUVec4f_inl.h>
 #endif
+
