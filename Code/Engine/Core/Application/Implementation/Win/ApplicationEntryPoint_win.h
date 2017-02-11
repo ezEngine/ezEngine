@@ -39,10 +39,7 @@ namespace Details
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
-    // __argc/__argv is not available on UWP
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
     pApp->SetCommandLineArguments((ezUInt32)__argc, const_cast<const char**>(__argv));
-#endif
     ezRun(pApp); //Life cycle & run method calling
 
     const int iReturnCode = pApp->GetReturnCode();
