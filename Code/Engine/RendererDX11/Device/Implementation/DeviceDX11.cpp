@@ -539,7 +539,15 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 {
   IDXGISwapChain* pDXGISwapChain = static_cast<ezGALSwapChainDX11*>(pSwapChain)->GetDXSwapChain();
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // Gamma conversion is done via parameter in present, not by back buffer format which is not allowed in UWP.
+  // https://msdn.microsoft.com/en-us/library/windows/desktop/ms858301.aspx?f=255&MSPPError=-2147217396
+  // See also backbuffer creation in ezGALSwapChainDX11::InitPlatform.
+  pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 
+                          ezGALResourceFormat::IsSrgb(pSwapChain->GetDescription().m_BackBufferFormat) ? 2 : 0);
+#else
   pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 0);
+#endif
 }
 
 // Misc functions
@@ -633,8 +641,10 @@ void ezGALDeviceDX11::EndFramePlatform()
 
 void ezGALDeviceDX11::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   // Make window association
   m_pDXGIFactory->MakeWindowAssociation(pSwapChain->GetDescription().m_pWindow->GetNativeWindowHandle(), 0);
+#endif
 }
 
 
