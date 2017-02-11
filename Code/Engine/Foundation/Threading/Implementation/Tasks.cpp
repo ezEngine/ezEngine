@@ -199,6 +199,7 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
     LastPriority = ezTaskPriority::SomeFrameMainThread;
 
     /// \todo It is currently unclear whether bAllowDefaultWork should be false here as well (in which case the whole fall back mechanism could be removed)
+    bAllowDefaultWork = false;
   }
   else if (bIsLoadingThread)
   {

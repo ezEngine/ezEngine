@@ -140,6 +140,14 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
       ezLog::Warning("File Deletion: '{0}'", e.m_szPath);
     }
     break;
+
+  case ezFileserverEvent::Type::FileUploading:
+    ezLog::Debug("Upload: {0}/{1} bytes", e.m_uiSentTotal, e.m_uiSizeTotal, e.m_szPath);
+    break;
+
+  case ezFileserverEvent::Type::FileUploadedFinished:
+    ezLog::Info("Upload finished: {0}", e.m_szPath);
+    break;
   }
 }
 

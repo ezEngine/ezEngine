@@ -5,6 +5,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <FileservePlugin/Network/NetworkInterface.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/Uuid.h>
 
 class ezNetworkMessage;
 
@@ -22,6 +23,8 @@ struct ezFileserverEvent
     FileTranser,
     FileTranserFinished,
     FileDeleteRequest,
+    FileUploading,
+    FileUploadedFinished,
   };
 
   Type m_Type = Type::None;
@@ -52,9 +55,17 @@ private:
   void HandleUnmountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
   void HandleFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
   void HandleDeleteFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
+  void HandleUploadFileHeader(ezFileserveClientContext& client, ezNetworkMessage &msg);
+  void HandleUploadFileTransfer(ezFileserveClientContext& client, ezNetworkMessage &msg);
+  void HandleUploadFileFinished(ezFileserveClientContext& client, ezNetworkMessage &msg);
 
   ezHashTable<ezUInt32, ezFileserveClientContext> m_Clients;
   ezUniquePtr<ezNetworkInterface> m_Network;
-  ezDynamicArray<ezUInt8> m_Upload;
+  ezDynamicArray<ezUInt8> m_SendToClient; // ie. 'downloads' from server to client
+  ezDynamicArray<ezUInt8> m_SentFromClient; // ie. 'uploads' from client to server
+  ezStringBuilder m_sCurFileUpload;
+  ezUuid m_FileUploadGuid;
+  ezUInt32 m_uiFileUploadSize;
+  ezUInt16 m_FileUploadDataDir;
 };
 

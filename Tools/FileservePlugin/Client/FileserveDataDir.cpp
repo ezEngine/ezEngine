@@ -58,7 +58,6 @@ ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(const c
   return FolderType::InternalInitializeDataDirectory(sDataDir);
 }
 
-
 void ezDataDirectory::FileserveType::RemoveDataDirectory()
 {
   if (ezFileserveClient::GetSingleton())
@@ -69,7 +68,6 @@ void ezDataDirectory::FileserveType::RemoveDataDirectory()
   FolderType::RemoveDataDirectory();
 }
 
-
 void ezDataDirectory::FileserveType::DeleteFile(const char* szFile)
 {
   if (ezFileserveClient::GetSingleton())
@@ -78,6 +76,11 @@ void ezDataDirectory::FileserveType::DeleteFile(const char* szFile)
   }
 
   FolderType::DeleteFile(szFile);
+}
+
+ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWriter() const
+{
+  return EZ_DEFAULT_NEW(FileserveDataDirectoryWriter);
 }
 
 ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
@@ -98,3 +101,30 @@ ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataD
   EZ_DEFAULT_DELETE(pDataDir);
   return nullptr;
 }
+
+void ezDataDirectory::FileserveDataDirectoryWriter::InternalClose()
+{
+  FolderWriter::InternalClose();
+
+  static_cast<FileserveType*>(GetDataDirectory())->FinishedWriting(this);
+}
+
+void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
+{
+  ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetRedirectedDataDirectoryPath();
+  sAbsPath.AppendPath(pWriter->GetFilePath());
+
+  ezOSFile file;
+  if (file.Open(sAbsPath, ezFileMode::Read).Failed())
+  {
+    ezLog::Error("Could not read file for upload: '{0}'", sAbsPath);
+    return;
+  }
+
+  ezDynamicArray<ezUInt8> content;
+  file.ReadAll(content);
+  file.Close();
+
+  ezFileserveClient::GetSingleton()->UploadFile(m_uiDataDirID, pWriter->GetFilePath(), content);
+}
+

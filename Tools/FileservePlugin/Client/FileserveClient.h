@@ -3,6 +3,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <FileservePlugin/Network/NetworkInterface.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Types/Uuid.h>
 
 namespace ezDataDirectory
 {
@@ -24,6 +25,7 @@ public:
   ezResult EnsureConnected();
   void UpdateClient();
 
+  void UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent);
 private:
   friend class ezDataDirectory::FileserveType;
 
@@ -60,7 +62,7 @@ private:
   ezString m_sFileserveCacheMetaFolder;
   bool m_bDownloading = false;
   bool m_bFailedToConnect = false;
-  ezUInt16 m_uiCurFileRequestID = 0;
+  ezUuid m_CurFileRequestGuid;
   ezUInt16 m_uiCurFileRequestDataDir = 0;
   ezStringBuilder m_sCurFileRequest;
   ezStringBuilder m_sCurFileRequestCacheName;

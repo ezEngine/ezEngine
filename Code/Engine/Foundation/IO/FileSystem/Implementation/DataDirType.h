@@ -69,7 +69,7 @@ protected:
   /// An optimized implementation might look this information up in some hash-map.
   virtual bool ExistsFile(const char* szFile);
 
-private:
+protected:
   friend class ezDataDirectoryReaderWriterBase;
 
   /// \brief This is automatically called whenever a ezDataDirectoryReaderWriterBase that was opened by this type is being closed.
@@ -121,7 +121,7 @@ public:
   /// \brief Returns the current total size of the file.
   virtual ezUInt64 GetFileSize() const = 0;
 
-private:
+protected:
   /// \brief This function must be implemented by the derived class.
   virtual ezResult InternalOpen() = 0;
 

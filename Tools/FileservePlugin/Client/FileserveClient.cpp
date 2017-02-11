@@ -86,6 +86,60 @@ void ezFileserveClient::UpdateClient()
   m_Network->ExecuteAllMessageHandlers();
 }
 
+void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent)
+{
+  // reset the last check time, so that the next read will update the file
+  auto& cache = m_CachedFileStatus[szFile];
+  cache.m_LastCheck.SetZero();
+
+  const ezUInt32 uiFileSize = fileContent.GetCount();
+
+  ezUuid uploadGuid;
+  uploadGuid.CreateNewUuid();
+
+  {
+    ezNetworkMessage msg;
+    msg.SetMessageID('FSRV', 'UPLH');
+    msg.GetWriter() << uploadGuid;
+    msg.GetWriter() << uiFileSize;
+    msg.GetWriter() << uiDataDirID;
+    msg.GetWriter() << szFile;
+    m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
+  }
+
+  ezUInt32 uiNextByte = 0;
+
+  // send the file over in multiple packages of 1KB each
+  // send at least one package, even for empty files
+
+  while (uiNextByte < fileContent.GetCount())
+  {
+    const ezUInt16 uiChunkSize = (ezUInt16)ezMath::Min<ezUInt32>(1024, fileContent.GetCount() - uiNextByte);
+
+    ezNetworkMessage msg;
+    msg.GetWriter() << uploadGuid;
+    msg.GetWriter() << uiChunkSize;
+    msg.GetWriter().WriteBytes(&fileContent[uiNextByte], uiChunkSize);
+
+    msg.SetMessageID('FSRV', 'UPLD');
+    m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
+
+    uiNextByte += uiChunkSize;
+  }
+
+  // final message to server
+  {
+    const ezUInt16 uiEndToken = 0; // chunk size
+
+    ezNetworkMessage msg('FSRV', 'UPLF');
+    msg.GetWriter() << uploadGuid;
+    msg.GetWriter() << uiDataDirID;
+    msg.GetWriter() << szFile;
+
+    m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
+  }
+}
+
 void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const
 {
   EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
@@ -121,13 +175,13 @@ void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringB
 
 void ezFileserveClient::NetworkMsgHandler(ezNetworkMessage& msg)
 {
-  if (msg.GetMessageID() == 'FILE')
+  if (msg.GetMessageID() == 'DWNL')
   {
     HandleFileTransferMsg(msg);
     return;
   }
 
-  if (msg.GetMessageID() == 'FINE')
+  if (msg.GetMessageID() == 'DWNF')
   {
     HandleFileTransferFinishedMsg(msg);
     return;
@@ -196,12 +250,12 @@ void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
 void ezFileserveClient::HandleFileTransferMsg(ezNetworkMessage &msg)
 {
   {
-    ezUInt16 uiFileID = 0;
-    msg.GetReader() >> uiFileID;
+    ezUuid fileRequestGuid;
+    msg.GetReader() >> fileRequestGuid;
 
-    if (uiFileID != m_uiCurFileRequestID)
+    if (fileRequestGuid != m_CurFileRequestGuid)
     {
-      ezLog::Error("Fileserver is answering the wrong file request");
+      //ezLog::Debug("Fileserver is answering someone else");
       return;
     }
   }
@@ -226,12 +280,12 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
   EZ_SCOPE_EXIT(m_bDownloading = false);
 
   {
-    ezUInt16 uiFileID = 0;
-    msg.GetReader() >> uiFileID;
+    ezUuid fileRequestGuid;
+    msg.GetReader() >> fileRequestGuid;
 
-    if (uiFileID != m_uiCurFileRequestID)
+    if (fileRequestGuid != m_CurFileRequestGuid)
     {
-      ezLog::Error("Fileserver is answering the wrong file request");
+      //ezLog::Debug("Fileserver is answering someone else");
       return;
     }
   }
@@ -363,14 +417,14 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
   m_Download.Clear();
 
   m_bDownloading = true;
-  ++m_uiCurFileRequestID;
+  m_CurFileRequestGuid.CreateNewUuid();
   m_sCurFileRequest = szFile;
   m_uiCurFileRequestDataDir = uiDataDirID;
 
   ezNetworkMessage msg('FSRV', 'READ');
   msg.GetWriter() << uiDataDirID;
   msg.GetWriter() << szFile;
-  msg.GetWriter() << m_uiCurFileRequestID;
+  msg.GetWriter() << m_CurFileRequestGuid;
   msg.GetWriter() << itCache.Value().m_TimeStamp;
   msg.GetWriter() << itCache.Value().m_FileHash;
 

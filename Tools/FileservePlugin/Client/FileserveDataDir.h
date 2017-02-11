@@ -11,6 +11,13 @@
 
 namespace ezDataDirectory
 {
+  class FileserveDataDirectoryWriter : public FolderWriter
+  {
+  protected:
+    virtual void InternalClose() override;
+
+  };
+
   /// \brief A data directory type to handle access to files that are served from a network host.
   class EZ_FILESERVEPLUGIN_DLL FileserveType : public FolderType
   {
@@ -24,16 +31,22 @@ namespace ezDataDirectory
     /// \brief [internal] Makes sure the redirection config files are up to date and then reloads them.
     virtual void ReloadExternalConfigs() override;
 
+    /// \brief [internal] Called by FileserveDataDirectoryWriter when it is finished to upload the written file to the server
+    void FinishedWriting(FolderWriter* pWriter);
+
   protected:
     virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
     virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;
+    virtual FolderWriter* CreateFolderWriter() const override;
 
     ezUInt16 m_uiDataDirID = 0xffff;
     ezString128 m_sFileserveCacheFolder;
     ezString128 m_sFileserveCacheMetaFolder;
+
+
   };
 }
 

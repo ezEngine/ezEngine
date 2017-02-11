@@ -46,6 +46,8 @@ namespace ezDataDirectory
     virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;
+    virtual FolderReader* CreateFolderReader() const;
+    virtual FolderWriter* CreateFolderWriter() const;
 
     /// \brief Called by 'ezDataDirectoryType_Folder::Factory'
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
@@ -73,7 +75,7 @@ namespace ezDataDirectory
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
     virtual ezUInt64 GetFileSize() const override;
 
-  private:
+  protected:
     virtual ezResult InternalOpen() override;
     virtual void InternalClose() override;
 
@@ -93,7 +95,7 @@ namespace ezDataDirectory
     virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) override;
     virtual ezUInt64 GetFileSize() const override;
 
-  private:
+  protected:
     virtual ezResult InternalOpen() override;
     virtual void InternalClose() override;
 

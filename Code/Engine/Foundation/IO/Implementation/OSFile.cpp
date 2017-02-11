@@ -157,6 +157,23 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   return Res;
 }
 
+ezUInt64 ezOSFile::ReadAll(ezDynamicArray<ezUInt8>& out_FileContent)
+{
+  /// \test This is new
+
+  EZ_ASSERT_DEV(m_FileMode == ezFileMode::Read, "The file is not opened for reading.");
+
+  out_FileContent.Clear();
+  out_FileContent.SetCountUninitialized((ezUInt32) GetFileSize());
+
+  if (!out_FileContent.IsEmpty())
+  {
+    Read(out_FileContent.GetData(), out_FileContent.GetCount());
+  }
+
+  return out_FileContent.GetCount();
+}
+
 ezUInt64 ezOSFile::GetFilePosition() const
 {
   EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");

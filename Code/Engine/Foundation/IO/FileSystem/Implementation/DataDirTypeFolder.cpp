@@ -188,6 +188,16 @@ namespace ezDataDirectory
     }
   }
 
+  ezDataDirectory::FolderReader* FolderType::CreateFolderReader() const
+  {
+    return EZ_DEFAULT_NEW(FolderReader);
+  }
+
+  ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const
+  {
+    return EZ_DEFAULT_NEW(FolderWriter);
+  }
+
   ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
   {
     ezStringBuilder sFileToOpen;
@@ -207,7 +217,7 @@ namespace ezDataDirectory
 
     if (pReader == nullptr)
     {
-      m_Readers.PushBack(EZ_DEFAULT_NEW(FolderReader));
+      m_Readers.PushBack(CreateFolderReader());
       pReader = m_Readers.PeekBack();
     }
 
@@ -252,7 +262,7 @@ namespace ezDataDirectory
 
     if (pWriter == nullptr)
     {
-      m_Writers.PushBack(EZ_DEFAULT_NEW(FolderWriter));
+      m_Writers.PushBack(CreateFolderWriter());
       pWriter = m_Writers.PeekBack();
     }
 
