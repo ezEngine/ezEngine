@@ -237,9 +237,9 @@ public:
 
     sOut = (const char*) &FileContent[0];
 
-    SanitizeSourceCode(sOut);
-
     m_ModifiedFiles[szFile].m_sFileContent = sOut;
+
+    SanitizeSourceCode(sOut);
 
     return EZ_SUCCESS;
   }
