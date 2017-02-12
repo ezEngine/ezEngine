@@ -13,8 +13,10 @@ class ezOpenDdlReaderElement;
 // Include the proper Input implementation to use
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
   #include <System/Window/Implementation/SFML/InputDevice_SFML.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   #include <System/Window/Implementation/Win32/InputDevice_win32.h>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #include <System/Window/Implementation/uwp/InputDevice_uwp.h>
 #else
   #error "Missing code for ezWindow Input!"
 #endif
@@ -24,10 +26,15 @@ class ezOpenDdlReaderElement;
   typedef sf::Window* ezWindowHandle;
   #define INVALID_WINDOW_HANDLE_VALUE (sf::Window*)(0)
 
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
   typedef HWND ezWindowHandle;
   #define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+
+  typedef IUnknown* ezWindowHandle;
+  #define INVALID_WINDOW_HANDLE_VALUE nullptr
 
 #else
   #error "Missing Platform Code!"

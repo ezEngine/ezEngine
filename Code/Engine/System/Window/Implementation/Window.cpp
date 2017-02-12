@@ -11,9 +11,12 @@
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
   #include <System/Window/Implementation/SFML/InputDevice_SFML.inl>
   #include <System/Window/Implementation/SFML/Window_SFML.inl>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   #include <System/Window/Implementation/Win32/InputDevice_win32.inl>
   #include <System/Window/Implementation/Win32/Window_win32.inl>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #include <System/Window/Implementation/uwp/InputDevice_uwp.inl>
+  #include <System/Window/Implementation/uwp/Window_uwp.inl>
 #else
   #error "Missing code for ezWindow!"
 #endif
