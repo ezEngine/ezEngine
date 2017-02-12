@@ -588,7 +588,7 @@ void ezQtSliderProxy::Update()
   const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
 
   ezQtSliderWidgetAction* pSliderAction = qobject_cast<ezQtSliderWidgetAction*>(m_pQtAction);
-  QtScopedBlockSignals bs(pSliderAction);
+  ezQtScopedBlockSignals bs(pSliderAction);
 
   ezInt32 minVal, maxVal;
   pAction->GetRange(minVal, maxVal);

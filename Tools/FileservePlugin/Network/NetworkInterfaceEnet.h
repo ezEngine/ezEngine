@@ -18,6 +18,7 @@ private:
   ENetHost* m_pEnetHost = nullptr;
   ENetPeer* m_pEnetConnectionToServer = nullptr;
   bool m_bAllowNetworkUpdates = true;
+  ezMap<void*, ezUInt32> m_EnetPeerToClientID;
 
   static bool s_bEnetInitialized;
 };

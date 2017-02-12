@@ -298,7 +298,7 @@ void ezQtDocumentWindow::SaveWindowLayout()
 
 void ezQtDocumentWindow::RestoreWindowLayout()
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   ezStringBuilder sGroup;
   sGroup.Format("DocumentWnd_{0}", GetWindowLayoutGroupName());

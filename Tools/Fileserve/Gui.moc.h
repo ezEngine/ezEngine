@@ -17,6 +17,8 @@ public:
 
 private slots:
   void UpdateNetworkSlot();
+  void OnServerStarted(const QString& ip, ezUInt16 uiPort);
+  void OnServerStopped();
 
 private:
   ezApplication* m_pApp;

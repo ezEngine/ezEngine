@@ -26,7 +26,7 @@ void ezQtDynamicStringEnumPropertyWidget::OnInit()
   const auto& denum = ezDynamicStringEnum::GetDynamicEnum(pAttr->GetDynamicEnumName());
   const auto& AllValues = denum.GetAllValidValues();
 
-  QtScopedBlockSignals bs(m_pWidget);
+  ezQtScopedBlockSignals bs(m_pWidget);
 
   for (const auto& val : AllValues)
   {
@@ -36,7 +36,7 @@ void ezQtDynamicStringEnumPropertyWidget::OnInit()
 
 void ezQtDynamicStringEnumPropertyWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
 
   if (value.IsValid())
   {

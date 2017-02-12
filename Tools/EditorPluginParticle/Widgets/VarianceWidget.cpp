@@ -119,7 +119,7 @@ void ezQtVarianceTypeWidget::OnPropertyChanged(const ezString& sProperty)
       }
     }
 
-    QtScopedBlockSignals _(m_pValueWidget);
+    ezQtScopedBlockSignals _(m_pValueWidget);
     ezVariant vVal = GetCommonValue(m_ResolvedObjects, m_pResolvedType->FindPropertyByName("Value"));
     if (vVal.IsValid())
     {
@@ -143,7 +143,7 @@ void ezQtVarianceTypeWidget::OnPropertyChanged(const ezString& sProperty)
   }
   else if (sProperty == "Variance")
   {
-    QtScopedBlockSignals _(m_pVarianceWidget);
+    ezQtScopedBlockSignals _(m_pVarianceWidget);
     ezVariant vVar = GetCommonValue(m_ResolvedObjects, m_pResolvedType->FindPropertyByName("Variance"));
     if (vVar.IsValid())
     {

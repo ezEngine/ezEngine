@@ -16,7 +16,8 @@ struct ezFileserverEvent
     None,
     ServerStarted,
     ServerStopped,
-    ConnectedNewClient,
+    ClientConnected,
+    ClientDisconnected,
     MountDataDir,
     UnmountDataDir,
     FileDownloadRequest,
@@ -29,8 +30,9 @@ struct ezFileserverEvent
   };
 
   Type m_Type = Type::None;
+  ezUInt32 m_uiClientID = 0;
   const char* m_szPath = nullptr;
-  const char* m_szDataDirRootName = nullptr;
+  const char* m_szName = nullptr;
   ezUInt32 m_uiSizeTotal = 0;
   ezUInt32 m_uiSentTotal = 0;
   ezFileserveFileState m_FileState = ezFileserveFileState::None;
@@ -43,13 +45,18 @@ class EZ_FILESERVEPLUGIN_DLL ezFileserver
 public:
   ezFileserver();
 
-  void StartServer(ezUInt16 uiPort = 1042);
+  void StartServer();
   void StopServer();
   bool UpdateServer();
+  bool IsServerRunning() const;
+
+  void SetPort(ezUInt16 uiPort);
+  ezUInt16 GetPort() const { return m_uiPort; }
 
   ezEvent<const ezFileserverEvent&> m_Events;
 
 private:
+  void NetworkEventHandler(const ezNetworkEvent& e);
   ezFileserveClientContext& DetermineClient(ezNetworkMessage &msg);
   void NetworkMsgHandler(ezNetworkMessage& msg);
   void HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg);
@@ -68,5 +75,6 @@ private:
   ezUuid m_FileUploadGuid;
   ezUInt32 m_uiFileUploadSize;
   ezUInt16 m_FileUploadDataDir;
+  ezUInt16 m_uiPort = 1042;
 };
 

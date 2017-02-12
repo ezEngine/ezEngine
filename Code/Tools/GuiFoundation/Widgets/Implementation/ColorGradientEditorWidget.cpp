@@ -64,7 +64,7 @@ void ezQtColorGradientEditorWidget::SetColorGradient(const ezColorGradient& grad
   m_Gradient = gradient;
 
   {
-    QtScopedUpdatesDisabled ud(this);
+    ezQtScopedUpdatesDisabled ud(this);
 
     //if (wasEmpty)
     //  GradientWidget->FrameExtents();
@@ -230,8 +230,8 @@ void ezQtColorGradientEditorWidget::on_ButtonNormalize_clicked()
 
 void ezQtColorGradientEditorWidget::UpdateCpUi()
 {
-  QtScopedBlockSignals bs(this);
-  QtScopedUpdatesDisabled ud(this);
+  ezQtScopedBlockSignals bs(this);
+  ezQtScopedUpdatesDisabled ud(this);
 
   if (m_iSelectedColorCP != -1)
   {

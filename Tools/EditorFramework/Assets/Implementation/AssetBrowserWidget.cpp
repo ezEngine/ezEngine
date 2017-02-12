@@ -91,7 +91,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
   }
 
   {
-    QtScopedBlockSignals block(ListTypeFilter);
+    ezQtScopedBlockSignals block(ListTypeFilter);
 
     ListTypeFilter->clear();
 
@@ -286,7 +286,7 @@ void ezQtAssetBrowserWidget::on_IconSizeSlider_valueChanged(int iValue)
 
 void ezQtAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage)
 {
-  QtScopedBlockSignals block(IconSizeSlider);
+  ezQtScopedBlockSignals block(IconSizeSlider);
   IconSizeSlider->setValue(iIconSizePercentage);
 }
 
@@ -329,7 +329,7 @@ void ezQtAssetBrowserWidget::OnSearchWidgetTextChanged(const QString& text)
 
 void ezQtAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
 {
-  QtScopedBlockSignals block(ListTypeFilter);
+  ezQtScopedBlockSignals block(ListTypeFilter);
 
   if (item->text() == "<All>")
   {
@@ -415,7 +415,7 @@ void ezQtAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCuratorEvent&
 
 void ezQtAssetBrowserWidget::UpdateDirectoryTree()
 {
-  QtScopedBlockSignals block(TreeFolderFilter);
+  ezQtScopedBlockSignals block(TreeFolderFilter);
 
   if (TreeFolderFilter->topLevelItemCount() == 0)
   {
@@ -811,7 +811,7 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 
   if (!ezStringUtils::IsNullOrEmpty(szFilters))
   {
-    QtScopedBlockSignals block(ListTypeFilter);
+    ezQtScopedBlockSignals block(ListTypeFilter);
 
     ezStringBuilder sFilter;
     const ezStringBuilder sAllFilters(";", szFilters, ";");

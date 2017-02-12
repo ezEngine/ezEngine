@@ -14,14 +14,15 @@ ezFileserver::ezFileserver()
   ezFileserveClient::s_bEnableFileserve = false;
 }
 
-void ezFileserver::StartServer(ezUInt16 uiPort /*= 1042*/)
+void ezFileserver::StartServer()
 {
   if (m_Network)
     return;
 
   m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
-  m_Network->StartServer('EZFS', uiPort, false);
+  m_Network->StartServer('EZFS', m_uiPort, false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
+  m_Network->m_NetworkEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::ServerStarted;
@@ -48,6 +49,17 @@ bool ezFileserver::UpdateServer()
 
   m_Network->UpdateNetwork();
   return m_Network->ExecuteAllMessageHandlers() > 0;
+}
+
+bool ezFileserver::IsServerRunning() const
+{
+  return m_Network != nullptr;
+}
+
+void ezFileserver::SetPort(ezUInt16 uiPort)
+{
+  EZ_ASSERT_DEV(m_Network == nullptr, "The port cannot be changed after the server was started");
+  m_uiPort = uiPort;
 }
 
 void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
@@ -99,6 +111,23 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
   ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
 }
 
+
+void ezFileserver::NetworkEventHandler(const ezNetworkEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezNetworkEvent::DisconnectedFromClient:
+    {
+      ezFileserverEvent se;
+      se.m_Type = ezFileserverEvent::Type::ClientDisconnected;
+      se.m_uiClientID = e.m_uiOtherAppID;
+
+      m_Events.Broadcast(se);
+    }
+    break;
+  }
+}
+
 ezFileserveClientContext& ezFileserver::DetermineClient(ezNetworkMessage &msg)
 {
   ezFileserveClientContext& client = m_Clients[msg.GetApplicationID()];
@@ -108,7 +137,8 @@ ezFileserveClientContext& ezFileserver::DetermineClient(ezNetworkMessage &msg)
     client.m_uiApplicationID = msg.GetApplicationID();
 
     ezFileserverEvent e;
-    e.m_Type = ezFileserverEvent::Type::ConnectedNewClient;
+    e.m_Type = ezFileserverEvent::Type::ClientConnected;
+    e.m_uiClientID = client.m_uiApplicationID;
     m_Events.Broadcast(e);
   }
 
@@ -137,8 +167,9 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::MountDataDir;
+  e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = sDataDir;
-  e.m_szDataDirRootName = sRootName;
+  e.m_szName = sRootName;
   m_Events.Broadcast(e);
 }
 
@@ -155,8 +186,9 @@ void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezNetw
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::UnmountDataDir;
+  e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = dir.m_sPathOnClient;
-  e.m_szDataDirRootName = dir.m_sRootName;
+  e.m_szName = dir.m_sRootName;
   m_Events.Broadcast(e);
 }
 
@@ -177,6 +209,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   msg.GetReader() >> status.m_uiHash;
 
   ezFileserverEvent e;
+  e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = sRequestedFile;
   e.m_uiSentTotal = 0;
 
@@ -256,6 +289,7 @@ void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezN
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::FileDeleteRequest;
+  e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = sFile;
   m_Events.Broadcast(e);
 
@@ -282,6 +316,7 @@ void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezNe
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::FileUploadRequest;
+  e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = m_sCurFileUpload;
   e.m_uiSentTotal = 0;
   e.m_uiSizeTotal = m_uiFileUploadSize;
@@ -306,6 +341,7 @@ void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ez
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::FileUploading;
+  e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = m_sCurFileUpload;
   e.m_uiSentTotal = m_SentFromClient.GetCount();
   e.m_uiSizeTotal = m_uiFileUploadSize;
@@ -347,6 +383,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::FileUploadFinished;
+  e.m_uiClientID = client.m_uiApplicationID;
   e.m_szPath = sFile;
   e.m_uiSentTotal = m_SentFromClient.GetCount();
   e.m_uiSizeTotal = m_SentFromClient.GetCount();

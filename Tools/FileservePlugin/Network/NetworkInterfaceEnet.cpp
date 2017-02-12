@@ -178,7 +178,12 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
         }
         else
         {
-          ReportDisconnectedFromClient();
+          auto it = m_EnetPeerToClientID.Find(NetworkEvent.peer);
+          if (it.IsValid())
+          {
+            ReportDisconnectedFromClient(it.Value());
+            m_EnetPeerToClientID.Remove(it);
+          }
         }
       }
       break;
@@ -207,6 +212,8 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
 
           case 'AKID':
             {
+              m_EnetPeerToClientID[NetworkEvent.peer] = uiApplicationID;
+
               // the client received the server ID -> the connection has been established properly
               ReportConnectionToClient(uiApplicationID);
             }

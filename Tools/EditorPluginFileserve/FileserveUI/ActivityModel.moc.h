@@ -9,7 +9,7 @@ enum class ezFileserveActivityType
   StartServer,
   StopServer,
   ClientConnect,
-  ClientDisconnect, /// never fired atm
+  ClientDisconnect,
   Mount,
   Unmount,
   ReadFile,

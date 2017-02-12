@@ -175,7 +175,7 @@ ezQtUnsupportedPropertyWidget::ezQtUnsupportedPropertyWidget(const char* szMessa
 
 void ezQtUnsupportedPropertyWidget::OnInit()
 {
-  QtScopedBlockSignals bs(m_pWidget);
+  ezQtScopedBlockSignals bs(m_pWidget);
 
   QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName());
   if (!m_sMessage.IsEmpty())
@@ -267,7 +267,7 @@ void ezQtPropertyPointerWidget::OnInit()
 
 void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   ezQtPropertyWidget::SetSelection(items);
 
@@ -393,7 +393,7 @@ ezQtEmbeddedClassPropertyWidget::~ezQtEmbeddedClassPropertyWidget()
 
 void ezQtEmbeddedClassPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   ezQtPropertyWidget::SetSelection(items);
 
@@ -536,7 +536,7 @@ void ezQtPropertyTypeWidget::OnInit()
 
 void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   ezQtPropertyWidget::SetSelection(items);
 
@@ -719,7 +719,7 @@ void ezQtPropertyContainerWidget::RemoveElement(ezUInt32 index)
 
 void ezQtPropertyContainerWidget::UpdateElements()
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   ezUInt32 iElements = GetRequiredElementCount();
 

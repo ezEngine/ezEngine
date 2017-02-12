@@ -43,7 +43,7 @@ void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
   if (bCollapsed == m_bCollapsed)
     return;
 
-  QtScopedUpdatesDisabled sud(this);
+  ezQtScopedUpdatesDisabled sud(this);
 
   m_bCollapsed = bCollapsed;
   Content->setVisible(!bCollapsed);

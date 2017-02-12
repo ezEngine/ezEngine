@@ -135,7 +135,7 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
     ezString value = pCheckBox->property("Tag").toString().toUtf8().data();
     ezUInt32 uiUsed = tags[value];
 
-    QtScopedBlockSignals b(pCheckBox);
+    ezQtScopedBlockSignals b(pCheckBox);
     if (uiUsed == 0)
     {
       pCheckBox->setCheckState(Qt::CheckState::Unchecked);
@@ -154,7 +154,7 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
   }
 
 
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
   if (!sText.isEmpty())
     sText = sText.left(sText.size() - 1);
   else

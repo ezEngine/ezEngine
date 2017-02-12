@@ -228,7 +228,7 @@ void ezQtPropertyGridWidget::ClearSelection()
 
 void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& selection)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   ClearSelection();
 

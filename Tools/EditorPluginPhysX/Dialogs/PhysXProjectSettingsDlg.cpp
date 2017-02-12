@@ -23,8 +23,8 @@ ezQtPhysxProjectSettingsDlg::ezQtPhysxProjectSettingsDlg(QWidget* parent) : QDia
 
 void ezQtPhysxProjectSettingsDlg::SetupTable()
 {
-  QtScopedBlockSignals s1(FilterTable);
-  QtScopedUpdatesDisabled s2(FilterTable);
+  ezQtScopedBlockSignals s1(FilterTable);
+  ezQtScopedUpdatesDisabled s2(FilterTable);
 
   const ezUInt32 uiLayers = m_Config.GetNumNamedGroups();
 

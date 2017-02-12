@@ -155,8 +155,8 @@ void ezQtTagsDlg::SaveTags()
 
 void ezQtTagsDlg::FillList()
 {
-  QtScopedBlockSignals bs(TreeTags);
-  QtScopedUpdatesDisabled bu(TreeTags);
+  ezQtScopedBlockSignals bs(TreeTags);
+  ezQtScopedUpdatesDisabled bu(TreeTags);
 
   m_CategoryToItem.Clear();
   TreeTags->clear();

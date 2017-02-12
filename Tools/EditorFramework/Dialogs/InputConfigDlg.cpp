@@ -203,8 +203,8 @@ void ezQtInputConfigDlg::SaveActions()
 
 void ezQtInputConfigDlg::FillList()
 {
-  QtScopedBlockSignals bs(TreeActions);
-  QtScopedUpdatesDisabled bu(TreeActions);
+  ezQtScopedBlockSignals bs(TreeActions);
+  ezQtScopedUpdatesDisabled bu(TreeActions);
 
   m_InputSetToItem.Clear();
   TreeActions->clear();

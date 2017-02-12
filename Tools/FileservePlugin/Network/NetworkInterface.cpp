@@ -254,12 +254,13 @@ void ezNetworkInterface::ReportDisconnectedFromServer()
   m_NetworkEvents.Broadcast(e);
 }
 
-void ezNetworkInterface::ReportDisconnectedFromClient()
+void ezNetworkInterface::ReportDisconnectedFromClient(ezUInt32 uiApplicationID)
 {
   m_iConnectionsToClients--;
 
   ezNetworkEvent e;
   e.m_Type = ezNetworkEvent::DisconnectedFromClient;
+  e.m_uiOtherAppID = uiApplicationID;
   m_NetworkEvents.Broadcast(e);
 }
 

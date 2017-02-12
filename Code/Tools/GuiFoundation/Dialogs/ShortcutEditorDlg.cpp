@@ -33,8 +33,8 @@ ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent) : QDialog(parent)
   }
 
   {
-    QtScopedBlockSignals bs(Shortcuts);
-    QtScopedUpdatesDisabled ud(Shortcuts);
+    ezQtScopedBlockSignals bs(Shortcuts);
+    ezQtScopedUpdatesDisabled ud(Shortcuts);
 
     Shortcuts->setAlternatingRowColors(true);
     Shortcuts->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);

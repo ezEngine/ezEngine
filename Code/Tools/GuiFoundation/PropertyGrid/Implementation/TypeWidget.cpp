@@ -47,7 +47,7 @@ ezQtTypeWidget::~ezQtTypeWidget()
 
 void ezQtTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   m_Items = items;
 
@@ -93,7 +93,7 @@ void ezQtTypeWidget::PrepareToDie()
 
 void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
@@ -264,7 +264,7 @@ void ezQtTypeWidget::FlushQueuedChanges()
     {
       if (it.Key().StartsWith(sProperty))
       {
-        QtScopedUpdatesDisabled _(this);
+        ezQtScopedUpdatesDisabled _(this);
         it.Value().m_pWidget->SetSelection(m_Items);
         break;
       }

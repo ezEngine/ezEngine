@@ -22,22 +22,24 @@ class QObject;
 
 Q_DECLARE_METATYPE(ezUuid);
 
-class EZ_GUIFOUNDATION_DLL QtScopedUpdatesDisabled
+/// \brief Calls setUpdatesEnabled(false) on all given QObjects, and the reverse in the destructor. Can be nested.
+class EZ_GUIFOUNDATION_DLL ezQtScopedUpdatesDisabled
 {
 public:
-  QtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2 = nullptr, QWidget* pWidget3 = nullptr, QWidget* pWidget4 = nullptr, QWidget* pWidget5 = nullptr, QWidget* pWidget6 = nullptr);
-  ~QtScopedUpdatesDisabled();
+  ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2 = nullptr, QWidget* pWidget3 = nullptr, QWidget* pWidget4 = nullptr, QWidget* pWidget5 = nullptr, QWidget* pWidget6 = nullptr);
+  ~ezQtScopedUpdatesDisabled();
 
 private:
-  QWidget* m_pWidgets[6]; 
+  QWidget* m_pWidgets[6];
 };
 
 
-class EZ_GUIFOUNDATION_DLL QtScopedBlockSignals
+/// \brief Calls blockSignals(true) on all given QObjects, and the reverse in the destructor. Can be nested.
+class EZ_GUIFOUNDATION_DLL ezQtScopedBlockSignals
 {
 public:
-  QtScopedBlockSignals(QObject* pObject1, QObject* pObject2 = nullptr, QObject* pObject3 = nullptr, QObject* pObject4 = nullptr, QObject* pObject5 = nullptr, QObject* pObject6 = nullptr);
-  ~QtScopedBlockSignals();
+  ezQtScopedBlockSignals(QObject* pObject1, QObject* pObject2 = nullptr, QObject* pObject3 = nullptr, QObject* pObject4 = nullptr, QObject* pObject5 = nullptr, QObject* pObject6 = nullptr);
+  ~ezQtScopedBlockSignals();
 
 private:
   QObject* m_pObjects[6];

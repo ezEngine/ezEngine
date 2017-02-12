@@ -18,7 +18,7 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
 # Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets)
+QT_MODULES(Core Gui Widgets Network)
 
 # Call this in case this project does not function without Qt.
 BUILD_REQUIRES_QT()
@@ -26,6 +26,7 @@ BUILD_REQUIRES_QT()
 SET (LINK_LIBRARIES
   Foundation
   FileservePlugin
+  GuiFoundation
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

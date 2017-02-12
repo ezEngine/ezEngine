@@ -490,7 +490,7 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
 
 void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
 
   if (m_pRestartButtonLayout == nullptr && bShow == true)
   {

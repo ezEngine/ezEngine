@@ -109,11 +109,11 @@ void ezQtColorDialog::ShowHDR(bool enable)
 
 void ezQtColorDialog::ApplyColor()
 {
-  QtScopedBlockSignals _0(SpinAlpha, SliderExposure, LineExposure);
-  QtScopedBlockSignals _1(SpinRed, SpinGreen, SpinBlue);
-  QtScopedBlockSignals _2(SpinHue, SpinSaturation, SpinValue);
-  QtScopedBlockSignals _4(LineRed32, LineGreen32, LineBlue32);
-  QtScopedBlockSignals _3(ColorRange, ColorArea);
+  ezQtScopedBlockSignals _0(SpinAlpha, SliderExposure, LineExposure);
+  ezQtScopedBlockSignals _1(SpinRed, SpinGreen, SpinBlue);
+  ezQtScopedBlockSignals _2(SpinHue, SpinSaturation, SpinValue);
+  ezQtScopedBlockSignals _4(LineRed32, LineGreen32, LineBlue32);
+  ezQtScopedBlockSignals _3(ColorRange, ColorArea);
 
   SpinAlpha->setValue(m_Alpha);
   SliderExposure->setValue(m_uiExposureValue);

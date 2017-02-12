@@ -470,7 +470,7 @@ void ezQtSceneDocumentWindow::LoadViewConfigs()
 
 void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
 {
-  QtScopedUpdatesDisabled _(this);
+  ezQtScopedUpdatesDisabled _(this);
   for (auto pContainer : m_ActiveMainViews)
   {
     delete pContainer;

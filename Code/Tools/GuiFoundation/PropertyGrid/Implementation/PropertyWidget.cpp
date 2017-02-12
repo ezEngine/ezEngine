@@ -39,7 +39,7 @@ ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
 
 void ezQtPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
 
   if (value.IsValid())
   {
@@ -64,7 +64,7 @@ void ezQtPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 {
   if (state == Qt::PartiallyChecked)
   {
-    QtScopedBlockSignals b(m_pWidget);
+    ezQtScopedBlockSignals b(m_pWidget);
 
     m_pWidget->setCheckState(Qt::Checked);
     m_pWidget->setTristate(false);
@@ -123,7 +123,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
     {
     case 1:
       {
-        QtScopedBlockSignals bs(m_pWidget[0]);
+        ezQtScopedBlockSignals bs(m_pWidget[0]);
 
         if (pClamp->GetMinValue().CanConvertTo<double>())
         {
@@ -137,7 +137,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 2:
       {
-        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
 
         if (pClamp->GetMinValue().CanConvertTo<ezVec2>())
         {
@@ -155,7 +155,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 3:
       {
-        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
 
         if (pClamp->GetMinValue().CanConvertTo<ezVec3>())
         {
@@ -175,7 +175,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 4:
       {
-        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
 
         if (pClamp->GetMinValue().CanConvertTo<ezVec4>())
         {
@@ -204,7 +204,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
     {
     case 1:
       {
-        QtScopedBlockSignals bs(m_pWidget[0]);
+        ezQtScopedBlockSignals bs(m_pWidget[0]);
 
         if (pDefault->GetValue().CanConvertTo<double>())
         {
@@ -214,7 +214,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 2:
       {
-        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
 
         if (pDefault->GetValue().CanConvertTo<ezVec2>())
         {
@@ -225,7 +225,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 3:
       {
-        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
 
         if (pDefault->GetValue().CanConvertTo<ezVec3>())
         {
@@ -237,7 +237,7 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 4:
       {
-        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
+        ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
 
         if (pDefault->GetValue().CanConvertTo<ezVec4>())
         {
@@ -271,10 +271,10 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
 
 void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b0(m_pWidget[0]);
-  QtScopedBlockSignals b1(m_pWidget[1]);
-  QtScopedBlockSignals b2(m_pWidget[2]);
-  QtScopedBlockSignals b3(m_pWidget[3]);
+  ezQtScopedBlockSignals b0(m_pWidget[0]);
+  ezQtScopedBlockSignals b1(m_pWidget[1]);
+  ezQtScopedBlockSignals b2(m_pWidget[2]);
+  ezQtScopedBlockSignals b3(m_pWidget[3]);
 
   if (value.IsValid())
   {
@@ -398,7 +398,7 @@ void ezQtPropertyEditorTimeWidget::OnInit()
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   if (pClamp)
   {
-    QtScopedBlockSignals bs(m_pWidget);
+    ezQtScopedBlockSignals bs(m_pWidget);
 
     if (pClamp->GetMinValue().CanConvertTo<ezTime>())
     {
@@ -413,7 +413,7 @@ void ezQtPropertyEditorTimeWidget::OnInit()
   const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
   if (pDefault)
   {
-    QtScopedBlockSignals bs(m_pWidget);
+    ezQtScopedBlockSignals bs(m_pWidget);
 
     if (pDefault->GetValue().CanConvertTo<ezTime>())
     {
@@ -424,7 +424,7 @@ void ezQtPropertyEditorTimeWidget::OnInit()
 
 void ezQtPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b0(m_pWidget);
+  ezQtScopedBlockSignals b0(m_pWidget);
 
   if (value.IsValid())
   {
@@ -493,7 +493,7 @@ void ezQtPropertyEditorAngleWidget::OnInit()
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   if (pClamp)
   {
-    QtScopedBlockSignals bs(m_pWidget);
+    ezQtScopedBlockSignals bs(m_pWidget);
 
     if (pClamp->GetMinValue().CanConvertTo<ezAngle>())
     {
@@ -508,7 +508,7 @@ void ezQtPropertyEditorAngleWidget::OnInit()
   const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
   if (pDefault)
   {
-    QtScopedBlockSignals bs(m_pWidget);
+    ezQtScopedBlockSignals bs(m_pWidget);
 
     if (pDefault->GetValue().CanConvertTo<ezAngle>())
     {
@@ -531,7 +531,7 @@ void ezQtPropertyEditorAngleWidget::OnInit()
 
 void ezQtPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b0(m_pWidget);
+  ezQtScopedBlockSignals b0(m_pWidget);
 
   if (value.IsValid())
   {
@@ -589,7 +589,7 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   if (pClamp)
   {
-    QtScopedBlockSignals bs(m_pWidget);
+    ezQtScopedBlockSignals bs(m_pWidget);
 
     if (pClamp->GetMinValue().CanConvertTo<ezInt32>())
     {
@@ -604,7 +604,7 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
   const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
   if (pDefault)
   {
-    QtScopedBlockSignals bs(m_pWidget);
+    ezQtScopedBlockSignals bs(m_pWidget);
 
     if (pDefault->GetValue().CanConvertTo<ezInt32>())
     {
@@ -627,7 +627,7 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 
 void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
   m_pWidget->setValue(value.ConvertTo<ezInt32>());
 }
 
@@ -692,9 +692,9 @@ void ezQtPropertyEditorQuaternionWidget::OnInit()
 
 void ezQtPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b0(m_pWidget[0]);
-  QtScopedBlockSignals b1(m_pWidget[1]);
-  QtScopedBlockSignals b2(m_pWidget[2]);
+  ezQtScopedBlockSignals b0(m_pWidget[0]);
+  ezQtScopedBlockSignals b1(m_pWidget[1]);
+  ezQtScopedBlockSignals b2(m_pWidget[2]);
 
   if (value.IsValid())
   {
@@ -763,7 +763,7 @@ void ezQtPropertyEditorLineEditWidget::OnInit()
   {
     setEnabled(true);
 
-    QtScopedBlockSignals bs(m_pWidget);
+    ezQtScopedBlockSignals bs(m_pWidget);
 
     m_pWidget->setReadOnly(true);
     auto palette = m_pWidget->palette();
@@ -774,7 +774,7 @@ void ezQtPropertyEditorLineEditWidget::OnInit()
 
 void ezQtPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
 
   if (!value.IsValid())
   {
@@ -859,7 +859,7 @@ void ezQtPropertyEditorColorWidget::OnInit()
 
 void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
 
   m_OriginalValue = GetOldValue();
   m_pWidget->SetColor(value);
@@ -933,7 +933,7 @@ void ezQtPropertyEditorEnumWidget::OnInit()
 {
   const ezRTTI* enumType = m_pProp->GetSpecificType();
 
-  QtScopedBlockSignals bs(m_pWidget);
+  ezQtScopedBlockSignals bs(m_pWidget);
 
   ezStringBuilder sTemp;
   const ezRTTI* pType = enumType;
@@ -954,7 +954,7 @@ void ezQtPropertyEditorEnumWidget::OnInit()
 
 void ezQtPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
 
   if (value.IsValid())
   {
@@ -1033,7 +1033,7 @@ void ezQtPropertyEditorBitflagsWidget::OnInit()
 
 void ezQtPropertyEditorBitflagsWidget::InternalSetValue(const ezVariant& value)
 {
-  QtScopedBlockSignals b(m_pWidget);
+  ezQtScopedBlockSignals b(m_pWidget);
   m_iCurrentBitflags = value.ConvertTo<ezInt64>();
 
   QString sText;

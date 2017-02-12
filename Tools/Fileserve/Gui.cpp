@@ -17,11 +17,14 @@ ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent)
   : QMainWindow(parent)
   , m_pApp(pApp)
 {
-  setWindowTitle("ezFileserve");
+  OnServerStopped();
 
   m_pFileserveWidget = new ezQtFileserveWidget(this);
   QMainWindow::setCentralWidget(m_pFileserveWidget);
   resize(600, 550);
+
+  connect(m_pFileserveWidget, &ezQtFileserveWidget::ServerStarted, this, &ezQtFileserveMainWnd::OnServerStarted);
+  connect(m_pFileserveWidget, &ezQtFileserveWidget::ServerStopped, this, &ezQtFileserveMainWnd::OnServerStopped);
 
   show();
 
@@ -39,6 +42,18 @@ void ezQtFileserveMainWnd::UpdateNetworkSlot()
   {
     close();
   }
+}
+
+void ezQtFileserveMainWnd::OnServerStarted(const QString& ip, ezUInt16 uiPort)
+{
+  QString title = QString("ezFileserve (%1:%2)").arg(ip).arg(uiPort);
+
+  setWindowTitle(title);
+}
+
+void ezQtFileserveMainWnd::OnServerStopped()
+{
+  setWindowTitle("ezFileserve (not running)");
 }
 
 #endif

@@ -21,7 +21,7 @@ void ezFileserverApp::FileserverEventHandlerConsole(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::ConnectedNewClient:
+  case ezFileserverEvent::Type::ClientConnected:
     {
       ezLog::Success("Client connected");
     }
@@ -29,13 +29,13 @@ void ezFileserverApp::FileserverEventHandlerConsole(const ezFileserverEvent& e)
 
   case ezFileserverEvent::Type::MountDataDir:
     {
-      ezLog::Info("Mounted data directory '{0}' ({1})", e.m_szDataDirRootName, e.m_szPath);
+      ezLog::Info("Mounted data directory '{0}' ({1})", e.m_szName, e.m_szPath);
     }
     break;
 
   case ezFileserverEvent::Type::UnmountDataDir:
     {
-      ezLog::Info("Unmount request for data directory '{0}' ({1})", e.m_szDataDirRootName, e.m_szPath);
+      ezLog::Info("Unmount request for data directory '{0}' ({1})", e.m_szName, e.m_szPath);
     }
     break;
 

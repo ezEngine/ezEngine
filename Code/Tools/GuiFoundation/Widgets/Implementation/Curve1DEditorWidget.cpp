@@ -39,8 +39,8 @@ void ezQtCurve1DEditorWidget::SetNumCurves(ezUInt32 num)
 
 void ezQtCurve1DEditorWidget::SetCurve1D(ezUInt32 idx, const ezCurve1D& curve)
 {
-  QtScopedUpdatesDisabled ud(this);
-  QtScopedBlockSignals bs(this);
+  ezQtScopedUpdatesDisabled ud(this);
+  ezQtScopedBlockSignals bs(this);
 
   m_Curves[idx].m_Curve = curve;
 
@@ -166,8 +166,8 @@ void ezQtCurve1DEditorWidget::UpdateCpUi()
 
   m_Scene.blockSignals(true);
 
-  QtScopedBlockSignals bs(this);
-  QtScopedUpdatesDisabled ud(this);
+  ezQtScopedBlockSignals bs(this);
+  ezQtScopedUpdatesDisabled ud(this);
 
   bool bClearSelection = false;
 

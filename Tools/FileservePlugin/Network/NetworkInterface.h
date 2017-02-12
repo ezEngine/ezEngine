@@ -216,7 +216,7 @@ protected:
   /// \brief Should be called by the implementation, when a server connection has been lost
   void ReportDisconnectedFromServer();
   /// \brief Should be called by the implementation, when a client connection has been lost
-  void ReportDisconnectedFromClient();
+  void ReportDisconnectedFromClient(ezUInt32 uiApplicationID);
   /// \brief Should be called by the implementation, when a message has arrived
   void ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
 
