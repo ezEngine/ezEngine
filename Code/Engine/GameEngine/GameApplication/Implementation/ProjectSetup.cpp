@@ -72,9 +72,17 @@ void ezGameApplication::DoSetupDataDirectories()
 
   ezOSFile::CreateDirectoryStructure(sUserData);
 
+  // TODO: Application directory is not writeable in UWP (and probably other platforms). We need a more elegant solution than this.
+  ezString writableBinRoot = ezOSFile::GetApplicationDirectory();
+  ezString shaderCacheRoot = ezOSFile::GetApplicationDirectory();
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  writableBinRoot = sUserData;
+  shaderCacheRoot = sUserData;
+#endif
+
   ezFileSystem::AddDataDirectory("", "GameApplication", ":", ezFileSystem::ReadOnly); // for absolute paths
-  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "GameApplication", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "GameApplication", "shadercache", ezFileSystem::AllowWrites); // for shader files
+  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplication", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplication", "shadercache", ezFileSystem::AllowWrites); // for shader files
   ezFileSystem::AddDataDirectory(sUserData, "GameApplication", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 
   // setup the main data directories ":base/" and ":project/"
@@ -261,7 +269,6 @@ void ezGameApplication::DoLoadCustomPlugins()
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Could not load HLSL Shader Compiler Plugin.");
 #endif
-
 #endif
 }
 
