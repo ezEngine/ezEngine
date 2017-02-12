@@ -16,6 +16,9 @@
 #include <System/Window/Window.h>
 
 #include <d3d11.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  #include <d3d11_1.h>
+#endif
 
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
@@ -539,14 +542,32 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 {
   IDXGISwapChain* pDXGISwapChain = static_cast<ezGALSwapChainDX11*>(pSwapChain)->GetDXSwapChain();
 
+  HRESULT result = pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 0);
+  if (FAILED(result))
+  {
+    ezLog::Error("Swap chain Present failed with {0}", result);
+    return;
+  }
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Gamma conversion is done via parameter in present, not by back buffer format which is not allowed in UWP.
-  // https://msdn.microsoft.com/en-us/library/windows/desktop/ms858301.aspx?f=255&MSPPError=-2147217396
-  // See also backbuffer creation in ezGALSwapChainDX11::InitPlatform.
-  pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 
-                          ezGALResourceFormat::IsSrgb(pSwapChain->GetDescription().m_BackBufferFormat) ? 2 : 0);
-#else
-  pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 0);
+  // Since the swap chain can't be in discard mode, we do the discarding ourselves.
+  ID3D11DeviceContext* deviceContext = static_cast<ezGALContextDX11*>(GetPrimaryContext())->GetDXContext();
+  ID3D11DeviceContext1* deviceContext1 = nullptr;
+  if (FAILED(deviceContext->QueryInterface(&deviceContext1)))
+  {
+    ezLog::Error("Failed to query ID3D11DeviceContext1.");
+    return;
+  }
+
+  auto backBuffer = pSwapChain->GetBackBufferTexture();
+  if (!backBuffer.IsInvalidated())
+  {
+    const ezGALRenderTargetViewDX11* renderTargetView = static_cast<const ezGALRenderTargetViewDX11*>(GetRenderTargetView(GetDefaultRenderTargetView(backBuffer)));
+    if (renderTargetView)
+    {
+      deviceContext1->DiscardView(renderTargetView->GetRenderTargetView());
+    }
+  }
 #endif
 }
 
