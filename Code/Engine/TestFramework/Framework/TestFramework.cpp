@@ -24,14 +24,24 @@ static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const c
 ////////////////////////////////////////////////////////////////////////
 
 ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
-  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(nullptr), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
+  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(nullptr), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false), m_bIsInitialized(false)
 {
   s_pInstance = this;
 
   GetTestSettingsFromCommandLine(argc, argv);
+}
 
-  // Startup needed for time on OSX.
+ezTestFramework::~ezTestFramework()
+{
+  if (m_bIsInitialized)
+    DeInitialize();
+  s_pInstance = nullptr;
+}
+
+void ezTestFramework::Initialize()
+{
   ezStartup::StartupCore();
+
   {
     // figure out which tests exist
     GatherAllTests();
@@ -42,12 +52,13 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
     // save the current order back to the same file
     SaveTestOrder();
   }
-  ezStartup::ShutdownCore();
+
+  m_bIsInitialized = true;
 }
 
-ezTestFramework::~ezTestFramework()
+void ezTestFramework::DeInitialize()
 {
-  s_pInstance = nullptr;
+  m_bIsInitialized = false;
 }
 
 const char* ezTestFramework::GetTestName() const
@@ -233,6 +244,9 @@ void ezTestFramework::ResetTests()
 
 ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 {
+  if (!m_bIsInitialized)
+    Initialize();
+
   if (m_iExecutingTest < 0)
   {
     StartTests();

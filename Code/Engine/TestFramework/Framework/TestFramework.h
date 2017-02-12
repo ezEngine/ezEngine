@@ -66,6 +66,9 @@ public:
   bool CompareImages(ezUInt32 uiMaxError, char* szErrorMsg);
 
 protected:
+  void Initialize();
+  void DeInitialize();
+
   virtual void ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
   virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
@@ -112,6 +115,8 @@ private:
   double m_fTotalTestDuration;
   double m_fTotalSubTestDuration;
   ezInt32 m_iErrorCountBeforeTest;
+
+  bool m_bIsInitialized;
 
 protected:
   ezInt32 m_iCurrentTestIndex;
