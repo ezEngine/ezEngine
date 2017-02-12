@@ -1,5 +1,6 @@
 #pragma once
 
+#include <FileservePlugin/Plugin.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 

@@ -13,7 +13,7 @@ public:
   virtual void BeforeCoreShutdown();
 
   virtual ezApplication::ApplicationExecution Run() override;
-  void FileserverEventHandler(const ezFileserverEvent& e);
+  void FileserverEventHandlerConsole(const ezFileserverEvent& e);
 
   ezUInt32 m_uiSleepCounter = 0;
 };

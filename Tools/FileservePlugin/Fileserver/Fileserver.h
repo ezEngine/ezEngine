@@ -24,7 +24,7 @@ struct ezFileserverEvent
     FileTranserFinished,
     FileDeleteRequest,
     FileUploading,
-    FileUploadedFinished,
+    FileUploadFinished,
   };
 
   Type m_Type = Type::None;

@@ -16,6 +16,9 @@ ezFileserver::ezFileserver()
 
 void ezFileserver::StartServer(ezUInt16 uiPort /*= 1042*/)
 {
+  if (m_Network)
+    return;
+
   m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
   m_Network->StartServer('EZFS', uiPort, false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
@@ -335,7 +338,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
   }
 
   ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::FileUploadedFinished;
+  e.m_Type = ezFileserverEvent::Type::FileUploadFinished;
   e.m_szPath = sFile;
   e.m_uiSentTotal = m_SentFromClient.GetCount();
   e.m_uiSizeTotal = m_SentFromClient.GetCount();

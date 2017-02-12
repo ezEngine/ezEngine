@@ -1,7 +1,7 @@
 #include <Fileserve/Main.h>
 #include <Foundation/Logging/Log.h>
 
-void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
+void ezFileserverApp::FileserverEventHandlerConsole(const ezFileserverEvent& e)
 {
   switch (e.m_Type)
   {
@@ -81,7 +81,7 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
     ezLog::Debug("Upload: {0}/{1} bytes", e.m_uiSentTotal, e.m_uiSizeTotal, e.m_szPath);
     break;
 
-  case ezFileserverEvent::Type::FileUploadedFinished:
+  case ezFileserverEvent::Type::FileUploadFinished:
     ezLog::Info("Upload finished: {0}", e.m_szPath);
     break;
   }

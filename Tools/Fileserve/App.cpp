@@ -19,14 +19,19 @@ void ezFileserverApp::AfterCoreStartup()
 
   EZ_DEFAULT_NEW(ezFileserver);
 
-  ezFileserver::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandler, this));
+#ifndef EZ_USE_QT
+  ezFileserver::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandlerConsole, this));
   ezFileserver::GetSingleton()->StartServer();
+#endif
 }
 
 void ezFileserverApp::BeforeCoreShutdown()
 {
   ezFileserver::GetSingleton()->StopServer();
-  ezFileserver::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandler, this));
+
+#ifndef EZ_USE_QT
+  ezFileserver::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandlerConsole, this));
+#endif
 
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

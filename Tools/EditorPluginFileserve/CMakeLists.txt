@@ -25,6 +25,7 @@ BUILD_REQUIRES_QT()
 
 SET (LINK_LIBRARIES
   Foundation
+  FileservePlugin
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
