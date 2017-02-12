@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LogWidget</class>
+ <widget class="QWidget" name="LogWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>359</width>
+    <height>365</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="ezQtSearchWidget" name="Search" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="ComboFilter">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>All</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Debug</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../QtResources/resources.qrc">
+          <normaloff>:/EditorFramework/Icons/Flag_Pink16.png</normaloff>:/EditorFramework/Icons/Flag_Pink16.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Dev</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../QtResources/resources.qrc">
+          <normaloff>:/EditorFramework/Icons/Flag_Purple16.png</normaloff>:/EditorFramework/Icons/Flag_Purple16.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Info</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../QtResources/resources.qrc">
+          <normaloff>:/EditorFramework/Icons/Flag_Blue16.png</normaloff>:/EditorFramework/Icons/Flag_Blue16.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Success</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../QtResources/resources.qrc">
+          <normaloff>:/EditorFramework/Icons/Flag_Green16.png</normaloff>:/EditorFramework/Icons/Flag_Green16.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Warning</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../QtResources/resources.qrc">
+          <normaloff>:/EditorFramework/Icons/Flag_Yellow16.png</normaloff>:/EditorFramework/Icons/Flag_Yellow16.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Warning++</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../QtResources/resources.qrc">
+          <normaloff>:/EditorFramework/Icons/Flag_Orange16.png</normaloff>:/EditorFramework/Icons/Flag_Orange16.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Error</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../QtResources/resources.qrc">
+          <normaloff>:/EditorFramework/Icons/Flag_Red16.png</normaloff>:/EditorFramework/Icons/Flag_Red16.png</iconset>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="ButtonClearLog">
+       <property name="text">
+        <string>Clear Log</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QListView" name="ListViewLog">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="uniformItemSizes">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezQtSearchWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -17,8 +17,29 @@
   <property name="windowTitle">
    <string>Log</string>
   </property>
-  <widget class="QWidget" name="dockWidgetContents">
+  <widget class="QFrame" name="dockWidgetContents">
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
@@ -33,236 +54,30 @@
       <widget class="QWidget" name="layoutWidget1">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="EditorLog">
-            <property name="text">
-             <string>Editor Log:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ButtonClearEditorLog">
-            <property name="text">
-             <string>Clear Log</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QListView" name="ListViewEditorLog">
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="showDropIndicator" stdset="0">
-           <bool>true</bool>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="uniformItemSizes">
-           <bool>true</bool>
-          </property>
-         </widget>
+         <widget class="ezQtLogWidget" name="EditorLog" native="true"/>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="layoutWidget2">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="EditorLog_2">
-            <property name="text">
-             <string>Engine Log:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ButtonClearEngineLog">
-            <property name="text">
-             <string>Clear Log</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QListView" name="ListViewEngineLog">
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::SingleSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="uniformItemSizes">
-           <bool>true</bool>
-          </property>
-         </widget>
+         <widget class="ezQtLogWidget" name="EngineLog" native="true"/>
         </item>
        </layout>
       </widget>
      </widget>
     </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">:/GuiFoundation/Icons/Search16.png</pixmap>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="LineSearch">
-        <property name="placeholderText">
-         <string>Search</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="ButtonClearSearch">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QComboBox" name="ComboFilter">
-        <item>
-         <property name="text">
-          <string>All</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Debug</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../QtResources/resources.qrc">
-           <normaloff>:/EditorFramework/Icons/Flag_Pink16.png</normaloff>:/EditorFramework/Icons/Flag_Pink16.png</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Dev</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../QtResources/resources.qrc">
-           <normaloff>:/EditorFramework/Icons/Flag_Purple16.png</normaloff>:/EditorFramework/Icons/Flag_Purple16.png</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Info</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../QtResources/resources.qrc">
-           <normaloff>:/EditorFramework/Icons/Flag_Blue16.png</normaloff>:/EditorFramework/Icons/Flag_Blue16.png</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Success</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../QtResources/resources.qrc">
-           <normaloff>:/EditorFramework/Icons/Flag_Green16.png</normaloff>:/EditorFramework/Icons/Flag_Green16.png</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Warning</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../QtResources/resources.qrc">
-           <normaloff>:/EditorFramework/Icons/Flag_Yellow16.png</normaloff>:/EditorFramework/Icons/Flag_Yellow16.png</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Serious Warning</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../QtResources/resources.qrc">
-           <normaloff>:/EditorFramework/Icons/Flag_Orange16.png</normaloff>:/EditorFramework/Icons/Flag_Orange16.png</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Error</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../QtResources/resources.qrc">
-           <normaloff>:/EditorFramework/Icons/Flag_Red16.png</normaloff>:/EditorFramework/Icons/Flag_Red16.png</iconset>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
-    </item>
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezQtLogWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">EditorFramework/Panels/LogPanel/LogWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../../QtResources/resources.qrc"/>

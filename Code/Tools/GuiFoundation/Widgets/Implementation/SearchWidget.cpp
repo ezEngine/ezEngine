@@ -10,7 +10,7 @@ ezQtSearchWidget::ezQtSearchWidget(QWidget* pParent)
   setLayout(new QHBoxLayout(this));
   setContentsMargins(0, 0, 0, 0);
   layout()->setContentsMargins(0, 0, 0, 0);
-
+  layout()->setSpacing(0);
 
   {
     m_pClearButton = new QPushButton(this);
