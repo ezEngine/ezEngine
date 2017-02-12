@@ -99,8 +99,8 @@ template<typename Type>
 EZ_FORCE_INLINE void ezVec4Template<Type>::Set(Type xyzw)
 {
   x = xyzw;
-  y = xyzw; 
-  z = xyzw; 
+  y = xyzw;
+  z = xyzw;
   w = xyzw;
 }
 
@@ -116,7 +116,7 @@ EZ_FORCE_INLINE void ezVec4Template<Type>::Set(Type X, Type Y, Type Z, Type W)
 template<typename Type>
 inline void ezVec4Template<Type>::SetZero()
 {
-  x = y = z = w = 0.0f;
+  x = y = z = w = 0;
 }
 
 template<typename Type>
@@ -390,8 +390,8 @@ inline bool ezVec4Template<Type>::IsEqual(const ezVec4Template<Type>& rhs, Type 
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && 
-          ezMath::IsEqual(y, rhs.y, fEpsilon) && 
+  return (ezMath::IsEqual(x, rhs.x, fEpsilon) &&
+          ezMath::IsEqual(y, rhs.y, fEpsilon) &&
           ezMath::IsEqual(z, rhs.z, fEpsilon) &&
           ezMath::IsEqual(w, rhs.w, fEpsilon));
 }

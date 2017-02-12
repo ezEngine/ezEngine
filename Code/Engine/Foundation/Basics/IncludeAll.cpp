@@ -103,6 +103,7 @@
 #include <Foundation/SimdMath/SimdFloat.h>
 #include <Foundation/SimdMath/SimdVec4b.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/SimdMath/SimdVec4i.h>
 
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/PathUtils.h>

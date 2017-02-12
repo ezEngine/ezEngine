@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Foundation/SimdMath/SimdFloat.h>
-#include <Foundation/SimdMath/SimdSwizzle.h>
 #include <Foundation/SimdMath/SimdVec4b.h>
 
 /// \brief A 4-component SIMD vector class
@@ -74,14 +73,14 @@ public:
 
 public:
   template<int N>
-  ezSimdFloat GetComponent() const;
+  ezSimdFloat GetComponent() const; // [tested]
 
   ezSimdFloat GetComponent(int i) const;
 
-  ezSimdFloat x() const;
-  ezSimdFloat y() const;
-  ezSimdFloat z() const;
-  ezSimdFloat w() const;
+  ezSimdFloat x() const; // [tested]
+  ezSimdFloat y() const; // [tested]
+  ezSimdFloat z() const; // [tested]
+  ezSimdFloat w() const; // [tested]
 
   template <ezSwizzle::Enum s>
   ezSimdVec4f Get() const;
@@ -101,6 +100,8 @@ public:
   ezSimdVec4f CompMin(const ezSimdVec4f& rhs) const;
   ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const;
   ezSimdVec4f Abs() const;
+  ezSimdVec4f Floor() const;
+  ezSimdVec4f Ceil() const;
 
   ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const;
 

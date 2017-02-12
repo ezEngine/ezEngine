@@ -258,7 +258,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent() const
   return _mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(N, N, N, N));
 }
 
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent(int i) const
+inline ezSimdFloat ezSimdVec4f::GetComponent(int i) const
 {
   switch(i)
   {
@@ -364,6 +364,24 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompMax(const ezSimdVec4f& v) const
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Abs() const
 {
   return _mm_andnot_ps(_mm_set1_ps(-0.0f), m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_round_ps(m_v, _MM_FROUND_FLOOR);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Ceil() const
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_round_ps(m_v, _MM_FROUND_CEIL);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& cmp) const

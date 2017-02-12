@@ -6,12 +6,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
-    {
-      // In debug the default constructor initializes everything with NaN.
-      ezSimdVec4f vDefCtor;
-      EZ_TEST_BOOL(vDefCtor.IsNaN<4>());
-    }
+    // In debug the default constructor initializes everything with NaN.
+    ezSimdVec4f vDefCtor;
+    EZ_TEST_BOOL(vDefCtor.IsNaN<4>());
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
     float EZ_ALIGN_16(testBlock[4]) = { 1, 2, 3, 4 };
@@ -38,6 +35,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     ezSimdVec4f vInit4F(1.0f, 2.0f, 3.0f, 4.0f);
     EZ_TEST_BOOL(vInit4F.x() == 1.0f && vInit4F.y() == 2.0f &&
       vInit4F.z() == 3.0f && vInit4F.w() == 4.0f);
+
+    // Make sure all components have the correct values
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+    EZ_TEST_BOOL(vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f &&
+      vInit4F.m_v.m128_f32[2] == 3.0f && vInit4F.m_v.m128_f32[3] == 4.0f);
+#endif
 
     ezSimdVec4f vCopy(vInit4F);
     EZ_TEST_BOOL(vCopy.x() == 1.0f && vCopy.y() == 2.0f &&
@@ -82,6 +85,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       ezSimdVec4f xyzw; xyzw.Load<4>(testBlock);
       EZ_TEST_BOOL(xyzw.x() == 1.0f && xyzw.y() == 2.0f &&
         xyzw.z() == 3.0f && xyzw.w() == 4.0f);
+
+      // Make sure all components have the correct values
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f &&
+        xyzw.m_v.m128_f32[2] == 3.0f && xyzw.m_v.m128_f32[3] == 4.0f);
+#endif
     }
 
     {
