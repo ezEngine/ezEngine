@@ -184,7 +184,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   const ezFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_SendToClient);
 
   {
-    e.m_Type = ezFileserverEvent::Type::FileRequest;
+    e.m_Type = ezFileserverEvent::Type::FileDownloadRequest;
     e.m_uiSizeTotal = m_SendToClient.GetCount();
     e.m_FileState = filestate;
     m_Events.Broadcast(e);
@@ -216,7 +216,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
 
       // reuse previous values
       {
-        e.m_Type = ezFileserverEvent::Type::FileTranser;
+        e.m_Type = ezFileserverEvent::Type::FileDownloading;
         e.m_uiSentTotal = uiNextByte;
         m_Events.Broadcast(e);
       }
@@ -239,7 +239,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
 
   // reuse previous values
   {
-    e.m_Type = ezFileserverEvent::Type::FileTranserFinished;
+    e.m_Type = ezFileserverEvent::Type::FileDownloadFinished;
     m_Events.Broadcast(e);
   }
 }
@@ -279,6 +279,14 @@ void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezNe
 
   m_SentFromClient.Clear();
   m_SentFromClient.Reserve(m_uiFileUploadSize);
+
+  ezFileserverEvent e;
+  e.m_Type = ezFileserverEvent::Type::FileUploadRequest;
+  e.m_szPath = m_sCurFileUpload;
+  e.m_uiSentTotal = 0;
+  e.m_uiSizeTotal = m_uiFileUploadSize;
+
+  m_Events.Broadcast(e);
 }
 
 void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ezNetworkMessage &msg)

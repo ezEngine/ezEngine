@@ -17,8 +17,12 @@ ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent)
   : QMainWindow(parent)
   , m_pApp(pApp)
 {
+  setWindowTitle("ezFileserve");
+
   m_pFileserveWidget = new ezQtFileserveWidget(this);
   QMainWindow::setCentralWidget(m_pFileserveWidget);
+  resize(600, 550);
+
   show();
 
   QTimer::singleShot(0, this, &ezQtFileserveMainWnd::UpdateNetworkSlot);

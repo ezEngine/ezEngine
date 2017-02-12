@@ -39,7 +39,7 @@ void ezFileserverApp::FileserverEventHandlerConsole(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::FileRequest:
+  case ezFileserverEvent::Type::FileDownloadRequest:
     {
       if (e.m_FileState == ezFileserveFileState::NonExistant)
         ezLog::Dev("Request: (N/A) '{0}'", e.m_szPath);
@@ -58,13 +58,13 @@ void ezFileserverApp::FileserverEventHandlerConsole(const ezFileserverEvent& e)
     }
     break;
 
-  case ezFileserverEvent::Type::FileTranser:
+  case ezFileserverEvent::Type::FileDownloading:
     {
       ezLog::Debug("Transfer: {0}/{1} bytes", e.m_uiSentTotal, e.m_uiSizeTotal, e.m_szPath);
     }
     break;
 
-  case ezFileserverEvent::Type::FileTranserFinished:
+  case ezFileserverEvent::Type::FileDownloadFinished:
     {
       if (e.m_FileState == ezFileserveFileState::Different)
         ezLog::Info("Transfer done.");
