@@ -255,10 +255,10 @@ const char* ezOSFile::GetApplicationDirectory()
   return s_Path.GetData();
 
 #else
-  // Not exactly application directory, but working directory.
-  static char applicationDirBuffer[1024];
-  return _getcwd(applicationDirBuffer, 1024);
+  ezLog::Error("ezOSFile::GetApplicationDirectory is not implemented.");
 #endif
+
+  return nullptr;
 }
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
