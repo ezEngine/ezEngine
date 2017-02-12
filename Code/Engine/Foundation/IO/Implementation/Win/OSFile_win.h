@@ -194,8 +194,6 @@ bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0));
 }
 
-#endif // not EZ_USE_POSIX_FILE_API
-
 ezResult ezOSFile::InternalDeleteFile(const char* szFile)
 {
   ezStringWChar s = szFile;
@@ -228,6 +226,8 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
 
   return EZ_SUCCESS;
 }
+
+#endif // not EZ_USE_POSIX_FILE_API
 
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {
@@ -410,7 +410,8 @@ const char* ezOSFile::GetApplicationDirectory()
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #include <Foundation/Utilities/UWPUtils.h>
+  #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+  #include <windows.storage.h>
 #endif
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)

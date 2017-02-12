@@ -477,10 +477,15 @@ done:
 
 #endif // EZ_SUPPORTS_FILE_STATS
 
-#if EZ_ENABLED(EZ_USE_POSIX_FILE_API)
-  #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/IO/Implementation/Win/OSFile_win.h>
+
+  // For UWP we're currently using a mix of WinRT functions and posix.
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
+  #endif
+#elif EZ_ENABLED(EZ_USE_POSIX_FILE_API)
+  #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
 #else
   #error "Unknown Platform."
 #endif

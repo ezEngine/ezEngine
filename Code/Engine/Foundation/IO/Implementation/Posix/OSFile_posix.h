@@ -200,7 +200,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_FAILURE;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {
   struct stat tempStat;
@@ -217,6 +217,8 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   return EZ_SUCCESS;
 }
 #endif
+
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 const char* ezOSFile::GetApplicationDirectory()
 {
@@ -253,10 +255,10 @@ const char* ezOSFile::GetApplicationDirectory()
   return s_Path.GetData();
 
 #else
-  ezLog::Error("ezOSFile::GetApplicationDirectory is not implemented.");
+  // Not exactly application directory, but working directory.
+  static char applicationDirBuffer[1024];
+  return _getcwd(applicationDirBuffer, 1024);
 #endif
-
-  return nullptr;
 }
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
@@ -271,4 +273,6 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   s.MakeCleanPath();
   return s;
 }
+
+#endif
 
