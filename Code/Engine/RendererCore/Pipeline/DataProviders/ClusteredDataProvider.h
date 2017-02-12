@@ -13,7 +13,7 @@ public:
   ezClusteredData();
   ~ezClusteredData();
 
-  ezDynamicArray<ezPerLightData> m_LightData;
+  ezDynamicArray<ezPerLightData, ezAlignedAllocatorWrapper> m_LightData;
   ezGALBufferHandle m_hLightDataBuffer;
 
   ezConstantBufferStorageHandle m_hConstantBuffer;
