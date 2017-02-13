@@ -28,6 +28,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_STRING(CmdLn.GetParameter(5), "-Test4");
     EZ_TEST_STRING(CmdLn.GetParameter(6), "on");
     EZ_TEST_STRING(CmdLn.GetParameter(7), "-Test5");
+    CmdLn.InjectCustomArgument("-duh");
+    EZ_TEST_INT(CmdLn.GetParameterCount(), 9);
+    EZ_TEST_STRING(CmdLn.GetParameter(8), "-duh");
+    CmdLn.InjectCustomArgument("I need my Space");
+    EZ_TEST_INT(CmdLn.GetParameterCount(), 10);
+    EZ_TEST_STRING(CmdLn.GetParameter(9), "I need my Space");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetOptionIndex / GetStringOptionArguments  / GetStringOption")

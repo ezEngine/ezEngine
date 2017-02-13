@@ -82,7 +82,7 @@ public:
   ///   Whether it should be searched case-sensitive for the option with name \a szOption.
   ///
   /// \return
-  ///   If an option with the name \a szOption can be found, and there is one parameter following, 
+  ///   If an option with the name \a szOption can be found, and there is one parameter following,
   ///   it is interpreted using ezConversionUtils::StringToInt().
   ///   If that conversion fails or there is no such option or no parameter follows it, iDefault is returned.
   ezInt32 GetIntOption(const char* szOption, ezInt32 iDefault = 0, bool bCaseSensitive = false) const; // [tested]
@@ -99,10 +99,19 @@ public:
   ///   Whether it should be searched case-sensitive for the option with name \a szOption.
   ///
   /// \return
-  ///   If an option with the name \a szOption can be found, and there is one parameter following, 
+  ///   If an option with the name \a szOption can be found, and there is one parameter following,
   ///   it is interpreted using ezConversionUtils::StringToFloat().
   ///   If that conversion fails or there is no such option or no parameter follows it, fDefault is returned.
   double GetFloatOption(const char* szOption, double fDefault = 0.0, bool bCaseSensitive = false) const; // [tested]
+
+  /// \brief This allows to append an argument programmatically, that wasn't actually set through the command line.
+  ///
+  /// This can be useful when the command-line is a method to configure something, which might be hidden away in a plugin,
+  /// and we have no other easy way to configure it.
+  ///
+  /// Be aware that each call to this function is like one command line argument. Therefore to add "-arg test", call it two times,
+  /// once with "-arg", once with "test". To add a string with spaces, call it once, but do not wrap the string in artificial quotes.
+  void InjectCustomArgument(const char* szArgument); // [tested]
 
 private:
 

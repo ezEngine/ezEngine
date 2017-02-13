@@ -7,6 +7,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <FileservePlugin/Fileserver/ClientContext.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFileserveClient);
 
@@ -15,7 +16,10 @@ bool ezFileserveClient::s_bEnableFileserve = true;
 ezFileserveClient::ezFileserveClient()
   : m_SingletonRegistrar(this)
 {
-  m_sServerConnectionAddress = "localhost:1042";
+  m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fsserver", 0, "localhost:1042");
+
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fsoff"))
+    s_bEnableFileserve = false;
 }
 
 ezFileserveClient::~ezFileserveClient()

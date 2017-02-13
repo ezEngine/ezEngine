@@ -12,7 +12,7 @@ ezFileserver::ezFileserver()
   : m_SingletonRegistrar(this)
 {
   // once a server exists, the client should stay inactive
-  ezFileserveClient::s_bEnableFileserve = false;
+  ezFileserveClient::DisabledFileserveClient();
 
   // check whether the fileserve port was reconfigured through the command line
   m_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fsport", m_uiPort);

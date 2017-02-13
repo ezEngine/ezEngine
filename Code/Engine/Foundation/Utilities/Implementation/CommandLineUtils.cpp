@@ -189,7 +189,10 @@ double ezCommandLineUtils::GetFloatOption(const char* szOption, double fDefault,
   return fRes;
 }
 
-
+void ezCommandLineUtils::InjectCustomArgument(const char* szArgument)
+{
+  m_Commands.PushBack(szArgument);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineUtils);
 

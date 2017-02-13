@@ -107,6 +107,12 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
     m_pQtProgressbar->SetProgressbar(m_pProgressbar);
   }
 
+  // custom command line arguments
+  {
+    // Make sure to disable the fileserve plugin
+    ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fsoff");
+  }
+
   m_bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");
   const bool bNoRecent = m_bSafeMode || bHeadless || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
 

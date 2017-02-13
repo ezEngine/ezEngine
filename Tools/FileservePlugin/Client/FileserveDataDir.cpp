@@ -85,6 +85,9 @@ ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWrite
 
 ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
 {
+  if (!ezFileserveClient::s_bEnableFileserve)
+    return nullptr; // this would only happen if the functionality is switched off, but not before the factory was added
+
   // ignore the empty data dir, which handles absolute paths, as we cannot translate these paths to the fileserve host OS
   if (ezStringUtils::IsNullOrEmpty(szDataDirectory))
     return nullptr;
