@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Core/Basics.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Containers/Set.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class EZ_CORE_DLL ezApplicationPluginConfig
 {

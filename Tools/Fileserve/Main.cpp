@@ -1,5 +1,6 @@
 #include <Fileserve/Main.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 #ifdef EZ_USE_QT
   #include <QApplication>
