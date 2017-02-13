@@ -147,7 +147,7 @@ ezFileserveClientContext& ezFileserver::DetermineClient(ezNetworkMessage &msg)
 
 void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
 {
-  ezStringBuilder sDataDir, sRootName, sMountPoint;
+  ezStringBuilder sDataDir, sRootName, sMountPoint, sRedir;
   ezUInt16 uiDataDirID = 0xffff;
 
   msg.GetReader() >> sDataDir;
@@ -160,10 +160,12 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
   client.m_MountedDataDirs.SetCount(ezMath::Max<ezUInt32>(uiDataDirID + 1, client.m_MountedDataDirs.GetCount()));
   auto& dir = client.m_MountedDataDirs[uiDataDirID];
   dir.m_sPathOnClient = sDataDir;
-  dir.m_sPathOnServer = sDataDir; /// \todo Redirect path
   dir.m_sRootName = sRootName;
   dir.m_sMountPoint = sMountPoint;
   dir.m_bMounted = true;
+
+  ezFileSystem::GetSpecialDirectory(sDataDir, sRedir);
+  dir.m_sPathOnServer = sRedir;
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::MountDataDir;

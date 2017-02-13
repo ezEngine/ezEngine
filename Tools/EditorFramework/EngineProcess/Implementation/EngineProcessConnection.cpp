@@ -8,6 +8,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -189,7 +190,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   {
     // Send project setup.
     ezSetupProjectMsgToEngine msg;
-    msg.m_sProjectDir = ezApplicationConfig::GetProjectDirectory();
+    msg.m_sProjectDir = ezFileSystem::GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);

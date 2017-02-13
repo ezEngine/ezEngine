@@ -166,7 +166,17 @@ namespace ezDataDirectory
     if (ezStringUtils::IsNullOrEmpty(szDirectory))
       return EZ_SUCCESS;
 
-    if (!ezOSFile::ExistsDirectory(szDirectory))
+    ezStringBuilder sRedirected;
+    if (ezFileSystem::GetSpecialDirectory(szDirectory, sRedirected).Succeeded())
+    {
+      m_sRedirectedDataDirPath = sRedirected;
+    }
+    else
+    {
+      m_sRedirectedDataDirPath = szDirectory;
+    }
+
+    if (!ezOSFile::ExistsDirectory(m_sRedirectedDataDirPath))
       return EZ_FAILURE;
 
     ReloadExternalConfigs();

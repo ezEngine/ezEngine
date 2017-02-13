@@ -110,6 +110,27 @@ public:
   /// \brief Calls ezDataDirectoryType::ReloadExternalConfigs() on all active data directories.
   static void ReloadAllExternalDataDirectoryConfigs();
 
+  /// \name Special Directories
+  ///@{
+
+  static ezResult DetectSdkRootDirectory();
+
+  static void SetSdkRootDirectory(const char* szSdkDir);
+  static const char* GetSdkRootDirectory();
+
+  static void SetProjectDirectory(const char* szProjectDir);
+  static const char* GetProjectDirectory();
+
+  /// \brief Returns the absolute path to directory.
+  ///
+  /// If \a szDirectory starts with ':sdk/" the path will be relative to the Sdk root directory.
+  /// If \a szDirectory starts with ':project/' the path will be relative to the project directory.
+  static ezResult GetSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
+
+  ///@}
+
+  static ezResult CreateDirectoryStructure(const char* szPath);
+
 public:
 
   /// \brief Deletes the given file from all data directories, if possible.
@@ -210,7 +231,8 @@ private:
 
   static DataDirectory* GetDataDirForRoot(const ezString& sRoot);
 
-
+  static ezString s_sSdkRootDir;
+  static ezString s_sProjectDir;
   static FileSystemData* s_Data;
 };
 

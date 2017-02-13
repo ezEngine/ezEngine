@@ -78,7 +78,7 @@ void ezQtWindowCfgDlg::LoadDescs()
   ezStringBuilder sPath;
 
   {
-    sPath = ezApplicationConfig::GetProjectDirectory();
+    sPath = ezFileSystem::GetProjectDirectory();
     sPath.AppendPath("Window.ddl");
 
     if (m_Descs[0].LoadFromDDL(sPath).Failed())
@@ -100,7 +100,7 @@ void ezQtWindowCfgDlg::SaveDescs()
   ezStringBuilder sPath;
 
   {
-    sPath = ezApplicationConfig::GetProjectDirectory();
+    sPath = ezFileSystem::GetProjectDirectory();
     sPath.AppendPath("Window.ddl");
 
     m_Descs[0].SaveToDDL(sPath);

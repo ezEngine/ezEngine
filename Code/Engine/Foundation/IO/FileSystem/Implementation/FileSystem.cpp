@@ -19,6 +19,8 @@ ON_CORE_SHUTDOWN
 EZ_END_SUBSYSTEM_DECLARATION
 
 ezFileSystem::FileSystemData* ezFileSystem::s_Data = nullptr;
+ezString ezFileSystem::s_sSdkRootDir;
+ezString ezFileSystem::s_sProjectDir;
 
 ezMutex& ezFileSystem::GetFileSystemMutex()
 {
@@ -213,23 +215,38 @@ const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 ui
   // if an absolute path is given, this will check whether the absolute path would fall into this data directory
   // if yes, the prefix path is removed and then only the relative path is given to the data directory type
   // otherwise the data directory would prepend its own path and thus create an invalid path to work with
+
+  // first check the redirected directory
+  const ezString128& sRedDirPath = s_Data->m_DataDirectories[uiDataDir].m_pDataDirectory->GetRedirectedDataDirectoryPath();
+
+  if (!sRedDirPath.IsEmpty() && ezStringUtils::StartsWith_NoCase(szPath, sRedDirPath))
+  {
+    const char* szRelPath = &szPath[sRedDirPath.GetElementCount()];
+
+    // if the relative path still starts with a path-separator, skip it
+    if (ezPathUtils::IsPathSeparator(*szRelPath))
+      ++szRelPath;
+
+    return szRelPath;
+  }
+
+  // then check the original mount path
   const ezString128& sDirPath = s_Data->m_DataDirectories[uiDataDir].m_pDataDirectory->GetDataDirectoryPath();
 
   // If the data dir is empty we return the paths as is or the code below would remove the '/' in front of an
   // absolute path.
-  if (sDirPath.IsEmpty())
-    return szPath;
+  if (!sDirPath.IsEmpty() && ezStringUtils::StartsWith_NoCase(szPath, sDirPath))
+  {
+    const char* szRelPath = &szPath[sDirPath.GetElementCount()];
 
-  const char* szRelPath = szPath;
+    // if the relative path still starts with a path-separator, skip it
+    if (ezPathUtils::IsPathSeparator(*szRelPath))
+      ++szRelPath;
 
-  if (ezStringUtils::StartsWith_NoCase(szPath, sDirPath))
-    szRelPath = &szPath[sDirPath.GetElementCount()];
+    return szRelPath;
+  }
 
-  // if the relative path still starts with a path-separator, skip it
-  if (ezPathUtils::IsPathSeparator(*szRelPath))
-    ++szRelPath;
-
-  return szRelPath;
+  return szPath;
 }
 
 
@@ -496,7 +513,7 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
 
     relPath = &szPath[sRootName.GetElementCount() + 2];
 
-    absPath = pDataDir->m_pDataDirectory->GetDataDirectoryPath();
+    absPath = pDataDir->m_pDataDirectory->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
     absPath.AppendPath(relPath);
   }
   else
@@ -509,7 +526,7 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
 
     relPath = pReader->GetFilePath();
 
-    absPath = pReader->GetDataDirectory()->GetDataDirectoryPath();
+    absPath = pReader->GetDataDirectory()->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
     absPath.AppendPath(relPath);
 
     pReader->Close();
@@ -592,6 +609,98 @@ void ezFileSystem::Shutdown()
   EZ_DEFAULT_DELETE(s_Data);
 }
 
+ezResult ezFileSystem::DetectSdkRootDirectory()
+{
+  ezStringBuilder sdkRoot;
+  if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), "Data/Base", sdkRoot).Failed())
+  {
+    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
+    return EZ_FAILURE;
+  }
+
+  ezFileSystem::SetSdkRootDirectory(sdkRoot);
+  return EZ_SUCCESS;
+}
+
+void ezFileSystem::SetSdkRootDirectory(const char* szSdkDir)
+{
+  ezStringBuilder s = szSdkDir;
+  s.MakeCleanPath();
+
+  s_sSdkRootDir = s;
+}
+
+const char* ezFileSystem::GetSdkRootDirectory()
+{
+  EZ_ASSERT_DEV(!s_sSdkRootDir.IsEmpty(), "The project directory has not been set through 'ezFileSystem::SetSdkDirectory'.");
+  return s_sSdkRootDir.GetData();
+}
+
+void ezFileSystem::SetProjectDirectory(const char* szProjectDir)
+{
+  ezStringBuilder s = szProjectDir;
+  s.MakeCleanPath();
+
+  s_sProjectDir = s;
+}
+
+const char* ezFileSystem::GetProjectDirectory()
+{
+  EZ_ASSERT_DEV(!s_sProjectDir.IsEmpty(), "The project directory has not been set through 'ezFileSystem::SetProjectDirectory'.");
+  return s_sProjectDir.GetData();
+}
+
+ezResult ezFileSystem::GetSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path)
+{
+  if (ezStringUtils::IsNullOrEmpty(szDirectory) || szDirectory[0] != '>')
+  {
+    out_Path = szDirectory;
+    return EZ_FAILURE;
+  }
+
+  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">sdk/"))
+  {
+    out_Path = GetSdkRootDirectory();
+    out_Path.AppendPath(&szDirectory[5]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
+
+  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">project/"))
+  {
+    out_Path = GetProjectDirectory();
+    out_Path.AppendPath(&szDirectory[9]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
+
+  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">user/"))
+  {
+    out_Path = ezOSFile::GetUserDataFolder();
+    out_Path.AppendPath(&szDirectory[6]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
+
+  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">appdir/"))
+  {
+    out_Path = ezOSFile::GetApplicationDirectory();
+    out_Path.AppendPath(&szDirectory[8]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
+
+  out_Path = szDirectory;
+  return EZ_FAILURE;
+}
+
+ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)
+{
+  ezStringBuilder sRedir;
+  GetSpecialDirectory(szPath, sRedir);
+
+  return ezOSFile::CreateDirectoryStructure(sRedir);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileSystem);
 

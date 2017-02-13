@@ -9,12 +9,12 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
   EZ_LOG_BLOCK("ezQtEditorApp::SaveTagRegistry()");
 
   ezStringBuilder sPath;
-  sPath = ezApplicationConfig::GetProjectDirectory();
+  sPath = ezFileSystem::GetProjectDirectory();
   sPath.AppendPath("Tags.ddl");
 
   ezDeferredFileWriter file;
   file.SetOutput(sPath);
-  
+
   ezToolsTagRegistry::WriteToDDL(file);
 
   if (file.Close().Failed())
@@ -31,7 +31,7 @@ void ezQtEditorApp::ReadTagRegistry()
   ezToolsTagRegistry::Clear();
 
   ezStringBuilder sPath;
-  sPath = ezApplicationConfig::GetProjectDirectory();
+  sPath = ezFileSystem::GetProjectDirectory();
   sPath.AppendPath("Tags.ddl");
 
   ezFileReader file;

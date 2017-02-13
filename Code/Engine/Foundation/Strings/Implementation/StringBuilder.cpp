@@ -791,15 +791,25 @@ void ezStringBuilder::AppendPath(const char* szPath1, const char* szPath2, const
 
   for (ezUInt32 i = 0; i < 4; ++i)
   {
-    if (!ezStringUtils::IsNullOrEmpty(szPaths[i]))
+    const char* szThisPath = szPaths[i];
+
+    if (!ezStringUtils::IsNullOrEmpty(szThisPath))
     {
-      EZ_ASSERT_DEV(!ezPathUtils::IsPathSeparator(szPaths[i][0]) || (IsEmpty() && ezPathUtils::IsAbsolutePath(szPaths[i])),
-                    "The paths to append must not start with a path separator or it must be absolute and the current value must be empty.");
+      if ((IsEmpty() && ezPathUtils::IsAbsolutePath(szPaths[i])))
+      {
+        // this is for Linux systems where absolute paths start with a slash, wouldn't want to remove that
+      }
+      else
+      {
+        // prevent creating multiple path separators through concatenation
+        while (ezPathUtils::IsPathSeparator(szThisPath[0]))
+          ++szThisPath;
+      }
 
       if (IsEmpty() || ezPathUtils::IsPathSeparator(GetIteratorBack().GetCharacter()))
-        Append(szPaths[i]);
+        Append(szThisPath);
       else
-        Append("/", szPaths[i]);
+        Append("/", szThisPath);
     }
   }
 }

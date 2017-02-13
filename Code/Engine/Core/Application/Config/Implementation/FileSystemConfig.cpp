@@ -106,11 +106,24 @@ void ezApplicationFileSystemConfig::Load(const char* szPath /*= ":project/DataDi
     {
       if (cfg.m_sRootName == "project")
       {
-        cfg.m_sDataDirSpecialPath = ":project/";
+        cfg.m_sDataDirSpecialPath = ">project/";
       }
-      else if (!cfg.m_sDataDirSpecialPath.StartsWith_NoCase(":sdk/"))
+      else if (cfg.m_sDataDirSpecialPath.StartsWith_NoCase(":project/"))
       {
-        ezStringBuilder temp(":sdk/", cfg.m_sDataDirSpecialPath);
+        ezStringBuilder temp(">project/");
+        temp.AppendPath(cfg.m_sDataDirSpecialPath.GetData() + 9);
+        cfg.m_sDataDirSpecialPath = temp;
+      }
+      else if (cfg.m_sDataDirSpecialPath.StartsWith_NoCase(":sdk/"))
+      {
+        ezStringBuilder temp(">sdk/");
+        temp.AppendPath(cfg.m_sDataDirSpecialPath.GetData() + 5);
+        cfg.m_sDataDirSpecialPath = temp;
+      }
+      else if (!cfg.m_sDataDirSpecialPath.StartsWith_NoCase(">sdk/"))
+      {
+        ezStringBuilder temp(">sdk/");
+        temp.AppendPath(cfg.m_sDataDirSpecialPath);
         cfg.m_sDataDirSpecialPath = temp;
       }
     }
@@ -123,16 +136,16 @@ void ezApplicationFileSystemConfig::Apply()
 {
   EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Apply");
 
-  ezStringBuilder s;
+  //ezStringBuilder s;
 
   // Make sure previous calls to Apply do not accumulate
   Clear();
 
   for (const auto& var : m_DataDirs)
   {
-    if (ezApplicationConfig::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
+    //if (ezFileSystem::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
     {
-      ezFileSystem::AddDataDirectory(s, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
+      ezFileSystem::AddDataDirectory(var.m_sDataDirSpecialPath, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
     }
   }
 }
@@ -152,7 +165,7 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
 
   for (const auto& var : m_DataDirs)
   {
-    if (ezApplicationConfig::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Failed())
+    if (ezFileSystem::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Failed())
     {
       ezLog::Error("Failed to get special directory '{0}'", var.m_sDataDirSpecialPath);
       res = EZ_FAILURE;

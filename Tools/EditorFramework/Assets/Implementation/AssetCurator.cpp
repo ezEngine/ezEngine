@@ -58,7 +58,7 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sTemp;
-    if (ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    if (ezFileSystem::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
     {
       ezLog::Error("Failed to init directory watcher for dir '{0}'", dd.m_sDataDirSpecialPath);
       continue;
@@ -306,7 +306,7 @@ ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, s);
+    ezFileSystem::GetSpecialDirectory(dd.m_sDataDirSpecialPath, s);
     s.Append("/");
 
     if (WriteAssetTable(s, szPlatform).Failed())
@@ -505,14 +505,14 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+    ezFileSystem::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
 
     if (sAssetPath.IsPathBelowFolder(sDataDir))
       return sDataDir;
   }
 
   EZ_REPORT_FAILURE("Could not find data directory for asset '{0}", szAbsoluteAssetPath);
-  return ezApplicationConfig::GetSdkRootDirectory();
+  return ezFileSystem::GetSdkRootDirectory();
 }
 
 
@@ -561,7 +561,7 @@ void ezAssetCurator::CheckFileSystem()
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sTemp;
-    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp);
+    ezFileSystem::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp);
 
     range.BeginNextStep(dd.m_sDataDirSpecialPath);
 
@@ -874,7 +874,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sCoreCollectionPath;
-    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sCoreCollectionPath);
+    ezFileSystem::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sCoreCollectionPath);
 
     ezStringBuilder sName = sCoreCollectionPath.GetFileName();
     sName.Append(".ezCollectionAsset");
@@ -1219,7 +1219,7 @@ void ezAssetCurator::LoadCaches()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+    ezFileSystem::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
 
     ezStringBuilder sCacheFile = sDataDir;
     sCacheFile.AppendPath("AssetCache", "AssetCurator.ezCache");
@@ -1282,7 +1282,7 @@ void ezAssetCurator::SaveCaches()
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sDataDir;
-    ezApplicationConfig::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
+    ezFileSystem::GetSpecialDirectory(dd.m_sDataDirSpecialPath, sDataDir);
 
     ezStringBuilder sCacheFile = sDataDir;
     sCacheFile.AppendPath("AssetCache", "AssetCurator.ezCache");

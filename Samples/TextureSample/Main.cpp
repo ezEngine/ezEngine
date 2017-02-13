@@ -18,7 +18,6 @@
 #include <Core/Application/Application.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Core/Application/Config/ApplicationConfig.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Image/ImageConversion.h>
@@ -87,14 +86,10 @@ public:
 
   void AfterCoreStartup() override
   {
-    ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sBaseDir.AppendPath("../../Data/Base/");
-
-    ezStringBuilder sSharedDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sSharedDir.AppendPath("../../Data/FreeContent/");
-
     ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
     sProjectDir.AppendPath("../../Data/Samples/TextureSample");
+
+    ezFileSystem::SetProjectDirectory(sProjectDir);
 
     // setup the 'asset management system'
     {
@@ -107,13 +102,13 @@ public:
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
     ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-    ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-    ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
-    ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder("ezEngine Project/TextureSample"), "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+    ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
 
-    ezFileSystem::AddDataDirectory(sBaseDir.GetData(), "Base", "base");
-    ezFileSystem::AddDataDirectory(sSharedDir.GetData(), "Shared", "shared");
-    ezFileSystem::AddDataDirectory(sProjectDir.GetData(), "Project", "project", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");
+    ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared");
+    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

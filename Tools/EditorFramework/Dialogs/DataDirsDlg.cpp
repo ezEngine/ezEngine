@@ -112,11 +112,12 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
 
   sPreviousFolder = sFolder;
 
-  ezStringBuilder sRootPath = ezApplicationConfig::GetSdkRootDirectory();
+  ezStringBuilder sRootPath = ezFileSystem::GetSdkRootDirectory();
 
   ezStringBuilder sRelPath = sFolder.toUtf8().data();
   sRelPath.MakeRelativeTo(sRootPath);
-  sRelPath.Prepend(":sdk/");
+  sRelPath.Prepend(">sdk/");
+  sRelPath.MakeCleanPath();
 
   ezApplicationFileSystemConfig::DataDirConfig dd;
   dd.m_sDataDirSpecialPath = sRelPath;
@@ -155,7 +156,7 @@ void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
     return;
 
   ezStringBuilder sPath;
-  ezApplicationConfig::GetSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath);
+  ezFileSystem::GetSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath);
 
   QStringList args;
   args << "/select," << QDir::toNativeSeparators(sPath.GetData());

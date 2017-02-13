@@ -162,11 +162,10 @@ void ezShaderExplorerApp::AfterCoreStartup()
   m_camera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
 
-  ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sBaseDir.AppendPath("../../Data/Base/");
-
   ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sProjectDir.AppendPath("../../Data/Samples/ShaderExplorer");
+
+  ezFileSystem::SetProjectDirectory(sProjectDir);
 
   EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDir, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
@@ -181,12 +180,12 @@ void ezShaderExplorerApp::AfterCoreStartup()
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
-  ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder("ezEngine Project/ShaderExplorer"), "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
+  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+  ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
 
-  ezFileSystem::AddDataDirectory(sBaseDir.GetData(), "Base", "base");
-  ezFileSystem::AddDataDirectory(sProjectDir.GetData(), "Project", "project", ezFileSystem::AllowWrites);
+  ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");
+  ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites);
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

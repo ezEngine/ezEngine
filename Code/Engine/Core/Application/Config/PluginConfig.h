@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Core/Application/Config/ApplicationConfig.h>
 
 class EZ_CORE_DLL ezApplicationPluginConfig
 {

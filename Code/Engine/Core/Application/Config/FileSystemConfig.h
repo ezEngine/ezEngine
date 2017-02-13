@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Core/Application/Config/ApplicationConfig.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class EZ_CORE_DLL ezApplicationFileSystemConfig
 {

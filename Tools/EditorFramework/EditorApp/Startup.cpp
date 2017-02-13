@@ -146,13 +146,13 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   const ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
 
   // make sure these folders exist
-  ezOSFile::CreateDirectoryStructure(sAppDir);
-  ezOSFile::CreateDirectoryStructure(sUserData);
+  ezFileSystem::CreateDirectoryStructure(sAppDir);
+  ezFileSystem::CreateDirectoryStructure(sUserData);
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites); // for absolute paths
-  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
   ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app"); // app specific data
   ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 

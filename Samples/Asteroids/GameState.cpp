@@ -7,8 +7,6 @@
 
 #include <InputXBox360/InputDeviceXBox.h>
 
-#include <Core/Application/Config/ApplicationConfig.h>
-
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <System/Window/Window.h>
 

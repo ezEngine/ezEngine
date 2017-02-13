@@ -39,7 +39,7 @@ void ezGameApplication::DoProjectSetup()
 
   ezTelemetry::CreateServer();
 
-  ezApplicationConfig::SetProjectDirectory(FindProjectDirectory());
+  ezFileSystem::SetProjectDirectory(FindProjectDirectory());
 
   DoConfigureFileSystem();
   DoConfigureAssetManagement();
@@ -68,13 +68,13 @@ void ezGameApplication::DoConfigureFileSystem()
 
 void ezGameApplication::DoSetupDataDirectories()
 {
-  const ezString sUserData = ezOSFile::GetUserDataFolder(m_sAppName);
+  const ezStringBuilder sUserData(">user/", m_sAppName);
 
-  ezOSFile::CreateDirectoryStructure(sUserData);
+  ezFileSystem::CreateDirectoryStructure(sUserData);
 
-  // TODO: Application directory is not writeable in UWP (and probably other platforms). We need a more elegant solution than this.
-  ezString writableBinRoot = ezOSFile::GetApplicationDirectory();
-  ezString shaderCacheRoot = ezOSFile::GetApplicationDirectory();
+  // TODO: Application directory is not writable in UWP (and probably other platforms). We need a more elegant solution than this.
+  ezString writableBinRoot = ">appdir/";
+  ezString shaderCacheRoot = ">appdir/";
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   writableBinRoot = sUserData;
   shaderCacheRoot = sUserData;
@@ -87,17 +87,8 @@ void ezGameApplication::DoSetupDataDirectories()
 
   // setup the main data directories ":base/" and ":project/"
   {
-    ezStringBuilder s;
-
-    if (ezApplicationConfig::GetSpecialDirectory(":sdk/Data/Base", s).Succeeded())
-    {
-      ezFileSystem::AddDataDirectory(s, "GameApplication", "base", ezFileSystem::DataDirUsage::ReadOnly);
-    }
-
-    if (ezApplicationConfig::GetSpecialDirectory(":project/", s).Succeeded())
-    {
-      ezFileSystem::AddDataDirectory(s, "GameApplication", "project", ezFileSystem::DataDirUsage::ReadOnly);
-    }
+    ezFileSystem::AddDataDirectory(">sdk/Data/Base", "GameApplication", "base", ezFileSystem::DataDirUsage::ReadOnly);
+    ezFileSystem::AddDataDirectory(">project/", "GameApplication", "project", ezFileSystem::DataDirUsage::ReadOnly);
   }
 
   ezApplicationFileSystemConfig appFileSystemConfig;

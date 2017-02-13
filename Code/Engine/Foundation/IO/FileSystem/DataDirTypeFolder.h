@@ -36,6 +36,8 @@ namespace ezDataDirectory
     /// \brief When s_sRedirectionFile and s_sRedirectionPrefix are used to enable file redirection, this will reload those config files.
     virtual void ReloadExternalConfigs() override;
 
+    virtual const ezString128& GetRedirectedDataDirectoryPath() const { return m_sRedirectedDataDirPath; }
+
   protected:
     // The implementations of the abstract functions.
 
@@ -62,6 +64,7 @@ namespace ezDataDirectory
 
     mutable ezMutex m_RedirectionMutex;
     ezMap<ezString, ezString> m_FileRedirection;
+    ezString128 m_sRedirectedDataDirPath;
   };
 
 

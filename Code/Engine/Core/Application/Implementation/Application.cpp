@@ -1,8 +1,8 @@
 
 #include <Core/PCH.h>
 #include <Core/Application/Application.h>
-#include <Core/Application/Config/ApplicationConfig.h>
-
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Reflection/Reflection.h>
 
 ezApplication::ezApplication() :
   m_iReturnCode(0),
@@ -13,7 +13,6 @@ ezApplication::ezApplication() :
 
 }
 
-
 ezApplication::~ezApplication()
 {
 
@@ -21,7 +20,7 @@ ezApplication::~ezApplication()
 
 void ezApplication::BeforeCoreStartup()
 {
-  ezApplicationConfig::DetectSdkRootDirectory();
+  ezFileSystem::DetectSdkRootDirectory();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   ezRTTI::VerifyCorrectnessForAllTypes();

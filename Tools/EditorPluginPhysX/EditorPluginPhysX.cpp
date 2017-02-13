@@ -79,7 +79,7 @@ void UpdateCollisionLayerDynamicEnumValues()
   auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsCollisionLayer");
   cfe.Clear();
 
-  ezStringBuilder sPath = ezApplicationConfig::GetProjectDirectory();
+  ezStringBuilder sPath = ezFileSystem::GetProjectDirectory();
   sPath.AppendPath("Physics/CollisionLayers.cfg");
 
   ezCollisionFilterConfig cfg;

@@ -6,7 +6,7 @@
 #include <QDialogButtonBox>
 #include <QInputDialog>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Core/Application/Config/ApplicationConfig.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
 
@@ -69,7 +69,7 @@ void ezQtPhysxProjectSettingsDlg::SetupTable()
 
 ezResult ezQtPhysxProjectSettingsDlg::Save()
 {
-  ezStringBuilder sPath = ezApplicationConfig::GetProjectDirectory();
+  ezStringBuilder sPath = ezFileSystem::GetProjectDirectory();
   sPath.AppendPath("Physics/CollisionLayers.cfg");
 
   if (m_Config.Save(sPath).Failed())
@@ -89,7 +89,7 @@ ezResult ezQtPhysxProjectSettingsDlg::Save()
 
 ezResult ezQtPhysxProjectSettingsDlg::Load()
 {
-  ezStringBuilder sPath = ezApplicationConfig::GetProjectDirectory();
+  ezStringBuilder sPath = ezFileSystem::GetProjectDirectory();
   sPath.AppendPath("Physics/CollisionLayers.cfg");
 
   auto res = m_Config.Load(sPath);

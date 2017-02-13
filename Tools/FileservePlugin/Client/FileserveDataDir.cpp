@@ -92,6 +92,13 @@ ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataD
   if (ezFileserveClient::GetSingleton()->EnsureConnected().Failed())
     return nullptr;
 
+  //ezStringBuilder sDataDir = szDataDirectory;
+  //sDataDir.MakeCleanPath();
+  //ezStringBuilder sSpecialPath;
+  //ezFileSystem::GetSpecialDirectory(szDataDirectory, sSpecialPath);
+  //sSpecialPath.MakeRelativeTo(ezFileSystem::GetSdkRootDirectory());
+  //sDataDir.Set(">sdk/", sSpecialPath);
+
   ezDataDirectory::FileserveType* pDataDir = EZ_DEFAULT_NEW(ezDataDirectory::FileserveType);
   pDataDir->m_uiDataDirID = ezFileserveClient::GetSingleton()->MountDataDirectory(szDataDirectory, szRootName);
 
