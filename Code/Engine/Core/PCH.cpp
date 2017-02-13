@@ -5,7 +5,6 @@ EZ_STATICLINK_LIBRARY(Core)
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(Core_Application_Config_Implementation_ApplicationConfig);
   EZ_STATICLINK_REFERENCE(Core_Application_Config_Implementation_FileSystemConfig);
   EZ_STATICLINK_REFERENCE(Core_Application_Config_Implementation_PluginConfig);
   EZ_STATICLINK_REFERENCE(Core_Application_Implementation_Application);
