@@ -19,6 +19,7 @@ struct ezFileserverEvent
     ClientConnected,
     ClientDisconnected,
     MountDataDir,
+    MountDataDirFailed,
     UnmountDataDir,
     FileDownloadRequest,
     FileDownloading,
@@ -31,8 +32,9 @@ struct ezFileserverEvent
 
   Type m_Type = Type::None;
   ezUInt32 m_uiClientID = 0;
-  const char* m_szPath = nullptr;
   const char* m_szName = nullptr;
+  const char* m_szPath = nullptr;
+  const char* m_szRedirectedPath = nullptr;
   ezUInt32 m_uiSizeTotal = 0;
   ezUInt32 m_uiSentTotal = 0;
   ezFileserveFileState m_FileState = ezFileserveFileState::None;

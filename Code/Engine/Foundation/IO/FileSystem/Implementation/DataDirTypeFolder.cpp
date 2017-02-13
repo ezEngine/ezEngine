@@ -167,7 +167,7 @@ namespace ezDataDirectory
       return EZ_SUCCESS;
 
     ezStringBuilder sRedirected;
-    if (ezFileSystem::GetSpecialDirectory(szDirectory, sRedirected).Succeeded())
+    if (ezFileSystem::ResolveSpecialDirectory(szDirectory, sRedirected).Succeeded())
     {
       m_sRedirectedDataDirPath = sRedirected;
     }

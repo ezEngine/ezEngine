@@ -89,7 +89,7 @@ public:
     ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
     sProjectDir.AppendPath("../../Data/Samples/TextureSample");
 
-    ezFileSystem::SetProjectDirectory(sProjectDir);
+    ezFileSystem::SetSpecialDirectory("project", sProjectDir);
 
     // setup the 'asset management system'
     {

@@ -136,7 +136,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       // remove all data directories that were loaded by the project configuration
       ezApplicationFileSystemConfig::Clear();
-      ezFileSystem::SetProjectDirectory("");
+      ezFileSystem::SetSpecialDirectory("project", nullptr); // removes this directory
 
       s_ReloadProjectRequiredReasons.Clear();
       UpdateGlobalStatusBarMessage();

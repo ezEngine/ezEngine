@@ -34,6 +34,7 @@ public slots:
 private:
   void FileserverEventHandler(const ezFileserverEvent& e);
   void LogActivity(const ezFormatString& text, ezFileserveActivityType type);
+  void UpdateSpecialDirectoryUI();
 
   ezQtFileserveActivityModel* m_pActivityModel;
   ezQtFileserveAllFilesModel* m_pAllFilesModel;
@@ -43,6 +44,7 @@ private:
   {
     ezString m_sName;
     ezString m_sPath;
+    ezString m_sRedirectedPath;
   };
 
   struct ClientData
@@ -51,7 +53,16 @@ private:
     ezHybridArray<DataDirInfo, 8> m_DataDirs;
   };
 
+  struct SpecialDir
+  {
+    ezString m_sName;
+    ezString m_sPath;
+  };
+
+  ezHybridArray<SpecialDir, 4> m_SpecialDirectories;
+
   ezHashTable<ezUInt32, ClientData> m_Clients;
   void UpdateClientList();
+  void ConfigureSpecialDirectories();
 };
 

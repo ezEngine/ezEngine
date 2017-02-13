@@ -21,7 +21,7 @@ ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent)
 
   m_pFileserveWidget = new ezQtFileserveWidget(this);
   QMainWindow::setCentralWidget(m_pFileserveWidget);
-  resize(600, 550);
+  resize(700, 650);
 
   connect(m_pFileserveWidget, &ezQtFileserveWidget::ServerStarted, this, &ezQtFileserveMainWnd::OnServerStarted);
   connect(m_pFileserveWidget, &ezQtFileserveWidget::ServerStopped, this, &ezQtFileserveMainWnd::OnServerStopped);

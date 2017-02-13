@@ -109,6 +109,7 @@ public:
   /// Returns an empty string, if no such directory could be found.
   ezString SearchProjectDirectory(const char* szStartDirectory, const char* szRelPathToProjectFile) const;
 
+  /// \todo Fix this comment
   /// \brief virtual function that is called by DoProjectSetup(). The result is passed to ezFileSystem::SetProjectDirectory
   ///
   /// The default implementation relies on a valid path in m_sAppProjectPath.

@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <FileservePlugin/Client/FileserveClient.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFileserver);
 
@@ -12,6 +13,9 @@ ezFileserver::ezFileserver()
 {
   // once a server exists, the client should stay inactive
   ezFileserveClient::s_bEnableFileserve = false;
+
+  // check whether the fileserve port was reconfigured through the command line
+  m_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fsport", m_uiPort);
 }
 
 void ezFileserver::StartServer()
@@ -162,16 +166,25 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
   dir.m_sPathOnClient = sDataDir;
   dir.m_sRootName = sRootName;
   dir.m_sMountPoint = sMountPoint;
-  dir.m_bMounted = true;
-
-  ezFileSystem::GetSpecialDirectory(sDataDir, sRedir);
-  dir.m_sPathOnServer = sRedir;
 
   ezFileserverEvent e;
-  e.m_Type = ezFileserverEvent::Type::MountDataDir;
+
+  if (ezFileSystem::ResolveSpecialDirectory(sDataDir, sRedir).Succeeded())
+  {
+    dir.m_bMounted = true;
+    dir.m_sPathOnServer = sRedir;
+    e.m_Type = ezFileserverEvent::Type::MountDataDir;
+  }
+  else
+  {
+    dir.m_bMounted = false;
+    e.m_Type = ezFileserverEvent::Type::MountDataDirFailed;
+  }
+
   e.m_uiClientID = client.m_uiApplicationID;
-  e.m_szPath = sDataDir;
   e.m_szName = sRootName;
+  e.m_szPath = sDataDir;
+  e.m_szRedirectedPath = sRedir;
   m_Events.Broadcast(e);
 }
 

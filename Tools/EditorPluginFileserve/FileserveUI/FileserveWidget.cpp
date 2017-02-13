@@ -9,6 +9,9 @@
 #include <QAbstractSocket>
 #include <QNetworkInterface>
 #include <GuiFoundation/Basics.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <QTableWidget>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
 {
@@ -24,7 +27,10 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
   AllFilesList->horizontalHeader()->setVisible(true);
 
   {
+    ClientsList->setColumnCount(3);
+
     QStringList header;
+    header.append("");
     header.append("");
     header.append("");
     ClientsList->setHeaderLabels(header);
@@ -63,6 +69,20 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
 
     IpLabel->setText(sDisplayString.GetData());
   }
+
+  SpecialDirAddButton->setVisible(false);
+  SpecialDirBrowseButton->setVisible(false);
+  SpecialDirRemoveButton->setVisible(false);
+
+  SpecialDirList->setToolTip("Special directories allow to redirect mount requests from the client to a specific folder on the server.\n\n"
+                             "Some special directories are built in (e.g. 'sdk', 'user' and 'appdir') but you can add custom ones, if your app needs one.\n"
+                             "To add special directories, run Fileserve with the command line argument '-specialdirs' followed by the name and the path to a directory.\n\n"
+                             "For instance:\n"
+                             "-specialdirs project \"C:\\path\\to\\project\" secondDir \"d:\\another\\path\"");
+
+  ConfigureSpecialDirectories();
+
+  UpdateSpecialDirectoryUI();
 }
 
 void ezQtFileserveWidget::FindOwnIP(ezStringBuilder& out_Display, ezStringBuilder& out_FirstIP)
@@ -208,6 +228,20 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
       DataDirInfo& dd = m_Clients[e.m_uiClientID].m_DataDirs.ExpandAndGetRef();
       dd.m_sName = e.m_szName;
       dd.m_sPath = e.m_szPath;
+      dd.m_sRedirectedPath = e.m_szRedirectedPath;
+
+      UpdateClientList();
+    }
+    break;
+
+  case ezFileserverEvent::Type::MountDataDirFailed:
+    {
+      LogActivity(e.m_szPath, ezFileserveActivityType::MountFailed);
+
+      DataDirInfo& dd = m_Clients[e.m_uiClientID].m_DataDirs.ExpandAndGetRef();
+      dd.m_sName = e.m_szName;
+      dd.m_sPath = e.m_szPath;
+      dd.m_sRedirectedPath = "Failed to mount this directory. Special directory name unknown.";
 
       UpdateClientList();
     }
@@ -297,6 +331,94 @@ void ezQtFileserveWidget::LogActivity(const ezFormatString& text, ezFileserveAct
   item.m_Type = type;
 }
 
+void ezQtFileserveWidget::UpdateSpecialDirectoryUI()
+{
+  QTableWidget* pTable = SpecialDirList;
+  ezQtScopedBlockSignals bs(SpecialDirList);
+
+  QStringList header;
+  header.append("Special Directory");
+  header.append("Path");
+
+  SpecialDirList->clear();
+  pTable->setColumnCount(2);
+  pTable->setRowCount(m_SpecialDirectories.GetCount() + 3);
+  pTable->horizontalHeader()->setStretchLastSection(true);
+  pTable->verticalHeader()->setDefaultSectionSize(24);
+  pTable->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+  pTable->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+  pTable->verticalHeader()->setHidden(true);
+  pTable->setHorizontalHeaderLabels(header);
+
+  ezStringBuilder sResolved;
+  QTableWidgetItem* pItem;
+
+  ezUInt32 row = 0;
+
+  for (ezUInt32 i = 0; i < m_SpecialDirectories.GetCount(); ++i, ++row)
+  {
+    pItem = new QTableWidgetItem();
+    pItem->setText(m_SpecialDirectories[i].m_sName.GetData());
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 0, pItem);
+
+    pItem = new QTableWidgetItem();
+    pItem->setText(m_SpecialDirectories[i].m_sPath.GetData());
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 1, pItem);
+  }
+
+  {
+    ezFileSystem::ResolveSpecialDirectory(">sdk", sResolved);
+
+    pItem = new QTableWidgetItem();
+    pItem->setText("sdk");
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 0, pItem);
+
+    pItem = new QTableWidgetItem();
+    pItem->setText(sResolved.GetData());
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 1, pItem);
+
+    ++row;
+  }
+
+  {
+    ezFileSystem::ResolveSpecialDirectory(">user", sResolved);
+
+    pItem = new QTableWidgetItem();
+    pItem->setText("user");
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 0, pItem);
+
+    pItem = new QTableWidgetItem();
+    pItem->setText(sResolved.GetData());
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 1, pItem);
+
+    ++row;
+  }
+
+  {
+    ezFileSystem::ResolveSpecialDirectory(">appdir", sResolved);
+
+    pItem = new QTableWidgetItem();
+    pItem->setText("appdir");
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 0, pItem);
+
+    pItem = new QTableWidgetItem();
+    pItem->setText(sResolved.GetData());
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pTable->setItem(row, 1, pItem);
+
+    ++row;
+  }
+
+
+}
+
 void ezQtFileserveWidget::UpdateClientList()
 {
   ezQtScopedBlockSignals bs(ClientsList);
@@ -325,9 +447,41 @@ void ezQtFileserveWidget::UpdateClientList()
 
       pDir->setText(0, sName.GetData());
       pDir->setText(1, dd.m_sPath.GetData());
+      pDir->setText(2, dd.m_sRedirectedPath.GetData());
+
+      if (dd.m_sRedirectedPath.StartsWith("Failed"))
+        pDir->setTextColor(2, QColor::fromRgb(255, 0, 0));
     }
 
     pClient->setExpanded(it.Value().m_bConnected);
+  }
+
+  ClientsList->resizeColumnToContents(2);
+  ClientsList->resizeColumnToContents(1);
+  ClientsList->resizeColumnToContents(0);
+}
+
+void ezQtFileserveWidget::ConfigureSpecialDirectories()
+{
+  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+  const ezUInt32 uiArgs = pCmd->GetStringOptionArguments("-specialdirs");
+
+  ezStringBuilder sDir, sPath;
+
+  for (ezUInt32 i = 0; i < uiArgs; i += 2)
+  {
+    sDir = pCmd->GetStringOption("-specialdirs", i, "");
+    sPath = pCmd->GetStringOption("-specialdirs", i + 1, "");
+
+    if (sDir.IsEmpty() || sPath.IsEmpty())
+      continue;
+
+    ezFileSystem::SetSpecialDirectory(sDir, sPath);
+    sPath.MakeCleanPath();
+
+    auto& sd = m_SpecialDirectories.ExpandAndGetRef();
+    sd.m_sName = sDir;
+    sd.m_sPath = sPath;
   }
 }
 

@@ -165,7 +165,7 @@ void ezShaderExplorerApp::AfterCoreStartup()
   ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sProjectDir.AppendPath("../../Data/Samples/ShaderExplorer");
 
-  ezFileSystem::SetProjectDirectory(sProjectDir);
+  ezFileSystem::SetSpecialDirectory("project", sProjectDir);
 
   EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDir, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 

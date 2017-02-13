@@ -6,7 +6,8 @@ ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16 uiDataDirI
 {
   const auto& dd = m_MountedDataDirs[uiDataDirID];
 
-  EZ_ASSERT_DEV(dd.m_bMounted, "Data direcory {0} is not mounted", uiDataDirID);
+  if (!dd.m_bMounted)
+    return ezFileserveFileState::NonExistant;
 
   ezStringBuilder sAbsPath;
   sAbsPath = dd.m_sPathOnServer;

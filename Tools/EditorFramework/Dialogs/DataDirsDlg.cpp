@@ -156,7 +156,7 @@ void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
     return;
 
   ezStringBuilder sPath;
-  ezFileSystem::GetSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath);
+  ezFileSystem::ResolveSpecialDirectory(m_Config.m_DataDirs[m_iSelection].m_sDataDirSpecialPath, sPath);
 
   QStringList args;
   args << "/select," << QDir::toNativeSeparators(sPath.GetData());

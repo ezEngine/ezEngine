@@ -39,7 +39,7 @@ void ezGameApplication::DoProjectSetup()
 
   ezTelemetry::CreateServer();
 
-  ezFileSystem::SetProjectDirectory(FindProjectDirectory());
+  ezFileSystem::SetSpecialDirectory("project", FindProjectDirectory());
 
   DoConfigureFileSystem();
   DoConfigureAssetManagement();

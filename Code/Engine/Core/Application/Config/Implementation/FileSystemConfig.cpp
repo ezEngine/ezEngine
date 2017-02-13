@@ -143,7 +143,7 @@ void ezApplicationFileSystemConfig::Apply()
 
   for (const auto& var : m_DataDirs)
   {
-    //if (ezFileSystem::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
+    //if (ezFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
     {
       ezFileSystem::AddDataDirectory(var.m_sDataDirSpecialPath, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
     }
@@ -165,7 +165,7 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
 
   for (const auto& var : m_DataDirs)
   {
-    if (ezFileSystem::GetSpecialDirectory(var.m_sDataDirSpecialPath, s).Failed())
+    if (ezFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Failed())
     {
       ezLog::Error("Failed to get special directory '{0}'", var.m_sDataDirSpecialPath);
       res = EZ_FAILURE;

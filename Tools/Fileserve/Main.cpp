@@ -25,7 +25,7 @@ int main(int argc, const char** argv)
   QApplication* pQtApplication = new QApplication(argc, const_cast<char**>(argv));
 
   ezRun_Startup(pApp);
-  ezFileSystem::SetProjectDirectory(ezFileSystem::GetSdkRootDirectory());
+
   CreateFileserveMainWindow(pApp);
   pQtApplication->exec();
   ezRun_Shutdown(pApp);

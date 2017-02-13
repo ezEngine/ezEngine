@@ -11,6 +11,7 @@ enum class ezFileserveActivityType
   ClientConnect,
   ClientDisconnect,
   Mount,
+  MountFailed,
   Unmount,
   ReadFile,
   WriteFile,

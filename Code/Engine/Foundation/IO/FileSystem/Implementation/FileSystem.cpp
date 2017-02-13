@@ -20,7 +20,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 ezFileSystem::FileSystemData* ezFileSystem::s_Data = nullptr;
 ezString ezFileSystem::s_sSdkRootDir;
-ezString ezFileSystem::s_sProjectDir;
+ezMap<ezString, ezString> ezFileSystem::s_SpecialDirectories;
 
 ezMutex& ezFileSystem::GetFileSystemMutex()
 {
@@ -636,68 +636,80 @@ const char* ezFileSystem::GetSdkRootDirectory()
   return s_sSdkRootDir.GetData();
 }
 
-void ezFileSystem::SetProjectDirectory(const char* szProjectDir)
+void ezFileSystem::SetSpecialDirectory(const char* szName, const char* szReplacement)
 {
-  ezStringBuilder s = szProjectDir;
-  s.MakeCleanPath();
+  ezStringBuilder tmp = szName;
+  tmp.ToLower();
 
-  s_sProjectDir = s;
+  if (szReplacement == nullptr)
+  {
+    s_SpecialDirectories.Remove(tmp);
+  }
+  else
+  {
+    s_SpecialDirectories[tmp] = szReplacement;
+  }
 }
 
-const char* ezFileSystem::GetProjectDirectory()
-{
-  EZ_ASSERT_DEV(!s_sProjectDir.IsEmpty(), "The project directory has not been set through 'ezFileSystem::SetProjectDirectory'.");
-  return s_sProjectDir.GetData();
-}
-
-ezResult ezFileSystem::GetSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path)
+ezResult ezFileSystem::ResolveSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path)
 {
   if (ezStringUtils::IsNullOrEmpty(szDirectory) || szDirectory[0] != '>')
   {
     out_Path = szDirectory;
-    return EZ_FAILURE;
+    return EZ_SUCCESS;
   }
 
-  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">sdk/"))
+  const char* szStart = szDirectory + 1; // skip the '>'
+
+  const char* szEnd = ezStringUtils::FindSubString(szStart, "/");
+
+  if (szEnd == nullptr)
+    szEnd = szStart + ezStringUtils::GetStringElementCount(szStart);
+
+  ezStringBuilder sName;
+  sName.SetSubString_FromTo(szStart, szEnd);
+  sName.ToLower();
+
+  const auto it = s_SpecialDirectories.Find(sName);
+  if (it.IsValid())
+  {
+    out_Path = it.Value();
+    out_Path.AppendPath(szEnd); // szEnd might be on \0 or a slash
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
+
+  if (sName == "sdk")
   {
     out_Path = GetSdkRootDirectory();
+    out_Path.AppendPath(&szDirectory[4]);
+    out_Path.MakeCleanPath();
+    return EZ_SUCCESS;
+  }
+
+  if (sName == "user")
+  {
+    out_Path = ezOSFile::GetUserDataFolder();
     out_Path.AppendPath(&szDirectory[5]);
     out_Path.MakeCleanPath();
     return EZ_SUCCESS;
   }
 
-  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">project/"))
-  {
-    out_Path = GetProjectDirectory();
-    out_Path.AppendPath(&szDirectory[9]);
-    out_Path.MakeCleanPath();
-    return EZ_SUCCESS;
-  }
-
-  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">user/"))
-  {
-    out_Path = ezOSFile::GetUserDataFolder();
-    out_Path.AppendPath(&szDirectory[6]);
-    out_Path.MakeCleanPath();
-    return EZ_SUCCESS;
-  }
-
-  if (ezStringUtils::StartsWith_NoCase(szDirectory, ">appdir/"))
+  if (sName == "appdir")
   {
     out_Path = ezOSFile::GetApplicationDirectory();
-    out_Path.AppendPath(&szDirectory[8]);
+    out_Path.AppendPath(&szDirectory[7]);
     out_Path.MakeCleanPath();
     return EZ_SUCCESS;
   }
 
-  out_Path = szDirectory;
   return EZ_FAILURE;
 }
 
 ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)
 {
   ezStringBuilder sRedir;
-  GetSpecialDirectory(szPath, sRedir);
+  ResolveSpecialDirectory(szPath, sRedir);
 
   return ezOSFile::CreateDirectoryStructure(sRedir);
 }

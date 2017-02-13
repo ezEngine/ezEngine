@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Containers/Map.h>
 
 /// \brief The ezFileSystem provides high-level functionality to manage files in a virtual file system.
 ///
@@ -118,14 +119,13 @@ public:
   static void SetSdkRootDirectory(const char* szSdkDir);
   static const char* GetSdkRootDirectory();
 
-  static void SetProjectDirectory(const char* szProjectDir);
-  static const char* GetProjectDirectory();
+  static void SetSpecialDirectory(const char* szName, const char* szReplacement);
 
   /// \brief Returns the absolute path to directory.
   ///
   /// If \a szDirectory starts with ':sdk/" the path will be relative to the Sdk root directory.
   /// If \a szDirectory starts with ':project/' the path will be relative to the project directory.
-  static ezResult GetSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
+  static ezResult ResolveSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
 
   ///@}
 
@@ -232,7 +232,7 @@ private:
   static DataDirectory* GetDataDirForRoot(const ezString& sRoot);
 
   static ezString s_sSdkRootDir;
-  static ezString s_sProjectDir;
+  static ezMap<ezString, ezString> s_SpecialDirectories;
   static FileSystemData* s_Data;
 };
 

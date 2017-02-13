@@ -41,6 +41,8 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
         return "Client Disconnect";
       case ezFileserveActivityType::Mount:
         return "Mount";
+      case ezFileserveActivityType::MountFailed:
+        return "Failed Mount";
       case ezFileserveActivityType::Unmount:
         return "Unmount";
       case ezFileserveActivityType::ReadFile:
@@ -68,6 +70,8 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
 
       case ezFileserveActivityType::Mount:
         return QColor::fromRgb(0, 0, 200);
+      case ezFileserveActivityType::MountFailed:
+        return QColor::fromRgb(255, 0, 0);
       case ezFileserveActivityType::Unmount:
         return QColor::fromRgb(150, 0, 200);
 
