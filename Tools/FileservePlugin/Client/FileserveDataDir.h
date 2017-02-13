@@ -25,9 +25,6 @@ namespace ezDataDirectory
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
     static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
 
-    /// \brief [internal] Fileserve caches all files in a writable user folder for actual disk access.
-    virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sFileserveCacheFolder; }
-
     /// \brief [internal] Makes sure the redirection config files are up to date and then reloads them.
     virtual void ReloadExternalConfigs() override;
 
@@ -43,7 +40,6 @@ namespace ezDataDirectory
     virtual FolderWriter* CreateFolderWriter() const override;
 
     ezUInt16 m_uiDataDirID = 0xffff;
-    ezString128 m_sFileserveCacheFolder;
     ezString128 m_sFileserveCacheMetaFolder;
 
 

@@ -260,6 +260,12 @@ void ezGameApplication::DoLoadCustomPlugins()
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Could not load HLSL Shader Compiler Plugin.");
 #endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // on UWP we don't have full filesystem access, so always try to use Fileserve
+  ezPlugin::LoadPlugin("ezFileservePlugin");
+#endif
+
 #endif
 }
 

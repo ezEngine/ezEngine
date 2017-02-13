@@ -83,6 +83,11 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
   ConfigureSpecialDirectories();
 
   UpdateSpecialDirectoryUI();
+
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fsstart"))
+  {
+    QTimer::singleShot(100, this, &ezQtFileserveWidget::on_StartServerButton_clicked);
+  }
 }
 
 void ezQtFileserveWidget::FindOwnIP(ezStringBuilder& out_Display, ezStringBuilder& out_FirstIP)

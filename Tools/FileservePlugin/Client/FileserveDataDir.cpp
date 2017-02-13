@@ -52,10 +52,11 @@ ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(const c
 
   ezStringBuilder sCacheFolder, sCacheMetaFolder;
   ezFileserveClient::GetSingleton()->GetFullDataDirCachePath(sDataDir, sCacheFolder, sCacheMetaFolder);
-  m_sFileserveCacheFolder = sCacheFolder;
+  m_sRedirectedDataDirPath = sCacheFolder;
   m_sFileserveCacheMetaFolder = sCacheMetaFolder;
 
-  return FolderType::InternalInitializeDataDirectory(sDataDir);
+  ReloadExternalConfigs();
+  return EZ_SUCCESS;
 }
 
 void ezDataDirectory::FileserveType::RemoveDataDirectory()

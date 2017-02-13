@@ -612,11 +612,17 @@ void ezFileSystem::Shutdown()
 ezResult ezFileSystem::DetectSdkRootDirectory()
 {
   ezStringBuilder sdkRoot;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // Probably this is what needs to be done on all mobile platforms as well
+  sdkRoot = ezOSFile::GetApplicationDirectory();
+#else
   if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), "Data/Base", sdkRoot).Failed())
   {
     ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
     return EZ_FAILURE;
   }
+#endif
 
   ezFileSystem::SetSdkRootDirectory(sdkRoot);
   return EZ_SUCCESS;
