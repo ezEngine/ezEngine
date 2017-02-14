@@ -25,6 +25,16 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
 
   const auto& item = m_Items[index.row()];
 
+  if (role == Qt::ToolTipRole)
+  {
+    if (item.m_Type == ezFileserveActivityType::ReadFile)
+    {
+      return QString("[TIME] == File was not transferred because the timestamps match on server and client.\n"
+                     "[HASH] == File was not transferred because the file hashes matched on server and client.\n"
+                     "[N/A] == File does not exist on the server (in the requested data directory).");
+    }
+  }
+
   if (index.column() == 0)
   {
     if (role == Qt::DisplayRole)

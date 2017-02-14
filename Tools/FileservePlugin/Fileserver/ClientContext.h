@@ -34,7 +34,7 @@ public:
     ezUInt64 m_uiFileSize = 0;
   };
 
-  ezFileserveFileState GetFileStatus(ezUInt16 uiDataDirID, const char* szRequestedFile, FileStatus& inout_Status, ezDynamicArray<ezUInt8>& out_FileContent) const;
+  ezFileserveFileState GetFileStatus(ezUInt16& inout_uiDataDirID, const char* szRequestedFile, FileStatus& inout_Status, ezDynamicArray<ezUInt8>& out_FileContent, bool bForceThisDataDir) const;
 
   ezUInt32 m_uiApplicationID = 0;
   ezHybridArray<DataDir, 8> m_MountedDataDirs;

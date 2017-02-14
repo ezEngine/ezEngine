@@ -52,7 +52,6 @@ private:
 
   struct FileCacheStatus
   {
-    ezUInt16 m_uiDataDir = 0xffff;
     ezInt64 m_TimeStamp = 0;
     ezUInt64 m_FileHash = 0;
     ezTime m_LastCheck;
@@ -64,6 +63,8 @@ private:
     //ezString m_sPathOnClient;
     ezString m_sMountPoint;
     bool m_bMounted = false;
+
+    ezMap<ezString, FileCacheStatus> m_CacheStatus;
   };
 
   void DeleteFile(ezUInt16 uiDataDir, const char* szFile);
@@ -85,14 +86,13 @@ private:
   bool m_bDownloading = false;
   bool m_bFailedToConnect = false;
   ezUuid m_CurFileRequestGuid;
-  ezUInt16 m_uiCurFileRequestDataDir = 0;
   ezStringBuilder m_sCurFileRequest;
-  ezStringBuilder m_sCurFileRequestCacheName;
   ezUniquePtr<ezNetworkInterface> m_Network;
   ezDynamicArray<ezUInt8> m_Download;
-  ezMap<ezString, FileCacheStatus> m_CachedFileStatus;
 
+  ezMap<ezString, ezUInt16> m_FileDataDir;
 
   ezHybridArray<DataDir, 8> m_MountedDataDirs;
+  void FillFileStatusCache(const char* szFile);
 };
 

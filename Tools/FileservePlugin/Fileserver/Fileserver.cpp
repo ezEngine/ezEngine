@@ -210,8 +210,10 @@ void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezNetw
 void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
 {
   ezUInt16 uiDataDirID = 0;
+  bool bForceThisDataDir = false;
 
   msg.GetReader() >> uiDataDirID;
+  msg.GetReader() >> bForceThisDataDir;
 
   ezStringBuilder sRequestedFile;
   msg.GetReader() >> sRequestedFile;
@@ -229,7 +231,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   e.m_uiSentTotal = 0;
 
   /// \todo Cache the file state on the server side as well
-  const ezFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_SendToClient);
+  const ezFileserveFileState filestate = client.GetFileStatus(uiDataDirID, sRequestedFile, status, m_SendToClient, bForceThisDataDir);
 
   {
     e.m_Type = ezFileserverEvent::Type::FileDownloadRequest;
@@ -281,6 +283,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
     ret.GetWriter() << (ezInt8)filestate;
     ret.GetWriter() << status.m_iTimestamp;
     ret.GetWriter() << status.m_uiHash;
+    ret.GetWriter() << uiDataDirID;
 
     m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
   }

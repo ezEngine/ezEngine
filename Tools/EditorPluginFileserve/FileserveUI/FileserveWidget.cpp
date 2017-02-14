@@ -273,9 +273,23 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
   case ezFileserverEvent::Type::FileDownloadRequest:
     {
       m_pAllFilesModel->AddAccessedFile(e.m_szPath);
-      LogActivity(e.m_szPath, ezFileserveActivityType::ReadFile);
       TransferLabel->setText(QString("Downloading: %1").arg(e.m_szPath));
       m_LastProgressUpdate = ezTime::Now();
+
+      if (e.m_FileState == ezFileserveFileState::NonExistant)
+        LogActivity(ezFmt("[N/A] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+
+      if (e.m_FileState == ezFileserveFileState::SameHash)
+        LogActivity(ezFmt("[HASH] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+
+      if (e.m_FileState == ezFileserveFileState::SameTimestamp)
+        LogActivity(ezFmt("[TIME] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+
+      if (e.m_FileState == ezFileserveFileState::NonExistantEither)
+        LogActivity(ezFmt("[N/A] {0}", e.m_szPath), ezFileserveActivityType::ReadFile);
+
+      if (e.m_FileState == ezFileserveFileState::Different)
+        LogActivity(ezFmt("({1} KB) {0}", e.m_szPath, ezArgF(e.m_uiSizeTotal / 1024.0f, 1)), ezFileserveActivityType::ReadFile);
     }
     break;
 
@@ -302,7 +316,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
 
   case ezFileserverEvent::Type::FileUploadRequest:
     {
-      LogActivity(e.m_szPath, ezFileserveActivityType::WriteFile);
+      LogActivity(ezFmt("({1} KB) {0}", e.m_szPath, ezArgF(e.m_uiSizeTotal / 1024.0f, 1)), ezFileserveActivityType::WriteFile);
       TransferLabel->setText(QString("Uploading: %1").arg(e.m_szPath));
       m_LastProgressUpdate = ezTime::Now();
     }
