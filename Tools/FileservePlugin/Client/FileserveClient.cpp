@@ -20,6 +20,8 @@ ezFileserveClient::ezFileserveClient()
 
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fsoff"))
     s_bEnableFileserve = false;
+
+  m_CurrentTime = ezTime::Now();
 }
 
 ezFileserveClient::~ezFileserveClient()
@@ -87,15 +89,31 @@ void ezFileserveClient::UpdateClient()
   if (!m_Network->IsConnectedToServer())
     return;
 
+  m_CurrentTime = ezTime::Now();
+
   m_Network->ExecuteAllMessageHandlers();
 }
 
 void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent)
 {
-  // reset the last check time, so that the next read will update the file
-  m_MountedDataDirs[uiDataDirID].m_CacheStatus[szFile].m_LastCheck.SetZero();
+  // update meta state and cache
+  {
+    const ezString& sMountPoint = m_MountedDataDirs[uiDataDirID].m_sMountPoint;
+    ezStringBuilder sCachedFile, sCachedMetaFile;
+    BuildPathInCache(szFile, sMountPoint, sCachedFile, sCachedMetaFile);
 
-  /// \todo Update cache and write meta files properly, then we don't need to re-download the file on the next read access
+    const ezUInt64 uiHash = ezHashing::MurmurHash64(fileContent.GetData(), fileContent.GetCount());
+    WriteMetaFile(sCachedMetaFile, 0, uiHash);
+
+    auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[szFile];
+    cache.m_FileHash = uiHash;
+    cache.m_TimeStamp = 0;
+    cache.m_LastCheck.SetZero(); // will trigger a server request and that in turn will update the file timestamp
+
+    // redirect the next access to this cache entry
+    // together with the zero LastCheck that will make sure the best match gets updated as well
+    m_FileDataDir[szFile] = uiDataDirID;
+  }
 
   const ezUInt32 uiFileSize = fileContent.GetCount();
 
@@ -348,7 +366,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
       auto& ref = m_MountedDataDirs[i].m_CacheStatus[m_sCurFileRequest];
       ref.m_FileHash = 0;
       ref.m_TimeStamp = 0;
-      ref.m_LastCheck = ezTime::Now();
+      ref.m_LastCheck = m_CurrentTime;
     }
 
     return;
@@ -360,15 +378,12 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
     auto& ref = m_MountedDataDirs[uiFoundInDataDir].m_CacheStatus[m_sCurFileRequest];
     ref.m_FileHash = uiFileHash;
     ref.m_TimeStamp = iFileTimeStamp;
-    ref.m_LastCheck = ezTime::Now();
+    ref.m_LastCheck = m_CurrentTime;
   }
 
   // nothing changed
   if (fileState == ezFileserveFileState::SameTimestamp || fileState == ezFileserveFileState::NonExistantEither)
     return;
-
-  bool bWriteDownloadToDisk = false;
-  bool bUpdateMetaFile = false;
 
   const ezString& sMountPoint = m_MountedDataDirs[uiFoundInDataDir].m_sMountPoint;
   ezStringBuilder sCachedFile, sCachedMetaFile;
@@ -385,46 +400,46 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezNetworkMessage &msg)
   // timestamp changed, but hash is still the same -> update timestamp
   if (fileState == ezFileserveFileState::SameHash)
   {
-    bUpdateMetaFile = true;
+    WriteMetaFile(sCachedMetaFile, iFileTimeStamp, uiFileHash);
   }
 
   if (fileState == ezFileserveFileState::Different)
   {
-    bWriteDownloadToDisk = true;
-    bUpdateMetaFile = true;
+    WriteDownloadToDisk(sCachedFile);
+    WriteMetaFile(sCachedMetaFile, iFileTimeStamp, uiFileHash);
   }
+}
 
 
-  if (bWriteDownloadToDisk)
+void ezFileserveClient::WriteMetaFile(ezStringBuilder sCachedMetaFile, ezInt64 iFileTimeStamp, ezUInt64 uiFileHash)
+{
+  ezOSFile file;
+  if (file.Open(sCachedMetaFile, ezFileMode::Write).Succeeded())
   {
-    ezOSFile file;
-    if (file.Open(sCachedFile, ezFileMode::Write).Succeeded())
-    {
-      if (!m_Download.IsEmpty())
-        file.Write(m_Download.GetData(), m_Download.GetCount());
+    file.Write(&iFileTimeStamp, sizeof(ezInt64));
+    file.Write(&uiFileHash, sizeof(ezUInt64));
 
-      file.Close();
-    }
-    else
-    {
-      ezLog::Error("Failed to write download to '{0}'", sCachedFile);
-    }
+    file.Close();
   }
-
-  if (bUpdateMetaFile)
+  else
   {
-    ezOSFile file;
-    if (file.Open(sCachedMetaFile, ezFileMode::Write).Succeeded())
-    {
-      file.Write(&iFileTimeStamp, sizeof(ezInt64));
-      file.Write(&uiFileHash, sizeof(ezUInt64));
+    ezLog::Error("Failed to write meta file to '{0}'", sCachedMetaFile);
+  }
+}
 
-      file.Close();
-    }
-    else
-    {
-      ezLog::Error("Failed to write meta file to '{0}'", sCachedMetaFile);
-    }
+void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
+{
+  ezOSFile file;
+  if (file.Open(sCachedFile, ezFileMode::Write).Succeeded())
+  {
+    if (!m_Download.IsEmpty())
+      file.Write(m_Download.GetData(), m_Download.GetCount());
+
+    file.Close();
+  }
+  else
+  {
+    ezLog::Error("Failed to write download to '{0}'", sCachedFile);
   }
 }
 
@@ -447,7 +462,7 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
   const ezUInt16 uiUseDataDirCache = bForceThisDataDir ? uiDataDirID : itFileDataDir.Value();
   const FileCacheStatus& CacheStatus = m_MountedDataDirs[uiUseDataDirCache].m_CacheStatus[szFile];
 
-  if (ezTime::Now() - CacheStatus.m_LastCheck < ezTime::Seconds(5.0f))
+  if (m_CurrentTime - CacheStatus.m_LastCheck < ezTime::Seconds(5.0f))
   {
     if (CacheStatus.m_FileHash == 0) // file does not exist
       return EZ_FAILURE;

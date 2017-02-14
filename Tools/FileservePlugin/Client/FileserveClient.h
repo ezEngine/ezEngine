@@ -76,6 +76,8 @@ private:
   void NetworkMsgHandler(ezNetworkMessage& msg);
   void HandleFileTransferMsg(ezNetworkMessage &msg);
   void HandleFileTransferFinishedMsg(ezNetworkMessage &msg);
+  void WriteMetaFile(ezStringBuilder sCachedMetaFile, ezInt64 iFileTimeStamp, ezUInt64 uiFileHash);
+  void WriteDownloadToDisk(ezStringBuilder sCachedFile);
   ezResult DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir);
   void DetermineCacheStatus(ezUInt16 uiDataDirID, const char* szFile, FileCacheStatus& out_Status) const;
   void UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent);
@@ -89,6 +91,7 @@ private:
   ezStringBuilder m_sCurFileRequest;
   ezUniquePtr<ezNetworkInterface> m_Network;
   ezDynamicArray<ezUInt8> m_Download;
+  ezTime m_CurrentTime;
 
   ezMap<ezString, ezUInt16> m_FileDataDir;
 
