@@ -76,7 +76,13 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
 void ezQtEditorApp::InitQt(int argc, char** argv)
 {
   qInstallMessageHandler(QtDebugMessageHandler);
+
+  QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   s_pQtApplication = new QApplication(argc, argv);
+  QFont font = s_pQtApplication->font();
+  int ps = font.pixelSize();
+  //font.setPixelSize(11);
+  s_pQtApplication->setFont(font);
 }
 
 void ezQtEditorApp::DeInitQt()

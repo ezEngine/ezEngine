@@ -102,8 +102,8 @@ void ezQtEngineViewWidget::SyncToEngine()
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
 
   cam.m_uiHWND = (ezUInt64)(winId());
-  cam.m_uiWindowWidth = width();
-  cam.m_uiWindowHeight = height();
+  cam.m_uiWindowWidth = width() * this->devicePixelRatio();
+  cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
   cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
 
