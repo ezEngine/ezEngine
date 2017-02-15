@@ -33,33 +33,33 @@
 /// A subsystem startup configuration for a static subsystem needs to be put in some cpp file of the subsystem and looks like this:
 ///
 /// EZ_BEGIN_SUBSYSTEM_DECLARATION(ExampleGroup, ExampleSubSystem)
-/// 
+///
 ///   BEGIN_SUBSYSTEM_DEPENDENCIES
 ///     "SomeOtherSubSystem",
 ///     "SomeOtherSubSystem2",
 ///     "SomeGroup"
 ///   END_SUBSYSTEM_DEPENDENCIES
-/// 
+///
 ///   ON_CORE_STARTUP
 ///   {
 ///     ezExampleSubSystem::BasicStartup();
 ///   }
-/// 
+///
 ///   ON_CORE_SHUTDOWN
 ///   {
 ///     ezExampleSubSystem::BasicShutdown();
 ///   }
-/// 
+///
 ///   ON_ENGINE_STARTUP
 ///   {
 ///     ezExampleSubSystem::EngineStartup();
 ///   }
-/// 
+///
 ///   ON_ENGINE_SHUTDOWN
 ///   {
 ///     ezExampleSubSystem::EngineShutdown();
 ///   }
-/// 
+///
 /// EZ_END_SUBSYSTEM_DECLARATION
 ///
 /// This will automatically register the subsystem, once the code is being loaded (can be dynamically loaded from a DLL).
@@ -80,6 +80,21 @@ public:
   // 'Base Startup' is automatically done right before 'Core Startup'
   // There is actually no 'Base Shutdown', everything that is initialized in 'Base Startup' should not require
   // any explicit shutdown.
+
+  /// \brief Stores the const char* as a tag. Does not copy the string, so this must be a string embedded in the application code.
+  ///
+  /// Before executing the startup routines an application should set tags that allow plugins to identify the context in which they are running.
+  /// This makes it possible for the startup functions to conditionally configure things.
+  ///
+  /// Strings that should be used for common things:
+  /// 'runtime' : For all applications that run the full engine, automatically added by ezGameApplication. Be aware that some tool applications have this set, even though they don't use graphical output.
+  /// 'editor' : for all applications that run the editor framework, set on the Editor and the EditorProcessor
+  /// 'testframework' : for applications that execute the ezTestFramework
+  /// 'tool' : for all stand-alone tool applications, set by the editor, editorprocessor, fileserve, etc.
+  static void AddApplicationTag(const char* szTag);
+
+  /// \brief Query whether a tag was added with AddApplicationTag()
+  static bool HasApplicationTag(const char* szTag);
 
   /// \brief Runs the 'base' startup sequence of all subsystems in the proper order.
   ///
@@ -131,7 +146,7 @@ private:
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
   /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event parameter.
   static void UnloadPluginSubSystems(const char* szPluginName);
-  
+
   static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
   static void AssignSubSystemPlugin(const char* szPluginName);
 
@@ -143,5 +158,6 @@ private:
 
   static bool s_bPrintAllSubSystems;
   static ezStartupStage::Enum s_CurrentState;
+  static ezDynamicArray<const char*> s_ApplicationTags;
 };
 

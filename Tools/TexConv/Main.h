@@ -97,6 +97,7 @@ public:
 
   ezTexConv();
 
+  virtual void BeforeCoreStartup() override;
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown() override;
   virtual const char* TranslateReturnCode() const override;
@@ -140,4 +141,6 @@ public:
   Blob m_outputBlob;
   shared_ptr<ScratchImage> m_pCurrentImage;
   ID3D11Device* m_pD3dDevice;
+
+
 };

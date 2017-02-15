@@ -198,6 +198,13 @@ ezResult ezTexConv::SaveThumbnail()
   return EZ_SUCCESS;
 }
 
+
+void ezTexConv::BeforeCoreStartup()
+{
+  ezStartup::AddApplicationTag("tool");
+  ezStartup::AddApplicationTag("texconv");
+}
+
 const char* ezTexConv::TranslateReturnCode() const
 {
   switch (GetReturnCode())

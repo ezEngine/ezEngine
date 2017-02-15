@@ -21,6 +21,8 @@ ezPlayerApplication::ezPlayerApplication()
 
 void ezPlayerApplication::BeforeCoreStartup()
 {
+  ezStartup::AddApplicationTag("player");
+
   ezGameApplication::BeforeCoreStartup();
 
   m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");

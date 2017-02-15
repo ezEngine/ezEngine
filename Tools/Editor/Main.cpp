@@ -18,6 +18,10 @@ public:
 
   virtual void BeforeCoreStartup() override
   {
+    ezStartup::AddApplicationTag("tool");
+    ezStartup::AddApplicationTag("editor");
+    ezStartup::AddApplicationTag("editorapp");
+
     ezQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
   }
 

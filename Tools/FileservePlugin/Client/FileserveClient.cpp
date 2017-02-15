@@ -78,6 +78,8 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
     {
       ezLog::Success("Connected to ezFileserver");
       m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserveClient::NetworkMsgHandler, this));
+
+      m_Network->Send('FSRV', 'HELO'); // be friendly
     }
 
     m_bFailedToConnect = false;

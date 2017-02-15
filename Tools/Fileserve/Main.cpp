@@ -1,6 +1,7 @@
 #include <Fileserve/Main.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Configuration/Startup.h>
 
 #ifdef EZ_USE_QT
   #include <QApplication>
@@ -45,6 +46,14 @@ int main(int argc, const char** argv)
   delete pApp;
 
   return iReturnCode;
+}
+
+void ezFileserverApp::BeforeCoreStartup()
+{
+  ezStartup::AddApplicationTag("tool");
+  ezStartup::AddApplicationTag("fileserve");
+
+  ezApplication::BeforeCoreStartup();
 }
 
 void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)

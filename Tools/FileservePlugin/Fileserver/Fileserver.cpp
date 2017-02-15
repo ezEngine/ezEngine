@@ -70,6 +70,9 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
 {
   auto& client = DetermineClient(msg);
 
+  if (msg.GetMessageID() == 'HELO')
+    return;
+
   if (msg.GetMessageID() == 'READ')
   {
     HandleFileRequest(client, msg);

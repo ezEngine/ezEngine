@@ -13,6 +13,9 @@ ezShaderCompilerApplication::ezShaderCompilerApplication()
 
 void ezShaderCompilerApplication::BeforeCoreStartup()
 {
+  ezStartup::AddApplicationTag("tool");
+  ezStartup::AddApplicationTag("shadercompiler");
+
   // only print important messages
   ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::InfoMsg);
 

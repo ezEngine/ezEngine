@@ -9,6 +9,24 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
 
 bool ezStartup::s_bPrintAllSubSystems = true;
 ezStartupStage::Enum ezStartup::s_CurrentState = ezStartupStage::None;
+ezDynamicArray<const char*> ezStartup::s_ApplicationTags;
+
+
+void ezStartup::AddApplicationTag(const char* szTag)
+{
+  s_ApplicationTags.PushBack(szTag);
+}
+
+bool ezStartup::HasApplicationTag(const char* szTag)
+{
+  for (ezUInt32 i = 0; i < s_ApplicationTags.GetCount(); ++i)
+  {
+    if (ezStringUtils::IsEqual_NoCase(s_ApplicationTags[i], szTag))
+      return true;
+  }
+
+  return false;
+}
 
 void ezStartup::PrintAllSubsystems()
 {

@@ -40,6 +40,9 @@ public:
   /// Can also be set through the command line argument "-fs_server" followed by the address and port.
   void SetServerConnectionAddress(const char* szAddress) { m_sServerConnectionAddress = szAddress; }
 
+  /// \brief Returns the address through which the Fileserve client tries to connect with the server.
+  const char* GetServerConnectionAddress() { return m_sServerConnectionAddress; }
+
   /// \brief Can be called to ensure a fileserve connection. Otherwise automatically called when a data directory is mounted.
   ///
   /// The timeout defines how long the code will wait for a connection.

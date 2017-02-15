@@ -142,10 +142,14 @@ public:
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
   void ReinitializeInputConfig();
 
+
+
 protected:
 
   /// \brief Calls Update on all worlds and renders all views through ezRenderLoop::Render()
   void UpdateWorldsAndRender();
+
+  virtual void BeforeCoreStartup() override;
 
   /// \brief Implements all the application startup
   ///

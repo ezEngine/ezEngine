@@ -18,6 +18,7 @@ class ezFileserverApp : public ezApplication
 {
 public:
 
+  virtual void BeforeCoreStartup() override;
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown();
 
@@ -29,5 +30,7 @@ public:
   ezUInt32 m_uiConnections = 0;
   ezTime m_CloseAppTimeout;
   ezTime m_TimeTillClosing;
+
+
 };
 

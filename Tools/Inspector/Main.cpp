@@ -59,6 +59,14 @@ public:
     QApplication::setPalette(palette);
   }
 
+  virtual void BeforeCoreStartup() override
+  {
+    ezStartup::AddApplicationTag("tool");
+    ezStartup::AddApplicationTag("inspector");
+
+    ezApplication::BeforeCoreStartup();
+  }
+
   virtual ApplicationExecution Run() override
   {
     int iArgs = GetArgumentCount();
@@ -88,7 +96,7 @@ public:
     ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezQtReflectionWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('TRAN', true, ezQtDataWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('RESM', true, ezQtResourceWidget::ProcessTelemetry, nullptr);
-    
+
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
 
@@ -103,7 +111,6 @@ public:
 
     return ezApplication::Quit;
   }
-
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezInspectorApp);

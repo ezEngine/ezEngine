@@ -16,12 +16,24 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 
   ON_CORE_STARTUP
   {
+    if (ezStartup::HasApplicationTag("tool") ||
+        ezStartup::HasApplicationTag("testframework"))
+      return;
+
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FileserveType::Factory, 100.0f);
-    EZ_DEFAULT_NEW(ezFileserveClient);
+
+    if (ezFileserveClient::GetSingleton() == nullptr)
+    {
+      EZ_DEFAULT_NEW(ezFileserveClient);
+    }
   }
 
   ON_CORE_SHUTDOWN
   {
+    if (ezStartup::HasApplicationTag("tool") ||
+        ezStartup::HasApplicationTag("testframework"))
+      return;
+
     if (ezFileserveClient::GetSingleton() != nullptr)
     {
       ezFileserveClient* pSingleton = ezFileserveClient::GetSingleton();

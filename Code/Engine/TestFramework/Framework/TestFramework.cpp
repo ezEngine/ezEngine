@@ -1,6 +1,11 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
+#ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
+#include <FileservePlugin/Client/FileserveClient.h>
+#include <FileservePlugin/Client/FileserveDataDir.h>
+#endif
+
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 
 const char* ezTestFramework::s_szTestBlockName = "";
@@ -40,6 +45,7 @@ ezTestFramework::~ezTestFramework()
 
 void ezTestFramework::Initialize()
 {
+  ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCore();
 
   {
@@ -245,7 +251,27 @@ void ezTestFramework::ResetTests()
 ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 {
   if (!m_bIsInitialized)
+  {
     Initialize();
+
+#ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
+    if (ezFileserveClient::GetSingleton() == nullptr)
+    {
+      ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FileserveType::Factory, 100.0f);
+      EZ_DEFAULT_NEW(ezFileserveClient);
+    }
+
+    if (ezFileserveClient::GetSingleton()->EnsureConnected(ezTime::Seconds(-30)).Failed())
+    {
+      Error("Failed to establish a Fileserve connection", "", 0, "ezTestFramework::RunTestExecutionLoop", "Tried to connect with ezFileServe through address '%s'.", ezFileserveClient::GetSingleton()->GetServerConnectionAddress());
+      return ezTestAppRun::Quit;
+    }
+#endif
+  }
+
+#ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
+  ezFileserveClient::GetSingleton()->UpdateClient();
+#endif
 
   if (m_iExecutingTest < 0)
   {
@@ -270,6 +296,14 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 
       return ezTestAppRun::Continue;
     }
+
+#ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
+    if (ezFileserveClient* pClient = ezFileserveClient::GetSingleton())
+    {
+      // shutdown the fileserve client
+      EZ_DEFAULT_DELETE(pClient);
+    }
+#endif
 
     return ezTestAppRun::Quit;
   }
