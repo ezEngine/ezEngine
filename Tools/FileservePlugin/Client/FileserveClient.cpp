@@ -16,9 +16,9 @@ bool ezFileserveClient::s_bEnableFileserve = true;
 ezFileserveClient::ezFileserveClient()
   : m_SingletonRegistrar(this)
 {
-  m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fsserver", 0, "localhost:1042");
+  m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, "localhost:1042");
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fsoff"))
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_off"))
     s_bEnableFileserve = false;
 
   m_CurrentTime = ezTime::Now();
@@ -35,7 +35,7 @@ ezFileserveClient::~ezFileserveClient()
   }
 }
 
-ezResult ezFileserveClient::EnsureConnected()
+ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
 {
   if (!s_bEnableFileserve || m_bFailedToConnect)
     return EZ_FAILURE;
@@ -63,7 +63,12 @@ ezResult ezFileserveClient::EnsureConnected()
     if (m_Network->ConnectToServer('EZFS', m_sServerConnectionAddress).Failed())
       return EZ_FAILURE;
 
-    if (m_Network->WaitForConnectionToServer(ezTime::Seconds(3)).Failed())
+    if (timeout.GetSeconds() < 0)
+    {
+      timeout = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetFloatOption("-fs_timeout", -timeout.GetSeconds()));
+    }
+
+    if (m_Network->WaitForConnectionToServer(timeout).Failed())
     {
       m_Network->ShutdownConnection();
       ezLog::Error("Connection to ezFileserver timed out");

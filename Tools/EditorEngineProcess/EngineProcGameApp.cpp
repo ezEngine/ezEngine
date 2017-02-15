@@ -20,7 +20,7 @@ void ezEngineProcessGameApplication::BeforeCoreStartup()
   m_pApp = new QApplication(argc, (char**)argv);
 
   // Make sure to disable the fileserve plugin
-  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fsoff");
+  ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
 
   ezGameApplication::BeforeCoreStartup();
 }

@@ -60,8 +60,11 @@ ezResult ezNetworkInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime
     if (IsConnectedToServer())
       return EZ_SUCCESS;
 
-    if (ezTime::Now() - tStart > timeout)
-      return EZ_FAILURE;
+    if (timeout.GetSeconds() != 0)
+    {
+      if (ezTime::Now() - tStart > timeout)
+        return EZ_FAILURE;
+    }
 
     ezThreadUtils::Sleep(50);
   }

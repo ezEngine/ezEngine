@@ -15,7 +15,7 @@ ezFileserver::ezFileserver()
   ezFileserveClient::DisabledFileserveClient();
 
   // check whether the fileserve port was reconfigured through the command line
-  m_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fsport", m_uiPort);
+  m_uiPort = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_port", m_uiPort);
 }
 
 void ezFileserver::StartServer()

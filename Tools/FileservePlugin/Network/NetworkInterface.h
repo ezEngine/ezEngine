@@ -78,6 +78,8 @@ public:
   ezResult ConnectToServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread = true);
 
   /// \brief Can only be called after ConnectToServer(). Updates the network in a loop until a connection is established, or the time has run out.
+  ///
+  /// A timeout of exactly zero means to wait indefinitely.
   ezResult WaitForConnectionToServer(ezTime timeout = ezTime::Seconds(10));
 
   /// \brief Closes the connection in an orderly fashion

@@ -5,17 +5,17 @@
 #ifdef EZ_USE_QT
   #include <QApplication>
   #include <Gui.moc.h>
+  #include <Windows.h>
 #endif
-
 
 #ifdef EZ_USE_QT
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
 #else
 int main(int argc, const char** argv)
-#endif
 {
+#endif
   ezFileserverApp* pApp = new ezFileserverApp();
-
 
 #ifdef EZ_USE_QT
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine();
@@ -29,7 +29,6 @@ int main(int argc, const char** argv)
   CreateFileserveMainWindow(pApp);
   pQtApplication->exec();
   ezRun_Shutdown(pApp);
-
 #else
   pApp->SetCommandLineArguments((ezUInt32)argc, argv);
   ezRun(pApp);
@@ -47,3 +46,25 @@ int main(int argc, const char** argv)
 
   return iReturnCode;
 }
+
+void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezFileserverEvent::Type::ClientConnected:
+    ++m_uiConnections;
+    m_TimeTillClosing.SetZero();
+    break;
+  case ezFileserverEvent::Type::ClientDisconnected:
+    --m_uiConnections;
+
+    if (m_uiConnections == 0 && m_CloseAppTimeout.GetSeconds() > 0)
+    {
+      // reset the timer
+      m_TimeTillClosing = ezTime::Now() + m_CloseAppTimeout;
+    }
+
+    break;
+  }
+}
+

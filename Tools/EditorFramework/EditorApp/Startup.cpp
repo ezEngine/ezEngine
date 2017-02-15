@@ -110,7 +110,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   // custom command line arguments
   {
     // Make sure to disable the fileserve plugin
-    ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fsoff");
+    ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
   }
 
   m_bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");

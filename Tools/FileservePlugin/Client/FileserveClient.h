@@ -14,10 +14,14 @@ namespace ezDataDirectory
 ///
 /// Whether the fileserve plugin will be enabled is controled by ezFileserveClient::s_bEnableFileserve
 /// By default this is on, but if switched off, the fileserve client functionality will be disabled.
-/// ezFileserveClient will also switch its functionality off, if the command line argument "-fsoff" is specified.
-/// If a program knows that it always wants to switch fileserving off, it should either simply not load the plugin at all,
+/// ezFileserveClient will also switch its functionality off, if the command line argument "-fs_off" is specified.
+/// If a program knows that it always wants to switch file serving off, it should either simply not load the plugin at all,
 /// or it can inject that command line argument through ezCommandLineUtils. This should be done before application startup
 /// and especially before any data directories get mounted.
+///
+/// The timeout for connecting to the server can be configured through the command line option "-fs_timeout seconds"
+/// The server to connect to can be configured through command line option "-fs_server address".
+/// The default address is "localhost:1042".
 class EZ_FILESERVEPLUGIN_DLL ezFileserveClient
 {
   EZ_DECLARE_SINGLETON(ezFileserveClient);
@@ -26,18 +30,24 @@ public:
   ezFileserveClient();
   ~ezFileserveClient();
 
-  /// \brief Allows to disable the fileserving functionality. Should be called before mounting data directories.
+  /// \brief Allows to disable the file serving functionality. Should be called before mounting data directories.
   ///
-  /// Also achieved through the command line argument "-fsoff"
+  /// Also achieved through the command line argument "-fs_off"
   static void DisabledFileserveClient() { s_bEnableFileserve = false; }
 
   /// \brief Sets the address through which the client tries to connect to the server. Default is "localhost:1042"
   ///
-  /// Can also be set through the command line argument "-fsserver" followed by the address and port.
+  /// Can also be set through the command line argument "-fs_server" followed by the address and port.
   void SetServerConnectionAddress(const char* szAddress) { m_sServerConnectionAddress = szAddress; }
 
   /// \brief Can be called to ensure a fileserve connection. Otherwise automatically called when a data directory is mounted.
-  ezResult EnsureConnected();
+  ///
+  /// The timeout defines how long the code will wait for a connection.
+  /// Positive numbers are a regular timeout.
+  /// A zero timeout means the application will wait indefinitely.
+  /// A negative number means to either wait that time, or whatever was specified through the command-line.
+  /// The timeout can be specified with the command line switch "-fs_timeout X" (in seconds).
+  ezResult EnsureConnected(ezTime timeout = ezTime::Seconds(-3));
 
   /// \brief Needs to be called regularly to update the network. By default this is automatically called when the global event
   /// 'GameApp_UpdatePlugins' is fired, which is done by ezGameApplication.
