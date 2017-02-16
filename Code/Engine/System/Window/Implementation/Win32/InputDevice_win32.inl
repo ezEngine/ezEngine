@@ -522,10 +522,10 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
         bWasStupidLeftShift = false;
 
-        //int iRequest = raw->data.keyboard.MakeCode << 16;
+        int iRequest = raw->data.keyboard.MakeCode << 16;
 
-        //if (bIsExtended)
-        //  iRequest |= 1 << 24;
+        if (raw->data.keyboard.Flags & RI_KEY_E0)
+          iRequest |= 1 << 24;
 
         const bool bPressed = !(raw->data.keyboard.Flags & 0x01);
 
@@ -625,6 +625,151 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
   }
 }
 
+
+static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szInputSlot)
+{
+  const ezUInt32 uiKeyCode = (iScanCode << 16) | (bExtended ? (1 << 24) : 0);
+
+  wchar_t szKeyName[32] = { 0 };
+  GetKeyNameTextW(uiKeyCode, szKeyName, 30);
+
+  ezStringUtf8 sName = szKeyName;
+
+  ezLog::Dev("Translated '{0}' to '{1}'", ezInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
+
+  ezInputManager::SetInputSlotDisplayName(szInputSlot, sName.GetData());
+}
+
+void ezStandardInputDevice::LocalizeButtonDisplayNames()
+{
+  EZ_LOG_BLOCK("ezStandardInputDevice::LocalizeButtonDisplayNames");
+
+  SetKeyNameForScanCode( 1, false, ezInputSlot_KeyEscape);
+  SetKeyNameForScanCode( 2, false, ezInputSlot_Key1);
+  SetKeyNameForScanCode( 3, false, ezInputSlot_Key2);
+  SetKeyNameForScanCode( 4, false, ezInputSlot_Key3);
+  SetKeyNameForScanCode( 5, false, ezInputSlot_Key4);
+  SetKeyNameForScanCode( 6, false, ezInputSlot_Key5);
+  SetKeyNameForScanCode( 7, false, ezInputSlot_Key6);
+  SetKeyNameForScanCode( 8, false, ezInputSlot_Key7);
+  SetKeyNameForScanCode( 9, false, ezInputSlot_Key8);
+  SetKeyNameForScanCode(10, false, ezInputSlot_Key9);
+  SetKeyNameForScanCode(11, false, ezInputSlot_Key0);
+
+  SetKeyNameForScanCode(12, false, ezInputSlot_KeyHyphen);
+  SetKeyNameForScanCode(13, false, ezInputSlot_KeyEquals);
+  SetKeyNameForScanCode(14, false, ezInputSlot_KeyBackspace);
+
+  SetKeyNameForScanCode(15, false, ezInputSlot_KeyTab);
+  SetKeyNameForScanCode(16, false, ezInputSlot_KeyQ);
+  SetKeyNameForScanCode(17, false, ezInputSlot_KeyW);
+  SetKeyNameForScanCode(18, false, ezInputSlot_KeyE);
+  SetKeyNameForScanCode(19, false, ezInputSlot_KeyR);
+  SetKeyNameForScanCode(20, false, ezInputSlot_KeyT);
+  SetKeyNameForScanCode(21, false, ezInputSlot_KeyY);
+  SetKeyNameForScanCode(22, false, ezInputSlot_KeyU);
+  SetKeyNameForScanCode(23, false, ezInputSlot_KeyI);
+  SetKeyNameForScanCode(24, false, ezInputSlot_KeyO);
+  SetKeyNameForScanCode(25, false, ezInputSlot_KeyP);
+  SetKeyNameForScanCode(26, false, ezInputSlot_KeyBracketOpen);
+  SetKeyNameForScanCode(27, false, ezInputSlot_KeyBracketClose);
+  SetKeyNameForScanCode(28, false, ezInputSlot_KeyReturn);
+
+  SetKeyNameForScanCode(29, false, ezInputSlot_KeyLeftCtrl);
+  SetKeyNameForScanCode(30, false, ezInputSlot_KeyA);
+  SetKeyNameForScanCode(31, false, ezInputSlot_KeyS);
+  SetKeyNameForScanCode(32, false, ezInputSlot_KeyD);
+  SetKeyNameForScanCode(33, false, ezInputSlot_KeyF);
+  SetKeyNameForScanCode(34, false, ezInputSlot_KeyG);
+  SetKeyNameForScanCode(35, false, ezInputSlot_KeyH);
+  SetKeyNameForScanCode(36, false, ezInputSlot_KeyJ);
+  SetKeyNameForScanCode(37, false, ezInputSlot_KeyK);
+  SetKeyNameForScanCode(38, false, ezInputSlot_KeyL);
+  SetKeyNameForScanCode(39, false, ezInputSlot_KeySemicolon);
+  SetKeyNameForScanCode(40, false, ezInputSlot_KeyApostrophe);
+
+  SetKeyNameForScanCode(41, false, ezInputSlot_KeyTilde);
+  SetKeyNameForScanCode(42, false, ezInputSlot_KeyLeftShift);
+  SetKeyNameForScanCode(43, false, ezInputSlot_KeyBackslash);
+
+  SetKeyNameForScanCode(44, false, ezInputSlot_KeyZ);
+  SetKeyNameForScanCode(45, false, ezInputSlot_KeyX);
+  SetKeyNameForScanCode(46, false, ezInputSlot_KeyC);
+  SetKeyNameForScanCode(47, false, ezInputSlot_KeyV);
+  SetKeyNameForScanCode(48, false, ezInputSlot_KeyB);
+  SetKeyNameForScanCode(49, false, ezInputSlot_KeyN);
+  SetKeyNameForScanCode(50, false, ezInputSlot_KeyM);
+  SetKeyNameForScanCode(51, false, ezInputSlot_KeyComma);
+  SetKeyNameForScanCode(52, false, ezInputSlot_KeyPeriod);
+  SetKeyNameForScanCode(53, false, ezInputSlot_KeySlash);
+  SetKeyNameForScanCode(54, false, ezInputSlot_KeyRightShift);
+
+  SetKeyNameForScanCode(55, false, ezInputSlot_KeyNumpadStar); // Overlaps with Print
+
+  SetKeyNameForScanCode(56, false, ezInputSlot_KeyLeftAlt);
+  SetKeyNameForScanCode(57, false, ezInputSlot_KeySpace);
+  SetKeyNameForScanCode(58, false, ezInputSlot_KeyCapsLock);
+
+  SetKeyNameForScanCode(59, false, ezInputSlot_KeyF1);
+  SetKeyNameForScanCode(60, false, ezInputSlot_KeyF2);
+  SetKeyNameForScanCode(61, false, ezInputSlot_KeyF3);
+  SetKeyNameForScanCode(62, false, ezInputSlot_KeyF4);
+  SetKeyNameForScanCode(63, false, ezInputSlot_KeyF5);
+  SetKeyNameForScanCode(64, false, ezInputSlot_KeyF6);
+  SetKeyNameForScanCode(65, false, ezInputSlot_KeyF7);
+  SetKeyNameForScanCode(66, false, ezInputSlot_KeyF8);
+  SetKeyNameForScanCode(67, false, ezInputSlot_KeyF9);
+  SetKeyNameForScanCode(68, false, ezInputSlot_KeyF10);
+
+  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock);  // Prints 'Pause' if it is not 'extended'
+  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll);  // This overlaps with Pause
+
+  SetKeyNameForScanCode(71, false, ezInputSlot_KeyNumpad7); // This overlaps with Home
+  SetKeyNameForScanCode(72, false, ezInputSlot_KeyNumpad8); // This overlaps with Arrow Up
+  SetKeyNameForScanCode(73, false, ezInputSlot_KeyNumpad9); // This overlaps with Page Up
+  SetKeyNameForScanCode(74, false, ezInputSlot_KeyNumpadMinus);
+
+  SetKeyNameForScanCode(75, false, ezInputSlot_KeyNumpad4); // This overlaps with Arrow Left
+  SetKeyNameForScanCode(76, false, ezInputSlot_KeyNumpad5);
+  SetKeyNameForScanCode(77, false, ezInputSlot_KeyNumpad6); // This overlaps with Arrow Right
+  SetKeyNameForScanCode(78, false, ezInputSlot_KeyNumpadPlus);
+
+  SetKeyNameForScanCode(79, false, ezInputSlot_KeyNumpad1); // This overlaps with End
+  SetKeyNameForScanCode(80, false, ezInputSlot_KeyNumpad2); // This overlaps with Arrow Down
+  SetKeyNameForScanCode(81, false, ezInputSlot_KeyNumpad3); // This overlaps with Page Down
+  SetKeyNameForScanCode(82, false, ezInputSlot_KeyNumpad0); // This overlaps with Insert
+  SetKeyNameForScanCode(83, false, ezInputSlot_KeyNumpadPeriod); // This overlaps with Insert
+
+  SetKeyNameForScanCode(86, false, ezInputSlot_KeyPipe);
+
+  SetKeyNameForScanCode(87, false, "keyboard_f11");
+  SetKeyNameForScanCode(88, false, "keyboard_f12");
+
+  SetKeyNameForScanCode(91, true, ezInputSlot_KeyLeftWin);  // Prints '' if it is not 'extended'
+  SetKeyNameForScanCode(92, true, ezInputSlot_KeyRightWin); // Prints '' if it is not 'extended'
+  SetKeyNameForScanCode(93, true, ezInputSlot_KeyApps);     // Prints '' if it is not 'extended'
+
+  // 'Extended' keys
+  SetKeyNameForScanCode(28, true, ezInputSlot_KeyNumpadEnter);
+  SetKeyNameForScanCode(29, true, ezInputSlot_KeyRightCtrl);
+  SetKeyNameForScanCode(53, true, ezInputSlot_KeyNumpadSlash);
+  SetKeyNameForScanCode(55, true, ezInputSlot_KeyPrint);
+  SetKeyNameForScanCode(56, true, ezInputSlot_KeyRightAlt);
+  SetKeyNameForScanCode(70, true, ezInputSlot_KeyPause);
+  SetKeyNameForScanCode(71, true, ezInputSlot_KeyHome);
+  SetKeyNameForScanCode(72, true, ezInputSlot_KeyUp);
+  SetKeyNameForScanCode(73, true, ezInputSlot_KeyPageUp);
+
+  SetKeyNameForScanCode(75, true, ezInputSlot_KeyLeft);
+  SetKeyNameForScanCode(77, true, ezInputSlot_KeyRight);
+
+  SetKeyNameForScanCode(79, true, ezInputSlot_KeyEnd);
+  SetKeyNameForScanCode(80, true, ezInputSlot_KeyDown);
+  SetKeyNameForScanCode(81, true, ezInputSlot_KeyPageDown);
+  SetKeyNameForScanCode(82, true, ezInputSlot_KeyInsert);
+  SetKeyNameForScanCode(83, true, ezInputSlot_KeyDelete);
+}
+
 void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
 {
   if (m_bShowCursor == bShow)
@@ -639,4 +784,3 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
   return m_bShowCursor;
 }
 
-#include <System/Window/Implementation/Win32/WindowsScanCodes_inl.h>

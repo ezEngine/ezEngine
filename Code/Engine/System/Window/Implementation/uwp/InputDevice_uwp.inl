@@ -28,16 +28,19 @@ ezStandardInputDevice::~ezStandardInputDevice()
   if (m_coreWindow)
   {
     m_coreWindow->remove_KeyDown(m_keyDownEventRegistration);
-    m_coreWindow->remove_KeyDown(m_keyUpEventRegistration);
+    m_coreWindow->remove_KeyUp(m_keyUpEventRegistration);
+    m_coreWindow->remove_CharacterReceived(m_characterReceivedEventRegistration);
   }
 }
 
 void ezStandardInputDevice::InitializeDevice()
 {
   using KeyHandler = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs;
+  using CharacterReceivedHandler = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs;
 
   m_coreWindow->add_KeyDown(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_keyDownEventRegistration);
   m_coreWindow->add_KeyUp(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_keyUpEventRegistration);
+  m_coreWindow->add_CharacterReceived(Callback<CharacterReceivedHandler>(this, &ezStandardInputDevice::OnCharacterReceived).Get(), &m_characterReceivedEventRegistration);
 }
 
 HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs* args)
@@ -85,6 +88,14 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
   return S_OK;
 }
 
+HRESULT ezStandardInputDevice::OnCharacterReceived(ICoreWindow* coreWindow, ICharacterReceivedEventArgs* args)
+{
+  UINT32 keyCode = 0;
+  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_KeyCode(&keyCode));
+  m_LastCharacter = keyCode;
+
+  return S_OK;
+}
 
 void ezStandardInputDevice::RegisterInputSlots()
 {
@@ -319,5 +330,3 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
-
-#include <System/Window/Implementation/Win32/WindowsScanCodes_inl.h>
