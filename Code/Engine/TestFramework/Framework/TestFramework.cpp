@@ -60,6 +60,14 @@ void ezTestFramework::Initialize()
   }
 
   m_bIsInitialized = true;
+
+  {
+    /// \todo Find a better way to detect this. Not a real problem on PC, but on mobile platforms it might be tricky. Or just use an empty path there??
+
+    ezStringBuilder sSdkPath(BUILDSYSTEM_OUTPUT_FOLDER, "/../..");
+    sSdkPath.MakeCleanPath();
+    ezFileSystem::SetSdkRootDirectory(sSdkPath);
+  }
 }
 
 void ezTestFramework::DeInitialize()
@@ -257,7 +265,6 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
     if (ezFileserveClient::GetSingleton() == nullptr)
     {
-      ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FileserveType::Factory, 100.0f);
       EZ_DEFAULT_NEW(ezFileserveClient);
     }
 

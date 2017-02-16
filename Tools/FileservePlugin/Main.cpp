@@ -16,11 +16,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 
   ON_CORE_STARTUP
   {
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FileserveType::Factory, 100.0f);
+
     if (ezStartup::HasApplicationTag("tool") ||
         ezStartup::HasApplicationTag("testframework"))
       return;
-
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FileserveType::Factory, 100.0f);
 
     if (ezFileserveClient::GetSingleton() == nullptr)
     {

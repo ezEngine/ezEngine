@@ -177,7 +177,11 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
 
   for (ezUInt32 i = m_MountedDataDirs.GetCount(); i > 0; --i)
   {
-    ezUInt16 dd = i - 1;
+    const ezUInt16 dd = i - 1;
+
+    if (!m_MountedDataDirs[dd].m_bMounted)
+      continue;
+
     auto& cache = m_MountedDataDirs[dd].m_CacheStatus[szFile];
 
     DetermineCacheStatus(dd, szFile, cache);

@@ -62,7 +62,7 @@ public:
       const ezPreprocessor::ProcessingEvent& event = m_EventStack[i];
 
       if (event.m_pToken != nullptr)
-        m_sOutput.AppendFormat("{0}: Line {1} [{2}]: ", event.m_pToken->m_File.GetString().GetData(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
+        m_sOutput.AppendFormat("{0}: Line {1} [{2}]: ", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
 
       switch (event.m_Type)
       {
@@ -73,7 +73,7 @@ public:
         m_sOutput.Append("Warning: ");
         break;
       case ezPreprocessor::ProcessingEvent::BeginExpansion:
-        m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView).GetData());
+        m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView));
         break;
       case ezPreprocessor::ProcessingEvent::EndExpansion:
         break;
@@ -94,21 +94,20 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  return;
-#endif
+//#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+//  return;
+//#endif
 
-  ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sReadDir.AppendPath("../../Data/UnitTests/FoundationTest");
+  ezStringBuilder sReadDir  = ">sdk/Data/UnitTests/FoundationTest";
+  ezStringBuilder sWriteDir = ">sdk/Output/Bin/FoundationTest";
+  ezStringBuilder sWriteDirResolved;
+  ezFileSystem::ResolveSpecialDirectory(sWriteDir, sWriteDirResolved);
 
-  ezStringBuilder sWriteDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sWriteDir.AppendPath("FoundationTest");
-
-  EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDirResolved) == EZ_SUCCESS);
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), "PreprocessorTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
   ezTokenizedFileCache SharedCache;
 
@@ -240,12 +239,12 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
           fileNameExp.Format("Preprocessor/{0} - Expected.txt", TestSettings[i].m_szFileName);
           fileNameOut.Format(":output/Preprocessor/{0} - Result.txt", TestSettings[i].m_szFileName);
 
-          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
+          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "File does not exist: '%s'", fileName.GetData());
 
           ezFileWriter fout;
-          EZ_VERIFY(fout.Open(fileNameOut.GetData()).Succeeded(), "Could not create output file '{0}'", fileNameOut.GetData());
+          EZ_VERIFY(fout.Open(fileNameOut).Succeeded(), "Could not create output file '{0}'", fileNameOut);
 
-          if (pp.Process(fileName.GetData(), sOutput) == EZ_SUCCESS)
+          if (pp.Process(fileName, sOutput) == EZ_SUCCESS)
           {
             ezString sError = "Processing succeeded\r\n";
             fout.WriteBytes(sError.GetData(), sError.GetElementCount());
@@ -262,7 +261,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 
           fout.WriteBytes(log.m_sOutput.GetData(), log.m_sOutput.GetElementCount());
 
-          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut.GetData()), "Output file is missing: '%s'", fileNameOut.GetData());
+          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut), "Output file is missing: '%s'", fileNameOut.GetData());
         }
 
         EZ_TEST_FILES(fileNameOut.GetData(), fileNameExp.GetData(), "");
