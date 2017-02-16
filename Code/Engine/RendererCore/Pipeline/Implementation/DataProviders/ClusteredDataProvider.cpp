@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>

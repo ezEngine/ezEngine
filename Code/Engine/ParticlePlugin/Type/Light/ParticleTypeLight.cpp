@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Light/ParticleTypeLight.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>

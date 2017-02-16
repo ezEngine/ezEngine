@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>

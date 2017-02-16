@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>

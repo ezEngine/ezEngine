@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>

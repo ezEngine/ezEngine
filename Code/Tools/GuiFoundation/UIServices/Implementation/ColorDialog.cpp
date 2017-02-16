@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/UIServices/ColorDialog.moc.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>

@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/DataProviders/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>

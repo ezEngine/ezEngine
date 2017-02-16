@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyEventHandler.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>

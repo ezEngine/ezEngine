@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/Shader/Implementation/Helper.h>

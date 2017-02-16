@@ -29,7 +29,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
   }
 
   TestMessageQueue q;
-  
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enqueue")
   {
     for (ezUInt32 i = 0; i < 100; ++i)

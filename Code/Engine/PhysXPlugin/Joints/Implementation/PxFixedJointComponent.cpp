@@ -1,4 +1,4 @@
-#include <PhysXPlugin/PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>

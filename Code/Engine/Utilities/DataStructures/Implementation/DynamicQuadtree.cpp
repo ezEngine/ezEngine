@@ -1,4 +1,4 @@
-#include <Utilities/PCH.h>
+#include <PCH.h>
 #include <Utilities/DataStructures/DynamicQuadtree.h>
 
 const float ezDynamicQuadtree::s_LooseOctreeFactor = 1.1f;

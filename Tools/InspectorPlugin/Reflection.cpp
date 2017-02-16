@@ -118,7 +118,7 @@ namespace ReflectionDetail
     case ezTelemetry::TelemetryEventData::ConnectedToClient:
       SendAllReflectionTelemetry();
       break;
-    
+
     default:
       break;
     }
@@ -131,7 +131,7 @@ namespace ReflectionDetail
     case ezPlugin::PluginEvent::AfterPluginChanges:
       SendAllReflectionTelemetry();
       break;
-    
+
     default:
       break;
     }

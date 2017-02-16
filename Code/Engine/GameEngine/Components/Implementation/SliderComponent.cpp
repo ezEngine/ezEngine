@@ -1,4 +1,4 @@
-#include <GameEngine/PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/SliderComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>

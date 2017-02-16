@@ -1,4 +1,4 @@
-#include <Utilities/PCH.h>
+#include <PCH.h>
 #include <Utilities/PathFinding/GridNavmesh.h>
 
 void ezGridNavmesh::UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked, void* pPassThrough2)

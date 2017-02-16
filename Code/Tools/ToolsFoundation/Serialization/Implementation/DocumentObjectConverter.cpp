@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>

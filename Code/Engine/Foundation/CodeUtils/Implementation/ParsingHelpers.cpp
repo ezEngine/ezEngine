@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 void ezPreprocessor::SkipWhitespace(const TokenStream& Tokens, ezUInt32& uiCurToken)

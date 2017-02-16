@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <QPushButton>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>

@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination)

@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <Core/Application/Implementation/uwp/Application_uwp.h>

@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Time/Stopwatch.h>
 
 ezStopwatch::ezStopwatch()

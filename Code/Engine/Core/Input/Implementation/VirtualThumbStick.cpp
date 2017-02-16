@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/Input/VirtualThumbStick.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, 1, ezRTTINoAllocator);

@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <QCloseEvent>
 

@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Configuration/ReloadableVariable.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezReloadableVariableBase);

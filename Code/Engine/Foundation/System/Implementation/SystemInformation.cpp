@@ -1,5 +1,5 @@
 
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/System/SystemInformation.h>
 
 // Storage for the current configuration

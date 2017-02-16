@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAttribute, 1, ezRTTINoAllocator)

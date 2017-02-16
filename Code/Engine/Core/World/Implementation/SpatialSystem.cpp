@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/World/SpatialSystem.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem, 1, ezRTTINoAllocator);

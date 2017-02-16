@@ -1,5 +1,5 @@
 
-#include <System/PCH.h>
+#include <PCH.h>
 #include <System/Screen/Screen.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)

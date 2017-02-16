@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_BoxPosition.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>

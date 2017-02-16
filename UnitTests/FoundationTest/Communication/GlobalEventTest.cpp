@@ -68,7 +68,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, GlobalEvent)
     EZ_TEST_INT(iTestData2, 4);
     iTestData2 += 42;
   }
-  
+
   ezGlobalEvent::Broadcast("TestGlobalEvent2", 5);
 
   EZ_TEST_INT(iTestData1, 6);

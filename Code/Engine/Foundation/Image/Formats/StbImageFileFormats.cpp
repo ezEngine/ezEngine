@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Image/Formats/StbImageFileFormats.h>
 #include <Foundation/Image/Image.h>
 

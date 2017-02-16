@@ -1,5 +1,5 @@
 
-#include <RendererFoundation/PCH.h>
+#include <PCH.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
 ezGALShaderByteCode::ezGALShaderByteCode()

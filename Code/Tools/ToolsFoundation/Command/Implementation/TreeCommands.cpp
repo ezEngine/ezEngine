@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>

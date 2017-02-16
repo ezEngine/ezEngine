@@ -1,4 +1,4 @@
-#include <FmodPlugin/PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 

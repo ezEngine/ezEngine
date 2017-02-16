@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Strings/StringView.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

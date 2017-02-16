@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/Input/InputManager.h>
 
 const char* ezInputManager::ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey)

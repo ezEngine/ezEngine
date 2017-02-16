@@ -1,4 +1,4 @@
-#include <RendererFoundation/PCH.h>
+#include <PCH.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)

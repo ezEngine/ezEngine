@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>

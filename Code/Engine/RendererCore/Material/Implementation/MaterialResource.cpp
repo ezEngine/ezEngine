@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>

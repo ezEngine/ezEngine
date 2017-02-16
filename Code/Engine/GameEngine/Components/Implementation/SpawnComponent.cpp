@@ -1,4 +1,4 @@
-#include <GameEngine/PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/SpawnComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>

@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);

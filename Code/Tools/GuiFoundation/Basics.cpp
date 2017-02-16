@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Basics.h>
 #include <QWidget>
 #include <QObject>

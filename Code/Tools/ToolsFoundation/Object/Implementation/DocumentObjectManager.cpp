@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/IO/MemoryStream.h>

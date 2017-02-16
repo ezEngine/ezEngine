@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/Graphics/Camera.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraMode, 1)

@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 ezString ezPreprocessor::s_ParamNames[32];

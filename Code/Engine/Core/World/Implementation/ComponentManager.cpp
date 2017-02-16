@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/World/World.h>
 
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)

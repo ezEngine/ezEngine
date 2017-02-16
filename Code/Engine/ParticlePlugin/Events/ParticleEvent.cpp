@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 
 ezParticleEventQueue* ezParticleEventQueueManager::CreateEventQueue(ezUInt32 uiEventTypeHash)

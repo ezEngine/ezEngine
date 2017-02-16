@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>

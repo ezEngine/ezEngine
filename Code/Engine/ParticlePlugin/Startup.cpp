@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>

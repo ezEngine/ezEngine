@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 
 void ezPermutationGenerator::Clear()

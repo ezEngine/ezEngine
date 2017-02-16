@@ -74,7 +74,7 @@ namespace ResourceManagerDetail
     case ezTelemetry::TelemetryEventData::ConnectedToClient:
       SendAllResourceTelemetry();
       break;
-    
+
     default:
       break;
     }
@@ -86,7 +86,7 @@ namespace ResourceManagerDetail
       return;
 
     if (e.m_EventType == ezResourceEventType::ResourceCreated ||
-        e.m_EventType == ezResourceEventType::ResourceExists || 
+        e.m_EventType == ezResourceEventType::ResourceExists ||
         e.m_EventType == ezResourceEventType::ResourceContentUpdated)
     {
       SendFullResourceInfo(e.m_pResource);

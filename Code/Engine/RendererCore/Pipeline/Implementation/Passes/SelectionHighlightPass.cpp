@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
 #include <RendererCore/Pipeline/View.h>

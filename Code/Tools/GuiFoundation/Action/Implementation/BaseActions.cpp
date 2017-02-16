@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Action/BaseActions.h>
 #include <Foundation/Strings/TranslationLookup.h>
 

@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/ResourceManager/Resource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, 1, ezRTTINoAllocator);

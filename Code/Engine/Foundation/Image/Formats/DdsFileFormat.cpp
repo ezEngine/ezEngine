@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <Foundation/Image/Image.h>
 #include <Foundation/Image/Formats/ImageFormatMappings.h>

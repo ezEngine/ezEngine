@@ -1,4 +1,4 @@
-#include <InputXBox360/PCH.h>
+#include <PCH.h>
 #include <InputXBox360/InputDeviceXBox.h>
 
 static ezInputDeviceXBox360* g_InputDeviceXBox360 = nullptr;

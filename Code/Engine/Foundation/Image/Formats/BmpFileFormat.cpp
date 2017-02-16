@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Image/Formats/BmpFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/Stream.h>

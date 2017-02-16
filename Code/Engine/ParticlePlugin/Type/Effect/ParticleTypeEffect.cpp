@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Effect/ParticleTypeEffect.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>

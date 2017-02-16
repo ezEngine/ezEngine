@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>

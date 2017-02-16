@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
 ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllowFileEvents)

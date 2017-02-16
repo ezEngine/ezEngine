@@ -76,7 +76,7 @@ namespace StartupDetail
     case ezTelemetry::TelemetryEventData::ConnectedToClient:
       SendSubsystemTelemetry();
       break;
-    
+
     default:
       break;
     }

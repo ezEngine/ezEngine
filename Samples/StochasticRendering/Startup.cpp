@@ -1,4 +1,4 @@
-#include <StochasticRendering/PCH.h>
+#include <PCH.h>
 #include <Foundation/Configuration/Startup.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(StochasticRendering, StochasticRendering)

@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <Foundation/Strings/TranslationLookup.h>

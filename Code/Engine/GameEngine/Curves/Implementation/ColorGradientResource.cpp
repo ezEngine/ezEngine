@@ -1,4 +1,4 @@
-#include <GameEngine/PCH.h>
+#include <PCH.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 

@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
 
 const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =

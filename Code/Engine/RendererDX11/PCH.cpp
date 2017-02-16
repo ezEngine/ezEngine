@@ -1,8 +1,4 @@
-#include <RendererDX11/PCH.h>
-
-
-
-
+#include <PCH.h>
 
 EZ_STATICLINK_LIBRARY(RendererDX11)
 {

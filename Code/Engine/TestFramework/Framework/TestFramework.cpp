@@ -1,4 +1,4 @@
-#include <TestFramework/PCH.h>
+#include <PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE

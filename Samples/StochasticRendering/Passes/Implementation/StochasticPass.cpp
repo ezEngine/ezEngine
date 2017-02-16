@@ -1,4 +1,4 @@
-#include <StochasticRendering/PCH.h>
+#include <PCH.h>
 #include <StochasticRendering/Passes/StochasticPass.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>

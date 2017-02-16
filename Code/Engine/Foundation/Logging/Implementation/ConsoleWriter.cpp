@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

@@ -1,4 +1,4 @@
-#include <TestFramework/PCH.h>
+#include <PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);

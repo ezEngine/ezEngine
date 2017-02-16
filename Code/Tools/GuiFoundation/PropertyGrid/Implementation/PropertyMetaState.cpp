@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 EZ_IMPLEMENT_SINGLETON(ezPropertyMetaState);

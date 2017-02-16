@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT

@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Basics.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)

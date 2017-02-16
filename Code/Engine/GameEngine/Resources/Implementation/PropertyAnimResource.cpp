@@ -1,4 +1,4 @@
-#include <GameEngine/PCH.h>
+#include <PCH.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>

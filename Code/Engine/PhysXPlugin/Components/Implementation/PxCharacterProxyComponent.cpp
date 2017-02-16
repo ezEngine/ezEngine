@@ -1,4 +1,4 @@
-#include <PhysXPlugin/PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>

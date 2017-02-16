@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/BinarySerializer.h>

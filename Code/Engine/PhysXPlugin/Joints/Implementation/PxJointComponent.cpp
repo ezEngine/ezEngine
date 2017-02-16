@@ -1,4 +1,4 @@
-#include <PhysXPlugin/PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Joints/PxJointComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>

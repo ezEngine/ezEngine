@@ -21,7 +21,7 @@ namespace
 EZ_CREATE_SIMPLE_TEST(Algorithm, Sorting)
 {
   ezDynamicArray<ezInt32> a1;
-    
+
   for (ezUInt32 i = 0; i < 2000; ++i)
   {
     a1.PushBack(rand() % 100000);

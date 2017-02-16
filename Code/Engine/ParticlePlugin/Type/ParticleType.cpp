@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/ParticleType.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFactory, 1, ezRTTINoAllocator)

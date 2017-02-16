@@ -1,4 +1,4 @@
-#include <TestFramework/PCH.h>
+#include <PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 /// Operator to sort tests alphabetically

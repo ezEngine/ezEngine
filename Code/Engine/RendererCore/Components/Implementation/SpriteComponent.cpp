@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>

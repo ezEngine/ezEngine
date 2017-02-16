@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <RendererFoundation/Device/Device.h>

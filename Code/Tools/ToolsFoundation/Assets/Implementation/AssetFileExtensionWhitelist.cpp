@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 ezMap<ezString, ezSet<ezString>> ezAssetFileExtensionWhitelist::s_ExtensionWhitelist;

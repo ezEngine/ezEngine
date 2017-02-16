@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <Core/Assets/AssetFileHeader.h>

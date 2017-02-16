@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Image/Conversions/PixelConversions.h>
 #include <Foundation/Image/Conversions/ImageConversionMixin.h>
 #include <emmintrin.h>

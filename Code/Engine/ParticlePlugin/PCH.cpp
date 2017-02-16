@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Configuration/Plugin.h>
 

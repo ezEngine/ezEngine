@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <Foundation/Math/Math.h>
 #include <QLineEdit>

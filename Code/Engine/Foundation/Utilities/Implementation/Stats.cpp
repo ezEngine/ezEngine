@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Utilities/Stats.h>
 
 ezStats::MapType ezStats::s_Stats;

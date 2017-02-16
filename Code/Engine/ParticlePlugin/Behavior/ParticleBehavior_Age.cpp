@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>

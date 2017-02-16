@@ -1,4 +1,4 @@
-#include <RendererFoundation/PCH.h>
+#include <PCH.h>
 #include <RendererFoundation/Resources/Query.h>
 
 ezGALQuery::ezGALQuery(const ezGALQueryCreationDescription& Description)

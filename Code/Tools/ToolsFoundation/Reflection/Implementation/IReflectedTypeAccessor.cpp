@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 
 bool ezIReflectedTypeAccessor::GetValues(const char* szProperty, ezHybridArray<ezVariant, 16>& out_values) const

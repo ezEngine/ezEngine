@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezResult ezFileWriter::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllowFileEvents)

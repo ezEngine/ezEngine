@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Renderer/ParticleExtractor.h>
 #include <Foundation/Threading/Lock.h>
 #include <Core/World/World.h>

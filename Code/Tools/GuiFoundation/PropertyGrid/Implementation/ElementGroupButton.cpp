@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ElementGroupButton.moc.h>
 
 ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGroupButton::ElementAction action, ezQtPropertyWidget* pGroupWidget)

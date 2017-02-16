@@ -90,6 +90,6 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
       test.m_Event.RemoveEventHandler(TestRecursion::Event::Handler(&TestRecursion::DoStuff, &test));
 
     }
-    
+
   }
 }

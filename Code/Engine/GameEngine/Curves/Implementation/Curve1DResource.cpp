@@ -1,4 +1,4 @@
-#include <GameEngine/PCH.h>
+#include <PCH.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 

@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Memory/EndianHelper.h>
 
 void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)

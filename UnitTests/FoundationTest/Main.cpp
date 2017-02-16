@@ -10,7 +10,7 @@ ezInt32 ezConstructionCounter::s_iDestructionsLast = 0;
 int main(int argc, char **argv)
 {
   ezTestSetup::InitTestFramework("FoundationTest", "Foundation Tests", argc, (const char**) argv);
-  
+
   // *** Add additional output handlers and configurations here. ***
 
   while (ezTestSetup::RunTests() == ezTestAppRun::Continue)
@@ -18,7 +18,7 @@ int main(int argc, char **argv)
   }
 
   const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();
-  
+
   ezTestSetup::DeInitTestFramework();
   return iFailedTests;
 }

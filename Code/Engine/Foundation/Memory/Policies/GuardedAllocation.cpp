@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Memory/Policies/GuardedAllocation.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

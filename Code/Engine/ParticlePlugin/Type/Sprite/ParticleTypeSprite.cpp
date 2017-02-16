@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Math/Vec3.h>

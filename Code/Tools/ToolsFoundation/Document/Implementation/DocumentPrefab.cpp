@@ -1,4 +1,4 @@
-#include <ToolsFoundation/PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/DocumentManager.h>

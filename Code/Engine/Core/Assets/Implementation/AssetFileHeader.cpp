@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/MemoryStream.h>
 

@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_SizeCurve.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>

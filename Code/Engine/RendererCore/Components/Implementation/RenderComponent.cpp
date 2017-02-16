@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Components/RenderComponent.h>
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)

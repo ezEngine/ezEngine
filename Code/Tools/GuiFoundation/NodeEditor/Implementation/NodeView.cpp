@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <QMouseEvent>

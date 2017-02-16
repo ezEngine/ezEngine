@@ -1,4 +1,4 @@
-#include <TestFramework/PCH.h>
+#include <PCH.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
 #include <TestFramework/Utilities/ConsoleOutput.h>

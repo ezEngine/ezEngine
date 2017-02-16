@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>

@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>

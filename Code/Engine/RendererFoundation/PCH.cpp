@@ -1,7 +1,4 @@
-#include <RendererFoundation/PCH.h>
-
-
-
+#include <PCH.h>
 
 
 EZ_STATICLINK_LIBRARY(RendererFoundation)

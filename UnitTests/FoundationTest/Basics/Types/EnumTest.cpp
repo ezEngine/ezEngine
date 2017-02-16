@@ -2,7 +2,7 @@
 
 //////////////////////////////////////////////////////////////////////
 // Start of the definition of a example Enum
-// It takes quite some lines of code to define a enum, 
+// It takes quite some lines of code to define a enum,
 // but it could be encapsulated into an preprocessor macro if wanted
 struct ezTestEnumBase
 {

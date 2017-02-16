@@ -1,4 +1,4 @@
-#include <PhysXPlugin/PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>

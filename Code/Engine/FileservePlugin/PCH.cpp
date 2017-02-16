@@ -1,4 +1,4 @@
-#include <FileservePlugin/PCH.h>
+#include <PCH.h>
 
 EZ_STATICLINK_LIBRARY(FileservePlugin)
 {

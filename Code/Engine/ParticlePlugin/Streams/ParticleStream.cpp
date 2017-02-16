@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>

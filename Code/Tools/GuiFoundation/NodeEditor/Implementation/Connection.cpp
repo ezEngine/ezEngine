@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
 #include <QApplication>
 #include <QPalette>

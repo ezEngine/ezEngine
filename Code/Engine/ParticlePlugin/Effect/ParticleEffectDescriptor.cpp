@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>

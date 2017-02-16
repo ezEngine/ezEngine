@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/Shader/Types.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>

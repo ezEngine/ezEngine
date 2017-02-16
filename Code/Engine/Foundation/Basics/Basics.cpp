@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
 
 #if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATIONS)

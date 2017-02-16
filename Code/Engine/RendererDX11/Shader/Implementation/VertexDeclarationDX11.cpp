@@ -1,5 +1,5 @@
 
-#include <RendererDX11/PCH.h>
+#include <PCH.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererFoundation/Shader/Shader.h>

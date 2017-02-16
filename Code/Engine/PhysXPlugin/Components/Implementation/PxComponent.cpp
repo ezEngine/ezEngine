@@ -1,4 +1,4 @@
-#include <PhysXPlugin/PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxComponent.h>
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxComponent, 1)

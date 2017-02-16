@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/IO/ChunkStream.h>
 
 ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriter& pStream) : m_Stream(pStream)

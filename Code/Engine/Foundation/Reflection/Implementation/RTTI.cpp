@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 

@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Sprite/SpriteRenderer.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/RenderContext/RenderContext.h>

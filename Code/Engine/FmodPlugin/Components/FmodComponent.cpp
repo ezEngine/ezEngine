@@ -1,4 +1,4 @@
-#include <FmodPlugin/PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Components/FmodComponent.h>
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezFmodComponent, 1)

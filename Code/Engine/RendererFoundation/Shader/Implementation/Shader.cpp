@@ -1,5 +1,5 @@
 
-#include <RendererFoundation/PCH.h>
+#include <PCH.h>
 #include <RendererFoundation/Shader/Shader.h>
 
 ezGALShader::ezGALShader(const ezGALShaderCreationDescription& Description)

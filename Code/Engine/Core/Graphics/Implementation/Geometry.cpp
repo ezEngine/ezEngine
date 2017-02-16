@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <PCH.h>
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Containers/Map.h>
 #include <ThirdParty/mikktspace/mikktspace.h>

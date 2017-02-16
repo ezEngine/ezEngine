@@ -13,7 +13,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, RefCounted)
 
     EZ_TEST_BOOL(Instance.GetRefCount() == 0);
     EZ_TEST_BOOL(!Instance.IsReferenced());
-    
+
     Instance.AddRef();
 
     EZ_TEST_BOOL(Instance.GetRefCount() == 1);

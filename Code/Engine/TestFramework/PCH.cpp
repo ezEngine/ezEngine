@@ -1,4 +1,4 @@
-#include <TestFramework/PCH.h>
+#include <PCH.h>
 
 EZ_STATICLINK_LIBRARY(TestFramework)
 {

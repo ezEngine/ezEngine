@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Foundation/Profiling/Profiling.h>
 

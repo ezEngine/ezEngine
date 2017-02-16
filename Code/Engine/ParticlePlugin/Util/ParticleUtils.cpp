@@ -1,4 +1,4 @@
-#include <ParticlePlugin/PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Util/ParticleUtils.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeBase, ezNoBase, 1, ezRTTINoAllocator)

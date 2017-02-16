@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Components/SpriteRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>

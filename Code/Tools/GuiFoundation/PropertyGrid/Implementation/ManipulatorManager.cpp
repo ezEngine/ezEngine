@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Document/Document.h>
 

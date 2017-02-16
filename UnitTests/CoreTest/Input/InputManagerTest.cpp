@@ -35,7 +35,7 @@ static bool operator== (const ezInputActionConfig& lhs, const ezInputActionConfi
     if (lhs.m_sFilterByInputSlotY[i] != rhs.m_sFilterByInputSlotY[i])
       return false;
   }
-  
+
   return true;
 }
 
@@ -288,7 +288,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     iac.m_sInputSlotTrigger[0] = "test_input_slot_1";
     iac.m_sInputSlotTrigger[1] = "test_input_slot_2";
     iac.m_sInputSlotTrigger[2] = "test_input_slot_3";
-    
+
     // bind the three slots to this action
     ezInputManager::SetInputActionConfig("test_inputset", "test_action", iac, true);
 

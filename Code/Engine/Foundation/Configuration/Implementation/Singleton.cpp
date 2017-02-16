@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Configuration/Singleton.h>
 
 ezMap<ezString, void*> ezSingletonRegistry::s_Singletons;

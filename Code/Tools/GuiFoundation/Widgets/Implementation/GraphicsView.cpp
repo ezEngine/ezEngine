@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Widgets/GraphicsView.moc.h>
 #include <QScrollBar>
 #include <qevent.h>

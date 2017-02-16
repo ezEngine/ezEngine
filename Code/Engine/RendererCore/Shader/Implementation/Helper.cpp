@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
 
 namespace ezShaderHelper

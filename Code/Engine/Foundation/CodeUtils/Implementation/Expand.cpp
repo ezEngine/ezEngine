@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)

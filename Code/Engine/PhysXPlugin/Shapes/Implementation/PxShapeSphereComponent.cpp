@@ -1,4 +1,4 @@
-#include <PhysXPlugin/PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>

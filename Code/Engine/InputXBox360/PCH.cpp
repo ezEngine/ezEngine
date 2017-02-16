@@ -1,9 +1,4 @@
-#include <InputXBox360/PCH.h>
-
-
-
-
-
+#include <PCH.h>
 
 EZ_STATICLINK_LIBRARY(InputXBox360)
 {

@@ -1,5 +1,5 @@
-#include <FmodPlugin/PCH.h>
-#include <Core/PCH.h>
+#include <PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Basics.h>
 #include <FmodPlugin/FmodWorldModule.h>
 #include <Foundation/Strings/TranslationLookup.h>

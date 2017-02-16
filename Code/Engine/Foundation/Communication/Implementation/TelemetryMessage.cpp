@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Communication/Implementation/TelemetryMessage.h>
 
 ezTelemetryMessage::ezTelemetryMessage() : m_Reader(&m_Storage), m_Writer(&m_Storage)

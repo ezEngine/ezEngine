@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Utilities/Node.h>
 
 //EZ_CHECK_AT_COMPILETIME(sizeof(ezNodePin) == 4);

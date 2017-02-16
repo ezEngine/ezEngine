@@ -1,4 +1,4 @@
-#include <GuiFoundation/PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>

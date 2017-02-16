@@ -1,4 +1,4 @@
-#include <Foundation/PCH.h>
+#include <PCH.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
 ezDefaultTimeStepSmoothing::ezDefaultTimeStepSmoothing()
