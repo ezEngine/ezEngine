@@ -5,7 +5,7 @@
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-  #ifdef BUILDSYSTEM_BUILDING_EDITORPLUGINSCENE
+  #ifdef BUILDSYSTEM_BUILDING_EDITORPLUGINSCENE_LIB
     #define EZ_EDITORPLUGINSCENE_DLL __declspec(dllexport)
   #else
     #define EZ_EDITORPLUGINSCENE_DLL __declspec(dllimport)
