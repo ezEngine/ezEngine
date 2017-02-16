@@ -46,7 +46,7 @@ ezResult ezWindow::Initialize()
   EZ_SUCCEED_OR_RETURN(s_uwpWindowData->m_coreWindow->Activate());
   EZ_SUCCEED_OR_RETURN(s_uwpWindowData->m_coreWindow->get_Dispatcher(&s_uwpWindowData->m_dispatcher));
  
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice);
+  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, s_uwpWindowData->m_coreWindow.Get());
   m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor);
   m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
