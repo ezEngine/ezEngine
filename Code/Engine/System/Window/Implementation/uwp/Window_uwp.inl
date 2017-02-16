@@ -45,6 +45,35 @@ ezResult ezWindow::Initialize()
 
   EZ_SUCCEED_OR_RETURN(s_uwpWindowData->m_coreWindow->Activate());
   EZ_SUCCEED_OR_RETURN(s_uwpWindowData->m_coreWindow->get_Dispatcher(&s_uwpWindowData->m_dispatcher));
+
+  {
+    // Get current *logical* screen DPI to do a pixel correct resize.
+    ComPtr<ABI::Windows::Graphics::Display::IDisplayInformationStatics> displayInfoStatics;
+    EZ_SUCCEED_OR_RETURN(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayInformation).Get(), &displayInfoStatics));
+    ComPtr<ABI::Windows::Graphics::Display::IDisplayInformation> displayInfo;
+    EZ_SUCCEED_OR_RETURN(displayInfoStatics->GetForCurrentView(&displayInfo));
+    FLOAT logicalDpi = 1.0f;
+    EZ_SUCCEED_OR_RETURN(displayInfo->get_LogicalDpi(&logicalDpi));
+
+    // Need application view for the next steps...
+    ComPtr<ABI::Windows::UI::ViewManagement::IApplicationViewStatics2> appViewStatics;
+    EZ_SUCCEED_OR_RETURN(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_ViewManagement_ApplicationView).Get(), &appViewStatics));
+    ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView> appView;
+    EZ_SUCCEED_OR_RETURN(appViewStatics->GetForCurrentView(&appView));
+    ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView3> appView3;
+    EZ_SUCCEED_OR_RETURN(appView.As(&appView3));
+
+    // Set size.
+    boolean successfulResize = false;
+    ABI::Windows::Foundation::Size size;
+    size.Width = m_CreationDescription.m_Resolution.width * 96.0f / logicalDpi;
+    size.Height = m_CreationDescription.m_Resolution.height * 96.0f / logicalDpi;
+    EZ_SUCCEED_OR_RETURN(appView3->TryResizeView(size, &successfulResize));
+    if (!successfulResize)
+    {
+      ezLog::Warning("Failed to resize the window to {0}x{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
+    }
+  }
  
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, s_uwpWindowData->m_coreWindow.Get());
   m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor);

@@ -44,7 +44,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   // https://software.intel.com/en-us/blogs/2013/06/03/full-screen-direct3d-games-using-borderless-windowed-mode
   //
   SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  if (m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalized || 
+  if (m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalized && 
       m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalizedsRGB)
   {
     ezLog::Warning("Back buffer format for UWP can only be RGBAUByteNormalized or RGBAUByteNormalizedsRGB. Ignoring setting.");
@@ -95,13 +95,32 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
     EZ_SUCCEED_OR_RETURN(swapChain1.As(&swapChain));
     m_pDXSwapChain = swapChain.Detach();
 
-	// TODO: Support fullscreen. Code below doesn't work.
-    //HRESULT result = swapChain1->SetFullscreenState(m_Description.m_bFullscreen ? FALSE : TRUE, nullptr);
-    //if (FAILED(result))
-    //{
-    //  // see https://msdn.microsoft.com/en-us/library/windows/desktop/bb174579%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-    //  ezLog::Error("Failed enabling/disabling fullscreen: {0}", result);
-    //}
+    // Request/remove fullscreen from window if requested.
+    {
+      ComPtr<ABI::Windows::UI::ViewManagement::IApplicationViewStatics2> appViewStatics;
+      EZ_SUCCEED_OR_RETURN(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_ViewManagement_ApplicationView).Get(), &appViewStatics));
+      ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView> appView;
+      EZ_SUCCEED_OR_RETURN(appViewStatics->GetForCurrentView(&appView));
+      ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView3> appView3;
+      EZ_SUCCEED_OR_RETURN(appView.As(&appView3));
+
+      boolean isFullscreen;
+      EZ_SUCCEED_OR_RETURN(appView3->get_IsFullScreenMode(&isFullscreen));
+      if ((isFullscreen > 0) != m_Description.m_bFullscreen)
+      {
+        if (m_Description.m_bFullscreen)
+        {
+          boolean success;
+          EZ_SUCCEED_OR_RETURN(appView3->TryEnterFullScreenMode(&success));
+          if (!success)
+            ezLog::Warning("Failed to enter full screen mode.");
+        }
+        else
+        {
+          EZ_SUCCEED_OR_RETURN(appView3->ExitFullScreenMode());
+        }
+      }
+    }
   }
 #else
   if (FAILED(pDXDevice->GetDXGIFactory()->CreateSwapChain(pDXDevice->GetDXDevice(), &SwapChainDesc, &m_pDXSwapChain)))
