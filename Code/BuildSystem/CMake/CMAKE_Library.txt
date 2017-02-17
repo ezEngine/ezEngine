@@ -79,6 +79,11 @@ else ()
   target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
 endif ()
 
+if (BUILDSYSTEM_PLATFORM_LINUX)
+  # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
+  target_link_libraries (${PROJECT_NAME} "-lgcc_s -lgcc")
+endif ()
+
 if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
   find_package(X11 REQUIRED)
   include_directories (${X11_X11_INCLUDE_PATH})
