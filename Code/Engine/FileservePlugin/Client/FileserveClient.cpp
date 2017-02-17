@@ -109,7 +109,13 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     ezStringBuilder sCachedFile, sCachedMetaFile;
     BuildPathInCache(szFile, sMountPoint, sCachedFile, sCachedMetaFile);
 
-    const ezUInt64 uiHash = ezHashing::MurmurHash64(fileContent.GetData(), fileContent.GetCount());
+    ezUInt64 uiHash = 1;
+
+    if (!fileContent.IsEmpty())
+    {
+      uiHash = ezHashing::MurmurHash64(fileContent.GetData(), fileContent.GetCount(), uiHash);
+    }
+
     WriteMetaFile(sCachedMetaFile, 0, uiHash);
 
     auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[szFile];

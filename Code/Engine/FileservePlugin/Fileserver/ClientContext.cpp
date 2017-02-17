@@ -41,13 +41,13 @@ ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16& inout_uiD
       if (file.Open(sAbsPath).Failed())
         continue;
 
-      ezUInt64 uiNewHash = 0;
+      ezUInt64 uiNewHash = 1;
       out_FileContent.SetCountUninitialized((ezUInt32)inout_Status.m_uiFileSize);
 
       if (!out_FileContent.IsEmpty())
       {
         file.ReadBytes(out_FileContent.GetData(), out_FileContent.GetCount());
-        uiNewHash = ezHashing::MurmurHash64(out_FileContent.GetData(), (size_t)out_FileContent.GetCount());
+        uiNewHash = ezHashing::MurmurHash64(out_FileContent.GetData(), (size_t)out_FileContent.GetCount(), uiNewHash);
 
         // if the file is empty, the hash will be zero, which could lead to an incorrect assumption that the hash is the same
         // instead always transfer the empty file, so that it properly exists on the client
