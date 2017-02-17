@@ -231,3 +231,8 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Network_NetworkInterfaceEnet);
+

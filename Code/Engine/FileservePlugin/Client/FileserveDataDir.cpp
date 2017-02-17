@@ -132,3 +132,7 @@ void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
   ezFileserveClient::GetSingleton()->UploadFile(m_uiDataDirID, pWriter->GetFilePath(), content);
 }
 
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Client_FileserveDataDir);
+

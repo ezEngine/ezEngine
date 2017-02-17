@@ -44,3 +44,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 EZ_END_SUBSYSTEM_DECLARATION
 
 
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Main);
+

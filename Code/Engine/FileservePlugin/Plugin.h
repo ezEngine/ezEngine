@@ -17,3 +17,4 @@
 // this is required so that this DLL exports anything at all and thus a .lib and .exp file is generated (otherwise it isn't)
 // which in turn is necessary to statically link this library into some application
 EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_FILESERVEPLUGIN_DLL, ezFileservePlugin);
+

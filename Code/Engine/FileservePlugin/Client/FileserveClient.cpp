@@ -562,3 +562,8 @@ EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
     ezFileserveClient::GetSingleton()->UpdateClient();
   }
 }
+
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Client_FileserveClient);
+

@@ -41,3 +41,7 @@ ezNetworkMessage::~ezNetworkMessage()
   m_Writer.SetStorage(nullptr);
 }
 
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Network_NetworkMessage);
+

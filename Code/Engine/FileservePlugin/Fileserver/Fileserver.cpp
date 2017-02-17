@@ -411,3 +411,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
   m_Events.Broadcast(e);
 }
 
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Fileserver_Fileserver);
+

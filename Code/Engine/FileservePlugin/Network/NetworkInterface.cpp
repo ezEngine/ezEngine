@@ -377,3 +377,8 @@ ezUInt32 ezNetworkThread::Run()
 
   return 0;
 }
+
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Network_NetworkInterface);
+

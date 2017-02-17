@@ -74,3 +74,7 @@ ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16& inout_uiD
   return ezFileserveFileState::NonExistant;
 }
 
+
+
+EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Fileserver_ClientContext);
+
