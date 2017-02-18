@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <Foundation/Algorithm/HashableStruct.h>
@@ -17,12 +17,13 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
 
   ezWindowBase* m_pWindow;
 
+  // Describes the format that should be used for the backbuffer.
+  // Note however, that different platforms may enforce restricions on this.
   ezGALMSAASampleCount::Enum m_SampleCount;
   ezGALResourceFormat::Enum m_BackBufferFormat;
 
   bool m_bDoubleBuffered;
   bool m_bVerticalSynchronization;
-  bool m_bFullscreen;
   bool m_bAllowScreenshots;
 };
 

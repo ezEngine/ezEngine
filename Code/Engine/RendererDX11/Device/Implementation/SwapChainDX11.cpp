@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -70,7 +70,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.SampleDesc.Count = m_Description.m_SampleCount; SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_Description
   SwapChainDesc.OutputWindow = m_Description.m_pWindow->GetNativeWindowHandle();
   SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-  SwapChainDesc.Windowed = m_Description.m_bFullscreen ? FALSE : TRUE;
+  SwapChainDesc.Windowed = m_Description.m_pWindow->IsFullscreenWindow() ? FALSE : TRUE;
 
   /// \todo Get from enumeration of available modes
   SwapChainDesc.BufferDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_BackBufferFormat).m_eRenderTarget;
@@ -94,33 +94,6 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
     EZ_SUCCEED_OR_RETURN(dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1));
     EZ_SUCCEED_OR_RETURN(swapChain1.As(&swapChain));
     m_pDXSwapChain = swapChain.Detach();
-
-    // Request/remove fullscreen from window if requested.
-    {
-      ComPtr<ABI::Windows::UI::ViewManagement::IApplicationViewStatics2> appViewStatics;
-      EZ_SUCCEED_OR_RETURN(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_ViewManagement_ApplicationView).Get(), &appViewStatics));
-      ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView> appView;
-      EZ_SUCCEED_OR_RETURN(appViewStatics->GetForCurrentView(&appView));
-      ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView3> appView3;
-      EZ_SUCCEED_OR_RETURN(appView.As(&appView3));
-
-      boolean isFullscreen;
-      EZ_SUCCEED_OR_RETURN(appView3->get_IsFullScreenMode(&isFullscreen));
-      if ((isFullscreen > 0) != m_Description.m_bFullscreen)
-      {
-        if (m_Description.m_bFullscreen)
-        {
-          boolean success;
-          EZ_SUCCEED_OR_RETURN(appView3->TryEnterFullScreenMode(&success));
-          if (!success)
-            ezLog::Warning("Failed to enter full screen mode.");
-        }
-        else
-        {
-          EZ_SUCCEED_OR_RETURN(appView3->ExitFullScreenMode());
-        }
-      }
-    }
   }
 #else
   if (FAILED(pDXDevice->GetDXGIFactory()->CreateSwapChain(pDXDevice->GetDXDevice(), &SwapChainDesc, &m_pDXSwapChain)))
@@ -171,6 +144,12 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // Full screen swap chains must be switched to windowed mode before destruction.
+  // See: https://msdn.microsoft.com/en-us/library/windows/desktop/bb205075(v=vs.85).aspx#Destroying
+  m_pDXSwapChain->SetFullscreenState(TRUE, NULL);
+#endif
+
   EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
 
   ezGALSwapChain::DeInitPlatform(pDevice);

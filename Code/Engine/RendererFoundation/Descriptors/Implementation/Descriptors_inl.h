@@ -1,4 +1,4 @@
-
+﻿
 inline ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
   : ezHashableStruct(),
     m_pWindow(nullptr),
@@ -6,7 +6,6 @@ inline ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
     m_BackBufferFormat(ezGALResourceFormat::RGBAUByteNormalizedsRGB),
     m_bDoubleBuffered(true),
     m_bVerticalSynchronization(false),
-    m_bFullscreen(false),
     m_bAllowScreenshots(false)
 {
 }

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Basics.h>
 #include <System/Basics.h>
 #include <System/Window/Window.h>
@@ -25,7 +25,24 @@ ezResult ezWindow::Initialize()
   if (m_bInitialized)
     Destroy();
 
-  EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
+  // Checking and adjustments to creation desc.
+  {
+    if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
+    {
+      ezLog::Warning("ezWindowMode::FullscreenFixedResolution is not supported on UWP. Falling back to ezWindowMode::FullscreenBorderlessNativeResolution.");
+      m_CreationDescription.m_WindowMode = ezWindowMode::FullscreenBorderlessNativeResolution;
+    }
+    else if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution)
+    {
+      ezLog::Warning("ezWindowMode::WindowFixedResolution is not supported on UWP since resizing a window can not be restricted. Falling back to ezWindowMode::WindowResizable");
+      m_CreationDescription.m_WindowMode = ezWindowMode::WindowResizable;
+    }
+
+    if (m_CreationDescription.AdjustWindowSizeAndPosition().Failed())
+      ezLog::Warning("Failed to adjust window size and position settings.");
+
+    EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
+  }
 
   // The main window is handled in a special way in UWP (closing it closes the application, not created explicitely, every window has a thread, ...)
   // which is why we're supporting only a single window for for now.
@@ -63,15 +80,35 @@ ezResult ezWindow::Initialize()
     ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView3> appView3;
     EZ_SUCCEED_OR_RETURN(appView.As(&appView3));
 
-    // Set size.
-    boolean successfulResize = false;
-    ABI::Windows::Foundation::Size size;
-    size.Width = m_CreationDescription.m_Resolution.width * 96.0f / logicalDpi;
-    size.Height = m_CreationDescription.m_Resolution.height * 96.0f / logicalDpi;
-    EZ_SUCCEED_OR_RETURN(appView3->TryResizeView(size, &successfulResize));
-    if (!successfulResize)
+    // Request/remove fullscreen from window if requested.
+    boolean isFullscreen;
+    EZ_SUCCEED_OR_RETURN(appView3->get_IsFullScreenMode(&isFullscreen));
+    if ((isFullscreen > 0) != ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode))
     {
-      ezLog::Warning("Failed to resize the window to {0}x{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
+      if (ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode))
+      {
+        EZ_SUCCEED_OR_RETURN(appView3->TryEnterFullScreenMode(&isFullscreen));
+        if (!isFullscreen)
+          ezLog::Warning("Failed to enter full screen mode.");
+      }
+      else
+      {
+        EZ_SUCCEED_OR_RETURN(appView3->ExitFullScreenMode());
+      }
+    }
+
+    // Set size. Pointless though if we're fullscreen.
+    if (!isFullscreen)
+    {
+      boolean successfulResize = false;
+      ABI::Windows::Foundation::Size size;
+      size.Width = m_CreationDescription.m_Resolution.width * 96.0f / logicalDpi;
+      size.Height = m_CreationDescription.m_Resolution.height * 96.0f / logicalDpi;
+      EZ_SUCCEED_OR_RETURN(appView3->TryResizeView(size, &successfulResize));
+      if (!successfulResize)
+      {
+        ezLog::Warning("Failed to resize the window to {0}x{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
+      }
     }
   }
  

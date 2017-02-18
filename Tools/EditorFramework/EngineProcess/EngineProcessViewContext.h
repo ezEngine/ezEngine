@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <System/Window/Window.h>
@@ -27,9 +27,11 @@ public:
   }
 
 
+  // Inherited via ezWindowBase
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
   virtual void ProcessWindowMessages() override { }
+  virtual bool IsFullscreenWindow() const override { return false; }
 
   ezWindowHandle m_hWnd;
   ezUInt16 m_uiWidth;

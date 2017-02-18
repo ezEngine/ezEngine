@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <System/Basics.h>
 #include <Foundation/Math/Rect.h>
@@ -49,6 +49,10 @@ public:
   virtual ezSizeU32 GetClientAreaSize() const = 0;
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;
 
+  /// Whether the window is a fullscren window
+  /// or should be one - some platforms may enforce this via the GALSwapchain)
+  virtual bool IsFullscreenWindow() const = 0;
+
   virtual void ProcessWindowMessages() = 0;
 };
 
@@ -66,6 +70,11 @@ struct EZ_SYSTEM_DLL ezWindowMode
 
     Default = WindowFixedResolution
   };
+
+  static constexpr bool IsFullscreen(Enum e)
+  {
+    return e == FullscreenBorderlessNativeResolution || e == FullscreenFixedResolution;
+  }
 };
 
 /// \brief Parameters for creating a window, such as position and resolution
@@ -160,6 +169,13 @@ public:
   {
     return m_WindowHandle;
   }
+
+  /// \brief Returns the platform specific window handle.
+  virtual bool IsFullscreenWindow() const override
+  {
+    return ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode);
+  }
+
 
   /// \brief Runs the platform specific message pump.
   ///
