@@ -191,6 +191,8 @@ void ezTestFramework::LoadTestOrder()
 void ezTestFramework::CreateOutputFolder()
 {
   ezOSFile::CreateDirectoryStructure(m_sAbsTestDir.c_str());
+
+  EZ_ASSERT_RELEASE(ezOSFile::ExistsDirectory(m_sAbsTestDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestDir.c_str());
 }
 
 void ezTestFramework::SaveTestOrder()

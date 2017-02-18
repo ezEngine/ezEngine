@@ -10,12 +10,13 @@
   #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_ON
 #else
   #include <unistd.h>
+  #include <sys/types.h>
+  #include <pwd.h>
   #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif
 
-
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
-#include <CoreFoundation/CoreFoundation.h>
+  #include <CoreFoundation/CoreFoundation.h>
 #endif
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
@@ -267,7 +268,10 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 {
   if (s_UserDataPath.IsEmpty())
   {
-    s_UserDataPath = "/home";
+    s_UserDataPath = getenv("HOME");
+
+    if (s_UserDataPath.IsEmpty())
+      s_UserDataPath = getpwuid(getuid())->pw_dir;
   }
 
   ezStringBuilder s = s_UserDataPath;
@@ -276,5 +280,7 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   return s;
 }
 
-#endif
+#endif // EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+
+
 
