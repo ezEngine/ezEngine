@@ -97,9 +97,11 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   ezStringBuilder sReadDir  = ">sdk/Data/UnitTests/FoundationTest";
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
+  EZ_TEST_BOOL_MSG(ezOSFile::ExistsDirectory(sWriteDir), "The output directory '%s' does not exist", sWriteDir.GetData());
+
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
 
   ezTokenizedFileCache SharedCache;
 
