@@ -17,6 +17,7 @@
   #include <conio.h>
 #else if EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <cxxabi.h>
+  #include <csignal>
 #endif
 
 namespace ExceptionHandler
@@ -88,6 +89,46 @@ namespace ExceptionHandler
   }
 
   static const auto g_pOldExceptionHandler = std::set_terminate(TopLevelExceptionHandler);
+
+  void SignalHandler(int signal)
+  {
+    Print("***Unhandled Signal:***\n");
+    switch (signal)
+    {
+    case SIGINT:
+      Print("Signal SIGINT: interrupt\n");
+      break;
+    case SIGILL:
+      Print("Signal SIGILL: illegal instruction - invalid function image\n");
+      break;
+    case SIGFPE:
+      Print("Signal SIGFPE: floating point exception\n");
+      break;
+    case SIGSEGV:
+      Print("Signal SIGSEGV: segment violation\n");
+      break;
+    case SIGTERM:
+      Print("Signal SIGTERM: Software termination signal from kill\n");
+      break;
+    case SIGABRT:
+      Print("Signal SIGABRT: abnormal termination triggered by abort call\n");
+      break;
+    default:
+      Print("Signal %i: unknown signal\n", signal);
+      break;
+    }
+
+    {
+      Print("\n\n***Stack Trace:***\n");
+      void* pBuffer[64];
+      ezArrayPtr<void*> tempTrace(pBuffer);
+      const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace);
+
+      ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
+    }
+    std::_Exit(EXIT_FAILURE);
+  }
+
 #endif
 }
 
@@ -101,6 +142,13 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   SetUnhandledExceptionFilter(ExceptionHandler::TopLevelExceptionHandler);
+#else
+    std::signal(SIGINT, ExceptionHandler::SignalHandler);
+    std::signal(SIGILL, ExceptionHandler::SignalHandler);
+    std::signal(SIGFPE, ExceptionHandler::SignalHandler);
+    std::signal(SIGSEGV, ExceptionHandler::SignalHandler);
+    std::signal(SIGTERM, ExceptionHandler::SignalHandler);
+    std::signal(SIGABRT, ExceptionHandler::SignalHandler);
 #endif
 
   // without at proper file system the current working directory is pretty much useless
