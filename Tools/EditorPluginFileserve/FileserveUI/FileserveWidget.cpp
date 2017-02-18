@@ -70,6 +70,7 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
     IpLabel->setText(sDisplayString.GetData());
   }
 
+  ReloadResourcesButton->setEnabled(false);
   SpecialDirAddButton->setVisible(false);
   SpecialDirBrowseButton->setVisible(false);
   SpecialDirRemoveButton->setVisible(false);
@@ -181,6 +182,15 @@ void ezQtFileserveWidget::on_ClearAllFilesButton_clicked()
   m_pAllFilesModel->Clear();
 }
 
+
+void ezQtFileserveWidget::on_ReloadResourcesButton_clicked()
+{
+  if (ezFileserver::GetSingleton())
+  {
+    ezFileserver::GetSingleton()->BroadcastReloadResourcesCommand();
+  }
+}
+
 void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
 {
   switch (e.m_Type)
@@ -189,6 +199,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     {
       LogActivity("", ezFileserveActivityType::StartServer);
       PortLineEdit->setEnabled(false);
+      ReloadResourcesButton->setEnabled(true);
       StartServerButton->setText("Stop Server");
 
       ezStringBuilder sDisplayString, sFirstIP;
@@ -202,6 +213,7 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     {
       LogActivity("", ezFileserveActivityType::StopServer);
       PortLineEdit->setEnabled(true);
+      ReloadResourcesButton->setEnabled(false);
       StartServerButton->setText("Start Server");
 
       emit ServerStopped();

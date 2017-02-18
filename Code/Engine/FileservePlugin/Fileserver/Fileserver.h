@@ -80,6 +80,9 @@ public:
   /// \brief The server broadcasts events about its activity
   ezEvent<const ezFileserverEvent&> m_Events;
 
+  /// \brief Broadcasts to all clients that they should reload their resources
+  void BroadcastReloadResourcesCommand();
+
 private:
   void NetworkEventHandler(const ezNetworkEvent& e);
   ezFileserveClientContext& DetermineClient(ezNetworkMessage &msg);

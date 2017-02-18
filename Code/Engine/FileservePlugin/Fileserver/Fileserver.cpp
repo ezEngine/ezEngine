@@ -66,6 +66,15 @@ void ezFileserver::SetPort(ezUInt16 uiPort)
   m_uiPort = uiPort;
 }
 
+
+void ezFileserver::BroadcastReloadResourcesCommand()
+{
+  if (!IsServerRunning())
+    return;
+
+  m_Network->Send('FSRV', 'RLDR');
+}
+
 void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
 {
   auto& client = DetermineClient(msg);

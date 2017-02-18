@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Communication/GlobalEvent.h>
 
 /// \todo Do not unload resources while they are acquired
 /// \todo Resource Type Memory Thresholds
@@ -642,6 +643,13 @@ void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bForce)
     if (it.Value()->GetDynamicRTTI() == pType)
       ReloadResource(it.Value(), bForce);
   }
+}
+
+// To allow triggering this event without a link dependency
+// Used by Fileserve, to trigger this event, even though Fileserve should not have a link dependency on Core
+EZ_ON_GLOBAL_EVENT(ezResourceManager_ReloadAllResources)
+{
+  ezResourceManager::ReloadAllResources(false);
 }
 
 void ezResourceManager::ReloadAllResources(bool bForce)

@@ -33,6 +33,7 @@ public slots:
   void on_StartServerButton_clicked();
   void on_ClearActivityButton_clicked();
   void on_ClearAllFilesButton_clicked();
+  void on_ReloadResourcesButton_clicked();
 
 private:
   void FileserverEventHandler(const ezFileserverEvent& e);

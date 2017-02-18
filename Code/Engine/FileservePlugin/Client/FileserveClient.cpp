@@ -252,6 +252,20 @@ void ezFileserveClient::NetworkMsgHandler(ezNetworkMessage& msg)
     return;
   }
 
+  static bool bReloadResources = false;
+
+  if (msg.GetMessageID() == 'RLDR')
+  {
+    bReloadResources = true;
+  }
+
+  if (!m_bDownloading && bReloadResources)
+  {
+    EZ_BROADCAST_EVENT(ezResourceManager_ReloadAllResources);
+    bReloadResources = false;
+    return;
+  }
+
   ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageSize());
 }
 
