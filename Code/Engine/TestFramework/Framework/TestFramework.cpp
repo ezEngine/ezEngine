@@ -33,7 +33,6 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 {
   s_pInstance = this;
 
-  CreateOutputFolder();
   GetTestSettingsFromCommandLine(argc, argv);
 }
 
@@ -49,16 +48,16 @@ void ezTestFramework::Initialize()
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCore();
 
-  {
-    // figure out which tests exist
-    GatherAllTests();
+  CreateOutputFolder();
 
-    // load the test order from file, if that file does not exist, the array is not modified
-    LoadTestOrder();
+  // figure out which tests exist
+  GatherAllTests();
 
-    // save the current order back to the same file
-    SaveTestOrder();
-  }
+  // load the test order from file, if that file does not exist, the array is not modified
+  LoadTestOrder();
+
+  // save the current order back to the same file
+  SaveTestOrder();
 
   m_bIsInitialized = true;
 
@@ -162,20 +161,20 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
     ezCommandLineUtils cmd;
     cmd.SetCommandLine(argc, argv);
 
-    m_Settings.m_bRunTests         = cmd.GetBoolOption("-run", false);
-    m_Settings.m_bNoSaving         = cmd.GetBoolOption("-nosave", false);
-    m_Settings.m_bCloseOnSuccess   = cmd.GetBoolOption("-close", false);
-    m_Settings.m_bNoGUI            = cmd.GetBoolOption("-nogui", false);
+    m_Settings.m_bRunTests = cmd.GetBoolOption("-run", false);
+    m_Settings.m_bNoSaving = cmd.GetBoolOption("-nosave", false);
+    m_Settings.m_bCloseOnSuccess = cmd.GetBoolOption("-close", false);
+    m_Settings.m_bNoGUI = cmd.GetBoolOption("-nogui", false);
 
     m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
-    m_Settings.m_bOpenHtmlOutput   = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutput);
-    m_Settings.m_bKeepConsoleOpen  = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
-    m_Settings.m_bShowMessageBox   = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
-    m_Settings.m_iRevision         = cmd.GetIntOption("-rev", -1);
-    m_Settings.m_bEnableAllTests   = cmd.GetBoolOption("-all", false);
-    m_Settings.m_uiFullPasses      = cmd.GetIntOption("-passes", 1, false);
+    m_Settings.m_bOpenHtmlOutput = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutput);
+    m_Settings.m_bKeepConsoleOpen = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
+    m_Settings.m_bShowMessageBox = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
+    m_Settings.m_iRevision = cmd.GetIntOption("-rev", -1);
+    m_Settings.m_bEnableAllTests = cmd.GetBoolOption("-all", false);
+    m_Settings.m_uiFullPasses = cmd.GetIntOption("-passes", 1, false);
     if (cmd.GetStringOptionArguments("-json") == 1)
-      m_Settings.m_sJsonOutput     = cmd.GetStringOption("-json", 0, "");
+      m_Settings.m_sJsonOutput = cmd.GetStringOption("-json", 0, "");
 
     m_uiPassesLeft = m_Settings.m_uiFullPasses;
   }
@@ -198,8 +197,6 @@ void ezTestFramework::SaveTestOrder()
 {
   if (m_Settings.m_bNoSaving)
     return;
-
-  CreateOutputFolder();
 
   std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
   ::SaveTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
@@ -285,7 +282,7 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 
   ExecuteNextTest();
 
-  if (m_iExecutingTest >= (ezInt32) m_TestEntries.size())
+  if (m_iExecutingTest >= (ezInt32)m_TestEntries.size())
   {
     EndTests();
 
@@ -311,7 +308,7 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
   }
 
   return ezTestAppRun::Continue;
-}
+  }
 
 void ezTestFramework::StartTests()
 {
@@ -377,7 +374,7 @@ void ezTestFramework::ExecuteNextTest()
     {
       if (m_bAbortTests)
       {
-        m_iExecutingTest = (ezInt32) m_TestEntries.size(); // skip to the end of all tests
+        m_iExecutingTest = (ezInt32)m_TestEntries.size(); // skip to the end of all tests
         m_iExecutingSubTest = -1;
         return;
       }
@@ -398,11 +395,11 @@ void ezTestFramework::ExecuteNextTest()
       // *** Test Initialization ***
       if (pTestClass->DoTestInitialization().Failed())
       {
-        m_iExecutingSubTest = (ezInt32) TestEntry.m_SubTests.size(); // make sure all subtests are skipped
+        m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all subtests are skipped
       }
     }
 
-    if (m_iExecutingSubTest < (ezInt32) TestEntry.m_SubTests.size())
+    if (m_iExecutingSubTest < (ezInt32)TestEntry.m_SubTests.size())
     {
       ezSubTestEntry& subTest = TestEntry.m_SubTests[m_iExecutingSubTest];
       ezInt32 iSubTestIdentifier = subTest.m_iSubTestIdentifier;
@@ -421,7 +418,7 @@ void ezTestFramework::ExecuteNextTest()
         {
           // tests shall be aborted, so do not start a new one
 
-          m_iExecutingTest = (ezInt32) m_TestEntries.size(); // skip to the end of all tests
+          m_iExecutingTest = (ezInt32)m_TestEntries.size(); // skip to the end of all tests
           m_iExecutingSubTest = -1;
           return;
         }
@@ -475,7 +472,7 @@ void ezTestFramework::ExecuteNextTest()
       }
     }
 
-    if (m_iExecutingSubTest >= (ezInt32) TestEntry.m_SubTests.size())
+    if (m_iExecutingSubTest >= (ezInt32)TestEntry.m_SubTests.size())
     {
       // *** Test De-Initialization ***
       pTestClass->DoTestDeInitialization();
@@ -681,9 +678,9 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
 {
   m_Result.TestResult(m_iCurrentTestIndex, iSubTestIndex, bSuccess, fDuration);
 
-  const ezUInt32 uiMin = (ezUInt32) (fDuration / 1000.0 / 60.0);
-  const ezUInt32 uiSec = (ezUInt32) (fDuration / 1000.0 - uiMin * 60.0);
-  const ezUInt32 uiMS  = (ezUInt32) (fDuration - uiSec * 1000.0);
+  const ezUInt32 uiMin = (ezUInt32)(fDuration / 1000.0 / 60.0);
+  const ezUInt32 uiSec = (ezUInt32)(fDuration / 1000.0 - uiMin * 60.0);
+  const ezUInt32 uiMS = (ezUInt32)(fDuration - uiSec * 1000.0);
 
   ezTestFramework::Output(ezTestOutput::Duration, "%i:%02i:%03i", uiMin, uiSec, uiMS);
 
