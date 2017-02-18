@@ -332,6 +332,32 @@ bool ezFileSystem::ExistsFile(const char* szFile)
   return false;
 }
 
+
+ezResult ezFileSystem::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
+{
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
+
+  EZ_LOCK(s_Data->m_Mutex);
+
+  ezString sRootName;
+  szFileOrFolder = ExtractRootName(szFileOrFolder, sRootName);
+
+  const bool bOneSpecificDataDir = !sRootName.IsEmpty();
+
+  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); ++i)
+  {
+    if (!sRootName.IsEmpty() && s_Data->m_DataDirectories[i].m_sRootName != sRootName)
+      continue;
+
+    const char* szRelPath = GetDataDirRelativePath(szFileOrFolder, i);
+
+    if (s_Data->m_DataDirectories[i].m_pDataDirectory->GetFileStats(szRelPath, bOneSpecificDataDir, out_Stats).Succeeded())
+      return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
 const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName)
 {
   rootName.Clear();

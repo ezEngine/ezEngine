@@ -48,6 +48,8 @@ namespace ezDataDirectory
     virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;
+    virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir) override;
+    virtual ezResult GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
     virtual FolderReader* CreateFolderReader() const;
     virtual FolderWriter* CreateFolderWriter() const;
 

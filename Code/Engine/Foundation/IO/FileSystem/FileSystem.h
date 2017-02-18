@@ -144,6 +144,11 @@ public:
   /// The search can be restricted to directories of certain categories (see AddDataDirectory).
   static bool ExistsFile(const char* szFile); // [tested]
 
+  /// \brief Tries to get the ezFileStats for the given file.
+  /// Typically should give the same results as ezOSFile::GetFileStats, but some data dir implementations may not support
+  /// retrieving all data (e.g. GetFileStats on folders might not always work).
+  static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats);
+
   /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
   ///
   /// If the given path is a rooted path, for instance something like ":appdata/UserData.txt", (which is necessary for writing to files),

@@ -84,6 +84,13 @@ ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWrite
   return EZ_DEFAULT_NEW(FileserveDataDirectoryWriter);
 }
 
+
+ezResult ezDataDirectory::FileserveType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
+{
+  EZ_SUCCEED_OR_RETURN(ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, szFileOrFolder, bOneSpecificDataDir));
+  return ezOSFile::GetFileStats(szFileOrFolder, out_Stats);
+}
+
 bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
 {
   return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, szFile, bOneSpecificDataDir).Succeeded();

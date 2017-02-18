@@ -160,6 +160,21 @@ namespace ezDataDirectory
     }
   }
 
+
+  bool FolderType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
+  {
+    ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
+    sPath.AppendPath(szFile);
+    return ezOSFile::ExistsFile(sPath);
+  }
+
+  ezResult FolderType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
+  {
+    ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
+    sPath.AppendPath(szFileOrFolder);
+    return ezOSFile::GetFileStats(sPath, out_Stats);
+  }
+
   ezResult FolderType::InternalInitializeDataDirectory(const char* szDirectory)
   {
     // allow to set the 'empty' directory to handle all absolute paths

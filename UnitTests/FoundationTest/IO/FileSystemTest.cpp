@@ -166,6 +166,29 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(FileIn.Open("FileSystemTest.txt") == EZ_FAILURE);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileStats")
+  {
+    // Create file
+    {
+      ezFileWriter FileOut;
+      ezStringBuilder sAbs = sOutputFolder1Resolved;
+      sAbs.AppendPath("FileSystemTest.txt");
+      EZ_TEST_BOOL(FileOut.Open(":output1/FileSystemTest.txt") == EZ_SUCCESS);
+      FileOut.WriteBytes("Test", 4);
+    }
+
+    ezFileStats stat;
+
+    EZ_TEST_BOOL(ezFileSystem::GetFileStats(":output1/FileSystemTest.txt", stat).Succeeded());
+
+    EZ_TEST_BOOL(!stat.m_bIsDirectory);
+    EZ_TEST_STRING(stat.m_sFileName, "FileSystemTest.txt");
+    EZ_TEST_INT(stat.m_uiFileSize, 4);
+
+    ezFileSystem::DeleteFile(":output1/FileSystemTest.txt");
+    EZ_TEST_BOOL(ezFileSystem::GetFileStats(":output1/FileSystemTest.txt", stat).Failed());
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResolvePath")
   {
     ezStringBuilder sRel, sAbs;

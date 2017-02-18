@@ -213,7 +213,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
   out_Stats.m_bIsDirectory = S_ISDIR(tempStat.st_mode);
   out_Stats.m_uiFileSize = tempStat.st_size;
-  out_Stats.m_sFileName = "";
+  out_Stats.m_sFileName = ezPathUtils::GetFileNameAndExtension(szFileOrFolder); // no OS support, so just pass it through
   out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
 
   return EZ_SUCCESS;
@@ -255,6 +255,7 @@ const char* ezOSFile::GetApplicationDirectory()
 
 #else
 
+    EZ_ASSERT_DEV(ezCommandLineUtils::GetGlobalInstance()->GetParameterCount() > 0, "Command line arguments have not been passed along to ezCommandLineUtils");
     ezStringBuilder path = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
     s_Path = path.GetFileDirectory();
 

@@ -33,6 +33,8 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 {
   s_pInstance = this;
 
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(argc, argv);
+
   GetTestSettingsFromCommandLine(argc, argv);
 }
 
