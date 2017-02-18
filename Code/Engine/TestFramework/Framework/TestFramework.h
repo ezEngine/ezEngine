@@ -241,13 +241,31 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_STRING_MSG(s1, s2, msg, ...) \
 { \
   ezTestFramework::s_iAssertCounter++; \
-  const char* internal_sz1 = s1; \
-  const char* internal_sz2 = s2; \
+  const std::string lhs = s1; \
+  const std::string rhs = s2; \
   \
-  if (strcmp(internal_sz1, internal_sz2) != 0) \
+  if (strcmp(lhs.c_str(), rhs.c_str()) != 0) \
   { \
     char szLocal_TestMacro[2048]; \
-    safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
+    safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(s1), lhs.c_str(), EZ_STRINGIZE(s2), rhs.c_str()); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
+  } \
+}
+
+/// \brief Tests two strings for equality. On failure both actual and expected values are output. Does not embed the original expression to work around issues with the current code page and unicode literals.
+#define EZ_TEST_STRING_UNICODE(i1, i2) EZ_TEST_STRING_UNICODE_MSG(i1, i2, "")
+
+/// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed. Does not embed the original expression to work around issues with the current code page and unicode literals.
+#define EZ_TEST_STRING_UNICODE_MSG(s1, s2, msg, ...) \
+{ \
+  ezTestFramework::s_iAssertCounter++; \
+  const std::string lhs = s1; \
+  const std::string rhs = s2; \
+  \
+  if (strcmp(lhs.c_str(), rhs.c_str()) != 0) \
+  { \
+    char szLocal_TestMacro[2048]; \
+    safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' does not equal '%s'", lhs.c_str(), rhs.c_str()); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }

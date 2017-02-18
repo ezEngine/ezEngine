@@ -1420,16 +1420,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder sb = L"⺅⻩⽇⿕.〄㈷㑧䆴.ؼݻ༺.";
 
     sb.RemoveFileExtension();
-    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕.〄㈷㑧䆴.ؼݻ༺").GetData());
+    EZ_TEST_STRING_UNICODE(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕.〄㈷㑧䆴.ؼݻ༺").GetData());
 
     sb.RemoveFileExtension();
-    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕.〄㈷㑧䆴").GetData());
+    EZ_TEST_STRING_UNICODE(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕.〄㈷㑧䆴").GetData());
 
     sb.RemoveFileExtension();
-    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕").GetData());
+    EZ_TEST_STRING_UNICODE(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕").GetData());
 
     sb.RemoveFileExtension();
-    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕").GetData());
+    EZ_TEST_STRING_UNICODE(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕").GetData());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Trim")
@@ -1455,9 +1455,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     // Clear partial side
     sb = L"ですですですAにぱにぱにぱ";
     sb.Trim(nullptr, ezStringUtf8(L"にぱ").GetData());
-    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"ですですですA").GetData());
+    EZ_TEST_STRING_UNICODE(sb.GetData(), ezStringUtf8(L"ですですですA").GetData());
     sb.Trim(ezStringUtf8(L"です").GetData(), nullptr);
-    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"A").GetData());
+    EZ_TEST_STRING_UNICODE(sb.GetData(), ezStringUtf8(L"A").GetData());
 
     sb = L"ですですですAにぱにぱにぱ";
     sb.Trim(ezStringUtf8(L"ですにぱ").GetData());

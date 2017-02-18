@@ -6,10 +6,6 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, FileSystem)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  return;
-#endif
-
   ezStringBuilder sFileContent = "Lyrics to Taste The Cake:\n\
 Turret: Who's there?\n\
 Turret: Is anyone there?\n\
@@ -20,19 +16,17 @@ She isn't greeted by faces,\n\
 Only concrete and clocks.\n\
 ...";
 
-  const char* szOutputFolder = ">sdk/Output/Bin";
+  const ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
   ezStringBuilder sOutputFolderResolved;
   ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved);
 
-  // Don't use 'BUILDSYSTEM_OUTPUT_FOLDER' in any other tests, it's just used here because we are too poor to get
-  // an absolute path that actually exists from anywhere else.
   ezStringBuilder sOutputFolder1 = szOutputFolder;
-  sOutputFolder1.AppendPath("FoundationTest", "IO", "SubFolder");
+  sOutputFolder1.AppendPath("IO", "SubFolder");
   ezStringBuilder sOutputFolder1Resolved;
   ezFileSystem::ResolveSpecialDirectory(sOutputFolder1, sOutputFolder1Resolved);
 
   ezStringBuilder sOutputFolder2 = szOutputFolder;
-  sOutputFolder2.AppendPath("FoundationTest", "IO", "SubFolder2");
+  sOutputFolder2.AppendPath("IO", "SubFolder2");
   ezStringBuilder sOutputFolder2Resolved;
   ezFileSystem::ResolveSpecialDirectory(sOutputFolder2, sOutputFolder2Resolved);
 
@@ -71,7 +65,7 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "Remove") == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove") == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Remove") == 3);
+    EZ_TEST_INT(ezFileSystem::RemoveDataDirectoryGroup("Remove"), 3);
 
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "Remove") == EZ_SUCCESS);
@@ -79,8 +73,8 @@ Only concrete and clocks.\n\
 
     ezFileSystem::ClearAllDataDirectories();
 
-    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Remove") == 0);
-    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Clear") == 0);
+    EZ_TEST_INT(ezFileSystem::RemoveDataDirectoryGroup("Remove"), 0);
+    EZ_TEST_INT(ezFileSystem::RemoveDataDirectoryGroup("Clear"), 0);
 
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "", "output1", ezFileSystem::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2) == EZ_SUCCESS);
@@ -95,15 +89,15 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(FileOut.Open(":output1/FileSystemTest.txt") == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(FileOut.GetFilePathRelative() == "FileSystemTest.txt");
-    EZ_TEST_BOOL(FileOut.GetFilePathAbsolute() == sAbs);
+    EZ_TEST_STRING(FileOut.GetFilePathRelative(), "FileSystemTest.txt");
+    EZ_TEST_STRING(FileOut.GetFilePathAbsolute(), sAbs);
 
-    EZ_TEST_BOOL(FileOut.GetFileSize() == 0);
+    EZ_TEST_INT(FileOut.GetFileSize(), 0);
 
     EZ_TEST_BOOL(FileOut.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount()) == EZ_SUCCESS);
 
     FileOut.Flush();
-    EZ_TEST_BOOL(FileOut.GetFileSize() == sFileContent.GetElementCount());
+    EZ_TEST_INT(FileOut.GetFileSize(), sFileContent.GetElementCount());
 
     FileOut.Close();
   }
@@ -117,13 +111,13 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(FileIn.Open("FileSystemTest.txt") == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(FileIn.GetFilePathRelative() == "FileSystemTest.txt");
-    EZ_TEST_BOOL(FileIn.GetFilePathAbsolute() == sAbs);
+    EZ_TEST_STRING(FileIn.GetFilePathRelative(), "FileSystemTest.txt");
+    EZ_TEST_STRING(FileIn.GetFilePathAbsolute(), sAbs);
 
-    EZ_TEST_BOOL(FileIn.GetFileSize() == sFileContent.GetElementCount());
+    EZ_TEST_INT(FileIn.GetFileSize(), sFileContent.GetElementCount());
 
     char szTemp[1024 * 2];
-    EZ_TEST_BOOL(FileIn.ReadBytes(szTemp, 1024 * 2) == sFileContent.GetElementCount());
+    EZ_TEST_INT(FileIn.ReadBytes(szTemp, 1024 * 2), sFileContent.GetElementCount());
 
     EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szTemp, sFileContent.GetData(), sFileContent.GetElementCount()));
 
@@ -141,13 +135,13 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(FileIn.Open(sAbs) == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(FileIn.GetFilePathRelative() == "FileSystemTest.txt");
-    EZ_TEST_BOOL(FileIn.GetFilePathAbsolute() == sAbs);
+    EZ_TEST_STRING(FileIn.GetFilePathRelative(), "FileSystemTest.txt");
+    EZ_TEST_STRING(FileIn.GetFilePathAbsolute(), sAbs);
 
-    EZ_TEST_BOOL(FileIn.GetFileSize() == sFileContent.GetElementCount());
+    EZ_TEST_INT(FileIn.GetFileSize(), sFileContent.GetElementCount());
 
     char szTemp[1024 * 2];
-    EZ_TEST_BOOL(FileIn.ReadBytes(szTemp, 1024 * 2) == sFileContent.GetElementCount());
+    EZ_TEST_INT(FileIn.ReadBytes(szTemp, 1024 * 2), sFileContent.GetElementCount());
 
     EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szTemp, sFileContent.GetData(), sFileContent.GetElementCount()));
 
@@ -198,8 +192,8 @@ Only concrete and clocks.\n\
     ezStringBuilder sExpectedAbs = sOutputFolder1Resolved;
     sExpectedAbs.AppendPath("FileSystemTest2.txt");
 
-    EZ_TEST_BOOL(sAbs == sExpectedAbs);
-    EZ_TEST_BOOL(sRel == "FileSystemTest2.txt");
+    EZ_TEST_STRING(sAbs, sExpectedAbs);
+    EZ_TEST_STRING(sRel, "FileSystemTest2.txt");
 
     // create a file in the second dir
     {
@@ -210,7 +204,7 @@ Only concrete and clocks.\n\
         EZ_TEST_BOOL(FileOut.Open(":output2/FileSystemTest2.txt") == EZ_SUCCESS);
       }
 
-      EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Remove") == 1);
+      EZ_TEST_INT(ezFileSystem::RemoveDataDirectoryGroup("Remove"), 1);
     }
 
     // find the path to an existing file
@@ -220,8 +214,8 @@ Only concrete and clocks.\n\
       sExpectedAbs = sOutputFolder2Resolved;
       sExpectedAbs.AppendPath("FileSystemTest2.txt");
 
-      EZ_TEST_BOOL(sAbs == sExpectedAbs);
-      EZ_TEST_BOOL(sRel == "FileSystemTest2.txt");
+      EZ_TEST_STRING(sAbs, sExpectedAbs);
+      EZ_TEST_STRING(sRel, "FileSystemTest2.txt");
     }
 
     // find where we would write the file to (ignoring existing files)
@@ -231,8 +225,8 @@ Only concrete and clocks.\n\
       sExpectedAbs = sOutputFolder1Resolved;
       sExpectedAbs.AppendPath("FileSystemTest2.txt");
 
-      EZ_TEST_BOOL(sAbs == sExpectedAbs);
-      EZ_TEST_BOOL(sRel == "FileSystemTest2.txt");
+      EZ_TEST_STRING(sAbs, sExpectedAbs);
+      EZ_TEST_STRING(sRel, "FileSystemTest2.txt");
     }
 
     // find where we would write the file to (ignoring existing files)
@@ -242,8 +236,8 @@ Only concrete and clocks.\n\
       sExpectedAbs = sOutputFolder1Resolved;
       sExpectedAbs.AppendPath("SubSub/FileSystemTest2.txt");
 
-      EZ_TEST_BOOL(sAbs == sExpectedAbs);
-      EZ_TEST_BOOL(sRel == "SubSub/FileSystemTest2.txt");
+      EZ_TEST_STRING(sAbs, sExpectedAbs);
+      EZ_TEST_STRING(sRel, "SubSub/FileSystemTest2.txt");
     }
 
     ezFileSystem::DeleteFile(":output1/FileSystemTest2.txt");
@@ -265,35 +259,25 @@ Only concrete and clocks.\n\
       EZ_TEST_BOOL(FileOut.Open(":output2/FileSystemTest2.txt") == EZ_SUCCESS);
     }
 
-
     {
-      StartPath.Set(sOutputFolder1Resolved, "SubSub", "Irrelevant");
+      StartPath.Set(sOutputFolder1Resolved, "/SubSub", "/Irrelevant");
       SubPath.Set("DoesNotExist");
 
       EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Failed());
     }
 
     {
-      StartPath.Set(sOutputFolder1Resolved, "SubSub", "Irrelevant");
+      StartPath.Set(sOutputFolder1Resolved, "/SubSub", "/Irrelevant");
       SubPath.Set("SubFolder2");
-      expected.Set(sOutputFolderResolved, "/FoundationTest/IO/");
+      expected.Set(sOutputFolderResolved, "/IO/");
 
       EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
     {
-      StartPath.Set(sOutputFolder1Resolved, "SubSub");
+      StartPath.Set(sOutputFolder1Resolved, "/SubSub");
       SubPath.Set("IO/SubFolder2");
-      expected.Set(sOutputFolderResolved, "/FoundationTest/");
-
-      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
-      EZ_TEST_STRING(result, expected);
-    }
-
-    {
-      StartPath.Set(sOutputFolder1Resolved, "SubSub");
-      SubPath.Set("FoundationTest/IO/SubFolder2");
       expected.Set(sOutputFolderResolved, "/");
 
       EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
@@ -301,18 +285,27 @@ Only concrete and clocks.\n\
     }
 
     {
-      StartPath.Set(sOutputFolder1Resolved, "SubSub", "Irrelevant");
-      SubPath.Set("SubFolder2/FileSystemTest2.txt");
-      expected.Set(sOutputFolderResolved, "/FoundationTest/IO/");
+      StartPath.Set(sOutputFolder1Resolved, "/SubSub");
+      SubPath.Set("IO/SubFolder2");
+      expected.Set(sOutputFolderResolved, "/");
 
       EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
       EZ_TEST_STRING(result, expected);
     }
 
     {
-      StartPath.Set(":toplevel/FoundationTest/IO/SubFolder");
+      StartPath.Set(sOutputFolder1Resolved, "/SubSub", "/Irrelevant");
+      SubPath.Set("SubFolder2/FileSystemTest2.txt");
+      expected.Set(sOutputFolderResolved, "/IO/");
+
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_STRING(result, expected);
+    }
+
+    {
+      StartPath.Set(":toplevel/IO/SubFolder");
       SubPath.Set("IO/SubFolder2");
-      expected.Set(":toplevel/FoundationTest/");
+      expected.Set(":toplevel/");
 
       EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
       EZ_TEST_STRING(result, expected);

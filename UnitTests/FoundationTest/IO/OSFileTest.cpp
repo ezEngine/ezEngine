@@ -133,10 +133,13 @@ Only concrete and clocks.\n\
     // a test data folder with deterministic content
     // Therefore I tested it manually, and leave the code in, such that it is at least a 'does it compile and link' test.
 
-    ezStringBuilder sOutputFolder = BUILDSYSTEM_OUTPUT_FOLDER;
-    sOutputFolder.AppendPath("Debug*");
+    ezStringBuilder sOutputFolder = ezOSFile::GetApplicationDirectory();
+    sOutputFolder.AppendPath("*");
 
     ezStringBuilder sFullPath;
+
+    ezUInt32 uiFolders = 0;
+    ezUInt32 uiFiles = 0;
 
     ezFileSystemIterator it;
     if (it.StartSearch(sOutputFolder.GetData(), true, true) == EZ_SUCCESS)
@@ -153,16 +156,25 @@ Only concrete and clocks.\n\
 
         if (it.GetStats().m_bIsDirectory)
         {
+          ++uiFolders;
+
           SkipFolder++;
 
           if ((SkipFolder % 2 == 0) && (it.SkipFolder() == EZ_FAILURE))
             break;
+        }
+        else
+        {
+          ++uiFiles;
         }
 
         //printf("%s: '%s'\n", it.GetStats().m_bIsDirectory ? "[Dir] " : "[File]", sFullPath.GetData());
       }
       while (it.Next() == EZ_SUCCESS);
     }
+
+    EZ_TEST_BOOL(uiFolders > 0);
+    EZ_TEST_BOOL(uiFiles > 0);
   }
 
 #endif

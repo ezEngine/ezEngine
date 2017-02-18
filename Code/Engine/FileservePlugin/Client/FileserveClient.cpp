@@ -118,14 +118,8 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
 
     WriteMetaFile(sCachedMetaFile, 0, uiHash);
 
-    auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[szFile];
-    cache.m_FileHash = uiHash;
-    cache.m_TimeStamp = 0;
-    cache.m_LastCheck.SetZero(); // will trigger a server request and that in turn will update the file timestamp
+    InvalidateFileCache(uiDataDirID, szFile, uiHash);
 
-    // redirect the next access to this cache entry
-    // together with the zero LastCheck that will make sure the best match gets updated as well
-    m_FileDataDir[szFile] = uiDataDirID;
   }
 
   const ezUInt32 uiFileSize = fileContent.GetCount();
@@ -182,6 +176,19 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
   {
     UpdateClient();
   }
+}
+
+
+void ezFileserveClient::InvalidateFileCache(ezUInt16 uiDataDirID, const char* szFile, ezUInt64 uiHash)
+{
+  auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[szFile];
+  cache.m_FileHash = uiHash;
+  cache.m_TimeStamp = 0;
+  cache.m_LastCheck.SetZero(); // will trigger a server request and that in turn will update the file timestamp
+
+  // redirect the next access to this cache entry
+  // together with the zero LastCheck that will make sure the best match gets updated as well
+  m_FileDataDir[szFile] = uiDataDirID;
 }
 
 void ezFileserveClient::FillFileStatusCache(const char* szFile)
@@ -332,6 +339,8 @@ void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
 {
   if (!m_Network->IsConnectedToServer())
     return;
+
+  InvalidateFileCache(uiDataDir, szFile, 0);
 
   ezNetworkMessage msg('FSRV', 'DELF');
   msg.GetWriter() << uiDataDir;
