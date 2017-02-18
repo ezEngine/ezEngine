@@ -37,10 +37,13 @@ namespace ezDataDirectory
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;
+    virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir) override;
     virtual FolderWriter* CreateFolderWriter() const override;
 
     ezUInt16 m_uiDataDirID = 0xffff;
     ezString128 m_sFileserveCacheMetaFolder;
+
+
 
 
   };

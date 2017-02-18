@@ -399,8 +399,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   }
 
   // capture profiling info for testing
-  /*ezStringBuilder sOutputPath = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputPath.AppendPath("FoundationTest");
+  /*ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory(sOutputPath.GetData());

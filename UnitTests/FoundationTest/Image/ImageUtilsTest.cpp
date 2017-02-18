@@ -7,15 +7,8 @@
 
 EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  return;
-#endif
-
-  ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sReadDir.AppendPath("../../Data/UnitTests/FoundationTest");
-
-  ezStringBuilder sWriteDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sWriteDir.AppendPath("FoundationTest");
+  ezStringBuilder sReadDir = ">sdk/Data/UnitTests/FoundationTest";
+  ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);
 

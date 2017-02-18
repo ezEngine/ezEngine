@@ -20,7 +20,7 @@ She isn't greeted by faces,\n\
 Only concrete and clocks.\n\
 ...";
 
-  const char* szOutputFolder = ">sdk/Output/Bin"; // BUILDSYSTEM_OUTPUT_FOLDER
+  const char* szOutputFolder = ">sdk/Output/Bin";
   ezStringBuilder sOutputFolderResolved;
   ezFileSystem::ResolveSpecialDirectory(szOutputFolder, sOutputFolderResolved);
 

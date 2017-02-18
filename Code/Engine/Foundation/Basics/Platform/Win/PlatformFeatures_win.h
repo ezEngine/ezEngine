@@ -28,3 +28,14 @@
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS
 #define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_ON
 
+/// Whether applications can access any file (not sandboxed)
+#undef EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#define EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS EZ_OFF
+#else
+#define EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS EZ_ON
+#endif
+
+/// Whether file accesses can be done through paths that do not match exact casing
+#undef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
+#define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_ON

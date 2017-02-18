@@ -316,6 +316,8 @@ bool ezFileSystem::ExistsFile(const char* szFile)
   ezString sRootName;
   szFile = ExtractRootName(szFile, sRootName);
 
+  const bool bOneSpecificDataDir = !sRootName.IsEmpty();
+
   for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); ++i)
   {
     if (!sRootName.IsEmpty() && s_Data->m_DataDirectories[i].m_sRootName != sRootName)
@@ -323,7 +325,7 @@ bool ezFileSystem::ExistsFile(const char* szFile)
 
     const char* szRelPath = GetDataDirRelativePath(szFile, i);
 
-    if (s_Data->m_DataDirectories[i].m_pDataDirectory->ExistsFile(szRelPath))
+    if (s_Data->m_DataDirectories[i].m_pDataDirectory->ExistsFile(szRelPath, bOneSpecificDataDir))
       return true;
   }
 

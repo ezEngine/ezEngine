@@ -16,3 +16,10 @@
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS
 #define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_OFF
 
+/// Whether applications can access any file (not sandboxed)
+#undef EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
+#define EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS EZ_ON
+
+/// Whether file accesses can be done through paths that do not match exact casing
+#undef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
+#define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_OFF

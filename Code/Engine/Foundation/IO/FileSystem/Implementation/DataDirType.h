@@ -67,7 +67,7 @@ protected:
   ///
   /// The default implementation will simply try to open the file for reading.
   /// An optimized implementation might look this information up in some hash-map.
-  virtual bool ExistsFile(const char* szFile);
+  virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir);
 
 protected:
   friend class ezDataDirectoryReaderWriterBase;

@@ -86,10 +86,11 @@ public:
 
   void AfterCoreStartup() override
   {
-    ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sProjectDir.AppendPath("../../Data/Samples/TextureSample");
+    ezStringBuilder sProjectDir = ">sdk/Data/Samples/TextureSample";
+    ezStringBuilder sProjectDirResolved;
+    ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved);
 
-    ezFileSystem::SetSpecialDirectory("project", sProjectDir);
+    ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
     // setup the 'asset management system'
     {

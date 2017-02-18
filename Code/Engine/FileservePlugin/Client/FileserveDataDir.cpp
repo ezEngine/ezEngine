@@ -84,6 +84,11 @@ ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWrite
   return EZ_DEFAULT_NEW(FileserveDataDirectoryWriter);
 }
 
+bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
+{
+  return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, szFile, bOneSpecificDataDir).Succeeded();
+}
+
 ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
 {
   if (!ezFileserveClient::s_bEnableFileserve || ezFileserveClient::GetSingleton() == nullptr)
@@ -91,6 +96,11 @@ ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataD
 
   // ignore the empty data dir, which handles absolute paths, as we cannot translate these paths to the fileserve host OS
   if (ezStringUtils::IsNullOrEmpty(szDataDirectory))
+    return nullptr;
+
+  // Fileserve can only translate paths on the server that start with a 'Special Directory' (e.g. ">sdk/" or ">project/")
+  // ignore everything else
+  if (szDataDirectory[0] != '>')
     return nullptr;
 
   if (ezFileserveClient::GetSingleton()->EnsureConnected().Failed())

@@ -42,24 +42,16 @@ static void ChangedCVar(const ezCVar::CVarEvent& e)
 
 EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  return;
-#endif
-
   iChangedValue = 0;
   iChangedRestart = 0;
 
   // setup the filesystem
   // we need it to test the storing of cvars (during plugin reloading)
 
-  ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFolder1.AppendPath("FoundationTest");
-
-  ezOSFile::CreateDirectoryStructure(sOutputFolder1.GetData());
+  ezStringBuilder sOutputFolder1 = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "test") == EZ_SUCCESS);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
   // Delete all cvar setting files

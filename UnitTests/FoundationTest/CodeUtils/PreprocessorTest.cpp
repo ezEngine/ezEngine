@@ -94,16 +94,8 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
-//#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-//  return;
-//#endif
-
   ezStringBuilder sReadDir  = ">sdk/Data/UnitTests/FoundationTest";
-  ezStringBuilder sWriteDir = ">sdk/Output/Bin/FoundationTest";
-  ezStringBuilder sWriteDirResolved;
-  ezFileSystem::ResolveSpecialDirectory(sWriteDir, sWriteDirResolved);
-
-  EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDirResolved) == EZ_SUCCESS);
+  ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);

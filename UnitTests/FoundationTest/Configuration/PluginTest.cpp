@@ -12,10 +12,6 @@ ezCVarBool CVar_TestPlugin2FoundDependencies("TestPlugin2FoundDependencies", fal
 
 EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  return;
-#endif
-
   CVar_TestPlugin1InitializedCount = 0;
   CVar_TestPlugin1UninitializedCount = 0;
   CVar_TestPlugin1Reloaded = 0;

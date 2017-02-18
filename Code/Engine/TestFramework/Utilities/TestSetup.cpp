@@ -46,7 +46,7 @@ namespace ExceptionHandler
   {
     Print("***Unhandled Exception:***\n");
     Print("Exception: %08x", (ezUInt32)pExceptionInfo->ExceptionRecord->ExceptionCode);
-    
+
     {
       Print("\n\n***Stack Trace:***\n");
       void* pBuffer[64];
@@ -104,9 +104,10 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 #endif
 
   // without at proper file system the current working directory is pretty much useless
-  std::string sTestFolder = std::string(BUILDSYSTEM_OUTPUT_FOLDER);
+  std::string sTestFolder = std::string(ezOSFile::GetUserDataFolder());
   if (*sTestFolder.rbegin() != '/')
     sTestFolder.append("/");
+  sTestFolder.append("ezEngine Tests/");
   sTestFolder.append(szTestName);
 
 #ifdef EZ_USE_QT

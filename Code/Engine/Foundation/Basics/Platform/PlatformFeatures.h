@@ -29,3 +29,10 @@
   #error "EZ_SUPPORTS_DYNAMIC_PLUGINS is not defined."
 #endif
 
+#ifndef EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
+  #error "EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS is not defined."
+#endif
+
+#ifndef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
+  #error "EZ_SUPPORTS_CASE_INSENSITIVE_PATHS is not defined."
+#endif

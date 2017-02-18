@@ -162,12 +162,13 @@ void ezShaderExplorerApp::AfterCoreStartup()
   m_camera->LookAt(ezVec3(3, 3, 1.5), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
 
-  ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sProjectDir.AppendPath("../../Data/Samples/ShaderExplorer");
+  ezStringBuilder sProjectDir = ">sdk/Data/Samples/ShaderExplorer";
+  ezStringBuilder sProjectDirResolved;
+  ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved);
 
-  ezFileSystem::SetSpecialDirectory("project", sProjectDir);
+  ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
-  EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDir, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
+  EZ_VERIFY(m_directoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
 
   // setup the 'asset management system'
   {

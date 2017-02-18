@@ -14,7 +14,7 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
   return InternalInitializeDataDirectory(m_sDataDirectoryPath.GetData());
 }
 
-bool ezDataDirectoryType::ExistsFile(const char* szFile)
+bool ezDataDirectoryType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
 {
   ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
   sPath.AppendPath(szFile);

@@ -189,8 +189,11 @@ public:
   /// \brief Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
   static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats); // [tested]
 
+#if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)) || defined(EZ_DOCS)
   /// \brief Useful on systems that are not strict about the casing of file names. Determines the correct name of a file.
   static ezResult GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling); // [tested]
+#endif
+
 #endif
 
   /// \brief Returns the path in which the applications binary file is located.

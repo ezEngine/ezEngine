@@ -33,6 +33,7 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 {
   s_pInstance = this;
 
+  CreateOutputFolder();
   GetTestSettingsFromCommandLine(argc, argv);
 }
 
@@ -61,13 +62,7 @@ void ezTestFramework::Initialize()
 
   m_bIsInitialized = true;
 
-  {
-    /// \todo Find a better way to detect this. Not a real problem on PC, but on mobile platforms it might be tricky. Or just use an empty path there??
-
-    ezStringBuilder sSdkPath(BUILDSYSTEM_OUTPUT_FOLDER, "/../..");
-    sSdkPath.MakeCleanPath();
-    ezFileSystem::SetSdkRootDirectory(sSdkPath);
-  }
+  ezFileSystem::DetectSdkRootDirectory();
 }
 
 void ezTestFramework::DeInitialize()

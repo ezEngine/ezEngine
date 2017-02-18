@@ -416,6 +416,7 @@ done:
     return Res;
   }
 
+  #if EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
   ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
   {
     /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
@@ -473,6 +474,7 @@ done:
 
     return Res;
   }
+#endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
 
 #endif // EZ_SUPPORTS_FILE_STATS

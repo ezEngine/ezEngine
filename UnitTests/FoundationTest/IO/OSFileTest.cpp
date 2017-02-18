@@ -3,10 +3,6 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  return;
-#endif
-
   ezStringBuilder sFileContent = "Lyrics to Taste The Cake:\n\
 Turret: Who's there?\n\
 Turret: Is anyone there?\n\
@@ -19,12 +15,12 @@ Only concrete and clocks.\n\
 
   const ezUInt32 uiTextLen = sFileContent.GetElementCount();
 
-  ezStringBuilder sOutputFile = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFile.AppendPath("FoundationTest", "IO", "SubFolder");
+  ezStringBuilder sOutputFile = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile.AppendPath("IO", "SubFolder");
   sOutputFile.AppendPath("OSFile_TestFile.txt");
 
-  ezStringBuilder sOutputFile2 = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFile2.AppendPath("FoundationTest", "IO", "SubFolder2");
+  ezStringBuilder sOutputFile2 = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  sOutputFile2.AppendPath("IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
@@ -113,7 +109,7 @@ Only concrete and clocks.\n\
     //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS))
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileCasing")
   {
     ezStringBuilder dir = sOutputFile2;
@@ -125,7 +121,8 @@ Only concrete and clocks.\n\
     // On Windows the drive letter will always be made to upper case
     EZ_TEST_STRING(sCorrected.GetData(), sOutputFile2.GetData());
   }
-#endif // EZ_PLATFORM_WINDOWS
+#endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
+
 #endif // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
@@ -217,10 +214,10 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFile.GetData()) == false);
     EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFile2.GetData()) == false);
 
-    ezStringBuilder sOutputFolder = BUILDSYSTEM_OUTPUT_FOLDER;
+    ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
     EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
 
-    sOutputFile.AppendPath("FoundationTest", "IO");
+    sOutputFile.AppendPath("IO");
     EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
 
     sOutputFile.AppendPath("SubFolder");
