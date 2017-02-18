@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -26,5 +26,10 @@ SET (LINK_LIBRARIES
   RendererCore
   RendererDX11
 )
+
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+  LIST(APPEND LINK_LIBRARIES FileservePlugin)
+endif()
+
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

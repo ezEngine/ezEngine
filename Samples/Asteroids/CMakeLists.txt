@@ -31,7 +31,6 @@ SET (ADDITIONAL_DEPENDENCIES
   ShaderCompilerHLSL
   InspectorPlugin
   ParticlePlugin
-  FileservePlugin
 )
 
 # Set this to true, if your application is a real win32 app (not a console app)
