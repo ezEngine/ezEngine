@@ -19,21 +19,22 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
 
-    EZ_TEST_INT(CmdLn.GetParameterCount(), 8);
-    EZ_TEST_STRING(CmdLn.GetParameter(0), "-Test1");
-    EZ_TEST_STRING(CmdLn.GetParameter(1), "true");
-    EZ_TEST_STRING(CmdLn.GetParameter(2), "-Test2");
-    EZ_TEST_STRING(CmdLn.GetParameter(3), "off");
-    EZ_TEST_STRING(CmdLn.GetParameter(4), "-Test3");
-    EZ_TEST_STRING(CmdLn.GetParameter(5), "-Test4");
-    EZ_TEST_STRING(CmdLn.GetParameter(6), "on");
-    EZ_TEST_STRING(CmdLn.GetParameter(7), "-Test5");
-    CmdLn.InjectCustomArgument("-duh");
     EZ_TEST_INT(CmdLn.GetParameterCount(), 9);
-    EZ_TEST_STRING(CmdLn.GetParameter(8), "-duh");
-    CmdLn.InjectCustomArgument("I need my Space");
+    EZ_TEST_STRING(CmdLn.GetParameter(0), "bla/blub/myprogram.exe");
+    EZ_TEST_STRING(CmdLn.GetParameter(1), "-Test1");
+    EZ_TEST_STRING(CmdLn.GetParameter(2), "true");
+    EZ_TEST_STRING(CmdLn.GetParameter(3), "-Test2");
+    EZ_TEST_STRING(CmdLn.GetParameter(4), "off");
+    EZ_TEST_STRING(CmdLn.GetParameter(5), "-Test3");
+    EZ_TEST_STRING(CmdLn.GetParameter(6), "-Test4");
+    EZ_TEST_STRING(CmdLn.GetParameter(7), "on");
+    EZ_TEST_STRING(CmdLn.GetParameter(8), "-Test5");
+    CmdLn.InjectCustomArgument("-duh");
     EZ_TEST_INT(CmdLn.GetParameterCount(), 10);
-    EZ_TEST_STRING(CmdLn.GetParameter(9), "I need my Space");
+    EZ_TEST_STRING(CmdLn.GetParameter(9), "-duh");
+    CmdLn.InjectCustomArgument("I need my Space");
+    EZ_TEST_INT(CmdLn.GetParameterCount(), 11);
+    EZ_TEST_STRING(CmdLn.GetParameter(10), "I need my Space");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetOptionIndex / GetStringOptionArguments  / GetStringOption")
@@ -53,12 +54,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);
 
-    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt1"), 0);
-    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt2"), 3);
-    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt3"), 5);
-    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt4"), 6);
-    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt5"), 12);
-    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt6"), 13);
+    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt1"), 1);
+    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt2"), 4);
+    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt3"), 6);
+    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt4"), 7);
+    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt5"), 13);
+    EZ_TEST_INT(CmdLn.GetOptionIndex("-opt6"), 14);
 
     EZ_TEST_INT(CmdLn.GetStringOptionArguments("-opt1"), 2);
     EZ_TEST_INT(CmdLn.GetStringOptionArguments("-opt2"), 1);

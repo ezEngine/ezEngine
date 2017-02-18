@@ -640,7 +640,7 @@ void ezFileSystem::SetSdkRootDirectory(const char* szSdkDir)
 
 const char* ezFileSystem::GetSdkRootDirectory()
 {
-  EZ_ASSERT_DEV(!s_sSdkRootDir.IsEmpty(), "The project directory has not been set through 'ezFileSystem::SetSdkDirectory'.");
+  EZ_ASSERT_DEV(!s_sSdkRootDir.IsEmpty(), "The project directory has not been set through 'ezFileSystem::SetSdkRootDirectory'.");
   return s_sSdkRootDir.GetData();
 }
 

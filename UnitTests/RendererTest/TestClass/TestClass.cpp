@@ -47,24 +47,14 @@ ezSizeU32 ezGraphicsTest::GetResolution() const
 ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
   {
-    ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sBaseDir.AppendPath("../../Data/Base/");
-
-    ezStringBuilder sReadDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    ezString sFolderName = sReadDir.GetFileName();
-    sReadDir.AppendPath("../../../Data/UnitTests", sFolderName);
-
+    ezStringBuilder sBaseDir = ">sdk/Data/Base/";
+    ezStringBuilder sReadDir = ">sdk/Data/UnitTests/RendererTest";
     ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
-
-    if (ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()).Failed())
-      return EZ_FAILURE;
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites); // for absolute paths
     ezFileSystem::AddDataDirectory(sWriteDir, "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-    ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
-    ezFileSystem::AddDataDirectory(sWriteDir, "AppData", "appdata", ezFileSystem::AllowWrites); // user data
+    ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
 
     if (ezFileSystem::AddDataDirectory(sBaseDir.GetData(), "Base").Failed())
       return EZ_FAILURE;

@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <Foundation/Logging/Log.h>
+#include <Utilities/CommandLineUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <direct.h>
@@ -222,12 +223,12 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
 const char* ezOSFile::GetApplicationDirectory()
 {
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
-
   static ezString256 s_Path;
 
   if(s_Path.IsEmpty())
   {
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
+
     CFBundleRef appBundle = CFBundleGetMainBundle();
     CFURLRef bundleURL = CFBundleCopyBundleURL(appBundle);
     CFStringRef bundlePath = CFURLCopyFileSystemPath( bundleURL, kCFURLPOSIXPathStyle );
@@ -250,15 +251,16 @@ const char* ezOSFile::GetApplicationDirectory()
     CFRelease(bundlePath);
     CFRelease(bundleURL);
     CFRelease(appBundle);
+
+#else
+
+    ezStringBuilder path = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
+    s_Path = path.GetFileDirectory();
+
+#endif
   }
 
   return s_Path.GetData();
-
-#else
-  ezLog::Error("ezOSFile::GetApplicationDirectory is not implemented.");
-#endif
-
-  return nullptr;
 }
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)

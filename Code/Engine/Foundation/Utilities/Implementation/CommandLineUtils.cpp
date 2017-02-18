@@ -12,14 +12,9 @@ ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
 void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv)
 {
   m_Commands.Clear();
+  m_Commands.Reserve(argc);
 
-  // skip the first parameter, it contains the executable path
-  if (argc <= 1)
-    return;
-
-  m_Commands.Reserve(argc - 1);
-
-  for (ezUInt32 i = 1; i < argc; ++i)
+  for (ezUInt32 i = 0; i < argc; ++i)
     m_Commands.PushBack(argv[i]);
 }
 
