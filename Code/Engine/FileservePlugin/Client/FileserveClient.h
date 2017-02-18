@@ -100,6 +100,7 @@ private:
   ezString m_sFileserveCacheMetaFolder;
   bool m_bDownloading = false;
   bool m_bFailedToConnect = false;
+  bool m_bWaitingForUploadFinished = false;
   ezUuid m_CurFileRequestGuid;
   ezStringBuilder m_sCurFileRequest;
   ezUniquePtr<ezNetworkInterface> m_Network;

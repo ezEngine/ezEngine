@@ -27,6 +27,10 @@ SET (LINK_LIBRARIES
   System
 )
 
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+  LIST(APPEND ADDITIONAL_DEPENDENCIES ShaderCompilerHLSL)
+endif()
+
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 
 # Adds this project to 'Tests.txt', notifying the build server to run this as a test.

@@ -163,6 +163,9 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     uiNextByte += uiChunkSize;
   }
 
+  // continuously update the network until we know the server has received the big chunk of data
+  m_bWaitingForUploadFinished = true;
+
   // final message to server
   {
     const ezUInt16 uiEndToken = 0; // chunk size
@@ -173,6 +176,11 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
     msg.GetWriter() << szFile;
 
     m_Network->Send(ezNetworkTransmitMode::Reliable, msg);
+  }
+
+  while (m_bWaitingForUploadFinished)
+  {
+    UpdateClient();
   }
 }
 
@@ -263,6 +271,12 @@ void ezFileserveClient::NetworkMsgHandler(ezNetworkMessage& msg)
   {
     EZ_BROADCAST_EVENT(ezResourceManager_ReloadAllResources);
     bReloadResources = false;
+    return;
+  }
+
+  if (msg.GetMessageID() == 'UACK')
+  {
+    m_bWaitingForUploadFinished = false;
     return;
   }
 

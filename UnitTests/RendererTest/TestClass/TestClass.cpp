@@ -47,22 +47,22 @@ ezSizeU32 ezGraphicsTest::GetResolution() const
 ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
   {
+    ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
+
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
     ezStringBuilder sReadDir = ">sdk/Data/UnitTests/RendererTest";
-    ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-    ezFileSystem::AddDataDirectory(sWriteDir, "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
     ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
 
-    if (ezFileSystem::AddDataDirectory(sBaseDir.GetData(), "Base").Failed())
+    if (ezFileSystem::AddDataDirectory(sBaseDir, "Base").Failed())
       return EZ_FAILURE;
 
-    if (ezFileSystem::AddDataDirectory(sWriteDir.GetData(), "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).Failed())
+    if (ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).Failed())
       return EZ_FAILURE;
 
-    if (ezFileSystem::AddDataDirectory(sReadDir.GetData(), "ImageComparisonDataDir").Failed())
+    if (ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").Failed())
       return EZ_FAILURE;
   }
 

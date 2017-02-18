@@ -50,6 +50,9 @@ void ezTestFramework::Initialize()
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCore();
 
+  // if tests need to write data back through Fileserve (e.g. image comparison results), the can do that through a data dir mounted with this path
+  ezFileSystem::SetSpecialDirectory("eztest", ezTestFramework::GetInstance()->GetAbsOutputPath());
+
   CreateOutputFolder();
 
   // figure out which tests exist

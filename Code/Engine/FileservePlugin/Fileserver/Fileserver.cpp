@@ -418,6 +418,10 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
   e.m_uiSizeTotal = m_SentFromClient.GetCount();
 
   m_Events.Broadcast(e);
+
+  // send a response when all data has been transmitted
+  // this ensures the client side updates the network until all data has been fully transmitted
+  m_Network->Send('FSRV', 'UACK');
 }
 
 
