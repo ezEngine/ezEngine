@@ -71,7 +71,8 @@ HRESULT ezUwpApplication::OnActivated(ABI::Windows::ApplicationModel::Core::ICor
     GetModuleFileNameW(nullptr, moduleFilename, 256);
     m_commandLineArgs.PushBack(ezStringUtf8(moduleFilename).GetData());
     // Simple args splitting. Not as powerful as Win32's CommandLineToArgvW.
-    ezStringUtf8 argUtf8String(argHString);(    const char* currentChar = argUtf8String.GetData();
+    ezStringUtf8 argUtf8String(argHString);
+    const char* currentChar = argUtf8String.GetData();
     const char* lastEnd = currentChar;
     bool inQuotes = false;
     while (*currentChar != '\0')
