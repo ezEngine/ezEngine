@@ -52,7 +52,7 @@ namespace ExceptionHandler
       Print("\n\n***Stack Trace:***\n");
       void* pBuffer[64];
       ezArrayPtr<void*> tempTrace(pBuffer);
-      const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace);
+      const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, true);
 
       ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintHelper);
     }

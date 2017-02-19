@@ -6,7 +6,7 @@
 #define EZ_STACKTRACER_UWP_INL_H_INCLUDED
 
 //static
-ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace)
+ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, bool bWithinException)
 {
   return 0;
 }
