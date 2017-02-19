@@ -94,8 +94,10 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
 {
   ezRenderLoop::ClearMainViews();
 
-  ProcessIPCMessages();
-  ezEngineProcessDocumentContext::UpdateDocumentContexts();
+  if (ProcessIPCMessages())
+  {
+    ezEngineProcessDocumentContext::UpdateDocumentContexts();
+  }
 
   return ezGameApplication::Run();
 }
@@ -110,12 +112,39 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData & e)
   m_IPC.SendMessage(&msg);
 }
 
-void ezEngineProcessGameApplication::ProcessIPCMessages()
+static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
-  m_IPC.ProcessMessages();
+  return false;
+}
 
-  if (!m_IPC.IsHostAlive())
+bool ezEngineProcessGameApplication::ProcessIPCMessages()
+{
+  if (!m_IPC.IsHostAlive()) // check whether the host crashed
+  {
+    // The problem here is, that the editor process crashed (or was terminated through Visual Studio),
+    // but our process depends on it for cleanup!
+    // That means, this process created rendering resources through a device that is bound to a window handle, which belonged to the editor process.
+    // So now we can't clean up, and therefore we can only crash.
+    // Therefore we try to crash as silently as possible.
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    // Make sure that Windows doesn't show a default message box when we call abort
+    _set_abort_behavior(0, _WRITE_ABORT_MSG);
+#endif
+
+    // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
+    // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
+    ezSetAssertHandler(EmptyAssertHandler);
+    abort();
+
     RequestQuit();
+    return false;
+  }
+  else
+  {
+    m_IPC.ProcessMessages();
+    return true;
+  }
 }
 
 void ezEngineProcessGameApplication::SendProjectReadyMessage()
