@@ -141,19 +141,19 @@ EZ_ALWAYS_INLINE bool ezSimdFloat::operator<=(float f) const
 template<ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal() const
 {
-  return ezVec4(1.0f / m_v.x);
+  return ezSimdFloat(1.0f / m_v.x);
 }
 
 template<ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt() const
 {
-  return ezVec4(ezMath::Sqrt(m_v.x));
+  return ezSimdFloat(ezMath::Sqrt(m_v.x));
 }
 
 template<ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt() const
 {
-  return ezVec4(1.0f / ezMath::Sqrt(m_v.x));
+  return ezSimdFloat(1.0f / ezMath::Sqrt(m_v.x));
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Max(const ezSimdFloat& f) const
@@ -168,6 +168,6 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Min(const ezSimdFloat& f) const
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Abs() const
 {
-  return ezVec4(ezMath::Abs(m_v.x));
+  return ezSimdFloat(ezMath::Abs(m_v.x));
 }
 

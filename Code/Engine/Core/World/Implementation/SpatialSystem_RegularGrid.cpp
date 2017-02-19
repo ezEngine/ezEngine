@@ -29,7 +29,7 @@ namespace
     return (sx << 42) | (sy << 21) | sz;
   }
 
-  EZ_FORCE_INLINE ezBoundingBox GetBoundingBox(const ezSimdVec4i& cellIndex, ezSimdVec4i iCellSize)
+  EZ_FORCE_INLINE ezBoundingBox GetBoundingBox(const ezSimdVec4i& cellIndex, const ezSimdVec4i& iCellSize)
   {
     ezSimdVec4i minPos = cellIndex.CompMul(iCellSize);
     ezSimdVec4f bmin = ToVec3(minPos);

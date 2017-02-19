@@ -8,13 +8,15 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(ezInternal::QuadFloat v)
 template<int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetLength() const
 {
-  return GetLengthSquared<N>().GetSqrt<acc>();
+  const ezSimdFloat squaredLen = GetLengthSquared<N>();
+  return squaredLen.GetSqrt<acc>();
 }
 
 template<int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetInvLength() const
 {
-  return GetLengthSquared<N>().GetInvSqrt<acc>();
+  const ezSimdFloat squaredLen = GetLengthSquared<N>();
+  return squaredLen.GetInvSqrt<acc>();
 }
 
 template<int N>
