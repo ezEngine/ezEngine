@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Input/InputManager.h>
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
@@ -284,6 +284,96 @@ const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveF
   return ezInputSlot_None;
 }
 
+
+const char* ezInputManager::GetInputSlotTouchPoint(unsigned int index)
+{
+  switch (index)
+  {
+  case 0:
+    return ezInputSlot_TouchPoint0;
+  case 1:
+    return ezInputSlot_TouchPoint1;
+  case 2:
+    return ezInputSlot_TouchPoint2;
+  case 3:
+    return ezInputSlot_TouchPoint3;
+  case 4:
+    return ezInputSlot_TouchPoint4;
+  case 5:
+    return ezInputSlot_TouchPoint5;
+  case 6:
+    return ezInputSlot_TouchPoint6;
+  case 7:
+    return ezInputSlot_TouchPoint7;
+  case 8:
+    return ezInputSlot_TouchPoint8;
+  case 9:
+    return ezInputSlot_TouchPoint9;
+  default:
+    EZ_REPORT_FAILURE("Maximum number of supported input touch points is 10");
+    return "";
+  }
+}
+
+const char* ezInputManager::GetInputSlotTouchPointPositionX(unsigned int index)
+{
+  switch (index)
+  {
+  case 0:
+    return ezInputSlot_TouchPoint0_PositionX;
+  case 1:
+    return ezInputSlot_TouchPoint1_PositionX;
+  case 2:
+    return ezInputSlot_TouchPoint2_PositionX;
+  case 3:
+    return ezInputSlot_TouchPoint3_PositionX;
+  case 4:
+    return ezInputSlot_TouchPoint4_PositionX;
+  case 5:
+    return ezInputSlot_TouchPoint5_PositionX;
+  case 6:
+    return ezInputSlot_TouchPoint6_PositionX;
+  case 7:
+    return ezInputSlot_TouchPoint7_PositionX;
+  case 8:
+    return ezInputSlot_TouchPoint8_PositionX;
+  case 9:
+    return ezInputSlot_TouchPoint9_PositionX;
+  default:
+    EZ_REPORT_FAILURE("Maximum number of supported input touch points is 10");
+    return "";
+  }
+}
+
+const char* ezInputManager::GetInputSlotTouchPointPositionY(unsigned int index)
+{
+  switch (index)
+  {
+  case 0:
+    return ezInputSlot_TouchPoint0_PositionY;
+  case 1:
+    return ezInputSlot_TouchPoint1_PositionY;
+  case 2:
+    return ezInputSlot_TouchPoint2_PositionY;
+  case 3:
+    return ezInputSlot_TouchPoint3_PositionY;
+  case 4:
+    return ezInputSlot_TouchPoint4_PositionY;
+  case 5:
+    return ezInputSlot_TouchPoint5_PositionY;
+  case 6:
+    return ezInputSlot_TouchPoint6_PositionY;
+  case 7:
+    return ezInputSlot_TouchPoint7_PositionY;
+  case 8:
+    return ezInputSlot_TouchPoint8_PositionY;
+  case 9:
+    return ezInputSlot_TouchPoint9_PositionY;
+  default:
+    EZ_REPORT_FAILURE("Maximum number of supported input touch points is 10");
+    return "";
+  }
+}
 
 
 

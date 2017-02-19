@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Types/Bitflags.h>
 #include <Core/Basics.h>

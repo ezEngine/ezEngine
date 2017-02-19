@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <System/Window/Implementation/Win32/InputDevice_win32.h>
 #include <Core/Input/InputManager.h>
@@ -375,7 +375,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
 
   case WM_LBUTTONDOWN:
-    m_InputSlotValues["mouse_button_0"] = 1.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton0] = 1.0f;
 
     if (s_iMouseCaptureCount == 0)
       SetCapture(hWnd);
@@ -384,7 +384,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     return;
 
   case WM_LBUTTONUP:
-    m_InputSlotValues["mouse_button_0"] = 0.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton0] = 0.0f;
     SetClipRect(m_bClipCursor, hWnd);
 
     --s_iMouseCaptureCount;
@@ -394,7 +394,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     return;
 
   case WM_RBUTTONDOWN:
-    m_InputSlotValues["mouse_button_1"] = 1.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton1] = 1.0f;
 
     if (s_iMouseCaptureCount == 0)
       SetCapture(hWnd);
@@ -403,7 +403,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     return;
 
   case WM_RBUTTONUP:
-    m_InputSlotValues["mouse_button_1"] = 0.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton1] = 0.0f;
     SetClipRect(m_bClipCursor, hWnd);
 
     --s_iMouseCaptureCount;
@@ -413,7 +413,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     return;
 
   case WM_MBUTTONDOWN:
-    m_InputSlotValues["mouse_button_2"] = 1.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton2] = 1.0f;
 
     if (s_iMouseCaptureCount == 0)
       SetCapture(hWnd);
@@ -421,7 +421,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     return;
 
   case WM_MBUTTONUP:
-    m_InputSlotValues["mouse_button_2"] = 0.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton2] = 0.0f;
 
     --s_iMouseCaptureCount;
     if (s_iMouseCaptureCount <= 0)
@@ -431,9 +431,9 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
   case WM_XBUTTONDOWN:
     if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
-      m_InputSlotValues["mouse_button_3"] = 1.0f;
+      m_InputSlotValues[ezInputSlot_MouseButton3] = 1.0f;
     if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
-      m_InputSlotValues["mouse_button_4"] = 1.0f;
+      m_InputSlotValues[ezInputSlot_MouseButton4] = 1.0f;
 
     if (s_iMouseCaptureCount == 0)
       SetCapture(hWnd);
@@ -443,9 +443,9 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
   case WM_XBUTTONUP:
     if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
-      m_InputSlotValues["mouse_button_3"] = 0.0f;
+      m_InputSlotValues[ezInputSlot_MouseButton3] = 0.0f;
     if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
-      m_InputSlotValues["mouse_button_4"] = 0.0f;
+      m_InputSlotValues[ezInputSlot_MouseButton4] = 0.0f;
 
     --s_iMouseCaptureCount;
     if (s_iMouseCaptureCount <= 0)
@@ -572,33 +572,9 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
           static int iTouchPoint = 0;
           static bool bTouchPointDown = false;
 
-          const char* szSlot  = ezInputSlot_TouchPoint0;
-          const char* szSlotX = ezInputSlot_TouchPoint0_PositionX;
-          const char* szSlotY = ezInputSlot_TouchPoint0_PositionY;
-
-          switch (iTouchPoint)
-          {
-          case 1:
-            szSlot  = ezInputSlot_TouchPoint1;
-            szSlotX = ezInputSlot_TouchPoint1_PositionX;
-            szSlotY = ezInputSlot_TouchPoint1_PositionY;
-            break;
-          case 2:
-            szSlot  = ezInputSlot_TouchPoint2;
-            szSlotX = ezInputSlot_TouchPoint2_PositionX;
-            szSlotY = ezInputSlot_TouchPoint2_PositionY;
-            break;
-          case 3:
-            szSlot  = ezInputSlot_TouchPoint3;
-            szSlotX = ezInputSlot_TouchPoint3_PositionX;
-            szSlotY = ezInputSlot_TouchPoint3_PositionY;
-            break;
-          case 4:
-            szSlot  = ezInputSlot_TouchPoint4;
-            szSlotX = ezInputSlot_TouchPoint4_PositionX;
-            szSlotY = ezInputSlot_TouchPoint4_PositionY;
-            break;
-          }
+          const char* szSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
+          const char* szSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
+          const char* szSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
 
           m_InputSlotValues[szSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
           m_InputSlotValues[szSlotY] = (raw->data.mouse.lLastY / 65535.0f);

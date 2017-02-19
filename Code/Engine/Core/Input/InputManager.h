@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/Input/InputDevice.h>
 #include <Foundation/Containers/Map.h>
@@ -211,6 +211,17 @@ public:
 
   /// \brief Mostly for internal use. Converts a scan-code value to the string that is used inside the engine for that key.
   static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
+
+
+  /// \brief Helper for retrieving the input slot string for touch point with a given index.
+  static const char* GetInputSlotTouchPoint(unsigned int index);
+
+  /// \brief Helper for retrieving the input slot string for touch point x position with a given index.
+  static const char* GetInputSlotTouchPointPositionX(unsigned int index);
+
+  /// \brief Helper for retrieving the input slot string for touch point y position with a given index.
+  static const char* GetInputSlotTouchPointPositionY(unsigned int index);
+
 
   /// \brief The data that is broadcast when certain events occur.
   struct InputEventData

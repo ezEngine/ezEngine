@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <System/Window/Implementation/uwp/InputDevice_uwp.h>
 #include <Core/Input/InputManager.h>
@@ -27,9 +27,21 @@ ezStandardInputDevice::~ezStandardInputDevice()
 {
   if (m_coreWindow)
   {
-    m_coreWindow->remove_KeyDown(m_keyDownEventRegistration);
-    m_coreWindow->remove_KeyUp(m_keyUpEventRegistration);
-    m_coreWindow->remove_CharacterReceived(m_characterReceivedEventRegistration);
+    m_coreWindow->remove_KeyDown(m_eventRegistration_keyDown);
+    m_coreWindow->remove_KeyUp(m_eventRegistration_keyUp);
+    m_coreWindow->remove_CharacterReceived(m_eventRegistration_characterReceived);
+    m_coreWindow->remove_PointerMoved(m_eventRegistration_pointerMoved);
+    m_coreWindow->remove_PointerEntered(m_eventRegistration_pointerEntered);
+    m_coreWindow->remove_PointerExited(m_eventRegistration_pointerExited);
+    m_coreWindow->remove_PointerCaptureLost(m_eventRegistration_pointerCaptureLost);
+    m_coreWindow->remove_PointerPressed(m_eventRegistration_pointerPressed);
+    m_coreWindow->remove_PointerReleased(m_eventRegistration_pointerReleased);
+    m_coreWindow->remove_PointerWheelChanged(m_eventRegistration_pointerWheelChanged);
+  }
+
+  if (m_mouseDevice)
+  {
+    m_mouseDevice->remove_MouseMoved(m_eventRegistration_mouseMoved);
   }
 }
 
@@ -37,10 +49,48 @@ void ezStandardInputDevice::InitializeDevice()
 {
   using KeyHandler = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs;
   using CharacterReceivedHandler = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs;
+  using PointerHander = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs;
 
-  m_coreWindow->add_KeyDown(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_keyDownEventRegistration);
-  m_coreWindow->add_KeyUp(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_keyUpEventRegistration);
-  m_coreWindow->add_CharacterReceived(Callback<CharacterReceivedHandler>(this, &ezStandardInputDevice::OnCharacterReceived).Get(), &m_characterReceivedEventRegistration);
+  // Keyboard
+  m_coreWindow->add_KeyDown(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_eventRegistration_keyDown);
+  m_coreWindow->add_KeyUp(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_eventRegistration_keyUp);
+  m_coreWindow->add_CharacterReceived(Callback<CharacterReceivedHandler>(this, &ezStandardInputDevice::OnCharacterReceived).Get(), &m_eventRegistration_characterReceived);
+
+  // Pointer
+  // Note that a pointer may be mouse, pen/stylus or touch!
+  // We bundle move/press/enter all in a single callback to update all pointer state - all these cases have in common that pen/touch is pressed now.
+  m_coreWindow->add_PointerMoved(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(), &m_eventRegistration_pointerMoved);
+  m_coreWindow->add_PointerEntered(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(), &m_eventRegistration_pointerEntered);
+  m_coreWindow->add_PointerPressed(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(), &m_eventRegistration_pointerPressed);
+  // Changes in the pointer wheel:
+  m_coreWindow->add_PointerWheelChanged(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerWheelChange).Get(), &m_eventRegistration_pointerWheelChanged);
+  // Exit for touch or stylus means that we no longer have a press.
+  // However, we presserve mouse button presses.
+  m_coreWindow->add_PointerExited(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(), &m_eventRegistration_pointerExited);
+  m_coreWindow->add_PointerReleased(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(), &m_eventRegistration_pointerReleased);
+  // Capture loss.
+  // From documentation "Occurs when a pointer moves to another app. This event is raised after PointerExited and is the final event received by the app for this pointer."
+  // If this happens we want to release all mouse buttons as well.
+  m_coreWindow->add_PointerCaptureLost(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerCaptureLost).Get(), &m_eventRegistration_pointerCaptureLost);
+
+
+  // Mouse
+  // The only thing that we get from the MouseDevice class is mouse moved which gives us unfiltered relative mouse position.
+  // Everything else is done by WinRt's "Pointer"
+  // https://docs.microsoft.com/en-us/uwp/api/windows.devices.input.mousedevice
+  // Relevant article for mouse move:
+  // https://docs.microsoft.com/en-us/windows/uwp/gaming/relative-mouse-movement
+  {
+    ComPtr<ABI::Windows::Devices::Input::IMouseDeviceStatics> mouseDeviceStatics;
+    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Devices_Input_MouseDevice).Get(), &mouseDeviceStatics)))
+    {
+      if (SUCCEEDED(mouseDeviceStatics->GetForCurrentView(&m_mouseDevice)))
+      {
+        using MouseMovedHandler = __FITypedEventHandler_2_Windows__CDevices__CInput__CMouseDevice_Windows__CDevices__CInput__CMouseEventArgs;
+        m_mouseDevice->add_MouseMoved(Callback<MouseMovedHandler>(this, &ezStandardInputDevice::OnMouseMoved).Get(), &m_eventRegistration_mouseMoved);
+      }
+    }
+  }
 }
 
 HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs* args)
@@ -93,6 +143,189 @@ HRESULT ezStandardInputDevice::OnCharacterReceived(ICoreWindow* coreWindow, ICha
   UINT32 keyCode = 0;
   EZ_SUCCEED_OR_RETURN_HRESULT(args->get_KeyCode(&keyCode));
   m_LastCharacter = keyCode;
+
+  return S_OK;
+}
+
+HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, IPointerEventArgs* args)
+{
+  using namespace ABI::Windows::Devices::Input;
+
+  ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
+  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_CurrentPoint(&pointerPoint));
+  ComPtr<IPointerDevice> pointerDevice;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_PointerDevice(&pointerDevice));
+  PointerDeviceType deviceType;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerDevice->get_PointerDeviceType(&deviceType));
+
+  // Pointer position.
+  // From the documention: "The position of the pointer in device-independent pixel (DIP)."
+  // Note also, that there is "raw position" which may be free of pointer prediction etc.
+  ABI::Windows::Foundation::Point pointerPosition;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_Position(&pointerPosition));
+  ABI::Windows::Foundation::Rect windowRectangle;
+  EZ_SUCCEED_OR_RETURN_HRESULT(coreWindow->get_Bounds(&windowRectangle)); // Bounds are in DIP as well!
+  
+  float relativePosX = static_cast<float>(pointerPosition.X) / windowRectangle.Width;
+  float relativePosY = static_cast<float>(pointerPosition.Y) / windowRectangle.Height;
+
+  if (deviceType == PointerDeviceType_Mouse)
+  {
+    // TODO
+    //RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click", ezInputSlotFlags::IsDoubleClick);
+    //RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
+    //RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
+
+    m_InputSlotValues[ezInputSlot_MousePositionX] = relativePosX;
+    m_InputSlotValues[ezInputSlot_MousePositionY] = relativePosY;
+
+    EZ_SUCCEED_OR_RETURN_HRESULT(UpdateMouseButtonStates(pointerPoint.Get()));
+  }
+  else // Touch AND Pen
+  {
+    // WinRT treats each touch point as unique pointer.
+    UINT32 pointerId;
+    EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_PointerId(&pointerId));
+    if (pointerId > 9)
+      return S_OK;
+
+    // All callbacks we subscribed this event to imply that a touch occurs right now.
+    m_InputSlotValues[ezInputManager::GetInputSlotTouchPoint(pointerId)] = 1.0f;  // Touch strength?
+    m_InputSlotValues[ezInputManager::GetInputSlotTouchPointPositionX(pointerId)] = relativePosX;
+    m_InputSlotValues[ezInputManager::GetInputSlotTouchPointPositionY(pointerId)] = relativePosY;
+  }
+
+  return S_OK;
+}
+
+HRESULT ezStandardInputDevice::OnPointerWheelChange(ICoreWindow* coreWindow, IPointerEventArgs* args)
+{
+  using namespace ABI::Windows::Devices::Input;
+
+  ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
+  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_CurrentPoint(&pointerPoint));
+  ComPtr<IPointerDevice> pointerDevice;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_PointerDevice(&pointerDevice));
+
+  // Only interested in mouse devices.
+  PointerDeviceType deviceType;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerDevice->get_PointerDeviceType(&deviceType));
+  if (deviceType == PointerDeviceType_Mouse)
+  {
+    ComPtr<ABI::Windows::UI::Input::IPointerPointProperties> properties;
+    EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_Properties(&properties));
+
+    // .. and only vertical wheels.
+    boolean isHorizontalWheel;
+    EZ_SUCCEED_OR_RETURN_HRESULT(properties->get_IsHorizontalMouseWheel(&isHorizontalWheel));
+    if (!isHorizontalWheel)
+    {
+      INT32 delta;
+      EZ_SUCCEED_OR_RETURN_HRESULT(properties->get_MouseWheelDelta(&delta));
+
+      if (delta > 0)
+        m_InputSlotValues[ezInputSlot_MouseWheelUp] = delta / 120.0f;
+      else
+        m_InputSlotValues[ezInputSlot_MouseWheelDown] = -delta / 120.0f;
+    }
+  }
+
+  return S_OK;
+}
+
+HRESULT ezStandardInputDevice::OnPointerReleasedOrExited(ICoreWindow* coreWindow, IPointerEventArgs* args)
+{
+  using namespace ABI::Windows::Devices::Input;
+
+  ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
+  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_CurrentPoint(&pointerPoint));
+  ComPtr<IPointerDevice> pointerDevice;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_PointerDevice(&pointerDevice));
+  PointerDeviceType deviceType;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerDevice->get_PointerDeviceType(&deviceType));
+
+  if (deviceType == PointerDeviceType_Mouse)
+  {
+    // Note that the relased event is only fired if the last mouse button is released according to documentation.
+    // However, we're also subscribing to exit and depending on the mouse capture this may or may not be a button release.
+    EZ_SUCCEED_OR_RETURN_HRESULT(UpdateMouseButtonStates(pointerPoint.Get()));
+  }
+  else // Touch AND Pen
+  {
+    // WinRT treats each touch point as unique pointer.
+    UINT32 pointerId;
+    EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_PointerId(&pointerId));
+    if (pointerId > 9)
+      return S_OK;
+
+    m_InputSlotValues[ezInputManager::GetInputSlotTouchPoint(pointerId)] = 0.0f;
+  }
+
+  return S_OK;
+}
+
+HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPointerEventArgs* args)
+{
+  using namespace ABI::Windows::Devices::Input;
+
+  ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
+  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_CurrentPoint(&pointerPoint));
+  ComPtr<IPointerDevice> pointerDevice;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_PointerDevice(&pointerDevice));
+  PointerDeviceType deviceType;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerDevice->get_PointerDeviceType(&deviceType));
+
+  if (deviceType == PointerDeviceType_Mouse)
+  {
+    m_InputSlotValues[ezInputSlot_MouseButton0] = 0.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton1] = 0.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton2] = 0.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton3] = 0.0f;
+    m_InputSlotValues[ezInputSlot_MouseButton4] = 0.0f;
+  }
+  else // Touch AND Pen
+  {
+    // WinRT treats each touch point as unique pointer.
+    UINT32 pointerId;
+    EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_PointerId(&pointerId));
+    if (pointerId > 9)
+      return S_OK;
+
+    m_InputSlotValues[ezInputManager::GetInputSlotTouchPoint(pointerId)] = 0.0f;
+  }
+
+  return S_OK;
+}
+
+HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice, ABI::Windows::Devices::Input::IMouseEventArgs* args)
+{
+  ABI::Windows::Devices::Input::MouseDelta mouseDelta;
+  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_MouseDelta(&mouseDelta));
+
+  m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((mouseDelta.X < 0) ? static_cast<float>(-mouseDelta.X) : 0.0f) * GetMouseSpeed().x;
+  m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((mouseDelta.X > 0) ? static_cast<float>(mouseDelta.X) : 0.0f) * GetMouseSpeed().x;
+  m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((mouseDelta.Y < 0) ? static_cast<float>(-mouseDelta.Y) : 0.0f) * GetMouseSpeed().y;
+  m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((mouseDelta.Y > 0) ? static_cast<float>(mouseDelta.Y) : 0.0f) * GetMouseSpeed().y;
+
+  return S_OK;
+}
+
+HRESULT ezStandardInputDevice::UpdateMouseButtonStates(ABI::Windows::UI::Input::IPointerPoint* pointerPoint)
+{
+  ComPtr<ABI::Windows::UI::Input::IPointerPointProperties> properties;
+  EZ_SUCCEED_OR_RETURN_HRESULT(pointerPoint->get_Properties(&properties));
+
+  boolean isPressed;
+  EZ_SUCCEED_OR_RETURN_HRESULT(properties->get_IsLeftButtonPressed(&isPressed));
+  m_InputSlotValues[ezInputSlot_MouseButton0] = isPressed ? 1.0f : 0.0f;
+  EZ_SUCCEED_OR_RETURN_HRESULT(properties->get_IsRightButtonPressed(&isPressed));
+  m_InputSlotValues[ezInputSlot_MouseButton1] = isPressed ? 1.0f : 0.0f;
+  EZ_SUCCEED_OR_RETURN_HRESULT(properties->get_IsMiddleButtonPressed(&isPressed));
+  m_InputSlotValues[ezInputSlot_MouseButton2] = isPressed ? 1.0f : 0.0f;
+  EZ_SUCCEED_OR_RETURN_HRESULT(properties->get_IsXButton1Pressed(&isPressed));
+  m_InputSlotValues[ezInputSlot_MouseButton3] = isPressed ? 1.0f : 0.0f;
+  EZ_SUCCEED_OR_RETURN_HRESULT(properties->get_IsXButton2Pressed(&isPressed));
+  m_InputSlotValues[ezInputSlot_MouseButton4] = isPressed ? 1.0f : 0.0f;
 
   return S_OK;
 }
@@ -250,45 +483,45 @@ void ezStandardInputDevice::RegisterInputSlots()
 
 
   // Not yet supported
-  //RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  //RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 10", ezInputSlotFlags::IsTouchPoint);
-  //RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 10 Position X", ezInputSlotFlags::IsTouchPosition);
-  //RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 10 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 10", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 10 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 10 Position Y", ezInputSlotFlags::IsTouchPosition);
 }
 
 void ezStandardInputDevice::ResetInputSlotValues()
@@ -311,9 +544,15 @@ void SetClipRect(bool bClip, HWND hWnd)
 
 void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
 {
-  m_bClipCursor = bEnable;
+  if (m_bClipCursor == bEnable)
+    return;
 
-  // NOT IMPLEMENTED. TODO
+  if(bEnable)
+    m_coreWindow->SetPointerCapture();
+  else
+    m_coreWindow->ReleasePointerCapture();
+
+  m_bClipCursor = bEnable;
 }
 
 void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
@@ -321,9 +560,22 @@ void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
   if (m_bShowCursor == bShow)
     return;
 
-  m_bShowCursor = bShow;
+  // Hide
+  if (!bShow)
+  {
+    // Save cursor to reinstantiate it.
+    m_coreWindow->get_PointerCursor(&m_cursorBeforeHide);
+    m_coreWindow->put_PointerCursor(nullptr);
+  }
 
-  // NOT IMPLEMENTED. TODO
+  // Show
+  else
+  {
+    EZ_ASSERT_DEV(m_cursorBeforeHide, "There should be a ICoreCursor backup that can be put back.");
+    m_coreWindow->put_PointerCursor(m_cursorBeforeHide.Get());
+  }
+
+  m_bShowCursor = bShow;
 }
 
 bool ezStandardInputDevice::GetShowMouseCursor() const
