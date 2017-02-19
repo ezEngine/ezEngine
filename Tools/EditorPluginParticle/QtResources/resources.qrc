@@ -3,6 +3,8 @@
     <file>Icons/Restart16.png</file>
 	<file>Icons/Loop16.png</file>
 	<file>Icons/Speed16.png</file>
+	<file>Icons/Pause16.png</file>
+	<file>Icons/Play16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>Particle_Effect.png</file>

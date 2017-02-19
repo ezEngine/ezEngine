@@ -16,6 +16,7 @@ public:
   static void MapActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hCategory;
+  static ezActionDescriptorHandle s_hPauseEffect;
   static ezActionDescriptorHandle s_hRestartEffect;
   static ezActionDescriptorHandle s_hAutoRestart;
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
@@ -30,6 +31,7 @@ public:
 
   enum class ActionType
   {
+    PauseEffect,
     RestartEffect,
     AutoRestart,
     SimulationSpeed,

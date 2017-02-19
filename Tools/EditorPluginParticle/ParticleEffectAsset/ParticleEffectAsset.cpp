@@ -9,11 +9,9 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath) 
+ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, true)
 {
-  m_bAutoRestart = true;
-  m_fSimulationSpeed = 1.0f;
 }
 
 ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const
@@ -50,6 +48,20 @@ void ezParticleEffectAssetDocument::SetAutoRestart(bool enable)
   m_Events.Broadcast(e);
 }
 
+
+void ezParticleEffectAssetDocument::SetSimulationPaused(bool bPaused)
+{
+  if (m_bSimulationPaused == bPaused)
+    return;
+
+  m_bSimulationPaused = bPaused;
+
+  ezParticleEffectAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezParticleEffectAssetEvent::SimulationSpeedChanged;
+
+  m_Events.Broadcast(e);
+}
 
 void ezParticleEffectAssetDocument::SetSimulationSpeed(float speed)
 {

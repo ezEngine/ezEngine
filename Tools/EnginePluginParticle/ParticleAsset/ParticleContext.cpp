@@ -38,6 +38,7 @@ void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     auto msg = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg);
 
+    m_pWorld->SetWorldSimulationEnabled(msg->m_bSimulateWorld);
     m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
     return;
   }

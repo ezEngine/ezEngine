@@ -37,6 +37,9 @@ public:
   void SetAutoRestart(bool enable);
   bool GetAutoRestart() const { return m_bAutoRestart; }
 
+  void SetSimulationPaused(bool bPaused);
+  bool GetSimulationPaused() const { return m_bSimulationPaused; }
+
   void SetSimulationSpeed(float speed);
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
 
@@ -45,6 +48,7 @@ protected:
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
 private:
-  bool m_bAutoRestart;
-  float m_fSimulationSpeed;
+  bool m_bSimulationPaused = false;
+  bool m_bAutoRestart = true;
+  float m_fSimulationSpeed = 1.0f;
 };

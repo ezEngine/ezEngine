@@ -176,7 +176,7 @@ void ezQtParticleEffectAssetDocumentWindow::SendRedrawMsg()
 
   {
     ezSceneSettingsMsgToEngine msg;
-    msg.m_bSimulateWorld = true;
+    msg.m_bSimulateWorld = !GetParticleDocument()->GetSimulationPaused();
     msg.m_fSimulationSpeed = GetParticleDocument()->GetSimulationSpeed();
     msg.m_bAddAmbientLight = true; // not implemented yet
     GetEditorEngineConnection()->SendMessage(&msg);
