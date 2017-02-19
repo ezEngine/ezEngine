@@ -2,7 +2,7 @@
 
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   m_v = _mm_set1_epi32(0xCDCDCDCD);
@@ -11,14 +11,14 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 xyzw)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = _mm_set1_epi32(xyzw);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = _mm_setr_epi32(x, y, z, w);
 }

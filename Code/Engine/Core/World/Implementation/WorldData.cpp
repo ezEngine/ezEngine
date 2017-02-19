@@ -64,7 +64,7 @@ WorldData::WorldData(ezWorldDesc& desc)
 
   if (m_pSpatialSystem == nullptr)
   {
-    m_pSpatialSystem = EZ_NEW(&m_Allocator, ezSpatialSystem_RegularGrid);
+    m_pSpatialSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezSpatialSystem_RegularGrid);
   }
 
   if (m_pCoordinateSystemProvider == nullptr)

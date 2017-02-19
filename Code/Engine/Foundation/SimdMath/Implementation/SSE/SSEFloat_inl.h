@@ -2,7 +2,7 @@
 
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat()
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
@@ -12,14 +12,14 @@ EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat()
 
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(float f)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = _mm_set1_ps(f);
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInt32 i)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
   __m128 v = _mm_cvtsi32_ss(_mm_setzero_ps(), i);
   m_v = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
@@ -27,7 +27,7 @@ EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInt32 i)
 
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   __m128 v = _mm_cvtsi64_ss(_mm_setzero_ps(), i);

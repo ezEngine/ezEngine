@@ -34,6 +34,12 @@
 #include <immintrin.h>
 #endif
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  #define EZ_CHECK_SIMD_ALIGNMENT EZ_CHECK_ALIGNMENT_16
+#else
+  #define EZ_CHECK_SIMD_ALIGNMENT
+#endif
+
 namespace ezInternal
 {
   typedef __m128 QuadFloat;

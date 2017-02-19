@@ -2,7 +2,7 @@
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f()
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
@@ -12,21 +12,21 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f()
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float xyzw)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = _mm_set1_ps(xyzw);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(const ezSimdFloat& xyzw)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = xyzw.m_v;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float x, float y, float z, float w)
 {
-  EZ_CHECK_ALIGNMENT_16(this);
+  EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v = _mm_setr_ps(x, y, z, w);
 }
