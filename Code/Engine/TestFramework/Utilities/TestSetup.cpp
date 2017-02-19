@@ -143,12 +143,12 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   SetUnhandledExceptionFilter(ExceptionHandler::TopLevelExceptionHandler);
 #else
-    std::signal(SIGINT, ExceptionHandler::SignalHandler);
-    std::signal(SIGILL, ExceptionHandler::SignalHandler);
-    std::signal(SIGFPE, ExceptionHandler::SignalHandler);
-    std::signal(SIGSEGV, ExceptionHandler::SignalHandler);
-    std::signal(SIGTERM, ExceptionHandler::SignalHandler);
-    std::signal(SIGABRT, ExceptionHandler::SignalHandler);
+  std::signal(SIGINT, ExceptionHandler::SignalHandler);
+  std::signal(SIGILL, ExceptionHandler::SignalHandler);
+  std::signal(SIGFPE, ExceptionHandler::SignalHandler);
+  std::signal(SIGSEGV, ExceptionHandler::SignalHandler);
+  std::signal(SIGTERM, ExceptionHandler::SignalHandler);
+  std::signal(SIGABRT, ExceptionHandler::SignalHandler);
 #endif
 
   // without at proper file system the current working directory is pretty much useless
@@ -216,7 +216,6 @@ void ezTestSetup::DeInitTestFramework()
 
   // In the UWP case we never initilized this thread for ez, so we can't do log output now.
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezStringUtils::PrintStringLengthStatistics();
 #endif
 

@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
 #include <FileservePlugin/Client/FileserveClient.h>
@@ -47,6 +48,9 @@ ezTestFramework::~ezTestFramework()
 
 void ezTestFramework::Initialize()
 {
+  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCore();
 
