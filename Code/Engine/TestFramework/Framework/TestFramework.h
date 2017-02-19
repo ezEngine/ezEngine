@@ -241,8 +241,8 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_STRING_MSG(s1, s2, msg, ...) \
 { \
   ezTestFramework::s_iAssertCounter++; \
-  const std::string lhs = s1; \
-  const std::string rhs = s2; \
+  const std::string lhs = static_cast<const char*>(s1); \
+  const std::string rhs = static_cast<const char*>(s2); \
   \
   if (strcmp(lhs.c_str(), rhs.c_str()) != 0) \
   { \
@@ -259,8 +259,8 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_STRING_UNICODE_MSG(s1, s2, msg, ...) \
 { \
   ezTestFramework::s_iAssertCounter++; \
-  const std::string lhs = s1; \
-  const std::string rhs = s2; \
+  const std::string lhs = static_cast<const char*>(s1); \
+  const std::string rhs = static_cast<const char*>(s2); \
   \
   if (strcmp(lhs.c_str(), rhs.c_str()) != 0) \
   { \

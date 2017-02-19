@@ -389,7 +389,6 @@ else ()
     message (STATUS "Linking to the Engine through Static Libraries.")
 endif ()
 
-add_definitions (-DBUILDSYSTEM_OUTPUT_FOLDER="${EZ_OUTPUT_DIRECTORY_DLL}")
 add_definitions (-DBUILDSYSTEM_CONFIGURATION="${BUILDSYSTEM_CONFIGURATION}")
 
 #########################################################################################
