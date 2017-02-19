@@ -367,7 +367,7 @@ void ezQtMemoryWidget::ProcessTelemetry(void* pUnuseed)
 
   ezTelemetryMessage Msg;
 
-  while (ezTelemetry::RetrieveMessage('MEM', Msg) == EZ_SUCCESS)
+  while (ezTelemetry::RetrieveMessage(' MEM', Msg) == EZ_SUCCESS)
   {
     ezString sAllocatorName;
 

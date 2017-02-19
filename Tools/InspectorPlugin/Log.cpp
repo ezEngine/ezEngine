@@ -12,7 +12,7 @@ namespace ezLogWriter
     static void LogMessageHandler(const ezLoggingEventData& eventData)
     {
       ezTelemetryMessage msg;
-      msg.SetMessageID('LOG', 'MSG');
+      msg.SetMessageID(' LOG', ' MSG');
 
       msg.GetWriter() << (ezInt16) eventData.m_EventType;
       msg.GetWriter() << (ezUInt16) eventData.m_uiIndentation;

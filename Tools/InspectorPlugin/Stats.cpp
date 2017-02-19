@@ -17,7 +17,7 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
   case ezStats::StatsEventData::Add:
     {
       ezTelemetryMessage msg;
-      msg.SetMessageID('STAT', 'SET');
+      msg.SetMessageID('STAT', ' SET');
       msg.GetWriter() << e.m_szStatName;
       msg.GetWriter() << e.m_szNewStatValue;
       msg.GetWriter() << ezTime::Now();
@@ -28,7 +28,7 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
   case ezStats::StatsEventData::Remove:
     {
       ezTelemetryMessage msg;
-      msg.SetMessageID('STAT', 'DEL');
+      msg.SetMessageID('STAT', ' DEL');
       msg.GetWriter() << e.m_szStatName;
       msg.GetWriter() << ezTime::Now();
 
@@ -47,7 +47,7 @@ static void SendAllStatsTelemetry()
   for (ezStats::MapType::ConstIterator it = ezStats::GetAllStats().GetIterator(); it.IsValid(); ++it)
   {
     ezTelemetryMessage msg;
-    msg.SetMessageID('STAT', 'SET');
+    msg.SetMessageID('STAT', ' SET');
     msg.GetWriter() << it.Key().GetData();
     msg.GetWriter() << it.Value().GetData();
 

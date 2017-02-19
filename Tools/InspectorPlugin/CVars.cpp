@@ -8,7 +8,7 @@ static void TelemetryMessage(void* pPassThrough)
 
   while (ezTelemetry::RetrieveMessage('SVAR', Msg) == EZ_SUCCESS)
   {
-    if (Msg.GetMessageID() == 'SET')
+    if (Msg.GetMessageID() == ' SET')
     {
       ezString sCVar;
       ezUInt8 uiType;
@@ -119,7 +119,7 @@ static void SendAllCVarTelemetry()
   // clear
   {
     ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'CLR', nullptr, 0);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', ' CLR', nullptr, 0);
   }
 
   ezCVar* pCVar = ezCVar::GetFirstInstance();

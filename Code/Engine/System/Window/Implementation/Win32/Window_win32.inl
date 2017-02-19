@@ -146,8 +146,6 @@ ezResult ezWindow::Initialize()
     Rect.bottom += RectWorkArea.top;
   }
 
-  const int iLeft = Rect.left;
-  const int iTop = Rect.top;
   const int iWidth = Rect.right - Rect.left;
   const int iHeight = Rect.bottom - Rect.top;
 

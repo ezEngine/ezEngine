@@ -43,7 +43,7 @@ void ezQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
 
   while (ezTelemetry::RetrieveMessage('RFLC', msg) == EZ_SUCCESS)
   {
-    if (msg.GetMessageID() == 'CLR')
+    if (msg.GetMessageID() == ' CLR')
     {
       s_pWidget->m_Types.Clear();
       s_pWidget->TypeTree->clear();

@@ -92,7 +92,7 @@ void ezQtPluginsWidget::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
-    case 'CLR':
+    case ' CLR':
       {
         s_pWidget->m_Plugins.Clear();
         s_pWidget->m_bUpdatePlugins = true;

@@ -103,7 +103,7 @@ void ezQtSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
-    case 'CLR':
+    case ' CLR':
       {
         s_pWidget->m_Subsystems.Clear();
         s_pWidget->m_bUpdateSubsystems = true;

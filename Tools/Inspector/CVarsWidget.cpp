@@ -52,7 +52,7 @@ void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
 
   while (ezTelemetry::RetrieveMessage('CVAR', msg) == EZ_SUCCESS)
   {
-    if (msg.GetMessageID() == 'CLR')
+    if (msg.GetMessageID() == ' CLR')
     {
       s_pWidget->m_CVars.Clear();
     }
@@ -270,7 +270,7 @@ void ezQtCVarsWidget::SyncAllCVarsToServer()
 void ezQtCVarsWidget::SendCVarUpdateToServer(const char* szName, const CVarData& cvd)
 {
   ezTelemetryMessage Msg;
-  Msg.SetMessageID('SVAR', 'SET');
+  Msg.SetMessageID('SVAR', ' SET');
   Msg.GetWriter() << szName;
   Msg.GetWriter() << cvd.m_uiType;
 

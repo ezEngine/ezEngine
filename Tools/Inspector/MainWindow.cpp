@@ -352,7 +352,7 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
-    case 'DEL':
+    case ' DEL':
       {
         ezString sStatName;
         Msg.GetReader() >> sStatName;
@@ -372,7 +372,7 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case 'SET':
+    case ' SET':
       {
         ezString sStatName;
         Msg.GetReader() >> sStatName;
@@ -410,7 +410,7 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
     }
   }
 
-  while (ezTelemetry::RetrieveMessage('APP', Msg) == EZ_SUCCESS)
+  while (ezTelemetry::RetrieveMessage(' APP', Msg) == EZ_SUCCESS)
   {
     switch (Msg.GetMessageID())
     {

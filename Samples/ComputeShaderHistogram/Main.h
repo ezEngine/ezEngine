@@ -17,7 +17,7 @@ public:
   ezComputeShaderHistogramApp();
   ~ezComputeShaderHistogramApp();
 
-  ezApplication::ApplicationExecution Run();
+  virtual ezApplication::ApplicationExecution Run() override;
 
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown() override;

@@ -1015,8 +1015,6 @@ ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocument* pDocument = GetDocument();
-
   ezVariant FinalOldPosition = m_OldIndex;
   ezVariant FinalNewPosition = m_NewIndex;
 

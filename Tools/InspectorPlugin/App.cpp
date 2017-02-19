@@ -11,7 +11,7 @@ static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, co
   if (ezTelemetry::IsConnectedToClient())
   {
     ezTelemetryMessage msg;
-    msg.SetMessageID('APP', 'ASRT');
+    msg.SetMessageID(' APP', 'ASRT');
     msg.GetWriter() << szSourceFile;
     msg.GetWriter() << uiLine;
     msg.GetWriter() << szFunction;

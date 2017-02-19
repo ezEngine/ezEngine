@@ -134,10 +134,10 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
 
       if (m_bControllerConnected[iPhysical] != bIsAvailable[iPhysical])
       {
-        ezLog::Info("XBox Controller {0} has been {1}.", iPhysical, bIsAvailable ? "connected" : "disconnected");
+        ezLog::Info("XBox Controller {0} has been {1}.", iPhysical, bIsAvailable[iPhysical] ? "connected" : "disconnected");
 
         // this makes sure to reset all values below
-        if (!bIsAvailable)
+        if (!bIsAvailable[iPhysical])
           ezMemoryUtils::ZeroFill(&State[iPhysical]);
       }
     }

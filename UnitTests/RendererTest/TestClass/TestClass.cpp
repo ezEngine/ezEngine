@@ -284,8 +284,8 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
 {
   ezRenderContext::GetDefaultInstance()->BindShader(m_hShader, ShaderBindFlags);
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pContext = pDevice->GetPrimaryContext();
+  //ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  //ezGALContext* pContext = pDevice->GetPrimaryContext();
 
   ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mTransform;

@@ -56,7 +56,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
 
   case ezOSFile::EventType::FileDelete:
     {
-      Msg.SetMessageID('FILE', 'DEL');
+      Msg.SetMessageID('FILE', ' DEL');
       Msg.GetWriter() << e.m_szFile;
       Msg.GetWriter() << e.m_bSuccess;
     }

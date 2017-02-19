@@ -60,8 +60,8 @@ void BrdfExplorerGameState::OnActivation(ezWorld* pWorld)
 
   ezUInt32 numSamples = 0;
   double accu = 0.0f;
-  const float roughness = 0.2f;
-  ezVec3 Wo = ezVec3(0.3, 0.5, 0.7).GetNormalized();
+  //const float roughness = 0.2f;
+  //ezVec3 Wo = ezVec3(0.3, 0.5, 0.7).GetNormalized();
   while (true)
   {
     ezVec2 randomVec = randomVec2(random);

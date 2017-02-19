@@ -84,8 +84,6 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
   ezRandom& rng = GetRNG();
 
-  const float fRadiusSqr = m_fRadius * m_fRadius;
-
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
     ezVec3 pos = ezVec3::CreateRandomPointInSphere(rng);

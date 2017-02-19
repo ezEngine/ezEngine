@@ -182,7 +182,7 @@ void ezDataTransfer::TelemetryEventsHandler(const ezTelemetry::TelemetryEventDat
 void ezDataTransfer::SendAllDataTransfers()
 {
   ezTelemetryMessage msg;
-  msg.SetMessageID('TRAN', 'CLR');
+  msg.SetMessageID('TRAN', ' CLR');
   ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
 
   for (auto it = s_AllTransfers.GetIterator(); it.IsValid(); ++it)

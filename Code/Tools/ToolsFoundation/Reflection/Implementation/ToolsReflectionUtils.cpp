@@ -175,6 +175,9 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
 
     case ezPropertyCategory::Function:
       break;
+
+    default:
+      break;
     }
   }
 

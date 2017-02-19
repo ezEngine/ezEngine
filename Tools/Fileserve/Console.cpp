@@ -84,5 +84,8 @@ void ezFileserverApp::FileserverEventHandlerConsole(const ezFileserverEvent& e)
   case ezFileserverEvent::Type::FileUploadFinished:
     ezLog::Info("Upload finished: {0}", e.m_szPath);
     break;
+
+  default:
+    break;
   }
 }

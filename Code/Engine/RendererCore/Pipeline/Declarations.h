@@ -27,7 +27,7 @@ struct ezRenderViewContext
   const ezCamera* m_pCamera;
   const ezViewData* m_pViewData;
   ezRenderContext* m_pRenderContext;
-  
+
   const ezDebugRendererContext* m_pWorldDebugContext;
   const ezDebugRendererContext* m_pViewDebugContext;
 };
@@ -48,7 +48,7 @@ public:
 /// \brief Usage hint of a camera/view.
 struct EZ_RENDERERCORE_DLL ezCameraUsageHint
 {
-  typedef ezInt8 StorageType;
+  typedef ezUInt8 StorageType;
 
   enum Enum
   {

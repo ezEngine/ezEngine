@@ -115,7 +115,7 @@ public:
   void Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC);
   void Deinitialize(bool bFullDestruction);
 
-  void SendProcessMessage(ezProcessMessage* pMsg = false);
+  void SendProcessMessage(ezProcessMessage* pMsg = nullptr);
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg);
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);
@@ -152,12 +152,12 @@ protected:
   /// Make sure to call the base implementation when overwriting as this handles the thumbnail
   /// rendering that takes multiple frames to complete.
   virtual void UpdateDocumentContext();
-  
+
   /// \brief Exports to current document resource to file. Make sure to write ezAssetFileHeader at the start of it.
   virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg);
   void UpdateSyncObjects();
 
-  /// \brief Creates the thumbnail view context. It uses 'CreateViewContext' in combination with an off-screen render target.  
+  /// \brief Creates the thumbnail view context. It uses 'CreateViewContext' in combination with an off-screen render target.
   void CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg);
 
   /// \brief Once a thumbnail is successfully rendered, the thumbnail view context is destroyed again.

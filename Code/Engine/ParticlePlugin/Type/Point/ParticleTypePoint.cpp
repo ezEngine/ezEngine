@@ -31,7 +31,7 @@ const ezRTTI* ezParticleTypePointFactory::GetTypeType() const
 
 void ezParticleTypePointFactory::CopyTypeProperties(ezParticleType* pObject) const
 {
-  ezParticleTypePoint* pType = static_cast<ezParticleTypePoint*>(pObject);
+  //ezParticleTypePoint* pType = static_cast<ezParticleTypePoint*>(pObject);
 
 }
 
@@ -74,8 +74,6 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   if (numParticles == 0)
     return;
-
-  const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if (m_uiLastExtractedFrame != uiExtractedFrame)

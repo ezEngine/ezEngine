@@ -9,7 +9,7 @@ namespace PluginsDetail
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', 'CLR', nullptr, 0);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', ' CLR', nullptr, 0);
 
     ezPlugin* pSub = ezPlugin::GetFirstInstance();
 

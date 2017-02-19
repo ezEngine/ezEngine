@@ -135,7 +135,7 @@ public:
     // ':abs/C:/some/file.txt"
   }
 
-  virtual void BeforeCoreShutdown()
+  virtual void BeforeCoreShutdown() override
   {
     if ((m_bHadSeriousWarnings || m_bHadErrors) && m_bModifiedFiles)
       ezLog::SeriousWarning("There were issues while writing out the updated files. The source will be in an inconsistent state, please revert the changes.");
@@ -692,8 +692,6 @@ public:
       return;
 
     EZ_LOG_BLOCK("FindRefPointGroupFile");
-
-    const ezUInt32 uiSearchDirLength = m_sSearchDir.GetElementCount() + 1;
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;

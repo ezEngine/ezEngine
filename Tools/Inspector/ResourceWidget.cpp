@@ -383,7 +383,7 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
     ResourceData& rd = s_pWidget->m_Resources[uiResourceNameHash];
     rd.m_bUpdate = true;
 
-    if (Msg.GetMessageID() == 'SET')
+    if (Msg.GetMessageID() == ' SET')
     {
       Msg.GetReader() >> rd.m_sResourceID;
 
@@ -438,7 +438,7 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
       Msg.GetReader() >> rd.m_Memory.m_uiMemoryGPU;
     }
 
-    if (Msg.GetMessageID() == 'DEL')
+    if (Msg.GetMessageID() == ' DEL')
     {
       rd.m_Flags.Remove(ezResourceFlags::IsPreloading);
       rd.m_LoadingState.m_State = ezResourceState::Invalid;

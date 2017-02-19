@@ -77,8 +77,8 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   ezVec3 vVelocity(0.0f);
 
-  const ezQuat qRot = pShip->GetLocalRotation();
-  const ezVec3 vShipDir = qRot * ezVec3(0, 1, 0);
+  //const ezQuat qRot = pShip->GetLocalRotation();
+  //const ezVec3 vShipDir = qRot * ezVec3(0, 1, 0);
 
   ezStringBuilder sControls[MaxPlayerActions];
 
@@ -88,28 +88,28 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
   {
-    ezVec3 vPos = pShip->GetLocalPosition();
+    //ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity += 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[1].GetData(), &fVal) != ezKeyState::Up)
   {
-    ezVec3 vPos = pShip->GetLocalPosition();
+    //ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity -= 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
   {
-    ezVec3 vPos = pShip->GetLocalPosition();
+    //ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity += 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
   {
-    ezVec3 vPos = pShip->GetLocalPosition();
+    //ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity -= 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal * 60.0f;
   }
@@ -193,7 +193,7 @@ void Level::CreateAsteroid()
   desc.m_LocalScaling = ezVec3(1.0f + ((rand() % 1000) / 999.0f));
 
   ezGameObject* pGameObject = nullptr;
-  ezGameObjectHandle hAsteroid = m_pWorld->CreateObject(desc, pGameObject);
+  m_pWorld->CreateObject(desc, pGameObject);
 
   {
     ezMeshComponent* pMeshComponent = nullptr;

@@ -83,10 +83,10 @@ public:
     ezQtMainWindow MainWindow;
 
     ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezQtCVarsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezQtLogWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezQtMemoryWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem(' LOG', true, ezQtLogWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem(' MEM', true, ezQtMemoryWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('TIME', true, ezQtTimeWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('APP', true, ezQtMainWindow::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem(' APP', true, ezQtMainWindow::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('FILE', true, ezQtFileWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('INPT', true, ezQtInputWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('STRT', true, ezQtSubsystemsWidget::ProcessTelemetry, nullptr);

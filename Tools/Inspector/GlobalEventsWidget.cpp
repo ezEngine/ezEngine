@@ -47,7 +47,7 @@ void ezQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
 
   while (ezTelemetry::RetrieveMessage('EVNT', msg) == EZ_SUCCESS)
   {
-    if (msg.GetMessageID() == 'CLR')
+    if (msg.GetMessageID() == ' CLR')
     {
       s_pWidget->m_Events.Clear();
     }

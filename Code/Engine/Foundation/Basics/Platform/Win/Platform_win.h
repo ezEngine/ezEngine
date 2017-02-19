@@ -59,6 +59,14 @@
   #undef EZ_COMPILER_MSVC
   #define EZ_COMPILER_MSVC EZ_ON
 
+  #ifdef __clang__
+    #undef EZ_COMPILER_MSVC_CLANG
+    #define EZ_COMPILER_MSVC_CLANG EZ_ON
+  #else
+    #undef EZ_COMPILER_MSVC_PURE
+    #define EZ_COMPILER_MSVC_PURE EZ_ON
+  #endif
+
   #ifdef _DEBUG
     #undef EZ_COMPILE_FOR_DEBUG
     #define EZ_COMPILE_FOR_DEBUG EZ_ON

@@ -36,7 +36,7 @@ namespace StartupDetail
     if (s_iSendSubSystemTelemetry <= 0)
       return;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'STRT', 'CLR', nullptr, 0);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'STRT', ' CLR', nullptr, 0);
 
     ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 

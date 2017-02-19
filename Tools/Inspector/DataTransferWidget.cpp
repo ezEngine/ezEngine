@@ -39,7 +39,7 @@ void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
 
   while (ezTelemetry::RetrieveMessage('TRAN', msg) == EZ_SUCCESS)
   {
-    if (msg.GetMessageID() == 'CLR')
+    if (msg.GetMessageID() == ' CLR')
     {
       s_pWidget->ResetStats();
     }

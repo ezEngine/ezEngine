@@ -609,7 +609,7 @@ static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szI
   wchar_t szKeyName[32] = { 0 };
   GetKeyNameTextW(uiKeyCode, szKeyName, 30);
 
-  ezStringUtf8 sName = szKeyName;
+  ezStringUtf8 sName(szKeyName);
 
   ezLog::Dev("Translated '{0}' to '{1}'", ezInputManager::GetInputSlotDisplayName(szInputSlot), sName.GetData());
 

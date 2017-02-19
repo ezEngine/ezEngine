@@ -63,6 +63,9 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
         }
       }
       break;
+
+    default:
+      break;
     }
   }
   return ezVariant();
@@ -124,6 +127,9 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
         }
       }
       break;
+
+    default:
+      break;
     }
   }
   return false;
@@ -145,8 +151,13 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
     {
     case ezPropertyCategory::Array:
     case ezPropertyCategory::Set:
-      const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
-      return values.GetCount();
+      {
+        const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
+        return values.GetCount();
+      }
+
+    default:
+      break;
     }
   }
   return -1;
@@ -191,6 +202,9 @@ bool ezReflectedTypeStorageAccessor::GetKeys(const char* szProperty, ezHybridArr
         return true;
       }
       break;
+
+    default:
+      break;
     }
   }
   return false;
@@ -233,6 +247,9 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
         }
       }
       break;
+
+    default:
+      break;
     }
   }
   return false;
@@ -268,6 +285,9 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVaria
           }
         }
       }
+      break;
+
+    default:
       break;
     }
   }
@@ -313,6 +333,9 @@ bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant
         }
       }
       break;
+
+    default:
+      break;
     }
   }
   return false;
@@ -346,6 +369,9 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
           }
         }
       }
+      break;
+
+    default:
       break;
     }
   }

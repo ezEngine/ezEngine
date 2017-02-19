@@ -37,6 +37,8 @@
 
 // Different Compilers
 #define EZ_COMPILER_MSVC EZ_OFF
+#define EZ_COMPILER_MSVC_CLANG EZ_OFF // Clang front-end with MSVC CodeGen
+#define EZ_COMPILER_MSVC_PURE EZ_OFF // MSVC front-end and CodeGen, no mixed compilers
 #define EZ_COMPILER_CLANG EZ_OFF
 #define EZ_COMPILER_GCC EZ_OFF
 

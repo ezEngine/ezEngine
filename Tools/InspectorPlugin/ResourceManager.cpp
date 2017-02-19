@@ -10,7 +10,7 @@ namespace ResourceManagerDetail
   {
     ezTelemetryMessage Msg;
 
-    Msg.SetMessageID('RESM', 'SET');
+    Msg.SetMessageID('RESM', ' SET');
 
     const ezTempHashedString sNameHash(pRes->GetResourceID().GetData());
 
@@ -53,7 +53,7 @@ namespace ResourceManagerDetail
   {
     ezTelemetryMessage Msg;
 
-    Msg.SetMessageID('RESM', 'DEL');
+    Msg.SetMessageID('RESM', ' DEL');
 
     const ezTempHashedString sNameHash(pRes->GetResourceID().GetData());
 

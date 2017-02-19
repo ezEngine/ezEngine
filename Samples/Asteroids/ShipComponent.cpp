@@ -103,7 +103,7 @@ void ShipComponent::Update()
     desc.m_LocalRotation = GetOwner()->GetGlobalRotation();
 
     ezGameObject* pProjectile = nullptr;
-    ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
+    GetWorld()->CreateObject(desc, pProjectile);
 
     {
       ProjectileComponent* pProjectileComponent = nullptr;

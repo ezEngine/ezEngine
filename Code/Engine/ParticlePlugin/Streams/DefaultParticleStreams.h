@@ -12,7 +12,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position : public ezParticle
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "Position"; }
+  virtual const char* GetStreamName() const override { return "Position"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
@@ -37,7 +37,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Size : public ezParticleStre
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "Size"; }
+  virtual const char* GetStreamName() const override { return "Size"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float; }
 };
 
@@ -59,7 +59,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Color : public ezParticleStr
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "Color"; }
+  virtual const char* GetStreamName() const override { return "Color"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float4; }
 };
 
@@ -81,7 +81,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Velocity : public ezParticle
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "Velocity"; }
+  virtual const char* GetStreamName() const override { return "Velocity"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
@@ -111,7 +111,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_LastPosition : public ezPart
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "LastPosition"; }
+  virtual const char* GetStreamName() const override { return "LastPosition"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
@@ -132,7 +132,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationSpeed : public ezPar
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "RotationSpeed"; }
+  virtual const char* GetStreamName() const override { return "RotationSpeed"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float; }
 };
 
@@ -153,7 +153,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_EffectID : public ezParticle
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "EffectID"; }
+  virtual const char* GetStreamName() const override { return "EffectID"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
 };
 
@@ -174,7 +174,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_OnOff : public ezParticleStr
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "OnOff"; }
+  virtual const char* GetStreamName() const override { return "OnOff"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
 };
 
@@ -195,7 +195,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Axis : public ezParticleStre
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "Axis"; }
+  virtual const char* GetStreamName() const override { return "Axis"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
 };
 
@@ -217,7 +217,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData : public ezParticl
 
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const { return "TrailData"; }
+  virtual const char* GetStreamName() const override { return "TrailData"; }
   virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
 };
 

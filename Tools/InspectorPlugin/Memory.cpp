@@ -13,7 +13,7 @@ namespace MemoryDetail
     for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
     {
       ezTelemetryMessage msg;
-      msg.SetMessageID('MEM', 'STAT');
+      msg.SetMessageID(' MEM', 'STAT');
       msg.GetWriter() << it.Name();
       msg.GetWriter() << it.Stats();
 

@@ -139,7 +139,7 @@ void ezQtLogWidget::ProcessTelemetry(void* pUnuseed)
   const bool bLastSelected = (s_pWidget->ListLog->count() == 0) || (s_pWidget->ListLog->currentItem() == s_pWidget->ListLog->item(s_pWidget->ListLog->count() - 1));
   bool bChange = false;
 
-  while (ezTelemetry::RetrieveMessage('LOG', Msg) == EZ_SUCCESS)
+  while (ezTelemetry::RetrieveMessage(' LOG', Msg) == EZ_SUCCESS)
   {
     ezInt16 iEventType = 0;
     ezUInt16 uiIndentation = 0;

@@ -126,7 +126,7 @@ void ezDocumentObjectMirror::SendDocument()
 
     ezAbstractObjectGraph graph;
     ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager, true, true);
-    ezAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pChild, "Object");
+    objectConverter.AddObjectToGraph(pChild, "Object");
     change.SetGraph(graph);
 
     ApplyOp(change);
@@ -152,7 +152,7 @@ void ezDocumentObjectMirror::Clear()
       ApplyOp(change);
     }
   }
-  
+
 }
 
 void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -192,7 +192,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
 
       ezAbstractObjectGraph graph;
       ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager, true, true);
-      ezAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(e.m_pObject, "Object");
+      objectConverter.AddObjectToGraph(e.m_pObject, "Object");
       change.SetGraph(graph);
 
       ApplyOp(change);
@@ -245,6 +245,9 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
 
       ApplyOp(change);
     }
+    break;
+
+  default:
     break;
   }
 }
@@ -409,7 +412,7 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
 void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjectChange& change)
 {
   ezAbstractProperty* pProp = nullptr;
-  
+
   if (object.m_pType != nullptr)
   {
     pProp = object.m_pType->FindPropertyByName(change.m_Change.m_sProperty);
@@ -633,7 +636,6 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
     case ezPropertyCategory::Array:
       {
         ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
-        ezUInt32 uiArrayCount = pSpecific->GetCount(object.m_pObject);
 
         EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType), "");
         EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "");

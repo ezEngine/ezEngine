@@ -20,8 +20,8 @@ ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
 
 ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
-  : m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
-  , m_sAppProjectPath(szProjectPath)
+  : m_sAppProjectPath(szProjectPath)
+  , m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
 {
   m_sAppName = szAppName;
   s_pGameApplicationInstance = this;

@@ -218,7 +218,6 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
 {
   ezTestDocument doc("Test", true);
   doc.InitializeAfterLoading();
-  ezTestDocumentObjectManager* pObjectManager = static_cast<ezTestDocumentObjectManager*>(doc.GetObjectManager());
   ezObjectAccessorBase* pAccessor = doc.GetObjectAccessor();
   ezUuid mirrorGuid;
 
@@ -229,7 +228,6 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
   pAccessor->FinishTransaction();
 
   MirrorCheck(&doc, pObject);
-  ezMirrorTest* pNative = static_cast<ezMirrorTest*>(doc.m_ObjectMirror.GetNativeObjectPointer(pObject));
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Document Changes")
   {

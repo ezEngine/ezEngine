@@ -224,8 +224,6 @@ bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezStrin
 
     if (out_RelativePath)
     {
-      const ezInt32 iTrimStart = root.GetCharacterCount();
-
       ezStringBuilder sText = szDocumentPath;
       sText.MakeRelativeTo(root);
 

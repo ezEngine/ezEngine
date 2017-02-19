@@ -5,8 +5,6 @@
 
 #define EZ_ATOMICUTLS_WIN_INL_H_INCLUDED
 
-#include <Foundation/Math/Math.h>
-
 EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Read(volatile const ezInt32& src)
 {
   return _InterlockedOr((volatile LONG*)(&src), 0);
@@ -18,12 +16,12 @@ EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& src)
 }
 
 EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Increment(volatile ezInt32& dest)
-{  
+{
   return InterlockedIncrement(reinterpret_cast<volatile LONG*>(&dest));
 }
 
 EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& dest)
-{  
+{
   return InterlockedIncrement64(&dest);
 }
 
@@ -89,8 +87,8 @@ EZ_FORCE_INLINE void ezAtomicUtils::Min(volatile ezInt32& dest, ezInt32 value)
   while (true)
   {
     ezInt32 iOldValue = dest;
-    ezInt32 iNewValue = ezMath::Min(iOldValue, value);
-  
+    ezInt32 iNewValue = value < iOldValue ? value : iOldValue; // do Min manually here, to break #include cycles
+
     if (InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(&dest), iNewValue, iOldValue) == iOldValue)
       break;
   }
@@ -102,8 +100,8 @@ inline void ezAtomicUtils::Min(volatile ezInt64& dest, ezInt64 value)
   while (true)
   {
     ezInt64 iOldValue = dest;
-    ezInt64 iNewValue = ezMath::Min(iOldValue, value);
-  
+    ezInt64 iNewValue = value < iOldValue ? value : iOldValue; // do Min manually here, to break #include cycles
+
     if (InterlockedCompareExchange64(&dest, iNewValue, iOldValue) == iOldValue)
       break;
   }
@@ -116,8 +114,8 @@ inline void ezAtomicUtils::Max(volatile ezInt32& dest, ezInt32 value)
   while (true)
   {
     ezInt32 iOldValue = dest;
-    ezInt32 iNewValue = ezMath::Max(iOldValue, value);
-  
+    ezInt32 iNewValue = iOldValue < value ? value : iOldValue; // do Max manually here, to break #include cycles
+
     if (InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(&dest), iNewValue, iOldValue) == iOldValue)
       break;
   }
@@ -129,8 +127,8 @@ inline void ezAtomicUtils::Max(volatile ezInt64& dest, ezInt64 value)
   while (true)
   {
     ezInt64 iOldValue = dest;
-    ezInt64 iNewValue = ezMath::Max(iOldValue, value);
-  
+    ezInt64 iNewValue = iOldValue < value ? value : iOldValue; // do Max manually here, to break #include cycles
+
     if (InterlockedCompareExchange64(&dest, iNewValue, iOldValue) == iOldValue)
       break;
   }

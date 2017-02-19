@@ -112,7 +112,7 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
     return;
   }
 
-  if (msg.GetMessageID() == 'MNT')
+  if (msg.GetMessageID() == ' MNT')
   {
     HandleMountRequest(client, msg);
     return;
@@ -140,6 +140,9 @@ void ezFileserver::NetworkEventHandler(const ezNetworkEvent& e)
 
       m_Events.Broadcast(se);
     }
+    break;
+
+  default:
     break;
   }
 }
@@ -287,8 +290,6 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
 
   // final answer to client
   {
-    const ezUInt16 uiEndToken = 0; // chunk size
-
     ezNetworkMessage ret('FSRV', 'DWNF');
     ret.GetWriter() << downloadGuid;
     ret.GetWriter() << (ezInt8)filestate;

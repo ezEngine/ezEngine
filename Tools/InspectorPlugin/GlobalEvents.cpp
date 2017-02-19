@@ -27,7 +27,7 @@ static void SendAllGlobalEventTelemetry()
   // clear
   {
     ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'EVNT', 'CLR', nullptr, 0);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'EVNT', ' CLR', nullptr, 0);
   }
 
   ezGlobalEvent::UpdateGlobalEventStatistics();

@@ -99,6 +99,10 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
         shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCubeArray; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::GenericBuffer; break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
       }
     }
 
@@ -117,6 +121,10 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX:
         shaderResourceBinding.m_Type = ezShaderResourceBinding::RWBuffer; break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
       }
     }
 

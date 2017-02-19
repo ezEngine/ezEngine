@@ -148,7 +148,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
       }
       break;
 
-    case 'DEL':
+    case ' DEL':
       {
         bool bSuccess;
 

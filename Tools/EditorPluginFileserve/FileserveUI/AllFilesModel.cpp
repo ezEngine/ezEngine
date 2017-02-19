@@ -46,7 +46,7 @@ QVariant ezQtFileserveAllFilesModel::data(const QModelIndex &index, int role /*=
 void ezQtFileserveAllFilesModel::AddAccessedFile(const char* szFile)
 {
   bool bExisted = false;
-  auto& it = m_AllFiles.FindOrAdd(szFile, &bExisted);
+  auto it = m_AllFiles.FindOrAdd(szFile, &bExisted);
 
   // we count the accesses, but for performance reasons the TableView is not updated when the counter changes
   it.Value()++;

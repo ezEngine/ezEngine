@@ -161,7 +161,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
   for (ezUInt32 i = 0; i < uiPropCount; ++i)
   {
     ezAbstractProperty* pProp = pType->GetProperties()[i];
- 
+
     switch (pProp->GetCategory())
     {
     case ezPropertyCategory::Member:
@@ -296,8 +296,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
   ezUInt32 uiRegisteredBaseTypes = GetTypeCount();
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RegisterType")
   {
-    const ezRTTI* pRttiBase = ezRTTI::FindTypeByName("ezReflectedClass");
-
     EZ_TEST_BOOL(pRttiInner != nullptr);
     ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
     descInner.m_sTypeName = "InnerStructP";
@@ -343,7 +341,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
       // Check that the new property is present.
       AccessorPropertyTest(innerAccessor, "IP2", ezVariant::Type::Vector4);
 
-      ezDocumentObject* pEmbeddedInnerObject = manager.GetObject(innerGuid);
       AccessorPropertyTest(embeddedInnerAccessor, "IP2", ezVariant::Type::Vector4);
 
       // Test that the old properties are still valid.

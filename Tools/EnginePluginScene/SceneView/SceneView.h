@@ -40,8 +40,5 @@ private:
   ezSceneContext* m_pSceneContext;
 
   bool m_bUpdatePickingData;
-
-
-  ezPickingRenderPass* m_pPickingRenderPass;
 };
 

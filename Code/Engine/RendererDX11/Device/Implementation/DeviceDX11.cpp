@@ -545,7 +545,7 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
   HRESULT result = pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 0);
   if (FAILED(result))
   {
-    ezLog::Error("Swap chain Present failed with {0}", result);
+    ezLog::Error("Swap chain Present failed with {0}", (ezUInt32)result);
     return;
   }
 
@@ -747,6 +747,9 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     m_Capabilities.m_bAlphaToCoverage = false;
     break;
 
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    break;
   }
 }
 

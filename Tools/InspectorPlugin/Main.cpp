@@ -96,7 +96,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     RemoveLogWriter();
     RemoveTelemetryAssertHandler();
 
-    ezTelemetry::AcceptMessagesForSystem('APP', false);
+    ezTelemetry::AcceptMessagesForSystem(' APP', false);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

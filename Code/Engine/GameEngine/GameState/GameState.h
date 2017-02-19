@@ -38,10 +38,10 @@ class EZ_GAMEENGINE_DLL ezGameState : public ezReflectedClass
 
 protected:
   /// \brief This class cannot be instantiated directly.
-  ezGameState();
+  ezGameState() {}
 
 public:
-  virtual ~ezGameState();
+  virtual ~ezGameState() {}
 
   /// \brief When a game state was chosen, it gets activated through this function.
   ///
@@ -110,14 +110,14 @@ protected:
   /// \brief Sets up m_MainCamera for first use
   virtual void ConfigureMainCamera();
 
-  ezWindow* m_pMainWindow;
+  ezWindow* m_pMainWindow = nullptr;
   ezGALSwapChainHandle m_hMainSwapChain;
-  ezWorld* m_pMainWorld;
-  ezView* m_pMainView;
+  ezWorld* m_pMainWorld = nullptr;
+  ezView* m_pMainView = nullptr;
   ezCamera m_MainCamera;
-  bool m_bStateWantsToQuit;
+  bool m_bStateWantsToQuit = false;
 
 private:
   friend class ezGameApplication;
-  ezGameApplication* m_pApplication;
+  ezGameApplication* m_pApplication = nullptr;
 };

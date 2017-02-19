@@ -149,7 +149,6 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
     else if (m_RotationAxis == ezFragmentAxis::OrthogonalEmitterDirection)
     {
       const ezVec3 vTangentZ = vEmitterDir;
-      const ezVec3 vTangentX = vEmitterDir.GetOrthogonalVector();
 
       for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
       {

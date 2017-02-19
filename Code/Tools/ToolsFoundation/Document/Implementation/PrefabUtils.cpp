@@ -88,7 +88,6 @@ ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, con
   if (!pNode)
     return ezVariant();
 
-  ezUInt32 uiIndex = 0;
   const ezAbstractObjectNode::Property* pProp = pNode->FindProperty(szProperty);
   if (pProp)
   {

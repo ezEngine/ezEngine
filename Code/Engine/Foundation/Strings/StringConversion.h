@@ -48,7 +48,7 @@ public:
   ezStringUtf8(const char* szUtf8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringUtf8(const ezUInt16* szUtf16, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
   ezStringUtf8(const ezUInt32* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
-  ezStringUtf8(const wchar_t* szUtf32, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf8(const wchar_t* szWChar, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   ezStringUtf8(const Microsoft::WRL::Wrappers::HString& hstring, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
@@ -58,7 +58,7 @@ public:
   void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
   void operator=(const ezUInt32* szUtf32);
-  void operator=(const wchar_t* szUtf32);
+  void operator=(const wchar_t* szWChar);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   void operator=(const Microsoft::WRL::Wrappers::HString& hstring);

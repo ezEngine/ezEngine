@@ -78,8 +78,8 @@ namespace ezMath
   template <typename T>
   constexpr EZ_FORCE_INLINE T Clamp(T value, T min_val, T max_val)
   {
-    return value < min_val ? min_val : 
-          (max_val < value ? max_val : 
+    return value < min_val ? min_val :
+          (max_val < value ? max_val :
            value);
   }
 
@@ -134,7 +134,8 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Lerp(T f1, T f2, float factor)
   {
-    EZ_ASSERT_DEBUG((factor >= -0.00001f) && (factor <= 1.0f + 0.00001f), "lerp: factor {0} is not in the range [0; 1]", ezArgF(factor, 2));
+    // value is not included in format string, to prevent requirement on FormatString.h, to break #include cycles
+    EZ_ASSERT_DEBUG((factor >= -0.00001f) && (factor <= 1.0f + 0.00001f), "lerp: factor is not in the range [0; 1]");
 
     return (T)(f1 + (factor * (f2 - f1)));
   }

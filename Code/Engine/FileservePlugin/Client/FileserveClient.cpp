@@ -162,8 +162,6 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
 
   // final message to server
   {
-    const ezUInt16 uiEndToken = 0; // chunk size
-
     ezNetworkMessage msg('FSRV', 'UPLF');
     msg.GetWriter() << uploadGuid;
     msg.GetWriter() << uiDataDirID;
@@ -303,7 +301,7 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
 
   const ezUInt16 uiDataDirID = m_MountedDataDirs.GetCount();
 
-  ezNetworkMessage msg('FSRV', 'MNT');
+  ezNetworkMessage msg('FSRV', ' MNT');
   msg.GetWriter() << szDataDirectory;
   msg.GetWriter() << sRoot;
   msg.GetWriter() << sMountPoint;

@@ -155,7 +155,7 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = nullptr*/) const
 }
 
 // for some reason MSVC does not accept the template keyword here
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
   #define CALL_FUNCTOR(functor, type) functor.operator()<type>()
 #else
   #define CALL_FUNCTOR(functor, type) functor.template operator()<type>()

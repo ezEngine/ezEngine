@@ -100,7 +100,7 @@ void ProjectileComponent::Update()
             desc.m_LocalRotation = qRot * GetOwner()->GetLocalRotation();
 
             ezGameObject* pProjectile = nullptr;
-            ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
+            GetWorld()->CreateObject(desc, pProjectile);
 
             ProjectileComponent* pProjectileComponent = nullptr;
             ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);

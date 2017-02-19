@@ -94,8 +94,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
     EZ_ASSERT_DEV(uiIndex < data.GetCount(), "ezReflectedTypeStorageAccessor found with fewer properties that is should have!");
     ezVariant& value = data[uiIndex];
 
-    const ezRTTI* pSpecificType = pProperty->GetSpecificType();
-    const auto SpecVarType = GetStorageType(pProperty);
+        const auto SpecVarType = GetStorageType(pProperty);
 
     switch (pProperty->GetCategory())
     {
@@ -176,6 +175,9 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
         value = values;
       }
       break;
+
+    default:
+      break;
     }
   }
 }
@@ -184,8 +186,6 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
 {
   if (pProperty->GetCategory() != ezPropertyCategory::Member)
     return;
-
-  const auto SpecVarType = pProperty->GetSpecificType()->GetVariantType();
 
   for (auto it = m_Instances.GetIterator(); it.IsValid(); ++it)
   {
@@ -218,6 +218,9 @@ ezVariantType::Enum ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::
     {
       type = ezVariantType::VariantArray;
     }
+    break;
+
+  default:
     break;
   }
 

@@ -425,8 +425,6 @@ void ezDocumentObjectManager::PatchEmbeddedClassObjectsInternal(ezDocumentObject
     const ezAbstractProperty* pProperty = pType->GetProperties()[i];
     if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
     {
-      bool bConstruct = false;
-      bool bDestroy = false;
       ezUuid value = accessor.GetValue(pProperty->GetPropertyName()).Get<ezUuid>();
       EZ_ASSERT_DEV(addToDoc || !value.IsValid(), "If addToDoc is false, the current value must be invalid!");
       if (value.IsValid())

@@ -40,6 +40,9 @@ void ezDocumentManager::OnPluginEvent(const ezPlugin::PluginEvent& e)
   case ezPlugin::PluginEvent::AfterPluginChanges:
     UpdatedAfterLoadingPlugins();
     break;
+
+  default:
+    break;
   }
 }
 

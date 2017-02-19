@@ -27,7 +27,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectMetaData : public ezReflectedClass
 
 public:
 
-  enum ModifiedFlags
+  enum ModifiedFlags : unsigned int
   {
     HiddenFlag = EZ_BIT(0),
     PrefabFlag = EZ_BIT(1),

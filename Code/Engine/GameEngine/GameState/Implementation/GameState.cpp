@@ -13,26 +13,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-
-
 EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameState);
-
-
-ezGameState::ezGameState()
-  : m_pApplication(nullptr)
-  , m_pMainWindow(nullptr)
-  , m_pMainWorld(nullptr)
-  , m_pMainView(nullptr)
-  , m_bStateWantsToQuit(false)
-{
-
-}
-
-ezGameState::~ezGameState()
-{
-
-}
-
 
 void ezGameState::OnActivation(ezWorld* pWorld)
 {
@@ -51,7 +32,6 @@ void ezGameState::OnActivation(ezWorld* pWorld)
   ConfigureInputActions();
 }
 
-
 void ezGameState::OnDeactivation()
 {
   ezRenderLoop::DeleteView(m_pMainView);
@@ -59,7 +39,6 @@ void ezGameState::OnDeactivation()
 
   DestroyMainWindow();
 }
-
 
 void ezGameState::AddAllMainViews()
 {

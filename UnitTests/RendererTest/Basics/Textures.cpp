@@ -12,8 +12,6 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
-  bool bFinish = true;
-
   const ezInt32 iNumFrames = 10;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Textured.ezShader");
@@ -110,8 +108,6 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
-  bool bFinish = true;
-
   const ezInt32 iNumFrames = 1;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/TexturedVolume.ezShader");
@@ -141,8 +137,6 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
   BeginFrame();
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
-
-  bool bFinish = true;
 
   const ezInt32 iNumFrames = 10;
 

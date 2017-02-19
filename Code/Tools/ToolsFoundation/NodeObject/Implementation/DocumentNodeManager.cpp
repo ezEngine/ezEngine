@@ -456,5 +456,8 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
       }
     }
     break;
+
+  default:
+    break;
   }
 }

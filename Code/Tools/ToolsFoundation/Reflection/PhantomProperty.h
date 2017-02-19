@@ -44,7 +44,7 @@ public:
 
   virtual const ezRTTI* GetSpecificType() const override { return nullptr; };
 
-  virtual void Execute(void* pInstance) const
+  virtual void Execute(void* pInstance) const override
   {
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
@@ -81,7 +81,7 @@ class ezPhantomSetProperty : public ezAbstractSetProperty
 public:
   ezPhantomSetProperty(const ezReflectedPropertyDescriptor* pDesc);
   ~ezPhantomSetProperty();
-  
+
   virtual const ezRTTI* GetSpecificType() const override;
   virtual bool IsEmpty(const void* pInstance) const override { return true; }
   virtual void Clear(void* pInstance) override {}

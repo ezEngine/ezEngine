@@ -228,6 +228,9 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
         enet_packet_destroy(NetworkEvent.packet);
       }
       break;
+
+    default:
+      break;
     }
   }
 }
