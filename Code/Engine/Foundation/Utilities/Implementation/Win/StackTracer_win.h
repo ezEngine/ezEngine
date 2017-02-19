@@ -207,9 +207,9 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, bool bWithinExce
     frame.AddrFrame.Mode = AddrModeFlat;
     frame.AddrStack.Mode = AddrModeFlat;
 #ifdef _M_X64
-    frame.AddrPC.Offset = context->Rip;
-    frame.AddrFrame.Offset = context->Rbp;
-    frame.AddrStack.Offset = context->Rsp;
+    frame.AddrPC.Offset = context.Rip;
+    frame.AddrFrame.Offset = context.Rbp;
+    frame.AddrStack.Offset = context.Rsp;
     machine_type = IMAGE_FILE_MACHINE_AMD64;
 #else
     frame.AddrPC.Offset = context.Eip;
