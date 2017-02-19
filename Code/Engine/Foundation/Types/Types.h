@@ -64,12 +64,23 @@ private:
   ezResultEnum e;
 };
 
+/// \brief Explicit conversion to ezResult, can be overloaded for arbitrary types.
+///
+/// This is intentionally not done via casting operator overload (or even additional constructors) since this usually comes with a considerable data loss.
+inline ezResult ezToResult(ezResult result)
+{
+  return result;
+}
+
 /// \brief Helper macro to call functions that return ezStatus or ezResult in a function that returns ezStatus (or ezResult) as well.
 /// If the called function fails, its return value is returned from the calling scope.
-#ifndef EZ_SUCCEED_OR_RETURN
 #define EZ_SUCCEED_OR_RETURN(code) \
-  do { auto s = (code); if (s.Failed()) return s; } while(false)
-#endif
+  do { auto s = (code); if (ezToResult(s).Failed()) return EZ_FAILURE; } while(false)
+
+/// \brief Like EZ_SUCCEED_OR_RETURN, but with error logging.
+#define EZ_SUCCEED_OR_RETURN_LOG(code) \
+  do { auto s = (code); if (ezToResult(s).Failed()) { ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), s); return EZ_FAILURE; } } while(false)
+
 
 //////////////////////////////////////////////////////////////////////////
 

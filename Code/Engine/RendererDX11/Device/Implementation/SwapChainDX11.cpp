@@ -1,9 +1,10 @@
-﻿
+
 #include <PCH.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <System/Window/Window.h>
 
+#include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <d3d11.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -35,8 +36,8 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.BufferCount = 2;
 
   // Only allowed mode for UWP.
-  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; 
-  
+  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+
   //SwapChainDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_BackBufferFormat).m_eRenderTarget;
   //
   // Can use only (DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R10G10B10A2_UNORM) with DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
@@ -44,7 +45,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   // https://software.intel.com/en-us/blogs/2013/06/03/full-screen-direct3d-games-using-borderless-windowed-mode
   //
   SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  if (m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalized && 
+  if (m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalized &&
       m_Description.m_BackBufferFormat != ezGALResourceFormat::RGBAUByteNormalizedsRGB)
   {
     ezLog::Warning("Back buffer format for UWP can only be RGBAUByteNormalized or RGBAUByteNormalizedsRGB. Ignoring setting.");
@@ -87,12 +88,12 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   {
     ComPtr<IDXGIFactory1> dxgiFactory = pDXDevice->GetDXGIFactory();
     ComPtr<IDXGIFactory3> dxgiFactory3;
-    EZ_SUCCEED_OR_RETURN(dxgiFactory.As(&dxgiFactory3));
+    EZ_SUCCEED_OR_RETURN_LOG(dxgiFactory.As(&dxgiFactory3));
 
     ComPtr<IDXGISwapChain1> swapChain1;
     ComPtr<IDXGISwapChain> swapChain;
-    EZ_SUCCEED_OR_RETURN(dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1));
-    EZ_SUCCEED_OR_RETURN(swapChain1.As(&swapChain));
+    EZ_SUCCEED_OR_RETURN_LOG(dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1));
+    EZ_SUCCEED_OR_RETURN_LOG(swapChain1.As(&swapChain));
     m_pDXSwapChain = swapChain.Detach();
   }
 #else
@@ -106,9 +107,10 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
     // Get texture of the swap chain
     ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
-    if (FAILED(m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture))))
+    HRESULT result = m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture));
+    if (FAILED(result))
     {
-      ezLog::Error("Couldn't access backbuffer texture of swapchain!");
+      ezLog::Error("Couldn't access backbuffer texture of swapchain: {0}", result);
       EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
 
       return EZ_FAILURE;

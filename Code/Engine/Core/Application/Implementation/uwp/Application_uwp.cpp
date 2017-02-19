@@ -27,7 +27,7 @@ HRESULT ezUwpApplication::CreateView(IFrameworkView** viewProvider)
 HRESULT ezUwpApplication::Initialize(ICoreApplicationView* applicationView)
 {
   typedef __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs ActivatedHandler;
-  EZ_SUCCEED_OR_RETURN_HRESULT(applicationView->add_Activated(Callback<ActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
+  EZ_SUCCEED_OR_PASS_HRESULT_ON(applicationView->add_Activated(Callback<ActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
 
   return S_OK;
 }
@@ -56,14 +56,14 @@ HRESULT ezUwpApplication::Uninitialize()
 HRESULT ezUwpApplication::OnActivated(ABI::Windows::ApplicationModel::Core::ICoreApplicationView* view, ABI::Windows::ApplicationModel::Activation::IActivatedEventArgs* args)
 {
   ABI::Windows::ApplicationModel::Activation::ActivationKind activationKind;
-  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_Kind(&activationKind));
+  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_Kind(&activationKind));
 
   if (activationKind == ABI::Windows::ApplicationModel::Activation::ActivationKind_Launch)
   {
     ComPtr<ABI::Windows::ApplicationModel::Activation::ILaunchActivatedEventArgs> launchArgs;
-    EZ_SUCCEED_OR_RETURN_HRESULT(args->QueryInterface(launchArgs.GetAddressOf()));
+    EZ_SUCCEED_OR_PASS_HRESULT_ON(args->QueryInterface(launchArgs.GetAddressOf()));
     HString argHString;
-    EZ_SUCCEED_OR_RETURN_HRESULT(launchArgs->get_Arguments(argHString.GetAddressOf()));
+    EZ_SUCCEED_OR_PASS_HRESULT_ON(launchArgs->get_Arguments(argHString.GetAddressOf()));
 
     // Add application dir as first argument as customary on other platforms.
     m_commandLineArgs.Clear();

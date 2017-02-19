@@ -116,7 +116,13 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgP& arg)
   return ezStringView(tmp);
 }
 
-
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult result)
+{
+  if (result.Failed())
+    return "<failed>";
+  else
+    return "<succeeded>";
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_FormatString);
 
