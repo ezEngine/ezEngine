@@ -75,18 +75,21 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
 
     c = !a;
     EZ_TEST_BOOL(!c.x() && c.y() && !c.z() && c.w());
-    EZ_TEST_BOOL(c.AnySet());
-    EZ_TEST_BOOL(!c.AllSet());
-    EZ_TEST_BOOL(!c.NoneSet());
+    EZ_TEST_BOOL(c.AnySet<2>());
+    EZ_TEST_BOOL(!c.AllSet<4>());
+    EZ_TEST_BOOL(!c.NoneSet<4>());
 
     c = c || a;
-    EZ_TEST_BOOL(c.AnySet());
-    EZ_TEST_BOOL(c.AllSet());
-    EZ_TEST_BOOL(!c.NoneSet());
+    EZ_TEST_BOOL(c.AnySet<4>());
+    EZ_TEST_BOOL(c.AllSet<4>());
+    EZ_TEST_BOOL(!c.NoneSet<4>());
 
     c = !c;
-    EZ_TEST_BOOL(!c.AnySet());
-    EZ_TEST_BOOL(!c.AllSet());
-    EZ_TEST_BOOL(c.NoneSet());
+    EZ_TEST_BOOL(!c.AnySet<4>());
+    EZ_TEST_BOOL(!c.AllSet<4>());
+    EZ_TEST_BOOL(c.NoneSet<4>());
+
+    EZ_TEST_BOOL(a.AllSet<1>());
+    EZ_TEST_BOOL(b.NoneSet<1>());
   }
 }

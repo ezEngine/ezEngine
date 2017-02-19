@@ -30,8 +30,13 @@ public:
   ezSimdVec4b operator||(const ezSimdVec4b& rhs) const; // [tested]
   ezSimdVec4b operator!() const; // [tested]
 
+  template <int N = 4>
   bool AllSet(); // [tested]
+
+  template <int N = 4>
   bool AnySet(); // [tested]
+
+  template <int N = 4>
   bool NoneSet(); // [tested]
 
 public:

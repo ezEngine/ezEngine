@@ -9,38 +9,43 @@ namespace
     CELL_INDEX_MASK = (1 << 21) - 1
   };
 
-  EZ_FORCE_INLINE ezVec3 ToVec3(const ezVec3I32& v)
+  EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezSimdVec4i& v)
   {
-    return ezVec3((float)v.x, (float)v.y, (float)v.z);
+    return v.ToFloat();
   }
 
-  EZ_FORCE_INLINE ezVec3I32 ToVec3I32(const ezVec3& v)
+  EZ_ALWAYS_INLINE ezSimdVec4i ToVec3I32(const ezSimdVec4f& v)
   {
-    float x = ezMath::Floor(v.x);
-    float y = ezMath::Floor(v.y);
-    float z = ezMath::Floor(v.z);
-
-    return ezVec3I32((ezInt32)x, (ezInt32)y, (ezInt32)z);
+    ezSimdVec4f vf = v.Floor();
+    return ezSimdVec4i::Truncate(vf);
   }
 
-  EZ_FORCE_INLINE ezUInt64 GetCellKey(const ezVec3I32& cellIndex)
+  EZ_ALWAYS_INLINE ezUInt64 GetCellKey(ezInt32 x, ezInt32 y, ezInt32 z)
   {
-    ezUInt64 x = (cellIndex.x + MAX_CELL_INDEX) & CELL_INDEX_MASK;
-    ezUInt64 y = (cellIndex.y + MAX_CELL_INDEX) & CELL_INDEX_MASK;
-    ezUInt64 z = (cellIndex.z + MAX_CELL_INDEX) & CELL_INDEX_MASK;
+    ezUInt64 sx = (x + MAX_CELL_INDEX) & CELL_INDEX_MASK;
+    ezUInt64 sy = (y + MAX_CELL_INDEX) & CELL_INDEX_MASK;
+    ezUInt64 sz = (z + MAX_CELL_INDEX) & CELL_INDEX_MASK;
 
-    return (x << 42) | (y << 21) | z;
+    return (sx << 42) | (sy << 21) | sz;
   }
 
-  EZ_FORCE_INLINE ezBoundingBox GetBoundingBox(const ezVec3I32& cellIndex, ezInt32 iCellSize)
+  EZ_FORCE_INLINE ezBoundingBox GetBoundingBox(const ezSimdVec4i& cellIndex, ezSimdVec4i iCellSize)
   {
-    return ezBoundingBox(ToVec3(cellIndex * iCellSize), ToVec3((cellIndex + ezVec3I32(1)) * iCellSize));
+    ezSimdVec4i minPos = cellIndex.CompMul(iCellSize);
+    ezSimdVec4f bmin = ToVec3(minPos);
+    ezSimdVec4f bmax = ToVec3(minPos + iCellSize);
+
+    ezBoundingBox box;
+    bmin.Store<3>(&box.m_vMin.x);
+    bmax.Store<3>(&box.m_vMax.x);
+
+    return box;
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSpatialSystem_RegularGrid::Cell::Cell(const ezVec3I32& index, ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator)
+ezSpatialSystem_RegularGrid::Cell::Cell(const ezSimdVec4i& index, ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator)
   : m_Index(index)
   , m_BoundingSpheres(pAlignedAllocator)
   , m_DataPointers(pAllocator)
@@ -154,7 +159,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, e
 
 void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)
 {
-  ForEachCellInBox(pData->m_Bounds.GetBox(), [&](const ezVec3I32& cellIndex, ezUInt64 cellKey, Cell* pCell)
+  ForEachCellInBox(pData->m_Bounds.GetBox(), [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
   {
     if (pCell == nullptr)
     {
@@ -169,7 +174,7 @@ void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)
 
 void ezSpatialSystem_RegularGrid::SpatialDataRemoved(ezSpatialData* pData)
 {
-  ForEachCellInBox(pData->m_Bounds.GetBox(), [&](const ezVec3I32& cellIndex, ezUInt64 cellKey, Cell* pCell)
+  ForEachCellInBox(pData->m_Bounds.GetBox(), [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
   {
     EZ_ASSERT_DEBUG(pCell != nullptr, "Implementation error");
     pCell->RemoveData(pData);
@@ -181,21 +186,25 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
   ezBoundingBox oldBox = oldBounds.GetBox();
   ezBoundingBox newBox = pData->m_Bounds.GetBox();
 
-  ezBoundingBoxTemplate<ezInt32> oldIndexBox;
-  oldIndexBox.m_vMin = ToVec3I32(oldBox.m_vMin * m_fInvCellSize);
-  oldIndexBox.m_vMax = ToVec3I32(oldBox.m_vMax * m_fInvCellSize);
+  ezSimdVec4f oldBoxMin; oldBoxMin.Load<3>(&oldBox.m_vMin.x);
+  ezSimdVec4f oldBoxMax; oldBoxMax.Load<3>(&oldBox.m_vMax.x);
 
-  ezBoundingBoxTemplate<ezInt32> newIndexBox;
-  newIndexBox.m_vMin = ToVec3I32(newBox.m_vMin * m_fInvCellSize);
-  newIndexBox.m_vMax = ToVec3I32(newBox.m_vMax * m_fInvCellSize);
+  ezSimdVec4f newBoxMin; newBoxMin.Load<3>(&newBox.m_vMin.x);
+  ezSimdVec4f newBoxMax; newBoxMax.Load<3>(&newBox.m_vMax.x);
+
+  ezSimdVec4i oldIndexBoxMin = ToVec3I32(oldBoxMin * m_fInvCellSize);
+  ezSimdVec4i oldIndexBoxMax = ToVec3I32(oldBoxMax * m_fInvCellSize);
+
+  ezSimdVec4i newIndexBoxMin = ToVec3I32(newBoxMin * m_fInvCellSize);
+  ezSimdVec4i newIndexBoxMax = ToVec3I32(newBoxMax * m_fInvCellSize);
 
   ezBoundingBox combinedBox = oldBox;
   combinedBox.ExpandToInclude(newBox);
 
-  ForEachCellInBox(combinedBox, [&](const ezVec3I32& cellIndex, ezUInt64 cellKey, Cell* pCell)
+  ForEachCellInBox(combinedBox, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
   {
-    const bool bContainsOld = oldIndexBox.Contains(cellIndex);
-    const bool bContainsNew = newIndexBox.Contains(cellIndex);
+    const bool bContainsOld = (cellIndex >= oldIndexBoxMin && cellIndex <= oldIndexBoxMax).AllSet<3>();
+    const bool bContainsNew = (cellIndex >= newIndexBoxMin && cellIndex <= newIndexBoxMax).AllSet<3>();
 
     if (bContainsOld)
     {
@@ -227,7 +236,7 @@ void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const
 
 void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr)
 {
-  ForEachCellInBox(pNewPtr->m_Bounds.GetBox(), [&](const ezVec3I32& cellIndex, ezUInt64 cellKey, Cell* pCell)
+  ForEachCellInBox(pNewPtr->m_Bounds.GetBox(), [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
   {
     if (pCell != nullptr)
     {
@@ -243,26 +252,70 @@ void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, 
 template <typename Functor>
 EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezBoundingBox& box, Functor func)
 {
-  ezVec3I32 minIndex = ToVec3I32(box.m_vMin * m_fInvCellSize);
-  ezVec3I32 maxIndex = ToVec3I32(box.m_vMax * m_fInvCellSize);
+  ezSimdVec4f boxMin; boxMin.Load<3>(&box.m_vMin.x);
+  ezSimdVec4f boxMax; boxMax.Load<3>(&box.m_vMax.x);
 
-  EZ_ASSERT_DEBUG(ezMath::Abs(minIndex.x) < MAX_CELL_INDEX && ezMath::Abs(minIndex.y) < MAX_CELL_INDEX && ezMath::Abs(minIndex.z) < MAX_CELL_INDEX, "Position is too big");
-  EZ_ASSERT_DEBUG(ezMath::Abs(maxIndex.x) < MAX_CELL_INDEX && ezMath::Abs(maxIndex.y) < MAX_CELL_INDEX && ezMath::Abs(maxIndex.z) < MAX_CELL_INDEX, "Position is too big");
+  ezSimdVec4i minIndex = ToVec3I32(boxMin * m_fInvCellSize);
+  ezSimdVec4i maxIndex = ToVec3I32(boxMax * m_fInvCellSize);
 
-  for (ezInt32 z = minIndex.z; z <= maxIndex.z; ++z)
+  EZ_ASSERT_DEBUG((minIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
+  EZ_ASSERT_DEBUG((maxIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
+
+  const ezInt32 iMinX = minIndex.x();
+  const ezInt32 iMinY = minIndex.y();
+  const ezInt32 iMinZ = minIndex.z();
+
+#if 1
+
+  const ezInt32 iMaxX = maxIndex.x();
+  const ezInt32 iMaxY = maxIndex.y();
+  const ezInt32 iMaxZ = maxIndex.z();
+
+  for (ezInt32 z = iMinZ; z <= iMaxZ; ++z)
   {
-    for (ezInt32 y = minIndex.y; y <= maxIndex.y; ++y)
+    for (ezInt32 y = iMinY; y <= iMaxY; ++y)
     {
-      for (ezInt32 x = minIndex.x; x <= maxIndex.x; ++x)
+      for (ezInt32 x = iMinX; x <= iMaxX; ++x)
       {
-        ezVec3I32 cellIndex = ezVec3I32(x, y, z);
-        ezUInt64 cellKey = GetCellKey(cellIndex);
+        ezUInt64 cellKey = GetCellKey(x, y, z);
 
         Cell* pCell = nullptr;
         m_Cells.TryGetValue(cellKey, pCell);
 
+        ezSimdVec4i cellIndex(x, y, z);
         func(cellIndex, cellKey, pCell);
       }
     }
   }
+
+#else
+
+  const ezSimdVec4i diff = maxIndex - minIndex + ezSimdVec4i(1);
+  const ezInt32 iDiffX = diff.x();
+  const ezInt32 iDiffY = diff.y();
+  const ezInt32 iDiffZ = diff.z();
+  const ezInt32 iNumIterations = iDiffX * iDiffY * iDiffZ;
+
+  for (ezInt32 i = 0; i < iNumIterations; ++i)
+  {
+    ezInt32 index = i;
+    ezInt32 z = i / (iDiffX * iDiffY);
+    index -= z * iDiffX * iDiffY;
+    ezInt32 y = index / iDiffX;
+    ezInt32 x = index - (y * iDiffX);
+
+    x += iMinX;
+    y += iMinY;
+    z += iMinZ;
+
+    ezUInt64 cellKey = GetCellKey(x, y, z);
+
+    Cell* pCell = nullptr;
+    m_Cells.TryGetValue(cellKey, pCell);
+
+    ezSimdVec4i cellIndex(x, y, z);
+    func(cellIndex, cellKey, pCell);
+  }
+
+#endif
 }

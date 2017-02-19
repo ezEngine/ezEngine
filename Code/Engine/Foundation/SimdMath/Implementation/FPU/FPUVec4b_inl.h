@@ -98,18 +98,33 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
   return result;
 }
 
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet()
 {
-  return m_v.x && m_v.y && m_v.z && m_v.w;
+  for (int i = 0; i < N; ++i)
+  {
+    if (!(&m_v.x)[i])
+      return false;
+  }
+
+  return true;
 }
 
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet()
 {
-  return m_v.x || m_v.y || m_v.z || m_v.w;
+  for (int i = 0; i < N; ++i)
+  {
+    if ((&m_v.x)[i])
+      return true;
+  }
+
+  return false;
 }
 
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet()
 {
-  return !AnySet();
+  return !AnySet<N>();
 }
 

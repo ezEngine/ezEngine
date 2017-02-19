@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/SimdMath/SimdVec4i.h>
 #include <Core/World/SpatialSystem.h>
 
 class EZ_CORE_DLL ezSpatialSystem_RegularGrid : public ezSpatialSystem
@@ -35,18 +36,18 @@ private:
   void ForEachCellInBox(const ezBoundingBox& box, Functor func);
 
   ezProxyAllocator m_AlignedAllocator;
-  ezInt32 m_iCellSize;
-  float m_fInvCellSize;
+  ezSimdVec4i m_iCellSize;
+  ezSimdFloat m_fInvCellSize;
 
   struct Cell
   {
-    Cell(const ezVec3I32& index, ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator);
+    Cell(const ezSimdVec4i& index, ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator);
 
     void AddData(ezSpatialData* pData);
     void RemoveData(ezSpatialData* pData);
     void UpdateData(ezSpatialData* pData);
 
-    ezVec3I32 m_Index;
+    ezSimdVec4i m_Index;
 
     ezDynamicArray<ezVec4> m_BoundingSpheres; ///\todo should be simd vec4
     ezDynamicArray<ezSpatialData*> m_DataPointers;

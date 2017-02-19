@@ -33,49 +33,49 @@ public:
 
 public:
   template<ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetReciprocal() const;
+  ezSimdVec4f GetReciprocal() const; // [tested]
 
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLength() const;
+  ezSimdFloat GetLength() const; // [tested]
 
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetInvLength() const;
+  ezSimdFloat GetInvLength() const; // [tested]
 
   template<int N>
-  ezSimdFloat GetLengthSquared() const;
+  ezSimdFloat GetLengthSquared() const; // [tested]
 
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLengthAndNormalize();
+  ezSimdFloat GetLengthAndNormalize(); // [tested]
 
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetNormalized() const;
+  ezSimdVec4f GetNormalized() const; // [tested]
 
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void Normalize();
+  void Normalize(); // [tested]
 
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezResult NormalizeIfNotZero(const ezSimdVec4f& vFallback = ezSimdVec4f(1, 0, 0, 0), const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon());
+  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon()); // [tested]
 
   template<int N>
-  bool IsZero() const;
+  bool IsZero() const; // [tested]
 
   template<int N>
-  bool IsZero(const ezSimdFloat& fEpsilon) const;
+  bool IsZero(const ezSimdFloat& fEpsilon) const; // [tested]
 
   template<int N>
-  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::HugeEpsilon()) const;
+  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::HugeEpsilon()) const; // [tested]
 
   template<int N>
-  bool IsNaN() const;
+  bool IsNaN() const; // [tested]
 
   template<int N>
-  bool IsValid() const;
+  bool IsValid() const; // [tested]
 
 public:
   template<int N>
   ezSimdFloat GetComponent() const; // [tested]
 
-  ezSimdFloat GetComponent(int i) const;
+  ezSimdFloat GetComponent(int i) const; // [tested]
 
   ezSimdFloat x() const; // [tested]
   ezSimdFloat y() const; // [tested]
@@ -83,75 +83,79 @@ public:
   ezSimdFloat w() const; // [tested]
 
   template <ezSwizzle::Enum s>
-  ezSimdVec4f Get() const;
+  ezSimdVec4f Get() const; // [tested]
 
 public:
-  ezSimdVec4f operator+(const ezSimdVec4f& v) const;
-  ezSimdVec4f operator-(const ezSimdVec4f& v) const;
+  ezSimdVec4f operator-() const; // [tested]
+  ezSimdVec4f operator+(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4f operator-(const ezSimdVec4f& v) const; // [tested]
 
-  ezSimdVec4f operator*(const ezSimdFloat& f) const;
-  ezSimdVec4f operator/(const ezSimdFloat& f) const;
+  ezSimdVec4f operator*(const ezSimdFloat& f) const; // [tested]
+  ezSimdVec4f operator/(const ezSimdFloat& f) const; // [tested]
 
-  ezSimdVec4f CompMul(const ezSimdVec4f& v) const;
+  ezSimdVec4f CompMul(const ezSimdVec4f& v) const; // [tested]
 
   template<ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f CompDiv(const ezSimdVec4f& v) const;
+  ezSimdVec4f CompDiv(const ezSimdVec4f& v) const; // [tested]
 
-  ezSimdVec4f CompMin(const ezSimdVec4f& rhs) const;
-  ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const;
-  ezSimdVec4f Abs() const;
-  ezSimdVec4f Floor() const;
-  ezSimdVec4f Ceil() const;
+  ezSimdVec4f CompMin(const ezSimdVec4f& rhs) const; // [tested]
+  ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const; // [tested]
+  ezSimdVec4f Abs() const; // [tested]
+  ezSimdVec4f Floor() const; // [tested]
+  ezSimdVec4f Ceil() const; // [tested]
 
-  ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const;
+  ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const; // [tested]
 
-  static ezSimdVec4f Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp);
+  static ezSimdVec4f Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp); // [tested]
 
-  ezSimdVec4f& operator+=(const ezSimdVec4f& v);
-  ezSimdVec4f& operator-=(const ezSimdVec4f& v);
+  ezSimdVec4f& operator+=(const ezSimdVec4f& v); // [tested]
+  ezSimdVec4f& operator-=(const ezSimdVec4f& v); // [tested]
 
-  ezSimdVec4f& operator*=(const ezSimdFloat& f);
-  ezSimdVec4f& operator/=(const ezSimdFloat& f);
+  ezSimdVec4f& operator*=(const ezSimdFloat& f); // [tested]
+  ezSimdVec4f& operator/=(const ezSimdFloat& f); // [tested]
 
-  ezSimdVec4b IsEqual(const ezSimdVec4f& rhs, const ezSimdFloat& fEpsilon) const;
+  ezSimdVec4b IsEqual(const ezSimdVec4f& rhs, const ezSimdFloat& fEpsilon) const; // [tested]
 
-  ezSimdVec4b operator==(const ezSimdVec4f& v) const;
-  ezSimdVec4b operator!=(const ezSimdVec4f& v) const;
-  ezSimdVec4b operator<=(const ezSimdVec4f& v) const;
-  ezSimdVec4b operator<(const ezSimdVec4f& v) const;
-  ezSimdVec4b operator>=(const ezSimdVec4f& v) const;
-  ezSimdVec4b operator>(const ezSimdVec4f& v) const;
-
-  template<int N>
-  ezSimdFloat HorizontalSum() const;
+  ezSimdVec4b operator==(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4b operator!=(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4b operator<=(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4b operator<(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4b operator>=(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4b operator>(const ezSimdVec4f& v) const; // [tested]
 
   template<int N>
-  ezSimdFloat HorizontalMin() const;
+  ezSimdFloat HorizontalSum() const; // [tested]
 
   template<int N>
-  ezSimdFloat HorizontalMax() const;
+  ezSimdFloat HorizontalMin() const; // [tested]
 
   template<int N>
-  ezSimdFloat Dot(const ezSimdVec4f& v) const;
+  ezSimdFloat HorizontalMax() const; // [tested]
 
-  ezSimdVec4f Cross(const ezSimdVec4f& v) const;
+  template<int N>
+  ezSimdFloat Dot(const ezSimdVec4f& v) const; // [tested]
 
-  /// Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
-  ezSimdVec4f GetOrthogonalVector() const;
+  ///\brief 3D cross product, w is ignored.
+  ezSimdVec4f Cross(const ezSimdVec4f& v) const; // [tested]
 
-  static ezSimdVec4f ZeroVector();
+  ///\brief Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
+  ezSimdVec4f GetOrthogonalVector() const; // [tested]
 
-  static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c);
-  static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c);
+  static ezSimdVec4f ZeroVector(); // [tested]
 
-  static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c);
-  static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c);
+  static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
+  static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
 
-  static ezSimdVec4f CopySign(const ezSimdVec4f& magnitude, const ezSimdVec4f& sign);
+  static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
+  static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
+
+  static ezSimdVec4f CopySign(const ezSimdVec4f& magnitude, const ezSimdVec4f& sign); // [tested]
 
 public:
   ezInternal::QuadFloat m_v;
 };
+
+#include <Foundation/SimdMath/Implementation/SimdVec4f_inl.h>
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   #include <Foundation/SimdMath/Implementation/SSE/SSEVec4f_inl.h>

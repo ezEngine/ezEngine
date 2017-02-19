@@ -76,30 +76,24 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
   return _mm_xor_ps(m_v, allTrue);
 }
 
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet()
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  return _mm_test_all_ones(_mm_castps_si128(m_v)) != 0;
-#else
-  return _mm_movemask_ps(m_v) == 0xF;
-#endif
+  const int mask = EZ_BIT(N) - 1;
+  return (_mm_movemask_ps(m_v) & mask) == mask;
 }
 
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet()
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  return _mm_testz_ps(m_v, m_v) == 0;
-#else
-  return _mm_movemask_ps(m_v) != 0;
-#endif
+  const int mask = EZ_BIT(N) - 1;
+  return (_mm_movemask_ps(m_v) & mask) != 0;
 }
 
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet()
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  return _mm_testz_ps(m_v, m_v) != 0;
-#else
-  return _mm_movemask_ps(m_v) == 0;
-#endif
+  const int mask = EZ_BIT(N) - 1;
+  return (_mm_movemask_ps(m_v) & mask) == 0;
 }
 
