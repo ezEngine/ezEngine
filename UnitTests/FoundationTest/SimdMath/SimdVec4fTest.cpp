@@ -4,7 +4,7 @@
 
 namespace
 {
-  static bool AllCompSame(ezSimdFloat a)
+  static bool AllCompSame(const ezSimdFloat& a)
   {
     // Make sure all components are the same
     ezSimdVec4f test; test.m_v = a.m_v;
@@ -12,7 +12,7 @@ namespace
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestLength(const ezSimdVec4f& a, float r[4], ezSimdFloat eps)
+  static void TestLength(const ezSimdVec4f& a, float r[4], const ezSimdFloat& eps)
   {
     ezSimdFloat l1 = a.GetLength<1, acc>();
     ezSimdFloat l2 = a.GetLength<2, acc>();
@@ -29,7 +29,7 @@ namespace
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestInvLength(const ezSimdVec4f& a, float r[4], ezSimdFloat eps)
+  static void TestInvLength(const ezSimdVec4f& a, float r[4], const ezSimdFloat& eps)
   {
     ezSimdFloat l1 = a.GetInvLength<1, acc>();
     ezSimdFloat l2 = a.GetInvLength<2, acc>();
@@ -46,7 +46,7 @@ namespace
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestNormalize(const ezSimdVec4f& a, ezSimdVec4f n[4], ezSimdFloat r[4], ezSimdFloat eps)
+  static void TestNormalize(const ezSimdVec4f& a, ezSimdVec4f n[4], ezSimdFloat r[4], const ezSimdFloat& eps)
   {
     ezSimdVec4f n1 = a.GetNormalized<1, acc>();
     ezSimdVec4f n2 = a.GetNormalized<2, acc>();
@@ -99,7 +99,7 @@ namespace
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestNormalizeIfNotZero(const ezSimdVec4f& a, ezSimdVec4f n[4], ezSimdFloat eps)
+  static void TestNormalizeIfNotZero(const ezSimdVec4f& a, ezSimdVec4f n[4], const ezSimdFloat& eps)
   {
     ezSimdVec4f a1 = a; a1.NormalizeIfNotZero<1>(eps);
     ezSimdVec4f a2 = a; a2.NormalizeIfNotZero<2>(eps);
