@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
+#include <Foundation/Strings/String.h>
 #include <Core/Basics.h>
 
 #include <Windows.Applicationmodel.h>
@@ -31,7 +32,11 @@ public:
   virtual HRESULT __stdcall Uninitialize() override;
 
 private:
+  HRESULT OnActivated(ABI::Windows::ApplicationModel::Core::ICoreApplicationView*, ABI::Windows::ApplicationModel::Activation::IActivatedEventArgs* args);
+  
   ezApplication* m_application;
+  EventRegistrationToken m_activateRegistrationToken;
+  ezDynamicArray<ezString> m_commandLineArgs;
 };
 
 #endif

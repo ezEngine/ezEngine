@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 /// \file
@@ -11,7 +11,7 @@ extern EZ_CORE_DLL ezResult ezUWPRun(ezApplication* pApp);
 namespace Details
 {
   template<typename AppClass, typename ...Args>
-  int EntryFunc(int argc, const char** argv, Args&&... arguments)
+  int EntryFunc(Args&&... arguments)
   {
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
 
@@ -22,8 +22,6 @@ namespace Details
     }
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
-    if(argc)
-      pApp->SetCommandLineArguments((ezUInt32)argc, argv);
 
     ezUWPRun(pApp);
 
@@ -47,7 +45,7 @@ namespace Details
   \
   int main(int argc, const char** argv) \
   { \
-    Details::EntryFunc<AppClass>(argc, argv, __VA_ARGS__); \
+    Details::EntryFunc<AppClass>(__VA_ARGS__); \
   }
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
@@ -57,5 +55,5 @@ namespace Details
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...) \
   int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
   { \
-    return Details::EntryFunc<AppClass>(0, nullptr, __VA_ARGS__); \
+    return Details::EntryFunc<AppClass>(__VA_ARGS__); \
   }

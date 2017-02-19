@@ -1,9 +1,12 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <Core/Application/Implementation/uwp/Application_uwp.h>
 #include <Core/Application/Application.h>
+#include <Foundation/Strings/StringConversion.h>
+#include <Foundation/IO/OSFile.h>
 
+#include <wrl/event.h>
 #include <windows.ui.core.h>
 
 ezUwpApplication::ezUwpApplication(ezApplication* application)
@@ -21,8 +24,11 @@ HRESULT ezUwpApplication::CreateView(IFrameworkView** viewProvider)
   return S_OK;
 }
 
-HRESULT ezUwpApplication::Initialize(ICoreApplicationView * applicationView)
+HRESULT ezUwpApplication::Initialize(ICoreApplicationView* applicationView)
 {
+  typedef __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs ActivatedHandler;
+  EZ_SUCCEED_OR_RETURN_HRESULT(applicationView->add_Activated(Callback<ActivatedHandler>(this, &ezUwpApplication::OnActivated).Get(), &m_activateRegistrationToken));
+
   return S_OK;
 }
 
@@ -44,6 +50,52 @@ HRESULT ezUwpApplication::Run()
 
 HRESULT ezUwpApplication::Uninitialize()
 {
+  return S_OK;
+}
+
+HRESULT ezUwpApplication::OnActivated(ABI::Windows::ApplicationModel::Core::ICoreApplicationView* view, ABI::Windows::ApplicationModel::Activation::IActivatedEventArgs* args)
+{
+  ABI::Windows::ApplicationModel::Activation::ActivationKind activationKind;
+  EZ_SUCCEED_OR_RETURN_HRESULT(args->get_Kind(&activationKind));
+
+  if (activationKind == ABI::Windows::ApplicationModel::Activation::ActivationKind_Launch)
+  {
+    ComPtr<ABI::Windows::ApplicationModel::Activation::ILaunchActivatedEventArgs> launchArgs;
+    EZ_SUCCEED_OR_RETURN_HRESULT(args->QueryInterface(launchArgs.GetAddressOf()));
+    HString argHString;
+    EZ_SUCCEED_OR_RETURN_HRESULT(launchArgs->get_Arguments(argHString.GetAddressOf()));
+
+    // Add application dir as first argument as customary on other platforms.
+    m_commandLineArgs.Clear();
+    m_commandLineArgs.PushBack(ezOSFile::GetApplicationDirectory());
+    // Simple args splitting. Not as powerful as Win32's CommandLineToArgvW.
+    ezStringUtf8 argUtf8String(argHString);
+    const char* currentChar = argUtf8String.GetData();
+    const char* lastEnd = currentChar;
+    bool inQuotes = false;
+    while (*currentChar != '\0')
+    {
+      if (*currentChar == '\"')
+        inQuotes = !inQuotes;
+      else if (*currentChar == ' ' && !inQuotes)
+      {
+        m_commandLineArgs.PushBack(ezStringView(lastEnd, currentChar));
+        lastEnd = currentChar;
+      }
+      ezUnicodeUtils::MoveToNextUtf8(currentChar);
+    }
+
+    ezDynamicArray<const char*> argv;
+    argv.Reserve(m_commandLineArgs.GetCount());
+    for (ezString& str : m_commandLineArgs)
+      argv.PushBack(str.GetData());
+
+    m_application->SetCommandLineArguments(argv.GetCount(), argv.GetData());
+
+    view->remove_Activated(m_activateRegistrationToken);
+  }
+
+
   return S_OK;
 }
 
