@@ -1,0 +1,60 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9669569387371063982,5447127060601251250}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9669569387371063982,5447127060601251250}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
+		b %Compression{1}
+		s %Input1{"Particles/Textures/Electric.tga"}
+		s %Input2{"Particles/Textures/Electric_A.tga"}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::LowQuality"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{279970371350006561,6420449116315854195}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Particles/Textures/Electric.tga"}
+			s{"Particles/Textures/Electric_A.tga"}
+		}
+		Uuid %DocumentID{u4{279970371350006561,6420449116315854195}}
+		u4 %Hash{16671765946196408073}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+}
+Types{}

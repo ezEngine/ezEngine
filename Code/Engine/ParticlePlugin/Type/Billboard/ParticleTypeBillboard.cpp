@@ -17,6 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefault
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("Opacity", m_fOpacity)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES
 }
@@ -36,6 +37,7 @@ void ezParticleTypeBillboardFactory::CopyTypeProperties(ezParticleType* pObject)
   ezParticleTypeBillboard* pType = static_cast<ezParticleTypeBillboard*>(pObject);
 
   pType->m_hTexture.Invalidate();
+  pType->m_fOpacity = m_fOpacity;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -46,6 +48,7 @@ enum class TypeBillboardVersion
   Version_0 = 0,
   Version_1,
   Version_2, // added texture
+  Version_3, // added opacity
 
   // insert new version numbers above
   Version_Count,
@@ -58,6 +61,7 @@ void ezParticleTypeBillboardFactory::Save(ezStreamWriter& stream) const
   stream << uiVersion;
 
   stream << m_sTexture;
+  stream << m_fOpacity;
 }
 
 void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
@@ -70,6 +74,11 @@ void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
   if (uiVersion >= 2)
   {
     stream >> m_sTexture;
+  }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_fOpacity;
   }
 }
 
@@ -128,6 +137,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleBillboardRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
+  pRenderData->m_fOpacity = m_fOpacity;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_ParticleData = m_ParticleData;
 

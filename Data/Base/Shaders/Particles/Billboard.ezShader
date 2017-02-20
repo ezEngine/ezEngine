@@ -6,8 +6,8 @@ ALL
 [RENDERSTATE]
 
 BlendingEnabled0 = true
-DestBlend0 = Blend_One
-SourceBlend0 = Blend_InvSrcAlpha
+SourceBlend0 = Blend_One
+DestBlend0 = Blend_InvSrcAlpha
 
 DepthTest = true
 DepthWrite = false
@@ -74,6 +74,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 #define USE_COLOR
 
 #include <Shaders/Materials/MaterialInterpolator.h>
+#include "ParticleSystemConstants.h"
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -84,7 +85,7 @@ float4 main(PS_IN Input) : SV_Target
 {
   float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
 
-  return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
+  return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a * ParticleOpacity);
 }
 
 #endif

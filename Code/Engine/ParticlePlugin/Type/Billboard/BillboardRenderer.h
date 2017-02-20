@@ -18,6 +18,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBillboardRenderData, ezRenderData);
 
 public:
+  float m_fOpacity;
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezBillboardParticleData> m_ParticleData;
 };

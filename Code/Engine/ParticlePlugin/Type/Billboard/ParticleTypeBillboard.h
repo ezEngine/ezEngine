@@ -20,6 +20,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sTexture;
+  float m_fOpacity = 0;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeBillboard : public ezParticleType
@@ -32,6 +33,7 @@ public:
   virtual void CreateRequiredStreams() override;
 
   ezTexture2DResourceHandle m_hTexture;
+  float m_fOpacity = 0;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 

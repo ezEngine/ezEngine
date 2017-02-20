@@ -88,6 +88,7 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
     {
       ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
       cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+      cb.ParticleOpacity = pRenderData->m_fOpacity;
     }
 
     while (uiNumParticles > 0)

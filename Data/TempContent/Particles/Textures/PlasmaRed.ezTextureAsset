@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{104150515546721672,4824860388845839080}}
+	Uuid %id{u4{16422279237286382603,1024127726547563280}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,10 +11,11 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Textures/Flare.tga"}
+			s{"Particles/Textures/PlasmaRed.tga"}
+			s{"Particles/Textures/PlasmaRed_A.tga"}
 		}
-		Uuid %DocumentID{u4{104150515546721672,4824860388845839080}}
-		u4 %Hash{6527938115631071590}
+		Uuid %DocumentID{u4{16422279237286382603,1024127726547563280}}
+		u4 %Hash{8105547829258038951}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -29,13 +30,13 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{16014783439079582647,5749052309093369142}}
+			Uuid{u4{9669569387371063982,5447127060601251250}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{16014783439079582647,5749052309093369142}}
+	Uuid %id{u4{9669569387371063982,5447127060601251250}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -44,14 +45,14 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
-		b %Compression{0}
-		s %Input1{"Textures/Flare.tga"}
-		s %Input2{"Textures/Flare.tga"}
+		b %Compression{1}
+		s %Input1{"Particles/Textures/PlasmaRed.tga"}
+		s %Input2{"Particles/Textures/PlasmaRed_A.tga"}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %TextureFilter{"ezTextureFilterSetting::LowQuality"}
 		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
