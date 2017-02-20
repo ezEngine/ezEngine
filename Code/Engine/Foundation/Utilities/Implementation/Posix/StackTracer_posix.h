@@ -10,7 +10,7 @@
 #include <Foundation/Math/Math.h>
 
 //static
-ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, bool bWithinException)
+ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 {
   int iSymbols = backtrace(trace.GetPtr(), trace.GetCount());
 

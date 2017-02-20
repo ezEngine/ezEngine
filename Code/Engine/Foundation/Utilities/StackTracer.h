@@ -9,9 +9,9 @@ public:
   /// \brief Captures the current stack trace.
   ///
   /// The trace will contain not more than trace.GetCount() entries.
-  /// If called in an exception handler, set bWithinException to true.
+  /// [Windows] If called in an exception handler, set pContext to PEXCEPTION_POINTERS::ContextRecord.
   /// Returns the actual number of captured entries.
-  static ezUInt32 GetStackTrace(ezArrayPtr<void*>& trace, bool bWithinException = false);
+  static ezUInt32 GetStackTrace(ezArrayPtr<void*>& trace, void* pContext = nullptr);
 
   /// \brief Callback-function to print a text somewhere
   typedef void (*PrintFunc)(const char* szText);

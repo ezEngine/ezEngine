@@ -11,7 +11,7 @@
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, HRESULT result)
 {
   _com_error error(result, nullptr);
-  const wchar_t* messageW = error.ErrorMessage();
+  auto messageW = error.ErrorMessage();
 
   // Com error tends to put /r/n at the end. Remove it.
   ezStringBuilder message(ezStringUtf8(messageW).GetData());

@@ -190,15 +190,13 @@ namespace
 }
 
 //static
-ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, bool bWithinException)
+ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 {
   Initialize();
-  const ezUInt32 uiSkip = 1;
 
-  if (bWithinException && s_pImplementation->stackWalk)
+  if (pContext && s_pImplementation->stackWalk)
   {
-    CONTEXT context;
-    RtlCaptureContext(&context);
+    CONTEXT& context = *static_cast<PCONTEXT>(pContext);
 
     DWORD machine_type;
     STACKFRAME64 frame;
@@ -213,37 +211,32 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, bool bWithinExce
     machine_type = IMAGE_FILE_MACHINE_AMD64;
 #else
     frame.AddrPC.Offset = context.Eip;
-    frame.AddrPC.Offset = context.Ebp;
-    frame.AddrPC.Offset = context.Esp;
+    frame.AddrFrame.Offset = context.Ebp;
+    frame.AddrStack.Offset = context.Esp;
     machine_type = IMAGE_FILE_MACHINE_I386;
 #endif
-    for (ezUInt32 i = 0; i < trace.GetCount() + uiSkip; i++)
+    for (ezInt32 i = 0; i < (ezInt32)trace.GetCount(); i++)
     {
       if (s_pImplementation->stackWalk(machine_type, GetCurrentProcess(), GetCurrentThread(),
         &frame, &context, NULL, s_pImplementation->getFunctionTableAccess, s_pImplementation->getModuleBase, NULL))
       {
-        if (i >= uiSkip)
-        {
-          trace[i - uiSkip] = reinterpret_cast<void*>(frame.AddrPC.Offset);
-        }
+          trace[i] = reinterpret_cast<void*>(frame.AddrPC.Offset);
       }
       else
       {
-        return (i > uiSkip) ? (i - uiSkip - 1) : 0;
+        // skip the last three stack-frames since they are useless
+        return ezMath::Max(i - 4, 0);
       }
     }
   }
-  else
+  else if (s_pImplementation->captureStackBackTrace != nullptr)
   {
-    if (s_pImplementation->captureStackBackTrace != nullptr)
-    {
+    const ezUInt32 uiSkip = 1;
+    const ezUInt32 uiMaxNumTrace = ezMath::Min(62U, trace.GetCount());
+    ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, trace.GetPtr(), nullptr);
 
-      const ezUInt32 uiMaxNumTrace = ezMath::Min(62U, trace.GetCount());
-      ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, trace.GetPtr(), nullptr);
-
-      // skip the last three stack-frames since they are useless
-      return ezMath::Max(iNumTraces - 3, 0);
-    }
+    // skip the last three stack-frames since they are useless
+    return ezMath::Max(iNumTraces - 3, 0);
   }
 
   return 0;
