@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -88,12 +88,12 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   {
     ComPtr<IDXGIFactory1> dxgiFactory = pDXDevice->GetDXGIFactory();
     ComPtr<IDXGIFactory3> dxgiFactory3;
-    EZ_SUCCEED_OR_RETURN_LOG(dxgiFactory.As(&dxgiFactory3));
+    EZ_HRESULT_TO_FAILURE_LOG(dxgiFactory.As(&dxgiFactory3));
 
     ComPtr<IDXGISwapChain1> swapChain1;
     ComPtr<IDXGISwapChain> swapChain;
-    EZ_SUCCEED_OR_RETURN_LOG(dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1));
-    EZ_SUCCEED_OR_RETURN_LOG(swapChain1.As(&swapChain));
+    EZ_HRESULT_TO_FAILURE_LOG(dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1));
+    EZ_HRESULT_TO_FAILURE_LOG(swapChain1.As(&swapChain));
     m_pDXSwapChain = swapChain.Detach();
   }
 #else

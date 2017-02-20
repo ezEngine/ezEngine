@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -11,6 +11,9 @@ inline ezResult ezToResult(HRESULT result)
   return SUCCEEDED(result) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-/// Return HRESULT if failed.
-#define EZ_SUCCEED_OR_PASS_HRESULT_ON(x) \
-  do { HRESULT h = (x); if(FAILED(h)) return h; } while(false)
+#define EZ_HRESULT_TO_FAILURE(code) \
+  do { HRESULT s = (code); if (FAILED(s)) return EZ_FAILURE; } while(false)
+
+#define EZ_HRESULT_TO_FAILURE_LOG(code) \
+  do { HRESULT s = (code); if (FAILED(s)) { ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), s); return EZ_FAILURE; } } while (false)
+

@@ -52,48 +52,48 @@ ezResult ezWindow::Initialize()
   s_uwpWindowData = EZ_DEFAULT_NEW(ezWindowUwpData);
 
   ComPtr<ABI::Windows::ApplicationModel::Core::ICoreImmersiveApplication> application;
-  EZ_SUCCEED_OR_RETURN(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &application));
+  EZ_HRESULT_TO_FAILURE(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &application));
 
   ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplicationView> mainView;
-  EZ_SUCCEED_OR_RETURN(application->get_MainView(&mainView));
+  EZ_HRESULT_TO_FAILURE(application->get_MainView(&mainView));
 
-  EZ_SUCCEED_OR_RETURN(mainView->get_CoreWindow(&s_uwpWindowData->m_coreWindow));
+  EZ_HRESULT_TO_FAILURE(mainView->get_CoreWindow(&s_uwpWindowData->m_coreWindow));
   m_WindowHandle = s_uwpWindowData->m_coreWindow.Get();
 
-  EZ_SUCCEED_OR_RETURN(s_uwpWindowData->m_coreWindow->Activate());
-  EZ_SUCCEED_OR_RETURN(s_uwpWindowData->m_coreWindow->get_Dispatcher(&s_uwpWindowData->m_dispatcher));
+  EZ_HRESULT_TO_FAILURE(s_uwpWindowData->m_coreWindow->Activate());
+  EZ_HRESULT_TO_FAILURE(s_uwpWindowData->m_coreWindow->get_Dispatcher(&s_uwpWindowData->m_dispatcher));
 
   {
     // Get current *logical* screen DPI to do a pixel correct resize.
     ComPtr<ABI::Windows::Graphics::Display::IDisplayInformationStatics> displayInfoStatics;
-    EZ_SUCCEED_OR_RETURN(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayInformation).Get(), &displayInfoStatics));
+    EZ_HRESULT_TO_FAILURE(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayInformation).Get(), &displayInfoStatics));
     ComPtr<ABI::Windows::Graphics::Display::IDisplayInformation> displayInfo;
-    EZ_SUCCEED_OR_RETURN(displayInfoStatics->GetForCurrentView(&displayInfo));
+    EZ_HRESULT_TO_FAILURE(displayInfoStatics->GetForCurrentView(&displayInfo));
     FLOAT logicalDpi = 1.0f;
-    EZ_SUCCEED_OR_RETURN(displayInfo->get_LogicalDpi(&logicalDpi));
+    EZ_HRESULT_TO_FAILURE(displayInfo->get_LogicalDpi(&logicalDpi));
 
     // Need application view for the next steps...
     ComPtr<ABI::Windows::UI::ViewManagement::IApplicationViewStatics2> appViewStatics;
-    EZ_SUCCEED_OR_RETURN(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_ViewManagement_ApplicationView).Get(), &appViewStatics));
+    EZ_HRESULT_TO_FAILURE(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_ViewManagement_ApplicationView).Get(), &appViewStatics));
     ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView> appView;
-    EZ_SUCCEED_OR_RETURN(appViewStatics->GetForCurrentView(&appView));
+    EZ_HRESULT_TO_FAILURE(appViewStatics->GetForCurrentView(&appView));
     ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView3> appView3;
-    EZ_SUCCEED_OR_RETURN(appView.As(&appView3));
+    EZ_HRESULT_TO_FAILURE(appView.As(&appView3));
 
     // Request/remove fullscreen from window if requested.
     boolean isFullscreen;
-    EZ_SUCCEED_OR_RETURN(appView3->get_IsFullScreenMode(&isFullscreen));
+    EZ_HRESULT_TO_FAILURE(appView3->get_IsFullScreenMode(&isFullscreen));
     if ((isFullscreen > 0) != ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode))
     {
       if (ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode))
       {
-        EZ_SUCCEED_OR_RETURN(appView3->TryEnterFullScreenMode(&isFullscreen));
+        EZ_HRESULT_TO_FAILURE(appView3->TryEnterFullScreenMode(&isFullscreen));
         if (!isFullscreen)
           ezLog::Warning("Failed to enter full screen mode.");
       }
       else
       {
-        EZ_SUCCEED_OR_RETURN(appView3->ExitFullScreenMode());
+        EZ_HRESULT_TO_FAILURE(appView3->ExitFullScreenMode());
       }
     }
 
@@ -104,7 +104,7 @@ ezResult ezWindow::Initialize()
       ABI::Windows::Foundation::Size size;
       size.Width = m_CreationDescription.m_Resolution.width * 96.0f / logicalDpi;
       size.Height = m_CreationDescription.m_Resolution.height * 96.0f / logicalDpi;
-      EZ_SUCCEED_OR_RETURN(appView3->TryResizeView(size, &successfulResize));
+      EZ_HRESULT_TO_FAILURE(appView3->TryResizeView(size, &successfulResize));
       if (!successfulResize)
       {
         ezLog::Warning("Failed to resize the window to {0}x{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);

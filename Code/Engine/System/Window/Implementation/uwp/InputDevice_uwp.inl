@@ -98,7 +98,7 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
   // Closely related to the RawInput implementation in Win32/InputDevice_win32.inl
 
   CorePhysicalKeyStatus keyStatus;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_KeyStatus(&keyStatus));
+  EZ_SUCCEED_OR_RETURN(args->get_KeyStatus(&keyStatus));
 
   static bool bWasStupidLeftShift = false;
 
@@ -141,7 +141,7 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
 HRESULT ezStandardInputDevice::OnCharacterReceived(ICoreWindow* coreWindow, ICharacterReceivedEventArgs* args)
 {
   UINT32 keyCode = 0;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_KeyCode(&keyCode));
+  EZ_SUCCEED_OR_RETURN(args->get_KeyCode(&keyCode));
   m_LastCharacter = keyCode;
 
   return S_OK;
@@ -152,19 +152,19 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_CurrentPoint(&pointerPoint));
+  EZ_SUCCEED_OR_RETURN(args->get_CurrentPoint(&pointerPoint));
   ComPtr<IPointerDevice> pointerDevice;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_PointerDevice(&pointerDevice));
+  EZ_SUCCEED_OR_RETURN(pointerPoint->get_PointerDevice(&pointerDevice));
   PointerDeviceType deviceType;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerDevice->get_PointerDeviceType(&deviceType));
+  EZ_SUCCEED_OR_RETURN(pointerDevice->get_PointerDeviceType(&deviceType));
 
   // Pointer position.
   // From the documention: "The position of the pointer in device-independent pixel (DIP)."
   // Note also, that there is "raw position" which may be free of pointer prediction etc.
   ABI::Windows::Foundation::Point pointerPosition;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_Position(&pointerPosition));
+  EZ_SUCCEED_OR_RETURN(pointerPoint->get_Position(&pointerPosition));
   ABI::Windows::Foundation::Rect windowRectangle;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(coreWindow->get_Bounds(&windowRectangle)); // Bounds are in DIP as well!
+  EZ_SUCCEED_OR_RETURN(coreWindow->get_Bounds(&windowRectangle)); // Bounds are in DIP as well!
   
   float relativePosX = static_cast<float>(pointerPosition.X) / windowRectangle.Width;
   float relativePosY = static_cast<float>(pointerPosition.Y) / windowRectangle.Height;
@@ -179,13 +179,13 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
     m_InputSlotValues[ezInputSlot_MousePositionX] = relativePosX;
     m_InputSlotValues[ezInputSlot_MousePositionY] = relativePosY;
 
-    EZ_SUCCEED_OR_PASS_HRESULT_ON(UpdateMouseButtonStates(pointerPoint.Get()));
+    EZ_SUCCEED_OR_RETURN(UpdateMouseButtonStates(pointerPoint.Get()));
   }
   else // Touch AND Pen
   {
     // WinRT treats each touch point as unique pointer.
     UINT32 pointerId;
-    EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_PointerId(&pointerId));
+    EZ_SUCCEED_OR_RETURN(pointerPoint->get_PointerId(&pointerId));
     if (pointerId > 9)
       return S_OK;
 
@@ -203,25 +203,25 @@ HRESULT ezStandardInputDevice::OnPointerWheelChange(ICoreWindow* coreWindow, IPo
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_CurrentPoint(&pointerPoint));
+  EZ_SUCCEED_OR_RETURN(args->get_CurrentPoint(&pointerPoint));
   ComPtr<IPointerDevice> pointerDevice;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_PointerDevice(&pointerDevice));
+  EZ_SUCCEED_OR_RETURN(pointerPoint->get_PointerDevice(&pointerDevice));
 
   // Only interested in mouse devices.
   PointerDeviceType deviceType;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerDevice->get_PointerDeviceType(&deviceType));
+  EZ_SUCCEED_OR_RETURN(pointerDevice->get_PointerDeviceType(&deviceType));
   if (deviceType == PointerDeviceType_Mouse)
   {
     ComPtr<ABI::Windows::UI::Input::IPointerPointProperties> properties;
-    EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_Properties(&properties));
+    EZ_SUCCEED_OR_RETURN(pointerPoint->get_Properties(&properties));
 
     // .. and only vertical wheels.
     boolean isHorizontalWheel;
-    EZ_SUCCEED_OR_PASS_HRESULT_ON(properties->get_IsHorizontalMouseWheel(&isHorizontalWheel));
+    EZ_SUCCEED_OR_RETURN(properties->get_IsHorizontalMouseWheel(&isHorizontalWheel));
     if (!isHorizontalWheel)
     {
       INT32 delta;
-      EZ_SUCCEED_OR_PASS_HRESULT_ON(properties->get_MouseWheelDelta(&delta));
+      EZ_SUCCEED_OR_RETURN(properties->get_MouseWheelDelta(&delta));
 
       if (delta > 0)
         m_InputSlotValues[ezInputSlot_MouseWheelUp] = delta / 120.0f;
@@ -238,23 +238,23 @@ HRESULT ezStandardInputDevice::OnPointerReleasedOrExited(ICoreWindow* coreWindow
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_CurrentPoint(&pointerPoint));
+  EZ_SUCCEED_OR_RETURN(args->get_CurrentPoint(&pointerPoint));
   ComPtr<IPointerDevice> pointerDevice;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_PointerDevice(&pointerDevice));
+  EZ_SUCCEED_OR_RETURN(pointerPoint->get_PointerDevice(&pointerDevice));
   PointerDeviceType deviceType;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerDevice->get_PointerDeviceType(&deviceType));
+  EZ_SUCCEED_OR_RETURN(pointerDevice->get_PointerDeviceType(&deviceType));
 
   if (deviceType == PointerDeviceType_Mouse)
   {
     // Note that the relased event is only fired if the last mouse button is released according to documentation.
     // However, we're also subscribing to exit and depending on the mouse capture this may or may not be a button release.
-    EZ_SUCCEED_OR_PASS_HRESULT_ON(UpdateMouseButtonStates(pointerPoint.Get()));
+    EZ_SUCCEED_OR_RETURN(UpdateMouseButtonStates(pointerPoint.Get()));
   }
   else // Touch AND Pen
   {
     // WinRT treats each touch point as unique pointer.
     UINT32 pointerId;
-    EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_PointerId(&pointerId));
+    EZ_SUCCEED_OR_RETURN(pointerPoint->get_PointerId(&pointerId));
     if (pointerId > 9)
       return S_OK;
 
@@ -269,11 +269,11 @@ HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPo
   using namespace ABI::Windows::Devices::Input;
 
   ComPtr<ABI::Windows::UI::Input::IPointerPoint> pointerPoint;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_CurrentPoint(&pointerPoint));
+  EZ_SUCCEED_OR_RETURN(args->get_CurrentPoint(&pointerPoint));
   ComPtr<IPointerDevice> pointerDevice;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_PointerDevice(&pointerDevice));
+  EZ_SUCCEED_OR_RETURN(pointerPoint->get_PointerDevice(&pointerDevice));
   PointerDeviceType deviceType;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerDevice->get_PointerDeviceType(&deviceType));
+  EZ_SUCCEED_OR_RETURN(pointerDevice->get_PointerDeviceType(&deviceType));
 
   if (deviceType == PointerDeviceType_Mouse)
   {
@@ -287,7 +287,7 @@ HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPo
   {
     // WinRT treats each touch point as unique pointer.
     UINT32 pointerId;
-    EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_PointerId(&pointerId));
+    EZ_SUCCEED_OR_RETURN(pointerPoint->get_PointerId(&pointerId));
     if (pointerId > 9)
       return S_OK;
 
@@ -300,7 +300,7 @@ HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPo
 HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice, ABI::Windows::Devices::Input::IMouseEventArgs* args)
 {
   ABI::Windows::Devices::Input::MouseDelta mouseDelta;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(args->get_MouseDelta(&mouseDelta));
+  EZ_SUCCEED_OR_RETURN(args->get_MouseDelta(&mouseDelta));
 
   m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((mouseDelta.X < 0) ? static_cast<float>(-mouseDelta.X) : 0.0f) * GetMouseSpeed().x;
   m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((mouseDelta.X > 0) ? static_cast<float>(mouseDelta.X) : 0.0f) * GetMouseSpeed().x;
@@ -313,18 +313,18 @@ HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouse
 HRESULT ezStandardInputDevice::UpdateMouseButtonStates(ABI::Windows::UI::Input::IPointerPoint* pointerPoint)
 {
   ComPtr<ABI::Windows::UI::Input::IPointerPointProperties> properties;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(pointerPoint->get_Properties(&properties));
+  EZ_SUCCEED_OR_RETURN(pointerPoint->get_Properties(&properties));
 
   boolean isPressed;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(properties->get_IsLeftButtonPressed(&isPressed));
+  EZ_SUCCEED_OR_RETURN(properties->get_IsLeftButtonPressed(&isPressed));
   m_InputSlotValues[ezInputSlot_MouseButton0] = isPressed ? 1.0f : 0.0f;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(properties->get_IsRightButtonPressed(&isPressed));
+  EZ_SUCCEED_OR_RETURN(properties->get_IsRightButtonPressed(&isPressed));
   m_InputSlotValues[ezInputSlot_MouseButton1] = isPressed ? 1.0f : 0.0f;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(properties->get_IsMiddleButtonPressed(&isPressed));
+  EZ_SUCCEED_OR_RETURN(properties->get_IsMiddleButtonPressed(&isPressed));
   m_InputSlotValues[ezInputSlot_MouseButton2] = isPressed ? 1.0f : 0.0f;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(properties->get_IsXButton1Pressed(&isPressed));
+  EZ_SUCCEED_OR_RETURN(properties->get_IsXButton1Pressed(&isPressed));
   m_InputSlotValues[ezInputSlot_MouseButton3] = isPressed ? 1.0f : 0.0f;
-  EZ_SUCCEED_OR_PASS_HRESULT_ON(properties->get_IsXButton2Pressed(&isPressed));
+  EZ_SUCCEED_OR_RETURN(properties->get_IsXButton2Pressed(&isPressed));
   m_InputSlotValues[ezInputSlot_MouseButton4] = isPressed ? 1.0f : 0.0f;
 
   return S_OK;

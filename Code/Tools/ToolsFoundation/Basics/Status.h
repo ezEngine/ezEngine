@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -40,4 +40,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
   ezString m_sMessage;
 };
 
-
+inline ezResult ezToResult(const ezStatus& result)
+{
+  return result.m_Result;
+}
