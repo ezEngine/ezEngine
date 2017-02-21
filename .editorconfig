@@ -12,7 +12,7 @@ indent_style = space
 trim_trailing_whitespace = true
 
 # additional settings for code files
-[*.{cpp,h,inl,c,d,qrc,lua}]
+[*.{cpp,h,inl,c,d,qrc,lua,cs}]
 indent_size = 2
 end_of_line = lf
 insert_final_newline = true
