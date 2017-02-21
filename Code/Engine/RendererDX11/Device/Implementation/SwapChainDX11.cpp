@@ -9,6 +9,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+  #include <RendererDX11/Context/ContextDX11.h>
   #include <dxgi1_3.h>
 #endif
 
@@ -35,8 +36,8 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
     ezLog::Warning("Swap chain must be double buffered for UWP. Ignoring setting.");
   SwapChainDesc.BufferCount = 2;
 
-  // Only allowed mode for UWP.
-  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+  // Only allowed mode for UWP are the more efficient FLIP_SEQUENTIAL and the even better FLIP_DISCARD
+  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
   //SwapChainDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_BackBufferFormat).m_eRenderTarget;
   //
@@ -70,7 +71,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
   SwapChainDesc.SampleDesc.Count = m_Description.m_SampleCount; SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_Description
   SwapChainDesc.OutputWindow = m_Description.m_pWindow->GetNativeWindowHandle();
-  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
   SwapChainDesc.Windowed = m_Description.m_pWindow->IsFullscreenWindow() ? FALSE : TRUE;
 
   /// \todo Get from enumeration of available modes
@@ -92,7 +93,22 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
     ComPtr<IDXGISwapChain1> swapChain1;
     ComPtr<IDXGISwapChain> swapChain;
-    EZ_HRESULT_TO_FAILURE_LOG(dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1));
+    HRESULT result = dxgiFactory3->CreateSwapChainForCoreWindow(pDXDevice->GetDXDevice(), m_Description.m_pWindow->GetNativeWindowHandle(), &SwapChainDesc, nullptr, &swapChain1);
+    if (FAILED(result))
+    {
+      if (result == E_ACCESSDENIED)
+      {
+        ezLog::Error("Failed to create swapchain: {0}. This may happen when the old swap chain is still in use. "
+                     "Make sure all resources referencing the swap chain were destroyed, keepping in mind the 'Deferred Destruction' that applies with FLIP swapchains. "
+                     "https://msdn.microsoft.com/en-us/library/windows/desktop/ff476425(v=vs.85).aspx#Defer_Issues_with_Flip", result);
+      }
+      else
+      {
+        ezLog::Error("Failed to create swapchain: {0}", result);
+      }
+
+      return EZ_FAILURE;
+    }
     EZ_HRESULT_TO_FAILURE_LOG(swapChain1.As(&swapChain));
     m_pDXSwapChain = swapChain.Detach();
   }
@@ -146,6 +162,9 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  pDevice->DestroyTexture(m_hBackBufferTexture);
+  m_hBackBufferTexture.Invalidate();
+
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Full screen swap chains must be switched to windowed mode before destruction.
   // See: https://msdn.microsoft.com/en-us/library/windows/desktop/bb205075(v=vs.85).aspx#Destroying

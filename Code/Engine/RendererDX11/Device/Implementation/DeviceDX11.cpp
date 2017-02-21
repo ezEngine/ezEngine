@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -222,6 +222,20 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
     DestroyFencePlatform(m_EndFrameFences[i].m_pFence);
     m_EndFrameFences[i].m_pFence = nullptr;
   }
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // Force immediate destruction of all objects destroyed so far.
+  // This is necessary if we want to create a new primary swap chain/device right after this.
+  // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476425(v=vs.85).aspx#Defer_Issues_with_Flip
+  // Strictly speaking we should do this right after we destroy the swap chain and flush all contexts that are affected.
+  // However, the particular usecase where this problem comes up is usually a restart scenario.
+  ezGALContextDX11* primaryContextDX = static_cast<ezGALContextDX11*>(m_pPrimaryContext);
+  if (primaryContextDX)
+  {
+    primaryContextDX->GetDXContext()->ClearState();
+    primaryContextDX->GetDXContext()->Flush();
+  }
+#endif
 
   EZ_DELETE(&m_Allocator, m_pPrimaryContext);
 

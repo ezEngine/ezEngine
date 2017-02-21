@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
@@ -158,8 +158,10 @@ ezResult ezGALDevice::Shutdown()
   // If we created a primary swap chain, release it
   if (!m_hPrimarySwapChain.IsInvalidated())
   {
-    DestroySwapChain(m_hPrimarySwapChain);
+    // DestroySwapChain usually warns for destroying the primary swap chain.
+    auto handle = m_hPrimarySwapChain;
     m_hPrimarySwapChain.Invalidate();
+    DestroySwapChain(handle);
   }
 
   DestroyDeadObjects();
