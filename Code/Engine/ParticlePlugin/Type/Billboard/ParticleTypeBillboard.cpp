@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefault
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_MEMBER_PROPERTY("Opacity", m_fOpacity)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES
 }
@@ -37,7 +37,7 @@ void ezParticleTypeBillboardFactory::CopyTypeProperties(ezParticleType* pObject)
   ezParticleTypeBillboard* pType = static_cast<ezParticleTypeBillboard*>(pObject);
 
   pType->m_hTexture.Invalidate();
-  pType->m_fOpacity = m_fOpacity;
+  pType->m_RenderMode = m_RenderMode;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -49,6 +49,7 @@ enum class TypeBillboardVersion
   Version_1,
   Version_2, // added texture
   Version_3, // added opacity
+  Version_4, // added render mode
 
   // insert new version numbers above
   Version_Count,
@@ -61,7 +62,7 @@ void ezParticleTypeBillboardFactory::Save(ezStreamWriter& stream) const
   stream << uiVersion;
 
   stream << m_sTexture;
-  stream << m_fOpacity;
+  stream << m_RenderMode;
 }
 
 void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
@@ -76,9 +77,15 @@ void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
     stream >> m_sTexture;
   }
 
-  if (uiVersion >= 3)
+  if (uiVersion == 3)
   {
-    stream >> m_fOpacity;
+    float fOpacity;
+    stream >> fOpacity;
+  }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_RenderMode;
   }
 }
 
@@ -137,7 +144,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleBillboardRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_fOpacity = m_fOpacity;
+  pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_ParticleData = m_ParticleData;
 

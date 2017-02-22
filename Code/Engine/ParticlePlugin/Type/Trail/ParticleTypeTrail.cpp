@@ -16,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_MEMBER_PROPERTY("Segments", m_uiMaxPoints)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 64)),
     //EZ_MEMBER_PROPERTY("UpdateTime", m_UpdateDiff)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(50)), new ezClampValueAttribute(ezTime::Milliseconds(20), ezTime::Milliseconds(300))),
@@ -36,6 +37,7 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject) con
 {
   ezParticleTypeTrail* pType = static_cast<ezParticleTypeTrail*>(pObject);
 
+  pType->m_RenderMode = m_RenderMode;
   pType->m_uiMaxPoints = m_uiMaxPoints;
   pType->m_hTexture.Invalidate();
 
@@ -50,6 +52,7 @@ enum class TypeTrailVersion
 {
   Version_0 = 0,
   Version_1,
+  Version_2, // added render mode
 
   // insert new version numbers above
   Version_Count,
@@ -64,6 +67,7 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& stream) const
   stream << m_sTexture;
   stream << m_uiMaxPoints;
   stream << m_UpdateDiff;
+  stream << m_RenderMode;
 }
 
 void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
@@ -76,6 +80,11 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
   stream >> m_sTexture;
   stream >> m_uiMaxPoints;
   stream >> m_UpdateDiff;
+
+  if (uiVersion >= (int)TypeTrailVersion::Version_2)
+  {
+    stream >> m_RenderMode;
+  }
 }
 
 
@@ -172,6 +181,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash() + m_uiMaxPoints;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr, uiBatchId);
 
+  pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;
   pRenderData->m_hTexture = m_hTexture;

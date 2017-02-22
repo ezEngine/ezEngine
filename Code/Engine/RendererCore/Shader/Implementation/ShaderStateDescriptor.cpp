@@ -275,6 +275,9 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
     for (const ezStringView& ass : allAssignments)
     {
       temp1 = ass;
+      temp1.Trim(" \t\r\n;");
+      if (temp1.IsEmpty())
+        continue;
 
       temp1.Split(false, components, " ", "\t", "=", "\r");
 

@@ -47,3 +47,9 @@ ezParticleRaycastHitReaction::Bounce;Bounce
 ezParticleRaycastHitReaction::Die;Die
 ezFragmentAxis::OrthogonalEmitterDirection;Orthogonal to Emitter
 ezFragmentAxis::EmitterDirection;Emitter Direction
+ezParticleTypeRenderMode::Additive;Additive
+ezParticleTypeRenderMode::Blended;Blended
+ezParticleTypeRenderMode::Opaque;Opaque
+ezSpriteAxis::EmitterDirection;Emitter Direction
+ezSpriteAxis::WorldUp;World Up
+ezSpriteAxis::Random;Random

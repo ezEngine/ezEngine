@@ -82,6 +82,19 @@ void ezParticleSpriteRenderer::RenderBatch(const ezRenderViewContext& renderView
 
     const ezSpriteParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
 
+    switch (pRenderData->m_RenderMode)
+    {
+    case ezParticleTypeRenderMode::Additive:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "ADDITIVE");
+      break;
+    case ezParticleTypeRenderMode::Blended:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "BLENDED");
+      break;
+    case ezParticleTypeRenderMode::Opaque:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "OPAQUE");
+      break;
+    }
+
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer

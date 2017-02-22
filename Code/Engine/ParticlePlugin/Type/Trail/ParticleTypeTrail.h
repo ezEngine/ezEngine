@@ -19,6 +19,7 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
   ezString m_sTexture;
@@ -34,6 +35,7 @@ public:
 
   virtual void CreateRequiredStreams() override;
 
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
   ezTexture2DResourceHandle m_hTexture;

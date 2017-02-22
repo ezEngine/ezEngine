@@ -5,6 +5,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/Id.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class ezWorld;
 class ezParticleSystemDescriptor;
@@ -28,13 +29,13 @@ typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectRe
 typedef ezGenericId<22, 10> ezParticleEffectId;
 
 /// \brief A handle to a particle effect
-class ezParticleEffectHandle
+class EZ_PARTICLEPLUGIN_DLL ezParticleEffectHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezParticleEffectHandle, ezParticleEffectId);
 };
 
 
-struct ezParticleSystemState
+struct EZ_PARTICLEPLUGIN_DLL ezParticleSystemState
 {
   enum Enum
   {
@@ -45,7 +46,7 @@ struct ezParticleSystemState
   };
 };
 
-class ezParticleStreamBinding
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamBinding
 {
 public:
   void UpdateBindings(const ezProcessingStreamGroup* pGroup) const;
@@ -62,3 +63,19 @@ private:
 
   ezHybridArray<Binding, 4> m_Bindings;
 };
+
+struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Additive,
+    Blended,
+    Opaque,
+    Default = Additive
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTypeRenderMode);
+

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -18,7 +19,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBillboardRenderData, ezRenderData);
 
 public:
-  float m_fOpacity;
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezBillboardParticleData> m_ParticleData;
 };

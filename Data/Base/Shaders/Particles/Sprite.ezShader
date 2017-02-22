@@ -2,17 +2,28 @@
 ALL
 
 [PERMUTATIONS]
+PARTICLE_RENDER_MODE
+
 
 [RENDERSTATE]
 
 BlendingEnabled0 = true
-DestBlend0 = Blend_One
-SourceBlend0 = Blend_InvSrcAlpha
+SourceBlend0 = Blend_One
 
 DepthTest = true
 DepthWrite = false
 CullMode = CullMode_None
 
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE
+  // also premultiplied alpha assuming alpha is zero
+  DestBlend0 = Blend_One
+#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDED
+  // premultiplied alpha
+  DestBlend0 = Blend_InvSrcAlpha
+#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
+  BlendingEnabled0 = false
+  DepthWrite = true
+#endif
 
 [VERTEXSHADER]
 
@@ -80,6 +91,11 @@ SamplerState ParticleTexture_AutoSampler;
 float4 main(PS_IN Input) : SV_Target
 {
   float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
+  if (Input.Color.a * color.a < 0.1)
+    discard;
+#endif
 
   return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
 }

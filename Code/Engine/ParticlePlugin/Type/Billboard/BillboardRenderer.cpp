@@ -84,11 +84,23 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
 
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 
+    switch (pRenderData->m_RenderMode)
+    {
+    case ezParticleTypeRenderMode::Additive:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "ADDITIVE");
+      break;
+    case ezParticleTypeRenderMode::Blended:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "BLENDED");
+      break;
+    case ezParticleTypeRenderMode::Opaque:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "OPAQUE");
+      break;
+    }
+
     // fill the constant buffer
     {
       ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
       cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
-      cb.ParticleOpacity = pRenderData->m_fOpacity;
     }
 
     while (uiNumParticles > 0)

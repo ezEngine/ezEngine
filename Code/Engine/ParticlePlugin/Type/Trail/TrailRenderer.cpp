@@ -204,6 +204,19 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
 bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext &renderViewContext)
 {
+  switch (pRenderData->m_RenderMode)
+  {
+  case ezParticleTypeRenderMode::Additive:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "ADDITIVE");
+    break;
+  case ezParticleTypeRenderMode::Blended:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "BLENDED");
+    break;
+  case ezParticleTypeRenderMode::Opaque:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "OPAQUE");
+    break;
+  }
+
   switch (ezParticleTypeTrail::ComputeTrailPointBucketSize(pRenderData->m_uiMaxTrailPoints))
   {
   case 8:

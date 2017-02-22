@@ -1,0 +1,7 @@
+enum PARTICLE_RENDER_MODE
+{
+    ADDITIVE,
+    BLENDED,
+    OPAQUE,
+};
+

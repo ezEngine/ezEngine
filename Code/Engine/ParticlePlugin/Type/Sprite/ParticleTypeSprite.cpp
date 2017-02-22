@@ -24,6 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSpriteFactory, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_ENUM_MEMBER_PROPERTY("RotationAxis", ezSpriteAxis, m_RotationAxis),
     EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
@@ -45,6 +46,7 @@ void ezParticleTypeSpriteFactory::CopyTypeProperties(ezParticleType* pObject) co
 {
   ezParticleTypeSprite* pType = static_cast<ezParticleTypeSprite*>(pObject);
 
+  pType->m_RenderMode = m_RenderMode;
   pType->m_RotationAxis = m_RotationAxis;
   pType->m_MaxDeviation = m_MaxDeviation;
   pType->m_hTexture.Invalidate();
@@ -57,6 +59,7 @@ enum class TypeSpriteVersion
 {
   Version_0 = 0,
   Version_1,
+  Version_2, // added render mode
 
   // insert new version numbers above
   Version_Count,
@@ -71,6 +74,7 @@ void ezParticleTypeSpriteFactory::Save(ezStreamWriter& stream) const
   stream << m_sTexture;
   stream << m_RotationAxis.GetValue();
   stream << m_MaxDeviation;
+  stream << m_RenderMode;
 }
 
 void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
@@ -87,6 +91,11 @@ void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
   m_RotationAxis.SetValue(val);
 
   stream >> m_MaxDeviation;
+
+  if (uiVersion >= (int)TypeSpriteVersion::Version_2)
+  {
+    stream >> m_RenderMode;
+  }
 }
 
 
@@ -209,6 +218,7 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleSpriteRenderData>(nullptr, uiBatchId);
 
   pRenderData->m_GlobalTransform = instanceTransform;
+  pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_ParticleData = m_ParticleData;
 

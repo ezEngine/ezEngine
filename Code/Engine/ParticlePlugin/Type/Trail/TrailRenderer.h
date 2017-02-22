@@ -23,6 +23,7 @@ public:
   float m_fSnapshotFraction;
   ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
   ezArrayPtr<ezVec4> m_TrailPointsShared;
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
 };
 
 /// \brief Implements rendering of a trail particle systems

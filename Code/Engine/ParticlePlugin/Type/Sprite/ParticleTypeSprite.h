@@ -35,6 +35,7 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezString m_sTexture;
   ezEnum<ezSpriteAxis> m_RotationAxis;
   ezAngle m_MaxDeviation;
@@ -47,6 +48,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeSprite : public ezParticleType
 public:
   virtual void CreateRequiredStreams() override;
 
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
   ezEnum<ezSpriteAxis> m_RotationAxis;
   ezAngle m_MaxDeviation;
