@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <Foundation/Image/Image.h>
 #include <Foundation/Image/Formats/ImageFormatMappings.h>
@@ -159,7 +159,6 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     return EZ_FAILURE;
   }
 
-  bool bDxt10 = false;
   ezDdsHeaderDxt10 headerDxt10;
 
   ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
@@ -198,7 +197,6 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
         ezLog::Error(pLog, "Failed to read file header.");
         return EZ_FAILURE;
       }
-      bDxt10 = true;
 
       format = ezImageFormatMappings::FromDxgiFormat(headerDxt10.m_uiDxgiFormat);
 

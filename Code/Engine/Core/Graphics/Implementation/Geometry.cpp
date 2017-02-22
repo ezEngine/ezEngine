@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Containers/Map.h>
 #include <ThirdParty/mikktspace/mikktspace.h>
@@ -447,17 +447,15 @@ void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMa
 {
   const ezVec3 halfSize = size * 0.5f;
 
-  ezUInt32 idx[8];
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
 
-  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-
-  idx[4] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[5] = AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[6] = AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[7] = AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
 
   AddLine(0, 1);
   AddLine(1, 2);
@@ -483,17 +481,15 @@ void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, co
   fCornerFraction *= 0.5f;
   const ezVec3 halfSize = size * 0.5f;
 
-  ezUInt32 idx[8];
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
 
-  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
-
-  idx[4] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[5] = AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[6] = AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
-  idx[7] = AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
 
   for (ezUInt32 c = 0; c < 8; ++c)
   {
