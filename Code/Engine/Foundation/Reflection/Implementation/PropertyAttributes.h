@@ -524,4 +524,41 @@ const Type* ezAbstractProperty::GetAttributeByType() const
   return nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief A property attribute that specifies the max size of an array. If it is reached, no further elemets are allowed to be added.
+class EZ_FOUNDATION_DLL ezMaxArraySizeAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaxArraySizeAttribute, ezPropertyAttribute);
+
+public:
+  ezMaxArraySizeAttribute() {}
+  ezMaxArraySizeAttribute(ezUInt32 uiMaxSize)
+  {
+    m_uiMaxSize = uiMaxSize;
+  }
+
+  const ezUInt32& GetMaxSize() const { return m_uiMaxSize; }
+
+private:
+  ezUInt32 m_uiMaxSize;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief If this attribute is set, the UI is encouraged to prevent the user from creating duplicates of the same thing.
+///
+/// For arrays of objects this means that multiple objects of the same type are not allowed.
+class EZ_FOUNDATION_DLL ezPreventDuplicatesAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPreventDuplicatesAttribute, ezPropertyAttribute);
+
+public:
+  ezPreventDuplicatesAttribute() {}
+
+};
+
+
+
+
 

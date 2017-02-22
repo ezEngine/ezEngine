@@ -16,10 +16,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("MaxParticles", m_uiMaxParticles)->AddAttributes(new ezDefaultValueAttribute(64), new ezClampValueAttribute(1, 65535)),
     EZ_MEMBER_PROPERTY("LifeTime", m_LifeTime),
     EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent),
-    EZ_SET_ACCESSOR_PROPERTY("Emitters", GetEmitterFactories, AddEmitterFactory, RemoveEmitterFactory)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_SET_ACCESSOR_PROPERTY("Types", GetTypeFactories, AddTypeFactory, RemoveTypeFactory)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_ARRAY_MEMBER_PROPERTY("Emitters", m_EmitterFactories)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezMaxArraySizeAttribute(1)),
+    EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
+    EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
+    EZ_SET_ACCESSOR_PROPERTY("Types", GetTypeFactories, AddTypeFactory, RemoveTypeFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
   }
   EZ_END_PROPERTIES
 }

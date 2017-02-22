@@ -21,7 +21,7 @@ private slots:
   void onMenuAboutToShow();
   void on_Button_clicked();
   void OnMenuAction();
- 
+
 private:
   virtual void OnInit() override;
   void OnAction(const ezRTTI* pRtti);
@@ -33,5 +33,8 @@ private:
 
   ezSet<const ezRTTI*> m_SupportedTypes;
 
+  bool m_bNoMoreElementsAllowed = false;
   QMenu* m_pMenu;
+  ezUInt32 m_uiMaxElements = 0; // 0 means unlimited
+  bool m_bPreventDuplicates = false;
 };

@@ -432,9 +432,15 @@ ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezBasisAxis::Enum axis, con
   m_fScale = fScale;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaxArraySizeAttribute, 1, ezRTTIDefaultAllocator<ezMaxArraySizeAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
+//////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreventDuplicatesAttribute, 1, ezRTTIDefaultAllocator<ezPreventDuplicatesAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 

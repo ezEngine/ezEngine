@@ -48,6 +48,17 @@ void ezQtAddSubElementButton::OnInit()
     m_pButton->setMenu(m_pMenu);
     m_pButton->setObjectName("Button");
   }
+
+  if (const ezMaxArraySizeAttribute* pAttr = m_pProp->GetAttributeByType<ezMaxArraySizeAttribute>())
+  {
+    m_uiMaxElements = pAttr->GetMaxSize();
+  }
+
+  if (const ezPreventDuplicatesAttribute* pAttr = m_pProp->GetAttributeByType<ezPreventDuplicatesAttribute>())
+  {
+    m_bPreventDuplicates = true;
+  }
+
   QMetaObject::connectSlotsByName(this);
 }
 
@@ -113,76 +124,147 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
   if (m_Items.IsEmpty())
     return;
 
-  if (!m_pMenu->isEmpty())
-    return;
-
-  auto pProp = GetProperty();
-
-  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  if (m_pMenu->isEmpty())
   {
-    m_SupportedTypes.Clear();
-    ezReflectionUtils::GatherTypesDerivedFromClass(pProp->GetSpecificType(), m_SupportedTypes, false);
-  }
-  m_SupportedTypes.Insert(pProp->GetSpecificType());
+    auto pProp = GetProperty();
 
-  // remove all types that are marked as hidden
-  for (auto it = m_SupportedTypes.GetIterator(); it.IsValid(); )
-  {
-    if (it.Key()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
-      it = m_SupportedTypes.Remove(it);
+      m_SupportedTypes.Clear();
+      ezReflectionUtils::GatherTypesDerivedFromClass(pProp->GetSpecificType(), m_SupportedTypes, false);
     }
-    else
+    m_SupportedTypes.Insert(pProp->GetSpecificType());
+
+    // remove all types that are marked as hidden
+    for (auto it = m_SupportedTypes.GetIterator(); it.IsValid(); )
     {
-      ++it;
+      if (it.Key()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      {
+        it = m_SupportedTypes.Remove(it);
+      }
+      else
+      {
+        ++it;
+      }
     }
-  }
 
-  // Make category-sorted array of types
-  ezDynamicArray<const ezRTTI*> supportedTypes;
-  for (const ezRTTI* pRtti : m_SupportedTypes)
-  {
-    if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-      continue;
-
-    supportedTypes.PushBack(pRtti);
-  }
-  supportedTypes.Sort(TypeComparer());
-
-  ezStringBuilder sIconName;
-  ezStringBuilder sCategory = "";
-
-  ezMap<ezString, QMenu*> existingMenus;
-
-  // first round: create all sub menus
-  for (const ezRTTI* pRtti : supportedTypes)
-  {
-    // Determine current menu
-    const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
-
-    if (pCatA)
+    // Make category-sorted array of types
+    ezDynamicArray<const ezRTTI*> supportedTypes;
+    for (const ezRTTI* pRtti : m_SupportedTypes)
     {
-      CreateCategoryMenu(pCatA->GetCategory(), existingMenus);
+      if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+        continue;
+
+      supportedTypes.PushBack(pRtti);
+    }
+    supportedTypes.Sort(TypeComparer());
+
+    ezStringBuilder sIconName;
+    ezStringBuilder sCategory = "";
+
+    ezMap<ezString, QMenu*> existingMenus;
+
+    // first round: create all sub menus
+    for (const ezRTTI* pRtti : supportedTypes)
+    {
+      // Determine current menu
+      const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+
+      if (pCatA)
+      {
+        CreateCategoryMenu(pCatA->GetCategory(), existingMenus);
+      }
+    }
+
+    // second round: create the actions
+    for (const ezRTTI* pRtti : supportedTypes)
+    {
+      // Determine current menu
+      const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+
+      QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
+
+      // Add type action to current menu
+      QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
+      pAction->setProperty("type", qVariantFromValue((void*)pRtti));
+      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
+
+      sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
+      pAction->setIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
+
+      pCat->addAction(pAction);
     }
   }
 
-  // second round: create the actions
-  for (const ezRTTI* pRtti : supportedTypes)
+  if (m_uiMaxElements > 0) // 0 means unlimited
   {
-    // Determine current menu
-    const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+    ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+    QList<QAction*> actions = m_pMenu->actions();
 
-    QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
+    for (auto& item : m_Items)
+    {
+      ezInt32 iCount = 0;
+      pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
 
-    // Add type action to current menu
-    QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
-    pAction->setProperty("type", qVariantFromValue((void*)pRtti));
-    EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
+      if (iCount >= (ezInt32)m_uiMaxElements)
+      {
+        if (!m_bNoMoreElementsAllowed)
+        {
+          m_bNoMoreElementsAllowed = true;
 
-    sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
-    pAction->setIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
+          QAction* pAction = new QAction(QString("Maximum allowed elements in array is %1").arg(m_uiMaxElements));
+          m_pMenu->insertAction(actions.isEmpty() ? nullptr : actions[0], pAction);
 
-    pCat->addAction(pAction);
+          for (auto pAct : actions)
+          {
+            pAct->setEnabled(false);
+          }
+        }
+
+        return;
+      }
+    }
+
+    if (m_bNoMoreElementsAllowed)
+    {
+      for (auto pAct : actions)
+      {
+        pAct->setEnabled(true);
+      }
+
+      m_bNoMoreElementsAllowed = false;
+      delete m_pMenu->actions()[0]; // remove the dummy action
+    }
+  }
+
+  if (m_bPreventDuplicates)
+  {
+    ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+    ezSet<const ezRTTI*> UsedTypes;
+
+    for (auto& item : m_Items)
+    {
+      ezInt32 iCount = 0;
+      pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
+
+      for (ezInt32 i = 0; i < iCount; ++i)
+      {
+        ezUuid guid = pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, i);
+
+        if (guid.IsValid())
+        {
+          UsedTypes.Insert(pObjectAccessor->GetObject(guid)->GetType());
+        }
+      }
+
+      QList<QAction*> actions = m_pMenu->actions();
+      for (auto pAct : actions)
+      {
+        const ezRTTI* pRtti = static_cast<const ezRTTI*>(pAct->property("type").value<void*>());
+
+        pAct->setEnabled(!UsedTypes.Contains(pRtti));
+      }
+    }
   }
 }
 

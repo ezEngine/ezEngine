@@ -22,8 +22,6 @@ public:
   //////////////////////////////////////////////////////////////////////////
   /// Properties
 
-  void AddEmitterFactory(ezParticleEmitterFactory* pFactory) { m_EmitterFactories.PushBack(pFactory); }
-  void RemoveEmitterFactory(ezParticleEmitterFactory* pFactory) { m_EmitterFactories.Remove(pFactory); }
   const ezHybridArray<ezParticleEmitterFactory*, 2>& GetEmitterFactories() const { return m_EmitterFactories; }
 
   void AddInitializerFactory(ezParticleInitializerFactory* pFactory) { m_InitializerFactories.PushBack(pFactory); }
