@@ -303,7 +303,8 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO  "${OUTPUT_LIB_RELWITHDEB}")
 
 #Write configuration to file, as this is done at configure time we must pin the configuration in place (RelDeb is used because all build machines use this).
 file(WRITE ${CMAKE_BINARY_DIR}/Configuration.txt "")
-file(APPEND ${CMAKE_BINARY_DIR}/Configuration.txt "${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}RelDeb${ARCHITECTURE_POSTFIX}")
+set(CONFIGURATION_DESC "${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}RelDeb${ARCHITECTURE_POSTFIX}")
+file(APPEND ${CMAKE_BINARY_DIR}/Configuration.txt ${CONFIGURATION_DESC})
 
 
 #########################################################################################
