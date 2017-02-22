@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
