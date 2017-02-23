@@ -16,13 +16,57 @@ bool ezFileserveClient::s_bEnableFileserve = true;
 ezFileserveClient::ezFileserveClient()
   : m_SingletonRegistrar(this)
 {
-  m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, "localhost:1042");
+  ezStringBuilder sFallback = "localhost:1042";
+  ezStringBuilder sSearch = ezOSFile::GetUserDataFolder("ezFileserve.txt");
+
+  // first try the user directory
+  if (TryReadFileserveConfig(sSearch, sFallback).Failed())
+  {
+    sSearch = ezOSFile::GetApplicationDirectory();
+    sSearch.AppendPath("ezFileserve.txt");
+
+    // if that failed, try the app directory
+    TryReadFileserveConfig(sSearch, sFallback);
+  }
+
+  // command line always has higher priority
+  m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, sFallback);
 
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_off"))
     s_bEnableFileserve = false;
 
   m_CurrentTime = ezTime::Now();
 }
+
+
+ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result) const
+{
+  ezOSFile file;
+  if (file.Open(szFile, ezFileMode::Read).Succeeded())
+  {
+    ezUInt8 data[64]; // an IP + port should not be longer than 22 characters
+
+    ezStringBuilder res;
+
+    data[file.Read(data, 63)] = 0;
+    res = (const char*)data;
+    res.Trim(" \t\n\r");
+
+    if (res.IsEmpty())
+      return EZ_FAILURE;
+
+    // has to contain a port number
+    if (res.FindSubString(":") == nullptr)
+      return EZ_FAILURE;
+
+    // otherwise could be an arbitrary string
+    out_Result = res;
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
 
 ezFileserveClient::~ezFileserveClient()
 {

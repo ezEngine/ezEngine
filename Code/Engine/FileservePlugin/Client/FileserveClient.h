@@ -95,6 +95,7 @@ private:
   void DetermineCacheStatus(ezUInt16 uiDataDirID, const char* szFile, FileCacheStatus& out_Status) const;
   void UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent);
   void InvalidateFileCache(ezUInt16 uiDataDirID, const char* szFile, ezUInt64 uiHash);
+  ezResult TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result) const;
 
   ezString m_sServerConnectionAddress;
   ezString m_sFileserveCacheFolder;
