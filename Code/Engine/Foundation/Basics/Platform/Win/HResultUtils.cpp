@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
@@ -8,7 +8,7 @@
 
 #include <comdef.h>
 
-ezStringView BuildString(char* tmp, ezUInt32 uiLength, HRESULT result)
+EZ_FOUNDATION_DLL ezString ezHRESULTtoString(HRESULT result)
 {
   _com_error error(result, nullptr);
   const TCHAR* messageW = error.ErrorMessage();
@@ -18,8 +18,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, HRESULT result)
   message.ReplaceAll("\n", "");
   message.ReplaceAll("\r", "");
 
-  ezStringUtils::Copy(tmp, uiLength, message.GetData());
-  return tmp;
+  return message;
 }
 
 #endif

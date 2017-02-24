@@ -104,7 +104,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       }
       else
       {
-        ezLog::Error("Failed to create swapchain: {0}", result);
+        ezLog::Error("Failed to create swapchain: {0}", ezHRESULTtoString(result));
       }
 
       return EZ_FAILURE;
@@ -120,13 +120,12 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   else
 #endif
   {
-
     // Get texture of the swap chain
     ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
     HRESULT result = m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture));
     if (FAILED(result))
     {
-      ezLog::Error("Couldn't access backbuffer texture of swapchain: {0}", result);
+      ezLog::Error("Couldn't access backbuffer texture of swapchain: {0}", ezHRESULTtoString(result));
       EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
 
       return EZ_FAILURE;
