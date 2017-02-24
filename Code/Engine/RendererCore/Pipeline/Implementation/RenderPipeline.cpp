@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -244,7 +244,7 @@ const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(ezRe
 
   auto& data = it.Value();
   const ezNodePin* pPin = pPass->GetPinByName(sOutputPinName);
-  if (!pPin || pPin->m_uiOutputIndex == -1)
+  if (!pPin)
     return nullptr;
 
   return data.m_Outputs[pPin->m_uiOutputIndex];

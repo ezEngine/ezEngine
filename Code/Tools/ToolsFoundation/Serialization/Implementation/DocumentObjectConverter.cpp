@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
@@ -90,6 +90,9 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
       pNode->AddProperty(pProp->GetPropertyName(), values);
     }
     break;
+
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED
   }
 }
 
@@ -214,9 +217,6 @@ void ezDocumentObjectConverterReader::ApplyDiffToObject(ezObjectAccessorBase* pO
 
 void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp, ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff)
 {
-  auto* pObjectMananger = pObject->GetDocumentObjectManager();
-
-  const ezRTTI* pPropType = pProp->GetSpecificType();
   ezStringBuilder sTemp;
 
   auto NeedsToBeDeleted = [&diff](const ezUuid& guid)->bool
@@ -322,7 +322,6 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
 
 void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
 {
-  const ezRTTI* pPropType = pProp->GetSpecificType();
   ezStringBuilder sTemp;
 
   if (pProp->GetCategory() == ezPropertyCategory::Member)

@@ -1,9 +1,19 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
+
+template<typename ObjectProperties>
+class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
+{
+public:
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
+  {
+    Types.PushBack(ezGetStaticRTTI<ObjectProperties>());
+  }
+};
 
 template<typename PropertyType>
 class ezSimpleAssetDocument : public ezAssetDocument
@@ -119,16 +129,4 @@ private:
 private:
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
-};
-
-
-template<typename ObjectProperties>
-class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
-{
-public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
-  {
-    Types.PushBack(ezGetStaticRTTI<ObjectProperties>());
-  }
-
 };

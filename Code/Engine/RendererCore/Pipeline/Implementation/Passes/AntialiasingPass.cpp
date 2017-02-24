@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/AntialiasingPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -34,8 +34,6 @@ ezAntialiasingPass::~ezAntialiasingPass()
 bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
   ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   if (pInput != nullptr)
   {
@@ -82,7 +80,6 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, c
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   // Setup render target
   ezGALRenderTagetSetup renderTargetSetup;

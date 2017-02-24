@@ -313,33 +313,36 @@ set(CMAKE_CXX_STANDARD 14)
 if (BUILDSYSTEM_COMPILER_MSVC)
   # Enable minimal rebuild
   #set (COMPILER_SETTINGS_DEBUG "${COMPILER_SETTINGS_DEBUG} /Gm")
-    # enable multi-threaded compilation
-    set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MP")
-    # disable RTTI
-    set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /GR-")
-    # use fast floating point model
-    set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:fast")
+  # enable multi-threaded compilation
+  set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MP")
+  # disable RTTI
+  set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /GR-")
+  # use fast floating point model
+  set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:fast")
   # enable floating point exceptions
   #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:except")
 
-    # enable strict warnings
+  # enable strict warnings
   #if (EZ_STRICT_WARNINGS)
   #  set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /W4")
   #endif()
-    # treat warnings as errors
+  # treat warnings as errors
+  # Todo: We're not there yet for Clang on windows.
+  if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /WX")
+  endif()
 
-    if (BUILDSYSTEM_PLATFORM_32BIT)
-        # enable SSE2 (incompatible with /fp:except)
-        set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /arch:SSE2")
-    
+  if (BUILDSYSTEM_PLATFORM_32BIT)
+    # enable SSE2 (incompatible with /fp:except)
+    set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /arch:SSE2")
+
     if(MSVC10)
       # enable static code analysis, only works on 32 Bit builds
       # (may cause compile errors when combined with Qt, disabled for the time being)
       #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")    
       #message (STATUS "Enabling static code analysis.")
     endif ()
-    endif ()
+  endif ()
   
   if(MSVC11 OR MSVC12)
     #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
@@ -357,6 +360,12 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   # Don't know what it does, but Clemens wants it :-) (does not work together with incremental build)
   set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:ICF")
   
+  # Enable SSE4.1 for Clang on Windows.
+  # Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
+  endif()
+
 elseif (BUILDSYSTEM_COMPILER_CLANG)
   # Cmake complains that this is not defined on OSX make build.
   if(EZ_COMPILE_ENGINE_AS_DLL)
@@ -366,7 +375,7 @@ elseif (BUILDSYSTEM_COMPILER_CLANG)
   endif ()
   # Enable c++11 features
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++")
-  
+
 elseif (BUILDSYSTEM_COMPILER_GCC)
   # dynamic linking will fail without fPIC (plugins)
   # Wno-enum-compare removes all annoying enum cast warnings
