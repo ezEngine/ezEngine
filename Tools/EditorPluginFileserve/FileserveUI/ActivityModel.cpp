@@ -61,6 +61,9 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
         return "Write";
       case ezFileserveActivityType::DeleteFile:
         return "Delete";
+
+      default:
+        return QVariant();
       }
     }
 
@@ -91,6 +94,9 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
         return QColor::fromRgb(255, 150, 0);
       case ezFileserveActivityType::DeleteFile:
         return QColor::fromRgb(200, 50, 50);
+
+      default:
+        return QVariant();
       }
     }
   }

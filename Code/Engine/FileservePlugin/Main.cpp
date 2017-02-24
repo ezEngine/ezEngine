@@ -25,6 +25,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
     if (ezFileserveClient::GetSingleton() == nullptr)
     {
       EZ_DEFAULT_NEW(ezFileserveClient);
+
+      ezFileserveClient::GetSingleton()->SearchForServerAddress();
     }
   }
 

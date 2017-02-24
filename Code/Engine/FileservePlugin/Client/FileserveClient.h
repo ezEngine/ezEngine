@@ -30,6 +30,8 @@ public:
   ezFileserveClient();
   ~ezFileserveClient();
 
+  ezResult SearchForServerAddress();
+
   /// \brief Allows to disable the file serving functionality. Should be called before mounting data directories.
   ///
   /// Also achieved through the command line argument "-fs_off"
@@ -96,6 +98,9 @@ private:
   void UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent);
   void InvalidateFileCache(ezUInt16 uiDataDirID, const char* szFile, ezUInt64 uiHash);
   ezResult TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result) const;
+  ezResult TryConnectWithFileserver(const char* szAddress, ezTime timeout) const;
+  void FillFileStatusCache(const char* szFile);
+  ezResult WaitForServerToConnect(ezTime timeout = ezTime::Seconds(60.0 * 5));
 
   ezString m_sServerConnectionAddress;
   ezString m_sFileserveCacheFolder;
@@ -112,6 +117,5 @@ private:
   ezMap<ezString, ezUInt16> m_FileDataDir;
 
   ezHybridArray<DataDir, 8> m_MountedDataDirs;
-  void FillFileStatusCache(const char* szFile);
 };
 

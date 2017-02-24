@@ -38,36 +38,6 @@ ezFileserveClient::ezFileserveClient()
   m_CurrentTime = ezTime::Now();
 }
 
-
-ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result) const
-{
-  ezOSFile file;
-  if (file.Open(szFile, ezFileMode::Read).Succeeded())
-  {
-    ezUInt8 data[64]; // an IP + port should not be longer than 22 characters
-
-    ezStringBuilder res;
-
-    data[file.Read(data, 63)] = 0;
-    res = (const char*)data;
-    res.Trim(" \t\n\r");
-
-    if (res.IsEmpty())
-      return EZ_FAILURE;
-
-    // has to contain a port number
-    if (res.FindSubString(":") == nullptr)
-      return EZ_FAILURE;
-
-    // otherwise could be an arbitrary string
-    out_Result = res;
-    return EZ_SUCCESS;
-  }
-
-  return EZ_FAILURE;
-}
-
-
 ezFileserveClient::~ezFileserveClient()
 {
   if (m_Network)
@@ -87,7 +57,7 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
   if (m_Network == nullptr)
   {
     m_bFailedToConnect = true;
-    m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
+    m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet); /// \todo Somehow abstract this away ?
 
     m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("ezFileserve/Cache");
     m_sFileserveCacheMetaFolder = ezOSFile::GetUserDataFolder("ezFileserve/Meta");
@@ -120,7 +90,7 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
     }
     else
     {
-      ezLog::Success("Connected to ezFileserver");
+      ezLog::Success("Connected to ezFileserver '{0}", m_sServerConnectionAddress);
       m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserveClient::NetworkMsgHandler, this));
 
       m_Network->Send('FSRV', 'HELO'); // be friendly
@@ -633,6 +603,159 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
     meta.Read(&out_Status.m_FileHash, sizeof(ezUInt64));
   }
 }
+
+ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result) const
+{
+  ezOSFile file;
+  if (file.Open(szFile, ezFileMode::Read).Succeeded())
+  {
+    ezUInt8 data[64]; // an IP + port should not be longer than 22 characters
+
+    ezStringBuilder res;
+
+    data[file.Read(data, 63)] = 0;
+    res = (const char*)data;
+    res.Trim(" \t\n\r");
+
+    if (res.IsEmpty())
+      return EZ_FAILURE;
+
+    // has to contain a port number
+    if (res.FindSubString(":") == nullptr)
+      return EZ_FAILURE;
+
+    // otherwise could be an arbitrary string
+    out_Result = res;
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezFileserveClient::SearchForServerAddress()
+{
+  if (!s_bEnableFileserve)
+    return EZ_FAILURE;
+
+  ezTime timout = ezTime::Seconds(2);
+
+  ezStringBuilder sAddress;
+  sAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, "");
+
+  if (TryConnectWithFileserver(sAddress, timout).Succeeded())
+  {
+    m_sServerConnectionAddress = sAddress;
+    return EZ_SUCCESS;
+  }
+
+  ezStringBuilder sSearch = ezOSFile::GetUserDataFolder("ezFileserve.txt");
+  if (TryReadFileserveConfig(sSearch, sAddress).Succeeded())
+  {
+    if (TryConnectWithFileserver(sAddress, timout).Succeeded())
+    {
+      m_sServerConnectionAddress = sAddress;
+      return EZ_SUCCESS;
+    }
+  }
+
+  {
+    sSearch = ezOSFile::GetApplicationDirectory();
+    sSearch.AppendPath("ezFileserve.txt");
+
+    if (TryReadFileserveConfig(sSearch, sAddress).Succeeded())
+    {
+      if (TryConnectWithFileserver(sAddress, timout).Succeeded())
+      {
+        m_sServerConnectionAddress = sAddress;
+        return EZ_SUCCESS;
+      }
+    }
+  }
+
+  if (TryConnectWithFileserver("localhost:1042", timout).Succeeded())
+  {
+    m_sServerConnectionAddress = "localhost:1042";
+    return EZ_SUCCESS;
+  }
+
+  return WaitForServerToConnect();
+}
+
+ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTime timeout) const
+{
+  if (ezStringUtils::IsNullOrEmpty(szAddress))
+    return EZ_FAILURE;
+
+  ezNetworkInterfaceEnet network; /// \todo Abstract this somehow ?
+  network.ConnectToServer('EZFS', szAddress, false);
+
+  bool bServerFound = false;
+  network.SetMessageHandler('FSRV', [&bServerFound](ezNetworkMessage& msg)
+  {
+    switch (msg.GetMessageID())
+    {
+    case ' YES':
+      bServerFound = true;
+      break;
+    }
+  });
+
+  if (network.WaitForConnectionToServer(timeout).Succeeded())
+  {
+    network.Send('FSRV', 'RUTR');
+
+    // wait for a proper response
+    ezTime tStart = ezTime::Now();
+    while (ezTime::Now() - tStart < timeout && !bServerFound)
+    {
+      ezThreadUtils::Sleep(1);
+
+      network.UpdateNetwork();
+      network.ExecuteAllMessageHandlers();
+    }
+  }
+
+  network.ShutdownConnection();
+
+  return bServerFound ? EZ_SUCCESS : EZ_FAILURE;
+}
+
+ezResult ezFileserveClient::WaitForServerToConnect(ezTime timeout /*= ezTime::Seconds(60.0 * 5)*/)
+{
+  ezNetworkInterfaceEnet network; /// \todo Abstract this somehow ?
+
+  ezStringBuilder sServerIP;
+  network.SetMessageHandler('FSRV', [&sServerIP](ezNetworkMessage& msg)
+  {
+    switch (msg.GetMessageID())
+    {
+    case 'MYIP':
+      msg.GetReader() >> sServerIP;
+      break;
+    }
+  });
+
+  network.StartServer('EZIP', 2042, false);
+
+  ezTime tStart = ezTime::Now();
+  while (ezTime::Now() - tStart < timeout && sServerIP.IsEmpty())
+  {
+    ezThreadUtils::Sleep(1);
+
+    network.UpdateNetwork();
+    network.ExecuteAllMessageHandlers();
+  }
+
+  network.ShutdownConnection();
+
+  if (sServerIP.IsEmpty())
+    return EZ_FAILURE;
+
+  m_sServerConnectionAddress = sServerIP;
+  return EZ_SUCCESS;
+}
+
+
 
 EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 {

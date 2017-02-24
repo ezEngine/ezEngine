@@ -82,6 +82,17 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
   if (msg.GetMessageID() == 'HELO')
     return;
 
+  if (msg.GetMessageID() == 'RUTR')
+  {
+    // 'are you there' is used to check whether a certain address is a proper Fileserver
+    m_Network->Send('FSRV', ' YES');
+
+    ezFileserverEvent e;
+    e.m_Type = ezFileserverEvent::Type::AreYouThereRequest;
+    m_Events.Broadcast(e);
+    return;
+  }
+
   if (msg.GetMessageID() == 'READ')
   {
     HandleFileRequest(client, msg);
@@ -423,6 +434,37 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
   // send a response when all data has been transmitted
   // this ensures the client side updates the network until all data has been fully transmitted
   m_Network->Send('FSRV', 'UACK');
+}
+
+
+ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, const char* szMyConnectionInfo, ezTime timeout)
+{
+  ezStringBuilder sAddress = szClientAddress;
+  sAddress.Append(":2042"); // hard-coded port
+
+  ezNetworkInterfaceEnet network;
+  EZ_SUCCEED_OR_RETURN(network.ConnectToServer('EZIP', sAddress, false));
+
+  if (network.WaitForConnectionToServer(timeout).Failed())
+  {
+    network.ShutdownConnection();
+    return EZ_FAILURE;
+  }
+
+  ezNetworkMessage msg('FSRV', 'MYIP');
+  msg.GetWriter() << szMyConnectionInfo;
+
+  network.Send(ezNetworkTransmitMode::Reliable, msg);
+
+  // make sure the message is out, before we shut down
+  for (ezUInt32 i = 0; i < 10; ++i)
+  {
+    network.UpdateNetwork();
+    ezThreadUtils::Sleep(1);
+  }
+
+  network.ShutdownConnection();
+  return EZ_SUCCESS;
 }
 
 

@@ -28,6 +28,7 @@ struct ezFileserverEvent
     FileUploadRequest,
     FileUploading,
     FileUploadFinished,
+    AreYouThereRequest,
   };
 
   Type m_Type = Type::None;
@@ -82,6 +83,8 @@ public:
 
   /// \brief Broadcasts to all clients that they should reload their resources
   void BroadcastReloadResourcesCommand();
+
+  static ezResult SendConnectionInfo(const char* szClientAddress, const char* szMyConnectionInfo, ezTime timeout = ezTime::Seconds(5));
 
 private:
   void NetworkEventHandler(const ezNetworkEvent& e);

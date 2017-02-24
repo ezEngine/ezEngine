@@ -191,6 +191,14 @@ void ezQtFileserveWidget::on_ReloadResourcesButton_clicked()
   }
 }
 
+void ezQtFileserveWidget::on_ConnectClient_clicked()
+{
+  ezStringBuilder sOwnInfo;
+  sOwnInfo.Format("localhost:{0}", PortLineEdit->text().toUtf8().data());
+
+  ezFileserver::SendConnectionInfo("localhost", sOwnInfo);
+}
+
 void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
 {
   switch (e.m_Type)
@@ -348,6 +356,12 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     {
       TransferLabel->setText(QString());
       Progress->reset();
+    }
+    break;
+
+  case ezFileserverEvent::Type::AreYouThereRequest:
+    {
+      LogActivity("Client searching for Server", ezFileserveActivityType::Other);
     }
     break;
   }

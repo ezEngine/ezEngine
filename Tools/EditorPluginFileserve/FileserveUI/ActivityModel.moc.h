@@ -16,6 +16,7 @@ enum class ezFileserveActivityType
   ReadFile,
   WriteFile,
   DeleteFile,
+  Other
 };
 
 struct ezQtFileserveActivityItem

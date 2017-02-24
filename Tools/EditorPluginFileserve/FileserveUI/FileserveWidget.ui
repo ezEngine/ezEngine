@@ -264,6 +264,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="ConnectClient">
+       <property name="text">
+        <string>Connect To Client</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Port:</string>
