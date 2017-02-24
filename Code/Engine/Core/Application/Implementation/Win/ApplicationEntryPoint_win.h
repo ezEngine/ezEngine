@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 /// \file
@@ -61,8 +61,6 @@ namespace Details
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...) \
-  static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
-  \
   int main(int argc, const char** argv) \
   { \
     Details::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); \
