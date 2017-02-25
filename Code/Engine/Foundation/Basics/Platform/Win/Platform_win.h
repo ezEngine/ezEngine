@@ -128,7 +128,7 @@
   // EZ_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
   // unfortunately, VS 2010 still has this compiler bug which treats a __VA_ARGS__ argument as being one single parameter:
   // https://connect.microsoft.com/VisualStudio/feedback/details/521844/variadic-macro-treating-va-args-as-a-single-parameter-for-other-macros#details
-  #if _MSC_VER >= 1400 && !defined(__clang__)
+  #if _MSC_VER >= 1400 && EZ_DISABLED(EZ_COMPILER_MSVC_CLANG)
     #define EZ_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...)    N
     #define EZ_VA_NUM_ARGS_REVERSE_SEQUENCE            10, 9, 8, 7, 6, 5, 4, 3, 2, 1
     #define EZ_LEFT_PARENTHESIS (
