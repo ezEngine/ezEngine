@@ -361,7 +361,7 @@ o
 o
 {
 	Uuid %id{u4{3567548893861801406,4999422764146152882}}
-	s %t{"ezDepthOnyPass"}
+	s %t{"ezDepthOnlyPass"}
 	u3 %v{1}
 	p
 	{

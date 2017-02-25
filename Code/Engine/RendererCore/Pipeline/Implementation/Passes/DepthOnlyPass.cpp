@@ -8,7 +8,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnyPass, 1, ezRTTIDefaultAllocator<ezDepthOnyPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 1, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -18,15 +18,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnyPass, 1, ezRTTIDefaultAllocator<ezDept
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezDepthOnyPass::ezDepthOnyPass(const char* szName) : ezRenderPipelinePass(szName)
+ezDepthOnlyPass::ezDepthOnlyPass(const char* szName) : ezRenderPipelinePass(szName)
 {
 }
 
-ezDepthOnyPass::~ezDepthOnyPass()
+ezDepthOnlyPass::~ezDepthOnlyPass()
 {
 }
 
-bool ezDepthOnyPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
+bool ezDepthOnlyPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
   ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // DepthStencil
@@ -43,7 +43,7 @@ bool ezDepthOnyPass::GetRenderTargetDescriptions(const ezView& view, const ezArr
   return true;
 }
 
-void ezDepthOnyPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
