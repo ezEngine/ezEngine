@@ -20,7 +20,7 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {
-  ezUInt32 sleepTime = 10;
+  ezTime sleepTime = ezTime::Milliseconds(10);
 
   while (true)
   {
@@ -62,7 +62,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
       if (error == ERROR_SHARING_VIOLATION)
       {
         ezThreadUtils::Sleep(sleepTime);
-        sleepTime = ezMath::Min<ezUInt32>(sleepTime + 20, 300);
+        sleepTime = ezMath::Min<ezTime>(sleepTime + ezTime::Milliseconds(20), ezTime::Milliseconds(300));
         continue; // try again
       }
 

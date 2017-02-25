@@ -19,9 +19,10 @@ void ezThreadUtils::YieldTimeSlice()
   ::Sleep(0);
 }
 
-void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
+
+void ezThreadUtils::Sleep(const ezTime& duration)
 {
-  ::Sleep(uiMilliSeconds);
+  ::Sleep((DWORD)duration.GetMilliseconds());
 }
 
 ezThreadID ezThreadUtils::GetCurrentThreadID()

@@ -84,7 +84,7 @@ public:
   /// \brief Broadcasts to all clients that they should reload their resources
   void BroadcastReloadResourcesCommand();
 
-  static ezResult SendConnectionInfo(const char* szClientAddress, const char* szMyConnectionInfo, ezTime timeout = ezTime::Seconds(5));
+  static ezResult SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout = ezTime::Seconds(5));
 
 private:
   void NetworkEventHandler(const ezNetworkEvent& e);

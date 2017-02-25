@@ -2,6 +2,7 @@
 #include <PCH.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Time/Time.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)
 

@@ -19,6 +19,9 @@
      <property name="text">
       <string>IP:</string>
      </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>

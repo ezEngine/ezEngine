@@ -8,34 +8,34 @@ EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
   {
     ezStopwatch sw;
 
-    ezThreadUtils::Sleep(50);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
 
     sw.StopAndReset();
     sw.Resume();
 
     const ezTime t0 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(10);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
 
     const ezTime t1 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(20);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(20));
 
     const ezTime t2 = sw.Checkpoint();
 
-    ezThreadUtils::Sleep(30);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(30));
 
     const ezTime t3 = sw.Checkpoint();
 
     const ezTime tTotal1 = sw.GetRunningTotal();
 
-    ezThreadUtils::Sleep(10);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
 
     sw.Pause(); // freeze the current running total
 
     const ezTime tTotal2 = sw.GetRunningTotal();
 
-    ezThreadUtils::Sleep(10); // should not affect the running total anymore
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10)); // should not affect the running total anymore
 
     const ezTime tTotal3 = sw.GetRunningTotal();
 

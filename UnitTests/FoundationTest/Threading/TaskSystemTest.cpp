@@ -42,7 +42,7 @@ private:
 
     for (ezUInt32 obst = 0; obst < m_uiIterations; ++obst)
     {
-      ezThreadUtils::Sleep(1);
+      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
       ezTime::Now();
 
       if (HasBeenCanceled() && m_bSupportCancel)
@@ -83,7 +83,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   ezUInt32 uiWorkersLong = 4;
 
   ezTaskSystem::SetWorkThreadCount(uiWorkersShort, uiWorkersLong);
-  ezThreadUtils::Sleep(500);
+  ezThreadUtils::Sleep(ezTime::Milliseconds(500));
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")
   {
@@ -274,7 +274,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
     }
 
-    ezThreadUtils::Sleep(1);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
 
     ezInt32 iCanceled = 0;
 
@@ -319,7 +319,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
     }
 
-    ezThreadUtils::Sleep(1);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
 
     ezInt32 iCanceled = 0;
 
@@ -373,7 +373,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::StartTaskGroup(g2);
     ezTaskSystem::StartTaskGroup(g1);
 
-    ezThreadUtils::Sleep(10);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
 
     EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g2, ezOnTaskRunning::WaitTillFinished) == EZ_SUCCESS);
 
@@ -383,7 +383,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       EZ_TEST_BOOL(t2[i].IsTaskFinished());
     }
 
-    ezThreadUtils::Sleep(1);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
 
     EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g1, ezOnTaskRunning::WaitTillFinished) == EZ_FAILURE);
 
@@ -395,7 +395,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       EZ_TEST_BOOL(t2[i].IsTaskFinished());
     }
 
-    ezThreadUtils::Sleep(100);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
   }
 
   // capture profiling info for testing

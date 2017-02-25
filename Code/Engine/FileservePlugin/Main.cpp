@@ -19,14 +19,26 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FileserveType::Factory, 100.0f);
 
     if (ezStartup::HasApplicationTag("tool") ||
-        ezStartup::HasApplicationTag("testframework"))
+        ezStartup::HasApplicationTag("testframework")) // the testframework configures a fileserve client itself
       return;
 
-    if (ezFileserveClient::GetSingleton() == nullptr)
-    {
-      EZ_DEFAULT_NEW(ezFileserveClient);
+    ezFileserveClient* fs = ezFileserveClient::GetSingleton();
 
-      ezFileserveClient::GetSingleton()->SearchForServerAddress();
+    if (fs == nullptr)
+    {
+      fs = EZ_DEFAULT_NEW(ezFileserveClient);
+
+      if (fs->SearchForServerAddress().Failed())
+      {
+        if (fs->WaitForServerInfo().Succeeded())
+        {
+          fs->SaveCurrentConnectionInfoToDisk();
+        }
+      }
+      else
+      {
+        fs->SaveCurrentConnectionInfoToDisk();
+      }
     }
   }
 

@@ -66,7 +66,7 @@ ezResult ezNetworkInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime
         return EZ_FAILURE;
     }
 
-    ezThreadUtils::Sleep(50);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
   }
 }
 
@@ -372,7 +372,7 @@ ezUInt32 ezNetworkThread::Run()
       }
     }
 
-    ezThreadUtils::Sleep(10);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
 
   return 0;

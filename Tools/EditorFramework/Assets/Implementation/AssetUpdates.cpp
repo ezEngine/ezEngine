@@ -170,7 +170,7 @@ static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid
       if (uiTries >= 5)
         return EZ_FAILURE;
 
-      ezThreadUtils::Sleep(50 * (uiTries + 1));
+      ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
       uiTries++;
     }
 
@@ -204,7 +204,7 @@ static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid
       if (uiTries >= 5)
         return EZ_FAILURE;
 
-      ezThreadUtils::Sleep(50 * (uiTries + 1));
+      ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
       uiTries++;
     }
 
@@ -809,7 +809,7 @@ void ezProcessTask::Execute()
       break;
     }
     m_pIPC->ProcessMessages();
-    ezThreadUtils::Sleep(10);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
 
   if (m_bSuccess)

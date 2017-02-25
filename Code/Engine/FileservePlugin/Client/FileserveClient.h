@@ -30,7 +30,28 @@ public:
   ezFileserveClient();
   ~ezFileserveClient();
 
-  ezResult SearchForServerAddress();
+  /// \brief Can be called at startup to go through multiple sources and search for a valid server address
+  ///
+  /// Ie. checks the command line, ezFileserve.txt in different directories, etc.
+  /// For every potential IP it checks whether a fileserve connection could be established (e.g. tries to connect and
+  /// checks whether the server answers). If a valid connection is found, the IP is stored internally and EZ_SUCCESS is returned.
+  /// Call GetServerConnectionAddress() to retrieve the address.
+  ///
+  /// \param timeout Specifies the timeout for checking whether a server can be reached.
+  ezResult SearchForServerAddress(ezTime timeout = ezTime::Seconds(2));
+
+  /// \brief Waits for a Fileserver application to try to connect to this device and send its own information.
+  ///
+  /// This can be used when a device has no proper way to know the IP through which to connect to a Fileserver.
+  /// Instead the device opens a server connection itself, and waits for the other side to try to connect to it.
+  /// This typically means that a human has to manually input this device's IP on the host PC into the Fileserve application,
+  /// thus enabling the exchange of connection information.
+  /// Once this has happened, this function stores the valid server IP internally and returns with success.
+  /// A subsequent call to EnsureConnected() should then succeed.
+  ezResult WaitForServerInfo(ezTime timeout = ezTime::Seconds(60.0 * 5));
+
+  /// \brief Stores the current connection info to a text file in the user data folder.
+  ezResult SaveCurrentConnectionInfoToDisk() const;
 
   /// \brief Allows to disable the file serving functionality. Should be called before mounting data directories.
   ///
@@ -100,7 +121,6 @@ private:
   ezResult TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result) const;
   ezResult TryConnectWithFileserver(const char* szAddress, ezTime timeout) const;
   void FillFileStatusCache(const char* szFile);
-  ezResult WaitForServerToConnect(ezTime timeout = ezTime::Seconds(60.0 * 5));
 
   ezString m_sServerConnectionAddress;
   ezString m_sFileserveCacheFolder;

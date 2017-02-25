@@ -21,7 +21,7 @@ class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveWidget : public QWidget, public 
 public:
   ezQtFileserveWidget(QWidget *parent = nullptr);
 
-  void FindOwnIP(ezStringBuilder& out_Display, ezStringBuilder& out_FirstIP);
+  void FindOwnIP(ezStringBuilder& out_Display, ezHybridArray<ezStringBuilder, 4>* out_AllIPs = nullptr);
 
   ~ezQtFileserveWidget();
 

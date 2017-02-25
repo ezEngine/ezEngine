@@ -71,7 +71,7 @@ void ezEngineProcessGameApplication::WaitForDebugger()
   {
     while (!IsDebuggerPresent())
     {
-      ezThreadUtils::Sleep(10);
+      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
   }
 }

@@ -282,7 +282,7 @@ void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, e
     return;
 
   // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it
-  ezThreadUtils::Sleep(100);
+  ezThreadUtils::Sleep(ezTime::Milliseconds(100));
 
   ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(filename);
 

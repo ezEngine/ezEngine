@@ -100,7 +100,7 @@ void ezTelemetry::UpdateNetwork()
           s_bConnectedToServer = false;
 
           // First wait a bit to ensure that the Server could shut down, if this was a legitimate disconnect
-          ezThreadUtils::Sleep(1000);
+          ezThreadUtils::Sleep(ezTime::Seconds(1));
 
           // Now try to reconnect. If the Server still exists, fine, connect to that.
           // If it does not exist anymore, this will connect to the next best Server that can be found.
@@ -441,7 +441,7 @@ void ezTelemetry::CloseConnection()
   EZ_LOCK(GetTelemetryMutex());
 
   UpdateNetwork();
-  ezThreadUtils::Sleep(10);
+  ezThreadUtils::Sleep(ezTime::Milliseconds(10));
 
   if (g_pHost)
   {
@@ -451,7 +451,7 @@ void ezTelemetry::CloseConnection()
 
     // process the network messages (e.g. send the disconnect messages)
     UpdateNetwork();
-    ezThreadUtils::Sleep(10);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
 
   // finally close the network connection

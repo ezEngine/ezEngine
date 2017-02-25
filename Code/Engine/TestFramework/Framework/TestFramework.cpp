@@ -54,7 +54,7 @@ void ezTestFramework::Initialize()
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCore();
 
-  // if tests need to write data back through Fileserve (e.g. image comparison results), the can do that through a data dir mounted with this path
+  // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with this path
   ezFileSystem::SetSpecialDirectory("eztest", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
   CreateOutputFolder();
@@ -269,6 +269,18 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
     if (ezFileserveClient::GetSingleton() == nullptr)
     {
       EZ_DEFAULT_NEW(ezFileserveClient);
+
+      if (ezFileserveClient::GetSingleton()->SearchForServerAddress().Failed())
+      {
+        if (ezFileserveClient::GetSingleton()->WaitForServerInfo().Succeeded())
+        {
+          ezFileserveClient::GetSingleton()->SaveCurrentConnectionInfoToDisk();
+        }
+      }
+      else
+      {
+        ezFileserveClient::GetSingleton()->SaveCurrentConnectionInfoToDisk();
+      }
     }
 
     if (ezFileserveClient::GetSingleton()->EnsureConnected(ezTime::Seconds(-30)).Failed())

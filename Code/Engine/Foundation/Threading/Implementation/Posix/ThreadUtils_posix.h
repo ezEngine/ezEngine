@@ -22,11 +22,11 @@ void ezThreadUtils::YieldTimeSlice()
   sched_yield();
 }
 
-void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
+void ezThreadUtils::Sleep(const ezTime& duration)
 {
   timespec SleepTime;
-  SleepTime.tv_sec = uiMilliSeconds / 1000;
-  SleepTime.tv_nsec = (uiMilliSeconds * 1000000LL) % 1000000000LL;
+  SleepTime.tv_sec = duration.GetSeconds();
+  SleepTime.tv_nsec = ((ezInt64)duration.GetMilliseconds() * 1000000LL) % 1000000000LL;
   nanosleep(&SleepTime, nullptr);
 }
 

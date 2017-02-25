@@ -34,7 +34,7 @@ private:
         }
       }
 
-      ezThreadUtils::Sleep(10);
+      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
 
     return 0;

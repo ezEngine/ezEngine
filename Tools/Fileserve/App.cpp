@@ -65,12 +65,12 @@ ezApplication::ApplicationExecution ezFileserverApp::Run()
     if (m_uiSleepCounter > 1000)
     {
       // only sleep when no work had to be done in a while
-      ezThreadUtils::Sleep(10);
+      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
     else if (m_uiSleepCounter > 10)
     {
       // only sleep when no work had to be done in a while
-      ezThreadUtils::Sleep(1);
+      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
     }
   }
   else

@@ -437,7 +437,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 }
 
 
-ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, const char* szMyConnectionInfo, ezTime timeout)
+ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout)
 {
   ezStringBuilder sAddress = szClientAddress;
   sAddress.Append(":2042"); // hard-coded port
@@ -451,8 +451,16 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, const cha
     return EZ_FAILURE;
   }
 
+  const ezUInt8 uiCount = MyIPs.GetCount();
+
   ezNetworkMessage msg('FSRV', 'MYIP');
-  msg.GetWriter() << szMyConnectionInfo;
+  msg.GetWriter() << uiMyPort;
+  msg.GetWriter() << uiCount;
+
+  for (const auto& info : MyIPs)
+  {
+    msg.GetWriter() << info;
+  }
 
   network.Send(ezNetworkTransmitMode::Reliable, msg);
 
@@ -460,7 +468,7 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, const cha
   for (ezUInt32 i = 0; i < 10; ++i)
   {
     network.UpdateNetwork();
-    ezThreadUtils::Sleep(1);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(1));
   }
 
   network.ShutdownConnection();

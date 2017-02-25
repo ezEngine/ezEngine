@@ -46,7 +46,7 @@ void ezQtFileserveMainWnd::UpdateNetworkSlot()
 
 void ezQtFileserveMainWnd::OnServerStarted(const QString& ip, ezUInt16 uiPort)
 {
-  QString title = QString("ezFileserve (%1:%2)").arg(ip).arg(uiPort);
+  QString title = QString("ezFileserve (Port %1)").arg(uiPort);
 
   setWindowTitle(title);
 }

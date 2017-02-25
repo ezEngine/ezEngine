@@ -12,6 +12,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <QTableWidget>
 #include <Foundation/Utilities/CommandLineUtils.h>
+#include <QInputDialog>
 
 ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
 {
@@ -64,8 +65,8 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
   }
 
   {
-    ezStringBuilder sDisplayString, sFirstIP;
-    FindOwnIP(sDisplayString, sFirstIP);
+    ezStringBuilder sDisplayString;
+    FindOwnIP(sDisplayString);
 
     IpLabel->setText(sDisplayString.GetData());
   }
@@ -91,11 +92,10 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
   }
 }
 
-void ezQtFileserveWidget::FindOwnIP(ezStringBuilder& out_Display, ezStringBuilder& out_FirstIP)
+void ezQtFileserveWidget::FindOwnIP(ezStringBuilder& out_Display, ezHybridArray<ezStringBuilder, 4>* out_AllIPs)
 {
   ezStringBuilder hardwarename;
   out_Display.Clear();
-  out_FirstIP.Clear();
 
   for (const QNetworkInterface& neti : QNetworkInterface::allInterfaces())
   {
@@ -126,12 +126,14 @@ void ezQtFileserveWidget::FindOwnIP(ezStringBuilder& out_Display, ezStringBuilde
 
       // if we DO find multiple adapters, display them all
       if (!out_Display.IsEmpty())
-        out_Display.Append(" | ");
+        out_Display.Append("\n");
 
       out_Display.AppendFormat("Adapter: '{0}' = {1}", hardwarename, entry.ip().toString().toUtf8().data());
 
-      if (out_FirstIP.IsEmpty())
-        out_FirstIP = entry.ip().toString().toUtf8().data();
+      if (out_AllIPs != nullptr)
+      {
+        out_AllIPs->PushBack(entry.ip().toString().toUtf8().data());
+      }
     }
   }
 }
@@ -193,10 +195,23 @@ void ezQtFileserveWidget::on_ReloadResourcesButton_clicked()
 
 void ezQtFileserveWidget::on_ConnectClient_clicked()
 {
-  ezStringBuilder sOwnInfo;
-  sOwnInfo.Format("localhost:{0}", PortLineEdit->text().toUtf8().data());
+  bool ok = false;
+  QString sIP = QInputDialog::getText(this, "Connect to Device", "Device IP:", QLineEdit::Normal, "", &ok);
+  if (!ok)
+    return;
 
-  ezFileserver::SendConnectionInfo("localhost", sOwnInfo);
+  ezStringBuilder sDisplayString;
+  ezHybridArray<ezStringBuilder, 4> AllIPs;
+  FindOwnIP(sDisplayString, &AllIPs);
+
+  if (ezFileserver::SendConnectionInfo(sIP.toUtf8().data(), PortLineEdit->text().toInt(), AllIPs).Succeeded())
+  {
+    LogActivity(ezFmt("Successfully sent server info to client at '{0}'", sIP.toUtf8().data()), ezFileserveActivityType::Other);
+  }
+  else
+  {
+    LogActivity(ezFmt("Failed to connect with client at '{0}'", sIP.toUtf8().data()), ezFileserveActivityType::Other);
+  }
 }
 
 void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
@@ -210,10 +225,10 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
       ReloadResourcesButton->setEnabled(true);
       StartServerButton->setText("Stop Server");
 
-      ezStringBuilder sDisplayString, sFirstIP;
-      FindOwnIP(sDisplayString, sFirstIP);
+      ezStringBuilder sDisplayString;
+      FindOwnIP(sDisplayString);
 
-      emit ServerStarted(sFirstIP.GetData(), ezFileserver::GetSingleton()->GetPort());
+      emit ServerStarted(sDisplayString.GetData(), ezFileserver::GetSingleton()->GetPort());
     }
     break;
 

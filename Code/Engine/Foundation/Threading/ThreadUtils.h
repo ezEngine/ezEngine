@@ -3,6 +3,8 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
+class ezTime;
+
 /// \brief Contains general thread functions.
 class EZ_FOUNDATION_DLL ezThreadUtils
 {
@@ -12,7 +14,7 @@ public:
   static void YieldTimeSlice();
 
   /// \brief Suspends the execution of the current thread for the given amount of time. (Precision may vary according to OS)
-  static void Sleep(ezUInt32 uiMilliSeconds); // [tested]
+  static void Sleep(const ezTime& duration); // [tested]
 
   /// \brief Helper function to check if the current thread is the main thread (e.g. the thread which initialized the foundation library)
   static bool IsMainThread();

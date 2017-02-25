@@ -174,7 +174,7 @@ void ezQtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
       bTaskRunning = m_bTaskRunning;
     }
 
-    ezThreadUtils::Sleep(100);
+    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
   }
 }
 
