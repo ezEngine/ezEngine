@@ -49,9 +49,11 @@ public:
   virtual ezSizeU32 GetClientAreaSize() const = 0;
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;
 
-  /// Whether the window is a fullscren window
+  /// \brief Whether the window is a fullscren window
   /// or should be one - some platforms may enforce this via the GALSwapchain)
-  virtual bool IsFullscreenWindow() const = 0;
+  ///
+  /// If bOnlyProperFullscreenMode, the caller accepts borderless windows that cover the entire screen as "fullscreen".
+  virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const = 0;
 
   virtual void ProcessWindowMessages() = 0;
 };
@@ -71,6 +73,7 @@ struct EZ_SYSTEM_DLL ezWindowMode
     Default = WindowFixedResolution
   };
 
+  /// \brief Returns whether the window covers an entire monitor. This includes borderless windows and proper fullscreen modes.
   static constexpr bool IsFullscreen(Enum e)
   {
     return e == FullscreenBorderlessNativeResolution || e == FullscreenFixedResolution;
@@ -170,9 +173,14 @@ public:
     return m_WindowHandle;
   }
 
-  /// \brief Returns the platform specific window handle.
-  virtual bool IsFullscreenWindow() const override
+  /// \brief Returns whether the window covers an entire monitor.
+  ///
+  /// If bOnlyProperFullscreenMode == false, this includes borderless windows.
+  virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override
   {
+    if (bOnlyProperFullscreenMode)
+      return m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution;
+
     return ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode);
   }
 

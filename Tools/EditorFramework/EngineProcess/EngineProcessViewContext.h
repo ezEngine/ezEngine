@@ -31,7 +31,7 @@ public:
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
   virtual void ProcessWindowMessages() override { }
-  virtual bool IsFullscreenWindow() const override { return false; }
+  virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override { return false; }
 
   ezWindowHandle m_hWnd;
   ezUInt16 m_uiWidth;
@@ -53,7 +53,7 @@ public:
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
   virtual void SetupRenderTarget(ezGALRenderTagetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void Redraw(bool bRenderEditorGizmos);
-  
+
   /// \brief Focuses camera on the given object
   static bool FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
 
