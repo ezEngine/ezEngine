@@ -167,7 +167,7 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Full screen swap chains must be switched to windowed mode before destruction.
   // See: https://msdn.microsoft.com/en-us/library/windows/desktop/bb205075(v=vs.85).aspx#Destroying
-  m_pDXSwapChain->SetFullscreenState(TRUE, NULL);
+  m_pDXSwapChain->SetFullscreenState(FALSE, NULL);
 #endif
 
   EZ_GAL_DX11_RELEASE(m_pDXSwapChain);
