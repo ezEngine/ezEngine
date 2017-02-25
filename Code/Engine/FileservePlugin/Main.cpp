@@ -28,6 +28,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
     {
       fs = EZ_DEFAULT_NEW(ezFileserveClient);
 
+      // on sandboxed platforms we must go through fileserve, so we enforce a fileserve connection
+      // on unrestricted platforms, we use fileserve, if a connection can be established,
+      // but if the connection times out, we fall back to regular file accesses
+#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
       if (fs->SearchForServerAddress().Failed())
       {
         if (fs->WaitForServerInfo().Succeeded())
@@ -39,6 +43,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
       {
         fs->SaveCurrentConnectionInfoToDisk();
       }
+#endif
     }
   }
 

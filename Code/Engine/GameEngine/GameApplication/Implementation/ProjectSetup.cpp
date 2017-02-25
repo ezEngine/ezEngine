@@ -261,9 +261,9 @@ void ezGameApplication::DoLoadCustomPlugins()
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Could not load HLSL Shader Compiler Plugin.");
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // on UWP we don't have full filesystem access, so always try to use Fileserve
-  ezPlugin::LoadPlugin("ezFileservePlugin");
+  // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
+#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+  ezPlugin::LoadPlugin("ezFileservePlugin"); // don't care if it fails to load
 #endif
 
 #endif

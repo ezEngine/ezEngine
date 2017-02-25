@@ -19,10 +19,6 @@ private:
 
   ezString m_sSceneFile;
   ezWorld* m_pWorld;
-
-protected:
-  virtual void DoLoadCustomPlugins() override;
-
 };
 
 
