@@ -25,8 +25,9 @@
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <QClipboard>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <Panels/LogPanel/LogPanel.moc.h>
-#include <Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
 #include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
@@ -292,6 +293,7 @@ void ezQtEditorApp::CreatePanels()
 {
   new ezQtLogPanel();
   new ezQtAssetBrowserPanel();
+  new ezQtAssetCuratorPanel();
 }
 
 

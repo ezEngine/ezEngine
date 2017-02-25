@@ -1,20 +1,16 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
+#include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/Basics.h>
-#include <QVBoxLayout>
-#include <QScrollBar>
-#include <QTimer>
-#include <QSettings>
-#include <QMenu>
-#include <QClipboard>
-#include <QMimeData>
-#include <QFileDialog>
 #include <Foundation/Utilities/Progress.h>
-#include <GuiFoundation/Widgets/SearchWidget.moc.h>
+#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <QClipboard>
+#include <QFileDialog>
+#include <QMenu>
+#include <QMimeData>
+#include <QSettings>
+#include <QTimer>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
@@ -26,7 +22,8 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent) : QWidget(parent
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
 
-  m_pModel = new ezQtAssetBrowserModel(this);
+  m_pFilter = new ezQtAssetBrowserFilter(this);
+  m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
 
   SearchWidget->setPlaceholderText("Search Assets");
 
@@ -47,15 +44,15 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent) : QWidget(parent
     context.m_sMapping = "AssetBrowserToolBar";
     context.m_pDocument = nullptr;
     m_pToolbar->SetActionContext(context);
-    m_pToolbar->setObjectName("TextureAssetWindowToolBar");
+    m_pToolbar->setObjectName("AssetBrowserToolBar");
     ToolBarLayout->insertWidget(0, m_pToolbar);
   }
 
   TreeFolderFilter->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-  EZ_VERIFY(connect(m_pModel, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pFilter, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pFilter, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pFilter, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(OnAssetSelectionChanged(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(OnAssetSelectionCurrentChanged(const QModelIndex &, const QModelIndex &))) != nullptr, "signal/slot connection failed");
@@ -194,7 +191,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
 
   QMenu* pSubMenu = pMenu->addMenu("New");
 
-  ezStringBuilder sTypeFilter = m_pModel->GetTypeFilter();
+  ezStringBuilder sTypeFilter = m_pFilter->GetTypeFilter();
 
   for (ezDocumentManager* pMan : managers)
   {
@@ -292,7 +289,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentag
 
 void ezQtAssetBrowserWidget::OnTextFilterChanged()
 {
-  SearchWidget->setText(QString::fromUtf8(m_pModel->GetTextFilter()));
+  SearchWidget->setText(QString::fromUtf8(m_pFilter->GetTextFilter()));
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
@@ -300,7 +297,7 @@ void ezQtAssetBrowserWidget::OnTextFilterChanged()
 void ezQtAssetBrowserWidget::OnTypeFilterChanged()
 {
   ezStringBuilder sTemp;
-  const ezStringBuilder sFilter(";", m_pModel->GetTypeFilter(), ";");
+  const ezStringBuilder sFilter(";", m_pFilter->GetTypeFilter(), ";");
 
   bool bAnyChecked = false;
 
@@ -324,7 +321,7 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
 
 void ezQtAssetBrowserWidget::OnSearchWidgetTextChanged(const QString& text)
 {
-  m_pModel->SetTextFilter(text.toUtf8().data());
+  m_pFilter->SetTextFilter(text.toUtf8().data());
 }
 
 void ezQtAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
@@ -396,7 +393,7 @@ void ezQtAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item
   if (sFilter.IsEmpty()) // all filters enabled
     sFilter = m_sAllTypesFilter; // might be different for dialogs
 
-  m_pModel->SetTypeFilter(sFilter);
+  m_pFilter->SetTypeFilter(sFilter);
 }
 
 void ezQtAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
@@ -507,7 +504,7 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
     sCurPath = TreeFolderFilter->selectedItems()[0]->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
   }
 
-  m_pModel->SetPathFilter(sCurPath);
+  m_pFilter->SetPathFilter(sCurPath);
 }
 
 void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt)
@@ -521,7 +518,7 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
 
   QAction* pAction = m.addAction(QLatin1String("Show Items in Sub-Folders"), this, SLOT(OnShowSubFolderItemsToggled()));
   pAction->setCheckable(true);
-  pAction->setChecked(m_pModel->GetShowItemsInSubFolders());
+  pAction->setChecked(m_pFilter->GetShowItemsInSubFolders());
 
   AddAssetCreatorMenu(&m, false);
 
@@ -530,7 +527,7 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
 
 void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
 {
-  m_pModel->SetShowItemsInSubFolders(!m_pModel->GetShowItemsInSubFolders());
+  m_pFilter->SetShowItemsInSubFolders(!m_pFilter->GetShowItemsInSubFolders());
 }
 
 void ezQtAssetBrowserWidget::OnTreeOpenExplorer()
@@ -565,7 +562,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
   pSortAction->setCheckable(true);
-  pSortAction->setChecked(m_pModel->GetSortByRecentUse());
+  pSortAction->setChecked(m_pFilter->GetSortByRecentUse());
 
   AddAssetCreatorMenu(&m, true);
 
@@ -746,12 +743,12 @@ void ezQtAssetBrowserWidget::OnNewAsset()
 
 void ezQtAssetBrowserWidget::OnListToggleSortByRecentlyUsed()
 {
-  m_pModel->SetSortByRecentUse(!m_pModel->GetSortByRecentUse());
+  m_pFilter->SetSortByRecentUse(!m_pFilter->GetSortByRecentUse());
 }
 
 void ezQtAssetBrowserWidget::OnPathFilterChanged()
 {
-  const QString sPath = QString::fromUtf8(m_pModel->GetPathFilter());
+  const QString sPath = QString::fromUtf8(m_pFilter->GetPathFilter());
 
   if (TreeFolderFilter->topLevelItemCount() == 1)
     SelectPathFilter(TreeFolderFilter->topLevelItem(0), sPath);
@@ -828,6 +825,6 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
     }
   }
 
-  m_pModel->SetTypeFilter(m_sAllTypesFilter);
+  m_pFilter->SetTypeFilter(m_sAllTypesFilter);
 }
 

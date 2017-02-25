@@ -6,6 +6,11 @@
 #include <QMimeData>
 #include <QUrl>
 
+ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
+  : QObject(pParent)
+{
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezQtAssetBrowserModel public functions
 ////////////////////////////////////////////////////////////////////////
@@ -17,23 +22,13 @@ struct AssetComparer
   {
   }
 
-  bool Less(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
+  EZ_ALWAYS_INLINE bool Less(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
   {
     ezAssetInfo* pInfoA = nullptr;
     ezAssetInfo* pInfoB = nullptr;
     m_AllAssets.TryGetValue(a.m_Guid, pInfoA);
     m_AllAssets.TryGetValue(b.m_Guid, pInfoB);
-    if (pInfoA && pInfoB && pInfoA->m_LastAccess.GetSeconds() != pInfoB->m_LastAccess.GetSeconds())
-    {
-      return pInfoA->m_LastAccess > pInfoB->m_LastAccess;
-    }
-
-    ezInt32 iValue = a.m_sSortingKey.Compare(b.m_sSortingKey);
-    if (iValue == 0)
-    {
-      return a.m_Guid < b.m_Guid;
-    }
-    return iValue < 0;
+    return m_Model->m_pFilter->Less(pInfoA, pInfoB);
   }
 
   EZ_ALWAYS_INLINE bool operator()(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
@@ -45,14 +40,20 @@ struct AssetComparer
   const ezHashTable<ezUuid, ezAssetInfo*>& m_AllAssets;
 };
 
-ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent)
+ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter)
   : QAbstractItemModel(pParent)
+  , m_pFilter(pFilter)
 {
+  EZ_ASSERT_DEBUG(pFilter != nullptr, "ezQtAssetBrowserModel requires a valid filter.");
+  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]()
+  {
+    resetModel();
+  });
+
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
 
   resetModel();
   SetIconMode(true);
-  m_bShowItemsInSubFolders = true;
 
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetBrowserModel::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetBrowserModel::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
@@ -68,20 +69,16 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
   switch (e.m_Type)
   {
   case ezAssetCuratorEvent::Type::AssetAdded:
-    HandleAsset(e.m_pInfo, true);
+    HandleAsset(e.m_pInfo, AssetOp::Add);
     break;
   case ezAssetCuratorEvent::Type::AssetRemoved:
-    HandleAsset(e.m_pInfo, false);
+    HandleAsset(e.m_pInfo, AssetOp::Remove);
     break;
   case ezAssetCuratorEvent::Type::AssetListReset:
     resetModel();
     break;
   case ezAssetCuratorEvent::Type::AssetUpdated:
-    QModelIndex idx = index(FindAssetIndex(e.m_AssetGuid), 0);
-    if (idx.isValid())
-    {
-      emit dataChanged(idx, idx);
-    }
+    HandleAsset(e.m_pInfo, AssetOp::Updated);
     break;
   }
 }
@@ -89,6 +86,9 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
 
 ezInt32 ezQtAssetBrowserModel::FindAssetIndex(const ezUuid& assetGuid) const
 {
+  if (!m_DisplayedEntries.Contains(assetGuid))
+    return -1;
+
   for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); ++i)
   {
     if (m_AssetsToDisplay[i].m_Guid == assetGuid)
@@ -100,70 +100,6 @@ ezInt32 ezQtAssetBrowserModel::FindAssetIndex(const ezUuid& assetGuid) const
   return -1;
 }
 
-void ezQtAssetBrowserModel::SetShowItemsInSubFolders(bool bShow)
-{
-  if (m_bShowItemsInSubFolders == bShow)
-    return;
-
-  m_bShowItemsInSubFolders = bShow;
-
-  resetModel();
-  emit ShowSubFolderItemsChanged();
-}
-
-void ezQtAssetBrowserModel::SetSortByRecentUse(bool bSort)
-{
-  if (m_bSortByRecentUse == bSort)
-    return;
-
-  m_bSortByRecentUse = bSort;
-
-  resetModel();
-  emit SortByRecentUseChanged();
-}
-
-
-void ezQtAssetBrowserModel::SetTextFilter(const char* szText)
-{
-  ezStringBuilder sCleanText = szText;
-  sCleanText.MakeCleanPath();
-
-  if (m_sTextFilter == sCleanText)
-    return;
-
-  m_sTextFilter = sCleanText;
-
-  resetModel();
-  emit TextFilterChanged();
-}
-
-void ezQtAssetBrowserModel::SetPathFilter(const char* szPath)
-{
-  ezStringBuilder sCleanText = szPath;
-  sCleanText.MakeCleanPath();
-
-  if (m_sPathFilter == sCleanText)
-    return;
-
-  m_sPathFilter = sCleanText;
-
-  resetModel();
-
-  emit PathFilterChanged();
-}
-
-void ezQtAssetBrowserModel::SetTypeFilter(const char* szTypes)
-{
-  if (m_sTypeFilter == szTypes)
-    return;
-
-  m_sTypeFilter = szTypes;
-
-  resetModel();
-
-  emit TypeFilterChanged();
-}
-
 void ezQtAssetBrowserModel::resetModel()
 {
   beginResetModel();
@@ -173,66 +109,41 @@ void ezQtAssetBrowserModel::resetModel()
 
   m_AssetsToDisplay.Clear();
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
+  m_DisplayedEntries.Clear();
 
   AssetEntry ae;
   // last access > filename
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {
     ezAssetInfo* pInfo = it.Value();
-    if (IsAssetFiltered(pInfo))
+    if (m_pFilter->IsAssetFiltered(pInfo))
       continue;
 
     Init(ae, pInfo);
 
     m_AssetsToDisplay.PushBack(ae);
+    m_DisplayedEntries.Insert(ae.m_Guid);
   }
 
   AssetComparer cmp(this, AllAssets);
   m_AssetsToDisplay.Sort(cmp);
 
   endResetModel();
+  EZ_ASSERT_DEBUG(m_AssetsToDisplay.GetCount() == m_DisplayedEntries.GetCount(), "Implementation error: Set and sorted list diverged");
 }
 
-
-bool ezQtAssetBrowserModel::IsAssetFiltered(const ezAssetInfo* pInfo) const
+void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, AssetOp op)
 {
-  if (!m_sPathFilter.IsEmpty())
+  if (m_pFilter->IsAssetFiltered(pInfo))
   {
-    // if the string is not found in the path, ignore this asset
-    if (!pInfo->m_sDataDirRelativePath.StartsWith_NoCase(m_sPathFilter))
-      return true;
-
-    if (!m_bShowItemsInSubFolders)
+    if (!m_DisplayedEntries.Contains(pInfo->m_Info.m_DocumentID))
     {
-      // do we find another path separator after the prefix path?
-      // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(pInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
-        return true;
+      return;
     }
+
+    // Filtered but still exists, remove it.
+    op = AssetOp::Remove;
   }
-
-  if (!m_sTextFilter.IsEmpty())
-  {
-    // if the string is not found in the path, ignore this asset
-    if (pInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
-      return true;
-  }
-
-  if (!m_sTypeFilter.IsEmpty())
-  {
-    ezStringBuilder sTemp;
-    sTemp.Set(";", pInfo->m_Info.m_sAssetTypeName, ";");
-
-    if (!m_sTypeFilter.FindSubString(sTemp))
-      return true;
-  }
-  return false;
-}
-
-void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, bool bAdd)
-{
-  if (IsAssetFiltered(pInfo))
-    return;
 
   ezAssetCurator::ezLockedAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownAssets();
   const ezHashTable<ezUuid, ezAssetInfo*>& AllAssets = *(AllAssetsLocked.operator->());
@@ -244,7 +155,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, bool bAdd)
   AssetEntry* pLB = std::lower_bound(begin(m_AssetsToDisplay), end(m_AssetsToDisplay), ae, cmp);
   ezUInt32 uiInsertIndex = pLB - m_AssetsToDisplay.GetData();
 
-  if (bAdd)
+  if (op == AssetOp::Add)
   {
     // Equal?
     if (uiInsertIndex < m_AssetsToDisplay.GetCount() && !cmp.Less(*pLB, ae) && !cmp.Less(ae, *pLB))
@@ -252,18 +163,43 @@ void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, bool bAdd)
 
     beginInsertRows(QModelIndex(), uiInsertIndex, uiInsertIndex);
     m_AssetsToDisplay.Insert(ae, uiInsertIndex);
+    m_DisplayedEntries.Insert(pInfo->m_Info.m_DocumentID);
     endInsertRows();
   }
-  else
+  else if (op == AssetOp::Remove)
   {
     // Equal?
     if (uiInsertIndex < m_AssetsToDisplay.GetCount() && !cmp.Less(*pLB, ae) && !cmp.Less(ae, *pLB))
     {
       beginRemoveRows(QModelIndex(), uiInsertIndex, uiInsertIndex);
       m_AssetsToDisplay.RemoveAt(uiInsertIndex);
+      m_DisplayedEntries.Remove(pInfo->m_Info.m_DocumentID);
       endRemoveRows();
     }
   }
+  else
+  {
+    // Equal?
+    if (uiInsertIndex < m_AssetsToDisplay.GetCount() && !cmp.Less(*pLB, ae) && !cmp.Less(ae, *pLB))
+    {
+      QModelIndex idx = index(uiInsertIndex, 0);
+      emit dataChanged(idx, idx);
+    }
+    else
+    {
+      ezInt32 oldIndex = FindAssetIndex(pInfo->m_Info.m_DocumentID);
+      if (oldIndex != -1)
+      {
+        // Name has changed, remove old entry
+        beginRemoveRows(QModelIndex(), oldIndex, oldIndex);
+        m_AssetsToDisplay.RemoveAt(oldIndex);
+        m_DisplayedEntries.Remove(pInfo->m_Info.m_DocumentID);
+        endRemoveRows();
+      }
+      HandleAsset(pInfo, AssetOp::Add);
+    }
+  }
+  EZ_ASSERT_DEBUG(m_AssetsToDisplay.GetCount() == m_DisplayedEntries.GetCount(), "Implementation error: Set and sorted list diverged");
 }
 
 
@@ -459,8 +395,4 @@ void ezQtAssetBrowserModel::Init(AssetEntry& ae, const ezAssetInfo* pInfo)
 {
   ae.m_Guid = pInfo->m_Info.m_DocumentID;
   ae.m_uiThumbnailID = (ezUInt32)-1;
-
-  ezStringBuilder sTemp = ezPathUtils::GetFileName(pInfo->m_sDataDirRelativePath.GetData(), pInfo->m_sDataDirRelativePath.GetData() + pInfo->m_sDataDirRelativePath.GetElementCount());
-  sTemp.ToLower();
-  ae.m_sSortingKey = sTemp;
 }

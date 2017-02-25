@@ -2,15 +2,16 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
-#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 class ezQtToolBarActionMapView;
+class ezQtAssetBrowserFilter;
+class ezQtAssetBrowserModel;
 
 class ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
-
 public:
   ezQtAssetBrowserWidget(QWidget* parent);
   ~ezQtAssetBrowserWidget();
@@ -24,6 +25,8 @@ public:
 
   ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_pModel; }
   const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
+  ezQtAssetBrowserFilter* GetAssetBrowserFilter() { return m_pFilter; }
+  const ezQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
 
 signals:
   void ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
@@ -76,4 +79,5 @@ private:
   ezQtToolBarActionMapView* m_pToolbar;
   ezString m_sAllTypesFilter;
   ezQtAssetBrowserModel* m_pModel;
+  ezQtAssetBrowserFilter* m_pFilter;
 };

@@ -1,22 +1,15 @@
 #include <PCH.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Logging/Log.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <QImage>
-#include <QPainter>
-#include <Foundation/IO/OSFile.h>
 #include <Core/Assets/AssetFileHeader.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/IPC/SyncObject.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <QPainter>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTINoAllocator)
 {

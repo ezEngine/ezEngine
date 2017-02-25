@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Core/Assets/AssetFileHeader.h>
 

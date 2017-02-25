@@ -1,12 +1,8 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
-#include <Foundation/Math/Math.h>
-#include <Foundation/Logging/Log.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-#include <QWheelEvent>
-#include <QApplication>
 #include <QPainter>
 
 ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent) : ezQtItemView<QListView>(parent)
@@ -20,7 +16,7 @@ ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent) : ezQtItemView<QList
   setViewMode(QListView::ViewMode::IconMode);
   setUniformItemSizes(true);
   setResizeMode(QListView::ResizeMode::Adjust);
-  
+
   setItemDelegate(m_pDelegate);
   SetIconScale(m_iIconSizePercentage);
 }
@@ -152,18 +148,18 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     highlightRect.setHeight(uiThumbnailSize + 2 * HighlightBorderWidth);
     highlightRect.setWidth(uiThumbnailSize + 2 * HighlightBorderWidth);
 
-    if ((opt.state & QStyle::State_Selected)) 
+    if ((opt.state & QStyle::State_Selected))
     {
       QPalette::ColorGroup cg = opt.state & QStyle::State_Enabled ? QPalette::Normal : QPalette::Disabled;
       if (cg == QPalette::Normal && !(opt.state & QStyle::State_Active))
         cg = QPalette::Inactive;
 
       painter->fillRect(highlightRect, opt.palette.brush(cg, QPalette::Highlight));
-    } 
-    else 
+    }
+    else
     {
       QVariant value = index.data(Qt::BackgroundRole);
-      if (value.canConvert<QBrush>()) 
+      if (value.canConvert<QBrush>())
       {
         QPointF oldBO = painter->brushOrigin();
         painter->setBrushOrigin(highlightRect.topLeft());
@@ -216,6 +212,9 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
       break;
     case ezAssetInfo::TransformState::MissingReference:
       ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(painter, thumbnailRect);
+      break;
+    case ezAssetInfo::TransformState::TransformError:
+      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect);
       break;
     }
   }

@@ -3,13 +3,7 @@
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
 #include <QStatusBar>
-#include <QSettings>
-#include <QLabel>
-#include <QTimer>
-#include <QProgressBar>
 
 EZ_IMPLEMENT_SINGLETON(ezQtAssetBrowserPanel);
 

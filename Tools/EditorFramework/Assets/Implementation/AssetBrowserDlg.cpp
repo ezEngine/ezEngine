@@ -1,6 +1,9 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
+#include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
+
 #include <QSettings>
 #include <QFileDialog>
 
@@ -35,28 +38,28 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const char* szPreselec
 
   AssetBrowserWidget->SetDialogMode();
   AssetBrowserWidget->RestoreState("AssetBrowserDlg");
-  AssetBrowserWidget->GetAssetBrowserModel()->SetSortByRecentUse(s_bSortByRecentUse);
-  AssetBrowserWidget->GetAssetBrowserModel()->SetShowItemsInSubFolders(s_bShowItemsInSubFolder);
+  AssetBrowserWidget->GetAssetBrowserFilter()->SetSortByRecentUse(s_bSortByRecentUse);
+  AssetBrowserWidget->GetAssetBrowserFilter()->SetShowItemsInSubFolders(s_bShowItemsInSubFolder);
 
   if (!s_sTextFilter[m_sVisibleFilters].IsEmpty())
-    AssetBrowserWidget->GetAssetBrowserModel()->SetTextFilter(s_sTextFilter[m_sVisibleFilters]);
+    AssetBrowserWidget->GetAssetBrowserFilter()->SetTextFilter(s_sTextFilter[m_sVisibleFilters]);
 
   if (!s_sPathFilter[m_sVisibleFilters].IsEmpty())
-    AssetBrowserWidget->GetAssetBrowserModel()->SetPathFilter(s_sPathFilter[m_sVisibleFilters]);
+    AssetBrowserWidget->GetAssetBrowserFilter()->SetPathFilter(s_sPathFilter[m_sVisibleFilters]);
 
   if (!s_sTypeFilter[m_sVisibleFilters].IsEmpty())
-    AssetBrowserWidget->GetAssetBrowserModel()->SetTypeFilter(s_sTypeFilter[m_sVisibleFilters]);
+    AssetBrowserWidget->GetAssetBrowserFilter()->SetTypeFilter(s_sTypeFilter[m_sVisibleFilters]);
 
   AssetBrowserWidget->SearchWidget->setFocus();
 }
 
 ezQtAssetBrowserDlg::~ezQtAssetBrowserDlg()
 {
-  s_bShowItemsInSubFolder = AssetBrowserWidget->GetAssetBrowserModel()->GetShowItemsInSubFolders();
-  s_bSortByRecentUse = AssetBrowserWidget->GetAssetBrowserModel()->GetSortByRecentUse();
-  s_sTextFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetTextFilter();
-  s_sPathFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetPathFilter();
-  s_sTypeFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetTypeFilter();
+  s_bShowItemsInSubFolder = AssetBrowserWidget->GetAssetBrowserFilter()->GetShowItemsInSubFolders();
+  s_bSortByRecentUse = AssetBrowserWidget->GetAssetBrowserFilter()->GetSortByRecentUse();
+  s_sTextFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetTextFilter();
+  s_sPathFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetPathFilter();
+  s_sTypeFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetTypeFilter();
 
   QSettings Settings;
   Settings.beginGroup(QLatin1String("AssetBrowserDlg"));

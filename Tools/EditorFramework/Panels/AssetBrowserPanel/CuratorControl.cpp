@@ -1,14 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <QStatusBar>
-#include <QSettings>
-#include <QLabel>
 #include <QTimer>
-#include <QProgressBar>
 #include <QToolButton>
 #include <QPainter>
 #include <QBoxLayout>
@@ -46,16 +39,23 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   QPainter painter(this);
   painter.setPen(QPen(Qt::NoPen));
 
-  ezUInt32 uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef;
-  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
-  const ezUInt32 uiDone = uiNumAssets - uiNumUnknown - uiNumNeedTransform - uiNumNeedThumb - uiNumMissingDep - uiNumMissingRef;
-  ezUInt32 sections[6] = { uiDone, uiNumNeedThumb, uiNumNeedTransform, uiNumUnknown, uiNumMissingDep, uiNumMissingRef };
-  QColor colors[6] = {QColor(Qt::darkGreen), QColor(Qt::darkBlue), QColor(Qt::blue), QColor(Qt::gray), QColor(Qt::red), QColor(Qt::red) };
+  ezUInt32 uiNumAssets;
+  ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
+  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
+  QColor colors[ezAssetInfo::TransformState::COUNT];
+  colors[ezAssetInfo::TransformState::Unknown] = QColor(Qt::gray);
+  colors[ezAssetInfo::TransformState::Updating] = QColor(Qt::gray);
+  colors[ezAssetInfo::TransformState::NeedsTransform] = QColor(Qt::blue);
+  colors[ezAssetInfo::TransformState::NeedsThumbnail] = QColor(Qt::darkBlue);
+  colors[ezAssetInfo::TransformState::UpToDate] = QColor(Qt::darkGreen);
+  colors[ezAssetInfo::TransformState::MissingDependency] = QColor(Qt::red);
+  colors[ezAssetInfo::TransformState::MissingReference] = QColor(Qt::red);
+  colors[ezAssetInfo::TransformState::TransformError] = QColor(Qt::red);
 
   const float fTotalCount = uiNumAssets;
   const ezInt32 iTargetWidth = rect.width();
   ezInt32 iCurrentCount = 0;
-  for (ezInt32 i = 0; i < 4; ++i)
+  for (ezInt32 i = 0; i < ezAssetInfo::TransformState::COUNT; ++i)
   {
     ezInt32 iStartX = ezInt32((iCurrentCount / fTotalCount) * iTargetWidth);
     iCurrentCount += sections[i];
@@ -72,7 +72,9 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.Format("[Un: {0}, Tr: {1}, Th: {2}, Err: {3}]", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep + uiNumMissingRef);
+  s.Format("[Un: {0}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform],
+    sections[ezAssetInfo::TransformState::NeedsThumbnail],
+    sections[ezAssetInfo::TransformState::MissingDependency] + sections[ezAssetInfo::TransformState::MissingReference] + sections[ezAssetInfo::TransformState::TransformError]);
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
@@ -101,15 +103,17 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
 {
   m_bScheduled = false;
 
-  ezUInt32 uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef;
-  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
+  ezUInt32 uiNumAssets;
+  ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
+  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
 
   ezStringBuilder s;
 
   if (uiNumAssets > 0)
   {
-    const ezUInt32 uiDone = uiNumAssets - uiNumUnknown - uiNumNeedTransform - uiNumNeedThumb - uiNumMissingDep - uiNumMissingRef;
-    s.Format("Unknown: {0}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
+    s.Format("Unknown: {0}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed Transform: {5}",
+      sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
+      sections[ezAssetInfo::TransformState::MissingDependency], sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError]);
     setToolTip(s.GetData());
   }
   else
