@@ -29,6 +29,26 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float x, float y, float z, float w)
   m_v.Set(x, y, z, w);
 }
 
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetX(const ezSimdFloat& f)
+{
+  m_v.x = f.m_v.x;
+}
+
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetY(const ezSimdFloat& f)
+{
+  m_v.y = f.m_v.x;
+}
+
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetZ(const ezSimdFloat& f)
+{
+  m_v.z = f.m_v.x;
+}
+
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetW(const ezSimdFloat& f)
+{
+  m_v.w = f.m_v.x;
+}
+
 EZ_ALWAYS_INLINE void ezSimdVec4f::SetZero()
 {
   m_v.SetZero();

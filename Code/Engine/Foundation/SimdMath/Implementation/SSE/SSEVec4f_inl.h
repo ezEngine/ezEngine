@@ -41,6 +41,26 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float x, float y, float z, float w)
   m_v = _mm_setr_ps(x, y, z, w);
 }
 
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetX(const ezSimdFloat& f)
+{
+  m_v = _mm_move_ss(m_v, f.m_v);
+}
+
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetY(const ezSimdFloat& f)
+{
+  m_v = _mm_shuffle_ps(_mm_unpacklo_ps(m_v, f.m_v), m_v, _MM_SHUFFLE(3, 2, 1, 0));
+}
+
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetZ(const ezSimdFloat& f)
+{
+  m_v = _mm_shuffle_ps(m_v, _mm_unpackhi_ps(f.m_v, m_v), _MM_SHUFFLE(3, 2, 1, 0));
+}
+
+EZ_ALWAYS_INLINE void ezSimdVec4f::SetW(const ezSimdFloat& f)
+{
+  m_v = _mm_shuffle_ps(m_v, _mm_unpackhi_ps(m_v, f.m_v), _MM_SHUFFLE(1, 0, 1, 0));
+}
+
 EZ_ALWAYS_INLINE void ezSimdVec4f::SetZero()
 {
   m_v = _mm_setzero_ps();

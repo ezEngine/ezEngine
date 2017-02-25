@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/SimdMath/SimdMath.h>
+#include <Foundation/Math/Angle.h>
 
 class EZ_FOUNDATION_DLL ezSimdFloat
 {
@@ -18,6 +19,9 @@ public:
 
   /// \brief Constructs from a given integer.
   ezSimdFloat(ezUInt32 i); // [tested]
+
+  /// \brief Constructs from given angle.
+  ezSimdFloat(ezAngle a); // [tested]
 
   /// \brief Constructs from the internal implementation type.
   ezSimdFloat(ezInternal::QuadFloat v); // [tested]

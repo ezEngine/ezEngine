@@ -37,6 +37,13 @@ EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
   m_v = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
 }
 
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezAngle a)
+{
+  EZ_CHECK_SIMD_ALIGNMENT(this);
+
+  m_v = _mm_set1_ps(a.GetRadian());
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInternal::QuadFloat v)
 {
   m_v = v;

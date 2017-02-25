@@ -23,6 +23,11 @@ public:
 
   void Set(float x, float y, float z, float w); // [tested]
 
+  void SetX(const ezSimdFloat& f); // [tested]
+  void SetY(const ezSimdFloat& f); // [tested]
+  void SetZ(const ezSimdFloat& f); // [tested]
+  void SetW(const ezSimdFloat& f); // [tested]
+
   void SetZero(); // [tested]
 
   template<int N>

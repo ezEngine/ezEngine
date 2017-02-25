@@ -176,20 +176,36 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setter")
   {
-    ezSimdVec4f vSet1F;
-    vSet1F.Set(2.0f);
-    EZ_TEST_BOOL(vSet1F.x() == 2.0f && vSet1F.y() == 2.0f &&
-      vSet1F.z() == 2.0f && vSet1F.w() == 2.0f);
+    ezSimdVec4f a;
+    a.Set(2.0f);
+    EZ_TEST_BOOL(a.x() == 2.0f && a.y() == 2.0f &&
+      a.z() == 2.0f && a.w() == 2.0f);
 
-    ezSimdVec4f vSet4F;
-    vSet4F.Set(1.0f, 2.0f, 3.0f, 4.0f);
-    EZ_TEST_BOOL(vSet4F.x() == 1.0f && vSet4F.y() == 2.0f &&
-      vSet4F.z() == 3.0f && vSet4F.w() == 4.0f);
+    ezSimdVec4f b;
+    b.Set(1.0f, 2.0f, 3.0f, 4.0f);
+    EZ_TEST_BOOL(b.x() == 1.0f && b.y() == 2.0f &&
+      b.z() == 3.0f && b.w() == 4.0f);
 
-    ezSimdVec4f vSetZero;
-    vSetZero.SetZero();
-    EZ_TEST_BOOL(vSetZero.x() == 0.0f && vSetZero.y() == 0.0f &&
-      vSetZero.z() == 0.0f && vSetZero.w() == 0.0f);
+    b.SetX(5.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 2.0f &&
+      b.z() == 3.0f && b.w() == 4.0f);
+
+    b.SetY(6.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f &&
+      b.z() == 3.0f && b.w() == 4.0f);
+
+    b.SetZ(7.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f &&
+      b.z() == 7.0f && b.w() == 4.0f);
+
+    b.SetW(8.0f);
+    EZ_TEST_BOOL(b.x() == 5.0f && b.y() == 6.0f &&
+      b.z() == 7.0f && b.w() == 8.0f);
+
+    ezSimdVec4f c;
+    c.SetZero();
+    EZ_TEST_BOOL(c.x() == 0.0f && c.y() == 0.0f &&
+      c.z() == 0.0f && c.w() == 0.0f);
 
     {
       float testBlock[4] = { 1, 2, 3, 4 };

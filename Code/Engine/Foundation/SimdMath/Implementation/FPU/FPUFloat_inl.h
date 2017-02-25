@@ -19,6 +19,11 @@ EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
   m_v.Set((float)i);
 }
 
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezAngle a)
+{
+  m_v.Set(a.GetRadian());
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInternal::QuadFloat v)
 {
   m_v = v;
