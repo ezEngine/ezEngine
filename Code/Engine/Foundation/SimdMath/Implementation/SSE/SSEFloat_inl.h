@@ -22,7 +22,7 @@ EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezInt32 i)
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
   __m128 v = _mm_cvtsi32_ss(_mm_setzero_ps(), i);
-  m_v = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
+  m_v = _mm_shuffle_ps(v, v, EZ_TO_SHUFFLE(ezSwizzle::XXXX));
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
@@ -34,7 +34,7 @@ EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezUInt32 i)
 #else
   __m128 v = _mm_cvtsi32_ss(_mm_setzero_ps(), i);
 #endif
-  m_v = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0, 0, 0, 0));
+  m_v = _mm_shuffle_ps(v, v, EZ_TO_SHUFFLE(ezSwizzle::XXXX));
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(ezAngle a)

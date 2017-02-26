@@ -87,8 +87,7 @@ EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::w() const
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Get() const
 {
-  const int shuffle = ((s >> 12) & 0x03) | ((s >> 6) & 0x0c) | (s & 0x30) | ((s << 6) & 0xc0);
-  return _mm_shuffle_epi32(m_v, shuffle);
+  return _mm_shuffle_epi32(m_v, EZ_TO_SHUFFLE(s));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator-() const
@@ -114,7 +113,7 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
   EZ_ASSERT_NOT_IMPLEMENTED; // not sure whether this code works so better assert
   __m128i tmp1 = _mm_mul_epu32(m_v, v.m_v);
   __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(m_v, 4), _mm_srli_si128(v.m_v, 4));
-  return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0, 0, 2, 0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0, 0, 2, 0)));
+  return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, EZ_SHUFFLE(0, 2, 0, 0)), _mm_shuffle_epi32(tmp2, EZ_SHUFFLE(0, 2, 0, 0)));
 #endif
 }
 

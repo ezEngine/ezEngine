@@ -11,7 +11,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool b)
 
   ezUInt32 mask = b ? 0xFFFFFFFF : 0;
   __m128 tmp = _mm_load_ss((float*)&mask);
-  m_v = _mm_shuffle_ps(tmp, tmp, _MM_SHUFFLE(0, 0, 0, 0));
+  m_v = _mm_shuffle_ps(tmp, tmp, EZ_TO_SHUFFLE(ezSwizzle::XXXX));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool x, bool y, bool z, bool w)
@@ -30,7 +30,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(ezInternal::QuadBool v)
 template<int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::GetComponent() const
 {
-  return _mm_movemask_ps(_mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(N, N, N, N))) != 0;
+  return _mm_movemask_ps(_mm_shuffle_ps(m_v, m_v, EZ_SHUFFLE(N, N, N, N))) != 0;
 }
 
 EZ_ALWAYS_INLINE bool ezSimdVec4b::x() const
@@ -56,8 +56,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::w() const
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Get() const
 {
-  const int shuffle = ((s >> 12) & 0x03) | ((s >> 6) & 0x0c) | (s & 0x30) | ((s << 6) & 0xc0);
-  return _mm_shuffle_ps(m_v, m_v, shuffle);
+  return _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(s));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator&&(const ezSimdVec4b& rhs) const

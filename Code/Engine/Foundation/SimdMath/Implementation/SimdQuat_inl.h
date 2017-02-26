@@ -11,7 +11,7 @@ EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat(const ezSimdVec4f& v)
 }
 
 //static
-EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::IdentityQuaternion()
+EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::Identity()
 {
   return ezSimdQuat(ezSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
 }
@@ -69,7 +69,8 @@ EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator-() const
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdQuat::operator*(const ezSimdVec4f& v) const
 {
-  ezSimdVec4f t = m_v.Cross(v) * 2.0f;
+  ezSimdVec4f t = m_v.Cross(v);
+  t += t;
   return v + t * m_v.w() + m_v.Cross(t);
 }
 

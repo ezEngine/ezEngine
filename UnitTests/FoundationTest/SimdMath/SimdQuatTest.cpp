@@ -26,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdQuat)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityQuaternion")
   {
-    ezSimdQuat q = ezSimdQuat::IdentityQuaternion();
+    ezSimdQuat q = ezSimdQuat::Identity();
 
     EZ_TEST_BOOL(q.m_v.x() == 0.0f && q.m_v.y() == 0.0f && q.m_v.z() == 0.0f && q.m_v.w() == 1.0f);
   }

@@ -48,17 +48,17 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::SetX(const ezSimdFloat& f)
 
 EZ_ALWAYS_INLINE void ezSimdVec4f::SetY(const ezSimdFloat& f)
 {
-  m_v = _mm_shuffle_ps(_mm_unpacklo_ps(m_v, f.m_v), m_v, _MM_SHUFFLE(3, 2, 1, 0));
+  m_v = _mm_shuffle_ps(_mm_unpacklo_ps(m_v, f.m_v), m_v, EZ_TO_SHUFFLE(ezSwizzle::XYZW));
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4f::SetZ(const ezSimdFloat& f)
 {
-  m_v = _mm_shuffle_ps(m_v, _mm_unpackhi_ps(f.m_v, m_v), _MM_SHUFFLE(3, 2, 1, 0));
+  m_v = _mm_shuffle_ps(m_v, _mm_unpackhi_ps(f.m_v, m_v), EZ_TO_SHUFFLE(ezSwizzle::XYZW));
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4f::SetW(const ezSimdFloat& f)
 {
-  m_v = _mm_shuffle_ps(m_v, _mm_unpackhi_ps(m_v, f.m_v), _MM_SHUFFLE(1, 0, 1, 0));
+  m_v = _mm_shuffle_ps(m_v, _mm_unpackhi_ps(m_v, f.m_v), EZ_TO_SHUFFLE(ezSwizzle::XYXY));
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4f::SetZero()
@@ -200,7 +200,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
 template<int N>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent() const
 {
-  return _mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(N, N, N, N));
+  return _mm_shuffle_ps(m_v, m_v, EZ_SHUFFLE(N, N, N, N));
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::x() const
@@ -226,8 +226,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::w() const
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Get() const
 {
-  const int shuffle = ((s >> 12) & 0x03) | ((s >> 6) & 0x0c) | (s & 0x30) | ((s << 6) & 0xc0);
-  return _mm_shuffle_ps(m_v, m_v, shuffle);
+  return _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(s));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator-() const
@@ -390,7 +389,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<2>() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_31
   __m128 a = _mm_hadd_ps(m_v, m_v);
-  return _mm_shuffle_ps(a, a, _MM_SHUFFLE(0, 0, 0, 0));
+  return _mm_shuffle_ps(a, a, EZ_TO_SHUFFLE(ezSwizzle::XXXX));
 #else
   return GetComponent<0>() + GetComponent<1>();
 #endif
@@ -428,8 +427,8 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<3>() const
 template<>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<4>() const
 {
-  __m128 xyxyzwzw = _mm_min_ps(_mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(1, 0, 3, 2)), m_v);
-  __m128 zwzwxyxy = _mm_shuffle_ps(xyxyzwzw, xyxyzwzw, _MM_SHUFFLE(2, 3, 0, 1));
+  __m128 xyxyzwzw = _mm_min_ps(_mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(ezSwizzle::ZWXY)), m_v);
+  __m128 zwzwxyxy = _mm_shuffle_ps(xyxyzwzw, xyxyzwzw, EZ_TO_SHUFFLE(ezSwizzle::YXWZ));
   return _mm_min_ps(xyxyzwzw, zwzwxyxy);
 }
 
@@ -448,8 +447,8 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<3>() const
 template<>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<4>() const
 {
-  __m128 xyxyzwzw = _mm_max_ps(_mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(1, 0, 3, 2)), m_v);
-  __m128 zwzwxyxy = _mm_shuffle_ps(xyxyzwzw, xyxyzwzw, _MM_SHUFFLE(2, 3, 0, 1));
+  __m128 xyxyzwzw = _mm_max_ps(_mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(ezSwizzle::ZWXY)), m_v);
+  __m128 zwzwxyxy = _mm_shuffle_ps(xyxyzwzw, xyxyzwzw, EZ_TO_SHUFFLE(ezSwizzle::YXWZ));
   return _mm_max_ps(xyxyzwzw, zwzwxyxy);
 }
 
@@ -495,11 +494,11 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<4>(const ezSimdVec4f& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Cross(const ezSimdVec4f& v) const
 {
-  __m128 a = _mm_mul_ps(m_v, _mm_shuffle_ps(v.m_v, v.m_v, _MM_SHUFFLE(3, 0, 2, 1)));
-  __m128 b = _mm_mul_ps(v.m_v, _mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(3, 0, 2, 1)));
+  __m128 a = _mm_mul_ps(m_v, _mm_shuffle_ps(v.m_v, v.m_v, EZ_TO_SHUFFLE(ezSwizzle::YZXW)));
+  __m128 b = _mm_mul_ps(v.m_v, _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(ezSwizzle::YZXW)));
   __m128 c = _mm_sub_ps(a, b);
 
-  return _mm_shuffle_ps(c, c, _MM_SHUFFLE(3, 0, 2, 1));
+  return _mm_shuffle_ps(c, c, EZ_TO_SHUFFLE(ezSwizzle::YZXW));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const

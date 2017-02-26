@@ -106,7 +106,7 @@
 #include <Foundation/SimdMath/SimdFloat.h>
 #include <Foundation/SimdMath/SimdVec4b.h>
 #include <Foundation/SimdMath/SimdQuat.h>
-//#include <Foundation/SimdMath/SimdTransform.h>
+#include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 
