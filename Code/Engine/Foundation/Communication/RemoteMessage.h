@@ -1,18 +1,19 @@
 #pragma once
 
+#include <Foundation/Basics.h>
 #include <Foundation/IO/MemoryStream.h>
 
-/// \todo Add move semantics for ezNetworkMessage
+/// \todo Add move semantics for ezRemoteMessage
 
-/// \brief Encapsulates all the data that is transmitted when sending or receiving a message with ezNetworkInterface
-class EZ_FILESERVEPLUGIN_DLL ezNetworkMessage
+/// \brief Encapsulates all the data that is transmitted when sending or receiving a message with ezRemoteInterface
+class EZ_FOUNDATION_DLL ezRemoteMessage
 {
 public:
-  ezNetworkMessage();
-  ezNetworkMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID);
-  ezNetworkMessage(const ezNetworkMessage& rhs);
-  ~ezNetworkMessage();
-  void operator=(const ezNetworkMessage& rhs);
+  ezRemoteMessage();
+  ezRemoteMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID);
+  ezRemoteMessage(const ezRemoteMessage& rhs);
+  ~ezRemoteMessage();
+  void operator=(const ezRemoteMessage& rhs);
 
   /// \name Sending
   ///@{
@@ -40,7 +41,7 @@ public:
   ///@}
 
 private:
-  friend class ezNetworkInterface;
+  friend class ezRemoteInterface;
 
   ezUInt32 m_uiApplicationID = 0;
   ezUInt32 m_uiSystemID = 0;

@@ -24,9 +24,9 @@ void ezFileserver::StartServer()
     return;
 
   m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
-  m_Network->StartServer('EZFS', m_uiPort, false);
+  m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort), false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
-  m_Network->m_NetworkEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
+  m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
 
   ezFileserverEvent e;
   e.m_Type = ezFileserverEvent::Type::ServerStarted;
@@ -51,7 +51,7 @@ bool ezFileserver::UpdateServer()
   if (!m_Network)
     return false;
 
-  m_Network->UpdateNetwork();
+  m_Network->UpdateRemoteInterface();
   return m_Network->ExecuteAllMessageHandlers() > 0;
 }
 
@@ -75,7 +75,7 @@ void ezFileserver::BroadcastReloadResourcesCommand()
   m_Network->Send('FSRV', 'RLDR');
 }
 
-void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
+void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
 {
   auto& client = DetermineClient(msg);
 
@@ -139,11 +139,11 @@ void ezFileserver::NetworkMsgHandler(ezNetworkMessage& msg)
 }
 
 
-void ezFileserver::NetworkEventHandler(const ezNetworkEvent& e)
+void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezNetworkEvent::DisconnectedFromClient:
+  case ezRemoteEvent::DisconnectedFromClient:
     {
       ezFileserverEvent se;
       se.m_Type = ezFileserverEvent::Type::ClientDisconnected;
@@ -158,7 +158,7 @@ void ezFileserver::NetworkEventHandler(const ezNetworkEvent& e)
   }
 }
 
-ezFileserveClientContext& ezFileserver::DetermineClient(ezNetworkMessage &msg)
+ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage &msg)
 {
   ezFileserveClientContext& client = m_Clients[msg.GetApplicationID()];
 
@@ -175,7 +175,7 @@ ezFileserveClientContext& ezFileserver::DetermineClient(ezNetworkMessage &msg)
   return client;
 }
 
-void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
+void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
 {
   ezStringBuilder sDataDir, sRootName, sMountPoint, sRedir;
   ezUInt16 uiDataDirID = 0xffff;
@@ -215,7 +215,7 @@ void ezFileserver::HandleMountRequest(ezFileserveClientContext& client, ezNetwor
 }
 
 
-void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
+void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
 {
   ezUInt16 uiDataDirID = 0xffff;
   msg.GetReader() >> uiDataDirID;
@@ -233,7 +233,7 @@ void ezFileserver::HandleUnmountRequest(ezFileserveClientContext& client, ezNetw
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
+void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
 {
   ezUInt16 uiDataDirID = 0;
   bool bForceThisDataDir = false;
@@ -276,7 +276,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
     {
       const ezUInt16 uiChunkSize = (ezUInt16)ezMath::Min<ezUInt32>(1024, m_SendToClient.GetCount() - uiNextByte);
 
-      ezNetworkMessage ret;
+      ezRemoteMessage ret;
       ret.GetWriter() << downloadGuid;
       ret.GetWriter() << uiChunkSize;
       ret.GetWriter() << uiFileSize;
@@ -285,7 +285,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
         ret.GetWriter().WriteBytes(&m_SendToClient[uiNextByte], uiChunkSize);
 
       ret.SetMessageID('FSRV', 'DWNL');
-      m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
+      m_Network->Send(ezRemoteTransmitMode::Reliable, ret);
 
       uiNextByte += uiChunkSize;
 
@@ -301,14 +301,14 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
 
   // final answer to client
   {
-    ezNetworkMessage ret('FSRV', 'DWNF');
+    ezRemoteMessage ret('FSRV', 'DWNF');
     ret.GetWriter() << downloadGuid;
     ret.GetWriter() << (ezInt8)filestate;
     ret.GetWriter() << status.m_iTimestamp;
     ret.GetWriter() << status.m_uiHash;
     ret.GetWriter() << uiDataDirID;
 
-    m_Network->Send(ezNetworkTransmitMode::Reliable, ret);
+    m_Network->Send(ezRemoteTransmitMode::Reliable, ret);
   }
 
   // reuse previous values
@@ -318,7 +318,7 @@ void ezFileserver::HandleFileRequest(ezFileserveClientContext& client, ezNetwork
   }
 }
 
-void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezNetworkMessage &msg)
+void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezRemoteMessage &msg)
 {
   ezUInt16 uiDataDirID = 0xffff;
   msg.GetReader() >> uiDataDirID;
@@ -343,7 +343,7 @@ void ezFileserver::HandleDeleteFileRequest(ezFileserveClientContext& client, ezN
   ezOSFile::DeleteFile(sAbsPath);
 }
 
-void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezNetworkMessage &msg)
+void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage &msg)
 {
   ezUInt16 uiDataDirID = 0;
 
@@ -365,7 +365,7 @@ void ezFileserver::HandleUploadFileHeader(ezFileserveClientContext& client, ezNe
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ezNetworkMessage &msg)
+void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage &msg)
 {
   ezUuid transferGuid;
   msg.GetReader() >> transferGuid;
@@ -390,7 +390,7 @@ void ezFileserver::HandleUploadFileTransfer(ezFileserveClientContext& client, ez
   m_Events.Broadcast(e);
 }
 
-void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ezNetworkMessage &msg)
+void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage &msg)
 {
   ezUuid transferGuid;
   msg.GetReader() >> transferGuid;
@@ -453,7 +453,7 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
 
   const ezUInt8 uiCount = MyIPs.GetCount();
 
-  ezNetworkMessage msg('FSRV', 'MYIP');
+  ezRemoteMessage msg('FSRV', 'MYIP');
   msg.GetWriter() << uiMyPort;
   msg.GetWriter() << uiCount;
 
@@ -462,12 +462,12 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
     msg.GetWriter() << info;
   }
 
-  network.Send(ezNetworkTransmitMode::Reliable, msg);
+  network.Send(ezRemoteTransmitMode::Reliable, msg);
 
   // make sure the message is out, before we shut down
   for (ezUInt32 i = 0; i < 10; ++i)
   {
-    network.UpdateNetwork();
+    network.UpdateRemoteInterface();
     ezThreadUtils::Sleep(ezTime::Milliseconds(1));
   }
 

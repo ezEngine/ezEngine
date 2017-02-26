@@ -1,13 +1,13 @@
 #include <PCH.h>
-#include <FileservePlugin/Network/NetworkMessage.h>
+#include <Foundation/Communication/RemoteMessage.h>
 
-ezNetworkMessage::ezNetworkMessage()
+ezRemoteMessage::ezRemoteMessage()
   : m_Reader(&m_Storage)
   , m_Writer(&m_Storage)
 {
 }
 
-ezNetworkMessage::ezNetworkMessage(const ezNetworkMessage& rhs)
+ezRemoteMessage::ezRemoteMessage(const ezRemoteMessage& rhs)
   : m_Storage(rhs.m_Storage)
   , m_Reader(&m_Storage)
   , m_Writer(&m_Storage)
@@ -17,7 +17,7 @@ ezNetworkMessage::ezNetworkMessage(const ezNetworkMessage& rhs)
 }
 
 
-ezNetworkMessage::ezNetworkMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
+ezRemoteMessage::ezRemoteMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
   : m_Reader(&m_Storage)
   , m_Writer(&m_Storage)
 {
@@ -25,7 +25,7 @@ ezNetworkMessage::ezNetworkMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
   m_uiMsgID = uiMessageID;
 }
 
-void ezNetworkMessage::operator=(const ezNetworkMessage& rhs)
+void ezRemoteMessage::operator=(const ezRemoteMessage& rhs)
 {
   m_Storage = rhs.m_Storage;
   m_uiApplicationID = rhs.m_uiApplicationID;
@@ -35,13 +35,10 @@ void ezNetworkMessage::operator=(const ezNetworkMessage& rhs)
   m_Writer.SetStorage(&m_Storage);
 }
 
-ezNetworkMessage::~ezNetworkMessage()
+ezRemoteMessage::~ezRemoteMessage()
 {
   m_Reader.SetStorage(nullptr);
   m_Writer.SetStorage(nullptr);
 }
 
-
-
-EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Network_NetworkMessage);
-
+EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteMessage);

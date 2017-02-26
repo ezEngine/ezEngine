@@ -5,7 +5,7 @@
 
 bool ezNetworkInterfaceEnet::s_bEnetInitialized = false;
 
-ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezNetworkMode mode, ezUInt16 uiPort, const char* szServerAddress)
+ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress)
 {
   if (!s_bEnetInitialized)
   {
@@ -18,6 +18,19 @@ ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezNetworkMode mode, ez
     s_bEnetInitialized = true;
   }
 
+  {
+    // Extract port from address
+    const char* szPort = ezStringUtils::FindLastSubString(szServerAddress, ":");
+    szPort = (szPort) ? szPort + 1 : szServerAddress;
+    ezInt32 iPort = 0;
+    if (ezConversionUtils::StringToInt(szPort, iPort).Failed())
+    {
+      ezLog::Error("Failed to extract port from server address: {0}", szServerAddress);
+      return EZ_FAILURE;
+    }
+    m_uiPort = static_cast<ezUInt16>(iPort);
+  }
+
   m_pEnetConnectionToServer = nullptr;
 
   ENetAddress* pServerAddress = nullptr;
@@ -26,10 +39,10 @@ ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezNetworkMode mode, ez
   const enet_uint32 incomingBandwidth = 0; // unlimited
   const enet_uint32 outgoingBandwidth = 0; // unlimited
 
-  if (mode == ezNetworkMode::Server)
+  if (mode == ezRemoteMode::Server)
   {
     m_EnetServerAddress.host = ENET_HOST_ANY;
-    m_EnetServerAddress.port = uiPort;
+    m_EnetServerAddress.port = m_uiPort;
 
     maxPeerCount = 8;
     pServerAddress = &m_EnetServerAddress;
@@ -52,7 +65,7 @@ ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezNetworkMode mode, ez
     return EZ_FAILURE;
   }
 
-  if (mode == ezNetworkMode::Client)
+  if (mode == ezRemoteMode::Client)
   {
     m_pEnetConnectionToServer = enet_host_connect(m_pEnetHost, &m_EnetServerAddress, maxChannels, GetConnectionToken());
 
@@ -65,6 +78,8 @@ ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezNetworkMode mode, ez
 
 void ezNetworkInterfaceEnet::InternalShutdownConnection()
 {
+  m_uiPort = 0;
+
   if (m_pEnetHost)
   {
     // send all peers that we are disconnecting
@@ -72,7 +87,7 @@ void ezNetworkInterfaceEnet::InternalShutdownConnection()
       enet_peer_disconnect(&m_pEnetHost->peers[i - 1], 0);
 
     // process the network messages (e.g. send the disconnect messages)
-    UpdateNetwork();
+    UpdateRemoteInterface();
     ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
 
@@ -95,18 +110,18 @@ ezTime ezNetworkInterfaceEnet::InternalGetPingToServer()
   return ezTime::Milliseconds(m_pEnetConnectionToServer->lastRoundTripTime);
 }
 
-ezResult ezNetworkInterfaceEnet::InternalTransmit(ezNetworkTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
+ezResult ezNetworkInterfaceEnet::InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
 {
   if (m_pEnetHost == nullptr)
     return EZ_FAILURE;
 
-  ENetPacket* pPacket = enet_packet_create(data.GetPtr(), data.GetCount(), (tm == ezNetworkTransmitMode::Reliable) ? ENET_PACKET_FLAG_RELIABLE : 0);
+  ENetPacket* pPacket = enet_packet_create(data.GetPtr(), data.GetCount(), (tm == ezRemoteTransmitMode::Reliable) ? ENET_PACKET_FLAG_RELIABLE : 0);
   enet_host_broadcast(m_pEnetHost, 0, pPacket);
 
   return EZ_SUCCESS;
 }
 
-void ezNetworkInterfaceEnet::InternalUpdateNetwork()
+void ezNetworkInterfaceEnet::InternalUpdateRemoteInterface()
 {
   if (!m_pEnetHost)
     return;
@@ -130,7 +145,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
     {
     case ENET_EVENT_TYPE_CONNECT:
       {
-        if ((GetNetworkMode() == ezNetworkMode::Server) && (NetworkEvent.peer->eventData != GetConnectionToken()))
+        if ((GetRemoteMode() == ezRemoteMode::Server) && (NetworkEvent.peer->eventData != GetConnectionToken()))
         {
           // do not accept connections that don't have the correct password
           enet_peer_disconnect(NetworkEvent.peer, 0);
@@ -143,7 +158,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
         enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
         enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
-        if (GetNetworkMode() == ezNetworkMode::Client)
+        if (GetRemoteMode() == ezRemoteMode::Client)
         {
           m_ServerInfoName = szHostName;
           m_ServerInfoIP = szHostIP;
@@ -153,7 +168,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
         else
         {
           const ezUInt32 uiAppID = GetApplicationID();
-          Send(ezNetworkTransmitMode::Reliable, GetConnectionToken(), 'EZID', ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&uiAppID), sizeof(ezUInt32)));
+          Send(ezRemoteTransmitMode::Reliable, GetConnectionToken(), 'EZID', ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&uiAppID), sizeof(ezUInt32)));
 
           // then wait for its acknowledgment message
         }
@@ -162,7 +177,7 @@ void ezNetworkInterfaceEnet::InternalUpdateNetwork()
 
     case ENET_EVENT_TYPE_DISCONNECT:
       {
-        if (GetNetworkMode() == ezNetworkMode::Client)
+        if (GetRemoteMode() == ezRemoteMode::Client)
         {
           ezLog::Info("Disconnected from server, trying to reconnect");
 

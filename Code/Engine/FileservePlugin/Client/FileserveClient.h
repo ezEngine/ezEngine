@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Types/UniquePtr.h>
-#include <FileservePlugin/Network/NetworkInterface.h>
+#include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/Uuid.h>
 
@@ -109,9 +109,9 @@ private:
   void ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint) const;
   void BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const;
   void GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const;
-  void NetworkMsgHandler(ezNetworkMessage& msg);
-  void HandleFileTransferMsg(ezNetworkMessage &msg);
-  void HandleFileTransferFinishedMsg(ezNetworkMessage &msg);
+  void NetworkMsgHandler(ezRemoteMessage& msg);
+  void HandleFileTransferMsg(ezRemoteMessage &msg);
+  void HandleFileTransferFinishedMsg(ezRemoteMessage &msg);
   void WriteMetaFile(ezStringBuilder sCachedMetaFile, ezInt64 iFileTimeStamp, ezUInt64 uiFileHash);
   void WriteDownloadToDisk(ezStringBuilder sCachedFile);
   ezResult DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir);
@@ -130,7 +130,7 @@ private:
   bool m_bWaitingForUploadFinished = false;
   ezUuid m_CurFileRequestGuid;
   ezStringBuilder m_sCurFileRequest;
-  ezUniquePtr<ezNetworkInterface> m_Network;
+  ezUniquePtr<ezRemoteInterface> m_Network;
   ezDynamicArray<ezUInt8> m_Download;
   ezTime m_CurrentTime;
 

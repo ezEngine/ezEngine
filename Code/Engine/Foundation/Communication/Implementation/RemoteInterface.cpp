@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <FileservePlugin/Network/NetworkInterface.h>
+#include <Foundation/Communication/RemoteInterface.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
-ezNetworkInterface::~ezNetworkInterface()
+ezRemoteInterface::~ezRemoteInterface()
 {
   // unfortunately we cannot do that ourselves here, because ShutdownConnection() calls virtual functions
   // and this object is already partially destructed here (derived class is already shut down)
-  EZ_ASSERT_DEV(m_NetworkMode == ezNetworkMode::None, "ezNetworkInterface::ShutdownConnection() has be be called before destroying the interface");
+  EZ_ASSERT_DEV(m_RemoteMode == ezRemoteMode::None, "ezRemoteInterface::ShutdownConnection() has be be called before destroying the interface");
 }
 
-ezResult ezNetworkInterface::CreateConnection(ezUInt32 uiConnectionToken, ezNetworkMode mode, ezUInt16 uiPort, const char* szServerAddress, bool bStartUpdateThread)
+ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, const char* szServerAddress, bool bStartUpdateThread)
 {
   ShutdownConnection();
 
@@ -16,17 +17,17 @@ ezResult ezNetworkInterface::CreateConnection(ezUInt32 uiConnectionToken, ezNetw
 
   m_uiConnectionToken = uiConnectionToken;
   m_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
+  m_sServerAddress = szServerAddress;
 
-  if (InternalCreateConnection(mode, uiPort, szServerAddress).Failed())
+  if (InternalCreateConnection(mode, szServerAddress).Failed())
   {
     ShutdownConnection();
     return EZ_FAILURE;
   }
 
-  m_uiPort = uiPort;
-  m_NetworkMode = mode;
+  m_RemoteMode = mode;
 
-  UpdateNetwork();
+  UpdateRemoteInterface();
 
   if (bStartUpdateThread)
   {
@@ -36,26 +37,26 @@ ezResult ezNetworkInterface::CreateConnection(ezUInt32 uiConnectionToken, ezNetw
   return EZ_SUCCESS;
 }
 
-ezResult ezNetworkInterface::StartServer(ezUInt32 uiConnectionToken, ezUInt16 uiPort, bool bStartUpdateThread /*= true*/)
+ezResult ezRemoteInterface::StartServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread /*= true*/)
 {
-  return CreateConnection(uiConnectionToken, ezNetworkMode::Server, uiPort, nullptr, bStartUpdateThread);
+  return CreateConnection(uiConnectionToken, ezRemoteMode::Server, szAddress, bStartUpdateThread);
 }
 
-ezResult ezNetworkInterface::ConnectToServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread /*= true*/)
+ezResult ezRemoteInterface::ConnectToServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread /*= true*/)
 {
-  return CreateConnection(uiConnectionToken, ezNetworkMode::Client, 0, szAddress, bStartUpdateThread);
+  return CreateConnection(uiConnectionToken, ezRemoteMode::Client, szAddress, bStartUpdateThread);
 }
 
-ezResult ezNetworkInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime::Seconds(10)*/)
+ezResult ezRemoteInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime::Seconds(10)*/)
 {
-  if (m_NetworkMode != ezNetworkMode::Client)
+  if (m_RemoteMode != ezRemoteMode::Client)
     return EZ_FAILURE;
 
   const ezTime tStart = ezTime::Now();
 
   while (true)
   {
-    UpdateNetwork();
+    UpdateRemoteInterface();
 
     if (IsConnectedToServer())
       return EZ_SUCCESS;
@@ -70,42 +71,41 @@ ezResult ezNetworkInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime
   }
 }
 
-void ezNetworkInterface::ShutdownConnection()
+void ezRemoteInterface::ShutdownConnection()
 {
   StopUpdateThread();
 
   EZ_LOCK(GetMutex());
 
-  if (m_NetworkMode != ezNetworkMode::None)
+  if (m_RemoteMode != ezRemoteMode::None)
   {
     InternalShutdownConnection();
 
-    m_NetworkMode = ezNetworkMode::None;
-    m_uiPort = 0;
+    m_RemoteMode = ezRemoteMode::None;
     m_uiApplicationID = 0;
     m_uiConnectionToken = 0;
   }
 }
 
-void ezNetworkInterface::UpdatePingToServer()
+void ezRemoteInterface::UpdatePingToServer()
 {
-  if (m_NetworkMode == ezNetworkMode::Server)
+  if (m_RemoteMode == ezRemoteMode::Server)
   {
     EZ_LOCK(GetMutex());
     m_PingToServer = InternalGetPingToServer();
   }
 }
 
-void ezNetworkInterface::UpdateNetwork()
+void ezRemoteInterface::UpdateRemoteInterface()
 {
   EZ_LOCK(GetMutex());
 
-  InternalUpdateNetwork();
+  InternalUpdateRemoteInterface();
 }
 
-ezResult ezNetworkInterface::Transmit(ezNetworkTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
+ezResult ezRemoteInterface::Transmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
 {
-  if (m_NetworkMode == ezNetworkMode::None)
+  if (m_RemoteMode == ezRemoteMode::None)
     return EZ_FAILURE;
 
   EZ_LOCK(GetMutex());
@@ -114,20 +114,20 @@ ezResult ezNetworkInterface::Transmit(ezNetworkTransmitMode tm, const ezArrayPtr
     return EZ_FAILURE;
 
   // make sure the message is processed immediately
-  UpdateNetwork();
+  UpdateRemoteInterface();
 
   return EZ_SUCCESS;
 }
 
 
-void ezNetworkInterface::Send(ezUInt32 uiSystemID, ezUInt32 uiMsgID)
+void ezRemoteInterface::Send(ezUInt32 uiSystemID, ezUInt32 uiMsgID)
 {
-  Send(ezNetworkTransmitMode::Reliable, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>());
+  Send(ezRemoteTransmitMode::Reliable, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>());
 }
 
-void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
+void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
 {
-  if (m_NetworkMode == ezNetworkMode::None)
+  if (m_RemoteMode == ezRemoteMode::None)
     return;
 
   //if (!IsConnectedToOther())
@@ -147,30 +147,30 @@ void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezU
   Transmit(tm, m_TempSendBuffer);
 }
 
-void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData /*= nullptr*/, ezUInt32 uiDataBytes /*= 0*/)
+void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData /*= nullptr*/, ezUInt32 uiDataBytes /*= 0*/)
 {
   Send(tm, uiSystemID, uiMsgID, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pData), uiDataBytes));
 }
 
-void ezNetworkInterface::Send(ezNetworkTransmitMode tm, ezNetworkMessage& msg)
+void ezRemoteInterface::Send(ezRemoteTransmitMode tm, ezRemoteMessage& msg)
 {
   Send(tm, msg.GetSystemID(), msg.GetMessageID(), ezArrayPtr<const ezUInt8>(msg.GetMessageData(), msg.GetMessageSize()));
 }
 
 
-void ezNetworkInterface::SetMessageHandler(ezUInt32 uiSystemID, ezNetworkMessageHandler messageHandler)
+void ezRemoteInterface::SetMessageHandler(ezUInt32 uiSystemID, ezRemoteMessageHandler messageHandler)
 {
   m_MessageQueues[uiSystemID].m_MessageHandler = messageHandler;
 }
 
-ezUInt32 ezNetworkInterface::ExecuteMessageHandlers(ezUInt32 uiSystem)
+ezUInt32 ezRemoteInterface::ExecuteMessageHandlers(ezUInt32 uiSystem)
 {
   EZ_LOCK(m_Mutex);
 
   return ExecuteMessageHandlersForQueue(m_MessageQueues[uiSystem]);
 }
 
-ezUInt32 ezNetworkInterface::ExecuteAllMessageHandlers()
+ezUInt32 ezRemoteInterface::ExecuteAllMessageHandlers()
 {
   EZ_LOCK(m_Mutex);
 
@@ -183,7 +183,7 @@ ezUInt32 ezNetworkInterface::ExecuteAllMessageHandlers()
   return ret;
 }
 
-ezUInt32 ezNetworkInterface::ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& queue)
+ezUInt32 ezRemoteInterface::ExecuteMessageHandlersForQueue(ezRemoteMessageQueue& queue)
 {
   const ezUInt32 ret = queue.m_MessageQueue.GetCount();
 
@@ -199,7 +199,7 @@ ezUInt32 ezNetworkInterface::ExecuteMessageHandlersForQueue(ezNetworkMessageQueu
   return ret;
 }
 
-void ezNetworkInterface::StartUpdateThread()
+void ezRemoteInterface::StartUpdateThread()
 {
   StopUpdateThread();
 
@@ -207,13 +207,13 @@ void ezNetworkInterface::StartUpdateThread()
   {
     EZ_LOCK(m_Mutex);
 
-    m_pUpdateThread = EZ_DEFAULT_NEW(ezNetworkThread);
-    m_pUpdateThread->m_pNetwork = this;
+    m_pUpdateThread = EZ_DEFAULT_NEW(ezRemoteThread);
+    m_pUpdateThread->m_pRemoteInterface = this;
     m_pUpdateThread->Start();
   }
 }
 
-void ezNetworkInterface::StopUpdateThread()
+void ezRemoteInterface::StopUpdateThread()
 {
   if (m_pUpdateThread != nullptr)
   {
@@ -226,49 +226,49 @@ void ezNetworkInterface::StopUpdateThread()
 }
 
 
-void ezNetworkInterface::ReportConnectionToServer(ezUInt32 uiServerID)
+void ezRemoteInterface::ReportConnectionToServer(ezUInt32 uiServerID)
 {
   m_uiConnectedToServerWithID = uiServerID;
 
-  ezNetworkEvent e;
-  e.m_Type = ezNetworkEvent::ConnectedToServer;
+  ezRemoteEvent e;
+  e.m_Type = ezRemoteEvent::ConnectedToServer;
   e.m_uiOtherAppID = uiServerID;
-  m_NetworkEvents.Broadcast(e);
+  m_RemoteEvents.Broadcast(e);
 }
 
 
-void ezNetworkInterface::ReportConnectionToClient(ezUInt32 uiApplicationID)
+void ezRemoteInterface::ReportConnectionToClient(ezUInt32 uiApplicationID)
 {
   m_iConnectionsToClients++;
 
-  ezNetworkEvent e;
-  e.m_Type = ezNetworkEvent::ConnectedToClient;
+  ezRemoteEvent e;
+  e.m_Type = ezRemoteEvent::ConnectedToClient;
   e.m_uiOtherAppID = uiApplicationID;
-  m_NetworkEvents.Broadcast(e);
+  m_RemoteEvents.Broadcast(e);
 }
 
-void ezNetworkInterface::ReportDisconnectedFromServer()
+void ezRemoteInterface::ReportDisconnectedFromServer()
 {
   m_uiConnectedToServerWithID = 0;
 
-  ezNetworkEvent e;
-  e.m_Type = ezNetworkEvent::DisconnectedFromServer;
+  ezRemoteEvent e;
+  e.m_Type = ezRemoteEvent::DisconnectedFromServer;
   e.m_uiOtherAppID = m_uiConnectedToServerWithID;
-  m_NetworkEvents.Broadcast(e);
+  m_RemoteEvents.Broadcast(e);
 }
 
-void ezNetworkInterface::ReportDisconnectedFromClient(ezUInt32 uiApplicationID)
+void ezRemoteInterface::ReportDisconnectedFromClient(ezUInt32 uiApplicationID)
 {
   m_iConnectionsToClients--;
 
-  ezNetworkEvent e;
-  e.m_Type = ezNetworkEvent::DisconnectedFromClient;
+  ezRemoteEvent e;
+  e.m_Type = ezRemoteEvent::DisconnectedFromClient;
   e.m_uiOtherAppID = uiApplicationID;
-  m_NetworkEvents.Broadcast(e);
+  m_RemoteEvents.Broadcast(e);
 }
 
 
-void ezNetworkInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
+void ezRemoteInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data)
 {
   EZ_LOCK(m_Mutex);
 
@@ -285,7 +285,7 @@ void ezNetworkInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSyst
   msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount());
 }
 
-ezResult ezNetworkInterface::DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port)
+ezResult ezRemoteInterface::DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port)
 {
   out_IP = 0;
   out_Port = 0;
@@ -346,21 +346,21 @@ ezResult ezNetworkInterface::DetermineTargetAddress(const char* szConnectTo, ezU
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezNetworkThread::ezNetworkThread()
-  : ezThread("ezNetworkThread")
+ezRemoteThread::ezRemoteThread()
+  : ezThread("ezRemoteThread")
 {
 }
 
-ezUInt32 ezNetworkThread::Run()
+ezUInt32 ezRemoteThread::Run()
 {
   ezTime lastPing;
 
-  while (m_bKeepRunning && m_pNetwork)
+  while (m_bKeepRunning && m_pRemoteInterface)
   {
-    m_pNetwork->UpdateNetwork();
+    m_pRemoteInterface->UpdateRemoteInterface();
 
     // Send a Ping every once in a while
-    if (m_pNetwork->GetNetworkMode() == ezNetworkMode::Client)
+    if (m_pRemoteInterface->GetRemoteMode() == ezRemoteMode::Client)
     {
       ezTime tNow = ezTime::Now();
 
@@ -368,7 +368,7 @@ ezUInt32 ezNetworkThread::Run()
       {
         lastPing = tNow;
 
-        m_pNetwork->UpdatePingToServer();
+        m_pRemoteInterface->UpdatePingToServer();
       }
     }
 
@@ -378,7 +378,4 @@ ezUInt32 ezNetworkThread::Run()
   return 0;
 }
 
-
-
-EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Network_NetworkInterface);
-
+EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteInterface);

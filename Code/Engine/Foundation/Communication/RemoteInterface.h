@@ -1,29 +1,34 @@
 #pragma once
 
-#include <FileservePlugin/Plugin.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Time/Time.h>
-#include <FileservePlugin/Network/NetworkMessage.h>
+#include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Types/Delegate.h>
+#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Communication/Event.h>
 
-/// \brief Whether the network is configured as a server or a client
-enum class ezNetworkMode
+/// \brief Whether the remote interface is configured as a server or a client
+enum class ezRemoteMode
 {
-  None,   ///< Network is shut down
-  Server, ///< Network acts as a server. Can connect with multiple clients
-  Client  ///< Network acts as a client. Can connect with exactly one server.
+  None,   ///< Remote interface is shut down
+  Server, ///< Remote interface acts as a server. Can connect with multiple clients
+  Client  ///< Remote interface acts as a client. Can connect with exactly one server.
 };
 
 /// \brief Mode for transmitting messages
-enum class ezNetworkTransmitMode
+///
+/// Depending on the remote interface implementation, Unreliable may not be supported and revert to Reliable.
+enum class ezRemoteTransmitMode
 {
   Reliable,   ///< Messages should definitely arrive at the target, if necessary they are send several times, until the target acknowledged it.
   Unreliable, ///< Messages are sent at most once, if they get lost, they are not resent. If it is known beforehand, that not receiver exists, they are dropped without sending them at all.
 };
 
 /// \brief Event type for connections
-struct ezNetworkEvent
+struct EZ_FOUNDATION_DLL ezRemoteEvent
 {
   enum Type
   {
@@ -37,18 +42,18 @@ struct ezNetworkEvent
   ezUInt32 m_uiOtherAppID;
 };
 
-typedef ezDelegate<void(ezNetworkMessage&)> ezNetworkMessageHandler;
+typedef ezDelegate<void(ezRemoteMessage&)> ezRemoteMessageHandler;
 
-struct EZ_FILESERVEPLUGIN_DLL ezNetworkMessageQueue
+struct EZ_FOUNDATION_DLL ezRemoteMessageQueue
 {
-  ezNetworkMessageHandler m_MessageHandler;
-  ezDeque<ezNetworkMessage> m_MessageQueue;
+  ezRemoteMessageHandler m_MessageHandler;
+  ezDeque<ezRemoteMessage> m_MessageQueue;
 };
 
-class EZ_FILESERVEPLUGIN_DLL ezNetworkInterface
+class EZ_FOUNDATION_DLL ezRemoteInterface
 {
 public:
-  ~ezNetworkInterface();
+  ~ezRemoteInterface();
 
   /// \brief Exposes the mutex that is internally used to secure multi-threaded access
   ezMutex& GetMutex() const { return m_Mutex; }
@@ -57,20 +62,20 @@ public:
   /// \name Connection
   ///@{
 
-  /// \brief Starts the network interface as a server.
+  /// \brief Starts the remote interface as a server.
   ///
   /// \param uiConnectionToken Should be a unique sequence (e.g. 'EZPZ') to identify the purpose of this connection.
   /// Only server and clients with the same token will accept connections.
   /// \param uiPort The port over which the connection should run.
   /// \param bStartUpdateThread If true, a thread is started that will regularly call UpdateNetwork() and UpdatePingToServer().
   /// If false, this has to be called manually in regular intervals.
-  ezResult StartServer(ezUInt32 uiConnectionToken, ezUInt16 uiPort, bool bStartUpdateThread = true);
+  ezResult StartServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread = true);
 
   /// \brief Starts the network interface as a client. Tries to connect to the given address.
   ///
   /// This function immediately returns and no connection is guaranteed.
   /// \param uiConnectionToken Same as for StartServer()
-  /// \param szAddress A network address. Could be "127.0.0.1", could be "localhost" or some other name that identifies the target.
+  /// \param szAddress Could be a network address "127.0.0.1" or "localhost" or some other name that identifies the target, e.g. a named pipe.
   /// \param bStartUpdateThread Same as for StartServer()
   ///
   /// If this function succeeds, it still might not be connected to a server.
@@ -94,11 +99,11 @@ public:
   /// \brief Whether the client or server is connected its counterpart
   bool IsConnectedToOther() const { return IsConnectedToServer() || IsConnectedToClients(); }
 
-  /// \brief Whether the network is inactive, a client or a server
-  ezNetworkMode GetNetworkMode() const { return m_NetworkMode; }
+  /// \brief Whether the remote interface is inactive, a client or a server
+  ezRemoteMode GetRemoteMode() const { return m_RemoteMode; }
 
-  /// \brief The port through which the connection was started
-  ezUInt16 GetPort() const { return m_uiPort; }
+  /// \brief The address through which the connection was started
+  const ezString& GetServerAddress() const { return m_sServerAddress; }
 
   /// \brief Returns the own (random) application ID used to identify this instance
   ezUInt32 GetApplicationID() const { return m_uiApplicationID; }
@@ -125,11 +130,11 @@ public:
 
   ///@}
 
-  /// \name Updating the Network
+  /// \name Updating the Remote Interface
   ///@{
 
   /// \brief If no update thread was spawned, this should be called to process messages
-  void UpdateNetwork();
+  void UpdateRemoteInterface();
 
   /// \brief If no update thread was spawned, this should be called by clients to determine the ping
   void UpdatePingToServer();
@@ -147,17 +152,17 @@ public:
   /// \brief Sends a message, appends the given array of data
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
+  void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const ezArrayPtr<const ezUInt8>& data);
 
   /// \brief Sends a message, appends the given array of data
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezNetworkTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
+  void Send(ezRemoteTransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
 
-  /// \brief Sends an ezNetworkMessage
+  /// \brief Sends an ezRemoteMessage
   /// If it is a server, the message is broadcast to all clients.
   /// If it is a client, the message is only sent to the server.
-  void Send(ezNetworkTransmitMode tm, ezNetworkMessage& msg);
+  void Send(ezRemoteTransmitMode tm, ezRemoteMessage& msg);
 
   ///@}
 
@@ -165,7 +170,7 @@ public:
   ///@{
 
   /// \brief Registers a message handler that is executed for all incoming messages for the given system
-  void SetMessageHandler(ezUInt32 uiSystemID, ezNetworkMessageHandler messageHandler);
+  void SetMessageHandler(ezUInt32 uiSystemID, ezRemoteMessageHandler messageHandler);
 
   /// \brief Executes the message handler for all messages that have arrived for the given system
   ezUInt32 ExecuteMessageHandlers(ezUInt32 uiSystem);
@@ -179,7 +184,7 @@ public:
   ///@{
 
   /// \brief Broadcasts events about connections
-  ezEvent<const ezNetworkEvent&> m_NetworkEvents;
+  ezEvent<const ezRemoteEvent&> m_RemoteEvents;
 
   ///@}
 
@@ -189,19 +194,19 @@ protected:
   ///@{
 
   /// \brief Derived classes have to implement this to start a network connection
-  virtual ezResult InternalCreateConnection(ezNetworkMode mode, ezUInt16 uiPort, const char* szServerAddress) = 0;
+  virtual ezResult InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress) = 0;
 
   /// \brief Derived classes have to implement this to shutdown a network connection
   virtual void InternalShutdownConnection() = 0;
 
-  /// \brief Derived classes have to implement this to update the network
-  virtual void InternalUpdateNetwork() = 0;
+  /// \brief Derived classes have to implement this to update
+  virtual void InternalUpdateRemoteInterface() = 0;
 
   /// \brief Derived classes have to implement this to get the ping to the server (client mode only)
   virtual ezTime InternalGetPingToServer() = 0;
 
   /// \brief Derived classes have to implement this to deliver messages to the server or client
-  virtual ezResult InternalTransmit(ezNetworkTransmitMode tm, const ezArrayPtr<const ezUInt8>& data) = 0;
+  virtual ezResult InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data) = 0;
 
   /// \brief Derived classes can override this to interpret an address differently
   virtual ezResult DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port);
@@ -228,33 +233,33 @@ protected:
 private:
   void StartUpdateThread();
   void StopUpdateThread();
-  ezResult Transmit(ezNetworkTransmitMode tm, const ezArrayPtr<const ezUInt8>& data);
-  ezResult CreateConnection(ezUInt32 uiConnectionToken, ezNetworkMode mode, ezUInt16 uiPort, const char* szServerAddress, bool bStartUpdateThread);
-  ezUInt32 ExecuteMessageHandlersForQueue(ezNetworkMessageQueue& queue);
+  ezResult Transmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data);
+  ezResult CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, const char* szServerAddress, bool bStartUpdateThread);
+  ezUInt32 ExecuteMessageHandlersForQueue(ezRemoteMessageQueue& queue);
 
   mutable ezMutex m_Mutex;
-  class ezNetworkThread* m_pUpdateThread = nullptr;
-  ezUInt16 m_uiPort = 0;
-  ezNetworkMode m_NetworkMode = ezNetworkMode::None;
+  class ezRemoteThread* m_pUpdateThread = nullptr;
+  ezRemoteMode m_RemoteMode = ezRemoteMode::None;
+  ezString m_sServerAddress;
   ezTime m_PingToServer;
   ezUInt32 m_uiApplicationID = 0; // sent when connecting to identify the sending instance
   ezUInt32 m_uiConnectionToken = 0;
   ezUInt32 m_uiConnectedToServerWithID = 0;
   ezInt32 m_iConnectionsToClients = 0;
   ezDynamicArray<ezUInt8> m_TempSendBuffer;
-  ezHashTable<ezUInt32, ezNetworkMessageQueue> m_MessageQueues;
+  ezHashTable<ezUInt32, ezRemoteMessageQueue> m_MessageQueues;
 };
 
-/// \brief The network thread updates the given network in regular intervals to keep the connection alive.
+/// \brief The remote interface thread updates in regular intervals to keep the connection alive.
 ///
-/// The thread does NOT call ezNetworkInterface::ExecuteAllMessageHandlers(), so by default no message handlers are executed.
+/// The thread does NOT call ezRemoteInterface::ExecuteAllMessageHandlers(), so by default no message handlers are executed.
 /// This has to be done manually by the application elsewhere.
-class EZ_FILESERVEPLUGIN_DLL ezNetworkThread : public ezThread
+class EZ_FOUNDATION_DLL ezRemoteThread : public ezThread
 {
 public:
-  ezNetworkThread();
+  ezRemoteThread();
 
-  ezNetworkInterface* m_pNetwork = nullptr;
+  ezRemoteInterface* m_pRemoteInterface = nullptr;
   volatile bool m_bKeepRunning = true;
 
 private:

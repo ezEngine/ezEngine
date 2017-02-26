@@ -5,7 +5,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <FileservePlugin/Network/NetworkInterface.h>
+#include <Foundation/Communication/RemoteInterface.h>
 #include <FileservePlugin/Client/FileserveClient.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 
