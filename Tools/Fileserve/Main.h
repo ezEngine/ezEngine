@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Application/Application.h>
-#include <FileservePlugin/Network/NetworkInterface.h>
+#include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
 
