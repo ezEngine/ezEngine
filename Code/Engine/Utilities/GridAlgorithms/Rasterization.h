@@ -26,8 +26,11 @@ struct ezRasterizationResult
 
 namespace ez2DGridUtils
 {
-  /// \brief The callback declaration for the function that needs to be passed to ComputePointsOnLine().
+  /// \brief The callback declaration for the function that needs to be passed to the various rasterization functions.
   typedef ezCallbackResult::Enum (*EZ_RASTERIZED_POINT_CALLBACK)(ezInt32 x, ezInt32 y, void* pPassThrough);
+
+  /// \brief The callback declaration for the function that needs to be passed to RasterizeBlobWithDistance().
+  typedef ezCallbackResult::Enum(*EZ_RASTERIZED_BLOB_CALLBACK)(ezInt32 x, ezInt32 y, void* pPassThrough, ezUInt8 uiDistanceFromCenter);
 
   /// \brief Computes all the points on a 2D line and calls a function to report every point.
   ///
@@ -101,6 +104,9 @@ namespace ez2DGridUtils
   ///
   /// RasterizeBlob() will stop immediately and return ezRasterizationResult::Aborted when the callback function returns ezCallbackResult::Stop.
   EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType eType, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr);
+
+  /// \brief Same as RasterizeBlob(), but the distance from the center is passed through to the callback, which can use this information to adjust what it is doing.
+  EZ_UTILITIES_DLL ezRasterizationResult::Enum RasterizeBlobWithDistance(ezInt32 iPosX, ezInt32 iPosY, ezBlobType eType, EZ_RASTERIZED_BLOB_CALLBACK Callback, void* pPassThrough = nullptr);
 
   /// \brief Rasterizes a circle of any size (unlike RasterizeBlob()), though finding the right radius values for nice looking small circles can be more difficult.
   ///

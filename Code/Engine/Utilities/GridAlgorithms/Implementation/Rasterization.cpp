@@ -227,6 +227,33 @@ ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlob(ezInt32 iPosX, ezInt32 
   return ezRasterizationResult::Finished;
 }
 
+ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlobWithDistance(ezInt32 iPosX, ezInt32 iPosY, ezBlobType eType, EZ_RASTERIZED_BLOB_CALLBACK Callback, void* pPassThrough /*= nullptr*/)
+{
+  const ezUInt8 uiCircleType = ezMath::Clamp<ezUInt8>(eType, 0, 8);
+
+  const ezInt32 iAreaMin = CircleAreaMin[uiCircleType];
+  const ezInt32 iAreaMax = CircleAreaMax[uiCircleType];
+
+  iPosX -= CircleCenter;
+  iPosY -= CircleCenter;
+
+  for (ezInt32 y = iAreaMin; y <= iAreaMax; ++y)
+  {
+    for (ezInt32 x = iAreaMin; x <= iAreaMax; ++x)
+    {
+      const ezUInt8 uiDistance = OverlapCircle[y][x];
+
+      if (uiDistance <= uiCircleType)
+      {
+        if (Callback(iPosX + x, iPosY + y, pPassThrough, uiDistance) == ezCallbackResult::Stop)
+          return ezRasterizationResult::Aborted;
+      }
+    }
+  }
+
+  return ezRasterizationResult::Finished;
+}
+
 ezRasterizationResult::Enum ez2DGridUtils::RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */)
 {
   const ezVec2 vCenter ((float) iPosX, (float) iPosY);
