@@ -25,7 +25,11 @@ public:
   {
     bool operator<(const PluginConfig& rhs) const;
 
+    // settings that are reflected (get synchronized with editor engine process)
     ezString m_sAppDirRelativePath;
+    bool m_bLoadCopy = false;
+
+    // not reflected
     ezSet<ezString> m_sDependecyOf;
   };
 

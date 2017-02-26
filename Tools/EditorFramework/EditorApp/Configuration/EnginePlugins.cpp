@@ -35,6 +35,7 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
   {
     s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath].m_bActive = true;
     s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath].m_bToBeLoaded = plugin.m_sDependecyOf.Contains("<manual>");
+    s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath].m_bLoadCopy = plugin.m_bLoadCopy;
   }
 }
 

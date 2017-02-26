@@ -21,6 +21,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase,
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RelativePath", m_sAppDirRelativePath),
+    EZ_MEMBER_PROPERTY("LoadCopy", m_bLoadCopy),
   }
   EZ_END_PROPERTIES
 }
@@ -124,6 +125,7 @@ ezResult ezApplicationPluginConfig::Save()
     writer.BeginObject("Plugin");
 
     ezOpenDdlUtils::StoreString(writer, m_Plugins[i].m_sAppDirRelativePath, "Path");
+    ezOpenDdlUtils::StoreBool(writer, m_Plugins[i].m_bLoadCopy, "LoadCopy");
 
     if (!m_Plugins[i].m_sDependecyOf.IsEmpty())
     {
@@ -177,6 +179,7 @@ void ezApplicationPluginConfig::Load()
 
     const ezOpenDdlReaderElement* pPath = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "Path");
     const ezOpenDdlReaderElement* pDependencyOf = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::String, "DependencyOf");
+    const ezOpenDdlReaderElement* pCopy = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "LoadCopy");
 
     if (pPath)
       cfg.m_sAppDirRelativePath = pPath->GetPrimitivesString()[0];
@@ -187,6 +190,11 @@ void ezApplicationPluginConfig::Load()
       {
         cfg.m_sDependecyOf.Insert(pDependencyOf->GetPrimitivesString()[i]);
       }
+    }
+
+    if (pCopy)
+    {
+      cfg.m_bLoadCopy = pCopy->GetPrimitivesBool()[0];
     }
 
     // this prevents duplicates
@@ -207,7 +215,7 @@ void ezApplicationPluginConfig::Apply()
     }
 
 
-    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath);
+    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, var.m_bLoadCopy);
   }
 
 }

@@ -56,7 +56,7 @@ public:
   ///
   /// EZ_SUCCESS is returned when the DLL is either successfully loaded or has already been loaded before.
   /// EZ_FAILURE is returned if the DLL cannot be located or it could not be loaded properly.
-  static ezResult LoadPlugin(const char* szPluginFile); // [tested]
+  static ezResult LoadPlugin(const char* szPluginFile, bool bLoadCopy = false); // [tested]
 
   /// \brief Tries to unload a previously loaded plugin.
   ///

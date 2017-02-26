@@ -25,6 +25,11 @@ void ezQtEnginePluginConfigDlg::FillPluginList()
 
     ezStringBuilder sText = it.Key();
 
+    if (it.Value().m_bLoadCopy)
+    {
+      sText.Append(" (load copy)");
+    }
+
     if (!it.Value().m_bAvailable)
     {
       sText.Append(" (missing)");

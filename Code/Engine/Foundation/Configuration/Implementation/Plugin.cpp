@@ -324,7 +324,7 @@ success:
   return EZ_SUCCESS;
 }
 
-ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
+ezResult ezPlugin::LoadPlugin(const char* szPluginFile, bool bLoadCopy /*= false*/)
 {
   ezStringBuilder sPlugin = szPluginFile;
 
@@ -340,8 +340,7 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
   ezLog::Debug("Plugin to load: \"{0}\"", szPluginFile);
   g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
 
-  /// \todo Set "copy dll" back to true again, when we know which plugins may be copied
-  return LoadPluginInternal(szPluginFile, false, false);
+  return LoadPluginInternal(szPluginFile, bLoadCopy, false);
 }
 
 ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCount /*= nullptr*/)
