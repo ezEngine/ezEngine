@@ -61,9 +61,16 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 
       if (error == ERROR_SHARING_VIOLATION)
       {
-        ezThreadUtils::Sleep(sleepTime);
-        sleepTime = ezMath::Min<ezTime>(sleepTime + ezTime::Milliseconds(20), ezTime::Milliseconds(300));
-        continue; // try again
+        if (m_bRetryOnSharingViolation)
+        {
+          ezThreadUtils::Sleep(sleepTime);
+          sleepTime = ezMath::Min<ezTime>(sleepTime + ezTime::Milliseconds(20), ezTime::Milliseconds(300));
+          continue; // try again
+        }
+        else
+        {
+          return res;
+        }
       }
 
       // anything else, print an error (for now)

@@ -153,3 +153,31 @@ bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace,
 
   return true;
 }
+
+template<class CellData>
+bool ezGameGrid<CellData>::GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const
+{
+  const ezVec3 vRayStart = m_RotateToGridspace * (vRayStartWorldSpace - m_vWorldSpaceOrigin);
+  const ezVec3 vRayDir = m_RotateToGridspace * vRayDirNormalizedWorldSpace;
+
+  ezVec3 vGridBox(m_uiGridSizeX, m_uiGridSizeY, 1.0f);
+
+  ezBoundingBox localBox(ezVec3(0.0f), m_vWorldSpaceCellSize.CompMult(vGridBox));
+  localBox.Grow(vExpandBBoxByThis);
+
+  if (localBox.Contains(vRayStart))
+  {
+    // if the ray is already inside the box, we know that a cell is hit
+    out_fIntersection = 0.0f;
+  }
+  else
+  {
+    if (!localBox.GetRayIntersection(vRayStart, vRayDir, &out_fIntersection, nullptr))
+      return false;
+
+    if (out_fIntersection > fMaxLength)
+      return false;
+  }
+
+  return true;
+}

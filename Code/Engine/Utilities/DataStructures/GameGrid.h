@@ -101,6 +101,9 @@ public:
   /// \brief Tests where and at which cell the given world space ray intersects the grids bounding box
   bool GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, ezVec2I32& out_CellCoord) const;
 
+  /// \brief Tests whether a ray would hit the grid bounding box, if it were expanded by a constant.
+  bool GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const;
+
 private:
   ezUInt16 m_uiGridSizeX;
   ezUInt16 m_uiGridSizeY;

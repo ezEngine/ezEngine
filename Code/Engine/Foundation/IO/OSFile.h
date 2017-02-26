@@ -302,6 +302,9 @@ private:
   /// \brief Stores the mode with which the file was opened.
   ezFileMode::Enum m_FileMode;
 
+  /// [internal] On win32 when a file is already open, and this is true, ezOSFile will wait until the file becomes available
+  bool m_bRetryOnSharingViolation = true;
+
   /// \brief Stores the (cleaned up) filename that was used to open the file.
   ezStringBuilder m_sFileName;
 

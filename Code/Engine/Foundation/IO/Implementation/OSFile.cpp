@@ -343,6 +343,7 @@ ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
   if (SrcFile.Open(szSource, ezFileMode::Read) == EZ_FAILURE)
     goto done;
 
+  DstFile.m_bRetryOnSharingViolation = false;
   if (DstFile.Open(szDestination, ezFileMode::Write) == EZ_FAILURE)
     goto done;
 
