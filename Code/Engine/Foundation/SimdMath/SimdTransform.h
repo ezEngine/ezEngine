@@ -22,6 +22,9 @@ public:
   /// \brief Returns an Identity Transform.
   static ezSimdTransform Identity(); // [tested]
 
+  /// \brief Returns the scale component with maximum magnitude.
+  ezSimdFloat GetMaxScale() const; // [tested]
+
 public:
   /// \brief Equality Check with epsilon
   bool IsEqual(const ezSimdTransform& rhs, const ezSimdFloat& fEpsilon) const; // [tested]

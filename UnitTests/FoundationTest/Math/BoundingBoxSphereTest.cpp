@@ -91,12 +91,12 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     ezBoundingBoxSphereT b(ezVec3T(1), ezVec3T(5), 5);
 
     ezMat4T m;
-    m.SetScalingMatrix(ezVec3T(2, 3, -2));
+    m.SetScalingMatrix(ezVec3T(-2, -3, -2));
     m.SetTranslationVector(ezVec3T(1, 1, 1));
 
     b.Transform(m);
 
-    EZ_TEST_BOOL(b.m_vCenter == ezVec3T(3, 4, -1));
+    EZ_TEST_BOOL(b.m_vCenter == ezVec3T(-1, -2, -1));
     EZ_TEST_BOOL(b.m_vBoxHalfExtends == ezVec3T(10, 15, 10));
     EZ_TEST_BOOL(b.m_fSphereRadius == 15);
   }

@@ -29,6 +29,8 @@ public:
   /// \brief Returns the stored number as a standard float.
   operator float() const; // [tested]
 
+  static ezSimdFloat Zero(); // [tested]
+
 public:
   ezSimdFloat operator+(const ezSimdFloat& f) const; // [tested]
   ezSimdFloat operator-(const ezSimdFloat& f) const; // [tested]

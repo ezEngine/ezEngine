@@ -56,6 +56,12 @@ EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
   return f;
 }
 
+//static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
+{
+  return _mm_setzero_ps();
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const
 {
   return _mm_add_ps(m_v, f.m_v);

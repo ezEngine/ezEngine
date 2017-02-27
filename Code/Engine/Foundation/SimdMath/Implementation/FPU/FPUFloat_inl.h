@@ -34,6 +34,12 @@ EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
   return m_v.x;
 }
 
+//static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
+{
+  return ezSimdFloat(0.0f);
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const
 {
   return m_v + f.m_v;

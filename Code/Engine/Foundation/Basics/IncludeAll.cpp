@@ -100,9 +100,9 @@
 
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
-//#include <Foundation/SimdMath/SimdBBox.h>
-//#include <Foundation/SimdMath/SimdBBoxSphere.h>
-//#include <Foundation/SimdMath/SimdBSphere.h>
+#include <Foundation/SimdMath/SimdBBox.h>
+#include <Foundation/SimdMath/SimdBBoxSphere.h>
+#include <Foundation/SimdMath/SimdBSphere.h>
 #include <Foundation/SimdMath/SimdFloat.h>
 #include <Foundation/SimdMath/SimdVec4b.h>
 #include <Foundation/SimdMath/SimdQuat.h>
