@@ -60,7 +60,7 @@ inline void ezSimdBSphere::ExpandToInclude(const ezSimdVec4f* pPoints, ezUInt32 
     pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
   }
 
-  m_CenterAndRadius.SetW(fMaxDistSquare.Max(ezMath::Square(GetRadius())).GetSqrt());
+  m_CenterAndRadius.SetW(fMaxDistSquare.GetSqrt().Max(GetRadius()));
 }
 
 inline void ezSimdBSphere::ExpandToInclude(const ezSimdBSphere& rhs)
@@ -90,7 +90,8 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdBSphere::GetDistanceTo(const ezSimdBSphere& r
 
 EZ_ALWAYS_INLINE bool ezSimdBSphere::Contains(const ezSimdVec4f& vPoint) const
 {
-  return (vPoint - m_CenterAndRadius).GetLengthSquared<3>() <= ezMath::Square(GetRadius());
+  ezSimdFloat radius = GetRadius();
+  return (vPoint - m_CenterAndRadius).GetLengthSquared<3>() <= (radius * radius);
 }
 
 EZ_ALWAYS_INLINE bool ezSimdBSphere::Contains(const ezSimdBSphere& rhs) const
@@ -100,7 +101,8 @@ EZ_ALWAYS_INLINE bool ezSimdBSphere::Contains(const ezSimdBSphere& rhs) const
 
 EZ_ALWAYS_INLINE bool ezSimdBSphere::Overlaps(const ezSimdBSphere& rhs) const
 {
-  return (rhs.m_CenterAndRadius - m_CenterAndRadius).GetLengthSquared<3>() < ezMath::Square(rhs.GetRadius() + GetRadius());
+  ezSimdFloat radius = (rhs.m_CenterAndRadius + m_CenterAndRadius).w();
+  return (rhs.m_CenterAndRadius - m_CenterAndRadius).GetLengthSquared<3>() < (radius * radius);
 }
 
 inline ezSimdVec4f ezSimdBSphere::GetClampedPoint(const ezSimdVec4f& vPoint)

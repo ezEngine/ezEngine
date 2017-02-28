@@ -56,8 +56,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
 
     // Make sure all components are set to the same value
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_TEST_BOOL(vInit1U.m_v.m128_f32[0] == 0.0f && vInit1U.m_v.m128_f32[1] == 0.0f &&
-      vInit1U.m_v.m128_f32[2] == 0.0f && vInit1U.m_v.m128_f32[3] == 0.0f);
+    EZ_TEST_BOOL(z.m_v.m128_f32[0] == 0.0f && z.m_v.m128_f32[1] == 0.0f &&
+      z.m_v.m128_f32[2] == 0.0f && z.m_v.m128_f32[3] == 0.0f);
 #endif
   }
 

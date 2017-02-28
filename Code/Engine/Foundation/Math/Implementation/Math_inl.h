@@ -34,7 +34,7 @@ namespace ezMath
   }
 
   template <typename T>
-  constexpr EZ_FORCE_INLINE T Square(T f)
+  constexpr EZ_ALWAYS_INLINE T Square(T f)
   {
     return (f * f);
   }
