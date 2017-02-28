@@ -58,8 +58,7 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     sepsep = ";;";
   }
 
-  auto allDesc = ezDocumentManager::GetAllDocumentDescriptors();
-  allDesc.Sort([](const auto& a, const auto& b)->bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
+  const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
 
   for (auto desc : allDesc)
   {

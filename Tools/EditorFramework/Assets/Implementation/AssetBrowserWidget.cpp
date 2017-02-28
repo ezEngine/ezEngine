@@ -198,32 +198,32 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     if (!pMan->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
       continue;
 
-    ezAssetDocumentManager* pAssetMan = static_cast<ezAssetDocumentManager*>(pMan);
-
-    documentTypes.Clear();
-    pAssetMan->GetSupportedDocumentTypes(documentTypes);
-
-    for (const ezDocumentTypeDescriptor* desc : documentTypes)
-    {
-      if (!desc->m_bCanCreate)
-        continue;
-      if (desc->m_sFileExtension.IsEmpty())
-        continue;
-      //if (!sTypeFilter.IsEmpty() && !sTypeFilter.FindSubString(desc->m_sDocumentTypeName))
-        //continue;
-
-
-      QAction* pAction = pSubMenu->addAction(desc->m_sDocumentTypeName.GetData());
-      pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
-      pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
-      pAction->setProperty("AssetManager", qVariantFromValue<void*>(pAssetMan));
-      pAction->setProperty("Extension", desc->m_sFileExtension.GetData());
-      pAction->setProperty("UseSelection", useSelectedAsset);
-
-      connect(pAction, &QAction::triggered, this, &ezQtAssetBrowserWidget::OnNewAsset);
-    }
+    pMan->GetSupportedDocumentTypes(documentTypes);
   }
 
+  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool
+  {
+    return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0;
+  });
+
+  for (const ezDocumentTypeDescriptor* desc : documentTypes)
+  {
+    if (!desc->m_bCanCreate)
+      continue;
+    if (desc->m_sFileExtension.IsEmpty())
+      continue;
+    //if (!sTypeFilter.IsEmpty() && !sTypeFilter.FindSubString(desc->m_sDocumentTypeName))
+      //continue;
+
+    QAction* pAction = pSubMenu->addAction(desc->m_sDocumentTypeName.GetData());
+    pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
+    pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
+    pAction->setProperty("AssetManager", qVariantFromValue<void*>(desc->m_pManager));
+    pAction->setProperty("Extension", desc->m_sFileExtension.GetData());
+    pAction->setProperty("UseSelection", useSelectedAsset);
+
+    connect(pAction, &QAction::triggered, this, &ezQtAssetBrowserWidget::OnNewAsset);
+  }
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex & index)
@@ -587,7 +587,7 @@ void ezQtAssetBrowserWidget::OnListOpenAssetDocument()
 
     emit ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
   }
- }
+}
 
 
 void ezQtAssetBrowserWidget::OnTransform()
@@ -821,7 +821,7 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 
       if (sAllFilters.FindSubString(sFilter) == nullptr)
         ListTypeFilter->item(i)->setHidden(true);
-        //ListTypeFilter->item(i)->setFlags(Qt::ItemFlag::ItemIsUserCheckable);
+      //ListTypeFilter->item(i)->setFlags(Qt::ItemFlag::ItemIsUserCheckable);
     }
   }
 
