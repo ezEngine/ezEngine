@@ -408,44 +408,65 @@ bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThu
 
 void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
 {
-  if (!m_hAmbientLight.IsInvalidated())
+  if (!m_hAmbientLight[0].IsInvalidated())
     return;
 
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  ezGameObjectDesc obj;
-  obj.m_sName.Assign("Ambient Light");
-  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+  const ezColorGammaUB ambient[3] = { ezColor::White, ezColor::White, ezColor::White };
+  const float intensity[3] = { 10, 5, 3 };
 
-  if (bSetEditorTag)
+  for (ezUInt32 i = 0; i < 3; ++i)
   {
-    const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-    obj.m_Tags.Set(*tagEditor); // to prevent it from being exported
+    ezGameObjectDesc obj;
+    obj.m_sName.Assign("Ambient Light");
+
+    /// \todo These settings are crap, but I don't care atm
+    if (i == 0)
+      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+    if (i == 1)
+      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::Degree(30.0f));
+    if (i == 2)
+      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(220.0f));
+
+    if (bSetEditorTag)
+    {
+      const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+      obj.m_Tags.Set(*tagEditor); // to prevent it from being exported
+    }
+
+    ezGameObject* pLight;
+    m_hAmbientLight[i] = GetWorld()->CreateObject(obj, pLight);
+
+    ezDirectionalLightComponent* pDirLight = nullptr;
+    ezDirectionalLightComponent::CreateComponent(GetWorld(), pDirLight);
+    pDirLight->SetLightColor(ambient[i]);
+    pDirLight->SetIntensity(intensity[i]);
+    pLight->AttachComponent(pDirLight);
   }
 
-  ezGameObject* pLight;
-  m_hAmbientLight = GetWorld()->CreateObject(obj, pLight);
-
-  ezDirectionalLightComponent* pDirLight = nullptr;
-  ezDirectionalLightComponent::CreateComponent(GetWorld(), pDirLight);
-  pLight->AttachComponent(pDirLight);
-
-  ezAmbientLightComponent* pAmbLight = nullptr;
-  ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-  if (pAmbLight != nullptr)
-  {
-    pLight->AttachComponent(pAmbLight);
-  }
+  // the actual ambient light component is dangerous to add, because it is a singleton and you cannot have more than one in a scene
+  // which means if the user added one, this makes trouble
+  // also the Remove/Add pattern doesn't work, because components are always delayed deleted, and the singleton lives longer than it should
+  //ezAmbientLightComponent* pAmbLight = nullptr;
+  //ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
+  //if (pAmbLight != nullptr)
+  //{
+  //  pLight->AttachComponent(pAmbLight);
+  //}
 }
 
 void ezSceneContext::RemoveAmbientLight()
 {
-  if (m_hAmbientLight.IsInvalidated())
+  if (m_hAmbientLight[0].IsInvalidated())
     return;
 
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  GetWorld()->DeleteObjectDelayed(m_hAmbientLight);
-  m_hAmbientLight.Invalidate();
+  for (ezUInt32 i = 0; i < 3; ++i)
+  {
+    GetWorld()->DeleteObjectDelayed(m_hAmbientLight[i]);
+    m_hAmbientLight[i].Invalidate();
+  }
 }
 

@@ -60,7 +60,7 @@ private:
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
-  ezGameObjectHandle m_hAmbientLight;
+  ezGameObjectHandle m_hAmbientLight[3];
 };
 
 

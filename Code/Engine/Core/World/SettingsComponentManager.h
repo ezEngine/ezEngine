@@ -5,10 +5,10 @@
 
 /// \brief A component manager that does no update at all on components and expects only a single instance to be created per world.
 ///
-/// Easy access to this single function is provided through the GetSingletonComponent() function.
+/// Easy access to this single component is provided through the GetSingletonComponent() function.
 /// If a second component is created, the manager will log an error. The first created component will be used as the 'singleton',
 /// all other components are ignored.
-/// Use this for components derived from ezSettingsComponent, of which one should only of zero or one per world.
+/// Use this for components derived from ezSettingsComponent, of which one should only have zero or one per world.
 template <typename ComponentType>
 class ezSettingsComponentManager : public ezComponentManagerBase
 {
