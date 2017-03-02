@@ -175,6 +175,21 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Get() const
   return result;
 }
 
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetCombined(const ezSimdVec4f& other) const
+{
+  ezSimdVec4f result;
+
+  const float* v = &m_v.x;
+  const float* o = &other.m_v.x;
+  result.m_v.x = v[(s & 0x3000) >> 12];
+  result.m_v.y = v[(s & 0x0300) >> 8];
+  result.m_v.z = o[(s & 0x0030) >> 4];
+  result.m_v.w = o[(s & 0x0003)];
+
+  return result;
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator-() const
 {
   return -m_v;

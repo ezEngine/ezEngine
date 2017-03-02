@@ -1,5 +1,9 @@
 #include <PCH.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Math/Transform.h>
+#include <Foundation/Math/Random.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
 {
@@ -131,6 +135,38 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
 
     EZ_TEST_BOOL((b.m_CenterAndRadius == ezSimdVec4f(3, 4, -1, 15)).AllSet<4>());
     EZ_TEST_BOOL((b.m_BoxHalfExtents == ezSimdVec4f(10, 15, 10)).AllSet<3>());
+
+    // verification
+    ezRandom rnd;
+    rnd.Initialize(0x736454);
+
+    ezDynamicArray<ezSimdVec4f, ezAlignedAllocatorWrapper> points;
+    points.SetCountUninitialized(10);
+    float fSize = 10;
+
+    for (ezUInt32 i = 0; i < points.GetCount(); ++i)
+    {
+      float x = (float)rnd.DoubleMinMax(-fSize, fSize);
+      float y = (float)rnd.DoubleMinMax(-fSize, fSize);
+      float z = (float)rnd.DoubleMinMax(-fSize, fSize);
+      points[i] = ezSimdVec4f(x, y, z);
+    }
+
+    b.SetFromPoints(points.GetData(), points.GetCount());
+
+    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(-30));
+    b.Transform(t);
+
+    for (ezUInt32 i = 0; i < points.GetCount(); ++i)
+    {
+      ezSimdVec4f tp = t.TransformPosition(points[i]);
+
+      ezSimdFloat boxDist = b.GetBox().GetDistanceTo(tp);
+      EZ_TEST_BOOL(boxDist < ezMath::BasicType<float>::DefaultEpsilon());
+
+      ezSimdFloat sphereDist = b.GetSphere().GetDistanceTo(tp);
+      EZ_TEST_BOOL(sphereDist < ezMath::BasicType<float>::DefaultEpsilon());
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Comparison")

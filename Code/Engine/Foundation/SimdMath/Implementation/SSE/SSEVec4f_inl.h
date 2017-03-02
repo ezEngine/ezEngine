@@ -229,6 +229,12 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Get() const
   return _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(s));
 }
 
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetCombined(const ezSimdVec4f& other) const
+{
+  return _mm_shuffle_ps(m_v, other.m_v, EZ_TO_SHUFFLE(s));
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator-() const
 {
   return _mm_sub_ps(_mm_setzero_ps(), m_v);

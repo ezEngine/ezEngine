@@ -44,7 +44,7 @@ public:
   void SetGlobalTransform(const ezSimdTransform& GlobalTransformParent, const ezSimdTransform& LocalTransformChild); // [tested]
 
   /// \brief Returns the transformation as a matrix.
-  //const ezSimdMat4 GetAsMat4() const;
+  ezSimdMat4f GetAsMat4() const; // [tested]
 
 public:
 

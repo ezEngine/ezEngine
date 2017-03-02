@@ -1,5 +1,8 @@
 #include <PCH.h>
+#include <Foundation/Math/BoundingBox.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdBBox.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 {
@@ -249,8 +252,28 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 
     b.Transform(t);
 
-    EZ_TEST_BOOL((b.m_Min == ezSimdVec4f(10, 8, -14)).AllSet<3>());
-    EZ_TEST_BOOL((b.m_Max == ezSimdVec4f(14, 10, -6)).AllSet<3>());
+    EZ_TEST_BOOL(b.m_Min.IsEqual(ezSimdVec4f(10, 8, -14), 0.00001f).AllSet<3>());
+    EZ_TEST_BOOL(b.m_Max.IsEqual(ezSimdVec4f(14, 10, -6), 0.00001f).AllSet<3>());
+
+    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(-30));
+
+    b.m_Min = ezSimdVec4f(3);
+    b.m_Max = ezSimdVec4f(5);
+    b.Transform(t);
+
+    // reference
+    ezBoundingBox referenceBox(ezVec3(3), ezVec3(5));
+    {
+      ezQuat q;
+      q.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-30));
+
+      ezTransform referenceTransform(ezVec3(4, 5, 6), q, ezVec3(1, -2, -4));
+
+      referenceBox.TransformFromOrigin(referenceTransform.GetAsMat4());
+    }
+
+    EZ_TEST_BOOL(b.m_Min.IsEqual(ezSimdConversion::ToVec3(referenceBox.m_vMin), 0.00001f).AllSet<3>());
+    EZ_TEST_BOOL(b.m_Max.IsEqual(ezSimdConversion::ToVec3(referenceBox.m_vMax), 0.00001f).AllSet<3>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetClampedPoint")

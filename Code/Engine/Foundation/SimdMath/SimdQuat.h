@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/SimdMath/SimdMat4f.h>
 
 class EZ_FOUNDATION_DLL ezSimdQuat
 {
@@ -33,6 +33,9 @@ public:
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
   ezResult GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFloat& angle) const; // [tested]
+
+  /// \brief Returns the Quaternion as a matrix.
+  ezSimdMat4f GetAsMat4() const; // [tested]
 
   /// \brief Checks whether all components are neither NaN nor infinite and that the quaternion is normalized.
   bool IsValid(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::DefaultEpsilon()) const; // [tested]

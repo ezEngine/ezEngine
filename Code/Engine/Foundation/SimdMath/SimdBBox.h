@@ -74,8 +74,11 @@ public:
   /// \brief Moves the box by the given vector.
   void Translate(const ezSimdVec4f& vDiff); // [tested]
 
-  /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points. Rotations and scalings will influence the center position of the box.
-  void Transform(const ezSimdTransform& mTransform); // [tested]
+  /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points.
+  void Transform(const ezSimdTransform& transform); // [tested]
+
+  /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points.
+  void Transform(const ezSimdMat4f& mat); // [tested]
 
 
   /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest possible distance to the original point.

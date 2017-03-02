@@ -75,6 +75,19 @@ EZ_ALWAYS_INLINE void ezSimdTransform::SetGlobalTransform(const ezSimdTransform&
   *this = GlobalTransformParent * LocalTransformChild;
 }
 
+EZ_ALWAYS_INLINE ezSimdMat4f ezSimdTransform::GetAsMat4() const
+{
+  ezSimdMat4f result = m_Rotation.GetAsMat4();
+
+  result.m_col0 *= m_Scale.x();
+  result.m_col1 *= m_Scale.y();
+  result.m_col2 *= m_Scale.z();
+  result.m_col3 = m_Position;
+  result.m_col3.SetW(1.0f);
+
+  return result;
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdTransform::TransformPosition(const ezSimdVec4f& v) const
 {
   const ezSimdVec4f scaled = m_Scale.CompMul(v);
@@ -88,7 +101,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdTransform::TransformDirection(const ezSimdVec
   return m_Rotation * scaled;
 }
 
-inline ezSimdTransform ezSimdTransform::operator*(const ezSimdTransform& other) const
+EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::operator*(const ezSimdTransform& other) const
 {
   ezSimdTransform t;
 

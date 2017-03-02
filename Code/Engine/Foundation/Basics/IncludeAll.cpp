@@ -103,10 +103,12 @@
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
 #include <Foundation/SimdMath/SimdBSphere.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdFloat.h>
-#include <Foundation/SimdMath/SimdVec4b.h>
+#include <Foundation/SimdMath/SimdMat4f.h>
 #include <Foundation/SimdMath/SimdQuat.h>
 #include <Foundation/SimdMath/SimdTransform.h>
+#include <Foundation/SimdMath/SimdVec4b.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 

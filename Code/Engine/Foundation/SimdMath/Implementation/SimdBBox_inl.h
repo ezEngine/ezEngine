@@ -130,13 +130,21 @@ EZ_ALWAYS_INLINE void ezSimdBBox::Translate(const ezSimdVec4f& vDiff)
   m_Max += vDiff;
 }
 
-inline void ezSimdBBox::Transform(const ezSimdTransform& t)
+EZ_ALWAYS_INLINE void ezSimdBBox::Transform(const ezSimdTransform& t)
+{
+  Transform(t.GetAsMat4());
+}
+
+EZ_ALWAYS_INLINE void ezSimdBBox::Transform(const ezSimdMat4f& mat)
 {
   const ezSimdVec4f center = GetCenter();
   const ezSimdVec4f halfExtents = center - m_Min;
 
-  const ezSimdVec4f newCenter = t.TransformPosition(center);
-  const ezSimdVec4f newHalfExtents = t.TransformDirection(halfExtents).Abs();
+  const ezSimdVec4f newCenter = mat.TransformPosition(center);
+
+  ezSimdVec4f newHalfExtents = mat.m_col0.Abs() * halfExtents.x();
+  newHalfExtents += mat.m_col1.Abs() * halfExtents.y();
+  newHalfExtents += mat.m_col2.Abs() * halfExtents.z();
 
   SetCenterAndHalfExtents(newCenter, newHalfExtents);
 }

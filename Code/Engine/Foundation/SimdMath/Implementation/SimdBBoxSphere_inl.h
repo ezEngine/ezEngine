@@ -94,13 +94,28 @@ inline void ezSimdBBoxSphere::ExpandToInclude(const ezSimdBBoxSphere& rhs)
   m_BoxHalfExtents = boxHalfExtents;
 }
 
-inline void ezSimdBBoxSphere::Transform(const ezSimdTransform& t)
+EZ_ALWAYS_INLINE void ezSimdBBoxSphere::Transform(const ezSimdTransform& t)
 {
-  ezSimdFloat radius = m_CenterAndRadius.w() * t.GetMaxScale();
-  m_CenterAndRadius = t.TransformPosition(m_CenterAndRadius);
+  Transform(t.GetAsMat4());
+}
+
+EZ_ALWAYS_INLINE void ezSimdBBoxSphere::Transform(const ezSimdMat4f& mat)
+{
+  ezSimdFloat radius = m_CenterAndRadius.w();
+  m_CenterAndRadius = mat.TransformPosition(m_CenterAndRadius);
+
+  ezSimdFloat maxRadius = mat.m_col0.Dot<3>(mat.m_col0);
+  maxRadius = maxRadius.Max(mat.m_col1.Dot<3>(mat.m_col1));
+  maxRadius = maxRadius.Max(mat.m_col2.Dot<3>(mat.m_col2));
+  radius *= maxRadius.GetSqrt();
+
   m_CenterAndRadius.SetW(radius);
 
-  m_BoxHalfExtents = t.TransformDirection(m_BoxHalfExtents).Abs().CompMin(ezSimdVec4f(radius));
+  ezSimdVec4f newHalfExtents = mat.m_col0.Abs() * m_BoxHalfExtents.x();
+  newHalfExtents += mat.m_col1.Abs() * m_BoxHalfExtents.y();
+  newHalfExtents += mat.m_col2.Abs() * m_BoxHalfExtents.z();
+
+  m_BoxHalfExtents = newHalfExtents.CompMin(ezSimdVec4f(radius));
 }
 
 EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::operator==(const ezSimdBBoxSphere& rhs) const

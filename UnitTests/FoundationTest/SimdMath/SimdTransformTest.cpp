@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Math/Transform.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
@@ -112,6 +114,47 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
     EZ_TEST_BOOL(tChild.m_Position.IsEqual(ezSimdVec4f(13, 12, -5), 0.0001f).AllSet<3>());
     EZ_TEST_BOOL(tChild.m_Rotation.IsEqualRotation(tParent.m_Rotation * tToChild.m_Rotation, 0.0001f));
     EZ_TEST_BOOL((tChild.m_Scale == ezSimdVec4f(8)).AllSet<3>());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat4")
+  {
+    ezSimdTransform t(ezSimdVec4f(1, 2, 3));
+    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 1, 0), ezAngle::Degree(34));
+    t.m_Scale = ezSimdVec4f(2, -1, 5);
+
+    ezSimdMat4f m = t.GetAsMat4();
+
+    // reference
+    ezSimdMat4f refM;
+    {
+      ezQuat q;
+      q.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(34));
+
+      ezTransform referenceTransform(ezVec3(1, 2, 3), q, ezVec3(2, -1, 5));
+      ezMat4 tmp = referenceTransform.GetAsMat4();
+      refM.SetFromArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+    }
+    EZ_TEST_BOOL(m.IsEqual(refM, 0.00001f));
+
+    ezSimdVec4f p[8] =
+    {
+      ezSimdVec4f(-4, 0, 0),
+      ezSimdVec4f(5, 0, 0),
+      ezSimdVec4f(0, -6, 0),
+      ezSimdVec4f(0, 7, 0),
+      ezSimdVec4f(0, 0, -8),
+      ezSimdVec4f(0, 0, 9),
+      ezSimdVec4f(1, -2, 3),
+      ezSimdVec4f(-4, 5, 7)
+    };
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(p); ++i)
+    {
+      ezSimdVec4f pt = t.TransformPosition(p[i]);
+      ezSimdVec4f pm = m.TransformPosition(p[i]);
+
+      EZ_TEST_BOOL(pt.IsEqual(pm, 0.00001f).AllSet<3>());
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPos/Dir")

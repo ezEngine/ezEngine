@@ -90,6 +90,10 @@ public:
   template <ezSwizzle::Enum s>
   ezSimdVec4f Get() const; // [tested]
 
+  ///\brief x = this[s0], y = this[s1], z = other[s2], w = other[s3]
+  template <ezSwizzle::Enum s>
+  ezSimdVec4f GetCombined(const ezSimdVec4f& other) const; // [tested]
+
 public:
   ezSimdVec4f operator-() const; // [tested]
   ezSimdVec4f operator+(const ezSimdVec4f& v) const; // [tested]
