@@ -30,6 +30,7 @@
     <file>Icons/AssetProcessingPause16.png</file>
     <file>Icons/AssetProcessingStart16.png</file>
     <file>Icons/AssetOk16.png</file>
+    <file>Icons/ResavAllAssets16.png</file>
     <file>Icons/AssetMissingDependency16.png</file>
     <file>Icons/AssetMissingReference16.png</file>
     <file>Icons/AssetFailedTransform16.png</file>

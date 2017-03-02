@@ -121,9 +121,9 @@ void ezDocument::SetReadOnly(bool b)
   s_EventsAny.Broadcast(e);
 }
 
-ezStatus ezDocument::SaveDocument()
+ezStatus ezDocument::SaveDocument(bool bForce)
 {
-  if (!IsModified())
+  if (!IsModified() && !bForce)
     return ezStatus(EZ_SUCCESS);
 
   ezStatus ret = InternalSaveDocument();

@@ -291,6 +291,74 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
   ezAssetCurator::GetSingleton()->WriteAssetTables(szPlatform);
 }
 
+void ezAssetCurator::ResaveAllAssets()
+{
+  ezProgressRange range("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
+
+  EZ_LOCK(m_CuratorMutex);
+
+  ezDynamicArray<ezUuid> sortedAssets;
+  sortedAssets.Reserve(m_KnownAssets.GetCount());
+
+  ezMap<ezUuid, ezSet<ezUuid> > dependencies;
+
+  ezSet<ezUuid> accu;
+
+  for (auto itAsset = m_KnownAssets.GetIterator(); itAsset.IsValid(); ++itAsset)
+  {
+    auto it2 = dependencies.Insert(itAsset.Key(), ezSet<ezUuid>());
+    for (const ezString& dep : itAsset.Value()->m_Info.m_FileDependencies)
+    {
+      if (ezConversionUtils::IsStringUuid(dep))
+      {
+        it2.Value().Insert(ezConversionUtils::ConvertStringToUuid(dep));
+      }
+    }
+  }
+
+  while (!dependencies.IsEmpty())
+  {
+    bool bDeadEnd = true;
+    for (auto it = dependencies.GetIterator(); it.IsValid(); ++it)
+    {
+      // Are the types dependencies met?
+      if (accu.Contains(it.Value()))
+      {
+        sortedAssets.PushBack(it.Key());
+        accu.Insert(it.Key());
+        dependencies.Remove(it);
+        bDeadEnd = false;
+        break;
+      }
+    }
+
+    if (bDeadEnd)
+    {
+      // Just take the next one in and hope for the best.
+      auto it = dependencies.GetIterator();
+      sortedAssets.PushBack(it.Key());
+      accu.Insert(it.Key());
+      dependencies.Remove(it);
+    }
+  }
+
+  for (ezUInt32 i = 0; i < sortedAssets.GetCount(); i++)
+  {
+    if (range.WasCanceled())
+      break;
+
+    ezAssetInfo* pAssetInfo = GetAssetInfo(sortedAssets[i]);
+    EZ_ASSERT_DEBUG(pAssetInfo, "Should not happen as data was derived from known assets list.");
+    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetData());
+
+    auto res = ResaveAsset(pAssetInfo);
+    if (res.m_Result.Failed())
+    {
+      ezLog::Error("{0} ({1})", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
+    }
+  }
+}
+
 ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const char* szPlatform)
 {
   EZ_LOCK(m_CuratorMutex);
@@ -706,6 +774,26 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   return ret;
 }
 
+
+ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
+{
+  bool bWasOpen = false;
+  ezDocument* pDoc = pAssetInfo->m_pManager->GetDocumentByPath(pAssetInfo->m_sAbsolutePath);
+  if (pDoc)
+    bWasOpen = true;
+  else
+    pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
+
+  if (pDoc == nullptr)
+    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath.GetData()));
+
+  ezStatus ret = pDoc->SaveDocument(true);
+
+  if (!pDoc->HasWindowBeenRequested() && !bWasOpen)
+    pDoc->GetDocumentManager()->CloseDocument(pDoc);
+
+  return ret;
+}
 
 ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid)
 {

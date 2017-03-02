@@ -414,7 +414,7 @@ void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, voi
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "RemoveSetPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
-  
+
   if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
     ezString sData = value.ConvertTo<ezString>().GetData();
@@ -439,7 +439,7 @@ void ezReflectionUtils::InsertArrayPropertyValue(ezAbstractArrayProperty* pProp,
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "InsertArrayPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
-  
+
   auto uiCount = pProp->GetCount(pObject);
   if (uiIndex > uiCount)
   {
@@ -652,9 +652,9 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
       if (accu.Contains(it.Value()))
       {
         out_sortedTypes.PushBack(it.Key());
-        bDeadEnd = false;
-        dependencies.Remove(it);
         accu.Insert(it.Key());
+        dependencies.Remove(it);
+        bDeadEnd = false;
         break;
       }
     }
@@ -962,7 +962,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       if (uiCount != uiCount2)
         return false;
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) || 
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
       (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
       {
         bool bEqual = true;

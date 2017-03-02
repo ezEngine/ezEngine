@@ -264,11 +264,28 @@ void ezAssetDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
 
 ezUInt64 ezAssetDocument::GetDocumentHash() const
 {
-  ezUInt64 uiHash = 0;
+  ezUInt64 uiHash = ezHashing::MurmurHash64(&m_pDocumentInfo->m_DocumentID, sizeof(ezUuid));
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
     GetChildHash(pChild, uiHash);
     InternalGetMetaDataHash(pChild, uiHash);
+  }
+
+  // Gather used types, sort by name to make it table and hash their data
+  ezSet<const ezRTTI*> types;
+  ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types, false);
+  ezDynamicArray<const ezRTTI*> typesSorted;
+  typesSorted.Reserve(types.GetCount());
+  for (const ezRTTI* pType : types)
+  {
+    typesSorted.PushBack(pType);
+  }
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
+  for (const ezRTTI* pType : typesSorted)
+  {
+    uiHash = ezHashing::MurmurHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
+    const ezUInt32 uiType = pType->GetTypeVersion();
+    uiHash = ezHashing::MurmurHash64(&uiType, sizeof(uiType), uiHash);
   }
   return uiHash;
 }

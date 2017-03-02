@@ -15,6 +15,7 @@ public:
   static ezActionDescriptorHandle s_hAssetCategory;
   static ezActionDescriptorHandle s_hTransformAsset;
   static ezActionDescriptorHandle s_hTransformAllAssets;
+  static ezActionDescriptorHandle s_hResaveAllAssets;
   static ezActionDescriptorHandle s_hCheckFileSystem;
   static ezActionDescriptorHandle s_hWriteLookupTable;
 };
@@ -28,6 +29,7 @@ public:
   {
     TransformAsset,
     TransformAllAssets,
+    ResaveAllAssets,
     CheckFileSystem,
     WriteLookupTable,
   };

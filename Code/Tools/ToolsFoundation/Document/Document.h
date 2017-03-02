@@ -78,7 +78,7 @@ public:
   /// \brief Returns the absolute path to the document.
   const char* GetDocumentPath() const { return m_sDocumentPath; }
 
-  ezStatus SaveDocument();
+  ezStatus SaveDocument(bool bForce = false);
   ezStatus LoadDocument() { return InternalLoadDocument(); }
 
   /// \brief Brings the corresponding window to the front.

@@ -8,6 +8,7 @@
 ezActionDescriptorHandle ezAssetActions::s_hAssetCategory;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAsset;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAllAssets;
+ezActionDescriptorHandle ezAssetActions::s_hResaveAllAssets;
 ezActionDescriptorHandle ezAssetActions::s_hCheckFileSystem;
 ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
 
@@ -17,6 +18,7 @@ void ezAssetActions::RegisterActions()
   s_hAssetCategory = EZ_REGISTER_CATEGORY("AssetCategory");
   s_hTransformAsset = EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+T", ezAssetAction, ezAssetAction::ButtonType::TransformAsset);
   s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
+  s_hResaveAllAssets = EZ_REGISTER_ACTION_1("Asset.ResaveAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::ResaveAllAssets);
   s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
   s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
 }
@@ -26,6 +28,7 @@ void ezAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hAssetCategory);
   ezActionManager::UnregisterAction(s_hTransformAsset);
   ezActionManager::UnregisterAction(s_hTransformAllAssets);
+  ezActionManager::UnregisterAction(s_hResaveAllAssets);
   ezActionManager::UnregisterAction(s_hCheckFileSystem);
   ezActionManager::UnregisterAction(s_hWriteLookupTable);
 }
@@ -45,7 +48,8 @@ void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
   {
     pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 0.0f);
     pMap->MapAction(s_hTransformAllAssets, "AssetCategory", 3.0f);
-    //pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 4.0f);
+    pMap->MapAction(s_hResaveAllAssets, "AssetCategory", 4.0f);
+    //pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 5.0f);
   }
 }
 
@@ -68,6 +72,9 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
     break;
   case ezAssetAction::ButtonType::TransformAllAssets:
     SetIconPath(":/EditorFramework/Icons/TransformAllAssets16.png");
+    break;
+  case ezAssetAction::ButtonType::ResaveAllAssets:
+    SetIconPath(":/EditorFramework/Icons/ResavAllAssets16.png");
     break;
   case ezAssetAction::ButtonType::CheckFileSystem:
     SetIconPath(":/EditorFramework/Icons/CheckFileSystem16.png");
@@ -114,6 +121,12 @@ void ezAssetAction::Execute(const ezVariant& value)
   case ezAssetAction::ButtonType::TransformAllAssets:
     {
       ezAssetCurator::GetSingleton()->TransformAllAssets();
+    }
+    break;
+
+  case ezAssetAction::ButtonType::ResaveAllAssets:
+    {
+      ezAssetCurator::GetSingleton()->ResaveAllAssets();
     }
     break;
 
