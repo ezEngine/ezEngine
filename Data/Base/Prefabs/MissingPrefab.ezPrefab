@@ -47,7 +47,8 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8866705325096395918,5045814042450016507}}
-		u4 %Hash{13187045142999130741}
+		u4 %Hash{1842132047097158457}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"Materials/BaseMaterials/MissingPrefab.ezMaterial"}

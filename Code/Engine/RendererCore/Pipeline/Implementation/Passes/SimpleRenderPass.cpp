@@ -41,7 +41,7 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
   }
   else
   {
-    // If no input is available, we use the render target setup instead.    
+    // If no input is available, we use the render target setup instead.
     const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetRenderTarget(0));
     if (pTarget)
     {
@@ -55,11 +55,11 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
         outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
         outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
         outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
-          
+
       }
     }
   }
-  
+
   // DepthStencil
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
@@ -120,6 +120,8 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
 }
 
 void ezSimpleRenderPass::SetMessage(const char* szMessage)

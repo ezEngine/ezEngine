@@ -189,7 +189,8 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{11196307510793738689}
+		u4 %Hash{16845362853374704270}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -250,6 +251,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %ApplySSAOToDirectLighting{0}
 		Uuid %Color{u4{15975673858990530494,16098856351119036657}}
 		Uuid %DepthStencil{u4{4397265895120967322,7426991580876458654}}
 		s %Name{"EditorRenderPass"}
@@ -264,6 +266,7 @@ o
 			Uuid{u4{6223125522692041143,4967770884007834239}}
 			Uuid{u4{5647343825527575735,5308690427499687086}}
 		}
+		Uuid %SSAO{u4{12032788958806667816,14050651437212261905}}
 		s %ViewRenderMode{"ezViewRenderMode::None"}
 	}
 }
@@ -506,6 +509,13 @@ o
 }
 o
 {
+	Uuid %id{u4{12032788958806667816,14050651437212261905}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{9863354671111622160,14241425569889992395}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
@@ -613,7 +623,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		s %ConstantValue{"ezScene;ezPrefab"}
+		s %ConstantValue{"Scene;Prefab"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
 		s %Name{"DocumentType"}
 		s %Type{"ezString"}
@@ -789,7 +799,7 @@ o
 			Uuid{u4{17400899627489303928,16143989509050117712}}
 		}
 		s %TypeName{"ezEditorRenderPass"}
-		u3 %TypeSize{216}
+		u3 %TypeSize{232}
 		u3 %TypeVersion{1}
 	}
 }
@@ -812,7 +822,7 @@ o
 			Uuid{u4{3900396693855734746,3142496393289830597}}
 		}
 		s %TypeName{"ezPickingRenderPass"}
-		u3 %TypeSize{392}
+		u3 %TypeSize{384}
 		u3 %TypeVersion{1}
 	}
 }
@@ -849,7 +859,7 @@ o
 			Uuid{u4{16682888373256786419,235066711160160335}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1360}
+		u3 %TypeSize{1368}
 		u3 %TypeVersion{1}
 	}
 }

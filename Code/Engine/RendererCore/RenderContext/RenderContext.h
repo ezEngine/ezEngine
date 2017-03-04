@@ -163,7 +163,7 @@ public:
   static ezGALSamplerStateHandle GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererContext);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererContext);
 
   static void OnEngineShutdown();
 

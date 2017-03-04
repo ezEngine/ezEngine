@@ -14,6 +14,21 @@ class ezDefaultTimeStepSmoothing;
 class ezConsole;
 struct ezWorldDesc;
 
+/// Allows custom code to inject logic at specific update points
+struct ezGameApplicationEvent
+{
+  enum class Type
+  {
+    BeginFrame,
+    BeforeUpdatePlugins,
+    AfterUpdatePlugins,
+    BeforePresent,
+    EndFrame,
+  };
+
+  Type m_Type;
+};
+
 /// \brief The base class for all typical game applications made with ezEngine
 ///
 /// While ezApplication is an abstraction for the operating system entry point,
@@ -142,7 +157,7 @@ public:
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
   void ReinitializeInputConfig();
 
-
+  ezEvent<const ezGameApplicationEvent&> m_Events;
 
 protected:
 

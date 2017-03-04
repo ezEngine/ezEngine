@@ -64,7 +64,7 @@ public:
   static bool IsRenderingThread();
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererLoop);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererLoop);
   friend class ezView;
 
   static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView);

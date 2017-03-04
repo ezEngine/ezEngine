@@ -46,7 +46,7 @@ ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
 bool ezPickingRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   m_TargetRect = view.GetViewport();
-  
+
   return true;
 }
 
@@ -91,7 +91,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   }
 
   // filter out all selected objects
-  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData) 
+  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
   {
     return s_SelectionSet.Contains(pRenderData->m_hOwner);
   });
@@ -102,7 +102,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   if (m_bPickSelected)
   {
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
-  }  
+  }
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
 
@@ -163,7 +163,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       }
     }
   }
-  
+
   {
     // download the picking information from the GPU
     if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)

@@ -40,7 +40,7 @@ namespace
   static ezDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
 }
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererLoop)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererLoop)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",

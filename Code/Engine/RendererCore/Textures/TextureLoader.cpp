@@ -12,7 +12,7 @@
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, TextureResource)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
 "Foundation",

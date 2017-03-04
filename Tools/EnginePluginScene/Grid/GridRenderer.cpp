@@ -30,14 +30,6 @@ ezEditorGridExtractor::ezEditorGridExtractor()
   m_pSceneContext = nullptr;
 }
 
-ezGridRenderer::ezGridRenderer()
-{
-}
-
-ezGridRenderer::~ezGridRenderer()
-{
-}
-
 void ezGridRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {
   types.PushBack(ezGetStaticRTTI<ezGridRenderData>());

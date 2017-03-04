@@ -6,7 +6,6 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 
-struct SpriteData;
 class ezRenderDataBatch;
 class ezSceneContext;
 
@@ -53,9 +52,7 @@ class ezGridRenderer : public ezRenderer
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGridRenderer);
 
 public:
-
-  ezGridRenderer();
-  ~ezGridRenderer();
+  ezGridRenderer() {}
 
   // ezRenderer implementation
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;

@@ -18,7 +18,7 @@ o
 {
 	Uuid %id{u4{14721651792055726519,5725527257620519440}}
 	s %t{"ezMaterialAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %BaseMaterial{""}
@@ -41,7 +41,7 @@ AssetInfo
 			s{"Shaders/Materials/DefaultMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{10395467537468811668,5742640322974183534}}
-		u4 %Hash{13955984901909920995}
+		u4 %Hash{18147310163788941231}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -199,7 +199,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -502,7 +502,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -572,7 +572,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -620,7 +620,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -713,7 +713,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -869,7 +869,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o

@@ -63,7 +63,7 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, DebugRenderer);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, DebugRenderer);
 };
 
 #include <RendererCore/Debug/Implementation/DebugRenderer_inl.h>

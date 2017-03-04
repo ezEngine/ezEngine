@@ -415,7 +415,14 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
 
 void ezGameApplication::UpdateWorldsAndRender()
 {
+  // for plugins that need to hook into this without a link dependency on this lib
   EZ_BROADCAST_EVENT(GameApp_BeginFrame);
+
+  {
+    ezGameApplicationEvent e;
+    e.m_Type = ezGameApplicationEvent::Type::BeginFrame;
+    m_Events.Broadcast(e);
+  }
 
   ezRenderLoop::BeginFrame();
 
@@ -444,11 +451,30 @@ void ezGameApplication::UpdateWorldsAndRender()
       ezTaskSystem::WaitForGroup(updateTaskID);
     }
 
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::BeforeUpdatePlugins;
+      m_Events.Broadcast(e);
+    }
+
+    // for plugins that need to hook into this without a link dependency on this lib
     EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
+
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::AfterUpdatePlugins;
+      m_Events.Broadcast(e);
+    }
 
     ezTelemetry::PerFrameUpdate();
     ezResourceManager::PerFrameUpdate();
     ezTaskSystem::FinishFrameTasks();
+
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::BeforePresent;
+      m_Events.Broadcast(e);
+    }
 
     {
       EZ_PROFILE("GameApplication.Present");
@@ -470,7 +496,14 @@ void ezGameApplication::UpdateWorldsAndRender()
 
   ezRenderLoop::EndFrame();
 
+  // for plugins that need to hook into this without a link dependency on this lib
   EZ_BROADCAST_EVENT(GameApp_EndFrame);
+
+  {
+    ezGameApplicationEvent e;
+    e.m_Type = ezGameApplicationEvent::Type::EndFrame;
+    m_Events.Broadcast(e);
+  }
 
   ezFrameAllocator::Swap();
 }
@@ -589,7 +622,7 @@ void ezGameApplication::RenderFps()
     if (const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
       ezStringBuilder sFps;
-      sFps.Format("{0} fps, {1} ms", ezArgF(1.0f / fElapsedTime, 4, false, 4), ezArgF(fElapsedTime * 1000.0f, 4, false, 4));
+      sFps.Format("{0} fps, {1} ms", ezArgF(1.0f / fElapsedTime, 1, false, 4), ezArgF(fElapsedTime * 1000.0f, 1, false, 4));
 
       ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 

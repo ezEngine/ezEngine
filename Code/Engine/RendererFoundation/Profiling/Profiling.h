@@ -14,11 +14,6 @@ public:
 
 protected:
   ezGALContext* m_pGALContext;
-
-  static void OnEngineStartup() {}
-  static void OnEngineShutdown();
-
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, ProfilingMarker);
 };
 
 /// \brief Profiles the current scope using the given name and also inserts a marker with the given GALContext.

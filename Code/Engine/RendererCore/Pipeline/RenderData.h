@@ -61,6 +61,7 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
   static ezRenderData::Category SimpleTransparent;
   static ezRenderData::Category SimpleForeground;
   static ezRenderData::Category Selection;
+  static ezRenderData::Category GUI;
 };
 
 struct EZ_RENDERERCORE_DLL ezExtractRenderDataMessage : public ezMessage

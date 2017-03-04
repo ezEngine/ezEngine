@@ -29,7 +29,7 @@ EZ_ENUM_CONSTANTS(ezTextureFilterSetting::FixedAnisotropic4x, ezTextureFilterSet
 EZ_ENUM_CONSTANTS(ezTextureFilterSetting::LowestQuality, ezTextureFilterSetting::LowQuality, ezTextureFilterSetting::DefaultQuality, ezTextureFilterSetting::HighQuality, ezTextureFilterSetting::HighestQuality)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererContext)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererContext)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
 "Foundation",

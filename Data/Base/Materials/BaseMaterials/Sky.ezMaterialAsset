@@ -14,7 +14,7 @@ AssetInfo
 			s{"Shaders/Materials/SkyMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{10074911756598670976,5336416775761779484}}
-		u4 %Hash{13720243206325695936}
+		u4 %Hash{12850764542074654535}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -40,7 +40,7 @@ o
 {
 	Uuid %id{u4{13980508164325015977,5695856761518756783}}
 	s %t{"ezMaterialAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %BaseMaterial{""}
@@ -203,7 +203,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture Cube"}
 	}
 }
 o

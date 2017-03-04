@@ -191,7 +191,7 @@ namespace
   }
 }
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, DebugRenderer)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DebugRenderer)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",

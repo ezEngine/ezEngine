@@ -160,7 +160,8 @@ AssetInfo
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
-		u4 %Hash{15886955751325810668}
+		u4 %Hash{12574863239984110561}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
