@@ -8,7 +8,8 @@ The following libraries are used in ezEngine:
   * [SFML](http://www.sfml-dev.org/): This library provides a simple and portable interface for window creation, input handling and more. Used by ezWindow and ezStandardInputDevice on non-Windows platforms (Mac, Linux).
   * [GPA](http://software.intel.com/en-us/vcsource/tools/intel-gpa): When EZ_USE_PROFILING_GPA is enabled, ezEngine allows to use the Intel GPA tool for performance profiling.
   * [Lua](http://www.lua.org/): The Lua scripting language. Can be used directly or through ezLuaWrapper for easier access to common functionality.
-  * [mikktspace] (http://mmikkelsen3d.blogspot.ie/): Tangent space generation code by Morten S. Mikkelsen. See https://wiki.blender.org/index.php/Dev:Shading/Tangent_Space_Normal_Maps for more information. It is used by ezGeometry.
+  * [mikktspace](http://mmikkelsen3d.blogspot.ie/): Tangent space generation code by Morten S. Mikkelsen. See https://wiki.blender.org/index.php/Dev:Shading/Tangent_Space_Normal_Maps for more information. It is used by ezGeometry.
   * [Silk Icons](http://www.famfamfam.com/lab/icons/silk): Icons from this set are used by some of our tools.
-  * [Microsoft DirectXTex] (https://github.com/Microsoft/DirectXTex): Used by the ezTexConv tool for block compression.
-  * [stb?image] (https://github.com/nothings/stb): Public domain licensed image import library by Sean Barrett. Used by ezTexConv tool to import some of the supported formats.
+  * [Microsoft DirectXTex](https://github.com/Microsoft/DirectXTex): Used by the ezTexConv tool for block compression.
+  * [stb](https://github.com/nothings/stb): Public domain licensed code by Sean Barrett. Used by ezTexConv tool to import some of the supported formats.
+  * [dear imgui](https://github.com/ocornut/imgui): Library for easy debug GUIs. MIT license. Also uses several files from [stb](https://github.com/nothings/stb)
