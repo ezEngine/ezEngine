@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Math/Quat.h>
 
 #include <Core/World/Declarations.h>
 

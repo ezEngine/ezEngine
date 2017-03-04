@@ -16,12 +16,12 @@ public:
   /// \name Spatial Data Functions
   ///@{
 
-  ezSpatialDataHandle CreateSpatialData(const ezBoundingBoxSphere& bounds, ezGameObject* pObject = nullptr);
+  ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject = nullptr);
   void DeleteSpatialData(const ezSpatialDataHandle& hData);
 
   bool TryGetSpatialData(const ezSpatialDataHandle& hData, const ezSpatialData*& out_pData) const;
 
-  void UpdateSpatialData(const ezSpatialDataHandle& hData, const ezBoundingBoxSphere& bounds, ezGameObject* pObject = nullptr);
+  void UpdateSpatialData(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds, ezGameObject* pObject = nullptr);
 
   ///@}
   /// \name Simple Queries
@@ -47,7 +47,7 @@ protected:
 
   virtual void SpatialDataAdded(ezSpatialData* pData) = 0;
   virtual void SpatialDataRemoved(ezSpatialData* pData) = 0;
-  virtual void SpatialDataChanged(ezSpatialData* pData, const ezBoundingBoxSphere& oldBounds) = 0;
+  virtual void SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds) = 0;
   virtual void FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr) = 0;
 
   ezProxyAllocator m_Allocator;

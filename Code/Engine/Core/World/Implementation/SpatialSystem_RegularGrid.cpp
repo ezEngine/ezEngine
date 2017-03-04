@@ -57,7 +57,7 @@ ezSpatialSystem_RegularGrid::Cell::Cell(const ezSimdVec4i& index, ezAllocatorBas
 EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::AddData(ezSpatialData* pData)
 {
   ezUInt32 dataIndex = m_BoundingSpheres.GetCount();
-  m_BoundingSpheres.PushBack(pData->m_Bounds.m_vCenter.GetAsVec4(pData->m_Bounds.m_fSphereRadius));
+  m_BoundingSpheres.PushBack(pData->m_Bounds.GetSphere());
   m_DataPointers.PushBack(pData);
   EZ_VERIFY(!m_PointerToIndexTable.Insert(pData, dataIndex), "Implementation error");
 }
@@ -82,7 +82,7 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::UpdateData(ezSpatialData
   ezUInt32 dataIndex = 0;
   EZ_VERIFY(m_PointerToIndexTable.TryGetValue(pData, dataIndex), "Implementation error");
 
-  m_BoundingSpheres[dataIndex] = pData->m_Bounds.m_vCenter.GetAsVec4(pData->m_Bounds.m_fSphereRadius);
+  m_BoundingSpheres[dataIndex] = pData->m_Bounds.GetSphere();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -181,24 +181,18 @@ void ezSpatialSystem_RegularGrid::SpatialDataRemoved(ezSpatialData* pData)
   });
 }
 
-void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const ezBoundingBoxSphere& oldBounds)
+void ezSpatialSystem_RegularGrid::SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds)
 {
-  ezBoundingBox oldBox = oldBounds.GetBox();
-  ezBoundingBox newBox = pData->m_Bounds.GetBox();
+  ezSimdBBox oldBox = oldBounds.GetBox();
+  ezSimdBBox newBox = pData->m_Bounds.GetBox();
 
-  ezSimdVec4f oldBoxMin; oldBoxMin.Load<3>(&oldBox.m_vMin.x);
-  ezSimdVec4f oldBoxMax; oldBoxMax.Load<3>(&oldBox.m_vMax.x);
+  ezSimdVec4i oldIndexBoxMin = ToVec3I32(oldBox.m_Min * m_fInvCellSize);
+  ezSimdVec4i oldIndexBoxMax = ToVec3I32(oldBox.m_Max * m_fInvCellSize);
 
-  ezSimdVec4f newBoxMin; newBoxMin.Load<3>(&newBox.m_vMin.x);
-  ezSimdVec4f newBoxMax; newBoxMax.Load<3>(&newBox.m_vMax.x);
+  ezSimdVec4i newIndexBoxMin = ToVec3I32(newBox.m_Min * m_fInvCellSize);
+  ezSimdVec4i newIndexBoxMax = ToVec3I32(newBox.m_Max * m_fInvCellSize);
 
-  ezSimdVec4i oldIndexBoxMin = ToVec3I32(oldBoxMin * m_fInvCellSize);
-  ezSimdVec4i oldIndexBoxMax = ToVec3I32(oldBoxMax * m_fInvCellSize);
-
-  ezSimdVec4i newIndexBoxMin = ToVec3I32(newBoxMin * m_fInvCellSize);
-  ezSimdVec4i newIndexBoxMax = ToVec3I32(newBoxMax * m_fInvCellSize);
-
-  ezBoundingBox combinedBox = oldBox;
+  ezSimdBBox combinedBox = oldBox;
   combinedBox.ExpandToInclude(newBox);
 
   ForEachCellInBox(combinedBox, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
@@ -250,13 +244,10 @@ void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, 
 }
 
 template <typename Functor>
-EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezBoundingBox& box, Functor func)
+EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezSimdBBox& box, Functor func)
 {
-  ezSimdVec4f boxMin; boxMin.Load<3>(&box.m_vMin.x);
-  ezSimdVec4f boxMax; boxMax.Load<3>(&box.m_vMax.x);
-
-  ezSimdVec4i minIndex = ToVec3I32(boxMin * m_fInvCellSize);
-  ezSimdVec4i maxIndex = ToVec3I32(boxMax * m_fInvCellSize);
+  ezSimdVec4i minIndex = ToVec3I32(box.m_Min * m_fInvCellSize);
+  ezSimdVec4i maxIndex = ToVec3I32(box.m_Max * m_fInvCellSize);
 
   EZ_ASSERT_DEBUG((minIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
   EZ_ASSERT_DEBUG((maxIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");

@@ -14,7 +14,7 @@
   EZ_ALLOW_PRIVATE_PROPERTIES(SELF);                                  \
   public:                                                             \
     typedef BASE_TYPE SUPER;                                          \
-    EZ_FORCE_INLINE static const ezRTTI* GetStaticRTTI()              \
+    EZ_ALWAYS_INLINE static const ezRTTI* GetStaticRTTI()              \
     {                                                                 \
       return &SELF::s_RTTI;                                           \
     }                                                                 \
@@ -86,7 +86,7 @@ class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 public:
   typedef ezNoBase SUPER;
 
-  EZ_FORCE_INLINE static const ezRTTI* GetStaticRTTI()
+  EZ_ALWAYS_INLINE static const ezRTTI* GetStaticRTTI()
   {
     return &ezReflectedClass::s_RTTI;
   }
@@ -96,21 +96,21 @@ public:
   }
 
 public:
-  EZ_FORCE_INLINE ezReflectedClass()
+  EZ_ALWAYS_INLINE ezReflectedClass()
   {
   }
 
   virtual ~ezReflectedClass() {}
 
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
-  EZ_FORCE_INLINE bool IsInstanceOf(const ezRTTI* pType) const
+  EZ_ALWAYS_INLINE bool IsInstanceOf(const ezRTTI* pType) const
   {
     return GetDynamicRTTI()->IsDerivedFrom(pType);
   }
 
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
   template<typename T>
-  EZ_FORCE_INLINE bool IsInstanceOf() const
+  EZ_ALWAYS_INLINE bool IsInstanceOf() const
   {
     return GetDynamicRTTI()->IsDerivedFrom<T>();
   }

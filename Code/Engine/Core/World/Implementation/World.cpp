@@ -106,10 +106,9 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   // fill out the transformation data
   pTransformationData->m_pObject = pNewObject;
   pTransformationData->m_pParentData = pParentData;
-  pTransformationData->m_localPosition = desc.m_LocalPosition.GetAsPositionVec4();
-  pTransformationData->m_localRotation = desc.m_LocalRotation;
-  pTransformationData->m_localScaling = desc.m_LocalScaling.GetAsDirectionVec4();
-  pTransformationData->m_localScaling.w = desc.m_LocalUniformScaling;
+  pTransformationData->m_localPosition = ezSimdConversion::ToVec3(desc.m_LocalPosition);
+  pTransformationData->m_localRotation = ezSimdConversion::ToQuat(desc.m_LocalRotation);
+  pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
   pTransformationData->m_globalTransform.SetIdentity();
   pTransformationData->m_velocity.SetZero();
   pTransformationData->m_localBounds.SetInvalid();
@@ -125,7 +124,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->UpdateGlobalTransform();
   }
 
-  pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_vPosition.GetAsPositionVec4();
+  pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_Position;
 
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;

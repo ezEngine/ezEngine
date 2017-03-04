@@ -105,15 +105,15 @@ const char* ezPxShapeComponent::GetSurfaceFile() const
   return m_hSurface.GetResourceID();
 }
 
-void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezTransform& parentTransform)
+void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform& parentTransform)
 {
   PxTransform shapeTransform(PxIdentity);
   PxShape* pShape = CreateShape(pActor, shapeTransform);
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX shape creation failed");
 
-  const ezTransform ownerTransform = GetOwner()->GetGlobalTransform();
+  const ezSimdTransform& ownerTransform = GetOwner()->GetGlobalTransformSimd();
 
-  ezTransform localTransform;
+  ezSimdTransform localTransform;
   localTransform.SetLocalTransform(parentTransform, ownerTransform);
 
   PxTransform t = ezPxConversionUtils::ToTransform(localTransform);

@@ -29,11 +29,11 @@ private:
 
   virtual void SpatialDataAdded(ezSpatialData* pData) override;
   virtual void SpatialDataRemoved(ezSpatialData* pData) override;
-  virtual void SpatialDataChanged(ezSpatialData* pData, const ezBoundingBoxSphere& oldBounds) override;
+  virtual void SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds) override;
   virtual void FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr) override;
 
   template <typename Functor>
-  void ForEachCellInBox(const ezBoundingBox& box, Functor func);
+  void ForEachCellInBox(const ezSimdBBox& box, Functor func);
 
   ezProxyAllocator m_AlignedAllocator;
   ezSimdVec4i m_iCellSize;
@@ -49,7 +49,7 @@ private:
 
     ezSimdVec4i m_Index;
 
-    ezDynamicArray<ezVec4> m_BoundingSpheres; ///\todo should be simd vec4
+    ezDynamicArray<ezSimdBSphere> m_BoundingSpheres;
     ezDynamicArray<ezSpatialData*> m_DataPointers;
     ezHashTable<ezSpatialData*, ezUInt32> m_PointerToIndexTable;
   };

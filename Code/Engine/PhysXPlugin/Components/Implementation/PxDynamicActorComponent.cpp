@@ -54,7 +54,12 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
       continue;
 
     ezGameObject* pObject = pComponent->GetOwner();
-    pObject->SetGlobalTransform(ezPxConversionUtils::ToTransform(activeTransform.actor2World));
+
+    // preserve scaling
+    ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(activeTransform.actor2World);
+    t.m_Scale = ezSimdConversion::ToVec3(pObject->GetGlobalScaling());
+
+    pObject->SetGlobalTransform(t);
   }
 }
 
@@ -157,16 +162,15 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  const auto pos = GetOwner()->GetGlobalPosition();
-  const auto rot = GetOwner()->GetGlobalRotation();
+  const ezSimdTransform& globalTransform = GetOwner()->GetGlobalTransformSimd();
 
-  PxTransform t = ezPxConversionUtils::ToTransform(pos, rot);
+  PxTransform t = ezPxConversionUtils::ToTransform(globalTransform);
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidDynamic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
   m_pActor->userData = &m_UserData;
 
-  AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
+  AddShapesFromObject(GetOwner(), m_pActor, globalTransform);
 
   m_pActor->setLinearDamping(ezMath::Clamp(m_fLinearDamping, 0.0f, 1000.0f));
   m_pActor->setAngularDamping(ezMath::Clamp(m_fAngularDamping, 0.0f, 1000.0f));
@@ -183,19 +187,21 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   ezVec3 vCenterOfMass(0.0f);
   if (FindCenterOfMass(GetOwner(), vCenterOfMass))
   {
-    ezMat4 mTransform = GetOwner()->GetGlobalTransform().GetAsMat4();
-    mTransform.Invert();
+    ezSimdTransform CoMTransform = globalTransform;
+    CoMTransform.Invert();
 
-    vCenterOfMass = mTransform.TransformPosition(vCenterOfMass);
+    vCenterOfMass = ezSimdConversion::ToVec3(CoMTransform.TransformPosition(ezSimdConversion::ToVec3(vCenterOfMass)));
   }
+
+  PxVec3 pxCoM = ezPxConversionUtils::ToVec3(vCenterOfMass);
 
   if (m_fMass > 0.0f)
   {
-    PxRigidBodyExt::setMassAndUpdateInertia(*m_pActor, m_fMass, reinterpret_cast<PxVec3*>(&vCenterOfMass));
+    PxRigidBodyExt::setMassAndUpdateInertia(*m_pActor, m_fMass, &pxCoM);
   }
   else if (m_fDensity > 0.0f)
   {
-    PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity, reinterpret_cast<PxVec3*>(&vCenterOfMass));
+    PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity, &pxCoM);
   }
   else
   {

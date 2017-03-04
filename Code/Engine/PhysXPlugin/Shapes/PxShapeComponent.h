@@ -43,7 +43,7 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  void AddToActor(physx::PxRigidActor* pActor, const ezTransform& parentTransform);
+  void AddToActor(physx::PxRigidActor* pActor, const ezSimdTransform& parentTransform);
 
 protected:
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) = 0;

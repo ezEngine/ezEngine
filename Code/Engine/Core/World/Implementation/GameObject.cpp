@@ -171,81 +171,28 @@ ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
   return ConstChildIterator(m_pWorld->GetObjectUnchecked(m_FirstChildIndex));
 }
 
-void ezGameObject::SetGlobalPosition(const ezVec3& position)
-{
-  /// \test This is not yet tested
-
-  m_pTransformationData->m_globalTransform.m_vPosition = position;
-  SetGlobalTransform(m_pTransformationData->m_globalTransform);
-}
-
-void ezGameObject::SetGlobalRotation(const ezQuat rotation)
-{
-  /// \test This is not yet tested
-
-  const ezVec3 vOldScale = m_pTransformationData->m_globalTransform.m_Rotation.GetScalingFactors();
-  m_pTransformationData->m_globalTransform.m_Rotation = rotation.GetAsMat3();
-
-  if (!vOldScale.IsZero())
-    m_pTransformationData->m_globalTransform.m_Rotation.SetScalingFactors(vOldScale);
-
-  SetGlobalTransform(m_pTransformationData->m_globalTransform);
-}
-
-void ezGameObject::SetGlobalScaling(const ezVec3 scaling)
-{
-  /// \test This is not yet tested
-
-  if (m_pTransformationData->m_globalTransform.m_Rotation.SetScalingFactors(scaling).Failed())
-    m_pTransformationData->m_globalTransform.m_Rotation.SetScalingMatrix(scaling);
-
-  SetGlobalTransform(m_pTransformationData->m_globalTransform);
-}
-
-
-void ezGameObject::SetGlobalTransform(const ezTransform& transform)
-{
-  ezTransform tLocal;
-
-  if (m_pTransformationData->m_pParentData != nullptr)
-  {
-    tLocal.SetLocalTransform(m_pTransformationData->m_pParentData->m_globalTransform, transform);
-  }
-  else
-  {
-    tLocal = transform;
-  }
-
-  ezVec3 vPos, vScale;
-  tLocal.Decompose(vPos, m_pTransformationData->m_localRotation, vScale);
-  m_pTransformationData->m_localPosition = vPos.GetAsVec4(0.0f);
-  m_pTransformationData->m_localScaling = vScale.GetAsVec4(1.0f);
-
-  m_pTransformationData->m_globalTransform = transform;
-}
-
 ezVec3 ezGameObject::GetDirForwards() const
 {
   ezCoordinateSystem coordinateSystem;
-  m_pWorld->GetCoordinateSystem(m_pTransformationData->m_globalTransform.m_vPosition, coordinateSystem);
+  m_pWorld->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
 
-  return m_pTransformationData->m_globalTransform.m_Rotation.TransformDirection(coordinateSystem.m_vForwardDir);
+  return GetGlobalRotation() * coordinateSystem.m_vForwardDir;
 }
 
 ezVec3 ezGameObject::GetDirRight() const
 {
   ezCoordinateSystem coordinateSystem;
-  m_pWorld->GetCoordinateSystem(m_pTransformationData->m_globalTransform.m_vPosition, coordinateSystem);
+  m_pWorld->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
 
-  return m_pTransformationData->m_globalTransform.m_Rotation.TransformDirection(coordinateSystem.m_vRightDir);
+  return GetGlobalRotation() * coordinateSystem.m_vRightDir;
 }
 
 ezVec3 ezGameObject::GetDirUp() const
 {
   ezCoordinateSystem coordinateSystem;
-  m_pWorld->GetCoordinateSystem(m_pTransformationData->m_globalTransform.m_vPosition, coordinateSystem);
+  m_pWorld->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
 
-  return m_pTransformationData->m_globalTransform.m_Rotation.TransformDirection(coordinateSystem.m_vUpDir);
+  return GetGlobalRotation() * coordinateSystem.m_vUpDir;
 }
 
 void ezGameObject::UpdateLocalBounds()
@@ -255,7 +202,7 @@ void ezGameObject::UpdateLocalBounds()
 
   SendMessage(msg);
 
-  m_pTransformationData->m_localBounds = msg.m_ResultingLocalBounds;
+  m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
 }
 
 ezResult ezGameObject::AttachComponent(const ezComponentHandle& component)
@@ -481,6 +428,25 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
       it->SendMessage(msg, routing);
     }
   }
+}
+
+void ezGameObject::TransformationData::UpdateLocalTransform()
+{
+  ezSimdTransform tLocal;
+
+  if (m_pParentData != nullptr)
+  {
+    tLocal.SetLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
+  }
+  else
+  {
+    tLocal = m_globalTransform;
+  }
+
+  m_localPosition = tLocal.m_Position;
+  m_localRotation = tLocal.m_Rotation;
+  m_localScaling = tLocal.m_Scale;
+  m_localScaling.SetW(1.0f);
 }
 
 void ezGameObject::TransformationData::ConditionalUpdateGlobalTransform()

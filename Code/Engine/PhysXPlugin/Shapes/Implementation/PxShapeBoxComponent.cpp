@@ -63,7 +63,7 @@ void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
 
 void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
 {
-  m_vExtents = ezVec3::ZeroVector().CompMax(value);
+  m_vExtents = value.CompMax(ezVec3::ZeroVector());
 
   if (IsActiveAndInitialized())
   {
@@ -73,8 +73,10 @@ void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
 
 PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
+  ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale);
+
   PxBoxGeometry box;
-  box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents * 0.5f);
+  box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMult(vScale) * 0.5f);
 
   return pActor->createShape(box, *GetPxMaterial());
 }

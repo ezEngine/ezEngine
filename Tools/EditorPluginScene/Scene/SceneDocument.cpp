@@ -1085,16 +1085,14 @@ void ezSceneDocument::SendObjectSelection()
 
 
 
-const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject) const
+ezTransform ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject) const
 {
-  ezTransform Trans;
-
-  if (!m_GlobalTransforms.TryGetValue(pObject, Trans))
+  if (!m_GlobalTransforms.Contains(pObject))
   {
-    Trans = ComputeGlobalTransform(pObject);
+    ComputeGlobalTransform(pObject);
   }
 
-  return m_GlobalTransforms[pObject];
+  return ezSimdConversion::ToTransform(m_GlobalTransforms[pObject]);
 }
 
 void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
@@ -1108,23 +1106,29 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
 
   const ezDocumentObject* pParent = pObject->GetParent();
 
-  ezTransform tLocal;
+  ezSimdTransform tLocal;
+  ezSimdTransform simdT = ezSimdConversion::ToTransform(t);
 
   if (pParent != nullptr)
   {
-    ezTransform tParent = GetGlobalTransform(pParent);
+    if (!m_GlobalTransforms.Contains(pParent))
+    {
+      ComputeGlobalTransform(pParent);
+    }
 
-    tLocal.SetLocalTransform(tParent, t);
+    ezSimdTransform tParent = m_GlobalTransforms[pParent];
+
+    tLocal.SetLocalTransform(tParent, simdT);
   }
   else
-    tLocal = t;
+  {
+    tLocal = simdT;
+  }
 
-  ezVec3 vLocalPos;
-  ezVec3 vLocalScale;
-  ezQuat qLocalRot;
+  ezVec3 vLocalPos = ezSimdConversion::ToVec3(tLocal.m_Position);
+  ezVec3 vLocalScale = ezSimdConversion::ToVec3(tLocal.m_Scale);
+  ezQuat qLocalRot = ezSimdConversion::ToQuat(tLocal.m_Rotation);
   float fUniformScale = 1.0f;
-
-  tLocal.Decompose(vLocalPos, qLocalRot, vLocalScale);
 
   if (vLocalScale.x == vLocalScale.y && vLocalScale.x == vLocalScale.z)
   {

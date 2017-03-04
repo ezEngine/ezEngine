@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Object/ObjectMetaData.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/SimdMath/SimdTransform.h>
 
 class ezAssetFileHeader;
 
@@ -178,10 +179,11 @@ public:
   void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
 
   /// \brief Returns a cached value for the global transform of the given object, if available. Otherwise it calls ComputeGlobalTransform().
-  const ezTransform& GetGlobalTransform(const ezDocumentObject* pObject) const;
+  ezTransform GetGlobalTransform(const ezDocumentObject* pObject) const;
 
   /// \brief Retrieves the local transform property values from the object and combines it into one ezTransform
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
+  static ezSimdTransform QueryLocalTransformSimd(const ezDocumentObject* pObject);
 
   /// \brief Computes the global transform of the parent and combines it with the local transform of the given object.
   /// This function does not return a cached value, but always computes it. It does update the internal cache for later reads though.
@@ -289,7 +291,8 @@ private:
 
   mutable ActiveGizmo m_ActiveGizmo;
 
-  mutable ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
+  typedef ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper> TransformTable;
+  mutable TransformTable m_GlobalTransforms;
 
 
 };

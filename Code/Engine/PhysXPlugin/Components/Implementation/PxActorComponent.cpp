@@ -33,7 +33,7 @@ void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
 
 }
 
-void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor* pRigidActor, const ezTransform& ParentTransform)
+void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor* pRigidActor, const ezSimdTransform& ParentTransform)
 {
   ezHybridArray<ezPxShapeComponent*, 8> shapes;
   pObject->TryGetComponentsOfBaseType(shapes);
@@ -41,7 +41,9 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
   for (auto pShape : shapes)
   {
     if (pShape->IsActive())
+    {
       pShape->AddToActor(pRigidActor, ParentTransform);
+    }
   }
 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)

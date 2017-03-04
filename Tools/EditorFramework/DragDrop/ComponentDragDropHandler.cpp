@@ -4,7 +4,6 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
 
 #include <QMimeData>
 #include <QDataStream>

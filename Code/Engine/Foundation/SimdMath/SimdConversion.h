@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
 
 namespace ezSimdConversion

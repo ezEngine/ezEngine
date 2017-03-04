@@ -78,13 +78,15 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  PxTransform t = ezPxConversionUtils::ToTransform(GetOwner()->GetGlobalTransform());
+  const ezSimdTransform& globalTransform = GetOwner()->GetGlobalTransformSimd();
+
+  PxTransform t = ezPxConversionUtils::ToTransform(globalTransform);
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidStatic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
   m_pActor->userData = &m_UserData;
 
-  AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
+  AddShapesFromObject(GetOwner(), m_pActor, globalTransform);
 
   PxShape* pShape = nullptr;
 

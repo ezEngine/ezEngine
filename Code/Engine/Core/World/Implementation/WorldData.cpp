@@ -241,30 +241,32 @@ void WorldData::UpdateGlobalTransforms(float fInvDeltaSeconds)
 {
   struct RootLevel
   {
-    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
-      WorldData::UpdateGlobalTransform(pData, *static_cast<float*>(pUserData));
+      WorldData::UpdateGlobalTransform(pData, *static_cast<ezSimdFloat*>(pUserData));
       return ezVisitorExecution::Continue;
     }
   };
 
   struct WithParent
   {
-    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
-      WorldData::UpdateGlobalTransformWithParent(pData, *static_cast<float*>(pUserData));
+      WorldData::UpdateGlobalTransformWithParent(pData, *static_cast<ezSimdFloat*>(pUserData));
       return ezVisitorExecution::Continue;
     }
   };
 
+  ezSimdFloat fInvDt = fInvDeltaSeconds;
+
   Hierarchy& hierarchy = m_Hierarchies[HierarchyType::Dynamic];
   if (!hierarchy.m_Data.IsEmpty())
   {
-    TraverseHierarchyLevel<RootLevel>(*hierarchy.m_Data[0], &fInvDeltaSeconds);
+    TraverseHierarchyLevel<RootLevel>(*hierarchy.m_Data[0], &fInvDt);
 
     for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
     {
-      TraverseHierarchyLevel<WithParent>(*hierarchy.m_Data[i], &fInvDeltaSeconds);
+      TraverseHierarchyLevel<WithParent>(*hierarchy.m_Data[i], &fInvDt);
     }
   }
 }

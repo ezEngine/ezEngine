@@ -1,9 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Math/Quat.h>
-#include <Foundation/Math/Transform.h>
-#include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/TagSet.h>
 
@@ -171,29 +169,32 @@ public:
   /// \brief Changes the position of the object local to its parent.
   /// \note The rotation of the object itself does not affect the final global position!
   /// The local position is always in the space of the parent object. If there is no parent, local position and global position are identical.
-  void SetLocalPosition(const ezVec3& position);
-  const ezVec3& GetLocalPosition() const;
+  void SetLocalPosition(ezVec3 position);
+  ezVec3 GetLocalPosition() const;
 
-  void SetLocalRotation(const ezQuat& rotation);
-  const ezQuat& GetLocalRotation() const;
+  void SetLocalRotation(ezQuat rotation);
+  ezQuat GetLocalRotation() const;
 
-  void SetLocalScaling(const ezVec3& scaling);
-  const ezVec3& GetLocalScaling() const;
+  void SetLocalScaling(ezVec3 scaling);
+  ezVec3 GetLocalScaling() const;
 
   void SetLocalUniformScaling(float scaling);
   float GetLocalUniformScaling() const;
 
   void SetGlobalPosition(const ezVec3& position);
-  const ezVec3& GetGlobalPosition() const;
+  ezVec3 GetGlobalPosition() const;
 
   void SetGlobalRotation(const ezQuat rotation);
-  const ezQuat GetGlobalRotation() const;
+  ezQuat GetGlobalRotation() const;
 
   void SetGlobalScaling(const ezVec3 scaling);
-  const ezVec3 GetGlobalScaling() const;
+  ezVec3 GetGlobalScaling() const;
 
+  /// \brief Prefer the SIMD variant since it does not involve a decomposition.
   void SetGlobalTransform(const ezTransform& transform);
-  const ezTransform& GetGlobalTransform() const;
+  void SetGlobalTransform(const ezSimdTransform& transform);
+  ezTransform GetGlobalTransform() const;
+  const ezSimdTransform& GetGlobalTransformSimd() const;
 
   ezVec3 GetDirForwards() const;
   ezVec3 GetDirRight() const;
@@ -203,14 +204,14 @@ public:
 
   /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this frame's position, but
   ///        also the time difference is divided out.
-  const ezVec3& GetVelocity() const;
+  ezVec3 GetVelocity() const;
 
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransform();
 
 
-  const ezBoundingBoxSphere& GetLocalBounds() const;
-  const ezBoundingBoxSphere& GetGlobalBounds() const;
+  ezBoundingBoxSphere GetLocalBounds() const;
+  ezBoundingBoxSphere GetGlobalBounds() const;
 
   /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
   void UpdateLocalBounds();
@@ -304,20 +305,22 @@ private:
     ezUInt64 m_uiPadding;
 #endif
 
-    ezVec4 m_localPosition;
-    ezQuat m_localRotation;
-    ezVec4 m_localScaling; // x,y,z = non-uniform scaling, w = uniform scaling
+    ezSimdVec4f m_localPosition;
+    ezSimdQuat m_localRotation;
+    ezSimdVec4f m_localScaling; // x,y,z = non-uniform scaling, w = uniform scaling
 
-    ezTransform m_globalTransform;
-    ezVec4 m_lastGlobalPosition;
-    ezVec4 m_velocity; // w = 1 indicates custom velocity
+    ezSimdTransform m_globalTransform;
+    ezSimdVec4f m_lastGlobalPosition;
+    ezSimdVec4f m_velocity; // w = 1 indicates custom velocity
 
-    ezBoundingBoxSphere m_localBounds;
-    ezBoundingBoxSphere m_globalBounds;
+    ezSimdBBoxSphere m_localBounds;
+    ezSimdBBoxSphere m_globalBounds;
 
     ezSpatialDataHandle m_hSpatialData;
 
-    ezUInt32 m_uiPadding2[13];
+    ezUInt32 m_uiPadding2[11];
+
+    void UpdateLocalTransform();
 
     void ConditionalUpdateGlobalTransform();
     void UpdateGlobalTransform();
@@ -325,6 +328,8 @@ private:
 
     void ConditionalUpdateGlobalBounds();
     void UpdateGlobalBounds();
+
+    void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 
     void UpdateSpatialData();
   };

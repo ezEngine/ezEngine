@@ -13,7 +13,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  void AddShapesFromObject(ezGameObject* pObject, physx::PxRigidActor* pActor, const ezTransform& ParentTransform);
+  void AddShapesFromObject(ezGameObject* pObject, physx::PxRigidActor* pActor, const ezSimdTransform& ParentTransform);
 };
 
 

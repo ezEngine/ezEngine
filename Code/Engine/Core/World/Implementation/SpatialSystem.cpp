@@ -20,7 +20,7 @@ ezSpatialSystem::~ezSpatialSystem()
 
 }
 
-ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezBoundingBoxSphere& bounds, ezGameObject* pObject /*= nullptr*/)
+ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject /*= nullptr*/)
 {
   ezSpatialData* pData = m_DataStorage.Create();
 
@@ -59,13 +59,13 @@ bool ezSpatialSystem::TryGetSpatialData(const ezSpatialDataHandle& hData, const 
   return res;
 }
 
-void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const ezBoundingBoxSphere& bounds, ezGameObject* pObject /*= nullptr*/)
+void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds, ezGameObject* pObject /*= nullptr*/)
 {
   ezSpatialData* pData = nullptr;
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
     return;
 
-  ezBoundingBoxSphere oldBounds = pData->m_Bounds;
+  ezSimdBBoxSphere oldBounds = pData->m_Bounds;
 
   pData->m_pObject = pObject;
   pData->m_Bounds = bounds;
