@@ -4,6 +4,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <GameEngine/DearImgui/DearImgui.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
@@ -35,8 +36,6 @@ void ezImguiExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtra
       // uses the frame allocator to prevent unnecessary deallocations
       {
         const ImDrawList* pCmdList = pDrawData->CmdLists[draw];
-        const ImDrawVert* pVertexBuffer = pCmdList->VtxBuffer.Data;
-        const ImDrawIdx* pIndexBuffer = pCmdList->IdxBuffer.Data;
 
         pRenderData->m_Vertices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezImguiVertex, pCmdList->VtxBuffer.size());
         for (ezUInt32 vtx = 0; vtx < pRenderData->m_Vertices.GetCount(); ++vtx)

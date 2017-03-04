@@ -57,7 +57,7 @@ public:
   ///
   /// \note When SetClipMouseCursor is enabled, the mouse will always be centered in the window.
   /// In that case it should also always be hidden.
-  virtual void SetShowMouseCursor(bool bShow);
+  virtual void SetShowMouseCursor(bool bShow) override;
 
   /// \brief Returns whether the mouse cursor is shown.
   virtual bool GetShowMouseCursor() const { return m_bShowCursor; }
