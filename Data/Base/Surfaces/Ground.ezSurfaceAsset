@@ -25,7 +25,8 @@ AssetInfo
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13858312881180918672,5138622001753616094}}
-		u4 %Hash{9691315003873618377}
+		u4 %Hash{907809875627604974}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}

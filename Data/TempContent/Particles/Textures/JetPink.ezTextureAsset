@@ -51,7 +51,7 @@ AssetInfo
 			s{"Particles/Textures/JetPink_A.tga"}
 		}
 		Uuid %DocumentID{u4{12415957779845012699,14690905593203570107}}
-		u4 %Hash{8696542883316303737}
+		u4 %Hash{13345132389015335536}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

@@ -51,7 +51,7 @@ AssetInfo
 			s{"Particles/Textures/Steam_A.tga"}
 		}
 		Uuid %DocumentID{u4{14330716989335131417,9853723608554285574}}
-		u4 %Hash{1963737929993583923}
+		u4 %Hash{1443227633359238561}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

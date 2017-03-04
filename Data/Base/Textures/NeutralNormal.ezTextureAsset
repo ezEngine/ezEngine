@@ -50,7 +50,7 @@ AssetInfo
 			s{"Textures/NeutralNormal.tga"}
 		}
 		Uuid %DocumentID{u4{15840237980637101481,5475314895401003152}}
-		u4 %Hash{3534935120940510612}
+		u4 %Hash{11969810015823427989}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

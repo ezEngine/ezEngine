@@ -14,7 +14,7 @@ AssetInfo
 			s{"Particles/Textures/Smoke.tga"}
 		}
 		Uuid %DocumentID{u4{4585678578125348250,4791111026204270759}}
-		u4 %Hash{9701379071544820967}
+		u4 %Hash{708822555054950350}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

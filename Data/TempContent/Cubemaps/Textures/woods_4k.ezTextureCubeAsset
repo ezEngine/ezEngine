@@ -14,7 +14,7 @@ AssetInfo
 			s{"Cubemaps/Textures/woods_4k.hdr"}
 		}
 		Uuid %DocumentID{u4{4858344355152513189,4806538659741976816}}
-		u4 %Hash{9004707794862878673}
+		u4 %Hash{16964956348272802716}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

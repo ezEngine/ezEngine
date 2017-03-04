@@ -51,7 +51,7 @@ AssetInfo
 			s{"Particles/Textures/JetBlue_A.tga"}
 		}
 		Uuid %DocumentID{u4{906073750148885528,14794889596955331841}}
-		u4 %Hash{15169510279580835555}
+		u4 %Hash{14746825871567739078}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

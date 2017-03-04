@@ -49,7 +49,7 @@ AssetInfo
 			s{"Cubemaps/Textures/Sky.jpg"}
 		}
 		Uuid %DocumentID{u4{13925925426885276288,5424885730035344596}}
-		u4 %Hash{16300706753246390582}
+		u4 %Hash{555998712434462922}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

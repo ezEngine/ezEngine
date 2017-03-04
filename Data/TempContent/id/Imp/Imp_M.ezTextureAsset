@@ -7,17 +7,15 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"id/Imp/Metallic.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
@@ -38,7 +36,8 @@ AssetInfo
 			s{"id/Imp/Metallic.tga"}
 		}
 		Uuid %DocumentID{u4{17098682770359194535,5324431217922566126}}
-		u4 %Hash{16813556409186102432}
+		u4 %Hash{16026792550848333251}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }

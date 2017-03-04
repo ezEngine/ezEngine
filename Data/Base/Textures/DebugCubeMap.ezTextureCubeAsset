@@ -35,7 +35,7 @@ AssetInfo
 			s{"Textures/MissingCubeMap.dds"}
 		}
 		Uuid %DocumentID{u4{1338951568161559681,5334970008066883333}}
-		u4 %Hash{15578104538159515193}
+		u4 %Hash{15684300615485921447}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

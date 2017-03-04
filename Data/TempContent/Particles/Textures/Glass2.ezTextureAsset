@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/Glass2_A.tga"}
 		}
 		Uuid %DocumentID{u4{13632726160902047641,3450680948984523420}}
-		u4 %Hash{3417763496786844231}
+		u4 %Hash{6644945128261438007}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

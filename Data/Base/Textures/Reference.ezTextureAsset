@@ -7,17 +7,15 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"Textures/Reference_D.dds"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
@@ -52,7 +50,8 @@ AssetInfo
 			s{"Textures/Reference_D.dds"}
 		}
 		Uuid %DocumentID{u4{11398830688999107201,5676112980344832649}}
-		u4 %Hash{3193970736002624723}
+		u4 %Hash{4886498909171512577}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }

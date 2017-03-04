@@ -51,7 +51,7 @@ AssetInfo
 			s{"Particles/Textures/Electric_A.tga"}
 		}
 		Uuid %DocumentID{u4{279970371350006561,6420449116315854195}}
-		u4 %Hash{16671765946196408073}
+		u4 %Hash{5717324119045182397}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

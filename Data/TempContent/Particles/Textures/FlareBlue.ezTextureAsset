@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/FlareBlue_A.tga"}
 		}
 		Uuid %DocumentID{u4{17705452178861538488,608694005136718356}}
-		u4 %Hash{7852248711272273114}
+		u4 %Hash{14366678194698927748}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

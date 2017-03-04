@@ -28,7 +28,7 @@ AssetInfo
 			s{"Particles/Textures/Bubble.tga"}
 		}
 		Uuid %DocumentID{u4{4690165906621339280,5408640897115254557}}
-		u4 %Hash{10758209953717806770}
+		u4 %Hash{15867180444271473534}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

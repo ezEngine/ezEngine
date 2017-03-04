@@ -51,7 +51,7 @@ AssetInfo
 			s{"Particles/Textures/Muzzle_A.tga"}
 		}
 		Uuid %DocumentID{u4{12302320679452498765,16330574479106832141}}
-		u4 %Hash{10751309860355713486}
+		u4 %Hash{13829308556092285068}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

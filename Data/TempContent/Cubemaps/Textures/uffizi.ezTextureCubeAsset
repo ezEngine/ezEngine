@@ -35,7 +35,7 @@ AssetInfo
 			s{"Cubemaps/Textures/uffizi_cross.hdr"}
 		}
 		Uuid %DocumentID{u4{16570251626035375497,5377630440112190531}}
-		u4 %Hash{4943204962911677794}
+		u4 %Hash{511003900161497428}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/PlasmaGreen_A.tga"}
 		}
 		Uuid %DocumentID{u4{1482918562272651123,2538752648607160707}}
-		u4 %Hash{3198600345045733090}
+		u4 %Hash{5112439325156259679}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

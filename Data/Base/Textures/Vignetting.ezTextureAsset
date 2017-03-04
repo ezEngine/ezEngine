@@ -14,7 +14,7 @@ AssetInfo
 			s{"Textures/Vignetting.tga"}
 		}
 		Uuid %DocumentID{u4{9132907039025431446,4850155600327151795}}
-		u4 %Hash{4475609759270631385}
+		u4 %Hash{5435773356349035865}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -35,8 +35,6 @@ o
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{0}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}

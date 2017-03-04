@@ -14,7 +14,8 @@ AssetInfo
 			s{"id/Imp/Diffuse2.tga"}
 		}
 		Uuid %DocumentID{u4{14444537978262200199,4790281877677650125}}
-		u4 %Hash{11470487223726473224}
+		u4 %Hash{9204651844531905148}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -25,17 +26,15 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"id/Imp/Diffuse2.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}

@@ -14,7 +14,8 @@ AssetInfo
 			s{"id/Imp/Roughness.tga"}
 		}
 		Uuid %DocumentID{u4{10047278012509835402,4781206117347264251}}
-		u4 %Hash{13709167910254449257}
+		u4 %Hash{13256621146491043406}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -39,17 +40,15 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Wrap"}
-		s %AddressModeV{"ezTextureAddressMode::Wrap"}
-		s %AddressModeW{"ezTextureAddressMode::Wrap"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		s %Input1{"id/Imp/Roughness.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}

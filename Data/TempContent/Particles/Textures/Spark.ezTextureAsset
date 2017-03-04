@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/Spark_A.tga"}
 		}
 		Uuid %DocumentID{u4{4553544716901126466,55119026618217137}}
-		u4 %Hash{14816712805708659945}
+		u4 %Hash{13932816335292367856}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

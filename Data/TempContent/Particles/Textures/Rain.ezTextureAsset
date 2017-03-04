@@ -50,7 +50,7 @@ AssetInfo
 			s{"Particles/Textures/Rain.tga"}
 		}
 		Uuid %DocumentID{u4{457184474432017349,7492800544946194024}}
-		u4 %Hash{2223573053568673425}
+		u4 %Hash{13332900578105606732}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

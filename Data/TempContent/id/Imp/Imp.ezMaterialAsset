@@ -28,7 +28,7 @@ o
 {
 	Uuid %id{u4{5498510720563108498,4640368888048016820}}
 	s %t{"ezMaterialAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		s %BaseMaterial{""}
@@ -54,7 +54,7 @@ AssetInfo
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{16220061417941925280,4641796823593829036}}
-		u4 %Hash{1638249988608534895}
+		u4 %Hash{9825096963195980027}
 		VarArray %Outputs
 		{
 			s{"VISUAL_SHADER"}
@@ -333,7 +333,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -415,6 +415,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{16517240833095111838,12482532116581819901}}
+			Uuid{u4{210433940518465611,12187248890635927233}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -600,6 +601,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{964484524950615697,13974320077582581867}}
+			Uuid{u4{3104421706083521086,13679036851636689199}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -637,6 +639,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{11778937234541866997,14623174963543774836}}
+			Uuid{u4{13918874415674772386,14327891737597882168}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -686,7 +689,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -707,6 +710,16 @@ o
 	p
 	{
 		Vec3 %Value{f{0,0,0}}
+	}
+}
+o
+{
+	Uuid %id{u4{5940977754106040070,4803236389599938143}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{"RebeccaPurple.color"}
 	}
 }
 o
@@ -746,6 +759,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{9248046754114993637,16683241866162692829}}
+			Uuid{u4{11387983935247899026,16387958640216800161}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -775,7 +789,10 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{7341345830343289144,17060108331439719845}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MaskThreshold"}
@@ -834,6 +851,16 @@ o
 	p
 	{
 		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{14637493973191302544,7557119302643029587}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{""}
 	}
 }
 o
@@ -990,7 +1017,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -1044,7 +1071,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
 	}
 }
 o
@@ -1177,6 +1204,16 @@ o
 }
 o
 {
+	Uuid %id{u4{210433940518465611,12187248890635927233}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		ColorGamma %Value{u1{255,255,255,255}}
+	}
+}
+o
+{
 	Uuid %id{u4{2768793426670765198,12204563235385714564}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{1}
@@ -1209,6 +1246,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{3801040572973134681,5098519615545830811}}
+			Uuid{u4{5940977754106040070,4803236389599938143}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -1253,7 +1291,17 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Texture"}
+		s %Category{"Texture 2D"}
+	}
+}
+o
+{
+	Uuid %id{u4{3104421706083521086,13679036851636689199}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{""}
 	}
 }
 o
@@ -1281,6 +1329,16 @@ o
 		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
 		s %Name{"BLEND_MODE"}
 		s %Type{"BLEND_MODE"}
+	}
+}
+o
+{
+	Uuid %id{u4{13918874415674772386,14327891737597882168}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{""}
 	}
 }
 o
@@ -1318,6 +1376,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{12497556792058397155,7852402528588922255}}
+			Uuid{u4{14637493973191302544,7557119302643029587}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -1351,6 +1410,16 @@ o
 	p
 	{
 		s %Value{"{ be6886fb-41a1-425a-8ad0-3d9f1e1a6f8b }"}
+	}
+}
+o
+{
+	Uuid %id{u4{11387983935247899026,16387958640216800161}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
 	}
 }
 o
@@ -1390,6 +1459,16 @@ o
 	p
 	{
 		s %Filter{";Texture 2D;"}
+	}
+}
+o
+{
+	Uuid %id{u4{7341345830343289144,17060108331439719845}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803E}
 	}
 }
 o

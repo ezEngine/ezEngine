@@ -56,7 +56,8 @@ AssetInfo
 			s{"id/Imp/Imp.obj"}
 		}
 		Uuid %DocumentID{u4{824725391493986470,5000215402686462604}}
-		u4 %Hash{7401402122342931790}
+		u4 %Hash{10853171549371554362}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}

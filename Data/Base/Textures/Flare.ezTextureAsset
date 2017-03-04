@@ -14,7 +14,7 @@ AssetInfo
 			s{"Textures/Flare.tga"}
 		}
 		Uuid %DocumentID{u4{104150515546721672,4824860388845839080}}
-		u4 %Hash{6527938115631071590}
+		u4 %Hash{5205791299939568275}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

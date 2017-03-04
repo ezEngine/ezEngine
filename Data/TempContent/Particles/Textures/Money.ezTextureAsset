@@ -51,7 +51,7 @@ AssetInfo
 			s{"Particles/Textures/Money_A.tga"}
 		}
 		Uuid %DocumentID{u4{18274861333806162478,10426499550482706588}}
-		u4 %Hash{1723572602386408357}
+		u4 %Hash{4970988824530966981}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
