@@ -27,9 +27,9 @@ BUILD_REQUIRES_DX11()
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
-  Foundation  
+  Foundation
   ToolsFoundation
-  EditorFramework 
+  EditorFramework
   InputXBox360
   Core
   System
@@ -37,6 +37,7 @@ SET (LINK_LIBRARIES
   RendererDX11
   RendererCore
   GameEngine
+  ThirdParty
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

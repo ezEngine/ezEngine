@@ -8,7 +8,7 @@ EZ_BEGIN_COMPONENT_TYPE(RecursiveGrowthComponent, 2)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Children", m_uiNumChildren)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(0, 200)),
-    EZ_MEMBER_PROPERTY("Recursion Depth", m_uiRecursionDepth)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(0, 5)),
+    EZ_MEMBER_PROPERTY("RecursionDepth", m_uiRecursionDepth)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(0, 5)),
   }
   EZ_END_PROPERTIES
 

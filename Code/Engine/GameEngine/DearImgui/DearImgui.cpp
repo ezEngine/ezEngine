@@ -54,18 +54,25 @@ void ezImgui::Startup()
     int width, height;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
 
-    ezGALSystemMemoryDescription memoryDesc;
-    memoryDesc.m_pData = pixels;
-    memoryDesc.m_uiRowPitch = width * 4;
-    memoryDesc.m_uiSlicePitch = width * height * 4;
+    ezTexture2DResourceHandle hFont = ezResourceManager::GetExistingResource<ezTexture2DResource>("ImguiFont");
 
-    ezTexture2DResourceDescriptor desc;
-    desc.m_DescGAL.m_uiWidth = width;
-    desc.m_DescGAL.m_uiHeight = height;
-    desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
+    if (!hFont.IsValid())
+    {
+      ezGALSystemMemoryDescription memoryDesc;
+      memoryDesc.m_pData = pixels;
+      memoryDesc.m_uiRowPitch = width * 4;
+      memoryDesc.m_uiSlicePitch = width * height * 4;
 
-    m_hTextures.PushBack(ezResourceManager::CreateResource<ezTexture2DResource>("ImguiFont", desc));
+      ezTexture2DResourceDescriptor desc;
+      desc.m_DescGAL.m_uiWidth = width;
+      desc.m_DescGAL.m_uiHeight = height;
+      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
+
+      hFont = ezResourceManager::CreateResource<ezTexture2DResource>("ImguiFont", desc);
+    }
+
+    m_hTextures.PushBack(hFont);
 
     const size_t id = (size_t)m_hTextures.GetCount() - 1;
     io.Fonts->TexID = reinterpret_cast<void*>(id);
