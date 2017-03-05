@@ -48,8 +48,9 @@ ezTestFramework::~ezTestFramework()
 
 void ezTestFramework::Initialize()
 {
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  // Don't do this, it will spam the log with sub-system messages
+  //ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  //ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCore();

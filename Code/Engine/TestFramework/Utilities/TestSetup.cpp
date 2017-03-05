@@ -214,8 +214,9 @@ void ezTestSetup::DeInitTestFramework()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
-  // In the UWP case we never initilized this thread for ez, so we can't do log output now.
+  // In the UWP case we never initialized this thread for ez, so we can't do log output now.
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezStringUtils::PrintStringLengthStatistics();
 #endif
 
