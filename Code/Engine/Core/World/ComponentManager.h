@@ -46,8 +46,12 @@ public:
   /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent(const ezComponentHandle& component);
 
-  /// \brief Allows to gather all components that this manager handles into one array. Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
+  /// \brief Adds all components that this manager handles to the given array (array is not cleared).
+  /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) = 0;
+
+  /// \brief Adds all components that this manager handles to the given array (array is not cleared).
+  /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) = 0;
 
 protected:

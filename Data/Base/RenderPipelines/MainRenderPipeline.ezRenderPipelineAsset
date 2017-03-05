@@ -127,7 +127,7 @@ o
 	{
 		b %Active{1}
 		b %Clear{1}
-		Color %ClearColor{f{0,0,0,0}}
+		Color %ClearColor{f{0x10D7233B,0xC111CA3C,0xCDCC4C3D,0x0000803F}}
 		s %Format{"ezGALResourceFormat::RGBAHalf"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::FourSamples"}
 		s %Name{"ColorSource"}
@@ -135,7 +135,7 @@ o
 		{
 			Uuid{u4{16662497566010181617,98252462299188851}}
 		}
-		Vec2 %Node::Pos{f{0xA39775C4,0x7D8C97C3}}
+		Vec2 %Node::Pos{f{0x651876C4,0x7D8C97C3}}
 		Uuid %Output{u4{5276229737650855506,16393626965493704539}}
 		VarArray %Renderers{}
 	}
@@ -236,7 +236,7 @@ o
 			Uuid{u4{8772136179626764646,9123313225063321097}}
 			Uuid{u4{15963361496706592805,8972749507553358435}}
 		}
-		Vec2 %Node::Pos{f{0x764E3CC3,0x4E5EBFC3}}
+		Vec2 %Node::Pos{f{0x985D46C3,0x475BBDC3}}
 		Uuid %Output{u4{16379993710432772104,5951281239570089153}}
 		VarArray %Renderers{}
 	}
@@ -462,7 +462,7 @@ o
 			Uuid{u4{6191881563156680974,284339198669379667}}
 			Uuid{u4{12873652193339653469,7036223308027320324}}
 		}
-		Vec2 %Node::Pos{f{0x5CC7FEC3,0xDD7880C3}}
+		Vec2 %Node::Pos{f{0x5CC7FEC3,0x9FF980C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{12574701620031889549,5146833270166298899}}
@@ -536,7 +536,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{13825588027098191317}
+		u4 %Hash{2839003454804122313}
 		VarArray %Outputs{}
 		VarArray %References
 		{

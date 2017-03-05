@@ -116,8 +116,7 @@ EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, StorageType>::TypeId()
 template <typename T, ezBlockStorageType::Enum StorageType>
 void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
 {
-  out_AllComponents.Clear();
-  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
+  out_AllComponents.Reserve(out_AllComponents.GetCount() + m_ComponentStorage.GetCount());
 
   for (auto it = GetComponents(); it.IsValid(); it.Next())
   {
@@ -128,8 +127,7 @@ void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezC
 template <typename T, ezBlockStorageType::Enum StorageType>
 void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
 {
-  out_AllComponents.Clear();
-  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
+  out_AllComponents.Reserve(out_AllComponents.GetCount() + m_ComponentStorage.GetCount());
 
   for (auto it = GetComponents(); it.IsValid(); it.Next())
   {
