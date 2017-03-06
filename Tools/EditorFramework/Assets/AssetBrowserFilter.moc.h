@@ -9,6 +9,9 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserFilter : public ezQtAssetFilter
 public:
   explicit ezQtAssetBrowserFilter(QObject* pParent);
 
+  /// Resets all filters to their default state.
+  void Reset();
+
   void SetShowItemsInSubFolders(bool bShow);
   bool GetShowItemsInSubFolders() const { return m_bShowItemsInSubFolders; }
 
@@ -37,6 +40,6 @@ public:
 
 private:
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
-  bool m_bShowItemsInSubFolders;
-  bool m_bSortByRecentUse;
+  bool m_bShowItemsInSubFolders = true;
+  bool m_bSortByRecentUse = false;
 };

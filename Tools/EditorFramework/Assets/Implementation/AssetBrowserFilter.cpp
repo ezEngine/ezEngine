@@ -5,8 +5,16 @@
 ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
   : ezQtAssetFilter(pParent)
 {
-  m_bShowItemsInSubFolders = true;
-  m_bSortByRecentUse = false;
+}
+
+
+void ezQtAssetBrowserFilter::Reset()
+{
+  SetShowItemsInSubFolders(true);
+  SetSortByRecentUse(false);
+  SetTextFilter("");
+  SetTypeFilter("");
+  SetPathFilter("");
 }
 
 void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)

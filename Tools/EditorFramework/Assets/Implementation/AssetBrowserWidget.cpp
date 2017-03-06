@@ -174,6 +174,8 @@ void ezQtAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
     {
       // remove project structure from asset browser
       ClearDirectoryTree();
+
+      m_pFilter->Reset();
     }
     break;
   }
