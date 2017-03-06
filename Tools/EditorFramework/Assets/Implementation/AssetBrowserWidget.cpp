@@ -120,6 +120,8 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
   UpdateDirectoryTree();
 
+  // make sure to apply the previously active type filter settings to the UI
+  OnTypeFilterChanged();
 }
 
 void ezQtAssetBrowserWidget::SetDialogMode()
