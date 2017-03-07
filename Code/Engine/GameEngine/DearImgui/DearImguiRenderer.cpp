@@ -5,6 +5,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <GameEngine/DearImgui/DearImgui.h>
+#include <ThirdParty/Imgui/imgui_internal.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
@@ -19,6 +20,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezImguiExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
+  // ignore ImGui as long as it hasn't been used
+  if (!ImGui::GetCurrentContext()->Initialized)
+    return;
+
   ImGui::Render();
 
   ImDrawData* pDrawData = ImGui::GetDrawData();

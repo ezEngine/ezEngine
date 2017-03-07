@@ -120,7 +120,8 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
     ezRenderContext::GetDefaultInstance()->ResetContextState();
   }
 
-  ezStats::SetStat("Histogram Computation Time (ms)", ezConversionUtils::ToString(m_pHistogramGPUStopwatch->GetLastResult().GetMilliseconds()));
+  ezStringBuilder tmp;
+  ezStats::SetStat("Histogram Computation Time (ms)", ezConversionUtils::ToString(m_pHistogramGPUStopwatch->GetLastResult().GetMilliseconds(), tmp));
 
   // needs to be called once per frame
   ezResourceManager::PerFrameUpdate();
