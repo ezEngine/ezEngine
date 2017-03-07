@@ -373,10 +373,12 @@ QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
   QString sGuids;
   QList<QUrl> urls;
 
+  ezStringBuilder tmp;
+
   stream << indexes.size();
   for (int i = 0; i < indexes.size(); ++i)
   {
-    QString sGuid(ezConversionUtils::ToString(data(indexes[i], UserRoles::AssetGuid).value<ezUuid>()).GetData());
+    QString sGuid(ezConversionUtils::ToString(data(indexes[i], UserRoles::AssetGuid).value<ezUuid>(), tmp).GetData());
     QString sPath = data(indexes[i], UserRoles::AbsolutePath).toString();
 
     stream << sGuid;

@@ -195,7 +195,7 @@ void ezQtAssetPropertyWidget::on_TextFinished_triggered()
 
   if (pAsset)
   {
-    sText = ezConversionUtils::ToString(pAsset->m_Info.m_DocumentID);
+    ezConversionUtils::ToString(pAsset->m_Info.m_DocumentID, sText);
   }
 
   BroadcastValueChanged(sText.GetData());
@@ -273,14 +273,13 @@ void ezQtAssetPropertyWidget::OnOpenExplorer()
   ezQtUiServices::OpenInExplorer(sPath);
 }
 
-
 void ezQtAssetPropertyWidget::OnCopyAssetGuid()
 {
-  ezString sGuid;
+  ezStringBuilder sGuid;
 
   if (m_AssetGuid.IsValid())
   {
-    sGuid = ezConversionUtils::ToString(m_AssetGuid);
+    ezConversionUtils::ToString(m_AssetGuid, sGuid);
   }
   else
   {
@@ -293,9 +292,7 @@ void ezQtAssetPropertyWidget::OnCopyAssetGuid()
   QMimeData* mimeData = new QMimeData();
   mimeData->setText(QString::fromUtf8(sGuid.GetData()));
   clipboard->setMimeData(mimeData);
-
 }
-
 
 void ezQtAssetPropertyWidget::OnCreateNewAsset()
 {
@@ -387,7 +384,7 @@ void ezQtAssetPropertyWidget::OnClearReference()
 
 void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
 {
-  ezString sFile = m_pWidget->text().toUtf8().data();
+  ezStringBuilder sFile = m_pWidget->text().toUtf8().data();
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
 
   ezQtAssetBrowserDlg dlg(this, sFile, pAssetAttribute->GetTypeFilter());
@@ -396,7 +393,7 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
 
   ezUuid assetGuid = dlg.GetSelectedAssetGuid();
   if (assetGuid.IsValid())
-    sFile = ezConversionUtils::ToString(assetGuid);
+    ezConversionUtils::ToString(assetGuid, sFile);
 
   if (sFile.IsEmpty())
   {
@@ -413,7 +410,7 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
   if (sFile.IsEmpty())
     return;
 
-  InternalSetValue(sFile);
+  InternalSetValue(sFile.GetData());
 
   on_TextFinished_triggered();
 }

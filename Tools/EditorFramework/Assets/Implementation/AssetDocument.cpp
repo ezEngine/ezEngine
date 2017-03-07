@@ -144,7 +144,8 @@ void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezA
 
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
-      pInfo->m_FileDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab));
+      ezStringBuilder tmp;
+      pInfo->m_FileDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData.EndReadMetaData();
@@ -168,7 +169,8 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
       bInsidePrefab = true;
-      pInfo->m_FileReferences.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab));
+      ezStringBuilder tmp;
+      pInfo->m_FileReferences.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData.EndReadMetaData();

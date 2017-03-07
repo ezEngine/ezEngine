@@ -46,8 +46,10 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
 
   if (pRtti == ezGetStaticRTTI<ezGameObject>())
   {
+    ezStringBuilder tmp;
+
     ezGameObjectDesc d;
-    d.m_sName.Assign(ezConversionUtils::ToString(guid).GetData());
+    d.m_sName.Assign(ezConversionUtils::ToString(guid, tmp).GetData());
 
     ezGameObjectHandle hObject = m_pWorld->CreateObject(d);
     ezGameObject* pObject;
@@ -294,7 +296,8 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezPr
   m_DocumentGuid = DocumentGuid;
   m_pIPC = pIPC;
 
-  ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid));
+  ezStringBuilder tmp;
+  ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
   m_pWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(desc);
 
   m_Context.m_pWorld = m_pWorld;

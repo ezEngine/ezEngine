@@ -194,7 +194,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       {
         void* pSubObject = pSpecific->GetPropertyPointer(pObject);
 
-        sTemp = ezConversionUtils::ToString(pNode->GetGuid());
+        ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
         sTemp.Append("/", pProp->GetPropertyName());
 
         const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
@@ -269,7 +269,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         {
           pSpecific->GetValue(pObject, i, pSubObject);
 
-          sTemp = ezConversionUtils::ToString(pNode->GetGuid());
+          ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
           sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), i);
           const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
           AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);

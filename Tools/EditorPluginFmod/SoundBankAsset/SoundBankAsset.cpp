@@ -95,7 +95,8 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
   ezLog::Dev("SoundBank has {0} events", iEvents);
 
-  const ezString sOwnGuid = ezConversionUtils::ToString(GetGuid());
+  ezStringBuilder sOwnGuid;
+  ezConversionUtils::ToString(GetGuid(), sOwnGuid);
 
   ezStringBuilder sSubAssetsFile, sSubAssetLine;
 
@@ -126,7 +127,7 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
       events[i]->getID(&guid);
 
       ezUuid* ezGuid = reinterpret_cast<ezUuid*>(&guid);
-      sGuid = ezConversionUtils::ToString(*ezGuid);
+      ezConversionUtils::ToString(*ezGuid, sGuid);
       sGuidNoSpace = sGuid;
       sGuidNoSpace.ReplaceAll(" ", "");
 

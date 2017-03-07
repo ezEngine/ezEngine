@@ -12,9 +12,11 @@
 
 ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 {
+  ezStringBuilder tmp;
+
   if (EnsureAssetInfoUpdated(assetGuid).Failed())
   {
-    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid).GetData());
+    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
     return 0;
   }
 
@@ -23,7 +25,7 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
   ezAssetInfo* pInfo = nullptr;
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
   {
-    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid).GetData());
+    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
     return 0;
   }
 
@@ -33,7 +35,7 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 
   if (ezOSFile::GetFileStats(pInfo->m_sAbsolutePath, stat).Failed())
   {
-    ezLog::Error("Failed to retrieve file stats '{0}'", pInfo->m_sAbsolutePath.GetData());
+    ezLog::Error("Failed to retrieve file stats '{0}'", pInfo->m_sAbsolutePath);
     return 0;
   }
 

@@ -135,6 +135,8 @@ void ezQtSceneImportDlg::on_accepted()
     return;
   }
 
+  ezStringBuilder tmp;
+
   // Create meshes.
   ezHashTable<const ezModelImporter::Mesh*, ezString> rawMeshToFile;
   rawMeshToFile.Reserve(rawScene->GetMeshes().GetCount());
@@ -182,7 +184,7 @@ void ezQtSceneImportDlg::on_accepted()
       ezAssetCurator::GetSingleton()->TransformAsset(meshDocument->GetGuid(), false);
       meshDocument->SaveDocument(); // Save again since transform may change properties!
 
-      rawMeshToFile.Insert(meshIt.Value().Borrow(), ezConversionUtils::ToString(meshDocument->GetGuid()));
+      rawMeshToFile.Insert(meshIt.Value().Borrow(), ezConversionUtils::ToString(meshDocument->GetGuid(), tmp));
 
       meshDocument->GetDocumentManager()->CloseDocument(meshDocument);
     }

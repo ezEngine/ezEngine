@@ -93,6 +93,7 @@ namespace ezModelImporter
   void ImportMaterials(ezArrayPtr<aiMaterial*> assimpMaterials, Scene& outScene, ezDynamicArray<MaterialHandle>& outMaterialHandles)
   {
     outMaterialHandles.Reserve(assimpMaterials.GetCount());
+    ezStringBuilder tmp;
 
     for (unsigned int materialIdx = 0; materialIdx < assimpMaterials.GetCount(); ++materialIdx)
     {
@@ -102,7 +103,7 @@ namespace ezModelImporter
       // Fetch name
       aiString name;
       if (assimpMaterial->Get(AI_MATKEY_NAME, name) != aiReturn_SUCCESS || name.length == 0)
-        material->m_Name = ezConversionUtils::ToString(materialIdx);
+        material->m_Name = ezConversionUtils::ToString(materialIdx, tmp);
       else
         material->m_Name = name.C_Str();
 

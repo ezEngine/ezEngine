@@ -246,11 +246,12 @@ void ezDocumentAction::Execute(const ezVariant& value)
 
   case ezDocumentAction::ButtonType::CopyAssetGuid:
     {
-      QString sGuid = QString::fromUtf8(ezConversionUtils::ToString(m_Context.m_pDocument->GetGuid()).GetData());
+      ezStringBuilder sGuid;
+      ezConversionUtils::ToString(m_Context.m_pDocument->GetGuid(), sGuid);
 
       QClipboard* clipboard = QApplication::clipboard();
       QMimeData* mimeData = new QMimeData();
-      mimeData->setText(sGuid);
+      mimeData->setText(sGuid.GetData());
       clipboard->setMimeData(mimeData);
     }
     break;
@@ -279,13 +280,19 @@ void ezContainerWindowMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
 {
   ezQtDocumentWindow* pView = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
 
+  ezStringBuilder tmp;
+
   out_Entries.Clear();
   const auto& containers = ezQtContainerWindow::GetAllContainerWindows();
   for (ezUInt32 i = 0; i < containers.GetCount(); i++)
   {
     ezQtContainerWindow* pContainer = containers[i];
     ezDynamicMenuAction::Item entryItem;
-    entryItem.m_sDisplay = i == 0 ? ezString("Main") : ezConversionUtils::ToString(i);
+
+    if (i == 0)
+      entryItem.m_sDisplay = "Main";
+    else
+      entryItem.m_sDisplay = ezConversionUtils::ToString(i, tmp);
 
     entryItem.m_CheckState = (pView->GetContainerWindow() == pContainer) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
     entryItem.m_UserValue = (ezInt32)i;

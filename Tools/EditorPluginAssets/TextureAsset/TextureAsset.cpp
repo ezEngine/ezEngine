@@ -38,7 +38,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   // Asset Version
   {
     arguments << "-assetVersion";
-    arguments << ezConversionUtils::ToString(AssetHeader.GetFileVersion()).GetData();
+    arguments << ezConversionUtils::ToString(AssetHeader.GetFileVersion(), temp).GetData();
   }
 
   // Asset Hash
@@ -72,7 +72,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   }
 
   arguments << "-channels";
-  arguments << ezConversionUtils::ToString(pProp->GetNumChannels()).GetData();
+  arguments << ezConversionUtils::ToString(pProp->GetNumChannels(), temp).GetData();
 
   if (pProp->m_bMipmaps)
     arguments << "-mipmaps";

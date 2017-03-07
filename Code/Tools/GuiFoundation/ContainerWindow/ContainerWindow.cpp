@@ -279,7 +279,8 @@ ezString ezQtContainerWindow::GetUniqueName() const
   }
   else
   {
-    return ezConversionUtils::ToString(m_iUniqueIdentifier);
+    ezStringBuilder tmp;
+    return ezConversionUtils::ToString(m_iUniqueIdentifier, tmp);
   }
 }
 

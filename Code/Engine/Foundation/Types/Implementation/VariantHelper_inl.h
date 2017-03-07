@@ -214,7 +214,8 @@ class ezVariantHelper
     template <typename T>
     EZ_FORCE_INLINE void operator()()
     {
-      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>());
+      ezStringBuilder tmp;
+      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>(), tmp);
     }
 
     const ezVariant* m_pThis;

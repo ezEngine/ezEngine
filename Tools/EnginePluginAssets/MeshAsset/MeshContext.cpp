@@ -66,7 +66,8 @@ void ezMeshContext::OnInitialize()
     pWorld->CreateObject(obj, m_pMeshObject);
 
     pMeshCompMan->CreateComponent(pMesh);
-    ezString sMeshGuid = ezConversionUtils::ToString(GetDocumentGuid());
+    ezStringBuilder sMeshGuid;
+    ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
     ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
     pMesh->SetMesh(hMesh);
 

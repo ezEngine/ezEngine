@@ -23,8 +23,10 @@ void ezFileserver::StartServer()
   if (m_Network)
     return;
 
+  ezStringBuilder tmp;
+
   m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
-  m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort), false);
+  m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
   m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
 

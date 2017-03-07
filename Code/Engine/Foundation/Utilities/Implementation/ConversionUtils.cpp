@@ -484,157 +484,136 @@ namespace ezConversionUtils
     }
   }
 
-  ezString ToString(ezInt8 value)
+  const ezStringBuilder& ToString(ezInt8 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", (ezInt32)value);
-    return sb;
+    out_Result.Format("{0}", (ezInt32)value);
+    return out_Result;
   }
 
-  ezString ToString(ezUInt8 value)
+  const ezStringBuilder& ToString(ezUInt8 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", (ezUInt32)value);
-    return sb;
+    out_Result.Format("{0}", (ezUInt32)value);
+    return out_Result;
   }
 
-  ezString ToString(ezInt16 value)
+  const ezStringBuilder& ToString(ezInt16 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", (ezInt32)value);
-    return sb;
+    out_Result.Format("{0}", (ezInt32)value);
+    return out_Result;
   }
 
-  ezString ToString(ezUInt16 value)
+  const ezStringBuilder& ToString(ezUInt16 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", (ezUInt32)value);
-    return sb;
+    out_Result.Format("{0}", (ezUInt32)value);
+    return out_Result;
   }
 
-  ezString ToString(ezInt32 value)
+  const ezStringBuilder& ToString(ezInt32 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", value);
-    return sb;
+    out_Result.Format("{0}", value);
+    return out_Result;
   }
 
-  ezString ToString(ezUInt32 value)
+  const ezStringBuilder& ToString(ezUInt32 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", value);
-    return sb;
+    out_Result.Format("{0}", value);
+    return out_Result;
   }
 
-  ezString ToString(ezInt64 value)
+  const ezStringBuilder& ToString(ezInt64 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", value);
-    return sb;
+    out_Result.Format("{0}", value);
+    return out_Result;
   }
 
-  ezString ToString(ezUInt64 value)
+  const ezStringBuilder& ToString(ezUInt64 value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", value);
-    return sb;
+    out_Result.Format("{0}", value);
+    return out_Result;
   }
 
-  ezString ToString(float value)
+  const ezStringBuilder& ToString(float value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", value);
-    return sb;
+    out_Result.Format("{0}", value);
+    return out_Result;
   }
 
-  ezString ToString(double value)
+  const ezStringBuilder& ToString(double value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", value);
-    return sb;
+    out_Result.Format("{0}", value);
+    return out_Result;
   }
 
-  ezString ToString(const ezColor& value)
+  const ezStringBuilder& ToString(const ezColor& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
-    return sb;
+    out_Result.Format("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
+    return out_Result;
   }
 
-  ezString ToString(const ezColorGammaUB& value)
+  const ezStringBuilder& ToString(const ezColorGammaUB& value, ezStringBuilder& out_Result)
   {
     /// \test This is new
 
-    ezStringBuilder sb;
-    sb.Format("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
-    return sb;
+    out_Result.Format("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
+    return out_Result;
   }
 
-  ezString ToString(const ezVec2& value)
+  const ezStringBuilder& ToString(const ezVec2& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ x={0}, y={1} }", value.x, value.y);
-    return sb;
+    out_Result.Format("{ x={0}, y={1} }", value.x, value.y);
+    return out_Result;
   }
 
-  ezString ToString(const ezVec3& value)
+  const ezStringBuilder& ToString(const ezVec3& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
-    return sb;
+    out_Result.Format("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
+    return out_Result;
   }
 
-  ezString ToString(const ezVec4& value)
+  const ezStringBuilder& ToString(const ezVec4& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
-    return sb;
+    out_Result.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
+    return out_Result;
   }
 
-  ezString ToString(const ezVec2I32& value)
+  const ezStringBuilder& ToString(const ezVec2I32& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ x={0}, y={1} }", value.x, value.y);
-    return sb;
+    out_Result.Format("{ x={0}, y={1} }", value.x, value.y);
+    return out_Result;
   }
 
-  ezString ToString(const ezVec3I32& value)
+  const ezStringBuilder& ToString(const ezVec3I32& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
-    return sb;
+    out_Result.Format("{ x={0}, y={1}, z={2} }", value.x, value.y, value.z);
+    return out_Result;
   }
 
-  ezString ToString(const ezVec4I32& value)
+  const ezStringBuilder& ToString(const ezVec4I32& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
-    return sb;
+    out_Result.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
+    return out_Result;
   }
 
-  ezString ToString(const ezQuat& value)
+  const ezStringBuilder& ToString(const ezQuat& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ x={0}, y={1}, z={2}, w={3} }", value.v.x, value.v.y, value.v.z, value.w);
-    return sb;
+    out_Result.Format("{ x={0}, y={1}, z={2}, w={3} }", value.v.x, value.v.y, value.v.z, value.w);
+    return out_Result;
   }
 
-  ezString ToString(const ezMat3& value)
+  const ezStringBuilder& ToString(const ezMat3& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, "
+    out_Result.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, "
               "c1r2=%f, c2r2=%f, c3r2=%f, "
               "c1r3=%f, c2r3=%f, c3r3=%f }",
               value.Element(0, 0), value.Element(1, 0), value.Element(2, 0),
               value.Element(0, 1), value.Element(1, 1), value.Element(2, 1),
               value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
-    return sb;
+    return out_Result;
   }
 
-  ezString ToString(const ezMat4& value)
+  const ezStringBuilder& ToString(const ezMat4& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, c4r1=%f, "
+    out_Result.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, c4r1=%f, "
               "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
               "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
               "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
@@ -642,37 +621,34 @@ namespace ezConversionUtils
               value.Element(0, 1), value.Element(1, 1), value.Element(2, 1), value.Element(3, 1),
               value.Element(0, 2), value.Element(1, 2), value.Element(2, 2), value.Element(3, 2),
               value.Element(0, 3), value.Element(1, 3), value.Element(2, 3), value.Element(3, 3));
-    return sb;
+    return out_Result;
   }
 
-  ezString ToString(const ezTransform& value)
+  const ezStringBuilder& ToString(const ezTransform& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Format("{ position={0}, rotation={1} }", ToString(value.m_vPosition).GetData(), ToString(value.m_Rotation).GetData());
-    return sb;
+    ezStringBuilder tmp1, tmp2;
+    out_Result.Format("{ position={0}, rotation={1} }", ToString(value.m_vPosition, tmp1), ToString(value.m_Rotation, tmp2));
+    return out_Result;
   }
 
 
-  ezString ToString(const ezDynamicArray<ezVariant>& value)
+  const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-    sb.Append("[");
+    out_Result.Append("[");
     for (const ezVariant& var : value)
     {
-      sb.Append(var.ConvertTo<ezString>(), ", ");
+      out_Result.Append(var.ConvertTo<ezString>(), ", ");
     }
     if (!value.IsEmpty())
-      sb.Shrink(0, 2);
-    sb.Append("]");
-    return sb;
+      out_Result.Shrink(0, 2);
+    out_Result.Append("]");
+    return out_Result;
   }
 
   ezUuid ConvertStringToUuid(const char* szText);
 
-  ezString ToString(const ezUuid& value)
+  const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder sb;
-
     // Windows GUID formatting.
     struct GUID
     {
@@ -684,12 +660,12 @@ namespace ezConversionUtils
 
     const GUID* pGuid = reinterpret_cast<const GUID*>(&value);
 
-    sb.Printf("{ %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x }",
+    out_Result.Printf("{ %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x }",
               pGuid->Data1, pGuid->Data2, pGuid->Data3,
               pGuid->Data4[0], pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3],
               pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6], pGuid->Data4[7]);
 
-    return sb;
+    return out_Result;
   }
 
   bool IsStringUuid(const char* szText)

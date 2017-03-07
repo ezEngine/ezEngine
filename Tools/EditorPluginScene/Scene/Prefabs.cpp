@@ -174,6 +174,8 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
   auto pHistory = GetCommandHistory();
   pHistory->StartTransaction("Convert to Engine Prefab");
 
+  ezStringBuilder tmp;
+
   for (const ezDocumentObject* pObject : Selection)
   {
     ezUuid assetGuid;
@@ -214,7 +216,7 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
       ezSetObjectPropertyCommand cmd2;
       cmd2.m_Object = CmpGuid;
       cmd2.m_sProperty = "Prefab";
-      cmd2.m_NewValue = ezConversionUtils::ToString(assetGuid);
+      cmd2.m_NewValue = ezConversionUtils::ToString(assetGuid, tmp).GetData();
       EZ_VERIFY(pHistory->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
 
 

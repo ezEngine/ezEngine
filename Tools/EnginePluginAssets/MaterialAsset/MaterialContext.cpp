@@ -123,7 +123,8 @@ void ezMaterialContext::OnInitialize()
     ezMeshComponent* pMesh;
     ezMeshComponent::CreateComponent(pWorld, pMesh);
     pMesh->SetMesh(hMesh);
-    ezString sMaterialGuid = ezConversionUtils::ToString(GetDocumentGuid());
+    ezStringBuilder sMaterialGuid;
+    ezConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);
 
     // TODO: Once we allow switching the preview mesh, we should be set, 20 material overrides should be enough for everyone.

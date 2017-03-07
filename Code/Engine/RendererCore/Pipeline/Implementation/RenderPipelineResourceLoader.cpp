@@ -71,7 +71,7 @@ void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, con
       ezLog::Error("Failed to create ezRenderPipelinePass because '{0}' cannot allocate!", pRtti->GetTypeName());
       return nullptr;
     }
-   
+
     // TODO: Refactor rtti allocator to allow for different allocators and the same return value as EZ_DEFAULT_NEW.
     ezUniquePtr<ezRenderPipelinePass> pass(static_cast<ezRenderPipelinePass*>(pRtti->GetAllocator()->Allocate()), ezFoundation::GetDefaultAllocator());
     ezRenderPipelinePass* pPass = pass.Borrow();
@@ -110,7 +110,7 @@ void ezRenderPipelineRttiConverterContext::DeleteObject(const ezUuid& guid)
   if (pRtti->IsDerivedFrom<ezRenderPipelinePass>())
   {
     ezRenderPipelinePass* pPass = static_cast<ezRenderPipelinePass*>(object.m_pObject);
-    
+
     UnregisterObject(guid);
     m_pRenderPipeline->RemovePass(pPass);
   }
@@ -144,7 +144,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
   ezAbstractGraphBinarySerializer::Read(memoryReader, &graph);
 
   ezRttiConverterReader rttiConverter(&graph, &context);
-  
+
   auto& nodes = graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
@@ -171,6 +171,8 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
   auto pType = ezGetStaticRTTI<NodeDataInternal>();
   NodeDataInternal data;
 
+  ezStringBuilder tmp;
+
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
@@ -192,14 +194,14 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
       auto objectTarget = context.GetObjectByGUID(con.m_Target);
       if (!objectTarget.m_pObject || !objectTarget.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
       {
-        ezLog::Error("Failed to retrieve connection target '{0}' with pin '{1}'", ezConversionUtils::ToString(guid).GetData(), con.m_TargetPin.GetData());
+        ezLog::Error("Failed to retrieve connection target '{0}' with pin '{1}'", ezConversionUtils::ToString(guid, tmp), con.m_TargetPin);
         continue;
       }
       ezRenderPipelinePass* pTarget = static_cast<ezRenderPipelinePass*>(objectTarget.m_pObject);
 
       if (!pPipeline->Connect(pSource, con.m_SourcePin, pTarget, con.m_TargetPin))
       {
-        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), con.m_SourcePin.GetData(), pTarget->GetName(), con.m_TargetPin.GetData());
+        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), con.m_SourcePin, pTarget->GetName(), con.m_TargetPin);
       }
     }
   }
@@ -228,7 +230,7 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
     ezUuid guid;
     guid.CreateNewUuid();
     context.RegisterObject(guid, pPass->GetDynamicRTTI(), const_cast<ezRenderPipelinePass*>(pPass));
-    rttiConverter.AddObjectToGraph(const_cast<ezRenderPipelinePass*>(pPass));   
+    rttiConverter.AddObjectToGraph(const_cast<ezRenderPipelinePass*>(pPass));
   }
   ezHybridArray<const ezExtractor*, 16> extractors;
   pPipeline->GetExtractors(extractors);

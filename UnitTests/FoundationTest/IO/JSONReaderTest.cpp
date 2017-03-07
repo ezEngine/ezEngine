@@ -319,7 +319,8 @@ namespace JSONReaderTestDetail
       {
         ezUuid uuid = var.Get<ezUuid>();
         ezStringBuilder sTemp;
-        sTemp.Format("uuid {0}", ezConversionUtils::ToString(uuid).GetData());
+        ezConversionUtils::ToString(uuid, sTemp);
+        sTemp.Prepend("uuid ");
         EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
         Compare.PopFront();
       }

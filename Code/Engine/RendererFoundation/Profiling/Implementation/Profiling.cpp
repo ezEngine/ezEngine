@@ -47,7 +47,8 @@ ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
           statString.Append(prevScope, "/");
         statString.Append(m_szName);
 
-        ezStats::SetStat(statString, ezConversionUtils::ToString(time.GetMilliseconds()));
+        ezStringBuilder tmp;
+        ezStats::SetStat(statString, ezConversionUtils::ToString(time.GetMilliseconds(), tmp));
       }
     }
   }

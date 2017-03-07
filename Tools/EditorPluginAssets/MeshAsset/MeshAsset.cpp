@@ -479,7 +479,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   // Materials/Submeshes.
   static const char* defaultMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
-  ezString defaultMaterialAssetId = ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindAssetInfo(defaultMaterialAssetPath)->m_Info.m_DocumentID);
+  ezStringBuilder defaultMaterialAssetId;
+  ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindAssetInfo(defaultMaterialAssetPath)->m_Info.m_DocumentID, defaultMaterialAssetId);
 
 
   // Option material slot count correction & material import.
@@ -577,7 +578,9 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
   // Try to resolve.
   auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(newAssetPathAbs);
   if (textureAssetInfo)
-    return ezConversionUtils::ToString(textureAssetInfo->m_Info.m_DocumentID);
+  {
+    return ezConversionUtils::ToString(textureAssetInfo->m_Info.m_DocumentID, relTexturePath); // just reusing this variable
+  }
 
   // Import otherwise.
   else
@@ -630,7 +633,8 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
     textureDocument->SaveDocument();
    // ezAssetCurator::GetSingleton()->TransformAsset(textureDocument->GetGuid());
 
-    ezString guid = ezConversionUtils::ToString(textureDocument->GetGuid());
+    ezStringBuilder guid;
+    ezConversionUtils::ToString(textureDocument->GetGuid(), guid);
     textureDocument->GetDocumentManager()->CloseDocument(textureDocument);
 
     return guid;
@@ -639,6 +643,10 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
 
 void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* szImportSourceFolder, const char* szImportTargetFolder)
 {
+  ezStringBuilder materialName, tmp;
+  ezStringBuilder materialNameTemp;
+  ezStringBuilder newResourcePathAbs;
+
   ezHashTable<const ezModelImporter::Material*, ezString> importMatToMaterialGuid;
   for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
   {
@@ -655,21 +663,21 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
         continue;
 
 
-      ezStringBuilder materialName = material->m_Name;
+      materialName = material->m_Name;
       // Might have not a name.
       if (materialName.IsEmpty())
       {
         materialName = "Unnamed";
-        materialName.Append(ezConversionUtils::ToString(subMeshIdx).GetData());
+        materialName.Append(ezConversionUtils::ToString(subMeshIdx, tmp).GetData());
       }
       else
       {
-        ezStringBuilder materialNameTemp = materialName;
+        materialNameTemp = materialName;
         ezPathUtils::MakeValidFilename(materialNameTemp, '_', materialName);
       }
 
       // Put the new asset in the data folder.
-      ezStringBuilder newResourcePathAbs = szImportTargetFolder;
+      newResourcePathAbs = szImportTargetFolder;
       newResourcePathAbs.AppendPath(materialName.GetData());
       newResourcePathAbs.Append(".ezMaterialAsset");
 
@@ -678,7 +686,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
         const auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(newResourcePathAbs);
         if (assetInfo != nullptr)
         {
-          pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Info.m_DocumentID);
+          pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Info.m_DocumentID, tmp);
           continue;
         }
       }
@@ -694,13 +702,13 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       materialDocument->SaveDocument();
 
       //ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
-      pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid());
+      pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid(), tmp);
 
       materialDocument->GetDocumentManager()->CloseDocument(materialDocument);
     }
 
     // If we have a material now, fill the mapping.
-    // It is important to do this even for "old"/known materials since a mesh might have gotton a new slot that points to the same material than previous slots.
+    // It is important to do this even for "old"/known materials since a mesh might have gotten a new slot that points to the same material than previous slots.
     if (pProp->m_Slots[subMeshIdx].m_sResource)
     {
       // Note that this overwrites the slot with the newest resource.
@@ -720,9 +728,10 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
   pAccessor->StartTransaction("Apply Material Settings");
   ezDocumentObject* pMaterialAsset = materialDocument->GetPropertyObject();
 
+  ezStringBuilder tmp;
 
   // Set base material.
-  ezStatus res = pAccessor->SetValue(pMaterialAsset, "BaseMaterial", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial()));
+  ezStatus res = pAccessor->SetValue(pMaterialAsset, "BaseMaterial", ezConversionUtils::ToString(ezMaterialAssetDocument::GetLitBaseMaterial(), tmp).GetData());
   res.LogFailure();
   if (res.Failed())
     return;
@@ -762,7 +771,7 @@ void ezMeshAssetDocument::ImportMaterial(ezMaterialAssetDocument* materialDocume
       pAccessor->SetValue(pMaterialProperties, "NormalTexture", ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, normalTexture->m_FileName, ezModelImporter::SemanticHint::NORMAL)).LogFailure();
     else
     {
-      pAccessor->SetValue(pMaterialProperties, "NormalTexture", ezConversionUtils::ToString(ezMaterialAssetDocument::GetNeutralNormalMap())).LogFailure();
+      pAccessor->SetValue(pMaterialProperties, "NormalTexture", ezConversionUtils::ToString(ezMaterialAssetDocument::GetNeutralNormalMap(), tmp).GetData()).LogFailure();
     }
     if (roughnessTexture)
       pAccessor->SetValue(pMaterialProperties, "RoughnessTexture", ImportOrResolveTexture(szImportSourceFolder, szImportTargetFolder, roughnessTexture->m_FileName, ezModelImporter::SemanticHint::ROUGHNESS)).LogFailure();

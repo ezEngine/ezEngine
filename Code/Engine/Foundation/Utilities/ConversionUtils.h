@@ -150,88 +150,90 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL bool IsStringUuid(const char* szText);
 
   /// \brief Converts a bool to a string
-  EZ_ALWAYS_INLINE ezString ToString(bool value) // [tested]
+  EZ_ALWAYS_INLINE const ezStringBuilder& ToString(bool value, ezStringBuilder& out_Result) // [tested]
   {
-    return value ? "true" : "false";
+    out_Result = value ? "true" : "false";
+    return out_Result;
   }
 
   /// \brief Converts a 8bit signed integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezInt8 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt8 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a 8bit unsigned integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezUInt8 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt8 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a 16bit signed integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezInt16 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt16 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a 16bit unsigned integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezUInt16 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt16 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a 32bit signed integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezInt32 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt32 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a 32bit unsigned integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezUInt32 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt32 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a 64bit signed integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezInt64 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezInt64 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a 64bit unsigned integer to a string
-  EZ_FOUNDATION_DLL ezString ToString(ezUInt64 value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(ezUInt64 value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a float to a string
-  EZ_FOUNDATION_DLL ezString ToString(float value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(float value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a double to a string
-  EZ_FOUNDATION_DLL ezString ToString(double value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(double value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a color to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezColor& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezColor& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a color to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezColorGammaUB& value);
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezColorGammaUB& value, ezStringBuilder& out_Result);
 
   /// \brief Converts a vec2 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezVec2& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec2& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a vec3 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezVec3& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec3& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a vec4 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezVec4& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec4& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a vec2I32 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezVec2I32& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec2I32& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a vec3I32 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezVec3I32& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec3I32& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a vec4I32 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezVec4I32& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezVec4I32& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a quat to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezQuat& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezQuat& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a mat3 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezMat3& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezMat3& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a mat4 to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezMat4& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezMat4& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a transform to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezTransform& value); // [tested]
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTransform& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a Uuid to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezUuid& value);
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_Result); // [tested]
 
   /// \brief Converts a ezVariantArray to a string
-  EZ_FOUNDATION_DLL ezString ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value);
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value, ezStringBuilder& out_Result);
 
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>
-  EZ_FORCE_INLINE ezString ToString(const T& value)
+  EZ_FORCE_INLINE const ezStringBuilder& ToString(const T& value, ezStringBuilder& out_Result)
   {
-    return "N/A";
+    out_Result = "N/A";
+    return out_Result;
   }
 
   /// \brief Returns the color with the given name.

@@ -941,7 +941,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
   ezDeferredFileWriter file;
   file.SetOutput(sFinalPath);
 
-  ezStringBuilder sTemp;
+  ezStringBuilder sTemp, sTemp2;
   ezString sResourcePath;
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
@@ -955,7 +955,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
     const ezUuid& guid = it.Key();
     // TODO: Do we need to write out additional outputs and if yes, in what format?
     sResourcePath = it.Value()->m_pManager->GetRelativeOutputFileName(sDataDir, sTemp, "", sPlatform);
-    sTemp.Format("{0};{1}\n", ezConversionUtils::ToString(guid).GetData(), sResourcePath.GetData());
+    sTemp.Format("{0};{1}\n", ezConversionUtils::ToString(guid, sTemp2), sResourcePath);
 
     file.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
   }

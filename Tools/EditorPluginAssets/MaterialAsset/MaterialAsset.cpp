@@ -102,6 +102,8 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
   if (pHistory->IsInUndoRedo())
     return;
 
+  ezStringBuilder tmp;
+
   switch (m_ShaderMode)
   {
   case ezMaterialShaderMode::BaseMaterial:
@@ -119,7 +121,7 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
   case ezMaterialShaderMode::Custom:
     {
       pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid()));
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid(), tmp).GetData());
     }
     break;
   }
@@ -476,8 +478,9 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   }
   else
   {
-    ezString sGuid = ezConversionUtils::ToString(PrefabAsset);
-    ezLog::Error("Can't update prefab, new base graph does not exist: {0}", sGuid.GetData());
+    ezStringBuilder sGuid;
+    ezConversionUtils::ToString(PrefabAsset, sGuid);
+    ezLog::Error("Can't update prefab, new base graph does not exist: {0}", sGuid);
     return;
   }
   leftGraph.PruneGraph(GetMaterialNodeGuid(leftGraph));
@@ -753,7 +756,8 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   {
     // We write our own guid into the shader field so BaseMaterial materials can find the shader file.
     // This would cause us to have a dependency to ourselves so we need to remove it.
-    pInfo->m_FileDependencies.Remove(ezConversionUtils::ToString(GetGuid()));
+    ezStringBuilder tmp;
+    pInfo->m_FileDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
 
     ezVisualShaderCodeGenerator codeGen;
 

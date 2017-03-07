@@ -100,15 +100,21 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezAssetInfo* pInfo) const
   {
     // if the string is not found in the path, ignore this asset
     if (pInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
-      return true;
+    {
+      ezConversionUtils::ToString(pInfo->m_Info.m_DocumentID, m_sTemp);
+
+      if (m_sTemp.FindSubString(m_sTextFilter) == nullptr)
+        return true;
+
+      // we could actually (partially) match the GUID
+    }
   }
 
   if (!m_sTypeFilter.IsEmpty())
   {
-    ezStringBuilder sTemp;
-    sTemp.Set(";", pInfo->m_Info.m_sAssetTypeName, ";");
+    m_sTemp.Set(";", pInfo->m_Info.m_sAssetTypeName, ";");
 
-    if (!m_sTypeFilter.FindSubString(sTemp))
+    if (!m_sTypeFilter.FindSubString(m_sTemp))
       return true;
   }
   return false;

@@ -42,4 +42,5 @@ private:
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
   bool m_bShowItemsInSubFolders = true;
   bool m_bSortByRecentUse = false;
+  mutable ezStringBuilder m_sTemp; // stored here to reduce unnecessary allocations
 };

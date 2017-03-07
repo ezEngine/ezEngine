@@ -228,10 +228,10 @@ void ezSceneDocument::DuplicateSpecial()
   ezAbstractObjectGraph graph;
   Copy(graph, &parents);
 
-  ezStringBuilder temp;
+  ezStringBuilder temp, tmp1, tmp2;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
   {
-    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
+    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key(), tmp1), ezConversionUtils::ToString(it.Value(), tmp2));
   }
 
   // Serialize to string
@@ -472,10 +472,10 @@ void ezSceneDocument::DuplicateSelection()
   ezAbstractObjectGraph graph;
   Copy(graph, &parents);
 
-  ezStringBuilder temp;
+  ezStringBuilder temp, tmp1, tmp2;
   for (auto it = parents.GetIterator(); it.IsValid(); ++it)
   {
-    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
+    temp.AppendFormat("{0}={1};", ezConversionUtils::ToString(it.Key(), tmp1), ezConversionUtils::ToString(it.Value(), tmp2));
   }
 
   // Serialize to string
@@ -1068,11 +1068,11 @@ void ezSceneDocument::SendObjectSelection()
 
   ezObjectSelectionMsgToEngine msg;
   ezStringBuilder sTemp;
-  ezString sGuid;
+  ezStringBuilder sGuid;
 
   for (const auto& item : sel)
   {
-    sGuid = ezConversionUtils::ToString(item->GetGuid());
+    ezConversionUtils::ToString(item->GetGuid(), sGuid);
 
     sTemp.Append(";", sGuid);
   }

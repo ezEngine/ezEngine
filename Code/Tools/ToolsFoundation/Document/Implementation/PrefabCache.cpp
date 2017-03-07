@@ -91,7 +91,8 @@ ezPrefabCache::PrefabData& ezPrefabCache::GetOrCreatePrefabCache(const ezUuid& d
     it.Value()->m_sAbsPath = ezToolsProject::GetSingleton()->GetPathForDocumentGuid(documentGuid);
     if (it.Value()->m_sAbsPath.IsEmpty())
     {
-      ezString sGuid = ezConversionUtils::ToString(documentGuid);
+      ezStringBuilder sGuid;
+      ezConversionUtils::ToString(documentGuid, sGuid);
       ezLog::Error("Can't resolve prefab document guid '{0}'. The resolved path is empty", sGuid.GetData());
     }
     else
@@ -108,7 +109,8 @@ void ezPrefabCache::UpdatePrefabData(PrefabData& data)
     data.m_sAbsPath = ezToolsProject::GetSingleton()->GetPathForDocumentGuid(data.m_documentGuid);
     if (data.m_sAbsPath.IsEmpty())
     {
-      ezString sGuid = ezConversionUtils::ToString(data.m_documentGuid);
+      ezStringBuilder sGuid;
+      ezConversionUtils::ToString(data.m_documentGuid, sGuid);
       ezLog::Error("Can't resolve prefab document guid '{0}'. The resolved path is empty", sGuid.GetData());
       return;
     }

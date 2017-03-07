@@ -63,7 +63,8 @@ success:
 
   sPath.MakeCleanPath();
 
-  ezString sPID = ezConversionUtils::ToString((ezUInt64)QCoreApplication::applicationPid());
+  ezStringBuilder sPID;
+  ezConversionUtils::ToString((ezUInt64)QCoreApplication::applicationPid(), sPID);
 
   QStringList arguments;
   arguments << "-IPC";

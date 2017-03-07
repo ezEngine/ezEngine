@@ -99,7 +99,8 @@ void ezParticleContext::OnInitialize()
     m_pComponent->m_bAutoRestart = true;
     m_pComponent->m_MinRestartDelay = ezTime::Seconds(0.5);
 
-    ezString sParticleGuid = ezConversionUtils::ToString(GetDocumentGuid());
+    ezStringBuilder sParticleGuid;
+    ezConversionUtils::ToString(GetDocumentGuid(), sParticleGuid);
     m_hParticle = ezResourceManager::LoadResource<ezParticleEffectResource>(sParticleGuid);
 
     m_pComponent->SetParticleEffect(m_hParticle);

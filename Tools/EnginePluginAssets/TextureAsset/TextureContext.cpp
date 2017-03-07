@@ -80,7 +80,8 @@ void ezTextureContext::GetTextureStats(ezGALResourceFormat::Enum& format, ezUInt
 void ezTextureContext::OnInitialize()
 {
   const char* szMeshName = "DefaultTexturePreviewMesh";
-  const ezString sTextureGuid = ezConversionUtils::ToString(GetDocumentGuid());
+  ezStringBuilder sTextureGuid;
+  ezConversionUtils::ToString(GetDocumentGuid(), sTextureGuid);
   const ezStringBuilder sMaterialResource(sTextureGuid.GetData(), " - Texture Preview");
 
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);

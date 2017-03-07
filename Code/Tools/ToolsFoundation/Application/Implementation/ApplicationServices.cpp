@@ -65,7 +65,8 @@ ezString ezApplicationServices::GetDocumentPreferencesFolder(const ezDocument* p
 {
   ezStringBuilder path = GetProjectPreferencesFolder();
 
-  const ezStringBuilder sGuid = ezConversionUtils::ToString(pDocument->GetGuid());
+  ezStringBuilder sGuid;
+  ezConversionUtils::ToString(pDocument->GetGuid(), sGuid);
 
   path.AppendPath(sGuid);
 

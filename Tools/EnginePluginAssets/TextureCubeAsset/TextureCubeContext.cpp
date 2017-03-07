@@ -60,7 +60,8 @@ void ezTextureCubeContext::GetTextureStats(ezGALResourceFormat::Enum& format, ez
 void ezTextureCubeContext::OnInitialize()
 {
   const char* szMeshName = "DefaultTextureCubePreviewMesh";
-  const ezString sTextureGuid = ezConversionUtils::ToString(GetDocumentGuid());
+  ezStringBuilder sTextureGuid;
+  ezConversionUtils::ToString(GetDocumentGuid(), sTextureGuid);
   const ezStringBuilder sMaterialResource(sTextureGuid.GetData(), " - TextureCube Preview");
 
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);

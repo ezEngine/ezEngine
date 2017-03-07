@@ -635,11 +635,12 @@ void ezQtAssetBrowserWidget::OnListCopyAssetGuid()
   if (!ListAssets->selectionModel()->hasSelection())
     return;
 
+  ezStringBuilder tmp;
   ezUuid guid = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
 
   QClipboard* clipboard = QApplication::clipboard();
   QMimeData* mimeData = new QMimeData();
-  mimeData->setText(ezConversionUtils::ToString(guid).GetData());
+  mimeData->setText(ezConversionUtils::ToString(guid, tmp).GetData());
   clipboard->setMimeData(mimeData);
 }
 

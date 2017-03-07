@@ -443,7 +443,8 @@ void ezDocumentObjectManager::PatchEmbeddedClassObjectsInternal(ezDocumentObject
       }
 
       // Create new
-      ezStringBuilder sTemp = ezConversionUtils::ToString(pObject->GetGuid());
+      ezStringBuilder sTemp;
+      ezConversionUtils::ToString(pObject->GetGuid(), sTemp);
       sTemp.Append("/", pProperty->GetPropertyName());
       const ezUuid subObjectGuid = ezUuid::StableUuidForString(sTemp);
       ezDocumentObject* pEmbeddedObject = CreateObject(pProperty->GetSpecificType(), subObjectGuid);

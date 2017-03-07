@@ -101,6 +101,8 @@ namespace ezModelImporter
     template<typename HierarchyNodeCollection>
     void CreateUniqueNamesImpl(HierarchyNodeCollection& hierarchyObjectList, const char* unnamedPrefix)
     {
+      ezStringBuilder tmp;
+
       int unnamedCounter = 0;
       ezHashSet<ezString> encounteredNames;
       for (auto it = hierarchyObjectList.GetIterator(); it.IsValid(); ++it)
@@ -110,7 +112,7 @@ namespace ezModelImporter
         if (targetName.IsEmpty())
         {
           ezStringBuilder newName = unnamedPrefix;
-          newName.Append("_", ezConversionUtils::ToString(unnamedCounter));
+          newName.Append("_", ezConversionUtils::ToString(unnamedCounter, tmp));
           ++unnamedCounter;
 
           targetName = newName;
@@ -123,7 +125,7 @@ namespace ezModelImporter
           int suffix = 0;
           do {
             newName = targetName;
-            newName.Append("_", ezConversionUtils::ToString(suffix));
+            newName.Append("_", ezConversionUtils::ToString(suffix, tmp));
             ++suffix;
           } while (encounteredNames.Contains(newName));
 
