@@ -198,7 +198,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
 
       m_PickingResultsID.Clear();
-      m_PickingResultsID.SetCount(m_uiWindowWidth * m_uiWindowHeight);
+      m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
 
       ezGALSystemMemoryDescription MemDesc;
       MemDesc.m_uiRowPitch = 4 * m_uiWindowWidth;
