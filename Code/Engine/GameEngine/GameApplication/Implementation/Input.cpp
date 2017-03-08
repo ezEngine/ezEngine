@@ -18,6 +18,7 @@ namespace
   const char* g_szShowFpsAction = "ShowFps";
   const char* g_szReloadResourcesAction = "ReloadResources";
   const char* g_szCaptureProfilingAction = "CaptureProfiling";
+  const char* g_szTakeScreenshot = "TakeScreenshot";
 }
 
 void ezGameApplication::DoConfigureInput(bool bReinitialize)
@@ -41,6 +42,9 @@ void ezGameApplication::DoConfigureInput(bool bReinitialize)
 
   config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
   ezInputManager::SetInputActionConfig(g_szInputSet, g_szCaptureProfilingAction, config, true);
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
+  ezInputManager::SetInputActionConfig(g_szInputSet, g_szTakeScreenshot, config, true);
 
   {
     ezFileReader file;
@@ -76,6 +80,11 @@ void ezGameApplication::ProcessApplicationInput()
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szReloadResourcesAction) == ezKeyState::Pressed)
   {
     ezResourceManager::ReloadAllResources(false);
+  }
+
+  if (ezInputManager::GetInputActionState(g_szInputSet, g_szTakeScreenshot) == ezKeyState::Pressed)
+  {
+    TakeScreenshot();
   }
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCaptureProfilingAction) == ezKeyState::Pressed)

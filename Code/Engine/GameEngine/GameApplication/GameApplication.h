@@ -13,6 +13,7 @@
 class ezDefaultTimeStepSmoothing;
 class ezConsole;
 struct ezWorldDesc;
+class ezImage;
 
 /// Allows custom code to inject logic at specific update points
 struct ezGameApplicationEvent
@@ -159,6 +160,9 @@ public:
 
   ezEvent<const ezGameApplicationEvent&> m_Events;
 
+  /// \brief At the end of the frame, a screenshot will be taken and stored in ":appdata/AppName/Screenshots"
+  void TakeScreenshot();
+
 protected:
 
   /// \brief Calls Update on all worlds and renders all views through ezRenderLoop::Render()
@@ -257,6 +261,16 @@ protected:
   void UpdateInput();
 
   ///
+  /// Utilities
+  ///
+
+  /// Called directly before 'Present' is called, when TakeScreenshot() was called previously
+  virtual void DoTakeScreenshot(const ezGALSwapChainHandle& swapchain, ezImage& out_Image);
+
+  /// Called with the result from DoTakeScreenshot(), should write the image to disk
+  virtual void DoSaveScreenshot(ezImage& image);
+
+  ///
   /// Data
   ///
 
@@ -305,9 +319,10 @@ private:
   ezHybridArray<WorldData, 4> m_Worlds;
   ezHybridArray<GameStateData, 4> m_GameStates;
 
-  bool m_bWasQuitRequested;
-  bool m_bShowFps;
-  bool m_bShowConsole;
+  bool m_bWasQuitRequested = false;
+  bool m_bShowFps = false;
+  bool m_bShowConsole = false;
+  bool m_bTakeScreenshot = false;
   ezGameApplicationType m_AppType;
 
   ezUniquePtr<ezConsole> m_pConsole;

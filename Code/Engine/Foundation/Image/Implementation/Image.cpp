@@ -6,7 +6,7 @@
 
 void ezImage::AllocateImageData()
 {
-  m_subImages.SetCount(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices);
+  m_subImages.SetCountUninitialized(m_uiNumMipLevels * m_uiNumFaces * m_uiNumArrayIndices);
 
   int uiDataSize = 0;
 
@@ -40,7 +40,7 @@ void ezImage::AllocateImageData()
     }
   }
 
-  m_data.SetCount(uiDataSize + 16);
+  m_data.SetCountUninitialized(uiDataSize + 16);
 }
 
 

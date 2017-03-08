@@ -15,6 +15,9 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 #include <Foundation/Communication/GlobalEvent.h>
+#include <RendererFoundation/Resources/Texture.h>
+#include <Foundation/Image/Formats/TgaFileFormat.h>
+#include <Foundation/Image/Image.h>
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
@@ -486,6 +489,13 @@ void ezGameApplication::UpdateWorldsAndRender()
         }
         else
         {
+          if (m_bTakeScreenshot)
+          {
+            ezImage img;
+            DoTakeScreenshot(windowContext.m_hSwapChain, img);
+            DoSaveScreenshot(img);
+          }
+
           pDevice->Present(windowContext.m_hSwapChain);
         }
       }
@@ -683,6 +693,83 @@ void ezGameApplication::RenderConsole()
       ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
     }
   }
+}
+
+void ezGameApplication::TakeScreenshot()
+{
+  m_bTakeScreenshot = true;
+}
+
+void ezGameApplication::DoTakeScreenshot(const ezGALSwapChainHandle& swapchain, ezImage& out_Image)
+{
+  m_bTakeScreenshot = false;
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALTextureHandle hBackbuffer = pDevice->GetBackBufferTextureFromSwapChain(swapchain);
+
+  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(hBackbuffer);
+
+  const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
+  const ezUInt32 uiWidth = pBackbuffer->GetDescription().m_uiWidth;
+  const ezUInt32 uiHeight = pBackbuffer->GetDescription().m_uiHeight;
+
+  ezDynamicArray<ezUInt8> backbufferData;
+  backbufferData.SetCountUninitialized(uiWidth * uiHeight * 4);
+
+  ezGALSystemMemoryDescription MemDesc;
+  MemDesc.m_uiRowPitch = 4 * uiWidth;
+  MemDesc.m_uiSlicePitch = 4 * uiWidth * uiHeight;
+
+  /// \todo Make this more efficient
+  MemDesc.m_pData = backbufferData.GetData();
+  ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
+  ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(hBackbuffer, &SysMemDescsDepth);
+
+  out_Image.SetWidth(uiWidth);
+  out_Image.SetHeight(uiHeight);
+  out_Image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  out_Image.AllocateImageData();
+  ezUInt8* pData = out_Image.GetDataPointer<ezUInt8>();
+
+  ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
+}
+
+void ezGameApplication::DoSaveScreenshot(ezImage& image)
+{
+  class WriteFileTask : public ezTask
+  {
+  public:
+    ezImage m_Image;
+
+  private:
+    virtual void Execute() override
+    {
+      const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+
+      ezStringBuilder sPath;
+      sPath.Format(":appdata/Screenshots/{6} {0}-{1}-{2} {3}-{4}-{5}-{7}.tga",
+                    dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
+                    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
+                   ezGameApplication::GetGameApplicationInstance()->GetAppName(),
+                   ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+
+      /// \todo Get rid of Alpha channel before saving
+
+      m_Image.SaveTo(sPath);
+    }
+  };
+
+  WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
+  pWriteTask->m_Image = image;
+  pWriteTask->SetOnTaskFinished([](ezTask* pTask)
+  {
+    EZ_DEFAULT_DELETE(pTask);
+  });
+
+  // we move the file writing off to another thread to save some time
+  // if we moved it to the 'FileAccess' thread, writing a screenshot would block resource loading, which can reduce game performance
+  // 'LongRunning' will give it even less priority and let the task system do them in parallel to other things
+  ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
 }
 
 EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameApplication);
