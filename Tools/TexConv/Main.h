@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -131,6 +131,7 @@ public:
 
   ezResult PassImageThrough();
   ezResult GenerateMipmaps();
+  ezResult ApplyPremultiplyAlpha();
   ezResult ConvertToOutputFormat();
   ezResult SaveResultToDDS();
   ezResult SaveThumbnail();

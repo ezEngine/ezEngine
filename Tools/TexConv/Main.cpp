@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 #include <wincodec.h>
 
 /// \todo volume texture creation
@@ -120,6 +120,9 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     }
 
     if (GenerateMipmaps().Failed())
+      return ezApplication::Quit;
+
+    if (ApplyPremultiplyAlpha().Failed())
       return ezApplication::Quit;
 
     SaveThumbnail();

@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 ezResult ezTexConv::PassImageThrough()
 {
@@ -35,11 +35,8 @@ ezResult ezTexConv::GenerateMipmaps()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::ConvertToOutputFormat()
+ezResult ezTexConv::ApplyPremultiplyAlpha()
 {
-  const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/, m_bAlphaIsMaskOnly); // we don't want the implicit sRGB conversion of MS TexConv, so just write to non-sRGB target
-  const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
-
   if (m_bPremultiplyAlpha)
   {
     shared_ptr<ScratchImage> pNewScratch = make_shared<ScratchImage>();
@@ -53,6 +50,14 @@ ezResult ezTexConv::ConvertToOutputFormat()
 
     m_pCurrentImage = pNewScratch;
   }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv::ConvertToOutputFormat()
+{
+  const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/, m_bAlphaIsMaskOnly); // we don't want the implicit sRGB conversion of MS TexConv, so just write to non-sRGB target
+  const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
 
   if (m_bCompress)
   {
