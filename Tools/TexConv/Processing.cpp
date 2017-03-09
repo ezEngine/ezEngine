@@ -63,7 +63,7 @@ ezResult ezTexConv::ConvertToOutputFormat()
   {
     shared_ptr<ScratchImage> pNewScratch = make_shared<ScratchImage>();
 
-    // Somme compressions are unbearably slow on the CPU. Use the GPU version if available.
+    // Some compressions are unbearably slow on the CPU. Use the GPU version if available.
     bool bCompressionDone = false;
     if (m_pD3dDevice)
     {

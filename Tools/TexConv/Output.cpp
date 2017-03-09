@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 void ezTexConv::WriteTexHeader()
 {
@@ -111,6 +111,16 @@ bool ezTexConv::CanPassThroughInput() const
 {
   if (m_InputImages.GetCount() != 1)
     return false;
+
+  if (m_TextureType == TextureType::Cubemap)
+  {
+    // if it is a cubemap, but the single input file does not contain 6 faces,
+    // that means it is a texture that encodes the 6 faces in a particular pattern
+    const ezImage& img = m_InputImages[0];
+
+    if (img.GetNumFaces() != 6)
+      return false;
+  }
 
   const ezImage& img = m_InputImages[0];
   const bool bAlphaIsMask = (img.GetImageFormat() == ezImageFormat::BC1_UNORM) || (img.GetImageFormat() == ezImageFormat::BC1_UNORM_SRGB);

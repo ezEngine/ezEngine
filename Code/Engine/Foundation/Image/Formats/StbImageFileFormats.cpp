@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Image/Formats/StbImageFileFormats.h>
 #include <Foundation/Image/Image.h>
 
@@ -122,7 +122,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
         *targetImageData = *currentSourceImageData;
         *(++targetImageData) = *(++currentSourceImageData);
         *(++targetImageData) = 0;
-        *(++targetImageData) = 0;
+        *(++targetImageData) = 255;
 
         ++targetImageData;
         ++currentSourceImageData;
@@ -138,7 +138,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
         *targetImageData = *currentSourceImageData;
         *(++targetImageData) = *(++currentSourceImageData);
         *(++targetImageData) = *(++currentSourceImageData);
-        *(++targetImageData) = 0;
+        *(++targetImageData) = 255;
 
         ++targetImageData;
         ++currentSourceImageData;

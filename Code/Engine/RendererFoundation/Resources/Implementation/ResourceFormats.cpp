@@ -1,23 +1,19 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAFloat,
-    ezGALResourceFormat::RGBAHalf,
-    ezGALResourceFormat::RGB10A2UIntNormalized,
-    ezGALResourceFormat::RG11B10Float,
-    ezGALResourceFormat::RGBAUByteNormalized,
-    ezGALResourceFormat::RGBAUByteNormalizedsRGB,
-    ezGALResourceFormat::D24S8
-  )
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC1, ezGALResourceFormat::BC1sRGB,
-    ezGALResourceFormat::BC3, ezGALResourceFormat::BC3sRGB,
-    ezGALResourceFormat::BC4UNormalized, ezGALResourceFormat::BC4Normalized,
-    ezGALResourceFormat::BC5UNormalized, ezGALResourceFormat::BC5Normalized
-  )
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC6UFloat, ezGALResourceFormat::BC6Float,
-    ezGALResourceFormat::BC7UNormalized, ezGALResourceFormat::BC7UNormalizedsRGB
-  )
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAFloat, ezGALResourceFormat::RGBAHalf)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGB10A2UIntNormalized, ezGALResourceFormat::RG11B10Float)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAUByteNormalized, ezGALResourceFormat::RGBAUByteNormalizedsRGB)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::D24S8)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BGRAUByteNormalized, ezGALResourceFormat::BGRAUByteNormalizedsRGB)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC1, ezGALResourceFormat::BC1sRGB)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC2, ezGALResourceFormat::BC2sRGB)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC3, ezGALResourceFormat::BC3sRGB)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC4UNormalized, ezGALResourceFormat::BC4Normalized)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC5UNormalized, ezGALResourceFormat::BC5Normalized)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC6UFloat, ezGALResourceFormat::BC6Float)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC7UNormalized, ezGALResourceFormat::BC7UNormalizedsRGB)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RFloat)
 EZ_END_STATIC_REFLECTED_ENUM();
 

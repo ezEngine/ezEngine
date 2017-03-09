@@ -155,6 +155,8 @@ ezResult ezTexConv::SaveThumbnail()
 
   ezUInt32 iThumbnailMip = 0;
 
+  // if we have mipmaps, usually everything is great (because mipmap generation seems to always work correctly)
+  // when we do not have mipmaps, everything falls apart and we need to work around lots of problems
   for (ezUInt32 i = 0; i < m_pCurrentImage->GetMetadata().mipLevels; ++i)
   {
     iThumbnailMip = i;
@@ -164,7 +166,37 @@ ezResult ezTexConv::SaveThumbnail()
       break;
   }
 
-  const Image* pThumbnailSrc = m_pCurrentImage->GetImage(iThumbnailMip, 0, 0);
+  shared_ptr<ScratchImage> pThumbnail = make_shared<ScratchImage>();
+  {
+
+    DXGI_FORMAT dxgi = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+
+    // enforce sRGB format (and yes, in the non-sRGB case we set the sRGB format and vice versa...)
+    if (m_bSRGBOutput)
+    {
+      dxgi = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+    }
+
+    auto pSrcMip = m_pCurrentImage->GetImage(iThumbnailMip, 0, 0);
+    auto meta = m_pCurrentImage->GetMetadata();
+    meta.mipLevels = 1;
+    meta.width = pSrcMip->width;
+    meta.height = pSrcMip->height;
+    meta.arraySize = 1;
+    meta.depth = 1;
+    meta.dimension = TEX_DIMENSION_TEXTURE2D;
+    meta.miscFlags &= ~TEX_MISC_TEXTURECUBE; // remove the cubemap flag, we only use one face
+    meta.miscFlags2 = 0;
+
+    if (FAILED(Convert(pSrcMip, 1, meta, dxgi, TEX_FILTER_DEFAULT, 0.0f, *pThumbnail.get())))
+    {
+      SetReturnCode(TexConvReturnCodes::FAILED_CONVERT_TO_OUTPUT_FORMAT);
+      ezLog::Error("Failed to convert uncompressed float image to R8G8B8A8 for thumbnail");
+      return EZ_FAILURE;
+    }
+  }
+
+  const Image* pThumbnailSrc = pThumbnail->GetImage(0, 0, 0);
   ScratchImage temp;
 
   if (pThumbnailSrc->width > uiThumbnailSize || pThumbnailSrc->height > uiThumbnailSize)
@@ -189,14 +221,39 @@ ezResult ezTexConv::SaveThumbnail()
       h = uiThumbnailSize;
     }
 
-    if (FAILED(Resize(*pThumbnailSrc, w, h, TEX_FILTER_BOX, temp)))
+    // there are multiple situations in which this call fails :(
+    // 1) When a linear format was selected, and thus DXGI_FORMAT_R8G8B8A8_UNORM_SRGB was set above, 
+    //    we hack around this by overriding the sRGB format during the resize
+    // 2) When 'pass through' mode is active and the input texture uses an unsupported format (e.g. a compressed one), 
+    //    this should be worked around through the conversion above, but not sure that always works
+
+    if (!m_bSRGBOutput)
+    {
+      // Resize doesn't support SRGB, so claim the image were non-sRGB
+      const_cast<Image*>(pThumbnailSrc)->format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+    }
+
+    const HRESULT res = Resize(*pThumbnailSrc, w, h, TEX_FILTER_BOX | TEX_FILTER_SEPARATE_ALPHA, temp);
+    if (FAILED(res))
+    {
+      ezLog::Error("Failed to resize image for thumbnail");
       return EZ_FAILURE;
+    }
+
+    if (!m_bSRGBOutput)
+    {
+      // restore the sRGB format
+      const_cast<Image*>(pThumbnailSrc)->format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    }
 
     pThumbnailSrc = temp.GetImage(0, 0, 0);
   }
 
   if (FAILED(SaveToWICFile(*pThumbnailSrc, 0, GUID_ContainerFormatJpeg, ezStringWChar(m_sThumbnailFile).GetData())))
+  {
+    ezLog::Error("Failed save thumbnail to '{0}'", m_sThumbnailFile);
     return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }
