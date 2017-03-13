@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------------
 // USER IMPLEMENTATION
 // This file contains compile-time options for ImGui.
 // Other options (memory allocation overrides, callbacks, etc.) can be set at runtime via the ImGuiIO structure - ImGui::GetIO().
@@ -15,6 +15,13 @@
 #else
 #define IMGUI_API __declspec(dllimport)
 #endif
+
+// No support for clipboard functions in UWP, need to port first. (a great opportunity to support this project!)
+#if WINAPI_FAMILY==WINAPI_FAMILY_APP
+#define IMGUI_DISABLE_WIN32_DEFAULT_CLIPBOARD_FUNCS
+#define IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCS
+#endif
+
 #endif
 // End ezEngine edit
 //////////////////////////////////////////////////////////////////////////
