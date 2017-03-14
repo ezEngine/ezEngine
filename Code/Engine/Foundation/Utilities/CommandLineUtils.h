@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/StringBuilder.h>
@@ -14,6 +14,13 @@ class EZ_FOUNDATION_DLL ezCommandLineUtils
 public:
   /// \brief Returns one global instance of ezCommandLineUtils.
   static ezCommandLineUtils* GetGlobalInstance();
+
+  /// \brief Splits a string into the classic argc/argv string.
+  ///
+  /// Useful for platforms where command line args come in as a single string.
+  /// \param addExecutableDir
+  ///   Adds executable path as first parameter (just as it would normally be in 'int main(argc, argv)').
+  static void SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV);
 
   /// \brief Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
   void SetCommandLine(ezUInt32 argc, const char** argv); // [tested]

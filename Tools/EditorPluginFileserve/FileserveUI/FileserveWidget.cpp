@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
 #include <EditorPluginFileserve/FileserveUI/AllFilesModel.moc.h>

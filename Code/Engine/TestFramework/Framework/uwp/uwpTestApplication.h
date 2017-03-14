@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #include <Windows.Applicationmodel.h>
@@ -7,6 +7,7 @@
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 
 using namespace ABI::Windows::ApplicationModel::Core;
+using namespace ABI::Windows::ApplicationModel::Activation;
 
 class ezTestFramework;
 
@@ -27,7 +28,12 @@ public:
   virtual HRESULT __stdcall Uninitialize() override;
 
 private:
+  // Events
+  HRESULT OnActivated(ICoreApplicationView* applicationView, IActivatedEventArgs* args);
+
   ezTestFramework& m_testFramework;
+
+  EventRegistrationToken m_eventRegistrationOnActivate;
 };
 
 #endif

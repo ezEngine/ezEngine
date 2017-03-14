@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
 #include <TestFramework/Utilities/ConsoleOutput.h>
@@ -161,7 +161,8 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 #ifdef EZ_USE_QT
   ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
+  // Command line args in UWP are handled differently and can't be retrieved from the main function.
+  ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), 0, nullptr);
 #else
   ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
 #endif

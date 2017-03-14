@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
@@ -7,6 +7,43 @@ static ezCommandLineUtils g_pCmdLineInstance;
 ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
 {
   return &g_pCmdLineInstance;
+}
+
+void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV)
+{
+  // Add application dir as first argument as customary on other platforms.
+  if (addExecutableDir)
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    wchar_t moduleFilename[256];
+    GetModuleFileNameW(nullptr, moduleFilename, 256);
+    outArgs.PushBack(ezStringUtf8(moduleFilename).GetData());
+#else
+    EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
+  }
+
+  // Simple args splitting. Not as powerful as Win32's CommandLineToArgvW.
+  const char* currentChar = commandString;
+  const char* lastEnd = currentChar;
+  bool inQuotes = false;
+  while (*currentChar != '\0')
+  {
+    if (*currentChar == '\"')
+      inQuotes = !inQuotes;
+    else if (*currentChar == ' ' && !inQuotes)
+    {
+      ezStringBuilder path = ezStringView(lastEnd, currentChar);
+      path.Trim(" \"");
+      outArgs.PushBack(path);
+      lastEnd = currentChar + 1;
+    }
+    ezUnicodeUtils::MoveToNextUtf8(currentChar);
+  }
+
+  outArgsV.Reserve(outArgsV.GetCount());
+  for (ezString& str : outArgs)
+    outArgsV.PushBack(str.GetData());
 }
 
 void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv)

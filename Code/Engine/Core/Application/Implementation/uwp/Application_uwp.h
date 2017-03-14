@@ -11,6 +11,7 @@
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 
 using namespace ABI::Windows::ApplicationModel::Core;
+using namespace ABI::Windows::ApplicationModel::Activation;
 
 class ezApplication;
 
@@ -32,7 +33,7 @@ public:
   virtual HRESULT __stdcall Uninitialize() override;
 
 private:
-  HRESULT OnActivated(ABI::Windows::ApplicationModel::Core::ICoreApplicationView*, ABI::Windows::ApplicationModel::Activation::IActivatedEventArgs* args);
+  HRESULT OnActivated(ICoreApplicationView*, IActivatedEventArgs* args);
   
   ezApplication* m_application;
   EventRegistrationToken m_activateRegistrationToken;
