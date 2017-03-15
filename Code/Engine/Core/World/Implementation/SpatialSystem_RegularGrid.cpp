@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
+#include <Foundation/Containers/HashSet.h>
 
 namespace
 {
@@ -41,6 +42,35 @@ namespace
 
     return box;
   }
+
+  EZ_ALWAYS_INLINE ezSimdBBox GetBoundingBoxSimd(const ezSimdVec4i& cellIndex, const ezSimdVec4i& iCellSize)
+  {
+    ezSimdVec4i minPos = cellIndex.CompMul(iCellSize);
+    ezSimdVec4f bmin = ToVec3(minPos);
+    ezSimdVec4f bmax = ToVec3(minPos + iCellSize);
+
+    return ezSimdBBox(bmin, bmax);
+  }
+
+  static ezThreadLocalPointer<ezHashSet<ezSpatialData*>> s_pDeduplicationSet;
+
+  EZ_FORCE_INLINE ezHashSet<ezSpatialData*>* ClearAndGetDeduplicationSet()
+  {
+    ezHashSet<ezSpatialData*>* pSet = s_pDeduplicationSet;
+
+    if (pSet == nullptr)
+    {
+      // Force to static allocator so we don't report a memory leak for this allocation.
+      pSet = EZ_NEW(ezStaticAllocatorWrapper::GetAllocator(), ezHashSet<ezSpatialData*>);
+      s_pDeduplicationSet = pSet;
+    }
+    else
+    {
+      pSet->Clear();
+    }
+
+    return pSet;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -60,6 +90,8 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::AddData(ezSpatialData* p
   m_BoundingSpheres.PushBack(pData->m_Bounds.GetSphere());
   m_DataPointers.PushBack(pData);
   EZ_VERIFY(!m_PointerToIndexTable.Insert(pData, dataIndex), "Implementation error");
+
+  pData->m_uiRefCount++;
 }
 
 EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::RemoveData(ezSpatialData* pData)
@@ -75,6 +107,8 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::RemoveData(ezSpatialData
 
   m_BoundingSpheres.RemoveAtSwap(dataIndex);
   m_DataPointers.RemoveAtSwap(dataIndex);
+
+  pData->m_uiRefCount--;
 }
 
 EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::Cell::UpdateData(ezSpatialData* pData)
@@ -132,27 +166,100 @@ void ezSpatialSystem_RegularGrid::GetAllCellBoxes(ezHybridArray<ezBoundingBox, 1
   }
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject *>& out_Objects) const
+void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  FindObjectsInSphere(sphere, [&](ezGameObject* pObject)
+  {
+    out_Objects.PushBack(pObject);
+
+    return ezVisitorExecution::Continue;
+  });
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback& callback) const
+void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
+  ezSimdBBox simdBox;
+  simdBox.SetCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
+
+  auto pSet = ClearAndGetDeduplicationSet();
+
+  ForEachCellInBox(simdBox, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
+  {
+    if (pCell != nullptr)
+    {
+      ezSimdBBox cellBox = GetBoundingBoxSimd(cellIndex, m_iCellSize);
+      if (cellBox.Overlaps(simdSphere))
+      {
+        const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+        for (ezUInt32 i = 0; i < numSpheres; ++i)
+        {
+          auto& objectSphere = pCell->m_BoundingSpheres[i];
+          if (!simdSphere.Overlaps(objectSphere))
+            continue;
+
+          ezSpatialData* pData = pCell->m_DataPointers[i];
+          if (pData->m_uiRefCount > 1)
+          {
+            if (pSet->Insert(pData))
+              continue;
+          }
+
+          callback(pCell->m_DataPointers[i]->m_pObject);
+        }
+      }
+    }
+  });
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject *>& out_Objects) const
+void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  FindObjectsInBox(box, [&](ezGameObject* pObject)
+  {
+    out_Objects.PushBack(pObject);
+
+    return ezVisitorExecution::Continue;
+  });
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, QueryCallback& callback) const
+void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
+
+  auto pSet = ClearAndGetDeduplicationSet();
+
+  ForEachCellInBox(simdBox, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
+  {
+    if (pCell != nullptr)
+    {
+      ezSimdBBox cellBox = GetBoundingBoxSimd(cellIndex, m_iCellSize);
+      if (cellBox.Overlaps(simdBox))
+      {
+        const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+        for (ezUInt32 i = 0; i < numSpheres; ++i)
+        {
+          auto& objectSphere = pCell->m_BoundingSpheres[i];
+          if (!simdBox.Overlaps(objectSphere))
+            continue;
+
+          ezSpatialData* pData = pCell->m_DataPointers[i];
+          if (!simdBox.Overlaps(pData->m_Bounds.GetBox()))
+            continue;
+
+          if (pData->m_uiRefCount > 1)
+          {
+            if (pSet->Insert(pData))
+              continue;
+          }
+
+          callback(pCell->m_DataPointers[i]->m_pObject);
+        }
+      }
+    }
+  });
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject *>& out_Objects) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects) const
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
@@ -244,7 +351,7 @@ void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, 
 }
 
 template <typename Functor>
-EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezSimdBBox& box, Functor func)
+EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezSimdBBox& box, Functor func) const
 {
   ezSimdVec4i minIndex = ToVec3I32(box.m_Min * m_fInvCellSize);
   ezSimdVec4i maxIndex = ToVec3I32(box.m_Max * m_fInvCellSize);
@@ -256,7 +363,7 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezSimdB
   const ezInt32 iMinY = minIndex.y();
   const ezInt32 iMinZ = minIndex.z();
 
-#if 1
+#if 0
 
   const ezInt32 iMaxX = maxIndex.x();
   const ezInt32 iMaxY = maxIndex.y();

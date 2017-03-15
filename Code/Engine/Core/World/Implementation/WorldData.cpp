@@ -50,7 +50,14 @@ WorldData::WorldData(ezWorldDesc& desc)
 {
   m_AllocatorWrapper.Reset();
 
-  m_Random.InitializeFromCurrentTime();
+  if (desc.m_uiRandomNumberGeneratorSeed == 0)
+  {
+    m_Random.InitializeFromCurrentTime();
+  }
+  else
+  {
+    m_Random.Initialize(desc.m_uiRandomNumberGeneratorSeed);
+  }
 
   // insert dummy entry to save some checks
   m_Objects.Insert(nullptr);

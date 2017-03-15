@@ -30,10 +30,10 @@ public:
   typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> QueryCallback;
 
   virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects) const = 0;
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback& callback) const = 0;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback) const = 0;
 
   virtual void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects) const = 0;
-  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback& callback) const = 0;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback) const = 0;
 
   ///@}
   /// \name Visibility Queries

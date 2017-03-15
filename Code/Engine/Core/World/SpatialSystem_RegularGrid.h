@@ -19,13 +19,13 @@ public:
 
 private:
   // ezSpatialSystem implementation
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject *>& out_Objects) const override;
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback& callback) const override;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback) const override;
 
-  virtual void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject *>& out_Objects) const override;
-  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback& callback) const override;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback) const override;
 
-  virtual void FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject *>& out_Objects) const override;
+  virtual void FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects) const override;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) override;
   virtual void SpatialDataRemoved(ezSpatialData* pData) override;
@@ -33,7 +33,7 @@ private:
   virtual void FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr) override;
 
   template <typename Functor>
-  void ForEachCellInBox(const ezSimdBBox& box, Functor func);
+  void ForEachCellInBox(const ezSimdBBox& box, Functor func) const;
 
   ezProxyAllocator m_AlignedAllocator;
   ezSimdVec4i m_iCellSize;

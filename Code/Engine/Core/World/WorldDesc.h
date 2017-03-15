@@ -14,9 +14,11 @@ struct ezWorldDesc
   ezWorldDesc(const char* szWorldName)
   {
     m_sName.Assign(szWorldName);
+    m_uiRandomNumberGeneratorSeed = 0;
   }
 
   ezHashedString m_sName;
+  ezUInt64 m_uiRandomNumberGeneratorSeed;
 
   ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
   ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;

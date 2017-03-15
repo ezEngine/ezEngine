@@ -6,7 +6,9 @@
 struct EZ_ALIGN_16(ezSpatialData)
 {
   ezGameObject* m_pObject;
-  ezUInt32 m_Flags; //todo
+  ezUInt32 m_uiRefCount : 16;
+  ezUInt32 m_Flags : 16; //todo
+
   ezUInt32 m_uiLastFrameVisible;
 
   ///\todo might want to store local bounding box for precise culling
