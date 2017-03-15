@@ -36,6 +36,7 @@ namespace BuildMachine
       Stopwatch sw = new Stopwatch();
       sw.Start();
 
+      var testTemplate = ezTestTemplateFactory.Create(_Settings);
 
       int iFailedTargets = 0;
       List<ezCMake.TestTarget> targets = cmakeResults.TestTargets;
