@@ -1,5 +1,6 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <TestFramework/Framework/TestResults.h>
+#include <Foundation/Types/ScopeExit.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezTestOutput public functions
@@ -102,18 +103,37 @@ void::ezTestFrameworkResult::Reset()
   m_TestOutput.clear();
 }
 
-bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
+bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
 {
   ezStartup::StartupCore();
-  // Make sure we can access absolute file paths
+  EZ_SCOPE_EXIT(ezStartup::ShutdownCore());
+
+
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory("", "whatever", ":", ezFileSystem::AllowWrites);
 
   {
-    ezFileWriter file;
-    if (file.Open(szAbsFileName) == EZ_FAILURE)
+    ezStringBuilder jsonFilename;
+    if (ezPathUtils::IsAbsolutePath(szFileName))
     {
-      ezStartup::ShutdownCore();
+      // Make sure we can access raw absolute file paths
+      if (ezFileSystem::AddDataDirectory("", "jsonoutput", ":", ezFileSystem::AllowWrites).Failed())
+        return false;
+
+      jsonFilename = szFileName;
+    }
+    else
+    {
+      // If this is a relative path, we use the eztest/ data directory to make sure that this works properly with the fileserver.
+      if (ezFileSystem::AddDataDirectory(">eztest/", "jsonoutput", ":", ezFileSystem::AllowWrites).Failed())
+        return false;
+
+      jsonFilename = ":";
+      jsonFilename.AppendPath(szFileName);
+    }
+
+    ezFileWriter file;
+    if (file.Open(jsonFilename).Failed())
+    {
       return false;
     }
     ezStandardJSONWriter js;
@@ -224,7 +244,6 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
     js.EndObject();
   }
 
-  ezStartup::ShutdownCore();
   return true;
 }
 

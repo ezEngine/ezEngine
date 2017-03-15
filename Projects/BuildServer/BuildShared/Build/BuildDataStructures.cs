@@ -114,6 +114,16 @@ namespace BuildShared
       Duration = 0.0;
     }
 
+    public void MergeIn(BuildStepResults result)
+    {
+      if (!result.Success)
+      {
+        Success = result.Success;
+        Errors = "\n" + result.Errors;
+      }
+      Duration = result.Duration;
+    }
+
     public void Error(string format, params object[] arg)
     {
       string sError = String.Format(format, arg);

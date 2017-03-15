@@ -20,7 +20,7 @@ namespace BuildMachine
     {
       if (sBuildType == "C++")
       {
-        if (settings.Configuration.StartsWith("WinVs"))
+        if (settings.Configuration.StartsWith("Win"))
         {
           bool bIs64Bit = settings.Configuration.Contains("64");
           if (settings.Configuration.Contains("2012"))

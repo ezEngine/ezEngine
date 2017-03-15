@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <TestFramework/Basics.h>
 #include <TestFramework/Framework/Declarations.h>
@@ -106,7 +106,7 @@ public:
   void Clear();
   void SetupTests(const std::deque<ezTestEntry>& tests, const ezTestConfiguration& config);
   void Reset();
-  bool WriteJsonToFile(const char* szAbsFileName) const;
+  bool WriteJsonToFile(const char* szFileName) const;
 
   // Result access
   ezUInt32 GetTestCount(ezTestResultQuery::Enum countQuery = ezTestResultQuery::Count) const;

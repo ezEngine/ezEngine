@@ -36,6 +36,7 @@ namespace BuildMachine
       Stopwatch sw = new Stopwatch();
       sw.Start();
 
+
       int iFailedTargets = 0;
       List<ezCMake.TestTarget> targets = cmakeResults.TestTargets;
       foreach (ezCMake.TestTarget target in targets)
@@ -62,7 +63,15 @@ namespace BuildMachine
         }
         else
         {
-          testResult = RunTest(target);
+          try
+          {
+            testResult = testTemplate.BuildTarget(target, _Settings);
+          }
+          catch (Exception e)
+          {
+            testResult.Error("Unexpected error during text execution: {0}", e);
+            testResult.Success = false;
+          }
         }
 
         if (!testResult.Success && !testResult.Experimental)
@@ -79,54 +88,6 @@ namespace BuildMachine
         _Result.Error("Test failed: {0} targets failed the test!", iFailedTargets);
       return _Result;
     }
-
-    #region Private Functions
-
-    ezTest.TestTargetResult RunTest(ezCMake.TestTarget target)
-    {
-      ezTest.TestTargetResult res = new ezTest.TestTargetResult();
-      res.Name = target.Name;
-      res.NeedsHardwareAccess = target.NeedsHardwareAccess;
-      res.Experimental = target.Experimental;
-
-      string sAbsBinDir = System.IO.Path.Combine(_Settings.AbsBinPath, _Settings.Configuration);
-      string sAbsBinFilename = System.IO.Path.Combine(sAbsBinDir, target.Name);
-      string sAbsOutputPath = System.IO.Path.Combine(_Settings.AbsOutputFolder, string.Format("{0}_{1}_{2}.json", _Settings.Configuration, _Settings.Revision, target.Name));
-
-      // In case we are re-running a build process the output file may already exist and we need to make sure it doesn't
-      // contaminate the new test run.
-      if (System.IO.File.Exists(sAbsOutputPath))
-      {
-        try
-        {
-          System.IO.File.Delete(sAbsOutputPath);
-        }
-        catch (Exception ex)
-        {
-          res.Error("Error deleting test output file ({0}): {1}", sAbsOutputPath, ex.Message);
-          return res;
-        }
-      }
-
-      res.ProcessRes = ezProcessHelper.RunExternalExe(sAbsBinFilename, string.Format("-json \"{0}\" -rev {1} -nogui -all", sAbsOutputPath, _Settings.Revision), sAbsBinDir, res);
-      res.Success = (res.ProcessRes.ExitCode == 0);
-      res.Duration = res.ProcessRes.Duration;
-
-      if (System.IO.File.Exists(sAbsOutputPath))
-      {
-        res.TestResultJSON = System.IO.File.ReadAllText(sAbsOutputPath, Encoding.UTF8);
-      }
-      else
-      {
-        res.Error("No output file present!");
-      }
-
-      if (!res.Success && !res.Experimental)
-        res.Error("Testing '{0}' failed!", res.Name);
-      return res;
-    }
-
-    #endregion Private Functions
 
     /// <summary>
     /// The results of the test step in the build process.
