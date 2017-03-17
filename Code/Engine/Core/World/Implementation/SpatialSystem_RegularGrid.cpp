@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Foundation/Containers/HashSet.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 
 namespace
 {
