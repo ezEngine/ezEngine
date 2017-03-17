@@ -250,7 +250,6 @@ namespace BuildMachine
         return res;
       }
 
-
       // Start fileserver.
       string absFilerserveFilename = GetFileserverPath(settings);
       if (!File.Exists(absFilerserveFilename))
@@ -289,18 +288,30 @@ namespace BuildMachine
       appXProcess.Dispose();
       appXProcess = null;
 
-
       // Read test output.
       if (File.Exists(absOutputPath))
       {
         res.TestResultJSON = File.ReadAllText(absOutputPath, Encoding.UTF8);
+        //TODO: use test json output as stdout substitute until pipes are implemented.
+        res.ProcessRes.StdOut = res.TestResultJSON;
+        try
+        {
+          // Parse test output to figure out what the result is as we can't use the exit code.
+          var values = Newtonsoft.Json.JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, dynamic>>(res.TestResultJSON);
+          var errors = values["errors"] as Newtonsoft.Json.Linq.JArray;
+          res.Success = errors.Count == 0;
+        }
+        catch (Exception e)
+        {
+          res.Success = false;
+          res.Error("Failed to parse test output: '{0}'", e.ToString());
+        }
       }
       else
       {
         res.Error("No output file present!");
         res.Success = false;
       }
-
 
       if (!res.Success && !res.Experimental)
         res.Error("Testing '{0}' failed!", res.Name);
