@@ -147,11 +147,16 @@ void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
   {
   case ezRemoteEvent::DisconnectedFromClient:
     {
-      ezFileserverEvent se;
-      se.m_Type = ezFileserverEvent::Type::ClientDisconnected;
-      se.m_uiClientID = e.m_uiOtherAppID;
+      if (m_Clients.Contains(e.m_uiOtherAppID))
+      {
+        ezFileserverEvent se;
+        se.m_Type = ezFileserverEvent::Type::ClientDisconnected;
+        se.m_uiClientID = e.m_uiOtherAppID;
 
-      m_Events.Broadcast(se);
+        m_Events.Broadcast(se);
+
+        m_Clients.Remove(e.m_uiOtherAppID);
+      }
     }
     break;
 

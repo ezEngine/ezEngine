@@ -60,6 +60,11 @@ inline void OutputToConsole (ezTestOutput::Enum Type, const char* szMsg)
   printf ("%*s%s\n", iIndentation, "", szMsg);
   SetConsoleColorInl (0x07);
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  char sz[4096];
+  ezStringUtils::snprintf(sz, 1024, "%*s%s\n", iIndentation, "", szMsg);
+  OutputDebugStringW(ezStringWChar(sz).GetData());
+#endif
   if (Type >= ezTestOutput::Error)
   {
     fflush(stdout);
