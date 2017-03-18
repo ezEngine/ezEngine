@@ -148,12 +148,25 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
     TexDesc.m_Format = m_Description.m_BackBufferFormat;
 #endif
 
-    if (m_Description.m_bAllowScreenshots)
-      TexDesc.m_ResourceAccess.m_bReadBack = true;
+    TexDesc.m_ResourceAccess.m_bImmutable = true;
+
+    bool canMakeDirectScreenshots = (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_DISCARD && SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL);
+    TexDesc.m_ResourceAccess.m_bReadBack = m_Description.m_bAllowScreenshots && canMakeDirectScreenshots;
 
     // And create the ez texture object wrapping the backbuffer texture
     m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
-    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create backbuffer texture object!");
+    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create native backbuffer texture object!");
+
+    // Create extra texture to be used as "practical backbuffer" if we can't do the screenshots the user wants.
+    if (!canMakeDirectScreenshots && m_Description.m_bAllowScreenshots)
+    {
+      TexDesc.m_pExisitingNativeObject = nullptr;
+      TexDesc.m_ResourceAccess.m_bReadBack = true;
+
+      m_hActualBackBufferTexture = m_hBackBufferTexture;
+      m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
+      EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create non-native backbuffer texture object!");
+    }
 
     return EZ_SUCCESS;
   }
@@ -163,6 +176,12 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   pDevice->DestroyTexture(m_hBackBufferTexture);
   m_hBackBufferTexture.Invalidate();
+
+  if (!m_hActualBackBufferTexture.IsInvalidated())
+  {
+    pDevice->DestroyTexture(m_hActualBackBufferTexture);
+    m_hActualBackBufferTexture.Invalidate();
+  }
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Full screen swap chains must be switched to windowed mode before destruction.

@@ -554,7 +554,14 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
 
 void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 {
-  IDXGISwapChain* pDXGISwapChain = static_cast<ezGALSwapChainDX11*>(pSwapChain)->GetDXSwapChain();
+  auto pDXSwapChain = static_cast<ezGALSwapChainDX11*>(pSwapChain);
+  IDXGISwapChain* pDXGISwapChain = pDXSwapChain->GetDXSwapChain();
+
+  // If there is a "actual backbuffer" (see it's documentation for detailed explanation), copy to it.
+  if (!pDXSwapChain->m_hActualBackBufferTexture.IsInvalidated())
+  {
+    GetPrimaryContext()->CopyTexture(pDXSwapChain->m_hActualBackBufferTexture, pDXSwapChain->m_hBackBufferTexture);
+  }
 
   HRESULT result = pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 0);
   if (FAILED(result))
