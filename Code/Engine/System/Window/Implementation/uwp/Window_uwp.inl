@@ -77,6 +77,8 @@ ezResult ezWindow::Initialize()
     EZ_HRESULT_TO_FAILURE(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_ViewManagement_ApplicationView).Get(), &appViewStatics));
     ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView> appView;
     EZ_HRESULT_TO_FAILURE(appViewStatics->GetForCurrentView(&appView));
+    ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView2> appView2;
+    EZ_HRESULT_TO_FAILURE(appView.As(&appView2));
     ComPtr<ABI::Windows::UI::ViewManagement::IApplicationView3> appView3;
     EZ_HRESULT_TO_FAILURE(appView.As(&appView3));
 
@@ -107,7 +109,16 @@ ezResult ezWindow::Initialize()
       EZ_HRESULT_TO_FAILURE(appView3->TryResizeView(size, &successfulResize));
       if (!successfulResize)
       {
-        ezLog::Warning("Failed to resize the window to {0}x{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
+        ABI::Windows::Foundation::Rect visibleBounds;
+        EZ_HRESULT_TO_FAILURE(appView2->get_VisibleBounds(&visibleBounds));
+        ezUInt32 actualWidth = static_cast<ezUInt32>(visibleBounds.Width * (logicalDpi / 96.0f));
+        ezUInt32 actualHeight = static_cast<ezUInt32>(visibleBounds.Height * (logicalDpi / 96.0f));
+
+        ezLog::Warning("Failed to resize the window to {0}x{1}, instead (visible) size remains at {2}x{3}",
+            m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height, actualWidth, actualHeight);
+
+        //m_CreationDescription.m_Resolution.width = actualWidth;
+        //m_CreationDescription.m_Resolution.height = actualHeight;
       }
     }
   }
