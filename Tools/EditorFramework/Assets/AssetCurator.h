@@ -12,12 +12,13 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Threading/LockedObject.h>
 #include <tuple>
+#include <EditorFramework/IPC/ProcessCommunication.h>
+#include <Foundation/Threading/AtomicInteger.h>
 
 class ezUpdateTask;
 class ezTask;
 class ezAssetDocumentManager;
 class ezDirectoryWatcher;
-class ezProcessCommunication;
 class ezProcessTask;
 struct ezFileStats;
 struct AssetCacheEntry;
@@ -340,6 +341,7 @@ private:
   ezUpdateTask* m_pUpdateTask;
   ezDynamicArray<ezDirectoryWatcher*> m_Watchers;
   ezDynamicArray<ezProcessTask*> m_ProcessTasks;
+  ezUInt32 m_TicksWithIdleTasks = 0;
   ezTaskGroupID m_ProcessTaskGroup; ///< TODO: Does not work at the moment as grouping marks tasks as running
 };
 
@@ -360,12 +362,13 @@ class ezProcessTask : public ezTask
 public:
   ezProcessTask(ezUInt32 uiProcessorID);
   ~ezProcessTask();
+  ezAtomicInteger32 m_bDidWork = true;
 
+private:
   void EventHandlerIPC(const ezProcessCommunication::Event& e);
   void StartProcess();
   void ShutdownProcess();
 
-private:
   ezUInt32 m_uiProcessorID;
 
   ezUuid m_assetGuid;

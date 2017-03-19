@@ -152,16 +152,13 @@ ezMaterialAssetDocument* ezQtMaterialAssetDocumentWindow::GetMaterialDocument()
 
 void ezQtMaterialAssetDocumentWindow::InternalRedraw()
 {
-  ezQtEngineDocumentWindow::InternalRedraw();
-
   ezEditorInputContext::UpdateActiveInputContext();
-
   SendRedrawMsg();
-
   if (s_pNodeConfigWatcher)
   {
     s_pNodeConfigWatcher->EnumerateChanges(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::OnVseConfigChanged, this));
   }
+  ezQtEngineDocumentWindow::InternalRedraw();
 }
 
 void ezQtMaterialAssetDocumentWindow::UpdatePreview()
@@ -233,13 +230,6 @@ void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
     pView->SetEnablePicking(false);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
-  }
-
-  {
-    ezSyncWithProcessMsgToEngine sm;
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&sm);
-
-    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
   }
 }
 

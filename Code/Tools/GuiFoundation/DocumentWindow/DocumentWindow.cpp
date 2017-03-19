@@ -98,13 +98,14 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
     //if (m_iTargetFramerate != 0)
       TriggerRedraw();
     */
-
+/*
     m_bIsDrawingATM = true;
     InternalRedraw();
     m_bIsDrawingATM = false;
 
     if (m_iTargetFramerate != 0)
-      TriggerRedraw();
+      TriggerRedraw();*/
+    SlotRedraw();
   }
 }
 
@@ -116,7 +117,7 @@ void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
   m_iTargetFramerate = iTargetFPS;
 
   if (m_iTargetFramerate != 0)
-    TriggerRedraw();
+    SlotRedraw();
 }
 
 void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
@@ -159,7 +160,7 @@ void ezQtDocumentWindow::SlotRedraw()
     ezQtDocumentWindowEvent e;
     e.m_Type = ezQtDocumentWindowEvent::Type::BeforeRedraw;
     e.m_pWindow = this;
-    s_Events.Broadcast(e);
+    s_Events.Broadcast(e, 1);
   }
 
   EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");

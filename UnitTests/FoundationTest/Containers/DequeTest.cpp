@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Types/UniquePtr.h>
 
 namespace DequeTestDetail
 {
@@ -805,6 +806,62 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
         ++uiArrayPos;
       }
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  {
+    ezDeque<ezInt32> a1, a2;
+
+    ezInt32 content1[] = { 1, 2, 3, 4 };
+    ezInt32 content2[] = { 5, 6, 7, 8, 9 };
+    for (ezInt32 i : content1)
+    {
+      a1.PushBack(i);
+    }
+    for (ezInt32 i : content2)
+    {
+      a2.PushBack(i);
+    }
+
+    ezInt32* a1Ptr = &a1[0];
+    ezInt32* a2Ptr = &a2[0];
+
+    a1.Swap(a2);
+
+    // The pointers should be simply swapped
+    EZ_TEST_BOOL(a2Ptr == &a1[0]);
+    EZ_TEST_BOOL(a1Ptr == &a2[0]);
+
+    EZ_TEST_INT(EZ_ARRAY_SIZE(content1), a2.GetCount());
+    EZ_TEST_INT(EZ_ARRAY_SIZE(content2), a1.GetCount());
+
+    // The data should be swapped
+    for (int i = 0; i < EZ_ARRAY_SIZE(content1); ++i)
+    {
+      EZ_TEST_INT(content1[i], a2[i]);
+    }
+    for (int i = 0; i < EZ_ARRAY_SIZE(content2); ++i)
+    {
+      EZ_TEST_INT(content2[i], a1[i]);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move PushBack / PushFront")
+  {
+    ezDeque<ezUniquePtr<ezUInt32>> a1, a2;
+    a1.PushBack(ezUniquePtr<ezUInt32>(EZ_DEFAULT_NEW(ezUInt32, 1)));
+    a1.PushBack(ezUniquePtr<ezUInt32>(EZ_DEFAULT_NEW(ezUInt32, 2)));
+
+    a2.PushFront(ezUniquePtr<ezUInt32>(EZ_DEFAULT_NEW(ezUInt32, 3)));
+    a2.PushFront(ezUniquePtr<ezUInt32>(EZ_DEFAULT_NEW(ezUInt32, 4)));
+
+    a1.Swap(a2);
+
+    EZ_TEST_INT(*a1[0].Borrow(), 4);
+    EZ_TEST_INT(*a1[1].Borrow(), 3);
+
+    EZ_TEST_INT(*a2[0].Borrow(), 1);
+    EZ_TEST_INT(*a2[1].Borrow(), 2);
   }
 }
 

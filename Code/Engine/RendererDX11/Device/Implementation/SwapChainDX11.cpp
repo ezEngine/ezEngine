@@ -150,7 +150,11 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 
     TexDesc.m_ResourceAccess.m_bImmutable = true;
 
-    bool canMakeDirectScreenshots = (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_DISCARD && SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL);
+    bool canMakeDirectScreenshots = (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL);
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    canMakeDirectScreenshots == canMakeDirectScreenshots && (SwapChainDesc.SwapEffect != DXGI_SWAP_EFFECT_FLIP_DISCARD)
+#endif
+
     TexDesc.m_ResourceAccess.m_bReadBack = m_Description.m_bAllowScreenshots && canMakeDirectScreenshots;
 
     // And create the ez texture object wrapping the backbuffer texture

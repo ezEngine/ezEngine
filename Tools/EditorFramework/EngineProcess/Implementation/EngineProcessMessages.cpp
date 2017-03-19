@@ -2,20 +2,24 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Timestamp", m_iSentTimeStamp),
+    EZ_MEMBER_PROPERTY("RedrawCount", m_uiRedrawCount),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEngine>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEditor, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("RedrawCount", m_uiRedrawCount),
+  }
+  EZ_END_PROPERTIES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ///////////////////////////////////// ezEditorEngineMsg /////////////////////////////////////

@@ -1193,7 +1193,7 @@ void ezAssetCurator::RunNextProcessTask()
   {
     m_ProcessTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunning);
 
-    const ezUInt32 uiWorkerCount = 1;//ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
+    const ezUInt32 uiWorkerCount = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
     for (ezUInt32 i = 0; i < uiWorkerCount; ++i)
     {
       ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i);
@@ -1201,6 +1201,24 @@ void ezAssetCurator::RunNextProcessTask()
       //ezTaskSystem::AddTaskToGroup(m_ProcessTaskGroup, pTask);
       m_ProcessTasks.PushBack(pTask);
     }
+  }
+
+  // Even if there is work left, it could be that after further examining (that we don't want to do on this thread)
+  // it turns out that there was nothing to do (errors, only manual transform assets).
+  // If all threads decide that we are done until an asset state is changed which resets m_TicksWithIdleTasks.
+  bool bAllIdle = true;
+  for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); ++i)
+  {
+    if (m_ProcessTasks[i]->m_bDidWork)
+    {
+      bAllIdle = false;
+    }
+  }
+  if (bAllIdle)
+  {
+    if (m_TicksWithIdleTasks > 5)
+      return;
+    ++m_TicksWithIdleTasks;
   }
 
   for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); ++i)

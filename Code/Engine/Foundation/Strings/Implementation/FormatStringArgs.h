@@ -77,6 +77,19 @@ struct ezArgP
   const void* m_Value;
 };
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+struct ezArgErrorCode
+{
+  inline explicit ezArgErrorCode(ezUInt32 errorCode)
+    : m_ErrorCode(errorCode)
+  {
+  }
+
+  ezUInt32 m_ErrorCode;
+};
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg);
+#endif
+
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgI& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt64 arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezInt32 arg);

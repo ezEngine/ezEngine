@@ -100,13 +100,6 @@ void ezQtMeshAssetDocumentWindow::SendRedrawMsg()
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }
-
-  {
-    ezSyncWithProcessMsgToEngine sm;
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&sm);
-
-    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
-  }
 }
 
 void ezQtMeshAssetDocumentWindow::QueryObjectBBox()
@@ -119,11 +112,9 @@ void ezQtMeshAssetDocumentWindow::QueryObjectBBox()
 
 void ezQtMeshAssetDocumentWindow::InternalRedraw()
 {
-  ezQtEngineDocumentWindow::InternalRedraw();
-
   ezEditorInputContext::UpdateActiveInputContext();
-
   SendRedrawMsg();
+  ezQtEngineDocumentWindow::InternalRedraw();
 }
 
 void ezQtMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)

@@ -13,7 +13,7 @@
 #include <QSharedMemory>
 #include <Foundation/Threading/ThreadUtils.h>
 
-ezProcessCommunication::ezProcessCommunication()
+ezProcessCommunicationQt::ezProcessCommunicationQt()
 {
   m_pClientProcess = nullptr;
   m_pSharedMemory = nullptr;
@@ -21,9 +21,9 @@ ezProcessCommunication::ezProcessCommunication()
   m_pWaitForMessageType = nullptr;
 }
 
-ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const QStringList& args, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
+ezResult ezProcessCommunicationQt::StartClientProcess(const char* szProcess, const QStringList& args, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
 {
-  EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
+  EZ_LOG_BLOCK("ezProcessCommunicationQt::StartClientProcess");
 
   EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
   EZ_ASSERT_DEV(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
@@ -91,7 +91,7 @@ success:
   return EZ_SUCCESS;
 }
 
-ezResult ezProcessCommunication::ConnectToHostProcess()
+ezResult ezProcessCommunicationQt::ConnectToHostProcess()
 {
   EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
   EZ_ASSERT_DEV(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
@@ -127,7 +127,7 @@ ezResult ezProcessCommunication::ConnectToHostProcess()
   return EZ_SUCCESS;
 }
 
-void ezProcessCommunication::CloseConnection()
+void ezProcessCommunicationQt::CloseConnection()
 {
   EZ_LOCK(m_SendQueueMutex);
 
@@ -146,7 +146,7 @@ void ezProcessCommunication::CloseConnection()
   m_MessageReadQueue.Clear();
 }
 
-bool ezProcessCommunication::IsHostAlive() const
+bool ezProcessCommunicationQt::IsHostAlive() const
 {
   if (m_iHostPID == 0)
     return false;
@@ -167,7 +167,7 @@ bool ezProcessCommunication::IsHostAlive() const
   return bValid;
 }
 
-bool ezProcessCommunication::IsClientAlive() const
+bool ezProcessCommunicationQt::IsClientAlive() const
 {
   if (m_pClientProcess == nullptr)
     return false;
@@ -178,7 +178,7 @@ bool ezProcessCommunication::IsClientAlive() const
   return bRunning && bNoError;
 }
 
-void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
+void ezProcessCommunicationQt::SendMessage(ezProcessMessage* pMessage)
 {
   if (m_pFirstAllowedMessageType != nullptr)
   {
@@ -197,7 +197,7 @@ void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
     if (m_pSharedMemory == nullptr)
       return;
 
-    pMessage->m_iSentTimeStamp = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond);
+   // pMessage->m_iSentTimeStamp = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond);
 
     {
       ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
@@ -208,7 +208,7 @@ void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
   }
 }
 
-bool ezProcessCommunication::ProcessMessages(bool bAllowMsgDispatch)
+bool ezProcessCommunicationQt::ProcessMessages(bool bAllowMsgDispatch)
 {
   if (!m_pSharedMemory)
     return false;
@@ -233,7 +233,14 @@ bool ezProcessCommunication::ProcessMessages(bool bAllowMsgDispatch)
   return false;
 }
 
-void ezProcessCommunication::WriteMessages()
+void ezProcessCommunicationQt::WaitForMessages()
+{
+  while (!ProcessMessages())
+  {
+  }
+}
+
+void ezProcessCommunicationQt::WriteMessages()
 {
   ezUInt8* pData = (ezUInt8*)m_pSharedMemory->data();
 
@@ -276,7 +283,7 @@ void ezProcessCommunication::WriteMessages()
   *pTerminator = 0; // terminator, gets overwritten by next message
 }
 
-bool ezProcessCommunication::ReadMessages()
+bool ezProcessCommunicationQt::ReadMessages()
 {
   ezUInt8* pData = (ezUInt8*)m_pSharedMemory->data();
 
@@ -305,7 +312,7 @@ bool ezProcessCommunication::ReadMessages()
   return true;
 }
 
-ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack)
+ezResult ezProcessCommunicationQt::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack)
 {
   //EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
   EZ_ASSERT_DEV(m_pWaitForMessageType == nullptr, "Already waiting for another message!");
@@ -340,7 +347,7 @@ ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTi
   return EZ_SUCCESS;
 }
 
-void ezProcessCommunication::DispatchMessages()
+void ezProcessCommunicationQt::DispatchMessages()
 {
   while (!m_MessageReadQueue.IsEmpty())
   {

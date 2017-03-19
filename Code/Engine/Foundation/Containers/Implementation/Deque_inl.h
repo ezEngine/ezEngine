@@ -268,6 +268,19 @@ void ezDequeBase<T, Construct>::Compact()
 }
 
 template <typename T, bool Construct>
+void ezDequeBase<T, Construct>::Swap(ezDequeBase<T, Construct>& other)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+  ezMath::Swap(this->m_pChunks, other.m_pChunks);
+  ezMath::Swap(this->m_uiChunks, other.m_uiChunks);
+  ezMath::Swap(this->m_uiFirstElement, other.m_uiFirstElement);
+  ezMath::Swap(this->m_uiCount, other.m_uiCount);
+  ezMath::Swap(this->m_uiAllocatedChunks, other.m_uiAllocatedChunks);
+  ezMath::Swap(this->m_iReduceSizeTimer, other.m_iReduceSizeTimer);
+  ezMath::Swap(this->m_uiMaxCount, other.m_uiMaxCount);
+}
+
+template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
 {
   const ezUInt32 uiRequiredChunks = ezMath::Max<ezUInt32>(1, GetRequiredChunks(m_uiCount));
@@ -456,6 +469,18 @@ inline void ezDequeBase<T, Construct>::PushBack(const T& element)
 }
 
 template <typename T, bool Construct>
+void ezDequeBase<T, Construct>::PushBack(T&& element)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+
+  RESERVE(m_uiCount + 1);
+  ++m_uiCount;
+
+  ezMemoryUtils::MoveConstruct<T>(&ElementAt(m_uiCount - 1), std::move(element));
+
+}
+
+template <typename T, bool Construct>
 inline void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
 {
   EZ_ASSERT_DEV(uiElements <= GetCount(), "Cannot remove {0} elements, the deque only contains {1} elements.", uiElements, GetCount());
@@ -482,6 +507,18 @@ inline void ezDequeBase<T, Construct>::PushFront(const T& element)
   --m_uiFirstElement;
 
   ezMemoryUtils::CopyConstruct(&ElementAt(0), element, 1);
+}
+
+template <typename T, bool Construct>
+void ezDequeBase<T, Construct>::PushFront(T&& element)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+
+  RESERVE(m_uiCount + 1);
+  ++m_uiCount;
+  --m_uiFirstElement;
+
+  ezMemoryUtils::MoveConstruct<T>(&ElementAt(0), std::move(element));
 }
 
 template <typename T, bool Construct>

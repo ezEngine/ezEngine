@@ -8,7 +8,7 @@
 
 /// \brief A double ended queue container.
 ///
-/// The deque allocates elements in fixed size chunks (usually around 4KB per chunk), 
+/// The deque allocates elements in fixed size chunks (usually around 4KB per chunk),
 /// but with at least 32 elements per chunk. It will allocate additional chunks when necessary, but never reallocate
 /// already existing data. Therefore it is well suited when it is not known up front how many elements are needed,
 /// as it can start with a small amount of data and grow on demand. Also an element in a deque is never moved around
@@ -47,7 +47,7 @@ public:
 
   /// \brief Rearranges the internal data structures such that the amount of reserved elements can be appended with as few allocations, as possible.
   ///
-  /// This does not reserve the actual amount of chunks, that would be needed, but only grows the index array 
+  /// This does not reserve the actual amount of chunks, that would be needed, but only grows the index array
   /// (for redirections) as much as needed.
   /// Thus you can use it to reserve enough bookkeeping storage, without actually allocating all that data.
   /// In contrast to the ezDynamicArray and ezHybridArray containers, ezDeque does not require you to reserve space
@@ -62,6 +62,9 @@ public:
   /// up again, without immediate reallocation of all data structures.
   /// If the deque is completely empty, ALL data is completely deallocated.
   void Compact(); // [tested]
+
+  /// \brief swaps the contents of this deque with another one
+  void Swap(ezDequeBase<T, Construct>& other); // [tested]
 
   /// \brief Sets the number of active elements in the deque. All new elements are default constructed. If the deque is shrunk, elements at the end of the deque are destructed.
   void SetCount(ezUInt32 uiCount); // [tested]
@@ -81,11 +84,17 @@ public:
   /// \brief Adds one element to the back of the deque.
   void PushBack(const T& element); // [tested]
 
+  /// \brief Adds one element at the end of the deque.
+  void PushBack(T&& value); // [tested]
+
   /// \brief Removes the last element from the deque.
   void PopBack(ezUInt32 uiElements = 1); // [tested]
 
   /// \brief Adds one element to the front of the deque.
   void PushFront(const T& element); // [tested]
+
+  /// \brief Adds one element to the front of the deque.
+  void PushFront(T&& element); // [tested]
 
   /// \brief Adds one default constructed element to the front of the deque.
   void PushFront(); // [tested]
@@ -196,7 +205,7 @@ private:
   /// \brief Resets the counter when the next size reduction will be done.
   void ResetReduceSizeCounter();
 
-  /// \brief This function will periodically deallocate unused chunks to prevent unlimited memory usage. 
+  /// \brief This function will periodically deallocate unused chunks to prevent unlimited memory usage.
   ///
   /// However it tries not to deallocate too much, so it does not immediately deallocate 'everything'.
   /// Instead the deque will track its upper limited of used elements in between size reductions and keep enough
@@ -207,7 +216,7 @@ private:
   /// The worst case scenario should be this:
   /// * SetCount(very large amount) -> allocates lots of chunks
   /// * PopBack / PopFront until the deque is empty -> every once in a while a reduction is triggered, this will deallocate a few chunks every time
-  /// * PushBack / PopBack for a long time -> Size does not change, but the many PopBack calls will trigger reductions 
+  /// * PushBack / PopBack for a long time -> Size does not change, but the many PopBack calls will trigger reductions
   ///    -> The number of allocated chunks will shrink over time until no more than the required number of chunks (+2) remains
   /// * SetCount(very large amount) -> lots of chunks need to be allocated again
   void ReduceSize(ezInt32 iReduction);

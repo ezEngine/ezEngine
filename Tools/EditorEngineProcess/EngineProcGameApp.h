@@ -37,7 +37,7 @@ private:
   void DisableErrorReport();
   void WaitForDebugger();
 
-  bool ProcessIPCMessages();
+  bool ProcessIPCMessages(bool bPendingOpInProgress);
   void SendProjectReadyMessage();
   void SendReflectionInformation();
   void EventHandlerIPC(const ezProcessCommunication::Event& e);

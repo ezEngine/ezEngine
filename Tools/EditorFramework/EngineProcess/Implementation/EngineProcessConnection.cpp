@@ -49,7 +49,6 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
 
-    //EZ_ASSERT_DEBUG(m_DocumentWindow3DByGuid.Contains(pMsg->m_DocumentGuid), "The document '{0}' is not known!", pMsg->m_uiViewID);
     ezAssetDocument* pDocument = m_DocumentByGuid[pMsg->m_DocumentGuid];
 
     if (pDocument)

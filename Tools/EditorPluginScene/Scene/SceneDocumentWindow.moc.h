@@ -99,6 +99,5 @@ private:
   ezDeque<SelectedGO> m_GizmoSelection;
 
   bool m_bInDragDropAction;
-
   QGridLayout* m_pViewLayout;
 };

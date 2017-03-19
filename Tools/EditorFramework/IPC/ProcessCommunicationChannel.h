@@ -1,21 +1,20 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Types/Delegate.h>
+#include <Foundation/Time/Time.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Communication/RemoteMessage.h>
-#include <Foundation/Containers/Deque.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <EditorFramework/IPC/ProcessCommunicationChannel.h>
-class QProcess;
-class QSharedMemory;
-class QStringList;
 
-class EZ_EDITORFRAMEWORK_DLL ezProcessCommunicationQt
+class QStringList;
+class QProcess;
+class ezIpcChannel;
+class ezProcessMessage;
+
+class EZ_EDITORFRAMEWORK_DLL ezProcessCommunicationChannel
 {
 public:
-  ezProcessCommunicationQt();
+  ezProcessCommunicationChannel();
+  ~ezProcessCommunicationChannel();
 
   ezResult StartClientProcess(const char* szProcess, const QStringList& args, const ezRTTI* pFirstAllowedMessageType = nullptr, ezUInt32 uiMemSize = 1024 * 1024 * 10);
 
@@ -34,7 +33,7 @@ public:
   typedef ezDelegate<bool(ezProcessMessage*)> WaitForMessageCallback;
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack = nullptr );
 
-  bool ProcessMessages(bool bAllowMsgDispatch = true);
+  bool ProcessMessages();
   void WaitForMessages();
 
   struct Event
@@ -45,21 +44,14 @@ public:
   ezEvent<const Event&> m_Events;
 
 private:
-  bool ReadMessages();
-  void WriteMessages();
-  void DispatchMessages();
+  void MessageFunc(const ezProcessMessage* msg);
 
-
-  ezMutex m_SendQueueMutex;
+  ezIpcChannel* m_pChannel;
   WaitForMessageCallback m_WaitForMessageCallback;
   const ezRTTI* m_pWaitForMessageType;
   const ezRTTI* m_pFirstAllowedMessageType;
   ezInt64 m_iHostPID;
   ezUInt32 m_uiProcessID;
   QProcess* m_pClientProcess;
-  QSharedMemory* m_pSharedMemory;
-  ezDeque<ezMemoryStreamStorage> m_MessageSendQueue;
-  ezDeque<ezMemoryStreamStorage> m_MessageReadQueue;
 };
 
-typedef ezProcessCommunicationChannel ezProcessCommunication;

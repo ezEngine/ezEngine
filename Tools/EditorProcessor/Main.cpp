@@ -76,7 +76,7 @@ public:
           if (!m_IPC.IsHostAlive())
             QApplication::quit();
 
-          m_IPC.ProcessMessages();
+          m_IPC.WaitForMessages();
 
           bRecursionBlock = false;
         });

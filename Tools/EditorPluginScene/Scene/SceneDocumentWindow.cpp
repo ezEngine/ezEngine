@@ -310,11 +310,9 @@ void ezQtSceneDocumentWindow::FocusOnSelectionHoveredView()
 
 void ezQtSceneDocumentWindow::InternalRedraw()
 {
-  ezQtEngineDocumentWindow::InternalRedraw();
-
   ezEditorInputContext::UpdateActiveInputContext();
-
   SendRedrawMsg();
+  ezQtEngineDocumentWindow::InternalRedraw();
 }
 
 void ezQtSceneDocumentWindow::SendRedrawMsg()
@@ -397,13 +395,6 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     pView->SetEnablePicking(pView == pHoveredView);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
-  }
-
-  {
-    ezSyncWithProcessMsgToEngine sm;
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&sm);
-
-    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
   }
 }
 

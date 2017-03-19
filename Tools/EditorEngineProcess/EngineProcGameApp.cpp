@@ -94,7 +94,8 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
 {
   ezRenderLoop::ClearMainViews();
 
-  if (ProcessIPCMessages())
+  bool bPendingOpInProgress = ezEngineProcessDocumentContext::PendingOperationsInProgress();
+  if (ProcessIPCMessages(bPendingOpInProgress))
   {
     ezEngineProcessDocumentContext::UpdateDocumentContexts();
   }
@@ -117,7 +118,7 @@ static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const 
   return false;
 }
 
-bool ezEngineProcessGameApplication::ProcessIPCMessages()
+bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgress)
 {
   if (!m_IPC.IsHostAlive()) // check whether the host crashed
   {
@@ -142,7 +143,15 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages()
   }
   else
   {
-    m_IPC.ProcessMessages();
+    if (bPendingOpInProgress)
+    {
+      m_IPC.ProcessMessages();
+    }
+    else
+    {
+      // Only suspend and wait if no more pending ops need to be done.
+      m_IPC.WaitForMessages();
+    }
     return true;
   }
 }
@@ -180,7 +189,11 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
   // Sync
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEngine>())
   {
+    const ezSyncWithProcessMsgToEngine* pSync = static_cast<const ezSyncWithProcessMsgToEngine*>(e.m_pMessage);
+
     ezSyncWithProcessMsgToEditor msg;
+    msg.m_DocumentGuid = pSync->m_DocumentGuid;
+    msg.m_uiRedrawCount = pSync->m_uiRedrawCount;
     m_IPC.SendMessage(&msg);
     return;
   }

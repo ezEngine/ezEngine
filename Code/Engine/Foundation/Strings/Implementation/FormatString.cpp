@@ -124,5 +124,16 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult result)
     return "<succeeded>";
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
+{
+  LPVOID lpMsgBuf = nullptr;
+  FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+    arg.m_ErrorCode, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr);
+  ezStringUtils::snprintf(tmp, uiLength, "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData() );
+  LocalFree(lpMsgBuf);
+  return ezStringView(tmp);
+}
+#endif
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_FormatString);
 

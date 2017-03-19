@@ -10,17 +10,6 @@
 
 ///////////////////////////////////// ezProcessMessages /////////////////////////////////////
 
-
-class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezProcessMessage);
-};
-
-class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMessage
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezProcessMessage);
-};
-
 ///////////////////////////////////// Curator /////////////////////////////////////
 
 
@@ -98,6 +87,21 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
 public:
   ezUuid m_DocumentGuid;
 };
+
+class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezEditorEngineDocumentMsg);
+public:
+  ezUInt32 m_uiRedrawCount;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezEditorEngineDocumentMsg);
+public:
+  ezUInt32 m_uiRedrawCount;
+};
+
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineViewMsg : public ezEditorEngineDocumentMsg
 {

@@ -615,6 +615,7 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
 {
   EZ_LOCK(m_CuratorMutex);
 
+  m_TicksWithIdleTasks = 0;
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
   {
@@ -758,9 +759,10 @@ void ezProcessTask::Execute()
     {
       m_assetGuid = ezUuid();
       m_sAssetPath.Clear();
+      m_bDidWork = false;
       return;
     }
-
+    m_bDidWork = true;
     ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::Updating);
   }
 

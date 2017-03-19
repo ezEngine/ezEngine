@@ -231,6 +231,16 @@ void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEnginePro
   pContext->Initialize(guid, pIPC);
 }
 
+bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
+{
+  for (auto it = s_DocumentContexts.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value()->PendingOperationInProgress())
+      return true;
+  }
+  return false;
+}
+
 void ezEngineProcessDocumentContext::UpdateDocumentContexts()
 {
   for (auto it = s_DocumentContexts.GetIterator(); it.IsValid(); ++it)
@@ -530,6 +540,11 @@ void ezEngineProcessDocumentContext::Reset()
   Deinitialize(false);
 
   Initialize(guid, ipc);
+}
+
+bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
+{
+  return m_pThumbnailViewContext != nullptr;
 }
 
 void ezEngineProcessDocumentContext::UpdateDocumentContext()

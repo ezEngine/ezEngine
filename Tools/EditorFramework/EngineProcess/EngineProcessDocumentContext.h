@@ -11,7 +11,6 @@ class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;
 class ezEditorEngineDocumentMsg;
 class ezEngineProcessViewContext;
-class ezProcessCommunication;
 class ezProcessMessage;
 class ezEntityMsgToEngine;
 class ezExportDocumentMsgToEngine;
@@ -120,6 +119,7 @@ public:
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);
   static void AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView, ezProcessCommunication* pIPC);
+  static bool PendingOperationsInProgress();
   static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
 
@@ -145,6 +145,10 @@ protected:
   virtual ezEngineProcessViewContext* CreateViewContext() = 0;
   /// \brief Needs to be implemented to destroy the view context created in CreateViewContext.
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) = 0;
+
+  /// \brief Should return true if this context has any operation in progress like thumbnail rendering
+  /// and thus needs to continue rendering even if no new messages from the editor come in.
+  virtual bool PendingOperationInProgress() const;
 
   /// \brief A tick functions that allows each document context to do processing that continues
   /// over multiple frames and can't be handled in HandleMessage directly.

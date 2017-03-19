@@ -152,11 +152,9 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
 
 void ezQtTextureCubeAssetDocumentWindow::InternalRedraw()
 {
-  ezQtEngineDocumentWindow::InternalRedraw();
-
   ezEditorInputContext::UpdateActiveInputContext();
-
   SendRedrawMsg();
+  ezQtEngineDocumentWindow::InternalRedraw();
 }
 
 void ezQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
@@ -187,13 +185,6 @@ void ezQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
     pView->SetEnablePicking(false);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
-  }
-
-  {
-    ezSyncWithProcessMsgToEngine sm;
-    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&sm);
-
-    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
   }
 }
 

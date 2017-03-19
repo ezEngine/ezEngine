@@ -51,6 +51,21 @@ void ezQtEngineDocumentWindow::InternalRedraw()
 {
   // TODO: Move this to a better place (some kind of regular update function, not redraw)
   GetDocument()->SyncObjectsToEngine();
+
+  if (!ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+  {
+    ezSyncWithProcessMsgToEngine sm;
+    sm.m_uiRedrawCount = m_uiRedrawCountSent + 1;
+    GetDocument()->SendMessageToEngine(&sm);
+
+    if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
+    {
+      ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(),
+        ezTime::Seconds(2.0));
+    }
+
+    ++m_uiRedrawCountSent;
+  }
 }
 
 ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetHoveredViewWidget() const
@@ -109,6 +124,12 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiVie
 
 void ezQtEngineDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
 {
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEditor>())
+  {
+    const ezSyncWithProcessMsgToEditor* msg = static_cast<const ezSyncWithProcessMsgToEditor*>(pMsg);
+    m_uiRedrawCountReceived = msg->m_uiRedrawCount;
+  }
+
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
   {
     const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);

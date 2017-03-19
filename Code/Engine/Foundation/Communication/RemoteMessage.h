@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Reflection/Reflection.h>
 
 /// \todo Add move semantics for ezRemoteMessage
 
@@ -52,3 +53,10 @@ private:
   ezMemoryStreamWriter m_Writer;
 };
 
+/// \brief Base class for IPC messages transmitted by ezIpcChannel.
+class EZ_FOUNDATION_DLL ezProcessMessage : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage, ezReflectedClass);
+public:
+  ezProcessMessage() {}
+};
