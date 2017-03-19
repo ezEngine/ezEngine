@@ -15,6 +15,9 @@ public:
 
   static ezVariant GetDefaultValue(const ezAbstractProperty* pProperty);
 
+  static bool GetFloatFromVariant(const ezVariant& val, double& out_fValue);
+  static bool GetVariantFromFloat(double fValue, ezVariantType::Enum type, ezVariant& out_val);
+
   /// \brief Creates a ReflectedTypeDescriptor from an ezRTTI instance that can be serialized and registered at the ezPhantomRttiManager.
   static void GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc); // [tested]
 

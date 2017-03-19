@@ -33,7 +33,7 @@ ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
   connect(m_pValueWidget, SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
   connect(m_pVarianceWidget, SIGNAL(sliderPressed()), this, SLOT(onBeginTemporary()));
   connect(m_pVarianceWidget, SIGNAL(sliderReleased()), this, SLOT(onEndTemporary()));
-  connect(m_pVarianceWidget, SIGNAL(valueChanged(int)), this, SLOT(SlotValueChanged()));
+  connect(m_pVarianceWidget, SIGNAL(valueChanged(int)), this, SLOT(SlotVarianceChanged()));
 }
 
 void ezQtVarianceTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
@@ -63,26 +63,28 @@ void ezQtVarianceTypeWidget::onEndTemporary()
 
 void ezQtVarianceTypeWidget::SlotValueChanged()
 {
+  onBeginTemporary();
+
   ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
   ezStringBuilder sTemp; sTemp.Format("Change Property '{0}'", ezTranslate(m_pProp->GetPropertyName()));
   pObjectAccessor->StartTransaction(sTemp);
   {
+    ezVariant value;
+    ezToolsReflectionUtils::GetVariantFromFloat(m_pValueWidget->value(), m_pValueType->GetVariantType(), value);
+    SetPropertyValue(m_pResolvedType->FindPropertyByName("Value"), value);
+  }
+  pObjectAccessor->FinishTransaction();
+}
+
+
+void ezQtVarianceTypeWidget::SlotVarianceChanged()
+{
+  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+  ezStringBuilder sTemp; sTemp.Format("Change Property '{0}' Variance", ezTranslate(m_pProp->GetPropertyName()));
+  pObjectAccessor->StartTransaction(sTemp);
+  {
     double variance = ezMath::Clamp<double>(m_pVarianceWidget->value() / 100.0, 0, 1);
     SetPropertyValue(m_pResolvedType->FindPropertyByName("Variance"), variance);
-
-    if (m_pValueType == ezGetStaticRTTI<ezTime>())
-    {
-      SetPropertyValue(m_pResolvedType->FindPropertyByName("Value"), ezTime::Seconds(m_pValueWidget->value()));
-    }
-    else if (m_pValueType == ezGetStaticRTTI<ezAngle>())
-    {
-      SetPropertyValue(m_pResolvedType->FindPropertyByName("Value"), ezAngle::Degree(m_pValueWidget->value()));
-    }
-    else
-    {
-      SetPropertyValue(m_pResolvedType->FindPropertyByName("Value"), m_pValueWidget->value());
-    }
-
   }
   pObjectAccessor->FinishTransaction();
 }
@@ -90,6 +92,34 @@ void ezQtVarianceTypeWidget::SlotValueChanged()
 void ezQtVarianceTypeWidget::OnInit()
 {
   ezQtEmbeddedClassPropertyWidget::OnInit();
+  // Property type adjustments
+  ezQtScopedBlockSignals bs(m_pValueWidget);
+  const ezAbstractProperty* pValueProp = GetProperty()->GetSpecificType()->FindPropertyByName("Value");
+  //const ezAbstractProperty* pVarianceProp = m_pResolvedType->FindPropertyByName("Variance");
+  m_pValueType = pValueProp->GetSpecificType();
+  if (m_pValueType == ezGetStaticRTTI<ezTime>())
+  {
+    m_pValueWidget->setDisplaySuffix(" (sec)");
+  }
+  else if (m_pValueType == ezGetStaticRTTI<ezAngle>())
+  {
+    m_pValueWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
+  }
+
+  // Handle attributes
+  if (const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>())
+  {
+    m_pValueWidget->setDisplaySuffix(pSuffix->GetSuffix());
+  }
+  if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
+  {
+    m_pValueWidget->setMinimum(pClamp->GetMinValue());
+    m_pValueWidget->setMaximum(pClamp->GetMaxValue());
+  }
+  if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
+  {
+    m_pValueWidget->setDefaultValue(pDefault->GetValue());
+  }
 }
 
 void ezQtVarianceTypeWidget::DoPrepareToDie()
@@ -103,43 +133,9 @@ void ezQtVarianceTypeWidget::OnPropertyChanged(const ezString& sProperty)
 
   if (sProperty == "Value")
   {
-    if (m_pValueType == nullptr)
-    {
-      ezAbstractProperty* pProp = m_pResolvedType->FindPropertyByName("Value");
-
-      m_pValueType = pProp->GetSpecificType();
-
-      if (m_pValueType == ezGetStaticRTTI<ezTime>())
-      {
-        m_pValueWidget->setDisplaySuffix(" (sec)");
-      }
-      else if (m_pValueType == ezGetStaticRTTI<ezAngle>())
-      {
-        m_pValueWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
-      }
-    }
-
     ezQtScopedBlockSignals _(m_pValueWidget);
     ezVariant vVal = GetCommonValue(m_ResolvedObjects, m_pResolvedType->FindPropertyByName("Value"));
-    if (vVal.IsValid())
-    {
-      if (vVal.IsA<ezTime>())
-      {
-        m_pValueWidget->setValue(vVal.Get<ezTime>().GetSeconds());
-      }
-      else if (vVal.IsA<ezAngle>())
-      {
-        m_pValueWidget->setValue(vVal.Get<ezAngle>().GetDegree());
-      }
-      else
-      {
-        m_pValueWidget->setValue(vVal.ConvertTo<double>());
-      }
-    }
-    else
-    {
-      m_pValueWidget->setValueInvalid();
-    }
+    m_pValueWidget->setValue(vVal);
   }
   else if (sProperty == "Variance")
   {

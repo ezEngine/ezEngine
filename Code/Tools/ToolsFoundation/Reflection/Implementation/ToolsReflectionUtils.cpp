@@ -9,6 +9,79 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
+namespace
+{
+  struct GetDoubleFunc
+  {
+    GetDoubleFunc(const ezVariant& value) : m_Value(value) {}
+    template <typename T>
+    EZ_FORCE_INLINE void operator()()
+    {
+      if (m_Value.CanConvertTo<double>())
+      {
+        m_fValue = m_Value.ConvertTo<double>();
+        m_bValid = true;
+      }
+    }
+
+    const ezVariant& m_Value;
+    double m_fValue = 0;
+    bool m_bValid = false;
+  };
+
+  template <>
+  EZ_FORCE_INLINE void GetDoubleFunc::operator() < ezAngle > ()
+  {
+    m_fValue = m_Value.Get<ezAngle>().GetDegree();
+    m_bValid = true;
+  }
+
+  template <>
+  EZ_FORCE_INLINE void GetDoubleFunc::operator() < ezTime > ()
+  {
+    m_fValue = m_Value.Get<ezTime>().GetSeconds();
+    m_bValid = true;
+  }
+
+  struct GetVariantFunc
+  {
+    GetVariantFunc(double fValue, ezVariantType::Enum type, ezVariant& out_value)
+      : m_fValue(fValue), m_Type(type), m_Value(out_value) {}
+    template <typename T>
+    EZ_FORCE_INLINE void operator()()
+    {
+      m_Value = m_fValue;
+      if (m_Value.CanConvertTo(m_Type))
+      {
+        m_Value = m_Value.ConvertTo(m_Type);
+        m_bValid = true;
+      }
+      else
+      {
+        m_Value = ezVariant();
+      }
+    }
+
+    double m_fValue;
+    ezVariantType::Enum m_Type;
+    ezVariant& m_Value;
+    bool m_bValid = false;
+  };
+
+  template <>
+  EZ_FORCE_INLINE void GetVariantFunc::operator() < ezAngle > ()
+  {
+    m_Value = ezAngle::Degree((float)m_fValue);
+    m_bValid = true;
+  }
+
+  template <>
+  EZ_FORCE_INLINE void GetVariantFunc::operator() < ezTime > ()
+  {
+    m_Value = ezTime::Seconds(m_fValue);
+    m_bValid = true;
+  }
+}
 ////////////////////////////////////////////////////////////////////////
 // ezToolsReflectionUtils public functions
 ////////////////////////////////////////////////////////////////////////
@@ -123,6 +196,27 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
   }
 
   return ezVariant();
+}
+
+bool ezToolsReflectionUtils::GetFloatFromVariant(const ezVariant& val, double& out_fValue)
+{
+  if (val.IsValid())
+  {
+    GetDoubleFunc func(val);
+    ezVariant::DispatchTo(func, val.GetType());
+    out_fValue = func.m_fValue;
+    return func.m_bValid;
+  }
+  return false;
+}
+
+
+bool ezToolsReflectionUtils::GetVariantFromFloat(double fValue, ezVariantType::Enum type, ezVariant& out_val)
+{
+  GetVariantFunc func(fValue, type, out_val);
+  ezVariant::DispatchTo(func, type);
+
+  return func.m_bValid;
 }
 
 void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)

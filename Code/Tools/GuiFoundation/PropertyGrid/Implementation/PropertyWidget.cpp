@@ -124,15 +124,8 @@ void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
     case 1:
       {
         ezQtScopedBlockSignals bs(m_pWidget[0]);
-
-        if (pClamp->GetMinValue().CanConvertTo<double>())
-        {
-          m_pWidget[0]->setMinimum(pClamp->GetMinValue().ConvertTo<double>());
-        }
-        if (pClamp->GetMaxValue().CanConvertTo<double>())
-        {
-          m_pWidget[0]->setMaximum(pClamp->GetMaxValue().ConvertTo<double>());
-        }
+        m_pWidget[0]->setMinimum(pClamp->GetMinValue());
+        m_pWidget[0]->setMaximum(pClamp->GetMaxValue());
         break;
       }
     case 2:
@@ -399,41 +392,22 @@ void ezQtPropertyEditorTimeWidget::OnInit()
   if (pClamp)
   {
     ezQtScopedBlockSignals bs(m_pWidget);
-
-    if (pClamp->GetMinValue().CanConvertTo<ezTime>())
-    {
-      m_pWidget->setMinimum(pClamp->GetMinValue().ConvertTo<ezTime>().GetSeconds());
-    }
-    if (pClamp->GetMaxValue().CanConvertTo<ezTime>())
-    {
-      m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezTime>().GetSeconds());
-    }
+    m_pWidget->setMinimum(pClamp->GetMinValue());
+    m_pWidget->setMaximum(pClamp->GetMaxValue());
   }
 
   const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
   if (pDefault)
   {
     ezQtScopedBlockSignals bs(m_pWidget);
-
-    if (pDefault->GetValue().CanConvertTo<ezTime>())
-    {
-      m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezTime>().GetSeconds());
-    }
+    m_pWidget->setDefaultValue(pDefault->GetValue());
   }
 }
 
 void ezQtPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals b0(m_pWidget);
-
-  if (value.IsValid())
-  {
-    m_pWidget->setValue(value.ConvertTo<ezTime>().GetSeconds());
-  }
-  else
-  {
-    m_pWidget->setValueInvalid();
-  }
+  m_pWidget->setValue(value);
 }
 
 void ezQtPropertyEditorTimeWidget::on_EditingFinished_triggered()
@@ -494,26 +468,15 @@ void ezQtPropertyEditorAngleWidget::OnInit()
   if (pClamp)
   {
     ezQtScopedBlockSignals bs(m_pWidget);
-
-    if (pClamp->GetMinValue().CanConvertTo<ezAngle>())
-    {
-      m_pWidget->setMinimum(pClamp->GetMinValue().ConvertTo<ezAngle>().GetDegree());
-    }
-    if (pClamp->GetMaxValue().CanConvertTo<ezAngle>())
-    {
-      m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezAngle>().GetDegree());
-    }
+    m_pWidget->setMinimum(pClamp->GetMinValue());
+    m_pWidget->setMaximum(pClamp->GetMaxValue());
   }
 
   const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
   if (pDefault)
   {
     ezQtScopedBlockSignals bs(m_pWidget);
-
-    if (pDefault->GetValue().CanConvertTo<ezAngle>())
-    {
-      m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezAngle>().GetDegree());
-    }
+    m_pWidget->setDefaultValue(pDefault->GetValue());
   }
 
   const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>();
@@ -532,15 +495,7 @@ void ezQtPropertyEditorAngleWidget::OnInit()
 void ezQtPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals b0(m_pWidget);
-
-  if (value.IsValid())
-  {
-    m_pWidget->setValue(value.ConvertTo<ezAngle>().GetDegree());
-  }
-  else
-  {
-    m_pWidget->setValueInvalid();
-  }
+  m_pWidget->setValue(value);
 }
 
 void ezQtPropertyEditorAngleWidget::on_EditingFinished_triggered()
@@ -586,40 +541,25 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt32 i
 
 void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 {
-  const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
-  if (pClamp)
+  if (const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>())
   {
     ezQtScopedBlockSignals bs(m_pWidget);
-
-    if (pClamp->GetMinValue().CanConvertTo<ezInt32>())
-    {
-      m_pWidget->setMinimum(pClamp->GetMinValue().ConvertTo<ezInt32>());
-    }
-    if (pClamp->GetMaxValue().CanConvertTo<ezInt32>())
-    {
-      m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezInt32>());
-    }
+    m_pWidget->setMinimum(pClamp->GetMinValue());
+    m_pWidget->setMaximum(pClamp->GetMaxValue());
   }
 
-  const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
-  if (pDefault)
+  if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
   {
     ezQtScopedBlockSignals bs(m_pWidget);
-
-    if (pDefault->GetValue().CanConvertTo<ezInt32>())
-    {
-      m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezInt32>());
-    }
+    m_pWidget->setDefaultValue(pDefault->GetValue());
   }
 
-  const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>();
-  if (pSuffix)
+  if (const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>())
   {
     m_pWidget->setDisplaySuffix(pSuffix->GetSuffix());
   }
 
-  const ezMinValueTextAttribute* pMinValueText = m_pProp->GetAttributeByType<ezMinValueTextAttribute>();
-  if (pMinValueText)
+  if (const ezMinValueTextAttribute* pMinValueText = m_pProp->GetAttributeByType<ezMinValueTextAttribute>())
   {
     m_pWidget->setSpecialValueText(pMinValueText->GetText());
   }

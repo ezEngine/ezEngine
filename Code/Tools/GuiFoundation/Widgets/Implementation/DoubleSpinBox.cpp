@@ -1,11 +1,11 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
-#include <Foundation/Math/Math.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <QLineEdit>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <qevent.h>
-#include <qstyleoption.h>
+#include <QStyleOption>
+#include <QMouseEvent>
 
 inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode) : QDoubleSpinBox(pParent)
 {
@@ -36,6 +36,29 @@ void ezQtDoubleSpinBox::setDisplaySuffix(const char* szSuffix)
 void ezQtDoubleSpinBox::setDefaultValue(double value)
 {
   m_fDefaultValue = value;
+}
+
+
+void ezQtDoubleSpinBox::setDefaultValue(const ezVariant& val)
+{
+  double fValue = 0;
+  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+    setDefaultValue(fValue);
+}
+
+void ezQtDoubleSpinBox::setMinimum(const ezVariant& val)
+{
+  double fValue = 0;
+  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+    setMinimum(fValue);
+}
+
+
+void ezQtDoubleSpinBox::setMaximum(const ezVariant& val)
+{
+  double fValue = 0;
+  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+    setMaximum(fValue);
 }
 
 QString ezQtDoubleSpinBox::textFromValue(double val) const
@@ -128,6 +151,15 @@ void ezQtDoubleSpinBox::setValue(double val)
   m_bInvalid = false;
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   QDoubleSpinBox::setValue(val);
+}
+
+void ezQtDoubleSpinBox::setValue(const ezVariant& val)
+{
+  double fValue = 0;
+  if (ezToolsReflectionUtils::GetFloatFromVariant(val, fValue))
+    setValue(fValue);
+  else
+    setValueInvalid();
 }
 
 double ezQtDoubleSpinBox::value() const

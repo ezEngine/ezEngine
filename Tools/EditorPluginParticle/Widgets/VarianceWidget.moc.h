@@ -20,6 +20,7 @@ private slots:
   void onBeginTemporary();
   void onEndTemporary();
   void SlotValueChanged();
+  void SlotVarianceChanged();
 
 protected:
   virtual void OnInit() override;
