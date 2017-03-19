@@ -88,7 +88,7 @@ void ezHybridStringBase<Size>::operator=(const char* szString)
 
   ezUInt32 uiElementCount = 0;
   ezStringUtils::GetCharacterAndElementCount(szString, m_uiCharacterCount, uiElementCount);
-  m_Data.SetCount(uiElementCount + 1);
+  m_Data.SetCountUninitialized(uiElementCount + 1);
   ezStringUtils::Copy(&m_Data[0], uiElementCount + 1, szString);
 }
 

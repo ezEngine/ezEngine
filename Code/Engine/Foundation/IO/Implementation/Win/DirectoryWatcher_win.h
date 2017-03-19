@@ -18,7 +18,7 @@ struct ezDirectoryWatcherImpl
 ezDirectoryWatcher::ezDirectoryWatcher()
   : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
 {
-  m_pImpl->m_buffer.SetCount(4096);
+  m_pImpl->m_buffer.SetCountUninitialized(4096);
 }
 
 ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitflags<Watch> whatToWatch)

@@ -266,7 +266,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Division")
   {
     ezDynamicArray<ezInt32> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100;
@@ -289,7 +289,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Multiplication")
   {
     ezDynamicArray<ezInt32> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = iNumObjects - i;
@@ -312,7 +312,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Division")
   {
     ezDynamicArray<ezInt64> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = (ezInt64) i * (ezInt64) 100;
@@ -335,7 +335,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Multiplication")
   {
     ezDynamicArray<ezInt64> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = iNumObjects - i;
@@ -358,7 +358,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Division")
   {
     ezDynamicArray<float> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100.0f;
@@ -382,7 +382,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Multiplication")
   {
     ezDynamicArray<float> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i++)
       Ints[i] = (float) (fNumObjects) - (float) (i);
@@ -406,7 +406,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Division")
   {
     ezDynamicArray<double> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100.0;
@@ -430,7 +430,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Multiplication")
   {
     ezDynamicArray<double> Ints;
-    Ints.SetCount(iNumObjects);
+    Ints.SetCountUninitialized(iNumObjects);
 
     for (ezInt32 i = 0; i < iNumObjects; i++)
       Ints[i] = (double) (fNumObjects) - (double) (i);

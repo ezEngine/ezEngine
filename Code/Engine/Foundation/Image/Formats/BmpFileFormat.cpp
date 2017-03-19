@@ -521,7 +521,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       }
 
       ezDynamicArray<ezUInt8> compressedData;
-      compressedData.SetCount(uiDataSize);
+      compressedData.SetCountUninitialized(uiDataSize);
 
       if (stream.ReadBytes(&compressedData[0], uiDataSize) != uiDataSize)
       {
@@ -655,7 +655,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     else
     {
       ezDynamicArray<ezUInt8> indexedData;
-      indexedData.SetCount(uiDataSize);
+      indexedData.SetCountUninitialized(uiDataSize);
       if (stream.ReadBytes(&indexedData[0], uiDataSize) != uiDataSize)
       {
         ezLog::Error(pLog, "Failed to read data.");

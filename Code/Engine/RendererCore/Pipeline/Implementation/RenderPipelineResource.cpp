@@ -110,7 +110,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
     ezUInt32 uiSize = 0;
     (*Stream) >> uiSize;
 
-    m_Desc.m_SerializedPipeline.SetCount(uiSize);
+    m_Desc.m_SerializedPipeline.SetCountUninitialized(uiSize);
     ezMemoryStreamStorage storage;
     Stream->ReadBytes(m_Desc.m_SerializedPipeline.GetData(), uiSize);
 

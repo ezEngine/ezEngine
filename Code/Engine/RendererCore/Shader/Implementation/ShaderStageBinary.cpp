@@ -258,7 +258,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& stream)
   if (stream.ReadDWordValue(&uiByteCodeSize).Failed())
     return EZ_FAILURE;
 
-  m_ByteCode.SetCount(uiByteCodeSize);
+  m_ByteCode.SetCountUninitialized(uiByteCodeSize);
 
   if (!m_ByteCode.IsEmpty() && stream.ReadBytes(&m_ByteCode[0], uiByteCodeSize) != uiByteCodeSize)
     return EZ_FAILURE;

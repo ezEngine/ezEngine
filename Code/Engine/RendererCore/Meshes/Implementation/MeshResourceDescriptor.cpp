@@ -340,7 +340,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
       // size in bytes
       chunk >> count;
-      m_MeshBufferDescriptor.GetVertexBufferData().SetCount(count);
+      m_MeshBufferDescriptor.GetVertexBufferData().SetCountUninitialized(count);
 
       if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
         chunk.ReadBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount());
@@ -356,7 +356,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
       // size in bytes
       chunk >> count;
-      m_MeshBufferDescriptor.GetIndexBufferData().SetCount(count);
+      m_MeshBufferDescriptor.GetIndexBufferData().SetCountUninitialized(count);
 
       if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
         chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());

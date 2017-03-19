@@ -11,8 +11,8 @@ ezOpenDdlParser::ezOpenDdlParser()
 
 void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
 {
-  m_Cache.SetCount(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
-  m_TempString.SetCount(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
+  m_Cache.SetCountUninitialized(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
+  m_TempString.SetCountUninitialized(ezMath::Max<ezUInt32>(1, uiSizeInKB) * 1024);
 
   m_pBoolCache = reinterpret_cast<bool*>(m_Cache.GetData());
   m_pInt8Cache = reinterpret_cast<ezInt8*>(m_Cache.GetData());
@@ -662,7 +662,7 @@ void ezOpenDdlParser::ReadString()
 
     if (m_uiTempStringLength + 2 >= m_TempString.GetCount())
     {
-      m_TempString.SetCount(m_TempString.GetCount() * 2);
+      m_TempString.SetCountUninitialized(m_TempString.GetCount() * 2);
     }
   }
 

@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compress Data")
   {
     ezDynamicArray<ezUInt32> Data;
-    Data.SetCount(uiItems);
+    Data.SetCountUninitialized(uiItems);
 
     for (ezUInt32 i = 0; i < uiItems; ++i)
       Data[i] = i;
@@ -57,7 +57,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
 
 
     ezDynamicArray<ezUInt32> Data;
-    Data.SetCount(uiItems);
+    Data.SetCountUninitialized(uiItems);
 
     for (ezUInt32 i = 0; i < uiItems; ++i)
       Data[i] = 0;

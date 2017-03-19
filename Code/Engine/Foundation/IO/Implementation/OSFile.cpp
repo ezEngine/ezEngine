@@ -352,7 +352,7 @@ ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
 
     // can't allocate that much data on the stack
     ezDynamicArray<ezUInt8> TempBuffer;
-    TempBuffer.SetCount(uiTempSize);
+    TempBuffer.SetCountUninitialized(uiTempSize);
 
     while (true)
     {

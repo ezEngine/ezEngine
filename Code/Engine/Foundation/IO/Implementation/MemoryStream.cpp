@@ -78,7 +78,7 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
     return EZ_SUCCESS;
 
   EZ_ASSERT_DEBUG(pWriteBuffer != nullptr, "No valid buffer containing data given!");
-  
+
   ezUInt64 uiNewSizeInBytes = m_uiWritePosition + uiBytesToWrite;
   EZ_IGNORE_UNUSED(uiNewSizeInBytes);
   EZ_ASSERT_DEV(uiNewSizeInBytes < ezInvalidIndex, "Memory stream only supports up to 4GB of data");
@@ -86,12 +86,12 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
   const ezUInt32 uiBytesToWrite32 = static_cast<ezUInt32>(uiBytesToWrite);
 
   // Reserve the memory in the storage object
-  m_pStreamStorage->m_Storage.SetCount(uiBytesToWrite32 + m_uiWritePosition);
+  m_pStreamStorage->m_Storage.SetCountUninitialized(uiBytesToWrite32 + m_uiWritePosition);
 
   ezUInt8* pWritePointer = &m_pStreamStorage->m_Storage[m_uiWritePosition];
 
   ezMemoryUtils::Copy(pWritePointer, static_cast<const ezUInt8*>(pWriteBuffer), uiBytesToWrite32);
-  
+
   m_uiWritePosition += uiBytesToWrite32;
 
   return EZ_SUCCESS;
@@ -115,7 +115,7 @@ ezUInt32 ezMemoryStreamWriter::GetByteCount() const
 void ezMemoryStreamStorage::ReadAll(ezStreamReader& Stream)
 {
   Clear();
-  ezMemoryStreamWriter w(this); 
+  ezMemoryStreamWriter w(this);
 
   ezUInt8 uiTemp[1024];
 

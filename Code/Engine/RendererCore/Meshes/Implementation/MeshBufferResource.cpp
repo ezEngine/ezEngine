@@ -71,7 +71,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezG
   m_uiVertexCount = uiNumVertices;
   const ezUInt32 uiVertexStreamSize = m_uiVertexSize * uiNumVertices;
 
-  m_VertexStreamData.SetCount(uiVertexStreamSize);
+  m_VertexStreamData.SetCountUninitialized(uiVertexStreamSize);
 
   if (uiNumPrimitives > 0)
   {
@@ -87,7 +87,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezG
       uiIndexBufferSize *= sizeof(ezUInt16);
     }
 
-    m_IndexBufferData.SetCount(uiIndexBufferSize);
+    m_IndexBufferData.SetCountUninitialized(uiIndexBufferSize);
   }
 }
 

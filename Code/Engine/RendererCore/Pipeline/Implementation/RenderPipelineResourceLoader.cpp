@@ -281,7 +281,7 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
   }
 
   ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph);
-  desc.m_SerializedPipeline.SetCount(streamStorage.GetStorageSize());
+  desc.m_SerializedPipeline.SetCountUninitialized(streamStorage.GetStorageSize());
   ezMemoryUtils::Copy(desc.m_SerializedPipeline.GetData(), streamStorage.GetData(), streamStorage.GetStorageSize());
 }
 

@@ -38,9 +38,9 @@ namespace
 
 void ezImageConversion::RebuildConversionTable()
 {
-  s_conversionTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
-  s_subConversionTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
-  s_costTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
+  s_conversionTable.SetCountUninitialized(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
+  s_subConversionTable.SetCountUninitialized(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
+  s_costTable.SetCountUninitialized(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
 
   for (ezUInt32 tableIdx = 0; tableIdx < s_conversionTable.GetCount(); tableIdx++)
   {
