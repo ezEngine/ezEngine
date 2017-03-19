@@ -74,14 +74,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
       }
 
       // anything else, print an error (for now)
-      LPVOID lpMsgBuf = nullptr;
-
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-                    error, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
-
-      const char* szMsg = static_cast<const char*>(lpMsgBuf);
-      ezLog::Error("CreateFile failed with error {0} ({1})", szMsg, (ezUInt32)error);
-      LocalFree(lpMsgBuf);
+      ezLog::Error("CreateFile failed with error {0}", ezArgErrorCode(error));
     }
 
     return res;

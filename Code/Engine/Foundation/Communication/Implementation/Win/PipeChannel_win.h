@@ -1,6 +1,6 @@
 #pragma once
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/IpcChannel.h>

@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>

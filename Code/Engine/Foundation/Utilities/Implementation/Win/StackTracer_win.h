@@ -15,6 +15,7 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Logging/Log.h>
 
 // Deactivate Doxygen document generation for the following block.
 /// \cond
@@ -92,17 +93,7 @@ namespace
 
         if (!(*symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))
         {
-          DWORD err = GetLastError();
-          LPVOID lpMsgBuf = nullptr;
-
-          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
-
-          char errStr[1024];
-          sprintf_s(errStr, "StackTracer could not initialize symbols. Error-Code %u (\"%s\")", err, static_cast<char*>(lpMsgBuf));
-          OutputDebugStringA(errStr);
-
-          LocalFree(lpMsgBuf);
+          ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
           return;
         }
 
@@ -140,16 +131,7 @@ namespace
         DWORD err = GetLastError();
         if (err != ERROR_SUCCESS)
         {
-          LPVOID lpMsgBuf = nullptr;
-
-          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
-
-          char errStr[1024];
-          sprintf_s(errStr, "StackTracer could not load symbols for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
-          OutputDebugStringA(errStr);
-
-          LocalFree(lpMsgBuf);
+          ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_szPluginFile, ezArgErrorCode(err));
         }
 
         return;

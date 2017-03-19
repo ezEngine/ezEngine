@@ -45,12 +45,12 @@ namespace ezMemoryPolicies
     size_t uiPageSize = m_uiPageSize;
     size_t uiFullPageSize = ezMemoryUtils::AlignSize(uiTotalSize, uiPageSize);
     void* pMemory = VirtualAlloc(nullptr, uiFullPageSize + 2 * uiPageSize, MEM_RESERVE, PAGE_NOACCESS);
-    EZ_ASSERT_DEV(pMemory != nullptr, "Could not reserve memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
+    EZ_ASSERT_DEV(pMemory != nullptr, "Could not reserve memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 
     // add one page and commit the payload pages
     pMemory = ezMemoryUtils::AddByteOffset(pMemory, uiPageSize);
     void* ptr = VirtualAlloc(pMemory, uiFullPageSize, MEM_COMMIT, PAGE_READWRITE);
-    EZ_ASSERT_DEV(ptr != nullptr, "Could not commit memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
+    EZ_ASSERT_DEV(ptr != nullptr, "Could not commit memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 
     // store information in meta data
     AlloctionMetaData* metaData = ezMemoryUtils::AddByteOffset(static_cast<AlloctionMetaData*>(ptr), uiFullPageSize - uiTotalSize);
@@ -69,7 +69,7 @@ namespace ezMemoryPolicies
     if (!m_AllocationsToFreeLater.CanAppend())
     {
       void* pMemory = m_AllocationsToFreeLater.PeekFront();
-      EZ_VERIFY(::VirtualFree(pMemory, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
+      EZ_VERIFY(::VirtualFree(pMemory, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 
       m_AllocationsToFreeLater.PopFront();
     }
@@ -86,7 +86,7 @@ namespace ezMemoryPolicies
     size_t uiFullPageSize = ezMemoryUtils::AlignSize(uiTotalSize, uiPageSize);
     ptr = ezMemoryUtils::AddByteOffset(ptr, ((ptrdiff_t)uiAlignedSize) - uiFullPageSize);
 
-    EZ_VERIFY(::VirtualFree(ptr, uiFullPageSize, MEM_DECOMMIT), "Could not decommit memory pages. Error Code '{0}'", ((ezUInt32)::GetLastError()));
+    EZ_VERIFY(::VirtualFree(ptr, uiFullPageSize, MEM_DECOMMIT), "Could not decommit memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 
     // Finally store the allocation so we can release it later
     void* pMemory = ezMemoryUtils::AddByteOffset(ptr, -((ptrdiff_t)uiPageSize));

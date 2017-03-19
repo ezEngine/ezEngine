@@ -5,7 +5,7 @@
 #include <Serialization/ReflectionSerializer.h>
 #include <Logging/Log.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #endif
 
@@ -30,7 +30,7 @@ ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum 
     return nullptr;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   return EZ_DEFAULT_NEW(ezPipeChannel_win, szAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
