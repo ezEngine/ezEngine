@@ -87,5 +87,10 @@ namespace ezPxConversionUtils
   {
     return physx::PxTransform(ToVec3(p), ToQuat(q));
   }
+
+  EZ_ALWAYS_INLINE physx::PxMeshScale ToScale(const ezSimdTransform& t)
+  {
+    return physx::PxMeshScale(ToVec3(t.m_Scale), physx::PxQuat(physx::PxIdentity));
+  }
 }
 

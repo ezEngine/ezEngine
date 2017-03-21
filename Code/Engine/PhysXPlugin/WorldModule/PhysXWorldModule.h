@@ -63,6 +63,8 @@ private:
   ezUInt32 m_uiNextShapeId;
   ezDynamicArray<ezUInt32> m_FreeShapeIds;
 
+  ezDynamicArray<ezUInt8> m_ScratchMemory;
+
   ezTime m_AccumulatedTimeSinceUpdate;
 
   ezPxSettings m_Settings;

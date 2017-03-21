@@ -5,7 +5,13 @@
 #message(STATUS "${PHYSX_SOURCE}")
 #message(STATUS "${PHYSX_TARGET}")
 
-file(COPY "${PHYSX_SOURCE}/nvToolsExt64_1.dll"
+if (BUILDSYSTEM_PLATFORM_64BIT STREQUAL "ON")
+  SET (NVTOOLS_EXT "64_1.dll")
+else ()
+  SET (NVTOOLS_EXT "32_1.dll")
+endif ()
+
+file(COPY "${PHYSX_SOURCE}/nvToolsExt${NVTOOLS_EXT}"
         DESTINATION "${PHYSX_TARGET}/")
 
 SET (PHYSX_EXT "")
@@ -18,6 +24,11 @@ if (BUILDSYSTEM_PLATFORM_64BIT STREQUAL "ON")
 else ()
   SET (PHYSX_EXT "${PHYSX_EXT}_x86.dll")
 endif ()
+
+file(COPY "${PXSHARED_SOURCE}/PxFoundation${PHYSX_EXT}"
+        DESTINATION "${PHYSX_TARGET}/")
+file(COPY "${PXSHARED_SOURCE}/PxPvdSDK${PHYSX_EXT}"
+        DESTINATION "${PHYSX_TARGET}/")
 
 file(COPY "${PHYSX_SOURCE}/PhysX3CharacterKinematic${PHYSX_EXT}"
         DESTINATION "${PHYSX_TARGET}/")

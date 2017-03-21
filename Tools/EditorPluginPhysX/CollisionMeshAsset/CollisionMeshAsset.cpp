@@ -19,7 +19,7 @@
 
 using namespace Assimp;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 2, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)

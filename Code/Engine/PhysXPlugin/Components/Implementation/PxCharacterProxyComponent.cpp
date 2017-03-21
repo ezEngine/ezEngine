@@ -38,7 +38,7 @@ namespace
   {
     virtual PxControllerBehaviorFlags getBehaviorFlags(const PxShape& shape, const PxActor& actor) override
     {
-      const PxRigidDynamic* pDynamicRigidBody = actor.isRigidDynamic();
+      const PxRigidDynamic* pDynamicRigidBody = actor.is<PxRigidDynamic>();
       if (pDynamicRigidBody != nullptr && pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
       {
         return PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT | PxControllerBehaviorFlag::eCCT_SLIDE;
@@ -62,7 +62,7 @@ namespace
   {
     virtual void onShapeHit(const PxControllerShapeHit& hit) override
     {
-      PxRigidDynamic* pDynamicRigidBody = hit.actor->isRigidDynamic();
+      PxRigidDynamic* pDynamicRigidBody = hit.actor->is<PxRigidDynamic>();
       if (pDynamicRigidBody != nullptr && !pDynamicRigidBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
       {
         ezPxCharacterProxyComponent* pCharacterProxyComponent = ezPxUserData::GetCharacterProxyComponent(hit.controller->getUserData());

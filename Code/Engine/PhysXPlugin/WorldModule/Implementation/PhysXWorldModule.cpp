@@ -23,6 +23,7 @@ namespace
     {
       m_pTask->run();
       m_pTask->release();
+      m_pTask = nullptr;
     }
 
     PxBaseTask* m_pTask;
@@ -37,7 +38,27 @@ namespace
 
     virtual void submitTask(PxBaseTask& task) override
     {
-      ezPxTask* pTask = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezPxTask);
+      ezPxTask* pTask = nullptr;
+      //pTask = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezPxTask);
+
+      {
+        EZ_LOCK(m_Mutex);
+
+        if (m_FreeTasks.IsEmpty())
+        {
+          pTask = &m_TaskStorage.ExpandAndGetRef();
+          pTask->SetOnTaskFinished([this](ezTask* pTask)
+          {
+            FinishTask(static_cast<ezPxTask*>(pTask));
+          });
+        }
+        else
+        {
+          pTask = m_FreeTasks.PeekBack();
+          m_FreeTasks.PopBack();
+        }
+      }
+
       pTask->m_pTask = &task;
       pTask->SetTaskName(task.getName());
 
@@ -48,6 +69,16 @@ namespace
     {
       return ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks);
     }
+
+    void FinishTask(ezPxTask* pTask)
+    {
+      EZ_LOCK(m_Mutex);
+      m_FreeTasks.PushBack(pTask);
+    }
+
+    ezMutex m_Mutex;
+    ezDeque<ezPxTask, ezStaticAllocatorWrapper> m_TaskStorage;
+    ezDynamicArray<ezPxTask*, ezStaticAllocatorWrapper> m_FreeTasks;
   };
 
   static ezPxCpuDispatcher s_CpuDispatcher;
@@ -61,6 +92,17 @@ namespace
       return PxFilterFlag::eDEFAULT;
     }
 
+    bool kinematic0 = PxFilterObjectIsKinematic(attributes0);
+    bool kinematic1 = PxFilterObjectIsKinematic(attributes1);
+
+    bool static0 = PxGetFilterObjectType(attributes0) == PxFilterObjectType::eRIGID_STATIC;
+    bool static1 = PxGetFilterObjectType(attributes1) == PxFilterObjectType::eRIGID_STATIC;
+
+    if ((kinematic0 || kinematic1) && (static0 || static1))
+    {
+      return PxFilterFlag::eSUPPRESS;
+    }
+
     pairFlags = (PxPairFlag::Enum)0;
 
     // trigger the contact callback for pairs (A,B) where
@@ -72,7 +114,7 @@ namespace
         pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
       }
 
-      if (PxFilterObjectIsKinematic(attributes0) && PxFilterObjectIsKinematic(attributes1))
+      if (kinematic0 && kinematic1)
       {
         pairFlags |= PxPairFlag::eDETECT_DISCRETE_CONTACT;
       }
@@ -163,7 +205,7 @@ public:
 
   virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override
   {
-    if (pairHeader.flags & (PxContactPairHeaderFlag::eDELETED_ACTOR_0 | PxContactPairHeaderFlag::eDELETED_ACTOR_1))
+    if (pairHeader.flags & (PxContactPairHeaderFlag::eREMOVED_ACTOR_0 | PxContactPairHeaderFlag::eREMOVED_ACTOR_1))
     {
       return;
     }
@@ -240,6 +282,11 @@ public:
   {
 
   }
+
+  virtual void onAdvance(const PxRigidBody*const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) override
+  {
+
+  }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -250,6 +297,8 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_pCharacterManager(nullptr)
   , m_pSimulationEventCallback(nullptr)
   , m_uiNextShapeId(0)
+  , m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
+  , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
   , m_Settings()
   , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
@@ -274,6 +323,7 @@ void ezPhysXWorldModule::Initialize()
     desc.setToDefault(PxTolerancesScale());
 
     desc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+    desc.flags |= PxSceneFlag::eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS;
     desc.flags |= PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
     desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
     desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
@@ -465,6 +515,8 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
       m_Settings = pSettings->GetSettings();
       m_AccumulatedTimeSinceUpdate.SetZero();
 
+      m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
+
       pSettings->ResetModified();
     }
   }
@@ -548,7 +600,7 @@ void ezPhysXWorldModule::Simulate()
   }
 
   // not sure where exactly this needs to go
-  m_pCharacterManager->computeInteractions((float)tDiff.GetSeconds());
+  //m_pCharacterManager->computeInteractions((float)tDiff.GetSeconds());
 }
 
 void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
@@ -557,7 +609,9 @@ void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
 
   {
     EZ_PROFILE("Simulate");
-    m_pPxScene->simulate(fDeltaTime);
+    ///\todo this should prevent temporary allocations every frame, but it crashes inside the solver instead.
+    //m_pPxScene->simulate(fDeltaTime, nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
+    m_pPxScene->simulate(fDeltaTime, nullptr);
   }
 
   {

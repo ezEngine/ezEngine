@@ -124,13 +124,15 @@ void ezPxStaticActorComponent::OnSimulationStarted()
       pxMaterials.PushBack(ezPhysX::GetSingleton()->GetDefaultMaterial());
     }
 
+    PxMeshScale scale = ezPxConversionUtils::ToScale(globalTransform);
+
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
-      pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else
     {

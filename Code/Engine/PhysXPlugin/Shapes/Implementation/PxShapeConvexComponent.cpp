@@ -98,7 +98,9 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
     pMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
   }
 
-  return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *pMaterial);
+  PxMeshScale scale = ezPxConversionUtils::ToScale(GetOwner()->GetGlobalTransformSimd());
+
+  return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), *pMaterial);
 }
 
 

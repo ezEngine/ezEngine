@@ -50,6 +50,8 @@ struct ezPxSettings
     m_SteppingMode = ezPxSteppingMode::SemiFixed;
     m_fFixedFrameRate = 60.0f;
     m_uiMaxSubSteps = 4;
+
+    m_uiScratchMemorySize = 256 * 1024;
   }
 
   ezVec3 m_vObjectGravity;
@@ -58,5 +60,7 @@ struct ezPxSettings
   ezEnum<ezPxSteppingMode> m_SteppingMode;
   float m_fFixedFrameRate;
   ezUInt32 m_uiMaxSubSteps;
+
+  ezUInt32 m_uiScratchMemorySize;
 };
 

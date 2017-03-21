@@ -72,7 +72,9 @@ void ezPxShapeSphereComponent::SetRadius(float f)
 
 PxShape* ezPxShapeSphereComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
-  return pActor->createShape(PxSphereGeometry(m_fRadius), *GetPxMaterial());
+  float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
+
+  return pActor->createShape(PxSphereGeometry(m_fRadius * fScale), *GetPxMaterial());
 }
 
 

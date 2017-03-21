@@ -134,10 +134,9 @@ ezPhysX::ezPhysX()
 
   m_pFoundation = nullptr;
   m_pAllocatorCallback = nullptr;
-  m_pProfileZoneManager = nullptr;
   m_pPhysX = nullptr;
   m_pDefaultMaterial = nullptr;
-  m_VdbConnection = nullptr;
+  m_PvdConnection = nullptr;
 }
 
 ezPhysX::~ezPhysX()
@@ -154,19 +153,23 @@ void ezPhysX::Startup()
 
   m_pAllocatorCallback = EZ_DEFAULT_NEW(ezPxAllocatorCallback);
 
-  m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pAllocatorCallback, m_ErrorCallback);
+  m_pFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, *m_pAllocatorCallback, m_ErrorCallback);
   EZ_ASSERT_DEV(m_pFoundation != nullptr, "Initializing PhysX failed");
+
+#if EZ_ENABLED(EZ_PX_DETAILED_MEMORY_STATS)
+  m_pFoundation->setReportAllocationNames(true);
+#else
+  m_pFoundation->setReportAllocationNames(false);
+#endif
 
   bool bRecordMemoryAllocations = false;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   bRecordMemoryAllocations = true;
 #endif
 
-  /// \todo This seems to be in the Extensions library, which does not compile with VS 2015
-  m_pProfileZoneManager = nullptr;// &PxProfileZoneManager::createProfileZoneManager(m_pFoundation);
-                                  //EZ_ASSERT_DEV(m_pProfileZoneManager != nullptr, "Initializing PhysX Profile Zone Manager failed");
+  m_PvdConnection = PxCreatePvd(*m_pFoundation);
 
-  m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_pProfileZoneManager);
+  m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_PvdConnection);
   EZ_ASSERT_DEV(m_pPhysX != nullptr, "Initializing PhysX API failed");
 
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
@@ -180,8 +183,6 @@ void ezPhysX::Shutdown()
     return;
 
   m_bInitialized = false;
-
-  ShutdownVDB();
 
   ezSurfaceResource::s_Events.RemoveEventHandler(ezMakeDelegate(&ezPhysX::SurfaceResourceEventHandler, this));
 
@@ -197,11 +198,7 @@ void ezPhysX::Shutdown()
     m_pPhysX = nullptr;
   }
 
-  if (m_pProfileZoneManager != nullptr)
-  {
-    m_pProfileZoneManager->release();
-    m_pProfileZoneManager = nullptr;
-  }
+  ShutdownVDB();
 
   if (m_pFoundation != nullptr)
   {
@@ -215,12 +212,8 @@ void ezPhysX::Shutdown()
 
 void ezPhysX::StartupVDB()
 {
-  // check if PvdConnection manager is available on this platform
-  if (m_pPhysX->getPvdConnectionManager() == nullptr)
-    return;
-
   // return if we already have a connection
-  if (m_VdbConnection != nullptr)
+  if (m_PvdConnection->isConnected(false))
     return;
 
   // setup connection parameters
@@ -228,23 +221,23 @@ void ezPhysX::StartupVDB()
   int port = 5425; // TCP port to connect to, where PVD is listening
   unsigned int timeout = 100; // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
 
-  PxVisualDebuggerConnectionFlags connectionFlags = PxVisualDebuggerExt::getAllConnectionFlags();
-
-  m_VdbConnection = PxVisualDebuggerExt::createConnection(m_pPhysX->getPvdConnectionManager(), pvd_host_ip, port, timeout, connectionFlags);
-
-  if (m_VdbConnection != nullptr)
-  {
-    m_pPhysX->getVisualDebugger()->setVisualDebuggerFlags(PxVisualDebuggerFlag::eTRANSMIT_CONSTRAINTS | PxVisualDebuggerFlag::eTRANSMIT_CONTACTS | PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES);
-  }
+  PxPvdTransport* pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
+  m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL);
 }
 
 void ezPhysX::ShutdownVDB()
 {
-  if (m_VdbConnection == nullptr)
+  if (m_PvdConnection == nullptr)
     return;
 
-  m_VdbConnection->release();
-  m_VdbConnection = nullptr;
+  PxPvdTransport* pTransport = m_PvdConnection->getTransport();
+  if (pTransport != nullptr)
+  {
+    pTransport->release();
+  }
+
+  m_PvdConnection->release();
+  m_PvdConnection = nullptr;
 }
 
 void ezPhysX::LoadCollisionFilters()
@@ -262,8 +255,13 @@ void ezPhysX::LoadCollisionFilters()
   }
 }
 
+ezAllocatorBase* ezPhysX::GetAllocator()
+{
+  return &(m_pAllocatorCallback->m_Allocator);
+}
+
 //static
-void ezPhysX::addForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode)
+void ezPhysX::AddForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode)
 {
   const PxTransform globalPose = body.getGlobalPose();
   const PxVec3 centerOfMass = globalPose.transform(body.getCMassLocalPose().p);

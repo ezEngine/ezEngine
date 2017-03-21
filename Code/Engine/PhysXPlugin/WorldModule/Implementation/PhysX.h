@@ -63,8 +63,12 @@ public:
 
   virtual void LoadCollisionFilters() override;
 
+
+  ezAllocatorBase* GetAllocator();
+
+
   // helper functions
-  static void addForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode);
+  static void AddForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode);
 
   static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, bool bReportContact = false);
 
@@ -75,10 +79,9 @@ private:
   PxFoundation* m_pFoundation;
   ezPxErrorCallback m_ErrorCallback;
   ezPxAllocatorCallback* m_pAllocatorCallback;
-  PxProfileZoneManager* m_pProfileZoneManager;
   PxPhysics* m_pPhysX;
   PxMaterial* m_pDefaultMaterial;
-  PxVisualDebuggerConnection* m_VdbConnection;
+  PxPvd* m_PvdConnection;
   ezCollisionFilterConfig m_CollisionFilterConfig;
 };
 

@@ -34,7 +34,6 @@ SET (LINK_LIBRARIES
 )
 
 if (BUILDSYSTEM_PLATFORM_64BIT)
-  link_directories ("${EZ_PHYSX_DIR}/Lib/vc11win64")
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
@@ -42,8 +41,6 @@ if (BUILDSYSTEM_PLATFORM_64BIT)
   )
 
 else()
-  link_directories ("${EZ_PHYSX_DIR}/Lib/vc11win32")
-
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib32/assimp.lib

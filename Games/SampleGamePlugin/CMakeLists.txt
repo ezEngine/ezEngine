@@ -28,14 +28,7 @@ BUILD_REQUIRES_DX11()
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation
-  ToolsFoundation
-  EditorFramework
-  InputXBox360
   Core
-  System
-  RendererFoundation
-  RendererDX11
-  RendererCore
   GameEngine
   ThirdParty
 )

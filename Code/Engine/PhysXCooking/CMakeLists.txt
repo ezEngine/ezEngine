@@ -13,7 +13,8 @@ BUILD_CONDITIONAL(EZ_BUILD_PHYSX)
 
 set (EZ_PHYSX_DIR "" CACHE PATH "Directory of PhysX installation")
 
-include_directories ("${EZ_PHYSX_DIR}/Include")
+include_directories ("${EZ_PHYSX_DIR}/PhysX_3.4/Include")
+include_directories ("${EZ_PHYSX_DIR}/PxShared/Include")
 
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
@@ -25,26 +26,26 @@ include_directories ("${EZ_PHYSX_DIR}/Include")
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
-# this is because PhysX is compiled with that setting
-set (COMPILER_SETTINGS_RELEASE ${COMPILER_SETTINGS_RELEASE} "/MT")
-set (COMPILER_SETTINGS_DEBUG ${COMPILER_SETTINGS_DEBUG} "/MTd")
-
 SET (LINK_LIBRARIES 
   Foundation
   Core
 )
 
-SET (PHYSX_LIB_DIR "${EZ_PHYSX_DIR}/Lib")
+SET (PHYSX_LIB_DIR "${EZ_PHYSX_DIR}/PhysX_3.4/Lib")
+SET (PXSHARED_BIN_DIR "${EZ_PHYSX_DIR}/PxShared/Bin")
 
 if (DEFINED BUILDSYSTEM_COMPILER_MSVC_140)
   SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc14")
+  SET (PXSHARED_LIB_DIR "${PXSHARED_LIB_DIR}/vc14")
 endif()
 if (DEFINED BUILDSYSTEM_COMPILER_MSVC_150)
   SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc15")
+  SET (PXSHARED_LIB_DIR "${PXSHARED_LIB_DIR}/vc15")
 endif()
 
 if (${BUILDSYSTEM_PLATFORM_64BIT})
   link_directories ("${PHYSX_LIB_DIR}win64")
+  link_directories ("${PXSHARED_LIB_DIR}win64")
 
   SET (LINK_LIBRARIES 
     ${LINK_LIBRARIES}
@@ -58,12 +59,13 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
 
 else()
   link_directories ("${PHYSX_LIB_DIR}win32")
+  link_directories ("${PXSHARED_LIB_DIR}win32")
 
   SET (LINK_LIBRARIES 
     ${LINK_LIBRARIES}
     debug PhysX3DEBUG_x86
     debug PhysX3CommonDEBUG_x86
-    debug PhysX3CharacterKinematicDEBUG_x86
+    debug PhysX3CookingDEBUG_x86
     optimized PhysX3_x86
     optimized PhysX3Common_x86
     optimized PhysX3Cooking_x86
