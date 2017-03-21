@@ -73,7 +73,7 @@ void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
 
 PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
-  ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale);
+  ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
 
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMult(vScale) * 0.5f);
