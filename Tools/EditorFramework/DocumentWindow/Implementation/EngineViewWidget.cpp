@@ -533,6 +533,7 @@ void ezQtEngineViewWidget::SlotRestartEngineProcess()
 ////////////////////////////////////////////////////////////////////////
 
 ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
+  : QWidget(pParent)
 {
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);

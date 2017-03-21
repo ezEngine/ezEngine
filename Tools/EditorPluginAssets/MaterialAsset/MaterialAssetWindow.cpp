@@ -66,7 +66,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
     m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
 
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pVsePanel, m_pViewWidget, "MaterialAssetViewToolBar");
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
     setCentralWidget(pContainer);
   }
@@ -89,10 +89,8 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     m_pVsePanel = new ezQtDocumentPanel(this);
     m_pVsePanel->setObjectName("VisualShaderDockWidget");
     m_pVsePanel->setWindowTitle("Visual Shader Editor");
-    m_pVsePanel->show();
 
     QSplitter* pSplitter = new QSplitter(Qt::Orientation::Horizontal, m_pVsePanel);
-    //pSplitter->setChildrenCollapsible(false);
 
     m_pScene = new ezQtVisualShaderScene(this);
     m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
@@ -100,10 +98,29 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     m_pNodeView->SetScene(m_pScene);
     pSplitter->addWidget(m_pNodeView);
 
+    QWidget* pRightGroup = new QWidget(m_pVsePanel);
+    pRightGroup->setLayout(new QVBoxLayout());
+
+    QWidget* pButtonGroup = new QWidget(m_pVsePanel);
+    pButtonGroup->setLayout(new QHBoxLayout());
+
     m_pOutputLine = new QTextEdit(m_pVsePanel);
     m_pOutputLine->setText("Transform the material asset to compile the Visual Shader.");
     m_pOutputLine->setReadOnly(true);
-    pSplitter->addWidget(m_pOutputLine);
+
+    m_pOpenShaderButton = new QPushButton(m_pVsePanel);
+    m_pOpenShaderButton->setText("Open Shader File");
+    connect(m_pOpenShaderButton, &QPushButton::clicked, this, &ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked);
+
+    pButtonGroup->layout()->setContentsMargins(0, 0, 0, 0);
+    pButtonGroup->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+    pButtonGroup->layout()->addWidget(m_pOpenShaderButton);
+
+    pRightGroup->layout()->setContentsMargins(0, 0, 0, 0);
+    pRightGroup->layout()->addWidget(m_pOutputLine);
+    pRightGroup->layout()->addWidget(pButtonGroup);
+
+    pSplitter->addWidget(pRightGroup);
 
     pSplitter->setStretchFactor(0, 10);
     pSplitter->setStretchFactor(1, 1);
@@ -116,11 +133,11 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
   pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
-  FinishWindowCreation();
-
   UpdatePreview();
 
   UpdateNodeEditorVisibility();
+
+  FinishWindowCreation();
 }
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
@@ -159,6 +176,26 @@ void ezQtMaterialAssetDocumentWindow::InternalRedraw()
     s_pNodeConfigWatcher->EnumerateChanges(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::OnVseConfigChanged, this));
   }
   ezQtEngineDocumentWindow::InternalRedraw();
+}
+
+
+void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
+{
+  ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)GetMaterialDocument()->GetDocumentManager();
+
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+
+  if (ezOSFile::ExistsFile(sAutoGenShader))
+  {
+    ezQtUiServices::OpenFileInDefaultProgram(sAutoGenShader);
+  }
+  else
+  {
+    ezStringBuilder msg;
+    msg.Format("The auto generated file does not exist (yet).\nThe supposed location is '{0}'", sAutoGenShader);
+
+    ezQtUiServices::GetSingleton()->MessageBoxInformation(msg);
+  }
 }
 
 void ezQtMaterialAssetDocumentWindow::UpdatePreview()
@@ -243,10 +280,13 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
   const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
+  // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
+  // by delaying it a bit, we have the last word
+  QTimer::singleShot(10, this, [this, bCustom]() {m_pVsePanel->setVisible(bCustom); });
+
   if (m_bVisualShaderEnabled != bCustom)
   {
     m_bVisualShaderEnabled = bCustom;
-    //m_pNodeView->setEnabled(m_bVisualShaderEnabled);
 
     if (bCustom)
       ++s_iNodeConfigWatchers;

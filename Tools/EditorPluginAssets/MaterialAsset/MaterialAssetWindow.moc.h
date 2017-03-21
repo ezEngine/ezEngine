@@ -33,6 +33,9 @@ public:
 protected:
   virtual void InternalRedraw() override;
 
+private slots:
+  void OnOpenShaderClicked(bool);
+
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
@@ -44,11 +47,12 @@ private:
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
 
   ezSceneViewConfig m_ViewConfig;
-  ezQtMaterialViewWidget* m_pViewWidget;
-  ezQtVisualShaderScene* m_pScene;
-  ezQtNodeView* m_pNodeView;
-  ezQtDocumentPanel* m_pVsePanel;
-  QTextEdit* m_pOutputLine;
+  ezQtMaterialViewWidget* m_pViewWidget = nullptr;
+  ezQtVisualShaderScene* m_pScene = nullptr;
+  ezQtNodeView* m_pNodeView = nullptr;
+  ezQtDocumentPanel* m_pVsePanel = nullptr;
+  QTextEdit* m_pOutputLine = nullptr;
+  QPushButton* m_pOpenShaderButton = nullptr;
   bool m_bVisualShaderEnabled;
 
   static ezInt32 s_iNodeConfigWatchers;
