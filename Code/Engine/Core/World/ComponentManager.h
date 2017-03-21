@@ -170,9 +170,7 @@ private:
   ezDynamicArray<CreatorFunc> m_CreatorFuncs;
 };
 
-/// \brief Add this macro to a custom component type inside the type declaration.
-#define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
-  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
+#define EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType) \
   public: \
     typedef managerType ComponentManagerType; \
     ezComponentHandle GetHandle() const; \
@@ -183,14 +181,27 @@ private:
     static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent); \
   private: \
     friend managerType; \
-    static ezUInt16 TYPE_ID;
+    static ezUInt16 TYPE_ID
+
+#define EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType) \
+  public: \
+    virtual ezUInt16 GetTypeId() const override { return -1; } \
+    static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return -1; }
+
+/// \brief Add this macro to a custom component type inside the type declaration.
+#define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
+  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
+  EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType);
+
+/// \brief Same as EZ_DECLARE_COMPONENT_TYPE but uses EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER which enables a custom implementation for GetDynamicRTTI, which is needed to handle messages differently
+#define EZ_DECLARE_COMPONENT_TYPE_WITH_CUSTOM_MSG_HANDLER(componentType, baseType, managerType) \
+  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(componentType, baseType); \
+  EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType);
 
 /// \brief Add this macro to a custom abstract component type inside the type declaration.
 #define EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(componentType, baseType) \
   EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
-  public: \
-    virtual ezUInt16 GetTypeId() const override { return -1; } \
-    static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return -1; }
+  EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType);
 
 
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
