@@ -61,7 +61,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
   ezGALContext* pGALContext = pContext->GetGALContext();
 
-  const ezSpriteRenderData* pRenderData = batch.GetData<ezSpriteRenderData>(0);
+  const ezSpriteRenderData* pRenderData = batch.GetFirstData<ezSpriteRenderData>();
 
   ezGALBufferHandle hSpriteData = CreateSpriteDataBuffer();
   EZ_SCOPE_EXIT(DeleteSpriteDataBuffer(hSpriteData));

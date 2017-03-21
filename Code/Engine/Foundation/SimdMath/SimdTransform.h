@@ -25,6 +25,9 @@ public:
   /// \brief Returns the scale component with maximum magnitude.
   ezSimdFloat GetMaxScale() const; // [tested]
 
+  /// \brief Returns whether this transform contains negative scaling aka mirroring.
+  bool ContainsNegativeScale() const;
+
 public:
   /// \brief Equality Check with epsilon
   bool IsEqual(const ezSimdTransform& rhs, const ezSimdFloat& fEpsilon) const; // [tested]

@@ -39,6 +39,11 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdTransform::GetMaxScale() const
   return m_Scale.Abs().HorizontalMax<3>();
 }
 
+EZ_ALWAYS_INLINE bool ezSimdTransform::ContainsNegativeScale() const
+{
+  return (m_Scale.x() * m_Scale.y() * m_Scale.z()) < ezSimdFloat::Zero();
+}
+
 EZ_ALWAYS_INLINE bool ezSimdTransform::IsEqual(const ezSimdTransform& rhs, const ezSimdFloat& fEpsilon) const
 {
   return m_Position.IsEqual(rhs.m_Position, fEpsilon).AllSet<3>() &&

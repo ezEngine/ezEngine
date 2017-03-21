@@ -42,12 +42,12 @@ public:
     Filter m_Filter;
     const SortableRenderData* m_pCurrent;
     const SortableRenderData* m_pEnd;
-  };  
+  };
 
   ezUInt32 GetCount() const;
 
   template <typename T>
-  const T* GetData(ezUInt32 uiIndex) const;
+  const T* GetFirstData() const;
 
   template <typename T>
   Iterator<T> GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;

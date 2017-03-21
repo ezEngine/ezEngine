@@ -45,7 +45,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   if (!m_bEnabled)
     return;
 
-  const ezGizmoRenderData* pRenderData = batch.GetData<ezGizmoRenderData>(0);
+  const ezGizmoRenderData* pRenderData = batch.GetFirstData<ezGizmoRenderData>();
 
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;

@@ -38,7 +38,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
   ezGALContext* pGALContext = pContext->GetGALContext();
 
-  const ezMeshRenderData* pRenderData = batch.GetData<ezMeshRenderData>(0);
+  const ezMeshRenderData* pRenderData = batch.GetFirstData<ezMeshRenderData>();
 
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
@@ -72,6 +72,18 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   {
     pContext->SetShaderPermutationVariable("INSTANCING", "FALSE");
     pContext->BindConstantBuffer("ezPerInstanceConstants", hPerInstanceData);
+  }
+
+  const ezMat3& rotation = pRenderData->m_GlobalTransform.m_Rotation;
+  const bool bFlipWinding = rotation.GetColumn(0).Cross(rotation.GetColumn(1)).Dot(rotation.GetColumn(2)) < 0.0f;
+
+  if (bFlipWinding)
+  {
+    pContext->SetShaderPermutationVariable("FLIP_WINDING", "TRUE");
+  }
+  else
+  {
+    pContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
   }
 
   pContext->BindMaterial(hMaterial);

@@ -7,6 +7,10 @@
 
 #if TWO_SIDED == TRUE
 	CullMode = CullMode_None
+#else
+  #if FLIP_WINDING == TRUE
+    CullMode = CullMode_Front
+  #endif
 #endif
 
 

@@ -1,18 +1,18 @@
 
 template <typename T>
-EZ_FORCE_INLINE const T& ezRenderDataBatch::Iterator<T>::operator*() const
+EZ_ALWAYS_INLINE const T& ezRenderDataBatch::Iterator<T>::operator*() const
 {
   return *ezStaticCast<const T*>(m_pCurrent->m_pRenderData);
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T* ezRenderDataBatch::Iterator<T>::operator->() const
+EZ_ALWAYS_INLINE const T* ezRenderDataBatch::Iterator<T>::operator->() const
 {
   return ezStaticCast<const T*>(m_pCurrent->m_pRenderData);
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezRenderDataBatch::Iterator<T>::operator const T*() const
+EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::operator const T*() const
 {
   return ezStaticCast<const T*>(m_pCurrent->m_pRenderData);
 }
@@ -32,13 +32,13 @@ EZ_FORCE_INLINE void ezRenderDataBatch::Iterator<T>::Next()
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezRenderDataBatch::Iterator<T>::IsValid() const
+EZ_ALWAYS_INLINE bool ezRenderDataBatch::Iterator<T>::IsValid() const
 {
   return m_pCurrent < m_pEnd;
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezRenderDataBatch::Iterator<T>::operator++()
+EZ_ALWAYS_INLINE void ezRenderDataBatch::Iterator<T>::operator++()
 {
   Next();
 }
@@ -67,9 +67,9 @@ EZ_FORCE_INLINE ezUInt32 ezRenderDataBatch::GetCount() const
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T* ezRenderDataBatch::GetData(ezUInt32 uiIndex) const
+EZ_FORCE_INLINE const T* ezRenderDataBatch::GetFirstData() const
 {
-  return ezStaticCast<const T*>(m_Data[uiIndex].m_pRenderData);
+  return Iterator<T>(m_Data.GetPtr(), m_Data.GetPtr() + m_Data.GetCount(), m_Filter);
 }
 
 template <typename T>
@@ -90,6 +90,6 @@ EZ_FORCE_INLINE ezRenderDataBatch ezRenderDataBatchList::GetBatch(ezUInt32 uiInd
 {
   ezRenderDataBatch batch = m_Batches[uiIndex];
   batch.m_Filter = m_Filter;
-  
+
   return batch;
 }

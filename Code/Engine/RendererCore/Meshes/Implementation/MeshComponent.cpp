@@ -98,9 +98,10 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
     const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
+    const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
 
     // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex };
+    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
     ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
     ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
