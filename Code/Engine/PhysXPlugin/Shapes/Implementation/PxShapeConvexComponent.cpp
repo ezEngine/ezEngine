@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 

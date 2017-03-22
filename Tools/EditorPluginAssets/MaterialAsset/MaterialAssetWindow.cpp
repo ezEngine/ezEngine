@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialViewWidget.moc.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <SharedPluginAssets/Common/Messages.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -11,6 +12,7 @@
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <SharedPluginAssets/Common/Messages.h>
@@ -19,6 +21,7 @@
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
+#include <Foundation/IO/OSFile.h>
 #include <QSplitter>
 #include <QTimer>
 #include <QTextEdit>
