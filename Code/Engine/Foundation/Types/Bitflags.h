@@ -85,129 +85,129 @@ private:
   typedef typename T::StorageType StorageType;
 
 public:
-    
+
   /// \brief Constructor. Initializes the flags to all empty.
-  EZ_FORCE_INLINE ezBitflags() : m_Value(0) // [tested]
+  EZ_ALWAYS_INLINE ezBitflags() : m_Value(0) // [tested]
   {
   }
 
   /// \brief Converts the incoming type to ezBitflags<T>
-  EZ_FORCE_INLINE ezBitflags(Enum flag1) // [tested]
+  EZ_ALWAYS_INLINE ezBitflags(Enum flag1) // [tested]
   {
     m_Value = flag1;
   }
 
   /// \brief Comparison operator.
-  EZ_FORCE_INLINE bool operator==(const StorageType rhs) const // [tested]
+  EZ_ALWAYS_INLINE bool operator==(const StorageType rhs) const // [tested]
   {
     return m_Value == rhs;
   }
 
   /// \brief Comparison operator.
-  EZ_FORCE_INLINE bool operator!=(const StorageType rhs) const
+  EZ_ALWAYS_INLINE bool operator!=(const StorageType rhs) const
   {
     return m_Value != rhs;
   }
 
   /// \brief Comparison operator.
-  EZ_FORCE_INLINE bool operator==(const ezBitflags<T>& rhs) const
+  EZ_ALWAYS_INLINE bool operator==(const ezBitflags<T>& rhs) const
   {
     return m_Value == rhs.m_Value;
   }
 
   /// \brief Comparison operator.
-  EZ_FORCE_INLINE bool operator!=(const ezBitflags<T>& rhs) const
+  EZ_ALWAYS_INLINE bool operator!=(const ezBitflags<T>& rhs) const
   {
     return m_Value != rhs.m_Value;
   }
 
   /// \brief Clears all flags
-  EZ_FORCE_INLINE void Clear() // [tested]
+  EZ_ALWAYS_INLINE void Clear() // [tested]
   {
     m_Value = 0;
   }
 
   /// \brief Checks if certain flags are set within the bitfield.
-  EZ_FORCE_INLINE bool IsSet(Enum flag) const // [tested]
+  EZ_ALWAYS_INLINE bool IsSet(Enum flag) const // [tested]
   {
     return (m_Value & flag) != 0;
   }
-  
+
   /// \brief Returns whether all the given flags are set.
-  EZ_FORCE_INLINE bool AreAllSet(const ezBitflags<T>& rhs) const // [tested]
+  EZ_ALWAYS_INLINE bool AreAllSet(const ezBitflags<T>& rhs) const // [tested]
   {
     return (m_Value & rhs.m_Value) == rhs.m_Value;
   }
 
   /// \brief  Returns whether any of the given flags is set.
-  EZ_FORCE_INLINE bool IsAnySet(const ezBitflags<T>& rhs) const // [tested]
+  EZ_ALWAYS_INLINE bool IsAnySet(const ezBitflags<T>& rhs) const // [tested]
   {
     return (m_Value & rhs.m_Value) != 0;
   }
 
   /// \brief Sets the given flag.
-  EZ_FORCE_INLINE void Add(const ezBitflags<T>& rhs) // [tested]
+  EZ_ALWAYS_INLINE void Add(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value |= rhs.m_Value;
   }
 
   /// \brief Removes the given flag.
-  EZ_FORCE_INLINE void Remove(const ezBitflags<T>& rhs) // [tested]
+  EZ_ALWAYS_INLINE void Remove(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value &= (~rhs.m_Value);
   }
 
   /// \brief Toggles the state of the given flag.
-  EZ_FORCE_INLINE void Toggle(const ezBitflags<T>& rhs) // [tested]
+  EZ_ALWAYS_INLINE void Toggle(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value ^= rhs.m_Value;
   }
 
   /// \brief Sets or clears the given flag.
-  EZ_FORCE_INLINE void AddOrRemove(const ezBitflags<T>& rhs, bool state) // [tested]
+  EZ_ALWAYS_INLINE void AddOrRemove(const ezBitflags<T>& rhs, bool state) // [tested]
   {
     m_Value = (state) ? m_Value | rhs.m_Value : m_Value & (~rhs.m_Value);
   }
 
   /// \brief Returns an object that has the flags of \a this and \a rhs combined.
-  inline ezBitflags<T> operator | (const ezBitflags<T>& rhs) const // [tested]
+  EZ_ALWAYS_INLINE ezBitflags<T> operator | (const ezBitflags<T>& rhs) const // [tested]
   {
     return ezBitflags<T>(m_Value | rhs.m_Value);
   }
 
   /// \brief Returns an object that has the flags that were set both in \a this and \a rhs.
-  inline ezBitflags<T> operator & (const ezBitflags<T>& rhs) const // [tested]
+  EZ_ALWAYS_INLINE ezBitflags<T> operator & (const ezBitflags<T>& rhs) const // [tested]
   {
     return ezBitflags<T>(m_Value & rhs.m_Value);
   }
 
   /// \brief Modifies \a this to also contain the bits from \a rhs.
-  inline void operator|= (const ezBitflags<T>& rhs) // [tested]
+  EZ_ALWAYS_INLINE void operator|= (const ezBitflags<T>& rhs) // [tested]
   {
     m_Value |= rhs.m_Value;
   }
 
   /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
-  inline void operator&= (const ezBitflags<T>& rhs) // [tested]
+  EZ_ALWAYS_INLINE void operator&= (const ezBitflags<T>& rhs) // [tested]
   {
     m_Value &= rhs.m_Value;
   }
 
   /// \brief Returns the stored value as the underlying integer type.
-  EZ_FORCE_INLINE StorageType GetValue() const // [tested]
+  EZ_ALWAYS_INLINE StorageType GetValue() const // [tested]
   {
     return m_Value;
   }
 
   /// \brief Overwrites the flags with a new value.
-  EZ_FORCE_INLINE void SetValue(StorageType value)
+  EZ_ALWAYS_INLINE void SetValue(StorageType value)
   {
     /// \test this is new
     m_Value = value;
   }
 
 private:
-  EZ_FORCE_INLINE explicit ezBitflags(StorageType flags)
+  EZ_ALWAYS_INLINE explicit ezBitflags(StorageType flags)
     : m_Value(flags)
   {
   }
@@ -232,14 +232,14 @@ private:
   {    \
     return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));    \
   }
-  
+
 
 
 /// \brief This macro allows to conveniently declare a bitflag type that can be used with the ezBitflags class.
 ///
 /// Usage: EZ_DECLARE_FLAGS(ezUInt32, FlagsTypeName, Flag1Name, Flag2Name, Flag3Name, Flag4Name, ...)
 ///
-/// This macro will define a simple type of with the name that is given as the second parameter, 
+/// This macro will define a simple type of with the name that is given as the second parameter,
 /// which can be used as type-safe bitflags. Everything that is necessary to work with the ezBitflags
 /// class, will be set up automatically.
 /// The bitflag type will use the integer type that is given as the first parameter for its internal
@@ -248,7 +248,7 @@ private:
 /// storage space, if you don't need that many flags.
 ///
 /// The third parameter and onwards declare the names of the flags that the type should contain.
-/// Each flag will use a different bit. If you need to define flags that are combinations of several 
+/// Each flag will use a different bit. If you need to define flags that are combinations of several
 /// other flags, you need to declare the bitflag struct manually. See the ezBitflags class for more
 /// information on how to do that.
 #define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)    \

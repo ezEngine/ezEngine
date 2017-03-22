@@ -26,7 +26,7 @@
 #define EZ_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE)                              \
  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE)                           \
  public:                                                                        \
-   virtual const ezRTTI* GetDynamicRTTI(RttiFor rttiFor = RttiFor::Other) const \
+   virtual const ezRTTI* GetDynamicRTTI() const \
    {                                                                            \
      return &SELF::s_RTTI;                                                      \
    }                                                                            \
@@ -85,13 +85,6 @@ class ezArchiveReader;
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {
-public:
-  enum class RttiFor
-  {
-    MessagePassing,
-    Other
-  };
-
   EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass, ezNoBase);
 
 public:
@@ -101,14 +94,14 @@ public:
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
   EZ_ALWAYS_INLINE bool IsInstanceOf(const ezRTTI* pType) const
   {
-    return GetDynamicRTTI(RttiFor::Other)->IsDerivedFrom(pType);
+    return GetDynamicRTTI()->IsDerivedFrom(pType);
   }
 
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
   template<typename T>
   EZ_ALWAYS_INLINE bool IsInstanceOf() const
   {
-    return GetDynamicRTTI(RttiFor::Other)->IsDerivedFrom<T>();
+    return GetDynamicRTTI()->IsDerivedFrom<T>();
   }
 
 #ifdef EZ_SUPPORT_EZARCHIVE

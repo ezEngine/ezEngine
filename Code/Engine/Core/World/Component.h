@@ -143,12 +143,25 @@ protected:
   /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
   virtual void OnSimulationStarted() {}
 
+  /// \brief By default disabled. Enable to have OnUnhandledMessage() called for every unhandled message.
+  void EnableUnhandledMessageHandler(bool enable);
+
+  /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
+  virtual bool OnUnhandledMessage(ezMessage& msg) { return false; }
+
+  /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
+  virtual bool OnUnhandledMessage(ezMessage& msg) const { return false; }
+
+protected:
+  /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
+  const ezRTTI* m_pMessageDispatchType = nullptr;
+
 private:
   ezGenericComponentId m_InternalId;
   ezUInt32 m_uiUniqueID;
 
-  ezComponentManagerBase* m_pManager;
-  ezGameObject* m_pOwner;
+  ezComponentManagerBase* m_pManager = nullptr;
+  ezGameObject* m_pOwner = nullptr;
 
   static ezUInt16 TYPE_ID;
 };

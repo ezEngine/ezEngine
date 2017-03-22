@@ -69,7 +69,7 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg)
 {
   if (IsActiveAndInitialized() || IsInitializing())
   {
-    if (!GetDynamicRTTI(RttiFor::MessagePassing)->DispatchMessage(this, msg))
+    if (!m_pMessageDispatchType->DispatchMessage(this, msg))
     {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
@@ -77,6 +77,10 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg)
 #endif
 
       return false;
+    }
+    else if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler))
+    {
+      return OnUnhandledMessage(msg);
     }
   }
   else
@@ -96,7 +100,7 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg) const
 {
   if (IsActiveAndInitialized() || IsInitializing())
   {
-    if (!GetDynamicRTTI(RttiFor::MessagePassing)->DispatchMessage(this, msg))
+    if (!m_pMessageDispatchType->DispatchMessage(this, msg))
     {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
@@ -104,6 +108,10 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg) const
 #endif
 
       return false;
+    }
+    else if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler))
+    {
+      return OnUnhandledMessage(msg);
     }
   }
   else

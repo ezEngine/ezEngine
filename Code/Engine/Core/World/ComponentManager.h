@@ -193,11 +193,6 @@ private:
   EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
   EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType);
 
-/// \brief Same as EZ_DECLARE_COMPONENT_TYPE but uses EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER which enables a custom implementation for GetDynamicRTTI, which is needed to handle messages differently
-#define EZ_DECLARE_COMPONENT_TYPE_WITH_CUSTOM_MSG_HANDLER(componentType, baseType, managerType) \
-  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(componentType, baseType); \
-  EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType);
-
 /// \brief Add this macro to a custom abstract component type inside the type declaration.
 #define EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(componentType, baseType) \
   EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \

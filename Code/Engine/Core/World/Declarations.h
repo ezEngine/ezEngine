@@ -143,6 +143,7 @@ struct ezObjectFlags
     Initializing = EZ_BIT(3),
     SimulationStarted = EZ_BIT(4),
     SimulationStarting = EZ_BIT(5),
+    UnhandledMessageHandler = EZ_BIT(6), ///< For components, when a message is not handled, a virtual function is called
 
     Default = Dynamic | Active
   };

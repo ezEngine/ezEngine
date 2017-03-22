@@ -57,6 +57,8 @@ void ezComponent::EnsureInitialized()
 
   if (!IsInitialized())
   {
+    m_pMessageDispatchType = GetDynamicRTTI();
+
     m_ComponentFlags.Add(ezObjectFlags::Initializing);
 
     Initialize();
@@ -101,6 +103,12 @@ void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueTy
 ezUInt32 ezComponent::GetWorldIndex() const
 {
   return GetWorld()->GetIndex();
+}
+
+
+void ezComponent::EnableUnhandledMessageHandler(bool enable)
+{
+  m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
