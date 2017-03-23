@@ -67,23 +67,7 @@ EZ_ALWAYS_INLINE void ezComponent::SetUniqueID(ezUInt32 uiUniqueID)
 
 EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg)
 {
-  if (IsActiveAndInitialized() || IsInitializing())
-  {
-    if (!m_pMessageDispatchType->DispatchMessage(this, msg))
-    {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
-        ezLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
-#endif
-
-      return false;
-    }
-    else if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler))
-    {
-      return OnUnhandledMessage(msg);
-    }
-  }
-  else
+  if (!IsActiveAndInitialized() && !IsInitializing())
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
@@ -93,28 +77,23 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg)
     return false;
   }
 
-  return true;
+  if (m_pMessageDispatchType->DispatchMessage(this, msg))
+    return true;
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg))
+    return true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+    ezLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+#endif
+
+  return false;
 }
 
 EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg) const
 {
-  if (IsActiveAndInitialized() || IsInitializing())
-  {
-    if (!m_pMessageDispatchType->DispatchMessage(this, msg))
-    {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
-        ezLog::Warning("(const) Component type '{0}' does not have a CONST message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
-#endif
-
-      return false;
-    }
-    else if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler))
-    {
-      return OnUnhandledMessage(msg);
-    }
-  }
-  else
+  if (!IsActiveAndInitialized() && !IsInitializing())
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
@@ -124,7 +103,18 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg) const
     return false;
   }
 
-  return true;
+  if (m_pMessageDispatchType->DispatchMessage(this, msg))
+    return true;
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg))
+    return true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+    ezLog::Warning("(const) Component type '{0}' does not have a CONST message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+#endif
+
+  return false;
 }
 
 template <typename ManagerType>
