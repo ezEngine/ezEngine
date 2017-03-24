@@ -7,63 +7,18 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/BinarySerializer.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// ezVisualScriptAssetDocument
+//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 2, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
-
-bool ezVisualScriptNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
-{
-  auto pType = pObject->GetTypeAccessor().GetType();
-  //return pType->IsDerivedFrom<ezVisualScriptPass>() || pType->IsDerivedFrom<ezExtractor>();
-  return false;
-}
-
-void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
-{
-  auto pType = pObject->GetTypeAccessor().GetType();
-  //if (!pType->IsDerivedFrom<ezVisualScriptPass>())
-    return;
-
-}
-
-void ezVisualScriptNodeManager::InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node)
-{
-  for (ezPin* pPin : node.m_Inputs)
-  {
-    EZ_DEFAULT_DELETE(pPin);
-  }
-  node.m_Inputs.Clear();
-  for (ezPin* pPin : node.m_Outputs)
-  {
-    EZ_DEFAULT_DELETE(pPin);
-  }
-  node.m_Outputs.Clear();
-}
-
-
-void ezVisualScriptNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
-{
-  ezSet<const ezRTTI*> typeSet;
-  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), typeSet, false);
-
-  Types.Clear();
-
-  for (auto pType : typeSet)
-  {
-    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-      continue;
-
-    Types.PushBack(pType);
-  }
-}
-
-ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const
-{
-  //if (!pTarget->GetConnections().IsEmpty())
-  //  return ezStatus("Only one connection can be made to in input pin!");
-
-  return ezStatus(EZ_SUCCESS);
-}
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
   : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezVisualScriptNodeManager), false, false)

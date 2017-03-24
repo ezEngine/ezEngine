@@ -8,22 +8,22 @@
 
 class ezQtNodeView;
 
-class ezQtVisualShaderScene : public ezQtNodeScene
+class ezQtVisualScriptAssetScene : public ezQtNodeScene
 {
   Q_OBJECT
 
 public:
-  ezQtVisualShaderScene(QObject* parent = nullptr);
-  ~ezQtVisualShaderScene();
+  ezQtVisualScriptAssetScene(QObject* parent = nullptr);
+  ~ezQtVisualScriptAssetScene();
 
 protected:
   virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin) override;
 };
 
-class ezQtVisualShaderPin : public ezQtPin
+class ezQtVisualScriptPin : public ezQtPin
 {
 public:
-  ezQtVisualShaderPin();
+  ezQtVisualScriptPin();
 
   virtual void SetPin(const ezPin* pPin) override;
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
@@ -32,18 +32,18 @@ public:
   virtual void ConnectedStateChanged(bool bConnected) override;
 };
 
-class ezQtVisualShaderConnection : public ezQtConnection
+class ezQtVisualScriptConnection : public ezQtConnection
 {
 public:
-  ezQtVisualShaderConnection(QGraphicsItem* parent = 0);
+  ezQtVisualScriptConnection(QGraphicsItem* parent = 0);
 
   virtual QPen DeterminePen() const override;
 };
 
-class ezQtVisualShaderNode : public ezQtNode
+class ezQtVisualScriptNode : public ezQtNode
 {
 public:
-  ezQtVisualShaderNode();
+  ezQtVisualScriptNode();
 
   virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText = nullptr) override;
 

@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetScene.moc.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
@@ -10,7 +10,6 @@
 
 #include <QLabel>
 #include <QLayout>
-
 
 ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
