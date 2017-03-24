@@ -39,8 +39,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
   void Remove(ezUInt32 uiIndex);
 
   ezEnum<ezPropertyCategory> m_Category;
-  ezString m_sName;
-  ezString m_sType;
+  ezString m_sName; ///< The name of this property. E.g. what ezAbstractProperty::GetPropertyName() returns.
+  ezString m_sType; ///< The name of the type of the property. E.g. ezAbstractProperty::GetSpecificType().GetTypeName()
 
   ezBitflags<ezPropertyFlags> m_Flags;
   ezVariant m_ConstantValue;

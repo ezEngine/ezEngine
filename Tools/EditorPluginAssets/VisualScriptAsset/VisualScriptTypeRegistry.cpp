@@ -7,6 +7,7 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -60,6 +61,25 @@ const ezVisualScriptNodeDescriptor* ezVisualScriptTypeRegistry::GetDescriptorFor
   return &it.Value();
 }
 
+void ezVisualScriptTypeRegistry::LoadNodeData()
+{
+  // Base Node Type
+  if (m_pBaseType == nullptr)
+  {
+    ezReflectedTypeDescriptor desc;
+    desc.m_sTypeName = "ezVisualScriptNodeBase";
+    desc.m_sPluginName = "VisualScriptTypes";
+    desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
+    desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
+    desc.m_uiTypeSize = 0;
+    desc.m_uiTypeVersion = 1;
+
+    m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
+  }
+
+  UpdateNodeData();
+}
+
 void ezVisualScriptTypeRegistry::UpdateNodeData()
 {
   /*ezVisualScriptNodeDescriptor nd;
@@ -71,6 +91,70 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
   ExtractNodePins(pNode, "OutputPin", nd.m_OutputPins, true);
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);*/
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+
+  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    if (!pRtti->IsDerivedFrom<ezVisualScriptNode>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+      continue;
+
+    ezVisualScriptNodeDescriptor nd;
+    nd.m_sName = pRtti->GetTypeName();
+    nd.m_Color = ezColor::CadetBlue;
+
+    if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+    {
+      nd.m_sCategory = pAttr->GetCategory();
+
+      //if (nd.m_sCategory == "stuff")
+      //  nd.m_Color = ezColor::CadetBlue;
+    }
+
+    if (const ezColorAttribute* pAttr = pRtti->GetAttributeByType<ezColorAttribute>())
+    {
+      nd.m_Color = pAttr->GetColor();
+    }
+
+    pRtti->GetAllProperties(properties);
+
+    for (auto prop : properties)
+    {
+      if (prop->GetCategory() == ezPropertyCategory::Constant)
+      {
+        ezVisualScriptPinDescriptor pd;
+        pd.m_sName = prop->GetPropertyName();
+        pd.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+
+        if (const ezVisualScriptInputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptInputPinAttribute>())
+        {
+          pd.m_Color = ezColor::Violet; /// \todo Category for color
+          pd.m_pDataType = prop->GetSpecificType(); /// \todo Category for type
+          nd.m_InputPins.PushBack(pd);
+        }
+
+        if (const ezVisualScriptOutputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptOutputPinAttribute>())
+        {
+          pd.m_Color = ezColor::Violet;  /// \todo Category for color
+          pd.m_pDataType = prop->GetSpecificType(); /// \todo Category for type
+          nd.m_OutputPins.PushBack(pd);
+        }
+      }
+      else
+      {
+        ezReflectedPropertyDescriptor pd;
+        pd.m_Flags = prop->GetFlags();
+        pd.m_Category = prop->GetCategory();
+        pd.m_sName = prop->GetPropertyName();
+        pd.m_sType = prop->GetSpecificType()->GetTypeName();
+        pd.m_ReferenceAttributes = prop->GetAttributes();
+
+        nd.m_Properties.PushBack(pd);
+      }
+    }
+
+    m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
+  }
 
   // dummy
   {
@@ -99,25 +183,6 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
 
     m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
   }
-}
-
-void ezVisualScriptTypeRegistry::LoadNodeData()
-{
-  // Base Node Type
-  if (m_pBaseType == nullptr)
-  {
-    ezReflectedTypeDescriptor desc;
-    desc.m_sTypeName = "ezVisualScriptNodeBase";
-    desc.m_sPluginName = "VisualScriptTypes";
-    desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-    desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
-    desc.m_uiTypeSize = 0;
-    desc.m_uiTypeVersion = 1;
-
-    m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
-  }
-
-  UpdateNodeData();
 }
 
 const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& nd)

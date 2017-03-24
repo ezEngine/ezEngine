@@ -9,7 +9,7 @@
 struct ezVisualScriptPinDescriptor
 {
   ezString m_sName;
-  //const ezRTTI* m_pDataType;
+  const ezRTTI* m_pDataType;
   //ezReflectedPropertyDescriptor m_PropertyDesc;
   ezColorGammaUB m_Color;
   //bool m_bExposeAsProperty = false;

@@ -30,6 +30,58 @@ private:
   ezUInt16 m_uiNodeID;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+enum class ezVisualScriptPinCategory
+{
+  Execution,
+  Number,
+  Vector,
+  Boolean,
+  //ObjectReference,
+  //ComponentReference,
+  //ResourceReference,
+};
+
+class EZ_GAMEENGINE_DLL ezVisualScriptInputPinAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptInputPinAttribute, ezPropertyAttribute);
+
+public:
+  ezVisualScriptInputPinAttribute() {}
+  ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory category)
+  {
+    m_Category = category;
+  }
+
+  ezVisualScriptPinCategory GetCategory() const { return m_Category; }
+
+private:
+  ezVisualScriptPinCategory m_Category;
+};
+
+class EZ_GAMEENGINE_DLL ezVisualScriptOutputPinAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptOutputPinAttribute, ezPropertyAttribute);
+
+public:
+  ezVisualScriptOutputPinAttribute() {}
+  ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory category)
+  {
+    m_Category = category;
+  }
+
+  ezVisualScriptOutputPinAttribute GetCategory() const { return m_Category; }
+
+private:
+  ezVisualScriptPinCategory m_Category;
+};
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Counter : public ezVisualScriptNode
 {

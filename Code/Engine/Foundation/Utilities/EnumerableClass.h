@@ -33,18 +33,18 @@ public:
       Derived::s_pFirstInstance = this;
     else
       Derived::s_pLastInstance->m_pNextInstance = this;
-    
+
     Derived::s_pLastInstance = this;
     m_pNextInstance = nullptr;
     ++Derived::s_uiInstances;
   }
-  
+
   virtual ~ezEnumerable()
   {
     --Derived::s_uiInstances;
     ezEnumerable* pPrev = nullptr;
     ezEnumerable* pCur = Derived::s_pFirstInstance;
-    
+
     while (pCur)
     {
       if (pCur == this)
@@ -53,13 +53,13 @@ public:
           Derived::s_pFirstInstance = m_pNextInstance;
         else
           pPrev->m_pNextInstance = m_pNextInstance;
-        
+
         if (Derived::s_pLastInstance == this)
           Derived::s_pLastInstance = pPrev;
-        
+
         break;
       }
-      
+
       pPrev = pCur;
       pCur = pCur->m_pNextInstance;
     }
@@ -88,6 +88,7 @@ protected:
   public: \
     static self* GetFirstInstance() { return (self*) s_pFirstInstance; } \
     self* GetNextInstance() { return (self*) m_pNextInstance; } \
+    const self* GetNextInstance() const { return (const self*) m_pNextInstance; } \
   private:
 
 /// \brief Insert this macro in a cpp file and pass the class name of the to-be-enumerable class as the parameter.

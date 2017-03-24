@@ -20,15 +20,15 @@ struct ezPropertyFlags
   {
     StandardType = EZ_BIT(0), ///< Anything that can be stored inside an ezVariant except for pointers and containers.
     IsEnum = EZ_BIT(1),       ///< enum property, cast to ezAbstractEnumerationProperty.
-    Bitflags = EZ_BIT(2),     ///< bitflags property, cast to ezAbstractEnumerationProperty.
+    Bitflags = EZ_BIT(2),     ///< Bitflags property, cast to ezAbstractEnumerationProperty.
     Pointer = EZ_BIT(3),      ///< Is a pointer to a type.
     EmbeddedClass = EZ_BIT(4),///< An embedded struct or class. All of the above are mutually exclusive.
 
     Constant = EZ_BIT(5),     ///< Property is a constant.
     PointerOwner = EZ_BIT(6), ///< This pointer property takes ownership of the passed pointer.
     ReadOnly = EZ_BIT(7),     ///< Can only be read but not modified.
-    Hidden = EZ_BIT(8),
-    Phantom = EZ_BIT(9),
+    Hidden = EZ_BIT(8),       ///< This property should not appear in the UI.
+    Phantom = EZ_BIT(9),      ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used for data driven types, e.g. by the Visual Shader asset.
     Default = 0
   };
 
@@ -176,7 +176,7 @@ public:
   /// For example GetSpecificType() might return that a property is of type ezVec3. In that case one might either stop and just use the code to handle
   /// ezVec3 types, or one might continue and enumerate all sub-properties (x, y and z) as well.
   ///
-  /// \note There is no guarantee that this function returns a non-nullptr pointer, independent of the type. When a property uses custom 'accessors' 
+  /// \note There is no guarantee that this function returns a non-nullptr pointer, independent of the type. When a property uses custom 'accessors'
   /// (functions to get / set the property value), it is not possible (or useful) to get the property pointer.
   virtual void* GetPropertyPointer(const void* pInstance) const = 0;
 
@@ -271,7 +271,7 @@ public:
   /// \brief Removes the target of pObject from the set.
   virtual void Remove(void* pInstance, void* pObject) = 0;
 
-  /// \brief Returns whether the target of pObject is in the set. 
+  /// \brief Returns whether the target of pObject is in the set.
   virtual bool Contains(const void* pInstance, void* pObject) const = 0;
 
   /// \brief Writes the content of the set to out_keys.

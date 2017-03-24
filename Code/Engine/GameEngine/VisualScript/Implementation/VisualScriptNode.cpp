@@ -4,6 +4,16 @@
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Messages/CollisionMessage.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptInputPinAttribute, 1, ezRTTIDefaultAllocator<ezVisualScriptInputPinAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptOutputPinAttribute, 1, ezRTTIDefaultAllocator<ezVisualScriptOutputPinAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -44,11 +54,13 @@ void ezVisualScriptNode::ExecuteTargetNode(const ezVisualScriptInstance* pInstan
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Counter, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Counter>)
 {
-  //EZ_BEGIN_MESSAGEHANDLERS
-  //{
-    //EZ_MESSAGE_HANDLER(ezCollisionMessage, CollisionMessageHandler)
-  //}
-  //EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("Count", double(0.0))->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Number)),
+  }
+  EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -70,9 +82,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Value", m_iValue)
+    EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("Value", double(0.0))->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
   }
-    EZ_END_PROPERTIES
+  EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -94,6 +107,17 @@ void ezVisualScriptNode_Printer::SetInputPinValue(ezUInt8 uiPin, const ezVariant
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_If>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("execOut0",   0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("execOut1",   0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("Value1", double(0.0))->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
+    EZ_CONSTANT_PROPERTY("Value2", double(0.0))->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
+  }
+  EZ_END_PROPERTIES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode_If::ezVisualScriptNode_If()
@@ -136,11 +160,17 @@ void ezVisualScriptNode_If::SetInputPinValue(ezUInt8 uiPin, const ezVariant& val
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Input>)
 {
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+  }
+  EZ_END_PROPERTIES
+
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
   }
-    EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
