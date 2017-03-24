@@ -13,7 +13,7 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderPipelineAssetManager::OnDocumentManagerEvent, this));
 
   // additional whitelist for non-asset files where an asset may be selected
-  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
+  //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Render Pipeline Asset";

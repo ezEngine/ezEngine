@@ -268,6 +268,26 @@ void OnLoadPlugin(bool bReloading)
     }
   }
 
+  // Visual Script Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar");
+      ezProjectActions::MapActions("VisualScriptAssetMenuBar");
+      ezStandardMenus::MapActions("VisualScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("VisualScriptAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar");
+      ezDocumentActions::MapActions("VisualScriptAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar", "");
+      ezAssetActions::MapActions("VisualScriptAssetToolBar", true);
+    }
+  }
+
   // General editor plugin actions
   {
     ezAssetPluginActions::RegisterActions();
