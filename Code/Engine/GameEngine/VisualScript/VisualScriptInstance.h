@@ -3,8 +3,10 @@
 #include <GameEngine/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Containers/HybridArray.h>
 
 class ezVisualScriptNode;
+class ezMessage;
 
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;

@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <Foundation/Strings/HashedString.h>
 
 ezVisualScriptInstance::ezVisualScriptInstance()
 {
