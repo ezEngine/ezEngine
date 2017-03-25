@@ -206,6 +206,7 @@ ezStatus ezDocumentNodeManager::CanMoveNode(const ezDocumentObject* pObject, con
 void ezDocumentNodeManager::Connect(const ezPin* pSource, const ezPin* pTarget)
 {
   ezDocumentNodeManager::CanConnectResult res;
+  EZ_IGNORE_UNUSED(res);
   EZ_ASSERT_DEBUG(CanConnect(pSource, pTarget, res).m_Result.Succeeded(), "Connect: Sanity check failed!");
 
   ezConnection* pConnection = InternalCreateConnection(pSource, pTarget);

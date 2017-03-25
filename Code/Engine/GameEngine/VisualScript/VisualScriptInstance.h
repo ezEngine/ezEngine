@@ -4,6 +4,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Types/Variant.h>
 
 class ezVisualScriptNode;
 class ezMessage;
