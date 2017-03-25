@@ -135,6 +135,9 @@ void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const
   if (temp.StartsWith_NoCase("VisualScriptNode::"))
     temp.Shrink(18, 0);
 
+  if (temp.StartsWith_NoCase("ezVisualScriptNode_"))
+    temp.Shrink(19, 0);
+
   ezQtNode::InitNode(pManager, pObject, temp);
 
   const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());

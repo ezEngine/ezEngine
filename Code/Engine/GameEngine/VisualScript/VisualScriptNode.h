@@ -14,14 +14,15 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode : public ezReflectedClass
 public:
   ezVisualScriptNode();
 
-  virtual void Execute(const ezVisualScriptInstance* pInstance) = 0;
+  virtual void Execute(ezVisualScriptInstance* pInstance) = 0;
   virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) = 0;
 
+  /// \brief Whether the node has an execution pin (input or output) and thus must be stepped manually. Otherwise it will be implicitly executed on demand.
+  bool IsManuallyStepped() const;
+
 protected:
-  void SetOutputPinValue(const ezVisualScriptInstance* pInstance, ezUInt8 uiPin, const ezVariant& value);
 
-  void ExecuteTargetNode(const ezVisualScriptInstance* pInstance, ezUInt16 uiNthTarget);
-
+  /// When this is set to true (e.g. in a message handler, the node will be stepped during the next script update)
   bool m_bStepNode = false;
 
 private:
@@ -89,7 +90,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_Counter : public ezVisualScriptNode
 public:
   ezVisualScriptNode_Counter();
 
-  virtual void Execute(const ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance) override;
   virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override {};
 
   ezInt32 m_iCounter = 0;
@@ -102,7 +103,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_Printer : public ezVisualScriptNode
 public:
   ezVisualScriptNode_Printer();
 
-  virtual void Execute(const ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance) override;
   virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override;
 
   ezString m_sPrint;
@@ -115,7 +116,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_If : public ezVisualScriptNode
 public:
   ezVisualScriptNode_If();
 
-  virtual void Execute(const ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance) override;
   virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override;
 
   double m_Value1;
@@ -128,7 +129,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_Input : public ezVisualScriptNode
 public:
   ezVisualScriptNode_Input();
 
-  virtual void Execute(const ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance) override;
   void TriggerMessageHandler(ezTriggerMessage& msg);
 
   ezUInt32 m_UsageStringHash = 0;

@@ -312,9 +312,14 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     for (const ezRTTI* pRtti : types)
     {
       const char* szCleanName = pRtti->GetTypeName();
+
       const char* szColonColon = ezStringUtils::FindLastSubString(szCleanName, "::");
       if (szColonColon != nullptr)
         szCleanName = szColonColon + 2;
+
+      const char* szUnderscore = ezStringUtils::FindLastSubString(szCleanName, "_");
+      if (szUnderscore != nullptr)
+        szCleanName = szUnderscore + 1;
 
       sFullName = m_pManager->GetTypeCategory(pRtti);
       sFullName.AppendPath(szCleanName);

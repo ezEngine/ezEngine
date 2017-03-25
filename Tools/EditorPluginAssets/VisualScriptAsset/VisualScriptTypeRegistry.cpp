@@ -82,16 +82,6 @@ void ezVisualScriptTypeRegistry::LoadNodeData()
 
 void ezVisualScriptTypeRegistry::UpdateNodeData()
 {
-  /*ezVisualScriptNodeDescriptor nd;
-  nd.m_sName = pNode->GetName();
-
-  ExtractNodeConfig(pNode, nd);
-  ExtractNodeProperties(pNode, nd);
-  ExtractNodePins(pNode, "InputPin", nd.m_InputPins, false);
-  ExtractNodePins(pNode, "OutputPin", nd.m_OutputPins, true);
-
-  m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);*/
-
   ezHybridArray<ezAbstractProperty*, 32> properties;
 
   for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())

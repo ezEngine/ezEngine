@@ -19,35 +19,29 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode::ezVisualScriptNode()
 {
-
 }
 
-void ezVisualScriptNode::SetOutputPinValue(const ezVisualScriptInstance* pInstance, ezUInt8 uiPin, const ezVariant& value)
+bool ezVisualScriptNode::IsManuallyStepped() const
 {
-  const ezUInt32 uiConnectionID = ((ezUInt32)m_uiNodeID << 16) | (ezUInt32)uiPin;
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  GetDynamicRTTI()->GetAllProperties(properties);
 
-  ezHybridArray<ezUInt32, 2>* TargetNodeAndPins;
-  if (!pInstance->m_DataConnections.TryGetValue(uiConnectionID, TargetNodeAndPins))
-    return;
-
-  for (ezUInt32 uiTargetNodeAndPin : *TargetNodeAndPins)
+  for (auto prop : properties)
   {
-    const ezUInt32 uiTargetNode = uiTargetNodeAndPin >> 16;
-    const ezUInt8 uiTargetPin = uiTargetNodeAndPin & 0xFF;
+    if (const ezVisualScriptInputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptInputPinAttribute>())
+    {
+      if (pAttr->GetCategory() == ezVisualScriptPinCategory::Execution)
+        return true;
+    }
 
-    pInstance->m_Nodes[uiTargetNode]->SetInputPinValue(uiTargetPin, value);
+    if (const ezVisualScriptOutputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptOutputPinAttribute>())
+    {
+      if (pAttr->GetCategory() == ezVisualScriptPinCategory::Execution)
+        return true;
+    }
   }
-}
 
-void ezVisualScriptNode::ExecuteTargetNode(const ezVisualScriptInstance* pInstance, ezUInt16 uiNthTarget)
-{
-  const ezUInt32 uiConnectionID = ((ezUInt32)m_uiNodeID << 16) | (ezUInt32)uiNthTarget;
-
-  ezUInt16 uiTargetNode = 0;
-  if (!pInstance->m_ExecutionConnections.TryGetValue(uiConnectionID, uiTargetNode))
-    return;
-
-  pInstance->m_Nodes[uiTargetNode]->Execute(pInstance);
+  return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,12 +64,12 @@ ezVisualScriptNode_Counter::ezVisualScriptNode_Counter()
 {
 }
 
-void ezVisualScriptNode_Counter::Execute(const ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Counter::Execute(ezVisualScriptInstance* pInstance)
 {
   ++m_iCounter;
-  SetOutputPinValue(pInstance, 0, m_iCounter);
+  pInstance->SetOutputPinValue(this, 0, m_iCounter);
 
-  ExecuteTargetNode(pInstance, 0);
+  pInstance->ExecuteConnectedNodes(this, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,7 +92,7 @@ ezVisualScriptNode_Printer::ezVisualScriptNode_Printer()
   m_sPrint = "Current Value: {0}";
 }
 
-void ezVisualScriptNode_Printer::Execute(const ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Printer::Execute(ezVisualScriptInstance* pInstance)
 {
   ezLog::Info(m_sPrint, m_iValue);
 }
@@ -132,15 +126,15 @@ ezVisualScriptNode_If::ezVisualScriptNode_If()
   m_Value2 = 0.0;
 }
 
-void ezVisualScriptNode_If::Execute(const ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_If::Execute(ezVisualScriptInstance* pInstance)
 {
   if (m_Value1 < m_Value2)
   {
-    ExecuteTargetNode(pInstance, 0);
+    pInstance->ExecuteConnectedNodes(this, 0);
   }
   else
   {
-    ExecuteTargetNode(pInstance, 1);
+    pInstance->ExecuteConnectedNodes(this, 1);
   }
 }
 
@@ -174,7 +168,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAlloca
   }
   EZ_END_PROPERTIES
 
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
   }
@@ -186,9 +180,9 @@ ezVisualScriptNode_Input::ezVisualScriptNode_Input()
 {
 }
 
-void ezVisualScriptNode_Input::Execute(const ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Input::Execute(ezVisualScriptInstance* pInstance)
 {
-  ExecuteTargetNode(pInstance, 0);
+  pInstance->ExecuteConnectedNodes(this, 0);
 }
 
 void ezVisualScriptNode_Input::TriggerMessageHandler(ezTriggerMessage& msg)
