@@ -3,6 +3,8 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
+struct ezVisualScriptResourceDescriptor;
+
 class ezVisualScriptAssetDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptAssetDocument, ezAssetDocument);
@@ -18,4 +20,6 @@ protected:
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
+
+  void GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc);
 };

@@ -71,7 +71,7 @@ public:
     m_Category = category;
   }
 
-  ezVisualScriptOutputPinAttribute GetCategory() const { return m_Category; }
+  ezVisualScriptPinCategory GetCategory() const { return m_Category; }
 
 private:
   ezVisualScriptPinCategory m_Category;

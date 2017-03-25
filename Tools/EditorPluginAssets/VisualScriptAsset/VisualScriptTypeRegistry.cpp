@@ -100,7 +100,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
       continue;
 
     ezVisualScriptNodeDescriptor nd;
-    nd.m_sName = pRtti->GetTypeName();
+    nd.m_sTypeName = pRtti->GetTypeName();
     nd.m_Color = ezColor::CadetBlue;
 
     if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
@@ -122,21 +122,42 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
     {
       if (prop->GetCategory() == ezPropertyCategory::Constant)
       {
+        const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(prop);
+        if (!pConstant->GetConstant().CanConvertTo<ezUInt16>())
+          continue;
+
+        const ezUInt16 uiPinIndex = pConstant->GetConstant().ConvertTo<ezUInt16>();
+
         ezVisualScriptPinDescriptor pd;
         pd.m_sName = prop->GetPropertyName();
         pd.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+        pd.m_uiPinIndex = uiPinIndex;
 
         if (const ezVisualScriptInputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptInputPinAttribute>())
         {
+          pd.m_PinType = (pAttr->GetCategory() == ezVisualScriptPinCategory::Execution) ? ezVisualScriptPinDescriptor::PinType::Execution : ezVisualScriptPinDescriptor::PinType::Data;
           pd.m_Color = ezColor::Violet; /// \todo Category for color
           pd.m_pDataType = prop->GetSpecificType(); /// \todo Category for type
+
+          if (pd.m_PinType == ezVisualScriptPinDescriptor::Execution)
+          {
+            pd.m_Color = ezColor::LightSlateGrey;
+          }
+
           nd.m_InputPins.PushBack(pd);
         }
 
         if (const ezVisualScriptOutputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptOutputPinAttribute>())
         {
+          pd.m_PinType = (pAttr->GetCategory() == ezVisualScriptPinCategory::Execution) ? ezVisualScriptPinDescriptor::PinType::Execution : ezVisualScriptPinDescriptor::PinType::Data;
           pd.m_Color = ezColor::Violet;  /// \todo Category for color
           pd.m_pDataType = prop->GetSpecificType(); /// \todo Category for type
+
+          if (pd.m_PinType == ezVisualScriptPinDescriptor::Execution)
+          {
+            pd.m_Color = ezColor::LightSlateGrey;
+          }
+
           nd.m_OutputPins.PushBack(pd);
         }
       }
@@ -155,40 +176,12 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
 
     m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
   }
-
-  // dummy
-  {
-    ezVisualScriptNodeDescriptor nd;
-    nd.m_sName = "Dummy";
-    nd.m_Color = ezColor::CadetBlue;
-    nd.m_sCategory = "Test";
-
-    {
-      ezVisualScriptPinDescriptor pd;
-      pd.m_Color = ezColor::Violet;
-      pd.m_sName = "In 1";
-      pd.m_sTooltip = "Tooltip";
-
-      nd.m_InputPins.PushBack(pd);
-    }
-
-    {
-      ezVisualScriptPinDescriptor pd;
-      pd.m_Color = ezColor::Wheat;
-      pd.m_sName = "Out 1";
-      pd.m_sTooltip = "Tooltip";
-
-      nd.m_OutputPins.PushBack(pd);
-    }
-
-    m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
-  }
 }
 
 const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& nd)
 {
   ezStringBuilder temp;
-  temp.Set("VisualScriptNode::", nd.m_sName);
+  temp.Set("VisualScriptNode::", nd.m_sTypeName);
 
   ezReflectedTypeDescriptor desc;
   desc.m_sTypeName = temp;

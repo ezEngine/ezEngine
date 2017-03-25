@@ -67,7 +67,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
   ezUInt16 uiNodeId = 0;
   for (const auto& node : resource.m_Nodes)
   {
-    ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(node.m_Type->GetAllocator()->Allocate());
+    ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(node.m_pType->GetAllocator()->Allocate());
     pNode->m_uiNodeID = uiNodeId++;
 
     m_Nodes.PushBack(pNode);

@@ -100,7 +100,7 @@ void ezVisualScriptComponent::Update()
     }
   }
 
-  //m_Script->ExecuteScript();
+  m_Script->ExecuteScript();
 }
 
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg)

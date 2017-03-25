@@ -9,9 +9,9 @@
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
-
-
-
+#include <VisualShader/VisualShaderTypeRegistry.h>
+#include <GameEngine/VisualScript/VisualScriptResource.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
@@ -27,34 +27,16 @@ ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentP
 
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  ezVisualScriptResourceDescriptor desc;
+  GenerateVisualScriptDescriptor(desc);
 
-  ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
-  ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), true, true);
+  ezResourceHandleWriteContext context;
+  context.BeginWritingToStream(&stream);
 
-  auto& children = GetObjectManager()->GetRootObject()->GetChildren();
-  for (ezDocumentObject* pObject : children)
-  {
-    auto pType = pObject->GetTypeAccessor().GetType();
-    //if (pType->IsDerivedFrom<ezVisualScriptPass>())
-    //{
-    //  objectConverter.AddObjectToGraph(pObject, "Pass");
-    //}
-  }
+  desc.Save(stream);
 
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  pManager->AttachMetaDataBeforeSaving(graph);
+  context.EndWritingToStream(&stream);
 
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezAbstractGraphBinarySerializer::Write(writer, &graph);
-
-  ezUInt32 uiSize = storage.GetStorageSize();
-  stream << uiSize;
-  stream.WriteBytes(storage.GetData(), uiSize);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -91,5 +73,74 @@ void ezVisualScriptAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph);
+}
+
+void ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc)
+{
+  ezVisualScriptNodeManager* pNodeManager = static_cast<ezVisualScriptNodeManager*>(GetObjectManager());
+  ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
+  const ezRTTI* pNodeBaseRtti = pTypeRegistry->GetNodeBaseType();
+
+  ezDynamicArray<const ezDocumentObject*> allNodes;
+  allNodes.Reserve(64);
+
+  const auto& children = GetObjectManager()->GetRootObject()->GetChildren();
+  for (const ezDocumentObject* pObject : children)
+  {
+    auto pType = pObject->GetTypeAccessor().GetType();
+    if (!pType->IsDerivedFrom(pNodeBaseRtti))
+      continue;
+
+    allNodes.PushBack(pObject);
+  }
+
+  ezMap<const ezDocumentObject*, ezUInt16> ObjectToIndex;
+  desc.m_Nodes.Reserve(allNodes.GetCount());
+
+  for (ezUInt32 i = 0; i < allNodes.GetCount(); ++i)
+  {
+    const ezDocumentObject* pObject = allNodes[i];
+    const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
+
+    auto& node = desc.m_Nodes.ExpandAndGetRef();
+    node.m_pType = nullptr;
+    node.m_sTypeName = pDesc->m_sTypeName;
+
+    ObjectToIndex[pObject] = i;
+  }
+
+  for (ezUInt32 srcNodeIdx = 0; srcNodeIdx < allNodes.GetCount(); ++srcNodeIdx)
+  {
+    const ezDocumentObject* pSrcObject = allNodes[srcNodeIdx];
+
+    const ezArrayPtr<ezPin* const> outputPins = pNodeManager->GetOutputPins(pSrcObject);
+
+    for (const ezPin* pPin : outputPins)
+    {
+      const auto connections = pPin->GetConnections();
+
+      for (const ezConnection* pCon : connections)
+      {
+        const ezVisualScriptPin* pVsPinSource = static_cast<const ezVisualScriptPin*>(pCon->GetSourcePin());
+        const ezVisualScriptPin* pVsPinTarget = static_cast<const ezVisualScriptPin*>(pCon->GetTargetPin());
+
+        if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Execution)
+        {
+          auto& path = desc.m_ExecutionPaths.ExpandAndGetRef();
+          path.m_uiSourceNode = srcNodeIdx;
+          path.m_uiOutputPin = pVsPinSource->GetDescriptor()->m_uiPinIndex;
+          path.m_uiTargetNode = ObjectToIndex[pVsPinTarget->GetParent()];
+        }
+        else if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data)
+        {
+          auto& path = desc.m_DataPaths.ExpandAndGetRef();
+          path.m_uiSourceNode = srcNodeIdx;
+          path.m_uiOutputPin = pVsPinSource->GetDescriptor()->m_uiPinIndex;
+          path.m_uiTargetNode = ObjectToIndex[pVsPinTarget->GetParent()];
+          path.m_uiInputPin = pVsPinTarget->GetDescriptor()->m_uiPinIndex;
+        }
+      }
+    }
+  }
 }
 

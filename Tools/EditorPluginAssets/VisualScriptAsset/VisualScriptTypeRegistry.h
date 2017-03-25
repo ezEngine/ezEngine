@@ -8,6 +8,8 @@
 
 struct ezVisualScriptPinDescriptor
 {
+  enum PinType { Execution, Data };
+
   ezString m_sName;
   const ezRTTI* m_pDataType;
   //ezReflectedPropertyDescriptor m_PropertyDesc;
@@ -15,11 +17,14 @@ struct ezVisualScriptPinDescriptor
   //bool m_bExposeAsProperty = false;
   //ezString m_sDefaultValue;
   ezString m_sTooltip;
+
+  PinType m_PinType;
+  ezUInt8 m_uiPinIndex;
 };
 
 struct ezVisualScriptNodeDescriptor
 {
-  ezString m_sName;
+  ezString m_sTypeName;
   ezString m_sCategory;
   ezColorGammaUB m_Color;
 

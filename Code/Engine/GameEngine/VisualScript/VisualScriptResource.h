@@ -14,9 +14,8 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
 
   struct Node
   {
-    EZ_DECLARE_POD_TYPE();
-
-    const ezRTTI* m_Type = nullptr;
+    const ezRTTI* m_pType = nullptr; ///< Cached resolved type pointer after loading
+    ezString m_sTypeName; ///< This is what gets written to the file if m_pType is null.
 
     /// \todo Properties
   };

@@ -112,8 +112,9 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   for (auto& node : m_Nodes)
   {
     stream >> sType;
+    node.m_sTypeName = sType;
 
-    node.m_Type = ezRTTI::FindTypeByName(sType);
+    node.m_pType = ezRTTI::FindTypeByName(sType);
 
     /// \todo Properties
   }
@@ -150,7 +151,14 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 
   for (const auto& node : m_Nodes)
   {
-    stream << node.m_Type->GetTypeName();
+    if (node.m_pType != nullptr)
+    {
+      stream << node.m_pType->GetTypeName();
+    }
+    else
+    {
+      stream << node.m_sTypeName;
+    }
 
     /// \todo Properties
   }

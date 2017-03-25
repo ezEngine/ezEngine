@@ -56,9 +56,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Counter, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
+    // Execution Pins
     EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Execution)),
     EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("Count", double(0.0))->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Number)),
+    // Data Pins
+    EZ_CONSTANT_PROPERTY("Count", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Number)),
   }
   EZ_END_PROPERTIES
 }
@@ -82,8 +84,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
+    // Execution Pins
     EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("Value", double(0.0))->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
+    // Data Pins
+    EZ_CONSTANT_PROPERTY("Value", 0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
   }
   EZ_END_PROPERTIES
 }
@@ -110,11 +114,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
+    // Execution Pins
     EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("execOut0",   0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("execOut1",   0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("Value1", double(0.0))->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
-    EZ_CONSTANT_PROPERTY("Value2", double(0.0))->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
+    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("execOut1", 1)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    // Data Pins
+    EZ_CONSTANT_PROPERTY("Value1", 0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
+    EZ_CONSTANT_PROPERTY("Value2", 1)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
   }
   EZ_END_PROPERTIES
 }
@@ -162,7 +168,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAlloca
 {
   EZ_BEGIN_PROPERTIES
   {
+    // Execution Pins
     EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    // Data Pins
   }
   EZ_END_PROPERTIES
 
@@ -185,7 +193,7 @@ void ezVisualScriptNode_Input::Execute(const ezVisualScriptInstance* pInstance)
 
 void ezVisualScriptNode_Input::TriggerMessageHandler(ezTriggerMessage& msg)
 {
-  if (msg.m_UsageStringHash == m_UsageStringHash)
+  //if (msg.m_UsageStringHash == m_UsageStringHash)
   {
     m_bStepNode = true;
     ezLog::Info("Trigger Msg arrived");
