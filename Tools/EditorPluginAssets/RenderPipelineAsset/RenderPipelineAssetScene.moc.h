@@ -14,6 +14,4 @@ public:
   ezQtRenderPipelineAssetScene(QObject* parent = nullptr);
   ~ezQtRenderPipelineAssetScene();
 
-protected:
-  virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin) override;
 };

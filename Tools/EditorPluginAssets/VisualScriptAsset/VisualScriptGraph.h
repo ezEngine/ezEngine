@@ -40,7 +40,7 @@ public:
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const override;
+  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const override;
 
 private:
   virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) { return EZ_DEFAULT_NEW(ezVisualScriptConnection); }

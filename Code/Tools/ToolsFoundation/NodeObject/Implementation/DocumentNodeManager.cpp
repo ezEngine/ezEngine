@@ -151,27 +151,26 @@ bool ezDocumentNodeManager::IsNode(const ezDocumentObject* pObject) const
   return InternalIsNode(pObject);
 }
 
-ezStatus ezDocumentNodeManager::CanConnect(const ezPin* pSource, const ezPin* pTarget) const
+ezStatus ezDocumentNodeManager::CanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
 {
+  out_Result = CanConnectResult::ConnectNever;
+
   // apparently this can happen when the types change
   if (pSource == nullptr || pTarget == nullptr)
     return ezStatus("Invalid inputs");
 
-  //EZ_ASSERT_DEV(pSource != nullptr, "Invalid input!");
-  //EZ_ASSERT_DEV(pTarget != nullptr, "Invalid input!");
-
   if (pSource->m_Type != ezPin::Type::Output)
-    return ezStatus("Source pin is not an output pin!");
+    return ezStatus("Source pin is not an output pin.");
   if (pTarget->m_Type != ezPin::Type::Input)
-    return ezStatus("Target pin is not an input pin!");
+    return ezStatus("Target pin is not an input pin.");
 
   if (pSource->m_pParent == pTarget->m_pParent)
-    return ezStatus("Can't connect node to itself!");
+    return ezStatus("Nodes cannot be connect with themselves.");
 
   if (m_PinsToConnection.Contains(PinTuple(pSource, pTarget)))
-    return ezStatus("Pins already connected!");
+    return ezStatus("Pins already connected.");
 
-  return InternalCanConnect(pSource, pTarget);
+  return InternalCanConnect(pSource, pTarget, out_Result);
 }
 
 ezStatus ezDocumentNodeManager::CanDisconnect(const ezConnection* pConnection) const
@@ -206,7 +205,8 @@ ezStatus ezDocumentNodeManager::CanMoveNode(const ezDocumentObject* pObject, con
 
 void ezDocumentNodeManager::Connect(const ezPin* pSource, const ezPin* pTarget)
 {
-  EZ_ASSERT_DEBUG(CanConnect(pSource, pTarget).m_Result.Succeeded(), "Connect: Sanity check failed!");
+  ezDocumentNodeManager::CanConnectResult res;
+  EZ_ASSERT_DEBUG(CanConnect(pSource, pTarget, res).m_Result.Succeeded(), "Connect: Sanity check failed!");
 
   ezConnection* pConnection = InternalCreateConnection(pSource, pTarget);
   pConnection->m_pSourcePin = pSource;
@@ -336,7 +336,8 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
             const ezPin* pSourcePin = GetOutputPinByName(pObject, con.m_SourcePin);
             const ezPin* pTargetPin = GetInputPinByName(pTarget, con.m_TargetPin);
 
-            if (CanConnect(pSourcePin, pTargetPin).m_Result.Succeeded())
+            ezDocumentNodeManager::CanConnectResult res;
+            if (CanConnect(pSourcePin, pTargetPin, res).m_Result.Succeeded())
             {
               Connect(pSourcePin, pTargetPin);
             }

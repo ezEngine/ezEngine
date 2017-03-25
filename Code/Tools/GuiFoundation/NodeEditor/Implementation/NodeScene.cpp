@@ -605,12 +605,64 @@ void ezQtNodeScene::RemoveSelectedNodesAction()
 
 void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin)
 {
-  ezStatus res = m_pManager->CanConnect(pSourcePin, pTargetPin);
-  if (res.m_Result.Succeeded())
-  {
-    ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction("Connect Pins");
+  ezDocumentNodeManager::CanConnectResult connect;
+  ezStatus res = m_pManager->CanConnect(pSourcePin, pTargetPin, connect);
 
+  if (connect == ezDocumentNodeManager::CanConnectResult::ConnectNever)
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
+    return;
+  }
+
+  ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
+  history->StartTransaction("Connect Pins");
+
+  // disconnect everything from the source pin
+  if (connect == ezDocumentNodeManager::CanConnectResult::Connect1to1 || connect == ezDocumentNodeManager::CanConnectResult::Connect1toN)
+  {
+    const ezArrayPtr<const ezConnection* const> connections = pSourcePin->GetConnections();
+    for (const ezConnection* pConnection : connections)
+    {
+      ezDisconnectNodePinsCommand cmd;
+      cmd.m_ObjectSource = pConnection->GetSourcePin()->GetParent()->GetGuid();
+      cmd.m_ObjectTarget = pConnection->GetTargetPin()->GetParent()->GetGuid();
+      cmd.m_sSourcePin = pConnection->GetSourcePin()->GetName();
+      cmd.m_sTargetPin = pConnection->GetTargetPin()->GetName();
+
+      res = history->AddCommand(cmd);
+
+      if (res.Failed())
+      {
+        history->CancelTransaction();
+        return;
+      }
+    }
+  }
+
+  // disconnect everything from the target pin
+  if (connect == ezDocumentNodeManager::CanConnectResult::Connect1to1 || connect == ezDocumentNodeManager::CanConnectResult::ConnectNto1)
+  {
+    const ezArrayPtr<const ezConnection* const> connections = pTargetPin->GetConnections();
+    for (const ezConnection* pConnection : connections)
+    {
+      ezDisconnectNodePinsCommand cmd;
+      cmd.m_ObjectSource = pConnection->GetSourcePin()->GetParent()->GetGuid();
+      cmd.m_ObjectTarget = pConnection->GetTargetPin()->GetParent()->GetGuid();
+      cmd.m_sSourcePin = pConnection->GetSourcePin()->GetName();
+      cmd.m_sTargetPin = pConnection->GetTargetPin()->GetName();
+
+      res = history->AddCommand(cmd);
+
+      if (res.Failed())
+      {
+        history->CancelTransaction();
+        return;
+      }
+    }
+  }
+
+  // connect the two pins
+  {
     ezConnectNodePinsCommand cmd;
     cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
     cmd.m_ObjectTarget = pTargetPin->GetParent()->GetGuid();
@@ -618,17 +670,15 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTar
     cmd.m_sTargetPin = pTargetPin->GetName();
 
     res = history->AddCommand(cmd);
-    if (res.m_Result.Failed())
-      history->CancelTransaction();
-    else
-      history->FinishTransaction();
 
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
+    if (res.Failed())
+    {
+      history->CancelTransaction();
+      return;
+    }
   }
-  else
-  {
-    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
-  }
+
+  history->FinishTransaction();
 }
 
 void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)

@@ -86,8 +86,10 @@ void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*
   }
 }
 
-ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const
+ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
 {
+  out_Result = CanConnectResult::ConnectNto1;
+
   if (!pTarget->GetConnections().IsEmpty())
     return ezStatus("Only one connection can be made to in input pin!");
 

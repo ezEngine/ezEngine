@@ -93,8 +93,17 @@ public:
   const ezArrayPtr<ezPin* const> GetOutputPins(const ezDocumentObject* pObject) const;
   const ezConnection* GetConnection(const ezPin* pSource, const ezPin* pTarget) const;
 
+  enum class CanConnectResult
+  {
+    ConnectNever,
+    Connect1to1,
+    Connect1toN,
+    ConnectNto1,
+    ConnectNtoN,
+  };
+
   bool IsNode(const ezDocumentObject* pObject) const;
-  ezStatus CanConnect(const ezPin* pSource, const ezPin* pTarget) const;
+  ezStatus CanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& result) const;
   ezStatus CanDisconnect(const ezConnection* pConnection) const;
   ezStatus CanDisconnect(const ezPin* pSource, const ezPin* pTarget) const;
   ezStatus CanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const;
@@ -148,7 +157,7 @@ protected:
 
 private:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const { return true; }
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const { return ezStatus(EZ_SUCCESS); }
+  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const { out_Result = CanConnectResult::ConnectNtoN; return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCanDisconnect(const ezPin* pSource, const ezPin* pTarget) const { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const { return ezStatus(EZ_SUCCESS); }
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) = 0;

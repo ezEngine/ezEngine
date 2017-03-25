@@ -16,8 +16,6 @@ public:
   ezQtVisualScriptAssetScene(QObject* parent = nullptr);
   ~ezQtVisualScriptAssetScene();
 
-protected:
-  virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin) override;
 };
 
 class ezQtVisualScriptPin : public ezQtPin

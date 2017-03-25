@@ -93,11 +93,6 @@ void ezVisualScriptComponent::Update()
 
       m_Script->Configure(pResource->GetDescriptor());
     }
-    else
-    {
-      /// \todo Remove dummy code
-      m_Script->Configure();
-    }
   }
 
   m_Script->ExecuteScript();

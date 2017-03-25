@@ -98,18 +98,40 @@ void ezVisualScriptNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 
   }
 }
 
-ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const
+ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
 {
   const ezVisualScriptPin* pPinSource = ezDynamicCast<const ezVisualScriptPin*>(pSource);
   const ezVisualScriptPin* pPinTarget = ezDynamicCast<const ezVisualScriptPin*>(pTarget);
 
   EZ_ASSERT_DEBUG(pPinSource != nullptr && pPinTarget != nullptr, "Das ist eigentlich unmoeglich!");
 
+  if (pPinSource->GetDescriptor()->m_PinType != pPinTarget->GetDescriptor()->m_PinType)
+  {
+    out_Result = CanConnectResult::ConnectNever;
+    return ezStatus("Cannot connect data pins with execution pins.");
+  }
+
   if (WouldConnectionCreateCircle(pSource, pTarget))
   {
+    out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Connecting these pins would create a circle in the graph.");
   }
 
+  // only one connection is allowed on DATA input pins, execution input pins may have multiple incoming connections
+  if (pPinTarget->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data && !pPinTarget->GetConnections().IsEmpty())
+  {
+    out_Result = CanConnectResult::ConnectNto1;
+    return ezStatus(EZ_FAILURE);
+  }
+
+  // only one outgoing connection is allowed on EXECUTION pins, data pins may have multiple outgoing connections
+  if (pPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Execution && !pPinSource->GetConnections().IsEmpty())
+  {
+    out_Result = CanConnectResult::Connect1toN;
+    return ezStatus(EZ_FAILURE);
+  }
+
+  out_Result = CanConnectResult::ConnectNtoN;
   return ezStatus(EZ_SUCCESS);
 }
 

@@ -16,8 +16,6 @@ public:
   ezQtVisualShaderScene(QObject* parent = nullptr);
   ~ezQtVisualShaderScene();
 
-protected:
-  virtual void ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin) override;
 };
 
 class ezQtVisualShaderPin : public ezQtPin

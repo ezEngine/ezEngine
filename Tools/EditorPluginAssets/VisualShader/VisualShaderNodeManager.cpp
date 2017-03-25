@@ -100,7 +100,7 @@ void ezVisualShaderNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 
   }
 }
 
-ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const
+ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
 {
   const ezVisualShaderPin* pPinSource = ezDynamicCast<const ezVisualShaderPin*>(pSource);
   const ezVisualShaderPin* pPinTarget = ezDynamicCast<const ezVisualShaderPin*>(pTarget);
@@ -113,20 +113,24 @@ ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin* pSource, con
   if ((pPinSource->GetDataType() == pSamplerType && pPinTarget->GetDataType() != pSamplerType) ||
     (pPinSource->GetDataType() != pSamplerType && pPinTarget->GetDataType() == pSamplerType))
   {
+    out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Pin of type 'sampler' cannot be connected with a pin of a different type.");
   }
 
   if ((pPinSource->GetDataType() == pStringType && pPinTarget->GetDataType() != pStringType) ||
     (pPinSource->GetDataType() != pStringType && pPinTarget->GetDataType() == pStringType))
   {
+    out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Pin of type 'string' cannot be connected with a pin of a different type.");
   }
 
   if (WouldConnectionCreateCircle(pSource, pTarget))
   {
+    out_Result = CanConnectResult::ConnectNever;
     return ezStatus("Connecting these pins would create a circle in the shader graph.");
   }
 
+  out_Result = CanConnectResult::ConnectNto1;
   return ezStatus(EZ_SUCCESS);
 }
 

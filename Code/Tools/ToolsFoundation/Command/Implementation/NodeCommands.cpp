@@ -216,7 +216,8 @@ ezStatus ezConnectNodePinsCommand::DoInternal(bool bRedo)
   if (pInput == nullptr)
     return ezStatus("Connect Node: The given pin does not exist!");
 
-  EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput));
+  ezDocumentNodeManager::CanConnectResult res;
+  EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput, res));
 
   pManager->Connect(pOutput, pInput);
   return ezStatus(EZ_SUCCESS);
@@ -294,7 +295,8 @@ ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
   if (pInput == nullptr)
     return ezStatus("Connect Node: The given pin does not exist!");
 
-  EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput));
+  ezDocumentNodeManager::CanConnectResult res;
+  EZ_SUCCEED_OR_RETURN(pManager->CanConnect(pOutput, pInput, res));
 
   pManager->Connect(pOutput, pInput);
   return ezStatus(EZ_SUCCESS);

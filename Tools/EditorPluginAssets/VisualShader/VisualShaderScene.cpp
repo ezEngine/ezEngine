@@ -16,54 +16,6 @@ ezQtVisualShaderScene::~ezQtVisualShaderScene()
 {
 }
 
-void ezQtVisualShaderScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTargetPin)
-{
-  ezStatus res = m_pManager->CanConnect(pSourcePin, pTargetPin);
-
-  if (res.Succeeded())
-  {
-    const ezVisualShaderPin* pPinSource = ezDynamicCast<const ezVisualShaderPin*>(pSourcePin);
-    const ezVisualShaderPin* pPinTarget = ezDynamicCast<const ezVisualShaderPin*>(pTargetPin);
-
-    ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction("Connect Pins");
-
-    // If we already have a connection at this input pin, delete it.
-    if (!pTargetPin->GetConnections().IsEmpty())
-    {
-      const ezArrayPtr<const ezConnection* const> connections = pTargetPin->GetConnections();
-      EZ_ASSERT_DEV(connections.GetCount() == 1, "A render pipeline should only support one input connection at a time.");
-      const ezConnection* pConnection = connections[0];
-
-      ezDisconnectNodePinsCommand cmd;
-      cmd.m_ObjectSource = pConnection->GetSourcePin()->GetParent()->GetGuid();
-      cmd.m_ObjectTarget = pConnection->GetTargetPin()->GetParent()->GetGuid();
-      cmd.m_sSourcePin = pConnection->GetSourcePin()->GetName();
-      cmd.m_sTargetPin = pConnection->GetTargetPin()->GetName();
-
-      res = history->AddCommand(cmd);
-    }
-
-    // so far so good, try connecting
-    if (res.Succeeded())
-    {
-      ezConnectNodePinsCommand cmd;
-      cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
-      cmd.m_ObjectTarget = pTargetPin->GetParent()->GetGuid();
-      cmd.m_sSourcePin = pSourcePin->GetName();
-      cmd.m_sTargetPin = pTargetPin->GetName();
-
-      res = history->AddCommand(cmd);
-    }
-
-    if (res.m_Result.Failed())
-      history->CancelTransaction();
-    else
-      history->FinishTransaction();
-  }
-
-  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
-}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

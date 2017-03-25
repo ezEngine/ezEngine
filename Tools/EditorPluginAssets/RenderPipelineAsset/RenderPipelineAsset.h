@@ -11,7 +11,7 @@ public:
   virtual void InternalDestroyPins(const ezDocumentObject* pObject, NodeInternal& node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget) const override;
+  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const override;
 
 };
 
