@@ -52,15 +52,22 @@ void ezQtVisualScriptPin::SetPin(const ezPin* pPin)
 
 void ezQtVisualScriptPin::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  QPainterPath p = path();
-
   const ezVisualScriptPin* pVsPin = static_cast<const ezVisualScriptPin*>(GetPin());
 
   painter->save();
   painter->setBrush(brush());
   painter->setPen(pen());
 
-  painter->drawPath(p);
+  if (pVsPin->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Execution)
+  {
+      painter->drawRect(this->path().boundingRect());
+  }
+  else
+  {
+    QPainterPath p = path();
+    painter->drawPath(p);
+  }
+
   painter->restore();
 }
 

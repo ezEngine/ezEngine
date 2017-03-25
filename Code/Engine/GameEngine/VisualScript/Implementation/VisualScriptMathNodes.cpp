@@ -6,6 +6,11 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Add, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Add>)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Math")
+  }
+  EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)

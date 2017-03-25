@@ -48,6 +48,11 @@ bool ezVisualScriptNode::IsManuallyStepped() const
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Counter, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Counter>)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Test")
+  }
+  EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
@@ -76,6 +81,11 @@ void ezVisualScriptNode_Counter::Execute(ezVisualScriptInstance* pInstance)
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Printer>)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Debug")
+  }
+  EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
@@ -106,6 +116,11 @@ void ezVisualScriptNode_Printer::SetInputPinValue(ezUInt8 uiPin, const ezVariant
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_If>)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic")
+  }
+  EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
@@ -160,6 +175,11 @@ void ezVisualScriptNode_If::SetInputPinValue(ezUInt8 uiPin, const ezVariant& val
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Input>)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Input")
+  }
+  EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
