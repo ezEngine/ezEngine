@@ -15,7 +15,7 @@ public:
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {
-    inout_AssetTypeNames.Insert("VisualScript");
+    inout_AssetTypeNames.Insert("Visual Script");
   }
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;

@@ -8,7 +8,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
 
-ezSurfaceResource::ezSurfaceResource() : ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezSurfaceResource::ezSurfaceResource() : ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_pPhysicsMaterial = nullptr;
 }

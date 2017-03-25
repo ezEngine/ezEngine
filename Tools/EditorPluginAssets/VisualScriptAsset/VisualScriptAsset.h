@@ -10,7 +10,7 @@ class ezVisualScriptAssetDocument : public ezAssetDocument
 public:
   ezVisualScriptAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "VisualScript"; }
+  virtual const char* QueryAssetType() const override { return "Visual Script"; }
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;

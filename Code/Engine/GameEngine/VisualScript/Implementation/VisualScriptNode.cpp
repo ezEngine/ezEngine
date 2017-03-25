@@ -27,7 +27,7 @@ void ezVisualScriptNode::SetOutputPinValue(const ezVisualScriptInstance* pInstan
   const ezUInt32 uiConnectionID = ((ezUInt32)m_uiNodeID << 16) | (ezUInt32)uiPin;
 
   ezHybridArray<ezUInt32, 2>* TargetNodeAndPins;
-  if (!pInstance->m_TargetNodeAndPin.TryGetValue(uiConnectionID, TargetNodeAndPins))
+  if (!pInstance->m_DataConnections.TryGetValue(uiConnectionID, TargetNodeAndPins))
     return;
 
   for (ezUInt32 uiTargetNodeAndPin : *TargetNodeAndPins)
@@ -44,7 +44,7 @@ void ezVisualScriptNode::ExecuteTargetNode(const ezVisualScriptInstance* pInstan
   const ezUInt32 uiConnectionID = ((ezUInt32)m_uiNodeID << 16) | (ezUInt32)uiNthTarget;
 
   ezUInt16 uiTargetNode = 0;
-  if (!pInstance->m_TargetNode.TryGetValue(uiConnectionID, uiTargetNode))
+  if (!pInstance->m_ExecutionConnections.TryGetValue(uiConnectionID, uiTargetNode))
     return;
 
   pInstance->m_Nodes[uiTargetNode]->Execute(pInstance);

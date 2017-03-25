@@ -18,11 +18,11 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Visual Script Asset";
   m_AssetDesc.m_sFileExtension = "ezVisualScriptAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/VisualScript.png";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("VisualScript", QPixmap(":/AssetIcons/VisualScript.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Visual Script", QPixmap(":/AssetIcons/Visual_Script.png"));
 }
 
 ezVisualScriptAssetManager::~ezVisualScriptAssetManager()

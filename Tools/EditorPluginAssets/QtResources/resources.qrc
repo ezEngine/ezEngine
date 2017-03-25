@@ -15,7 +15,7 @@
     <file>ColorGradient.png</file>
     <file>Curve1D.png</file>
     <file>PropertyAnim.png</file>
-	<file>VisualScript.png</file>
+	<file>Visual_Script.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
 	<file>VSE_CleanGraph16.png</file>
