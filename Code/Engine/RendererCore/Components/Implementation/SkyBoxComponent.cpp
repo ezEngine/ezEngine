@@ -64,7 +64,7 @@ void ezSkyBoxComponent::Initialize()
     ezMeshResourceDescriptor desc;
     desc.UseExistingMeshBuffer(hMeshBuffer);
     desc.AddSubMesh(2, 0, 0);
-    desc.CalculateBounds();
+    desc.ComputeBounds();
 
     m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, desc, szMeshResourceName);
   }
@@ -86,14 +86,14 @@ void ezSkyBoxComponent::Initialize()
 ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 {
   ///\todo
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), 1.0f);
+  bounds = ezBoundingSphere(ezVec3::ZeroVector(), 100.0f);
   return EZ_SUCCESS;
 }
 
 void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
   // Don't render in orthographic views
-  if (msg.m_pView->GetRenderCamera()->IsOrthographic())
+  if (msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();

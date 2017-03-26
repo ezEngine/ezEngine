@@ -15,6 +15,9 @@ public:
   virtual void Initialize() override;
   virtual void OnBeforeDetachedFromObject() override;
 
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg);
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) = 0;

@@ -40,5 +40,7 @@ private:
   ezSceneContext* m_pSceneContext;
 
   bool m_bUpdatePickingData;
+
+  ezCamera m_CullingCamera;
 };
 

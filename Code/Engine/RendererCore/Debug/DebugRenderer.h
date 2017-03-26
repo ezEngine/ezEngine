@@ -11,6 +11,9 @@ template<typename Type>
 class ezRectTemplate;
 typedef ezRectTemplate<float> ezRectFloat;
 
+class ezFrustum;
+
+
 class EZ_RENDERERCORE_DLL ezDebugRenderer
 {
 public:
@@ -45,6 +48,8 @@ public:
   static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 
   static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+
+  static void DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals = false);
 
   static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 

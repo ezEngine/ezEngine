@@ -18,17 +18,29 @@ EZ_END_STATIC_REFLECTED_ENUM()
 
 void ezComponent::SetActive(bool bActive)
 {
-  m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bActive);
+  if (m_ComponentFlags.IsSet(ezObjectFlags::Active) != bActive)
+  {
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bActive);
+
+    if (bActive)
+    {
+      OnActivated();
+    }
+    else
+    {
+      OnDeactivated();
+    }
+  }
 }
 
 void ezComponent::Activate()
 {
-  m_ComponentFlags.Add(ezObjectFlags::Active);
+  SetActive(true);
 }
 
 void ezComponent::Deactivate()
 {
-  m_ComponentFlags.Remove(ezObjectFlags::Active);
+  SetActive(false);
 }
 
 ezWorld* ezComponent::GetWorld()

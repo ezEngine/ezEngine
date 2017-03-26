@@ -48,7 +48,7 @@ public:
 
   const ezHybridArray<SubMesh, 32>& GetSubMeshes() const;
 
-  void CalculateBounds();
+  void ComputeBounds();
   const ezBoundingBoxSphere& GetBounds() const;
 
 private:

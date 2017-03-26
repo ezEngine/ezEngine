@@ -11,6 +11,7 @@ ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
 
 ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
+  m_Bounds.SetInvalid();
 }
 
 ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)

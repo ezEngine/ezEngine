@@ -32,7 +32,7 @@ ezView* ezTextureViewContext::CreateView()
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetLogicCamera(&m_Camera);
+  pView->SetCamera(&m_Camera);
   return pView;
 }
 

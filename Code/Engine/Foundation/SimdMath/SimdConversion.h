@@ -15,7 +15,9 @@ namespace ezSimdConversion
 
   EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezVec3& v)
   {
-    return ezSimdVec4f(v.x, v.y, v.z);
+    ezSimdVec4f tmp;
+    tmp.Load<3>(&v.x);
+    return tmp;
   }
 
   EZ_ALWAYS_INLINE ezVec4 ToVec4(const ezSimdVec4f& v)
@@ -27,7 +29,9 @@ namespace ezSimdConversion
 
   EZ_ALWAYS_INLINE ezSimdVec4f ToVec4(const ezVec4& v)
   {
-    return ezSimdVec4f(v.x, v.y, v.z, v.w);
+    ezSimdVec4f tmp;
+    tmp.Load<4>(&v.x);
+    return tmp;
   }
 
   EZ_ALWAYS_INLINE ezQuat ToQuat(const ezSimdQuat& q)
@@ -39,7 +43,9 @@ namespace ezSimdConversion
 
   EZ_ALWAYS_INLINE ezSimdQuat ToQuat(const ezQuat& q)
   {
-    return ezSimdQuat(ezSimdVec4f(q.v.x, q.v.y, q.v.z, q.w));
+    ezSimdVec4f tmp;
+    tmp.Load<4>(&q.v.x);
+    return ezSimdQuat(tmp);
   }
 
   EZ_ALWAYS_INLINE ezTransform ToTransform(const ezSimdTransform& t)

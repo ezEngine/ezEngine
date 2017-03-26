@@ -331,6 +331,81 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 }
 
 //static
+void ezDebugRenderer::DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals /*= false*/)
+{
+  ezVec3 cornerPoints[8];
+  frustum.ComputeCornerPoints(cornerPoints);
+
+  Line lines[12] =
+  {
+    Line(cornerPoints[0], cornerPoints[1]),
+    Line(cornerPoints[1], cornerPoints[2]),
+    Line(cornerPoints[2], cornerPoints[3]),
+    Line(cornerPoints[3], cornerPoints[0]),
+
+    Line(cornerPoints[4], cornerPoints[5]),
+    Line(cornerPoints[5], cornerPoints[6]),
+    Line(cornerPoints[6], cornerPoints[7]),
+    Line(cornerPoints[7], cornerPoints[4]),
+
+    Line(cornerPoints[0], cornerPoints[4]),
+    Line(cornerPoints[1], cornerPoints[5]),
+    Line(cornerPoints[2], cornerPoints[6]),
+    Line(cornerPoints[3], cornerPoints[7]),
+  };
+
+  DrawLines(context, lines, color);
+
+  if (bDrawPlaneNormals)
+  {
+    ezColor normalColor = color + ezColor(0.4f, 0.4f, 0.4f);
+    float fDrawLength = 0.5f;
+
+    ezVec3 nearPlaneNormal = frustum.GetPlane(0).m_vNormal * fDrawLength;
+    ezVec3 farPlaneNormal = frustum.GetPlane(1).m_vNormal * fDrawLength;
+    ezVec3 leftPlaneNormal = frustum.GetPlane(2).m_vNormal * fDrawLength;
+    ezVec3 rightPlaneNormal = frustum.GetPlane(3).m_vNormal * fDrawLength;
+    ezVec3 bottomPlaneNormal = frustum.GetPlane(4).m_vNormal * fDrawLength;
+    ezVec3 topPlaneNormal = frustum.GetPlane(5).m_vNormal * fDrawLength;
+
+    Line normalLines[24] =
+    {
+      Line(cornerPoints[0], cornerPoints[0] + nearPlaneNormal),
+      Line(cornerPoints[1], cornerPoints[1] + nearPlaneNormal),
+      Line(cornerPoints[2], cornerPoints[2] + nearPlaneNormal),
+      Line(cornerPoints[3], cornerPoints[3] + nearPlaneNormal),
+
+      Line(cornerPoints[4], cornerPoints[4] + farPlaneNormal),
+      Line(cornerPoints[5], cornerPoints[5] + farPlaneNormal),
+      Line(cornerPoints[6], cornerPoints[6] + farPlaneNormal),
+      Line(cornerPoints[7], cornerPoints[7] + farPlaneNormal),
+
+      Line(cornerPoints[0], cornerPoints[0] + leftPlaneNormal),
+      Line(cornerPoints[3], cornerPoints[3] + leftPlaneNormal),
+      Line(cornerPoints[4], cornerPoints[4] + leftPlaneNormal),
+      Line(cornerPoints[7], cornerPoints[7] + leftPlaneNormal),
+
+      Line(cornerPoints[1], cornerPoints[1] + rightPlaneNormal),
+      Line(cornerPoints[2], cornerPoints[2] + rightPlaneNormal),
+      Line(cornerPoints[5], cornerPoints[5] + rightPlaneNormal),
+      Line(cornerPoints[6], cornerPoints[6] + rightPlaneNormal),
+
+      Line(cornerPoints[2], cornerPoints[2] + bottomPlaneNormal),
+      Line(cornerPoints[3], cornerPoints[3] + bottomPlaneNormal),
+      Line(cornerPoints[6], cornerPoints[6] + bottomPlaneNormal),
+      Line(cornerPoints[7], cornerPoints[7] + bottomPlaneNormal),
+
+      Line(cornerPoints[0], cornerPoints[0] + topPlaneNormal),
+      Line(cornerPoints[1], cornerPoints[1] + topPlaneNormal),
+      Line(cornerPoints[4], cornerPoints[4] + topPlaneNormal),
+      Line(cornerPoints[5], cornerPoints[5] + topPlaneNormal),
+    };
+
+    DrawLines(context, normalLines, normalColor);
+  }
+}
+
+//static
 void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
 {
   EZ_LOCK(s_Mutex);

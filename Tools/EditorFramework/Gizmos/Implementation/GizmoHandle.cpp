@@ -64,6 +64,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geo
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
   desc.AllocateStreamsFromGeometry(geom, topology);
+  desc.ComputeBounds();
 
   return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szDescription);
 }
@@ -383,7 +384,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   md.UseExistingMeshBuffer(hMeshBuffer);
   md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
   md.SetMaterial(0, szMaterial);
-  md.CalculateBounds();
+  md.ComputeBounds();
 
   return ezResourceManager::CreateResource<ezMeshResource>(sIdentifier, md, pMeshBuffer->GetResourceDescription());
 }
@@ -517,10 +518,14 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
+  ezStringBuilder sName;
+  sName.Format("Gizmo{0}", m_iHandleType);
+
   ezGameObjectDesc god;
   god.m_LocalPosition = m_Transformation.GetTranslationVector();
   god.m_LocalRotation.SetFromMat3(m_Transformation.GetRotationalPart());
   god.m_LocalScaling = m_Transformation.GetScalingFactors();
+  god.m_sName.Assign(sName.GetData());
 
   ezGameObject* pObject;
   m_hGameObject = pWorld->CreateObject(god, pObject);

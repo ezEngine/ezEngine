@@ -58,6 +58,9 @@ public:
   /// \brief Flips all frustum planes around. Might be necessary after creating the frustum from a mirror projection matrix.
   void InvertFrustum(); // [tested]
 
+  /// \brief Computes the frustum corner points.
+  void ComputeCornerPoints(ezVec3 out_Points[8]) const;
+
   /// \brief Checks whether the given object is inside or outside the frustum.
   ///
   /// A concave object might be classified as 'intersecting' although it is outside the frustum, if it overlaps the planes just right.
@@ -75,9 +78,24 @@ public:
 
 
 private:
+
+  enum PlaneType
+  {
+    NearPlane,
+    FarPlane,
+    LeftPlane,
+    RightPlane,
+    BottomPlane,
+    TopPlane,
+    FirstCustomPlane,
+    SecondCustomPlane,
+
+    PLANE_COUNT
+  };
+
   ezUInt8 m_uiUsedPlanes;
   ezVec3 m_vPosition;
-  ezPlane m_Planes[16];
+  ezPlane m_Planes[PLANE_COUNT];
 };
 
 #include <Foundation/Math/Implementation/Frustum_inl.h>

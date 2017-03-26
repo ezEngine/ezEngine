@@ -130,7 +130,7 @@ void ezTextureContext::OnInitialize()
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
       md.SetMaterial(0, "");
-      md.CalculateBounds();
+      md.ComputeBounds();
 
       hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, md, pMeshBuffer->GetResourceDescription());
     }

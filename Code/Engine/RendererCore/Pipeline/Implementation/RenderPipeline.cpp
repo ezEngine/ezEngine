@@ -11,6 +11,12 @@
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezCVarBool ezRenderPipeline::s_DebugCulling("r_DebugCulling", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
+
+  ezCVarBool CVarCullingStats("r_CullingStats", false, ezCVarFlags::Default, "Display same stats of the visibility culling");
+#endif
+
 ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitialized)
 {
   m_CurrentExtractThread = (ezThreadID)0;
@@ -266,7 +272,7 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
     // make sure the renderdata stores the updated view data
     auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
 
-    data.SetCamera(*view.GetRenderCamera());
+    data.SetCamera(*view.GetCamera());
     data.SetViewData(view.GetData());
   }
 
@@ -775,28 +781,72 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
   m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
 
-  auto& data = m_Data[ezRenderLoop::GetDataIndexForExtraction()];
-
-  // Usually clear is not needed, only if the multithreading flag is switched during runtime.
-  data.Clear();
-
-  // Store camera and viewdata
-  data.SetCamera(*view.GetRenderCamera());
-  data.SetViewData(view.GetData());
-  data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
-  data.SetWorldDebugContext(view.GetWorld());
-  data.SetViewDebugContext(&view);
-
-  // Extract object render data
-  for (auto& pExtractor : m_Extractors)
+  // Determine visible objects
   {
-    if (pExtractor->m_bActive)
+    EZ_PROFILE("Visibility Culling");
+
+    m_visibleObjects.Clear();
+
+    ezFrustum frustum;
+    view.ComputeCullingFrustum(frustum);
+
+    ezSpatialSystem::QueryStats stats;
+
+    EZ_LOCK(view.GetWorld()->GetReadMarker());
+    view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, &stats);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (s_DebugCulling)
     {
-      pExtractor->Extract(view, &data);
+      ezDebugRenderer::DrawLineFrustum(&view, frustum, ezColor::LimeGreen, true);
     }
+
+    if (CVarCullingStats)
+    {
+      ezStringBuilder sb;
+
+      ezDebugRenderer::DrawText(&view, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+
+      sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
+      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+
+      sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
+      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+
+      sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
+      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
+
+      sb.Format("Time Taken: {0}ms", stats.m_fTimeTaken * 1000.0f);
+      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
+    }
+#endif
   }
 
-  data.SortAndBatch();
+  // Extract and sort data
+  {
+    auto& data = m_Data[ezRenderLoop::GetDataIndexForExtraction()];
+
+    // Usually clear is not needed, only if the multithreading flag is switched during runtime.
+    data.Clear();
+
+    // Store camera and viewdata
+    data.SetCamera(*view.GetCamera());
+    data.SetViewData(view.GetData());
+    data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
+    data.SetWorldDebugContext(view.GetWorld());
+    data.SetViewDebugContext(&view);
+
+    // Extract object render data
+    for (auto& pExtractor : m_Extractors)
+    {
+      if (pExtractor->m_bActive)
+      {
+        pExtractor->Extract(view, m_visibleObjects, &data);
+      }
+    }
+
+    data.SortAndBatch();
+  }
 
   m_CurrentExtractThread = (ezThreadID)0;
 }

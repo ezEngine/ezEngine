@@ -32,6 +32,22 @@ void ezRenderComponent::OnBeforeDetachedFromObject()
   TriggerLocalBoundsUpdate(false);
 }
 
+void ezRenderComponent::OnActivated()
+{
+  if (ezGameObject* pOwner = GetOwner())
+  {
+    pOwner->UpdateLocalBounds();
+  }
+}
+
+void ezRenderComponent::OnDeactivated()
+{
+  if (ezGameObject* pOwner = GetOwner())
+  {
+    pOwner->UpdateLocalBounds();
+  }
+}
+
 void ezRenderComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
 {
   ezBoundingBoxSphere bounds;

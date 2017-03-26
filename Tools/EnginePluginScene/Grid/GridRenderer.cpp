@@ -207,12 +207,13 @@ float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX
   return fNewDensity;
 }
 
-void ezEditorGridExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
+void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+  ezExtractedRenderData* pExtractedRenderData)
 {
   if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() == 0.0f)
     return;
 
-  const ezCamera* cam = view.GetRenderCamera();
+  const ezCamera* cam = view.GetCamera();
   float fDensity = m_pSceneContext->GetGridDensity();
 
   /// \todo Are these parameters correct?

@@ -125,6 +125,28 @@ namespace ezMath
     return ((i & 1) == 0);
   }
 
+  EZ_ALWAYS_INLINE ezUInt32 FirstBitLow(ezUInt32 value)
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    DWORD uiIndex = 0;
+    return _BitScanForward(&uiIndex, value) ? uiIndex : 0;
+#else
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return 0;
+#endif
+  }
+
+  EZ_ALWAYS_INLINE ezUInt32 FirstBitHigh(ezUInt32 value)
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    DWORD uiIndex = 0;
+    return _BitScanReverse(&uiIndex, value) ? uiIndex : 0;
+#else
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return 0;
+#endif
+  }
+
   template <typename T>
   EZ_FORCE_INLINE void Swap(T& f1, T& f2)
   {

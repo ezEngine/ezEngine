@@ -365,7 +365,7 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
     fFovOrDim = m_fOrthoDimension;
   }
 
-  ezCamera* pCamera = pView->GetLogicCamera();
+  ezCamera* pCamera = pView->GetCamera();
   pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, ezMath::Max(m_fNearPlane + 0.00001f, m_fFarPlane));
   pCamera->SetExposure(GetExposure());
 
@@ -374,11 +374,34 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
 
   if (m_bShowStats)
   {
-    const char* szName = GetOwner()->GetName();
+    // draw stats
+    {
+      const char* szName = GetOwner()->GetName();
 
-    ezStringBuilder sb;
-    sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
-    ezDebugRenderer::DrawText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
+      ezStringBuilder sb;
+      sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
+      ezDebugRenderer::DrawText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
+    }
+
+    // draw frustum
+    {
+      const ezGameObject* pOwner = GetOwner();
+      ezVec3 vPosition = pOwner->GetGlobalPosition();
+      ezVec3 vForward = pOwner->GetDirForwards();
+      ezVec3 vUp = pOwner->GetDirUp();
+
+      ezMat4 viewMatrix;
+      viewMatrix.SetLookAtMatrix(vPosition, vPosition + vForward, vUp);
+
+      ezMat4 projectionMatrix = pView->GetProjectionMatrix();
+      ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+
+      ezFrustum frustum;
+      frustum.SetFrustum(vPosition, viewProjectionMatrix, 10.0f);
+
+      ezDebugRenderer::DrawLineFrustum(GetWorld(), frustum, ezColor::LimeGreen);
+    }
+
   }
 
   if (m_hRenderPipeline.IsValid())

@@ -69,7 +69,8 @@ EZ_FORCE_INLINE ezUInt32 ezRenderDataBatch::GetCount() const
 template <typename T>
 EZ_FORCE_INLINE const T* ezRenderDataBatch::GetFirstData() const
 {
-  return Iterator<T>(m_Data.GetPtr(), m_Data.GetPtr() + m_Data.GetCount(), m_Filter);
+  auto it = Iterator<T>(m_Data.GetPtr(), m_Data.GetPtr() + m_Data.GetCount(), m_Filter);
+  return it.IsValid() ? (const T*)it : nullptr;
 }
 
 template <typename T>

@@ -32,10 +32,12 @@ ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor()
 {
 }
 
-void ezEditorShapeIconsExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
+void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+  ezExtractedRenderData* pExtractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
+  /// \todo Once we have a solution for objects that only have a shape icon we can switch this loop to use visibleObjects instead.
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
   {
     const ezGameObject* pObject = it;

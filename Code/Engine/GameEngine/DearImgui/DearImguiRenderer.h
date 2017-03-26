@@ -45,8 +45,8 @@ class EZ_GAMEENGINE_DLL ezImguiExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezImguiExtractor, ezExtractor);
 public:
-    virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
-
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData* pExtractedRenderData) override;
 };
 
 class EZ_GAMEENGINE_DLL ezImguiRenderer : public ezRenderer

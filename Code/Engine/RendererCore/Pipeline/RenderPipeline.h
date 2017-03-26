@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/HashedString.h>
@@ -52,6 +53,10 @@ public:
   const ezExtractedRenderData& GetRenderData() const;
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  static ezCVarBool s_DebugCulling;
+#endif
+
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
 
 private:
@@ -83,6 +88,7 @@ private: // Member data
 
   // Pipeline render data
   ezExtractedRenderData m_Data[2];
+  ezDynamicArray<const ezGameObject*> m_visibleObjects;
 
   ezHashedString m_sName;
   ezUInt64 m_uiLastExtractionFrame;

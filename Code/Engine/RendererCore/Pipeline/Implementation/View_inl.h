@@ -24,34 +24,34 @@ EZ_FORCE_INLINE const ezGALRenderTagetSetup& ezView::GetRenderTargetSetup() cons
   return m_RenderTargetSetup;
 }
 
-EZ_FORCE_INLINE void ezView::SetLogicCamera(ezCamera* pCamera)
+EZ_FORCE_INLINE void ezView::SetCamera(ezCamera* pCamera)
 {
-  m_pLogicCamera = pCamera;
+  m_pCamera = pCamera;
 }
 
-EZ_FORCE_INLINE ezCamera* ezView::GetLogicCamera()
+EZ_FORCE_INLINE ezCamera* ezView::GetCamera()
 {
-  return m_pLogicCamera;
+  return m_pCamera;
 }
 
-EZ_FORCE_INLINE const ezCamera* ezView::GetLogicCamera() const
+EZ_FORCE_INLINE const ezCamera* ezView::GetCamera() const
 {
-  return m_pLogicCamera;
+  return m_pCamera;
 }
 
-EZ_FORCE_INLINE void ezView::SetRenderCamera(ezCamera* pCamera)
+EZ_FORCE_INLINE void ezView::SetCullingCamera(ezCamera* pCamera)
 {
-  m_pRenderCamera = pCamera;
+  m_pCullingCamera = pCamera;
 }
 
-EZ_FORCE_INLINE ezCamera* ezView::GetRenderCamera()
+EZ_FORCE_INLINE ezCamera* ezView::GetCullingCamera()
 {
-  return m_pRenderCamera != nullptr ? m_pRenderCamera : m_pLogicCamera;
+  return m_pCullingCamera != nullptr ? m_pCullingCamera : m_pCamera;
 }
 
-EZ_FORCE_INLINE const ezCamera* ezView::GetRenderCamera() const
+EZ_FORCE_INLINE const ezCamera* ezView::GetCullingCamera() const
 {
-  return m_pRenderCamera != nullptr ? m_pRenderCamera : m_pLogicCamera;
+  return m_pCullingCamera != nullptr ? m_pCullingCamera : m_pCamera;
 }
 
 EZ_FORCE_INLINE void ezView::SetViewport(const ezRectFloat& viewport)
@@ -72,7 +72,7 @@ EZ_FORCE_INLINE const ezViewData& ezView::GetData() const
 
 EZ_FORCE_INLINE bool ezView::IsValid() const
 {
-  return m_pWorld != nullptr && m_pRenderPipeline != nullptr && m_pLogicCamera != nullptr && m_Data.m_ViewPortRect.HasNonZeroArea();
+  return m_pWorld != nullptr && m_pRenderPipeline != nullptr && m_pCamera != nullptr && m_Data.m_ViewPortRect.HasNonZeroArea();
 }
 
 EZ_FORCE_INLINE ezTask* ezView::GetExtractTask()
@@ -86,38 +86,38 @@ EZ_FORCE_INLINE ezResult ezView::ComputePickingRay(float fScreenPosX, float fScr
   return m_Data.ComputePickingRay(fScreenPosX, fScreenPosY, out_RayStartPos, out_RayDir);
 }
 
-EZ_FORCE_INLINE const ezMat4& ezView::GetProjectionMatrix() const 
-{ 
-  UpdateCachedMatrices(); 
+EZ_FORCE_INLINE const ezMat4& ezView::GetProjectionMatrix() const
+{
+  UpdateCachedMatrices();
   return m_Data.m_ProjectionMatrix;
 }
 
-EZ_FORCE_INLINE const ezMat4& ezView::GetInverseProjectionMatrix() const 
-{ 
-  UpdateCachedMatrices(); 
+EZ_FORCE_INLINE const ezMat4& ezView::GetInverseProjectionMatrix() const
+{
+  UpdateCachedMatrices();
   return m_Data.m_InverseProjectionMatrix;
 }
 
-EZ_FORCE_INLINE const ezMat4& ezView::GetViewMatrix() const 
-{ 
-  UpdateCachedMatrices(); 
+EZ_FORCE_INLINE const ezMat4& ezView::GetViewMatrix() const
+{
+  UpdateCachedMatrices();
   return m_Data.m_ViewMatrix;
 }
 
-EZ_FORCE_INLINE const ezMat4& ezView::GetInverseViewMatrix() const 
-{ 
-  UpdateCachedMatrices(); 
+EZ_FORCE_INLINE const ezMat4& ezView::GetInverseViewMatrix() const
+{
+  UpdateCachedMatrices();
   return m_Data.m_InverseViewMatrix;
 }
 
-EZ_FORCE_INLINE const ezMat4& ezView::GetViewProjectionMatrix() const 
-{ 
-  UpdateCachedMatrices(); 
+EZ_FORCE_INLINE const ezMat4& ezView::GetViewProjectionMatrix() const
+{
+  UpdateCachedMatrices();
   return m_Data.m_ViewProjectionMatrix;
 }
 
-EZ_FORCE_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix() const 
-{ 
-  UpdateCachedMatrices(); 
+EZ_FORCE_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix() const
+{
+  UpdateCachedMatrices();
   return m_Data.m_InverseViewProjectionMatrix;
 }

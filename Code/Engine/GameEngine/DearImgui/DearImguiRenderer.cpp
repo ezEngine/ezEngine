@@ -18,7 +18,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderer, 1, ezRTTIDefaultAllocator<ezImg
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-void ezImguiExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
+void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+  ezExtractedRenderData* pExtractedRenderData)
 {
   // ignore ImGui as long as it hasn't been used
   if (!ImGui::GetCurrentContext()->Initialized)

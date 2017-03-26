@@ -193,8 +193,12 @@ void ezFallbackGameState::AfterWorldUpdate()
   // Setting the camera transform in ProcessInput introduces one frame delay.
   if (const ezCameraComponent* pCamComp = FindActiveCameraComponent())
   {
-    const ezGameObject* pCamNode = pCamComp->GetOwner();
-    m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), (pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized());
+    const ezGameObject* pOwner = pCamComp->GetOwner();
+    ezVec3 vPosition = pOwner->GetGlobalPosition();
+    ezVec3 vForward = pOwner->GetDirForwards();
+    ezVec3 vUp = pOwner->GetDirUp();
+
+    m_MainCamera.LookAt(vPosition, vPosition + vForward, vUp);
   }
 }
 

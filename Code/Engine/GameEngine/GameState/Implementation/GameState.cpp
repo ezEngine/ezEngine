@@ -119,7 +119,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
   m_pMainView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
 
   m_pMainView->SetWorld(m_pMainWorld);
-  m_pMainView->SetLogicCamera(&m_MainCamera);
+  m_pMainView->SetCamera(&m_MainCamera);
 
   const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 

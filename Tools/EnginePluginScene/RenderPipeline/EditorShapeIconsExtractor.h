@@ -12,7 +12,8 @@ public:
   ezEditorShapeIconsExtractor();
   ~ezEditorShapeIconsExtractor();
 
-  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData* pExtractedRenderData) override;
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }

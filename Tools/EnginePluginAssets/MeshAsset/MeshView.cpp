@@ -21,7 +21,7 @@
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 
-ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext) 
+ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)
 {
   m_pMeshContext = pMeshContext;
@@ -56,6 +56,6 @@ ezView* ezMeshViewContext::CreateView()
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetLogicCamera(&m_Camera);
+  pView->SetCamera(&m_Camera);
   return pView;
 }

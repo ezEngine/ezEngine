@@ -2,6 +2,7 @@
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Foundation/Containers/HashSet.h>
 #include <Foundation/SimdMath/SimdConversion.h>
+#include <Foundation/Time/Stopwatch.h>
 
 namespace
 {
@@ -53,9 +54,94 @@ namespace
     return ezSimdBBox(bmin, bmax);
   }
 
+  EZ_ALWAYS_INLINE ezSimdBSphere GetBoundingSphereSimd(const ezSimdVec4i& cellIndex, const ezSimdVec4i& iCellSize)
+  {
+    return ezSimdBBoxSphere(GetBoundingBoxSimd(cellIndex, iCellSize)).GetSphere();
+  }
+
+  struct PlaneData
+  {
+    ezSimdVec4f m_x0x1x2x3;
+    ezSimdVec4f m_y0y1y2y3;
+    ezSimdVec4f m_z0z1z2z3;
+    ezSimdVec4f m_w0w1w2w3;
+
+    ezSimdVec4f m_x4x5x4x5;
+    ezSimdVec4f m_y4y5y4y5;
+    ezSimdVec4f m_z4z5z4z5;
+    ezSimdVec4f m_w4w5w4w5;
+  };
+
+  EZ_FORCE_INLINE bool SphereFrustumIntersect(const ezSimdBSphere& sphere, const PlaneData& planeData)
+  {
+    ezSimdVec4f pos_xxxx(sphere.m_CenterAndRadius.x());
+    ezSimdVec4f pos_yyyy(sphere.m_CenterAndRadius.y());
+    ezSimdVec4f pos_zzzz(sphere.m_CenterAndRadius.z());
+    ezSimdVec4f pos_rrrr(sphere.m_CenterAndRadius.w());
+
+    ezSimdVec4f dot_0123;
+    dot_0123 = ezSimdVec4f::MulAdd(pos_xxxx, planeData.m_x0x1x2x3, planeData.m_w0w1w2w3);
+    dot_0123 = ezSimdVec4f::MulAdd(pos_yyyy, planeData.m_y0y1y2y3, dot_0123);
+    dot_0123 = ezSimdVec4f::MulAdd(pos_zzzz, planeData.m_z0z1z2z3, dot_0123);
+
+    ezSimdVec4f dot_4545;
+    dot_4545 = ezSimdVec4f::MulAdd(pos_xxxx, planeData.m_x4x5x4x5, planeData.m_w4w5w4w5);
+    dot_4545 = ezSimdVec4f::MulAdd(pos_yyyy, planeData.m_y4y5y4y5, dot_4545);
+    dot_4545 = ezSimdVec4f::MulAdd(pos_zzzz, planeData.m_z4z5z4z5, dot_4545);
+
+    ezSimdVec4b cmp_0123 = dot_0123 > pos_rrrr;
+    ezSimdVec4b cmp_4545 = dot_4545 > pos_rrrr;
+    return (cmp_0123 || cmp_4545).NoneSet<4>();
+  }
+
+  EZ_FORCE_INLINE ezUInt32 SphereFrustumIntersect(const ezSimdBSphere& sphereA, const ezSimdBSphere& sphereB, const PlaneData& planeData)
+  {
+    ezSimdVec4f posA_xxxx(sphereA.m_CenterAndRadius.x());
+    ezSimdVec4f posA_yyyy(sphereA.m_CenterAndRadius.y());
+    ezSimdVec4f posA_zzzz(sphereA.m_CenterAndRadius.z());
+    ezSimdVec4f posA_rrrr(sphereA.m_CenterAndRadius.w());
+
+    ezSimdVec4f dotA_0123;
+    dotA_0123 = ezSimdVec4f::MulAdd(posA_xxxx, planeData.m_x0x1x2x3, planeData.m_w0w1w2w3);
+    dotA_0123 = ezSimdVec4f::MulAdd(posA_yyyy, planeData.m_y0y1y2y3, dotA_0123);
+    dotA_0123 = ezSimdVec4f::MulAdd(posA_zzzz, planeData.m_z0z1z2z3, dotA_0123);
+
+    ezSimdVec4f posB_xxxx(sphereB.m_CenterAndRadius.x());
+    ezSimdVec4f posB_yyyy(sphereB.m_CenterAndRadius.y());
+    ezSimdVec4f posB_zzzz(sphereB.m_CenterAndRadius.z());
+    ezSimdVec4f posB_rrrr(sphereB.m_CenterAndRadius.w());
+
+    ezSimdVec4f dotB_0123;
+    dotB_0123 = ezSimdVec4f::MulAdd(posB_xxxx, planeData.m_x0x1x2x3, planeData.m_w0w1w2w3);
+    dotB_0123 = ezSimdVec4f::MulAdd(posB_yyyy, planeData.m_y0y1y2y3, dotB_0123);
+    dotB_0123 = ezSimdVec4f::MulAdd(posB_zzzz, planeData.m_z0z1z2z3, dotB_0123);
+
+    ezSimdVec4f posAB_xxxx = posA_xxxx.GetCombined<ezSwizzle::XXXX>(posB_xxxx);
+    ezSimdVec4f posAB_yyyy = posA_yyyy.GetCombined<ezSwizzle::XXXX>(posB_yyyy);
+    ezSimdVec4f posAB_zzzz = posA_zzzz.GetCombined<ezSwizzle::XXXX>(posB_zzzz);
+    ezSimdVec4f posAB_rrrr = posA_rrrr.GetCombined<ezSwizzle::XXXX>(posB_rrrr);
+
+    ezSimdVec4f dot_A45B45;
+    dot_A45B45 = ezSimdVec4f::MulAdd(posAB_xxxx, planeData.m_x4x5x4x5, planeData.m_w4w5w4w5);
+    dot_A45B45 = ezSimdVec4f::MulAdd(posAB_yyyy, planeData.m_y4y5y4y5, dot_A45B45);
+    dot_A45B45 = ezSimdVec4f::MulAdd(posAB_zzzz, planeData.m_z4z5z4z5, dot_A45B45);
+
+    ezSimdVec4b cmp_A0123 = dotA_0123 > posA_rrrr;
+    ezSimdVec4b cmp_B0123 = dotB_0123 > posB_rrrr;
+    ezSimdVec4b cmp_A45B45 = dot_A45B45 > posAB_rrrr;
+
+    ezSimdVec4b cmp_A45 = cmp_A45B45.Get<ezSwizzle::XYXY>();
+    ezSimdVec4b cmp_B45 = cmp_A45B45.Get<ezSwizzle::ZWZW>();
+
+    ezUInt32 result = (cmp_A0123 || cmp_A45).NoneSet<4>() ? 1 : 0;
+    result |= (cmp_B0123 || cmp_B45).NoneSet<4>() ? 2 : 0;
+
+    return result;
+  }
+
   static ezThreadLocalPointer<ezHashSet<ezSpatialData*>> s_pDeduplicationSet;
 
-  EZ_FORCE_INLINE ezHashSet<ezSpatialData*>* ClearAndGetDeduplicationSet()
+  ezHashSet<ezSpatialData*>* ClearAndGetDeduplicationSet()
   {
     ezHashSet<ezSpatialData*>* pSet = s_pDeduplicationSet;
 
@@ -167,18 +253,25 @@ void ezSpatialSystem_RegularGrid::GetAllCellBoxes(ezHybridArray<ezBoundingBox, 1
   }
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects) const
+void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats) const
 {
   FindObjectsInSphere(sphere, [&](ezGameObject* pObject)
   {
     out_Objects.PushBack(pObject);
 
     return ezVisitorExecution::Continue;
-  });
+  }, pStats);
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback) const
+void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats) const
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (pStats != nullptr)
+  {
+    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
+  }
+#endif
+
   ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
   ezSimdBBox simdBox;
   simdBox.SetCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
@@ -193,6 +286,14 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
       if (cellBox.Overlaps(simdSphere))
       {
         const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+
+        #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+          if (pStats != nullptr)
+          {
+            pStats->m_uiNumObjectsTested += numSpheres;
+          }
+        #endif
+
         for (ezUInt32 i = 0; i < numSpheres; ++i)
         {
           auto& objectSphere = pCell->m_BoundingSpheres[i];
@@ -206,25 +307,39 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
               continue;
           }
 
-          callback(pCell->m_DataPointers[i]->m_pObject);
+          callback(pData->m_pObject);
+
+          #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+            if (pStats != nullptr)
+            {
+              pStats->m_uiNumObjectsPassed++;
+            }
+          #endif
         }
       }
     }
   });
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects) const
+void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats) const
 {
   FindObjectsInBox(box, [&](ezGameObject* pObject)
   {
     out_Objects.PushBack(pObject);
 
     return ezVisitorExecution::Continue;
-  });
+  }, pStats);
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback) const
+void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats) const
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (pStats != nullptr)
+  {
+    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
+  }
+#endif
+
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
   auto pSet = ClearAndGetDeduplicationSet();
@@ -233,36 +348,186 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, Que
   {
     if (pCell != nullptr)
     {
-      ezSimdBBox cellBox = GetBoundingBoxSimd(cellIndex, m_iCellSize);
-      if (cellBox.Overlaps(simdBox))
-      {
-        const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
-        for (ezUInt32 i = 0; i < numSpheres; ++i)
+      const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+
+      #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+        if (pStats != nullptr)
         {
-          auto& objectSphere = pCell->m_BoundingSpheres[i];
-          if (!simdBox.Overlaps(objectSphere))
-            continue;
+          pStats->m_uiNumObjectsTested += numSpheres;
+        }
+      #endif
 
-          ezSpatialData* pData = pCell->m_DataPointers[i];
-          if (!simdBox.Overlaps(pData->m_Bounds.GetBox()))
-            continue;
+      for (ezUInt32 i = 0; i < numSpheres; ++i)
+      {
+        auto& objectSphere = pCell->m_BoundingSpheres[i];
+        if (!simdBox.Overlaps(objectSphere))
+          continue;
 
+        ezSpatialData* pData = pCell->m_DataPointers[i];
+        if (!simdBox.Overlaps(pData->m_Bounds.GetBox()))
+          continue;
+
+        if (pData->m_uiRefCount > 1)
+        {
+          if (pSet->Insert(pData))
+            continue;
+        }
+
+        callback(pData->m_pObject);
+
+        #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+          if (pStats != nullptr)
+          {
+            pStats->m_uiNumObjectsPassed++;
+          }
+        #endif
+      }
+    }
+  });
+}
+
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezStopwatch timer;
+
+  if (pStats != nullptr)
+  {
+    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
+  }
+#endif
+
+  ezVec3 cornerPoints[8];
+  frustum.ComputeCornerPoints(cornerPoints);
+
+  ezSimdVec4f simdCornerPoints[8];
+  for (ezUInt32 i = 0; i < 8; ++i)
+  {
+    simdCornerPoints[i] = ezSimdConversion::ToVec3(cornerPoints[i]);
+  }
+
+  ezSimdBBox simdBox;
+  simdBox.SetFromPoints(simdCornerPoints, 8);
+
+  PlaneData planeData;
+  {
+    // Compiler is too stupid to properly unroll a constant loop so we do it by hand
+    ezSimdVec4f plane0 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(0).m_vNormal.x)));
+    ezSimdVec4f plane1 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(1).m_vNormal.x)));
+    ezSimdVec4f plane2 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(2).m_vNormal.x)));
+    ezSimdVec4f plane3 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(3).m_vNormal.x)));
+    ezSimdVec4f plane4 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(4).m_vNormal.x)));
+    ezSimdVec4f plane5 = ezSimdConversion::ToVec4(*reinterpret_cast<const ezVec4*>(&(frustum.GetPlane(5).m_vNormal.x)));
+
+    ezSimdMat4f helperMat;
+    helperMat.SetRows(plane0, plane1, plane2, plane3);
+
+    planeData.m_x0x1x2x3 = helperMat.m_col0;
+    planeData.m_y0y1y2y3 = helperMat.m_col1;
+    planeData.m_z0z1z2z3 = helperMat.m_col2;
+    planeData.m_w0w1w2w3 = helperMat.m_col3;
+
+    helperMat.SetRows(plane4, plane5, plane4, plane5);
+
+    planeData.m_x4x5x4x5 = helperMat.m_col0;
+    planeData.m_y4y5y4y5 = helperMat.m_col1;
+    planeData.m_z4z5z4z5 = helperMat.m_col2;
+    planeData.m_w4w5w4w5 = helperMat.m_col3;
+  }
+
+  auto pSet = ClearAndGetDeduplicationSet();
+
+  ForEachCellInBox(simdBox, [&](const ezSimdVec4i& cellIndex, ezUInt64 cellKey, Cell* pCell)
+  {
+    if (pCell == nullptr)
+      return;
+
+    ezSimdBSphere cellSphere = GetBoundingSphereSimd(cellIndex, m_iCellSize);
+    if (!SphereFrustumIntersect(cellSphere, planeData))
+      return;
+
+    const ezUInt32 numSpheres = pCell->m_BoundingSpheres.GetCount();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (pStats != nullptr)
+    {
+      pStats->m_uiNumObjectsTested += numSpheres;
+    }
+#endif
+    ezUInt32 currentIndex = 0;
+
+    while (currentIndex < numSpheres)
+    {
+      if (numSpheres - currentIndex >= 32)
+      {
+        ezUInt32 mask = 0;
+
+        for (ezUInt32 i = 0; i < 32; i += 2)
+        {
+          auto& objectSphereA = pCell->m_BoundingSpheres[currentIndex + i + 0];
+          auto& objectSphereB = pCell->m_BoundingSpheres[currentIndex + i + 1];
+
+          mask |= SphereFrustumIntersect(objectSphereA, objectSphereB, planeData) << i;
+        }
+
+        while (mask > 0)
+        {
+          ezUInt32 i = ezMath::FirstBitLow(mask);
+          mask &= ~(1 << i);
+
+          ezSpatialData* pData = pCell->m_DataPointers[currentIndex + i];
           if (pData->m_uiRefCount > 1)
           {
             if (pSet->Insert(pData))
               continue;
           }
 
-          callback(pCell->m_DataPointers[i]->m_pObject);
+          out_Objects.PushBack(pData->m_pObject);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+          if (pStats != nullptr)
+          {
+            pStats->m_uiNumObjectsPassed++;
+          }
+#endif
         }
+
+        currentIndex += 32;
+      }
+      else
+      {
+        ezUInt32 i = currentIndex;
+        ++currentIndex;
+
+        auto& objectSphere = pCell->m_BoundingSpheres[i];
+        if (!SphereFrustumIntersect(objectSphere, planeData))
+          continue;
+
+        ezSpatialData* pData = pCell->m_DataPointers[i];
+        if (pData->m_uiRefCount > 1)
+        {
+          if (pSet->Insert(pData))
+            continue;
+        }
+
+        out_Objects.PushBack(pData->m_pObject);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+        if (pStats != nullptr)
+        {
+          pStats->m_uiNumObjectsPassed++;
+        }
+#endif
       }
     }
   });
-}
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects) const
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (pStats != nullptr)
+  {
+    pStats->m_fTimeTaken = (float)timer.GetRunningTotal().GetSeconds();
+  }
+#endif
 }
 
 void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)

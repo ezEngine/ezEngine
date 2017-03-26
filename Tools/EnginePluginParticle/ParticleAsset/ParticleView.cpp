@@ -8,7 +8,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 
-ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext) 
+ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext)
   : ezEngineProcessViewContext(pParticleContext)
 {
   m_pParticleContext = pParticleContext;
@@ -39,6 +39,6 @@ ezView* ezParticleViewContext::CreateView()
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetLogicCamera(&m_Camera);
+  pView->SetCamera(&m_Camera);
   return pView;
 }

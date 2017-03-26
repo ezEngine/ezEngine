@@ -9,6 +9,7 @@
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 
+class ezFrustum;
 class ezWorld;
 class ezRenderPipeline;
 
@@ -38,13 +39,13 @@ public:
   void SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline);
   ezRenderPipelineResourceHandle GetRenderPipelineResource() const;
 
-  void SetLogicCamera(ezCamera* pCamera);
-  ezCamera* GetLogicCamera();
-  const ezCamera* GetLogicCamera() const;
+  void SetCamera(ezCamera* pCamera);
+  ezCamera* GetCamera();
+  const ezCamera* GetCamera() const;
 
-  void SetRenderCamera(ezCamera* pCamera);
-  ezCamera* GetRenderCamera();
-  const ezCamera* GetRenderCamera() const;
+  void SetCullingCamera(ezCamera* pCamera);
+  ezCamera* GetCullingCamera();
+  const ezCamera* GetCullingCamera() const;
 
   /// \brief Returns the camera usage hint for the view.
   ezEnum<ezCameraUsageHint> GetCameraUsageHint() const;
@@ -90,6 +91,9 @@ public:
   /// \brief Returns the current inverse view-projection matrix.
   const ezMat4& GetInverseViewProjectionMatrix() const;
 
+  /// \brief Returns the frustum that should be used for determine visible objects for this view.
+  void ComputeCullingFrustum(ezFrustum& out_Frustum) const;
+
   void SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
   void SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
 
@@ -114,8 +118,8 @@ private:
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
   ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;
   ezEnum<ezCameraUsageHint> m_CameraUsageHint;
-  ezCamera* m_pLogicCamera;
-  ezCamera* m_pRenderCamera;
+  ezCamera* m_pCamera;
+  ezCamera* m_pCullingCamera;
 
 private:
   ezInputNodePin m_PinRenderTarget0;
@@ -153,10 +157,9 @@ private:
   void ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map);
 
   void ApplyRenderPassProperties();
+  void ApplyExtractorProperties();
 
   void ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const char* szTypeName);
-
-  void ApplyExtractorProperties();
 
   ezMap<ezString, PropertyValue> m_PassProperties;
   ezMap<ezString, PropertyValue> m_PassReadBackProperties;

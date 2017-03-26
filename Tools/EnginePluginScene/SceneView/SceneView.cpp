@@ -33,6 +33,8 @@ ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
   m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+
+  m_CullingCamera = m_Camera;
 }
 
 ezSceneViewContext::~ezSceneViewContext()
@@ -85,8 +87,8 @@ void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
 {
   const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
-  if (m_pView->GetRenderCamera()->GetCameraMode() == ezCameraMode::OrthoFixedHeight ||
-      m_pView->GetRenderCamera()->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+  if (m_pView->GetCamera()->GetCameraMode() == ezCameraMode::OrthoFixedHeight ||
+      m_pView->GetCamera()->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
     m_pView->m_ExcludeTags.Set(*tagNoOrtho);
   }
@@ -103,6 +105,13 @@ void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
 void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   ezEngineProcessViewContext::SetCamera(pMsg);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (!ezRenderPipeline::s_DebugCulling)
+#endif
+  {
+    m_CullingCamera = m_Camera;
+  }
 
   if (m_pView)
   {
@@ -124,7 +133,8 @@ ezView* ezSceneViewContext::CreateView()
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetLogicCamera(&m_Camera);
+  pView->SetCamera(&m_Camera);
+  pView->SetCullingCamera(&m_CullingCamera);
 
   auto& tagReg = ezTagRegistry::GetGlobalRegistry();
   const ezTag* tagHidden = tagReg.RegisterTag("EditorHidden");

@@ -134,6 +134,12 @@ protected:
   /// \brief Returns whether this component is currently in the initialization process. Internal method.
   bool IsInitializing() const;
 
+  /// \brief This method is called when the component is activated.
+  virtual void OnActivated() {}
+
+  /// \brief This method is called when the component is deactivated.
+  virtual void OnDeactivated() {}
+
   /// \brief This method is called when the component is attached to a game object. At this point the owner pointer is already set. A derived type can override this method to do additional work.
   virtual void OnAfterAttachedToObject() {}
 

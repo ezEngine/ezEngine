@@ -21,7 +21,7 @@
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 
-ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext) 
+ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext)
   : ezEngineProcessViewContext(pMaterialContext)
 {
   m_pMaterialContext = pMaterialContext;
@@ -52,6 +52,6 @@ ezView* ezMaterialViewContext::CreateView()
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetLogicCamera(&m_Camera);
+  pView->SetCamera(&m_Camera);
   return pView;
 }

@@ -1,18 +1,18 @@
 #pragma once
 
-inline ezUInt8 ezFrustum::GetNumPlanes() const
+EZ_ALWAYS_INLINE ezUInt8 ezFrustum::GetNumPlanes() const
 {
   return m_uiUsedPlanes;
 }
 
-inline const ezPlane& ezFrustum::GetPlane(ezUInt8 uiPlane) const
+EZ_ALWAYS_INLINE const ezPlane& ezFrustum::GetPlane(ezUInt8 uiPlane) const
 {
-  EZ_ASSERT_DEV(uiPlane < m_uiUsedPlanes, "Invalid plane index.");
+  EZ_ASSERT_DEBUG(uiPlane < m_uiUsedPlanes, "Invalid plane index.");
 
   return m_Planes[uiPlane];
 }
 
-inline const ezVec3& ezFrustum::GetPosition() const
+EZ_ALWAYS_INLINE const ezVec3& ezFrustum::GetPosition() const
 {
   return m_vPosition;
 }

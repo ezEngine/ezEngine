@@ -52,7 +52,7 @@ ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 void ezSpriteComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
   // Don't render in orthographic views
-  if (msg.m_pView->GetRenderCamera()->IsOrthographic())
+  if (msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
   if (!m_hTexture.IsValid())

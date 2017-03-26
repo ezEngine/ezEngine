@@ -23,7 +23,8 @@ public:
   /// \brief returns true if the given object should be filtered by view tags.
   bool FilterByViewTags(const ezView& view, const ezGameObject* pObject) const;
 
-  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) = 0;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData* pExtractedRenderData) = 0;
 
 private:
   friend class ezRenderPipeline;
@@ -40,7 +41,8 @@ class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
 public:
   ezVisibleObjectsExtractor() {}
 
-  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData* pExtractedRenderData) override;
 };
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
@@ -49,7 +51,10 @@ class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
 public:
   ezSelectedObjectsExtractor();
 
-  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData* pExtractedRenderData) override;
+
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
+
   ezRenderData::Category m_OverrideCategory;
 };

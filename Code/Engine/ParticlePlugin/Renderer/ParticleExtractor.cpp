@@ -8,7 +8,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleExtractor, 1, ezRTTIDefaultAllocator<ezParticleExtractor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-void ezParticleExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
+void ezParticleExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+  ezExtractedRenderData* pExtractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 

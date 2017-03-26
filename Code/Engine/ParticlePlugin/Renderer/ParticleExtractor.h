@@ -12,5 +12,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleExtractor : public ezExtractor
 public:
   ezParticleExtractor() {}
 
-  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData* pExtractedRenderData) override;
 };

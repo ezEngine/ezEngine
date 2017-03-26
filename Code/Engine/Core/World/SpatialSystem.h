@@ -29,17 +29,33 @@ public:
 
   typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> QueryCallback;
 
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects) const = 0;
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback) const = 0;
+  struct QueryStats
+  {
+    ezUInt32 m_uiTotalNumObjects; ///< The total number of spatial objects in this system.
+    ezUInt32 m_uiNumObjectsTested; ///< Number of objects tested for the query condition.
+    ezUInt32 m_uiNumObjectsPassed; ///< Number of objects that passed the query condition.
+    float m_fTimeTaken; ///< Time taken to execute the query in seconds.
 
-  virtual void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects) const = 0;
-  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback) const = 0;
+    EZ_ALWAYS_INLINE QueryStats()
+    {
+      m_uiTotalNumObjects = 0;
+      m_uiNumObjectsTested = 0;
+      m_uiNumObjectsPassed = 0;
+      m_fTimeTaken = 0.0f;
+    }
+  };
+
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const = 0;
+  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats = nullptr) const = 0;
+
+  virtual void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const = 0;
+  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats = nullptr) const = 0;
 
   ///@}
   /// \name Visibility Queries
   ///@{
 
-  virtual void FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects) const = 0;
+  virtual void FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const = 0;
 
   ///@}
 
@@ -54,7 +70,7 @@ protected:
   ezLocalAllocatorWrapper m_AllocatorWrapper;
   ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
 
-  typedef ezBlockStorage<ezSpatialData, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact> DataStorage;
+  typedef ezBlockStorage<ezSpatialData, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::FreeList> DataStorage;
   ezIdTable<ezSpatialDataId, ezSpatialData*, ezLocalAllocatorWrapper> m_DataTable;
   DataStorage m_DataStorage;
 };

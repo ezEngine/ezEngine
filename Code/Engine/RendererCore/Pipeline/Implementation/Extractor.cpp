@@ -10,6 +10,7 @@
   ezCVarBool CVarVisBounds("r_VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
   ezCVarBool CVarVisLocalBBox("r_VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
   ezCVarBool CVarVisSpatialData("r_VisSpatialData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
+  ezCVarBool CVarVisObjectSelection("r_VisObjectSelection", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
   ezCVarString CVarVisObjectName("r_VisObjectName", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
 #endif
 
@@ -18,8 +19,7 @@ namespace
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   void VisualizeSpatialData(const ezView& view)
   {
-    if (CVarVisSpatialData && CVarVisObjectName.GetValue().IsEmpty() &&
-      view.GetCameraUsageHint() == ezCameraUsageHint::MainView)
+    if (CVarVisSpatialData && CVarVisObjectName.GetValue().IsEmpty() && !CVarVisObjectSelection)
     {
       const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
@@ -40,42 +40,36 @@ namespace
     if (!CVarVisBounds && !CVarVisLocalBBox && !CVarVisSpatialData)
       return;
 
-    if (view.GetCameraUsageHint() != ezCameraUsageHint::MainView)
-      return;
-
-    if (CVarVisObjectName.GetValue().IsEmpty() || CVarVisObjectName.GetValue() == pObject->GetName())
+    if (CVarVisLocalBBox)
     {
-      if (CVarVisLocalBBox)
+      const ezBoundingBoxSphere& localBounds = pObject->GetLocalBounds();
+      if (localBounds.IsValid())
       {
-        const ezBoundingBoxSphere& localBounds = pObject->GetLocalBounds();
-        if (localBounds.IsValid())
-        {
-          ezDebugRenderer::DrawLineBox(&view, localBounds.GetBox(), ezColor::Yellow, pObject->GetGlobalTransform());
-        }
+        ezDebugRenderer::DrawLineBox(&view, localBounds.GetBox(), ezColor::Yellow, pObject->GetGlobalTransform());
       }
+    }
 
-      if (CVarVisBounds)
+    if (CVarVisBounds)
+    {
+      const ezBoundingBoxSphere& globalBounds = pObject->GetGlobalBounds();
+      if (globalBounds.IsValid())
       {
-        const ezBoundingBoxSphere& globalBounds = pObject->GetGlobalBounds();
-        if (globalBounds.IsValid())
-        {
-          ezDebugRenderer::DrawLineBox(&view, globalBounds.GetBox(), ezColor::Lime);
-          ezDebugRenderer::DrawLineSphere(&view, globalBounds.GetSphere(), ezColor::Magenta);
-        }
+        ezDebugRenderer::DrawLineBox(&view, globalBounds.GetBox(), ezColor::Lime);
+        ezDebugRenderer::DrawLineSphere(&view, globalBounds.GetSphere(), ezColor::Magenta);
       }
+    }
 
-      if (CVarVisSpatialData)
+    if (CVarVisSpatialData)
+    {
+      const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
+      if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
       {
-        const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
-        if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
-        {
-          ezHybridArray<ezBoundingBox, 16> boxes;
-          pSpatialSystemGrid->GetCellBoxesForSpatialData(pObject->GetSpatialData(), boxes);
+        ezHybridArray<ezBoundingBox, 16> boxes;
+        pSpatialSystemGrid->GetCellBoxesForSpatialData(pObject->GetSpatialData(), boxes);
 
-          for (auto& box : boxes)
-          {
-            ezDebugRenderer::DrawLineBox(&view, box, ezColor::Cyan);
-          }
+        for (auto& box : boxes)
+        {
+          ezDebugRenderer::DrawLineBox(&view, box, ezColor::Cyan);
         }
       }
     }
@@ -127,7 +121,8 @@ bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObje
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisibleObjectsExtractor, 1, ezRTTIDefaultAllocator<ezVisibleObjectsExtractor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
+void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+  ezExtractedRenderData* pExtractedRenderData)
 {
   ezExtractRenderDataMessage msg;
   msg.m_pView = &view;
@@ -140,17 +135,22 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDat
     VisualizeSpatialData(view);
   #endif
 
-  /// \todo use spatial data to do visibility culling etc.
-  for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
+  for (auto pObject : visibleObjects)
   {
-    const ezGameObject* pObject = it;
     if (FilterByViewTags(view, pObject))
       continue;
 
     pObject->SendMessage(msg);
 
     #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      VisualizeObject(view, pObject);
+      if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)
+      {
+        if ((CVarVisObjectName.GetValue().IsEmpty() || ezStringUtils::FindSubString_NoCase(pObject->GetName(), CVarVisObjectName.GetValue()) != nullptr) &&
+          !CVarVisObjectSelection)
+        {
+          VisualizeObject(view, pObject);
+        }
+      }
     #endif
   }
 }
@@ -165,7 +165,8 @@ ezSelectedObjectsExtractor::ezSelectedObjectsExtractor()
   m_OverrideCategory = ezDefaultRenderDataCategories::Selection;
 }
 
-void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
+void ezSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+  ezExtractedRenderData* pExtractedRenderData)
 {
   const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
   if (pSelection == nullptr)
@@ -180,8 +181,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
 
   for (const auto& hObj : *pSelection)
   {
-    const ezGameObject* pObject;
-
+    const ezGameObject* pObject = nullptr;
     if (!view.GetWorld()->TryGetObject(hObj, pObject))
       continue;
 
@@ -189,6 +189,16 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
       continue;
 
     pObject->SendMessage(msg);
+
+    #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)
+      {
+        if (CVarVisObjectSelection)
+        {
+          VisualizeObject(view, pObject);
+        }
+      }
+    #endif
   }
 }
 

@@ -153,7 +153,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
     }
 
     // Version 2
-    CalculateBounds();
+    ComputeBounds();
     chunk << m_Bounds.m_vCenter;
     chunk << m_Bounds.m_vBoxHalfExtends;
     chunk << m_Bounds.m_fSphereRadius;
@@ -369,7 +369,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
   if (bCalculateBounds)
   {
-    CalculateBounds();
+    ComputeBounds();
 
     auto b = m_Bounds;
     ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2), ezArgF(b.m_vCenter.z, 2), ezArgF(b.m_vBoxHalfExtends.x, 2), ezArgF(b.m_vBoxHalfExtends.y, 2), ezArgF(b.m_vBoxHalfExtends.z, 2));
@@ -378,7 +378,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezMeshResourceDescriptor::CalculateBounds()
+void ezMeshResourceDescriptor::ComputeBounds()
 {
   if (m_hMeshBuffer.IsValid())
   {

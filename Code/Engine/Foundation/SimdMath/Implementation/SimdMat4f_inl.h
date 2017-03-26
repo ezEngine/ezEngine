@@ -108,7 +108,7 @@ inline bool ezSimdMat4f::IsNaN() const
   return m_col0.IsNaN<4>() || m_col1.IsNaN<4>() || m_col2.IsNaN<4>() || m_col3.IsNaN<4>();
 }
 
-inline void ezSimdMat4f::SetRows(const ezSimdVec4f& row0, const ezSimdVec4f& row1, const ezSimdVec4f& row2, const ezSimdVec4f& row3)
+EZ_ALWAYS_INLINE void ezSimdMat4f::SetRows(const ezSimdVec4f& row0, const ezSimdVec4f& row1, const ezSimdVec4f& row2, const ezSimdVec4f& row3)
 {
   m_col0 = row0;
   m_col1 = row1;
@@ -118,7 +118,7 @@ inline void ezSimdMat4f::SetRows(const ezSimdVec4f& row0, const ezSimdVec4f& row
   Transpose();
 }
 
-inline void ezSimdMat4f::GetRows(ezSimdVec4f& row0, ezSimdVec4f& row1, ezSimdVec4f& row2, ezSimdVec4f& row3) const
+EZ_ALWAYS_INLINE void ezSimdMat4f::GetRows(ezSimdVec4f& row0, ezSimdVec4f& row1, ezSimdVec4f& row2, ezSimdVec4f& row3) const
 {
   ezSimdMat4f tmp = *this;
   tmp.Transpose();

@@ -1,10 +1,12 @@
 #include <PCH.h>
+#include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <Foundation/Math/Frustum.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <RendererCore/Pipeline/Extractor.h>
+
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
   EZ_ENUM_CONSTANT(ezCameraUsageHint::None),
@@ -31,8 +33,8 @@ ezView::ezView()
   : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))
 {
   m_pWorld = nullptr;
-  m_pLogicCamera = nullptr;
-  m_pRenderCamera = nullptr;
+  m_pCamera = nullptr;
+  m_pCullingCamera = nullptr;
 
   m_uiLastCameraSettingsModification = 0;
   m_uiLastCameraOrientationModification = 0;
@@ -92,6 +94,98 @@ void ezView::SetCameraUsageHint(ezEnum<ezCameraUsageHint> val)
   m_CameraUsageHint = val;
 }
 
+void ezView::ExtractData()
+{
+  EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
+
+  m_pRenderPipeline->ExtractData(*this);
+}
+
+void ezView::ComputeCullingFrustum(ezFrustum& out_Frustum) const
+{
+  const ezCamera* pCamera = GetCullingCamera();
+  const float fViewportAspectRatio = m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height;
+
+  ezMat4 viewMatrix;
+  pCamera->GetViewMatrix(viewMatrix);
+
+  ezMat4 projectionMatrix;
+  pCamera->GetProjectionMatrix(fViewportAspectRatio, projectionMatrix);
+
+  ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+  out_Frustum.SetFrustum(pCamera->GetCenterPosition(), viewProjectionMatrix, pCamera->GetFarPlane());
+}
+
+void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  SetProperty(m_PassProperties, szPassName, szPropertyName, value);
+}
+
+void ezView::SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  SetProperty(m_ExtractorProperties, szPassName, szPropertyName, value);
+}
+
+void ezView::SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  SetReadBackProperty(m_PassReadBackProperties, szPassName, szPropertyName, value);
+}
+
+ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName)
+{
+  ezStringBuilder sKey(szPassName, "::", szPropertyName);
+
+  auto it = m_PassReadBackProperties.Find(sKey);
+  if (it.IsValid())
+    return it.Value().m_Value;
+
+  ezLog::Warning("Unknown read-back property '{0}::{1}'", szPassName, szPropertyName);
+  return ezVariant();
+}
+
+
+bool ezView::IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const
+{
+  ezStringBuilder sKey(szPassName, "::", szPropertyName);
+
+  auto it = m_PassReadBackProperties.Find(sKey);
+  return it.IsValid();
+}
+
+void ezView::UpdateCachedMatrices() const
+{
+  const ezCamera* pCamera = GetCamera();
+
+  bool bUpdateVP = false;
+
+  if (m_uiLastCameraOrientationModification != pCamera->GetOrientationModificationCounter())
+  {
+    bUpdateVP = true;
+    m_uiLastCameraOrientationModification = pCamera->GetOrientationModificationCounter();
+
+    pCamera->GetViewMatrix(m_Data.m_ViewMatrix);
+    m_Data.m_InverseViewMatrix = m_Data.m_ViewMatrix.GetInverse();
+  }
+
+  const float fViewportAspectRatio = m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height;
+  if (m_uiLastCameraSettingsModification != pCamera->GetSettingsModificationCounter() ||
+    m_fLastViewportAspectRatio != fViewportAspectRatio)
+  {
+    bUpdateVP = true;
+    m_uiLastCameraSettingsModification = pCamera->GetSettingsModificationCounter();
+    m_fLastViewportAspectRatio = fViewportAspectRatio;
+
+    pCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_Data.m_ProjectionMatrix);
+    m_Data.m_InverseProjectionMatrix = m_Data.m_ProjectionMatrix.GetInverse();
+  }
+
+  if (bUpdateVP)
+  {
+    m_Data.m_ViewProjectionMatrix = m_Data.m_ProjectionMatrix * m_Data.m_ViewMatrix;
+    m_Data.m_InverseViewProjectionMatrix = m_Data.m_ViewProjectionMatrix.GetInverse();
+  }
+}
+
 void ezView::EnsureUpToDate()
 {
   EZ_ASSERT_DEBUG(m_hRenderPipeline.IsValid(), "Renderpipeline has not been set on this view");
@@ -117,13 +211,6 @@ void ezView::EnsureUpToDate()
 
   ApplyRenderPassProperties();
   ApplyExtractorProperties();
-}
-
-void ezView::ExtractData()
-{
-  EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
-
-  m_pRenderPipeline->ExtractData(*this);
 }
 
 void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)
@@ -181,28 +268,6 @@ void ezView::ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map)
     it.Value().m_bIsDirty = true;
     it.Value().m_bIsValid = true;
   }
-}
-
-void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const char* szTypeName)
-{
-  ezAbstractProperty* pAbstractProperty = pClass->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
-  if (pAbstractProperty == nullptr)
-  {
-    ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
-
-    data.m_bIsValid = false;
-    return;
-  }
-
-  if (pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
-  {
-    ezLog::Error("The {0} property '{1}::{2}' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
-
-    data.m_bIsValid = false;
-    return;
-  }
-
-  ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstractProperty), pClass, data.m_Value);
 }
 
 void ezView::ApplyRenderPassProperties()
@@ -264,75 +329,26 @@ void ezView::ApplyExtractorProperties()
   }
 }
 
-void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const char* szTypeName)
 {
-  SetProperty(m_PassProperties, szPassName, szPropertyName, value);
-}
-
-void ezView::SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
-{
-  SetProperty(m_ExtractorProperties, szPassName, szPropertyName, value);
-}
-
-
-void ezView::SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
-{
-  SetReadBackProperty(m_PassReadBackProperties, szPassName, szPropertyName, value);
-}
-
-ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName)
-{
-  ezStringBuilder sKey(szPassName, "::", szPropertyName);
-
-  auto it = m_PassReadBackProperties.Find(sKey);
-  if (it.IsValid())
-    return it.Value().m_Value;
-
-  ezLog::Warning("Unknown read-back property '{0}::{1}'", szPassName, szPropertyName);
-  return ezVariant();
-}
-
-
-bool ezView::IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const
-{
-  ezStringBuilder sKey(szPassName, "::", szPropertyName);
-
-  auto it = m_PassReadBackProperties.Find(sKey);
-  return it.IsValid();
-}
-
-void ezView::UpdateCachedMatrices() const
-{
-  const ezCamera* pCamera = GetRenderCamera();
-
-  bool bUpdateVP = false;
-
-  if (m_uiLastCameraOrientationModification != pCamera->GetOrientationModificationCounter())
+  ezAbstractProperty* pAbstractProperty = pClass->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
+  if (pAbstractProperty == nullptr)
   {
-    bUpdateVP = true;
-    m_uiLastCameraOrientationModification = pCamera->GetOrientationModificationCounter();
+    ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
 
-    pCamera->GetViewMatrix(m_Data.m_ViewMatrix);
-    m_Data.m_InverseViewMatrix = m_Data.m_ViewMatrix.GetInverse();
+    data.m_bIsValid = false;
+    return;
   }
 
-  const float fViewportAspectRatio = m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height;
-  if (m_uiLastCameraSettingsModification != pCamera->GetSettingsModificationCounter() ||
-    m_fLastViewportAspectRatio != fViewportAspectRatio)
+  if (pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
   {
-    bUpdateVP = true;
-    m_uiLastCameraSettingsModification = pCamera->GetSettingsModificationCounter();
-    m_fLastViewportAspectRatio = fViewportAspectRatio;
+    ezLog::Error("The {0} property '{1}::{2}' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
 
-    pCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_Data.m_ProjectionMatrix);
-    m_Data.m_InverseProjectionMatrix = m_Data.m_ProjectionMatrix.GetInverse();
+    data.m_bIsValid = false;
+    return;
   }
 
-  if (bUpdateVP)
-  {
-    m_Data.m_ViewProjectionMatrix = m_Data.m_ProjectionMatrix * m_Data.m_ViewMatrix;
-    m_Data.m_InverseViewProjectionMatrix = m_Data.m_ViewProjectionMatrix.GetInverse();
-  }
+  ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstractProperty), pClass, data.m_Value);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_View);

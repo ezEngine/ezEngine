@@ -85,5 +85,5 @@ private:
   ezDebugRendererContext m_WorldDebugContext;
   ezDebugRendererContext m_ViewDebugContext;
 
-  ezHybridArray< DataPerCategory, 8 > m_DataPerCategory;
+  ezHybridArray< DataPerCategory, 16 > m_DataPerCategory;
 };
