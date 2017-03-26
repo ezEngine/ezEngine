@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // On MSVC 2008 in 64 Bit <cmath> generates a lot of warnings (actually it is math.h, which is included by cmath)
 #define EZ_MSVC_WARNING_NUMBER 4985
@@ -46,8 +46,8 @@
 /// \brief Disallow the copy constructor and the assignment operator for this type.
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
   private: \
-    type(const type&); \
-    void operator=(const type&)
+    type(const type&) = delete; \
+    void operator=(const type&) = delete
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Macro helper to check alignment
