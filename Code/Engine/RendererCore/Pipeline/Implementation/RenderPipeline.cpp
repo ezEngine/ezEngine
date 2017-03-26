@@ -10,6 +10,7 @@
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezCVarBool ezRenderPipeline::s_DebugCulling("r_DebugCulling", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");

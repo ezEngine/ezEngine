@@ -616,15 +616,21 @@ void ezGameApplication::DoUnloadPlugins()
 
 void ezGameApplication::RenderFps()
 {
-  static float fAccumTime = 0.5f;
-  static float fElapsedTime = 0.0f;
-  fAccumTime += (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
+  // Do not use ezClock for this, it smooths and clamps the timestep
+  const ezTime tNow = ezTime::Now();
 
-  if (fAccumTime >= 0.5f)
+  static ezTime fAccumTime;
+  static ezTime fElapsedTime;
+  static ezTime tLast = tNow;
+  const ezTime tDiff = tNow - tLast;
+  fAccumTime += tDiff;
+  tLast = tNow;
+
+  if (fAccumTime >= ezTime::Seconds(0.5))
   {
-    fAccumTime -= 0.5f;
+    fAccumTime -= ezTime::Seconds(0.5);
 
-    fElapsedTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
+    fElapsedTime = tDiff;
   }
 
   if (m_bShowFps)
@@ -632,7 +638,7 @@ void ezGameApplication::RenderFps()
     if (const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
       ezStringBuilder sFps;
-      sFps.Format("{0} fps, {1} ms", ezArgF(1.0f / fElapsedTime, 1, false, 4), ezArgF(fElapsedTime * 1000.0f, 1, false, 4));
+      sFps.Format("{0} fps, {1} ms", ezArgF(1.0 / fElapsedTime.GetSeconds(), 1, false, 4), ezArgF(fElapsedTime.GetSeconds() * 1000.0, 1, false, 4));
 
       ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 
