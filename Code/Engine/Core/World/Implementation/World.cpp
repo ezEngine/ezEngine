@@ -852,6 +852,11 @@ void ezWorld::DeleteDeadObjects()
     ezGameObject* pObject = m_Data.m_DeadObjects.PeekBack();
     m_Data.m_DeadObjects.PopBack();
 
+    if (!pObject->m_pTransformationData->m_hSpatialData.IsInvalidated())
+    {
+      m_Data.m_pSpatialSystem->DeleteSpatialData(pObject->m_pTransformationData->m_hSpatialData);
+    }
+
     m_Data.DeleteTransformationData(pObject->IsDynamic(), pObject->m_uiHierarchyLevel, pObject->m_pTransformationData);
 
     ezGameObject* pMovedObject = nullptr;
