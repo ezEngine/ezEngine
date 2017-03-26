@@ -14,10 +14,11 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
 
   struct Node
   {
-    const ezRTTI* m_pType = nullptr; ///< Cached resolved type pointer after loading
     ezString m_sTypeName; ///< This is what gets written to the file if m_pType is null.
+    const ezRTTI* m_pType = nullptr; ///< Cached resolved type pointer after loading
 
-    /// \todo Properties
+    ezUInt16 m_uiFirstProperty = 0;
+    ezUInt8 m_uiNumProperties = 0;
   };
 
   struct ExecutionConnection
@@ -39,9 +40,16 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     ezUInt8 m_uiInputPin;
   };
 
+  struct Property
+  {
+    ezString m_sName;
+    ezVariant m_Value;
+  };
+
   ezDynamicArray<Node> m_Nodes;
   ezDynamicArray<ExecutionConnection> m_ExecutionPaths;
   ezDynamicArray<DataConnection> m_DataPaths;
+  ezDeque<Property> m_Properties;
 };
 
 class EZ_GAMEENGINE_DLL ezVisualScriptResource : public ezResource<ezVisualScriptResource, ezVisualScriptResourceDescriptor>

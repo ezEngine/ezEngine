@@ -6,6 +6,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Containers/Map.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 class ezVisualScriptNode;
 class ezMessage;
@@ -20,6 +21,9 @@ class EZ_GAMEENGINE_DLL ezVisualScriptInstance
 {
 public:
   ezVisualScriptInstance();
+
+  static void SetupPinDataTypeConversions();
+
   ~ezVisualScriptInstance();
 
   void Configure(const ezVisualScriptResourceDescriptor& resource);
@@ -29,8 +33,8 @@ public:
   void SetOutputPinValue(const ezVisualScriptNode* pNode, ezUInt8 uiPin, const void* pValue);
   void ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget);
 
-  static void RegisterDataPinAssignFunction(const ezRTTI* pSourceType, const ezRTTI* pDstType, ezVisualScriptDataPinAssignFunc func);
-  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(const ezRTTI* pSourceType, const ezRTTI* pDstType);
+  static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType, ezVisualScriptDataPinAssignFunc func);
+  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType);
 
 private:
   friend class ezVisualScriptNode;
@@ -61,22 +65,22 @@ private:
   {
     EZ_DECLARE_POD_TYPE();
 
-    const ezRTTI* m_pSourceType;
-    const ezRTTI* m_pDstType;
+    ezVisualScriptDataPinType m_SourceType;
+    ezVisualScriptDataPinType m_DstType;
 
     EZ_ALWAYS_INLINE bool operator==(const AssignFuncKey& rhs) const
     {
-      return m_pSourceType == rhs.m_pSourceType && m_pDstType == rhs.m_pDstType;
+      return m_SourceType == rhs.m_SourceType && m_DstType == rhs.m_DstType;
     }
 
     EZ_ALWAYS_INLINE bool operator<(const AssignFuncKey& rhs) const
     {
-      if (m_pSourceType < rhs.m_pSourceType)
+      if (m_SourceType < rhs.m_SourceType)
         return true;
-      if (m_pSourceType > rhs.m_pSourceType)
+      if (m_SourceType > rhs.m_SourceType)
         return false;
 
-      return m_pDstType < rhs.m_pDstType;
+      return m_DstType < rhs.m_DstType;
     }
   };
 

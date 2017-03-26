@@ -105,8 +105,25 @@ void ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptR
     auto& node = desc.m_Nodes.ExpandAndGetRef();
     node.m_pType = nullptr;
     node.m_sTypeName = pDesc->m_sTypeName;
+    node.m_uiFirstProperty = desc.m_Properties.GetCount();
+    node.m_uiNumProperties = 0;
 
     ObjectToIndex[pObject] = i;
+
+    ezHybridArray<ezAbstractProperty*, 32> properties;
+    pObject->GetType()->GetAllProperties(properties);
+
+    for (const ezAbstractProperty* pProp : properties)
+    {
+      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      {
+        auto& ref = desc.m_Properties.ExpandAndGetRef();
+        ref.m_sName = pProp->GetPropertyName();
+        ref.m_Value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+
+        node.m_uiNumProperties++;
+      }
+    }
   }
 
   for (ezUInt32 srcNodeIdx = 0; srcNodeIdx < allNodes.GetCount(); ++srcNodeIdx)

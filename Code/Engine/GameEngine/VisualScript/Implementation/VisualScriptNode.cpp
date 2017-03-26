@@ -62,7 +62,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Counter, 1, ezRTTIDefaultAllo
     EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     // Data Pins
     EZ_MEMBER_PROPERTY("StartValue", m_Counter),
-    EZ_CONSTANT_PROPERTY("Count", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezGetStaticRTTI<double>())),
+    EZ_CONSTANT_PROPERTY("Count", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::Number)),
   }
   EZ_END_PROPERTIES
 }
@@ -92,7 +92,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllo
     // Execution Pins
     EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
     // Data Pins
-    EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezGetStaticRTTI<double>())),
+    EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Number)),
   }
   EZ_END_PROPERTIES
 }
@@ -135,8 +135,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator
     EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     EZ_CONSTANT_PROPERTY("execOut1", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(1)),
     // Data Pins
-    EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezGetStaticRTTI<double>())),
-    EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezGetStaticRTTI<double>())),
+    EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Number)),
+    EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezVisualScriptDataPinType::Number)),
   }
   EZ_END_PROPERTIES
 }

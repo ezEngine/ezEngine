@@ -2,6 +2,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptPin
@@ -112,10 +113,15 @@ ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, con
   }
 
   if (pPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data &&
-      pPinSource->GetDescriptor()->m_pDataType != pPinTarget->GetDescriptor()->m_pDataType)
+      pPinSource->GetDescriptor()->m_DataType != pPinTarget->GetDescriptor()->m_DataType)
   {
-    out_Result = CanConnectResult::ConnectNever;
-    return ezStatus(ezFmt("The pin data types '{0}' and '{1}' are incompatible.", pPinSource->GetDescriptor()->m_pDataType->GetTypeName(), pPinTarget->GetDescriptor()->m_pDataType->GetTypeName()));
+    ezVisualScriptInstance::SetupPinDataTypeConversions();
+
+    if (ezVisualScriptInstance::FindDataPinAssignFunction(pPinSource->GetDescriptor()->m_DataType, pPinTarget->GetDescriptor()->m_DataType) == nullptr)
+    {
+      out_Result = CanConnectResult::ConnectNever;
+      return ezStatus(ezFmt("The pin data types are incompatible."));
+    }
   }
 
   if (WouldConnectionCreateCircle(pSource, pTarget))

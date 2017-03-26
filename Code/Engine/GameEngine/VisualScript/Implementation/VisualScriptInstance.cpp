@@ -3,29 +3,47 @@
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Foundation/Strings/HashedString.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 
-void ezVisualScriptAssignDoubleDouble(const void* src, void* dst)
+void ezVisualScriptAssignNumberNumber(const void* src, void* dst)
 {
   *reinterpret_cast<double*>(dst) = *reinterpret_cast<const double*>(src);
 }
 
-void ezVisualScriptAssignDoubleFloat(const void* src, void* dst)
+void ezVisualScriptAssignBoolBool(const void* src, void* dst)
 {
-  *reinterpret_cast<float*>(dst) = static_cast<float>(*reinterpret_cast<const double*>(src));
+  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const bool*>(src);
 }
 
-void ezVisualScriptAssignFloatDouble(const void* src, void* dst)
+void ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
 {
-  *reinterpret_cast<double*>(dst) = *reinterpret_cast<const float*>(src);
+  *reinterpret_cast<ezVec3*>(dst) = *reinterpret_cast<const ezVec3*>(src);
+}
+
+void ezVisualScriptAssignNumberVec3(const void* src, void* dst)
+{
+  *reinterpret_cast<ezVec3*>(dst) = ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
 }
 
 ezVisualScriptInstance::ezVisualScriptInstance()
 {
-  RegisterDataPinAssignFunction(ezGetStaticRTTI<double>(), ezGetStaticRTTI<double>(), ezVisualScriptAssignDoubleDouble);
-  RegisterDataPinAssignFunction(ezGetStaticRTTI<double>(), ezGetStaticRTTI<float>(), ezVisualScriptAssignDoubleFloat);
-  RegisterDataPinAssignFunction(ezGetStaticRTTI<float>(), ezGetStaticRTTI<double>(), ezVisualScriptAssignFloatDouble);
+  SetupPinDataTypeConversions();
+}
+
+void ezVisualScriptInstance::SetupPinDataTypeConversions()
+{
+  static bool bDone = false;
+  if (bDone)
+    return;
+
+  bDone = true;
+
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Number, ezVisualScriptAssignNumberNumber);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignBoolBool);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
 }
 
 ezVisualScriptInstance::~ezVisualScriptInstance()
@@ -95,9 +113,21 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
     ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(node.m_pType->GetAllocator()->Allocate());
     pNode->m_uiNodeID = uiNodeId++;
 
-    m_Nodes.PushBack(pNode);
+    // assign all property values
+    for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
+    {
+      const ezUInt32 uiProp = node.m_uiFirstProperty + i;
+      const auto& prop = resource.m_Properties[uiProp];
 
-    /// \todo Properties
+      ezAbstractProperty* pAbstract = pNode->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+      if (!pAbstract->GetCategory() == ezPropertyCategory::Member)
+        continue;
+
+      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+      ezReflectionUtils::SetMemberPropertyValue(pMember, pNode, prop.m_Value);
+    }
+
+    m_Nodes.PushBack(pNode);
   }
 
   m_ExecutionConnections.Reserve(resource.m_ExecutionPaths.GetCount());
@@ -150,8 +180,8 @@ void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSo
   con.m_AssignFunc = nullptr;
   con.m_pTargetData = nullptr;
 
-  const ezRTTI* pSourceType = nullptr;
-  const ezRTTI* pTargetType = nullptr;
+  ezVisualScriptDataPinType sourceType = ezVisualScriptDataPinType::None;
+  ezVisualScriptDataPinType targetType = ezVisualScriptDataPinType::None;
 
   {
     con.m_pTargetData = m_Nodes[uiTargetNode]->GetInputPinDataPointer(uiTargetPin);
@@ -166,7 +196,7 @@ void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSo
       {
         if (pAttr->m_uiPinSlot == uiTargetPin)
         {
-          pTargetType = pAttr->m_pDataType;
+          targetType = pAttr->m_DataType;
           break;
         }
       }
@@ -184,14 +214,14 @@ void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSo
       {
         if (pAttr->m_uiPinSlot == uiSourcePin)
         {
-          pSourceType = pAttr->m_pDataType;
+          sourceType = pAttr->m_DataType;
           break;
         }
       }
     }
   }
 
-  con.m_AssignFunc = FindDataPinAssignFunction(pSourceType, pTargetType);
+  con.m_AssignFunc = FindDataPinAssignFunction(sourceType, targetType);
 }
 
 void ezVisualScriptInstance::SetOutputPinValue(const ezVisualScriptNode* pNode, ezUInt8 uiPin, const void* pValue)
@@ -223,20 +253,20 @@ void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNo
   m_Nodes[uiTargetNode]->Execute(this);
 }
 
-void ezVisualScriptInstance::RegisterDataPinAssignFunction(const ezRTTI* pSourceType, const ezRTTI* pDstType, ezVisualScriptDataPinAssignFunc func)
+void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType, ezVisualScriptDataPinAssignFunc func)
 {
   AssignFuncKey key;
-  key.m_pSourceType = pSourceType;
-  key.m_pDstType = pDstType;
+  key.m_SourceType = sourceType;
+  key.m_DstType = dstType;
 
   s_DataPinAssignFunctions[key] = func;
 }
 
-ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(const ezRTTI* pSourceType, const ezRTTI* pDstType)
+ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType)
 {
   AssignFuncKey key;
-  key.m_pSourceType = pSourceType;
-  key.m_pDstType = pDstType;
+  key.m_SourceType = sourceType;
+  key.m_DstType = dstType;
 
   auto it = s_DataPinAssignFunctions.Find(key);
 

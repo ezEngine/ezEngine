@@ -118,7 +118,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
       {
         pd.m_PinType = ezVisualScriptPinDescriptor::Data;
         pd.m_Color = ezColor::Violet; /// \todo Category for color
-        pd.m_pDataType = pAttr->m_pDataType;
+        pd.m_DataType = pAttr->m_DataType;
         pd.m_uiPinIndex = pAttr->m_uiPinSlot;
         nd.m_InputPins.PushBack(pd);
       }
@@ -127,7 +127,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
       {
         pd.m_PinType = ezVisualScriptPinDescriptor::Data;
         pd.m_Color = ezColor::Violet; /// \todo Category for color
-        pd.m_pDataType = pAttr->m_pDataType;
+        pd.m_DataType = pAttr->m_DataType;
         pd.m_uiPinIndex = pAttr->m_uiPinSlot;
         nd.m_OutputPins.PushBack(pd);
       }

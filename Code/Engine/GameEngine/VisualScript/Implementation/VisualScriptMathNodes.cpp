@@ -14,10 +14,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Add, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
-    EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezGetStaticRTTI<double>())),
-    EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezGetStaticRTTI<float>())),
+    EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Number)),
+    EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezVisualScriptDataPinType::Number)),
     // Data Pins (Output)
-    EZ_CONSTANT_PROPERTY("Sum", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezGetStaticRTTI<double>())),
+    EZ_CONSTANT_PROPERTY("Sum", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::Number)),
   }
   EZ_END_PROPERTIES
 }

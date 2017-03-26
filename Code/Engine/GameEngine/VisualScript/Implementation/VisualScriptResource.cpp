@@ -91,22 +91,29 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion == 1, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 2, "Incorrect version {0} for visual script", uiVersion);
 
-  if (uiVersion != 1)
+  if (uiVersion > 2)
     return;
 
   ezUInt32 uiNumNodes = 0;
   ezUInt32 uiNumExecCon = 0;
   ezUInt32 uiNumDataCon = 0;
+  ezUInt32 uiNumProps = 0;
 
   stream >> uiNumNodes;
   stream >> uiNumExecCon;
   stream >> uiNumDataCon;
 
+  if (uiVersion >= 2)
+  {
+    stream >> uiNumProps;
+  }
+
   m_Nodes.SetCount(uiNumNodes);
   m_ExecutionPaths.SetCountUninitialized(uiNumExecCon);
   m_DataPaths.SetCountUninitialized(uiNumDataCon);
+  m_Properties.SetCount(uiNumProps);
 
   ezStringBuilder sType;
   for (auto& node : m_Nodes)
@@ -116,7 +123,16 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
     node.m_pType = ezRTTI::FindTypeByName(sType);
 
-    /// \todo Properties
+    if (uiVersion >= 2)
+    {
+      stream >> node.m_uiFirstProperty;
+      stream >> node.m_uiNumProperties;
+    }
+    else
+    {
+      node.m_uiFirstProperty = 0;
+      node.m_uiNumProperties = 0;
+    }
   }
 
   for (auto& con : m_ExecutionPaths)
@@ -133,21 +149,29 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
     stream >> con.m_uiOutputPin;
     stream >> con.m_uiInputPin;
   }
+
+  for (auto& prop : m_Properties)
+  {
+    stream >> prop.m_sName;
+    stream >> prop.m_Value;
+  }
 }
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
 
   stream << uiVersion;
 
   const ezUInt32 uiNumNodes = m_Nodes.GetCount();
   const ezUInt32 uiNumExecCon = m_ExecutionPaths.GetCount();
   const ezUInt32 uiNumDataCon = m_DataPaths.GetCount();
+  const ezUInt32 uiNumProps = m_Properties.GetCount();
 
   stream << uiNumNodes;
   stream << uiNumExecCon;
   stream << uiNumDataCon;
+  stream << uiNumProps;
 
   for (const auto& node : m_Nodes)
   {
@@ -160,7 +184,8 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
       stream << node.m_sTypeName;
     }
 
-    /// \todo Properties
+    stream << node.m_uiFirstProperty;
+    stream << node.m_uiNumProperties;
   }
 
   for (const auto& con : m_ExecutionPaths)
@@ -176,5 +201,11 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << con.m_uiTargetNode;
     stream << con.m_uiOutputPin;
     stream << con.m_uiInputPin;
+  }
+
+  for (const auto& prop : m_Properties)
+  {
+    stream << prop.m_sName;
+    stream << prop.m_Value;
   }
 }

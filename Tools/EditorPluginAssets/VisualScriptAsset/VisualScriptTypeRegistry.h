@@ -5,19 +5,16 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct ezVisualScriptPinDescriptor
 {
   enum PinType { Execution, Data };
 
   ezString m_sName;
-  const ezRTTI* m_pDataType = nullptr;
-  //ezReflectedPropertyDescriptor m_PropertyDesc;
-  ezColorGammaUB m_Color;
-  //bool m_bExposeAsProperty = false;
-  //ezString m_sDefaultValue;
   ezString m_sTooltip;
-
+  ezColorGammaUB m_Color;
+  ezVisualScriptDataPinType m_DataType;
   PinType m_PinType;
   ezUInt8 m_uiPinIndex;
 };
