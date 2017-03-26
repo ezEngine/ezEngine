@@ -113,6 +113,9 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
       continue;
 
+    if (pProp->GetCategory() == ezPropertyCategory::Constant)
+      continue;
+
     ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
     EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
     pNewWidget->setParent(this);

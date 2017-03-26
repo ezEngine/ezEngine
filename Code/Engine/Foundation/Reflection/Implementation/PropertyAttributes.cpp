@@ -102,6 +102,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, 1, ezRTTIDefaultAllocator<
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstrainPointerAttribute, 1, ezRTTIDefaultAllocator<ezConstrainPointerAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ConstantName", m_sConstantName),
+    EZ_MEMBER_PROPERTY("ConstantValue", m_sConstantValueProperty),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, 1, ezRTTIDefaultAllocator<ezFileBrowserAttribute>)
 {
   EZ_BEGIN_PROPERTIES

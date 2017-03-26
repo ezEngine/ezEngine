@@ -90,7 +90,9 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
       pNode->AddProperty(pProp->GetPropertyName(), values);
     }
     break;
-
+  case ezPropertyCategory::Constant:
+    // Nothing to do here.
+    break;
   default:
     EZ_ASSERT_NOT_IMPLEMENTED
   }
@@ -169,7 +171,7 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
     }
     break;
   }
-  
+
   return pObject;
 }
 
@@ -192,7 +194,7 @@ void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractOb
 void ezDocumentObjectConverterReader::ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& diff)
 {
   ezHybridArray<ezAbstractGraphDiffOperation*, 4> change;
-  
+
   for (auto& op : diff)
   {
     if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged && pObject->GetGuid() == op.m_Node)

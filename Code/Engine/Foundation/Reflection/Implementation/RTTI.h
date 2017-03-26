@@ -120,6 +120,9 @@ public:
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
   }
 
+  /// \brief Fire this if a type was dynamically added or changed outside of plugin registration.
+  static ezEvent<const ezRTTI*> s_TypeUpdatedEvent;
+
 protected:
   const char* m_szPluginName;
   const char* m_szTypeName;
@@ -129,7 +132,6 @@ protected:
   void RegisterType(ezRTTI* pType);
   void UnregisterType(ezRTTI* pType);
 
-private:
   void GatherDynamicMessageHandlers() const;
   /// \brief Returns a hash table that accelerates ezRTTI::FindTypeByName.
   ///   The hash table type cannot be put in the header due to circular includes.
@@ -140,8 +142,8 @@ private:
   ezUInt32 m_uiVariantType;
   ezUInt32 m_uiTypeSize;
   mutable ezUInt32 m_uiMsgIdOffset;
-  ezUInt32 m_uiTypeVersion;
-  ezUInt32 m_uiTypeNameHash;
+  ezUInt32 m_uiTypeVersion = 0;
+  ezUInt32 m_uiTypeNameHash = 0;
   ezBitflags<ezTypeFlags> m_TypeFlags;
   ezRTTIAllocator* m_pAllocator;
   mutable bool m_bGatheredDynamicMessageHandlers;

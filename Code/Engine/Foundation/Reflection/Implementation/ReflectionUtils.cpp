@@ -38,24 +38,14 @@ namespace
     m_pType = nullptr;
   }
 
-  struct GetConstantValueFunc
-  {
-    template <typename T>
-    EZ_FORCE_INLINE void operator()()
-    {
-      m_Result = static_cast<const ezTypedConstantProperty<T>*>(m_pProp)->GetValue();
-    }
-
-    const ezAbstractConstantProperty* m_pProp;
-    ezVariant m_Result;
-  };
-
   struct GetValueFunc
   {
     template <typename T>
     EZ_FORCE_INLINE void operator()()
     {
-      m_Result = static_cast<const ezTypedMemberProperty<T>*>(m_pProp)->GetValue(m_pObject);
+      T value;
+      m_pProp->GetValuePtr(m_pObject, &value);
+      m_Result = value;
     }
 
     const ezAbstractMemberProperty* m_pProp;
@@ -63,18 +53,63 @@ namespace
     ezVariant m_Result;
   };
 
+  template <>
+  EZ_FORCE_INLINE void GetValueFunc::operator()<ezString> ()
+  {
+    if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>())
+    {
+      ezString value;
+      m_pProp->GetValuePtr(m_pObject, &value);
+      m_Result = value;
+    }
+    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
+    {
+      const char* szTemp = nullptr;
+      m_pProp->GetValuePtr(m_pObject, &szTemp);
+      m_Result = szTemp;
+    }
+    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezUntrackedString>())
+    {
+      ezUntrackedString value;
+      m_pProp->GetValuePtr(m_pObject, &value);
+      m_Result = value;
+    }
+  }
+
   struct SetValueFunc
   {
     template <typename T>
     EZ_FORCE_INLINE void operator()()
     {
-      static_cast<ezTypedMemberProperty<T>*>(m_pProp)->SetValue(m_pObject, m_pValue->ConvertTo<T>());
+      T value = m_pValue->ConvertTo<T>();
+      m_pProp->SetValuePtr(m_pObject, &value);
     }
 
     ezAbstractMemberProperty* m_pProp;
     void* m_pObject;
     const ezVariant* m_pValue;
   };
+
+  template <>
+  EZ_FORCE_INLINE void SetValueFunc::operator() < ezString > ()
+  {
+    if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>())
+    {
+      ezString value = m_pValue->Get<ezString>();
+      m_pProp->SetValuePtr(m_pObject, &value);
+    }
+    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
+    {
+      const ezString& sTemp = m_pValue->Get<ezString>();
+      const char* szTemp = sTemp;
+      m_pProp->SetValuePtr(m_pObject, &szTemp);
+    }
+    else if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezUntrackedString>())
+    {
+      ezUntrackedString value = m_pValue->Get<ezString>();
+      m_pProp->SetValuePtr(m_pObject, &value);
+    }
+  }
 
   struct GetArrayValueFunc
   {
@@ -92,6 +127,15 @@ namespace
     ezVariant* m_pValue;
   };
 
+  template <>
+  EZ_FORCE_INLINE void GetArrayValueFunc::operator()<ezString>()
+  {
+    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
+    ezString value;
+    m_pProp->GetValue(m_pObject, m_uiIndex, &value);
+    *m_pValue = value;
+  }
+
   struct SetArrayValueFunc
   {
     template <typename T>
@@ -107,6 +151,14 @@ namespace
     const ezVariant* m_pValue;
   };
 
+  template <>
+  EZ_FORCE_INLINE void SetArrayValueFunc::operator() < ezString > ()
+  {
+    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
+    ezString value = m_pValue->ConvertTo<ezString>();
+    m_pProp->SetValue(m_pObject, m_uiIndex, &value);
+  }
+
   struct InsertArrayValueFunc
   {
     template <typename T>
@@ -121,6 +173,14 @@ namespace
     ezUInt32 m_uiIndex;
     const ezVariant* m_pValue;
   };
+
+  template <>
+  EZ_FORCE_INLINE void InsertArrayValueFunc::operator() < ezString > ()
+  {
+    EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
+    ezString value = m_pValue->ConvertTo<ezString>();
+    m_pProp->Insert(m_pObject, m_uiIndex, &value);
+  }
 
   struct InsertSetValueFunc
   {
@@ -215,11 +275,7 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
 {
   EZ_ASSERT_DEBUG(pProp != nullptr, "GetMemberPropertyValue: missing data!");
 
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-  {
-    return static_cast<const ezTypedMemberProperty<const char*>*>(pProp)->GetValue(pObject);
-  }
-  else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
     void* pValue = nullptr;
     pProp->GetValuePtr(pObject, &pValue);
@@ -232,7 +288,9 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
   }
   else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
   {
-    return static_cast<const ezTypedMemberProperty<ezVariant>*>(pProp)->GetValue(pObject);
+    ezVariant value;
+    pProp->GetValuePtr(pObject, &value);
+    return value;
   }
   else
   {
@@ -254,12 +312,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
 
-  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-  {
-    static_cast<ezTypedMemberProperty<const char*>*>(pProp)->SetValue(pObject, value.ConvertTo<ezString>().GetData());
-    return;
-  }
-  else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
     void* pValue = value.ConvertTo<void*>();
     pProp->SetValuePtr(pObject, &pValue);
@@ -283,7 +336,8 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
   }
   else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
   {
-    static_cast<ezTypedMemberProperty<ezVariant>*>(pProp)->SetValue(pObject, value);
+    ezVariant tempValue = value;
+    pProp->SetValuePtr(pObject, &tempValue);
   }
   else
   {

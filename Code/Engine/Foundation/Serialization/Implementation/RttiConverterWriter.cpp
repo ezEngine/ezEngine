@@ -320,7 +320,9 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-
+  case ezPropertyCategory::Constant:
+    // Nothing to do here.
+    break;
   default:
     break;
   }

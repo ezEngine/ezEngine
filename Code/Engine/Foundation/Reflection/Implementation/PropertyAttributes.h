@@ -40,7 +40,7 @@ public:
   const char* GetCategory() const { return m_sCategory; }
 
 private:
-  ezString m_sCategory;
+  ezUntrackedString m_sCategory;
 };
 
 /// \brief Used to colorize types
@@ -82,7 +82,7 @@ public:
   const char* GetSuffix() const { return m_sSuffix; }
 
 private:
-  ezString m_sSuffix;
+  ezUntrackedString m_sSuffix;
 };
 
 /// \brief Used to show a text instead of the minimum value of a property.
@@ -100,7 +100,7 @@ public:
   const char* GetText() const { return m_sText; }
 
 private:
-  ezString m_sText;
+  ezUntrackedString m_sText;
 };
 
 /// \brief Sets the default value of the property.
@@ -183,7 +183,7 @@ public:
   const char* GetTagFilter() const { return m_sTagFilter; }
 
 private:
-  ezString m_sTagFilter;
+  ezUntrackedString m_sTagFilter;
 };
 
 /// \brief Sets the allowed actions on a container.
@@ -210,6 +210,29 @@ private:
   bool m_bCanMove;
 };
 
+/// \brief Limits setting of pointer properties to derived types that have the given constant property and value
+///
+/// The szConstantValueProperty is a sibling property of the property this attribute is assigned to,
+class EZ_FOUNDATION_DLL ezConstrainPointerAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezConstrainPointerAttribute, ezPropertyAttribute);
+
+public:
+  ezConstrainPointerAttribute() {}
+  ezConstrainPointerAttribute(const char* szConstantName, const char* szConstantValueProperty)
+  {
+    m_sConstantName = szConstantName;
+    m_sConstantValueProperty = szConstantValueProperty;
+  }
+
+  const ezUntrackedString& GetConstantName() const { return m_sConstantName; }
+  const ezUntrackedString& GetConstantValueProperty() const { return m_sConstantValueProperty; }
+
+private:
+  ezUntrackedString m_sConstantName;
+  ezUntrackedString m_sConstantValueProperty;
+};
+
 /// \brief A property attribute that indicates that the string property should display a file browsing button.
 ///
 /// Allows to specify the title for the browse dialog and the allowed file types.
@@ -219,7 +242,7 @@ class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute, ezTypeWidgetAttribute);
 
 public:
-  ezFileBrowserAttribute() : m_sDialogTitle(nullptr), m_sTypeFilter(nullptr) {}
+  ezFileBrowserAttribute() {}
   ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter)
   {
     m_sDialogTitle = szDialogTitle;
@@ -230,8 +253,8 @@ public:
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 private:
-  const char* m_sDialogTitle;
-  const char* m_sTypeFilter;
+  ezUntrackedString m_sDialogTitle;
+  ezUntrackedString m_sTypeFilter;
 };
 
 /// \brief A property attribute that indicates that the string property is actually an asset reference.
@@ -257,7 +280,7 @@ public:
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 private:
-  ezString m_sTypeFilter; //TODO can not use a ezString here because it will generate a mem leak report once the string no longer fits into the internal storage
+  ezUntrackedString m_sTypeFilter;
 };
 
 /// \brief Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.
@@ -277,7 +300,7 @@ public:
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
 private:
-  ezString m_sDynamicEnumName;
+  ezUntrackedString m_sDynamicEnumName;
 };
 
 /// \brief Can be used on string properties to display them as enums. The valid enum values and their names may change at runtime.
@@ -297,7 +320,7 @@ public:
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
 private:
-  ezString m_sDynamicEnumName;
+  ezUntrackedString m_sDynamicEnumName;
 };
 
 
@@ -310,10 +333,10 @@ class EZ_FOUNDATION_DLL ezManipulatorAttribute : public ezPropertyAttribute
 public:
   ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr);
 
-  ezString m_sProperty1;
-  ezString m_sProperty2;
-  ezString m_sProperty3;
-  ezString m_sProperty4;
+  ezUntrackedString m_sProperty1;
+  ezUntrackedString m_sProperty2;
+  ezUntrackedString m_sProperty3;
+  ezUntrackedString m_sProperty4;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -326,8 +349,8 @@ public:
   ezSphereManipulatorAttribute();
   ezSphereManipulatorAttribute(const char* szOuterRadiusProperty, const char* szInnerRadiusProperty = nullptr);
 
-  const ezString& GetOuterRadiusProperty() const { return m_sProperty1; }
-  const ezString& GetInnerRadiusProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetOuterRadiusProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetInnerRadiusProperty() const { return m_sProperty2; }
 
 protected:
 
@@ -344,8 +367,8 @@ public:
   ezCapsuleManipulatorAttribute();
   ezCapsuleManipulatorAttribute(const char* szHeightProperty, const char* szRadiusProperty);
 
-  const ezString& GetLengthProperty() const { return m_sProperty1; }
-  const ezString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetLengthProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
 
 
 };
@@ -361,7 +384,7 @@ public:
   ezBoxManipulatorAttribute();
   ezBoxManipulatorAttribute(const char* szSizeProperty);
 
-  const ezString& GetSizeProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
 
 };
 
@@ -377,8 +400,8 @@ public:
   ezConeManipulatorAttribute(const char* szAngleProperty, const char* szRadiusProperty);
   ezConeManipulatorAttribute(const char* szAngleProperty, float fScale);
 
-  const ezString& GetAngleProperty() const { return m_sProperty1; }
-  const ezString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
 
   float m_fScale;
 };
@@ -392,10 +415,10 @@ class EZ_FOUNDATION_DLL ezVisualizerAttribute : public ezPropertyAttribute
 public:
   ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr);
 
-  ezString m_sProperty1;
-  ezString m_sProperty2;
-  ezString m_sProperty3;
-  ezString m_sProperty4;
+  ezUntrackedString m_sProperty1;
+  ezUntrackedString m_sProperty2;
+  ezUntrackedString m_sProperty3;
+  ezUntrackedString m_sProperty4;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -409,8 +432,8 @@ public:
   ezBoxVisualizerAttribute(const char* szSizeProperty, const char* szColorProperty);
   ezBoxVisualizerAttribute(const char* szSizeProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
-  const ezString& GetSizeProperty() const { return m_sProperty1; }
-  const ezString& GetColorProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
 
   ezColor m_Color;
 };
@@ -426,8 +449,8 @@ public:
   ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty);
   ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
-  const ezString& GetRadiusProperty() const { return m_sProperty1; }
-  const ezString& GetColorProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
 
   ezColor m_Color;
 };
@@ -444,9 +467,9 @@ public:
   ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const char* szColorProperty);
   ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
-  const ezString& GetHeightProperty() const { return m_sProperty1; }
-  const ezString& GetRadiusProperty() const { return m_sProperty2; }
-  const ezString& GetColorProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
 
   ezColor m_Color;
 };
@@ -462,7 +485,7 @@ public:
   ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const char* szColorProperty);
   ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
-  const ezString& GetColorProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty1; }
 
   ezBasisAxis::Enum m_Axis;
   ezColor m_Color;
@@ -486,9 +509,9 @@ public:
   /// fixedColor is ignored if szColorProperty is valid.
   ezConeVisualizerAttribute(ezBasisAxis::Enum axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const char* szColorProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
-  const ezString& GetAngleProperty() const { return m_sProperty1; }
-  const ezString& GetRadiusProperty() const { return m_sProperty2; }
-  const ezString& GetColorProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
 
   ezBasisAxis::Enum m_Axis;
   ezColor m_Color;
@@ -498,7 +521,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-// Implementatoin moved here as it requires ezPropertyAttribute to be fully defined.
+// Implementation moved here as it requires ezPropertyAttribute to be fully defined.
 template<typename Type>
 const Type* ezRTTI::GetAttributeByType() const
 {

@@ -41,6 +41,7 @@ private:
   void SendProjectReadyMessage();
   void SendReflectionInformation();
   void EventHandlerIPC(const ezProcessCommunication::Event& e);
+  void EventHandlerTypeUpdated(const ezRTTI* pType);
 
   ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
 

@@ -39,6 +39,8 @@ void ezEngineProcessGameApplication::AfterCoreStartup()
   ezTaskSystem::SetTargetFrameTime(1000.0 / 10.0);
 
   ConnectToHost();
+
+  ezRTTI::s_TypeUpdatedEvent.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
 }
 
 
@@ -78,6 +80,7 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 
 void ezEngineProcessGameApplication::BeforeCoreShutdown()
 {
+  ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
   ezGameApplication::BeforeCoreShutdown();
@@ -264,6 +267,14 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
   {
     pDocumentContext->HandleMessage(pDocMsg);
   }
+}
+
+
+void ezEngineProcessGameApplication::EventHandlerTypeUpdated(const ezRTTI* pType)
+{
+  ezUpdateReflectionTypeMsgToEditor TypeMsg;
+  ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, TypeMsg.m_desc);
+  m_IPC.SendMessage(&TypeMsg);
 }
 
 ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg)

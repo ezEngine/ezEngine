@@ -7,6 +7,7 @@
 #include <Foundation/Containers/HashTable.h>
 
 typedef ezHashTable<const char*, ezRTTI*, ezHashHelper<const char*>, ezStaticAllocatorWrapper> ezTypeHashTable;
+ezEvent<const ezRTTI*> ezRTTI::s_TypeUpdatedEvent;
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
 
@@ -37,7 +38,6 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_bGatheredDynamicMessageHandlers = false;
   m_szPluginName = nullptr;
   m_szTypeName = szName;
-  m_uiTypeNameHash = szName != nullptr ? ezHashing::MurmurHash(szName) : 0;
   m_pAllocator = pAllocator;
   m_Properties = properties;
   m_Attributes = attributes;
@@ -180,6 +180,7 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
 
 void ezRTTI::RegisterType(ezRTTI* pType)
 {
+  m_uiTypeNameHash = ezHashing::MurmurHash(m_szTypeName);
   static_cast<ezTypeHashTable*>(ezRTTI::GetTypeHashTable())->Insert(pType->m_szTypeName, pType);
 }
 

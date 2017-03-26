@@ -163,6 +163,8 @@ public:
 
 
 typedef ezHybridString<1> ezDynamicString;
+/// \brief String that uses the static allocator to prevent leak reports in RTTI attributes.
+typedef ezHybridString<32, ezStaticAllocatorWrapper> ezUntrackedString;
 typedef ezHybridString<32> ezString;
 typedef ezHybridString<16> ezString16;
 typedef ezHybridString<24> ezString24;
@@ -268,6 +270,7 @@ struct CompareConstChar
 
 // For ezFormatString
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezString& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezUntrackedString& arg);
 
 #include <Foundation/Strings/Implementation/String_inl.h>
 

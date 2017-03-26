@@ -71,8 +71,8 @@ public:
   ezSpotLightVisualizerAttribute();
   ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
 
-  const ezString& GetAngleProperty() const { return m_sProperty1; }
-  const ezString& GetRangeProperty() const { return m_sProperty2; }
-  const ezString& GetIntensityProperty() const { return m_sProperty3; }
-  const ezString& GetColorProperty() const { return m_sProperty4; }
+  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRangeProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetIntensityProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty4; }
 };

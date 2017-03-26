@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 1)
 {
@@ -230,10 +231,7 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
 
     ezColor finalColor = gamma;
     finalColor.ScaleRGB(intensity);
-
-    ezTypedMemberProperty<ezColor>* pTyped = static_cast<ezTypedMemberProperty<ezColor>*>(binding.m_pMemberProperty);
-    pTyped->SetValue(binding.m_pObject, finalColor);
-
+    binding.m_pMemberProperty->SetValuePtr(binding.m_pObject, &finalColor);
     return;
   }
 
@@ -244,10 +242,7 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
     ezColorGammaUB gamma;
     float intensity;
     pResource->GetDescriptor().m_Gradient.Evaluate(fLookupPos, gamma, intensity);
-
-    ezTypedMemberProperty<ezColorGammaUB>* pTyped = static_cast<ezTypedMemberProperty<ezColorGammaUB>*>(binding.m_pMemberProperty);
-    pTyped->SetValue(binding.m_pObject, gamma);
-
+    binding.m_pMemberProperty->SetValuePtr(binding.m_pObject, &gamma);
     return;
   }
 
@@ -268,38 +263,7 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
     fFinalValue = curve.Evaluate(fMin + fLookupPos * (fMax - fMin));
   }
 
-  if (pRtti == ezGetStaticRTTI<float>())
-  {
-    ezTypedMemberProperty<float>* pTyped = static_cast<ezTypedMemberProperty<float>*>(binding.m_pMemberProperty);
-    pTyped->SetValue(binding.m_pObject, fFinalValue);
-    return;
-  }
-
-  if (pRtti == ezGetStaticRTTI<bool>())
-  {
-    ezTypedMemberProperty<bool>* pTyped = static_cast<ezTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
-    pTyped->SetValue(binding.m_pObject, fFinalValue < 0.5f);
-    return;
-  }
-
-  /// \todo Do we have helper functions for this ? Maybe ezReflectionUtils::SetMemberPropertyValue?
-
-  if (pRtti == ezGetStaticRTTI<ezInt32>())
-  {
-    ezTypedMemberProperty<ezInt32>* pTyped = static_cast<ezTypedMemberProperty<ezInt32>*>(binding.m_pMemberProperty);
-    pTyped->SetValue(binding.m_pObject, (ezInt32)fFinalValue);
-    return;
-  }
-
-  if (pRtti == ezGetStaticRTTI<ezUInt32>())
-  {
-    ezTypedMemberProperty<ezUInt32>* pTyped = static_cast<ezTypedMemberProperty<ezUInt32>*>(binding.m_pMemberProperty);
-    pTyped->SetValue(binding.m_pObject, (ezUInt32)fFinalValue);
-    return;
-  }
-
   /// \todo etc. int types
-
   if (pRtti == ezGetStaticRTTI<ezVec2>())
   {
     ezTypedMemberProperty<ezVec2>* pTyped = static_cast<ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
@@ -346,6 +310,16 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
 
     pTyped->SetValue(binding.m_pObject, value);
     return;
+  }
+
+  ezVariant value = fFinalValue;
+  if (pRtti == ezGetStaticRTTI<bool>())
+  {
+    value = fFinalValue < 0.5f;
+  }
+  if (pRtti->GetVariantType() != ezVariantType::Invalid && value.CanConvertTo(pRtti->GetVariantType()))
+  {
+    ezReflectionUtils::SetMemberPropertyValue(binding.m_pMemberProperty, binding.m_pObject, value);
   }
 }
 

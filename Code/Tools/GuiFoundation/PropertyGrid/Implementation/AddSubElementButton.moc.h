@@ -37,4 +37,5 @@ private:
   QMenu* m_pMenu;
   ezUInt32 m_uiMaxElements = 0; // 0 means unlimited
   bool m_bPreventDuplicates = false;
+  const ezConstrainPointerAttribute* m_pConstraint = nullptr;
 };

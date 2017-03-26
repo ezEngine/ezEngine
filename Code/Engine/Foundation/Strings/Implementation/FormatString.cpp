@@ -97,6 +97,11 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezStringBuilder& ar
   return ezStringView(arg.GetData(), arg.GetData() + arg.GetElementCount());
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezUntrackedString& arg)
+{
+  return ezStringView(arg.GetData(), arg.GetData() + arg.GetElementCount());
+}
+
 const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView& arg)
 {
   return arg;

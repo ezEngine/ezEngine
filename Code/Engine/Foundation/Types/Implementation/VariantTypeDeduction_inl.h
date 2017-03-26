@@ -353,6 +353,19 @@ struct ezVariant::TypeDeduction<ezString>
 };
 
 template <>
+struct ezVariant::TypeDeduction<ezUntrackedString>
+{
+  enum
+  {
+    value = Type::String,
+    forceSharing = true,
+    hasReflectedMembers = false
+  };
+
+  typedef ezString StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<ezStringView>
 {
   enum

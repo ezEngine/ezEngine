@@ -60,7 +60,7 @@ public:
   ezPointLightVisualizerAttribute();
   ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
 
-  const ezString& GetRangeProperty() const { return m_sProperty1; }
-  const ezString& GetIntensityProperty() const { return m_sProperty2; }
-  const ezString& GetColorProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetRangeProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetIntensityProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
 };
