@@ -5,6 +5,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/Variant.h>
+#include <Foundation/Containers/Map.h>
 
 class ezVisualScriptNode;
 class ezMessage;
