@@ -15,7 +15,7 @@ public:
   ezVisualScriptNode();
 
   virtual void Execute(ezVisualScriptInstance* pInstance) = 0;
-  virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) = 0;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) = 0;
 
   /// \brief Whether the node has an execution pin (input or output) and thus must be stepped manually. Otherwise it will be implicitly executed on demand.
   bool IsManuallyStepped() const;
@@ -33,54 +33,49 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-enum class ezVisualScriptPinCategory
+class EZ_GAMEENGINE_DLL ezVisScriptExecPinOutAttribute : public ezPropertyAttribute
 {
-  Execution,
-  Number,
-  Vector,
-  Boolean,
-  //ObjectReference,
-  //ComponentReference,
-  //ResourceReference,
-};
-
-class EZ_GAMEENGINE_DLL ezVisualScriptInputPinAttribute : public ezPropertyAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptInputPinAttribute, ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptExecPinOutAttribute, ezPropertyAttribute);
 
 public:
-  ezVisualScriptInputPinAttribute() {}
-  ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory category)
-  {
-    m_Category = category;
-  }
+  explicit ezVisScriptExecPinOutAttribute(ezUInt8 uiSlot = 0xFF) { m_uiPinSlot = uiSlot; }
 
-  ezVisualScriptPinCategory GetCategory() const { return m_Category; }
-
-private:
-  ezVisualScriptPinCategory m_Category;
+  ezUInt8 m_uiPinSlot;
 };
 
-class EZ_GAMEENGINE_DLL ezVisualScriptOutputPinAttribute : public ezPropertyAttribute
+class EZ_GAMEENGINE_DLL ezVisScriptExecPinInAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptOutputPinAttribute, ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptExecPinInAttribute, ezPropertyAttribute);
 
 public:
-  ezVisualScriptOutputPinAttribute() {}
-  ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory category)
-  {
-    m_Category = category;
-  }
+  explicit ezVisScriptExecPinInAttribute(ezUInt8 uiSlot = 0) { m_uiPinSlot = uiSlot; }
 
-  ezVisualScriptPinCategory GetCategory() const { return m_Category; }
-
-private:
-  ezVisualScriptPinCategory m_Category;
+  ezUInt8 m_uiPinSlot;
 };
 
+class EZ_GAMEENGINE_DLL ezVisScriptDataPinInAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptDataPinInAttribute, ezPropertyAttribute);
 
+public:
+  ezVisScriptDataPinInAttribute() { m_uiPinSlot = 0xff; m_pDataType = nullptr; }
+  ezVisScriptDataPinInAttribute(ezUInt8 uiSlot, const ezRTTI* pDataType) { m_uiPinSlot = uiSlot; m_pDataType = pDataType; }
 
+  ezUInt8 m_uiPinSlot;
+  const ezRTTI* m_pDataType;
+};
 
+class EZ_GAMEENGINE_DLL ezVisScriptDataPinOutAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptDataPinOutAttribute, ezPropertyAttribute);
+
+public:
+  ezVisScriptDataPinOutAttribute() { m_uiPinSlot = 0xff; m_pDataType = nullptr; }
+  ezVisScriptDataPinOutAttribute(ezUInt8 uiSlot, const ezRTTI* pDataType) { m_uiPinSlot = uiSlot; m_pDataType = pDataType; }
+
+  ezUInt8 m_uiPinSlot;
+  const ezRTTI* m_pDataType;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -91,9 +86,9 @@ public:
   ezVisualScriptNode_Counter();
 
   virtual void Execute(ezVisualScriptInstance* pInstance) override;
-  virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override {};
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
 
-  ezInt32 m_iCounter = 0;
+  double m_Counter = 0;
 };
 
 
@@ -104,10 +99,10 @@ public:
   ezVisualScriptNode_Printer();
 
   virtual void Execute(ezVisualScriptInstance* pInstance) override;
-  virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
   ezString m_sPrint;
-  ezInt32 m_iValue = 0;
+  double m_Value = 0;
 };
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_If : public ezVisualScriptNode
@@ -117,7 +112,7 @@ public:
   ezVisualScriptNode_If();
 
   virtual void Execute(ezVisualScriptInstance* pInstance) override;
-  virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
   double m_Value1;
   double m_Value2;
@@ -130,12 +125,10 @@ public:
   ezVisualScriptNode_Input();
 
   virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
   void TriggerMessageHandler(ezTriggerMessage& msg);
 
   ezUInt32 m_UsageStringHash = 0;
-
-  virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override {}
-
 };
 
 

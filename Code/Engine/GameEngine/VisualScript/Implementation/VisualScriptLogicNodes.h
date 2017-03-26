@@ -12,7 +12,7 @@ public:
   ezVisualScriptNode_Sequence();
 
   virtual void Execute(ezVisualScriptInstance* pInstance) override;
-  virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override {}
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,7 @@ struct ezVisualScriptPinDescriptor
   enum PinType { Execution, Data };
 
   ezString m_sName;
-  const ezRTTI* m_pDataType;
+  const ezRTTI* m_pDataType = nullptr;
   //ezReflectedPropertyDescriptor m_PropertyDesc;
   ezColorGammaUB m_Color;
   //bool m_bExposeAsProperty = false;

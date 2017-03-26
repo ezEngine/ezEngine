@@ -14,13 +14,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sequence, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
-    EZ_CONSTANT_PROPERTY("execIn", 0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("execIn", 0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
     // Execution Pins (Output)
-    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("execOut1", 1)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("execOut2", 2)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("execOut3", 3)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
-    EZ_CONSTANT_PROPERTY("execOut4", 4)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Execution)),
+    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_CONSTANT_PROPERTY("execOut1", 1)->AddAttributes(new ezVisScriptExecPinOutAttribute(1)),
+    EZ_CONSTANT_PROPERTY("execOut2", 2)->AddAttributes(new ezVisScriptExecPinOutAttribute(2)),
+    EZ_CONSTANT_PROPERTY("execOut3", 3)->AddAttributes(new ezVisScriptExecPinOutAttribute(3)),
+    EZ_CONSTANT_PROPERTY("execOut4", 4)->AddAttributes(new ezVisScriptExecPinOutAttribute(4)),
   }
   EZ_END_PROPERTIES
 }

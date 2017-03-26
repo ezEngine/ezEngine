@@ -110,48 +110,47 @@ void ezVisualScriptTypeRegistry::UpdateNodeData()
 
     for (auto prop : properties)
     {
-      if (prop->GetCategory() == ezPropertyCategory::Constant)
+      ezVisualScriptPinDescriptor pd;
+      pd.m_sName = prop->GetPropertyName();
+      pd.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+
+      if (const ezVisScriptDataPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinInAttribute>())
       {
-        const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(prop);
-        if (!pConstant->GetConstant().CanConvertTo<ezUInt16>())
-          continue;
-
-        const ezUInt16 uiPinIndex = pConstant->GetConstant().ConvertTo<ezUInt16>();
-
-        ezVisualScriptPinDescriptor pd;
-        pd.m_sName = prop->GetPropertyName();
-        pd.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
-        pd.m_uiPinIndex = uiPinIndex;
-
-        if (const ezVisualScriptInputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptInputPinAttribute>())
-        {
-          pd.m_PinType = (pAttr->GetCategory() == ezVisualScriptPinCategory::Execution) ? ezVisualScriptPinDescriptor::PinType::Execution : ezVisualScriptPinDescriptor::PinType::Data;
-          pd.m_Color = ezColor::Violet; /// \todo Category for color
-          pd.m_pDataType = prop->GetSpecificType(); /// \todo Category for type
-
-          if (pd.m_PinType == ezVisualScriptPinDescriptor::Execution)
-          {
-            pd.m_Color = ezColor::LightSlateGrey;
-          }
-
-          nd.m_InputPins.PushBack(pd);
-        }
-
-        if (const ezVisualScriptOutputPinAttribute* pAttr = prop->GetAttributeByType<ezVisualScriptOutputPinAttribute>())
-        {
-          pd.m_PinType = (pAttr->GetCategory() == ezVisualScriptPinCategory::Execution) ? ezVisualScriptPinDescriptor::PinType::Execution : ezVisualScriptPinDescriptor::PinType::Data;
-          pd.m_Color = ezColor::Violet;  /// \todo Category for color
-          pd.m_pDataType = prop->GetSpecificType(); /// \todo Category for type
-
-          if (pd.m_PinType == ezVisualScriptPinDescriptor::Execution)
-          {
-            pd.m_Color = ezColor::LightSlateGrey;
-          }
-
-          nd.m_OutputPins.PushBack(pd);
-        }
+        pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+        pd.m_Color = ezColor::Violet; /// \todo Category for color
+        pd.m_pDataType = pAttr->m_pDataType;
+        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+        nd.m_InputPins.PushBack(pd);
       }
-      else
+
+      if (const ezVisScriptDataPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinOutAttribute>())
+      {
+        pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+        pd.m_Color = ezColor::Violet; /// \todo Category for color
+        pd.m_pDataType = pAttr->m_pDataType;
+        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+        nd.m_OutputPins.PushBack(pd);
+      }
+
+      if (const ezVisScriptExecPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinInAttribute>())
+      {
+        pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+        pd.m_Color = ezColor::LightSlateGrey; /// \todo Category for color
+        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+        nd.m_InputPins.PushBack(pd);
+      }
+
+      if (const ezVisScriptExecPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinOutAttribute>())
+      {
+        pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+        pd.m_Color = ezColor::LightSlateGrey; /// \todo Category for color
+        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+        nd.m_OutputPins.PushBack(pd);
+      }
+
+      if (prop->GetCategory() == ezPropertyCategory::Constant)
+        continue;
+
       {
         ezReflectedPropertyDescriptor pd;
         pd.m_Flags = prop->GetFlags();

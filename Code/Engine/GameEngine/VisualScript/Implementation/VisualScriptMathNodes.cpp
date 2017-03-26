@@ -14,10 +14,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Add, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
-    EZ_CONSTANT_PROPERTY("Value1", 0)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
-    EZ_CONSTANT_PROPERTY("Value2", 1)->AddAttributes(new ezVisualScriptInputPinAttribute(ezVisualScriptPinCategory::Number)),
+    EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezGetStaticRTTI<double>())),
+    EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezGetStaticRTTI<float>())),
     // Data Pins (Output)
-    EZ_CONSTANT_PROPERTY("Sum", 0)->AddAttributes(new ezVisualScriptOutputPinAttribute(ezVisualScriptPinCategory::Number)),
+    EZ_CONSTANT_PROPERTY("Sum", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezGetStaticRTTI<double>())),
   }
   EZ_END_PROPERTIES
 }
@@ -27,21 +27,21 @@ ezVisualScriptNode_Add::ezVisualScriptNode_Add() { }
 
 void ezVisualScriptNode_Add::Execute(ezVisualScriptInstance* pInstance)
 {
-  double result = m_Value1 + m_Value2;
-  pInstance->SetOutputPinValue(this, 0, result);
+  const double result = m_Value1 + m_Value2;
+  pInstance->SetOutputPinValue(this, 0, &result);
 }
 
-void ezVisualScriptNode_Add::SetInputPinValue(ezUInt8 uiPin, const ezVariant& value)
+void* ezVisualScriptNode_Add::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
   case 0:
-    m_Value1 = value.ConvertTo<double>();
-    return;
+    return &m_Value1;
   case 1:
-    m_Value2 = value.ConvertTo<double>();
-    return;
+    return &m_Value2;
   }
+
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

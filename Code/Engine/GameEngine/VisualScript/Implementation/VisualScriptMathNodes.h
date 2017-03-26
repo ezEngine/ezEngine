@@ -12,7 +12,7 @@ public:
   ezVisualScriptNode_Add();
 
   virtual void Execute(ezVisualScriptInstance* pInstance) override;
-  virtual void SetInputPinValue(ezUInt8 uiPin, const ezVariant& value) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
   double m_Value1 = 0;
   double m_Value2 = 0;

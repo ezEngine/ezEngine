@@ -111,6 +111,13 @@ ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin* pSource, con
     return ezStatus("Cannot connect data pins with execution pins.");
   }
 
+  if (pPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data &&
+      pPinSource->GetDescriptor()->m_pDataType != pPinTarget->GetDescriptor()->m_pDataType)
+  {
+    out_Result = CanConnectResult::ConnectNever;
+    return ezStatus(ezFmt("The pin data types '{0}' and '{1}' are incompatible.", pPinSource->GetDescriptor()->m_pDataType->GetTypeName(), pPinTarget->GetDescriptor()->m_pDataType->GetTypeName()));
+  }
+
   if (WouldConnectionCreateCircle(pSource, pTarget))
   {
     out_Result = CanConnectResult::ConnectNever;
