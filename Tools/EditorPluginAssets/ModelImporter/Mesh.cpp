@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
+#include <EditorPluginAssets/ModelImporter/VertexData.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
 
@@ -7,19 +8,6 @@
 
 namespace ezModelImporter
 {
-  VertexDataStream::VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles, ElementType elementType)
-    : m_uiNumElementsPerVertex(uiNumElementsPerVertex)
-    , m_ElementType(elementType)
-  {
-    m_IndexToData.SetCount(uiNumTriangles * 3);
-  }
-
-  void VertexDataStream::ReserveData(ezUInt32 numExpectedValues)
-  {
-    // +1 for the zero entry at the start of the array.
-    m_Data.Reserve((numExpectedValues + 1) * GetAttributeSize());
-  }
-
   Mesh::Mesh()
     : HierarchyObject(ObjectHandle::MESH)
     , m_uiNextUnusedVertexIndex(0)
@@ -42,24 +30,24 @@ namespace ezModelImporter
     }
   }
 
-  VertexDataStream* Mesh::AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexDataStream::ElementType elementType)
+  VertexDataStream* Mesh::AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexElementType elementType)
   {
     // A few checks for meaningful element count.
     // These are necessary to keep the implementation of preprocessing functions like MergeSubMeshesWithSameMaterials/ComputeNormals/ComputeTangents sane.
     switch (semantic)
     {
     case ezGALVertexAttributeSemantic::Position:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexDataStream::ElementType::FLOAT, "Position vertex streams should always have exactly 3 float elements.");
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT, "Position vertex streams should always have exactly 3 float elements.");
       break;
     case ezGALVertexAttributeSemantic::Normal:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexDataStream::ElementType::FLOAT, "Normal vertex streams should always have exactly 3 float elements.");
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT, "Normal vertex streams should always have exactly 3 float elements.");
       break;
     case ezGALVertexAttributeSemantic::Tangent:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexDataStream::ElementType::FLOAT, "Tangent vertex streams should always have exactly 3 float elements.");
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexElementType::FLOAT, "Tangent vertex streams should always have exactly 3 float elements.");
       break;
     case ezGALVertexAttributeSemantic::BiTangent:
       EZ_ASSERT_DEBUG((uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1) &&
-                       elementType == VertexDataStream::ElementType::FLOAT, "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
+                       elementType == VertexElementType::FLOAT, "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
       break;
     }
 

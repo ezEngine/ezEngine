@@ -3,6 +3,7 @@
 #include <EditorPluginAssets/ModelImporter/Importers/PbrtImporter_ImportFunctions.h>
 #include <EditorPluginAssets/ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
+#include <EditorPluginAssets/ModelImporter/VertexData.h>
 #include <EditorPluginAssets/ModelImporter/Material.h>
 #include <EditorPluginAssets/ModelImporter/ModelImporter.h>
 

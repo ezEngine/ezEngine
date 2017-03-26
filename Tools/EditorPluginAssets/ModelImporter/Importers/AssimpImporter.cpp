@@ -3,6 +3,7 @@
 #include <EditorPluginAssets/ModelImporter/Scene.h>
 #include <EditorPluginAssets/ModelImporter/Node.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
+#include <EditorPluginAssets/ModelImporter/VertexData.h>
 #include <EditorPluginAssets/ModelImporter/Material.h>
 
 #include <Foundation/Logging/Log.h>

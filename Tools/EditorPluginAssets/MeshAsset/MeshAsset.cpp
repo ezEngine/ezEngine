@@ -5,6 +5,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/ModelImporter/Material.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
+#include <EditorPluginAssets/ModelImporter/VertexData.h>
 #include <EditorPluginAssets/ModelImporter/ModelImporter.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <Foundation/Time/Stopwatch.h>
