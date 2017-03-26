@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <Core/Graphics/Geometry.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -62,11 +62,6 @@ namespace ImportHelper
   struct DataIndexBundle
   {
     EZ_DECLARE_POD_TYPE();
-    /*      for (int i = 0; i < numStreams; ++i)
-      {
-        if (a[i != b[i])
-          return false;
-      }*/
 
     bool operator == (const DataIndexBundle& dataIndex) const
     {
@@ -334,13 +329,18 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       ezLog::Error("Mesh '{0}' from '{1}' has no position vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh '{0}' from '{1}' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
+    const ezModelImporter::TypedVertexDataStreamView<ezVec3> streamPosition(*dataStreams[Position]);
+
     dataStreams[Texcoord0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
+
     dataStreams[Normal] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (dataStreams[Normal] == nullptr)
     {
       ezLog::Error("Mesh '{0}' from '{1}' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
       return ezStatus(ezFmt("Mesh '{0}' from '{1}' has no normal vertex data stream. Something went wrong during normal generation.", mesh->m_Name.GetData(), sMeshFileAbs.GetData()));
     }
+    const ezModelImporter::TypedVertexDataStreamView<ezVec3> streamNormal(*dataStreams[Normal]);
+
     dataStreams[Tangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
     dataStreams[BiTangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
 
@@ -383,10 +383,10 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
       ezUInt32 uiVertexIndex = it.Value();
 
-      ezVec3 vPosition = dataStreams[Position]->GetValueVec3(dataIndices[Position]);
+      ezVec3 vPosition = streamPosition.GetValue(dataIndices[Position]);
       vPosition = mTransformation * vPosition;
 
-      ezVec3 vNormal = dataStreams[Normal]->GetValueVec3(dataIndices[Normal]);
+      ezVec3 vNormal = streamNormal.GetValue(dataIndices[Normal]);
       vNormal = mTransformation.TransformDirection(vNormal);
       vNormal.NormalizeIfNotZero();
 
@@ -396,22 +396,24 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     // Set Tangents.
     if (dataStreams[Tangent] && dataStreams[BiTangent])
     {
+      const ezModelImporter::TypedVertexDataStreamView<ezVec3> streamTangent(*dataStreams[Tangent]);
+
       for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
       {
         ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
         ezUInt32 uiVertexIndex = it.Value();
 
-        ezVec3 vTangent = dataStreams[Tangent]->GetValueVec3(dataIndices[Tangent]);
+        ezVec3 vTangent = streamTangent.GetValue(dataIndices[Tangent]);
         vTangent = mTransformation.TransformDirection(vTangent);
         vTangent.NormalizeIfNotZero();
 
         float biTangentSign;
 
         if(dataStreams[BiTangent]->GetNumElementsPerVertex() == 1)
-          biTangentSign = dataStreams[BiTangent]->GetValueFloat(dataIndices[BiTangent]);
+          biTangentSign = ezModelImporter::TypedVertexDataStreamView<float>(*dataStreams[BiTangent]).GetValue(dataIndices[BiTangent]);
         else
         {
-          ezVec3 vBiTangent = dataStreams[BiTangent]->GetValueVec3(dataIndices[BiTangent]);
+          ezVec3 vBiTangent = ezModelImporter::TypedVertexDataStreamView<ezVec3>(*dataStreams[BiTangent]).GetValue(dataIndices[BiTangent]);
           vBiTangent = mTransformation.TransformDirection(vBiTangent);
           vBiTangent.NormalizeIfNotZero();
           biTangentSign = -vBiTangent.Dot(vTangent);
@@ -442,12 +444,14 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     // Set Texcoords.
     if (dataStreams[Texcoord0])
     {
+      const ezModelImporter::TypedVertexDataStreamView<ezVec2> streamTex(*dataStreams[Texcoord0]);
+
       for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
       {
         ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
         ezUInt32 uiVertexIndex = it.Value();
 
-        ezVec2 vTexcoord = dataStreams[Texcoord0]->GetValueVec2(dataIndices[Texcoord0]);
+        ezVec2 vTexcoord = streamTex.GetValue(dataIndices[Texcoord0]);
         desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, vTexcoord);
       }
     }

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/ModelImporter/Importers/AssimpImporter.h>
 #include <EditorPluginAssets/ModelImporter/Scene.h>
 #include <EditorPluginAssets/ModelImporter/Node.h>
@@ -162,21 +162,21 @@ namespace ezModelImporter
       if (assimpMesh->HasPositions())
       {
         VertexDataStream* positions = mesh->AddDataStream(ezGALVertexAttributeSemantic::Position, 3);
-        ezArrayPtr<float> assimpPositionPtr(reinterpret_cast<float*>(assimpMesh->mVertices), assimpMesh->mNumVertices * 3);
+        ezArrayPtr<char> assimpPositionPtr(reinterpret_cast<char*>(assimpMesh->mVertices), assimpMesh->mNumVertices * sizeof(ezVec3));
         positions->AddValues(assimpPositionPtr);
         vertexDataStreams.PushBack(positions);
       }
       if (assimpMesh->HasNormals())
       {
         VertexDataStream* normals = mesh->AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
-        ezArrayPtr<float> assimpNormalPtr(reinterpret_cast<float*>(assimpMesh->mNormals), assimpMesh->mNumVertices * 3);
+        ezArrayPtr<char> assimpNormalPtr(reinterpret_cast<char*>(assimpMesh->mNormals), assimpMesh->mNumVertices * sizeof(ezVec3));
         normals->AddValues(assimpNormalPtr);
         vertexDataStreams.PushBack(normals);
       }
       if (assimpMesh->HasVertexColors(0))
       {
         VertexDataStream* colors = mesh->AddDataStream(ezGALVertexAttributeSemantic::Color, 4);
-        ezArrayPtr<float> assimpColorsPtr(reinterpret_cast<float*>(assimpMesh->mColors), assimpMesh->mNumVertices * 4);
+        ezArrayPtr<char> assimpColorsPtr(reinterpret_cast<char*>(assimpMesh->mColors), assimpMesh->mNumVertices * sizeof(ezVec4));
         colors->AddValues(assimpColorsPtr);
         vertexDataStreams.PushBack(colors);
 
@@ -188,8 +188,8 @@ namespace ezModelImporter
         VertexDataStream* tangents = mesh->AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
         VertexDataStream* bitangents = mesh->AddDataStream(ezGALVertexAttributeSemantic::BiTangent, 3);
 
-        ezArrayPtr<float> assimpTangentsPtr(reinterpret_cast<float*>(assimpMesh->mTangents), assimpMesh->mNumVertices * 3);
-        ezArrayPtr<float> assimpBitangentsPtr(reinterpret_cast<float*>(assimpMesh->mBitangents), assimpMesh->mNumVertices * 3);
+        ezArrayPtr<char> assimpTangentsPtr(reinterpret_cast<char*>(assimpMesh->mTangents), assimpMesh->mNumVertices * sizeof(ezVec3));
+        ezArrayPtr<char> assimpBitangentsPtr(reinterpret_cast<char*>(assimpMesh->mBitangents), assimpMesh->mNumVertices * sizeof(ezVec3));
         tangents->AddValues(assimpTangentsPtr);
         bitangents->AddValues(assimpBitangentsPtr);
 
@@ -205,7 +205,7 @@ namespace ezModelImporter
         texcoords->ReserveData(assimpMesh->mNumVertices);
         for (unsigned int coord = 0; coord < assimpMesh->mNumVertices; ++coord)
         {
-          texcoords->AddValues(ezArrayPtr<float>(reinterpret_cast<float*>(assimpMesh->mTextureCoords[texcoordSet] + coord), texcoordDimensionality));
+          texcoords->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(assimpMesh->mTextureCoords[texcoordSet] + coord), texcoordDimensionality * sizeof(float)));
         }
         vertexDataStreams.PushBack(texcoords);
       }
@@ -220,14 +220,14 @@ namespace ezModelImporter
       for (VertexDataStream* dataStream : vertexDataStreams)
       {
         ezArrayPtr<const Mesh::Triangle> triangles = mesh->GetTriangles();
-        ezUInt32 uiNumElementsPerVertex = dataStream->GetNumElementsPerVertex();
+        ezUInt32 uiAttributeSize = dataStream->GetAttributeSize();
         for (unsigned int faceIdx = 0; faceIdx < assimpMesh->mNumFaces; ++faceIdx)
         {
           EZ_ASSERT_DEBUG(assimpMesh->mFaces[faceIdx].mNumIndices == 3, "Expected triangles from Assimp. Triangulate didn't work?");
 
-          dataStream->SetDataIndex(triangles[faceIdx].m_Vertices[0], assimpMesh->mFaces[faceIdx].mIndices[0] * uiNumElementsPerVertex);
-          dataStream->SetDataIndex(triangles[faceIdx].m_Vertices[1], assimpMesh->mFaces[faceIdx].mIndices[1] * uiNumElementsPerVertex);
-          dataStream->SetDataIndex(triangles[faceIdx].m_Vertices[2], assimpMesh->mFaces[faceIdx].mIndices[2] * uiNumElementsPerVertex);
+          dataStream->SetDataIndex(triangles[faceIdx].m_Vertices[0], assimpMesh->mFaces[faceIdx].mIndices[0] * uiAttributeSize);
+          dataStream->SetDataIndex(triangles[faceIdx].m_Vertices[1], assimpMesh->mFaces[faceIdx].mIndices[1] * uiAttributeSize);
+          dataStream->SetDataIndex(triangles[faceIdx].m_Vertices[2], assimpMesh->mFaces[faceIdx].mIndices[2] * uiAttributeSize);
         }
       }
 

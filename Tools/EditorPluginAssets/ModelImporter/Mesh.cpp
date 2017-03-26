@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
@@ -7,8 +7,9 @@
 
 namespace ezModelImporter
 {
-  VertexDataStream::VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles)
+  VertexDataStream::VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles, ElementType elementType)
     : m_uiNumElementsPerVertex(uiNumElementsPerVertex)
+    , m_ElementType(elementType)
   {
     m_IndexToData.SetCount(uiNumTriangles * 3);
   }
@@ -16,7 +17,7 @@ namespace ezModelImporter
   void VertexDataStream::ReserveData(ezUInt32 numExpectedValues)
   {
     // +1 for the zero entry at the start of the array.
-    m_Data.Reserve((numExpectedValues + 1) * m_uiNumElementsPerVertex);
+    m_Data.Reserve((numExpectedValues + 1) * GetAttributeSize());
   }
 
   Mesh::Mesh()
@@ -41,34 +42,36 @@ namespace ezModelImporter
     }
   }
 
-  VertexDataStream* Mesh::AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex)
+  VertexDataStream* Mesh::AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex, VertexDataStream::ElementType elementType)
   {
     // A few checks for meaningful element count.
+    // These are necessary to keep the implementation of preprocessing functions like MergeSubMeshesWithSameMaterials/ComputeNormals/ComputeTangents sane.
     switch (semantic)
     {
     case ezGALVertexAttributeSemantic::Position:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "Position vertex streams should always have exactly 3 elements.");
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexDataStream::ElementType::FLOAT, "Position vertex streams should always have exactly 3 float elements.");
       break;
     case ezGALVertexAttributeSemantic::Normal:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "Normal vertex streams should always have exactly 3 elements.");
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexDataStream::ElementType::FLOAT, "Normal vertex streams should always have exactly 3 float elements.");
       break;
     case ezGALVertexAttributeSemantic::Tangent:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "Tangent vertex streams should always have exactly 3 elements.");
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 && elementType == VertexDataStream::ElementType::FLOAT, "Tangent vertex streams should always have exactly 3 float elements.");
       break;
     case ezGALVertexAttributeSemantic::BiTangent:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1, "BiTangent vertex streams should have either 3 elements (vector) or 1 element (sign).");
+      EZ_ASSERT_DEBUG((uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1) &&
+                       elementType == VertexDataStream::ElementType::FLOAT, "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
       break;
     }
 
     VertexDataStream* existingStream = nullptr;
     if (!m_VertexDataStreams.TryGetValue(static_cast<ezUInt32>(semantic), existingStream))
     {
-      m_VertexDataStreams.Insert(semantic, EZ_DEFAULT_NEW(VertexDataStream, uiNumElementsPerVertex, m_Triangles.GetCount()));
+      m_VertexDataStreams.Insert(semantic, EZ_DEFAULT_NEW(VertexDataStream, uiNumElementsPerVertex, m_Triangles.GetCount(), elementType));
       return m_VertexDataStreams[semantic];
     }
     else
     {
-      if (uiNumElementsPerVertex != existingStream->GetNumElementsPerVertex())
+      if (uiNumElementsPerVertex != existingStream->GetNumElementsPerVertex() || elementType != existingStream->GetElementType())
       {
         return nullptr;
       }
@@ -148,10 +151,12 @@ namespace ezModelImporter
       if (sourceStream->GetNumElementsPerVertex() != 3)
         continue;
 
+      const ezUInt32 attributeSize = sourceStream->GetAttributeSize();
+
       // Positions
       if (it.Key() == ezGALVertexAttributeSemantic::Position)
       {
-        for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += 3)
+        for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += attributeSize)
         {
           ezVec3& pos = *reinterpret_cast<ezVec3*>(&sourceStream->m_Data[i]);
           pos = transformMat.TransformPosition(pos);
@@ -163,7 +168,7 @@ namespace ezModelImporter
         it.Key() == ezGALVertexAttributeSemantic::Tangent ||
         it.Key() == ezGALVertexAttributeSemantic::BiTangent)
       {
-        for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += 3)
+        for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += attributeSize)
         {
           ezVec3& dir = *reinterpret_cast<ezVec3*>(&sourceStream->m_Data[i]);
           dir = transformMat.TransformDirection(dir);
@@ -187,7 +192,7 @@ namespace ezModelImporter
     for (auto it = mesh.m_VertexDataStreams.GetIterator(); it.IsValid(); ++it)
     {
       const VertexDataStream* sourceStream = it.Value();
-      VertexDataStream* targetStream = AddDataStream(static_cast<ezGALVertexAttributeSemantic::Enum>(it.Key()), sourceStream->GetNumElementsPerVertex());
+      VertexDataStream* targetStream = AddDataStream(static_cast<ezGALVertexAttributeSemantic::Enum>(it.Key()), sourceStream->GetNumElementsPerVertex(), sourceStream->GetElementType());
       if (!targetStream)
       {
         ezLog::SeriousWarning("Cannot merge mesh {0} properly since it has a vertex data stream with semantic {1} that uses {2} elements instead of {3} which is used by the merge target. Skipping this data stream.",
@@ -202,10 +207,12 @@ namespace ezModelImporter
       // Transform data.
       if (!transform.IsIdentical(ezTransform::Identity()))
       {
+        const ezUInt32 attributeSize = targetStream->GetAttributeSize();
+
         // Positions
         if (it.Key() == ezGALVertexAttributeSemantic::Position)
         {
-          for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += 3)
+          for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += attributeSize)
           {
             ezVec3& pos = *reinterpret_cast<ezVec3*>(&targetStream->m_Data[i]);
             pos = transformMat.TransformPosition(pos);
@@ -216,7 +223,7 @@ namespace ezModelImporter
                  it.Key() == ezGALVertexAttributeSemantic::Tangent ||
                  it.Key() == ezGALVertexAttributeSemantic::BiTangent)
         {
-          for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += 3)
+          for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += attributeSize)
           {
             ezVec3& dir = *reinterpret_cast<ezVec3*>(&targetStream->m_Data[i]);
             dir = transformMat.TransformDirection(dir);
@@ -314,39 +321,43 @@ namespace ezModelImporter
   {
     ezStopwatch timer;
 
-    VertexDataStream* positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
-    if (positionStream == nullptr)
+    const VertexDataStream* positionStreamRaw = GetDataStream(ezGALVertexAttributeSemantic::Position);
+    if (positionStreamRaw == nullptr)
     {
       ezLog::Error("Can't compute vertex normals for the mesh {0}, because it doesn't have vertex positions.", m_Name.GetData());
       return EZ_FAILURE;
     }
-    VertexDataStream* normalStream = AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
+    const TypedVertexDataStreamView<ezVec3, true> positionStream(*positionStreamRaw);
+
+    VertexDataStream* normalStreamRaw = AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
+    TypedVertexDataStreamView<ezVec3, false> normalStream(*normalStreamRaw);
 
     // Normals have same mapping as positions.
-    normalStream->m_IndexToData = positionStream->m_IndexToData;
+    normalStream->m_IndexToData = positionStreamRaw->m_IndexToData;
     // Reset all normals to zero.
-    normalStream->m_Data.SetCount(positionStream->m_Data.GetCount());
-    ezMemoryUtils::ZeroFill<float>(normalStream->m_Data.GetData(), normalStream->m_Data.GetCount());
+    normalStream->m_Data.SetCount(positionStreamRaw->m_Data.GetCount());
+    ezMemoryUtils::ZeroFill<char>(normalStream->m_Data.GetData(), normalStream->m_Data.GetCount());
+
 
     // Compute unnormalized triangle normals and add them to all vertices.
     // This way large triangles have an higher influence on the vertex normal.
     for (const Triangle& triangle : m_Triangles)
     {
-      ezVec3 p0 = positionStream->GetValueVec3(triangle.m_Vertices[0]);
-      ezVec3 p1 = positionStream->GetValueVec3(triangle.m_Vertices[1]);
-      ezVec3 p2 = positionStream->GetValueVec3(triangle.m_Vertices[2]);
+      ezVec3 p0 = positionStream.GetValue(triangle.m_Vertices[0]);
+      ezVec3 p1 = positionStream.GetValue(triangle.m_Vertices[1]);
+      ezVec3 p2 = positionStream.GetValue(triangle.m_Vertices[2]);
 
       ezVec3 d01 = p1 - p0;
       ezVec3 d02 = p2 - p0;
 
       ezVec3 triNormal = d01.Cross(d02);
-      normalStream->SetValue(triangle.m_Vertices[0], normalStream->GetValueVec3(triangle.m_Vertices[0]) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
-      normalStream->SetValue(triangle.m_Vertices[1], normalStream->GetValueVec3(triangle.m_Vertices[1]) + triNormal);
-      normalStream->SetValue(triangle.m_Vertices[2], normalStream->GetValueVec3(triangle.m_Vertices[2]) + triNormal);
+      normalStream.SetValue(triangle.m_Vertices[0], normalStream.GetValue(triangle.m_Vertices[0]) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
+      normalStream.SetValue(triangle.m_Vertices[1], normalStream.GetValue(triangle.m_Vertices[1]) + triNormal);
+      normalStream.SetValue(triangle.m_Vertices[2], normalStream.GetValue(triangle.m_Vertices[2]) + triNormal);
     }
 
     // Normalize normals.
-    for (ezUInt32 n = 0; n < normalStream->m_Data.GetCount(); n += 3)
+    for (ezUInt32 n = 0; n < normalStream->m_Data.GetCount(); n += sizeof(ezVec3))
       reinterpret_cast<ezVec3*>(&normalStream->m_Data[n])->NormalizeIfNotZero();
 
     ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name.GetData(), ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
@@ -374,12 +385,27 @@ namespace ezModelImporter
 
     struct MikkInterfaceImpl
     {
+      MikkInterfaceImpl(Mesh& mesh, const VertexDataStream& position, const VertexDataStream& normal, const VertexDataStream& tex)
+        : triangles(mesh.m_Triangles)
+        , positionStream(position)
+        , normalStream(normal)
+        , texStream(tex)
+        , tangentStream(*mesh.AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3)) // Make sure tangent stream exists.
+        , bitangentStream(*mesh.AddDataStream(ezGALVertexAttributeSemantic::BiTangent, 1))
+
+        , bitangentIndexNegative(0)
+        , bitangentIndexPositive(sizeof(float))
+      {
+        float biTangentSignValues[] = { -1.0f, 1.0f };
+        bitangentStream.AddValues(ezMakeArrayPtr(biTangentSignValues));
+      }
+
       ezArrayPtr<Triangle> triangles;
-      const VertexDataStream* positionStream;
-      const VertexDataStream* normalStream;
-      const VertexDataStream* texStream;
-      VertexDataStream* tangentStream;
-      VertexDataStream* bitangentStream;
+      const TypedVertexDataStreamView<ezVec3, true> positionStream;
+      const TypedVertexDataStreamView<ezVec3, true> normalStream;
+      const TypedVertexDataStreamView<ezVec2, true> texStream;
+      TypedVertexDataStreamView<ezVec3, false> tangentStream;
+      TypedVertexDataStreamView<float, false> bitangentStream;
       VertexDataIndex bitangentIndexPositive;
       VertexDataIndex bitangentIndexNegative;
 
@@ -390,21 +416,21 @@ namespace ezModelImporter
 
       void GetPosition(float fvPosOut[], const int iFace, const int iVert) const
       {
-        ezVec3 p = positionStream->GetValueVec3(triangles[iFace].m_Vertices[iVert]);
+        ezVec3 p = positionStream.GetValue(triangles[iFace].m_Vertices[iVert]);
         fvPosOut[0] = p.x;
         fvPosOut[1] = p.y;
         fvPosOut[2] = p.z;
       }
       void GetNormal(float fvNormOut[], const int iFace, const int iVert) const
       {
-        ezVec3 n = normalStream->GetValueVec3(triangles[iFace].m_Vertices[iVert]);
+        ezVec3 n = normalStream.GetValue(triangles[iFace].m_Vertices[iVert]);
         fvNormOut[0] = n.x;
         fvNormOut[1] = n.y;
         fvNormOut[2] = n.z;
       }
       void GetTexCoord(float fvTexcOut[], const int iFace, const int iVert) const
       {
-        ezVec2 uv = texStream->GetValueVec2(triangles[iFace].m_Vertices[iVert]);
+        ezVec2 uv = texStream.GetValue(triangles[iFace].m_Vertices[iVert]);
         fvTexcOut[0] = uv.x;
         fvTexcOut[1] = uv.y;
       }
@@ -422,7 +448,7 @@ namespace ezModelImporter
         }
         else
         {
-          tangentStream->SetValue(v, ezVec3(fvTangent[0], fvTangent[1], fvTangent[2]));
+          tangentStream.SetValue(v, ezVec3(fvTangent[0], fvTangent[1], fvTangent[2]));
           tangentDataMap.Insert(key, tangentStream->GetDataIndex(v));
         }
 
@@ -432,40 +458,35 @@ namespace ezModelImporter
         else
           bitangentStream->SetDataIndex(v, bitangentIndexNegative);
       }
-    } mikkInterface;
-    mikkInterface.triangles = m_Triangles;
+    };
+    
+    // If there is already a data stream with 3 component bitangents, remove it.
+    {
+      VertexDataStream* bitangents = GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
+      if (bitangents && bitangents->GetNumElementsPerVertex() != 1)
+        RemoveDataStream(ezGALVertexAttributeSemantic::BiTangent);
+    }
 
-    mikkInterface.positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
-    if (mikkInterface.positionStream == nullptr)
+    const VertexDataStream* positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
+    if (positionStream == nullptr)
     {
       ezLog::Error("Can't compute vertex tangents for the mesh '{0}', because it doesn't have vertex positions.", m_Name.GetData());
       return EZ_FAILURE;
     }
-    mikkInterface.normalStream = GetDataStream(ezGALVertexAttributeSemantic::Normal);
-    if (mikkInterface.normalStream == nullptr)
+    const VertexDataStream* normalStream = GetDataStream(ezGALVertexAttributeSemantic::Normal);
+    if (normalStream == nullptr)
     {
       ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have vertex noramls.", m_Name.GetData());
       return EZ_FAILURE;
     }
-    mikkInterface.texStream = GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
-    if (mikkInterface.texStream == nullptr || mikkInterface.texStream->GetNumElementsPerVertex() != 2)
+    const VertexDataStream* texStream = GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
+    if (texStream == nullptr || texStream->GetNumElementsPerVertex() != 2)
     {
       ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have TexCoord0 stream with two components.", m_Name.GetData());
       return EZ_FAILURE;
     }
 
-    // Make sure tangent stream exists.
-    mikkInterface.tangentStream = AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
-
-    // If there is already a data stream with 3 component bitangents, remove it.
-    mikkInterface.bitangentStream = GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
-    if (mikkInterface.bitangentStream && mikkInterface.bitangentStream->GetNumElementsPerVertex() != 1)
-      RemoveDataStream(ezGALVertexAttributeSemantic::BiTangent);
-    mikkInterface.bitangentStream = AddDataStream(ezGALVertexAttributeSemantic::BiTangent, 1);
-    float biTangentSignValues[] = { -1.0f, 1.0f };
-    mikkInterface.bitangentStream->AddValues(ezMakeArrayPtr(biTangentSignValues));
-    mikkInterface.bitangentIndexNegative = VertexDataIndex(0);
-    mikkInterface.bitangentIndexPositive = VertexDataIndex(1);
+    MikkInterfaceImpl mikkInterface(*this, *positionStream, *normalStream, *texStream);
 
     // Use Morton S. Mikkelsen's tangent calculation.
     SMikkTSpaceContext context;

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/ModelImporter/Importers/PbrtImporter_Context.h>
 #include <EditorPluginAssets/ModelImporter/Importers/PbrtImporter_ImportFunctions.h>
 #include <EditorPluginAssets/ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
@@ -257,33 +257,36 @@ namespace ezModelImporter
 
         ezHybridArray<VertexDataStream*, 4> streams;
 
-        VertexDataStream* positionStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::Position, 3);
-        streams.PushBack(positionStream);
-        positionStream->ReserveData(positions.GetCount());
+        VertexDataStream* positionStreamRaw = mesh->AddDataStream(ezGALVertexAttributeSemantic::Position, 3);
+        streams.PushBack(positionStreamRaw);
+        positionStreamRaw->ReserveData(positions.GetCount());
+        TypedVertexDataStreamView<ezVec3, false> positionStream(*positionStreamRaw);
         for (ezUInt32 i = 0; i < positions.GetCount(); ++i)
-          positionStream->AddValue(positions[i]);
+          positionStream.AddValue(positions[i]);
 
         if (!normals.IsEmpty())
         {
-          VertexDataStream* normalStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
-          streams.PushBack(normalStream);
-          normalStream->ReserveData(normals.GetCount());
+          VertexDataStream* normalStreamRaw = mesh->AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
+          streams.PushBack(normalStreamRaw);
+          normalStreamRaw->ReserveData(normals.GetCount());
+          TypedVertexDataStreamView<ezVec3, false> normalStream(*normalStreamRaw);
           for (ezUInt32 i = 0; i < normals.GetCount(); ++i)
-            normalStream->AddValue(normals[i]);
+            normalStream.AddValue(normals[i]);
         }
         if (!tangents.IsEmpty())
         {
-          VertexDataStream* tangentStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
-          streams.PushBack(tangentStream);
-          tangentStream->ReserveData(tangents.GetCount());
+          VertexDataStream* tangentStreamRaw = mesh->AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
+          streams.PushBack(tangentStreamRaw);
+          tangentStreamRaw->ReserveData(tangents.GetCount());
+          TypedVertexDataStreamView<ezVec3, false> tangentStream(*tangentStreamRaw);
           for (ezUInt32 i = 0; i < tangents.GetCount(); ++i)
-            tangentStream->AddValue(tangents[i]);
+            tangentStream.AddValue(tangents[i]);
         }
         if (!texcoords.IsEmpty())
         {
-          VertexDataStream* texcoordStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::TexCoord0, 2);
-          streams.PushBack(texcoordStream);
-          texcoordStream->AddValues(texcoords);
+          VertexDataStream* texcoordStreamRaw = mesh->AddDataStream(ezGALVertexAttributeSemantic::TexCoord0, 2);
+          streams.PushBack(texcoordStreamRaw);
+          texcoordStreamRaw->AddValues(ezMakeArrayPtr(reinterpret_cast<char*>(texcoords.GetData()), texcoords.GetCount() * sizeof(float)));
         }
 
         ezArrayPtr<Mesh::Triangle> triangleList = mesh->GetTriangles();
