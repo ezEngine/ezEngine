@@ -8,6 +8,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Core/Messages/TriggerMessage.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator);
@@ -280,7 +281,31 @@ public:
 
   virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override
   {
+    for (ezUInt32 i = 0; i < count; ++i)
+    {
+      ezTriggerMessage msg;
+      msg.m_TriggerState = pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+      msg.m_UsageStringHash = ezTempHashedString("PhysicsTrigger").GetHash(); /// \todo Make this configurable on the ezPxTriggerComponent ??
+      msg.m_TriggerValue = 1.0f;
 
+      const PxActor* pActorA = pairs[i].triggerActor;
+      const ezComponent* pComponentA = ezPxUserData::GetComponent(pActorA->userData);
+      const ezGameObject* pObjectA = nullptr;
+
+      if (pComponentA != nullptr)
+      {
+        pObjectA = pComponentA->GetOwner();
+
+        /// \todo Send this along with the message
+        //msg.m_hObjectA = pObjectA->GetHandle();
+        //msg.m_hComponentA = pComponentA->GetHandle();
+      }
+
+      if (pObjectA != nullptr)
+      {
+        pObjectA->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
+      }
+    }
   }
 
   virtual void onAdvance(const PxRigidBody*const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) override

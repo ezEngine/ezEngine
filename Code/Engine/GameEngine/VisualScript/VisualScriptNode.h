@@ -2,6 +2,7 @@
 
 #include <GameEngine/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
 
 class ezVisualScriptInstance;
 struct ezTriggerMessage;
@@ -139,7 +140,10 @@ public:
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
   void TriggerMessageHandler(ezTriggerMessage& msg);
 
-  ezUInt32 m_UsageStringHash = 0;
+  const char* GetTrigger() const { return m_sTrigger.GetData(); }
+  void SetTrigger(const char* s) { m_sTrigger.Assign(s); }
+
+  ezHashedString m_sTrigger;
 };
 
 

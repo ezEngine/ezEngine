@@ -5,6 +5,7 @@
 class ezComponent;
 class ezPxDynamicActorComponent;
 class ezPxStaticActorComponent;
+class ezPxTriggerComponent;
 class ezPxCharacterProxyComponent;
 class ezPxShapeComponent;
 class ezSurfaceResource;
@@ -26,6 +27,12 @@ public:
 
   EZ_FORCE_INLINE ezPxUserData(ezPxStaticActorComponent* pObject)
     : m_Type(StaticActorComponent)
+    , m_pObject(pObject)
+  {
+  }
+
+  EZ_FORCE_INLINE ezPxUserData(ezPxTriggerComponent* pObject)
+    : m_Type(TriggerComponent)
     , m_pObject(pObject)
   {
   }
@@ -70,6 +77,17 @@ public:
     return nullptr;
   }
 
+  EZ_FORCE_INLINE static ezPxTriggerComponent* GetTriggerComponent(void* pUserData)
+  {
+    ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
+    if (pPxUserData != nullptr && pPxUserData->m_Type == TriggerComponent)
+    {
+      return static_cast<ezPxTriggerComponent*>(pPxUserData->m_pObject);
+    }
+
+    return nullptr;
+  }
+
   EZ_FORCE_INLINE static ezPxCharacterProxyComponent* GetCharacterProxyComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
@@ -95,8 +113,12 @@ public:
   EZ_FORCE_INLINE static ezComponent* GetComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && (pPxUserData->m_Type == DynamicActorComponent || pPxUserData->m_Type == StaticActorComponent ||
-      pPxUserData->m_Type == CharacterProxyComponent || pPxUserData->m_Type == ShapeComponent))
+    if (pPxUserData != nullptr &&
+        (pPxUserData->m_Type == DynamicActorComponent ||
+         pPxUserData->m_Type == StaticActorComponent ||
+         pPxUserData->m_Type == TriggerComponent ||
+         pPxUserData->m_Type == CharacterProxyComponent ||
+         pPxUserData->m_Type == ShapeComponent))
     {
       return static_cast<ezComponent*>(pPxUserData->m_pObject);
     }
@@ -121,6 +143,7 @@ private:
     Invalid,
     DynamicActorComponent,
     StaticActorComponent,
+    TriggerComponent,
     CharacterProxyComponent,
     ShapeComponent,
     SurfaceResource

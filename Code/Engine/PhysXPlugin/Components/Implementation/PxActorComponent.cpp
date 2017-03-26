@@ -15,21 +15,16 @@ ezPxActorComponent::ezPxActorComponent()
 {
 }
 
-
 void ezPxActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
 }
 
-
 void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-
-
-
 
 }
 
@@ -52,6 +47,8 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
     ezPxActorComponent* pActorComponent;
     if (itChild->TryGetComponentOfBaseType<ezPxActorComponent>(pActorComponent))
       continue;
+
+    /// \todo Wouldn't we need to accumulate the parent transforms here ?
 
     AddShapesFromObject(itChild, pRigidActor, ParentTransform);
   }

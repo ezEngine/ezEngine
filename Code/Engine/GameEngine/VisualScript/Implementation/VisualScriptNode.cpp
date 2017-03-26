@@ -182,9 +182,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAlloca
   {
     new ezCategoryAttribute("Input")
   }
-    EZ_END_ATTRIBUTES
-    EZ_BEGIN_PROPERTIES
+  EZ_END_ATTRIBUTES
+  EZ_BEGIN_PROPERTIES
   {
+    //Properties
+    EZ_ACCESSOR_PROPERTY("Trigger", GetTrigger, SetTrigger),
     // Execution Pins
     EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     // Data Pins
@@ -210,10 +212,10 @@ void ezVisualScriptNode_Input::Execute(ezVisualScriptInstance* pInstance)
 
 void ezVisualScriptNode_Input::TriggerMessageHandler(ezTriggerMessage& msg)
 {
-  //if (msg.m_UsageStringHash == m_UsageStringHash)
+  if (msg.m_UsageStringHash == m_sTrigger.GetHash())
   {
     m_bStepNode = true;
-    ezLog::Info("Trigger Msg arrived");
+    ezLog::Info("Trigger Msg '{0}' arrived", m_sTrigger.GetData());
   }
 }
 
