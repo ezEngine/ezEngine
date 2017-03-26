@@ -14,7 +14,7 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)
@@ -304,9 +304,17 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   {
     ezStopwatch timer;
-    mesh->ComputeNormals();
-    mesh->ComputeTangents();
-    ezLog::Success("Computed missing normals and tangents (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+
+    bool missingNormals = !mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
+    bool missingTangents = !mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent) || !mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
+
+    if (missingNormals)
+      mesh->ComputeNormals();
+    if (missingTangents)
+      mesh->ComputeTangents();
+
+    if (missingTangents || missingTangents)
+      ezLog::Success("Computed missing normals and tangents (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
   }
 
   // Create vertex & index buffer.
