@@ -53,9 +53,19 @@ void ezRenderComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
   ezBoundingBoxSphere bounds;
   bounds.SetInvalid();
 
-  if (GetLocalBounds(bounds).Succeeded() && bounds.IsValid())
+  bool bAlwaysVisible = false;
+
+  if (GetLocalBounds(bounds, bAlwaysVisible).Succeeded())
   {
-    msg.m_ResultingLocalBounds.ExpandToInclude(bounds);
+    if (bounds.IsValid())
+    {
+      msg.AddBounds(bounds);
+    }
+
+    if (bAlwaysVisible)
+    {
+      msg.SetAlwaysVisible();
+    }
   }
 }
 

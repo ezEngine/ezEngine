@@ -2,7 +2,6 @@
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Foundation/Containers/HashSet.h>
 #include <Foundation/SimdMath/SimdConversion.h>
-#include <Foundation/Time/Stopwatch.h>
 
 namespace
 {
@@ -253,25 +252,8 @@ void ezSpatialSystem_RegularGrid::GetAllCellBoxes(ezHybridArray<ezBoundingBox, 1
   }
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats) const
+void ezSpatialSystem_RegularGrid::FindObjectsInSphereInternal(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats) const
 {
-  FindObjectsInSphere(sphere, [&](ezGameObject* pObject)
-  {
-    out_Objects.PushBack(pObject);
-
-    return ezVisitorExecution::Continue;
-  }, pStats);
-}
-
-void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats) const
-{
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (pStats != nullptr)
-  {
-    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
-  }
-#endif
-
   ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
   ezSimdBBox simdBox;
   simdBox.SetCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
@@ -321,25 +303,8 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
   });
 }
 
-void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats) const
+void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats) const
 {
-  FindObjectsInBox(box, [&](ezGameObject* pObject)
-  {
-    out_Objects.PushBack(pObject);
-
-    return ezVisitorExecution::Continue;
-  }, pStats);
-}
-
-void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats) const
-{
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (pStats != nullptr)
-  {
-    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
-  }
-#endif
-
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
   auto pSet = ClearAndGetDeduplicationSet();
@@ -386,17 +351,8 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, Que
   });
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezStopwatch timer;
-
-  if (pStats != nullptr)
-  {
-    pStats->m_uiTotalNumObjects = m_DataTable.GetCount();
-  }
-#endif
-
   ezVec3 cornerPoints[8];
   frustum.ComputeCornerPoints(cornerPoints);
 
@@ -521,13 +477,6 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, e
       }
     }
   });
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (pStats != nullptr)
-  {
-    pStats->m_fTimeTaken = (float)timer.GetRunningTotal().GetSeconds();
-  }
-#endif
 }
 
 void ezSpatialSystem_RegularGrid::SpatialDataAdded(ezSpatialData* pData)

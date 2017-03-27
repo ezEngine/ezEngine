@@ -19,13 +19,10 @@ public:
 
 private:
   // ezSpatialSystem implementation
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const override;
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats = nullptr) const override;
+  virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats = nullptr) const override;
+  virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats = nullptr) const override;
 
-  virtual void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const override;
-  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats = nullptr) const override;
-
-  virtual void FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const override;
+  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const override;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) override;
   virtual void SpatialDataRemoved(ezSpatialData* pData) override;

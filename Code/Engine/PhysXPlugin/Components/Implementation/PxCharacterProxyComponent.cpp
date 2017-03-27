@@ -291,8 +291,8 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
 
 void ezPxCharacterProxyComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0, -m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0,  m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
+  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, -m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
+  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0,  m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
 }
 
 ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const ezVec3& vMotion)

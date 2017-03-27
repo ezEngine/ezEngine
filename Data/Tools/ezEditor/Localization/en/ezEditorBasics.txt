@@ -85,6 +85,7 @@ ezCameraUsageHint::None;None
 ezCameraUsageHint::MainView;Main View
 ezCameraUsageHint::EditorView;Editor View
 ezCameraUsageHint::Thumbnail;Thumbnail
+ezCameraUsageHint::Culling;Culling
 ezInputMessageGranularity::PressOnly;Only Key Pressed
 ezInputMessageGranularity::PressAndRelease;Key Pressed and Released
 ezInputMessageGranularity::PressReleaseAndDown;Key Pressed, Released and Down

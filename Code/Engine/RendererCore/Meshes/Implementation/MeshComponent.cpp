@@ -38,7 +38,7 @@ ezMeshComponent::~ezMeshComponent()
 
 }
 
-ezResult ezMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+ezResult ezMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   if (m_hMesh.IsValid())
   {

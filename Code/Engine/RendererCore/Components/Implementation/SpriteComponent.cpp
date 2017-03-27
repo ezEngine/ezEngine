@@ -43,7 +43,7 @@ ezSpriteComponent::~ezSpriteComponent()
 {
 }
 
-ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fSize * 0.5f);
   return EZ_SUCCESS;

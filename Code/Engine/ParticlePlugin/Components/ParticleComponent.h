@@ -61,7 +61,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
 
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   ezParticleEffectController m_EffectController;
 

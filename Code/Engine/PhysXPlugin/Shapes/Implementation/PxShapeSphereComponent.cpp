@@ -56,7 +56,7 @@ void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezPxShapeSphereComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius));
+  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius));
 }
 
 

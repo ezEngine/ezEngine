@@ -142,7 +142,7 @@ const char* ezParticleComponent::GetParticleEffectFile() const
 }
 
 
-ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   /// \todo Get bbox from somewhere
 

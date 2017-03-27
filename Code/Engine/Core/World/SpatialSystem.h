@@ -17,6 +17,8 @@ public:
   ///@{
 
   ezSpatialDataHandle CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject = nullptr);
+  ezSpatialDataHandle CreateSpatialDataAlwaysVisible(ezGameObject* pObject = nullptr);
+
   void DeleteSpatialData(const ezSpatialDataHandle& hData);
 
   bool TryGetSpatialData(const ezSpatialDataHandle& hData, const ezSpatialData*& out_pData) const;
@@ -45,21 +47,25 @@ public:
     }
   };
 
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const = 0;
-  virtual void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats = nullptr) const = 0;
+  void FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
+  void FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats = nullptr) const;
 
-  virtual void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const = 0;
-  virtual void FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats = nullptr) const = 0;
+  void FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
+  void FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats = nullptr) const;
 
   ///@}
   /// \name Visibility Queries
   ///@{
 
-  virtual void FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const = 0;
+  void FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
 
   ///@}
 
 protected:
+
+  virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats) const = 0;
+  virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats) const = 0;
+  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const = 0;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) = 0;
   virtual void SpatialDataRemoved(ezSpatialData* pData) = 0;
@@ -73,5 +79,7 @@ protected:
   typedef ezBlockStorage<ezSpatialData, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::FreeList> DataStorage;
   ezIdTable<ezSpatialDataId, ezSpatialData*, ezLocalAllocatorWrapper> m_DataTable;
   DataStorage m_DataStorage;
+
+  ezDynamicArray<ezSpatialData*> m_DataAlwaysVisible;
 };
 

@@ -34,10 +34,9 @@ ezDirectionalLightComponent::~ezDirectionalLightComponent()
 
 }
 
-ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  ///\todo
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), 100.0f);
+  bAlwaysVisible = true;
   return EZ_SUCCESS;
 }
 

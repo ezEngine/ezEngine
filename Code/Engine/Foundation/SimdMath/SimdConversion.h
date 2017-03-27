@@ -10,7 +10,7 @@ namespace ezSimdConversion
   {
     ezVec4 tmp;
     v.Store<4>(&tmp.x);
-    return tmp.GetAsVec3();
+    return *reinterpret_cast<ezVec3*>(&tmp.x);
   }
 
   EZ_ALWAYS_INLINE ezSimdVec4f ToVec3(const ezVec3& v)

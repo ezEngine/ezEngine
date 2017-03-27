@@ -350,10 +350,17 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
   m_globalBounds = m_localBounds;
   m_globalBounds.Transform(m_globalTransform);
 
+  m_globalBounds.m_BoxHalfExtents.SetW(m_localBounds.m_BoxHalfExtents.w());
+
   ///\todo find a better place for this
-  if (m_globalBounds != oldGlobalBounds)
+  // Can't use ezSimdBBoxSphere::operator != because we want to include the w component of m_BoxHalfExtents
+  if ((m_globalBounds.m_CenterAndRadius != oldGlobalBounds.m_CenterAndRadius ||
+    m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents).AnySet<4>())
   {
-    UpdateSpatialData();
+    bool bWasAlwaysVisible = oldGlobalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+    bool bIsAlwaysVisible = m_globalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+
+    UpdateSpatialData(bWasAlwaysVisible, bIsAlwaysVisible);
   }
 }
 

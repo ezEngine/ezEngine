@@ -791,18 +791,20 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     ezFrustum frustum;
     view.ComputeCullingFrustum(frustum);
 
+    bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
+    bool bRecordStats = CVarCullingStats && bIsMainView;
     ezSpatialSystem::QueryStats stats;
 
     EZ_LOCK(view.GetWorld()->GetReadMarker());
-    view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, &stats);
+    view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, bRecordStats ? &stats : nullptr);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (s_DebugCulling)
+    if (s_DebugCulling && bIsMainView)
     {
       ezDebugRenderer::DrawLineFrustum(&view, frustum, ezColor::LimeGreen, true);
     }
 
-    if (CVarCullingStats)
+    if (bRecordStats)
     {
       ezStringBuilder sb;
 

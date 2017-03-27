@@ -20,7 +20,7 @@ public:
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg);
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) = 0;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) = 0;
 
   void TriggerLocalBoundsUpdate(bool bIncludeOwnBounds);
 };

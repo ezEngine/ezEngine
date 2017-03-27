@@ -311,9 +311,9 @@ private:
 
     ezSimdTransform m_globalTransform;
     ezSimdVec4f m_lastGlobalPosition;
-    ezSimdVec4f m_velocity; // w = 1 indicates custom velocity
+    ezSimdVec4f m_velocity; // w != 0 indicates custom velocity
 
-    ezSimdBBoxSphere m_localBounds;
+    ezSimdBBoxSphere m_localBounds; // m_BoxHalfExtents.w != 0 indicates that the object should be always visible
     ezSimdBBoxSphere m_globalBounds;
 
     ezSpatialDataHandle m_hSpatialData;
@@ -331,7 +331,7 @@ private:
 
     void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 
-    void UpdateSpatialData();
+    void UpdateSpatialData(bool bWasAlwaysVisible, bool bIsAlwaysVisible);
   };
 
   ezGameObjectId m_InternalId;

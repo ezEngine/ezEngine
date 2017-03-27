@@ -83,10 +83,9 @@ void ezSkyBoxComponent::Initialize()
   UpdateMaterials();
 }
 
-ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  ///\todo
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), 100.0f);
+  bAlwaysVisible = true;
   return EZ_SUCCESS;
 }
 

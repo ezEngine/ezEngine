@@ -40,7 +40,7 @@ ezPointLightComponent::~ezPointLightComponent()
 
 }
 
-ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 

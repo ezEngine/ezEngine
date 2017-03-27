@@ -35,7 +35,7 @@ public:
   ~ezSpriteComponent();
 
   // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 

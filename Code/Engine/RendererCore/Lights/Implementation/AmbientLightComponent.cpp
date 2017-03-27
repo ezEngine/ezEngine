@@ -3,6 +3,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAmbientLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -18,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2)
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
+    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
@@ -72,6 +74,12 @@ void ezAmbientLightComponent::SetIntensity(float fIntensity)
 float ezAmbientLightComponent::GetIntensity() const
 {
   return m_fIntensity;
+}
+
+
+void ezAmbientLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
+{
+  msg.SetAlwaysVisible();
 }
 
 void ezAmbientLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const

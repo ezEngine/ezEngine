@@ -29,7 +29,7 @@ public:
   ~ezSpotLightComponent();
 
   // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   void SetRange(float fRange);
   float GetRange() const;

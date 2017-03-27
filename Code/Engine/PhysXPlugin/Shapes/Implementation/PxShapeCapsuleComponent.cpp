@@ -59,8 +59,8 @@ void ezPxShapeCapsuleComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezPxShapeCapsuleComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius));
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius));
+  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius));
+  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius));
 }
 
 

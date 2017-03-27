@@ -2,13 +2,10 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
-#include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
-#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -106,9 +103,27 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   ezEngineProcessViewContext::SetCamera(pMsg);
 
+  bool bDebugCulling = false;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (!ezRenderPipeline::s_DebugCulling)
+  bDebugCulling = ezRenderPipeline::s_DebugCulling;
 #endif
+
+  if (bDebugCulling && m_pView != nullptr)
+  {
+    if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
+    {
+      if (const ezCameraComponent* pCameraComponent = pCameraManager->GetCameraByUsageHint(ezCameraUsageHint::Culling))
+      {
+        const ezGameObject* pOwner = pCameraComponent->GetOwner();
+        ezVec3 vPosition = pOwner->GetGlobalPosition();
+        ezVec3 vForward = pOwner->GetDirForwards();
+        ezVec3 vUp = pOwner->GetDirUp();
+
+        m_CullingCamera.LookAt(vPosition, vPosition + vForward, vUp);
+      }
+    }
+  }
+  else
   {
     m_CullingCamera = m_Camera;
   }

@@ -28,7 +28,7 @@ public:
   ~ezMeshComponent();
 
   // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   void SetMesh(const ezMeshResourceHandle& hMesh);
   EZ_FORCE_INLINE const ezMeshResourceHandle& GetMesh() const

@@ -57,7 +57,7 @@ void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
+  msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
 }
 
 

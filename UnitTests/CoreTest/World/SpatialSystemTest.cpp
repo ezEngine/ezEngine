@@ -32,7 +32,7 @@ namespace
       ezBoundingBox bounds;
       bounds.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
 
-      msg.m_ResultingLocalBounds.ExpandToInclude(bounds);
+      msg.AddBounds(bounds);
     }
   };
 
