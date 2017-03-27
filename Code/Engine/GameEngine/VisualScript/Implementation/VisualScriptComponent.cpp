@@ -91,7 +91,7 @@ void ezVisualScriptComponent::Update()
     {
       ezResourceLock<ezVisualScriptResource> pResource(m_hResource, ezResourceAcquireMode::NoFallback);
 
-      m_Script->Configure(pResource->GetDescriptor());
+      m_Script->Configure(pResource->GetDescriptor(), GetOwner());
     }
   }
 

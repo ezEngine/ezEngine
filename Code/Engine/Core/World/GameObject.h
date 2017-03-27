@@ -161,6 +161,8 @@ public:
   /// \brief Returns an iterator over all children of this object.
   ConstChildIterator GetChildren() const;
 
+  /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
+  ezGameObject* FindChildByName(const ezTempHashedString& name, bool bRecursive = true);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;

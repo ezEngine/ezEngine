@@ -171,6 +171,30 @@ ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
   return ConstChildIterator(m_pWorld->GetObjectUnchecked(m_FirstChildIndex));
 }
 
+ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool bRecursive /*= true*/)
+{
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    if (it->m_sName == name)
+    {
+      return &(*it);
+    }
+  }
+
+  if (bRecursive)
+  {
+    for (auto it = GetChildren(); it.IsValid(); ++it)
+    {
+      ezGameObject* pChild = FindChildByName(name, bRecursive);
+
+      if (pChild != nullptr)
+        return pChild;
+    }
+  }
+
+  return nullptr;
+}
+
 ezVec3 ezGameObject::GetDirForwards() const
 {
   ezCoordinateSystem coordinateSystem;

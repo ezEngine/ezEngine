@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <GameEngine/VisualScript/Implementation/VisualScriptLogicNodes.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptLogicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////

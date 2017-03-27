@@ -11,6 +11,7 @@
 class ezVisualScriptNode;
 class ezMessage;
 struct ezVisualScriptResourceDescriptor;
+class ezGameObject;
 
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
@@ -26,7 +27,7 @@ public:
 
   ~ezVisualScriptInstance();
 
-  void Configure(const ezVisualScriptResourceDescriptor& resource);
+  void Configure(const ezVisualScriptResourceDescriptor& resource, ezGameObject* pOwner);
   void ExecuteScript();
   void HandleMessage(ezMessage& msg);
 
@@ -35,6 +36,8 @@ public:
 
   static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType, ezVisualScriptDataPinAssignFunc func);
   static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType);
+
+  ezGameObject* GetOwner() const { return m_pOwner; }
 
 private:
   friend class ezVisualScriptNode;
@@ -56,6 +59,7 @@ private:
     void* m_pTargetData = nullptr;
   };
 
+  ezGameObject* m_pOwner = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;
   ezHashTable<ezVisualScriptNodeConnectionID, ezUInt16> m_ExecutionConnections;

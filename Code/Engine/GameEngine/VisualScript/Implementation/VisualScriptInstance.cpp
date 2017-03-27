@@ -27,6 +27,16 @@ void ezVisualScriptAssignNumberVec3(const void* src, void* dst)
   *reinterpret_cast<ezVec3*>(dst) = ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
 }
 
+void ezVisualScriptAssignGameObject(const void* src, void* dst)
+{
+  *reinterpret_cast<ezGameObjectHandle*>(dst) = *reinterpret_cast<const ezGameObjectHandle*>(src);
+}
+
+void ezVisualScriptAssignComponent(const void* src, void* dst)
+{
+  *reinterpret_cast<ezComponentHandle*>(dst) = *reinterpret_cast<const ezComponentHandle*>(src);
+}
+
 ezVisualScriptInstance::ezVisualScriptInstance()
 {
   SetupPinDataTypeConversions();
@@ -44,6 +54,8 @@ void ezVisualScriptInstance::SetupPinDataTypeConversions()
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignBoolBool);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
 }
 
 ezVisualScriptInstance::~ezVisualScriptInstance()
@@ -101,10 +113,11 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
   }
 }
 
-void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& resource)
+void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& resource, ezGameObject* pOwner)
 {
   Clear();
 
+  m_pOwner = pOwner;
   m_Nodes.Reserve(resource.m_Nodes.GetCount());
 
   ezUInt16 uiNodeId = 0;
