@@ -112,7 +112,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_globalTransform.SetIdentity();
   pTransformationData->m_velocity.SetZero();
   pTransformationData->m_localBounds.SetInvalid();
-  pTransformationData->m_globalBounds.SetInvalid();
+  pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::Zero());
+  pTransformationData->m_globalBounds = pTransformationData->m_localBounds;
   pTransformationData->m_hSpatialData.Invalidate();
 
   if (pParentData != nullptr)
