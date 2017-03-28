@@ -12,7 +12,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_DeleteObject : public ezVisualScriptN
 public:
   ezVisualScriptNode_DeleteObject();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
 private:
@@ -27,7 +27,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_ActivateComponent : public ezVisualSc
 public:
   ezVisualScriptNode_ActivateComponent();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
 private:

@@ -12,7 +12,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_FindChildObject : public ezVisualScri
 public:
   ezVisualScriptNode_FindChildObject();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
 
 private:
@@ -28,7 +28,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_FindComponent : public ezVisualScript
 public:
   ezVisualScriptNode_FindComponent();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
 private:

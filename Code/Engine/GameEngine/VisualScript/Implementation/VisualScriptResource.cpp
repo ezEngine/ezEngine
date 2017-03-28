@@ -91,9 +91,9 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 2, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 3, "Incorrect version {0} for visual script", uiVersion);
 
-  if (uiVersion > 2)
+  if (uiVersion > 3)
     return;
 
   ezUInt32 uiNumNodes = 0;
@@ -104,11 +104,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   stream >> uiNumNodes;
   stream >> uiNumExecCon;
   stream >> uiNumDataCon;
-
-  if (uiVersion >= 2)
-  {
-    stream >> uiNumProps;
-  }
+  stream >> uiNumProps;
 
   m_Nodes.SetCount(uiNumNodes);
   m_ExecutionPaths.SetCountUninitialized(uiNumExecCon);
@@ -123,16 +119,8 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
     node.m_pType = ezRTTI::FindTypeByName(sType);
 
-    if (uiVersion >= 2)
-    {
-      stream >> node.m_uiFirstProperty;
-      stream >> node.m_uiNumProperties;
-    }
-    else
-    {
-      node.m_uiFirstProperty = 0;
-      node.m_uiNumProperties = 0;
-    }
+    stream >> node.m_uiFirstProperty;
+    stream >> node.m_uiNumProperties;
   }
 
   for (auto& con : m_ExecutionPaths)
@@ -140,6 +128,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
     stream >> con.m_uiSourceNode;
     stream >> con.m_uiTargetNode;
     stream >> con.m_uiOutputPin;
+    stream >> con.m_uiInputPin;
   }
 
   for (auto& con : m_DataPaths)
@@ -159,7 +148,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
 
   stream << uiVersion;
 
@@ -193,6 +182,7 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << con.m_uiSourceNode;
     stream << con.m_uiTargetNode;
     stream << con.m_uiOutputPin;
+    stream << con.m_uiInputPin;
   }
 
   for (const auto& con : m_DataPaths)

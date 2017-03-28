@@ -11,7 +11,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_Add : public ezVisualScriptNode
 public:
   ezVisualScriptNode_Add();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
   double m_Value1 = 0;

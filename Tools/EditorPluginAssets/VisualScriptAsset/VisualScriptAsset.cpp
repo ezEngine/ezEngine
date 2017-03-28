@@ -147,6 +147,7 @@ void ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptR
           path.m_uiSourceNode = srcNodeIdx;
           path.m_uiOutputPin = pVsPinSource->GetDescriptor()->m_uiPinIndex;
           path.m_uiTargetNode = ObjectToIndex[pVsPinTarget->GetParent()];
+          path.m_uiInputPin = pVsPinTarget->GetDescriptor()->m_uiPinIndex;
         }
         else if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data)
         {

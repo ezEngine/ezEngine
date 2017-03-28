@@ -58,8 +58,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Counter, 1, ezRTTIDefaultAllo
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
-    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_CONSTANT_PROPERTY("run",   0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
+    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     // Data Pins
     EZ_MEMBER_PROPERTY("StartValue", m_Counter),
     EZ_CONSTANT_PROPERTY("Count", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::Number)),
@@ -70,7 +70,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode_Counter::ezVisualScriptNode_Counter() {}
 
-void ezVisualScriptNode_Counter::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Counter::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   m_Counter += 1;
   pInstance->SetOutputPinValue(this, 0, &m_Counter);
@@ -90,7 +90,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllo
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
+    EZ_CONSTANT_PROPERTY("run", 0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
+    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     // Data Pins
     EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Number)),
   }
@@ -103,9 +104,11 @@ ezVisualScriptNode_Printer::ezVisualScriptNode_Printer()
   m_sPrint = "Current Value: {0}";
 }
 
-void ezVisualScriptNode_Printer::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Printer::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   ezLog::Info(m_sPrint, m_Value);
+
+  pInstance->ExecuteConnectedNodes(this, 0);
 }
 
 void* ezVisualScriptNode_Printer::GetInputPinDataPointer(ezUInt8 uiPin)
@@ -121,7 +124,7 @@ void* ezVisualScriptNode_Printer::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_If>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Compare>)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -131,36 +134,42 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("execIn",   0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
-    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
-    EZ_CONSTANT_PROPERTY("execOut1", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(1)),
-    // Data Pins
+    EZ_CONSTANT_PROPERTY("run",   0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
+    EZ_CONSTANT_PROPERTY("OnTrue", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_CONSTANT_PROPERTY("OnFalse", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(1)),
+    // Data Pins (Input)
     EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Number)),
     EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezVisualScriptDataPinType::Number)),
+    // Data Pins (Output)
+    EZ_CONSTANT_PROPERTY("Result", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::Boolean)),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_If::ezVisualScriptNode_If()
+ezVisualScriptNode_Compare::ezVisualScriptNode_Compare()
 {
   m_Value1 = 0.0;
   m_Value2 = 0.0;
 }
 
-void ezVisualScriptNode_If::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Compare::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   if (m_Value1 < m_Value2)
   {
+    bool result = true;
+    pInstance->SetOutputPinValue(this, 0, &result);
     pInstance->ExecuteConnectedNodes(this, 0);
   }
   else
   {
+    bool result = false;
+    pInstance->SetOutputPinValue(this, 0, &result);
     pInstance->ExecuteConnectedNodes(this, 1);
   }
 }
 
-void* ezVisualScriptNode_If::GetInputPinDataPointer(ezUInt8 uiPin)
+void* ezVisualScriptNode_Compare::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
@@ -188,7 +197,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAlloca
     //Properties
     EZ_ACCESSOR_PROPERTY("Trigger", GetTrigger, SetTrigger),
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("execOut0", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_CONSTANT_PROPERTY("OnMsg", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     // Data Pins
   }
   EZ_END_PROPERTIES
@@ -205,7 +214,7 @@ ezVisualScriptNode_Input::ezVisualScriptNode_Input()
 {
 }
 
-void ezVisualScriptNode_Input::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Input::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   pInstance->ExecuteConnectedNodes(this, 0);
 }

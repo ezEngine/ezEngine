@@ -46,7 +46,7 @@ private:
   void ComputeNodeDependencies();
   void ExecuteDependentNodes(ezUInt16 uiNode);
 
-  void ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8 uiOutputSlot, ezUInt16 uiTargetNode);
+  void ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8 uiOutputSlot, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin);
   void ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin);
 
   struct DataPinConnection
@@ -59,10 +59,18 @@ private:
     void* m_pTargetData = nullptr;
   };
 
+  struct ExecPinConnection
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt16 m_uiTargetNode;
+    ezUInt8 m_uiTargetPin;
+  };
+
   ezGameObject* m_pOwner = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;
-  ezHashTable<ezVisualScriptNodeConnectionID, ezUInt16> m_ExecutionConnections;
+  ezHashTable<ezVisualScriptNodeConnectionID, ExecPinConnection > m_ExecutionConnections;
   ezHashTable<ezVisualScriptPinConnectionID, ezHybridArray<DataPinConnection, 2> > m_DataConnections;
 
   struct AssignFuncKey

@@ -109,7 +109,7 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
     // recurse to the most dependent nodes first
     ExecuteDependentNodes(uiDependency);
 
-    m_Nodes[uiDependency]->Execute(this);
+    m_Nodes[uiDependency]->Execute(this, 0);
   }
 }
 
@@ -147,7 +147,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
 
   for (const auto& con : resource.m_ExecutionPaths)
   {
-    ConnectExecutionPins(con.m_uiSourceNode, con.m_uiOutputPin, con.m_uiTargetNode);
+    ConnectExecutionPins(con.m_uiSourceNode, con.m_uiOutputPin, con.m_uiTargetNode, con.m_uiInputPin);
   }
 
   for (const auto& con : resource.m_DataPaths)
@@ -167,7 +167,7 @@ void ezVisualScriptInstance::ExecuteScript()
       ExecuteDependentNodes(i);
 
       m_Nodes[i]->m_bStepNode = false;
-      m_Nodes[i]->Execute(this);
+      m_Nodes[i]->Execute(this, 0);
     }
   }
 }
@@ -180,9 +180,11 @@ void ezVisualScriptInstance::HandleMessage(ezMessage& msg)
   }
 }
 
-void ezVisualScriptInstance::ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8 uiOutputSlot, ezUInt16 uiTargetNode)
+void ezVisualScriptInstance::ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8 uiOutputSlot, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin)
 {
-  m_ExecutionConnections[((ezUInt32)uiSourceNode << 16) | (ezUInt32)uiOutputSlot] = uiTargetNode;
+  auto& con = m_ExecutionConnections[((ezUInt32)uiSourceNode << 16) | (ezUInt32)uiOutputSlot];
+  con.m_uiTargetNode = uiTargetNode;
+  con.m_uiTargetPin = uiTargetPin;
 }
 
 void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin)
@@ -258,12 +260,12 @@ void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNo
 {
   const ezUInt32 uiConnectionID = ((ezUInt32)pNode->m_uiNodeID << 16) | (ezUInt32)uiNthTarget;
 
-  ezUInt16 uiTargetNode = 0;
-  if (!m_ExecutionConnections.TryGetValue(uiConnectionID, uiTargetNode))
+  ExecPinConnection TargetNode;
+  if (!m_ExecutionConnections.TryGetValue(uiConnectionID, TargetNode))
     return;
 
-  ExecuteDependentNodes(uiTargetNode);
-  m_Nodes[uiTargetNode]->Execute(this);
+  ExecuteDependentNodes(TargetNode.m_uiTargetNode);
+  m_Nodes[TargetNode.m_uiTargetNode]->Execute(this, TargetNode.m_uiTargetPin);
 }
 
 void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType, ezVisualScriptDataPinAssignFunc func)

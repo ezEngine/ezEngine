@@ -25,7 +25,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode_FindChildObject::ezVisualScriptNode_FindChildObject() { }
 
-void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   if (m_hObject.IsInvalidated() && !m_sObjectName.IsEmpty())
   {
@@ -71,7 +71,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode_FindComponent::ezVisualScriptNode_FindComponent() { }
 
-void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   if (m_hComponent.IsInvalidated() && !m_sType.IsEmpty())
   {

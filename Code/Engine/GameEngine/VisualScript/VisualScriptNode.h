@@ -15,7 +15,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode : public ezReflectedClass
 public:
   ezVisualScriptNode();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) = 0;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) = 0;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) = 0;
 
   /// \brief Whether the node has an execution pin (input or output) and thus must be stepped manually. Otherwise it will be implicitly executed on demand.
@@ -97,7 +97,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_Counter : public ezVisualScriptNode
 public:
   ezVisualScriptNode_Counter();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
 
   double m_Counter = 0;
@@ -110,20 +110,20 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_Printer : public ezVisualScriptNode
 public:
   ezVisualScriptNode_Printer();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
   ezString m_sPrint;
   double m_Value = 0;
 };
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_If : public ezVisualScriptNode
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_Compare : public ezVisualScriptNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_If, ezVisualScriptNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Compare, ezVisualScriptNode);
 public:
-  ezVisualScriptNode_If();
+  ezVisualScriptNode_Compare();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
   double m_Value1;
@@ -136,7 +136,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode_Input : public ezVisualScriptNode
 public:
   ezVisualScriptNode_Input();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance) override;
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
   void TriggerMessageHandler(ezTriggerMessage& msg);
 

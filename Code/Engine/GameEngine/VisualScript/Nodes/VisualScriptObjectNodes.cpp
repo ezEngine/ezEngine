@@ -16,7 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DeleteObject, 1, ezRTTIDefaul
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
-    EZ_CONSTANT_PROPERTY("execIn", 0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
+    EZ_CONSTANT_PROPERTY("run", 0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
+    // Execution Pins (Output)
+    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     // Data Pins (Input)
     EZ_CONSTANT_PROPERTY("Object", 0)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::GameObjectHandle)),
   }
@@ -26,12 +28,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode_DeleteObject::ezVisualScriptNode_DeleteObject() { }
 
-void ezVisualScriptNode_DeleteObject::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_DeleteObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   if (!m_hObject.IsInvalidated())
   {
     pInstance->GetOwner()->GetWorld()->DeleteObjectDelayed(m_hObject);
   }
+
+  pInstance->ExecuteConnectedNodes(this, 0);
 }
 
 void* ezVisualScriptNode_DeleteObject::GetInputPinDataPointer(ezUInt8 uiPin)
@@ -57,7 +61,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTID
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
-    EZ_CONSTANT_PROPERTY("execIn", 0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
+    EZ_CONSTANT_PROPERTY("run", 0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
+    // Execution Pins (Output)
+    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
     // Data Pins (Input)
     EZ_CONSTANT_PROPERTY("Component", 0)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::ComponentHandle)),
     EZ_CONSTANT_PROPERTY("Activate", 0)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezVisualScriptDataPinType::Boolean)),
@@ -68,7 +74,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode_ActivateComponent::ezVisualScriptNode_ActivateComponent() { }
 
-void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   if (!m_hComponent.IsInvalidated())
   {
@@ -78,6 +84,8 @@ void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInst
       pComponent->SetActive(m_bActive);
     }
   }
+
+  pInstance->ExecuteConnectedNodes(this, 0);
 }
 
 void* ezVisualScriptNode_ActivateComponent::GetInputPinDataPointer(ezUInt8 uiPin)

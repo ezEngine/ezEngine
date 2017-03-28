@@ -17,11 +17,6 @@ ezVisualScriptPin::ezVisualScriptPin(Type type, const ezVisualScriptPinDescripto
   m_pDescriptor = pDescriptor;
 }
 
-//const ezRTTI* ezVisualScriptPin::GetDataType() const
-//{
-//  return m_pDescriptor->m_pDataType;
-//}
-
 const ezColorGammaUB& ezVisualScriptPin::GetColor() const
 {
   return m_pDescriptor->m_Color;

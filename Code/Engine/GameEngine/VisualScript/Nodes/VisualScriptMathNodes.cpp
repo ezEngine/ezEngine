@@ -25,7 +25,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode_Add::ezVisualScriptNode_Add() { }
 
-void ezVisualScriptNode_Add::Execute(ezVisualScriptInstance* pInstance)
+void ezVisualScriptNode_Add::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   const double result = m_Value1 + m_Value2;
   pInstance->SetOutputPinValue(this, 0, &result);
