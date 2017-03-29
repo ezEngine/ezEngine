@@ -14,13 +14,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sequence, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
-    EZ_CONSTANT_PROPERTY("run", 0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
     // Execution Pins (Output)
-    EZ_CONSTANT_PROPERTY("then1", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
-    EZ_CONSTANT_PROPERTY("then2", 1)->AddAttributes(new ezVisScriptExecPinOutAttribute(1)),
-    EZ_CONSTANT_PROPERTY("then3", 2)->AddAttributes(new ezVisScriptExecPinOutAttribute(2)),
-    EZ_CONSTANT_PROPERTY("then4", 3)->AddAttributes(new ezVisScriptExecPinOutAttribute(3)),
-    EZ_CONSTANT_PROPERTY("then5", 4)->AddAttributes(new ezVisScriptExecPinOutAttribute(4)),
+    EZ_OUTPUT_EXECUTION_PIN("then1", 0),
+    EZ_OUTPUT_EXECUTION_PIN("then2", 1),
+    EZ_OUTPUT_EXECUTION_PIN("then3", 2),
+    EZ_OUTPUT_EXECUTION_PIN("then4", 3),
+    EZ_OUTPUT_EXECUTION_PIN("then5", 4),
   }
   EZ_END_PROPERTIES
 }

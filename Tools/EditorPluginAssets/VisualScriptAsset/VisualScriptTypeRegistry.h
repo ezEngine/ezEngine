@@ -41,12 +41,13 @@ public:
 
   const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
 
-  void UpdateNodeData();
+  void UpdateNodeTypes();
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorFramework, VisualScript);
 
-  void LoadNodeData();
+  void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
+  void UpdateNodeType(const ezRTTI* pRtti);
   const ezRTTI* GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& desc);
 
     ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;

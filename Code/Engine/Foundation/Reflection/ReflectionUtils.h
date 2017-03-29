@@ -32,9 +32,6 @@ public:
   static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);
   static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation
 
-  /// \brief Gathers all RTTI types that are from plugins
-  static void GatherPluginTypes(ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies);
-
   /// \brief Gathers all RTTI types that are derived from pRtti.
   ///
   /// This includes all classes that have pRtti as a base class, either direct or indirect.

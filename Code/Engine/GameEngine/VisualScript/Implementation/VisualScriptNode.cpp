@@ -58,11 +58,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Counter, 1, ezRTTIDefaultAllo
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("run",   0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
-    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins
     EZ_MEMBER_PROPERTY("StartValue", m_Counter),
-    EZ_CONSTANT_PROPERTY("Count", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::Number)),
+    EZ_OUTPUT_DATA_PIN("Count", 0, ezVisualScriptDataPinType::Number),
   }
   EZ_END_PROPERTIES
 }
@@ -90,10 +90,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllo
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("run", 0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
-    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins
-    EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Number)),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Number, m_Value),
   }
   EZ_END_PROPERTIES
 }
@@ -134,14 +134,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("run",   0)->AddAttributes(new ezVisScriptExecPinInAttribute()),
-    EZ_CONSTANT_PROPERTY("OnTrue", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
-    EZ_CONSTANT_PROPERTY("OnFalse", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(1)),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnTrue", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnFalse", 1),
     // Data Pins (Input)
-    EZ_MEMBER_PROPERTY("Value1", m_Value1)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::Number)),
-    EZ_MEMBER_PROPERTY("Value2", m_Value2)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezVisualScriptDataPinType::Number)),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value1", 0, ezVisualScriptDataPinType::Number, m_Value1),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value2", 1, ezVisualScriptDataPinType::Number, m_Value2),
     // Data Pins (Output)
-    EZ_CONSTANT_PROPERTY("Result", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::Boolean)),
+    EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Boolean),
   }
   EZ_END_PROPERTIES
 }
@@ -197,7 +197,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAlloca
     //Properties
     EZ_ACCESSOR_PROPERTY("Trigger", GetTrigger, SetTrigger),
     // Execution Pins
-    EZ_CONSTANT_PROPERTY("OnMsg", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_OUTPUT_EXECUTION_PIN("OnMsg", 0),
     // Data Pins
   }
   EZ_END_PROPERTIES

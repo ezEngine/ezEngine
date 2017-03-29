@@ -4,6 +4,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Core/World/Declarations.h>
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 

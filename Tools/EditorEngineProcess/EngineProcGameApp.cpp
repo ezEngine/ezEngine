@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <Foundation/Configuration/Startup.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
@@ -170,12 +171,14 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
   /// \todo Maybe just send ALL reflection information ? Otherwise custom types are never synchronized.
   /// Or add a callback such that plugins can add which types they need synchronized.
   ezSet<const ezRTTI*> types;
-  //ezReflectionUtils::GatherPluginTypes(types, true);
+
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezReflectedClass>(), types, true);
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), types, true);
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), types, true);
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderer>(), types, true);
+  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezVisualScriptNode>(), types, true);
+
   ezDynamicArray<const ezRTTI*> sortedTypes;
   ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
 

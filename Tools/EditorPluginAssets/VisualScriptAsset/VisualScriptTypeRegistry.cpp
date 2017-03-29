@@ -21,7 +21,7 @@ ON_CORE_STARTUP
 {
   EZ_DEFAULT_NEW(ezVisualScriptTypeRegistry);
 
-  ezVisualScriptTypeRegistry::GetSingleton()->LoadNodeData();
+  ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
   const ezRTTI* pBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
 
   ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
@@ -61,7 +61,15 @@ const ezVisualScriptNodeDescriptor* ezVisualScriptTypeRegistry::GetDescriptorFor
   return &it.Value();
 }
 
-void ezVisualScriptTypeRegistry::LoadNodeData()
+void ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
+{
+  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded || e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
+  {
+    UpdateNodeType(e.m_pChangedType);
+  }
+}
+
+void ezVisualScriptTypeRegistry::UpdateNodeTypes()
 {
   // Base Node Type
   if (m_pBaseType == nullptr)
@@ -75,9 +83,14 @@ void ezVisualScriptTypeRegistry::LoadNodeData()
     desc.m_uiTypeVersion = 1;
 
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
+
+    ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
   }
 
-  UpdateNodeData();
+  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    UpdateNodeType(pRtti);
+  }
 }
 
 static ezColor PinTypeColor(ezVisualScriptDataPinType type)
@@ -99,105 +112,101 @@ static ezColor PinTypeColor(ezVisualScriptDataPinType type)
   return ezColor::Pink;
 }
 
-void ezVisualScriptTypeRegistry::UpdateNodeData()
+void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  if (!pRtti->IsDerivedFrom<ezVisualScriptNode>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+    return;
 
+  ezHybridArray<ezAbstractProperty*, 32> properties;
   static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezVisualScriptNodeDescriptor nd;
+  nd.m_sTypeName = pRtti->GetTypeName();
+  nd.m_Color = ezColor::CadetBlue;
+
+  if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
-    if (!pRtti->IsDerivedFrom<ezVisualScriptNode>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+    nd.m_sCategory = pAttr->GetCategory();
+
+    if (nd.m_sCategory == "Debug")
+      nd.m_Color = ezColorGammaUB(127, 0, 110);
+    else if (nd.m_sCategory == "Logic")
+      nd.m_Color = ezColorGammaUB(128, 0, 0);
+    else if (nd.m_sCategory == "Input")
+      nd.m_Color = ezColorGammaUB(38, 105, 0);
+    else if (nd.m_sCategory == "Math")
+      nd.m_Color = ezColorGammaUB(183, 153, 0);
+    else if (nd.m_sCategory == "Objects")
+      nd.m_Color = ezColorGammaUB(0, 53, 91);
+    else if (nd.m_sCategory == "Components")
+      nd.m_Color = ezColorGammaUB(0, 53, 91);
+    else if (nd.m_sCategory == "References")
+      nd.m_Color = ezColorGammaUB(0, 89, 153);
+  }
+
+  if (const ezColorAttribute* pAttr = pRtti->GetAttributeByType<ezColorAttribute>())
+  {
+    nd.m_Color = pAttr->GetColor();
+  }
+
+  pRtti->GetAllProperties(properties);
+
+  for (auto prop : properties)
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = prop->GetPropertyName();
+    pd.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+
+    if (const ezVisScriptDataPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinInAttribute>())
+    {
+      pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+      pd.m_Color = PinTypeColor(pAttr->m_DataType);
+      pd.m_DataType = pAttr->m_DataType;
+      pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+      nd.m_InputPins.PushBack(pd);
+    }
+
+    if (const ezVisScriptDataPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinOutAttribute>())
+    {
+      pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+      pd.m_Color = PinTypeColor(pAttr->m_DataType);
+      pd.m_DataType = pAttr->m_DataType;
+      pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+      nd.m_OutputPins.PushBack(pd);
+    }
+
+    if (const ezVisScriptExecPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinInAttribute>())
+    {
+      pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+      pd.m_Color = ExecutionPinColor;
+      pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+      nd.m_InputPins.PushBack(pd);
+    }
+
+    if (const ezVisScriptExecPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinOutAttribute>())
+    {
+      pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+      pd.m_Color = ExecutionPinColor;
+      pd.m_uiPinIndex = pAttr->m_uiPinSlot;
+      nd.m_OutputPins.PushBack(pd);
+    }
+
+    if (prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
 
-    ezVisualScriptNodeDescriptor nd;
-    nd.m_sTypeName = pRtti->GetTypeName();
-    nd.m_Color = ezColor::CadetBlue;
-
-    if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
     {
-      nd.m_sCategory = pAttr->GetCategory();
-
-      if (nd.m_sCategory == "Debug")
-        nd.m_Color = ezColorGammaUB(127, 0, 110);
-      else if (nd.m_sCategory == "Logic")
-        nd.m_Color = ezColorGammaUB(128, 0, 0);
-      else if (nd.m_sCategory == "Input")
-        nd.m_Color = ezColorGammaUB(38, 105, 0);
-      else if (nd.m_sCategory == "Math")
-        nd.m_Color = ezColorGammaUB(183, 153, 0);
-      else if (nd.m_sCategory == "Objects")
-        nd.m_Color = ezColorGammaUB(0, 53, 91);
-      else if (nd.m_sCategory == "Components")
-        nd.m_Color = ezColorGammaUB(0, 53, 91);
-      else if (nd.m_sCategory == "References")
-        nd.m_Color = ezColorGammaUB(0, 89, 153);
-    }
-
-    if (const ezColorAttribute* pAttr = pRtti->GetAttributeByType<ezColorAttribute>())
-    {
-      nd.m_Color = pAttr->GetColor();
-    }
-
-    pRtti->GetAllProperties(properties);
-
-    for (auto prop : properties)
-    {
-      ezVisualScriptPinDescriptor pd;
+      ezReflectedPropertyDescriptor pd;
+      pd.m_Flags = prop->GetFlags();
+      pd.m_Category = prop->GetCategory();
       pd.m_sName = prop->GetPropertyName();
-      pd.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+      pd.m_sType = prop->GetSpecificType()->GetTypeName();
+      pd.m_ReferenceAttributes = prop->GetAttributes();
 
-      if (const ezVisScriptDataPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinInAttribute>())
-      {
-        pd.m_PinType = ezVisualScriptPinDescriptor::Data;
-        pd.m_Color = PinTypeColor(pAttr->m_DataType);
-        pd.m_DataType = pAttr->m_DataType;
-        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
-        nd.m_InputPins.PushBack(pd);
-      }
-
-      if (const ezVisScriptDataPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinOutAttribute>())
-      {
-        pd.m_PinType = ezVisualScriptPinDescriptor::Data;
-        pd.m_Color = PinTypeColor(pAttr->m_DataType);
-        pd.m_DataType = pAttr->m_DataType;
-        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
-        nd.m_OutputPins.PushBack(pd);
-      }
-
-      if (const ezVisScriptExecPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinInAttribute>())
-      {
-        pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
-        pd.m_Color = ExecutionPinColor;
-        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
-        nd.m_InputPins.PushBack(pd);
-      }
-
-      if (const ezVisScriptExecPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinOutAttribute>())
-      {
-        pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
-        pd.m_Color = ExecutionPinColor;
-        pd.m_uiPinIndex = pAttr->m_uiPinSlot;
-        nd.m_OutputPins.PushBack(pd);
-      }
-
-      if (prop->GetCategory() == ezPropertyCategory::Constant)
-        continue;
-
-      {
-        ezReflectedPropertyDescriptor pd;
-        pd.m_Flags = prop->GetFlags();
-        pd.m_Category = prop->GetCategory();
-        pd.m_sName = prop->GetPropertyName();
-        pd.m_sType = prop->GetSpecificType()->GetTypeName();
-        pd.m_ReferenceAttributes = prop->GetAttributes();
-
-        nd.m_Properties.PushBack(pd);
-      }
+      nd.m_Properties.PushBack(pd);
     }
-
-    m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
   }
+
+  m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
 }
 
 const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& nd)
@@ -213,22 +222,6 @@ const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScr
   desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 1;
   desc.m_Properties = nd.m_Properties;
-
-  //for (const auto& pin : nd.m_InputPins)
-  //{
-  //  if (pin.m_PropertyDesc.m_sName.IsEmpty())
-  //    continue;
-
-  //  desc.m_Properties.PushBack(pin.m_PropertyDesc);
-  //}
-
-  //for (const auto& pin : nd.m_OutputPins)
-  //{
-  //  if (pin.m_PropertyDesc.m_sName.IsEmpty())
-  //    continue;
-
-  //  desc.m_Properties.PushBack(pin.m_PropertyDesc);
-  //}
 
   return ezPhantomRttiManager::RegisterType(desc);
 }

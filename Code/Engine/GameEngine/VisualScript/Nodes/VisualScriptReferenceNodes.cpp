@@ -2,6 +2,7 @@
 #include <GameEngine/VisualScript/Nodes/VisualScriptReferenceNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/World/GameObject.h>
+#include <Core/World/World.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
   EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Output)
-    EZ_CONSTANT_PROPERTY("Object", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::GameObjectHandle)),
+    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
     // Exposed Properties
     EZ_MEMBER_PROPERTY("Name", m_sObjectName),
   }
@@ -59,9 +60,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
-    EZ_CONSTANT_PROPERTY("Object", 0)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::GameObjectHandle)),
+    EZ_INPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
     // Data Pins (Output)
-    EZ_CONSTANT_PROPERTY("Component", 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(0, ezVisualScriptDataPinType::ComponentHandle)),
+    EZ_OUTPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     // Exposed Properties
     EZ_MEMBER_PROPERTY("Type", m_sType),
   }

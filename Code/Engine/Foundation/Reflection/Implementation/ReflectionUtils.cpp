@@ -578,26 +578,6 @@ ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRt
   return nullptr;
 }
 
-
-void ezReflectionUtils::GatherPluginTypes(ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
-{
-  out_types.Clear();
-
-  ezRTTI* pFirst = ezRTTI::GetFirstInstance();
-  while (pFirst != nullptr)
-  {
-    if (!ezStringUtils::IsEqual(pFirst->GetPluginName(), "Static"))
-    {
-      out_types.Insert(pFirst);
-      if (bIncludeDependencies)
-      {
-        GatherDependentTypes(pFirst, out_types);
-      }
-    }
-    pFirst = pFirst->GetNextInstance();
-  }
-}
-
 void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
 {
   ezRTTI* pFirst = ezRTTI::GetFirstInstance();

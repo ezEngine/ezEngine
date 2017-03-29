@@ -16,11 +16,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DeleteObject, 1, ezRTTIDefaul
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
-    EZ_CONSTANT_PROPERTY("run", 0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
     // Execution Pins (Output)
-    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins (Input)
-    EZ_CONSTANT_PROPERTY("Object", 0)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::GameObjectHandle)),
+    EZ_INPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
   EZ_END_PROPERTIES
 }
@@ -61,12 +61,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTID
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
-    EZ_CONSTANT_PROPERTY("run", 0)->AddAttributes(new ezVisScriptExecPinInAttribute(0)),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
     // Execution Pins (Output)
-    EZ_CONSTANT_PROPERTY("then", 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(0)),
+    EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins (Input)
-    EZ_CONSTANT_PROPERTY("Component", 0)->AddAttributes(new ezVisScriptDataPinInAttribute(0, ezVisualScriptDataPinType::ComponentHandle)),
-    EZ_CONSTANT_PROPERTY("Activate", 0)->AddAttributes(new ezVisScriptDataPinInAttribute(1, ezVisualScriptDataPinType::Boolean)),
+    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
+    EZ_INPUT_DATA_PIN("Activate", 1, ezVisualScriptDataPinType::Boolean),
   }
   EZ_END_PROPERTIES
 }

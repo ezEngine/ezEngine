@@ -60,7 +60,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor
     ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
     msg.m_Type = ezPhantomRttiManagerEvent::Type::TypeAdded;
-    s_Events.Broadcast(msg);
+    s_Events.Broadcast(msg, 1); /// \todo Had to increase the recursion depth to allow registering phantom types that are based on actual types coming from the engine process
   }
   else
   {
@@ -69,7 +69,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor
     ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
     msg.m_Type = ezPhantomRttiManagerEvent::Type::TypeChanged;
-    s_Events.Broadcast(msg);
+    s_Events.Broadcast(msg, 1);
   }
 
   return pPhantom;

@@ -32,6 +32,16 @@ private:
   ezUInt16 m_uiNodeID;
 };
 
+
+#define EZ_INPUT_EXECUTION_PIN(name, slot) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptExecPinInAttribute(slot))
+#define EZ_OUTPUT_EXECUTION_PIN(name, slot) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptExecPinOutAttribute(slot))
+#define EZ_INPUT_DATA_PIN(name, slot, type) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptDataPinInAttribute(slot, type))
+#define EZ_OUTPUT_DATA_PIN(name, slot, type) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(slot, type))
+#define EZ_INPUT_DATA_PIN_AND_PROPERTY(name, slot, type, member) EZ_MEMBER_PROPERTY(name, member)->AddAttributes(new ezVisScriptDataPinInAttribute(slot, type))
+
+
+
+
 //////////////////////////////////////////////////////////////////////////
 
 class EZ_GAMEENGINE_DLL ezVisScriptExecPinOutAttribute : public ezPropertyAttribute
