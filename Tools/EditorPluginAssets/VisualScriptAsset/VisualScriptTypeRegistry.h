@@ -14,7 +14,7 @@ struct ezVisualScriptPinDescriptor
   ezString m_sName;
   ezString m_sTooltip;
   ezColorGammaUB m_Color;
-  ezVisualScriptDataPinType m_DataType;
+  ezVisualScriptDataPinType::Enum m_DataType;
   PinType m_PinType;
   ezUInt8 m_uiPinIndex;
 };

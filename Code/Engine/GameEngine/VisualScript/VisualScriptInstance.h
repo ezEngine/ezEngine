@@ -34,8 +34,8 @@ public:
   void SetOutputPinValue(const ezVisualScriptNode* pNode, ezUInt8 uiPin, const void* pValue);
   void ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget);
 
-  static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType, ezVisualScriptDataPinAssignFunc func);
-  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType);
+  static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func);
+  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType);
 
   ezGameObject* GetOwner() const { return m_pOwner; }
 
@@ -77,8 +77,8 @@ private:
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezVisualScriptDataPinType m_SourceType;
-    ezVisualScriptDataPinType m_DstType;
+    ezVisualScriptDataPinType::Enum m_SourceType;
+    ezVisualScriptDataPinType::Enum m_DstType;
 
     EZ_ALWAYS_INLINE bool operator==(const AssignFuncKey& rhs) const
     {

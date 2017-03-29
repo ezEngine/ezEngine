@@ -64,16 +64,24 @@ public:
   ezUInt8 m_uiPinSlot;
 };
 
-enum class ezVisualScriptDataPinType
+struct EZ_GAMEENGINE_DLL ezVisualScriptDataPinType
 {
-  None,
-  Number, ///< Numbers are represented as doubles
-  Boolean,
-  Vec3,
-  GameObjectHandle, ///< ezGameObjectHandle
-  ComponentHandle, ///< ezComponentHandle
-  //ResourceHandle, ///< ezTypelessResourceHandle ?
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None,
+    Number, ///< Numbers are represented as doubles
+    Boolean,
+    Vec3,
+    GameObjectHandle, ///< ezGameObjectHandle
+    ComponentHandle, ///< ezComponentHandle
+    //ResourceHandle, ///< ezTypelessResourceHandle ?
+    Default = None,
+  };
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezVisualScriptDataPinType);
 
 class EZ_GAMEENGINE_DLL ezVisScriptDataPinInAttribute : public ezPropertyAttribute
 {
@@ -81,10 +89,10 @@ class EZ_GAMEENGINE_DLL ezVisScriptDataPinInAttribute : public ezPropertyAttribu
 
 public:
   ezVisScriptDataPinInAttribute() { m_uiPinSlot = 0xff; m_DataType = ezVisualScriptDataPinType::None; }
-  ezVisScriptDataPinInAttribute(ezUInt8 uiSlot, ezVisualScriptDataPinType dataType) { m_uiPinSlot = uiSlot; m_DataType = dataType; }
+  ezVisScriptDataPinInAttribute(ezUInt8 uiSlot, ezVisualScriptDataPinType::Enum dataType) { m_uiPinSlot = uiSlot; m_DataType = dataType; }
 
   ezUInt8 m_uiPinSlot;
-  ezVisualScriptDataPinType m_DataType;
+  ezEnum<ezVisualScriptDataPinType> m_DataType;
 };
 
 class EZ_GAMEENGINE_DLL ezVisScriptDataPinOutAttribute : public ezPropertyAttribute
@@ -93,10 +101,10 @@ class EZ_GAMEENGINE_DLL ezVisScriptDataPinOutAttribute : public ezPropertyAttrib
 
 public:
   ezVisScriptDataPinOutAttribute() { m_uiPinSlot = 0xff; m_DataType = ezVisualScriptDataPinType::None; }
-  ezVisScriptDataPinOutAttribute(ezUInt8 uiSlot, ezVisualScriptDataPinType dataType) { m_uiPinSlot = uiSlot; m_DataType = dataType; }
+  ezVisScriptDataPinOutAttribute(ezUInt8 uiSlot, ezVisualScriptDataPinType::Enum dataType) { m_uiPinSlot = uiSlot; m_DataType = dataType; }
 
   ezUInt8 m_uiPinSlot;
-  ezVisualScriptDataPinType m_DataType;
+  ezEnum<ezVisualScriptDataPinType> m_DataType;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -127,18 +135,7 @@ public:
   double m_Value = 0;
 };
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_Compare : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Compare, ezVisualScriptNode);
-public:
-  ezVisualScriptNode_Compare();
 
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
-
-  double m_Value1;
-  double m_Value2;
-};
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Input : public ezVisualScriptNode
 {

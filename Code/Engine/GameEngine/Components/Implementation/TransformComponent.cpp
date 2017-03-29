@@ -3,6 +3,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Core/World/World.h>
+#include <VisualScript/VisualScriptInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
 {
@@ -12,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
     EZ_ACCESSOR_PROPERTY("RunAtStartup", GetAnimatingAtStartup, SetAnimatingAtStartup), // Whether the animation should start right away.
     EZ_ACCESSOR_PROPERTY("ReverseAtStart", GetAutoReturnStart, SetAutoReturnStart), // If true, it will not stop at the end, but turn around and continue.
     EZ_ACCESSOR_PROPERTY("ReverseAtEnd", GetAutoReturnEnd, SetAutoReturnEnd), // If true, after coming back to the start point, the animation won't stop but turn around and continue.
-    EZ_ACCESSOR_PROPERTY("AutoToggleDirection", GetAutoToggleDirection, SetAutoToggleDirection)->AddAttributes(new ezHiddenAttribute()), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
+    EZ_ACCESSOR_PROPERTY("AutoToggleDirection", GetAutoToggleDirection, SetAutoToggleDirection), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -166,6 +168,69 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
   // return the distance with the decelerated movement
   return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_TransformComponent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_TransformComponent>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Components/Transform")
+  }
+  EZ_END_ATTRIBUTES
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_INPUT_EXECUTION_PIN("Play", 0),
+    EZ_INPUT_EXECUTION_PIN("Pause", 1),
+    EZ_INPUT_EXECUTION_PIN("Reverse", 2),
+    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_TransformComponent::ezVisualScriptNode_TransformComponent() {}
+
+void ezVisualScriptNode_TransformComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_hComponent.IsInvalidated())
+    return;
+
+  ezComponent* pComponent = nullptr;
+  if (!pInstance->GetOwner()->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+    return;
+
+  if (!pComponent->GetDynamicRTTI()->IsDerivedFrom<ezTransformComponent>())
+    return;
+
+  ezTransformComponent* pTransform = static_cast<ezTransformComponent*>(pComponent);
+
+  switch (uiExecPin)
+  {
+  case 0:
+    pTransform->ResumeAnimation();
+    return;
+
+  case 1:
+    pTransform->SetAnimationPaused(true);
+    return;
+
+  case 2:
+    pTransform->ReverseDirection();
+    return;
+  }
+}
+
+void* ezVisualScriptNode_TransformComponent::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+  case 0:
+    return &m_hComponent;
+  }
+
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

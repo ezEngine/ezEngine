@@ -196,8 +196,8 @@ void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSo
   con.m_AssignFunc = nullptr;
   con.m_pTargetData = nullptr;
 
-  ezVisualScriptDataPinType sourceType = ezVisualScriptDataPinType::None;
-  ezVisualScriptDataPinType targetType = ezVisualScriptDataPinType::None;
+  ezVisualScriptDataPinType::Enum sourceType = ezVisualScriptDataPinType::None;
+  ezVisualScriptDataPinType::Enum targetType = ezVisualScriptDataPinType::None;
 
   {
     con.m_pTargetData = m_Nodes[uiTargetNode]->GetInputPinDataPointer(uiTargetPin);
@@ -269,7 +269,7 @@ void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNo
   m_Nodes[TargetNode.m_uiTargetNode]->Execute(this, TargetNode.m_uiTargetPin);
 }
 
-void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType, ezVisualScriptDataPinAssignFunc func)
+void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;
@@ -278,7 +278,7 @@ void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPin
   s_DataPinAssignFunctions[key] = func;
 }
 
-ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(ezVisualScriptDataPinType sourceType, ezVisualScriptDataPinType dstType)
+ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;

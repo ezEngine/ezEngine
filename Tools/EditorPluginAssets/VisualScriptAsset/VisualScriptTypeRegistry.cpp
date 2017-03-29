@@ -93,7 +93,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
   }
 }
 
-static ezColor PinTypeColor(ezVisualScriptDataPinType type)
+static ezColor PinTypeColor(ezVisualScriptDataPinType::Enum type)
 {
   switch (type)
   {

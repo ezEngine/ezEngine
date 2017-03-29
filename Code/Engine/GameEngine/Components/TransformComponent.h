@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct ezTransformComponentFlags
 {
@@ -74,3 +75,21 @@ public:
   bool IsDirectionForwards() const;
   bool IsAnimationRunning() const;
 };
+
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_TransformComponent : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_TransformComponent, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_TransformComponent();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  ezComponentHandle m_hComponent;
+};
+
+
+
