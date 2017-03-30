@@ -191,6 +191,14 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       nd.m_OutputPins.PushBack(pd);
     }
 
+    if (const ezDefaultValueAttribute* pAttr = prop->GetAttributeByType<ezDefaultValueAttribute>())
+    {
+      ezVariant val = pAttr->GetValue();
+
+      /// \todo Somehow default values aren't working in the UI
+      int i = 0;
+    }
+
     if (prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
 
