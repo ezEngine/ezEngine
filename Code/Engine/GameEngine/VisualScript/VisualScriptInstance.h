@@ -7,6 +7,7 @@
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Containers/Map.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <GameEngine/GameState/StateMap.h>
 
 class ezVisualScriptNode;
 class ezMessage;
@@ -18,26 +19,42 @@ typedef ezUInt32 ezVisualScriptPinConnectionID;
 
 typedef void(*ezVisualScriptDataPinAssignFunc)(const void* src, void* dst);
 
+/// \brief An instance of a visual script resource. Stores the current script state and executes nodes.
 class EZ_GAMEENGINE_DLL ezVisualScriptInstance
 {
 public:
   ezVisualScriptInstance();
-
-  static void SetupPinDataTypeConversions();
-
   ~ezVisualScriptInstance();
 
+  /// \brief Clears the current state and recreates the script instance from the given template.
   void Configure(const ezVisualScriptResourceDescriptor& resource, ezGameObject* pOwner);
+
+  /// \brief Runs all nodes that are marked for execution. Typically nodes that handle events will mark themselves for execution in the next update.
   void ExecuteScript();
+
+  /// \brief The message is dispatched to all nodes, which may react on it, for instance by tagging themselves for execution in the next ExecuteScript() call.
   void HandleMessage(ezMessage& msg);
 
+  /// \brief Called by ezVisualScriptNode classes to pass the new value of an output pin to all connected nodes.
   void SetOutputPinValue(const ezVisualScriptNode* pNode, ezUInt8 uiPin, const void* pValue);
+
+  /// \brief Called by ezVisualScriptNode classes to execute the node that is connected on the given output execution pin.
   void ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget);
+
+  /// \brief Returns the ezGameObject that owns this script. May be nullptr, if the instance is not attached to a game object.
+  ezGameObject* GetOwner() const { return m_pOwner; }
+
+  /// \brief Returns the map that holds the local variables of the script.
+  const ezStateMap& GetLocalVariables() const { return m_LocalVariables; }
+
+  /// \brief Returns the map that holds the local variables of the script.
+  ezStateMap& GetLocalVariables() { return m_LocalVariables; }
+
+  /// \brief Needs to be called once to register the default data pin conversion functions.
+  static void SetupPinDataTypeConversions();
 
   static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func);
   static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType);
-
-  ezGameObject* GetOwner() const { return m_pOwner; }
 
 private:
   friend class ezVisualScriptNode;
@@ -72,6 +89,7 @@ private:
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;
   ezHashTable<ezVisualScriptNodeConnectionID, ExecPinConnection > m_ExecutionConnections;
   ezHashTable<ezVisualScriptPinConnectionID, ezHybridArray<DataPinConnection, 2> > m_DataConnections;
+  ezStateMap m_LocalVariables;
 
   struct AssignFuncKey
   {

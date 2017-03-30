@@ -142,6 +142,8 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       nd.m_Color = ezColorGammaUB(0, 53, 91);
     else if (nd.m_sCategory == "References")
       nd.m_Color = ezColorGammaUB(0, 89, 153);
+    else if (nd.m_sCategory == "Variables")
+      nd.m_Color = ezColorGammaUB(250, 70, 0);
   }
 
   if (const ezColorAttribute* pAttr = pRtti->GetAttributeByType<ezColorAttribute>())

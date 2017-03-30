@@ -74,6 +74,7 @@ void ezVisualScriptInstance::Clear()
   m_Nodes.Clear();
   m_ExecutionConnections.Clear();
   m_DataConnections.Clear();
+  m_LocalVariables.Clear();
 }
 
 
@@ -175,6 +176,8 @@ void ezVisualScriptInstance::ExecuteScript()
 
 void ezVisualScriptInstance::HandleMessage(ezMessage& msg)
 {
+  /// \todo Precompute which nodes actually have message handlers!
+
   for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
   {
     m_Nodes[i]->GetDynamicRTTI()->DispatchMessage(m_Nodes[i], msg);
