@@ -146,15 +146,15 @@ ezVisualScriptNode_Logic::~ezVisualScriptNode_Logic() { }
 
 void ezVisualScriptNode_Logic::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  const bool or = m_Value1 || m_Value2;
-  const bool and = m_Value1 && m_Value2;
-  const bool xor = m_Value1 ^ m_Value2;
-  const bool nota = !m_Value1;
+  const bool Or = m_Value1 || m_Value2;
+  const bool And = m_Value1 && m_Value2;
+  const bool Xor = m_Value1 ^ m_Value2;
+  const bool NotA = !m_Value1;
 
-  pInstance->SetOutputPinValue(this, 0, &or);
-  pInstance->SetOutputPinValue(this, 1, &and);
-  pInstance->SetOutputPinValue(this, 2, &xor);
-  pInstance->SetOutputPinValue(this, 3, &nota);
+  pInstance->SetOutputPinValue(this, 0, &Or);
+  pInstance->SetOutputPinValue(this, 1, &And);
+  pInstance->SetOutputPinValue(this, 2, &Xor);
+  pInstance->SetOutputPinValue(this, 3, &NotA);
 }
 
 void* ezVisualScriptNode_Logic::GetInputPinDataPointer(ezUInt8 uiPin)

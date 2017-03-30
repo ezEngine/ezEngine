@@ -26,7 +26,7 @@
 #define EZ_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE)                              \
  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE)                           \
  public:                                                                        \
-   virtual const ezRTTI* GetDynamicRTTI() const \
+   virtual const ezRTTI* GetDynamicRTTI() const override                        \
    {                                                                            \
      return &SELF::s_RTTI;                                                      \
    }                                                                            \
@@ -85,7 +85,13 @@ class ezArchiveReader;
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass, ezNoBase);
+  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(ezReflectedClass, ezNoBase);
+
+public:
+  virtual const ezRTTI* GetDynamicRTTI() const
+  {
+    return &ezReflectedClass::s_RTTI;
+  }
 
 public:
   EZ_ALWAYS_INLINE ezReflectedClass() { }
