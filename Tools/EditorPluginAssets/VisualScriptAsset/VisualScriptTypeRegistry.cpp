@@ -8,6 +8,8 @@
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <Core/World/Component.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -85,6 +87,17 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
 
     ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  }
+
+  auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("ComponentTypes");
+  dynEnum.Clear();
+
+  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    if (pRtti->IsDerivedFrom<ezComponent>())
+    {
+      dynEnum.AddValidValue(pRtti->GetTypeName(), true);
+    }
   }
 
   for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
@@ -198,6 +211,13 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       ezVariant val = pAttr->GetValue();
 
       /// \todo Somehow default values aren't working in the UI
+      int i = 0;
+    }
+
+    if (const ezDynamicStringEnumAttribute* pAttr = prop->GetAttributeByType<ezDynamicStringEnumAttribute>())
+    {
+      const char* sz = pAttr->GetDynamicEnumName();
+
       int i = 0;
     }
 

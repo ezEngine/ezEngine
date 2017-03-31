@@ -2,6 +2,73 @@
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <Core/World/Declarations.h>
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetNumberProperty : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetNumberProperty, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_GetNumberProperty();
+  ~ezVisualScriptNode_GetNumberProperty();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  ezComponentHandle m_hComponent;
+  ezString m_sVariable;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_SetNumberProperty : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_SetNumberProperty, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_SetNumberProperty();
+  ~ezVisualScriptNode_SetNumberProperty();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  ezComponentHandle m_hComponent;
+  ezString m_sVariable;
+  double m_fValue;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetBoolProperty : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetBoolProperty, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_GetBoolProperty();
+  ~ezVisualScriptNode_GetBoolProperty();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  ezComponentHandle m_hComponent;
+  ezString m_sVariable;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_SetBoolProperty : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_SetBoolProperty, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_SetBoolProperty();
+  ~ezVisualScriptNode_SetBoolProperty();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  ezComponentHandle m_hComponent;
+  ezString m_sVariable;
+  bool m_bValue;
+};
 
 //////////////////////////////////////////////////////////////////////////
 

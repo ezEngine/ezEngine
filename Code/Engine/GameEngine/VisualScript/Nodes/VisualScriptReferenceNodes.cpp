@@ -64,7 +64,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     // Exposed Properties
-    EZ_MEMBER_PROPERTY("Type", m_sType),
+    EZ_MEMBER_PROPERTY("Type", m_sType)->AddAttributes(new ezDynamicStringEnumAttribute("ComponentTypes")),
   }
   EZ_END_PROPERTIES
 }
