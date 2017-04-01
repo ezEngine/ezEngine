@@ -5,6 +5,7 @@
 #include <Foundation/Reflection/Implementation/MessageHandler.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Communication/Message.h>
 
 typedef ezHashTable<const char*, ezRTTI*, ezHashHelper<const char*>, ezStaticAllocatorWrapper> ezTypeHashTable;
 ezEvent<const ezRTTI*> ezRTTI::s_TypeUpdatedEvent;

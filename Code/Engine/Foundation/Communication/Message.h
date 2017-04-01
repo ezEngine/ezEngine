@@ -2,6 +2,7 @@
 
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Reflection/Reflection.h>
 
 typedef ezUInt16 ezMessageId;
 
@@ -11,8 +12,10 @@ typedef ezUInt16 ezMessageId;
 /// EZ_IMPLEMENT_MESSAGE_TYPE needs to be added to a cpp.
 /// \see ezRTTI
 /// \todo implement serialization
-class EZ_FOUNDATION_DLL ezMessage
+class EZ_FOUNDATION_DLL ezMessage : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezMessage, ezReflectedClass);
+
 public:
   ezMessage()
   {
@@ -69,8 +72,9 @@ protected:
 };
 
 /// \brief Add this macro to the declaration of your custom message type.
-#define EZ_DECLARE_MESSAGE_TYPE(messageType) \
+#define EZ_DECLARE_MESSAGE_TYPE(messageType, baseType) \
   private: \
+    EZ_ADD_DYNAMIC_REFLECTION(messageType, baseType); \
     static ezMessageId MSG_ID; \
   public: \
     static ezMessageId GetMsgId() \

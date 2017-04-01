@@ -1,6 +1,9 @@
 #include <PCH.h>
 #include <Foundation/Communication/Message.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMessage, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 ezMessageId ezMessage::s_uiNextMsgId = 0;
 
 

@@ -2,10 +2,11 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Communication/Message.h>
 
 /* Performance Statistics:
 
-  AMD E-350 Processr 1.6 GHz ('Fusion'), 32 Bit, Debug Mode
+  AMD E-350 Processor 1.6 GHz ('Fusion'), 32 Bit, Debug Mode
     Virtual Function Calls:   ~60 ns
     Simple Function Calls:    ~27 ns
     Fastcall Function Calls:  ~27 ns
@@ -14,7 +15,7 @@
     Float Division:           25 ns
     Float Multiplication:     25 ns
 
-  AMD E-350 Processr 1.6 GHz ('Fusion'), 64 Bit, Debug Mode
+  AMD E-350 Processor 1.6 GHz ('Fusion'), 64 Bit, Debug Mode
     Virtual Function Calls:   ~80 ns
     Simple Function Calls:    ~55 ns
     Fastcall Function Calls:  ~55 ns
@@ -23,7 +24,7 @@
     Float Division:           ~66 ns
     Float Multiplication:     ~58 ns
 
-  AMD E-350 Processr 1.6 GHz ('Fusion'), 32 Bit, Release Mode
+  AMD E-350 Processor 1.6 GHz ('Fusion'), 32 Bit, Release Mode
     Virtual Function Calls:   ~9 ns
     Simple Function Calls:    ~5 ns
     Fastcall Function Calls:  ~5 ns
@@ -32,7 +33,7 @@
     Float Division:           10.7 ns
     Float Multiplication:     9.5 ns
 
-  AMD E-350 Processr 1.6 GHz ('Fusion'), 64 Bit, Release Mode
+  AMD E-350 Processor 1.6 GHz ('Fusion'), 64 Bit, Release Mode
     Virtual Function Calls:   ~10 ns
     Simple Function Calls:    ~5 ns
     Fastcall Function Calls:  ~5 ns
@@ -56,11 +57,14 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Performance);
 
 struct GetValueMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(GetValueMessage);
+  EZ_DECLARE_MESSAGE_TYPE(GetValueMessage, ezMessage);
 
   ezInt32 m_iValue;
 };
 EZ_IMPLEMENT_MESSAGE_TYPE(GetValueMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(GetValueMessage, 1, ezRTTIDefaultAllocator<GetValueMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 
 
 class Base : public ezReflectedClass

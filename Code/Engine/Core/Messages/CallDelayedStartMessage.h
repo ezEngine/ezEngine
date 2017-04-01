@@ -5,10 +5,10 @@
 
 struct EZ_CORE_DLL ezCallDelayedStartMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezCallDelayedStartMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezCallDelayedStartMessage, ezMessage);
 
   // make sure this messages is processed before all others
-  virtual ezInt32 GetSortingKey() const override 
+  virtual ezInt32 GetSortingKey() const override
   {
     return (-2147483647 - 1);
   }

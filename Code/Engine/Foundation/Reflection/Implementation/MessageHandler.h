@@ -3,7 +3,8 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Communication/Message.h>
+
+class ezMessage;
 
 /// \brief The base class for all message handlers that a type provides.
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler

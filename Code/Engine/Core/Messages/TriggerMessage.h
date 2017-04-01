@@ -16,7 +16,7 @@ struct EZ_CORE_DLL ezTriggerState
 
 struct EZ_CORE_DLL ezTriggerMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezTriggerMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezTriggerMessage, ezMessage);
 
   /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some expected string. Use ezTempHashedString::GetHash() to assign and compare the value.
   ezUInt32 m_UsageStringHash;

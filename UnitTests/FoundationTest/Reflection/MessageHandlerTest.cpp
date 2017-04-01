@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Communication/Message.h>
 
 #ifdef GetMessage
   #undef GetMessage
@@ -7,35 +8,43 @@
 
 struct AddMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(AddMessage);
+  EZ_DECLARE_MESSAGE_TYPE(AddMessage, ezMessage);
 
   ezInt32 m_iValue;
 };
 EZ_IMPLEMENT_MESSAGE_TYPE(AddMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AddMessage, 1, ezRTTIDefaultAllocator<AddMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 struct SubMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(SubMessage);
+  EZ_DECLARE_MESSAGE_TYPE(SubMessage, ezMessage);
 
   ezInt32 m_iValue;
 };
 EZ_IMPLEMENT_MESSAGE_TYPE(SubMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SubMessage, 1, ezRTTIDefaultAllocator<SubMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 struct MulMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(MulMessage);
+  EZ_DECLARE_MESSAGE_TYPE(MulMessage, ezMessage);
 
   ezInt32 m_iValue;
 };
 EZ_IMPLEMENT_MESSAGE_TYPE(MulMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(MulMessage, 1, ezRTTIDefaultAllocator<MulMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 struct GetMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(GetMessage);
+  EZ_DECLARE_MESSAGE_TYPE(GetMessage, ezMessage);
 
   ezInt32 m_iValue;
 };
 EZ_IMPLEMENT_MESSAGE_TYPE(GetMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(GetMessage, 1, ezRTTIDefaultAllocator<GetMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 
@@ -44,8 +53,8 @@ class BaseHandler : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(BaseHandler, ezReflectedClass);
 
 public:
-  BaseHandler() : m_iValue(0) 
-  { 
+  BaseHandler() : m_iValue(0)
+  {
   }
 
   void OnAddMessage(AddMessage& msg)

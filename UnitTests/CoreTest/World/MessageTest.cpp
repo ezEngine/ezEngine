@@ -5,16 +5,16 @@
 
 namespace
 {
-  class TestMessage : public ezMessage
+  class TestMessage1 : public ezMessage
   {
-    EZ_DECLARE_MESSAGE_TYPE(TestMessage);
+    EZ_DECLARE_MESSAGE_TYPE(TestMessage1, ezMessage);
 
     int m_iValue;
   };
 
   class TestMessage2 : public ezMessage
   {
-    EZ_DECLARE_MESSAGE_TYPE(TestMessage2);
+    EZ_DECLARE_MESSAGE_TYPE(TestMessage2, ezMessage);
 
     virtual ezInt32 GetSortingKey() const override
     {
@@ -24,8 +24,13 @@ namespace
     int m_iValue;
   };
 
-  EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
+  EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage1);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage1, 1, ezRTTIDefaultAllocator<TestMessage1>)
+  EZ_END_DYNAMIC_REFLECTED_TYPE
+
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage2);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage2, 1, ezRTTIDefaultAllocator<TestMessage2>)
+  EZ_END_DYNAMIC_REFLECTED_TYPE
 
   class TestComponentMsg;
   typedef ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList> TestComponentMsgManager;
@@ -41,7 +46,7 @@ namespace
     virtual void SerializeComponent(ezWorldWriter& stream) const override {}
     virtual void DeserializeComponent(ezWorldReader& stream) override {}
 
-    void OnTestMessage(TestMessage& msg)
+    void OnTestMessage(TestMessage1& msg)
     {
       m_iSomeData += msg.m_iValue;
     }
@@ -59,7 +64,7 @@ namespace
   {
     EZ_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(TestMessage, OnTestMessage),
+      EZ_MESSAGE_HANDLER(TestMessage1, OnTestMessage),
       EZ_MESSAGE_HANDLER(TestMessage2, OnTestMessage2),
     }
     EZ_END_MESSAGEHANDLERS
@@ -129,7 +134,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
   {
     ResetComponents(*pRoot);
 
-    TestMessage msg;
+    TestMessage1 msg;
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg);
 
@@ -163,7 +168,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
   {
     ResetComponents(*pRoot);
 
-    TestMessage msg;
+    TestMessage1 msg;
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToAllParents);
 
@@ -197,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
   {
     ResetComponents(*pRoot);
 
-    TestMessage msg;
+    TestMessage1 msg;
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToChildren);
 
@@ -231,7 +236,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
   {
     ResetComponents(*pRoot);
 
-    TestMessage msg;
+    TestMessage1 msg;
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToSubTree);
 
@@ -266,7 +271,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
 
     for (ezUInt32 i = 0; i < 10; ++i)
     {
-      TestMessage msg;
+      TestMessage1 msg;
       msg.m_iValue = i;
       pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame);
 
@@ -291,7 +296,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
 
     for (ezUInt32 i = 0; i < 10; ++i)
     {
-      TestMessage msg;
+      TestMessage1 msg;
       msg.m_iValue = i;
       pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i+1));
 

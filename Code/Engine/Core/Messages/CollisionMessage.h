@@ -6,7 +6,7 @@
 
 struct EZ_CORE_DLL ezCollisionMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezCollisionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezCollisionMessage, ezMessage);
 
   ezGameObjectHandle m_hObjectA;
   ezGameObjectHandle m_hObjectB;

@@ -5,6 +5,6 @@
 
 struct EZ_CORE_DLL ezDeleteObjectMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezDeleteObjectMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezDeleteObjectMessage, ezMessage);
 };
 

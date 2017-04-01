@@ -7,7 +7,7 @@
 
 struct EZ_CORE_DLL ezUpdateLocalBoundsMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezUpdateLocalBoundsMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezUpdateLocalBoundsMessage, ezMessage);
 
   EZ_ALWAYS_INLINE void AddBounds(const ezBoundingBoxSphere& bounds)
   {

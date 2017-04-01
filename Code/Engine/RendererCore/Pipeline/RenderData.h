@@ -5,6 +5,7 @@
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Communication/Message.h>
 
 /// \brief Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
@@ -66,7 +67,7 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
 
 struct EZ_RENDERERCORE_DLL ezExtractRenderDataMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage, ezMessage);
 
   const ezView* m_pView;
   ezExtractedRenderData* m_pExtractedRenderData;

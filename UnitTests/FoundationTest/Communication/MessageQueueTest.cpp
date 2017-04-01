@@ -5,7 +5,7 @@ namespace
 {
   struct TestMessage : public ezMessage
   {
-    EZ_DECLARE_MESSAGE_TYPE(TestMessage);
+    EZ_DECLARE_MESSAGE_TYPE(TestMessage, ezMessage);
 
     int x;
     int y;
@@ -19,6 +19,8 @@ namespace
   typedef ezMessageQueue<MetaData> TestMessageQueue;
 
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage, 1, ezRTTIDefaultAllocator<TestMessage>)
+  EZ_END_DYNAMIC_REFLECTED_TYPE
 }
 
 EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)

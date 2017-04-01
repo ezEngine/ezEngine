@@ -4,7 +4,6 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
-#include <Foundation/Communication/Message.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
@@ -16,7 +15,8 @@ struct ezRTTIAllocator;
 class ezAbstractProperty;
 class ezAbstractMessageHandler;
 class ezPropertyAttribute;
-
+class ezMessage;
+typedef ezUInt16 ezMessageId;
 
 /// \brief This enumerable class holds information about reflected types. Each instance represents one type that is known to the reflection system.
 ///
