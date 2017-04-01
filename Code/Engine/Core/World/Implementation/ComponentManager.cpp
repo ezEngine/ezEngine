@@ -35,9 +35,9 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
 
 void ezComponentManagerBase::InitializeComponent(ezGameObject* pOwnerObject, ezComponent* pComponent)
 {
-  /// \todo Uncomment this assert and remove check below once the editor can handle this properly.
-  //EZ_ASSERT_DEV(pOwnerObject != nullptr, "Owner must not be null");
-  if (pOwnerObject)
+  // In Editor we add components via reflection so it is fine to have a nullptr here.
+  // We check for a valid owner before the Initialize() callback.
+  if (pOwnerObject != nullptr)
   {
     pOwnerObject->AddComponent(pComponent);
   }

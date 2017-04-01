@@ -73,7 +73,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
       return nullptr;
     }
 
-    /// \todo We should pass a valid gameobject pointer to CreateComponent.
+    // Component is added via reflection shortly so passing a nullptr as owner is fine here.
     ezComponentHandle hComponent = pMan->CreateComponent(nullptr);
     ezComponent* pComponent;
     if (pMan->TryGetComponent(hComponent, pComponent))

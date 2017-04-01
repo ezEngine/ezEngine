@@ -80,6 +80,8 @@ void ezComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezComponent::EnsureInitialized()
 {
+  EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must not be null");
+
   if (IsInitializing())
   {
     ezLog::Error("Recursive initialize call is ignored.");
