@@ -277,6 +277,8 @@ private:
   void Reflection_AddChild(ezGameObject* pChild);
   void Reflection_DetachChild(ezGameObject* pChild);
   ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
+  void Reflection_AddComponent(ezComponent* pComponent) { AddComponent(pComponent); }
+  void Reflection_RemoveComponent(ezComponent* pComponent) { /*Do nothing, Component is automatically removed when deleted.*/ }
   const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const { return m_Components; }
 
   void OnDeleteObject(ezDeleteObjectMessage& msg);
