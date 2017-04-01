@@ -3,6 +3,7 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Messages/CollisionMessage.h>
+#include <Core/World/World.h>
 
 //////////////////////////////////////////////////////////////////////////
 
