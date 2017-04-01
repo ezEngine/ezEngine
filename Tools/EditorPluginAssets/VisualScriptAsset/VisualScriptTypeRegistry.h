@@ -49,6 +49,7 @@ private:
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
   void UpdateNodeType(const ezRTTI* pRtti);
   const ezRTTI* GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& desc);
+  void CreateMessageNodeType(const ezRTTI* pRtti);
 
     ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;
 

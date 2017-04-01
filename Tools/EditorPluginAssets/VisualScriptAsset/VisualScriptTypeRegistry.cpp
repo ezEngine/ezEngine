@@ -127,6 +127,12 @@ static ezColor PinTypeColor(ezVisualScriptDataPinType::Enum type)
 
 void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 {
+  if (pRtti->IsDerivedFrom<ezScriptMessage>() && pRtti != ezGetStaticRTTI<ezScriptMessage>())
+  {
+    CreateMessageNodeType(pRtti);
+    return;
+  }
+
   if (!pRtti->IsDerivedFrom<ezVisualScriptNode>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
     return;
 
@@ -254,4 +260,121 @@ const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScr
   desc.m_Properties = nd.m_Properties;
 
   return ezPhantomRttiManager::RegisterType(desc);
+}
+
+void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
+{
+  ezVisualScriptNodeDescriptor nd;
+  nd.m_sTypeName = pRtti->GetTypeName();
+  nd.m_Color = ezColor::MediumPurple;
+  nd.m_sCategory = "Messages";
+
+  if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+  {
+    nd.m_sCategory = pAttr->GetCategory();
+  }
+
+  if (const ezColorAttribute* pAttr = pRtti->GetAttributeByType<ezColorAttribute>())
+  {
+    nd.m_Color = pAttr->GetColor();
+  }
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  // Add an input execution pin
+  {
+    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
+
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "send";
+    pd.m_sTooltip = "When executed, the message is sent to the object or component.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_Color = ExecutionPinColor;
+    pd.m_uiPinIndex = 0;
+    nd.m_InputPins.PushBack(pd);
+  }
+
+  // Add an output execution pin
+  {
+    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
+
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "then";
+    pd.m_sTooltip = "";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_Color = ExecutionPinColor;
+    pd.m_uiPinIndex = 0;
+    nd.m_OutputPins.PushBack(pd);
+  }
+
+  // Add an input data pin for the target object
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Object";
+    pd.m_sTooltip = "When the object is given, the message is sent to all its components.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_DataType = ezVisualScriptDataPinType::GameObjectHandle;
+    pd.m_Color = PinTypeColor(ezVisualScriptDataPinType::GameObjectHandle);
+    pd.m_uiPinIndex = 0;
+    nd.m_InputPins.PushBack(pd);
+  }
+
+  // Add an input data pin for the target component
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Component";
+    pd.m_sTooltip = "When the component is given, the message is sent directly to it.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_DataType = ezVisualScriptDataPinType::ComponentHandle;
+    pd.m_Color = PinTypeColor(ezVisualScriptDataPinType::ComponentHandle);
+    pd.m_uiPinIndex = 1;
+    nd.m_InputPins.PushBack(pd);
+  }
+
+  ezInt32 iDataPinIndex = 0;
+  for (auto prop : properties)
+  {
+    ++iDataPinIndex;
+    const auto varType = prop->GetSpecificType()->GetVariantType();
+
+    if (varType >= ezVariantType::FirstStandardType && varType <= ezVariantType::LastStandardType)
+    {
+      ezReflectedPropertyDescriptor prd;
+      prd.m_Flags = prop->GetFlags();
+      prd.m_Category = prop->GetCategory();
+      prd.m_sName = prop->GetPropertyName();
+      prd.m_sType = prop->GetSpecificType()->GetTypeName();
+      prd.m_ReferenceAttributes = prop->GetAttributes();
+
+      nd.m_Properties.PushBack(prd);
+    }
+
+    if (varType != ezVariantType::Bool && varType != ezVariantType::Double && varType != ezVariantType::Vector3)
+      continue;
+
+    ezVisualScriptPinDescriptor pid;
+
+    switch (varType)
+    {
+    case ezVariantType::Bool:
+      pid.m_DataType = ezVisualScriptDataPinType::Boolean;
+      break;
+    case ezVariantType::Double:
+      pid.m_DataType = ezVisualScriptDataPinType::Number;
+      break;
+    case ezVariantType::Vector3:
+      pid.m_DataType = ezVisualScriptDataPinType::Vec3;
+      break;
+    }
+
+    pid.m_sName = prop->GetPropertyName();
+    pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+    pid.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pid.m_Color = PinTypeColor(pid.m_DataType);
+    pid.m_uiPinIndex = iDataPinIndex - 1;
+    nd.m_InputPins.PushBack(pid);
+  }
+
+  m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
 }

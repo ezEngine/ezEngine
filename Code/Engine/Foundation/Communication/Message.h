@@ -97,3 +97,13 @@ protected:
 #define EZ_IMPLEMENT_MESSAGE_TYPE(messageType) \
   ezMessageId messageType::MSG_ID = messageType::GetMsgId();
 
+
+/// \brief Base class for all messages that scripts are allowed to send.
+///
+/// This common base class is used to filter out which messages to expose to scripts.
+class EZ_FOUNDATION_DLL ezScriptMessage : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezScriptMessage, ezMessage);
+
+
+};

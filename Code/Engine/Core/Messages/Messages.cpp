@@ -21,6 +21,17 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezTriggerMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTriggerMessage, 1, ezRTTIDefaultAllocator<ezTriggerMessage>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezUserTriggerMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUserTriggerMessage, 1, ezRTTIDefaultAllocator<ezUserTriggerMessage>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Message", m_sMessage),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezUpdateLocalBoundsMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateLocalBoundsMessage, 1, ezRTTIDefaultAllocator<ezUpdateLocalBoundsMessage>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
