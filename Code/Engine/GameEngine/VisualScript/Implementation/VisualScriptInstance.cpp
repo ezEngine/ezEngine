@@ -71,6 +71,8 @@ void ezVisualScriptInstance::Clear()
     m_Nodes[i]->GetDynamicRTTI()->GetAllocator()->Deallocate(m_Nodes[i]);
   }
 
+  m_pWorld = nullptr;
+  m_pOwner = nullptr;
   m_Nodes.Clear();
   m_ExecutionConnections.Clear();
   m_DataConnections.Clear();
@@ -120,29 +122,33 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
   Clear();
 
   m_pOwner = pOwner;
+
+  if (m_pOwner)
+  {
+    m_pWorld = m_pOwner->GetWorld();
+  }
+
   m_Nodes.Reserve(resource.m_Nodes.GetCount());
 
   ezUInt16 uiNodeId = 0;
-  for (const auto& node : resource.m_Nodes)
+  for (ezUInt32 n = 0; n < resource.m_Nodes.GetCount(); ++n)
   {
-    ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(node.m_pType->GetAllocator()->Allocate());
-    pNode->m_uiNodeID = uiNodeId++;
+    const auto& node = resource.m_Nodes[n];
 
-    // assign all property values
-    for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
+    if (node.m_pType->IsDerivedFrom<ezMessage>())
     {
-      const ezUInt32 uiProp = node.m_uiFirstProperty + i;
-      const auto& prop = resource.m_Properties[uiProp];
-
-      ezAbstractProperty* pAbstract = pNode->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
-      if (!pAbstract->GetCategory() == ezPropertyCategory::Member)
-        continue;
-
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
-      ezReflectionUtils::SetMemberPropertyValue(pMember, pNode, prop.m_Value);
+      CreateMessageNode(n, resource);
     }
-
-    m_Nodes.PushBack(pNode);
+    else if (node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
+    {
+      CreateVisualScriptNode(n, resource);
+    }
+    else
+    {
+      ezLog::Error("Invalid node type '{0}' in visual script", node.m_pType->GetTypeName());
+      Clear();
+      return;
+    }
   }
 
   m_ExecutionConnections.Reserve(resource.m_ExecutionPaths.GetCount());
@@ -158,6 +164,67 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
   }
 
   ComputeNodeDependencies();
+}
+
+
+void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+{
+  const auto& node = resource.m_Nodes[uiNodeIdx];
+
+  ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(node.m_pType->GetAllocator()->Allocate());
+  pNode->m_uiNodeID = uiNodeIdx;
+
+  // assign all property values
+  for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
+  {
+    const ezUInt32 uiProp = node.m_uiFirstProperty + i;
+    const auto& prop = resource.m_Properties[uiProp];
+
+    ezAbstractProperty* pAbstract = pNode->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+    if (!pAbstract->GetCategory() == ezPropertyCategory::Member)
+      continue;
+
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+    ezReflectionUtils::SetMemberPropertyValue(pMember, pNode, prop.m_Value);
+  }
+
+  m_Nodes.PushBack(pNode);
+}
+
+void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+{
+  const auto& node = resource.m_Nodes[uiNodeIdx];
+
+  ezVisualScriptNode_MessageSender* pNode = static_cast<ezVisualScriptNode_MessageSender*>(ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate());
+  pNode->m_uiNodeID = uiNodeIdx;
+
+  pNode->m_pMessageToSend = static_cast<ezMessage*>(node.m_pType->GetAllocator()->Allocate());
+
+  // assign all property values
+  for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
+  {
+    const ezUInt32 uiProp = node.m_uiFirstProperty + i;
+    const auto& prop = resource.m_Properties[uiProp];
+
+    ezAbstractProperty* pAbstract = pNode->m_pMessageToSend->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+    if (pAbstract == nullptr)
+    {
+      if (prop.m_sName == "Delay" && prop.m_Value.CanConvertTo<ezTime>())
+      {
+        pNode->m_Delay = prop.m_Value.ConvertTo<ezTime>();
+      }
+
+      continue;
+    }
+
+    if (!pAbstract->GetCategory() == ezPropertyCategory::Member)
+      continue;
+
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+    ezReflectionUtils::SetMemberPropertyValue(pMember, pNode->m_pMessageToSend, prop.m_Value);
+  }
+
+  m_Nodes.PushBack(pNode);
 }
 
 void ezVisualScriptInstance::ExecuteScript()

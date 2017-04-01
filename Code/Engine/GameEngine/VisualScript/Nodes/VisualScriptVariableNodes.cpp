@@ -31,7 +31,7 @@ void ezVisualScriptNode_GetNumberProperty::Execute(ezVisualScriptInstance* pInst
   double value = 0;
 
   ezComponent* pComponent = nullptr;
-  if (pInstance->GetOwner()->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+  if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
     ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
@@ -85,7 +85,7 @@ ezVisualScriptNode_SetNumberProperty::~ezVisualScriptNode_SetNumberProperty() { 
 void ezVisualScriptNode_SetNumberProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   ezComponent* pComponent = nullptr;
-  if (pInstance->GetOwner()->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+  if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
     ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
@@ -140,7 +140,7 @@ void ezVisualScriptNode_GetBoolProperty::Execute(ezVisualScriptInstance* pInstan
   bool value = 0;
 
   ezComponent* pComponent = nullptr;
-  if (pInstance->GetOwner()->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+  if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
     ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
@@ -193,7 +193,7 @@ ezVisualScriptNode_SetBoolProperty::~ezVisualScriptNode_SetBoolProperty() { }
 void ezVisualScriptNode_SetBoolProperty::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   ezComponent* pComponent = nullptr;
-  if (pInstance->GetOwner()->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+  if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
     ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 

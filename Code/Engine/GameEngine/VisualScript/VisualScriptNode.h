@@ -3,6 +3,7 @@
 #include <GameEngine/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Core/World/Declarations.h>
 
 class ezVisualScriptInstance;
 struct ezTriggerMessage;
@@ -39,7 +40,23 @@ private:
 #define EZ_OUTPUT_DATA_PIN(name, slot, type) EZ_CONSTANT_PROPERTY(name, 0)->AddAttributes(new ezVisScriptDataPinOutAttribute(slot, type))
 #define EZ_INPUT_DATA_PIN_AND_PROPERTY(name, slot, type, member) EZ_MEMBER_PROPERTY(name, member)->AddAttributes(new ezVisScriptDataPinInAttribute(slot, type))
 
+//////////////////////////////////////////////////////////////////////////
 
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_MessageSender : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_MessageSender, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_MessageSender();
+  ~ezVisualScriptNode_MessageSender();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  ezGameObjectHandle m_hObject;
+  ezComponentHandle m_hComponent;
+  ezTime m_Delay;
+  ezMessage* m_pMessageToSend = nullptr;
+};
 
 
 //////////////////////////////////////////////////////////////////////////

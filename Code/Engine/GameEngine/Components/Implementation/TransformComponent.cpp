@@ -198,7 +198,7 @@ void ezVisualScriptNode_TransformComponent::Execute(ezVisualScriptInstance* pIns
     return;
 
   ezComponent* pComponent = nullptr;
-  if (!pInstance->GetOwner()->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+  if (!pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
     return;
 
   if (!pComponent->GetDynamicRTTI()->IsDerivedFrom<ezTransformComponent>())

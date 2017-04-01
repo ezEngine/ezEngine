@@ -13,6 +13,7 @@ class ezVisualScriptNode;
 class ezMessage;
 struct ezVisualScriptResourceDescriptor;
 class ezGameObject;
+class ezWorld;
 
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
@@ -44,6 +45,9 @@ public:
   /// \brief Returns the ezGameObject that owns this script. May be nullptr, if the instance is not attached to a game object.
   ezGameObject* GetOwner() const { return m_pOwner; }
 
+  /// \brief Returns the world of the owner game object.
+  ezWorld* GetWorld() const { return m_pWorld; }
+
   /// \brief Returns the map that holds the local variables of the script.
   const ezStateMap& GetLocalVariables() const { return m_LocalVariables; }
 
@@ -66,6 +70,9 @@ private:
   void ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8 uiOutputSlot, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin);
   void ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin);
 
+  void CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
+  void CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
+
   struct DataPinConnection
   {
     EZ_DECLARE_POD_TYPE();
@@ -85,6 +92,7 @@ private:
   };
 
   ezGameObject* m_pOwner = nullptr;
+  ezWorld* m_pWorld = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;
   ezHashTable<ezVisualScriptNodeConnectionID, ExecPinConnection > m_ExecutionConnections;

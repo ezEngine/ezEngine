@@ -127,6 +127,9 @@ static ezColor PinTypeColor(ezVisualScriptDataPinType::Enum type)
 
 void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 {
+  if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+    return;
+
   if (pRtti->IsDerivedFrom<ezScriptMessage>() && pRtti != ezGetStaticRTTI<ezScriptMessage>())
   {
     CreateMessageNodeType(pRtti);
@@ -332,7 +335,18 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     nd.m_InputPins.PushBack(pd);
   }
 
-  ezInt32 iDataPinIndex = 0;
+  // Delayed Delivery Property
+  {
+    ezReflectedPropertyDescriptor prd;
+    prd.m_Flags = ezPropertyFlags::StandardType | ezPropertyFlags::Phantom;
+    prd.m_Category = ezPropertyCategory::Member;
+    prd.m_sName = "Delay";
+    prd.m_sType = ezGetStaticRTTI<ezTime>()->GetTypeName();
+
+    nd.m_Properties.PushBack(prd);
+  }
+
+  ezInt32 iDataPinIndex = 1; // the first valid index is '2', because of the object and component data pins
   for (auto prop : properties)
   {
     ++iDataPinIndex;
@@ -372,7 +386,7 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
     pid.m_PinType = ezVisualScriptPinDescriptor::Data;
     pid.m_Color = PinTypeColor(pid.m_DataType);
-    pid.m_uiPinIndex = iDataPinIndex - 1;
+    pid.m_uiPinIndex = iDataPinIndex;
     nd.m_InputPins.PushBack(pid);
   }
 

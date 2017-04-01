@@ -7,8 +7,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptDataPinType, 1)
-  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::None, ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Vec3)
-  EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::ComponentHandle)
+EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::None, ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Vec3)
+EZ_ENUM_CONSTANTS(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::ComponentHandle)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptExecPinOutAttribute, 1, ezRTTIDefaultAllocator<ezVisScriptExecPinOutAttribute>)
@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptExecPinOutAttribute, 1, ezRTTIDefault
   {
     EZ_MEMBER_PROPERTY("Slot", m_uiPinSlot)
   }
-  EZ_END_PROPERTIES
+    EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -49,7 +49,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptDataPinOutAttribute, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("Slot", m_uiPinSlot),
     EZ_ENUM_MEMBER_PROPERTY("Type", ezVisualScriptDataPinType, m_DataType)
   }
-  EZ_END_PROPERTIES
+    EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -77,6 +77,115 @@ bool ezVisualScriptNode::IsManuallyStepped() const
   }
 
   return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MessageSender, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_MessageSender>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Messages"),
+    new ezHiddenAttribute()
+  }
+    EZ_END_ATTRIBUTES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_MessageSender::ezVisualScriptNode_MessageSender() { }
+ezVisualScriptNode_MessageSender::~ezVisualScriptNode_MessageSender()
+{
+  if (m_pMessageToSend != nullptr)
+  {
+    m_pMessageToSend->GetDynamicRTTI()->GetAllocator()->Deallocate(m_pMessageToSend);
+    m_pMessageToSend = nullptr;
+  }
+}
+
+void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_pMessageToSend != nullptr)
+  {
+    ezWorld* pWorld = pInstance->GetWorld();
+
+    if (m_Delay.GetSeconds() == 0)
+    {
+      // Delay == 0 -> SendMessage
+
+      if (!m_hComponent.IsInvalidated())
+      {
+        ezComponent* pComponent = nullptr;
+        if (pWorld->TryGetComponent(m_hComponent, pComponent))
+        {
+          pComponent->SendMessage(*m_pMessageToSend);
+        }
+      }
+      else if (!m_hObject.IsInvalidated())
+      {
+        ezGameObject* pObject = nullptr;
+        if (pWorld->TryGetObject(m_hObject, pObject))
+        {
+          pObject->SendMessage(*m_pMessageToSend, ezObjectMsgRouting::ToChildren);
+        }
+      }
+      else
+      {
+        ezGameObject* pObject = pInstance->GetOwner();
+        pObject->SendMessage(*m_pMessageToSend, ezObjectMsgRouting::ToChildren);
+      }
+    }
+    else
+    {
+      // Delay > 0 -> PostMessage
+
+      if (!m_hComponent.IsInvalidated())
+      {
+        pWorld->PostMessage(m_hComponent, *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
+      }
+      else if (!m_hObject.IsInvalidated())
+      {
+        pWorld->PostMessage(m_hObject, *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
+      }
+      else
+      {
+        ezGameObject* pObject = pInstance->GetOwner();
+        pWorld->PostMessage(pObject->GetHandle(), *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
+      }
+    }
+  }
+
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  if (uiPin == 0)
+    return &m_hObject;
+
+  if (uiPin == 1)
+    return &m_hComponent;
+
+  if (m_pMessageToSend != nullptr)
+  {
+    const ezUInt32 uiProp = uiPin - 2;
+
+    ezHybridArray<ezAbstractProperty*, 32> properties;
+    m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+
+    if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member)
+    {
+      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+
+      const ezRTTI* pType = pAbsMember->GetSpecificType();
+
+      if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
+      {
+        return pAbsMember->GetPropertyPointer(m_pMessageToSend);
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -163,8 +272,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAlloca
   {
     new ezCategoryAttribute("Input")
   }
-  EZ_END_ATTRIBUTES
-  EZ_BEGIN_PROPERTIES
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
   {
     //Properties
     EZ_ACCESSOR_PROPERTY("Trigger", GetTrigger, SetTrigger),

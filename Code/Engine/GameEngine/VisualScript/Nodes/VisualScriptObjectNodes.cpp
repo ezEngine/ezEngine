@@ -32,7 +32,7 @@ void ezVisualScriptNode_DeleteObject::Execute(ezVisualScriptInstance* pInstance,
 {
   if (!m_hObject.IsInvalidated())
   {
-    pInstance->GetOwner()->GetWorld()->DeleteObjectDelayed(m_hObject);
+    pInstance->GetWorld()->DeleteObjectDelayed(m_hObject);
   }
 
   pInstance->ExecuteConnectedNodes(this, 0);
@@ -79,7 +79,7 @@ void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInst
   if (!m_hComponent.IsInvalidated())
   {
     ezComponent* pComponent = nullptr;
-    if (pInstance->GetOwner()->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+    if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
     {
       pComponent->SetActive(m_bActive);
     }
