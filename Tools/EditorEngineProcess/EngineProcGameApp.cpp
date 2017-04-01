@@ -173,11 +173,12 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
   ezSet<const ezRTTI*> types;
 
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezReflectedClass>(), types, true);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), types, true);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), types, true);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderer>(), types, true);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezVisualScriptNode>(), types, true);
+  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
+  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), types, true);
+  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), types, true);
+  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderer>(), types, true);
+  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezVisualScriptNode>(), types, true);
+  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezScriptMessage>(), types, true);
 
   ezDynamicArray<const ezRTTI*> sortedTypes;
   ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);

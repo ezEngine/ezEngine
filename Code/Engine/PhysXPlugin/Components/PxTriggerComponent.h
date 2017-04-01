@@ -35,6 +35,13 @@ public:
 
   physx::PxRigidDynamic* GetActor() const { return m_pActor; }
 
+  //////////////////////////////////////////////////////////////////////////
+  // Properties
+
+  void SetTriggerMessage(const char* sz) { m_sTriggerMessage.Assign(sz); }
+  const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); }
+  ezHashedString m_sTriggerMessage;
+
 protected:
 
   physx::PxRigidDynamic* m_pActor;

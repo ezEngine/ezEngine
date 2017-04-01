@@ -24,3 +24,26 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_OnTriggerMsg : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_OnTriggerMsg, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_OnTriggerMsg();
+  ~ezVisualScriptNode_OnTriggerMsg();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+  void TriggerMessageHandler(ezTriggerMessage& msg);
+
+  const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); }
+  void SetTriggerMessage(const char* s) { m_sTriggerMessage.Assign(s); }
+
+  ezHashedString m_sTriggerMessage;
+
+private:
+  ezGameObjectHandle m_hObject;
+};
+
+
+

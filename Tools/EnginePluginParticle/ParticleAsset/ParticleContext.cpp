@@ -149,7 +149,7 @@ void ezParticleContext::RestartEffect()
   if (m_pComponent)
   {
     m_pComponent->InterruptEffect();
-    m_pComponent->SpawnEffect();
+    m_pComponent->StartEffect();
   }
 }
 

@@ -9,6 +9,7 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Components/PxTriggerComponent.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator);
@@ -281,29 +282,26 @@ public:
 
   virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override
   {
+    ezTriggerMessage msg;
+
     for (ezUInt32 i = 0; i < count; ++i)
     {
-      ezTriggerMessage msg;
-      msg.m_TriggerState = pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
-      msg.m_UsageStringHash = ezTempHashedString("PhysicsTrigger").GetHash(); /// \todo Make this configurable on the ezPxTriggerComponent ??
-      msg.m_TriggerValue = 1.0f;
-
       const PxActor* pActorA = pairs[i].triggerActor;
+      const PxActor* pActorB = pairs[i].otherActor;
+
       const ezComponent* pComponentA = ezPxUserData::GetComponent(pActorA->userData);
-      const ezGameObject* pObjectA = nullptr;
+      const ezComponent* pComponentB = ezPxUserData::GetComponent(pActorB->userData);
 
-      if (pComponentA != nullptr)
+      if (pComponentA != nullptr && pComponentB != nullptr)
       {
-        pObjectA = pComponentA->GetOwner();
+        const ezPxTriggerComponent* pTrigger = static_cast<const ezPxTriggerComponent*>(pComponentA);
 
-        /// \todo Send this along with the message
-        //msg.m_hObjectA = pObjectA->GetHandle();
-        //msg.m_hComponentA = pComponentA->GetHandle();
-      }
+        msg.m_TriggerState = pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+        msg.m_TriggerValue = 1.0f;
+        msg.m_UsageStringHash = pTrigger->m_sTriggerMessage.GetHash();
+        msg.m_hTriggeringObject = pComponentB->GetOwner()->GetHandle();
 
-      if (pObjectA != nullptr)
-      {
-        pObjectA->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
+        pComponentA->GetOwner()->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
       }
     }
   }

@@ -126,19 +126,6 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_Counter : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Counter, ezVisualScriptNode);
-public:
-  ezVisualScriptNode_Counter();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-
-  double m_Counter = 0;
-};
-
-
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Printer : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Printer, ezVisualScriptNode);
@@ -151,24 +138,4 @@ public:
   ezString m_sPrint;
   double m_Value = 0;
 };
-
-
-
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_Input : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Input, ezVisualScriptNode);
-public:
-  ezVisualScriptNode_Input();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-  void TriggerMessageHandler(ezTriggerMessage& msg);
-
-  const char* GetTrigger() const { return m_sTrigger.GetData(); }
-  void SetTrigger(const char* s) { m_sTrigger.Assign(s); }
-
-  ezHashedString m_sTrigger;
-};
-
-
 

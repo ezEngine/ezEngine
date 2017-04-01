@@ -191,38 +191,6 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Counter, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Counter>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Test")
-  }
-    EZ_END_ATTRIBUTES
-    EZ_BEGIN_PROPERTIES
-  {
-    // Execution Pins
-    EZ_INPUT_EXECUTION_PIN("run", 0),
-    EZ_OUTPUT_EXECUTION_PIN("then", 0),
-    // Data Pins
-    EZ_MEMBER_PROPERTY("StartValue", m_Counter),
-    EZ_OUTPUT_DATA_PIN("Count", 0, ezVisualScriptDataPinType::Number),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezVisualScriptNode_Counter::ezVisualScriptNode_Counter() {}
-
-void ezVisualScriptNode_Counter::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
-{
-  m_Counter += 1;
-  pInstance->SetOutputPinValue(this, 0, &m_Counter);
-
-  pInstance->ExecuteConnectedNodes(this, 0);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Printer>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -266,47 +234,4 @@ void* ezVisualScriptNode_Printer::GetInputPinDataPointer(ezUInt8 uiPin)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Input, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Input>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Input")
-  }
-    EZ_END_ATTRIBUTES
-    EZ_BEGIN_PROPERTIES
-  {
-    //Properties
-    EZ_ACCESSOR_PROPERTY("Trigger", GetTrigger, SetTrigger),
-    // Execution Pins
-    EZ_OUTPUT_EXECUTION_PIN("OnMsg", 0),
-    // Data Pins
-  }
-  EZ_END_PROPERTIES
-
-    EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
-  }
-  EZ_END_MESSAGEHANDLERS
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezVisualScriptNode_Input::ezVisualScriptNode_Input()
-{
-}
-
-void ezVisualScriptNode_Input::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
-{
-  pInstance->ExecuteConnectedNodes(this, 0);
-}
-
-void ezVisualScriptNode_Input::TriggerMessageHandler(ezTriggerMessage& msg)
-{
-  if (msg.m_UsageStringHash == m_sTrigger.GetHash())
-  {
-    m_bStepNode = true;
-    ezLog::Info("Trigger Msg '{0}' arrived", m_sTrigger.GetData());
-  }
-}
 

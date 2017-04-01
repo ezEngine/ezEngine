@@ -23,6 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
   : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezVisualScriptNodeManager), false, false)
 {
+  ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
 }
 
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)

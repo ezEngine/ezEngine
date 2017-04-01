@@ -34,6 +34,15 @@ EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 
 typedef ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact> ezSpawnComponentManager;
 
+/// \brief Message to initiate a spawn on ezSpawnComponent
+struct ezSpawnComponent_SpawnMsg : public ezScriptMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezSpawnComponent_SpawnMsg, ezScriptMessage);
+
+  /// If true ScheduleSpawn() is called, otherwise TriggerManualSpawn()
+  bool m_bContinuousSpawn = false;
+};
+
 class EZ_GAMEENGINE_DLL ezSpawnComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpawnComponent, ezComponent, ezSpawnComponentManager);
@@ -82,6 +91,11 @@ public:
 
   /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
   ezAngle m_MaxDeviation;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Message Handlers
+
+  void Spawn(ezSpawnComponent_SpawnMsg& msg);
 
 private:
 

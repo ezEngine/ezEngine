@@ -26,6 +26,9 @@ struct EZ_CORE_DLL ezTriggerMessage : public ezMessage
 
   /// For things that may have an analog trigger 'strength', e.g. for input messages
   ezVariant m_TriggerValue;
+
+  /// If available, the object that's responsible for the event. E.g. for a physical trigger, the object that entered the trigger volume.
+  ezGameObjectHandle m_hTriggeringObject;
 };
 
 /// \brief For use in scripts to signal a custom event that some game event has occurred.

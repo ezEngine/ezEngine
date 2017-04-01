@@ -5,6 +5,8 @@
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Core/World/Declarations.h>
+#include <Core/World/GameObject.h>
+#include <Foundation/Communication/Message.h>
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 
@@ -305,6 +307,14 @@ void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSo
         }
       }
     }
+  }
+
+  if (targetType == ezVisualScriptDataPinType::None)
+  {
+    // Workaround/Hack for the message sender nodes:
+    // They have no pins whatsoever, but it is ensured outside, that all types match exactly
+
+    targetType = sourceType;
   }
 
   con.m_AssignFunc = FindDataPinAssignFunction(sourceType, targetType);

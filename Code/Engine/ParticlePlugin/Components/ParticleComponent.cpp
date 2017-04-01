@@ -7,6 +7,21 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezParticleComponent_PlayEffectMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleComponent_PlayEffectMsg, 1, ezRTTIDefaultAllocator<ezParticleComponent_PlayEffectMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Play", m_bPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
@@ -25,6 +40,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
     new ezCategoryAttribute("FX"),
   }
   EZ_END_ATTRIBUTES
+    EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezParticleComponent_PlayEffectMsg, Play),
+  }
+  EZ_END_MESSAGEHANDLERS
+
 }
 EZ_END_COMPONENT_TYPE
 
@@ -77,7 +98,7 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_sSharedInstanceName;
 }
 
-bool ezParticleComponent::SpawnEffect()
+bool ezParticleComponent::StartEffect()
 {
   // stop any previous effect
   m_EffectController.Invalidate();
@@ -109,6 +130,19 @@ void ezParticleComponent::InterruptEffect()
 bool ezParticleComponent::IsEffectActive() const
 {
   return m_EffectController.IsAlive();
+}
+
+
+void ezParticleComponent::Play(ezParticleComponent_PlayEffectMsg& msg)
+{
+  if (msg.m_bPlay)
+  {
+    StartEffect();
+  }
+  else
+  {
+    StopEffect();
+  }
 }
 
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
@@ -146,7 +180,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 {
   /// \todo Get bbox from somewhere
 
-  bounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 1.0f));
+  bounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 3.0f));
   return EZ_SUCCESS;
 }
 
@@ -154,7 +188,7 @@ void ezParticleComponent::Update()
 {
   if (!IsEffectActive() && m_bSpawnAtStart)
   {
-    if (SpawnEffect())
+    if (StartEffect())
     {
       m_bSpawnAtStart = false;
     }
@@ -173,7 +207,7 @@ void ezParticleComponent::Update()
     else if (m_RestartTime <= tNow)
     {
       m_RestartTime.SetZero();
-      SpawnEffect();
+      StartEffect();
     }
   }
 

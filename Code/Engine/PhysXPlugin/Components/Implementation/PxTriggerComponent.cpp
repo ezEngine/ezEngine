@@ -45,12 +45,13 @@ ezPxTriggerComponentManager::~ezPxTriggerComponentManager()
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1)
-//{
-//  EZ_BEGIN_PROPERTIES
-//  {
-//  }
-//  EZ_END_PROPERTIES
-//}
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
+  }
+  EZ_END_PROPERTIES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxTriggerComponent::ezPxTriggerComponent()
@@ -63,7 +64,9 @@ void ezPxTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
-  //auto& s = stream.GetStream();
+  auto& s = stream.GetStream();
+
+  s << m_sTriggerMessage;
 }
 
 void ezPxTriggerComponent::DeserializeComponent(ezWorldReader& stream)
@@ -71,7 +74,9 @@ void ezPxTriggerComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  //auto& s = stream.GetStream();
+  auto& s = stream.GetStream();
+
+  s >> m_sTriggerMessage;
 }
 
 void ezPxTriggerComponent::OnSimulationStarted()

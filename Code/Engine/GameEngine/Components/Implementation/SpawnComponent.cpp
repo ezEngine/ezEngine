@@ -3,6 +3,21 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezSpawnComponent_SpawnMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpawnComponent_SpawnMsg, 1, ezRTTIDefaultAllocator<ezSpawnComponent_SpawnMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Continuous", m_bContinuousSpawn),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
@@ -27,6 +42,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2)
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezSpawnComponent_SpawnMsg, Spawn),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -176,6 +192,17 @@ void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
   m_hPrefab = hPrefab;
 }
 
+void ezSpawnComponent::Spawn(ezSpawnComponent_SpawnMsg& msg)
+{
+  if (msg.m_bContinuousSpawn)
+  {
+    ScheduleSpawn();
+  }
+  else
+  {
+    TriggerManualSpawn();
+  }
+}
 
 void ezSpawnComponent::OnTriggered(ezTriggerMessage& msg)
 {
