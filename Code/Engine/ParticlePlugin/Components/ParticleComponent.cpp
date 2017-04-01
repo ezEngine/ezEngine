@@ -40,11 +40,11 @@ ezParticleComponent::~ezParticleComponent()
 {
 }
 
-void ezParticleComponent::OnBeforeDetachedFromObject()
+void ezParticleComponent::OnDeactivated()
 {
   m_EffectController.Invalidate();
 
-  ezRenderComponent::OnBeforeDetachedFromObject();
+  ezRenderComponent::OnDeactivated();
 }
 
 void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -116,7 +116,7 @@ void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle
   m_hEffectResource = hEffect;
   m_EffectController.Invalidate();
 
-  TriggerLocalBoundsUpdate(true);
+  TriggerLocalBoundsUpdate();
 }
 
 

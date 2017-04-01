@@ -22,30 +22,15 @@ ezRenderComponent::~ezRenderComponent()
 
 }
 
-void ezRenderComponent::Initialize()
-{
-  TriggerLocalBoundsUpdate(true);
-}
-
-void ezRenderComponent::OnBeforeDetachedFromObject()
-{
-  TriggerLocalBoundsUpdate(false);
-}
-
 void ezRenderComponent::OnActivated()
 {
-  if (ezGameObject* pOwner = GetOwner())
-  {
-    pOwner->UpdateLocalBounds();
-  }
+  TriggerLocalBoundsUpdate();
 }
 
 void ezRenderComponent::OnDeactivated()
 {
-  if (ezGameObject* pOwner = GetOwner())
-  {
-    pOwner->UpdateLocalBounds();
-  }
+  // Can't call TriggerLocalBoundsUpdate because it checks whether we are active, which is not the case anymore.
+  GetOwner()->UpdateLocalBounds();
 }
 
 void ezRenderComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
@@ -69,24 +54,13 @@ void ezRenderComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
   }
 }
 
-void ezRenderComponent::TriggerLocalBoundsUpdate(bool bIncludeOwnBounds)
+void ezRenderComponent::TriggerLocalBoundsUpdate()
 {
-  if (!IsActive())
-    return;
-
-  if (bIncludeOwnBounds)
+  if (IsActiveAndInitialized())
   {
     GetOwner()->UpdateLocalBounds();
-  }
-  else
-  {
-    // temporary set to inactive so we don't receive the msg
-    SetActive(false);
-    GetOwner()->UpdateLocalBounds();
-    SetActive(true);
   }
 }
-
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderComponent);

@@ -23,7 +23,7 @@ EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 }
 
 template <typename ComponentType>
-ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentType*& out_pComponent)
+ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject, ComponentType*& out_pComponent)
 {
   ezComponent* pComponent = CreateComponentStorage();
   if (pComponent == nullptr)
@@ -31,17 +31,15 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentType*& out_pC
     return ezComponentHandle();
   }
 
-  out_pComponent = ezStaticCast<ComponentType*>(pComponent);
-
   ezGenericComponentId newId = m_Components.Insert(pComponent);
 
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
 
-  ezComponentHandle hComponent = pComponent->GetHandle();
-  InitializeComponent(hComponent);
+  InitializeComponent(pOwnerObject, pComponent);
 
-  return hComponent;
+  out_pComponent = ezStaticCast<ComponentType*>(pComponent);
+  return pComponent->GetHandle();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,11 +194,6 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdate(const ezW
     ComponentType* pComponent = it;
     if (pComponent->IsActiveAndInitialized())
     {
-      //EZ_ASSERT_DEV(!this->GetWorldSimulationEnabled() || pComponent->IsSimulationStarted(), "Implementation error: simulation start must be called before any update method.");
-
-      if (this->GetWorldSimulationEnabled() && !pComponent->IsSimulationStarted())
-        ezLog::Warning("Bad component initialization?");
-
       pComponent->Update();
     }
   }

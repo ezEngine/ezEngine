@@ -95,7 +95,7 @@ void ezParticleContext::OnInitialize()
     obj.m_sName.Assign("ParticlePreview");
     pWorld->CreateObject(obj, pObj);
 
-    pCompMan->CreateComponent(m_pComponent);
+    pCompMan->CreateComponent(pObj, m_pComponent);
     m_pComponent->m_bAutoRestart = true;
     m_pComponent->m_MinRestartDelay = ezTime::Seconds(0.5);
 
@@ -104,8 +104,6 @@ void ezParticleContext::OnInitialize()
     m_hParticle = ezResourceManager::LoadResource<ezParticleEffectResource>(sParticleGuid);
 
     m_pComponent->SetParticleEffect(m_hParticle);
-
-    pObj->AttachComponent(m_pComponent);
   }
 }
 

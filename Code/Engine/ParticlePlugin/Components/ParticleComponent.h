@@ -69,6 +69,6 @@ protected:
   ezParticleEffectResourceHandle m_hEffectResource;
   ezTime m_RestartTime;
 
-  virtual void OnBeforeDetachedFromObject() override;
+  virtual void OnDeactivated() override;
 
 };

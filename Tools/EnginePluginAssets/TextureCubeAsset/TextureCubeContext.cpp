@@ -144,11 +144,9 @@ void ezTextureCubeContext::OnInitialize()
     m_hPreviewObject = m_pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;
-    m_hPreviewMesh2D = ezMeshComponent::CreateComponent(m_pWorld, pMesh);
+    m_hPreviewMesh2D = ezMeshComponent::CreateComponent(pObj, pMesh);
     pMesh->SetMesh(hMesh);
     pMesh->SetMaterial(0, m_hMaterial);
-
-    pObj->AttachComponent(pMesh);
   }
 
   UpdatePreview();

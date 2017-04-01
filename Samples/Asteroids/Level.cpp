@@ -45,12 +45,10 @@ void Level::SetupLevel(ezWorld* pWorld)
     pWorld->CreateObject(obj, pObj);
 
     ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pWorld, pDirLight);
-    pObj->AttachComponent(pDirLight);
+    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
 
     ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-    pObj->AttachComponent(pAmbLight);
+    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
 
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
@@ -154,7 +152,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
 
   {
     ezMeshComponent* pMeshComponent = nullptr;
-    ezMeshComponent::CreateComponent(m_pWorld, pMeshComponent);
+    ezMeshComponent::CreateComponent(pGameObject, pMeshComponent);
 
     pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("ShipMesh"));
 
@@ -163,24 +161,18 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
     ezStringBuilder sMaterialName;
     sMaterialName.Format("MaterialPlayer{0}", iPlayer + 1);
     pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
-
-    pGameObject->AttachComponent(pMeshComponent);
   }
   {
     ShipComponent* pShipComponent = nullptr;
-    ezComponentHandle hShipComponent = ShipComponent::CreateComponent(m_pWorld, pShipComponent);
+    ezComponentHandle hShipComponent = ShipComponent::CreateComponent(pGameObject, pShipComponent);
 
     pShipComponent->m_iPlayerIndex = iPlayer;
-
-    pGameObject->AttachComponent(hShipComponent);
   }
   {
     CollidableComponent* pCollidableComponent = nullptr;
-    ezComponentHandle hCollidableomponent = CollidableComponent::CreateComponent(m_pWorld, pCollidableComponent);
+    ezComponentHandle hCollidableomponent = CollidableComponent::CreateComponent(pGameObject, pCollidableComponent);
 
     pCollidableComponent->m_fCollisionRadius = 1.0f;
-
-    pGameObject->AttachComponent(hCollidableomponent);
   }
 }
 
@@ -197,25 +189,19 @@ void Level::CreateAsteroid()
 
   {
     ezMeshComponent* pMeshComponent = nullptr;
-    ezMeshComponent::CreateComponent(m_pWorld, pMeshComponent);
+    ezMeshComponent::CreateComponent(pGameObject, pMeshComponent);
 
     pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("AsteroidMesh"));
-
-    pGameObject->AttachComponent(pMeshComponent);
   }
   {
     AsteroidComponent* pAsteroidComponent = nullptr;
-    AsteroidComponent::CreateComponent(m_pWorld, pAsteroidComponent);
-
-    pGameObject->AttachComponent(pAsteroidComponent);
+    AsteroidComponent::CreateComponent(pGameObject, pAsteroidComponent);
   }
   {
     CollidableComponent* pCollidableComponent = nullptr;
-    CollidableComponent::CreateComponent(m_pWorld, pCollidableComponent);
+    CollidableComponent::CreateComponent(pGameObject, pCollidableComponent);
 
     pCollidableComponent->m_fCollisionRadius = desc.m_LocalScaling.x;
-
-    pGameObject->AttachComponent(pCollidableComponent);
   }
 }
 

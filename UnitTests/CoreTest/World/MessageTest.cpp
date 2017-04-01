@@ -100,17 +100,17 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
   ezGameObject* pRoot = nullptr;
   world.CreateObject(desc, pRoot);
   TestComponentMsg* pComponent = nullptr;
-  pRoot->AttachComponent(pManager->CreateComponent(pComponent));
+  pManager->CreateComponent(pRoot, pComponent);
 
   ezGameObject* pParents[2];
   desc.m_hParent = pRoot->GetHandle();
   desc.m_sName.Assign("Parent1");
   world.CreateObject(desc, pParents[0]);
-  pParents[0]->AttachComponent(pManager->CreateComponent(pComponent));
+  pManager->CreateComponent(pParents[0], pComponent);
 
   desc.m_sName.Assign("Parent2");
   world.CreateObject(desc, pParents[1]);
-  pParents[1]->AttachComponent(pManager->CreateComponent(pComponent));
+  pManager->CreateComponent(pParents[1], pComponent);
 
   for (ezUInt32 i = 0; i < 2; ++i)
   {
@@ -123,7 +123,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
 
       ezGameObject* pObject = nullptr;
       world.CreateObject(desc, pObject);
-      pObject->AttachComponent(pManager->CreateComponent(pComponent));
+      pManager->CreateComponent(pObject, pComponent);
     }
   }
 

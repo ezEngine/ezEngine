@@ -47,9 +47,6 @@ public:
   /// \brief Returns whether this component is active and initialized.
   bool IsActiveAndInitialized() const;
 
-  /// \brief Returns whether the OnSimulationStarted method has been called.
-  bool IsSimulationStarted() const;
-
 
   /// \brief Returns the corresponding manager for this component.
   ezComponentManagerBase* GetManager();
@@ -81,19 +78,19 @@ public:
 
 
   /// \brief Override this to save the current state of the component to the given stream.
-  virtual void SerializeComponent(ezWorldWriter& stream) const {}
+  virtual void SerializeComponent(ezWorldWriter& stream) const;
 
   /// \brief Override this to load the current state of the component from the given stream.
   ///
   /// The active state will be automatically serialized. The 'initialized' state is not serialized, all components
   /// will be initialized after creation, even if they were already in an initialized state when they were serialized.
-  virtual void DeserializeComponent(ezWorldReader& stream) {}
+  virtual void DeserializeComponent(ezWorldReader& stream);
 
 
-  /// \brief Ensures that the component is initialized.
+  /// \brief Ensures that the component is initialized. Must only be called from another component's Initialize callback.
   void EnsureInitialized();
 
-  /// \brief Ensures that the OnSimulationStarted method has been called. Also ensures initialization first.
+  /// \brief Ensures that the OnSimulationStarted method has been called. Must only be called from another component's OnSimulationStarted callback.
   void EnsureSimulationStarted();
 
 
@@ -112,58 +109,44 @@ protected:
   friend class ezGameObject;
   friend class ezComponentManagerBase;
 
-  template <typename T>
-  ezComponentHandle GetHandleInternal() const;
-
   ezBitflags<ezObjectFlags> m_ComponentFlags;
 
   virtual ezUInt16 GetTypeId() const = 0;
 
-  /// \brief Shortcut to GetWorld()->GetIndex() to prevent circular includes.
-  ezUInt32 GetWorldIndex() const;
-
-
   /// \brief This method is called at the start of the next world update. The global position will be computed before initialization.
-  virtual void Initialize() {}
+  virtual void Initialize();
 
   /// \brief This method is called before the destructor. A derived type can override this method to do common de-initialization work.
-  virtual void Deinitialize() {}
-
-  /// \brief Returns whether this component is initialized. Internal method.
-  bool IsInitialized() const;
-
-  /// \brief Returns whether this component is currently in the initialization process. Internal method.
-  bool IsInitializing() const;
+  virtual void Deinitialize();
 
   /// \brief This method is called when the component is activated.
-  virtual void OnActivated() {}
+  virtual void OnActivated();
 
   /// \brief This method is called when the component is deactivated.
-  virtual void OnDeactivated() {}
-
-  /// \brief This method is called when the component is attached to a game object. At this point the owner pointer is already set. A derived type can override this method to do additional work.
-  virtual void OnAfterAttachedToObject() {}
-
-  /// \brief This method is called when the component is detached from a game object. At this point the owner pointer is still set. A derived type can override this method to do additional work.
-  virtual void OnBeforeDetachedFromObject() {}
+  virtual void OnDeactivated();
 
   /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
-  virtual void OnSimulationStarted() {}
+  virtual void OnSimulationStarted();
 
   /// \brief By default disabled. Enable to have OnUnhandledMessage() called for every unhandled message.
   void EnableUnhandledMessageHandler(bool enable);
 
   /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
-  virtual bool OnUnhandledMessage(ezMessage& msg) { return false; }
+  virtual bool OnUnhandledMessage(ezMessage& msg);
 
   /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
-  virtual bool OnUnhandledMessage(ezMessage& msg) const { return false; }
+  virtual bool OnUnhandledMessage(ezMessage& msg) const;
 
 protected:
   /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
   const ezRTTI* m_pMessageDispatchType = nullptr;
 
 private:
+
+  bool IsInitialized() const;
+  bool IsInitializing() const;
+  bool IsSimulationStarted() const;
+
   ezGenericComponentId m_InternalId;
   ezUInt32 m_uiUniqueID;
 

@@ -71,9 +71,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     world.CreateObject(desc, pObject);
 
     TestBoundsComponent* pComponent = nullptr;
-    TestBoundsComponent::CreateComponent(&world, pComponent);
-
-    pObject->AttachComponent(pComponent);
+    TestBoundsComponent::CreateComponent(pObject, pComponent);
   }
 
   world.Update();

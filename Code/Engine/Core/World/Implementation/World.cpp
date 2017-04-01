@@ -708,7 +708,6 @@ void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
 void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
 {
   m_Data.m_ComponentsToInitialize.PushBack(hComponent);
-  m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
 }
 
 void ezWorld::UpdateFromThread()
@@ -745,6 +744,13 @@ void ezWorld::ProcessComponentsToInitialize()
     }
 
     pComponent->EnsureInitialized();
+
+    if (pComponent->IsActive())
+    {
+      pComponent->OnActivated();
+
+      m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
+    }
   }
 
   m_Data.m_ComponentsToInitialize.Clear();
@@ -766,14 +772,12 @@ void ezWorld::ProcessComponentsToInitialize()
 
       ezComponent* pComponent = nullptr;
       if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
-      {
-        // in an editor setting this can happen
-        // in a runtime setting this should actually not be possible, unless there is a multi-threading bug :-(
-        ezLog::Warning("Component in sim queue is invalid");
         continue;
-      }
 
-      pComponent->EnsureSimulationStarted();
+      if (pComponent->IsActiveAndInitialized())
+      {
+        pComponent->EnsureSimulationStarted();
+      }
     }
 
     m_Data.m_ComponentsToStartSimulation.Clear();

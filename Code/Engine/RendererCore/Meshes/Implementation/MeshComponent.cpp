@@ -54,10 +54,7 @@ void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
 {
   m_hMesh = hMesh;
 
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  TriggerLocalBoundsUpdate();
 }
 
 void ezMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)

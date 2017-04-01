@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_ACCESSOR_PROPERTY("LocalUniformScaling", GetLocalUniformScaling, SetLocalUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, AddComponent, RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
@@ -230,60 +230,6 @@ void ezGameObject::UpdateLocalBounds()
   m_pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(msg.m_bAlwaysVisible ? 1.0f : 0.0f);
 }
 
-ezResult ezGameObject::AttachComponent(const ezComponentHandle& component)
-{
-  ezComponent* pComponent = nullptr;
-  if (m_pWorld->TryGetComponent(component, pComponent))
-  {
-    return AttachComponent(pComponent);
-  }
-
-  return EZ_FAILURE;
-}
-
-ezResult ezGameObject::AttachComponent(ezComponent* pComponent)
-{
-  EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
-  EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
-                "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
-
-  pComponent->m_pOwner = this;
-  m_Components.PushBack(pComponent);
-
-  pComponent->OnAfterAttachedToObject();
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezGameObject::DetachComponent(const ezComponentHandle& component)
-{
-  ezComponent* pComponent = nullptr;
-  if (m_pWorld->TryGetComponent(component, pComponent))
-  {
-    return DetachComponent(pComponent);
-  }
-
-  return EZ_FAILURE;
-}
-
-ezResult ezGameObject::DetachComponent(ezComponent* pComponent)
-{
-  ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
-  if (uiIndex == ezInvalidIndex)
-    return EZ_FAILURE;
-
-  if (pComponent->IsInitialized())
-  {
-    pComponent->OnBeforeDetachedFromObject();
-  }
-
-  pComponent->m_pOwner = nullptr;
-  m_Components.RemoveAtSwap(uiIndex);
-
-  return EZ_SUCCESS;
-}
-
-
 bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent) const
 {
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
@@ -318,6 +264,25 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray
 void ezGameObject::OnDeleteObject(ezDeleteObjectMessage& msg)
 {
   m_pWorld->DeleteObjectNow(GetHandle());
+}
+
+void ezGameObject::AddComponent(ezComponent* pComponent)
+{
+  EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
+  EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
+    "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
+
+  pComponent->m_pOwner = this;
+  m_Components.PushBack(pComponent);
+}
+
+void ezGameObject::RemoveComponent(ezComponent* pComponent)
+{
+  ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
+  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Component not found");
+
+  pComponent->m_pOwner = nullptr;
+  m_Components.RemoveAtSwap(uiIndex);
 }
 
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)

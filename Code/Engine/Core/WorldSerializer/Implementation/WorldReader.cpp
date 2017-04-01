@@ -310,19 +310,17 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       bool bDynamic = true;
       *m_pStream >> bDynamic;
 
+      ezGameObject* pParentObject = nullptr;
+      m_pWorld->TryGetObject(hOwner, pParentObject);
+
       ezComponent* pComponent = nullptr;
-      auto hComponent = pManager->CreateComponent(pComponent);
+      auto hComponent = pManager->CreateComponent(pParentObject, pComponent);
       m_IndexToComponentHandle[uiComponentIdx] = hComponent;
 
       pComponent->SetActive(bActive);
       /// \todo currently everything is always dynamic
 
       pComponent->DeserializeComponent(*this);
-
-      ezGameObject* pParentObject = nullptr;
-      m_pWorld->TryGetObject(hOwner, pParentObject);
-
-      pParentObject->AttachComponent(pComponent);
     }
   }
 }

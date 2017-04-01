@@ -118,9 +118,8 @@ void BrdfExplorerGameState::CreateGameLevel()
     obj.m_sName.Assign("Sponza");
     m_pMainWorld->CreateObject(obj, pObj);
 
-    pMeshCompMan->CreateComponent(pMesh);
+    pMeshCompMan->CreateComponent(pObj, pMesh);
     pMesh->SetMesh(hMesh);
-    pObj->AttachComponent(pMesh);
   }
 
   // Lights
@@ -133,12 +132,10 @@ void BrdfExplorerGameState::CreateGameLevel()
     m_pMainWorld->CreateObject(obj, pObj);
 
     ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(m_pMainWorld, pDirLight);
-    pObj->AttachComponent(pDirLight);
+    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
 
     ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(m_pMainWorld, pAmbLight);
-    pObj->AttachComponent(pAmbLight);
+    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
 
   ChangeMainWorld(m_pMainWorld);

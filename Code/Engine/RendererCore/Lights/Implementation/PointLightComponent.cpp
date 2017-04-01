@@ -52,7 +52,7 @@ void ezPointLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
 
-  TriggerLocalBoundsUpdate(true);
+  TriggerLocalBoundsUpdate();
 }
 
 float ezPointLightComponent::GetRange() const

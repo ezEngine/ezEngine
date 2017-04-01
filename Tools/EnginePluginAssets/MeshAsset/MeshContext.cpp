@@ -55,8 +55,6 @@ void ezMeshContext::OnInitialize()
   auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
-  ezMeshComponentManager* pMeshCompMan = pWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
-
   ezGameObjectDesc obj;
   ezMeshComponent* pMesh;
 
@@ -65,13 +63,11 @@ void ezMeshContext::OnInitialize()
     obj.m_sName.Assign("MeshPreview");
     pWorld->CreateObject(obj, m_pMeshObject);
 
-    pMeshCompMan->CreateComponent(pMesh);
+    ezMeshComponent::CreateComponent(m_pMeshObject, pMesh);
     ezStringBuilder sMeshGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
     ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
     pMesh->SetMesh(hMesh);
-
-    m_pMeshObject->AttachComponent(pMesh);
   }
 
   // Lights
@@ -83,12 +79,10 @@ void ezMeshContext::OnInitialize()
     pWorld->CreateObject(obj, pObj);
 
     ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pWorld, pDirLight);
-    pObj->AttachComponent(pDirLight);
+    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
 
     ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-    pObj->AttachComponent(pAmbLight);
+    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
 }
 

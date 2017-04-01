@@ -78,13 +78,11 @@ void RecursiveGrowthComponent::OnSimulationStarted()
       GetWorld()->CreateObject(gd, pChild);
 
       RecursiveGrowthComponent* pChildComp = nullptr;
-      ezComponentHandle hChildComp = pManager->CreateComponent(pChildComp);
+      ezComponentHandle hChildComp = pManager->CreateComponent(pChild, pChildComp);
 
       pChildComp->m_uiNumChildren = m_uiNumChildren;
       pChildComp->m_uiRecursionDepth = m_uiRecursionDepth - 1;
       pChildComp->m_uiChild = i;
-
-      pChild->AttachComponent(pChildComp);
 
       // TODO: Add more components (e.g. mesh) if desired
     }

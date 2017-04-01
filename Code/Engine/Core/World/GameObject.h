@@ -226,18 +226,6 @@ public:
   ezSpatialDataHandle GetSpatialData() const;
 
 
-  /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
-  ezResult AttachComponent(const ezComponentHandle& component);
-
-  /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
-  ezResult AttachComponent(ezComponent* pComponent);
-
-  /// \brief Detaches the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
-  ezResult DetachComponent(const ezComponentHandle& component);
-
-  /// \brief Detaches the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
-  ezResult DetachComponent(ezComponent* pComponent);
-
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
   bool TryGetComponentOfBaseType(T*& out_pComponent) const;
@@ -279,6 +267,7 @@ public:
   const ezTagSet& GetTags() const;
 
 private:
+  friend class ezComponentManagerBase;
   friend class ezGameObjectTest;
 
   EZ_ALLOW_PRIVATE_PROPERTIES(ezGameObject);
@@ -288,12 +277,12 @@ private:
   void Reflection_AddChild(ezGameObject* pChild);
   void Reflection_DetachChild(ezGameObject* pChild);
   ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
-  void Reflection_AddComponent(ezComponent* pComponent) { AttachComponent(pComponent); }
-  void Reflection_RemoveComponent(ezComponent* pComponent) { DetachComponent(pComponent); }
   const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const { return m_Components; }
 
   void OnDeleteObject(ezDeleteObjectMessage& msg);
 
+  void AddComponent(ezComponent* pComponent);
+  void RemoveComponent(ezComponent* pComponent);
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
 
   struct EZ_CORE_DLL EZ_ALIGN_16(TransformationData)

@@ -107,19 +107,17 @@ void ShipComponent::Update()
 
     {
       ProjectileComponent* pProjectileComponent = nullptr;
-      ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);
+      ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(pProjectile, pProjectileComponent);
 
       pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
       pProjectileComponent->m_fSpeed = CVar_ProjectileSpeed;
       pProjectileComponent->m_bDoesDamage = true;
-
-      pProjectile->AttachComponent(hProjectileComponent);
     }
 
     // ProjectileMesh
     {
       ezMeshComponent* pMeshComponent = nullptr;
-      ezMeshComponent::CreateComponent(GetWorld(), pMeshComponent);
+      ezMeshComponent::CreateComponent(pProjectile, pMeshComponent);
 
       pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("ProjectileMesh"));
 
@@ -128,8 +126,6 @@ void ShipComponent::Update()
       ezStringBuilder sMaterialName;
       sMaterialName.Format("MaterialPlayer{0}", m_iPlayerIndex + 1);
       pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
-
-      pProjectile->AttachComponent(pMeshComponent);
     }
 
     m_fAmmunition -= CVar_ProjectileAmmoPerShot;

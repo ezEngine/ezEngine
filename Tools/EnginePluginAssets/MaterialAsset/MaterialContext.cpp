@@ -121,7 +121,7 @@ void ezMaterialContext::OnInitialize()
     pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;
-    ezMeshComponent::CreateComponent(pWorld, pMesh);
+    ezMeshComponent::CreateComponent(pObj, pMesh);
     pMesh->SetMesh(hMesh);
     ezStringBuilder sMaterialGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
@@ -132,7 +132,6 @@ void ezMaterialContext::OnInitialize()
     {
       pMesh->SetMaterial(i, m_hMaterial);
     }
-    pObj->AttachComponent(pMesh);
   }
 
   // Lights
@@ -143,12 +142,10 @@ void ezMaterialContext::OnInitialize()
     pWorld->CreateObject(obj, pObj);
 
     ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pWorld, pDirLight);
-    pObj->AttachComponent(pDirLight);
+    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
 
     ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-    pObj->AttachComponent(pAmbLight);
+    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
 }
 

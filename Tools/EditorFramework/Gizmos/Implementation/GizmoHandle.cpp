@@ -542,7 +542,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     pObject->GetTags().Set(*tagEditor);
   }
 
-  ezGizmoComponent::CreateComponent(pWorld, m_pGizmoComponent);
+  ezGizmoComponent::CreateComponent(pObject, m_pGizmoComponent);
 
 
   ezMeshResourceHandle hMesh;
@@ -566,8 +566,6 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   m_pGizmoComponent->SetMesh(hMesh);
 
   m_pGizmoComponent->SetUniqueID(uiNextComponentPickingID);
-
-  pObject->AttachComponent(m_pGizmoComponent);
 
   return true;
 }

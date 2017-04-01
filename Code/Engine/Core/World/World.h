@@ -116,7 +116,7 @@ public:
   ManagerType* GetOrCreateComponentManager();
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetOrCreateComponentManager(const ezRTTI* pRtti);
+  ezComponentManagerBase* GetOrCreateComponentManager(const ezRTTI* pComponentRtti);
 
   /// \brief Deletes the component manager of the given type and all its components.
   template <typename ManagerType>

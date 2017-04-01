@@ -67,9 +67,8 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     obj.m_sName.Assign("Sponza");
     m_pMainWorld->CreateObject(obj, pObj);
 
-    pMeshCompMan->CreateComponent(pMesh);
+    pMeshCompMan->CreateComponent(pObj, pMesh);
     pMesh->SetMesh(hMesh);
-    pObj->AttachComponent(pMesh);
   }
 
   // Tree Mesh
@@ -79,15 +78,13 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     obj.m_LocalPosition.y = -5;
     m_pMainWorld->CreateObject(obj, pObj);
 
-    pMeshCompMan->CreateComponent(pMesh);
+    pMeshCompMan->CreateComponent(pObj, pMesh);
     pMesh->SetMesh(hMeshTree);
-    pObj->AttachComponent(pMesh);
 
-    pRotorCompMan->CreateComponent(pRotor);
+    pRotorCompMan->CreateComponent(pObj, pRotor);
     pRotor->m_fAnimationSpeed = 5.0f;
     pRotor->SetAnimatingAtStartup(true);
     pRotor->m_Axis = ezBasisAxis::PositiveZ;
-    pObj->AttachComponent(pRotor);
   }
 
   // Tree Mesh
@@ -98,9 +95,8 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     obj.m_LocalPosition.y = 5;
     m_pMainWorld->CreateObject(obj, pObj);
 
-    pMeshCompMan->CreateComponent(pMesh);
+    pMeshCompMan->CreateComponent(pObj, pMesh);
     pMesh->SetMesh(hMeshTree);
-    pObj->AttachComponent(pMesh);
   }
 
   // Lights
@@ -113,12 +109,10 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     m_pMainWorld->CreateObject(obj, pObj);
 
     ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(m_pMainWorld, pDirLight);
-    pObj->AttachComponent(pDirLight);
+    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
 
     ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(m_pMainWorld, pAmbLight);
-    pObj->AttachComponent(pAmbLight);
+    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
 
   ChangeMainWorld(m_pMainWorld);

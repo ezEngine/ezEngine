@@ -161,7 +161,7 @@ void ezSpriteComponent::SetSize(float fSize)
 {
   m_fSize = fSize;
 
-  TriggerLocalBoundsUpdate(true);
+  TriggerLocalBoundsUpdate();
 }
 
 float ezSpriteComponent::GetSize() const

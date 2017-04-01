@@ -439,10 +439,9 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
     m_hAmbientLight[i] = GetWorld()->CreateObject(obj, pLight);
 
     ezDirectionalLightComponent* pDirLight = nullptr;
-    ezDirectionalLightComponent::CreateComponent(GetWorld(), pDirLight);
+    ezDirectionalLightComponent::CreateComponent(pLight, pDirLight);
     pDirLight->SetLightColor(ambient[i]);
     pDirLight->SetIntensity(intensity[i]);
-    pLight->AttachComponent(pDirLight);
   }
 
   // the actual ambient light component is dangerous to add, because it is a singleton and you cannot have more than one in a scene

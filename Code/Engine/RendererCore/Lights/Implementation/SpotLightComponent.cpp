@@ -63,7 +63,7 @@ void ezSpotLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
 
-  TriggerLocalBoundsUpdate(true);
+  TriggerLocalBoundsUpdate();
 }
 
 float ezSpotLightComponent::GetRange() const
@@ -85,7 +85,7 @@ void ezSpotLightComponent::SetOuterSpotAngle(ezAngle spotAngle)
 {
   m_OuterSpotAngle = ezMath::Clamp(spotAngle, m_InnerSpotAngle, ezAngle::Degree(179.0f));
 
-  TriggerLocalBoundsUpdate(true);
+  TriggerLocalBoundsUpdate();
 }
 
 ezAngle ezSpotLightComponent::GetOuterSpotAngle() const

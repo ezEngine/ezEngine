@@ -45,7 +45,7 @@ void ezLightComponent::SetIntensity(float fIntensity)
 {
   m_fIntensity = fIntensity;
 
-  TriggerLocalBoundsUpdate(true);
+  TriggerLocalBoundsUpdate();
 }
 
 float ezLightComponent::GetIntensity() const

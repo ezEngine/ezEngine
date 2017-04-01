@@ -103,7 +103,7 @@ void ProjectileComponent::Update()
             GetWorld()->CreateObject(desc, pProjectile);
 
             ProjectileComponent* pProjectileComponent = nullptr;
-            ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);
+            ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(pProjectile, pProjectileComponent);
 
             pProjectileComponent->m_iBelongsToPlayer = pShipComponent->m_iPlayerIndex;
             pProjectileComponent->m_fSpeed = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(1.0, 2.0) * CVar_SparksSpeed;
@@ -112,7 +112,7 @@ void ProjectileComponent::Update()
             // ProjectileMesh
             {
               ezMeshComponent* pMeshComponent = nullptr;
-              ezMeshComponent::CreateComponent(GetWorld(), pMeshComponent);
+              ezMeshComponent::CreateComponent(pProjectile, pMeshComponent);
 
               pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("ProjectileMesh"));
 
@@ -121,11 +121,7 @@ void ProjectileComponent::Update()
               ezStringBuilder sMaterialName;
               sMaterialName.Format("MaterialPlayer{0}", pShipComponent->m_iPlayerIndex + 1);
               pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
-
-              pProjectile->AttachComponent(pMeshComponent);
             }
-
-            pProjectile->AttachComponent(hProjectileComponent);
           }
         }
       }

@@ -12,9 +12,6 @@ public:
   ezRenderComponent();
   ~ezRenderComponent();
 
-  virtual void Initialize() override;
-  virtual void OnBeforeDetachedFromObject() override;
-
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
@@ -22,5 +19,5 @@ public:
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) = 0;
 
-  void TriggerLocalBoundsUpdate(bool bIncludeOwnBounds);
+  void TriggerLocalBoundsUpdate();
 };

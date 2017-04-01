@@ -22,13 +22,23 @@ void ezComponent::SetActive(bool bActive)
   {
     m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bActive);
 
-    if (bActive)
+    if (IsInitialized())
     {
-      OnActivated();
-    }
-    else
-    {
-      OnDeactivated();
+      if (bActive)
+      {
+        OnActivated();
+
+        if (GetWorld()->GetWorldSimulationEnabled())
+        {
+          EnsureSimulationStarted();
+        }
+      }
+      else
+      {
+        OnDeactivated();
+
+        m_ComponentFlags.Remove(ezObjectFlags::SimulationStarted);
+      }
     }
   }
 }
@@ -58,6 +68,15 @@ ezComponentHandle ezComponent::GetHandle() const
   return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
 }
 
+void ezComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+
+}
+
+void ezComponent::DeserializeComponent(ezWorldReader& stream)
+{
+
+}
 
 void ezComponent::EnsureInitialized()
 {
@@ -80,10 +99,10 @@ void ezComponent::EnsureInitialized()
   }
 }
 
-
 void ezComponent::EnsureSimulationStarted()
 {
-  EnsureInitialized();
+  EZ_ASSERT_DEV(IsActiveAndInitialized(), "Must not be called on uninitialized or inactive components.");
+  EZ_ASSERT_DEV(GetWorld()->GetWorldSimulationEnabled(), "Must not be called when the world is not simulated.");
 
   if (m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarting))
   {
@@ -112,16 +131,51 @@ void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueTy
   GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
 }
 
-ezUInt32 ezComponent::GetWorldIndex() const
+void ezComponent::Initialize()
 {
-  return GetWorld()->GetIndex();
+
 }
 
+void ezComponent::Deinitialize()
+{
+  EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
+
+  if (IsActive())
+  {
+    Deactivate();
+  }
+}
+
+void ezComponent::OnActivated()
+{
+
+}
+
+void ezComponent::OnDeactivated()
+{
+
+}
+
+void ezComponent::OnSimulationStarted()
+{
+
+}
 
 void ezComponent::EnableUnhandledMessageHandler(bool enable)
 {
   m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);
 }
+
+bool ezComponent::OnUnhandledMessage(ezMessage& msg)
+{
+  return false;
+}
+
+bool ezComponent::OnUnhandledMessage(ezMessage& msg) const
+{
+  return false;
+}
+
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
 

@@ -2,6 +2,7 @@
 
 EZ_FORCE_INLINE ezComponent::ezComponent() :
   m_ComponentFlags(ezObjectFlags::Default),
+  m_pMessageDispatchType(nullptr),
   m_pManager(nullptr),
   m_pOwner(nullptr)
 {
@@ -10,6 +11,7 @@ EZ_FORCE_INLINE ezComponent::ezComponent() :
 
 EZ_FORCE_INLINE ezComponent::~ezComponent()
 {
+  m_pMessageDispatchType = nullptr;
   m_pManager = nullptr;
   m_pOwner = nullptr;
   m_InternalId.Invalidate();
@@ -20,19 +22,14 @@ EZ_FORCE_INLINE bool ezComponent::IsDynamic() const
   return m_ComponentFlags.IsSet(ezObjectFlags::Dynamic);
 }
 
-EZ_FORCE_INLINE bool ezComponent::IsActive() const
+EZ_ALWAYS_INLINE bool ezComponent::IsActive() const
 {
-  return m_pOwner && m_ComponentFlags.IsSet(ezObjectFlags::Active);
+  return m_ComponentFlags.IsSet(ezObjectFlags::Active);
 }
 
-EZ_FORCE_INLINE bool ezComponent::IsActiveAndInitialized() const
+EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndInitialized() const
 {
-  return m_pOwner && m_ComponentFlags.AreAllSet(ezObjectFlags::Active | ezObjectFlags::Initialized);
-}
-
-EZ_FORCE_INLINE bool ezComponent::IsSimulationStarted() const
-{
-  return m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarted);
+  return m_ComponentFlags.AreAllSet(ezObjectFlags::Active | ezObjectFlags::Initialized);
 }
 
 EZ_ALWAYS_INLINE ezComponentManagerBase* ezComponent::GetManager()
@@ -117,20 +114,19 @@ EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg) const
   return false;
 }
 
-template <typename ManagerType>
-EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandleInternal() const
-{
-  return ezComponentHandle(ezComponentId(m_InternalId, ManagerType::TypeId(), GetWorldIndex()));
-}
-
-EZ_FORCE_INLINE bool ezComponent::IsInitialized() const
+EZ_ALWAYS_INLINE bool ezComponent::IsInitialized() const
 {
   return m_ComponentFlags.IsSet(ezObjectFlags::Initialized);
 }
 
-EZ_FORCE_INLINE bool ezComponent::IsInitializing() const
+EZ_ALWAYS_INLINE bool ezComponent::IsInitializing() const
 {
   return m_ComponentFlags.IsSet(ezObjectFlags::Initializing);
+}
+
+EZ_ALWAYS_INLINE bool ezComponent::IsSimulationStarted() const
+{
+  return m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarted);
 }
 
 

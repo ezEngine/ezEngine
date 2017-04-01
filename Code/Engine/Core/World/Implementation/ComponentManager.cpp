@@ -11,11 +11,10 @@ ezComponentManagerBase::~ezComponentManagerBase()
 {
 }
 
-
-ezComponentHandle ezComponentManagerBase::CreateComponent()
+ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject)
 {
   ezComponent* pDummy;
-  return CreateComponent(pDummy);
+  return CreateComponent(pOwnerObject, pDummy);
 }
 
 void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
@@ -34,22 +33,29 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   GetWorld()->m_Data.m_DeadComponents.PushBack(pComponent);
 }
 
-void ezComponentManagerBase::InitializeComponent(const ezComponentHandle& hComponent)
+void ezComponentManagerBase::InitializeComponent(ezGameObject* pOwnerObject, ezComponent* pComponent)
 {
-  GetWorld()->AddComponentToInitialize(hComponent);
+  /// \todo Uncomment this assert and remove check below once the editor can handle this properly.
+  //EZ_ASSERT_DEV(pOwnerObject != nullptr, "Owner must not be null");
+  if (pOwnerObject)
+  {
+    pOwnerObject->AddComponent(pComponent);
+  }
+
+  GetWorld()->AddComponentToInitialize(pComponent->GetHandle());
 }
 
 void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
 {
-  if (ezGameObject* pOwner = pComponent->GetOwner())
-  {
-    pOwner->DetachComponent(pComponent);
-  }
-
   if (pComponent->IsInitialized())
   {
     pComponent->Deinitialize();
     pComponent->m_ComponentFlags.Remove(ezObjectFlags::Initialized);
+  }
+
+  if (ezGameObject* pOwner = pComponent->GetOwner())
+  {
+    pOwner->RemoveComponent(pComponent);
   }
 }
 
