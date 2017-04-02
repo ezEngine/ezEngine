@@ -9,6 +9,30 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezPxCharacterController_MoveCharacterMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxCharacterController_MoveCharacterMsg, 1, ezRTTIDefaultAllocator<ezPxCharacterController_MoveCharacterMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("MoveForwards", m_fMoveForwards),
+    EZ_MEMBER_PROPERTY("MoveBackwards", m_fMoveBackwards),
+    EZ_MEMBER_PROPERTY("StrafeLeft", m_fStrafeLeft),
+    EZ_MEMBER_PROPERTY("StrafeRight", m_fStrafeRight),
+    EZ_MEMBER_PROPERTY("RotateLeft", m_fRotateLeft),
+    EZ_MEMBER_PROPERTY("RotateRight", m_fRotateRight),
+    EZ_MEMBER_PROPERTY("Run", m_bRun),
+    EZ_MEMBER_PROPERTY("Jump", m_bJump),
+    EZ_MEMBER_PROPERTY("Crouch", m_bCrouch),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
+//////////////////////////////////////////////////////////////////////////
+
 ezPxCharacterControllerComponentManager::ezPxCharacterControllerComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezPxCharacterControllerComponent, ezBlockStorageType::Compact>(pWorld)
 {
@@ -59,7 +83,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 3)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTrigger),
+    EZ_MESSAGE_HANDLER(ezPxCharacterController_MoveCharacterMsg, MoveCharacter),
     EZ_MESSAGE_HANDLER(ezCollisionMessage, OnCollision)
   }
   EZ_END_MESSAGEHANDLERS
@@ -294,66 +318,26 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
   }
 }
 
-void ezPxCharacterControllerComponent::OnTrigger(ezTriggerMessage& msg)
+
+void ezPxCharacterControllerComponent::MoveCharacter(ezPxCharacterController_MoveCharacterMsg& msg)
 {
-  float f = msg.m_TriggerValue.ConvertTo<float>();
+  m_vRelativeMoveDirection += ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
 
-  if (msg.m_UsageStringHash == ezTempHashedString("MoveForwards").GetHash())
-  {
-    m_vRelativeMoveDirection += ezVec3(1, 0, 0);
-    return;
-  }
+  m_RotateZ += m_RotateSpeed * (float)(msg.m_fRotateRight - msg.m_fRotateLeft);
 
-  if (msg.m_UsageStringHash == ezTempHashedString("MoveBackwards").GetHash())
-  {
-    m_vRelativeMoveDirection += ezVec3(-1, 0, 0);
-    return;
-  }
-
-  if (msg.m_UsageStringHash == ezTempHashedString("StrafeLeft").GetHash())
-  {
-    m_vRelativeMoveDirection += ezVec3(0, -1, 0);
-    return;
-  }
-
-  if (msg.m_UsageStringHash == ezTempHashedString("StrafeRight").GetHash())
-  {
-    m_vRelativeMoveDirection += ezVec3(0, 1, 0);
-    return;
-  }
-
-  if (msg.m_UsageStringHash == ezTempHashedString("RotateLeft").GetHash())
-  {
-    m_RotateZ -= m_RotateSpeed * f;
-    return;
-  }
-
-  if (msg.m_UsageStringHash == ezTempHashedString("RotateRight").GetHash())
-  {
-    m_RotateZ += m_RotateSpeed * f;
-    return;
-  }
-
-  if (msg.m_UsageStringHash == ezTempHashedString("Run").GetHash())
+  if (msg.m_bRun)
   {
     m_InputStateBits |= InputStateBits::Run;
-    return;
   }
 
-  if (msg.m_UsageStringHash == ezTempHashedString("Jump").GetHash())
+  if (msg.m_bJump)
   {
-    if (msg.m_TriggerState == ezTriggerState::Activated)
-    {
-      m_InputStateBits |= InputStateBits::Jump;
-    }
-
-    return;
+    m_InputStateBits |= InputStateBits::Jump;
   }
 
-  if (msg.m_UsageStringHash == ezTempHashedString("Crouch").GetHash())
+  if (msg.m_bCrouch)
   {
     m_InputStateBits |= InputStateBits::Crouch;
-    return;
   }
 }
 

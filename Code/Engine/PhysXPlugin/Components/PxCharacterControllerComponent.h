@@ -17,6 +17,21 @@ public:
   void Update(const ezWorldModule::UpdateContext& context);
 };
 
+struct EZ_PHYSXPLUGIN_DLL ezPxCharacterController_MoveCharacterMsg : public ezScriptMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezPxCharacterController_MoveCharacterMsg, ezScriptMessage);
+
+  double m_fMoveForwards = 0;
+  double m_fMoveBackwards = 0;
+  double m_fStrafeLeft = 0;
+  double m_fStrafeRight = 0;
+  double m_fRotateLeft = 0;
+  double m_fRotateRight = 0;
+  bool m_bRun = false;
+  bool m_bJump = false;
+  bool m_bCrouch = false;
+};
+
 class EZ_PHYSXPLUGIN_DLL ezPxCharacterControllerComponent : public ezPxComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterControllerComponent, ezPxComponent, ezPxCharacterControllerComponentManager);
@@ -50,7 +65,7 @@ protected:
 
 public:
 
-  void OnTrigger(ezTriggerMessage& msg);
+  void MoveCharacter(ezPxCharacterController_MoveCharacterMsg& msg);
   void OnCollision(ezCollisionMessage& msg);
 
 protected:

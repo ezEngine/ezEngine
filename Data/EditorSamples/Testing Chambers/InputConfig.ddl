@@ -2,7 +2,7 @@ InputAction
 {
 	string %Set{"Player"}
 	string %Action{"MoveForwards"}
-	bool %TimeScale{true}
+	bool %TimeScale{false}
 	Slot
 	{
 		string %Key{"keyboard_w"}
@@ -13,7 +13,7 @@ InputAction
 {
 	string %Set{"Player"}
 	string %Action{"MoveBackwards"}
-	bool %TimeScale{true}
+	bool %TimeScale{false}
 	Slot
 	{
 		string %Key{"keyboard_s"}
@@ -24,7 +24,7 @@ InputAction
 {
 	string %Set{"Player"}
 	string %Action{"StrafeLeft"}
-	bool %TimeScale{true}
+	bool %TimeScale{false}
 	Slot
 	{
 		string %Key{"keyboard_a"}
@@ -35,7 +35,7 @@ InputAction
 {
 	string %Set{"Player"}
 	string %Action{"StrafeRight"}
-	bool %TimeScale{true}
+	bool %TimeScale{false}
 	Slot
 	{
 		string %Key{"keyboard_d"}
@@ -46,7 +46,7 @@ InputAction
 {
 	string %Set{"Player"}
 	string %Action{"Jump"}
-	bool %TimeScale{true}
+	bool %TimeScale{false}
 	Slot
 	{
 		string %Key{"keyboard_space"}
@@ -57,7 +57,7 @@ InputAction
 {
 	string %Set{"Player"}
 	string %Action{"Run"}
-	bool %TimeScale{true}
+	bool %TimeScale{false}
 	Slot
 	{
 		string %Key{"keyboard_left_shift"}

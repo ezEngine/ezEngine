@@ -20,6 +20,11 @@ void ezVisualScriptAssignBoolBool(const void* src, void* dst)
   *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const bool*>(src);
 }
 
+void ezVisualScriptAssignNumberBool(const void* src, void* dst)
+{
+  *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const double*>(src) > 0.0;
+}
+
 void ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
 {
   *reinterpret_cast<ezVec3*>(dst) = *reinterpret_cast<const ezVec3*>(src);
@@ -59,6 +64,7 @@ void ezVisualScriptInstance::SetupPinDataTypeConversions()
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
+  //RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
 }
 
 ezVisualScriptInstance::~ezVisualScriptInstance()

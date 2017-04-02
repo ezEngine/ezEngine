@@ -43,6 +43,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  float GetCurrentInputState(const char* szInputAction, bool bOnlyKeyPressed = false) const;
+
   // ************************************* PROPERTIES ***********************************
 
   ezString m_sInputSet;
