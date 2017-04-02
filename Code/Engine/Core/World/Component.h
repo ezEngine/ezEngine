@@ -128,6 +128,13 @@ protected:
   /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
   virtual void OnSimulationStarted();
 
+  /// \brief Used by components that implement scripting behavior.
+  ///
+  /// When a message is delivered to the next 'event handler', it is propagated up the scene tree and delivered to the next
+  /// component that has ezObjectFlags::IsEventHandler set. The event is not delivered to further parent nodes,
+  /// even if the script did not actually have a corresponding message handler.
+  void EnableEventHandlerMode(bool enable);
+
   /// \brief By default disabled. Enable to have OnUnhandledMessage() called for every unhandled message.
   void EnableUnhandledMessageHandler(bool enable);
 

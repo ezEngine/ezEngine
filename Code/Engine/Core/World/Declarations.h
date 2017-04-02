@@ -144,6 +144,7 @@ struct ezObjectFlags
     SimulationStarted = EZ_BIT(4),
     SimulationStarting = EZ_BIT(5),
     UnhandledMessageHandler = EZ_BIT(6), ///< For components, when a message is not handled, a virtual function is called
+    IsEventHandler = EZ_BIT(7), ///< 'Event' messages will be delivered to this node, but not further. Used by script components to prevent event messages from further dispatch.
 
     Default = Dynamic | Active
   };
@@ -156,6 +157,8 @@ struct ezObjectFlags
     StorageType Initializing : 1;
     StorageType SimulationStarted : 1;
     StorageType SimulationStarting : 1;
+    StorageType UnhandledMessageHandler : 1;
+    StorageType IsEventHandler : 1;
   };
 };
 
@@ -171,6 +174,8 @@ struct ezObjectMsgRouting
     ToAllParents, ///< Send the message to the object, all parent objects and their components.
     ToChildren,   ///< Send the message to the object, all child objects (recursively) and their components.
     ToSubTree,    ///< Send the message to the whole subtree starting at the top-level parent object.
+    ToEventHandler, ///< Send the message up the tree to the next node/component that has ezObjectFlags::IsEventHandler, but no further.
+    ToParentEventHandler, ///< Same as ToEventHandler, but starts searching for the event handler at the target's parent node. Useful to break out of the current event handler, and propagate an event to the next one.
     Default = ToComponents
   };
 };

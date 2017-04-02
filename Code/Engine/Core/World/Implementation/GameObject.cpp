@@ -270,7 +270,7 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
 {
   EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
   EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
-    "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
+                "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent);
@@ -306,6 +306,50 @@ void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueT
 
 void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
 {
+  if (routing == ezObjectMsgRouting::ToEventHandler || routing == ezObjectMsgRouting::ToParentEventHandler)
+  {
+    ezGameObject* pCurrent = this;
+
+    if (routing == ezObjectMsgRouting::ToParentEventHandler)
+      pCurrent = pCurrent->GetParent();
+
+    while (pCurrent != nullptr && !pCurrent->m_Flags.IsSet(ezObjectFlags::IsEventHandler))
+    {
+      pCurrent = pCurrent->GetParent();
+    }
+
+    if (pCurrent == nullptr)
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      {
+        ezLog::Warning("ezGameObject::SendMessage: Message uses ezObjectMsgRouting::ToEventHandler, but none of the target's parent nodes has a component with ezObjectFlags::IsEventHandler.");
+      }
+
+#endif
+      return;
+    }
+
+    bool bSentToAny = false;
+
+    // route the message to all event handler components
+    for (ezUInt32 i = 0; i < pCurrent->m_Components.GetCount(); ++i)
+    {
+      ezComponent* pComponent = pCurrent->m_Components[i];
+      if (pComponent->m_ComponentFlags.IsSet(ezObjectFlags::IsEventHandler) && pComponent->SendMessage(msg))
+        bSentToAny = true;
+    }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (!bSentToAny && msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+    {
+      ezLog::Warning("ezGameObject::SendMessage: Message uses ezObjectMsgRouting::ToEventHandler. An event handler was found, but it did not handle this type of message.");
+    }
+#endif
+
+    return;
+  }
+
   if (routing == ezObjectMsgRouting::ToSubTree)
   {
     // walk up the sub tree and send to children from there to prevent double handling
@@ -337,9 +381,9 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
         bSentToAny = true;
     }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (!bSentToAny)
     {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
       {
         if (!m_Components.IsEmpty())
@@ -352,8 +396,8 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
           ezLog::Warning("Message of type  {0} was sent 'ToComponents' only. Object with {1} components did not handle this. No further message routing will happen.", msg.GetId(), m_Components.GetCount());
         }
       }
-#endif
     }
+#endif
   }
 
   // route message to parent or children
@@ -375,6 +419,50 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
 
 void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing) const
 {
+  if (routing == ezObjectMsgRouting::ToEventHandler || routing == ezObjectMsgRouting::ToParentEventHandler)
+  {
+    const ezGameObject* pCurrent = this;
+
+    if (routing == ezObjectMsgRouting::ToParentEventHandler)
+      pCurrent = pCurrent->GetParent();
+
+    while (pCurrent != nullptr && !pCurrent->m_Flags.IsSet(ezObjectFlags::IsEventHandler))
+    {
+      pCurrent = pCurrent->GetParent();
+    }
+
+    if (pCurrent == nullptr)
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      {
+        ezLog::Warning("ezGameObject::SendMessage (CONST): Message uses ezObjectMsgRouting::ToEventHandler, but none of the target's parent nodes has a component with ezObjectFlags::IsEventHandler.");
+      }
+
+#endif
+      return;
+    }
+
+    bool bSentToAny = false;
+
+    // route the message to all event handler components
+    for (ezUInt32 i = 0; i < pCurrent->m_Components.GetCount(); ++i)
+    {
+      ezComponent* pComponent = pCurrent->m_Components[i];
+      if (pComponent->m_ComponentFlags.IsSet(ezObjectFlags::IsEventHandler) && pComponent->SendMessage(msg))
+        bSentToAny = true;
+    }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (!bSentToAny && msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+    {
+      ezLog::Warning("ezGameObject::SendMessage (CONST): Message uses ezObjectMsgRouting::ToEventHandler. An event handler was found, but it did not handle this type of message.");
+    }
+#endif
+
+    return;
+  }
+
   if (routing == ezObjectMsgRouting::ToSubTree)
   {
     // walk up the sub tree and send to children form there to prevent double handling
@@ -396,11 +484,32 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
   // route message to all components
   if (routing >= ezObjectMsgRouting::ToComponents)
   {
+    bool bSentToAny = false;
+
     for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
     {
       const ezComponent* pComponent = m_Components[i];
-      pComponent->SendMessage(msg);
+      if (pComponent->SendMessage(msg))
+        bSentToAny = true;
     }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (!bSentToAny)
+    {
+      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      {
+        if (!m_Components.IsEmpty())
+        {
+          ezLog::Warning("ezGameObject::SendMessage (CONST): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+        }
+
+        if (routing == ezObjectMsgRouting::ToComponents)
+        {
+          ezLog::Warning("ezGameObject::SendMessage (CONST): Message of type '{0}' was sent 'ToComponents' only. Object with {1} components did not handle this. No further message routing will happen.", msg.GetId(), m_Components.GetCount());
+        }
+      }
+    }
+#endif
   }
 
   // route message to parent or children

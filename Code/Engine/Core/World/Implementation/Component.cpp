@@ -163,6 +163,32 @@ void ezComponent::OnSimulationStarted()
 
 }
 
+void ezComponent::EnableEventHandlerMode(bool enable)
+{
+  m_ComponentFlags.AddOrRemove(ezObjectFlags::IsEventHandler, enable);
+
+  if (enable)
+  {
+    // this is an optimization, to know whether the object has any component with this flag
+    GetOwner()->m_Flags.Add(ezObjectFlags::IsEventHandler);
+  }
+  else
+  {
+    // check whether there is any other component with this flag left
+
+    const auto& components = GetOwner()->GetComponents();
+    for (const auto& comp : components)
+    {
+      // one is left, abort
+      if (comp->m_ComponentFlags.IsAnySet(ezObjectFlags::IsEventHandler))
+        return;
+    }
+
+    // none is left, remove flag
+    GetOwner()->m_Flags.Remove(ezObjectFlags::IsEventHandler);
+  }
+}
+
 void ezComponent::EnableUnhandledMessageHandler(bool enable)
 {
   m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);

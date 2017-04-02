@@ -301,7 +301,7 @@ public:
         msg.m_UsageStringHash = pTrigger->m_sTriggerMessage.GetHash();
         msg.m_hTriggeringObject = pComponentB->GetOwner()->GetHandle();
 
-        pComponentA->GetOwner()->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
+        pComponentA->GetOwner()->PostMessage(msg, ezObjectMsgQueueType::PostTransform, ezObjectMsgRouting::ToEventHandler);
       }
     }
   }

@@ -29,11 +29,16 @@ public:
   void Update();
 
 protected:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   virtual bool OnUnhandledMessage(ezMessage& msg) override;
   virtual bool OnUnhandledMessage(ezMessage& msg) const override;
 
   ezVisualScriptResourceHandle m_hResource;
   ezUniquePtr<ezVisualScriptInstance> m_Script;
+
+
 };
 
 

@@ -76,7 +76,7 @@ void ezInputComponent::Update()
     msg.m_TriggerValue = fValue;
 
     // SendMessage, not PostMessage, because the string pointers would not be valid otherwise
-    GetOwner()->SendMessage(msg, ezObjectMsgRouting::ToComponents); /// \todo Make it configurable where the message is sent to
+    GetOwner()->SendMessage(msg, ezObjectMsgRouting::ToEventHandler); /// \todo Make it configurable where the message is sent to
   }
 }
 

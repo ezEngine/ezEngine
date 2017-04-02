@@ -112,4 +112,18 @@ bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg) const
   return false;
 }
 
+void ezVisualScriptComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  EnableEventHandlerMode(true);
+}
+
+void ezVisualScriptComponent::OnDeactivated()
+{
+  EnableEventHandlerMode(false);
+
+  SUPER::OnDeactivated();
+}
+
 

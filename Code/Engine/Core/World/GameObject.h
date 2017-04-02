@@ -327,6 +327,8 @@ private:
     void UpdateSpatialData(bool bWasAlwaysVisible, bool bIsAlwaysVisible);
   };
 
+  friend class ezComponent;
+
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
   ezHashedString m_sName;
