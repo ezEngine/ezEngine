@@ -22,7 +22,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3591997517772925067,4762298574615070988}}
-		u4 %Hash{16152208685242689480}
+		u4 %Hash{18200675692992858856}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -112,7 +112,7 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0}}
+		Time %Duration{d{0x000000000000F03F}}
 		Uuid %Interval{u4{12821208263336678451,12363438559767110729}}
 		u3 %MinSpawnCount{100}
 		u3 %SpawnCountRange{0}
@@ -169,6 +169,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		u2 %Segments{6}
 		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 	}
