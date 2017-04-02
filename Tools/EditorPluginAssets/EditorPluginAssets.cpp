@@ -277,6 +277,7 @@ void OnLoadPlugin(bool bReloading)
       ezStandardMenus::MapActions("VisualScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("VisualScriptAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit");
+      ezEditActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit", false, false);
     }
 
     // Tool Bar

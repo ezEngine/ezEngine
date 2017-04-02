@@ -22,6 +22,7 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <RendererFoundation/Device/Device.h>
+#include <VisualScript/VisualScriptResource.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <RendererDX11/Device/DeviceDX11.h>
@@ -220,6 +221,14 @@ void ezGameApplication::DoSetupDefaultResources()
 
     ezCurve1DResourceHandle hResource = ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", cd, "Missing Curve1D Resource");
     ezCurve1DResource::SetTypeMissingResource(hResource);
+  }
+
+  // Visual Script
+  {
+    ezVisualScriptResourceDescriptor desc;
+
+    ezVisualScriptResourceHandle hResource = ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", desc, "Missing Visual Script Resource");
+    ezVisualScriptResource::SetTypeMissingResource(hResource);
   }
 }
 

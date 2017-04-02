@@ -2279,17 +2279,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9079039094741117372,4795188681883106334}}
-	s %t{"ezPxTriggerComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %TriggerMessage{""}
-	}
-}
-o
-{
 	Uuid %id{u4{17549316062614714275,4817416347638903311}}
 	s %t{"ezParticleComponent"}
 	u3 %v{1}
@@ -3093,7 +3082,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{9162426481761004218}
+		u4 %Hash{17847423908419786001}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -3102,7 +3091,6 @@ AssetInfo
 			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
 			s{"{ 2f695ba0-f6b6-4769-9256-f2778a00c199 }"}
-			s{"{ 35038a35-1df1-4c84-bfe2-dad75646326f }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
 			s{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
 			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
@@ -3344,17 +3332,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2151195887193624988,5256147759248276935}}
-	s %t{"ezVisualScriptComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Script{"{ 35038a35-1df1-4c84-bfe2-dad75646326f }"}
-	}
-}
-o
-{
 	Uuid %id{u4{839000985074305693,5257171098418855293}}
 	s %t{"ezPxDynamicActorComponent"}
 	u3 %v{1}
@@ -3548,29 +3525,6 @@ o
 }
 o
 {
-	Uuid %id{u4{979181721475076009,5350113042733778353}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9079039094741117372,4795188681883106334}}
-			Uuid{u4{6012003763269989279,5715914985525843152}}
-			Uuid{u4{2151195887193624988,5256147759248276935}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x34B9AF3E,0xDA6BE740,0xA403423F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Name{""}
-		VarArray %Tags{}
-	}
-}
-o
-{
 	Uuid %id{u4{4968021759543384712,5357094573332117137}}
 	s %t{"ezInputComponent"}
 	u3 %v{2}
@@ -3757,7 +3711,6 @@ o
 			Uuid{u4{7104086957445601946,4819391465201389064}}
 			Uuid{u4{207785385419371927,5121331054296736568}}
 			Uuid{u4{2132077245700295982,10590157899333438312}}
-			Uuid{u4{979181721475076009,5350113042733778353}}
 		}
 	}
 }
@@ -4668,20 +4621,6 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
 		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{6012003763269989279,5715914985525843152}}
-	s %t{"ezPxShapeBoxComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		u1 %CollisionLayer{0}
-		Vec3 %Extents{f{0x0AD74340,0xA2705D40,0xCACC4C3F}}
-		b %ReportContact{0}
-		s %Surface{""}
 	}
 }
 o
