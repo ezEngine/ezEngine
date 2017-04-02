@@ -10,6 +10,7 @@
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <Core/World/Component.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -215,21 +216,6 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       nd.m_OutputPins.PushBack(pd);
     }
 
-    if (const ezDefaultValueAttribute* pAttr = prop->GetAttributeByType<ezDefaultValueAttribute>())
-    {
-      ezVariant val = pAttr->GetValue();
-
-      /// \todo Somehow default values aren't working in the UI
-      int i = 0;
-    }
-
-    if (const ezDynamicStringEnumAttribute* pAttr = prop->GetAttributeByType<ezDynamicStringEnumAttribute>())
-    {
-      const char* sz = pAttr->GetDynamicEnumName();
-
-      int i = 0;
-    }
-
     if (prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
 
@@ -239,7 +225,11 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       pd.m_Category = prop->GetCategory();
       pd.m_sName = prop->GetPropertyName();
       pd.m_sType = prop->GetSpecificType()->GetTypeName();
-      pd.m_ReferenceAttributes = prop->GetAttributes();
+
+      for (ezPropertyAttribute* const pAttr : prop->GetAttributes())
+      {
+        pd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
+      }
 
       nd.m_Properties.PushBack(pd);
     }
@@ -359,7 +349,11 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
       prd.m_Category = prop->GetCategory();
       prd.m_sName = prop->GetPropertyName();
       prd.m_sType = prop->GetSpecificType()->GetTypeName();
-      prd.m_ReferenceAttributes = prop->GetAttributes();
+
+      for (ezPropertyAttribute* const pAttr : prop->GetAttributes())
+      {
+        prd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
+      }
 
       nd.m_Properties.PushBack(prd);
     }
