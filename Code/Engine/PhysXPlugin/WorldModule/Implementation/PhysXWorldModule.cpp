@@ -87,13 +87,6 @@ namespace
 
   PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
   {
-    // let triggers through
-    if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
-    {
-      pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-      return PxFilterFlag::eDEFAULT;
-    }
-
     bool kinematic0 = PxFilterObjectIsKinematic(attributes0);
     bool kinematic1 = PxFilterObjectIsKinematic(attributes1);
 
@@ -111,6 +104,13 @@ namespace
     // the filter mask of A contains the ID of B and vice versa.
     if ((filterData0.word0 & filterData1.word1) || (filterData1.word0 & filterData0.word1))
     {
+      // let triggers through
+      if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+      {
+        pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+        return PxFilterFlag::eDEFAULT;
+      }
+
       if (filterData0.word3 != 0 || filterData1.word3 != 0)
       {
         pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
@@ -544,11 +544,22 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
     }
   }
 
-  if (ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>())
+  ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>();
+  ezPxTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezPxTriggerComponentManager>();
+
+  if (pDynamicActorManager || pTriggerManager)
   {
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 
-    pDynamicActorManager->UpdateKinematicActors();
+    if (pDynamicActorManager)
+    {
+      pDynamicActorManager->UpdateKinematicActors();
+    }
+
+    if (pTriggerManager)
+    {
+      pTriggerManager->UpdateKinematicActors();
+    }
   }
 
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(&m_SimulateTask, ezTaskPriority::EarlyThisFrame);

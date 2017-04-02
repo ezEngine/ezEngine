@@ -43,6 +43,7 @@ public:
 
 private:
   ezGameObjectHandle m_hObject;
+  ezTriggerState::Enum m_State;
 };
 
 //////////////////////////////////////////////////////////////////////////

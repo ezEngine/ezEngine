@@ -59,7 +59,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnTriggerMsg, 1, ezRTTIDefaul
     EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage),
-    EZ_OUTPUT_EXECUTION_PIN("OnMsg", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnActivated", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnDeactivated", 2),
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
   EZ_END_PROPERTIES
@@ -77,14 +78,23 @@ ezVisualScriptNode_OnTriggerMsg::~ezVisualScriptNode_OnTriggerMsg() { }
 
 void ezVisualScriptNode_OnTriggerMsg::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  pInstance->SetOutputPinValue(this, 0, &m_hObject);
-  pInstance->ExecuteConnectedNodes(this, 0);
+  if (m_State == ezTriggerState::Activated)
+  {
+    pInstance->SetOutputPinValue(this, 0, &m_hObject);
+    pInstance->ExecuteConnectedNodes(this, 0);
+  }
+  else if (m_State == ezTriggerState::Deactivated)
+  {
+    pInstance->SetOutputPinValue(this, 0, &m_hObject);
+    pInstance->ExecuteConnectedNodes(this, 2);
+  }
 }
 
 void ezVisualScriptNode_OnTriggerMsg::TriggerMessageHandler(ezTriggerMessage& msg)
 {
   if (msg.m_UsageStringHash == m_sTriggerMessage.GetHash())
   {
+    m_State = msg.m_TriggerState;
     m_bStepNode = true;
     m_hObject = msg.m_hTriggeringObject;
     ezLog::Debug("Trigger Msg '{0}' arrived", m_sTriggerMessage.GetData());

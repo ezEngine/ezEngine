@@ -19,28 +19,26 @@ ezPxTriggerComponentManager::~ezPxTriggerComponentManager()
 {
 }
 
-/// \todo Do we need to move triggers around? Is this even supported?
+void ezPxTriggerComponentManager::UpdateKinematicActors()
+{
+  EZ_PROFILE("KinematicActors");
 
-//void ezPxTriggerComponentManager::UpdateKinematicActors()
-//{
-//  EZ_PROFILE("KinematicActors");
-//
-//  for (auto pKinematicActorComponent : m_KinematicActorComponents)
-//  {
-//    if (PxRigidDynamic* pActor = pKinematicActorComponent->GetActor())
-//    {
-//      ezGameObject* pObject = pKinematicActorComponent->GetOwner();
-//
-//      pObject->UpdateGlobalTransform();
-//
-//      const ezVec3 pos = pObject->GetGlobalPosition();
-//      const ezQuat rot = pObject->GetGlobalRotation();
-//
-//      PxTransform t = ezPxConversionUtils::ToTransform(pos, rot);
-//      pActor->setKinematicTarget(t);
-//    }
-//  }
-//}
+  for (auto pKinematicActorComponent : m_KinematicActorComponents)
+  {
+    if (PxRigidDynamic* pActor = pKinematicActorComponent->GetActor())
+    {
+      ezGameObject* pObject = pKinematicActorComponent->GetOwner();
+
+      pObject->UpdateGlobalTransform();
+
+      const ezVec3 pos = pObject->GetGlobalPosition();
+      const ezQuat rot = pObject->GetGlobalRotation();
+
+      PxTransform t = ezPxConversionUtils::ToTransform(pos, rot);
+      pActor->setKinematicTarget(t);
+    }
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +46,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
     EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
   }
   EZ_END_PROPERTIES
@@ -66,6 +65,7 @@ void ezPxTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
+  s << m_bKinematic;
   s << m_sTriggerMessage;
 }
 
@@ -76,6 +76,7 @@ void ezPxTriggerComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
+  s >> m_bKinematic;
   s >> m_sTriggerMessage;
 }
 
@@ -119,13 +120,17 @@ void ezPxTriggerComponent::OnSimulationStarted()
     }
   }
 
-  // not really sure about these for triggers
   m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-  m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+  m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true); // triggers are never dynamic
 
   {
     EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
     pModule->GetPxScene()->addActor(*m_pActor);
+  }
+
+  if (m_bKinematic)
+  {
+    GetManager()->m_KinematicActorComponents.PushBack(this);
   }
 }
 
@@ -140,3 +145,20 @@ void ezPxTriggerComponent::Deinitialize()
   }
 }
 
+void ezPxTriggerComponent::SetKinematic(bool b)
+{
+  if (m_bKinematic == b)
+    return;
+
+  m_bKinematic = b;
+
+  if (m_bKinematic && m_pActor)
+  {
+    // do not insert this, until we actually have an actor pointer
+    GetManager()->m_KinematicActorComponents.PushBack(this);
+  }
+  else
+  {
+    GetManager()->m_KinematicActorComponents.RemoveSwap(this);
+  }
+}

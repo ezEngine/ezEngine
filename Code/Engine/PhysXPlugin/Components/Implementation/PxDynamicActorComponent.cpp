@@ -127,8 +127,9 @@ void ezPxDynamicActorComponent::SetKinematic(bool b)
 
   m_bKinematic = b;
 
-  if (m_bKinematic)
+  if (m_bKinematic && m_pActor)
   {
+    // do not insert this, until we actually have an actor pointer
     GetManager()->m_KinematicActorComponents.PushBack(this);
   }
   else

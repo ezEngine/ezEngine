@@ -4,6 +4,42 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMeshComponent_SetMaterialMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponent_SetMaterialMsg, 1, ezRTTIDefaultAllocator<ezMeshComponent_SetMaterialMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_MEMBER_PROPERTY("MaterialSlot", m_uiMaterialSlot),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+void ezMeshComponent_SetMaterialMsg::SetMaterialFile(const char* szFile)
+{
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
+  }
+  else
+  {
+    m_hMaterial.Invalidate();
+  }
+}
+
+const char* ezMeshComponent_SetMaterialMsg::GetMaterialFile() const
+{
+  if (!m_hMaterial.IsValid())
+    return "";
+
+  return m_hMaterial.GetResourceID();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -23,6 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMeshComponent_SetMaterialMsg, OnSetMaterialMsg),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -55,6 +92,11 @@ void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
   m_hMesh = hMesh;
 
   TriggerLocalBoundsUpdate();
+}
+
+void ezMeshComponent::OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg)
+{
+  SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
 }
 
 void ezMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)

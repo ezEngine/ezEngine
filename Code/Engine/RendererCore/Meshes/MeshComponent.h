@@ -19,6 +19,17 @@ public:
 
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
 
+struct ezMeshComponent_SetMaterialMsg : public ezScriptMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMeshComponent_SetMaterialMsg, ezScriptMessage);
+
+  void SetMaterialFile(const char* szFile);
+  const char* GetMaterialFile() const;
+
+  ezMaterialResourceHandle m_hMaterial;
+  ezUInt32 m_uiMaterialSlot;
+};
+
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezRenderComponent, ezMeshComponentManager);
@@ -48,6 +59,8 @@ public:
 
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
+
+  void OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg);
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
