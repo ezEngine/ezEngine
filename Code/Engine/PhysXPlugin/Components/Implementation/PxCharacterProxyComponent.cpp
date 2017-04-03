@@ -286,6 +286,7 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
     pActor->getShapes(&pShape, 1);
     pShape->setSimulationFilterData(m_Data->m_FilterData);
     pShape->setQueryFilterData(m_Data->m_FilterData);
+    pShape->userData = &m_UserData;
   }
 }
 

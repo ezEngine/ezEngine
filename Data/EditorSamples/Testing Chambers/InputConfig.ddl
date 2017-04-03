@@ -96,3 +96,14 @@ InputAction
 		float %Scale{1}
 	}
 }
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"Use"}
+	bool %TimeScale{false}
+	Slot
+	{
+		string %Key{"keyboard_e"}
+		float %Scale{1}
+	}
+}

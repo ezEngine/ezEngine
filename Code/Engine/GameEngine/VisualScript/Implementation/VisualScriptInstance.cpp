@@ -153,7 +153,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
     }
     else
     {
-      ezLog::Error("Invalid node type '{0}' in visual script", node.m_pType->GetTypeName());
+      ezLog::Error("Invalid node type '{0}' in visual script", node.m_sTypeName);
       Clear();
       return;
     }
