@@ -24,6 +24,10 @@ ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitiali
   m_CurrentRenderThread = (ezThreadID)0;
   m_uiLastExtractionFrame = -1;
   m_uiLastRenderFrame = -1;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_fAverageCullingTime = 0.1f;
+#endif
 }
 
 ezRenderPipeline::~ezRenderPipeline()
@@ -783,75 +787,79 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
 
   // Determine visible objects
-  {
-    EZ_PROFILE("Visibility Culling");
-
-    m_visibleObjects.Clear();
-
-    ezFrustum frustum;
-    view.ComputeCullingFrustum(frustum);
-
-    bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
-    bool bRecordStats = CVarCullingStats && bIsMainView;
-    ezSpatialSystem::QueryStats stats;
-
-    EZ_LOCK(view.GetWorld()->GetReadMarker());
-    view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, bRecordStats ? &stats : nullptr);
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (s_DebugCulling && bIsMainView)
-    {
-      ezDebugRenderer::DrawLineFrustum(&view, frustum, ezColor::LimeGreen, true);
-    }
-
-    if (bRecordStats)
-    {
-      ezStringBuilder sb;
-
-      ezDebugRenderer::DrawText(&view, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
-
-      sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
-      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
-
-      sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
-      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
-
-      sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
-      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
-
-      sb.Format("Time Taken: {0}ms", stats.m_fTimeTaken * 1000.0f);
-      ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
-    }
-#endif
-  }
+  FindVisibleObjects(view);
 
   // Extract and sort data
+  auto& data = m_Data[ezRenderLoop::GetDataIndexForExtraction()];
+
+  // Usually clear is not needed, only if the multithreading flag is switched during runtime.
+  data.Clear();
+
+  // Store camera and viewdata
+  data.SetCamera(*view.GetCamera());
+  data.SetViewData(view.GetData());
+  data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
+  data.SetWorldDebugContext(view.GetWorld());
+  data.SetViewDebugContext(&view);
+
+  // Extract object render data
+  for (auto& pExtractor : m_Extractors)
   {
-    auto& data = m_Data[ezRenderLoop::GetDataIndexForExtraction()];
-
-    // Usually clear is not needed, only if the multithreading flag is switched during runtime.
-    data.Clear();
-
-    // Store camera and viewdata
-    data.SetCamera(*view.GetCamera());
-    data.SetViewData(view.GetData());
-    data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
-    data.SetWorldDebugContext(view.GetWorld());
-    data.SetViewDebugContext(&view);
-
-    // Extract object render data
-    for (auto& pExtractor : m_Extractors)
+    if (pExtractor->m_bActive)
     {
-      if (pExtractor->m_bActive)
-      {
-        pExtractor->Extract(view, m_visibleObjects, &data);
-      }
+      pExtractor->Extract(view, m_visibleObjects, &data);
     }
-
-    data.SortAndBatch();
   }
 
+  data.SortAndBatch();
+
   m_CurrentExtractThread = (ezThreadID)0;
+}
+
+void ezRenderPipeline::FindVisibleObjects(const ezView& view)
+{
+  EZ_PROFILE("Visibility Culling");
+
+  m_visibleObjects.Clear();
+
+  ezFrustum frustum;
+  view.ComputeCullingFrustum(frustum);
+
+  bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
+  bool bRecordStats = CVarCullingStats && bIsMainView;
+  ezSpatialSystem::QueryStats stats;
+
+  EZ_LOCK(view.GetWorld()->GetReadMarker());
+  view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, bRecordStats ? &stats : nullptr);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (s_DebugCulling && bIsMainView)
+  {
+    ezDebugRenderer::DrawLineFrustum(&view, frustum, ezColor::LimeGreen, true);
+  }
+
+  if (bRecordStats)
+  {
+    ezStringBuilder sb;
+
+    ezDebugRenderer::DrawText(&view, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+
+    sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
+    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+
+    sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
+    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+
+    sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
+    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
+
+    // Exponential moving average for better readability.
+    m_fAverageCullingTime = ezMath::Lerp(m_fAverageCullingTime, stats.m_fTimeTaken, 0.01f);
+
+    sb.Format("Time Taken: {0}ms", m_fAverageCullingTime * 1000.0f);
+    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
+  }
+#endif
 }
 
 void ezRenderPipeline::Render(ezRenderContext* pRenderContext)

@@ -11,8 +11,8 @@ public:
   ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize = 128);
   ~ezSpatialSystem_RegularGrid();
 
-  /// \brief Returns bounding boxes of all cells associated with the given spatial data. Useful for debug visualizations.
-  void GetCellBoxesForSpatialData(const ezSpatialDataHandle& hData, ezHybridArray<ezBoundingBox, 16>& out_BoundingBoxes) const;
+  /// \brief Returns the bounding box of the cell associated with the given spatial data. Useful for debug visualizations.
+  ezResult GetCellBoxForSpatialData(const ezSpatialDataHandle& hData, ezBoundingBox& out_BoundingBox) const;
 
   /// \brief Returns bounding boxes of all existing cells.
   void GetAllCellBoxes(ezHybridArray<ezBoundingBox, 16>& out_BoundingBoxes) const;
@@ -29,22 +29,21 @@ private:
   virtual void SpatialDataChanged(ezSpatialData* pData, const ezSimdBBoxSphere& oldBounds) override;
   virtual void FixSpatialDataPointer(ezSpatialData* pOldPtr, ezSpatialData* pNewPtr) override;
 
-  template <typename Functor>
-  void ForEachCellInBox(const ezSimdBBox& box, Functor func) const;
-
   ezProxyAllocator m_AlignedAllocator;
   ezSimdVec4i m_iCellSize;
   ezSimdFloat m_fInvCellSize;
 
   struct Cell
   {
-    Cell(const ezSimdVec4i& index, ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator);
+    Cell(ezAllocatorBase* pAllocator, ezAllocatorBase* pAlignedAllocator);
 
     void AddData(ezSpatialData* pData);
     void RemoveData(ezSpatialData* pData);
     void UpdateData(ezSpatialData* pData);
 
-    ezSimdVec4i m_Index;
+    ezBoundingBox GetBoundingBox() const;
+
+    ezSimdBBoxSphere m_Bounds;
 
     ezDynamicArray<ezSimdBSphere> m_BoundingSpheres;
     ezDynamicArray<ezSpatialData*> m_DataPointers;
@@ -52,4 +51,11 @@ private:
   };
 
   ezHashTable<ezUInt64, Cell*, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_Cells;
+
+  Cell* m_pOverflowCell;
+
+  template <typename Functor>
+  void ForEachCellInBox(const ezSimdBBox& box, Functor func) const;
+
+  Cell* GetOrCreateCell(const ezSimdBBoxSphere& bounds);
 };

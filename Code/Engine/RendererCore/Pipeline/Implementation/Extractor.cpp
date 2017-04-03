@@ -64,10 +64,8 @@ namespace
       const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
       {
-        ezHybridArray<ezBoundingBox, 16> boxes;
-        pSpatialSystemGrid->GetCellBoxesForSpatialData(pObject->GetSpatialData(), boxes);
-
-        for (auto& box : boxes)
+        ezBoundingBox box;
+        if (pSpatialSystemGrid->GetCellBoxForSpatialData(pObject->GetSpatialData(), box).Succeeded())
         {
           ezDebugRenderer::DrawLineBox(&view, box, ezColor::Cyan);
         }

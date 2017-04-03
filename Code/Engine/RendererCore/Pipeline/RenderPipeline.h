@@ -79,6 +79,8 @@ private:
   ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti);
 
   void ExtractData(const ezView& view);
+  void FindVisibleObjects(const ezView& view);
+
   void Render(ezRenderContext* pRenderer);
 
 private: // Member data
@@ -89,6 +91,10 @@ private: // Member data
   // Pipeline render data
   ezExtractedRenderData m_Data[2];
   ezDynamicArray<const ezGameObject*> m_visibleObjects;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  float m_fAverageCullingTime;
+#endif
 
   ezHashedString m_sName;
   ezUInt64 m_uiLastExtractionFrame;

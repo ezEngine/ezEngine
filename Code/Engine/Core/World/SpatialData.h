@@ -7,7 +7,7 @@ struct EZ_ALIGN_16(ezSpatialData)
 {
   struct Flags
   {
-    typedef ezUInt16 StorageType;
+    typedef ezUInt8 StorageType;
 
     enum Enum
     {
@@ -26,11 +26,11 @@ struct EZ_ALIGN_16(ezSpatialData)
   };
 
   ezGameObject* m_pObject = nullptr;
-  ezUInt16 m_uiRefCount = 0;
+  void* m_pUserData = nullptr;
   ezBitflags<Flags> m_Flags;
 
   ///\todo might want to store local bounding box for precise culling
-  ezUInt32 m_uiReserved[5];
+  ezUInt32 m_uiReserved[3];
 
   ezSimdBBoxSphere m_Bounds;
 };
