@@ -31,6 +31,7 @@ private:
 
   ezProxyAllocator m_AlignedAllocator;
   ezSimdVec4i m_iCellSize;
+  ezSimdVec4f m_fOverlapSize;
   ezSimdFloat m_fInvCellSize;
 
   struct Cell

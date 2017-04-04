@@ -86,14 +86,18 @@ void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const 
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
     return;
 
-  ezSimdBBoxSphere oldBounds = pData->m_Bounds;
-
   pData->m_pObject = pObject;
-  pData->m_Bounds = bounds;
 
-  if (bounds != oldBounds)
+  if (!pData->m_Flags.IsSet(ezSpatialData::Flags::AlwaysVisible))
   {
-    SpatialDataChanged(pData, oldBounds);
+    ezSimdBBoxSphere oldBounds = pData->m_Bounds;
+
+    pData->m_Bounds = bounds;
+
+    if (bounds != oldBounds)
+    {
+      SpatialDataChanged(pData, oldBounds);
+    }
   }
 }
 

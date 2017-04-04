@@ -182,6 +182,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /* = 128 */)
   : m_AlignedAllocator("Spatial System Aligned", ezFoundation::GetAlignedAllocator())
   , m_iCellSize(uiCellSize)
+  , m_fOverlapSize(uiCellSize / 4.0f)
   , m_fInvCellSize(1.0f / uiCellSize)
 {
   ezSimdBBox overflowBox;
@@ -491,8 +492,8 @@ void ezSpatialSystem_RegularGrid::FixSpatialDataPointer(ezSpatialData* pOldPtr, 
 template <typename Functor>
 EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachCellInBox(const ezSimdBBox& box, Functor func) const
 {
-  ezSimdVec4i minIndex = ToVec3I32(box.m_Min * m_fInvCellSize);
-  ezSimdVec4i maxIndex = ToVec3I32(box.m_Max * m_fInvCellSize);
+  ezSimdVec4i minIndex = ToVec3I32((box.m_Min - m_fOverlapSize) * m_fInvCellSize);
+  ezSimdVec4i maxIndex = ToVec3I32((box.m_Max + m_fOverlapSize) * m_fInvCellSize);
 
   EZ_ASSERT_DEBUG((minIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
   EZ_ASSERT_DEBUG((maxIndex.Abs() < ezSimdVec4i(MAX_CELL_INDEX)).AllSet<3>(), "Position is too big");
