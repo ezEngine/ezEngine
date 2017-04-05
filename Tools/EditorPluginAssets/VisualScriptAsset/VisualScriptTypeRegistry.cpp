@@ -176,6 +176,11 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
   pRtti->GetAllProperties(properties);
 
+  ezSet<ezInt32> usedInputDataPinIDs;
+  ezSet<ezInt32> usedOutputDataPinIDs;
+  ezSet<ezInt32> usedInputExecPinIDs;
+  ezSet<ezInt32> usedOutputExecPinIDs;
+
   for (auto prop : properties)
   {
     ezVisualScriptPinDescriptor pd;
@@ -189,6 +194,11 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       pd.m_DataType = pAttr->m_DataType;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
       nd.m_InputPins.PushBack(pd);
+
+      if (usedInputDataPinIDs.Contains(pd.m_uiPinIndex))
+        ezLog::Error("Visual Script Node '{0}' uses the same input data pin index multiple times: '{1}'", nd.m_sTypeName, pd.m_uiPinIndex);
+
+      usedInputDataPinIDs.Insert(pd.m_uiPinIndex);
     }
 
     if (const ezVisScriptDataPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptDataPinOutAttribute>())
@@ -198,6 +208,11 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       pd.m_DataType = pAttr->m_DataType;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
       nd.m_OutputPins.PushBack(pd);
+
+      if (usedOutputDataPinIDs.Contains(pd.m_uiPinIndex))
+        ezLog::Error("Visual Script Node '{0}' uses the same output data pin index multiple times: '{1}'", nd.m_sTypeName, pd.m_uiPinIndex);
+
+      usedOutputDataPinIDs.Insert(pd.m_uiPinIndex);
     }
 
     if (const ezVisScriptExecPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinInAttribute>())
@@ -206,6 +221,11 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       pd.m_Color = ExecutionPinColor;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
       nd.m_InputPins.PushBack(pd);
+
+      if (usedInputExecPinIDs.Contains(pd.m_uiPinIndex))
+        ezLog::Error("Visual Script Node '{0}' uses the same input exec pin index multiple times: '{1}'", nd.m_sTypeName, pd.m_uiPinIndex);
+
+      usedInputExecPinIDs.Insert(pd.m_uiPinIndex);
     }
 
     if (const ezVisScriptExecPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinOutAttribute>())
@@ -214,6 +234,11 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       pd.m_Color = ExecutionPinColor;
       pd.m_uiPinIndex = pAttr->m_uiPinSlot;
       nd.m_OutputPins.PushBack(pd);
+
+      if (usedOutputExecPinIDs.Contains(pd.m_uiPinIndex))
+        ezLog::Error("Visual Script Node '{0}' uses the same output exec pin index multiple times: '{1}'", nd.m_sTypeName, pd.m_uiPinIndex);
+
+      usedOutputExecPinIDs.Insert(pd.m_uiPinIndex);
     }
 
     if (prop->GetCategory() == ezPropertyCategory::Constant)

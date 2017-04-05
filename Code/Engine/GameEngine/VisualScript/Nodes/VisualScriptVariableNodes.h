@@ -34,7 +34,7 @@ public:
 
   ezComponentHandle m_hComponent;
   ezString m_sVariable;
-  double m_fValue;
+  double m_fValue = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ public:
 
   ezComponentHandle m_hComponent;
   ezString m_sVariable;
-  bool m_bValue;
+  bool m_bValue = false;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ public:
 
   ezString m_sVariable;
   ezTempHashedString m_VarName;
-  double m_Value;
+  double m_Value = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ public:
 
   ezString m_sVariable;
   ezTempHashedString m_VarName;
-  double m_Value;
+  double m_Value = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ public:
 
   ezString m_sVariable;
   ezTempHashedString m_VarName;
-  bool m_Value;
+  bool m_Value = false;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,24 @@ public:
 
   ezString m_sVariable;
   ezTempHashedString m_VarName;
-  bool m_Value;
+  bool m_Value = false;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_ToggleBool : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ToggleBool, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_ToggleBool();
+  ~ezVisualScriptNode_ToggleBool();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+
+  ezString m_sVariable;
+  ezTempHashedString m_VarName;
+  bool m_Value = false;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -367,3 +367,45 @@ void* ezVisualScriptNode_StoreBool::GetInputPinDataPointer(ezUInt8 uiPin)
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_ToggleBool>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Variables")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sVariable),
+    EZ_MEMBER_PROPERTY("Default", m_Value),
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnTrue", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnFalse", 1),
+    EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Boolean),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_ToggleBool::ezVisualScriptNode_ToggleBool() { }
+ezVisualScriptNode_ToggleBool::~ezVisualScriptNode_ToggleBool() { }
+
+void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_VarName.GetHash() == 0)
+  {
+    m_VarName = m_sVariable.GetData();
+  }
+
+  pInstance->GetLocalVariables().RetrieveBool(m_VarName, m_Value, m_Value);
+  m_Value = !m_Value;
+
+  pInstance->GetLocalVariables().StoreBool(m_VarName, m_Value);
+  pInstance->SetOutputPinValue(this, 0, &m_Value);
+
+  pInstance->ExecuteConnectedNodes(this, m_Value ? 0 : 1);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
