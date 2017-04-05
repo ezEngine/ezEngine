@@ -1,9 +1,10 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxRaycastInteractComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
+#include <Core/Messages/TriggerMessage.h>
 
 //////////////////////////////////////////////////////////////////////////
 
