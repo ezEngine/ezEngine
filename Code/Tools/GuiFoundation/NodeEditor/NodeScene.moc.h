@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Containers/Map.h>
@@ -52,6 +52,8 @@ private:
   void GetSelectedNodes(ezDeque<ezQtNode*>& selection) const;
   void ConnectPins(const ezConnection* pConnection);
   void DisconnectPins(const ezConnection* pConnection);
+  void MarkupConnectablePins(ezQtPin* pSourcePin);
+  void ResetConnectablePinMarkup();
 
 protected:
   virtual ezStatus RemoveNode(ezQtNode* pNode);
@@ -83,6 +85,7 @@ private:
   ezDeque<const ezDocumentObject*> m_Selection;
   ezVec2 m_vPos;
   QString m_sContextMenuSearchText;
+  ezDynamicArray<const ezQtPin*> m_ConnectablePins;
 
   static ezVec2 s_LastMouseInteraction;
 };

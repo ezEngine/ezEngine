@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
@@ -116,7 +116,32 @@ void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
   if (m_pTempConnection)
   {
     event->accept();
-    m_pTempConnection->SetPosOut(event->scenePos());
+
+    ezVec2 bestPos = s_LastMouseInteraction;
+
+    // snap to the closest pin that we can connect to
+    if (!m_ConnectablePins.IsEmpty())
+    {
+      const float fPinWidth = m_ConnectablePins[0]->sceneBoundingRect().width();
+
+      // this is also the threshold at which we snap to another position
+      float fDistToBest = ezMath::Square(fPinWidth * 2.5f);
+
+      for (auto pin : m_ConnectablePins)
+      {
+        const QPointF center = pin->sceneBoundingRect().center();
+        const ezVec2 pt = ezVec2(center.x(), center.y());
+        const float lenSqr = (pt - s_LastMouseInteraction).GetLengthSquared();
+
+        if (lenSqr < fDistToBest)
+        {
+          fDistToBest = lenSqr;
+          bestPos = pt;
+        }
+      }
+    }
+
+    m_pTempConnection->SetPosOut(QPointF(bestPos.x, bestPos.y));
     return;
   }
 
@@ -143,6 +168,8 @@ void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
         m_pTempConnection->SetDirIn(pPin->GetPinDir());
         m_pTempConnection->SetPosOut(pPin->GetPinPos());
         m_pTempConnection->SetDirOut(-pPin->GetPinDir());
+
+        MarkupConnectablePins(pPin);
         return;
       }
     }
@@ -166,8 +193,9 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   if (m_pTempConnection && event->button() == Qt::LeftButton)
   {
     event->accept();
+
     QTransform id;
-    QGraphicsItem* item = itemAt(event->scenePos(), id);
+    QGraphicsItem* item = itemAt(m_pTempConnection->GetOutPos(), id);
     if (item && item->type() == Type::Pin)
     {
       ezQtPin* pPin = static_cast<ezQtPin*>(item);
@@ -183,6 +211,8 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     delete m_pTempConnection;
     m_pTempConnection = nullptr;
     m_pStartPin = nullptr;
+
+    ResetConnectablePinMarkup();
     return;
   }
 
@@ -568,6 +598,64 @@ void ezQtNodeScene::DisconnectPins(const ezConnection* pConnection)
   pInput->RemoveConnection(pQtConnection);
   removeItem(pQtConnection);
   delete pQtConnection;
+}
+
+void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
+{
+  m_ConnectablePins.Clear();
+
+  if (pQtSourcePin->GetPin()->GetType() != ezPin::Type::Output)
+    return;
+
+  const ezPin* pSourcePin = pQtSourcePin->GetPin();
+
+  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezDocumentObject* pDocObject = it.Key();
+    ezQtNode* pTargetNode = it.Value();
+
+    for (auto pin : m_pManager->GetInputPins(pDocObject))
+    {
+      ezQtPin* pQtTargetPin = pTargetNode->GetInputPin(pin);
+
+      ezDocumentNodeManager::CanConnectResult res;
+      m_pManager->CanConnect(pSourcePin, pin, res);
+      if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
+      {
+        pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnect);
+      }
+      else
+      {
+        m_ConnectablePins.PushBack(pQtTargetPin);
+
+        if (res == ezDocumentNodeManager::CanConnectResult::Connect1toN || res == ezDocumentNodeManager::CanConnectResult::ConnectNtoN)
+        {
+          pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanAddConnection);
+        }
+        else
+        {
+          pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanReplaceConnection);
+        }
+      }
+    }
+  }
+}
+
+void ezQtNodeScene::ResetConnectablePinMarkup()
+{
+  m_ConnectablePins.Clear();
+
+  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezDocumentObject* pDocObject = it.Key();
+    ezQtNode* pTargetNode = it.Value();
+
+    for (auto pin : m_pManager->GetInputPins(pDocObject))
+    {
+      ezQtPin* pQtTargetPin = pTargetNode->GetInputPin(pin);
+      pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
+    }
+  }
 }
 
 ezStatus ezQtNodeScene::RemoveNode(ezQtNode* pNode)

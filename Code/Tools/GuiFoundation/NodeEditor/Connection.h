@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
@@ -23,6 +23,8 @@ public:
 
   virtual void UpdateConnection();
   virtual QPen DeterminePen() const;
+
+  const QPointF& GetOutPos() const { return m_OutPoint; }
 
 protected:
   const ezConnection* m_pConnection;

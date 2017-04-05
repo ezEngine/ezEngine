@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
@@ -6,6 +6,14 @@
 
 class ezPin;
 class ezQtConnection;
+
+enum class ezQtPinHighlightState
+{
+  None,
+  CannotConnect,
+  CanAddConnection,
+  CanReplaceConnection,
+};
 
 class EZ_GUIFOUNDATION_DLL ezQtPin : public QGraphicsPathItem
 {
@@ -26,9 +34,13 @@ public:
   virtual QPointF GetPinDir() const;
   virtual QRectF GetPinRect() const;
   virtual void UpdateConnections();
+  void SetHighlightState(ezQtPinHighlightState state);
 
 protected:
+  virtual void AdjustRenderingForHighlight(ezQtPinHighlightState state);
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+
+  ezQtPinHighlightState m_HighlightState = ezQtPinHighlightState::None;
 
 private:
   ezHybridArray<ezQtConnection*, 6> m_Connections;

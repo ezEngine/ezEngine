@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
 #include <QApplication>
@@ -136,6 +136,51 @@ void ezQtPin::UpdateConnections()
       pConnection->SetDirOut(GetPinDir());
       pConnection->SetPosOut(GetPinPos());
     }
+  }
+}
+
+void ezQtPin::SetHighlightState(ezQtPinHighlightState state)
+{
+  if (m_HighlightState != state)
+  {
+    m_HighlightState = state;
+
+    AdjustRenderingForHighlight(state);
+
+    update();
+  }
+}
+
+void ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
+{
+  auto palette = QApplication::palette();
+
+  switch (state)
+  {
+  case ezQtPinHighlightState::None:
+    {
+      QPen pen(palette.light().color(), 3, Qt::SolidLine);
+      setPen(pen);
+      setBrush(m_Connections.IsEmpty() ? palette.highlightedText() : palette.base());
+    }
+    break;
+
+  case ezQtPinHighlightState::CanAddConnection:
+  case ezQtPinHighlightState::CanReplaceConnection:
+    {
+      QPen pen(palette.highlight().color(), 3, Qt::SolidLine);
+      setPen(pen);
+      setBrush(palette.base());
+    }
+    break;
+    
+  case ezQtPinHighlightState::CannotConnect:
+    {
+      QPen pen(palette.midlight().color(), 3, Qt::SolidLine);
+      setPen(pen);
+      setBrush(palette.base());
+    }
+    break;
   }
 }
 
