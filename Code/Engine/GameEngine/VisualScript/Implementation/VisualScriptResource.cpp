@@ -7,7 +7,7 @@
 /// ezVisualScriptResource
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptResource, 1, ezRTTIDefaultAllocator<ezVisualScriptResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptResource, 2, ezRTTIDefaultAllocator<ezVisualScriptResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptResource::ezVisualScriptResource() : ezResource<ezVisualScriptResource, ezVisualScriptResourceDescriptor>(DoUpdate::OnAnyThread, 1)
@@ -91,9 +91,9 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion == 3, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 4, "Incorrect version {0} for visual script", uiVersion);
 
-  if (uiVersion > 3)
+  if (uiVersion != 4)
     return;
 
   ezUInt32 uiNumNodes = 0;
@@ -136,7 +136,9 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
     stream >> con.m_uiSourceNode;
     stream >> con.m_uiTargetNode;
     stream >> con.m_uiOutputPin;
+    stream >> con.m_uiOutputPinType;
     stream >> con.m_uiInputPin;
+    stream >> con.m_uiInputPinType;
   }
 
   for (auto& prop : m_Properties)
@@ -148,7 +150,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const ezUInt8 uiVersion = 4;
 
   stream << uiVersion;
 
@@ -190,7 +192,9 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << con.m_uiSourceNode;
     stream << con.m_uiTargetNode;
     stream << con.m_uiOutputPin;
+    stream << con.m_uiOutputPinType;
     stream << con.m_uiInputPin;
+    stream << con.m_uiInputPinType;
   }
 
   for (const auto& prop : m_Properties)

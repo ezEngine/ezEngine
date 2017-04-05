@@ -17,7 +17,7 @@
 // ezVisualScriptAssetDocument
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
@@ -147,16 +147,20 @@ void ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptR
           auto& path = desc.m_ExecutionPaths.ExpandAndGetRef();
           path.m_uiSourceNode = srcNodeIdx;
           path.m_uiOutputPin = pVsPinSource->GetDescriptor()->m_uiPinIndex;
+
           path.m_uiTargetNode = ObjectToIndex[pVsPinTarget->GetParent()];
           path.m_uiInputPin = pVsPinTarget->GetDescriptor()->m_uiPinIndex;
+
         }
         else if (pVsPinSource->GetDescriptor()->m_PinType == ezVisualScriptPinDescriptor::Data)
         {
           auto& path = desc.m_DataPaths.ExpandAndGetRef();
           path.m_uiSourceNode = srcNodeIdx;
           path.m_uiOutputPin = pVsPinSource->GetDescriptor()->m_uiPinIndex;
+          path.m_uiOutputPinType = pVsPinSource->GetDescriptor()->m_DataType;
           path.m_uiTargetNode = ObjectToIndex[pVsPinTarget->GetParent()];
           path.m_uiInputPin = pVsPinTarget->GetDescriptor()->m_uiPinIndex;
+          path.m_uiInputPinType = pVsPinTarget->GetDescriptor()->m_DataType;
         }
       }
     }

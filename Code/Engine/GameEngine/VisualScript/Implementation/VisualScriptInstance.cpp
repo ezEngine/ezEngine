@@ -64,7 +64,7 @@ void ezVisualScriptInstance::SetupPinDataTypeConversions()
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
-  //RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
+  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
 }
 
 ezVisualScriptInstance::~ezVisualScriptInstance()
@@ -168,7 +168,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
 
   for (const auto& con : resource.m_DataPaths)
   {
-    ConnectDataPins(con.m_uiSourceNode, con.m_uiOutputPin, con.m_uiTargetNode, con.m_uiInputPin);
+    ConnectDataPins(con.m_uiSourceNode, con.m_uiOutputPin, (ezVisualScriptDataPinType::Enum) con.m_uiOutputPinType, con.m_uiTargetNode, con.m_uiInputPin, (ezVisualScriptDataPinType::Enum) con.m_uiInputPinType);
   }
 
   ComputeNodeDependencies();
@@ -266,64 +266,13 @@ void ezVisualScriptInstance::ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8
   con.m_uiTargetPin = uiTargetPin;
 }
 
-void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin)
+void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezVisualScriptDataPinType::Enum sourcePinType, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType)
 {
   DataPinConnection& con = m_DataConnections[((ezUInt32)uiSourceNode << 16) | (ezUInt32)uiSourcePin].ExpandAndGetRef();
   con.m_uiTargetNode = uiTargetNode;
   con.m_uiTargetPin = uiTargetPin;
-  con.m_AssignFunc = nullptr;
-  con.m_pTargetData = nullptr;
-
-  ezVisualScriptDataPinType::Enum sourceType = ezVisualScriptDataPinType::None;
-  ezVisualScriptDataPinType::Enum targetType = ezVisualScriptDataPinType::None;
-
-  {
-    con.m_pTargetData = m_Nodes[uiTargetNode]->GetInputPinDataPointer(uiTargetPin);
-
-    const ezRTTI* pRtti = m_Nodes[uiTargetNode]->GetDynamicRTTI();
-    ezHybridArray<ezAbstractProperty*, 32> properties;
-    pRtti->GetAllProperties(properties);
-
-    for (const ezAbstractProperty* pProp : properties)
-    {
-      if (const ezVisScriptDataPinInAttribute* pAttr = pProp->GetAttributeByType<ezVisScriptDataPinInAttribute>())
-      {
-        if (pAttr->m_uiPinSlot == uiTargetPin)
-        {
-          targetType = pAttr->m_DataType;
-          break;
-        }
-      }
-    }
-  }
-
-  {
-    const ezRTTI* pRtti = m_Nodes[uiSourceNode]->GetDynamicRTTI();
-    ezHybridArray<ezAbstractProperty*, 32> properties;
-    pRtti->GetAllProperties(properties);
-
-    for (const ezAbstractProperty* pProp : properties)
-    {
-      if (const ezVisScriptDataPinOutAttribute* pAttr = pProp->GetAttributeByType<ezVisScriptDataPinOutAttribute>())
-      {
-        if (pAttr->m_uiPinSlot == uiSourcePin)
-        {
-          sourceType = pAttr->m_DataType;
-          break;
-        }
-      }
-    }
-  }
-
-  if (targetType == ezVisualScriptDataPinType::None)
-  {
-    // Workaround/Hack for the message sender nodes:
-    // They have no pins whatsoever, but it is ensured outside, that all types match exactly
-
-    targetType = sourceType;
-  }
-
-  con.m_AssignFunc = FindDataPinAssignFunction(sourceType, targetType);
+  con.m_pTargetData = m_Nodes[uiTargetNode]->GetInputPinDataPointer(uiTargetPin);
+  con.m_AssignFunc = FindDataPinAssignFunction(sourcePinType, targetPinType);
 }
 
 void ezVisualScriptInstance::SetOutputPinValue(const ezVisualScriptNode* pNode, ezUInt8 uiPin, const void* pValue)

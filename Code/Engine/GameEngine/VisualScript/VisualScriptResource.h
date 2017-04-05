@@ -38,7 +38,9 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     ezUInt16 m_uiSourceNode;
     ezUInt16 m_uiTargetNode;
     ezUInt8 m_uiOutputPin;
+    ezUInt8 m_uiOutputPinType; // ezVisualScriptDataPinType
     ezUInt8 m_uiInputPin;
+    ezUInt8 m_uiInputPinType; // ezVisualScriptDataPinType
   };
 
   struct Property

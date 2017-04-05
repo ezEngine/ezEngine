@@ -52,6 +52,22 @@ public:
   double m_Value2 = 0.0;
 };
 
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_If : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_If, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_If();
+  ~ezVisualScriptNode_If();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  ezEnum<ezLogicOperator> m_Operator;
+
+  double m_Value1 = 0.0;
+  double m_Value2 = 0.0;
+};
+
 //////////////////////////////////////////////////////////////////////////
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Logic : public ezVisualScriptNode

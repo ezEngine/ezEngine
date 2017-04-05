@@ -54,10 +54,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
   {
     // Properties
     EZ_ENUM_MEMBER_PROPERTY("Operator", ezLogicOperator, m_Operator),
-    // Execution Pins
-    EZ_INPUT_EXECUTION_PIN("run", 0),
-    EZ_OUTPUT_EXECUTION_PIN("OnTrue", 0),
-    EZ_OUTPUT_EXECUTION_PIN("OnFalse", 1),
+
     // Data Pins (Input)
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value1", 0, ezVisualScriptDataPinType::Number, m_Value1),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value2", 1, ezVisualScriptDataPinType::Number, m_Value2),
@@ -104,6 +101,82 @@ void ezVisualScriptNode_Compare::Execute(ezVisualScriptInstance* pInstance, ezUI
 }
 
 void* ezVisualScriptNode_Compare::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+  case 0:
+    return &m_Value1;
+
+  case 1:
+    return &m_Value2;
+  }
+
+  return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_If>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    // Properties
+    EZ_ENUM_MEMBER_PROPERTY("Operator", ezLogicOperator, m_Operator),
+    // Execution Pins
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnTrue", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnFalse", 1),
+    // Data Pins (Input)
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value1", 0, ezVisualScriptDataPinType::Number, m_Value1),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value2", 1, ezVisualScriptDataPinType::Number, m_Value2),
+    // Data Pins (Output)
+    EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Boolean),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_If::ezVisualScriptNode_If() { }
+ezVisualScriptNode_If::~ezVisualScriptNode_If() { }
+
+void ezVisualScriptNode_If::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  bool result = true;
+
+  switch (m_Operator)
+  {
+  case ezLogicOperator::Equal:
+    result = m_Value1 == m_Value2;
+    break;
+  case ezLogicOperator::Unequal:
+    result = m_Value1 != m_Value2;
+    break;
+  case ezLogicOperator::Less:
+    result = m_Value1 < m_Value2;
+    break;
+  case ezLogicOperator::LessEqual:
+    result = m_Value1 <= m_Value2;
+    break;
+  case ezLogicOperator::Greater:
+    result = m_Value1 > m_Value2;
+    break;
+  case ezLogicOperator::GreaterEqual:
+    result = m_Value1 >= m_Value2;
+    break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  pInstance->SetOutputPinValue(this, 0, &result);
+  pInstance->ExecuteConnectedNodes(this, result ? 0 : 1);
+}
+
+void* ezVisualScriptNode_If::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
