@@ -604,8 +604,7 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
 {
   m_ConnectablePins.Clear();
 
-  if (pQtSourcePin->GetPin()->GetType() != ezPin::Type::Output)
-    return;
+  const bool bConnectForward = pQtSourcePin->GetPin()->GetType() == ezPin::Type::Output;
 
   const ezPin* pSourcePin = pQtSourcePin->GetPin();
 
@@ -614,12 +613,19 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
     const ezDocumentObject* pDocObject = it.Key();
     ezQtNode* pTargetNode = it.Value();
 
-    for (auto pin : m_pManager->GetInputPins(pDocObject))
+    const ezArrayPtr<ezPin* const> pinArray = bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
+
+    for (auto pin : pinArray)
     {
-      ezQtPin* pQtTargetPin = pTargetNode->GetInputPin(pin);
+      ezQtPin* pQtTargetPin = bConnectForward ? pTargetNode->GetInputPin(pin) : pTargetNode->GetOutputPin(pin);
 
       ezDocumentNodeManager::CanConnectResult res;
-      m_pManager->CanConnect(pSourcePin, pin, res);
+
+      if (bConnectForward)
+        m_pManager->CanConnect(pSourcePin, pin, res);
+      else
+        m_pManager->CanConnect(pin, pSourcePin, res);
+
       if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
       {
         pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnect);
@@ -653,6 +659,12 @@ void ezQtNodeScene::ResetConnectablePinMarkup()
     for (auto pin : m_pManager->GetInputPins(pDocObject))
     {
       ezQtPin* pQtTargetPin = pTargetNode->GetInputPin(pin);
+      pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
+    }
+
+    for (auto pin : m_pManager->GetOutputPins(pDocObject))
+    {
+      ezQtPin* pQtTargetPin = pTargetNode->GetOutputPin(pin);
       pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
     }
   }
