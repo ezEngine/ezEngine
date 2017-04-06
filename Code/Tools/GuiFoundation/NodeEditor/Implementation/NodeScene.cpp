@@ -613,35 +613,47 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
     const ezDocumentObject* pDocObject = it.Key();
     ezQtNode* pTargetNode = it.Value();
 
-    const ezArrayPtr<ezPin* const> pinArray = bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
-
-    for (auto pin : pinArray)
     {
-      ezQtPin* pQtTargetPin = bConnectForward ? pTargetNode->GetInputPin(pin) : pTargetNode->GetOutputPin(pin);
+      const ezArrayPtr<ezPin* const> pinArray = bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
 
-      ezDocumentNodeManager::CanConnectResult res;
-
-      if (bConnectForward)
-        m_pManager->CanConnect(pSourcePin, pin, res);
-      else
-        m_pManager->CanConnect(pin, pSourcePin, res);
-
-      if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
+      for (auto pin : pinArray)
       {
-        pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnect);
-      }
-      else
-      {
-        m_ConnectablePins.PushBack(pQtTargetPin);
+        ezQtPin* pQtTargetPin = bConnectForward ? pTargetNode->GetInputPin(pin) : pTargetNode->GetOutputPin(pin);
 
-        if (res == ezDocumentNodeManager::CanConnectResult::Connect1toN || res == ezDocumentNodeManager::CanConnectResult::ConnectNtoN)
+        ezDocumentNodeManager::CanConnectResult res;
+
+        if (bConnectForward)
+          m_pManager->CanConnect(pSourcePin, pin, res);
+        else
+          m_pManager->CanConnect(pin, pSourcePin, res);
+
+        if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
         {
-          pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanAddConnection);
+          pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnect);
         }
         else
         {
-          pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanReplaceConnection);
+          m_ConnectablePins.PushBack(pQtTargetPin);
+
+          if (res == ezDocumentNodeManager::CanConnectResult::Connect1toN || res == ezDocumentNodeManager::CanConnectResult::ConnectNtoN)
+          {
+            pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanAddConnection);
+          }
+          else
+          {
+            pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanReplaceConnection);
+          }
         }
+      }
+    }
+
+    {
+      const ezArrayPtr<ezPin* const> pinArray = !bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
+
+      for (auto pin : pinArray)
+      {
+        ezQtPin* pQtTargetPin = !bConnectForward ? pTargetNode->GetInputPin(pin) : pTargetNode->GetOutputPin(pin);
+        pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnectSameDirection);
       }
     }
   }

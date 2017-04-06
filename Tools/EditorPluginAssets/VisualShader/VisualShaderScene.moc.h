@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
@@ -26,8 +26,10 @@ public:
   virtual void SetPin(const ezPin* pPin) override;
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
-
   virtual void ConnectedStateChanged(bool bConnected) override;
+
+protected:
+  virtual bool AdjustRenderingForHighlight(ezQtPinHighlightState state) override;
 };
 
 class ezQtVisualShaderConnection : public ezQtConnection

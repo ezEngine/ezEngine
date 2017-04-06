@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
@@ -79,9 +79,52 @@ void ezQtVisualScriptPin::ConnectedStateChanged(bool bConnected)
   }
   else
   {
-    auto palette = QApplication::palette();
-    setBrush(palette.base());
+    setBrush(QApplication::palette().base());
   }
+}
+
+bool ezQtVisualScriptPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
+{
+  const ezVisualScriptPin* pShaderPin = ezDynamicCast<const ezVisualScriptPin*>(GetPin());
+  EZ_ASSERT_DEV(pShaderPin != nullptr, "Invalid pin type");
+
+  const ezColorGammaUB col = pShaderPin->GetColor();
+
+  switch (state)
+  {
+  case ezQtPinHighlightState::None:
+    {
+      QPen p = pen();
+      p.setColor(qRgb(col.r, col.g, col.b));
+      setPen(p);
+
+      setBrush(GetConnections().IsEmpty() ? QApplication::palette().base() : pen().color());
+    }
+    break;
+
+  case ezQtPinHighlightState::CannotConnect:
+  case ezQtPinHighlightState::CannotConnectSameDirection:
+    {
+      QPen p = pen();
+      p.setColor(QApplication::palette().base().color().lighter());
+      setPen(p);
+
+      setBrush(QApplication::palette().base());
+    }
+    break;
+
+  case ezQtPinHighlightState::CanReplaceConnection:
+  case ezQtPinHighlightState::CanAddConnection:
+    {
+      QPen p = pen();
+      p.setColor(QApplication::palette().highlight().color());
+      setPen(p);
+      setBrush(QApplication::palette().base());
+    }
+    break;
+  }
+
+  return true;
 }
 
 //////////////////////////////////////////////////////////////////////////

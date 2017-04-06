@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -108,6 +108,52 @@ void ezQtVisualShaderPin::ConnectedStateChanged(bool bConnected)
     auto palette = QApplication::palette();
     setBrush(palette.base());
   }
+}
+
+
+bool ezQtVisualShaderPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
+{
+  const ezVisualShaderPin* pShaderPin = ezDynamicCast<const ezVisualShaderPin*>(GetPin());
+  EZ_ASSERT_DEV(pShaderPin != nullptr, "Invalid pin type");
+
+  const ezColorGammaUB col = pShaderPin->GetColor();
+  auto palette = QApplication::palette();
+
+  switch (state)
+  {
+  case ezQtPinHighlightState::None:
+    {
+      QPen p = pen();
+      p.setColor(qRgb(col.r, col.g, col.b));
+      setPen(p);
+
+      setBrush(GetConnections().IsEmpty() ? palette.base() : pen().color());
+    }
+    break;
+
+  case ezQtPinHighlightState::CannotConnect:
+  case ezQtPinHighlightState::CannotConnectSameDirection:
+    {
+      QPen p = pen();
+      p.setColor(QApplication::palette().base().color().lighter());
+      setPen(p);
+
+      setBrush(QApplication::palette().base());
+    }
+    break;
+
+  case ezQtPinHighlightState::CanReplaceConnection:
+  case ezQtPinHighlightState::CanAddConnection:
+    {
+      QPen p = pen();
+      p.setColor(QApplication::palette().highlight().color());
+      setPen(p);
+      setBrush(QApplication::palette().base());
+    }
+    break;
+  }
+
+  return true;
 }
 
 //////////////////////////////////////////////////////////////////////////

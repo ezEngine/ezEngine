@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -60,8 +60,9 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   if (Menus.IsAnySet(ezStandardMenuTypes::Panels))
     pMap->MapAction(s_hMenuPanels, "", 6.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Help))
-    pMap->MapAction(s_hMenuHelp, "", 7.0f);
+  // not used at the moment
+  //if (Menus.IsAnySet(ezStandardMenuTypes::Help))
+    //pMap->MapAction(s_hMenuHelp, "", 7.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////

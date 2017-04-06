@@ -57,8 +57,6 @@ void ezQtPin::ConnectedStateChanged(bool bConnected)
   }
 }
 
-
-
 void ezQtPin::SetPin(const ezPin* pPin)
 {
   m_pPin = pPin;
@@ -145,13 +143,14 @@ void ezQtPin::SetHighlightState(ezQtPinHighlightState state)
   {
     m_HighlightState = state;
 
-    AdjustRenderingForHighlight(state);
-
-    update();
+    if (AdjustRenderingForHighlight(state))
+    {
+      update();
+    }
   }
 }
 
-void ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
+bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
 {
   auto palette = QApplication::palette();
 
@@ -161,7 +160,7 @@ void ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
     {
       QPen pen(palette.light().color(), 3, Qt::SolidLine);
       setPen(pen);
-      setBrush(m_Connections.IsEmpty() ? palette.highlightedText() : palette.base());
+      setBrush(m_Connections.IsEmpty() ? palette.base() : palette.highlightedText());
     }
     break;
 
@@ -175,13 +174,16 @@ void ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
     break;
     
   case ezQtPinHighlightState::CannotConnect:
+  case ezQtPinHighlightState::CannotConnectSameDirection:
     {
-      QPen pen(palette.midlight().color(), 3, Qt::SolidLine);
+      QPen pen(QApplication::palette().base().color().lighter(), 3, Qt::SolidLine);
       setPen(pen);
       setBrush(palette.base());
     }
     break;
   }
+
+  return true;
 }
 
 QVariant ezQtPin::itemChange(GraphicsItemChange change, const QVariant& value)

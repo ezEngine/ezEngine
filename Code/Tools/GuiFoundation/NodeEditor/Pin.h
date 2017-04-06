@@ -11,6 +11,7 @@ enum class ezQtPinHighlightState
 {
   None,
   CannotConnect,
+  CannotConnectSameDirection,
   CanAddConnection,
   CanReplaceConnection,
 };
@@ -37,7 +38,7 @@ public:
   void SetHighlightState(ezQtPinHighlightState state);
 
 protected:
-  virtual void AdjustRenderingForHighlight(ezQtPinHighlightState state);
+  virtual bool AdjustRenderingForHighlight(ezQtPinHighlightState state);
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
   ezQtPinHighlightState m_HighlightState = ezQtPinHighlightState::None;
