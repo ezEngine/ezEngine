@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
@@ -64,6 +64,9 @@ public:
   ezEnum<ezBasisAxis> m_UpDir;
 
   ezMeshPrimitive::Enum m_PrimitiveType;
+
+  bool m_bRecalculateNormals;
+  bool m_bInvertNormals;
 
   bool m_bImportMaterials;
   bool m_bUseSubFolderForImportedMaterials;

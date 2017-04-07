@@ -26,6 +26,7 @@ o
 		s %ForwardDir{"ezBasisAxis::PositiveX"}
 		f %Height{0x0000803F}
 		b %ImportMaterials{0}
+		b %InvertNormals{1}
 		VarArray %Materials
 		{
 			Uuid{u4{11295200991947568127,2454832838597152448}}
@@ -35,6 +36,7 @@ o
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
+		b %RecalculateNormals{0}
 		s %RightDir{"ezBasisAxis::PositiveY"}
 		s %SubmeshName{""}
 		f %UniformScaling{0x0000803F}
@@ -56,7 +58,7 @@ AssetInfo
 			s{"id/Imp/Imp.obj"}
 		}
 		Uuid %DocumentID{u4{824725391493986470,5000215402686462604}}
-		u4 %Hash{10853171549371554362}
+		u4 %Hash{13507059269681630457}
 		VarArray %Outputs{}
 		VarArray %References
 		{

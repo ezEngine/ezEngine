@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
@@ -23,7 +23,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 2, ezRTTIDefaultAllocator
     EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
+    EZ_MEMBER_PROPERTY("InvertNormals", m_bInvertNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
+    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("NonUniformScaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.ply;*.pbrt")), // todo. need to get this list of extensions automatically.
     EZ_MEMBER_PROPERTY("SubmeshName", m_sSubMeshName),

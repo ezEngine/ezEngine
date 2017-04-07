@@ -302,19 +302,27 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   ezUInt32 uiTriangles = mesh->GetNumTriangles();
   ezLog::Info("Number of Triangles: {0}", uiTriangles);
 
+  const bool calculateNewNormals = !mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal) || pProp->m_bRecalculateNormals;
   {
     ezStopwatch timer;
-
-    bool missingNormals = !mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
-    bool missingTangents = !mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent) || !mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
-
-    if (missingNormals)
-      mesh->ComputeNormals();
-    if (missingTangents)
-      mesh->ComputeTangents();
-
-    if (missingTangents || missingTangents)
-      ezLog::Success("Computed missing normals and tangents (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+    if (calculateNewNormals)
+    {
+      if (mesh->ComputeNormals().Succeeded())
+        ezLog::Success("Computed normals (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+      else
+        ezLog::Success("Failed to compute normals");
+    }
+  }
+  {
+    const bool calculateNewTangents = !mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent) || !mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent) || calculateNewNormals;
+    ezStopwatch timer;
+    if (calculateNewTangents)
+    {
+      if (mesh->ComputeTangents().Succeeded())
+        ezLog::Success("Computed tangents (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+      else
+        ezLog::Success("Failed to compute tangents");
+    }
   }
 
   // Create vertex & index buffer.
@@ -398,6 +406,9 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       ezVec3 vNormal = streamNormal.GetValue(dataIndices[Normal]);
       vNormal = mTransformation.TransformDirection(vNormal);
       vNormal.NormalizeIfNotZero();
+
+      if (pProp->m_bInvertNormals)
+        vNormal = -vNormal;
 
       desc.MeshBufferDesc().SetVertexData(uiPosStream, uiVertexIndex, vPosition);
       desc.MeshBufferDesc().SetVertexData(uiNormalStream, uiVertexIndex, vNormal);
