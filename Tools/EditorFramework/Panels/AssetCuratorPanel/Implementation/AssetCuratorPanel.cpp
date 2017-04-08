@@ -137,7 +137,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
   else if (assetInfo->m_TransformState == ezAssetInfo::TransformError)
   {
     text = "<span style=\"color:#ff8800;\">Transform Error:</span><br><br>";
-    text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", "More info comming soon!");
+    text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", "More info coming soon!");
   }
 
   IssueInfo->setAcceptRichText(true);

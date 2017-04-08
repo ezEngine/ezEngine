@@ -29,7 +29,11 @@ ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentP
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezVisualScriptResourceDescriptor desc;
-  GenerateVisualScriptDescriptor(desc);
+  if ( GenerateVisualScriptDescriptor( desc ).Failed() )
+  {
+    ezLog::Warning( "Couldn't generate visual script descriptor!" );
+    return ezStatus( EZ_FAILURE );
+  }
 
   ezResourceHandleWriteContext context;
   context.BeginWritingToStream(&stream);
@@ -76,7 +80,7 @@ void ezVisualScriptAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
   pManager->RestoreMetaDataAfterLoading(graph);
 }
 
-void ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc)
+ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc)
 {
   ezVisualScriptNodeManager* pNodeManager = static_cast<ezVisualScriptNodeManager*>(GetObjectManager());
   ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
@@ -102,6 +106,12 @@ void ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptR
   {
     const ezDocumentObject* pObject = allNodes[i];
     const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
+
+    if ( !pDesc )
+    {
+      ezLog::SeriousWarning( "Couldn't get descriptor from type registry. Are all plugins loaded?" );
+      return EZ_FAILURE;
+    }
 
     auto& node = desc.m_Nodes.ExpandAndGetRef();
     node.m_pType = nullptr;
@@ -165,6 +175,8 @@ void ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptR
       }
     }
   }
+
+  return EZ_SUCCESS;
 }
 
 

@@ -25,5 +25,5 @@ protected:
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 
-  void GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc);
+  ezResult GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc);
 };
