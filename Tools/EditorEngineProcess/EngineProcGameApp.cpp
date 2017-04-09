@@ -54,8 +54,6 @@ void ezEngineProcessGameApplication::ConnectToHost()
   // wait indefinitely
   m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEngine>(), ezTime());
 
-  // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection information over
-  SendReflectionInformation();
 }
 
 void ezEngineProcessGameApplication::DisableErrorReport()
@@ -220,6 +218,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
       DoProjectSetup();
       ezStartup::StartupEngine();
     }
+
+    // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection information over
+    SendReflectionInformation();
 
     // Project setup, we are now ready to accept document messages.
     SendProjectReadyMessage();
