@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -6,11 +6,12 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 2);
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Script", GetScriptFile, SetScriptFile)->AddAttributes(new ezAssetBrowserAttribute("Visual Script")),
+    EZ_ACCESSOR_PROPERTY("HandleGlobalEvents", GetIsGlobalEventHandler, SetIsGlobalEventHandler),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -37,19 +38,25 @@ void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_hResource;
-
+  s << m_bGlobalEventHandler;
   /// \todo Store the current script state
 }
 
 void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hResource;
 
+  if (uiVersion >= 2)
+  {
+    s >> m_bGlobalEventHandler;
+  }
+
   /// \todo Read script state
+  SetIsGlobalEventHandler(m_bGlobalEventHandler);
 }
 
 void ezVisualScriptComponent::SetScriptFile(const char* szFile)
@@ -75,6 +82,15 @@ const char* ezVisualScriptComponent::GetScriptFile() const
 void ezVisualScriptComponent::SetScript(const ezVisualScriptResourceHandle& hResource)
 {
   m_hResource = hResource;
+}
+
+void ezVisualScriptComponent::SetIsGlobalEventHandler(bool enable)
+{
+  if (m_bGlobalEventHandler != enable)
+  {
+    m_bGlobalEventHandler = enable;
+    EnableGlobalEventHandlerMode(m_bGlobalEventHandler);
+  }
 }
 
 void ezVisualScriptComponent::Update()

@@ -21,3 +21,5 @@ ezCollisionMeshType::TriangleMesh;Triangle Mesh
 ezPxSteppingMode::Variable;Variable
 ezPxSteppingMode::Fixed;Fixed
 ezPxSteppingMode::SemiFixed;SemiFixed
+ezPxTriggerComponent;Trigger
+ezPxRaycastInteractComponent;Raycast Interaction

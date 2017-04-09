@@ -135,6 +135,8 @@ protected:
   /// even if the script did not actually have a corresponding message handler.
   void EnableEventHandlerMode(bool enable);
 
+  void EnableGlobalEventHandlerMode(bool enable);
+
   /// \brief By default disabled. Enable to have OnUnhandledMessage() called for every unhandled message.
   void EnableUnhandledMessageHandler(bool enable);
 

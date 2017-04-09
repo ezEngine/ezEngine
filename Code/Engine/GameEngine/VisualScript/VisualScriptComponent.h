@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/World/World.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -26,6 +26,9 @@ public:
   void SetScript(const ezVisualScriptResourceHandle& hResource);
   EZ_FORCE_INLINE const ezVisualScriptResourceHandle& GetScript() const { return m_hResource; }
 
+  void SetIsGlobalEventHandler(bool enable);
+  bool GetIsGlobalEventHandler() const { return m_bGlobalEventHandler; }
+
   void Update();
 
 protected:
@@ -38,7 +41,7 @@ protected:
   ezVisualScriptResourceHandle m_hResource;
   ezUniquePtr<ezVisualScriptInstance> m_Script;
 
-
+  bool m_bGlobalEventHandler = false;
 };
 
 

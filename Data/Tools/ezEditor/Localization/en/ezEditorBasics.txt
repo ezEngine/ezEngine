@@ -96,3 +96,4 @@ ezInputMessageGranularity::PressReleaseDownAndUp;All, even Key Up
 ezComponent;Component
 Animation;Animation
 FX;FX
+Scripting;Scripting

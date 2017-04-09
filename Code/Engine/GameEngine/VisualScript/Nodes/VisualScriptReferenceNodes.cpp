@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptReferenceNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/World/GameObject.h>
@@ -24,7 +24,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_FindChildObject::ezVisualScriptNode_FindChildObject() { }
+ezVisualScriptNode_FindChildObject::ezVisualScriptNode_FindChildObject() {}
+ezVisualScriptNode_FindChildObject::~ezVisualScriptNode_FindChildObject() {}
 
 void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -70,7 +71,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_FindComponent::ezVisualScriptNode_FindComponent() { }
+ezVisualScriptNode_FindComponent::ezVisualScriptNode_FindComponent() {}
+ezVisualScriptNode_FindComponent::~ezVisualScriptNode_FindComponent() {}
 
 void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -115,3 +117,50 @@ void* ezVisualScriptNode_FindComponent::GetInputPinDataPointer(ezUInt8 uiPin)
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_QueryGlobalObject>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("References")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    // Data Pins (Output)
+    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+    // Exposed Properties
+    EZ_MEMBER_PROPERTY("Name", m_sObjectName),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_QueryGlobalObject::ezVisualScriptNode_QueryGlobalObject() {}
+ezVisualScriptNode_QueryGlobalObject::~ezVisualScriptNode_QueryGlobalObject() {}
+
+void ezVisualScriptNode_QueryGlobalObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_hObject.IsInvalidated() && !m_sObjectName.IsEmpty())
+  {
+    const ezTempHashedString name(m_sObjectName.GetData());
+    ezGameObject* pObject;
+
+    if (pInstance->GetWorld()->TryGetObjectWithGlobalKey(name, pObject))
+    {
+      m_hObject = pObject->GetHandle();
+    }
+    else
+    {
+      // make sure we don't try this again
+      m_sObjectName.Clear();
+      m_hObject.Invalidate();
+    }
+  }
+
+  pInstance->SetOutputPinValue(this, 0, &m_hObject);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+

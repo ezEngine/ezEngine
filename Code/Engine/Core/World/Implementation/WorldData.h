@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Communication/MessageQueue.h>
 #include <Foundation/Containers/HashTable.h>
@@ -17,6 +17,7 @@ namespace ezInternal
   {
     friend class ::ezWorld;
     friend class ::ezComponentManagerBase;
+    friend class ::ezComponent;
 
     WorldData(ezWorldDesc& desc);
     ~WorldData();
@@ -158,6 +159,9 @@ namespace ezInternal
     mutable ezAtomicInteger32 m_iReadCounter;
 
     bool m_bSimulateWorld;
+
+    // Scripting / Global Events
+    ezDynamicArray<ezComponent*> m_GlobalMessageHandlers;
 
   public:
     class ReadMarker

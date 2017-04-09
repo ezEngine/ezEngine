@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptObjectNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/World/GameObject.h>
@@ -61,12 +61,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTID
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
-    EZ_INPUT_EXECUTION_PIN("run", 0),
+    EZ_INPUT_EXECUTION_PIN("Activate", 0),
+    EZ_INPUT_EXECUTION_PIN("Deactivate", 1),
     // Execution Pins (Output)
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins (Input)
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
-    EZ_INPUT_DATA_PIN("Activate", 1, ezVisualScriptDataPinType::Boolean),
   }
   EZ_END_PROPERTIES
 }
@@ -81,7 +81,14 @@ void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInst
     ezComponent* pComponent = nullptr;
     if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
     {
-      pComponent->SetActive(m_bActive);
+      if (uiExecPin == 0)
+      {
+        pComponent->SetActive(true);
+      }
+      else
+      {
+        pComponent->SetActive(false);
+      }
     }
   }
 
@@ -90,15 +97,7 @@ void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInst
 
 void* ezVisualScriptNode_ActivateComponent::GetInputPinDataPointer(ezUInt8 uiPin)
 {
-  switch (uiPin)
-  {
-  case 0:
-    return &m_hComponent;
-  case 1:
-    return &m_bActive;
-  }
-
-  return nullptr;
+  return &m_hComponent;
 }
 
 //////////////////////////////////////////////////////////////////////////

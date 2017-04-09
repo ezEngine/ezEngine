@@ -122,3 +122,4 @@ ezSurfaceInteractionAlignment::ReflectedDirection;Reflected Direction
 ezOnComponentFinishedAction::None;None
 ezOnComponentFinishedAction::DeleteComponent;Delete Component
 ezOnComponentFinishedAction::DeleteEntity;Delete Entity
+ezVisualScriptComponent;Visual Script

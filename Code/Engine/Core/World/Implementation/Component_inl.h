@@ -1,4 +1,4 @@
-#include <Foundation/Logging/Log.h>
+﻿#include <Foundation/Logging/Log.h>
 
 EZ_FORCE_INLINE ezComponent::ezComponent() :
   m_ComponentFlags(ezObjectFlags::Default),
@@ -15,6 +15,8 @@ EZ_FORCE_INLINE ezComponent::~ezComponent()
   m_pManager = nullptr;
   m_pOwner = nullptr;
   m_InternalId.Invalidate();
+
+  EnableGlobalEventHandlerMode(false);
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsDynamic() const

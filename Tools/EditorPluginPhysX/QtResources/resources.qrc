@@ -15,6 +15,7 @@
 	<file>ezPxShapeConvexComponent.png</file>
 	<file>ezPxCharacterControllerComponent.png</file>
 	<file>ezPxSettingsComponent.png</file>
+	<file>ezPxTriggerComponent.png</file>
   </qresource>  
 </RCC>
 

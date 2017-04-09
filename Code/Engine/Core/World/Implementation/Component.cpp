@@ -192,6 +192,24 @@ void ezComponent::EnableEventHandlerMode(bool enable)
   }
 }
 
+
+void ezComponent::EnableGlobalEventHandlerMode(bool enable)
+{
+  if (m_ComponentFlags.IsAnySet(ezObjectFlags::IsGlobalEventHandler) == enable)
+    return;
+
+  m_ComponentFlags.AddOrRemove(ezObjectFlags::IsGlobalEventHandler, enable);
+
+  if (enable)
+  {
+    GetWorld()->m_Data.m_GlobalMessageHandlers.PushBack(this);
+  }
+  else
+  {
+    GetWorld()->m_Data.m_GlobalMessageHandlers.RemoveSwap(this);
+  }
+}
+
 void ezComponent::EnableUnhandledMessageHandler(bool enable)
 {
   m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);

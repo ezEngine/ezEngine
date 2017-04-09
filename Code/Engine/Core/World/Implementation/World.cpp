@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
@@ -290,6 +290,14 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
+
+void ezWorld::DeliverMessageToGlobalHandlers(ezMessage& msg)
+{
+  for (ezComponent* pReceiver : m_Data.m_GlobalMessageHandlers)
+  {
+    pReceiver->SendMessage(msg);
+  }
+}
 
 void ezWorld::Update()
 {

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/World/World.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
@@ -325,8 +325,12 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
       {
         ezLog::Warning("ezGameObject::SendMessage: Message uses ezObjectMsgRouting::ToEventHandler, but none of the target's parent nodes has a component with ezObjectFlags::IsEventHandler.");
       }
-
 #endif
+
+      // When the message should be sent to an event handler, but there is no parent node that is an event handler,
+      // we pass the message along to all components that are registered as global event handlers
+      GetWorld()->DeliverMessageToGlobalHandlers(msg);
+
       return;
     }
 

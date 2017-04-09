@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/World/Implementation/WorldData.h>
 
@@ -173,6 +173,9 @@ public:
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
   void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
 
+  /// \brief Sends the message to all components that are registered as global message handlers
+  void DeliverMessageToGlobalHandlers(ezMessage& msg);
+
   ///@}
 
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
@@ -252,6 +255,7 @@ private:
   friend class ezGameObject;
   friend class ezWorldModule;
   friend class ezComponentManagerBase;
+  friend class ezComponent;
 
   void CheckForReadAccess() const;
   void CheckForWriteAccess() const;
