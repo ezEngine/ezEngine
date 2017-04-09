@@ -26,7 +26,7 @@ VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
 
-  float2 screenPosition = (Input.Position.xy / Viewport.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
+  float2 screenPosition = (Input.Position.xy * ViewportSize.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
   RetVal.Position = float4(screenPosition, Input.Position.z, 1.0f);
 
   RetVal.TexCoords = Input.TexCoord0;

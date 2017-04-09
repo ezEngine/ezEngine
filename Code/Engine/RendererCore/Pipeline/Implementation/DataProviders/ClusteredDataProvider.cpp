@@ -1,96 +1,17 @@
 #include <PCH.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/DataProviders/ClusteredDataProvider.h>
+#include <RendererCore/Pipeline/Implementation/DataProviders/ClusteredDataUtils.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-
-#include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
-
-#include <Foundation/Math/Float16.h>
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataProvider, 1, ezRTTIDefaultAllocator<ezClusteredDataProvider>)
-{
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-namespace
-{
-  ezUInt32 Float3ToRGB10(ezVec3 value)
-  {
-    ezVec3 unsignedValue = value * 0.5f + ezVec3(0.5f);
-
-    ezUInt32 r = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.x * 1023.0f + 0.5f), 0u, 1023u);
-    ezUInt32 g = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.y * 1023.0f + 0.5f), 0u, 1023u);
-    ezUInt32 b = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.z * 1023.0f + 0.5f), 0u, 1023u);
-
-    return r | (g << 10) | (b << 20);
-  }
-
-  ezUInt32 Float2ToRG16F(ezVec2 value)
-  {
-    ezUInt32 r = ezFloat16(value.x).GetRawData();
-    ezUInt32 g = ezFloat16(value.y).GetRawData();
-
-    return r | (g << 16);
-  }
-
-  void FillLightData(ezPerLightData& perLightData, const ezLightRenderData* pLightRenderData)
-  {
-    ezMemoryUtils::ZeroFill(&perLightData);
-
-    ezUInt32 uiType = 0;
-
-    if (auto pPointLightRenderData = ezDynamicCast<const ezPointLightRenderData*>(pLightRenderData))
-    {
-      uiType = LIGHT_TYPE_POINT;
-      perLightData.position = pPointLightRenderData->m_GlobalTransform.m_vPosition;
-      perLightData.invSqrAttRadius = 1.0f / (pPointLightRenderData->m_fRange * pPointLightRenderData->m_fRange);
-    }
-    else if (auto pSpotLightRenderData = ezDynamicCast<const ezSpotLightRenderData*>(pLightRenderData))
-    {
-      uiType = LIGHT_TYPE_SPOT;
-      perLightData.direction = Float3ToRGB10(-pSpotLightRenderData->m_GlobalTransform.m_Rotation.GetColumn(0));
-      perLightData.position = pSpotLightRenderData->m_GlobalTransform.m_vPosition;
-      perLightData.invSqrAttRadius = 1.0f / (pSpotLightRenderData->m_fRange * pSpotLightRenderData->m_fRange);
-
-      const float fCosInner = ezMath::Cos(pSpotLightRenderData->m_InnerSpotAngle * 0.5f);
-      const float fCosOuter = ezMath::Cos(pSpotLightRenderData->m_OuterSpotAngle * 0.5f);
-      const float fSpotParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
-      const float fSpotParamOffset = -fCosOuter * fSpotParamScale;
-      perLightData.spotParams = Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
-    }
-    else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(pLightRenderData))
-    {
-      uiType = LIGHT_TYPE_DIR;
-      perLightData.direction = Float3ToRGB10(-pDirLightRenderData->m_GlobalTransform.m_Rotation.GetColumn(0));
-    }
-    else
-    {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-    }
-
-    ezColorLinearUB lightColor = pLightRenderData->m_LightColor;
-    lightColor.a = uiType;
-
-    perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
-    perLightData.intensity = pLightRenderData->m_fIntensity;
-  }
-
-  enum
-  {
-    MAX_LIGHT_DATA = 1024
-  };
-}
+#include <Foundation/Profiling/Profiling.h>
 
 ezClusteredData::ezClusteredData()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  ezGALBufferCreationDescription desc;
+
   {
-    ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezPerLightData);
     desc.m_uiTotalSize = desc.m_uiStructSize * MAX_LIGHT_DATA;
     desc.m_BufferType = ezGALBufferType::Generic;
@@ -101,7 +22,23 @@ ezClusteredData::ezClusteredData()
     m_hLightDataBuffer = pDevice->CreateBuffer(desc);
   }
 
+  {
+    desc.m_uiStructSize = sizeof(ezPerClusterData);
+    desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
+
+    m_hClusterDataBuffer = pDevice->CreateBuffer(desc);
+  }
+
+  {
+    desc.m_uiStructSize = sizeof(ezUInt32);
+    desc.m_uiTotalSize = desc.m_uiStructSize * MAX_LIGHTS_PER_CLUSTER * NUM_CLUSTERS;
+
+    m_hClusterItemListBuffer = pDevice->CreateBuffer(desc);
+  }
+
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezClusteredDataConstants>();
+
+  m_ClusterData.SetCountUninitialized(NUM_CLUSTERS);
 }
 
 ezClusteredData::~ezClusteredData()
@@ -109,6 +46,8 @@ ezClusteredData::~ezClusteredData()
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   pDevice->DestroyBuffer(m_hLightDataBuffer);
+  pDevice->DestroyBuffer(m_hClusterDataBuffer);
+  pDevice->DestroyBuffer(m_hClusterItemListBuffer);
 
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
@@ -120,6 +59,8 @@ void ezClusteredData::BindResources(ezRenderContext* pRenderContext)
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perLightData", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
+    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perClusterData", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
+    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "clusterItemList", pDevice->GetDefaultResourceView(m_hClusterItemListBuffer));
   }
 
   pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
@@ -127,9 +68,14 @@ void ezClusteredData::BindResources(ezRenderContext* pRenderContext)
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataProvider, 1, ezRTTIDefaultAllocator<ezClusteredDataProvider>)
+{
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 ezClusteredDataProvider::ezClusteredDataProvider()
 {
-
+  m_TempClusters.SetCountUninitialized(NUM_CLUSTERS);
 }
 
 ezClusteredDataProvider::~ezClusteredDataProvider()
@@ -139,12 +85,18 @@ ezClusteredDataProvider::~ezClusteredDataProvider()
 
 void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {
+  EZ_PROFILE("Clustered Data Update");
+
   ezColor ambientTopColor = ezColor::Black;
   ezColor ambientBottomColor = ezColor::Black;
 
   {
-    // Collect light data
+    // Collect and rasterize light data
     m_Data.m_LightData.Clear();
+    ezMemoryUtils::ZeroFill(m_TempClusters.GetData(), NUM_CLUSTERS);
+
+    ezSimdMat4f viewProjectionMatrix = ezSimdConversion::ToMat4(renderViewContext.m_pViewData->m_ViewProjectionMatrix);
+    ezVec3 cameraPosition = renderViewContext.m_pCamera->GetPosition();
 
     auto batchList = extractedData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
@@ -154,26 +106,64 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
 
       for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
       {
-        if (auto pLightRenderData = ezDynamicCast<const ezLightRenderData*>(it))
+        const ezUInt32 uiLightIndex = m_Data.m_LightData.GetCount();
+
+        if (uiLightIndex == ezClusteredData::MAX_LIGHT_DATA)
         {
-          FillLightData(m_Data.m_LightData.ExpandAndGetRef(), pLightRenderData);
+          ezLog::Warning("Maximum number of lights reached ({0}). Further lights will be discarded.", ezClusteredData::MAX_LIGHT_DATA);
+          break;
+        }
+
+        if (auto pPointLightRenderData = ezDynamicCast<const ezPointLightRenderData*>(it))
+        {
+          FillPointLightData(m_Data.m_LightData.ExpandAndGetRef(), pPointLightRenderData);
+
+          RasterizePointLight(pPointLightRenderData, uiLightIndex, viewProjectionMatrix, cameraPosition, m_TempClusters.GetArrayPtr());
+        }
+        else if (auto pSpotLightRenderData = ezDynamicCast<const ezSpotLightRenderData*>(it))
+        {
+          FillSpotLightData(m_Data.m_LightData.ExpandAndGetRef(), pSpotLightRenderData);
+
+          RasterizeSpotLight(pSpotLightRenderData, uiLightIndex, viewProjectionMatrix, cameraPosition, m_TempClusters.GetArrayPtr());
+        }
+        else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(it))
+        {
+          FillDirLightData(m_Data.m_LightData.ExpandAndGetRef(), pDirLightRenderData);
+
+          RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempClusters.GetArrayPtr());
         }
         else if (auto pAmbientLightRenderData = ezDynamicCast<const ezAmbientLightRenderData*>(it))
         {
           ambientTopColor = pAmbientLightRenderData->m_TopColor;
           ambientBottomColor = pAmbientLightRenderData->m_BottomColor;
         }
+        else
+        {
+          EZ_ASSERT_NOT_IMPLEMENTED;
+        }
       }
     }
+
+    FillItemListAndClusterData();
+
+    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
     // Update buffer
     if (!m_Data.m_LightData.IsEmpty())
     {
-      renderViewContext.m_pRenderContext->GetGALContext()->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, m_Data.m_LightData.GetByteArrayPtr());
+      pGALContext->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, m_Data.m_LightData.GetByteArrayPtr());
+      pGALContext->UpdateBuffer(m_Data.m_hClusterItemListBuffer, 0, m_Data.m_ClusterItemList.GetByteArrayPtr());
     }
+
+    pGALContext->UpdateBuffer(m_Data.m_hClusterDataBuffer, 0, m_Data.m_ClusterData.GetByteArrayPtr());
   }
 
+  const ezRectFloat& viewport = renderViewContext.m_pViewData->m_ViewPortRect;
+
   ezClusteredDataConstants* pConstants = renderViewContext.m_pRenderContext->GetConstantBufferData<ezClusteredDataConstants>(m_Data.m_hConstantBuffer);
+  pConstants->DepthSliceScale = s_fDepthSliceScale;
+  pConstants->DepthSliceBias = s_fDepthSliceBias;
+  pConstants->InvTileSize = ezVec2(NUM_CLUSTERS_X / viewport.width, NUM_CLUSTERS_Y / viewport.height);
   pConstants->NumLights = m_Data.m_LightData.GetCount();
   pConstants->AmbientTopColor = ambientTopColor;
   pConstants->AmbientBottomColor = ambientBottomColor;
@@ -181,7 +171,38 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
   return &m_Data;
 }
 
+void ezClusteredDataProvider::FillItemListAndClusterData()
+{
+  m_Data.m_ClusterItemList.Clear();
 
+  const ezUInt32 uiNumLights = m_Data.m_LightData.GetCount();
+  const ezUInt32 uiMaxBlockIndex = (uiNumLights + 31) / 32;
+
+  for (ezUInt32 i = 0; i < NUM_CLUSTERS; ++i)
+  {
+    ezUInt32 uiOffset = m_Data.m_ClusterItemList.GetCount();
+    ezUInt32 uiCount = 0;
+
+    auto& tempCluster = m_TempClusters[i];
+    for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < uiMaxBlockIndex; ++uiBlockIndex)
+    {
+      ezUInt32 mask = tempCluster.m_BitMask[uiBlockIndex];
+
+      while (mask > 0)
+      {
+        ezUInt32 uiLightIndex = ezMath::FirstBitLow(mask);
+        mask &= ~(1 << uiLightIndex);
+
+        m_Data.m_ClusterItemList.PushBack(uiLightIndex);
+        ++uiCount;
+      }
+    }
+
+    auto& clusterData = m_Data.m_ClusterData[i];
+    clusterData.offset = uiOffset;
+    clusterData.counts = uiCount;
+  }
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_DataProviders_ClusteredDataProvider);
 

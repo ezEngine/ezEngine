@@ -31,7 +31,7 @@ VS_OUT main(VS_IN Input)
   VS_OUT RetVal;
 
   #if PRE_TRANSFORMED_VERTICES
-    float2 screenPosition = (Input.Position.xy / Viewport.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
+    float2 screenPosition = (Input.Position.xy * ViewportSize.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
     RetVal.Position = float4(screenPosition, Input.Position.z, 1.0f);
   #else
     RetVal.Position = mul(WorldToScreenMatrix, float4(Input.Position, 1.0f));

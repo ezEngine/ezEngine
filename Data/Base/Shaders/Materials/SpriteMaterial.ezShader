@@ -69,7 +69,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 	if (size.y > 0.0)
 	{
-		float2 maxScreenSize = (size.y * distance * 2.0) / Viewport.zw;
+		float2 maxScreenSize = (size.y * distance * 2.0) * ViewportSize.zw;
 		scale = min(scale, maxScreenSize);
 	}
 
@@ -115,7 +115,7 @@ struct PS_OUT
 	#if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
 		float4 Color : SV_Target;
 	#endif
-	
+
 	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
 		uint Coverage : SV_Coverage;
 	#endif
@@ -137,19 +137,19 @@ PS_OUT main(PS_IN Input)
 	{
 		discard;
 	}
-	
+
 	PS_OUT RetVal;
-		
+
 	#if RENDER_PASS == RENDER_PASS_PICKING
 		RetVal.Color = Input.GameObjectID;
 	#elif RENDER_PASS != RENDER_PASS_DEPTH_ONLY
 		RetVal.Color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
 	#endif
-	
+
 	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
 		RetVal.Coverage = coverage;
 	#endif
-	
+
 	return RetVal;
 }
 

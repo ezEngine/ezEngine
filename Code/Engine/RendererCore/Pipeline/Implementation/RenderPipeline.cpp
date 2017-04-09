@@ -894,7 +894,13 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   gc.CameraToWorldMatrix = pViewData->m_InverseViewMatrix;
   gc.WorldToScreenMatrix = pViewData->m_ViewProjectionMatrix;
   gc.ScreenToWorldMatrix = pViewData->m_InverseViewProjectionMatrix;
-  gc.Viewport = ezVec4(pViewData->m_ViewPortRect.x, pViewData->m_ViewPortRect.y, pViewData->m_ViewPortRect.width, pViewData->m_ViewPortRect.height);
+
+  const ezRectFloat& viewport = pViewData->m_ViewPortRect;
+  gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
+
+  float fNear = pCamera->GetNearPlane();
+  float fFar = pCamera->GetFarPlane();
+  gc.ClipPlanes = ezVec4(fNear, fFar, 1.0f / fFar, 0.0f);
 
   // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
   gc.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();

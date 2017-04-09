@@ -9,6 +9,17 @@
   SamplerState PointClampSampler;
 #endif
 
+ezPerClusterData GetClusterData(float3 screenPosition)
+{
+  // clustered data lookup
+  float linearDepth = screenPosition.z;
+  uint depthSlice = uint(clamp(log2(linearDepth) * DepthSliceScale + DepthSliceBias, 0, NUM_CLUSTERS_Z - 1));
+  uint3 clusterCoord = uint3(screenPosition.xy * InvTileSize, depthSlice);
+  uint clusterIndex = clusterCoord.z * NUM_CLUSTERS_XY + clusterCoord.y * NUM_CLUSTERS_X + clusterCoord.x;
+  
+  return perClusterData[clusterIndex];
+}
+
 float DistanceAttenuation(float sqrDistance, float invSqrAttRadius)
 {
   float attenuation = (1.0 / max(sqrDistance, 0.01 * 0.01)); // min distance is 1 cm;
@@ -33,15 +44,20 @@ float MicroShadow(float occlusion, float3 normal, float3 lightDir)
   return saturate(abs(dot(normal, lightDir)) + aperture - 1.0f);
 }
 
-float3 CalculateLighting(ezMaterialData matData, float2 screenPosition)
+float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition)
 {
   float3 viewVector = matData.normalizedViewVector;
 
   float3 totalLight = 0.0f;
 
-  for (uint i = 0; i < NumLights; ++i)
+  uint firstItemIndex = clusterData.offset;
+  uint lastItemIndex = firstItemIndex + clusterData.counts;
+  
+  for (uint i = firstItemIndex; i < lastItemIndex; ++i)
   {
-    ezPerLightData lightData = perLightData[i];
+    uint lightIndex = clusterItemList[i];
+    
+    ezPerLightData lightData = perLightData[lightIndex];
     uint typeAndFlags = (lightData.colorAndType >> 24) & 0xFF;
     uint type = typeAndFlags & LIGHT_TYPE_MASK;
 
@@ -84,7 +100,7 @@ float3 CalculateLighting(ezMaterialData matData, float2 screenPosition)
 
   float occlusion = matData.occlusion;
   #if USE_SSAO
-    float ssao = SSAOTexture.Sample(PointClampSampler, screenPosition.xy).r;
+    float ssao = SSAOTexture.Sample(PointClampSampler, screenPosition.xy * ViewportSize.zw).r;
     occlusion = min(occlusion, ssao);
     #if APPLY_SSAO_TO_DIRECT_LIGHTING
       totalLight *= occlusion;

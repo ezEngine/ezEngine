@@ -53,7 +53,7 @@ Buffer<uint> LineSweepOutputBuffer : register(t2);
 
 float4 main(PS_IN input) : SV_Target
 {
-  float2 screenSize = Viewport.zw;
+  float2 screenSize = ViewportSize.xy;
   float2 screenSizeSubOne = screenSize - float2(1.0f, 1.0f);
   float2 pixelPos = input.TexCoord0 * screenSize;
   float2 pixelPosInv = screenSizeSubOne - pixelPos;
@@ -82,7 +82,7 @@ float4 main(PS_IN input) : SV_Target
     // This is quite a bit faster on GPU and doesn't suffer any accuracy issues since we're calculating with small integers (way below the 24bit limit).
     float2 lineOrigin;
     float lineSampleNumberFloat = 0.0f;
-    {  
+    {
       // Just like in ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection we try to treat negative directions exactly like positive ones,
       // except for a flip in the lineOrigin.
       float2 absDir = abs(dir);
@@ -106,7 +106,7 @@ float4 main(PS_IN input) : SV_Target
     ASSERT((LineInstructions[lineInstructionIndex].LineDirIndex_totalWeight & 0xFFFF) == uint(dirIndex))
 
     // If everything went as planned, lineSampleNumber is never smaller than -1
-    // Beeing smaller zero means that the start is "in front" of the pixel which can happen due to jittering. 
+    // Beeing smaller zero means that the start is "in front" of the pixel which can happen due to jittering.
     ASSERT((int)lineSampleNumberFloat >= -1);
 
     // Fetch two closest samples on this line.

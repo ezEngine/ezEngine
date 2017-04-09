@@ -73,7 +73,7 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
   if(lineId >= TotalLineNumber)
     return;
 
-  float2 screenSize = Viewport.zw;
+  float2 screenSize = ViewportSize.xy;
   float2 screenSizeSubOne = screenSize - float2(1.0f, 1.0f);
   float2 inverseScreenSize = 1.0f / screenSizeSubOne;
 
@@ -121,7 +121,7 @@ void main(uint DispatchID : SV_DispatchThreadID, uint ThreadID : SV_GroupThreadI
     while(// Stack empty?
           stackIters < maxIter &&
           // Not convex?
-          currentOccluderDotCamera < nextOccluderDotCamera + OCCLUSION_BIAS && 
+          currentOccluderDotCamera < nextOccluderDotCamera + OCCLUSION_BIAS &&
           // Higher occlusion?
           currentOcclusion < nextOcclusion + HULL_BIAS)
     {

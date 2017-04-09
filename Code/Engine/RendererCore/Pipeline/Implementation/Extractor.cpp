@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Pipeline/Implementation/DataProviders/ClusteredDataUtils.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <Core/World/World.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
@@ -131,6 +132,9 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray
 
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     VisualizeSpatialData(view);
+
+    ///\todo Move this to somewhere else once we create the clustered data during extraction phase.
+    VisualizeClusteredData(view);
   #endif
 
   for (auto pObject : visibleObjects)

@@ -34,8 +34,10 @@
       matData.specularColor = 0.0;
     }
   #endif
+  
+  ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
 
-  float3 litColor = CalculateLighting(matData, Input.Position.xy / Viewport.zw);
+  float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw);
   litColor += matData.emissiveColor;
 
   #if RENDER_PASS == RENDER_PASS_FORWARD
@@ -49,6 +51,18 @@
     if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
     {
       return float4(SrgbToLinear(litColor * Exposure), 1);
+    }
+    else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT)
+    {
+      float lightCount = clusterData.counts;
+      if (lightCount == 0)
+        return float4(0, 0, 0, 1);
+      
+      float x = (lightCount - 1) / 16;
+      float r = saturate(x);
+      float g = saturate(2 - x);
+      
+      return float4(r, g, 0, 1);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
     {
@@ -114,10 +128,8 @@
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DEPTH)
     {
-      // todo proper linearization
-      float depth = 1.0 - saturate(Input.Position.z / Input.Position.w);
-      depth = depth * depth * depth * depth;
-      return float4(depth, depth, depth, 1);
+      float depth = Input.Position.w * ClipPlanes.z;
+      return float4(SrgbToLinear(depth), 1);
     }
     else
     {

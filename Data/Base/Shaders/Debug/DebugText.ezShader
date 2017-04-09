@@ -53,7 +53,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 	float2 vertexPosition = vertexPositions[vertexIndex];
 	float2 positionInPixel = (vertexPosition * size + data.topLeftCorner);
-	float2 screenPosition = (positionInPixel / Viewport.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
+	float2 screenPosition = (positionInPixel * ViewportSize.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
 
 	float2 invAtlasSize = 1.0 / float2(16.0, 8.0);
 	float texCoordX = fmod( glyphIndex, 16.0 );

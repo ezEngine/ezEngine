@@ -15,6 +15,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezViewRenderMode
     WireframeColor,
     WireframeMonochrome,
     LitOnly,
+    LightCount,
     TexCoordsUV0,
     PixelNormals,
     VertexNormals,

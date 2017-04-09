@@ -2,7 +2,7 @@
 EZ_FORCE_INLINE void* ezAlignedHeapAllocation::Allocate(size_t uiSize, size_t uiAlign)
 {
   // alignment has to be at least sizeof(void*) otherwise posix_memalign will fail
-  uiAlign = ezMath::Max(uiAlign, sizeof(void*));
+  uiAlign = ezMath::Max<size_t>(uiAlign, 16u);
 
   void* ptr = nullptr;
 

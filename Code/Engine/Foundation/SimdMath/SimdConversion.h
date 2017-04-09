@@ -61,6 +61,20 @@ namespace ezSimdConversion
     return ezSimdTransform(ToVec3(position), ToQuat(rotation), ToVec3(scale));
   }
 
+  EZ_ALWAYS_INLINE ezMat4 ToMat4(const ezSimdMat4f& m)
+  {
+    ezMat4 tmp;
+    m.GetAsArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+    return tmp;
+  }
+
+  EZ_ALWAYS_INLINE ezSimdMat4f ToMat4(const ezMat4& m)
+  {
+    ezSimdMat4f tmp;
+    tmp.SetFromArray(m.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+    return tmp;
+  }
+
   EZ_ALWAYS_INLINE ezBoundingBoxSphere ToBBoxSphere(const ezSimdBBoxSphere& b)
   {
     ezVec4 centerAndRadius = ToVec4(b.m_CenterAndRadius);

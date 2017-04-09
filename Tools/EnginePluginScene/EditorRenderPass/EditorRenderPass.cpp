@@ -42,6 +42,10 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_LIT_ONLY;
     break;
+  case ezViewRenderMode::LightCount:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_LIGHT_COUNT;
+    break;
   case ezViewRenderMode::TexCoordsUV0:
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_TEXCOORDS_UV0;

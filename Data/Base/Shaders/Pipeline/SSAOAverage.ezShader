@@ -34,13 +34,13 @@ SamplerState PointClampSampler;
 
 float4 main(PS_IN input) : SV_Target
 {
-  float2 pixelSize = 1.0f / Viewport.zw;
+  float2 pixelSize = ViewportSize.zw;
 
   float centerPixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
   float totalSSAO = SSAOGatherOutput.Sample(PointClampSampler, input.TexCoord0).r;
   float totalWeight = 1.0f;
 
-  float2 texcoords[8] = 
+  float2 texcoords[8] =
   {
     input.TexCoord0 + float2(pixelSize.x, pixelSize.y),
     input.TexCoord0 + float2(0.0f, pixelSize.y),

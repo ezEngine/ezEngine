@@ -652,7 +652,7 @@ void ezRenderContext::SetViewportAndRenderTargetSetup(const ezRectFloat& viewpor
   }
 
   auto& gc = WriteGlobalConstants();
-  gc.Viewport = ezVec4(viewport.x, viewport.y, viewport.width, viewport.height);
+  gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
   gc.NumMsaaSamples = msaaSampleCount;
 
   m_pGALContext->SetRenderTargetSetup(renderTargetSetup);
