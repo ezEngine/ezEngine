@@ -175,8 +175,8 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
   //ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
 
-  pTranslatorEn->LoadTranslationFilesFromFolder("Localization/en");
-  //pTranslatorDe->LoadTranslationFilesFromFolder("Localization/de");
+  pTranslatorEn->LoadTranslationFilesFromFolder(":app/Localization/en");
+  //pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
 
   ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
   ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));

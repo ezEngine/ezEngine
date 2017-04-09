@@ -36,10 +36,12 @@ void ezTranslationLookup::Clear()
 
 void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezStringBuilder startPath;
-  ezStringBuilder fullpath(":app/", szFolder);
-  if (ezFileSystem::ResolvePath(fullpath, &startPath, nullptr).Failed())
+  if (ezFileSystem::ResolvePath(szFolder, &startPath, nullptr).Failed())
     return;
+
+  ezStringBuilder fullpath;
 
   ezFileSystemIterator it;
   if (it.StartSearch(startPath, true, false).Succeeded())
@@ -53,6 +55,7 @@ void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
     }
     while (it.Next().Succeeded());
   }
+#endif
 }
 
 void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)

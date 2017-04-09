@@ -70,7 +70,11 @@ public:
 class EZ_FOUNDATION_DLL ezTranslatorFromFiles : public ezTranslatorStorage
 {
 public:
-  /// \brief Sets the basic search path for the translation files.
+  /// \brief Loads all files recursively from the specified folder as translation files.
+  ///
+  /// The given path must be absolute or resolvable to an absolute path.
+  /// On failure, the function does nothing.
+  /// This function depends on ezFileSystemIterator to be available.
   void LoadTranslationFilesFromFolder(const char* szFolder);
 
 private:
