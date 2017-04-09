@@ -1,4 +1,4 @@
-#include "main.h"
+﻿#include "main.h"
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/Log.h>
@@ -121,7 +121,7 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
 
       m_camera->GetViewMatrix(gc.WorldToCameraMatrix);
       gc.CameraToWorldMatrix = gc.WorldToCameraMatrix.GetInverse();
-      gc.Viewport = ezVec4(0, 0, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
+      gc.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
       // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
       gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
       gc.WorldTime = gc.GlobalTime;

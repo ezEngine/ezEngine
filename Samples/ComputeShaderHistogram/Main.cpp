@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 #include <System/Window/Window.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <Core/Graphics/Geometry.h>
@@ -52,7 +52,7 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
       auto& globalConstants = renderContext.WriteGlobalConstants();
       ezMemoryUtils::ZeroFill(&globalConstants);
 
-      globalConstants.Viewport = ezVec4(0, 0, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
+      globalConstants.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
       // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
       globalConstants.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
       globalConstants.WorldTime = globalConstants.GlobalTime;

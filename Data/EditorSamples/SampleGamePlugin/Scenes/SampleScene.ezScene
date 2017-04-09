@@ -32,12 +32,13 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11683425167790577586,4745924491010228727}}
-		u4 %Hash{11310802309060942210}
+		u4 %Hash{22432362811894037}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 4aabb18e-01e3-434d-b7bb-e2c251c439d0 }"}
 			s{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
+			s{"{ dd27e393-e1b1-4b08-b0e0-8d7384f43c93 }"}
 		}
 	}
 }
@@ -109,6 +110,38 @@ o
 }
 o
 {
+	Uuid %id{u4{5377118924115788710,5055205508323133302}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3549271366549374640,5102857727811758641}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{3549271366549374640,5102857727811758641}}
+	s %t{"ezVisualScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Script{"{ dd27e393-e1b1-4b08-b0e0-8d7384f43c93 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{16483415185499631775,5215478204717720092}}
 	s %t{"ezDirectionalLightComponent"}
 	u3 %v{2}
@@ -133,6 +166,7 @@ o
 			Uuid{u4{13913135300302674844,4622770818942043388}}
 			Uuid{u4{16178147369712260020,4992680077866234226}}
 			Uuid{u4{8681490986419420579,5423687822995292704}}
+			Uuid{u4{5377118924115788710,5055205508323133302}}
 		}
 	}
 }

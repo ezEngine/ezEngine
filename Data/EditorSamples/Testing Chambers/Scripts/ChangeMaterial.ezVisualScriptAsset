@@ -2,18 +2,6 @@ Objects
 {
 o
 {
-	Uuid %id{u4{10552188792096203211,191062425283257729}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"then"}
-		Uuid %Target{u4{16094566002260405397,5554412861561263982}}
-		s %TargetPin{"run"}
-	}
-}
-o
-{
 	Uuid %id{u4{16686742752731925500,814900797965800409}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -52,7 +40,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14317149559100545161,4749641291993989672}}
-		u4 %Hash{315188436483554054}
+		u4 %Hash{16965807058499693902}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -77,19 +65,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13460139339347334288,4938481128952381867}}
-	s %t{"VisualScriptNode::ezVisualScriptNode_StoreBool"}
-	u3 %v{1}
-	p
-	{
-		s %Name{"OnOff"}
-		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xA0BF2B44,0x09EE9F43}}
-		b %Value{0}
-	}
-}
-o
-{
 	Uuid %id{u4{4538525219092991391,5381193384925595199}}
 	s %t{"ezDocumentRoot"}
 	u3 %v{1}
@@ -101,8 +76,6 @@ o
 			Uuid{u4{10445629479426106245,5432910867009203491}}
 			Uuid{u4{671013654010708512,10171477931104788362}}
 			Uuid{u4{12202658156080346525,4721865697989751962}}
-			Uuid{u4{16094566002260405397,5554412861561263982}}
-			Uuid{u4{13460139339347334288,4938481128952381867}}
 			Uuid{u4{10995364393357147266,4847291419586526183}}
 		}
 	}
@@ -117,36 +90,8 @@ o
 		Time %Delay{d{0}}
 		s %Material{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
 		u3 %MaterialSlot{0}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{10552188792096203211,191062425283257729}}
-		}
-		Vec2 %Node::Pos{f{0xED23C443,0xFC053043}}
-	}
-}
-o
-{
-	Uuid %id{u4{16094566002260405397,5554412861561263982}}
-	s %t{"VisualScriptNode::ezVisualScriptNode_StoreBool"}
-	u3 %v{1}
-	p
-	{
-		s %Name{"OnOff"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x417F2B44,0x7F012D43}}
-		b %Value{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6582072676038013792,7218114235508052641}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"then"}
-		Uuid %Target{u4{13460139339347334288,4938481128952381867}}
-		s %TargetPin{"run"}
+		Vec2 %Node::Pos{f{0xED23C443,0xFC053043}}
 	}
 }
 o
@@ -171,10 +116,7 @@ o
 		Time %Delay{d{0}}
 		s %Material{""}
 		u3 %MaterialSlot{0}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{6582072676038013792,7218114235508052641}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x6E25C543,0x09EE9F43}}
 	}
 }
@@ -205,27 +147,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Delay"}
 		s %Type{"ezTime"}
-	}
-}
-o
-{
-	Uuid %id{u4{15948755332825350978,2220961388327471783}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezVisualScriptNodeBase"}
-		s %PluginName{"VisualScriptTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{501067181975847255,8643911659078289534}}
-			Uuid{u4{15752053532212401587,17551422097322916798}}
-		}
-		s %TypeName{"VisualScriptNode::ezVisualScriptNode_StoreBool"}
-		u3 %TypeSize{0}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -282,20 +203,6 @@ o
 }
 o
 {
-	Uuid %id{u4{501067181975847255,8643911659078289534}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Name"}
-		s %Type{"ezString"}
-	}
-}
-o
-{
 	Uuid %id{u4{6295112328201341990,9315350732850993583}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -331,17 +238,6 @@ o
 		s %TypeName{"ezVisualScriptNodeBase"}
 		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{2298700911297868266,10125574810713702875}}
-	s %t{"ezVisScriptDataPinInAttribute"}
-	u3 %v{1}
-	p
-	{
-		u1 %Slot{0}
-		s %Type{"ezVisualScriptDataPinType::Boolean"}
 	}
 }
 o
@@ -393,23 +289,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Name"}
 		s %Type{"ezString"}
-	}
-}
-o
-{
-	Uuid %id{u4{15752053532212401587,17551422097322916798}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{2298700911297868266,10125574810713702875}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Value"}
-		s %Type{"bool"}
 	}
 }
 o

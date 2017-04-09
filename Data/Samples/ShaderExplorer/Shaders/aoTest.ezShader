@@ -148,7 +148,7 @@ float4 main(PS_IN Input) : SV_Target
 	float2 iResolution = float2(1280, 720);
 	float2 q = Input.FragCoord.xy;
     float2 p = -1.0+2.0*q;
-	p.x *= Viewport.z/Viewport.w;
+	p.x *= ViewportSize.x/ViewportSize.y;
 
 	// camera-to-world transformation
 	float3 ro = mul(CameraToWorldMatrix, float4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
