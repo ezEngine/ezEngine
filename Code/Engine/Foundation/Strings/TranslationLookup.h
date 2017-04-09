@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -70,26 +70,11 @@ public:
 class EZ_FOUNDATION_DLL ezTranslatorFromFiles : public ezTranslatorStorage
 {
 public:
-
-  virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override;
-
   /// \brief Sets the basic search path for the translation files.
-  void SetSearchPath(const char* szFolder);
+  void LoadTranslationFilesFromFolder(const char* szFolder);
 
-  /// \brief Adds a sub-file to load from the search path. All ezTranslatorFromFiles instances will reload their translations when necessary.
-  static void AddTranslationFile(const char* szFileName);
-
-  /// \brief Resets all internal state except the search paths. Ensures translations will be reloaded.
-  virtual void Reset() override;
-
-protected:
-  void ReloadTranslations();
-  void LoadTranslationFile(const char* szFileName);
-
-  ezString m_sSearchPath;
-
-  ezUInt32 m_uiLoadedFiles;
-  static ezDynamicArray<ezString> s_TranslationFiles;
+private:
+  void LoadTranslationFile(const char* szFullPath);
 };
 
 /// \brief Handles looking up translations for strings.

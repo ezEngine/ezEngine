@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginParticle/EditorPluginParticle.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -24,8 +24,6 @@ void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginParticle", "ezParticlePlugin");
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginParticle", "ezEnginePluginParticle");
-
-  ezTranslatorFromFiles::AddTranslationFile("ParticlePlugin.txt");
 
   ezParticleActions::RegisterActions();
 

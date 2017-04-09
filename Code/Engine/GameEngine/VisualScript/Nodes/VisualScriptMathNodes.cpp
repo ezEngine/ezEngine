@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMathNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MultiplyAdd, 1, ezRTTIDefault
     // Data Pins (Input)
     EZ_INPUT_DATA_PIN_AND_PROPERTY("a1", 0, ezVisualScriptDataPinType::Number, m_Value1),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("a2", 1, ezVisualScriptDataPinType::Number, m_Value2)->AddAttributes(new ezDefaultValueAttribute(1.0)),
-    EZ_INPUT_DATA_PIN_AND_PROPERTY("b1", 1, ezVisualScriptDataPinType::Number, m_Value3),
-    EZ_INPUT_DATA_PIN_AND_PROPERTY("b2", 1, ezVisualScriptDataPinType::Number, m_Value4)->AddAttributes(new ezDefaultValueAttribute(1.0)),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("b1", 2, ezVisualScriptDataPinType::Number, m_Value3),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("b2", 3, ezVisualScriptDataPinType::Number, m_Value4)->AddAttributes(new ezDefaultValueAttribute(1.0)),
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }

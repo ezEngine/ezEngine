@@ -43,10 +43,12 @@ View.CameraUsageHint;Camera Usage Hint
 View.RenderPipeline;Render Pipeline
 Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
+Asset.ResaveAll;Resave All Assets
 Asset.CheckFilesystem;Check Filesystem;Checks for new or deleted assets on disk
 Asset.WriteLookupTable;Write Lookup Table
 Panel.AssetBrowser;Asset Browser
 Panel.Log;Log
+Panel.AssetCurator;Asset Curator
 ezSceneViewPerspective::Orthogonal_Front;Ortho Front
 ezSceneViewPerspective::Orthogonal_Right;Ortho Right
 ezSceneViewPerspective::Orthogonal_Top;Ortho Top

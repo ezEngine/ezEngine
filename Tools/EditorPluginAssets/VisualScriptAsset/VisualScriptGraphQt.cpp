@@ -117,8 +117,9 @@ bool ezQtVisualScriptPin::AdjustRenderingForHighlight(ezQtPinHighlightState stat
   case ezQtPinHighlightState::CanAddConnection:
     {
       QPen p = pen();
-      p.setColor(QApplication::palette().highlight().color());
+      p.setColor(qRgb(col.r, col.g, col.b));
       setPen(p);
+
       setBrush(QApplication::palette().base());
     }
     break;

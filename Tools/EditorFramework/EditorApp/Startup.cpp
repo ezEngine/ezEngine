@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Configuration/Startup.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -173,16 +173,14 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
 
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
-  ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
+  //ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
 
-  pTranslatorEn->SetSearchPath("Localization/en");
-  pTranslatorDe->SetSearchPath("Localization/de");
+  pTranslatorEn->LoadTranslationFilesFromFolder("Localization/en");
+  //pTranslatorDe->LoadTranslationFilesFromFolder("Localization/de");
 
   ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
   ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));
   //ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
-
-  ezTranslatorFromFiles::AddTranslationFile("ezEditorBasics.txt");
 
   LoadEditorPreferences();
 

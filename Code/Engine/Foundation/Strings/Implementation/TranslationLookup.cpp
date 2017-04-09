@@ -1,10 +1,10 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/IO/OSFile.h>
 
-ezDynamicArray<ezString> ezTranslatorFromFiles::s_TranslationFiles;
 ezHybridArray<ezUniquePtr<ezTranslator>, 16> ezTranslationLookup::s_pTranslators;
 
 void ezTranslationLookup::AddTranslator(ezUniquePtr<ezTranslator> pTranslator)
@@ -32,61 +32,39 @@ void ezTranslationLookup::Clear()
   s_pTranslators.Clear();
 }
 
-const char* ezTranslatorFromFiles::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
+//////////////////////////////////////////////////////////////////////////
+
+void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
 {
-  if (m_uiLoadedFiles != s_TranslationFiles.GetCount())
-    ReloadTranslations();
+  ezStringBuilder startPath;
+  ezStringBuilder fullpath(":app/", szFolder);
+  if (ezFileSystem::ResolvePath(fullpath, &startPath, nullptr).Failed())
+    return;
 
-  return ezTranslatorStorage::Translate(szString, uiStringHash, usage);
-}
-
-
-void ezTranslatorFromFiles::SetSearchPath(const char* szFolder)
-{
-  m_sSearchPath = szFolder;
-  m_uiLoadedFiles = 0;
-}
-
-
-void ezTranslatorFromFiles::AddTranslationFile(const char* szFileName)
-{
-  s_TranslationFiles.PushBack(szFileName);
-}
-
-
-void ezTranslatorFromFiles::Reset()
-{
-  ezTranslatorStorage::Reset();
-  m_uiLoadedFiles = 0;
-}
-
-void ezTranslatorFromFiles::ReloadTranslations()
-{
-  EZ_LOG_BLOCK("ReloadTranslations", m_sSearchPath.GetData());
-
-  Reset();
-
-  for (const auto& file : s_TranslationFiles)
+  ezFileSystemIterator it;
+  if (it.StartSearch(startPath, true, false).Succeeded())
   {
-    LoadTranslationFile(file);
-  }
+    do
+    {
+      fullpath = it.GetCurrentPath();
+      fullpath.AppendPath(it.GetStats().m_sFileName);
 
-  m_uiLoadedFiles = s_TranslationFiles.GetCount();
+      LoadTranslationFile(fullpath);
+    }
+    while (it.Next().Succeeded());
+  }
 }
 
-void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
+void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
 {
-  EZ_LOG_BLOCK("LoadTranslationFile", szFileName);
+  EZ_LOG_BLOCK("LoadTranslationFile", szFullPath);
 
-  ezStringBuilder sPath;
-  sPath.AppendPath(m_sSearchPath, szFileName);
-
-  ezLog::Dev("Loading Localization File '{0}'", sPath.GetData());
+  ezLog::Dev("Loading Localization File '{0}'", szFullPath);
 
   ezFileReader file;
-  if (file.Open(sPath).Failed())
+  if (file.Open(szFullPath).Failed())
   {
-    ezLog::Warning("Failed to open localization file '{0}'", sPath.GetData());
+    ezLog::Warning("Failed to open localization file '{0}'", szFullPath);
     return;
   }
 
@@ -136,6 +114,8 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+
 void ezTranslatorStorage::StoreTranslation(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
   m_Translations[usage][uiStringHash] = szString;
@@ -158,6 +138,7 @@ void ezTranslatorStorage::Reset()
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
 bool ezTranslatorLogMissing::s_bActive = true;
 

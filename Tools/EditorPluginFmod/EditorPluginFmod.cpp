@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginFmod/EditorPluginFmod.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -21,8 +21,6 @@ void UpdateCollisionLayerDynamicEnumValues();
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginFmod", "ezFmodPlugin");
-
-  ezTranslatorFromFiles::AddTranslationFile("FmodPlugin.txt");
 
   // Mesh Asset
   {

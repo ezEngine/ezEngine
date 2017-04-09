@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/EditorPluginScene.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
@@ -47,8 +47,6 @@ void ToolsProjectEventHandler(const ezEditorAppEvent& e)
 
 void OnLoadPlugin(bool bReloading)
 {
-  ezTranslatorFromFiles::AddTranslationFile("ScenePlugin.txt");
-
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginScene", "ezEnginePluginScene");

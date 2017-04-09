@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/EditorPluginAssets.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
@@ -27,9 +27,6 @@
 
 void OnLoadPlugin(bool bReloading)
 {
-  ezTranslatorFromFiles::AddTranslationFile("AssetsPlugin.txt");
-  ezTranslatorFromFiles::AddTranslationFile("PermutationVars.txt");
-
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
 
   // Texture2D Asset
