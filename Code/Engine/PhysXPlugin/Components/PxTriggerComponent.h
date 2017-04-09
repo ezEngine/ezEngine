@@ -1,7 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
+#include <Core/Messages/TriggerMessage.h>
+
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_PHYSXPLUGIN_DLL ezPxTriggerComponentManager : public ezComponentManager<class ezPxTriggerComponent, ezBlockStorageType::FreeList>
 {
@@ -17,6 +20,25 @@ private:
 
   ezDynamicArray<ezPxTriggerComponent*> m_KinematicActorComponents;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief Base class for all messages that are sent as 'events'
+struct EZ_PHYSXPLUGIN_DLL ezPxTriggerEventMessage : public ezEventMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezPxTriggerEventMessage, ezEventMessage);
+
+  /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some expected string. Use ezTempHashedString::GetHash() to assign and compare the value.
+  ezUInt32 m_uiMessageStringHash;
+
+  /// Messages are only sent for 'entered' ('Activated') and 'left' ('Deactivated')
+  ezTriggerState::Enum m_TriggerState;
+
+  /// The object that entered the trigger volume.
+  ezGameObjectHandle m_hTriggeringObject;
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_PHYSXPLUGIN_DLL ezPxTriggerComponent : public ezPxActorComponent
 {

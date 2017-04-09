@@ -94,7 +94,7 @@ void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute&
 
 void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsHitResult& hit)
 {
-  ezUserTriggerMessage msg;
+  ezSimpleUserEventMessage msg;
   msg.m_sMessage = m_sUserMessage;
 
   GetWorld()->SendMessage(hit.m_hGameObject, msg, ezObjectMsgRouting::ToEventHandler);

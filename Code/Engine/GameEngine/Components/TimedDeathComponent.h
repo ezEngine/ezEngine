@@ -1,12 +1,12 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
-#include <Core/Messages/TriggerMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
+struct ezInternalComponentMessage;
 typedef ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact> ezTimedDeathComponentManager;
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
@@ -28,7 +28,7 @@ public:
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
   virtual void OnSimulationStarted() override;
 
-  void OnTriggered(ezTriggerMessage& msg);
+  void OnTriggered(ezInternalComponentMessage& msg);
 
   // ************************************* PROPERTIES ***********************************
 

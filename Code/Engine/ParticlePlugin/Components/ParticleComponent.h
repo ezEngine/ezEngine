@@ -20,9 +20,9 @@ typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectRe
 typedef ezComponentManagerSimple<ezParticleComponent, ezComponentUpdateType::WhenSimulating> ezParticleComponentManager;
 
 /// \brief This message makes an ezParticleComponent start or stop it's effect.
-struct ezParticleComponent_PlayEffectMsg : public ezScriptMessage
+struct ezParticleComponent_PlayEffectMsg : public ezScriptFunctionMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezParticleComponent_PlayEffectMsg, ezScriptMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezParticleComponent_PlayEffectMsg, ezScriptFunctionMessage);
 
   /// If true, StartEffect() is called, otherwise StopEffect() is called.
   bool m_bPlay = true;

@@ -1,11 +1,12 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
-#include <Core/Messages/TriggerMessage.h>
+
+struct ezInternalComponentMessage;
 
 struct ezSpawnComponentFlags
 {
@@ -35,9 +36,9 @@ EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 typedef ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact> ezSpawnComponentManager;
 
 /// \brief Message to initiate a spawn on ezSpawnComponent
-struct ezSpawnComponent_SpawnMsg : public ezScriptMessage
+struct ezSpawnComponent_SpawnMsg : public ezScriptFunctionMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezSpawnComponent_SpawnMsg, ezScriptMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezSpawnComponent_SpawnMsg, ezScriptFunctionMessage);
 
   /// If true ScheduleSpawn() is called, otherwise TriggerManualSpawn()
   bool m_bContinuousSpawn = false;
@@ -89,7 +90,7 @@ public:
   /// For scheduled spawns (continuous / at start) this is an additional random range on top of the minimum spawn delay.
   ezTime m_DelayRange;
 
-  /// The spawned object's orientation may deviate by this amount around the X axis. 180� is completely random orientation.
+  /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
   ezAngle m_MaxDeviation;
 
   //////////////////////////////////////////////////////////////////////////
@@ -99,7 +100,7 @@ public:
 
 private:
 
-  void OnTriggered(ezTriggerMessage& msg);
+  void OnTriggered(ezInternalComponentMessage& msg);
 
 protected:
   ezBitflags<ezSpawnComponentFlags> m_SpawnFlags;

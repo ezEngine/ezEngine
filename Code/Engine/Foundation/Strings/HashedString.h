@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Containers/Map.h>
@@ -176,6 +176,12 @@ public:
 
   /// \brief Returns the hash of the stored string.
   ezUInt32 GetHash() const; // [tested]
+
+  template <size_t N>
+  static constexpr ezUInt32 ComputeHash(const char(&szString)[N]);
+
+  static ezUInt32 ComputeHash(ezHashing::StringWrapper szString);
+  
 
 private:
   ezUInt32 m_uiHash;

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
@@ -282,7 +282,7 @@ public:
 
   virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override
   {
-    ezTriggerMessage msg;
+    ezPxTriggerEventMessage msg;
 
     for (ezUInt32 i = 0; i < count; ++i)
     {
@@ -296,9 +296,10 @@ public:
       {
         const ezPxTriggerComponent* pTrigger = static_cast<const ezPxTriggerComponent*>(pComponentA);
 
+        msg.m_hSenderObject = pComponentA->GetOwner()->GetHandle();
+        msg.m_hSenderComponent = pComponentA->GetHandle();
         msg.m_TriggerState = pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
-        msg.m_TriggerValue = 1.0f;
-        msg.m_UsageStringHash = pTrigger->m_sTriggerMessage.GetHash();
+        msg.m_uiMessageStringHash = pTrigger->m_sTriggerMessage.GetHash();
         msg.m_hTriggeringObject = pComponentB->GetOwner()->GetHandle();
 
         pComponentA->GetOwner()->PostMessage(msg, ezObjectMsgQueueType::PostTransform, ezObjectMsgRouting::ToEventHandler);

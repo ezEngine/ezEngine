@@ -1,8 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Components/PxComponent.h>
 
-struct ezTriggerMessage;
 struct ezCollisionMessage;
 
 class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
@@ -17,9 +16,9 @@ public:
   void Update(const ezWorldModule::UpdateContext& context);
 };
 
-struct EZ_PHYSXPLUGIN_DLL ezPxCharacterController_MoveCharacterMsg : public ezScriptMessage
+struct EZ_PHYSXPLUGIN_DLL ezPxCharacterController_MoveCharacterMsg : public ezScriptFunctionMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezPxCharacterController_MoveCharacterMsg, ezScriptMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezPxCharacterController_MoveCharacterMsg, ezScriptFunctionMessage);
 
   double m_fMoveForwards = 0;
   double m_fMoveBackwards = 0;

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Messages/CallDelayedStartMessage.h>
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/DeleteObjectMessage.h>
@@ -17,12 +17,12 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezDeleteObjectMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDeleteObjectMessage, 1, ezRTTIDefaultAllocator<ezDeleteObjectMessage>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezTriggerMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTriggerMessage, 1, ezRTTIDefaultAllocator<ezTriggerMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezInternalComponentMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInternalComponentMessage, 1, ezRTTIDefaultAllocator<ezInternalComponentMessage>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezUserTriggerMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUserTriggerMessage, 1, ezRTTIDefaultAllocator<ezUserTriggerMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezSimpleUserEventMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleUserEventMessage, 1, ezRTTIDefaultAllocator<ezSimpleUserEventMessage>)
 {
   EZ_BEGIN_PROPERTIES
   {

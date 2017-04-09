@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/Components/ProjectileComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -40,7 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 2)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -262,8 +262,8 @@ void ezProjectileComponent::OnSimulationStarted()
 {
   if (m_MaxLifetime.GetSeconds() > 0.0)
   {
-    ezTriggerMessage msg;
-    msg.m_UsageStringHash = ezTempHashedString("Suicide").GetHash();
+    ezInternalComponentMessage msg;
+    msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
 
     PostMessage(msg, ezObjectMsgQueueType::NextFrame, m_MaxLifetime);
 
@@ -277,9 +277,9 @@ void ezProjectileComponent::OnSimulationStarted()
   m_vVelocity = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0) * m_fMetersPerSecond;
 }
 
-void ezProjectileComponent::OnTriggered(ezTriggerMessage& msg)
+void ezProjectileComponent::OnTriggered(ezInternalComponentMessage& msg)
 {
-  if (msg.m_UsageStringHash != ezTempHashedString("Suicide").GetHash())
+  if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
     return;
 
   if (m_hTimeoutPrefab.IsValid())

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
@@ -15,6 +15,9 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction, 1)
 EZ_ENUM_CONSTANTS(ezOnComponentFinishedAction::None, ezOnComponentFinishedAction::DeleteComponent, ezOnComponentFinishedAction::DeleteEntity)
 EZ_END_STATIC_REFLECTED_ENUM()
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezComponent::SetActive(bool bActive)
 {

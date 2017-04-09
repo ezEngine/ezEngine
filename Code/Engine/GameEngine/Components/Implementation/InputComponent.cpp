@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/Components/InputComponent.h>
 #include <Core/Input/InputManager.h>
 #include <Core/Messages/TriggerMessage.h>
@@ -11,6 +11,10 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressAndRelease),
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressReleaseAndDown),
 EZ_END_STATIC_REFLECTED_ENUM();
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezInputEventMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputEventMessage, 1, ezRTTIDefaultAllocator<ezInputEventMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2)
 {
@@ -28,9 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezInputComponent::ezInputComponent()
-{
-}
+ezInputComponent::ezInputComponent() {}
+ezInputComponent::~ezInputComponent() {}
 
 static inline ezTriggerState::Enum ToTriggerState(ezKeyState::Enum s)
 {
@@ -55,7 +58,7 @@ void ezInputComponent::Update()
   ezHybridArray<ezString, 24> AllActions;
   ezInputManager::GetAllInputActions(m_sInputSet, AllActions);
 
-  ezTriggerMessage msg;
+  ezInputEventMessage msg;
 
   for (const ezString& actionName : AllActions)
   {
@@ -70,10 +73,8 @@ void ezInputComponent::Update()
       continue;
 
     msg.m_TriggerState = ToTriggerState(state);
-
-    msg.m_UsageStringHash = ezTempHashedString(actionName.GetData()).GetHash();
-
-    msg.m_TriggerValue = fValue;
+    msg.m_uiInputActionHash = ezTempHashedString::ComputeHash(actionName.GetData());
+    msg.m_fKeyPressValue = fValue;
 
     // SendMessage, not PostMessage, because the string pointers would not be valid otherwise
     GetOwner()->SendMessage(msg, ezObjectMsgRouting::ToEventHandler); /// \todo Make it configurable where the message is sent to

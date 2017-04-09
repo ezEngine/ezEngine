@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
@@ -39,6 +39,13 @@ void ezPxTriggerComponentManager::UpdateKinematicActors()
     }
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezPxTriggerEventMessage)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxTriggerEventMessage, 1, ezRTTIDefaultAllocator<ezPxTriggerEventMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 
 //////////////////////////////////////////////////////////////////////////
 

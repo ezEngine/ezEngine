@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <Core/Input/Declarations.h>
+#include <Core/Messages/TriggerMessage.h>
 
 typedef ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating> ezInputComponentManager;
 
@@ -25,6 +26,20 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezInputMessageGranularity);
 
+struct ezInputEventMessage : public ezEventMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezInputEventMessage, ezEventMessage);
+
+  /// The hash of the input action string.
+  ezUInt32 m_uiInputActionHash;
+
+  /// The 'trigger state', depending on the key state and the configuration on the ezInputComponent
+  ezTriggerState::Enum m_TriggerState;
+
+  /// For analog keys, how much they are pressed. Typically between 0 and 1.
+  float m_fKeyPressValue;
+};
+
 /// \brief This component polls all input events from the given input set every frame and broadcasts the information to components on the same game object.
 ///
 /// To deactivate input handling, just deactivate the entire component.
@@ -37,6 +52,7 @@ class EZ_GAMEENGINE_DLL ezInputComponent : public ezComponent
 
 public:
   ezInputComponent();
+  ~ezInputComponent();
 
   void Update();
 

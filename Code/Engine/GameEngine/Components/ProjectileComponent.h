@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 
-struct ezTriggerMessage;
+struct ezInternalComponentMessage;
 class ezPhysicsWorldModuleInterface;
 
 class EZ_GAMEENGINE_DLL ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>
@@ -68,7 +68,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnTriggered(ezTriggerMessage& msg);
+  void OnTriggered(ezInternalComponentMessage& msg);
 
   // ************************************* PROPERTIES ***********************************
 

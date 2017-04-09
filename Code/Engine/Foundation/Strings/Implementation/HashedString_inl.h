@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
 
@@ -129,7 +129,7 @@ EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
 template <size_t N>
 EZ_FORCE_INLINE void ezTempHashedString::operator= (const char(&szString)[N])
 {
-  m_uiHash = ezHashing::MurmurHash(szString);
+  m_uiHash = ezHashing::MurmurHash<N>(szString);
 }
 
 EZ_FORCE_INLINE void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
@@ -165,6 +165,17 @@ EZ_ALWAYS_INLINE bool ezTempHashedString::operator< (const ezTempHashedString& r
 EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::GetHash() const
 {
   return m_uiHash;
+}
+
+template <size_t N>
+EZ_ALWAYS_INLINE constexpr ezUInt32 ezTempHashedString::ComputeHash(const char(&szString)[N])
+{
+  return ezHashing::MurmurHash<N>(szString);
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::ComputeHash(ezHashing::StringWrapper szString)
+{
+  return ezHashing::MurmurHash(szString.m_str);
 }
 
 //////////////////////////////////////////////////////////////////////////

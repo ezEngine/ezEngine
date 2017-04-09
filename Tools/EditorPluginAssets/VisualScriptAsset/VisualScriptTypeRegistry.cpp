@@ -131,7 +131,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
   if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
     return;
 
-  if (pRtti->IsDerivedFrom<ezScriptMessage>() && pRtti != ezGetStaticRTTI<ezScriptMessage>())
+  if (pRtti->IsDerivedFrom<ezScriptFunctionMessage>() && pRtti != ezGetStaticRTTI<ezScriptFunctionMessage>())
   {
     CreateMessageNodeType(pRtti);
     return;

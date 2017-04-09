@@ -19,9 +19,9 @@ public:
 
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
 
-struct ezMeshComponent_SetMaterialMsg : public ezScriptMessage
+struct ezMeshComponent_SetMaterialMsg : public ezScriptFunctionMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMeshComponent_SetMaterialMsg, ezScriptMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMeshComponent_SetMaterialMsg, ezScriptFunctionMessage);
 
   void SetMaterialFile(const char* szFile);
   const char* GetMaterialFile() const;

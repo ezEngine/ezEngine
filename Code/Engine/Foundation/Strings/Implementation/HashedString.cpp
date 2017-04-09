@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Lock.h>

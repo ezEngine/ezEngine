@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/World/World.h>
@@ -6,11 +6,11 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnUserTriggerMsg, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_OnUserTriggerMsg>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SimpleUserEvent>)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Message Handler")
+    new ezCategoryAttribute("Events")
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -18,27 +18,27 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnUserTriggerMsg, 1, ezRTTIDe
     //Properties
     EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
     // Execution Pins
-    EZ_OUTPUT_EXECUTION_PIN("OnMsg", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnEvent", 0),
     // Data Pins
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUserTriggerMessage, OnUserTriggerMsg),
+    EZ_MESSAGE_HANDLER(ezSimpleUserEventMessage, SimpleUserEventMsgHandler),
   }
   EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_OnUserTriggerMsg::ezVisualScriptNode_OnUserTriggerMsg() { }
-ezVisualScriptNode_OnUserTriggerMsg::~ezVisualScriptNode_OnUserTriggerMsg() { }
+ezVisualScriptNode_SimpleUserEvent::ezVisualScriptNode_SimpleUserEvent() { }
+ezVisualScriptNode_SimpleUserEvent::~ezVisualScriptNode_SimpleUserEvent() { }
 
-void ezVisualScriptNode_OnUserTriggerMsg::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+void ezVisualScriptNode_SimpleUserEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
-void ezVisualScriptNode_OnUserTriggerMsg::OnUserTriggerMsg(ezUserTriggerMessage& msg)
+void ezVisualScriptNode_SimpleUserEvent::SimpleUserEventMsgHandler(ezSimpleUserEventMessage& msg)
 {
   if (msg.m_sMessage == m_sMessage)
   {
@@ -49,65 +49,11 @@ void ezVisualScriptNode_OnUserTriggerMsg::OnUserTriggerMsg(ezUserTriggerMessage&
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnTriggerMsg, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_OnTriggerMsg>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptUpdateEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_ScriptUpdateEvent>)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Messages/Trigger")
-  }
-    EZ_END_ATTRIBUTES
-    EZ_BEGIN_PROPERTIES
-  {
-    EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage),
-    EZ_OUTPUT_EXECUTION_PIN("OnActivated", 0),
-    EZ_OUTPUT_EXECUTION_PIN("OnDeactivated", 2),
-    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
-  }
-  EZ_END_PROPERTIES
-
-    EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
-  }
-  EZ_END_MESSAGEHANDLERS
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezVisualScriptNode_OnTriggerMsg::ezVisualScriptNode_OnTriggerMsg() { }
-ezVisualScriptNode_OnTriggerMsg::~ezVisualScriptNode_OnTriggerMsg() { }
-
-void ezVisualScriptNode_OnTriggerMsg::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
-{
-  if (m_State == ezTriggerState::Activated)
-  {
-    pInstance->SetOutputPinValue(this, 0, &m_hObject);
-    pInstance->ExecuteConnectedNodes(this, 0);
-  }
-  else if (m_State == ezTriggerState::Deactivated)
-  {
-    pInstance->SetOutputPinValue(this, 0, &m_hObject);
-    pInstance->ExecuteConnectedNodes(this, 2);
-  }
-}
-
-void ezVisualScriptNode_OnTriggerMsg::TriggerMessageHandler(ezTriggerMessage& msg)
-{
-  if (msg.m_UsageStringHash == m_sTriggerMessage.GetHash())
-  {
-    m_State = msg.m_TriggerState;
-    m_bStepNode = true;
-    m_hObject = msg.m_hTriggeringObject;
-    ezLog::Debug("Trigger Msg '{0}' arrived", m_sTriggerMessage.GetData());
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnScriptUpdate, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_OnScriptUpdate>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("General")
+    new ezCategoryAttribute("Events")
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
@@ -118,14 +64,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnScriptUpdate, 1, ezRTTIDefa
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_OnScriptUpdate::ezVisualScriptNode_OnScriptUpdate()
+ezVisualScriptNode_ScriptUpdateEvent::ezVisualScriptNode_ScriptUpdateEvent()
 {
   m_bStepNode = true;
 }
 
-ezVisualScriptNode_OnScriptUpdate::~ezVisualScriptNode_OnScriptUpdate() { }
+ezVisualScriptNode_ScriptUpdateEvent::~ezVisualScriptNode_ScriptUpdateEvent() { }
 
-void ezVisualScriptNode_OnScriptUpdate::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+void ezVisualScriptNode_ScriptUpdateEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   pInstance->ExecuteConnectedNodes(this, 0);
 
@@ -183,4 +129,68 @@ void* ezVisualScriptNode_InputState::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   return &m_hComponent;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_InputEvent>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Input/Events")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("InputAction", GetInputAction, SetInputAction),
+    EZ_OUTPUT_EXECUTION_PIN("OnPressed", 0),
+    EZ_OUTPUT_EXECUTION_PIN("OnDown", 1),
+    EZ_OUTPUT_EXECUTION_PIN("OnReleased", 2),
+    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+    EZ_OUTPUT_DATA_PIN("Component", 1, ezVisualScriptDataPinType::ComponentHandle),
+  }
+  EZ_END_PROPERTIES
+
+    EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezInputEventMessage, InputEventMsgHandler),
+  }
+  EZ_END_MESSAGEHANDLERS
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() { }
+ezVisualScriptNode_InputEvent::~ezVisualScriptNode_InputEvent() { }
+
+void ezVisualScriptNode_InputEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_State == ezTriggerState::Activated)
+  {
+    pInstance->SetOutputPinValue(this, 0, &m_hSenderObject);
+    pInstance->ExecuteConnectedNodes(this, 0);
+  }
+  else if (m_State == ezTriggerState::Continuing)
+  {
+    pInstance->SetOutputPinValue(this, 0, &m_hSenderObject);
+    pInstance->ExecuteConnectedNodes(this, 1);
+  }
+  else if (m_State == ezTriggerState::Deactivated)
+  {
+    pInstance->SetOutputPinValue(this, 0, &m_hSenderObject);
+    pInstance->ExecuteConnectedNodes(this, 2);
+  }
+}
+
+void ezVisualScriptNode_InputEvent::InputEventMsgHandler(ezInputEventMessage& msg)
+{
+  if (msg.m_uiInputActionHash == m_sInputAction.GetHash())
+  {
+    m_bStepNode = true;
+
+    m_State = msg.m_TriggerState;
+    m_hSenderObject = msg.m_hSenderObject;
+    m_hSenderComponent = msg.m_hSenderComponent;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
 

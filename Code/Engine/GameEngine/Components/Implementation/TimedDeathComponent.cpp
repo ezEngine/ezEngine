@@ -1,10 +1,11 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/Components/TimedDeathComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Core/Messages/TriggerMessage.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2)
 {
@@ -17,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -58,8 +59,8 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezTimedDeathComponent::OnSimulationStarted()
 {
-  ezTriggerMessage msg;
-  msg.m_UsageStringHash = ezTempHashedString("Suicide").GetHash();
+  ezInternalComponentMessage msg;
+  msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
 
   ezWorld* pWorld = GetWorld();
 
@@ -74,9 +75,9 @@ void ezTimedDeathComponent::OnSimulationStarted()
   }
 }
 
-void ezTimedDeathComponent::OnTriggered(ezTriggerMessage& msg)
+void ezTimedDeathComponent::OnTriggered(ezInternalComponentMessage& msg)
 {
-  if (msg.m_UsageStringHash != ezTempHashedString("Suicide").GetHash())
+  if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
     return;
 
   if (m_hTimeoutPrefab.IsValid())

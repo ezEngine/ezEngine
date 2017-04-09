@@ -1,7 +1,8 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/Components/SpawnComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Core/Messages/TriggerMessage.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
     EZ_MESSAGE_HANDLER(ezSpawnComponent_SpawnMsg, Spawn),
   }
   EZ_END_MESSAGEHANDLERS
@@ -110,8 +111,8 @@ void ezSpawnComponent::ScheduleSpawn()
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnInFlight))
     return;
 
-  ezTriggerMessage msg;
-  msg.m_UsageStringHash = ezTempHashedString("scheduled_spawn").GetHash();
+  ezInternalComponentMessage msg;
+  msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("scheduled_spawn");
 
   m_SpawnFlags.Add(ezSpawnComponentFlags::SpawnInFlight);
 
@@ -204,9 +205,9 @@ void ezSpawnComponent::Spawn(ezSpawnComponent_SpawnMsg& msg)
   }
 }
 
-void ezSpawnComponent::OnTriggered(ezTriggerMessage& msg)
+void ezSpawnComponent::OnTriggered(ezInternalComponentMessage& msg)
 {
-  if (msg.m_UsageStringHash == ezTempHashedString("scheduled_spawn").GetHash())
+  if (msg.m_uiUsageStringHash == ezTempHashedString::ComputeHash("scheduled_spawn"))
   {
     m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
 
@@ -218,7 +219,7 @@ void ezSpawnComponent::OnTriggered(ezTriggerMessage& msg)
       ScheduleSpawn();
     }
   }
-  else if (msg.m_UsageStringHash == ezTempHashedString("spawn").GetHash())
+  else if (msg.m_uiUsageStringHash == ezTempHashedString::ComputeHash("spawn"))
   {
     TriggerManualSpawn();
   }

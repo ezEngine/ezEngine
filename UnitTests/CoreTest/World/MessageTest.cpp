@@ -1,18 +1,18 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Core/World/World.h>
 
 namespace
 {
-  class TestMessage1 : public ezMessage
+  struct TestMessage1 : public ezMessage
   {
     EZ_DECLARE_MESSAGE_TYPE(TestMessage1, ezMessage);
 
     int m_iValue;
   };
 
-  class TestMessage2 : public ezMessage
+  struct TestMessage2 : public ezMessage
   {
     EZ_DECLARE_MESSAGE_TYPE(TestMessage2, ezMessage);
 

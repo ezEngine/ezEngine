@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -163,4 +163,15 @@ private:
   static ezUInt16 TYPE_ID;
 };
 
+/// \brief Base class for all messages that are sent as 'events'
+struct EZ_CORE_DLL ezEventMessage : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezEventMessage, ezMessage);
+
+  ezGameObjectHandle m_hSenderObject;
+  ezComponentHandle m_hSenderComponent;
+};
+
 #include <Core/World/Implementation/Component_inl.h>
+
+

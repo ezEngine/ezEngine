@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Material/MaterialResource.h>
@@ -603,10 +603,10 @@ void ezRenderContext::ResetContextState()
     m_BoundBuffer[stage].Clear();
 
     m_BoundSamplers[stage].Clear();
-    m_BoundSamplers[stage].Insert(ezTempHashedString("LinearSampler").GetHash(), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering));
-    m_BoundSamplers[stage].Insert(ezTempHashedString("LinearClampSampler").GetHash(), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
-    m_BoundSamplers[stage].Insert(ezTempHashedString("PointSampler").GetHash(), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering));
-    m_BoundSamplers[stage].Insert(ezTempHashedString("PointClampSampler").GetHash(), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
+    m_BoundSamplers[stage].Insert(ezTempHashedString::ComputeHash("LinearSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering));
+    m_BoundSamplers[stage].Insert(ezTempHashedString::ComputeHash("LinearClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
+    m_BoundSamplers[stage].Insert(ezTempHashedString::ComputeHash("PointSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering));
+    m_BoundSamplers[stage].Insert(ezTempHashedString::ComputeHash("PointClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
   }
 
   m_BoundUAVs.Clear();

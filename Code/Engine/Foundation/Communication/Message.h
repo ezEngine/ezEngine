@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/Stream.h>
@@ -101,9 +101,10 @@ protected:
 /// \brief Base class for all messages that scripts are allowed to send.
 ///
 /// This common base class is used to filter out which messages to expose to scripts.
-class EZ_FOUNDATION_DLL ezScriptMessage : public ezMessage
+struct EZ_FOUNDATION_DLL ezScriptFunctionMessage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezScriptMessage, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezScriptFunctionMessage, ezMessage);
 
 
 };
+

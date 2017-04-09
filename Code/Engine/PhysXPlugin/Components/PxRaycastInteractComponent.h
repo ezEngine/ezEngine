@@ -20,9 +20,9 @@ private:
   ezPhysicsWorldModuleInterface* m_pPhysicsInterface;
 };
 
-struct EZ_PHYSXPLUGIN_DLL ezPxRaycastInteractComponent_Execute : public ezScriptMessage
+struct EZ_PHYSXPLUGIN_DLL ezPxRaycastInteractComponent_Execute : public ezScriptFunctionMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezPxRaycastInteractComponent_Execute, ezScriptMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezPxRaycastInteractComponent_Execute, ezScriptFunctionMessage);
 };
 
 class EZ_PHYSXPLUGIN_DLL ezPxRaycastInteractComponent : public ezComponent

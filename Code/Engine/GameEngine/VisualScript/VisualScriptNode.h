@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -6,7 +6,6 @@
 #include <Core/World/Declarations.h>
 
 class ezVisualScriptInstance;
-struct ezTriggerMessage;
 struct ezCollisionMessage;
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode : public ezReflectedClass
