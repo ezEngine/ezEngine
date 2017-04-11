@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAttribute, 1, ezRTTINoAllocator)
@@ -235,7 +235,22 @@ ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSize)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeManipulatorAttribute>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeLengthManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeLengthManipulatorAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezConeLengthManipulatorAttribute::ezConeLengthManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezConeLengthManipulatorAttribute::ezConeLengthManipulatorAttribute(const char* szRadiusProperty)
+  : ezManipulatorAttribute(szRadiusProperty)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeAngleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeAngleManipulatorAttribute>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -245,21 +260,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeManipulatorAttribute, 1, ezRTTIDefaultAllo
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezConeManipulatorAttribute::ezConeManipulatorAttribute()
+ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute()
   : ezManipulatorAttribute(nullptr)
 {
   m_fScale = 1.0f;
 }
 
-ezConeManipulatorAttribute::ezConeManipulatorAttribute(const char* szAngleProperty, const char* szRadiusProperty)
+ezConeAngleManipulatorAttribute::ezConeAngleManipulatorAttribute(const char* szAngleProperty, float fScale, const char* szRadiusProperty)
   : ezManipulatorAttribute(szAngleProperty, szRadiusProperty)
-{
-  m_fScale = 1.0f;
-}
-
-
-ezConeManipulatorAttribute::ezConeManipulatorAttribute(const char* szAngleProperty, float fScale)
-  : ezManipulatorAttribute(szAngleProperty)
 {
   m_fScale = fScale;
 }

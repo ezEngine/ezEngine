@@ -4,6 +4,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 
 class ezVisualScriptInstance;
+struct ezVisualScriptInstanceActivity;
 
 typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 
@@ -42,6 +43,9 @@ protected:
   ezUniquePtr<ezVisualScriptInstance> m_Script;
 
   bool m_bGlobalEventHandler = false;
+  bool m_bEnableDebugOutput = false;
+
+  ezUniquePtr<ezVisualScriptInstanceActivity> m_pActivity;
 };
 
 

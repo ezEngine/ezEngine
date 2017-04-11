@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -391,14 +391,26 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezConeManipulatorAttribute : public ezManipulatorAttribute
+class EZ_FOUNDATION_DLL ezConeLengthManipulatorAttribute : public ezManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConeManipulatorAttribute, ezManipulatorAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezConeLengthManipulatorAttribute, ezManipulatorAttribute);
 
 public:
-  ezConeManipulatorAttribute();
-  ezConeManipulatorAttribute(const char* szAngleProperty, const char* szRadiusProperty);
-  ezConeManipulatorAttribute(const char* szAngleProperty, float fScale);
+  ezConeLengthManipulatorAttribute();
+  ezConeLengthManipulatorAttribute(const char* szRadiusProperty);
+
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezConeAngleManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezConeAngleManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezConeAngleManipulatorAttribute();
+  ezConeAngleManipulatorAttribute(const char* szAngleProperty, float fScale = 1.0f, const char* szRadiusProperty = nullptr);
 
   const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }

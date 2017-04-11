@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -14,6 +14,7 @@ class ezMessage;
 struct ezVisualScriptResourceDescriptor;
 class ezGameObject;
 class ezWorld;
+struct ezVisualScriptInstanceActivity;
 
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
@@ -31,7 +32,7 @@ public:
   void Configure(const ezVisualScriptResourceDescriptor& resource, ezGameObject* pOwner);
 
   /// \brief Runs all nodes that are marked for execution. Typically nodes that handle events will mark themselves for execution in the next update.
-  void ExecuteScript();
+  void ExecuteScript(ezVisualScriptInstanceActivity* pActivity = nullptr);
 
   /// \brief The message is dispatched to all nodes, which may react on it, for instance by tagging themselves for execution in the next ExecuteScript() call.
   void HandleMessage(ezMessage& msg);
@@ -98,6 +99,7 @@ private:
   ezHashTable<ezVisualScriptNodeConnectionID, ExecPinConnection > m_ExecutionConnections;
   ezHashTable<ezVisualScriptPinConnectionID, ezHybridArray<DataPinConnection, 2> > m_DataConnections;
   ezStateMap m_LocalVariables;
+  ezVisualScriptInstanceActivity* m_pActivity = nullptr;
 
   struct AssignFuncKey
   {
@@ -123,4 +125,17 @@ private:
   };
 
   static ezMap<AssignFuncKey, ezVisualScriptDataPinAssignFunc> s_DataPinAssignFunctions;
+};
+
+
+struct ezVisualScriptInstanceActivity
+{
+  ezHybridArray<ezUInt32, 16> m_ActiveExecutionConnections;
+  ezHybridArray<ezUInt32, 16> m_ActiveDataConnections;
+
+  void Clear()
+  {
+    m_ActiveDataConnections.Clear();
+    m_ActiveExecutionConnections.Clear();
+  }
 };

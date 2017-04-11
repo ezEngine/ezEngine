@@ -1,16 +1,16 @@
-#pragma once 
+﻿#pragma once 
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
-#include <EditorFramework/Gizmos/ConeGizmo.h>
+#include <EditorFramework/Gizmos/ConeLengthGizmo.h>
 
 struct ezGizmoEvent;
 
-class ezConeManipulatorAdapter : public ezManipulatorAdapter
+class ezConeLengthManipulatorAdapter : public ezManipulatorAdapter
 {
 public:
-  ezConeManipulatorAdapter();
-  ~ezConeManipulatorAdapter();
+  ezConeLengthManipulatorAdapter();
+  ~ezConeLengthManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -19,5 +19,5 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezConeGizmo m_Gizmo;
+  ezConeLengthGizmo m_Gizmo;
 };

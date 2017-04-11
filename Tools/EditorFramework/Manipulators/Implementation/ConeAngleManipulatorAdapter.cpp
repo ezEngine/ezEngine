@@ -1,19 +1,19 @@
-#include <PCH.h>
-#include <EditorFramework/Manipulators/ConeManipulatorAdapter.h>
+﻿#include <PCH.h>
+#include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeManipulatorAdapter::ezConeManipulatorAdapter()
+ezConeAngleManipulatorAdapter::ezConeAngleManipulatorAdapter()
 {
 }
 
-ezConeManipulatorAdapter::~ezConeManipulatorAdapter()
+ezConeAngleManipulatorAdapter::~ezConeAngleManipulatorAdapter()
 {
 }
 
-void ezConeManipulatorAdapter::Finalize()
+void ezConeAngleManipulatorAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
 
@@ -27,25 +27,21 @@ void ezConeManipulatorAdapter::Finalize()
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
 
-  m_Gizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezConeManipulatorAdapter::GizmoEventHandler, this));
+  m_Gizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezConeAngleManipulatorAdapter::GizmoEventHandler, this));
 }
 
-void ezConeManipulatorAdapter::Update()
+void ezConeAngleManipulatorAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  const ezConeManipulatorAttribute* pAttr = static_cast<const ezConeManipulatorAttribute*>(m_pManipulatorAttr);
+  const ezConeAngleManipulatorAttribute* pAttr = static_cast<const ezConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
     float fValue = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetRadiusProperty()));
-    m_Gizmo.SetRadius(fValue);
   }
-  else
-  {
-    m_Gizmo.SetRadius(pAttr->m_fScale);
-    m_Gizmo.SetEnableRadiusHandle(false);
-  }
+
+  m_Gizmo.SetRadius(pAttr->m_fScale);
 
   if (!pAttr->GetAngleProperty().IsEmpty())
   {
@@ -56,7 +52,7 @@ void ezConeManipulatorAdapter::Update()
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
 }
 
-void ezConeManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
+void ezConeAngleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   switch (e.m_Type)
   {
@@ -74,15 +70,15 @@ void ezConeManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
   case ezGizmoEvent::Type::Interaction:
     {
-      const ezConeManipulatorAttribute* pAttr = static_cast<const ezConeManipulatorAttribute*>(m_pManipulatorAttr);
+      const ezConeAngleManipulatorAttribute* pAttr = static_cast<const ezConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
 
-      ChangeProperties(pAttr->GetAngleProperty(), m_Gizmo.GetAngle(), pAttr->GetRadiusProperty(), m_Gizmo.GetRadius());
+      ChangeProperties(pAttr->GetAngleProperty(), m_Gizmo.GetAngle());
     }
     break;
   }
 }
 
-void ezConeManipulatorAdapter::UpdateGizmoTransform()
+void ezConeAngleManipulatorAdapter::UpdateGizmoTransform()
 {
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
 }

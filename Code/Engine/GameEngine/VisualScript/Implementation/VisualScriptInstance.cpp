@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Foundation/Strings/HashedString.h>
@@ -235,7 +235,7 @@ void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisua
   m_Nodes.PushBack(pNode);
 }
 
-void ezVisualScriptInstance::ExecuteScript()
+void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActivity /*= nullptr*/)
 {
   for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
   {
@@ -246,6 +246,11 @@ void ezVisualScriptInstance::ExecuteScript()
       m_Nodes[i]->m_bStepNode = false;
       m_Nodes[i]->Execute(this, 0);
     }
+  }
+
+  if (m_pActivity = pActivity)
+  {
+    m_pActivity->Clear();
   }
 }
 
@@ -290,6 +295,11 @@ void ezVisualScriptInstance::SetOutputPinValue(const ezVisualScriptNode* pNode, 
       TargetNodeAndPin.m_AssignFunc(pValue, TargetNodeAndPin.m_pTargetData);
     }
   }
+
+  if (m_pActivity != nullptr)
+  {
+    m_pActivity->m_ActiveDataConnections.PushBack(uiConnectionID);
+  }
 }
 
 void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget)
@@ -302,6 +312,11 @@ void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNo
 
   ExecuteDependentNodes(TargetNode.m_uiTargetNode);
   m_Nodes[TargetNode.m_uiTargetNode]->Execute(this, TargetNode.m_uiTargetPin);
+
+  if (m_pActivity != nullptr)
+  {
+    m_pActivity->m_ActiveExecutionConnections.PushBack(uiConnectionID);
+  }
 }
 
 void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)

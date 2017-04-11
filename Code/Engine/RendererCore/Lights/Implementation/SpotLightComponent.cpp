@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -25,7 +25,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezSpotLightVisualizerAttribute("OuterSpotAngle", "Range", "Intensity", "LightColor"),
-    new ezConeManipulatorAttribute("OuterSpotAngle", "Range"),
+    new ezConeLengthManipulatorAttribute("Range"),
+    new ezConeAngleManipulatorAttribute("OuterSpotAngle", 1.5f),
+    new ezConeAngleManipulatorAttribute("InnerSpotAngle", 1.5f),
   }
   EZ_END_ATTRIBUTES
 }
