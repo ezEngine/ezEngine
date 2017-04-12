@@ -26,7 +26,7 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezInputMessageGranularity);
 
-struct ezInputEventMessage : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezInputEventMessage : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezInputEventMessage, ezEventMessage);
 
