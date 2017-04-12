@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
@@ -6,6 +6,7 @@
 
 class ezQtVisualScriptAssetScene;
 class ezQtNodeView;
+struct ezVisualScriptInstanceActivity;
 
 class ezQtVisualScriptAssetDocumentWindow : public ezQtDocumentWindow
 {

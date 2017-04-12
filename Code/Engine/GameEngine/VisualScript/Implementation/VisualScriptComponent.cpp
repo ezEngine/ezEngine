@@ -124,13 +124,16 @@ void ezVisualScriptComponent::Update()
 
   m_Script->ExecuteScript(m_pActivity.Borrow());
 
-  if (m_bEnableDebugOutput && !m_pActivity->IsEmpty())
+  if (m_bEnableDebugOutput && (!m_pActivity->IsEmpty() || !m_bHadEmptyActivity))
   {
     ezVisualScriptComponentActivityEvent e;
     e.m_pComponent = this;
     e.m_pActivity = m_pActivity.Borrow();
 
     s_ActivityEvents.Broadcast(e);
+
+    // this is to send one 'empty' activity event (but not more), every time a script becomes inactive
+    m_bHadEmptyActivity = m_pActivity->IsEmpty();
   }
 }
 

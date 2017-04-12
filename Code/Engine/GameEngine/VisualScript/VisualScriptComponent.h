@@ -53,6 +53,7 @@ protected:
 
   bool m_bGlobalEventHandler = false;
   bool m_bEnableDebugOutput = false;
+  bool m_bHadEmptyActivity = false;
 
   ezUniquePtr<ezVisualScriptInstanceActivity> m_pActivity;
 };

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -52,9 +52,16 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
   }
 
+  static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+
   FinishWindowCreation();
 }
 
 ezQtVisualScriptAssetDocumentWindow::~ezQtVisualScriptAssetDocumentWindow()
 {
+  if (GetDocument() != nullptr)
+  {
+    static_cast<ezVisualScriptAssetDocument*>(GetDocument())->m_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+  }
 }
+

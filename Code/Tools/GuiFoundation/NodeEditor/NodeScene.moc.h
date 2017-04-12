@@ -75,10 +75,10 @@ private:
 protected:
   const ezDocumentNodeManager* m_pManager;
 
-private:
   ezMap<const ezDocumentObject*, ezQtNode*> m_Nodes;
   ezMap<const ezConnection*, ezQtConnection*> m_ConnectionsSourceTarget;
 
+private:
   bool m_bIgnoreSelectionChange;
   ezQtPin* m_pStartPin;
   ezQtConnection* m_pTempConnection;

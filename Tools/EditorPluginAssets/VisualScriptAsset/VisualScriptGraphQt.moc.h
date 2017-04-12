@@ -16,6 +16,14 @@ public:
   ezQtVisualScriptAssetScene(QObject* parent = nullptr);
   ~ezQtVisualScriptAssetScene();
 
+  void VisualScriptActivityEventHandler(const ezVisualScriptInstanceActivity* pActivity);
+
+private slots:
+  void OnUpdateDisplay();
+
+private:
+  void GetAllVsNodes(ezDynamicArray<const ezDocumentObject *>& allNodes) const;
+  void ResetActiveConnections(ezDynamicArray<const ezDocumentObject *> &allNodes);
 };
 
 class ezQtVisualScriptPin : public ezQtPin
@@ -39,6 +47,9 @@ public:
   ezQtVisualScriptConnection(QGraphicsItem* parent = 0);
 
   virtual QPen DeterminePen() const override;
+
+  bool m_bExecutionHighlight = false;
+  ezTime m_HighlightUntil;
 };
 
 class ezQtVisualScriptNode : public ezQtNode

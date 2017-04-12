@@ -32,27 +32,29 @@ void ezVisualScriptAssetDocument::OnInterDocumentMessage(ezReflectedClass* pMess
 {
   if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezVisualScriptActivityMsgToEditor>())
   {
-    const ezVisualScriptActivityMsgToEditor* pActivityMsg = static_cast<ezVisualScriptActivityMsgToEditor*>(pMessage);
-
-    const auto& db = pActivityMsg->m_Activity;
-    const ezUInt8* pData = db.GetData();
-
-    ezUInt32* pNumExecCon = (ezUInt32*)pData;
-    ezUInt32* pNumDataCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 4);
-
-    ezUInt32* pExecCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 8);
-    ezUInt32* pDataCon = pExecCon + (*pNumExecCon);
-
-    ezVisualScriptInstanceActivity act;
-    act.m_ActiveExecutionConnections.SetCountUninitialized(*pNumExecCon);
-    act.m_ActiveDataConnections.SetCountUninitialized(*pNumDataCon);
-
-    ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveExecutionConnections.GetData(), pExecCon, act.m_ActiveExecutionConnections.GetCount());
-    ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveDataConnections.GetData(), pDataCon, act.m_ActiveDataConnections.GetCount());
-
-    int i = 0;
-    (void)i;
+    HandleVsActivityMsg(static_cast<ezVisualScriptActivityMsgToEditor*>(pMessage));
   }
+}
+
+void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivityMsgToEditor* pActivityMsg)
+{
+  const auto& db = pActivityMsg->m_Activity;
+  const ezUInt8* pData = db.GetData();
+
+  ezUInt32* pNumExecCon = (ezUInt32*)pData;
+  ezUInt32* pNumDataCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 4);
+
+  ezUInt32* pExecCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 8);
+  ezUInt32* pDataCon = pExecCon + (*pNumExecCon);
+
+  ezVisualScriptInstanceActivity act;
+  act.m_ActiveExecutionConnections.SetCountUninitialized(*pNumExecCon);
+  act.m_ActiveDataConnections.SetCountUninitialized(*pNumDataCon);
+
+  ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveExecutionConnections.GetData(), pExecCon, act.m_ActiveExecutionConnections.GetCount());
+  ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveDataConnections.GetData(), pDataCon, act.m_ActiveDataConnections.GetCount());
+
+  m_ActivityEvents.Broadcast(&act);
 }
 
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
@@ -113,20 +115,9 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 {
   ezVisualScriptNodeManager* pNodeManager = static_cast<ezVisualScriptNodeManager*>(GetObjectManager());
   ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
-  const ezRTTI* pNodeBaseRtti = pTypeRegistry->GetNodeBaseType();
 
   ezDynamicArray<const ezDocumentObject*> allNodes;
-  allNodes.Reserve(64);
-
-  const auto& children = GetObjectManager()->GetRootObject()->GetChildren();
-  for (const ezDocumentObject* pObject : children)
-  {
-    auto pType = pObject->GetTypeAccessor().GetType();
-    if (!pType->IsDerivedFrom(pNodeBaseRtti))
-      continue;
-
-    allNodes.PushBack(pObject);
-  }
+  GetAllVsNodes(allNodes);
 
   ezMap<const ezDocumentObject*, ezUInt16> ObjectToIndex;
   desc.m_Nodes.Reserve(allNodes.GetCount());
@@ -208,6 +199,25 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
   return EZ_SUCCESS;
 }
 
+
+void ezVisualScriptAssetDocument::GetAllVsNodes(ezDynamicArray<const ezDocumentObject *>& allNodes) const
+{
+  ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
+  const ezRTTI* pNodeBaseRtti = pTypeRegistry->GetNodeBaseType();
+
+  allNodes.Clear();
+  allNodes.Reserve(64);
+
+  const auto& children = GetObjectManager()->GetRootObject()->GetChildren();
+  for (const ezDocumentObject* pObject : children)
+  {
+    auto pType = pObject->GetTypeAccessor().GetType();
+    if (!pType->IsDerivedFrom(pNodeBaseRtti))
+      continue;
+
+    allNodes.PushBack(pObject);
+  }
+}
 
 void ezVisualScriptAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
 {

@@ -4,6 +4,7 @@
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 struct ezVisualScriptResourceDescriptor;
+struct ezVisualScriptInstanceActivity;
 
 class ezVisualScriptAssetDocument : public ezAssetDocument
 {
@@ -14,7 +15,10 @@ public:
 
   virtual const char* QueryAssetType() const override { return "Visual Script"; }
 
-  virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
+  void HandleVsActivityMsg(const ezVisualScriptActivityMsgToEditor* pActivityMsg);
+  void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
+
+  ezEvent<const ezVisualScriptInstanceActivity*> m_ActivityEvents;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
@@ -28,4 +32,7 @@ protected:
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 
   ezResult GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc);
+
+  void GetAllVsNodes(ezDynamicArray<const ezDocumentObject *> &allNodes) const;
+  void HighlightConnections(const ezVisualScriptInstanceActivity& act);
 };

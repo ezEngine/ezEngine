@@ -120,7 +120,7 @@ public:
   /// \brief Called on all documents when BroadcastInterDocumentMessage() is called.
   ///
   /// Use the RTTI information to identify whether the message is of interest.
-  virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) { };
+  virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) { }
 
   ///@}
   /// \name Misc Functions
