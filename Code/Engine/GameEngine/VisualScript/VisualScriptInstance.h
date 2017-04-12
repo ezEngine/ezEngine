@@ -128,7 +128,7 @@ private:
 };
 
 
-struct ezVisualScriptInstanceActivity
+struct EZ_GAMEENGINE_DLL ezVisualScriptInstanceActivity
 {
   ezHybridArray<ezUInt32, 16> m_ActiveExecutionConnections;
   ezHybridArray<ezUInt32, 16> m_ActiveDataConnections;
@@ -137,5 +137,10 @@ struct ezVisualScriptInstanceActivity
   {
     m_ActiveDataConnections.Clear();
     m_ActiveExecutionConnections.Clear();
+  }
+
+  bool IsEmpty()
+  {
+    return m_ActiveDataConnections.IsEmpty() && m_ActiveExecutionConnections.IsEmpty();
   }
 };

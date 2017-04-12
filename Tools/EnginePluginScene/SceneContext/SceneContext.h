@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EnginePluginScene/Plugin.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -6,6 +6,7 @@
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
 class ezGameState;
+struct ezVisualScriptComponentActivityEvent;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext
 {
@@ -13,6 +14,7 @@ class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentCo
 
 public:
   ezSceneContext();
+  ~ezSceneContext();
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
@@ -50,6 +52,8 @@ private:
   void OnSimulationEnabled();
   void OnSimulationDisabled();
   void OnPlayTheGameModeStarted();
+
+  void OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e);
 
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;

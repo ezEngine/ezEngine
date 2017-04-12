@@ -6,6 +6,8 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 
+ezEvent<const ezVisualScriptComponentActivityEvent&> ezVisualScriptComponent::s_ActivityEvents;
+
 EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 2);
 {
   EZ_BEGIN_PROPERTIES
@@ -121,6 +123,15 @@ void ezVisualScriptComponent::Update()
   }
 
   m_Script->ExecuteScript(m_pActivity.Borrow());
+
+  if (m_bEnableDebugOutput && !m_pActivity->IsEmpty())
+  {
+    ezVisualScriptComponentActivityEvent e;
+    e.m_pComponent = this;
+    e.m_pActivity = m_pActivity.Borrow();
+
+    s_ActivityEvents.Broadcast(e);
+  }
 }
 
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg)

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -12,6 +12,7 @@
 #include <VisualShader/VisualShaderTypeRegistry.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
@@ -24,6 +25,34 @@ ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentP
   : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezVisualScriptNodeManager), false, false)
 {
   ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
+}
+
+
+void ezVisualScriptAssetDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
+{
+  if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezVisualScriptActivityMsgToEditor>())
+  {
+    const ezVisualScriptActivityMsgToEditor* pActivityMsg = static_cast<ezVisualScriptActivityMsgToEditor*>(pMessage);
+
+    const auto& db = pActivityMsg->m_Activity;
+    const ezUInt8* pData = db.GetData();
+
+    ezUInt32* pNumExecCon = (ezUInt32*)pData;
+    ezUInt32* pNumDataCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 4);
+
+    ezUInt32* pExecCon = (ezUInt32*)ezMemoryUtils::AddByteOffsetConst(pData, 8);
+    ezUInt32* pDataCon = pExecCon + (*pNumExecCon);
+
+    ezVisualScriptInstanceActivity act;
+    act.m_ActiveExecutionConnections.SetCountUninitialized(*pNumExecCon);
+    act.m_ActiveDataConnections.SetCountUninitialized(*pNumDataCon);
+
+    ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveExecutionConnections.GetData(), pExecCon, act.m_ActiveExecutionConnections.GetCount());
+    ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveDataConnections.GetData(), pDataCon, act.m_ActiveDataConnections.GetCount());
+
+    int i = 0;
+    (void)i;
+  }
 }
 
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)

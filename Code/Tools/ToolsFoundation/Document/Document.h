@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
@@ -109,6 +109,18 @@ public:
   /// \brief Creates the abstract graph of data to be copied and returns the mime type for the clipboard to identify the data
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const { return false; };
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) { return false; };
+
+  ///@}
+  /// \name Inter Document Communication
+  ///@{
+
+  /// \brief This will deliver the message to all open documents. The documents may respond, e.g. by modifying the content of the message.
+  void BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender);
+
+  /// \brief Called on all documents when BroadcastInterDocumentMessage() is called.
+  ///
+  /// Use the RTTI information to identify whether the message is of interest.
+  virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) { };
 
   ///@}
   /// \name Misc Functions

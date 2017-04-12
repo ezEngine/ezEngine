@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -13,6 +13,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Utilities/Progress.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -308,6 +309,21 @@ void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 ui
 {
   m_UnknownObjectTypes = Types;
   m_uiUnknownObjectTypeInstances = uiInstances;
+}
+
+
+void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
+{
+  for (auto& man : ezDocumentManager::GetAllDocumentManagers())
+  {
+    for (auto pDoc : man->GetAllDocuments())
+    {
+      if (pDoc == pSender)
+        continue;
+
+      pDoc->OnInterDocumentMessage(pMessage, pSender);
+    }
+  }
 }
 
 void ezDocument::DeleteSelectedObjects() const

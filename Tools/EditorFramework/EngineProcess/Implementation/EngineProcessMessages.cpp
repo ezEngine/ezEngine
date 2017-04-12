@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
@@ -381,3 +381,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxResultMsgToEditor, 1, ezRTTI
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptActivityMsgToEditor, 1, ezRTTIDefaultAllocator<ezVisualScriptActivityMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ComponentGuid", m_ComponentGuid),
+    EZ_MEMBER_PROPERTY("Activity", m_Activity),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+

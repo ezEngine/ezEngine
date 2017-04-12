@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
@@ -388,5 +388,14 @@ public:
 
   ezUInt32 m_uiViewID; /// passed through from ezQuerySelectionBBoxMsgToEngine
   ezInt32 m_iPurpose; /// passed through from ezQuerySelectionBBoxMsgToEngine
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezVisualScriptActivityMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptActivityMsgToEditor, ezEditorEngineDocumentMsg);
+
+public:
+  ezUuid m_ComponentGuid;
+  ezDataBuffer m_Activity;
 };
 

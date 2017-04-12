@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
@@ -13,6 +13,8 @@ public:
   ezVisualScriptAssetDocument(const char* szDocumentPath);
 
   virtual const char* QueryAssetType() const override { return "Visual Script"; }
+
+  virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;

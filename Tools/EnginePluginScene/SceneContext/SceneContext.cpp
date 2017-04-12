@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 
@@ -11,6 +11,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <GameEngine/VisualScript/VisualScriptComponent.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -68,6 +70,12 @@ ezSceneContext::ezSceneContext()
   m_bRenderShapeIcons = true;
   m_fGridDensity = 0;
   m_GridTransform.SetIdentity();
+}
+
+
+ezSceneContext::~ezSceneContext()
+{
+  ezVisualScriptComponent::s_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -243,6 +251,8 @@ void ezSceneContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
+
+  ezVisualScriptComponent::s_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
@@ -310,6 +320,39 @@ void ezSceneContext::OnPlayTheGameModeStarted()
 
   SendProcessMessage(&msgRet);
 
+}
+
+
+void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e)
+{
+  const ezUuid guid = m_Context.m_ComponentMap.GetGuid(e.m_pComponent->GetHandle());
+
+  if (!guid.IsValid())
+    return;
+
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+
+  writer << e.m_pActivity->m_ActiveExecutionConnections.GetCount();
+  writer << e.m_pActivity->m_ActiveDataConnections.GetCount();
+
+  for (const auto& con : e.m_pActivity->m_ActiveExecutionConnections)
+  {
+    writer << con;
+  }
+
+  for (const auto& con : e.m_pActivity->m_ActiveDataConnections)
+  {
+    writer << con;
+  }
+
+  ezVisualScriptActivityMsgToEditor msg;
+  msg.m_DocumentGuid = this->GetDocumentGuid();
+  msg.m_ComponentGuid = guid;
+  msg.m_Activity.SetCountUninitialized(storage.GetStorageSize());
+  ezMemoryUtils::Copy<ezUInt8>(msg.m_Activity.GetData(), storage.GetData(), msg.m_Activity.GetCount());
+  
+  SendProcessMessage(&msg);
 }
 
 void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)

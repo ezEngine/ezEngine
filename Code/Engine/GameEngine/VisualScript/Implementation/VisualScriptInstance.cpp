@@ -237,6 +237,11 @@ void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisua
 
 void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActivity /*= nullptr*/)
 {
+  if (m_pActivity = pActivity)
+  {
+    m_pActivity->Clear();
+  }
+
   for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
   {
     if (m_Nodes[i]->m_bStepNode)
@@ -246,11 +251,6 @@ void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActi
       m_Nodes[i]->m_bStepNode = false;
       m_Nodes[i]->Execute(this, 0);
     }
-  }
-
-  if (m_pActivity = pActivity)
-  {
-    m_pActivity->Clear();
   }
 }
 

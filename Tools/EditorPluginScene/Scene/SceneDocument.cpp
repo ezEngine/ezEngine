@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
@@ -1031,6 +1031,11 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
 }
 
 
+void ezSceneDocument::HandleVisualScriptActivityMsg(const ezVisualScriptActivityMsgToEditor* pMsg)
+{
+  BroadcastInterDocumentMessage(const_cast<ezVisualScriptActivityMsgToEditor*>(pMsg), this);
+}
+
 void ezSceneDocument::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
@@ -1257,6 +1262,12 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEditor>())
   {
     HandleGameModeMsg(static_cast<const ezGameModeMsgToEditor*>(pMsg));
+    return;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezVisualScriptActivityMsgToEditor>())
+  {
+    HandleVisualScriptActivityMsg(static_cast<const ezVisualScriptActivityMsgToEditor*>(pMsg));
     return;
   }
 

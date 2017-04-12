@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
@@ -10,7 +11,13 @@ typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResour
 
 typedef ezComponentManagerSimple<class ezVisualScriptComponent, ezComponentUpdateType::WhenSimulating> ezVisualScriptComponentManager;
 
-class ezVisualScriptComponent : public ezComponent
+struct EZ_GAMEENGINE_DLL ezVisualScriptComponentActivityEvent
+{
+  ezVisualScriptComponent* m_pComponent = nullptr;
+  ezVisualScriptInstanceActivity* m_pActivity = nullptr;
+};
+
+class EZ_GAMEENGINE_DLL ezVisualScriptComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezVisualScriptComponent, ezComponent, ezVisualScriptComponentManager);
 
@@ -31,6 +38,8 @@ public:
   bool GetIsGlobalEventHandler() const { return m_bGlobalEventHandler; }
 
   void Update();
+
+  static ezEvent<const ezVisualScriptComponentActivityEvent&> s_ActivityEvents;
 
 protected:
   virtual void OnActivated() override;
