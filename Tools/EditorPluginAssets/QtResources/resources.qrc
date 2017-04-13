@@ -19,6 +19,7 @@
   </qresource>
   <qresource prefix="EditorPluginAssets">
 	<file>VSE_CleanGraph16.png</file>
+	<file>PickTarget16.png</file>
   </qresource>
 </RCC>
 

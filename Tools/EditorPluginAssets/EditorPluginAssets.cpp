@@ -23,6 +23,7 @@
 #include <GuiFoundation/Action/EditActions.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -267,6 +268,8 @@ void OnLoadPlugin(bool bReloading)
 
   // Visual Script Asset
   {
+    ezVisualScriptActions::RegisterActions();
+
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar");
@@ -283,6 +286,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("VisualScriptAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar", "");
       ezAssetActions::MapActions("VisualScriptAssetToolBar", true);
+      ezVisualScriptActions::MapActions("VisualScriptAssetToolBar", "");
     }
   }
 

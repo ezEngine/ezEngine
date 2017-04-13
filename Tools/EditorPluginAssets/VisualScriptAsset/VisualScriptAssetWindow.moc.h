@@ -18,6 +18,8 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "VisualScriptAsset"; }
 
+  void PickDebugTarget();
+
 private slots:
 
 private:

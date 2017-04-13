@@ -65,3 +65,9 @@ ezQtVisualScriptAssetDocumentWindow::~ezQtVisualScriptAssetDocumentWindow()
   }
 }
 
+void ezQtVisualScriptAssetDocumentWindow::PickDebugTarget()
+{
+  // Currently cannot be executed with this != nullptr, because actions don't have a proper window pointer
+  int i = 0;
+}
+
