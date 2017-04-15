@@ -98,6 +98,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
 
     EZ_TEST_BOOL(begin(table1) == end(table1));
     EZ_TEST_BOOL(cbegin(table1) == cend(table1));
+    table1.Reserve(10);
+    EZ_TEST_BOOL(begin(table1) == end(table1));
+    EZ_TEST_BOOL(cbegin(table1) == cend(table1));
+
     for (auto value : table1)
     {
       ++counter;

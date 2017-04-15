@@ -13,8 +13,10 @@ template <typename K, typename H>
 void ezHashSetBase<K, H>::ConstIterator::SetToBegin()
 {
   if (m_hashSet.IsEmpty())
+  {
+    m_uiCurrentIndex = m_hashSet.m_uiCapacity;
     return;
-
+  }
   while (!m_hashSet.IsValidEntry(m_uiCurrentIndex))
   {
     ++m_uiCurrentIndex;
