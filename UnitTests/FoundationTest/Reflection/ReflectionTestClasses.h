@@ -324,6 +324,10 @@ public:
   void Insert(double value);
   void Remove(double value);
 
+  const ezHashSet<ezInt64>& GetHashSet() const;
+  void HashInsert(ezInt64 value);
+  void HashRemove(ezInt64 value);
+
   const ezDeque<int>& GetPseudoSet() const;
   void PseudoInsert(int value);
   void PseudoRemove(int value);
@@ -337,7 +341,10 @@ public:
 
   ezSet<ezInt8> m_SetMember;
   ezSet<double> m_SetAccessor;
-  
+
+  ezHashSet<ezInt32> m_HashSetMember;
+  ezHashSet<ezInt64> m_HashSetAccessor;
+
   ezDeque<int> m_Deque;
   ezDynamicArray<ezString> m_Array;
 };

@@ -26,14 +26,6 @@ inline void ezHashSetBase<K, H>::ConstIterator::SetToEnd()
 {
   m_uiCurrentCount = m_hashSet.m_uiCount;
   m_uiCurrentIndex = m_hashSet.m_uiCapacity;
-
-  if (m_hashSet.IsEmpty())
-    return;
-
-  while (!m_hashSet.IsValidEntry(m_uiCurrentIndex-1))
-  {
-    --m_uiCurrentIndex;
-  }
 }
 
 template <typename K, typename H>
@@ -65,7 +57,10 @@ void ezHashSetBase<K, H>::ConstIterator::Next()
 {
   ++m_uiCurrentCount;
   if (m_uiCurrentCount == m_hashSet.m_uiCount)
+  {
+    m_uiCurrentIndex = m_hashSet.m_uiCapacity;
     return;
+  }
 
   do
   {

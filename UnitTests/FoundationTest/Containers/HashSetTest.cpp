@@ -95,6 +95,14 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
       ++counter;
     }
     EZ_TEST_INT(counter, 0);
+
+    EZ_TEST_BOOL(begin(table1) == end(table1));
+    EZ_TEST_BOOL(cbegin(table1) == cend(table1));
+    for (auto value : table1)
+    {
+      ++counter;
+    }
+    EZ_TEST_INT(counter, 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
@@ -124,16 +132,24 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
     EZ_TEST_INT(table1.GetCount(), 65);
     EZ_TEST_INT(table2.GetCount(), 65);
     EZ_TEST_INT(table3.GetCount(), 65);
+    EZ_TEST_BOOL(begin(table1) != end(table1));
+    EZ_TEST_BOOL(cbegin(table1) != cend(table1));
 
     ezUInt32 uiCounter = 0;
     for (auto it = table1.GetIterator(); it.IsValid(); ++it)
     {
       ezConstructionCounter value;
-
       EZ_TEST_BOOL(table2.Contains(it.Key()));
-
       EZ_TEST_BOOL(table3.Contains(it.Key()));
+      ++uiCounter;
+    }
+    EZ_TEST_INT(uiCounter, table1.GetCount());
 
+    uiCounter = 0;
+    for (const auto& value : table1)
+    {
+      EZ_TEST_BOOL(table2.Contains(value));
+      EZ_TEST_BOOL(table3.Contains(value));
       ++uiCounter;
     }
     EZ_TEST_INT(uiCounter, table1.GetCount());

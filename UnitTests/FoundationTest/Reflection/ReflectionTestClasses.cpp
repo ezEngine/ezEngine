@@ -209,6 +209,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets
     EZ_SET_MEMBER_PROPERTY_READ_ONLY("SetRO", m_SetMember),
     EZ_SET_ACCESSOR_PROPERTY("AcSet", GetSet, Insert, Remove),
     EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcSetRO", GetSet),
+    EZ_SET_MEMBER_PROPERTY("HashSet", m_HashSetMember),
+    EZ_SET_MEMBER_PROPERTY_READ_ONLY("HashSetRO", m_HashSetMember),
+    EZ_SET_ACCESSOR_PROPERTY("HashAcSet", GetHashSet, HashInsert, HashRemove),
+    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("HashAcSetRO", GetHashSet),
     EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet", GetPseudoSet, PseudoInsert, PseudoRemove),
     EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSetRO", GetPseudoSet),
     EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2", GetPseudoSet2, PseudoInsert2, PseudoRemove2),
@@ -234,6 +238,21 @@ void ezTestSets::Remove(double value)
   m_SetAccessor.Remove(value);
 }
 
+
+const ezHashSet<ezInt64>& ezTestSets::GetHashSet() const
+{
+  return m_HashSetAccessor;
+}
+
+void ezTestSets::HashInsert(ezInt64 value)
+{
+  m_HashSetAccessor.Insert(value);
+}
+
+void ezTestSets::HashRemove(ezInt64 value)
+{
+  m_HashSetAccessor.Remove(value);
+}
 
 const ezDeque<int>& ezTestSets::GetPseudoSet() const
 {

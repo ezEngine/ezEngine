@@ -962,6 +962,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
     TestSetProperty<double>("AcSetRO", &containers, pRtti, fValue1, fValue2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashSet")
+  {
+    ezInt32 iValue1 = -5;
+    ezInt32 iValue2 = 127;
+    TestSetProperty<ezInt32>("HashSet", &containers, pRtti, iValue1, iValue2);
+    TestSetProperty<ezInt32>("HashSetRO", &containers, pRtti, iValue1, iValue2);
+
+    ezInt64 fValue1 = 5;
+    ezInt64 fValue2 = -3;
+    TestSetProperty<ezInt64>("HashAcSet", &containers, pRtti, fValue1, fValue2);
+    TestSetProperty<ezInt64>("HashAcSetRO", &containers, pRtti, fValue1, fValue2);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezDeque Pseudo Set")
   {
     int iValue1 = -5;

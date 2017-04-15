@@ -6,6 +6,7 @@
 #include <Foundation/Types/Enum.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/HashSet.h>
 
 class ezRTTI;
 class ezPropertyAttribute;
@@ -326,6 +327,12 @@ struct ezContainerSubTypeResolver<ezDeque<T> >
 
 template <typename T>
 struct ezContainerSubTypeResolver<ezSet<T> >
+{
+  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+};
+
+template <typename T>
+struct ezContainerSubTypeResolver<ezHashSet<T> >
 {
   typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
 };
