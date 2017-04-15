@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template <typename EventData, typename MutexType>
 ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator) : m_EventHandlers(pAllocator)
@@ -12,6 +12,8 @@ template <typename EventData, typename MutexType>
 void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler) const
 {
   EZ_LOCK(m_Mutex);
+
+  EZ_ASSERT_DEV(!m_EventHandlers.Contains(handler), "Event handler cannot be added twice");
 
   m_EventHandlers.PushBack(handler);
 }

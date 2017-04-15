@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/ResourceManager/Resource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, 1, ezRTTINoAllocator);
@@ -100,7 +100,9 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
   EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsLoadable correctly");
 
   if (ld.m_State == ezResourceState::LoadedResourceMissing)
-    ezLog::Error("Missing Resource: '{0}' ('{1}')", GetResourceID().GetData(), m_sResourceDescription.GetData());
+  {
+    ezLog::Error("Missing Resource of Type '{2}': '{0}' ('{1}')", GetResourceID(), m_sResourceDescription, GetDynamicRTTI()->GetTypeName());
+  }
 
   IncResourceChangeCounter();
 

@@ -16,6 +16,7 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
