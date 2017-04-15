@@ -7,6 +7,7 @@
 #include <GuiFoundation/NodeEditor/Connection.h>
 
 class ezQtNodeView;
+struct ezVisualScriptInstanceActivity;
 
 class ezQtVisualScriptAssetScene : public ezQtNodeScene
 {

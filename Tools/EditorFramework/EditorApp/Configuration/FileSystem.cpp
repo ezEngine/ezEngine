@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName, bool bWriteable)
 {

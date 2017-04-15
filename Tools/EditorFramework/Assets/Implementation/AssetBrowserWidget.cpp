@@ -2,6 +2,7 @@
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>

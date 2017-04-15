@@ -4,6 +4,7 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <QPainter>
 #include <QTimer>
 

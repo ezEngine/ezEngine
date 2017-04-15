@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>

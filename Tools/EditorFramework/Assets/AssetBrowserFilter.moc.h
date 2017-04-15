@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
+#include <Foundation/Strings/String.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserFilter : public ezQtAssetFilter
 {

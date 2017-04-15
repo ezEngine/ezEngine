@@ -1,12 +1,13 @@
 ﻿#include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <Core/Graphics/Geometry.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/ModelImporter/Material.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
-#include <EditorPluginAssets/ModelImporter/VertexData.h>
 #include <EditorPluginAssets/ModelImporter/ModelImporter.h>
+#include <EditorPluginAssets/ModelImporter/VertexData.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>

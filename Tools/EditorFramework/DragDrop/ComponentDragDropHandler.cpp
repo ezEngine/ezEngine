@@ -7,6 +7,7 @@
 
 #include <QMimeData>
 #include <QDataStream>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE

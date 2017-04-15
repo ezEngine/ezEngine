@@ -6,9 +6,10 @@
 
 struct ezAssetCuratorEvent;
 struct ezToolsProjectEvent;
+struct ezAssetProcessorEvent;
 class QToolButton;
 
-/// \brief 
+/// \brief
 class EZ_EDITORFRAMEWORK_DLL ezQtCuratorControl : public QWidget
 {
   Q_OBJECT
@@ -27,10 +28,9 @@ private slots:
 private:
   void ScheduleUpdateTransformStats();
   void AssetCuratorEvents(const ezAssetCuratorEvent& e);
+  void AssetProcessorEvents(const ezAssetProcessorEvent& e);
   void ProjectEvents(const ezToolsProjectEvent& e);
 
   bool m_bScheduled;
   QToolButton* m_pBackgroundProcess;
-
-
 };

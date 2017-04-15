@@ -1,14 +1,11 @@
 #include <PCH.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <Core/Graphics/Camera.h>
-#include <QKeyEvent>
-#include <QDesktopWidget>
-#include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <QKeyEvent>
 
 static const float s_fMoveSpeed[25] =
 {

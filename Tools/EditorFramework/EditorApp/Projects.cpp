@@ -1,9 +1,9 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Preferences/Preferences.h>
-#include <Foundation/Utilities/Progress.h>
+#include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 void UpdateInputDynamicEnumValues();
 
@@ -103,7 +103,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         ezLog::Error("Failed to start the engine process. Project loading incomplete.");
       }
 
-      m_AssetCurator.Initialize(m_FileSystemConfig);
+      ezAssetCurator::GetSingleton()->Initialize(m_FileSystemConfig);
 
       m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
@@ -132,7 +132,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
     {
       ezEditorEngineProcessConnection::GetSingleton()->ShutdownProcess();
 
-      m_AssetCurator.Deinitialize();
+      ezAssetCurator::GetSingleton()->Deinitialize();
 
       // remove all data directories that were loaded by the project configuration
       ezApplicationFileSystemConfig::Clear();

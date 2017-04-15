@@ -1,11 +1,11 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <QTimer>
-#include <ToolsFoundation/Application/ApplicationServices.h>
-#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <QProcess>
 #include <QTextStream>
+#include <QTimer>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 

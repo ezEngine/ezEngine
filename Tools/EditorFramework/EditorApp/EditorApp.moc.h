@@ -10,7 +10,6 @@
 #include <Foundation/Communication/Event.h>
 #include <QApplication>
 #include <Foundation/Logging/HTMLWriter.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -215,8 +214,6 @@ private:
   QTimer* m_pTimer;
 
   ezLogWriter::HTML m_LogHTML;
-
-  ezAssetCurator m_AssetCurator;
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_EnginePluginConfig;

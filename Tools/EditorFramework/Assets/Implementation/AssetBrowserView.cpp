@@ -2,6 +2,7 @@
 #include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 #include <QPainter>
 

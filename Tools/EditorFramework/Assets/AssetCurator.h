@@ -1,19 +1,17 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
+#include <Core/Application/Config/FileSystemConfig.h>
+#include <EditorFramework/Assets/AssetDocumentInfo.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Time/Timestamp.h>
+#include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Threading/LockedObject.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Foundation/Configuration/Singleton.h>
-#include <Foundation/Threading/LockedObject.h>
+#include <Foundation/Time/Timestamp.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 #include <tuple>
-#include <EditorFramework/IPC/ProcessCommunication.h>
-#include <Foundation/Threading/AtomicInteger.h>
 
 class ezUpdateTask;
 class ezTask;
@@ -22,7 +20,7 @@ class ezDirectoryWatcher;
 class ezProcessTask;
 struct ezFileStats;
 struct AssetCacheEntry;
-class ezCuratorLog;
+class ezAssetProcessorLog;
 
 struct ezAssetInfo
 {
@@ -87,22 +85,11 @@ struct ezAssetCuratorEvent
     AssetUpdated,
     AssetListReset,
     ActivePlatformChanged,
-    ProcessTaskStateChanged
   };
 
   ezUuid m_AssetGuid;
   const ezAssetInfo* m_pInfo;
   Type m_Type;
-};
-
-class ezCuratorLog : public ezLogInterface
-{
-public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override;
-  void AddLogWriter(ezLoggingEvent::Handler handler);
-  void RemoveLogWriter(ezLoggingEvent::Handler handler);
-
-  ezLoggingEvent m_LoggingEvent;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetCurator
@@ -121,10 +108,6 @@ public:
 
   const char* GetActivePlatform() const { return m_sActivePlatform; }
   void SetActivePlatform(const char* szPlatform);
-
-  void AddLogWriter(ezLoggingEvent::Handler handler);
-  void RemoveLogWriter(ezLoggingEvent::Handler handler);
-
   void MainThreadTick();
 
   ///@}
@@ -139,10 +122,6 @@ public:
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTables(const char* szPlatform = nullptr);
-
-  void RestartProcessTask();
-  void ShutdownProcessTask();
-  bool IsProcessTaskRunning() const;
 
   ///@}
   /// \name Asset Access
@@ -183,8 +162,6 @@ public:
   /// \name Manual and Automatic Change Notification
   ///@{
 
-  // TODO: Background file-system watcher and main thread update tick to add background info to main data
-
   /// \brief Allows to tell the system of a new or changed file, that might be of interest to the Curator.
   void NotifyOfFileChange(const char* szAbsolutePath);
 
@@ -201,7 +178,6 @@ public:
 public:
 
   ezEvent<const ezAssetCuratorEvent&> m_Events;
-
 
 private:
 
@@ -260,15 +236,6 @@ private:
   void RunNextUpdateTask();
 
   ///@}
-  /// \name Process Task
-  ///@{
-
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
-  void OnProcessTaskFinished(ezTask* pTask);
-  void RunNextProcessTask();
-
-  ///@}
   /// \name Asset Hashing and Status Updates (AssetUpdates.cpp)
   ///@{
 
@@ -281,9 +248,7 @@ private:
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
-  ezResult GetAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
-  /// \brief Opens the asset file and reads the "Header" into the given ezAssetDocumentInfo.
-  static ezStatus ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
+  ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
   static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
 
@@ -308,9 +273,9 @@ private:
 private:
   friend class ezUpdateTask;
   friend class ezProcessTask;
+  friend class ezAssetProcessor;
 
   bool m_bRunUpdateTask;
-  bool m_bRunProcessTask;
   bool m_bNeedToReloadResources;
 
   // Actual data stored in the curator
@@ -337,12 +302,8 @@ private:
   ezSet<ezString> m_AssetFolders;
 
   mutable ezMutex m_CuratorMutex;
-  ezCuratorLog m_CuratorLog;
-  ezUpdateTask* m_pUpdateTask;
   ezDynamicArray<ezDirectoryWatcher*> m_Watchers;
-  ezDynamicArray<ezProcessTask*> m_ProcessTasks;
-  ezUInt32 m_TicksWithIdleTasks = 0;
-  ezTaskGroupID m_ProcessTaskGroup; ///< TODO: Does not work at the moment as grouping marks tasks as running
+  ezUpdateTask* m_pUpdateTask;
 };
 
 class ezUpdateTask : public ezTask
@@ -354,29 +315,5 @@ public:
 private:
   ezStringBuilder m_sAssetPath;
 
-  virtual void Execute() override;
-};
-
-class ezProcessTask : public ezTask
-{
-public:
-  ezProcessTask(ezUInt32 uiProcessorID);
-  ~ezProcessTask();
-  ezAtomicInteger32 m_bDidWork = true;
-
-private:
-  void EventHandlerIPC(const ezProcessCommunication::Event& e);
-  void StartProcess();
-  void ShutdownProcess();
-
-  ezUInt32 m_uiProcessorID;
-
-  ezUuid m_assetGuid;
-  ezStringBuilder m_sAssetPath;
-  ezProcessCommunication* m_pIPC;
-  bool m_bProcessShouldBeRunning;
-  bool m_bProcessCrashed;
-  bool m_bWaiting;
-  bool m_bSuccess;
   virtual void Execute() override;
 };

@@ -1,20 +1,8 @@
 #include <PCH.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <EditorPluginScene/Objects/SceneObjectManager.h>
-#include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <Core/World/GameObject.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Commands/SceneCommands.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Core/Assets/AssetFileHeader.h>
-#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
-#include <Core/World/GameObject.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 
 void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection)

@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 
 ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)

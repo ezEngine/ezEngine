@@ -1,22 +1,17 @@
 #include <PCH.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-
-#include <QHBoxLayout>
-#include <QToolButton>
-#include <QLabel>
-#include <Assets/AssetDocumentManager.h>
-#include <QMenu>
-#include <Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
-#include <QDropEvent>
-#include <QMimeData>
-#include <QUrl>
-#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <QClipboard>
 #include <QFileDialog>
-
+#include <QMenu>
+#include <QMimeData>
+#include <QToolButton>
 
 ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget()
 {

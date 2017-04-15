@@ -1,10 +1,10 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <Foundation/Serialization/DdlSerializer.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Asset Hashing and Status Updates
@@ -227,7 +227,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
   bool bNew = !RefFile.m_AssetGuid.IsValid(); // Under this current location the asset is not known.
   // if it already has a valid GUID, an ezAssetInfo object must exist
   EZ_VERIFY(bNew == !m_KnownAssets.Contains(RefFile.m_AssetGuid), "guid set in file-status but no asset is actually known under that guid");
-  EZ_SUCCEED_OR_RETURN(GetAssetInfo(szAbsFilePath, RefFile, assetInfo, &fs));
+  EZ_SUCCEED_OR_RETURN(ReadAssetDocumentInfo(szAbsFilePath, RefFile, assetInfo, &fs));
 
   ezAssetInfo* pAssetInfo = nullptr;
   if (bNew)
@@ -433,7 +433,7 @@ void ezAssetCurator::UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<
   }
 }
 
-ezResult ezAssetCurator::GetAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& out_assetInfo, const ezFileStats* pFileStat)
+ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& out_assetInfo, const ezFileStats* pFileStat)
 {
   // try to read the asset file
   ezFileReader file;
@@ -512,7 +512,7 @@ ezResult ezAssetCurator::GetAssetInfo(const char* szAbsFilePath, ezAssetCurator:
   }
   else
   {
-    ezStatus ret = ReadAssetDocumentInfo(&out_assetInfo.m_Info, MemReader);
+    ezStatus ret = out_assetInfo.m_pManager->ReadAssetDocumentInfo(&out_assetInfo.m_Info, MemReader);
     if (ret.Failed())
     {
       ezLog::Error("Failed to read asset document info for asset file '{0}'", szAbsFilePath);
@@ -527,33 +527,10 @@ ezResult ezAssetCurator::GetAssetInfo(const char* szAbsFilePath, ezAssetCurator:
   return EZ_SUCCESS;
 }
 
-ezStatus ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream)
-{
-  /// \todo PERF / DDL: We are only interested in the HEADER block, we should skip everything else !
-
-  ezAbstractObjectGraph graph;
-
-  if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
-    return ezStatus("Failed to read asset document");
-
-  ezRttiConverterContext context;
-  ezRttiConverterReader rttiConverter(&graph, &context);
-
-  auto* pHeaderNode = graph.GetNodeByName("Header");
-
-  if (pHeaderNode == nullptr)
-    return ezStatus("Document does not contain a 'Header'");
-
-  rttiConverter.ApplyPropertiesToObject(pHeaderNode, pInfo->GetDynamicRTTI(), pInfo);
-
-  return ezStatus(EZ_SUCCESS);
-}
-
 ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream)
 {
   ezUInt8 uiCache[1024 * 10];
   ezUInt64 uiHash = 0;
-
   while (true)
   {
     ezUInt64 uiRead = InputStream.ReadBytes(uiCache, EZ_ARRAY_SIZE(uiCache));
@@ -615,7 +592,6 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
 {
   EZ_LOCK(m_CuratorMutex);
 
-  m_TicksWithIdleTasks = 0;
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
   {
@@ -690,122 +666,3 @@ void ezUpdateTask::Execute()
   ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, nullptr, pTypeDescriptor, uiAssetHash, uiThumbHash);
 }
 
-
-////////////////////////////////////////////////////////////////////////
-// ezProcessTask
-////////////////////////////////////////////////////////////////////////
-
-ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID)
-  : m_uiProcessorID(uiProcessorID), m_bProcessShouldBeRunning(false), m_bProcessCrashed(false), m_bWaiting(false), m_bSuccess(true)
-{
-  m_pIPC = EZ_DEFAULT_NEW(ezProcessCommunication);
-  m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));
-}
-
-ezProcessTask::~ezProcessTask()
-{
-  ShutdownProcess();
-
-  /// \todo The logic here seems to be flawed.
-  /// m_pIPC is immediately allocated in the constructor, and it can be deallocated in ShutdownProcess but is not re-allocated in StartProcess
-  EZ_DEFAULT_DELETE(m_pIPC);
-}
-
-void ezProcessTask::EventHandlerIPC(const ezProcessCommunication::Event& e)
-{
-  if (const ezProcessAssetResponse* pMsg = ezDynamicCast<const ezProcessAssetResponse*>(e.m_pMessage))
-  {
-    m_bSuccess = pMsg->m_bSuccess;
-    m_bWaiting = false;
-  }
-}
-
-void ezProcessTask::StartProcess()
-{
-  const ezRTTI* pFirstAllowedMessageType = nullptr;
-  m_bProcessShouldBeRunning = true;
-  m_bProcessCrashed = false;
-
-  QStringList args;
-  args << "-appname";
-  args << "ezEditor";
-  args << "-appid";
-  args << QString::number(m_uiProcessorID);
-  args << "-project";
-  args << ezToolsProject::GetSingleton()->GetProjectFile().GetData();
-
-  if (m_pIPC->StartClientProcess("EditorProcessor.exe", args, pFirstAllowedMessageType).Failed())
-  {
-    m_bProcessCrashed = true;
-  }
-}
-
-void ezProcessTask::ShutdownProcess()
-{
-  if (!m_bProcessShouldBeRunning)
-    return;
-
-  m_bProcessShouldBeRunning = false;
-  m_pIPC->CloseConnection();
-}
-
-void ezProcessTask::Execute()
-{
-  m_bSuccess = true;
-  {
-    EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
-
-    if (!ezAssetCurator::GetSingleton()->GetNextAssetToProcess(m_assetGuid, m_sAssetPath))
-    {
-      m_assetGuid = ezUuid();
-      m_sAssetPath.Clear();
-      m_bDidWork = false;
-      return;
-    }
-    m_bDidWork = true;
-    ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::Updating);
-  }
-
-  if (!m_bProcessShouldBeRunning)
-  {
-    StartProcess();
-  }
-
-  if (m_bProcessCrashed)
-  {
-    m_bSuccess = false;
-    ezLog::Error(&ezAssetCurator::GetSingleton()->m_CuratorLog, "AssetProcessor crashed!");
-    ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::TransformError);
-    return;
-  }
-
-  ezLog::Info(&ezAssetCurator::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_sAssetPath.GetData());
-  // Send and wait
-  ezProcessAsset msg;
-  msg.m_AssetGuid = m_assetGuid;
-  msg.m_sAssetPath = m_sAssetPath;
-  m_pIPC->SendMessage(&msg);
-  m_bWaiting = true;
-
-  while (m_bWaiting)
-  {
-    if (m_bProcessCrashed)
-    {
-      m_bWaiting = false;
-      m_bSuccess = false;
-      break;
-    }
-    m_pIPC->ProcessMessages();
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
-  }
-
-  if (m_bSuccess)
-  {
-    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_assetGuid);
-    ezAssetCurator::GetSingleton()->m_bNeedToReloadResources = true;
-  }
-  else
-  {
-    ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::TransformError);
-  }
-}

@@ -3,6 +3,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -10,6 +12,28 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezBitflags<ezAssetDocumentFlags> ezAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   return ezAssetDocumentFlags::Default;
+}
+
+ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream) const
+{
+  /// \todo PERF / DDL: We are only interested in the HEADER block, we should skip everything else !
+
+  ezAbstractObjectGraph graph;
+
+  if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
+    return ezStatus("Failed to read asset document");
+
+  ezRttiConverterContext context;
+  ezRttiConverterReader rttiConverter(&graph, &context);
+
+  auto* pHeaderNode = graph.GetNodeByName("Header");
+
+  if (pHeaderNode == nullptr)
+    return ezStatus("Document does not contain a 'Header'");
+
+  rttiConverter.ApplyPropertiesToObject(pHeaderNode, pInfo->GetDynamicRTTI(), pInfo);
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)

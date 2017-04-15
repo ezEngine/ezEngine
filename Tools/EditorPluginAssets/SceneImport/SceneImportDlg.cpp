@@ -6,6 +6,7 @@
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 
 #include <Foundation/Types/ScopeExit.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Project/ToolsProject.h>

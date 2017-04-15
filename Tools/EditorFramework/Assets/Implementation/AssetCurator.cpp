@@ -1,18 +1,50 @@
 #include <PCH.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Utilities/Progress.h>
+#include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Utilities/Progress.h>
 #include <QDir>
 
 #define EZ_CURATOR_CACHE_VERSION 1
 
 EZ_IMPLEMENT_SINGLETON(ezAssetCurator);
+
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, AssetCurator)
+
+BEGIN_SUBSYSTEM_DEPENDENCIES
+"ToolsFoundation",
+"DocumentManager"
+END_SUBSYSTEM_DEPENDENCIES
+
+ON_CORE_STARTUP
+{
+  EZ_DEFAULT_NEW(ezAssetCurator);
+}
+
+ON_CORE_SHUTDOWN
+{
+  ezAssetCurator* pDummy = ezAssetCurator::GetSingleton();
+  EZ_DEFAULT_DELETE(pDummy);
+}
+
+ON_ENGINE_STARTUP
+{
+}
+
+ON_ENGINE_SHUTDOWN
+{
+}
+
+EZ_END_SUBSYSTEM_DECLARATION
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(AssetCacheEntry, ezNoBase, 2, ezRTTIDefaultAllocator<AssetCacheEntry>)
 {
@@ -28,27 +60,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(AssetCacheEntry, ezNoBase, 2, ezRTTIDefaultAlloca
 EZ_END_STATIC_REFLECTED_TYPE
 
 ////////////////////////////////////////////////////////////////////////
-// ezCuratorLog
-////////////////////////////////////////////////////////////////////////
-
-void ezCuratorLog::HandleLogMessage(const ezLoggingEventData& le)
-{
-  const ezLogMsgType::Enum ThisType = le.m_EventType;
-  m_LoggingEvent.Broadcast(le);
-}
-
-void ezCuratorLog::AddLogWriter(ezLoggingEvent::Handler handler)
-{
-  m_LoggingEvent.AddEventHandler(handler);
-}
-
-void ezCuratorLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
-{
-  m_LoggingEvent.RemoveEventHandler(handler);
-}
-
-
-////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Setup
 ////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +67,6 @@ ezAssetCurator::ezAssetCurator()
   : m_SingletonRegistrar(this)
 {
   m_bRunUpdateTask = false;
-  m_bRunProcessTask = false;
   m_bNeedToReloadResources = false;
   m_pUpdateTask = nullptr;
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
@@ -119,7 +129,7 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
 void ezAssetCurator::Deinitialize()
 {
   ShutdownUpdateTask();
-  ShutdownProcessTask();
+  ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
   SaveCaches(); //TODO: too late here? Listen for project change!
 
   {
@@ -164,16 +174,6 @@ void ezAssetCurator::SetActivePlatform(const char* szPlatform)
   e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
 
   m_Events.Broadcast(e);
-}
-
-void ezAssetCurator::AddLogWriter(ezLoggingEvent::Handler handler)
-{
-  m_CuratorLog.AddLogWriter(handler);
-}
-
-void ezAssetCurator::RemoveLogWriter(ezLoggingEvent::Handler handler)
-{
-  m_CuratorLog.RemoveLogWriter(handler);
 }
 
 void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirectoryWatcherAction action)
@@ -247,7 +247,7 @@ void ezAssetCurator::MainThreadTick()
   m_AssetChanged.Clear();
 
   RunNextUpdateTask();
-  RunNextProcessTask();
+  ezAssetProcessor::GetSingleton()->RunNextProcessTask();
 
   if (!ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
   {
@@ -408,57 +408,6 @@ ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
   return res;
 }
 
-
-void ezAssetCurator::RestartProcessTask()
-{
-  EZ_LOCK(m_CuratorMutex);
-  m_bRunProcessTask = true;
-
-  RunNextProcessTask();
-
-  {
-    ezAssetCuratorEvent e;
-    e.m_pInfo = nullptr;
-    e.m_Type = ezAssetCuratorEvent::Type::ProcessTaskStateChanged;
-    m_Events.Broadcast(e);
-  }
-}
-
-void ezAssetCurator::ShutdownProcessTask()
-{
-  ezDynamicArray<ezProcessTask*> Tasks;
-  {
-    EZ_LOCK(m_CuratorMutex);
-    Tasks = m_ProcessTasks;
-    m_ProcessTasks.Clear();
-    m_bRunProcessTask = false;
-  }
-
-  if (!Tasks.IsEmpty())
-  {
-    for (ezProcessTask* pTask : Tasks)
-    {
-      ezTaskSystem::WaitForTask((ezTask*)pTask);
-
-      // Delete and remove under lock.
-      EZ_LOCK(m_CuratorMutex);
-      EZ_DEFAULT_DELETE(pTask);
-    }
-  }
-
-  {
-    ezAssetCuratorEvent e;
-    e.m_pInfo = nullptr;
-    e.m_Type = ezAssetCuratorEvent::Type::ProcessTaskStateChanged;
-    m_Events.Broadcast(e);
-  }
-}
-
-
-bool ezAssetCurator::IsProcessTaskRunning() const
-{
-  return m_bRunProcessTask;
-}
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Asset Access
@@ -1077,158 +1026,6 @@ void ezAssetCurator::RunNextUpdateTask()
     ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::FileAccess);
 }
 
-
-////////////////////////////////////////////////////////////////////////
-// ezAssetCurator Process Task
-////////////////////////////////////////////////////////////////////////
-
-bool ezAssetCurator::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath)
-{
-  bool bComplete = true;
-
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(pInfo->m_sAbsolutePath, false, pTypeDesc).Succeeded())
-  {
-    auto flags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
-    if (flags.IsAnySet(ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::DisableTransform))
-      return false;
-
-  }
-
-  auto TestFunc = [this, &bComplete](ezSet<ezString>& Files) -> ezAssetInfo*
-  {
-    for (const auto& sFile : Files)
-    {
-      if (ezAssetInfo* pFileInfo = GetAssetInfo(sFile))
-      {
-        switch (pFileInfo->m_TransformState)
-        {
-        case ezAssetInfo::TransformState::Unknown:
-        case ezAssetInfo::TransformState::Updating:
-          {
-            bComplete = false;
-            break;
-          }
-        case ezAssetInfo::TransformState::NeedsTransform:
-        case ezAssetInfo::TransformState::NeedsThumbnail:
-          {
-            bComplete = false;
-            return pFileInfo;
-            break;
-          }
-        case ezAssetInfo::TransformState::UpToDate:
-          continue;
-        }
-      }
-    }
-    return nullptr;
-  };
-
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_FileDependencies))
-  {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
-  }
-
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_FileReferences))
-  {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
-  }
-
-  if (bComplete)
-  {
-    out_guid = pInfo->m_Info.m_DocumentID;
-    out_sAbsPath = pInfo->m_sAbsolutePath;
-    return true;
-  }
-
-  return false;
-}
-
-bool ezAssetCurator::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath)
-{
-  ezLock<ezMutex> ml(m_CuratorMutex);
-
-  for (auto it = m_TransformState[ezAssetInfo::TransformState::NeedsTransform].GetIterator(); it.IsValid(); ++it)
-  {
-    ezAssetInfo* pInfo = GetAssetInfo(it.Key());
-    if (pInfo)
-    {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath);
-      if (bRes)
-        return true;
-    }
-  }
-
-  for (auto it = m_TransformState[ezAssetInfo::TransformState::NeedsThumbnail].GetIterator(); it.IsValid(); ++it)
-  {
-    ezAssetInfo* pInfo = GetAssetInfo(it.Key());
-    if (pInfo)
-    {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath);
-      if (bRes)
-        return true;
-    }
-  }
-
-  return false;
-}
-
-
-void ezAssetCurator::OnProcessTaskFinished(ezTask* pTask)
-{
-  ezLock<ezMutex> ml(m_CuratorMutex);
-
-  RunNextProcessTask();
-}
-
-
-void ezAssetCurator::RunNextProcessTask()
-{
-  ezLock<ezMutex> ml(m_CuratorMutex);
-
-  if (!m_bRunProcessTask || (m_TransformState[ezAssetInfo::TransformState::NeedsTransform].IsEmpty() && m_TransformState[ezAssetInfo::TransformState::NeedsThumbnail].IsEmpty()))
-    return;
-
-  if (m_ProcessTasks.IsEmpty())
-  {
-    m_ProcessTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunning);
-
-    const ezUInt32 uiWorkerCount = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
-    for (ezUInt32 i = 0; i < uiWorkerCount; ++i)
-    {
-      ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i);
-      pTask->SetOnTaskFinished(ezMakeDelegate(&ezAssetCurator::OnProcessTaskFinished, this));
-      //ezTaskSystem::AddTaskToGroup(m_ProcessTaskGroup, pTask);
-      m_ProcessTasks.PushBack(pTask);
-    }
-  }
-
-  // Even if there is work left, it could be that after further examining (that we don't want to do on this thread)
-  // it turns out that there was nothing to do (errors, only manual transform assets).
-  // If all threads decide that we are done until an asset state is changed which resets m_TicksWithIdleTasks.
-  bool bAllIdle = true;
-  for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); ++i)
-  {
-    if (m_ProcessTasks[i]->m_bDidWork)
-    {
-      bAllIdle = false;
-    }
-  }
-  if (bAllIdle)
-  {
-    if (m_TicksWithIdleTasks > 5)
-      return;
-    ++m_TicksWithIdleTasks;
-  }
-
-  for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); ++i)
-  {
-    if (m_ProcessTasks[i]->IsTaskFinished())
-    {
-      ezTaskSystem::StartSingleTask(m_ProcessTasks[i], ezTaskPriority::LongRunning);
-    }
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Check File System Helper

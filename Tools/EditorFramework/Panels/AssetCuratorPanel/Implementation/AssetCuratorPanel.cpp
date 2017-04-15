@@ -1,7 +1,8 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <EditorFramework/Panels/LogPanel/LogModel.moc.h>
-
+#include <EditorFramework/Assets/AssetProcessor.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
   : ezQtAssetFilter(pParent)
@@ -39,7 +40,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 {
   setupUi(this);
 
-  ezAssetCurator::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
+  ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
   m_pFilter = new ezQtAssetCuratorFilter(this);
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
@@ -60,7 +61,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 
 ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
 {
-  ezAssetCurator::GetSingleton()->RemoveLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
+  ezAssetProcessor::GetSingleton()->RemoveLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 }
 
 void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)

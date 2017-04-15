@@ -1,8 +1,13 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <EditorFramework/Assets/AssetCurator.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Set.h>
+#include <Foundation/Types/Uuid.h>
 #include <QAbstractItemModel>
+
+struct ezAssetInfo;
+struct ezAssetCuratorEvent;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetFilter : public QObject
 {

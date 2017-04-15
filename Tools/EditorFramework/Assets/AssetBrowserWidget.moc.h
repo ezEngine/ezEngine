@@ -3,11 +3,11 @@
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 
 class ezQtToolBarActionMapView;
 class ezQtAssetBrowserFilter;
 class ezQtAssetBrowserModel;
+struct ezAssetCuratorEvent;
 
 class ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {

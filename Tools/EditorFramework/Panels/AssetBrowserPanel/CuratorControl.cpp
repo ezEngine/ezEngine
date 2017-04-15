@@ -1,10 +1,12 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <QBoxLayout>
+#include <QPainter>
 #include <QTimer>
 #include <QToolButton>
-#include <QPainter>
-#include <QBoxLayout>
 
 ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
   : QWidget(pParent)
@@ -21,12 +23,14 @@ ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
 
   UpdateBackgroundProcessState();
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetCuratorEvents, this));
+  ezAssetProcessor::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetProcessorEvents, this));
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezQtCuratorControl::ProjectEvents, this));
 }
 
 ezQtCuratorControl::~ezQtCuratorControl()
 {
   ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetCuratorEvents, this));
+  ezAssetProcessor::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtCuratorControl::AssetProcessorEvents, this));
   ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtCuratorControl::ProjectEvents, this));
 }
 
@@ -82,7 +86,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
 
 void ezQtCuratorControl::UpdateBackgroundProcessState()
 {
-  bool bRunning = ezAssetCurator::GetSingleton()->IsProcessTaskRunning();
+  bool bRunning = ezAssetProcessor::GetSingleton()->IsProcessTaskRunning();
   if (bRunning)
     m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
   else
@@ -94,9 +98,9 @@ void ezQtCuratorControl::UpdateBackgroundProcessState()
 void ezQtCuratorControl::BackgroundProcessClicked(bool checked)
 {
   if (checked)
-    ezAssetCurator::GetSingleton()->RestartProcessTask();
+    ezAssetProcessor::GetSingleton()->RestartProcessTask();
   else
-    ezAssetCurator::GetSingleton()->ShutdownProcessTask();
+    ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
 }
 
 void ezQtCuratorControl::SlotUpdateTransformStats()
@@ -140,7 +144,15 @@ void ezQtCuratorControl::AssetCuratorEvents(const ezAssetCuratorEvent& e)
   case ezAssetCuratorEvent::Type::AssetUpdated:
     ScheduleUpdateTransformStats();
     break;
-  case ezAssetCuratorEvent::Type::ProcessTaskStateChanged:
+  default:
+    break;
+  }
+}
+void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezAssetProcessorEvent::Type::ProcessTaskStateChanged:
     {
       UpdateBackgroundProcessState();
     }
