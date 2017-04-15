@@ -29,7 +29,7 @@ void ezQtPickDocumentObjectDlg::UpdateTable()
     const ezDocumentObjectManager* pManager = e.m_pObject->GetDocumentObjectManager();
 
     bool existed = false;
-    auto& rootItem = roots.FindOrAdd(pManager, &existed);
+    auto rootItem = roots.FindOrAdd(pManager, &existed);
 
     QTreeWidgetItem* pRoot = rootItem.Value();
 
