@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 #include <Core/World/GameObject.h>
@@ -22,116 +22,6 @@ ezQtScenegraphModel::~ezQtScenegraphModel()
   m_pSceneDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphModel::DocumentObjectMetaDataEventHandler, this));
 }
 
-void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon& icon) const
-{
-  // tries to find a good name for a node by looking at the attached components and their properties
-
-  bool bHasIcon = false;
-
-  if (prefabGuid.IsValid())
-  {
-    auto pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(prefabGuid);
-
-    if (pInfo)
-    {
-      ezStringBuilder sPath = pInfo->m_sDataDirRelativePath;
-      sPath = sPath.GetFileName();
-
-      out_Result.Set("Prefab: ", sPath);
-    }
-    else
-      out_Result = "Prefab: Invalid Asset";
-  }
-
-  bool bHasChildren = false;
-
-  ezHybridArray<ezVariant, 16> values;
-  ezStringBuilder componentProp = "Components";
-  pObject->GetTypeAccessor().GetValues(componentProp, values);
-  for (ezVariant& value : values)
-  {
-    auto pChild = m_pSceneDocument->GetObjectManager()->GetObject(value.Get<ezUuid>());
-
-    // search for components
-    if (pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezComponent>())
-    {
-      // take the first components name
-      
-      if (!bHasIcon)
-      {
-        bHasIcon = true;
-
-        ezStringBuilder sIconName;
-        sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
-        icon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
-      }
-
-      if (out_Result.IsEmpty())
-      {
-        // try to translate the component name, that will typically make it a nice clean name already
-        out_Result = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
-
-        // if no translation is available, clean up the component name in a simple way
-        if (out_Result.EndsWith_NoCase("Component"))
-          out_Result.Shrink(0, 9);
-        if (out_Result.StartsWith("ez"))
-          out_Result.Shrink(2, 0);
-      }
-
-      if (prefabGuid.IsValid())
-        continue;
-
-      const auto& properties = pChild->GetTypeAccessor().GetType()->GetProperties();
-
-      for (auto pProperty : properties)
-      {
-        // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most relevant property
-        if (pProperty->GetCategory() == ezPropertyCategory::Member && 
-            (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() ||
-             pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
-            pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
-        {
-          ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
-
-          // if the property is a full asset guid reference, convert it to a file name
-          if (ezConversionUtils::IsStringUuid(sValue))
-          {
-            const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
-
-            auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
-
-            if (pAsset)
-              sValue = pAsset->m_sDataDirRelativePath;
-            else
-              sValue = "<unknown>";
-          }
-
-          // only use the file name for our display
-          sValue = sValue.GetFileName();
-
-          if (!sValue.IsEmpty())
-            out_Result.Append(": ", sValue);
-
-          return;
-        }
-      }
-    }
-    else
-    {
-      // must be ezGameObject children
-      bHasChildren = true;
-    }
-  }
-
-  if (!out_Result.IsEmpty())
-    return;
-
-  if (bHasChildren)
-    out_Result = "Group";
-  else
-    out_Result = "Entity";
-}
-
 QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 {
   const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
@@ -140,32 +30,11 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
   {
   case Qt::DisplayRole:
     {
-      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+      ezStringBuilder sName;
+      ezUuid prefabGuid;
+      QIcon icon;
 
-      auto pMetaScene = m_pSceneDocument->m_SceneObjectMetaData.BeginReadMetaData(pObject->GetGuid());
-      auto pMetaDoc = m_pSceneDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
-      const ezUuid prefabGuid = pMetaDoc->m_CreateFromPrefab;
-
-      if (sName.IsEmpty())
-        sName = pMetaScene->m_CachedNodeName;
-
-      m_pSceneDocument->m_SceneObjectMetaData.EndReadMetaData();
-      m_pSceneDocument->m_DocumentObjectMetaData.EndReadMetaData();
-
-      if (sName.IsEmpty())
-      {
-        // the cached node name is only determined once
-        // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
-        // this is to prevent excessive re-computation of the name, which is quite involved
-
-        QIcon icon;
-        DetermineNodeName(pObject, prefabGuid, sName, icon);
-
-        auto pMetaWrite = m_pSceneDocument->m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
-        pMetaWrite->m_CachedNodeName = sName;
-        pMetaWrite->m_Icon = icon;
-        m_pSceneDocument->m_SceneObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
-      }
+      m_pSceneDocument->QueryCachedNodeName(pObject, sName, &prefabGuid, &icon);
 
       const QString sQtName = QString::fromUtf8(sName.GetData());
 

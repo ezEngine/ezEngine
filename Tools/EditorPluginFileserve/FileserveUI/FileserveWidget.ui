@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Fileserve</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../QtResources/resources.qrc">
+    <normaloff>:/Icons/Fileserve16.png</normaloff>:/Icons/Fileserve16.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,1,4,0">
    <item>
     <widget class="QLabel" name="IpLabel">
@@ -304,6 +308,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../QtResources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -8,9 +8,33 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
+#include <GuiFoundation/Dialogs/PickDocumentObjectDlg.moc.h>
+#include <GameEngine/VisualScript/VisualScriptComponent.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 
 #include <QLabel>
 #include <QLayout>
+#include <EditorFramework/Preferences/Preferences.h>
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPreferences, 1, ezRTTIDefaultAllocator<ezVisualScriptPreferences>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("DebugObject", m_DebugObject)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptPreferences::ezVisualScriptPreferences() 
+  : ezPreferences(ezPreferences::Domain::Document, "Visual Script")
+{ 
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
@@ -21,6 +45,7 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
     ezActionContext context;
     context.m_sMapping = "VisualScriptAssetMenuBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
   }
 
@@ -30,6 +55,7 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
     ezActionContext context;
     context.m_sMapping = "VisualScriptAssetToolBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("VisualScriptAssetWindowToolBar");
     addToolBar(pToolBar);
@@ -55,6 +81,12 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
 
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
 
+  {
+    ezVisualScriptPreferences* pPreferences = ezPreferences::QueryPreferences<ezVisualScriptPreferences>(GetDocument());
+
+    m_pScene->SetDebugObject(pPreferences->m_DebugObject);
+  }
+
   FinishWindowCreation();
 }
 
@@ -68,7 +100,46 @@ ezQtVisualScriptAssetDocumentWindow::~ezQtVisualScriptAssetDocumentWindow()
 
 void ezQtVisualScriptAssetDocumentWindow::PickDebugTarget()
 {
-  // Currently cannot be executed with this != nullptr, because actions don't have a proper window pointer
-  int i = 0;
+  ezGatherObjectsOfTypeMsg msg;
+  msg.m_pType = ezGetStaticRTTI<ezVisualScriptComponent>();
+
+  GetDocument()->BroadcastInterDocumentMessage(&msg, GetDocument());
+
+  ezHybridArray<ezQtPickDocumentObjectDlg::Element, 16> objects;
+
+  const ezUuid scriptGuid = GetDocument()->GetGuid();
+  ezStringBuilder sScriptGuid;
+  ezConversionUtils::ToString(scriptGuid, sScriptGuid);
+
+  for (auto& res : msg.m_Results)
+  {
+    const ezDocumentObject* pObject = res.m_pDocument->GetObjectManager()->GetObject(res.m_ObjectGuid);
+
+    if (pObject == nullptr)
+      continue;
+
+    const ezVariant varScript = pObject->GetTypeAccessor().GetValue("Script");
+    if (!varScript.IsValid() || !varScript.IsA<ezString>())
+      continue;
+
+    if (varScript.Get<ezString>() != sScriptGuid)
+      continue;
+
+    auto& obj = objects.ExpandAndGetRef();
+    obj.m_pObject = pObject;
+    obj.m_sDisplayName = res.m_sDisplayName;
+  }
+
+
+  ezQtPickDocumentObjectDlg dlg(this, objects, m_pScene->GetDebugObject());
+  dlg.exec();
+
+  if (dlg.m_pPickedObject != nullptr)
+  {
+    ezVisualScriptPreferences* pPreferences = ezPreferences::QueryPreferences<ezVisualScriptPreferences>(GetDocument());
+    pPreferences->m_DebugObject = dlg.m_pPickedObject->GetGuid();
+
+    m_pScene->SetDebugObject(pPreferences->m_DebugObject);
+  }
 }
 

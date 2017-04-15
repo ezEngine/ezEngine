@@ -2,9 +2,16 @@
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <EditorFramework/Preferences/Preferences.h>
 
 struct ezVisualScriptResourceDescriptor;
 struct ezVisualScriptInstanceActivity;
+
+struct ezVisualScriptActivityEvent
+{
+  ezUuid m_ObjectGuid;
+  const ezVisualScriptInstanceActivity* m_pActivityData;
+};
 
 class ezVisualScriptAssetDocument : public ezAssetDocument
 {
@@ -18,7 +25,7 @@ public:
   void HandleVsActivityMsg(const ezVisualScriptActivityMsgToEditor* pActivityMsg);
   void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
 
-  ezEvent<const ezVisualScriptInstanceActivity*> m_ActivityEvents;
+  ezEvent<const ezVisualScriptActivityEvent&> m_ActivityEvents;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;

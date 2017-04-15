@@ -54,7 +54,11 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
   ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveExecutionConnections.GetData(), pExecCon, act.m_ActiveExecutionConnections.GetCount());
   ezMemoryUtils::Copy<ezUInt32>(act.m_ActiveDataConnections.GetData(), pDataCon, act.m_ActiveDataConnections.GetCount());
 
-  m_ActivityEvents.Broadcast(&act);
+  ezVisualScriptActivityEvent ae;
+  ae.m_pActivityData = &act;
+  ae.m_ObjectGuid = pActivityMsg->m_ComponentGuid;
+
+  m_ActivityEvents.Broadcast(ae);
 }
 
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)

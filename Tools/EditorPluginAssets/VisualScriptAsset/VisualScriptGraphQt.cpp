@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
@@ -36,8 +37,14 @@ void ezQtVisualScriptAssetScene::GetAllVsNodes(ezDynamicArray<const ezDocumentOb
   }
 }
 
-void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisualScriptInstanceActivity* pActivity)
+void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisualScriptActivityEvent& ae)
 {
+  // ignore activity from other objects
+  if (ae.m_ObjectGuid != m_DebugObject)
+    return;
+
+  const ezVisualScriptInstanceActivity* pActivity = ae.m_pActivityData;
+
   const ezDocumentNodeManager* pNodeManager = GetDocumentNodeManager();
 
   ezDynamicArray<const ezDocumentObject *> allNodes;
@@ -100,6 +107,10 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
   ResetActiveConnections(allNodes);
 }
 
+void ezQtVisualScriptAssetScene::SetDebugObject(const ezUuid& objectGuid)
+{
+  m_DebugObject = objectGuid;
+}
 
 void ezQtVisualScriptAssetScene::ResetActiveConnections(ezDynamicArray<const ezDocumentObject *> &allNodes)
 {

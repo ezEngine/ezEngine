@@ -190,7 +190,7 @@ public:
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
   mutable ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
-  ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_SceneObjectMetaData;
+  mutable ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_SceneObjectMetaData;
 
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
@@ -227,6 +227,15 @@ public:
   void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectSelection();
+
+  /// \brief Generates a good name for pObject. Queries the "Name" property, child components and asset properties, if necessary.
+  void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon = nullptr) const;
+
+  /// \brief Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give in an outdated result.
+  void QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
+
+  /// \brief Creates a full "path" to a scene object for display in UIs. No guarantee for uniqueness.
+  void GenerateFullDisplayName(const ezDocumentObject* pRoot, ezStringBuilder& out_sFullPath) const;
 
 protected:
   void SetGameMode(GameMode::Enum mode);
@@ -295,5 +304,9 @@ private:
   typedef ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper> TransformTable;
   mutable TransformTable m_GlobalTransforms;
 
+  //////////////////////////////////////////////////////////////////////////
+  /// Communication with other document types
+  virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
+  void GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsg* pMsg) const;
 
 };

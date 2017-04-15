@@ -399,3 +399,19 @@ public:
   ezDataBuffer m_Activity;
 };
 
+
+
+class EZ_EDITORFRAMEWORK_DLL ezGatherObjectsOfTypeMsg : public ezReflectedClass
+{
+public:
+  const ezRTTI* m_pType;
+
+  struct Result
+  {
+    const ezDocument* m_pDocument;
+    ezUuid m_ObjectGuid;
+    ezString m_sDisplayName;
+  };
+
+  ezDynamicArray<Result> m_Results;
+};

@@ -7,6 +7,7 @@
 #include <GuiFoundation/NodeEditor/Connection.h>
 
 class ezQtNodeView;
+struct ezVisualScriptActivityEvent;
 struct ezVisualScriptInstanceActivity;
 
 class ezQtVisualScriptAssetScene : public ezQtNodeScene
@@ -17,7 +18,9 @@ public:
   ezQtVisualScriptAssetScene(QObject* parent = nullptr);
   ~ezQtVisualScriptAssetScene();
 
-  void VisualScriptActivityEventHandler(const ezVisualScriptInstanceActivity* pActivity);
+  void VisualScriptActivityEventHandler(const ezVisualScriptActivityEvent& ae);
+  void SetDebugObject(const ezUuid& objectGuid);
+  ezUuid GetDebugObject() const { return m_DebugObject; }
 
 private slots:
   void OnUpdateDisplay();
@@ -25,6 +28,8 @@ private slots:
 private:
   void GetAllVsNodes(ezDynamicArray<const ezDocumentObject *>& allNodes) const;
   void ResetActiveConnections(ezDynamicArray<const ezDocumentObject *> &allNodes);
+
+  ezUuid m_DebugObject;
 };
 
 class ezQtVisualScriptPin : public ezQtPin

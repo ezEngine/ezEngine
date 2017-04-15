@@ -4,9 +4,10 @@
 #include <QTreeWidget>
 #include <ToolsFoundation/Document/Document.h>
 
-ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* parent, const ezArrayPtr<Element>& objects)
+ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* parent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject)
   : QDialog(parent)
   , m_Objects(objects)
+  , m_CurrentObject(currentObject)
 {
   setupUi(this);
 
@@ -23,20 +24,21 @@ void ezQtPickDocumentObjectDlg::UpdateTable()
   ezMap<const ezDocumentObjectManager*, QTreeWidgetItem*> roots;
 
   ezStringBuilder name, temp;
+  QTreeWidgetItem* pSelected = nullptr;
 
   for (auto& e : m_Objects)
   {
     const ezDocumentObjectManager* pManager = e.m_pObject->GetDocumentObjectManager();
 
     bool existed = false;
-    auto rootItem = roots.FindOrAdd(pManager, &existed);
+    auto itRootItem = roots.FindOrAdd(pManager, &existed);
 
-    QTreeWidgetItem* pRoot = rootItem.Value();
+    QTreeWidgetItem* pRoot = itRootItem.Value();
 
     if (!existed)
     {
       pRoot = new QTreeWidgetItem();
-      rootItem.Value() = pRoot;
+      itRootItem.Value() = pRoot;
 
       temp = pManager->GetDocument()->GetDocumentPath();
       name = temp.GetFileNameAndExtension();
@@ -52,6 +54,16 @@ void ezQtPickDocumentObjectDlg::UpdateTable()
     pItem->setData(0, Qt::UserRole, qVariantFromValue<void*>((void*)e.m_pObject));
 
     pRoot->addChild(pItem);
+
+    if (e.m_pObject->GetGuid() == m_CurrentObject)
+    {
+      pSelected = pItem;
+    }
+  }
+
+  if (pSelected != nullptr)
+  {
+    pSelected->setSelected(true);
   }
 }
 
