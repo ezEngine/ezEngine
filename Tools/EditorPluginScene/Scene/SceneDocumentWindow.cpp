@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
@@ -40,6 +40,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezAssetDocument* pDocument)
     ezActionContext context;
     context.m_sMapping = "EditorPluginScene_DocumentMenuBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
   }
 
@@ -49,6 +50,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezAssetDocument* pDocument)
     ezActionContext context;
     context.m_sMapping = "EditorPluginScene_DocumentToolBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("SceneDocumentWindow_ToolBar");
     addToolBar(pToolBar);
@@ -686,7 +688,7 @@ void ezQtSceneDocumentWindow::SnapProviderEventHandler(const ezSnapProviderEvent
   switch (e.m_Type)
   {
   case ezSnapProviderEvent::Type::RotationSnapChanged:
-    ShowStatusBarMsg(ezFmt(ezStringUtf8(L"Snapping Angle: {0}�").GetData(), ezSnapProvider::GetRotationSnapValue().GetDegree()));
+    ShowStatusBarMsg(ezFmt(ezStringUtf8(L"Snapping Angle: {0}°").GetData(), ezSnapProvider::GetRotationSnapValue().GetDegree()));
     break;
 
   case ezSnapProviderEvent::Type::ScaleSnapChanged:

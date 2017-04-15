@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
@@ -104,6 +104,7 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
     ezActionContext context;
     context.m_sMapping = "TextureAssetMenuBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
   }
 
@@ -113,6 +114,7 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
     ezActionContext context;
     context.m_sMapping = "TextureAssetToolBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("TextureAssetWindowToolBar");
     addToolBar(pToolBar);

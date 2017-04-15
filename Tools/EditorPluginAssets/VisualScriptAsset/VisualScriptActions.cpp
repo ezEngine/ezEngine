@@ -57,7 +57,6 @@ void ezVisualScriptAction::Execute(const ezVariant& value)
   switch (m_Type)
   {
   case ActionType::PickDebugTarget:
-    // TODO: Why is m_pWindow always NULL ???
     static_cast<ezQtVisualScriptAssetDocumentWindow*>(GetContext().m_pWindow)->PickDebugTarget();
     return;
   }

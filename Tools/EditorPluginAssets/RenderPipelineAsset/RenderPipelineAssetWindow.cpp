@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetScene.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -21,6 +21,7 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
     ezActionContext context;
     context.m_sMapping = "RenderPipelineAssetMenuBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
   }
 
@@ -30,6 +31,7 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
     ezActionContext context;
     context.m_sMapping = "RenderPipelineAssetToolBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("RenderPipelineAssetWindowToolBar");
     addToolBar(pToolBar);

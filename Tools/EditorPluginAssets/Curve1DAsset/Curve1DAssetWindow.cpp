@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -23,6 +23,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     ezActionContext context;
     context.m_sMapping = "Curve1DAssetMenuBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
   }
 
@@ -32,6 +33,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     ezActionContext context;
     context.m_sMapping = "Curve1DAssetToolBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("Curve1DAssetWindowToolBar");
     addToolBar(pToolBar);

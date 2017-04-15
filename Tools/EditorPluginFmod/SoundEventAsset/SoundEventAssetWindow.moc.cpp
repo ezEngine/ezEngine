@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -17,6 +17,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
     ezActionContext context;
     context.m_sMapping = "SoundEventAssetMenuBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
   }
 
@@ -26,6 +27,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
     ezActionContext context;
     context.m_sMapping = "SoundEventAssetToolBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("SoundEventAssetWindowToolBar");
     addToolBar(pToolBar);

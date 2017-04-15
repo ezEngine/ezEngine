@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/PickTarget16.png</file>
     <file>Icons/groupClosed.png</file>
     <file>Icons/groupOpen.png</file>
     <file>Icons/ReloadResources16.png</file>
@@ -13,7 +14,7 @@
     <file>Icons/MoveDown16.png</file>
     <file>Icons/MoveUp16.png</file>
     <file>Icons/Document16.png</file>
-    <file>Icons/DocumentGuid16.png</file>	
+    <file>Icons/DocumentGuid16.png</file>
     <file>Icons/DocumentAdd16.png</file>
     <file>Icons/DocumentSave16.png</file>
     <file>Icons/OpenFolder16.png</file>

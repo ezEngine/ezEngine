@@ -43,7 +43,6 @@ void ezVisualScriptNode_SimpleUserEvent::SimpleUserEventMsgHandler(ezSimpleUserE
   if (msg.m_sMessage == m_sMessage)
   {
     m_bStepNode = true;
-    ezLog::Debug("User Trigger Msg '{0}' arrived", m_sMessage);
   }
 }
 

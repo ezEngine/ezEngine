@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -17,6 +17,7 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
     ezActionContext context;
     context.m_sMapping = "CollectionAssetMenuBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pMenuBar->SetActionContext(context);
   }
 
@@ -26,6 +27,7 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
     ezActionContext context;
     context.m_sMapping = "CollectionAssetToolBar";
     context.m_pDocument = pDocument;
+    context.m_pWindow = this;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("CollectionAssetWindowToolBar");
     addToolBar(pToolBar);

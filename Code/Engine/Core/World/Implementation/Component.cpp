@@ -200,13 +200,16 @@ void ezComponent::EnableGlobalEventHandlerMode(bool enable)
 
   m_ComponentFlags.AddOrRemove(ezObjectFlags::IsGlobalEventHandler, enable);
 
-  if (enable)
+  if (m_pManager != nullptr) // can be null during destruction
   {
-    GetWorld()->m_Data.m_GlobalMessageHandlers.PushBack(this);
-  }
-  else
-  {
-    GetWorld()->m_Data.m_GlobalMessageHandlers.RemoveSwap(this);
+    if (enable)
+    {
+      GetWorld()->m_Data.m_GlobalMessageHandlers.PushBack(this);
+    }
+    else
+    {
+      GetWorld()->m_Data.m_GlobalMessageHandlers.RemoveSwap(this);
+    }
   }
 }
 
