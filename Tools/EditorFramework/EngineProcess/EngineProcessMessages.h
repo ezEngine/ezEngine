@@ -390,6 +390,7 @@ public:
   ezInt32 m_iPurpose; /// passed through from ezQuerySelectionBBoxMsgToEngine
 };
 
+/// \brief Send by the runtime scene whenever a visual script with debug output enabled does anything.
 class EZ_EDITORFRAMEWORK_DLL ezVisualScriptActivityMsgToEditor : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptActivityMsgToEditor, ezEditorEngineDocumentMsg);
@@ -399,10 +400,11 @@ public:
   ezDataBuffer m_Activity;
 };
 
-
-
-class EZ_EDITORFRAMEWORK_DLL ezGatherObjectsOfTypeMsg : public ezReflectedClass
+/// \brief Send between editor documents, such that one document can know about objects in another document.
+class EZ_EDITORFRAMEWORK_DLL ezGatherObjectsOfTypeMsgInterDoc : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezGatherObjectsOfTypeMsgInterDoc, ezReflectedClass);
+
 public:
   const ezRTTI* m_pType;
 
@@ -414,4 +416,22 @@ public:
   };
 
   ezDynamicArray<Result> m_Results;
+};
+
+/// Send by the editor scene document to all other editor documents, to gather on which objects debug visualization should be enabled during play-the-game.
+class EZ_EDITORFRAMEWORK_DLL ezGatherObjectsForDebugVisMsgInterDoc : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGatherObjectsForDebugVisMsgInterDoc, ezReflectedClass);
+
+public:
+  ezDynamicArray<ezUuid> m_Objects;
+};
+
+/// Send by the editor scene document to the runtime scene document, to tell it about the poll results (see ezGatherObjectsForDebugVisMsgInterDoc).
+class EZ_EDITORFRAMEWORK_DLL ezObjectsForDebugVisMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectsForDebugVisMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezDataBuffer m_Objects;
 };

@@ -26,6 +26,7 @@ public:
   void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
 
   ezEvent<const ezVisualScriptActivityEvent&> m_ActivityEvents;
+  ezEvent<ezReflectedClass*> m_InterDocumentMessages;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;

@@ -104,6 +104,9 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
 
+  /// \brief Sets the debug output object flag. The effect is type specific, most components will not do anything different.
+  void EnableDebugOutput(bool enable);
+
 protected:
   friend class ezWorld;
   friend class ezGameObject;

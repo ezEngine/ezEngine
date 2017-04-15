@@ -57,6 +57,7 @@ struct ezSceneDocumentEvent
     RenderShapeIconsChanged,
     AddAmbientLightChanged,
     SimulationSpeedChanged,
+    BeforeTriggerGameModePlay,
     TriggerGameModePlay,
     TriggerStopGameModePlay,
   };
@@ -278,6 +279,9 @@ private:
   void SyncObjectHiddenState();
   void SyncObjectHiddenState(ezDocumentObject* pObject);
 
+  /// \brief Finds all objects that are actively being 'debugged' (or visualized) by the editor and thus should get the debug visualization flag in the runtime.
+  void UpdateObjectDebugTargets();
+
   struct GameModeData
   {
     bool m_bRenderSelectionOverlay;
@@ -307,6 +311,6 @@ private:
   //////////////////////////////////////////////////////////////////////////
   /// Communication with other document types
   virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
-  void GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsg* pMsg) const;
+  void GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsgInterDoc* pMsg) const;
 
 };

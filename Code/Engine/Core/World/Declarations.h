@@ -146,6 +146,7 @@ struct ezObjectFlags
     UnhandledMessageHandler = EZ_BIT(6), ///< For components, when a message is not handled, a virtual function is called
     IsEventHandler = EZ_BIT(7), ///< 'Event' messages will be delivered to this node, but not further. Used by script components to prevent event messages from further dispatch.
     IsGlobalEventHandler = EZ_BIT(7), ///< This component has been registered to listen for all global events, ie. events that haven't been handled locally
+    EnableDebugOutput = EZ_BIT(8), ///< Not serialized, typically set by the editor to enable debug output that it can visualize
 
     Default = Dynamic | Active
   };
@@ -161,6 +162,7 @@ struct ezObjectFlags
     StorageType UnhandledMessageHandler : 1;
     StorageType IsEventHandler : 1;
     StorageType IsGlobalEventHandler : 1;
+    StorageType EnableDebugOutput : 1;
   };
 };
 

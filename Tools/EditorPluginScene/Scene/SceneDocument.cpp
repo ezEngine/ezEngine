@@ -596,6 +596,14 @@ void ezSceneDocument::TriggerGameModePlay()
     return;
   }
 
+  {
+    ezSceneDocumentEvent e;
+    e.m_Type = ezSceneDocumentEvent::Type::BeforeTriggerGameModePlay;
+    m_SceneEvents.Broadcast(e);
+  }
+
+  UpdateObjectDebugTargets();
+
   // attempt to start PTG
   // do not change state here
   {
@@ -603,9 +611,12 @@ void ezSceneDocument::TriggerGameModePlay()
     msg.m_bEnablePTG = true;
     GetEditorEngineConnection()->SendMessage(&msg);
   }
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::TriggerGameModePlay;
-  m_SceneEvents.Broadcast(e);
+
+  {
+    ezSceneDocumentEvent e;
+    e.m_Type = ezSceneDocumentEvent::Type::TriggerGameModePlay;
+    m_SceneEvents.Broadcast(e);
+  }
 }
 
 
@@ -1253,7 +1264,7 @@ void ezSceneDocument::GenerateFullDisplayName(const ezDocumentObject* pRoot, ezS
   }
 }
 
-void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsg* pMsg) const
+void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsgInterDoc* pMsg) const
 {
   if (pRoot->GetType() == pMsg->m_pType)
   {
@@ -1274,9 +1285,9 @@ void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjec
 
 void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {
-  if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsOfTypeMsg>())
+  if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsOfTypeMsgInterDoc>())
   {
-    GatherObjectsOfType(GetObjectManager()->GetRootObject(), static_cast<ezGatherObjectsOfTypeMsg*>(pMessage));
+    GatherObjectsOfType(GetObjectManager()->GetRootObject(), static_cast<ezGatherObjectsOfTypeMsgInterDoc*>(pMessage));
   }
 }
 
@@ -1520,3 +1531,20 @@ void ezSceneDocument::SyncObjectHiddenState(ezDocumentObject* pObject)
     SyncObjectHiddenState(pChild);
   }
 }
+
+void ezSceneDocument::UpdateObjectDebugTargets()
+{
+  ezGatherObjectsForDebugVisMsgInterDoc msg;
+  BroadcastInterDocumentMessage(&msg, this);
+
+  {
+    ezObjectsForDebugVisMsgToEngine msgToEngine;
+    msgToEngine.m_Objects.SetCountUninitialized(sizeof(ezUuid) * msg.m_Objects.GetCount());
+
+    ezMemoryUtils::Copy<ezUInt8>(msgToEngine.m_Objects.GetData(), reinterpret_cast<ezUInt8*>(msg.m_Objects.GetData()), msgToEngine.m_Objects.GetCount());
+
+    GetEditorEngineConnection()->SendMessage(&msgToEngine);
+  }
+}
+
+

@@ -393,4 +393,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptActivityMsgToEditor, 1, ezRTTIDefa
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGatherObjectsOfTypeMsgInterDoc, 1, ezRTTIDefaultAllocator<ezGatherObjectsOfTypeMsgInterDoc>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGatherObjectsForDebugVisMsgInterDoc, 1, ezRTTIDefaultAllocator<ezGatherObjectsForDebugVisMsgInterDoc>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectsForDebugVisMsgToEngine, 1, ezRTTIDefaultAllocator<ezObjectsForDebugVisMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Objects", m_Objects),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE

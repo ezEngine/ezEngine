@@ -52,7 +52,6 @@ protected:
   ezUniquePtr<ezVisualScriptInstance> m_Script;
 
   bool m_bGlobalEventHandler = false;
-  bool m_bEnableDebugOutput = false;
   bool m_bHadEmptyActivity = true;
 
   ezUniquePtr<ezVisualScriptInstanceActivity> m_pActivity;

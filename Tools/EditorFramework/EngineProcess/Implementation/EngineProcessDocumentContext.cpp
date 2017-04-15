@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/IPC/SyncObject.h>
@@ -133,6 +133,9 @@ void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTT
   else if (pRtti->IsDerivedFrom<ezComponent>())
   {
     ezComponent* pComponent = static_cast<ezComponent*>(pObject);
+
+    EZ_ASSERT_DEV(m_pWorld != nullptr && pComponent->GetWorld() == m_pWorld, "Invalid object to register");
+
     m_ComponentMap.RegisterObject(guid, pComponent->GetHandle());
     pComponent->SetUniqueID(m_uiNextComponentPickingID++);
     m_ComponentPickingMap.RegisterObject(guid, pComponent->GetUniqueID());

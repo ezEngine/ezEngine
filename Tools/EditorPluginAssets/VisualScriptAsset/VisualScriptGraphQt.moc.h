@@ -19,6 +19,7 @@ public:
   ~ezQtVisualScriptAssetScene();
 
   void VisualScriptActivityEventHandler(const ezVisualScriptActivityEvent& ae);
+  void VisualScriptInterDocumentMessageHandler(ezReflectedClass* pMsg);
   void SetDebugObject(const ezUuid& objectGuid);
   ezUuid GetDebugObject() const { return m_DebugObject; }
 

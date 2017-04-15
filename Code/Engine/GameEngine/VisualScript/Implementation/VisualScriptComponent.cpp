@@ -14,7 +14,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 2);
   {
     EZ_ACCESSOR_PROPERTY("Script", GetScriptFile, SetScriptFile)->AddAttributes(new ezAssetBrowserAttribute("Visual Script")),
     EZ_ACCESSOR_PROPERTY("HandleGlobalEvents", GetIsGlobalEventHandler, SetIsGlobalEventHandler),
-    EZ_MEMBER_PROPERTY("DebugOutput", m_bEnableDebugOutput),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -114,9 +113,11 @@ void ezVisualScriptComponent::Update()
     }
   }
 
-  if (m_bEnableDebugOutput != (m_pActivity != nullptr))
+  const bool bEnableDebugOutput = m_ComponentFlags.IsAnySet(ezObjectFlags::EnableDebugOutput);
+
+  if (bEnableDebugOutput != (m_pActivity != nullptr))
   {
-    if (m_bEnableDebugOutput)
+    if (bEnableDebugOutput)
       m_pActivity = EZ_DEFAULT_NEW(ezVisualScriptInstanceActivity);
     else
       m_pActivity.Reset();
@@ -124,7 +125,7 @@ void ezVisualScriptComponent::Update()
 
   m_Script->ExecuteScript(m_pActivity.Borrow());
 
-  if (m_bEnableDebugOutput && (!m_pActivity->IsEmpty() || !m_bHadEmptyActivity))
+  if (bEnableDebugOutput && (!m_pActivity->IsEmpty() || !m_bHadEmptyActivity))
   {
     ezVisualScriptComponentActivityEvent e;
     e.m_pComponent = this;

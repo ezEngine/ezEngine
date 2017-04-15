@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -68,7 +68,7 @@ ezAssetProcessor::ezAssetProcessor()
 
 ezAssetProcessor::~ezAssetProcessor()
 {
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetProcessor::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetProcessor::AssetCuratorEventHandler, this));
 }
 
 void ezAssetProcessor::RestartProcessTask()

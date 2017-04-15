@@ -84,63 +84,13 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSceneSettingsMsgToEngine>())
   {
     // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
+    HandleSceneSettingsMsg(static_cast<const ezSceneSettingsMsgToEngine*>(pMsg));
+    return;
+  }
 
-     auto msg = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg);
-
-     ezGizmoRenderer::s_fGizmoScale = msg->m_fGizmoScale;
-
-    const bool bSimulate = msg->m_bSimulateWorld;
-    m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
-    m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
-    m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
-    m_fGridDensity = msg->m_fGridDensity;
-
-    if (m_fGridDensity != 0.0f)
-    {
-      m_GridTransform.m_vPosition = msg->m_vGridCenter;
-
-      if (msg->m_vGridTangent1.IsZero())
-      {
-        m_GridTransform.m_Rotation.SetZero();
-      }
-      else
-      {
-        m_GridTransform.m_Rotation.SetColumn(0, msg->m_vGridTangent1);
-        m_GridTransform.m_Rotation.SetColumn(1, msg->m_vGridTangent2);
-        m_GridTransform.m_Rotation.SetColumn(2, msg->m_vGridTangent1.Cross(msg->m_vGridTangent2));
-      }
-    }
-
-    ezGameState* pState = GetGameState();
-    m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
-
-    if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
-    {
-      m_pWorld->SetWorldSimulationEnabled(bSimulate);
-
-      if (bSimulate)
-        OnSimulationEnabled();
-      else
-        OnSimulationDisabled();
-    }
-
-    if (msg->m_bAddAmbientLight)
-      AddAmbientLight(true);
-    else
-      RemoveAmbientLight();
-
-    if (pState && pState->WasQuitRequested())
-    {
-      ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
-      ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
-
-      ezGameModeMsgToEditor msgToEd;
-      msgToEd.m_DocumentGuid = pMsg->m_DocumentGuid;
-      msgToEd.m_bRunningPTG = false;
-
-      SendProcessMessage(&msgToEd);
-    }
-
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectsForDebugVisMsgToEngine>())
+  {
+    HandleObjectsForDebugVisMsg(static_cast<const ezObjectsForDebugVisMsgToEngine*>(pMsg));
     return;
   }
 
@@ -161,7 +111,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     QuerySelectionBBox(pMsg);
     return;
   }
-  else if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
+  
+  if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
     /// \todo We are actually doing this once per view, but the data is going to be rendered in every view
     /// That means we in 4-view mode we render this stuff 3 times more than necessary
@@ -171,6 +122,64 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
+}
+
+
+void ezSceneContext::HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* pMsg)
+{
+  ezGizmoRenderer::s_fGizmoScale = pMsg->m_fGizmoScale;
+
+  const bool bSimulate = pMsg->m_bSimulateWorld;
+  m_bRenderSelectionOverlay = pMsg->m_bRenderOverlay;
+  m_bRenderShapeIcons = pMsg->m_bRenderShapeIcons;
+  m_bRenderSelectionBoxes = pMsg->m_bRenderSelectionBoxes;
+  m_fGridDensity = pMsg->m_fGridDensity;
+
+  if (m_fGridDensity != 0.0f)
+  {
+    m_GridTransform.m_vPosition = pMsg->m_vGridCenter;
+
+    if (pMsg->m_vGridTangent1.IsZero())
+    {
+      m_GridTransform.m_Rotation.SetZero();
+    }
+    else
+    {
+      m_GridTransform.m_Rotation.SetColumn(0, pMsg->m_vGridTangent1);
+      m_GridTransform.m_Rotation.SetColumn(1, pMsg->m_vGridTangent2);
+      m_GridTransform.m_Rotation.SetColumn(2, pMsg->m_vGridTangent1.Cross(pMsg->m_vGridTangent2));
+    }
+  }
+
+  ezGameState* pState = GetGameState();
+  m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
+
+  if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
+  {
+    m_pWorld->SetWorldSimulationEnabled(bSimulate);
+
+    if (bSimulate)
+      OnSimulationEnabled();
+    else
+      OnSimulationDisabled();
+  }
+
+  if (pMsg->m_bAddAmbientLight)
+    AddAmbientLight(true);
+  else
+    RemoveAmbientLight();
+
+  if (pState && pState->WasQuitRequested())
+  {
+    ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
+    ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
+
+    ezGameModeMsgToEditor msgToEd;
+    msgToEd.m_DocumentGuid = pMsg->m_DocumentGuid;
+    msgToEd.m_bRunningPTG = false;
+
+    SendProcessMessage(&msgToEd);
+  }
 }
 
 void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
@@ -324,6 +333,11 @@ void ezSceneContext::OnPlayTheGameModeStarted()
 
 void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e)
 {
+  // component handles are not unique across different worlds, in fact it is very likely that different worlds contain identical handles
+  // therefore we first need to filter out, whether the component comes from the same world, as this context operates on
+  if (e.m_pComponent->GetWorld() != GetWorld())
+    return;
+
   const ezUuid guid = m_Context.m_ComponentMap.GetGuid(e.m_pComponent->GetHandle());
 
   if (!guid.IsValid())
@@ -350,8 +364,30 @@ void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivit
   msg.m_ComponentGuid = guid;
   msg.m_Activity.SetCountUninitialized(storage.GetStorageSize());
   ezMemoryUtils::Copy<ezUInt8>(msg.m_Activity.GetData(), storage.GetData(), msg.m_Activity.GetCount());
-  
+
   SendProcessMessage(&msg);
+}
+
+
+void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg)
+{
+  EZ_LOCK(GetWorld()->GetWriteMarker());
+
+  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()), pMsg->m_Objects.GetCount() / sizeof(ezUuid));
+
+  for (auto guid : guids)
+  {
+    auto hComp = m_Context.m_ComponentMap.GetHandle(guid);
+
+    if (hComp.IsInvalidated())
+      continue;
+
+    ezComponent* pComp = nullptr;
+    if (!m_pWorld->TryGetComponent(hComp, pComp))
+      continue;
+
+    pComp->EnableDebugOutput(true);
+  }
 }
 
 void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)

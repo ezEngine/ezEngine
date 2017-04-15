@@ -19,7 +19,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Default{1}
+		b %Default{0}
 		s %Name{"OnOff"}
 		VarArray %Node::Connections
 		{
@@ -40,7 +40,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14317149559100545161,4749641291993989672}}
-		u4 %Hash{18150141664191427588}
+		u4 %Hash{1928250013071947703}
 		VarArray %Outputs{}
 		VarArray %References
 		{

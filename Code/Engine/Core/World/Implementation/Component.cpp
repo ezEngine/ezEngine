@@ -136,9 +136,13 @@ void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueTy
   GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
 }
 
+void ezComponent::EnableDebugOutput(bool enable)
+{
+  m_ComponentFlags.AddOrRemove(ezObjectFlags::EnableDebugOutput, enable);
+}
+
 void ezComponent::Initialize()
 {
-
 }
 
 void ezComponent::Deinitialize()

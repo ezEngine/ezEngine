@@ -81,6 +81,8 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
 
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
 
+  static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_InterDocumentMessages.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
+
   {
     ezVisualScriptPreferences* pPreferences = ezPreferences::QueryPreferences<ezVisualScriptPreferences>(GetDocument());
 
@@ -94,13 +96,15 @@ ezQtVisualScriptAssetDocumentWindow::~ezQtVisualScriptAssetDocumentWindow()
 {
   if (GetDocument() != nullptr)
   {
-    static_cast<ezVisualScriptAssetDocument*>(GetDocument())->m_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+    static_cast<ezVisualScriptAssetDocument*>(GetDocument())->m_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+
+    static_cast<ezVisualScriptAssetDocument*>(GetDocument())->m_InterDocumentMessages.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
   }
 }
 
 void ezQtVisualScriptAssetDocumentWindow::PickDebugTarget()
 {
-  ezGatherObjectsOfTypeMsg msg;
+  ezGatherObjectsOfTypeMsgInterDoc msg;
   msg.m_pType = ezGetStaticRTTI<ezVisualScriptComponent>();
 
   GetDocument()->BroadcastInterDocumentMessage(&msg, GetDocument());

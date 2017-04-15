@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <QPainter>
 #include <QTimer>
 
@@ -105,6 +106,19 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
   }
 
   ResetActiveConnections(allNodes);
+}
+
+
+void ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler(ezReflectedClass* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsForDebugVisMsgInterDoc>())
+  {
+    if (m_DebugObject.IsValid())
+    {
+      ezGatherObjectsForDebugVisMsgInterDoc* pMessage = static_cast<ezGatherObjectsForDebugVisMsgInterDoc*>(pMsg);
+      pMessage->m_Objects.PushBack(m_DebugObject);
+    }
+  }
 }
 
 void ezQtVisualScriptAssetScene::SetDebugObject(const ezUuid& objectGuid)

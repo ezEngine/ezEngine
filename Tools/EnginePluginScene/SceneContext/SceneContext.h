@@ -43,6 +43,8 @@ private:
   void RemoveAmbientLight();
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
+  void HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* msg);
+  void HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
 
   void DrawSelectionBounds();

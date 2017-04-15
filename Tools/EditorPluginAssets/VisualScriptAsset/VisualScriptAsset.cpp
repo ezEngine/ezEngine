@@ -33,6 +33,12 @@ void ezVisualScriptAssetDocument::OnInterDocumentMessage(ezReflectedClass* pMess
   if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezVisualScriptActivityMsgToEditor>())
   {
     HandleVsActivityMsg(static_cast<ezVisualScriptActivityMsgToEditor*>(pMessage));
+    return;
+  }
+  
+  if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsForDebugVisMsgInterDoc>())
+  {
+    m_InterDocumentMessages.Broadcast(pMessage);
   }
 }
 
