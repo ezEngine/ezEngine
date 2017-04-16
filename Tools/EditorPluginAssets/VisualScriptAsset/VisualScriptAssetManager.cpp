@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
@@ -45,7 +45,7 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezVisualScriptAssetDocument>())
       {
-        ezQtVisualScriptAssetDocumentWindow* pDocWnd = new ezQtVisualScriptAssetDocumentWindow(e.m_pDocument);
+        ezQtVisualScriptAssetDocumentWindow* pDocWnd = new ezQtVisualScriptAssetDocumentWindow(e.m_pDocument, e.m_pOpenContext);
       }
     }
     break;

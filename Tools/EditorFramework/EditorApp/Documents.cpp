@@ -1,11 +1,11 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 
 
-void ezQtEditorApp::OpenDocument(const char* szDocument)
+void ezQtEditorApp::OpenDocument(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument));
+  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument), Q_ARG(void*, (void*)pOpenContext));
 }
 
 ezDocument* ezQtEditorApp::OpenDocumentImmediate(const char* szDocument, bool bRequestWindow, bool bAddToRecentFilesList)
@@ -13,12 +13,12 @@ ezDocument* ezQtEditorApp::OpenDocumentImmediate(const char* szDocument, bool bR
   return CreateOrOpenDocument(false, szDocument, bRequestWindow, bAddToRecentFilesList);
 }
 
-void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject)
+void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject, void* pOpenContext)
 {
-  CreateOrOpenDocument(false, sProject.toUtf8().data());
+  CreateOrOpenDocument(false, sProject.toUtf8().data(), true, true, static_cast<const ezDocumentObject*>(pOpenContext));
 }
 
-ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow, bool bAddToRecentFilesList)
+ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow, bool bAddToRecentFilesList, const ezDocumentObject* pOpenContext)
 {
   if (m_bHeadless)
     bRequestWindow = false;
@@ -51,7 +51,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
 
       if (res.m_Result.Succeeded())
       {
-        res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, szFile, pDocument, bRequestWindow, bAddToRecentFilesList);
+        res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, szFile, pDocument, bRequestWindow, bAddToRecentFilesList, pOpenContext);
       }
     }
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -242,7 +242,7 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
-  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid)->m_sAbsolutePath);
+  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid)->m_sAbsolutePath, GetSelection()[0].m_pObject);
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()

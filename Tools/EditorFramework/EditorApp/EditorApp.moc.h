@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
@@ -115,10 +115,10 @@ public:
   void GuiCreateProject();
   void GuiOpenProject();
 
-  void OpenDocument(const char* szDocument);
+  void OpenDocument(const char* szDocument, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
 
-  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
+  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true, bool bAddToRecentFilesList = true, const ezDocumentObject* pOpenContext = nullptr);
   void CreateOrOpenProject(bool bCreate, const char* szFile);
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
@@ -164,7 +164,7 @@ private slots:
   void SlotTimedUpdate();
   void SlotQueuedCloseProject();
   void SlotQueuedOpenProject(QString sProject);
-  void SlotQueuedOpenDocument(QString sProject);
+  void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
 
 private:

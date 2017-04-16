@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Configuration/Plugin.h>
@@ -156,7 +156,7 @@ ezStatus ezDocumentManager::CanOpenDocument(const char* szFilePath) const
   return ezStatus("File extension is not handled by any registered type");
 }
 
-void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument)
+void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   if (pDocument->m_bWindowRequested)
     return;
@@ -166,14 +166,16 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument)
   Event e;
   e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentWindowRequested;
+  e.m_pOpenContext = pOpenContext;
   s_Events.Broadcast(e);
 
   e.m_pDocument = pDocument;
   e.m_Type = Event::Type::AfterDocumentWindowRequested;
+  e.m_pOpenContext = pOpenContext;
   s_Events.Broadcast(e);
 }
 
-ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList)
+ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   ezStringBuilder sPath = szPath;
   sPath.MakeCleanPath();
@@ -233,7 +235,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         s_Events.Broadcast(e);
 
         if (bRequestWindow)
-          EnsureWindowRequested(out_pDocument);
+          EnsureWindowRequested(out_pDocument, pOpenContext);
       }
 
       return status;
@@ -249,9 +251,9 @@ ezStatus ezDocumentManager::CreateDocument(const char* szDocumentTypeName, const
   return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, true);
 }
 
-ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList)
+ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
-  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, bAddToRecentFilesList);
+  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, bAddToRecentFilesList, pOpenContext);
 }
 
 void ezDocumentManager::CloseDocument(ezDocument* pDocument)

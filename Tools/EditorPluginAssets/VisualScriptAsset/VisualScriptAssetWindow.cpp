@@ -36,7 +36,8 @@ ezVisualScriptPreferences::ezVisualScriptPreferences()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument, const ezDocumentObject* pOpenContext)
+  : ezQtDocumentWindow(pDocument)
 {
 
   // Menu Bar
@@ -83,6 +84,11 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
 
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_InterDocumentMessages.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
 
+  if (pOpenContext != nullptr)
+  {
+    m_pScene->SetDebugObject(pOpenContext->GetGuid());
+  }
+  else
   {
     ezVisualScriptPreferences* pPreferences = ezPreferences::QueryPreferences<ezVisualScriptPreferences>(GetDocument());
 

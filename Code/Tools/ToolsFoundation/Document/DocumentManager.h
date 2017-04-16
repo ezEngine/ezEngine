@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <ToolsFoundation/Basics/Status.h>
@@ -18,9 +18,9 @@ public:
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
   ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow = true);
-  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
+  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow = true, bool bAddToRecentFilesList = true, const ezDocumentObject* pOpenContext = nullptr);
   void CloseDocument(ezDocument* pDocument);
-  void EnsureWindowRequested(ezDocument* pDocument);
+  void EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext = nullptr);
 
   const ezDynamicArray<ezDocument*>& GetAllDocuments() const { return m_AllDocuments; }
 
@@ -53,7 +53,8 @@ public:
     };
 
     Type m_Type;
-    ezDocument* m_pDocument;
+    ezDocument* m_pDocument = nullptr;
+    const ezDocumentObject* m_pOpenContext = nullptr;
   };
 
   struct Request
@@ -82,7 +83,7 @@ private:
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:
-  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList);
+  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList, const ezDocumentObject* pOpenContext = nullptr);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);

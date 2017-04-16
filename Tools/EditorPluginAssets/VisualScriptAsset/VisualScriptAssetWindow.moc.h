@@ -15,7 +15,7 @@ class EZ_EDITORPLUGINASSETS_DLL ezQtVisualScriptAssetDocumentWindow : public ezQ
   Q_OBJECT
 
 public:
-  ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument);
+  ezQtVisualScriptAssetDocumentWindow(ezDocument* pDocument, const ezDocumentObject* pOpenContext);
   ~ezQtVisualScriptAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "VisualScriptAsset"; }
