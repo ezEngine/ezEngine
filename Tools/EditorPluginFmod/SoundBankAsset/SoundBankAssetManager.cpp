@@ -4,6 +4,9 @@
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
+#include <fmod_studio.hpp>
+#define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code {0}", res)
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
