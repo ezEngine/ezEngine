@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -48,7 +48,7 @@ ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& strea
     if (e.m_sRedirectionAsset.IsEmpty())
       continue;
 
-    ezAssetCurator::ezLockedAssetInfo pInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(e.m_sRedirectionAsset);
+    ezAssetCurator::ezLockedSubAsset pInfo = ezAssetCurator::GetSingleton()->FindSubAsset(e.m_sRedirectionAsset);
 
     if (pInfo == nullptr)
     {
@@ -58,7 +58,7 @@ ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& strea
 
     entry.m_sLookupName = e.m_sLookupName;
     entry.m_sRedirectionName = e.m_sRedirectionAsset;
-    entry.m_sResourceTypeName = pInfo->m_Info.m_sAssetTypeName;
+    entry.m_sResourceTypeName = pInfo->m_Data.m_sAssetTypeName;
 
     desc.m_Resources.PushBack(entry);
   }

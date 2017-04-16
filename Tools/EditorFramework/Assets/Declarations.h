@@ -1,7 +1,23 @@
-#pragma once
+﻿#pragma once
+
+#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Types/Uuid.h>
+#include <Foundation/Types/Bitflags.h>
 
 class ezImage;
 class ezAssetFileHeader;
+
+struct ezAssetExistanceState
+{
+  enum Enum
+  {
+    FileAdded,
+    FileRemoved,
+    FileModified,
+    FileUnchanged,
+  };
+};
 
 struct ezAssetDocumentFlags
 {
@@ -26,4 +42,12 @@ struct ezAssetDocumentFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezAssetDocumentFlags)
+EZ_DECLARE_FLAGS_OPERATORS(ezAssetDocumentFlags);
+
+struct ezSubAssetData
+{
+  ezUuid m_Guid;
+  ezHashedString m_sAssetTypeName;
+  ezString m_sName;
+};
+

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
@@ -15,6 +15,12 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   ezStringBuilder sResID = pResource->GetResourceID();
 
   const char* szSeperator = sResID.FindSubString("|");
+
+  if (szSeperator == nullptr)
+  {
+    res.m_pDataStream = nullptr;
+    return res;
+  }
 
   EZ_ASSERT_DEV(szSeperator != nullptr, "No sub-resource seperator '|' in path '{0}'", sResID.GetData());
 

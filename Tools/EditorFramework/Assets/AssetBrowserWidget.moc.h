@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
@@ -17,7 +17,7 @@ public:
   ~ezQtAssetBrowserWidget();
 
   void SetDialogMode();
-  void SetSelectedAsset(const char* szAssetPath);
+  void SetSelectedAsset(ezUuid preselectedAsset);
   void ShowOnlyTheseTypeFilters(const char* szFilters);
 
   void SaveState(const char* szSettingsName);
@@ -48,7 +48,7 @@ private slots:
   void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
   void on_TreeFolderFilter_itemSelectionChanged();
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
-  void OnScrollToItem(QString sPath);
+  void OnScrollToItem(ezUuid preselectedAsset);
   void OnTreeOpenExplorer();
   void OnShowSubFolderItemsToggled();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Document/Document.h>
 
@@ -13,7 +13,10 @@ public:
   ezSet<ezString> m_FileDependencies;   ///< Files that are required to generate the asset, ie. if one changes, the asset needs to be recreated
   ezSet<ezString> m_FileReferences;     ///< Other files that are used at runtime together with this asset, e.g. materials for a mesh, needed for thumbnails and packaging.
   ezSet<ezString> m_Outputs; ///< Additional output this asset produces besides the default one. These are tags like VISUAL_SHADER that are resolved by the ezAssetDocumentManager into paths.
-  ezString m_sAssetTypeName;
+  ezHashedString m_sAssetTypeName;
+
+  const char* GetAssetTypeName() const { return m_sAssetTypeName.GetData(); }
+  void SetAssetTypeName(const char* sz) { m_sAssetTypeName.Assign(sz); }
 };
 
 

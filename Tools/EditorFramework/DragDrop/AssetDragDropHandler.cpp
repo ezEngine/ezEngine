@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/DragDrop/AssetDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -32,7 +32,7 @@ ezString ezAssetDragDropHandler::GetAssetGuidString(const ezDragDropInfo* pInfo)
 
 ezString ezAssetDragDropHandler::GetAssetTypeName(const ezUuid& assetTypeGuid) const
 {
-  return ezAssetCurator::GetSingleton()->GetAssetInfo2(assetTypeGuid)->m_Info.m_sAssetTypeName;
+  return ezAssetCurator::GetSingleton()->GetSubAsset(assetTypeGuid)->m_Data.m_sAssetTypeName.GetData();
 }
 
 bool ezAssetDragDropHandler::IsSpecificAssetType(const ezDragDropInfo* pInfo, const char* szType) const

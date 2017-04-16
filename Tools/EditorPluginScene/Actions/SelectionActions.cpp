@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
@@ -385,10 +385,10 @@ void ezSelectionAction::OpenPrefabDocument()
   const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
   pScene->m_DocumentObjectMetaData.EndReadMetaData();
 
-  auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(PrefabAsset);
+  auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(PrefabAsset);
   if (pAsset)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocument(pAsset->m_sAbsolutePath);
+    ezQtEditorApp::GetSingleton()->OpenDocument(pAsset->m_pAssetInfo->m_sAbsolutePath);
   }
   else
   {

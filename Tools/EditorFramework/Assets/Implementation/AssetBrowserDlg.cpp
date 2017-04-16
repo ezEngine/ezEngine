@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
@@ -13,14 +13,14 @@ ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTextFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sPathFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTypeFilter;
 
-ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters) : QDialog(parent)
+ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselectedAsset, const char* szVisibleFilters) : QDialog(parent)
 {
   setupUi(this);
 
   m_sVisibleFilters = szVisibleFilters;
   ButtonSelect->setEnabled(false);
 
-  AssetBrowserWidget->SetSelectedAsset(szPreselectedAsset);
+  AssetBrowserWidget->SetSelectedAsset(preselectedAsset);
 
   if (!ezStringUtils::IsEqual(szVisibleFilters, ";;")) // that's an empty filter list
   {

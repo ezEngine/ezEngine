@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
+#include <EditorFramework/Assets/Declarations.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -24,13 +25,7 @@ class ezAssetProcessorLog;
 
 struct ezAssetInfo
 {
-  enum ExistanceState
-  {
-    FileAdded,
-    FileRemoved,
-    FileModified,
-    FileUnchanged,
-  };
+  void Update(const ezAssetInfo& rhs);
 
   enum TransformState
   {
@@ -44,26 +39,35 @@ struct ezAssetInfo
     MissingReference,
     COUNT,
   };
-
-  ezAssetInfo() : m_pManager(nullptr)
-  {
-    m_ExistanceState = ExistanceState::FileAdded;
-    m_TransformState = TransformState::Unknown;
-    m_LastAssetDependencyHash = 0;
-  }
-
-  ExistanceState m_ExistanceState;
-  TransformState m_TransformState;
-  ezAssetDocumentManager* m_pManager;
+  ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
+  TransformState m_TransformState = TransformState::Unknown;
+  ezAssetDocumentManager* m_pManager = nullptr;
   ezString m_sAbsolutePath;
   ezString m_sDataDirRelativePath;
-  ezTime m_LastAccess;
 
   ezAssetDocumentInfo m_Info;
 
-  ezUInt64 m_LastAssetDependencyHash; ///< For debugging only.
+  ezUInt64 m_LastAssetDependencyHash = 0; ///< For debugging only.
   ezSet<ezString> m_MissingDependencies;
   ezSet<ezString> m_MissingReferences;
+
+  ezSet<ezUuid> m_SubAssets; ///< Main asset uses the same GUID as this (see m_Info), but is NOT stored in m_SubAssets
+
+private:
+  void operator= (const ezAssetInfo& rhs) = delete;
+};
+
+struct ezSubAsset
+{
+  ezStringView GetName() const;
+  void GetSubAssetIdentifier(ezStringBuilder& out_sPath) const;
+
+  ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
+  ezAssetInfo* m_pAssetInfo = nullptr;
+  ezTime m_LastAccess;
+  bool m_bMainAsset = true;
+
+  ezSubAssetData m_Data;
 };
 
 struct AssetCacheEntry
@@ -88,7 +92,7 @@ struct ezAssetCuratorEvent
   };
 
   ezUuid m_AssetGuid;
-  const ezAssetInfo* m_pInfo;
+  const ezSubAsset* m_pInfo;
   Type m_Type;
 };
 
@@ -126,21 +130,21 @@ public:
   ///@}
   /// \name Asset Access
   ///@{
-  typedef ezLockedObject<ezMutex, ezAssetInfo> ezLockedAssetInfo;
+  typedef ezLockedObject<ezMutex, const ezSubAsset> ezLockedSubAsset;
 
   /// \brief Tries to find the asset information for an asset identified through a string.
   ///
   /// The string may be a stringyfied asset GUID or a relative or absolute path. The function will try all possibilities.
   /// If no asset can be found, an empty/invalid ezAssetInfo is returned.
-  const ezLockedAssetInfo FindAssetInfo(const char* szPathOrGuid) const;
+  const ezLockedSubAsset FindSubAsset(const char* szPathOrGuid) const;
 
-  /// \brief Same as GetAssteInfo, but wraps the return value into a ezLockedAssetInfo struct
-  const ezLockedAssetInfo GetAssetInfo2(const ezUuid& assetGuid) const;
+  /// \brief Same as GetAssteInfo, but wraps the return value into a ezLockedSubAsset struct
+  const ezLockedSubAsset GetSubAsset(const ezUuid& assetGuid) const;
 
-  typedef ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezAssetInfo*>> ezLockedAssetTable;
+  typedef ezLockedObject<ezMutex, const ezMap<ezUuid, ezSubAsset>> ezLockedSubAssetTable;
 
   /// \brief Returns the table of all known assets in a locked structure
-  const ezLockedAssetTable GetKnownAssets() const;
+  const ezLockedSubAssetTable GetKnownSubAssets() const;
 
   /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
   ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
@@ -203,8 +207,6 @@ private:
     Status m_Status;
   };
 
-  void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
-
   /// \name Processing
   ///@{
 
@@ -212,6 +214,7 @@ private:
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
+  ezSubAsset* GetSubAssetInternal(const ezUuid& assetGuid);
 
   /// \brief Returns the asset info for the asset with the given (stringyfied) GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezString& sAssetGuid);
@@ -249,13 +252,14 @@ private:
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
   ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
+  void UpdateSubAssets(ezAssetInfo& assetInfo);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
   static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
 
   void RemoveAssetTransformState(const ezUuid& assetGuid);
   void InvalidateAssetTransformState(const ezUuid& assetGuid);
   void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
-  void SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetInfo::ExistanceState state);
+  void SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExistanceState::Enum state);
 
   ///@}
   /// \name Check File System Helper
@@ -280,7 +284,8 @@ private:
 
   // Actual data stored in the curator
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
-  ezMap<ezString, FileStatus, ezCompareString_NoCase > m_ReferencedFiles;
+  ezMap<ezUuid, ezSubAsset> m_KnownSubAssets;
+  ezMap<ezString, FileStatus, ezCompareString_NoCase> m_ReferencedFiles;
 
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
@@ -290,7 +295,7 @@ private:
 
   // State caches
   ezSet<ezUuid> m_TransformState[ezAssetInfo::TransformState::COUNT];
-  ezSet<ezUuid> m_AssetChanged; ///< Flushed in main thread tick
+  ezSet<ezUuid> m_SubAssetChanged; ///< Flushed in main thread tick
   ezSet<ezUuid> m_TransformStateStale;
 
   // Serialized cache

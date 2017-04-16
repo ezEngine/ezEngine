@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <EditorFramework/Panels/LogPanel/LogModel.moc.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
@@ -9,25 +9,25 @@ ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
 {
 }
 
-bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezAssetInfo* pInfo) const
+bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 {
-  return !(pInfo->m_TransformState == ezAssetInfo::MissingDependency || pInfo->m_TransformState == ezAssetInfo::MissingReference
-    || pInfo->m_TransformState == ezAssetInfo::TransformError);
+  return !pInfo->m_bMainAsset || !(pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency || pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference
+    || pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformError);
 }
 
-bool ezQtAssetCuratorFilter::Less(ezAssetInfo* pInfoA, ezAssetInfo* pInfoB) const
+bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
 {
-  if (pInfoA->m_TransformState != pInfoB->m_TransformState)
-    return pInfoA->m_TransformState < pInfoB->m_TransformState;
+  if (pInfoA->m_pAssetInfo->m_TransformState != pInfoB->m_pAssetInfo->m_TransformState)
+    return pInfoA->m_pAssetInfo->m_TransformState < pInfoB->m_pAssetInfo->m_TransformState;
 
-  ezStringView sSortA = ezPathUtils::GetFileName(pInfoA->m_sDataDirRelativePath.GetData(), pInfoA->m_sDataDirRelativePath.GetData() + pInfoA->m_sDataDirRelativePath.GetElementCount());
-  ezStringView sSortB = ezPathUtils::GetFileName(pInfoB->m_sDataDirRelativePath.GetData(), pInfoB->m_sDataDirRelativePath.GetData() + pInfoB->m_sDataDirRelativePath.GetElementCount());
+  ezStringView sSortA = pInfoA->GetName();
+  ezStringView sSortB = pInfoB->GetName();
 
   ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetData(), sSortB.GetData(),
     sSortA.GetData() + sSortA.GetElementCount(), sSortB.GetData() + sSortB.GetElementCount());
   if (iValue == 0)
   {
-    return pInfoA->m_Info.m_DocumentID < pInfoB->m_Info.m_DocumentID;
+    return pInfoA->m_Data.m_Guid < pInfoB->m_Data.m_Guid;
   }
   return iValue < 0;
 }
@@ -95,21 +95,23 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
   }
 
   ezUuid assetGuid = m_pModel->data(m_selectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
-  auto assetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(assetGuid);
-  if (assetInfo == nullptr)
+  auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
+  if (pSubAsset == nullptr)
   {
     IssueInfo->clear();
     return;
   }
 
+  ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
+
   auto getNiceName = [](const ezString& dep) -> ezStringBuilder
   {
     if (ezConversionUtils::IsStringUuid(dep))
     {
-      auto assetInfoDep = ezAssetCurator::GetSingleton()->GetAssetInfo2(ezConversionUtils::ConvertStringToUuid(dep));
+      auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(ezConversionUtils::ConvertStringToUuid(dep));
       if (assetInfoDep)
       {
-        return assetInfoDep->m_sDataDirRelativePath;
+        return assetInfoDep->m_pAssetInfo->m_sDataDirRelativePath;
       }
     }
 
@@ -117,25 +119,25 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
   };
 
   ezStringBuilder text;
-  if (assetInfo->m_TransformState == ezAssetInfo::MissingDependency)
+  if (pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency)
   {
     text = "<span style=\"color:#ff8800;\">Missing Dependency:</span><br><br>";
-    for (const ezString& dep : assetInfo->m_MissingDependencies)
+    for (const ezString& dep : pAssetInfo->m_MissingDependencies)
     {
       ezStringBuilder sNiceName = getNiceName(dep);
       text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", sNiceName);
     }
   }
-  else if (assetInfo->m_TransformState == ezAssetInfo::MissingReference)
+  else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingReference)
   {
     text = "<span style=\"color:#ff8800;\">Missing Reference:</span><br><br>";
-    for (const ezString& ref : assetInfo->m_MissingReferences)
+    for (const ezString& ref : pAssetInfo->m_MissingReferences)
     {
       ezStringBuilder sNiceName = getNiceName(ref);
       text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", sNiceName);
     }
   }
-  else if (assetInfo->m_TransformState == ezAssetInfo::TransformError)
+  else if (pAssetInfo->m_TransformState == ezAssetInfo::TransformError)
   {
     text = "<span style=\"color:#ff8800;\">Transform Error:</span><br><br>";
     text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", "More info coming soon!");

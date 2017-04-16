@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -321,13 +321,13 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
   if (isGuid)
   {
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(m_sShader);
-    auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(guid);
+    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
     if (pAsset)
     {
-      EZ_ASSERT_DEV(pAsset->m_pManager == m_pDocument->GetDocumentManager(),
+      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->m_pManager == m_pDocument->GetDocumentManager(),
                     "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
-      ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_sAbsolutePath);
-      ezStringBuilder sResult = pAsset->m_pManager->GetRelativeOutputFileName(sProjectDir, pAsset->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+      ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_sAbsolutePath);
+      ezStringBuilder sResult = pAsset->m_pAssetInfo->m_pManager->GetRelativeOutputFileName(sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
       sResult.Prepend("AssetCache/");
       return sResult;
     }
@@ -397,7 +397,7 @@ const ezDocumentObject* ezMaterialAssetDocument::GetShaderPropertyObject() const
 void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
 {
   ezDocumentObject* pObject = GetPropertyObject();
-  auto pAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szBaseMaterial);
+  auto pAssetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szBaseMaterial);
   if (pAssetInfo == nullptr)
   {
     ezDeque<const ezDocumentObject*> sel;
@@ -406,8 +406,8 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
   }
   else
   {
-    const ezStringBuilder& sNewBase = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(pAssetInfo->m_Info.m_DocumentID);
-    const ezAbstractObjectGraph* pBaseGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(pAssetInfo->m_Info.m_DocumentID);
+    const ezStringBuilder& sNewBase = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(pAssetInfo->m_Data.m_Guid);
+    const ezAbstractObjectGraph* pBaseGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(pAssetInfo->m_Data.m_Guid);
 
     ezUuid seed = GetSeedFromBaseMaterial(pBaseGraph);
     if (sNewBase.IsEmpty() || !pBaseGraph || !seed.IsValid())
@@ -419,10 +419,10 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
     {
       auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
 
-      if (pMeta->m_CreateFromPrefab != pAssetInfo->m_Info.m_DocumentID)
+      if (pMeta->m_CreateFromPrefab != pAssetInfo->m_Data.m_Guid)
       {
         pMeta->m_sBasePrefab = sNewBase;
-        pMeta->m_CreateFromPrefab = pAssetInfo->m_Info.m_DocumentID;
+        pMeta->m_CreateFromPrefab = pAssetInfo->m_Data.m_Guid;
         pMeta->m_PrefabSeedGuid = seed;
       }
       m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
@@ -1085,9 +1085,9 @@ ezUuid ezMaterialAssetDocument::GetLitBaseMaterial()
   if (!s_LitBaseMaterial.IsValid())
   {
     static const char* szLitMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
-    auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szLitMaterialAssetPath);
+    auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitMaterialAssetPath);
     if (assetInfo)
-      s_LitBaseMaterial = assetInfo->m_Info.m_DocumentID;
+      s_LitBaseMaterial = assetInfo->m_Data.m_Guid;
     else
       ezLog::Error("Can't find default lit material {0}", szLitMaterialAssetPath);
   }
@@ -1099,9 +1099,9 @@ ezUuid ezMaterialAssetDocument::GetLitAlphaTextBaseMaterial()
   if (!s_LitAlphaTextBaseMaterial.IsValid())
   {
     static const char* szLitAlphaTestMaterialAssetPath = "Materials/BaseMaterials/LitAlphaTest.ezMaterialAsset";
-    auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szLitAlphaTestMaterialAssetPath);
+    auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitAlphaTestMaterialAssetPath);
     if (assetInfo)
-      s_LitAlphaTextBaseMaterial = assetInfo->m_Info.m_DocumentID;
+      s_LitAlphaTextBaseMaterial = assetInfo->m_Data.m_Guid;
     else
       ezLog::Error("Can't find default lit alpha test material {0}", szLitAlphaTestMaterialAssetPath);
   }
@@ -1113,9 +1113,9 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
   if (!s_NeutralNormalMap.IsValid())
   {
     static const char* szNeutralNormalMapAssetPath = "Textures/NeutralNormal.ezTextureAsset";
-    auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szNeutralNormalMapAssetPath);
+    auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szNeutralNormalMapAssetPath);
     if (assetInfo)
-      s_NeutralNormalMap = assetInfo->m_Info.m_DocumentID;
+      s_NeutralNormalMap = assetInfo->m_Data.m_Guid;
     else
       ezLog::Error("Can't find neutral normal map texture {0}", szNeutralNormalMapAssetPath);
   }

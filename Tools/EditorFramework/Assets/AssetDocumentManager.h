@@ -1,10 +1,12 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Basics/Status.h>
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
+
+struct ezSubAsset;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentManager : public ezDocumentManager
 {
@@ -18,6 +20,7 @@ public:
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const = 0;
   /// \brief Opens the asset file and reads the "Header" into the given ezAssetDocumentInfo.
   virtual ezStatus ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream) const;
+  virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const { }
 
   /// \name Thumbnail Functions
   ///@{
@@ -29,6 +32,8 @@ public:
   ///@}
   /// \name Output Functions
   ///@{
+
+  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
   ezString GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const char* szPlatform = nullptr) const;

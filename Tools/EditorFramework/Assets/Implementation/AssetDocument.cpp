@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTINoAllocator)
     EZ_SET_MEMBER_PROPERTY("References", m_FileReferences),
     EZ_SET_MEMBER_PROPERTY("Outputs", m_Outputs),
     EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
-    EZ_MEMBER_PROPERTY("AssetType", m_sAssetTypeName),
+    EZ_ACCESSOR_PROPERTY("AssetType", GetAssetTypeName, SetAssetTypeName),
   }
   EZ_END_PROPERTIES
 }
@@ -91,7 +91,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
   pInfo->m_FileReferences.Clear();
   pInfo->m_Outputs.Clear();
   pInfo->m_uiSettingsHash = GetDocumentHash();
-  pInfo->m_sAssetTypeName = QueryAssetType();
+  pInfo->m_sAssetTypeName.Assign(QueryAssetType());
 
   UpdateAssetDocumentInfo(pInfo);
 

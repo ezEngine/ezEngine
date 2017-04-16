@@ -505,7 +505,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   // Materials/Submeshes.
   static const char* defaultMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
   ezStringBuilder defaultMaterialAssetId;
-  ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindAssetInfo(defaultMaterialAssetPath)->m_Info.m_DocumentID, defaultMaterialAssetId);
+  ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindSubAsset(defaultMaterialAssetPath)->m_Data.m_Guid, defaultMaterialAssetId);
 
 
   // Option material slot count correction & material import.
@@ -601,10 +601,10 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
   newAssetPathAbs.Append(".ezTextureAsset");
 
   // Try to resolve.
-  auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(newAssetPathAbs);
+  auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newAssetPathAbs);
   if (textureAssetInfo)
   {
-    return ezConversionUtils::ToString(textureAssetInfo->m_Info.m_DocumentID, relTexturePath); // just reusing this variable
+    return ezConversionUtils::ToString(textureAssetInfo->m_Data.m_Guid, relTexturePath); // just reusing this variable
   }
 
   // Import otherwise.
@@ -681,7 +681,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       continue;
 
     // Didn't find currently set resource, create new imported material.
-    if (!ezAssetCurator::GetSingleton()->FindAssetInfo(pProp->m_Slots[subMeshIdx].m_sResource))
+    if (!ezAssetCurator::GetSingleton()->FindSubAsset(pProp->m_Slots[subMeshIdx].m_sResource))
     {
       // Check first if we already imported this material.
       if (importMatToMaterialGuid.TryGetValue(material, pProp->m_Slots[subMeshIdx].m_sResource))
@@ -708,10 +708,10 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
 
       // Does the generated path already exist? Use it.
       {
-        const auto assetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(newResourcePathAbs);
+        const auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newResourcePathAbs);
         if (assetInfo != nullptr)
         {
-          pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Info.m_DocumentID, tmp);
+          pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Data.m_Guid, tmp);
           continue;
         }
       }

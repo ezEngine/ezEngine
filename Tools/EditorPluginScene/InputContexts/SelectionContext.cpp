@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -142,15 +142,15 @@ void ezSelectionContext::OpenPickedMaterial(const ezObjectPickingResult& res) co
 
   const ezUuid meshGuid = ezConversionUtils::ConvertStringToUuid(varMeshGuid.Get<ezString>());
 
-  auto pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(meshGuid);
+  auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(meshGuid);
 
   // unknown mesh asset
-  if (!pAssetInfo)
+  if (!pSubAsset)
     return;
 
   // now we need to open the mesh and we cannot wait for it (usually that is queued for GUI reasons)
   // though we do not want a window
-  ezMeshAssetDocument* pMeshDoc = static_cast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false));
+  ezMeshAssetDocument* pMeshDoc = static_cast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pSubAsset->m_pAssetInfo->m_sAbsolutePath, false, false));
 
   if (!pMeshDoc)
     return;
@@ -171,25 +171,25 @@ void ezSelectionContext::OpenPickedMaterial(const ezObjectPickingResult& res) co
 
 bool ezSelectionContext::TryOpenMaterial(const ezString& sMatRef) const
 {
-  ezAssetCurator::ezLockedAssetInfo pAssetInfo;
+  ezAssetCurator::ezLockedSubAsset pSubAsset;
 
   if (ezConversionUtils::IsStringUuid(sMatRef))
   {
     ezUuid matGuid;
     matGuid = ezConversionUtils::ConvertStringToUuid(sMatRef);
 
-    pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(matGuid);
+    pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(matGuid);
   }
   else
   {
     // I think this is even wrong, either the string is a GUID, or it is not an asset at all, in which case we cannot find it this way either
     // left as an exercise for whoever needs non-asset references
-    pAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(sMatRef);
+    pSubAsset = ezAssetCurator::GetSingleton()->FindSubAsset(sMatRef);
   }
 
-  if (pAssetInfo)
+  if (pSubAsset)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocument(pAssetInfo->m_sAbsolutePath);
+    ezQtEditorApp::GetSingleton()->OpenDocument(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
     return true;
   }
 

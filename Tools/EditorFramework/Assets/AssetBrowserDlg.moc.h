@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_AssetBrowserDlg.h>
@@ -9,7 +9,7 @@ class ezQtAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg
   Q_OBJECT
 
 public:
-  ezQtAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters);
+  ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselectedAsset, const char* szVisibleFilters);
   ~ezQtAssetBrowserDlg();
 
   const char* GetSelectedAssetPathRelative() const { return m_sSelectedAssetPathRelative; }

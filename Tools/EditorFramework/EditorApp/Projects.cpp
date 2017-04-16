@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Preferences/Preferences.h>
@@ -205,8 +205,8 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
     break;
   case ezToolsProjectRequest::Type::GetPathForDocumentGuid:
     {
-      ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(r.m_documentGuid);
-      r.m_sAbsDocumentPath = pAssetInfo->m_sAbsolutePath;
+      ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(r.m_documentGuid);
+      r.m_sAbsDocumentPath = pSubAsset->m_pAssetInfo->m_sAbsolutePath;
     }
     break;
   }

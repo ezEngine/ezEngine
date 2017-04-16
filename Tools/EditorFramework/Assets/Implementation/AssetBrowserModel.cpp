@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -18,17 +18,16 @@ ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
 
 struct AssetComparer
 {
-  AssetComparer(ezQtAssetBrowserModel* model, const ezHashTable<ezUuid, ezAssetInfo*>& allAssets)
+  AssetComparer(ezQtAssetBrowserModel* model, const ezMap<ezUuid, ezSubAsset>& allAssets)
     : m_Model(model), m_AllAssets(allAssets)
   {
   }
 
   EZ_ALWAYS_INLINE bool Less(const ezQtAssetBrowserModel::AssetEntry& a, const ezQtAssetBrowserModel::AssetEntry& b) const
   {
-    ezAssetInfo* pInfoA = nullptr;
-    ezAssetInfo* pInfoB = nullptr;
-    m_AllAssets.TryGetValue(a.m_Guid, pInfoA);
-    m_AllAssets.TryGetValue(b.m_Guid, pInfoB);
+    const ezSubAsset* pInfoA = &m_AllAssets.Find(a.m_Guid).Value();
+    const ezSubAsset* pInfoB = &m_AllAssets.Find(b.m_Guid).Value();
+
     return m_Model->m_pFilter->Less(pInfoA, pInfoB);
   }
 
@@ -38,7 +37,7 @@ struct AssetComparer
   }
 
   ezQtAssetBrowserModel* m_Model;
-  const ezHashTable<ezUuid, ezAssetInfo*>& m_AllAssets;
+  const ezMap<ezUuid, ezSubAsset>& m_AllAssets;
 };
 
 ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter)
@@ -105,8 +104,8 @@ void ezQtAssetBrowserModel::resetModel()
 {
   beginResetModel();
 
-  ezAssetCurator::ezLockedAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownAssets();
-  const ezHashTable<ezUuid, ezAssetInfo*>& AllAssets = *(AllAssetsLocked.operator->());
+  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+  const ezMap<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
 
   m_AssetsToDisplay.Clear();
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
@@ -116,11 +115,11 @@ void ezQtAssetBrowserModel::resetModel()
   // last access > filename
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {
-    ezAssetInfo* pInfo = it.Value();
-    if (m_pFilter->IsAssetFiltered(pInfo))
+    const ezSubAsset* pSub = &it.Value();
+    if (m_pFilter->IsAssetFiltered(pSub))
       continue;
 
-    Init(ae, pInfo);
+    Init(ae, pSub);
 
     m_AssetsToDisplay.PushBack(ae);
     m_DisplayedEntries.Insert(ae.m_Guid);
@@ -133,11 +132,11 @@ void ezQtAssetBrowserModel::resetModel()
   EZ_ASSERT_DEBUG(m_AssetsToDisplay.GetCount() == m_DisplayedEntries.GetCount(), "Implementation error: Set and sorted list diverged");
 }
 
-void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, AssetOp op)
+void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
 {
   if (m_pFilter->IsAssetFiltered(pInfo))
   {
-    if (!m_DisplayedEntries.Contains(pInfo->m_Info.m_DocumentID))
+    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid))
     {
       return;
     }
@@ -146,8 +145,8 @@ void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, AssetOp op)
     op = AssetOp::Remove;
   }
 
-  ezAssetCurator::ezLockedAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownAssets();
-  const ezHashTable<ezUuid, ezAssetInfo*>& AllAssets = *(AllAssetsLocked.operator->());
+  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+  const ezMap<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
 
   AssetEntry ae;
   Init(ae, pInfo);
@@ -164,7 +163,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, AssetOp op)
 
     beginInsertRows(QModelIndex(), uiInsertIndex, uiInsertIndex);
     m_AssetsToDisplay.Insert(ae, uiInsertIndex);
-    m_DisplayedEntries.Insert(pInfo->m_Info.m_DocumentID);
+    m_DisplayedEntries.Insert(pInfo->m_Data.m_Guid);
     endInsertRows();
   }
   else if (op == AssetOp::Remove)
@@ -174,7 +173,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, AssetOp op)
     {
       beginRemoveRows(QModelIndex(), uiInsertIndex, uiInsertIndex);
       m_AssetsToDisplay.RemoveAt(uiInsertIndex);
-      m_DisplayedEntries.Remove(pInfo->m_Info.m_DocumentID);
+      m_DisplayedEntries.Remove(pInfo->m_Data.m_Guid);
       endRemoveRows();
     }
   }
@@ -188,13 +187,13 @@ void ezQtAssetBrowserModel::HandleAsset(const ezAssetInfo* pInfo, AssetOp op)
     }
     else
     {
-      ezInt32 oldIndex = FindAssetIndex(pInfo->m_Info.m_DocumentID);
+      ezInt32 oldIndex = FindAssetIndex(pInfo->m_Data.m_Guid);
       if (oldIndex != -1)
       {
         // Name has changed, remove old entry
         beginRemoveRows(QModelIndex(), oldIndex, oldIndex);
         m_AssetsToDisplay.RemoveAt(oldIndex);
-        m_DisplayedEntries.Remove(pInfo->m_Info.m_DocumentID);
+        m_DisplayedEntries.Remove(pInfo->m_Data.m_Guid);
         endRemoveRows();
       }
       HandleAsset(pInfo, AssetOp::Add);
@@ -247,34 +246,37 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
 
   const auto& asset = m_AssetsToDisplay[iRow];
   const ezUuid AssetGuid = asset.m_Guid;
-  const ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
+  const ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
 
   // this can happen when a file was just changed on disk, e.g. got deleted
-  if (pAssetInfo == nullptr)
+  if (pSubAsset == nullptr)
     return QVariant();
 
   switch (role)
   {
   case Qt::DisplayRole:
     {
-      ezStringBuilder sFilename = ezPathUtils::GetFileName(pAssetInfo->m_sDataDirRelativePath);
+      ezStringBuilder sFilename = pSubAsset->GetName();
       return QString::fromUtf8(sFilename);
     }
     break;
 
   case Qt::ToolTipRole:
-    return QString::fromUtf8(pAssetInfo->m_sDataDirRelativePath.GetData());
-
+    {
+      ezStringBuilder sToolTip = pSubAsset->GetName();
+      sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
+      return QString::fromUtf8(sToolTip);
+    }
   case Qt::DecorationRole:
     {
       if (m_bIconMode)
       {
-        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
+        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
 
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        const QPixmap* pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(pAssetInfo->m_Info.m_sAssetTypeName, sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
+        const QPixmap* pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sAssetTypeName, sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
       }
@@ -284,19 +286,19 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
   case UserRoles::AssetGuid:
     {
       //QVariant var;
-      //var.setValue(pAssetInfo->m_Info.m_DocumentID);
-      return qVariantFromValue(pAssetInfo->m_Info.m_DocumentID);// QString::fromUtf8(ezConversionUtils::ToString(pAssetInfo->m_Info.m_DocumentID).GetData());
+      //var.setValue(pAssetInfo->m_Data.m_Guid);
+      return qVariantFromValue(pSubAsset->m_Data.m_Guid);// QString::fromUtf8(ezConversionUtils::ToString(pAssetInfo->m_Data.m_Guid).GetData());
     }
   case UserRoles::AbsolutePath:
-    return QString::fromUtf8(pAssetInfo->m_sAbsolutePath);
+    return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
 
   case UserRoles::RelativePath:
-    return QString::fromUtf8(pAssetInfo->m_sDataDirRelativePath);
+    return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
 
   case UserRoles::AssetIconPath:
     {
       ezStringBuilder sIconName;
-      sIconName.Set(":/AssetIcons/", pAssetInfo->m_Info.m_sAssetTypeName);
+      sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sAssetTypeName);
       sIconName.ReplaceAll(" ", "_");
       sIconName.ReplaceAll("(", "");
       sIconName.ReplaceAll(")", "");
@@ -305,7 +307,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     }
 
   case UserRoles::TransformState:
-    return (int)pAssetInfo->m_TransformState;
+    return (int)pSubAsset->m_pAssetInfo->m_TransformState;
   }
 
   return QVariant();
@@ -394,8 +396,8 @@ QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
   return mimeData;
 }
 
-void ezQtAssetBrowserModel::Init(AssetEntry& ae, const ezAssetInfo* pInfo)
+void ezQtAssetBrowserModel::Init(AssetEntry& ae, const ezSubAsset* pInfo)
 {
-  ae.m_Guid = pInfo->m_Info.m_DocumentID;
+  ae.m_Guid = pInfo->m_Data.m_Guid;
   ae.m_uiThumbnailID = (ezUInt32)-1;
 }

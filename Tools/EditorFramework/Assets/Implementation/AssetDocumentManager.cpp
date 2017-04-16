@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -79,6 +79,11 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
     return false;
 
   return true;
+}
+
+ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
+{
+  return GetRelativeOutputFileName(szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", szPlatform);
 }
 
 ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const char* szPlatform) const

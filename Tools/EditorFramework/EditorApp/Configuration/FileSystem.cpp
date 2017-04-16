@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -95,12 +95,12 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath
   if (ezConversionUtils::IsStringUuid(sPath))
   {
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
-    auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(guid);
+    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
 
     if (pAsset == nullptr)
       return false;
 
-    sPath = pAsset->m_sAbsolutePath;
+    sPath = pAsset->m_pAssetInfo->m_sAbsolutePath;
     return true;
   }
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -7,7 +7,7 @@ struct EZ_GAMEENGINE_DLL ezCollectionEntry
 {
   ezString m_sLookupName;
   ezString m_sRedirectionName;
-  ezString m_sResourceTypeName;
+  ezHashedString m_sResourceTypeName;
 };
 
 struct EZ_GAMEENGINE_DLL ezCollectionResourceDescriptor

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
@@ -36,8 +36,8 @@ signals:
   void SortByRecentUseChanged();
 
 public:
-  virtual bool IsAssetFiltered(const ezAssetInfo* pInfo) const override;
-  virtual bool Less(ezAssetInfo* pInfoA, ezAssetInfo* pInfoB) const override;
+  virtual bool IsAssetFiltered(const ezSubAsset* pInfo) const override;
+  virtual bool Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const override;
 
 private:
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;

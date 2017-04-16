@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
@@ -80,19 +80,19 @@ void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
   emit TypeFilterChanged();
 }
 
-bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezAssetInfo* pInfo) const
+bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 {
   if (!m_sPathFilter.IsEmpty())
   {
     // if the string is not found in the path, ignore this asset
-    if (!pInfo->m_sDataDirRelativePath.StartsWith_NoCase(m_sPathFilter))
+    if (!pInfo->m_pAssetInfo->m_sDataDirRelativePath.StartsWith_NoCase(m_sPathFilter))
       return true;
 
     if (!m_bShowItemsInSubFolders)
     {
       // do we find another path separator after the prefix path?
       // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(pInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
+      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
         return true;
     }
   }
@@ -100,20 +100,22 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezAssetInfo* pInfo) const
   if (!m_sTextFilter.IsEmpty())
   {
     // if the string is not found in the path, ignore this asset
-    if (pInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
+    if (pInfo->m_pAssetInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
     {
-      ezConversionUtils::ToString(pInfo->m_Info.m_DocumentID, m_sTemp);
+      if (pInfo->GetName().FindSubString_NoCase(m_sTextFilter) == nullptr)
+      {
+        ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
+        if (m_sTemp.FindSubString_NoCase(m_sTextFilter) == nullptr)
+          return true;
 
-      if (m_sTemp.FindSubString(m_sTextFilter) == nullptr)
-        return true;
-
-      // we could actually (partially) match the GUID
+        // we could actually (partially) match the GUID
+      }
     }
   }
 
   if (!m_sTypeFilter.IsEmpty())
   {
-    m_sTemp.Set(";", pInfo->m_Info.m_sAssetTypeName, ";");
+    m_sTemp.Set(";", pInfo->m_Data.m_sAssetTypeName, ";");
 
     if (!m_sTypeFilter.FindSubString(m_sTemp))
       return true;
@@ -121,21 +123,21 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezAssetInfo* pInfo) const
   return false;
 }
 
-bool ezQtAssetBrowserFilter::Less(ezAssetInfo* pInfoA, ezAssetInfo* pInfoB) const
+bool ezQtAssetBrowserFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
 {
   if (m_bSortByRecentUse && pInfoA->m_LastAccess.GetSeconds() != pInfoB->m_LastAccess.GetSeconds())
   {
     return pInfoA->m_LastAccess > pInfoB->m_LastAccess;
   }
 
-  ezStringView sSortA = ezPathUtils::GetFileName(pInfoA->m_sDataDirRelativePath.GetData(), pInfoA->m_sDataDirRelativePath.GetData() + pInfoA->m_sDataDirRelativePath.GetElementCount());
-  ezStringView sSortB = ezPathUtils::GetFileName(pInfoB->m_sDataDirRelativePath.GetData(), pInfoB->m_sDataDirRelativePath.GetData() + pInfoB->m_sDataDirRelativePath.GetElementCount());
+  ezStringView sSortA = pInfoA->GetName();
+  ezStringView sSortB = pInfoB->GetName();
 
   ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetData(), sSortB.GetData(),
     sSortA.GetData() + sSortA.GetElementCount(), sSortB.GetData() + sSortB.GetElementCount());
   if (iValue == 0)
   {
-    return pInfoA->m_Info.m_DocumentID < pInfoB->m_Info.m_DocumentID;
+    return pInfoA->m_Data.m_Guid < pInfoB->m_Data.m_Guid;
   }
   return iValue < 0;
 }

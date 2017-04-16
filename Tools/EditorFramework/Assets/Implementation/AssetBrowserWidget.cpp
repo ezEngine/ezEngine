@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -782,24 +782,22 @@ bool ezQtAssetBrowserWidget::SelectPathFilter(QTreeWidgetItem* pParent, const QS
   return false;
 }
 
-void ezQtAssetBrowserWidget::SetSelectedAsset(const char* szAssetPath)
+void ezQtAssetBrowserWidget::SetSelectedAsset(ezUuid preselectedAsset)
 {
-  if (ezStringUtils::IsNullOrEmpty(szAssetPath))
+  if (!preselectedAsset.IsValid())
     return;
-
-  const QString sPath = QString::fromUtf8(szAssetPath);
 
   // cannot do this immediately, since the UI is probably still building up
   // ListAssets->scrollTo either hangs, or has no effect
   // so we put this into the message queue, and do it later
-  QMetaObject::invokeMethod(this, "OnScrollToItem", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, sPath));
+  QMetaObject::invokeMethod(this, "OnScrollToItem", Qt::ConnectionType::QueuedConnection, Q_ARG(ezUuid, preselectedAsset));
 }
 
-void ezQtAssetBrowserWidget::OnScrollToItem(QString sPath)
+void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
 {
   for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
   {
-    if (m_pModel->data(m_pModel->index(i, 0), ezQtAssetBrowserModel::UserRoles::RelativePath) == sPath)
+    if (m_pModel->data(m_pModel->index(i, 0), ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>() == preselectedAsset)
     {
       ListAssets->selectionModel()->select(m_pModel->index(i, 0), QItemSelectionModel::SelectionFlag::ClearAndSelect);
       ListAssets->scrollTo(m_pModel->index(i, 0), QAbstractItemView::ScrollHint::EnsureVisible);

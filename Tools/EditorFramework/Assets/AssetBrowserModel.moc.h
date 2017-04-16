@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -8,14 +8,15 @@
 
 struct ezAssetInfo;
 struct ezAssetCuratorEvent;
+struct ezSubAsset;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetFilter : public QObject
 {
   Q_OBJECT
 public:
   explicit ezQtAssetFilter(QObject* pParent);
-  virtual bool IsAssetFiltered(const ezAssetInfo* pInfo) const = 0;
-  virtual bool Less(ezAssetInfo* pInfoA, ezAssetInfo* pInfoB) const = 0;
+  virtual bool IsAssetFiltered(const ezSubAsset* pInfo) const = 0;
+  virtual bool Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const = 0;
 
 signals:
   void FilterChanged();
@@ -74,8 +75,8 @@ private:
   };
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
   ezInt32 FindAssetIndex(const ezUuid& assetGuid) const;
-  void HandleAsset(const ezAssetInfo* pInfo, AssetOp op);
-  void Init(AssetEntry& ae, const ezAssetInfo* pInfo);
+  void HandleAsset(const ezSubAsset* pInfo, AssetOp op);
+  void Init(AssetEntry& ae, const ezSubAsset* pInfo);
 
   ezQtAssetFilter* m_pFilter;
   ezDynamicArray<AssetEntry> m_AssetsToDisplay;

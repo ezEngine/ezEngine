@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
@@ -57,11 +57,11 @@ bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_Pre
         {
           const ezString sAsset = varPrefab.Get<ezString>();
 
-          const auto info = ezAssetCurator::GetSingleton()->FindAssetInfo(sAsset);
+          const auto info = ezAssetCurator::GetSingleton()->FindSubAsset(sAsset);
 
           if (info.isValid())
           {
-            *out_PrefabAssetGuid = info->m_Info.m_DocumentID;
+            *out_PrefabAssetGuid = info->m_Data.m_Guid;
           }
         }
 
@@ -138,7 +138,7 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
     if (!IsObjectEnginePrefab(pObject->GetGuid(), &assetGuid))
       continue;
 
-    auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(assetGuid);
+    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
 
     if (!pAsset.isValid())
       continue;
@@ -147,7 +147,7 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
 
     ezUuid newGuid;
     newGuid.CreateNewUuid();
-    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_sAbsolutePath, assetGuid, newGuid);
+    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_sAbsolutePath, assetGuid, newGuid);
 
     const ezDocumentObject* pNewObject = GetObjectManager()->GetObject(newObject);
     SetGlobalTransform(pNewObject, transform, TransformationChanges::All);
@@ -170,7 +170,7 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
     if (!IsObjectEditorPrefab(pObject->GetGuid(), &assetGuid))
       continue;
 
-    auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(assetGuid);
+    auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
 
     if (!pAsset.isValid())
       continue;

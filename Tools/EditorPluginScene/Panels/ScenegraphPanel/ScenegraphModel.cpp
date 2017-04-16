@@ -78,10 +78,10 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
       if (prefab.IsValid())
       {
-        auto pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(prefab);
+        auto pInfo = ezAssetCurator::GetSingleton()->GetSubAsset(prefab);
 
         if (pInfo)
-          return QString::fromUtf8(pInfo->m_sDataDirRelativePath);
+          return QString::fromUtf8(pInfo->m_pAssetInfo->m_sDataDirRelativePath);
 
         return QStringLiteral("Prefab asset could not be found");
       }

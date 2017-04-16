@@ -1108,11 +1108,11 @@ void ezSceneDocument::DetermineNodeName(const ezDocumentObject* pObject, const e
 
   if (prefabGuid.IsValid())
   {
-    auto pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(prefabGuid);
+    auto pInfo = ezAssetCurator::GetSingleton()->GetSubAsset(prefabGuid);
 
     if (pInfo)
     {
-      ezStringBuilder sPath = pInfo->m_sDataDirRelativePath;
+      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_sDataDirRelativePath;
       sPath = sPath.GetFileName();
 
       out_Result.Set("Prefab: ", sPath);
@@ -1176,10 +1176,10 @@ void ezSceneDocument::DetermineNodeName(const ezDocumentObject* pObject, const e
           {
             const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
 
-            auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
+            auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
 
             if (pAsset)
-              sValue = pAsset->m_sDataDirRelativePath;
+              sValue = pAsset->m_pAssetInfo->m_sDataDirRelativePath;
             else
               sValue = "<unknown>";
           }
