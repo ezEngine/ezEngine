@@ -12,17 +12,16 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
 
   ezResourceLoadData res;
 
-  ezStringBuilder sResID = pResource->GetResourceID();
+  ezStringBuilder sResID;
+  ezFileSystem::ResolveAssetRedirection(pResource->GetResourceID(), sResID);
 
   const char* szSeperator = sResID.FindSubString("|");
 
   if (szSeperator == nullptr)
   {
-    res.m_pDataStream = nullptr;
+    ezLog::Error("Fmod event resource ID is invalid or could not be resolved: '{0}'", sResID);
     return res;
   }
-
-  EZ_ASSERT_DEV(szSeperator != nullptr, "No sub-resource seperator '|' in path '{0}'", sResID.GetData());
 
   ezStringBuilder sBankPath, sSubPath;
   sBankPath.SetSubString_FromTo(sResID, szSeperator);
@@ -34,11 +33,33 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   {
     ezResourceLock<ezFmodSoundBankResource> pBank(pData->m_hSoundBank, ezResourceAcquireMode::NoFallback);
 
-    EZ_FMOD_ASSERT(ezFmod::GetSingleton()->GetSystem()->getEvent(sSubPath.GetData(), &pData->m_pEventDescription));
+    if (ezConversionUtils::IsStringUuid(sSubPath))
+    {
+      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sSubPath);
+      const FMOD_GUID* fmodGuid = reinterpret_cast<const FMOD_GUID*>(&guid);
+
+      if (ezFmod::GetSingleton()->GetSystem()->getEventByID(fmodGuid, &pData->m_pEventDescription) != FMOD_OK)
+      {
+        ezLog::Error("Fmod event could not be found. GUID: '{0}'", sSubPath);
+        return res;
+      }
+    }
+    else
+    {
+      if (ezFmod::GetSingleton()->GetSystem()->getEvent(sSubPath.GetData(), &pData->m_pEventDescription) != FMOD_OK)
+      {
+        ezLog::Error("Fmod event could not be found. Path: '{0}'", sSubPath);
+        return res;
+      }
+    }
   }
 
   // make sure to load the sample data (on this thread)
-  pData->m_pEventDescription->loadSampleData();
+  if (pData->m_pEventDescription->loadSampleData() != FMOD_OK)
+  {
+    ezLog::Error("Fmod event sample data could not be loaded. Event: '{0}'", sSubPath);
+    return res;
+  }
 
   ezFmodSoundBankResourceHandle* pHandle = &pData->m_hSoundBank;
 

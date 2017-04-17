@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/OSFile.h>
@@ -43,8 +43,7 @@ namespace ezDataDirectory
 
     virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
 
-    bool UseFileRedirection(const char* szFile, ezStringBuilder &sFileToOpen);
-
+    virtual bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection);
     virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;

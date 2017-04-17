@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 
@@ -25,6 +25,8 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
     m_pSoundBank = nullptr;
   }
 
+  EZ_DEFAULT_DELETE(m_pSoundBankData);
+
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
 
   ezResourceLoadDesc res;
@@ -50,10 +52,10 @@ ezResourceLoadDesc ezFmodSoundBankResource::UpdateContent(ezStreamReader* Stream
   }
 
   Stream->ReadBytes(&m_pSoundBank, sizeof(FMOD::Studio::Bank*));
-
-  
+  Stream->ReadBytes(&m_pSoundBankData, sizeof(ezDataBuffer*));
 
   EZ_ASSERT_DEV(m_pSoundBank != nullptr, "Invalid Sound Bank pointer in stream");
+  EZ_ASSERT_DEV(m_pSoundBankData != nullptr, "Invalid Sound Bank Data pointer in stream");
 
   res.m_State = ezResourceState::Loaded;
   return res;
@@ -61,9 +63,7 @@ ezResourceLoadDesc ezFmodSoundBankResource::UpdateContent(ezStreamReader* Stream
 
 void ezFmodSoundBankResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  // we cannot compute this data here, so we update it wherever we know the memory usage
-
-  out_NewMemoryUsage.m_uiMemoryCPU = ModifyMemoryUsage().m_uiMemoryCPU;
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezFmodSoundBankResource) + (ezUInt32)m_pSoundBankData->GetHeapMemoryUsage() + sizeof(*m_pSoundBankData);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 

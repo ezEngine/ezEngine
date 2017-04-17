@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FileservePlugin/Client/FileserveDataDir.h>
 #include <Foundation/Logging/Log.h>
 #include <FileservePlugin/Network/NetworkInterfaceEnet.h>
@@ -24,7 +24,7 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
     return nullptr;
 
   ezStringBuilder sRedirected;
-  UseFileRedirection(szFile, sRedirected);
+  ResolveAssetRedirection(szFile, sRedirected);
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
   if (ezConversionUtils::IsStringUuid(sRedirected))

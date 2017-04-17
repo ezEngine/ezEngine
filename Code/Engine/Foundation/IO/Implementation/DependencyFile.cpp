@@ -24,7 +24,7 @@ ezDependencyFile::ezDependencyFile()
 void ezDependencyFile::Clear()
 {
   m_iMaxTimeStampStored = 0;
-  m_FileDependencies.Clear();
+  m_AssetTransformDependencies.Clear();
 }
 
 void ezDependencyFile::AddFileDependency(const char* szFile)
@@ -32,7 +32,7 @@ void ezDependencyFile::AddFileDependency(const char* szFile)
   if (ezStringUtils::IsNullOrEmpty(szFile))
     return;
 
-  m_FileDependencies.PushBack(szFile);
+  m_AssetTransformDependencies.PushBack(szFile);
 }
 
 void ezDependencyFile::StoreCurrentTimeStamp()
@@ -46,7 +46,7 @@ void ezDependencyFile::StoreCurrentTimeStamp()
   return;
 #endif
 
-  for (const auto& sFile : m_FileDependencies)
+  for (const auto& sFile : m_AssetTransformDependencies)
   {
     ezTimestamp ts;
     if (RetrieveFileTimeStamp(sFile, ts).Failed())
@@ -63,7 +63,7 @@ bool ezDependencyFile::HasAnyFileChanged()
   return true;
 #endif
 
-  for (const auto& sFile : m_FileDependencies)
+  for (const auto& sFile : m_AssetTransformDependencies)
   {
     ezTimestamp ts;
     if (RetrieveFileTimeStamp(sFile, ts).Failed())
@@ -84,9 +84,9 @@ ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
   stream << (ezUInt8) ezDependencyFileVersion::Current;
 
   stream << m_iMaxTimeStampStored;
-  stream << m_FileDependencies.GetCount();
+  stream << m_AssetTransformDependencies.GetCount();
 
-  for (const auto& sFile : m_FileDependencies)
+  for (const auto& sFile : m_AssetTransformDependencies)
     stream << sFile;
 
   return EZ_SUCCESS;
@@ -109,10 +109,10 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 
   ezUInt32 count = 0;
   stream >> count;
-   m_FileDependencies.SetCount(count);
+   m_AssetTransformDependencies.SetCount(count);
 
-  for (ezUInt32 i = 0; i < m_FileDependencies.GetCount(); ++i)
-    stream >> m_FileDependencies[i];
+  for (ezUInt32 i = 0; i < m_AssetTransformDependencies.GetCount(); ++i)
+    stream >> m_AssetTransformDependencies[i];
 
   return EZ_SUCCESS;
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Foundation/IO/Stream.h>
@@ -8,12 +8,6 @@
 /// \brief Data returned by ezResourceTypeLoader implementations.
 struct EZ_CORE_DLL ezResourceLoadData
 {
-  ezResourceLoadData()
-  {
-    m_pDataStream = nullptr;
-    m_pCustomLoaderData = nullptr;
-  }
-
   /// Additional (optional) description that can help during debugging (e.g. the final file path).
   ezString m_sResourceDescription;
 
@@ -21,10 +15,10 @@ struct EZ_CORE_DLL ezResourceLoadData
   ezTimestamp m_LoadedFileModificationDate;
 
   /// All loaded data should be stored in a memory stream. This stream reader allows the resource to read the memory stream.
-  ezStreamReader* m_pDataStream;
+  ezStreamReader* m_pDataStream = nullptr;
 
   /// Custom loader data, e.g. a pointer to a custom memory block, that needs to be freed when the resource is done updating.
-  void* m_pCustomLoaderData;
+  void* m_pCustomLoaderData = nullptr;
 };
 
 /// \brief Base class for all resource loaders.

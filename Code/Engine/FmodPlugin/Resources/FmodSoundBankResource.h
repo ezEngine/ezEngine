@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <FmodPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -25,7 +25,8 @@ private:
   virtual ezResourceLoadDesc CreateResource(const ezFmodSoundBankResourceDescriptor& descriptor) override;
 
 private:
-  FMOD::Studio::Bank* m_pSoundBank;
+  FMOD::Studio::Bank* m_pSoundBank = nullptr;
+  ezDataBuffer* m_pSoundBankData = nullptr;
 };
 
 class EZ_FMODPLUGIN_DLL ezFmodSoundBankResourceLoader : public ezResourceTypeLoader
@@ -34,11 +35,12 @@ public:
 
   struct LoadedData
   {
-    LoadedData() : m_Reader(&m_Storage), m_pSoundBank(nullptr) { }
+    LoadedData() : m_Reader(&m_Storage) { }
 
     ezMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
-    FMOD::Studio::Bank* m_pSoundBank;
+    FMOD::Studio::Bank* m_pSoundBank = nullptr;
+    ezDataBuffer* m_pSoundbankData;
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;

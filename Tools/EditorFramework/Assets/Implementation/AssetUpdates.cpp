@@ -51,9 +51,9 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
   ezUInt64 uiHashResult = pInfo->m_Info.m_uiSettingsHash;
 
   // Iterate dependencies
-  ezSet<ezString>& files = bReferences ? pInfo->m_Info.m_FileReferences : pInfo->m_Info.m_FileDependencies;
+  ezSet<ezString>& files = bReferences ? pInfo->m_Info.m_RuntimeDependencies : pInfo->m_Info.m_AssetTransformDependencies;
 
-  for (const auto& dep : pInfo->m_Info.m_FileDependencies)
+  for (const auto& dep : pInfo->m_Info.m_AssetTransformDependencies)
   {
     ezString sPath = dep;
 
@@ -66,11 +66,11 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 
   if (bReferences)
   {
-    for (const auto& dep : pInfo->m_Info.m_FileReferences)
+    for (const auto& dep : pInfo->m_Info.m_RuntimeDependencies)
     {
       ezString sPath = dep;
       // Already hashed in the dependency list.
-      if (pInfo->m_Info.m_FileDependencies.Contains(sPath))
+      if (pInfo->m_Info.m_AssetTransformDependencies.Contains(sPath))
         continue;
 
       if (!AddAssetHash(sPath, bReferences, uiHashResult))
@@ -340,8 +340,8 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 
 void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
 {
-  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileDependencies, m_InverseDependency, m_UnresolvedDependencies, true);
-  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileReferences, m_InverseReferences, m_UnresolvedReferences, true);
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_AssetTransformDependencies, m_InverseDependency, m_UnresolvedDependencies, true);
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_RuntimeDependencies, m_InverseReferences, m_UnresolvedReferences, true);
 
   const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
   auto it = m_InverseReferences.FindOrAdd(sTargetFile);
@@ -359,8 +359,8 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
 
 void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
 {
-  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileDependencies, m_InverseDependency, m_UnresolvedDependencies, false);
-  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileReferences, m_InverseReferences, m_UnresolvedReferences, false);
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_AssetTransformDependencies, m_InverseDependency, m_UnresolvedDependencies, false);
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_RuntimeDependencies, m_InverseReferences, m_UnresolvedReferences, false);
 
   const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
   auto it = m_InverseReferences.FindOrAdd(sTargetFile);

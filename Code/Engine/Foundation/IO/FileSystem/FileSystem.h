@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -168,6 +168,8 @@ public:
   /// Returns EZ_FAILURE if nothing is found. Otherwise \a result is the absolute path to the existing folder that has a given sub-folder.
   static ezResult FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath, ezStringBuilder& result); // [tested]
 
+  /// \brief Returns true, if any data directory knows how to redirect the given path. Otherwise the original string is returned in out_sRedirection.
+  static bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection);
 
 private:
   friend class ezDataDirectoryReaderWriterBase;

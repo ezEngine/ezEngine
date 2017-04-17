@@ -756,7 +756,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     // We write our own guid into the shader field so BaseMaterial materials can find the shader file.
     // This would cause us to have a dependency to ourselves so we need to remove it.
     ezStringBuilder tmp;
-    pInfo->m_FileDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
+    pInfo->m_AssetTransformDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
 
     ezVisualShaderCodeGenerator codeGen;
 
@@ -765,7 +765,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
     for (const auto& sCfgFile : cfgFiles)
     {
-      pInfo->m_FileDependencies.Insert(sCfgFile);
+      pInfo->m_AssetTransformDependencies.Insert(sCfgFile);
     }
 
     pInfo->m_Outputs.Insert(ezMaterialAssetDocumentManager::s_szShaderOutputTag);

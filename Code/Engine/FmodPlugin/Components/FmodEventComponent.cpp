@@ -140,7 +140,7 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
   {
     StopSound();
 
-    m_pEventInstance->release();
+    EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
   }
 }
@@ -150,7 +150,7 @@ void ezFmodEventComponent::OnDeactivated()
   if (m_pEventInstance != nullptr)
   {
     EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
-    m_pEventInstance->release();
+    EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
   }
 }
@@ -178,14 +178,14 @@ void ezFmodEventComponent::Restart()
     m_pEventInstance = pEvent->CreateInstance();
     EZ_ASSERT_DEV(m_pEventInstance != nullptr, "Sound Event Instance pointer should be valid");
 
-    m_pEventInstance->setUserData(this);
+    EZ_FMOD_ASSERT(m_pEventInstance->setUserData(this));
   }
 
   EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
   EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
 
-  m_pEventInstance->start();
+  EZ_FMOD_ASSERT(m_pEventInstance->start());
 }
 
 void ezFmodEventComponent::StartOneShot()
@@ -210,8 +210,8 @@ void ezFmodEventComponent::StartOneShot()
 
   EZ_FMOD_ASSERT(pEventInstance->setVolume(m_fVolume));
 
-  pEventInstance->start();
-  pEventInstance->release();
+  EZ_FMOD_ASSERT(pEventInstance->start());
+  EZ_FMOD_ASSERT(pEventInstance->release());
 }
 
 void ezFmodEventComponent::StopSound()
@@ -238,7 +238,7 @@ void ezFmodEventComponent::Update()
     SetParameters3d(m_pEventInstance);
 
     FMOD_STUDIO_PLAYBACK_STATE state;
-    m_pEventInstance->getPlaybackState(&state);
+    EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
     if (state == FMOD_STUDIO_PLAYBACK_STOPPED)
     {

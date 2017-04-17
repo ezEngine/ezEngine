@@ -360,7 +360,7 @@ void ezAssetCurator::ResaveAllAssets()
   for (auto itAsset = m_KnownAssets.GetIterator(); itAsset.IsValid(); ++itAsset)
   {
     auto it2 = dependencies.Insert(itAsset.Key(), ezSet<ezUuid>());
-    for (const ezString& dep : itAsset.Value()->m_Info.m_FileDependencies)
+    for (const ezString& dep : itAsset.Value()->m_Info.m_AssetTransformDependencies)
     {
       if (ezConversionUtils::IsStringUuid(dep))
       {
@@ -706,7 +706,7 @@ void ezAssetCurator::CheckFileSystem()
 
 ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform, bool bTriggeredManually)
 {
-  for (const auto& dep : pAssetInfo->m_Info.m_FileDependencies)
+  for (const auto& dep : pAssetInfo->m_Info.m_AssetTransformDependencies)
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
     {
@@ -715,7 +715,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   }
 
   ezStatus resReferences(EZ_SUCCESS);
-  for (const auto& ref : pAssetInfo->m_Info.m_FileReferences)
+  for (const auto& ref : pAssetInfo->m_Info.m_RuntimeDependencies)
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
     {
@@ -1024,7 +1024,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
       if (pSubAsset)
       {
         ezStatus resReferences(EZ_SUCCESS);
-        for (const auto& ref : pSubAsset->m_pAssetInfo->m_Info.m_FileReferences)
+        for (const auto& ref : pSubAsset->m_pAssetInfo->m_Info.m_RuntimeDependencies)
         {
           if (ezAssetInfo* pInfo = GetAssetInfo(ref))
           {

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/Log.h>
 
@@ -226,7 +226,7 @@ namespace ezDataDirectory
   ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
   {
     ezStringBuilder sFileToOpen;
-    UseFileRedirection(szFile, sFileToOpen);
+    ResolveAssetRedirection(szFile, sFileToOpen);
 
     // we know that these files cannot be opened, so don't even try
     if (ezConversionUtils::IsStringUuid(sFileToOpen))
@@ -256,7 +256,7 @@ namespace ezDataDirectory
   }
 
 
-  bool FolderType::UseFileRedirection(const char* szFile, ezStringBuilder &sFileToOpen)
+  bool FolderType::ResolveAssetRedirection(const char* szFile, ezStringBuilder& out_sRedirection)
   {
     EZ_LOCK(m_RedirectionMutex);
     // Check if we know about a file redirection for this
@@ -265,12 +265,12 @@ namespace ezDataDirectory
     if (it.IsValid())
     {
       // if available, open the file that is mentioned in the redirection file instead
-      sFileToOpen.Set(s_sRedirectionPrefix, it.Value());
+      out_sRedirection.Set(s_sRedirectionPrefix, it.Value());
       return true;
     }
     else
     {
-      sFileToOpen = szFile;
+      out_sRedirection = szFile;
       return false;
     }
   }

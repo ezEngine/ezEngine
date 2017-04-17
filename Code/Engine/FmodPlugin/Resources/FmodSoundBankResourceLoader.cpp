@@ -1,8 +1,10 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Core/Assets/AssetFileHeader.h>
 
 
 ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourceBase* pResource)
@@ -14,35 +16,52 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
   ezResourceLoadData res;
 
   {
-    ezStringBuilder sAbsolutePath, sRelativePath;
-    if (ezFileSystem::ResolvePath(pResource->GetResourceID().GetData(), &sAbsolutePath, &sRelativePath).Failed())
-    {
-      ezLog::Error("Failed to resolve resource ID to absolute path: '{0}'", pResource->GetResourceID().GetData());
+    ezFileReader SoundBankAssetFile;
+    if (SoundBankAssetFile.Open(pResource->GetResourceID()).Failed())
       return res;
+
+    // skip the asset header
+    ezAssetFileHeader header;
+    header.Read(SoundBankAssetFile);
+
+    res.m_sResourceDescription = SoundBankAssetFile.GetFilePathRelative().GetData();
+
+    ezUInt8 uiVersion = 0;
+    SoundBankAssetFile >> uiVersion;
+
+    EZ_ASSERT_DEV(uiVersion == 1, "Soundbank resource file version '{0}' is invalid", uiVersion);
+
+    ezUInt32 uiSoundBankSize = 0;
+    SoundBankAssetFile >> uiSoundBankSize;
+
+    if (uiSoundBankSize > 0)
+    {
+      pData->m_pSoundbankData = EZ_DEFAULT_NEW(ezDataBuffer);
+      pData->m_pSoundbankData->SetCountUninitialized(uiSoundBankSize + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+      ezUInt8* pAlignedData = ezMemoryUtils::Align(pData->m_pSoundbankData->GetData(), FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+
+      SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
+
+      // The fmod documentation says it is fully thread-safe, so I assume we can call loadBankMemory at any time
+      auto res = ezFmod::GetSingleton()->GetSystem()->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
+      EZ_FMOD_ASSERT(res);
     }
-
-    // The Fmod documentation says it is fully thread-safe, so I assume we can call loadBankFile at any time
-    pData->m_pSoundBank = nullptr;
-    EZ_FMOD_ASSERT(ezFmod::GetSingleton()->GetSystem()->loadBankFile(sAbsolutePath.GetData(), FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank));
-
-    res.m_sResourceDescription = sRelativePath;
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
     {
       ezFileStats stat;
-      if (ezOSFile::GetFileStats(sAbsolutePath, stat).Succeeded())
+      if (ezOSFile::GetFileStats(SoundBankAssetFile.GetFilePathAbsolute(), stat).Succeeded())
       {
         res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
       }
     }
 #endif
-
   }
 
   ezMemoryStreamWriter w(&pData->m_Storage);
 
-  FMOD::Studio::Bank* pBank = pData->m_pSoundBank;
-  w.WriteBytes(&pBank, sizeof(FMOD::Studio::Bank*));
+  w.WriteBytes(&pData->m_pSoundBank, sizeof(FMOD::Studio::Bank*));
+  w.WriteBytes(&pData->m_pSoundbankData, sizeof(ezDataBuffer*));
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;

@@ -30,7 +30,7 @@ private:
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
-  virtual bool GeneratesPlatformSpecificAssets() const override { return false; }
+  virtual bool GeneratesPlatformSpecificAssets() const override { return true; }
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;

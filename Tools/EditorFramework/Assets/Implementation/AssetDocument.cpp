@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_SET_MEMBER_PROPERTY("Dependencies", m_FileDependencies),
-    EZ_SET_MEMBER_PROPERTY("References", m_FileReferences),
+    EZ_SET_MEMBER_PROPERTY("Dependencies", m_AssetTransformDependencies),
+    EZ_SET_MEMBER_PROPERTY("References", m_RuntimeDependencies),
     EZ_SET_MEMBER_PROPERTY("Outputs", m_Outputs),
     EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
     EZ_ACCESSOR_PROPERTY("AssetType", GetAssetTypeName, SetAssetTypeName),
@@ -87,8 +87,8 @@ ezStatus ezAssetDocument::InternalSaveDocument()
 {
   ezAssetDocumentInfo* pInfo = static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
 
-  pInfo->m_FileDependencies.Clear();
-  pInfo->m_FileReferences.Clear();
+  pInfo->m_AssetTransformDependencies.Clear();
+  pInfo->m_RuntimeDependencies.Clear();
   pInfo->m_Outputs.Clear();
   pInfo->m_uiSettingsHash = GetDocumentHash();
   pInfo->m_sAssetTypeName.Assign(QueryAssetType());
@@ -96,8 +96,8 @@ ezStatus ezAssetDocument::InternalSaveDocument()
   UpdateAssetDocumentInfo(pInfo);
 
   // In case someone added an empty reference.
-  pInfo->m_FileDependencies.Remove(ezString());
-  pInfo->m_FileReferences.Remove(ezString());
+  pInfo->m_AssetTransformDependencies.Remove(ezString());
+  pInfo->m_RuntimeDependencies.Remove(ezString());
 
   return ezDocument::InternalSaveDocument();
 }
@@ -146,7 +146,7 @@ void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezA
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
       ezStringBuilder tmp;
-      pInfo->m_FileDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      pInfo->m_AssetTransformDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData.EndReadMetaData();
@@ -171,7 +171,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     {
       bInsidePrefab = true;
       ezStringBuilder tmp;
-      pInfo->m_FileReferences.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      pInfo->m_RuntimeDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData.EndReadMetaData();
@@ -203,9 +203,9 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             if (var.IsA<ezString>())
             {
               if (bIsDependency)
-                pInfo->m_FileDependencies.Insert(var.Get<ezString>());
+                pInfo->m_AssetTransformDependencies.Insert(var.Get<ezString>());
               else
-                pInfo->m_FileReferences.Insert(var.Get<ezString>());
+                pInfo->m_RuntimeDependencies.Insert(var.Get<ezString>());
             }
           }
         }
@@ -225,9 +225,9 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                 continue;
               }
               if (bIsDependency)
-                pInfo->m_FileDependencies.Insert(value.Get<ezString>());
+                pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
               else
-                pInfo->m_FileReferences.Insert(value.Get<ezString>());
+                pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
             }
           }
 

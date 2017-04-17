@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
@@ -611,6 +611,18 @@ ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const
   }
 
   return EZ_FAILURE;
+}
+
+bool ezFileSystem::ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection)
+{
+  for (auto& dd : s_Data->m_DataDirectories)
+  {
+    if (dd.m_pDataDirectory->ResolveAssetRedirection(szPathOrAssetGuid, out_sRedirection))
+      return true;
+  }
+
+  out_sRedirection = szPathOrAssetGuid;
+  return false;
 }
 
 void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()

@@ -25,6 +25,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
     ezFmodSoundEventResourceDescriptor desc;
     ezFmodSoundEventResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundEventResource>("FmodEventMissing", desc, "Fallback for missing Sound event");
     ezFmodSoundEventResource::SetTypeMissingResource(hResource);
+
+    /// \todo Missing sound bank resource
   }
 
   ON_CORE_SHUTDOWN

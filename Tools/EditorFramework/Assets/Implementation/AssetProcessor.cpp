@@ -293,12 +293,12 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     return nullptr;
   };
 
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_FileDependencies))
+  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_AssetTransformDependencies))
   {
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
   }
 
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_FileReferences))
+  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_RuntimeDependencies))
   {
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
   }

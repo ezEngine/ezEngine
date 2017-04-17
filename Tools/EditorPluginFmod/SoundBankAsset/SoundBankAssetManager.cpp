@@ -87,7 +87,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
   auto* pSystem = m_Fmod->GetSystem();
 
-  for (const ezString& dep : assetInfo.m_FileDependencies)
+  for (const ezString& dep : assetInfo.m_AssetTransformDependencies)
   {
     if (!ezPathUtils::HasExtension(dep, "bank"))
       continue;

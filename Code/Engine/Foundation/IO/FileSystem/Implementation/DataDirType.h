@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/String.h>
@@ -72,6 +72,10 @@ protected:
 
   /// \brief Upon success returns the ezFileStats for a file in this data directory.
   virtual ezResult GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) = 0;
+
+  /// \brief If this data directory knows how to redirect the given path, it should do so and return true.
+  /// Called by ezFileSystem::ResolveAssetRedirection
+  virtual bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection) { return false; }
 
 protected:
   friend class ezDataDirectoryReaderWriterBase;

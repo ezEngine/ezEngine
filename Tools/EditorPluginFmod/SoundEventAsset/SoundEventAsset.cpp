@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAsset.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -8,10 +8,6 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/OSFile.h>
-
-#include <fmod_studio.hpp>
-#define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code {0}", res)
-
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE

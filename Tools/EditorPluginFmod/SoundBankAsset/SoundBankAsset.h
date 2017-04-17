@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
@@ -9,11 +9,8 @@ class ezSoundBankAssetProperties : public ezReflectedClass
 public:
   ezSoundBankAssetProperties() {}
 
-
   ezString m_sSoundBank;
-
 };
-
 
 class ezSoundBankAssetDocument : public ezSimpleAssetDocument<ezSoundBankAssetProperties>
 {

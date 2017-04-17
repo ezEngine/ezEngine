@@ -23,7 +23,7 @@ public:
   void AddFileDependency(const char* szFile);
 
   /// \brief Allows read access to all currently stored file dependencies
-  const ezHybridArray<ezString, 16>& GetFileDependencies() const { return m_FileDependencies; }
+  const ezHybridArray<ezString, 16>& GetFileDependencies() const { return m_AssetTransformDependencies; }
 
   /// \brief Writes the current state to a stream. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest file stamp
   ezResult WriteDependencyFile(ezStreamWriter& stream) const;
@@ -46,7 +46,7 @@ public:
 private:
   ezResult RetrieveFileTimeStamp(const char* szFile, ezTimestamp& out_Result);
 
-  ezHybridArray<ezString, 16> m_FileDependencies;
+  ezHybridArray<ezString, 16> m_AssetTransformDependencies;
   ezInt64 m_iMaxTimeStampStored;
 
   struct FileCheckCache
