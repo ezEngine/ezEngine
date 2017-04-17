@@ -272,16 +272,18 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
         {
         case ezAssetInfo::TransformState::Unknown:
         case ezAssetInfo::TransformState::Updating:
+        case ezAssetInfo::TransformState::TransformError:
+        case ezAssetInfo::TransformState::MissingDependency:
+        case ezAssetInfo::TransformState::MissingReference:
           {
             bComplete = false;
-            break;
+            continue;
           }
         case ezAssetInfo::TransformState::NeedsTransform:
         case ezAssetInfo::TransformState::NeedsThumbnail:
           {
             bComplete = false;
             return pFileInfo;
-            break;
           }
         case ezAssetInfo::TransformState::UpToDate:
           continue;

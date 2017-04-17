@@ -39,6 +39,9 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
     return 0;
   }
 
+  if (pInfo->m_TransformState == ezAssetInfo::TransformError)
+    return 0;
+
   if (bReferences)
     pInfo->m_MissingReferences.Clear();
 
@@ -697,6 +700,29 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
 
     switch (state)
     {
+    case ezAssetInfo::TransformState::TransformError:
+      {
+        // Tansform errors are unexpected and invalidate any previously computed
+        // state of assets depending on this one.
+        auto it = m_InverseDependency.Find(pAssetInfo->m_sAbsolutePath);
+        if (it.IsValid())
+        {
+          for (const ezUuid& guid : it.Value())
+          {
+            InvalidateAssetTransformState(guid);
+          }
+        }
+
+        auto it2 = m_InverseReferences.Find(pAssetInfo->m_sAbsolutePath);
+        if (it2.IsValid())
+        {
+          for (const ezUuid& guid : it2.Value())
+          {
+            InvalidateAssetTransformState(guid);
+          }
+        }
+      }
+      break;
     case ezAssetInfo::TransformState::Unknown:
       {
         InvalidateAssetTransformState(assetGuid);

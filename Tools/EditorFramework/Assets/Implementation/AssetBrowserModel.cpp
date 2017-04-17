@@ -265,6 +265,29 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     {
       ezStringBuilder sToolTip = pSubAsset->GetName();
       sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
+      sToolTip.Append("\nTransform State: ");
+      switch (pSubAsset->m_pAssetInfo->m_TransformState)
+      {
+      case ezAssetInfo::Unknown:
+        sToolTip.Append("Unknown"); break;
+      case ezAssetInfo::UpToDate:
+        sToolTip.Append("Up To Date"); break;
+      case ezAssetInfo::Updating:
+        sToolTip.Append("Updating"); break;
+      case ezAssetInfo::NeedsTransform:
+        sToolTip.Append("Needs Transform"); break;
+      case ezAssetInfo::NeedsThumbnail:
+        sToolTip.Append("Needs Thumbnail"); break;
+      case ezAssetInfo::TransformError:
+        sToolTip.Append("Transform Error"); break;
+      case ezAssetInfo::MissingDependency:
+        sToolTip.Append("Missing Dependency"); break;
+      case ezAssetInfo::MissingReference:
+        sToolTip.Append("Missing Reference"); break;
+      default:
+        break;
+      }
+
       return QString::fromUtf8(sToolTip);
     }
   case Qt::DecorationRole:
