@@ -3,6 +3,8 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <ToolsFoundation/Basics/Status.h>
 
+class ezSimpleFmod;
+
 class ezSoundBankAssetDocumentManager : public ezAssetDocumentManager
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundBankAssetDocumentManager, ezAssetDocumentManager);
@@ -32,5 +34,6 @@ private:
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;
+  ezUniquePtr<ezSimpleFmod> m_Fmod;
 };
 

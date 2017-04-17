@@ -1,8 +1,9 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAsset.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetWindow.moc.h>
-#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundEventAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -17,6 +18,8 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.png"));
 }
 
 ezSoundEventAssetDocumentManager::~ezSoundEventAssetDocumentManager()

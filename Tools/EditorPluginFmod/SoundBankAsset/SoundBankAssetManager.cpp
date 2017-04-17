@@ -5,12 +5,56 @@
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 #include <fmod_studio.hpp>
 #define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code {0}", res)
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+class ezSimpleFmod
+{
+public:
+  ezSimpleFmod() { }
+  ~ezSimpleFmod()
+  {
+    EZ_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down");
+  }
+
+  void Startup()
+  {
+    EZ_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down");
+
+    EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pSystem));
+
+    void *extraDriverData = nullptr;
+    EZ_FMOD_ASSERT(m_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
+  }
+
+  void Shutdown()
+  {
+    if (m_pSystem == nullptr)
+      return;
+
+    EZ_FMOD_ASSERT(m_pSystem->unloadAll());
+    EZ_FMOD_ASSERT(m_pSystem->release());
+
+    m_pSystem = nullptr;
+  }
+
+  FMOD::Studio::System* GetSystem()
+  {
+    if (m_pSystem == nullptr)
+      Startup();
+
+    return m_pSystem;
+  }
+
+private:
+  FMOD::Studio::System* m_pSystem = nullptr;
+};
+
 
 ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
 {
@@ -22,19 +66,26 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.png"));
+
+  m_Fmod = EZ_DEFAULT_NEW(ezSimpleFmod);
 }
 
 ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
-}
 
-extern FMOD::Studio::System* g_pSystem;
+  m_Fmod->Shutdown();
+  m_Fmod.Reset();
+}
 
 void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
 {
   ezHashedString sAssetTypeName;
   sAssetTypeName.Assign("Sound Event");
+
+  auto* pSystem = m_Fmod->GetSystem();
 
   for (const ezString& dep : assetInfo.m_FileDependencies)
   {
@@ -46,17 +97,9 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
         continue;
 
-      if (g_pSystem == nullptr)
-      {
-        if (FMOD::Studio::System::create(&g_pSystem) != FMOD_OK)
-          continue;
-
-        void *extraDriverData = nullptr;
-        EZ_FMOD_ASSERT(g_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
-      }
 
       FMOD::Studio::Bank* pBank = nullptr;
-      auto res = g_pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
+      auto res = pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
       if (res != FMOD_OK)
         continue;
 
@@ -65,7 +108,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       sStringsBank.Append(".strings.bank");
 
       FMOD::Studio::Bank* pStringsBank = nullptr;
-      g_pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank);
+      pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank);
 
       int iEvents = 0;
       EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
@@ -112,7 +155,6 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
     }
   }
 }
-
 
 ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
 {
