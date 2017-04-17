@@ -5,6 +5,34 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodEventComponent_RestartSoundMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodEventComponent_RestartSoundMsg, 1, ezRTTIDefaultAllocator<ezFmodEventComponent_RestartSoundMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("OneShot", m_bOneShotInstance)->AddAttributes(new ezDefaultValueAttribute(true)),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodEventComponent_StopSoundMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodEventComponent_StopSoundMsg, 1, ezRTTIDefaultAllocator<ezFmodEventComponent_StopSoundMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Immediate", m_bImmediate),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
@@ -14,8 +42,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("Sound Event")),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
+    EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezFmodEventComponent_RestartSoundMsg, RestartSound),
+    EZ_MESSAGE_HANDLER(ezFmodEventComponent_StopSoundMsg, StopSound),
+  }
+  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -28,6 +63,10 @@ ezFmodEventComponent::ezFmodEventComponent()
   m_fVolume = 1.0f;
 }
 
+ezFmodEventComponent::~ezFmodEventComponent()
+{
+
+}
 
 void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -47,7 +86,6 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   /// \todo store and restore current playback position
 }
 
-
 void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
@@ -65,7 +103,6 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
   m_OnFinishedAction = (ezOnComponentFinishedAction::Enum) type;
 }
 
-
 void ezFmodEventComponent::SetPaused(bool b)
 {
   if (b == m_bPaused)
@@ -82,7 +119,6 @@ void ezFmodEventComponent::SetPaused(bool b)
     Restart();
   }
 }
-
 
 void ezFmodEventComponent::SetPitch(float f)
 {
@@ -110,7 +146,6 @@ void ezFmodEventComponent::SetVolume(float f)
   }
 }
 
-
 void ezFmodEventComponent::SetSoundEventFile(const char* szFile)
 {
   ezFmodSoundEventResourceHandle hRes;
@@ -131,14 +166,15 @@ const char* ezFmodEventComponent::GetSoundEventFile() const
   return m_hSoundEvent.GetResourceID();
 }
 
-
 void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent)
 {
   m_hSoundEvent = hSoundEvent;
 
   if (m_pEventInstance)
   {
-    StopSound();
+    ezFmodEventComponent_StopSoundMsg msg;
+    msg.m_bImmediate = false;
+    StopSound(msg);
 
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
@@ -165,12 +201,12 @@ void ezFmodEventComponent::OnSimulationStarted()
 
 void ezFmodEventComponent::Restart()
 {
-  if (!m_hSoundEvent.IsValid())
+  if (!m_hSoundEvent.IsValid() || !IsActiveAndSimulating())
     return;
 
   if (m_pEventInstance == nullptr)
   {
-    ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback); // allow fallback ??
+    ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
     if (pEvent->IsMissingResource())
       return;
@@ -181,6 +217,7 @@ void ezFmodEventComponent::Restart()
     EZ_FMOD_ASSERT(m_pEventInstance->setUserData(this));
   }
 
+  m_bPaused = false;
   EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
   EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
@@ -190,43 +227,46 @@ void ezFmodEventComponent::Restart()
 
 void ezFmodEventComponent::StartOneShot()
 {
-  /// \todo Move the one shot stuff into the event resource
-
   if (!m_hSoundEvent.IsValid())
     return;
 
   ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
+
+  if (pEvent->IsMissingResource())
+    return;
 
   bool bIsOneShot = false;
   pEvent->GetDescriptor()->isOneshot(&bIsOneShot);
 
   // do not start sounds that will not terminate
   if (!bIsOneShot)
+  {
+    ezLog::Warning("ezFmodEventComponent::StartOneShot: Request ignored, because sound event '{0}' ('{0}') is not a one-shot event.", pEvent->GetResourceID(), pEvent->GetResourceDescription());
     return;
+  }
 
   FMOD::Studio::EventInstance* pEventInstance = pEvent->CreateInstance();
+  EZ_ASSERT_DEV(pEventInstance != nullptr, "Sound Event Instance pointer should be valid");
 
   SetParameters3d(pEventInstance);
-
   EZ_FMOD_ASSERT(pEventInstance->setVolume(m_fVolume));
 
   EZ_FMOD_ASSERT(pEventInstance->start());
   EZ_FMOD_ASSERT(pEventInstance->release());
 }
 
-void ezFmodEventComponent::StopSound()
+void ezFmodEventComponent::RestartSound(ezFmodEventComponent_RestartSoundMsg& msg)
 {
-  if (m_pEventInstance != nullptr)
-  {
-    EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
-  }
+  if (msg.m_bOneShotInstance)
+    StartOneShot();
+  else
+    Restart();
 }
-
-void ezFmodEventComponent::StopSoundImmediate()
+void ezFmodEventComponent::StopSound(ezFmodEventComponent_StopSoundMsg& msg)
 {
   if (m_pEventInstance != nullptr)
   {
-    EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE));
+    EZ_FMOD_ASSERT(m_pEventInstance->stop(msg.m_bImmediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT));
   }
 }
 
@@ -274,12 +314,10 @@ void ezFmodEventComponent::SetParameters3d(FMOD::Studio::EventInstance* pEventIn
   attr.velocity.y = vel.y;
   attr.velocity.z = vel.z;
 
+  // have to update pitch every time, in case the clock speed changes
   EZ_FMOD_ASSERT(pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   EZ_FMOD_ASSERT(pEventInstance->set3DAttributes(&attr));
 }
-
-
-
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);
 

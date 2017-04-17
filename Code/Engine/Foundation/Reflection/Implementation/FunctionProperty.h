@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -22,6 +22,12 @@ public:
   {
     CLASS* pTargetInstance = (CLASS*) pInstance;
     (pTargetInstance->*m_Function)();
+  }
+
+
+  virtual const ezRTTI* GetSpecificType() const override
+  {
+    return nullptr; // no idea whether we have to return anything useful here
   }
 
 private:

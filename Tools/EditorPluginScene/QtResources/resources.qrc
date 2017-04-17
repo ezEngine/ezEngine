@@ -48,5 +48,6 @@
 	<file>ezSkyBoxComponent.png</file>
 	<file>ezAmbientLightComponent.png</file>
 	<file>ezSpriteComponent.png</file>
+	<file>ezVisualScriptComponent.png</file>
   </qresource>  
 </RCC>

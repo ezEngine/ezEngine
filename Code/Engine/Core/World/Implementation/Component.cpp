@@ -232,6 +232,5 @@ bool ezComponent::OnUnhandledMessage(ezMessage& msg) const
   return false;
 }
 
-
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
 

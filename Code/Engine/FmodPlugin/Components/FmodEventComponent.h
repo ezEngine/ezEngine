@@ -6,6 +6,25 @@
 typedef ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating> ezFmodEventComponentManager;
 typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
 
+//////////////////////////////////////////////////////////////////////////
+
+struct ezFmodEventComponent_RestartSoundMsg : public ezScriptFunctionMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezFmodEventComponent_RestartSoundMsg, ezScriptFunctionMessage);
+
+  bool m_bOneShotInstance = true;
+};
+
+struct ezFmodEventComponent_StopSoundMsg : public ezScriptFunctionMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezFmodEventComponent_StopSoundMsg, ezScriptFunctionMessage);
+
+  bool m_bImmediate = false;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezFmodEventComponent, ezFmodComponent, ezFmodEventComponentManager);
@@ -13,6 +32,7 @@ class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
 
 public:
   ezFmodEventComponent();
+  ~ezFmodEventComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -52,11 +72,20 @@ public:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
+  /// \brief Will start the sound, if it was not playing. Will restart the sound, if it was already playing.
+  /// If the sound was paused so far, this will change the paused state to playing.
   void Restart();
+
+  /// \brief Plays a completely new sound at the location of this component and with all its current properties.
+  ///
+  /// Pitch, volume, position, direction and velocity are copied to the new sound instance.
+  /// The new sound event then plays to the end and cannot be controlled through this component any further.
+  /// If the referenced fmod sound event is not a "one shot" event, this function is ignored.
+  /// The event that is controlled through this component is unaffected by this.
   void StartOneShot();
 
-  void StopSound();
-  void StopSoundImmediate();
+  void RestartSound(ezFmodEventComponent_RestartSoundMsg& msg);
+  void StopSound(ezFmodEventComponent_StopSoundMsg& msg);
 
 protected:
 

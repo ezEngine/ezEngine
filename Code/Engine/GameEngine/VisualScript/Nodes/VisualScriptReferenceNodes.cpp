@@ -41,6 +41,7 @@ void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstan
     else
     {
       // make sure we don't try this again
+      ezLog::Warning("Script: Child-Object with Name '{0}' does not exist.", m_sObjectName);
       m_sObjectName.Clear();
       m_hObject.Invalidate();
     }
@@ -101,6 +102,7 @@ void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance
   return;
 
 fail:
+  ezLog::Warning("Script: Component of type '{0}' does not exist at this node.", m_sType);
   m_hComponent.Invalidate();
   m_sType.Clear();
 }
@@ -153,6 +155,7 @@ void ezVisualScriptNode_QueryGlobalObject::Execute(ezVisualScriptInstance* pInst
     else
     {
       // make sure we don't try this again
+      ezLog::Warning("Script: Object with Global Key '{0}' does not exist.", m_sObjectName);
       m_sObjectName.Clear();
       m_hObject.Invalidate();
     }

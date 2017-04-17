@@ -1979,6 +1979,17 @@ o
 }
 o
 {
+	Uuid %id{u4{8382634219032887705,4778403110358578511}}
+	s %t{"ezFmodListenerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %ListenerIndex{0}
+	}
+}
+o
+{
 	Uuid %id{u4{9894957836948437655,4781135172294323904}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -2028,7 +2039,6 @@ o
 	p
 	{
 		b %Active{1}
-		b %DebugOutput{1}
 		b %HandleGlobalEvents{1}
 		s %Script{"{ 15723cbd-9706-4c86-b695-bd945c5ada6a }"}
 	}
@@ -2133,7 +2143,6 @@ o
 	p
 	{
 		b %Active{1}
-		b %DebugOutput{0}
 		b %HandleGlobalEvents{0}
 		s %Script{"{ d3a7b89d-8af6-4e5c-a403-2f24ba5e5b61 }"}
 	}
@@ -2611,7 +2620,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{6599563985305903680}
+		u4 %Hash{14522828632922912952}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2621,6 +2630,7 @@ AssetInfo
 			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
 			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
+			s{"{ 326a101b-d4a5-445d-95cc-708deae4d064 }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
 			s{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
 			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
@@ -3117,6 +3127,7 @@ o
 			Uuid{u4{9894957836948437655,4781135172294323904}}
 			Uuid{u4{290121541412297032,6183518559115002447}}
 			Uuid{u4{10002545071225242339,11908447909709046693}}
+			Uuid{u4{5089728754503442715,9649220062168832485}}
 		}
 	}
 }
@@ -3298,6 +3309,7 @@ o
 			Uuid{u4{14847168656001625766,4984817416655678920}}
 			Uuid{u4{4968021759543384712,5357094573332117137}}
 			Uuid{u4{15869949211141748671,4868472213638252827}}
+			Uuid{u4{8382634219032887705,4778403110358578511}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x00000040}}
@@ -4916,7 +4928,6 @@ o
 	p
 	{
 		b %Active{1}
-		b %DebugOutput{1}
 		b %HandleGlobalEvents{0}
 		s %Script{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
 	}
@@ -5275,6 +5286,21 @@ o
 }
 o
 {
+	Uuid %id{u4{16679751090236404764,9403904801699804632}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		b %Paused{1}
+		f %Pitch{0x0000803F}
+		s %SoundEvent{"{ 326a101b-d4a5-445d-95cc-708deae4d064 }"}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{11232621864770210268,9428597325969366532}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -5439,6 +5465,27 @@ o
 	{
 		b %Active{1}
 		s %Prefab{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5089728754503442715,9649220062168832485}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16679751090236404764,9403904801699804632}}
+		}
+		s %GlobalKey{"Sound1"}
+		Vec3 %LocalPosition{f{0x0000A03F,0x000080BF,0x00009840}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
 	}
 }
 o
@@ -7862,7 +7909,6 @@ o
 	p
 	{
 		b %Active{1}
-		b %DebugOutput{1}
 		b %HandleGlobalEvents{0}
 		s %Script{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
 	}
@@ -9860,4 +9906,227 @@ o
 	}
 }
 }
-Types{}
+Types
+{
+o
+{
+	Uuid %id{u4{6005124763988445957,644489658209099401}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"OnFinishedAction"}
+		s %Type{"ezOnComponentFinishedAction"}
+	}
+}
+o
+{
+	Uuid %id{u4{11852399130965337762,1180647988113932230}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezFmodComponent"}
+		s %PluginName{"ezFmodPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{13365762824312373271,7382524954421525565}}
+			Uuid{u4{13194828712121763392,17090328222285606292}}
+			Uuid{u4{4702776234696293889,1427183228231423566}}
+			Uuid{u4{15430909137858390617,3903032763436204306}}
+			Uuid{u4{6005124763988445957,644489658209099401}}
+		}
+		s %TypeName{"ezFmodEventComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4702776234696293889,1427183228231423566}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9696167687491312184,12448080015331761259}}
+			Uuid{u4{11836104868624217573,12152796789385868591}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Pitch"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{8896355706434428056,1455891328350875338}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"ListenerIndex"}
+		s %Type{"ezUInt8"}
+	}
+}
+o
+{
+	Uuid %id{u4{15430909137858390617,3903032763436204306}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1977556516943857296,14923929550536541999}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"SoundEvent"}
+		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{13365762824312373271,7382524954421525565}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Paused"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{1881413272340135460,9369197709730499701}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x0000803F}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{1636123206047010939,9656076789046550064}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Sound"}
+	}
+}
+o
+{
+	Uuid %id{u4{18188220164916781687,9664480935676392369}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{5675634624259089979,9863162998230605952}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezFmodComponent"}
+		s %PluginName{"ezFmodPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{8896355706434428056,1455891328350875338}}
+		}
+		s %TypeName{"ezFmodListenerComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11836104868624217573,12152796789385868591}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x0000C842}
+		f %Min{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{9696167687491312184,12448080015331761259}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{1977556516943857296,14923929550536541999}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Filter{";Sound Event;"}
+	}
+}
+o
+{
+	Uuid %id{u4{15089475826961544260,17081924075655763987}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1636123206047010939,9656076789046550064}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezFmodPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezFmodComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13194828712121763392,17090328222285606292}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{18188220164916781687,9664480935676392369}}
+			Uuid{u4{1881413272340135460,9369197709730499701}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Volume"}
+		s %Type{"float"}
+	}
+}
+}

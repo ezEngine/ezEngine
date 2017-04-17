@@ -190,7 +190,9 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
     ezComponent* pComponent = nullptr;
     if (!m_pWorld->TryGetComponent(hComponent, pComponent))
     {
-      EZ_REPORT_FAILURE("Can't resolve component GUID!");
+      // this can happen when one manipulates a running scene, and an object just deleted itself
+      //EZ_REPORT_FAILURE("Can't resolve component GUID!");
+      return object;
     }
 
     // Update new ptr of component

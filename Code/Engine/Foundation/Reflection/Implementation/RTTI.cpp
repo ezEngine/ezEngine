@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 
@@ -368,7 +368,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     //}
 
     EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) + pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum)
-      + pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) + pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) == 1, "Types are mutually exclusive!");
+      + pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) + pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) <= 1, "Types are mutually exclusive!");
 
     switch (pProp->GetCategory())
     {

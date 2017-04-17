@@ -47,6 +47,8 @@ public:
   /// \brief Returns whether this component is active and initialized.
   bool IsActiveAndInitialized() const;
 
+  /// \brief Whether the component is currently active and simulation has been started as well.
+  bool IsActiveAndSimulating() const;
 
   /// \brief Returns the corresponding manager for this component.
   ezComponentManagerBase* GetManager();

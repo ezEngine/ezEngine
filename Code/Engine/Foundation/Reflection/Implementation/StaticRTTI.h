@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -229,7 +229,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///
 /// \note Currently only functions that take no parameter and return void can be added as function properties.
 #define EZ_FUNCTION_PROPERTY(PropertyName, FunctionName)                      \
-  new ezFunctionProperty<OwnType>(PropertyName, OwnType::FunctionName)        \
+  new ezFunctionProperty<OwnType>(PropertyName, &OwnType::FunctionName)       \
 
 // [internal] Helper macro to get the return type of a getter function.
 #define EZ_GETTER_TYPE(Class, GetterFunc)                                     \
