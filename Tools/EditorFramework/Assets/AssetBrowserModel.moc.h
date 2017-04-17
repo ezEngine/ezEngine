@@ -29,11 +29,12 @@ public:
 
   enum UserRoles
   {
-    AssetGuid = Qt::UserRole + 0,
-    AbsolutePath = Qt::UserRole + 1,
-    RelativePath = Qt::UserRole + 2,
-    AssetIconPath = Qt::UserRole + 3,
-    TransformState = Qt::UserRole + 4,
+    SubAssetGuid = Qt::UserRole + 0,
+    AssetGuid,
+    AbsolutePath,
+    RelativePath,
+    AssetIconPath,
+    TransformState,
   };
 
   ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter);

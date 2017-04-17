@@ -306,11 +306,13 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     }
     break;
 
+  case UserRoles::SubAssetGuid:
+    {
+      return qVariantFromValue(pSubAsset->m_Data.m_Guid);
+    }
   case UserRoles::AssetGuid:
     {
-      //QVariant var;
-      //var.setValue(pAssetInfo->m_Data.m_Guid);
-      return qVariantFromValue(pSubAsset->m_Data.m_Guid);// QString::fromUtf8(ezConversionUtils::ToString(pAssetInfo->m_Data.m_Guid).GetData());
+      return qVariantFromValue(pSubAsset->m_pAssetInfo->m_Info.m_DocumentID);
     }
   case UserRoles::AbsolutePath:
     return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
@@ -404,7 +406,7 @@ QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
   stream << indexes.size();
   for (int i = 0; i < indexes.size(); ++i)
   {
-    QString sGuid(ezConversionUtils::ToString(data(indexes[i], UserRoles::AssetGuid).value<ezUuid>(), tmp).GetData());
+    QString sGuid(ezConversionUtils::ToString(data(indexes[i], UserRoles::SubAssetGuid).value<ezUuid>(), tmp).GetData());
     QString sPath = data(indexes[i], UserRoles::AbsolutePath).toString();
 
     stream << sGuid;
