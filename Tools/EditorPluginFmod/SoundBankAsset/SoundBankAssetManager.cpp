@@ -2,7 +2,8 @@
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
-#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 #include <fmod_studio.hpp>
 #define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code {0}", res)

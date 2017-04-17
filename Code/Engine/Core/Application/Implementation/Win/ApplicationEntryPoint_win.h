@@ -63,7 +63,7 @@ namespace Details
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...) \
   int main(int argc, const char** argv) \
   { \
-    Details::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); \
+    return Details::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); \
   }
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)

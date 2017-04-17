@@ -45,7 +45,7 @@ namespace Details
   \
   int main(int argc, const char** argv) \
   { \
-    Details::EntryFunc<AppClass>(__VA_ARGS__); \
+    return Details::EntryFunc<AppClass>(__VA_ARGS__); \
   }
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
