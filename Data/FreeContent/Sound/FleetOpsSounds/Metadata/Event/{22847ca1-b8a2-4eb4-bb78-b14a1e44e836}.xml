@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.07.00">
+<objects serializationModel="Studio.01.09.00">
     <object class="Event" id="{22847ca1-b8a2-4eb4-bb78-b14a1e44e836}">
         <property name="name">
             <value>Quantum Torpedo</value>
@@ -7,6 +7,9 @@
         <property name="outputFormat">
             <value>2</value>
         </property>
+        <relationship name="folder">
+            <destination>{5cf4c645-7e5d-4824-aa28-aaba99f81b0a}</destination>
+        </relationship>
         <relationship name="mixer">
             <destination>{867a949c-6965-4645-b081-edd68eb021af}</destination>
         </relationship>
@@ -27,12 +30,6 @@
         </relationship>
         <relationship name="timeline">
             <destination>{72de5eaf-b7b2-40ab-8322-3c5cc4b94de3}</destination>
-        </relationship>
-        <relationship name="banks">
-            <destination>{0b4d68e8-ba7b-4221-aaea-17e68d9e91b0}</destination>
-        </relationship>
-        <relationship name="folder">
-            <destination>{5cf4c645-7e5d-4824-aa28-aaba99f81b0a}</destination>
         </relationship>
     </object>
     <object class="EventMixer" id="{867a949c-6965-4645-b081-edd68eb021af}">
@@ -89,11 +86,11 @@
     </object>
     <object class="MixerBusPanner" id="{4527a69a-6764-41c3-8484-66da417d7ad2}"/>
     <object class="SingleSound" id="{c6520dd2-714e-4a12-aa41-39934b2fce04}">
-        <property name="start">
-            <value>0</value>
-        </property>
         <property name="length">
             <value>0.91424036281179133</value>
+        </property>
+        <property name="looping">
+            <value>true</value>
         </property>
         <relationship name="audioFile">
             <destination>{30359bfc-f833-4a39-9520-37e15f125ea9}</destination>

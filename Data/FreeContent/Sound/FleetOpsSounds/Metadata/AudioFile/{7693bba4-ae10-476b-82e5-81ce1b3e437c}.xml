@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.07.00">
+<objects serializationModel="Studio.01.09.00">
     <object class="AudioFile" id="{7693bba4-ae10-476b-82e5-81ce1b3e437c}">
+        <property name="assetPath">
+            <value>klingon_assault_disruptor.wav</value>
+        </property>
         <property name="frequencyInKHz">
             <value>44.0999985</value>
         </property>
@@ -10,10 +13,7 @@
         <property name="length">
             <value>1.3999999999999999</value>
         </property>
-        <property name="audioFilePath">
-            <value>$(AUDIO_BIN_DIR)/klingon_assault_disruptor {0d94125e-33ec-419b-94ac-1b86f3b03a48}.wav</value>
-        </property>
-        <relationship name="container">
+        <relationship name="masterAssetFolder">
             <destination>{6b160470-d2aa-4832-9d19-2d3186d63ce0}</destination>
         </relationship>
     </object>

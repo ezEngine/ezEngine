@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.07.00">
+<objects serializationModel="Studio.01.09.00">
     <object class="Event" id="{326a101b-d4a5-445d-95cc-708deae4d064}">
         <property name="name">
             <value>Photon Torpedo</value>
@@ -7,6 +7,9 @@
         <property name="outputFormat">
             <value>2</value>
         </property>
+        <relationship name="folder">
+            <destination>{5cf4c645-7e5d-4824-aa28-aaba99f81b0a}</destination>
+        </relationship>
         <relationship name="mixer">
             <destination>{276018b7-ceeb-4223-88a8-de865d6ea3b2}</destination>
         </relationship>
@@ -30,9 +33,6 @@
         </relationship>
         <relationship name="banks">
             <destination>{0b4d68e8-ba7b-4221-aaea-17e68d9e91b0}</destination>
-        </relationship>
-        <relationship name="folder">
-            <destination>{5cf4c645-7e5d-4824-aa28-aaba99f81b0a}</destination>
         </relationship>
     </object>
     <object class="EventMixer" id="{276018b7-ceeb-4223-88a8-de865d6ea3b2}">
@@ -89,11 +89,11 @@
     </object>
     <object class="MixerBusPanner" id="{1f10d583-8ba3-44cc-85b4-4668905c97ba}"/>
     <object class="SingleSound" id="{860335c9-587d-4c15-a4c7-57df773d64ea}">
-        <property name="start">
-            <value>0</value>
-        </property>
         <property name="length">
             <value>1.0741496598639455</value>
+        </property>
+        <property name="looping">
+            <value>true</value>
         </property>
         <relationship name="audioFile">
             <destination>{23c9c200-99c4-4add-860e-dd724dfc9480}</destination>

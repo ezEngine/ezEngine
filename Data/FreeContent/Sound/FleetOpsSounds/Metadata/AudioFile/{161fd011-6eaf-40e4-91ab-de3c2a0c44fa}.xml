@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.07.00">
+<objects serializationModel="Studio.01.09.00">
     <object class="AudioFile" id="{161fd011-6eaf-40e4-91ab-de3c2a0c44fa}">
+        <property name="assetPath">
+            <value>federation_pulse_base.wav</value>
+        </property>
         <property name="frequencyInKHz">
             <value>22.0499992</value>
         </property>
@@ -10,10 +13,7 @@
         <property name="length">
             <value>1.4845804988662132</value>
         </property>
-        <property name="audioFilePath">
-            <value>$(AUDIO_BIN_DIR)/federation_pulse_base {2358c158-821d-47e3-925c-26a8790d5820}.wav</value>
-        </property>
-        <relationship name="container">
+        <relationship name="masterAssetFolder">
             <destination>{6b160470-d2aa-4832-9d19-2d3186d63ce0}</destination>
         </relationship>
     </object>

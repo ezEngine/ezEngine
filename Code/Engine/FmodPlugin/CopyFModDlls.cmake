@@ -21,19 +21,22 @@ endif ()
 SET (FMOD_EXT "${FMOD_EXT}.dll")
 SET (FMOD_EXTL "${FMOD_EXTL}.dll")
 
+# fsbank libraries
 file(COPY "${FMOD_SOURCE}/api/fsbank/lib/fsbank${FMOD_EXT}"
         DESTINATION "${FMOD_TARGET}/")
-        
 file(COPY "${FMOD_SOURCE}/api/fsbank/lib/libfsbvorbis${FMOD_EXT}"
         DESTINATION "${FMOD_TARGET}/")
-file(COPY "${FMOD_SOURCE}/api/fsbank/lib/libmp3lame${FMOD_EXT}"
-        DESTINATION "${FMOD_TARGET}/")
-file(COPY "${FMOD_SOURCE}/api/fsbank/lib/twolame${FMOD_EXT}"
-        DESTINATION "${FMOD_TARGET}/")
+# mp3 not included in fmod anymore
+#file(COPY "${FMOD_SOURCE}/api/fsbank/lib/libmp3lame${FMOD_EXT}"
+#        DESTINATION "${FMOD_TARGET}/")
+#file(COPY "${FMOD_SOURCE}/api/fsbank/lib/twolame${FMOD_EXT}"
+#        DESTINATION "${FMOD_TARGET}/")
 
+# lowlevel libraries
 file(COPY "${FMOD_SOURCE}/api/lowlevel/lib/fmod${FMOD_EXTL}"
         DESTINATION "${FMOD_TARGET}/")
         
+# fmod studio libraries
 file(COPY "${FMOD_SOURCE}/api/studio/lib/fmodstudio${FMOD_EXTL}"
         DESTINATION "${FMOD_TARGET}/")
         

@@ -1,48 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.07.00">
+<objects serializationModel="Studio.01.09.00">
     <object class="MasterBank" id="{0b4d68e8-ba7b-4221-aaea-17e68d9e91b0}">
         <property name="name">
             <value>FleetOps</value>
         </property>
-        <relationship name="buildSettings">
-            <destination>{71954900-bc6a-4b69-a859-f55d57334a3c}</destination>
-        </relationship>
         <relationship name="folder">
             <destination>{8abb4fdf-ba0d-4332-a8d0-4639b2a4a3bb}</destination>
         </relationship>
-    </object>
-    <object class="DesktopBuildSetting" id="{71954900-bc6a-4b69-a859-f55d57334a3c}">
-        <relationship name="compressionSettings">
-            <destination>{2db3c785-48eb-42f7-bd9d-70b8db965d78}</destination>
-            <destination>{364ff274-73ae-4686-8ac8-e8a63053e9cd}</destination>
-            <destination>{57537f6c-6a61-44a3-90e9-4ac0feef5938}</destination>
-        </relationship>
-        <relationship name="activeCompressionSetting">
-            <destination>{2db3c785-48eb-42f7-bd9d-70b8db965d78}</destination>
-        </relationship>
-    </object>
-    <object class="LossyCompressionSetting" id="{2db3c785-48eb-42f7-bd9d-70b8db965d78}">
-        <property name="type">
-            <value>Vorbis</value>
-        </property>
-        <property name="quality">
-            <value>37</value>
-        </property>
-    </object>
-    <object class="PCMCompressionSetting" id="{364ff274-73ae-4686-8ac8-e8a63053e9cd}">
-        <property name="type">
-            <value>ADPCM</value>
-        </property>
-        <property name="sampleRate">
-            <value>48000</value>
-        </property>
-    </object>
-    <object class="PCMCompressionSetting" id="{57537f6c-6a61-44a3-90e9-4ac0feef5938}">
-        <property name="type">
-            <value>PCM</value>
-        </property>
-        <property name="sampleRate">
-            <value>48000</value>
-        </property>
     </object>
 </objects>
