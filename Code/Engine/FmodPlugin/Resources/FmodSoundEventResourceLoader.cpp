@@ -2,6 +2,7 @@
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 
 ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResourceBase* pResource)
