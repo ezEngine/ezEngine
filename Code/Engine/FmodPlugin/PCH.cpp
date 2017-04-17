@@ -1,8 +1,8 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PCH.h>
 #include <FmodPlugin/Basics.h>
-#include <FmodPlugin/FmodWorldModule.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Configuration/Plugin.h>
 
 EZ_STATICLINK_LIBRARY(FmodPlugin)
 {
@@ -15,7 +15,6 @@ EZ_STATICLINK_LIBRARY(FmodPlugin)
   EZ_STATICLINK_REFERENCE(FmodPlugin_Components_FmodReverbComponent);
   EZ_STATICLINK_REFERENCE(FmodPlugin_FmodSingleton);
   EZ_STATICLINK_REFERENCE(FmodPlugin_FmodStartup);
-  EZ_STATICLINK_REFERENCE(FmodPlugin_FmodWorldModule);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundBankResource);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundBankResourceLoader);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundEventResource);

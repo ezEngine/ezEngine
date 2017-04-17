@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
@@ -68,11 +68,11 @@ protected:
   float m_fMaxDistance;
   ezEnum<ezFmodReverbPresets> m_ReverbPreset;
 
-  // ************************************* FUNCTIONS *****************************
-
 public:
-  virtual void Initialize() override;
+  virtual void OnSimulationStarted() override;
   virtual void Deinitialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
 protected:
   void Update();

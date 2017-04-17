@@ -1,7 +1,8 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/PluginInterface.h>
-#include <FmodPlugin/FmodWorldModule.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
+#include <FmodPlugin/FmodSingleton.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
 
@@ -63,7 +64,22 @@ ezUInt8 ezFmod::GetNumListeners()
   return i;
 }
 
+void ezFmod::UpdateSound()
+{
+  if (m_pFmodSystem == nullptr)
+    return;
 
+  m_pFmodSystem->update();
+}
+
+
+void ezFmod::GameApplicationEventHandler(const ezGameApplicationEvent& e)
+{
+  if (e.m_Type == ezGameApplicationEvent::Type::BeforeUpdatePlugins)
+  {
+    ezFmod::GetSingleton()->UpdateSound();
+  }
+}
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);
 

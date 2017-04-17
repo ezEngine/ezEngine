@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <Foundation/Threading/Lock.h>
 #include <Core/World/World.h>
@@ -161,7 +161,6 @@ void ezParticleWorldModule::ConfigureParticleStreamFactories()
   }
 }
 
-
 void ezParticleWorldModule::ClearParticleStreamFactories()
 {
   for (auto pFactory : m_StreamFactories)
@@ -180,10 +179,6 @@ ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezPartic
 
   return it.Value()->CreateParticleStream(pOwner);
 }
-
-
-
-
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);
 

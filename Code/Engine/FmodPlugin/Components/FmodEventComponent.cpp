@@ -222,7 +222,6 @@ void ezFmodEventComponent::StopSound()
   }
 }
 
-
 void ezFmodEventComponent::StopSoundImmediate()
 {
   if (m_pEventInstance != nullptr)

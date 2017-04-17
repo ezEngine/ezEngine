@@ -5,7 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/Assets/AssetFileHeader.h>
-
+#include <fmod_studio.hpp>
 
 ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourceBase* pResource)
 {

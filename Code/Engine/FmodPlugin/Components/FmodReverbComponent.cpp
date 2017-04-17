@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/Components/FmodReverbComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -56,7 +56,6 @@ ezFmodReverbComponent::ezFmodReverbComponent()
   m_fMaxDistance = 2.0f;
 }
 
-
 void ezFmodReverbComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -65,9 +64,8 @@ void ezFmodReverbComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_fMinDistance;
   s << m_fMaxDistance;
-
+  s << m_ReverbPreset;
 }
-
 
 void ezFmodReverbComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -78,9 +76,8 @@ void ezFmodReverbComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_fMinDistance;
   s >> m_fMaxDistance;
-
+  s >> m_ReverbPreset;
 }
-
 
 void ezFmodReverbComponent::SetMinDistance(float f)
 {
@@ -92,7 +89,6 @@ void ezFmodReverbComponent::SetMinDistance(float f)
   SetParameters3d();
 }
 
-
 void ezFmodReverbComponent::SetMaxDistance(float f)
 {
   if (m_fMaxDistance == f)
@@ -103,13 +99,28 @@ void ezFmodReverbComponent::SetMaxDistance(float f)
   SetParameters3d();
 }
 
-void ezFmodReverbComponent::Initialize()
+void ezFmodReverbComponent::OnActivated()
+{
+  if (m_pReverb != nullptr)
+  {
+    m_pReverb->setActive(true);
+  }
+}
+
+void ezFmodReverbComponent::OnDeactivated()
+{
+  if (m_pReverb != nullptr)
+  {
+    m_pReverb->setActive(false);
+  }
+}
+
+void ezFmodReverbComponent::OnSimulationStarted()
 {
   EZ_FMOD_ASSERT(ezFmod::GetSingleton()->GetLowLevelSystem()->createReverb3D(&m_pReverb));
 
   SetParameters3d();
 }
-
 
 void ezFmodReverbComponent::Deinitialize()
 {
@@ -169,7 +180,7 @@ void ezFmodReverbComponent::SetParameters3d()
 
   EZ_FMOD_ASSERT(m_pReverb->set3DAttributes(&fmp, ezMath::Clamp(m_fMinDistance, 0.0f, m_fMaxDistance), ezMath::Max(m_fMaxDistance, ezMath::Max(0.0f, m_fMinDistance))));
 
-  m_pReverb->setProperties(&ReverbProperties[m_ReverbPreset]);
+  EZ_FMOD_ASSERT(m_pReverb->setProperties(&ReverbProperties[m_ReverbPreset]));
 }
 
 

@@ -1,6 +1,5 @@
 ﻿#include <PCH.h>
 #include <Foundation/Configuration/Startup.h>
-#include <FmodPlugin/FmodWorldModule.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 
@@ -27,10 +26,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
     ezFmodSoundEventResource::SetTypeMissingResource(hResource);
 
     /// \todo Missing sound bank resource
+
+    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(&ezFmod::GameApplicationEventHandler);
   }
 
   ON_CORE_SHUTDOWN
   {
+    ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(&ezFmod::GameApplicationEventHandler);
+
     ezFmod::GetSingleton()->Shutdown();
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(nullptr);
