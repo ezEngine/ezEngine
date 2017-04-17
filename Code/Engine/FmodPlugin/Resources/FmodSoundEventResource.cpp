@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 
@@ -20,9 +20,14 @@ ezFmodSoundEventResource::~ezFmodSoundEventResource()
 
 FMOD::Studio::EventInstance* ezFmodSoundEventResource::CreateInstance() const
 {
-  FMOD::Studio::EventInstance* pInstance = nullptr;
-  EZ_FMOD_ASSERT(m_pEventDescription->createInstance(&pInstance));
-  return pInstance;
+  if (m_pEventDescription)
+  {
+    FMOD::Studio::EventInstance* pInstance = nullptr;
+    EZ_FMOD_ASSERT(m_pEventDescription->createInstance(&pInstance));
+    return pInstance;
+  }
+
+  return nullptr;
 }
 
 ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
@@ -82,7 +87,8 @@ void ezFmodSoundEventResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
 
 ezResourceLoadDesc ezFmodSoundEventResource::CreateResource(const ezFmodSoundEventResourceDescriptor& descriptor)
 {
-  EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // one missing resource is created this way
+  //EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

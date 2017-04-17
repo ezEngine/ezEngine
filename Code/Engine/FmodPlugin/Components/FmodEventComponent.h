@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
 #include <Core/ResourceManager/Resource.h>
@@ -49,8 +49,8 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  virtual void Initialize() override;
-  virtual void Deinitialize() override;
+  virtual void OnSimulationStarted() override;
+  virtual void OnDeactivated() override;
 
   void Restart();
   void StartOneShot();

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <QDialog>
@@ -17,7 +17,6 @@ public:
 private slots:
   void on_ButtonSaveSelected_clicked();
   void on_ButtonDontSave_clicked();
-  void on_ButtonCancel_clicked();
   void SlotSaveDocument();
   void SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
 

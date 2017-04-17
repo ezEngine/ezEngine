@@ -4,6 +4,7 @@
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 #include <fmod_studio.hpp>
 #define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code {0}", res)
@@ -14,9 +15,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
-
-  // additional whitelist for non-asset files where an asset may be selected
-  //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Collision Mesh", "ezFmodMesh");
 
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Sound Bank Asset";
@@ -47,16 +45,11 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       ezString sAssetFile = dep;
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
         continue;
-        //return ezStatus(ezFmt("SoundBank file '{0}' does not exist", sAssetFile));
 
       if (g_pSystem == nullptr)
       {
         if (FMOD::Studio::System::create(&g_pSystem) != FMOD_OK)
           continue;
-          //return ezStatus("Failed to initialize the Fmod system");
-
-        //EZ_FMOD_ASSERT(g_pSystem->getLowLevelSystem(&m_pLowLevelSystem));
-        //EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(0, FMOD_SPEAKERMODE_5POINT1, 0));
 
         void *extraDriverData = nullptr;
         EZ_FMOD_ASSERT(g_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
@@ -66,7 +59,6 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       auto res = g_pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
       if (res != FMOD_OK)
         continue;
-        //return ezStatus(ezFmt("SoundBank '{0}' could not be loaded", pProp->m_sSoundBank.GetData()));
 
       ezStringBuilder sStringsBank = sAssetFile;
       sStringsBank.RemoveFileExtension();
@@ -77,28 +69,6 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
       int iEvents = 0;
       EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
-
-      //ezInt32 iStrings = 0;
-      //pStringsBank->getStringCount(&iStrings);
-      //ezLog::Info("SoundBank has {0} strings", iStrings);
-
-      //for (ezInt32 i = 0; i < iStrings; ++i)
-      //{
-      //  FMOD_GUID strGuid;
-      //  char path[256];
-      //  int len = 0;
-      //  pStringsBank->getStringInfo(i, &strGuid, path, 255, &len);
-      //  path[len] = '\0';
-
-      //  //ezLog::Debug("String {0}: {1}", i, path);
-      //}
-
-      //ezLog::Dev("SoundBank has {0} events", iEvents);
-
-      //ezStringBuilder sOwnGuid;
-      //ezConversionUtils::ToString(GetGuid(), sOwnGuid);
-
-      //ezStringBuilder sSubAssetsFile, sSubAssetLine;
 
       if (iEvents > 0)
       {
@@ -131,12 +101,6 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           sGuidNoSpace = sGuid;
           sGuidNoSpace.ReplaceAll(" ", "");
 
-          //ezLog::Info("Event: '{0}' -> '{1}'", sEventName.GetData(), sGuid.GetData());
-
-          //sSubAssetLine.Format("{0};{1}|{2};{3}\n", sGuid.GetData(), sOwnGuid.GetData(), sGuidNoSpace.GetData(), sEventName.GetData());
-
-          //sSubAssetsFile.Append(sSubAssetLine.GetData());
-
           auto& sub = out_SubAssets.ExpandAndGetRef();
           sub.m_Guid = *ezGuid;
           sub.m_sName = sEventName;
@@ -145,18 +109,6 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       }
 
       EZ_FMOD_ASSERT(pBank->unload());
-
-      //ezStringBuilder sSubAssetFilename = GetDocumentPath();
-      //sSubAssetFilename.Append(".ezSubAssets");
-
-      //{
-      //  ezFileWriter file;
-      //  if (file.Open(sSubAssetFilename).Failed())
-      //    return ezStatus(ezFmt("Failed to write sub-assets file '{0}'", sSubAssetFilename.GetData()));
-
-      //  file.WriteBytes(sSubAssetsFile.GetData(), sSubAssetsFile.GetElementCount());
-      //}
-
     }
   }
 }

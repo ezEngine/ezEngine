@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -43,114 +43,114 @@ FMOD::Studio::System* g_pSystem = nullptr;
 
 ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  const ezSoundBankAssetProperties* pProp = GetProperties();
+  //const ezSoundBankAssetProperties* pProp = GetProperties();
 
-  EZ_LOG_BLOCK("SoundBank", pProp->m_sSoundBank.GetData());
+  //EZ_LOG_BLOCK("SoundBank", pProp->m_sSoundBank.GetData());
 
-  ezString sAssetFile = pProp->m_sSoundBank;
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
-    return ezStatus(ezFmt("SoundBank file '{0}' does not exist", pProp->m_sSoundBank.GetData()));
+  //ezString sAssetFile = pProp->m_sSoundBank;
+  //if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
+  //  return ezStatus(ezFmt("SoundBank file '{0}' does not exist", pProp->m_sSoundBank.GetData()));
 
-  if (g_pSystem == nullptr)
-  {
-    if (FMOD::Studio::System::create(&g_pSystem) != FMOD_OK)
-      return ezStatus("Failed to initialize the Fmod system");
+  //if (g_pSystem == nullptr)
+  //{
+  //  if (FMOD::Studio::System::create(&g_pSystem) != FMOD_OK)
+  //    return ezStatus("Failed to initialize the Fmod system");
 
-    //EZ_FMOD_ASSERT(g_pSystem->getLowLevelSystem(&m_pLowLevelSystem));
-    //EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(0, FMOD_SPEAKERMODE_5POINT1, 0));
+  //  //EZ_FMOD_ASSERT(g_pSystem->getLowLevelSystem(&m_pLowLevelSystem));
+  //  //EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(0, FMOD_SPEAKERMODE_5POINT1, 0));
 
-    void *extraDriverData = nullptr;
-    EZ_FMOD_ASSERT(g_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
-  }
+  //  void *extraDriverData = nullptr;
+  //  EZ_FMOD_ASSERT(g_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
+  //}
 
-  FMOD::Studio::Bank* pBank = nullptr;
-  auto res = g_pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
-  if (res != FMOD_OK)
-    return ezStatus(ezFmt("SoundBank '{0}' could not be loaded", pProp->m_sSoundBank.GetData()));
+  //FMOD::Studio::Bank* pBank = nullptr;
+  //auto res = g_pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
+  //if (res != FMOD_OK)
+  //  return ezStatus(ezFmt("SoundBank '{0}' could not be loaded", pProp->m_sSoundBank.GetData()));
 
-  ezStringBuilder sStringsBank = sAssetFile;
-  sStringsBank.RemoveFileExtension();
-  sStringsBank.Append(".strings.bank");
+  //ezStringBuilder sStringsBank = sAssetFile;
+  //sStringsBank.RemoveFileExtension();
+  //sStringsBank.Append(".strings.bank");
 
-  FMOD::Studio::Bank* pStringsBank = nullptr;
-  g_pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank);
+  //FMOD::Studio::Bank* pStringsBank = nullptr;
+  //g_pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank);
 
-  int iEvents = 0;
-  EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
+  //int iEvents = 0;
+  //EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
 
-  ezInt32 iStrings = 0;
-  pStringsBank->getStringCount(&iStrings);
-  ezLog::Info("SoundBank has {0} strings", iStrings);
+  //ezInt32 iStrings = 0;
+  //pStringsBank->getStringCount(&iStrings);
+  //ezLog::Info("SoundBank has {0} strings", iStrings);
 
-  for (ezInt32 i = 0; i < iStrings; ++i)
-  {
-    FMOD_GUID strGuid;
-    char path[256];
-    int len = 0;
-    pStringsBank->getStringInfo(i, &strGuid, path, 255, &len);
-    path[len] = '\0';
+  //for (ezInt32 i = 0; i < iStrings; ++i)
+  //{
+  //  FMOD_GUID strGuid;
+  //  char path[256];
+  //  int len = 0;
+  //  pStringsBank->getStringInfo(i, &strGuid, path, 255, &len);
+  //  path[len] = '\0';
 
-    ezLog::Debug("String {0}: {1}", i, path);
-  }
+  //  ezLog::Debug("String {0}: {1}", i, path);
+  //}
 
-  ezLog::Dev("SoundBank has {0} events", iEvents);
+  //ezLog::Dev("SoundBank has {0} events", iEvents);
 
-  ezStringBuilder sOwnGuid;
-  ezConversionUtils::ToString(GetGuid(), sOwnGuid);
+  //ezStringBuilder sOwnGuid;
+  //ezConversionUtils::ToString(GetGuid(), sOwnGuid);
 
-  ezStringBuilder sSubAssetsFile, sSubAssetLine;
+  //ezStringBuilder sSubAssetsFile, sSubAssetLine;
 
-  if (iEvents > 0)
-  {
-    ezDynamicArray<FMOD::Studio::EventDescription*> events;
-    events.SetCount(iEvents);
+  //if (iEvents > 0)
+  //{
+  //  ezDynamicArray<FMOD::Studio::EventDescription*> events;
+  //  events.SetCount(iEvents);
 
-    pBank->getEventList(events.GetData(), iEvents, &iEvents);
+  //  pBank->getEventList(events.GetData(), iEvents, &iEvents);
 
-    char szPath[256];
-    int iLen;
+  //  char szPath[256];
+  //  int iLen;
 
-    FMOD_GUID guid;
+  //  FMOD_GUID guid;
 
-    ezStringBuilder sGuid, sGuidNoSpace, sEventName;
+  //  ezStringBuilder sGuid, sGuidNoSpace, sEventName;
 
-    for (ezUInt32 i = 0; i < events.GetCount(); ++i)
-    {
-      iLen = 0;
-      auto ret = events[i]->getPath(szPath, 255, &iLen);
-      szPath[iLen] = '\0';
+  //  for (ezUInt32 i = 0; i < events.GetCount(); ++i)
+  //  {
+  //    iLen = 0;
+  //    auto ret = events[i]->getPath(szPath, 255, &iLen);
+  //    szPath[iLen] = '\0';
 
-      sEventName = szPath;
-      if (sEventName.StartsWith_NoCase("event:/"))
-        sEventName.Shrink(7, 0);
+  //    sEventName = szPath;
+  //    if (sEventName.StartsWith_NoCase("event:/"))
+  //      sEventName.Shrink(7, 0);
 
-      events[i]->getID(&guid);
+  //    events[i]->getID(&guid);
 
-      ezUuid* ezGuid = reinterpret_cast<ezUuid*>(&guid);
-      ezConversionUtils::ToString(*ezGuid, sGuid);
-      sGuidNoSpace = sGuid;
-      sGuidNoSpace.ReplaceAll(" ", "");
+  //    ezUuid* ezGuid = reinterpret_cast<ezUuid*>(&guid);
+  //    ezConversionUtils::ToString(*ezGuid, sGuid);
+  //    sGuidNoSpace = sGuid;
+  //    sGuidNoSpace.ReplaceAll(" ", "");
 
-      ezLog::Info("Event: '{0}' -> '{1}'", sEventName.GetData(), sGuid.GetData());
+  //    ezLog::Info("Event: '{0}' -> '{1}'", sEventName.GetData(), sGuid.GetData());
 
-      sSubAssetLine.Format("{0};{1}|{2};{3}\n", sGuid.GetData(), sOwnGuid.GetData(), sGuidNoSpace.GetData(), sEventName.GetData());
+  //    sSubAssetLine.Format("{0};{1}|{2};{3}\n", sGuid.GetData(), sOwnGuid.GetData(), sGuidNoSpace.GetData(), sEventName.GetData());
 
-      sSubAssetsFile.Append(sSubAssetLine.GetData());
-    }
-  }
+  //    sSubAssetsFile.Append(sSubAssetLine.GetData());
+  //  }
+  //}
 
-  EZ_FMOD_ASSERT(pBank->unload());
+  //EZ_FMOD_ASSERT(pBank->unload());
 
-  ezStringBuilder sSubAssetFilename = GetDocumentPath();
-  sSubAssetFilename.Append(".ezSubAssets");
+  //ezStringBuilder sSubAssetFilename = GetDocumentPath();
+  //sSubAssetFilename.Append(".ezSubAssets");
 
-  {
-    ezFileWriter file;
-    if (file.Open(sSubAssetFilename).Failed())
-      return ezStatus(ezFmt("Failed to write sub-assets file '{0}'", sSubAssetFilename.GetData()));
+  //{
+  //  ezFileWriter file;
+  //  if (file.Open(sSubAssetFilename).Failed())
+  //    return ezStatus(ezFmt("Failed to write sub-assets file '{0}'", sSubAssetFilename.GetData()));
 
-    file.WriteBytes(sSubAssetsFile.GetData(), sSubAssetsFile.GetElementCount());
-  }
+  //  file.WriteBytes(sSubAssetsFile.GetData(), sSubAssetsFile.GetElementCount());
+  //}
 
   return ezStatus(EZ_SUCCESS);
 }

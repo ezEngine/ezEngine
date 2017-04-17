@@ -116,19 +116,59 @@ protected:
 
   virtual ezUInt16 GetTypeId() const = 0;
 
-  /// \brief This method is called at the start of the next world update. The global position will be computed before initialization.
+  /// \brief Can be overridden for basic initialization that depends on a valid hierarchy and position.
+  ///
+  /// All trivial initialization should be done in the constructor.
+  /// For typical game code, you should prefer to use OnSimulationStarted().
+  /// This method is called once for every component, after creation but only at the start of the next world update.
+  /// Therefore the global position has already been computed and the owner ezGameObject is set.
+  /// Contrary to OnActivated() and OnSimulationStarted(), this function is always called for all components.
+  ///
+  /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void Initialize();
 
-  /// \brief This method is called before the destructor. A derived type can override this method to do common de-initialization work.
+  /// \brief This method is called before the component is destroyed. A derived type can override this method to do common de-initialization work.
+  ///
+  /// This function is always called before destruction, even if the component is currently not active.
+  /// The default implementation checks whether the component is currently active and will ensure OnDeactivated() gets called if necessary.
+  /// For typical game code, prefer to use OnDeactivated().
+  ///
+  /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void Deinitialize();
 
-  /// \brief This method is called when the component is activated.
+  /// \brief This method is called when the component gets activated.
+  ///
+  /// By default a component is active, but it can be created in an inactive state. In such a case OnActivated() is only called once a component
+  /// is activated. If a component gets switched between active and inactive at runtime, OnActivated() and OnDeactivated() are called accordingly.
+  /// In contrast Initialize() and Deinitialize() are only ever called once.
+  ///
+  /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnActivated();
 
-  /// \brief This method is called when the component is deactivated.
+  /// \brief This method is called when the component gets deactivated.
+  ///
+  /// Upon destruction, a component that is active first gets deactivated. Therefore OnDeactivated() should be used for typical game code cleanup.
+  ///
+  /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnDeactivated();
 
-  /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
+  /// \brief This method is called once for active components, at the start of the next world update, but only when the world is simulated.
+  ///
+  /// This is the one preferred method to setup typical game logic. In a pure game environment there is no practical difference between OnActivated()
+  /// and OnSimulationStarted(), as OnSimulationStarted() will be called right after OnActivated().
+  ///
+  /// However, when a scene is open inside the editor, there is an important difference:
+  /// OnActivated() is called once the component was created.
+  /// OnSimulationStarted() is only called once the game simulation is started inside the editor.
+  /// As an example, if a component starts a sound in OnActivated(), that sound will play right after the scene has been loaded into the editor.
+  /// If instead the sound gets started in OnSimulationStarted(), it will only play once the user starts the game mode inside the editor.
+  ///
+  /// Additionally, OnSimulationStarted() is only ever executed once on a component, even if the ezWorld pauses and resumes world simulation multiple times.
+  /// Thus components that should only execute a thing exactly once, will work correctly.
+  /// In contrast OnActivated() and OnDeactivated() will be executed every time the component's active state is toggled, which could re-execute
+  /// the same behavior multiple times.
+  ///
+  /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnSimulationStarted();
 
   /// \brief Used by components that implement scripting behavior.

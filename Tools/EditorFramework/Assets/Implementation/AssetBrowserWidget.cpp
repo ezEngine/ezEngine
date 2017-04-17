@@ -734,7 +734,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
 
   sFilter.Format("{0} (*.{1})", sAssetType.GetData(), sExtension.GetData());
 
-  QString sSelectedFilter = sExtension.GetData();
+  QString sSelectedFilter = sFilter.GetData();
   ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
 
   if (sOutput.IsEmpty())

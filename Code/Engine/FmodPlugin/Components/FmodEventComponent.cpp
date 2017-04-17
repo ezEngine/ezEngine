@@ -145,16 +145,7 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
   }
 }
 
-void ezFmodEventComponent::Initialize()
-{
-  if (!m_bPaused)
-  {
-    Restart();
-  }
-}
-
-
-void ezFmodEventComponent::Deinitialize()
+void ezFmodEventComponent::OnDeactivated()
 {
   if (m_pEventInstance != nullptr)
   {
@@ -162,10 +153,15 @@ void ezFmodEventComponent::Deinitialize()
     m_pEventInstance->release();
     m_pEventInstance = nullptr;
   }
-
-  m_hSoundEvent.Invalidate();
 }
 
+void ezFmodEventComponent::OnSimulationStarted()
+{
+  if (!m_bPaused)
+  {
+    Restart();
+  }
+}
 
 void ezFmodEventComponent::Restart()
 {
@@ -175,7 +171,12 @@ void ezFmodEventComponent::Restart()
   if (m_pEventInstance == nullptr)
   {
     ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback); // allow fallback ??
+
+    if (pEvent->IsMissingResource())
+      return;
+
     m_pEventInstance = pEvent->CreateInstance();
+    EZ_ASSERT_DEV(m_pEventInstance != nullptr, "Sound Event Instance pointer should be valid");
 
     m_pEventInstance->setUserData(this);
   }

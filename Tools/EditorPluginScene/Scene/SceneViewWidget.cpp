@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
@@ -131,7 +131,9 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       return;
     }
   }
-  }
+
+  m_bInDragAndDropOperation = false;
+}
 
 void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 {

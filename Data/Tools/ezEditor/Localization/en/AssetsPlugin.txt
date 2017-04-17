@@ -118,3 +118,4 @@ ezMeshPrimitive::HalfSphere;Half Sphere
 ezMeshPrimitive::GeodesicSphere;Geodesic Sphere
 ezMeshPrimitive::Capsule;Capsule
 ezMeshPrimitive::Torus;Torus
+VisScript.PickDebugTarget;Pick Debug Target
