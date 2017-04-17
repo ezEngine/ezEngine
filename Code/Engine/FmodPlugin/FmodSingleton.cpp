@@ -30,10 +30,16 @@ void ezFmod::Startup()
   EZ_FMOD_ASSERT(m_pFmodSystem->getLowLevelSystem(&m_pLowLevelSystem));
   EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(0, FMOD_SPEAKERMODE_5POINT1, 0)); /// \todo Hardcoded format
 
-  /// \todo Use ezFileSystem for Fmod
-
   void *extraDriverData = nullptr;
-  EZ_FMOD_ASSERT(m_pFmodSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
+  FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
+#endif
+
+  const int maxChannels = 32;
+
+  EZ_FMOD_ASSERT(m_pFmodSystem->initialize(maxChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
   /// \todo Configure max channels etc.
 }
 

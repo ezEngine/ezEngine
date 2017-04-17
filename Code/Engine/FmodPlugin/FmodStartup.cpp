@@ -2,6 +2,8 @@
 #include <Foundation/Configuration/Startup.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
+#include <FmodPlugin/FmodSingleton.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
 static ezFmodSoundEventResourceLoader s_SoundEventResourceLoader;

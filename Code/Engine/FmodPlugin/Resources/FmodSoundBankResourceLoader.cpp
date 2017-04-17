@@ -38,13 +38,12 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     {
       pData->m_pSoundbankData = EZ_DEFAULT_NEW(ezDataBuffer);
       pData->m_pSoundbankData->SetCountUninitialized(uiSoundBankSize + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
-      ezUInt8* pAlignedData = ezMemoryUtils::Align(pData->m_pSoundbankData->GetData(), FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+      ezUInt8* pAlignedData = ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
 
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 
       // The fmod documentation says it is fully thread-safe, so I assume we can call loadBankMemory at any time
-      auto res = ezFmod::GetSingleton()->GetSystem()->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
-      EZ_FMOD_ASSERT(res);
+      EZ_FMOD_ASSERT(ezFmod::GetSingleton()->GetSystem()->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank));
     }
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
