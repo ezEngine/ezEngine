@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/StaticArray.h>
+#include <Foundation/Strings/String.h>
 
 namespace HashTableTestDetail
 {

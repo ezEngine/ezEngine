@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Strings/String.h>
 #include <algorithm>
 #include <iterator>
 
