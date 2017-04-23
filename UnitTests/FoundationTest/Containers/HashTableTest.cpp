@@ -132,9 +132,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
       EZ_TEST_BOOL(table2.TryGetValue(it.Key(), value));
       EZ_TEST_BOOL(it.Value() == value);
+      EZ_TEST_BOOL(*table2.GetValue(it.Key()) == it.Value());
 
       EZ_TEST_BOOL(table3.TryGetValue(it.Key(), value));
       EZ_TEST_BOOL(it.Value() == value);
+      EZ_TEST_BOOL(*table3.GetValue(it.Key()) == it.Value());
 
       ++uiCounter;
     }
@@ -329,7 +331,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/TryGetValue")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/TryGetValue/GetValue")
   {
     ezHashTable<ezInt32, HashTableTestDetail::st> a1;
 
@@ -348,9 +350,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     HashTableTestDetail::st value;
     EZ_TEST_BOOL(a1.TryGetValue(9, value));
     EZ_TEST_INT(value.m_iData, 9);
+    EZ_TEST_INT(a1.GetValue(9)->m_iData, 9);
 
     EZ_TEST_BOOL(!a1.TryGetValue(11, value));
     EZ_TEST_INT(value.m_iData, 9);
+    EZ_TEST_BOOL(a1.GetValue(11) == nullptr);
 
     HashTableTestDetail::st* pValue;
     EZ_TEST_BOOL(a1.TryGetValue(9, pValue));
@@ -442,5 +446,35 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     t[1].Insert(32, HashTableTestDetail::st(47));
     EZ_TEST_BOOL(t[0] != t[1]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompatibleKeyType")
+  {
+    ezHashTable<ezString, int> stringTable;
+    const char* szChar = "Char";
+    const char* szString = "ViewBla";
+    ezStringView sView(szString, szString + 4);
+    ezStringBuilder sBuilder("Builder");
+    ezString sString("String");
+    EZ_TEST_BOOL(!stringTable.Insert(szChar, 1));
+    EZ_TEST_BOOL(!stringTable.Insert(sView, 2));
+    EZ_TEST_BOOL(!stringTable.Insert(sBuilder, 3));
+    EZ_TEST_BOOL(!stringTable.Insert(sString, 4));
+    EZ_TEST_BOOL(stringTable.Insert("View", 2));
+
+    EZ_TEST_BOOL(stringTable.Contains(szChar));
+    EZ_TEST_BOOL(stringTable.Contains(sView));
+    EZ_TEST_BOOL(stringTable.Contains(sBuilder));
+    EZ_TEST_BOOL(stringTable.Contains(sString));
+
+    EZ_TEST_INT(*stringTable.GetValue(szChar), 1);
+    EZ_TEST_INT(*stringTable.GetValue(sView), 2);
+    EZ_TEST_INT(*stringTable.GetValue(sBuilder), 3);
+    EZ_TEST_INT(*stringTable.GetValue(sString), 4);
+
+    EZ_TEST_BOOL(stringTable.Remove(szChar));
+    EZ_TEST_BOOL(stringTable.Remove(sView));
+    EZ_TEST_BOOL(stringTable.Remove(sBuilder));
+    EZ_TEST_BOOL(stringTable.Remove(sString));
   }
 }

@@ -94,7 +94,7 @@ namespace
       case ezModelImporter::ObjectHandle::MESH:
       {
         EZ_ASSERT_DEBUG(currentGameObject, "No node to attach a parent component to.");
-        ezString* meshId = nullptr;
+        const ezString* meshId = nullptr;
         if (rawMeshToFile.TryGetValue(object->Cast<ezModelImporter::Mesh>(), meshId))
         {
           ezUuid newMeshComponentId;

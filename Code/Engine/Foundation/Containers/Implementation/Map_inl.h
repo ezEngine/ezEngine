@@ -275,6 +275,22 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
 template <typename KeyType, typename ValueType, typename Comparer>
 template <typename CompatibleKeyType>
+EZ_FORCE_INLINE const ValueType* ezMapBase<KeyType, ValueType, Comparer>::GetValue(const CompatibleKeyType& key) const
+{
+  Node* pNode = Internal_Find<CompatibleKeyType>(key);
+  return pNode ? &pNode->m_Value : nullptr;
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE ValueType* ezMapBase<KeyType, ValueType, Comparer>::GetValue(const CompatibleKeyType& key)
+{
+  Node* pNode = Internal_Find<CompatibleKeyType>(key);
+  return pNode ? &pNode->m_Value : nullptr;
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+template <typename CompatibleKeyType>
 EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Find(const CompatibleKeyType& key)
 {
   return Iterator(Internal_Find<CompatibleKeyType>(key));

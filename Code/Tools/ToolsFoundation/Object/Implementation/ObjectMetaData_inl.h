@@ -16,7 +16,7 @@ const VALUE* ezObjectMetaData<KEY, VALUE>::BeginReadMetaData(const KEY ObjectKey
   m_AccessMode = AccessMode::Read;
   m_AcessingKey = ObjectKey;
 
-  VALUE* pRes = nullptr;
+  const VALUE* pRes = nullptr;
   if (m_MetaData.TryGetValue(ObjectKey, pRes)) // TryGetValue is not const correct with the second parameter
     return pRes;
 
@@ -45,7 +45,7 @@ template<typename KEY, typename VALUE>
 bool ezObjectMetaData<KEY, VALUE>::HasMetaData(const KEY ObjectKey) const
 {
   EZ_LOCK(m_Mutex);
-  VALUE* pValue = nullptr;
+  const VALUE* pValue = nullptr;
   return m_MetaData.TryGetValue(ObjectKey, pValue);
 }
 
@@ -64,7 +64,7 @@ template<typename KEY, typename VALUE>
 void ezObjectMetaData<KEY, VALUE>::EndReadMetaData() const
 {
   EZ_ASSERT_DEV(m_AccessMode == AccessMode::Read, "Not accessing data at the moment");
-  
+
   m_AccessMode = AccessMode::Nothing;
   m_Mutex.Release();
 }
@@ -85,7 +85,7 @@ void ezObjectMetaData<KEY, VALUE>::EndModifyMetaData(ezUInt32 uiModifiedFlags /*
 
     m_DataModifiedEvent.Broadcast(e);
   }
-  
+
   m_Mutex.Release();
 }
 
@@ -121,7 +121,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
       auto* pNode = it.Value();
       const ezUuid& guid = pNode->GetGuid();
 
-      VALUE* pMeta = nullptr;
+      const VALUE* pMeta = nullptr;
       if (!m_MetaData.TryGetValue(guid, pMeta)) // TryGetValue is not const correct with the second parameter
         continue; // it is the default object, so all values are default -> skip
 

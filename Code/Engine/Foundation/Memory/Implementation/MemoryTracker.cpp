@@ -266,7 +266,7 @@ const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllo
   EZ_LOCK(*s_pTrackerData);
 
   const AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
-  AllocationInfo* info = nullptr;
+  const AllocationInfo* info = nullptr;
   if (data.m_Allocations.TryGetValue(ptr, info))
   {
     return *info;

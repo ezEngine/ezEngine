@@ -177,7 +177,7 @@ namespace ezModelImporter
 
     const char* ParseContext::LookUpTextureFilename(const char* textureName) const
     {
-      ezString* filename = nullptr;
+      const ezString* filename = nullptr;
       m_textureFilenames.TryGetValue(textureName, filename);
       return filename ? filename->GetData() : nullptr;
     }

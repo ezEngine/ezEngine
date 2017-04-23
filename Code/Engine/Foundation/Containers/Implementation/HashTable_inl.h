@@ -196,7 +196,7 @@ bool ezHashTableBase<K, V, H>::operator== (const ezHashTableBase<K, V, H>& rhs) 
   {
     if (IsValidEntry(i))
     {
-      V* pRhsValue = nullptr;
+      const V* pRhsValue = nullptr;
       if (!rhs.TryGetValue(m_pEntries[i].key, pRhsValue))
         return false;
 
@@ -382,7 +382,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
 
 template <typename K, typename V, typename H>
 template <typename CompatibleKeyType>
-inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, V*& out_pValue) const
+inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, const V*& out_pValue) const
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
@@ -392,6 +392,36 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
   }
 
   return false;
+}
+
+template <typename K, typename V, typename H>
+template <typename CompatibleKeyType>
+inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, V*& out_pValue)
+{
+  ezUInt32 uiIndex = FindEntry(key);
+  if (uiIndex != ezInvalidIndex)
+  {
+    out_pValue = &m_pEntries[uiIndex].value;
+    return true;
+  }
+
+  return false;
+}
+
+template <typename K, typename V, typename H>
+template <typename CompatibleKeyType>
+inline const V* ezHashTableBase<K, V, H>::GetValue(const CompatibleKeyType& key) const
+{
+  ezUInt32 uiIndex = FindEntry(key);
+  return (uiIndex != ezInvalidIndex) ? &m_pEntries[uiIndex].value : nullptr;
+}
+
+template <typename K, typename V, typename H>
+template <typename CompatibleKeyType>
+inline V* ezHashTableBase<K, V, H>::GetValue(const CompatibleKeyType& key)
+{
+  ezUInt32 uiIndex = FindEntry(key);
+  return (uiIndex != ezInvalidIndex) ? &m_pEntries[uiIndex].value : nullptr;
 }
 
 template <typename K, typename V, typename H>

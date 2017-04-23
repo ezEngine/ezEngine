@@ -131,7 +131,19 @@ public:
 
   /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
-  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue) const; // [tested]
+  bool TryGetValue(const CompatibleKeyType& key, const ValueType*& out_pValue) const; // [tested]
+
+  /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue); // [tested]
+
+  /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
+  template <typename CompatibleKeyType>
+  const ValueType* GetValue(const CompatibleKeyType& key) const; // [tested]
+
+  /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
+  template <typename CompatibleKeyType>
+  ValueType* GetValue(const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns the value to the given key if found or creates a new entry with the given key and a default constructed value.
   ValueType& operator[](const KeyType& key); // [tested]

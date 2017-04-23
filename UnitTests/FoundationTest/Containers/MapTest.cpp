@@ -153,6 +153,19 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(m.Find(i).Value(), i * 10);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      m[i] = i * 10;
+
+    for (ezInt32 i = 100 - 1; i >= 0; --i)
+      EZ_TEST_INT(*m.GetValue(i), i * 10);
+
+    EZ_TEST_BOOL(m.GetValue(101) == nullptr);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains")
   {
     ezMap<ezUInt32, ezUInt32> m;
@@ -444,6 +457,35 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     m2 = m;
 
     EZ_TEST_BOOL(m == m2);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompatibleKeyType")
+  {
+    ezMap<ezString, int> stringTable;
+    const char* szChar = "Char";
+    const char* szString = "ViewBla";
+    ezStringView sView(szString, szString + 4);
+    ezStringBuilder sBuilder("Builder");
+    ezString sString("String");
+    stringTable.Insert(szChar, 1);
+    stringTable.Insert(sView, 2);
+    stringTable.Insert(sBuilder, 3);
+    stringTable.Insert(sString, 4);
+
+    EZ_TEST_BOOL(stringTable.Contains(szChar));
+    EZ_TEST_BOOL(stringTable.Contains(sView));
+    EZ_TEST_BOOL(stringTable.Contains(sBuilder));
+    EZ_TEST_BOOL(stringTable.Contains(sString));
+
+    EZ_TEST_INT(*stringTable.GetValue(szChar), 1);
+    EZ_TEST_INT(*stringTable.GetValue(sView), 2);
+    EZ_TEST_INT(*stringTable.GetValue(sBuilder), 3);
+    EZ_TEST_INT(*stringTable.GetValue(sString), 4);
+
+    EZ_TEST_BOOL(stringTable.Remove(szChar));
+    EZ_TEST_BOOL(stringTable.Remove(sView));
+    EZ_TEST_BOOL(stringTable.Remove(sBuilder));
+    EZ_TEST_BOOL(stringTable.Remove(sString));
   }
 }
 

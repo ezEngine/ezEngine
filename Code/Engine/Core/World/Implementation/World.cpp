@@ -471,7 +471,7 @@ const char* ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
 {
   const ezUInt32 uiId = pObject->m_InternalId.m_Data;
 
-  ezHashedString* pGlobalKey;
+  const ezHashedString* pGlobalKey;
   if (m_Data.m_IdToGlobalKeyTable.TryGetValue(uiId, pGlobalKey))
   {
     return pGlobalKey->GetData();

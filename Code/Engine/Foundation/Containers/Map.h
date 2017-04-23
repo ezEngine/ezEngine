@@ -169,6 +169,14 @@ public:
   /// \brief Allows read/write access to the value stored under the given key. If there is no such key, a new element is default-constructed.
   ValueType& operator[](const KeyType& key); // [tested]
 
+  /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
+  template <typename CompatibleKeyType>
+  const ValueType* GetValue(const CompatibleKeyType& key) const; // [tested]
+
+  /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
+  template <typename CompatibleKeyType>
+  ValueType* GetValue(const CompatibleKeyType& key); // [tested]
+
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
   template<typename CompatibleKeyType>
   Iterator Find(const CompatibleKeyType& key); // [tested]
