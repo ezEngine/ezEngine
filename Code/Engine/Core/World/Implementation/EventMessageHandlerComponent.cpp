@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <Core/World/EventMessageHandlerComponent.h>
+#include <Core/World/World.h>
 
 namespace
 {

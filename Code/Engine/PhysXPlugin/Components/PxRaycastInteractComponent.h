@@ -1,8 +1,8 @@
 #pragma once
 
 #include <PhysXPlugin/Basics.h>
+#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
-#include <Core/World/Component.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 
 struct ezPhysicsHitResult;

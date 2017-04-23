@@ -3,8 +3,6 @@
 /// \file
 
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Communication/Message.h>
-
 #include <Core/World/Declarations.h>
 
 class ezMessage;

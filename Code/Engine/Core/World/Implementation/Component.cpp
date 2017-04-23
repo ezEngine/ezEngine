@@ -122,6 +122,58 @@ void ezComponent::EnsureSimulationStarted()
   }
 }
 
+bool ezComponent::SendMessage(ezMessage& msg)
+{
+  if (!IsActiveAndInitialized() && !IsInitializing())
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.GetDebugMessageRouting())
+      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is not initialized or not active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+#endif
+
+    return false;
+  }
+
+  if (m_pMessageDispatchType->DispatchMessage(this, msg))
+    return true;
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg))
+    return true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (msg.GetDebugMessageRouting())
+    ezLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+#endif
+
+  return false;
+}
+
+bool ezComponent::SendMessage(ezMessage& msg) const
+{
+  if (!IsActiveAndInitialized() && !IsInitializing())
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.GetDebugMessageRouting())
+      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is not initialized or not active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+#endif
+
+    return false;
+  }
+
+  if (m_pMessageDispatchType->DispatchMessage(this, msg))
+    return true;
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg))
+    return true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (msg.GetDebugMessageRouting())
+    ezLog::Warning("(const) Component type '{0}' does not have a CONST message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+#endif
+
+  return false;
+}
+
 void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
 {
   GetWorld()->PostMessage(GetHandle(), msg, queueType);

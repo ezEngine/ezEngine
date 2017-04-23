@@ -111,7 +111,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     QuerySelectionBBox(pMsg);
     return;
   }
-  
+
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
     /// \todo We are actually doing this once per view, but the data is going to be rendered in every view
@@ -382,11 +382,11 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
     if (hComp.IsInvalidated())
       continue;
 
-    ezComponent* pComp = nullptr;
+    ezEventMessageHandlerComponent* pComp = nullptr;
     if (!m_pWorld->TryGetComponent(hComp, pComp))
       continue;
 
-    pComp->EnableDebugOutput(true);
+    pComp->SetDebugOutput(true);
   }
 }
 

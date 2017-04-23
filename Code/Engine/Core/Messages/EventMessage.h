@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Communication/Message.h>
-#include <Core/World/Declarations.h>
+#include <Core/World/GameObject.h>
 
 /// \brief Base class for all messages that are sent as 'events'
 struct EZ_CORE_DLL ezEventMessage : public ezMessage
