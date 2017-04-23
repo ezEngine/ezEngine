@@ -14,6 +14,7 @@
 struct ezRTTIAllocator;
 class ezAbstractProperty;
 class ezAbstractMessageHandler;
+struct ezMessageSenderInfo;
 class ezPropertyAttribute;
 class ezMessage;
 typedef ezUInt16 ezMessageId;
@@ -31,7 +32,8 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
   ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
-    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, const ezRTTI*(*fnVerifyParent)());
+    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezPropertyAttribute*> attributes,
+    ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI*(*fnVerifyParent)());
 
 
   ~ezRTTI();
@@ -120,6 +122,8 @@ public:
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
   }
 
+  EZ_ALWAYS_INLINE const ezArrayPtr<ezMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
+
   /// \brief Fire this if a type was dynamically added or changed outside of plugin registration.
   static ezEvent<const ezRTTI*> s_TypeUpdatedEvent;
 
@@ -139,18 +143,22 @@ protected:
   static void* GetTypeHashTable();
 
   const ezRTTI* m_pParentType;
+  ezRTTIAllocator* m_pAllocator;
+
   ezUInt32 m_uiVariantType;
   ezUInt32 m_uiTypeSize;
-  mutable ezUInt32 m_uiMsgIdOffset;
   ezUInt32 m_uiTypeVersion = 0;
   ezUInt32 m_uiTypeNameHash = 0;
   ezBitflags<ezTypeFlags> m_TypeFlags;
-  ezRTTIAllocator* m_pAllocator;
+  mutable ezUInt32 m_uiMsgIdOffset;
+
   mutable bool m_bGatheredDynamicMessageHandlers;
   const ezRTTI*(*m_fnVerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
   mutable ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+
+  ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);

@@ -4,7 +4,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName)
-  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), nullptr )
+  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr )
 {
   m_sTypeNameStorage = szName;
   m_sPluginNameStorage = szPluginName;

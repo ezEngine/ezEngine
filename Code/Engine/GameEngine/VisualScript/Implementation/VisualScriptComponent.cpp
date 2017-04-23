@@ -91,8 +91,14 @@ void ezVisualScriptComponent::SetIsGlobalEventHandler(bool enable)
   if (m_bGlobalEventHandler != enable)
   {
     m_bGlobalEventHandler = enable;
-    EnableGlobalEventHandlerMode(m_bGlobalEventHandler);
+    SetGlobalEventHandlerMode(m_bGlobalEventHandler);
   }
+}
+
+bool ezVisualScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
+{
+  /// \todo Check whether the script actually handles the message from the given sender.
+  return true;
 }
 
 void ezVisualScriptComponent::Update()
@@ -113,7 +119,7 @@ void ezVisualScriptComponent::Update()
     }
   }
 
-  const bool bEnableDebugOutput = m_ComponentFlags.IsAnySet(ezObjectFlags::EnableDebugOutput);
+  const bool bEnableDebugOutput = GetDebugOutput();
 
   if (bEnableDebugOutput != (m_pActivity != nullptr))
   {
@@ -151,19 +157,4 @@ bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg) const
 
   return false;
 }
-
-void ezVisualScriptComponent::OnActivated()
-{
-  SUPER::OnActivated();
-
-  EnableEventHandlerMode(true);
-}
-
-void ezVisualScriptComponent::OnDeactivated()
-{
-  EnableEventHandlerMode(false);
-
-  SUPER::OnDeactivated();
-}
-
 

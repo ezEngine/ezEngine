@@ -20,7 +20,7 @@ public:
   ezMessage()
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive = false;
+    m_uiDebugMessageRouting = 0;
 #endif
   }
 
@@ -56,7 +56,15 @@ public:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   /// set to true while debugging a message routing problem
   /// if the message is not delivered to any recipient at all, information about why that is will be written to ezLog
-  bool m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive;
+  EZ_ALWAYS_INLINE void SetDebugMessageRouting(bool debug)
+  {
+    m_uiDebugMessageRouting = debug;
+  }
+
+  EZ_ALWAYS_INLINE bool GetDebugMessageRouting() const
+  {
+    return m_uiDebugMessageRouting;
+  }
 #endif
 
 protected:
@@ -66,7 +74,13 @@ protected:
   }
 
   ezMessageId m_Id;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezUInt16 m_uiSize : 15;
+  ezUInt16 m_uiDebugMessageRouting : 1;
+#else
   ezUInt16 m_uiSize;
+#endif
 
   static ezMessageId s_uiNextMsgId;
 };
@@ -98,13 +112,9 @@ protected:
   ezMessageId messageType::MSG_ID = messageType::GetMsgId();
 
 
-/// \brief Base class for all messages that scripts are allowed to send.
-///
-/// This common base class is used to filter out which messages to expose to scripts.
-struct EZ_FOUNDATION_DLL ezScriptFunctionMessage : public ezMessage
+/// \brief Base class for all message senders.
+template <typename T>
+struct ezMessageSenderBase
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezScriptFunctionMessage, ezMessage);
-
-
+  typedef T MessageType;
 };
-

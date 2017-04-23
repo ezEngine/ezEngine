@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <Core/Basics.h>
 #include <Foundation/Communication/Message.h>
 #include <Core/World/Declarations.h>
 
@@ -23,14 +22,4 @@ struct EZ_CORE_DLL ezInternalComponentMessage : public ezMessage
   ezUInt32 m_uiUsageStringHash;
 };
 
-/// \brief For use in scripts to signal a custom event that some game event has occurred.
-///
-/// This is a simple message for simple use cases. Create custom message for more elaborate cases where a string is not sufficient information.
-/// Also be aware that passing this message is not the most efficient due to the string copy overhead.
-struct EZ_CORE_DLL ezSimpleUserEventMessage : public ezScriptFunctionMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezSimpleUserEventMessage, ezScriptFunctionMessage);
 
-  /// A custom string to identify the intent.
-  ezString m_sMessage;
-};

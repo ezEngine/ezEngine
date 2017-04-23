@@ -10,6 +10,7 @@
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <Core/World/Component.h>
+#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);

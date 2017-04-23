@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <Core/Basics.h>
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Math/BoundingBoxSphere.h>

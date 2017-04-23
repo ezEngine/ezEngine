@@ -221,12 +221,5 @@ private:
 #define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 #define EZ_END_ABSTRACT_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 
-#define EZ_DECLARE_COMPONENT_MANAGER EZ_DECLARE_WORLD_MODULE
-
-/// \brief Implements the given component manager type. Add this macro to a cpp outside of the type declaration.
-#define EZ_IMPLEMENT_COMPONENT_MANAGER(managerType, componentType) \
-  ezUInt16 inline managerType::RegisterType() { static ezUInt16 id = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(ezWorldModule::GetNextTypeId()); return id; } \
-  ezUInt16 managerType::TYPE_ID = managerType::RegisterType();
-
 #include <Core/World/Implementation/ComponentManager_inl.h>
 

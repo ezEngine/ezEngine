@@ -1,10 +1,11 @@
 ﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxRaycastInteractComponent.h>
+#include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
+#include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
-#include <Core/Messages/TriggerMessage.h>
+
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -63,12 +64,9 @@ void ezPxRaycastInteractComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute& msg)
 {
-  /// \todo The manager initialization doesn't work properly
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  //ezPhysicsWorldModuleInterface* pPhysicsInterface = GetManager()->m_pPhysicsInterface;
-  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
-
-  const ezVec3 vDirection = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0);
+  const ezVec3 vDirection = GetOwner()->GetDirForwards();
 
   ezUInt32 uiIgnoreShapeID = ezInvalidIndex;
 
@@ -86,7 +84,7 @@ void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute&
   }
 
   ezPhysicsHitResult res;
-  if (!pPhysicsInterface->CastRay(GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, m_uiCollisionLayer, res, uiIgnoreShapeID))
+  if (!pModule->CastRay(GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, m_uiCollisionLayer, res, uiIgnoreShapeID))
     return;
 
   SendMessage(res);
@@ -97,19 +95,5 @@ void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsHitResult& hit)
   ezSimpleUserEventMessage msg;
   msg.m_sMessage = m_sUserMessage;
 
-  GetWorld()->SendMessage(hit.m_hGameObject, msg, ezObjectMsgRouting::ToEventHandler);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-
-ezPxRaycastInteractComponentManager::ezPxRaycastInteractComponentManager(ezWorld* pWorld)
-  : ezComponentManager<class ezPxRaycastInteractComponent, ezBlockStorageType::Compact>(pWorld)
-  , m_pPhysicsInterface(nullptr)
-{
-}
-
-void ezPxRaycastInteractComponentManager::Initialize()
-{
-  m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+  GetWorld()->SendMessage(hit.m_hGameObject, msg);
 }

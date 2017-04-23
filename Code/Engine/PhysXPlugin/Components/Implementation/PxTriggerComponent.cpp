@@ -57,6 +57,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1)
     EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGESENDERS
+  {
+    EZ_MESSAGE_SENDER(m_TriggerEventSender)
+  }
+  EZ_END_MESSAGESENDERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -168,4 +173,15 @@ void ezPxTriggerComponent::SetKinematic(bool b)
   {
     GetManager()->m_KinematicActorComponents.RemoveSwap(this);
   }
+}
+
+void ezPxTriggerComponent::PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const
+{
+  ezPxTriggerEventMessage msg;
+
+  msg.m_TriggerState = triggerState;
+  msg.m_uiMessageStringHash = m_sTriggerMessage.GetHash();
+  msg.m_hTriggeringObject = pOtherComponent->GetOwner()->GetHandle();
+
+  m_TriggerEventSender.PostMessage(msg, this, GetOwner(), ezObjectMsgQueueType::PostTransform);
 }

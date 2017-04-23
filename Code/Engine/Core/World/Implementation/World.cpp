@@ -178,7 +178,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
 {
   ezDeleteObjectMessage msg;
-  PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame, ezObjectMsgRouting::ToObjectOnly);
+  PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 
 ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti)
@@ -238,34 +238,30 @@ const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) 
   return nullptr;
 }
 
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
-                          ezObjectMsgQueueType::Enum queueType, ezObjectMsgRouting::Enum routing)
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
 
   QueuedMsgMetaData metaData;
   metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
-  metaData.m_Routing = routing;
 
   ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
   m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
-                          ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing)
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
 
   QueuedMsgMetaData metaData;
   metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
-  metaData.m_Routing = routing;
   metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
 
   ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
-void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -277,7 +273,7 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
   m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
-void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay)
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -288,15 +284,6 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
 
   ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
-}
-
-
-void ezWorld::DeliverMessageToGlobalHandlers(ezMessage& msg)
-{
-  for (ezComponent* pReceiver : m_Data.m_GlobalMessageHandlers)
-  {
-    pReceiver->SendMessage(msg);
-  }
 }
 
 void ezWorld::Update()
@@ -508,7 +495,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     else
     {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (entry.m_pMessage->m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      if (entry.m_pMessage->GetDebugMessageRouting())
       {
         ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezComponent for message of type {0} does not exist anymore.", entry.m_pMessage->GetId());
       }
@@ -522,12 +509,12 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     ezGameObject* pReceiverObject = nullptr;
     if (TryGetObject(hObject, pReceiverObject))
     {
-      pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+      pReceiverObject->SendMessage(*entry.m_pMessage);
     }
     else
     {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (entry.m_pMessage->m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      if (entry.m_pMessage->GetDebugMessageRouting())
       {
         ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type {0} does not exist anymore.", entry.m_pMessage->GetId());
       }
@@ -553,8 +540,8 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (a.m_pMessage->GetId() != b.m_pMessage->GetId())
         return a.m_pMessage->GetId() < b.m_pMessage->GetId();
 
-      if (a.m_MetaData.m_uiReceiverAndRouting != b.m_MetaData.m_uiReceiverAndRouting)
-        return a.m_MetaData.m_uiReceiverAndRouting < b.m_MetaData.m_uiReceiverAndRouting;
+      if (a.m_MetaData.m_uiReceiverData != b.m_MetaData.m_uiReceiverData)
+        return a.m_MetaData.m_uiReceiverData < b.m_MetaData.m_uiReceiverData;
 
       return a.m_pMessage->GetHash() < b.m_pMessage->GetHash();
     }

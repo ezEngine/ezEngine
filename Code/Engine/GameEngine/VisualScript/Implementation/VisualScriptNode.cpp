@@ -126,13 +126,13 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
         ezGameObject* pObject = nullptr;
         if (pWorld->TryGetObject(m_hObject, pObject))
         {
-          pObject->SendMessage(*m_pMessageToSend, ezObjectMsgRouting::ToChildren);
+          pObject->SendMessage(*m_pMessageToSend);
         }
       }
       else
       {
         ezGameObject* pObject = pInstance->GetOwner();
-        pObject->SendMessage(*m_pMessageToSend, ezObjectMsgRouting::ToChildren);
+        pObject->SendMessage(*m_pMessageToSend);
       }
     }
     else

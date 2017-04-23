@@ -4,10 +4,6 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMessage, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezScriptFunctionMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptFunctionMessage, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 ezMessageId ezMessage::s_uiNextMsgId = 0;
 
 

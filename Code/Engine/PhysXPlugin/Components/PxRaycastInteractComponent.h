@@ -5,20 +5,8 @@
 #include <Core/World/Component.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 
-class ezPhysicsWorldModuleInterface;
 struct ezPhysicsHitResult;
-
-class EZ_PHYSXPLUGIN_DLL ezPxRaycastInteractComponentManager : public ezComponentManager<class ezPxRaycastInteractComponent, ezBlockStorageType::Compact>
-{
-public:
-  ezPxRaycastInteractComponentManager(ezWorld* pWorld);
-
-  virtual void Initialize() override;
-
-private:
-  friend class ezPxRaycastInteractComponent;
-  ezPhysicsWorldModuleInterface* m_pPhysicsInterface;
-};
+typedef ezComponentManager<class ezPxRaycastInteractComponent, ezBlockStorageType::FreeList> ezPxRaycastInteractComponentManager;
 
 struct EZ_PHYSXPLUGIN_DLL ezPxRaycastInteractComponent_Execute : public ezScriptFunctionMessage
 {

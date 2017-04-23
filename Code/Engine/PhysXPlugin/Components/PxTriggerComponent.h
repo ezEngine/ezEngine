@@ -2,6 +2,7 @@
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
+#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,13 +66,19 @@ public:
 
   void SetTriggerMessage(const char* sz) { m_sTriggerMessage.Assign(sz); }
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); }
-  ezHashedString m_sTriggerMessage;
 
 protected:
+  friend class ezPxSimulationEventCallback;
 
   physx::PxRigidDynamic* m_pActor;
 
+  void PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const;
+
 private:
   bool m_bKinematic = false;
+  ezHashedString m_sTriggerMessage;
+
+  ezEventMessageSender<ezPxTriggerEventMessage> m_TriggerEventSender;
+
   ezPxUserData m_UserData;
 };

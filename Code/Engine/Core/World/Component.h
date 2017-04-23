@@ -106,15 +106,10 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
 
-  /// \brief Sets the debug output object flag. The effect is type specific, most components will not do anything different.
-  void EnableDebugOutput(bool enable);
-
 protected:
   friend class ezWorld;
   friend class ezGameObject;
   friend class ezComponentManagerBase;
-
-  ezBitflags<ezObjectFlags> m_ComponentFlags;
 
   virtual ezUInt16 GetTypeId() const = 0;
 
@@ -173,15 +168,6 @@ protected:
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnSimulationStarted();
 
-  /// \brief Used by components that implement scripting behavior.
-  ///
-  /// When a message is delivered to the next 'event handler', it is propagated up the scene tree and delivered to the next
-  /// component that has ezObjectFlags::IsEventHandler set. The event is not delivered to further parent nodes,
-  /// even if the script did not actually have a corresponding message handler.
-  void EnableEventHandlerMode(bool enable);
-
-  void EnableGlobalEventHandlerMode(bool enable);
-
   /// \brief By default disabled. Enable to have OnUnhandledMessage() called for every unhandled message.
   void EnableUnhandledMessageHandler(bool enable);
 
@@ -201,6 +187,8 @@ private:
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
 
+  ezBitflags<ezObjectFlags> m_ComponentFlags;
+
   ezGenericComponentId m_InternalId;
   ezUInt32 m_uiUniqueID;
 
@@ -208,15 +196,6 @@ private:
   ezGameObject* m_pOwner = nullptr;
 
   static ezUInt16 TYPE_ID;
-};
-
-/// \brief Base class for all messages that are sent as 'events'
-struct EZ_CORE_DLL ezEventMessage : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezEventMessage, ezMessage);
-
-  ezGameObjectHandle m_hSenderObject;
-  ezComponentHandle m_hSenderComponent;
 };
 
 #include <Core/World/Implementation/Component_inl.h>

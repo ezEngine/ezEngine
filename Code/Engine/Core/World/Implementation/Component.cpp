@@ -15,10 +15,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction, 1)
 EZ_ENUM_CONSTANTS(ezOnComponentFinishedAction::None, ezOnComponentFinishedAction::DeleteComponent, ezOnComponentFinishedAction::DeleteEntity)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 void ezComponent::SetActive(bool bActive)
 {
   if (m_ComponentFlags.IsSet(ezObjectFlags::Active) != bActive)
@@ -136,11 +132,6 @@ void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueTy
   GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
 }
 
-void ezComponent::EnableDebugOutput(bool enable)
-{
-  m_ComponentFlags.AddOrRemove(ezObjectFlags::EnableDebugOutput, enable);
-}
-
 void ezComponent::Initialize()
 {
 }
@@ -168,53 +159,6 @@ void ezComponent::OnDeactivated()
 void ezComponent::OnSimulationStarted()
 {
 
-}
-
-void ezComponent::EnableEventHandlerMode(bool enable)
-{
-  m_ComponentFlags.AddOrRemove(ezObjectFlags::IsEventHandler, enable);
-
-  if (enable)
-  {
-    // this is an optimization, to know whether the object has any component with this flag
-    GetOwner()->m_Flags.Add(ezObjectFlags::IsEventHandler);
-  }
-  else
-  {
-    // check whether there is any other component with this flag left
-
-    const auto& components = GetOwner()->GetComponents();
-    for (const auto& comp : components)
-    {
-      // one is left, abort
-      if (comp->m_ComponentFlags.IsAnySet(ezObjectFlags::IsEventHandler))
-        return;
-    }
-
-    // none is left, remove flag
-    GetOwner()->m_Flags.Remove(ezObjectFlags::IsEventHandler);
-  }
-}
-
-
-void ezComponent::EnableGlobalEventHandlerMode(bool enable)
-{
-  if (m_ComponentFlags.IsAnySet(ezObjectFlags::IsGlobalEventHandler) == enable)
-    return;
-
-  m_ComponentFlags.AddOrRemove(ezObjectFlags::IsGlobalEventHandler, enable);
-
-  if (m_pManager != nullptr) // can be null during destruction
-  {
-    if (enable)
-    {
-      GetWorld()->m_Data.m_GlobalMessageHandlers.PushBack(this);
-    }
-    else
-    {
-      GetWorld()->m_Data.m_GlobalMessageHandlers.RemoveSwap(this);
-    }
-  }
 }
 
 void ezComponent::EnableUnhandledMessageHandler(bool enable)

@@ -164,6 +164,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     static ezArrayPtr<ezAbstractProperty*> Properties;                \
     static ezArrayPtr<ezPropertyAttribute*> Attributes;               \
     static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers;     \
+    static ezArrayPtr<ezMessageSenderInfo> MessageSenders;
 
 /// \endcond
 
@@ -194,7 +195,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
       GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
       flags,                                                        \
-      &Allocator, Properties, Attributes, MessageHandlers, nullptr);\
+      &Allocator, Properties, Attributes, MessageHandlers, MessageSenders, nullptr);\
   }
 
 
@@ -546,4 +547,24 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
 /// \note A message handler is a function that takes one parameter of type ezMessage (or a derived type) and returns void.
 #define EZ_MESSAGE_HANDLER(MessageType, FunctionName)                         \
   new ezInternal::MessageHandler<EZ_IS_CONST_MESSAGE_HANDLER(OwnType, MessageType, &OwnType::FunctionName)>::Impl<OwnType, MessageType, &OwnType::FunctionName>()  \
+
+
+/// \brief Within an EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the message senders.
+#define EZ_BEGIN_MESSAGESENDERS                                               \
+    static ezMessageSenderInfo SenderList[] =                                 \
+
+
+/// \brief Ends the block to declare message senders that was started with EZ_BEGIN_MESSAGESENDERS.
+#define EZ_END_MESSAGESENDERS                                                 \
+    ;                                                                         \
+  MessageSenders = SenderList;                                                \
+
+/// \brief Within an EZ_BEGIN_MESSAGESENDERS / EZ_END_MESSAGESENDERS block, this adds another message sender.
+///
+/// \param MemberName
+///   The name of the member variable that should get exposed as a message sender.
+///
+/// \note A message sender must be derived from ezMessageSenderBase.
+#define EZ_MESSAGE_SENDER(MemberName)                         \
+  { #MemberName, ezGetStaticRTTI<EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>() }  \
 

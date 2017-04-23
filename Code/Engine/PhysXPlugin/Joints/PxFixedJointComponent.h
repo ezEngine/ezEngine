@@ -2,8 +2,6 @@
 
 #include <PhysXPlugin/Joints/PxJointComponent.h>
 
-struct ezCallDelayedStartMessage;
-
 typedef ezComponentManager<class ezPxFixedJointComponent, ezBlockStorageType::Compact> ezPxFixedJointComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxFixedJointComponent : public ezPxJointComponent

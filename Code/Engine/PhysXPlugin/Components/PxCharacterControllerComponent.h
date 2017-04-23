@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <PhysXPlugin/Components/PxComponent.h>
+#include <Core/Messages/ScriptFunctionMessage.h>
 
 struct ezCollisionMessage;
 

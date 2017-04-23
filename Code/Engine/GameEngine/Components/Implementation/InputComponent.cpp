@@ -24,11 +24,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2)
     EZ_ENUM_MEMBER_PROPERTY("Granularity", ezInputMessageGranularity, m_Granularity),
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("General"),
   }
   EZ_END_ATTRIBUTES
+  EZ_BEGIN_MESSAGESENDERS
+  {
+    EZ_MESSAGE_SENDER(m_InputEventSender)
+  }
+  EZ_END_MESSAGESENDERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -76,8 +81,7 @@ void ezInputComponent::Update()
     msg.m_uiInputActionHash = ezTempHashedString::ComputeHash(actionName.GetData());
     msg.m_fKeyPressValue = fValue;
 
-    // SendMessage, not PostMessage, because the string pointers would not be valid otherwise
-    GetOwner()->SendMessage(msg, ezObjectMsgRouting::ToEventHandler); /// \todo Make it configurable where the message is sent to
+    m_InputEventSender.SendMessage(msg, this, GetOwner());
   }
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>

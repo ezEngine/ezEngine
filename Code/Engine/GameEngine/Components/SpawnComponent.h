@@ -1,9 +1,8 @@
 ﻿#pragma once
 
 #include <GameEngine/Basics.h>
+#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
-#include <Core/World/Component.h>
-#include <Foundation/Time/Time.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 
 struct ezInternalComponentMessage;

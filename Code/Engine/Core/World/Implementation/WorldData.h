@@ -17,13 +17,12 @@ namespace ezInternal
   {
     friend class ::ezWorld;
     friend class ::ezComponentManagerBase;
-    friend class ::ezComponent;
 
     WorldData(ezWorldDesc& desc);
     ~WorldData();
 
     ezHashedString m_sName;
-    ezProxyAllocator m_Allocator;
+    mutable ezProxyAllocator m_Allocator;
     ezLocalAllocatorWrapper m_AllocatorWrapper;
     ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
 
@@ -130,13 +129,14 @@ namespace ezInternal
     {
       EZ_DECLARE_POD_TYPE();
 
+      EZ_ALWAYS_INLINE QueuedMsgMetaData()
+        : m_uiReceiverData(0)
+      {
+      }
+
       union
       {
-        struct
-        {
-          ezUInt32 m_uiReceiverObject;
-          ezObjectMsgRouting::Enum m_Routing;
-        };
+        ezUInt32 m_uiReceiverObject;
 
         struct
         {
@@ -144,24 +144,21 @@ namespace ezInternal
           ezUInt64 m_uiReceiverIsComponent : 1;
         };
 
-        ezUInt64 m_uiReceiverAndRouting;
+        ezUInt64 m_uiReceiverData;
       };
 
       ezTime m_Due;
     };
 
     typedef ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper> MessageQueue;
-    MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
-    MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
 
     ezThreadID m_WriteThreadID;
     ezInt32 m_iWriteCounter;
     mutable ezAtomicInteger32 m_iReadCounter;
 
     bool m_bSimulateWorld;
-
-    // Scripting / Global Events
-    ezDynamicArray<ezComponent*> m_GlobalMessageHandlers;
 
   public:
     class ReadMarker

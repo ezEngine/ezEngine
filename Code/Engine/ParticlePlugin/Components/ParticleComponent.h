@@ -1,11 +1,11 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
+#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/ResourceManager/ResourceBase.h>
-#include <Core/World/ComponentManager.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
 

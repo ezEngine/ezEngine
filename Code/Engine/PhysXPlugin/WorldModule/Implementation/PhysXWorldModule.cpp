@@ -282,27 +282,18 @@ public:
 
   virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override
   {
-    ezPxTriggerEventMessage msg;
-
     for (ezUInt32 i = 0; i < count; ++i)
     {
-      const PxActor* pActorA = pairs[i].triggerActor;
-      const PxActor* pActorB = pairs[i].otherActor;
+      const PxActor* pTriggerActor = pairs[i].triggerActor;
+      const PxActor* pOtherActor = pairs[i].otherActor;
 
-      const ezComponent* pComponentA = ezPxUserData::GetComponent(pActorA->userData);
-      const ezComponent* pComponentB = ezPxUserData::GetComponent(pActorB->userData);
+      const ezPxTriggerComponent* pTriggerComponent = ezPxUserData::GetTriggerComponent(pTriggerActor->userData);
+      const ezComponent* pOtherComponent = ezPxUserData::GetComponent(pOtherActor->userData);
 
-      if (pComponentA != nullptr && pComponentB != nullptr)
+      if (pTriggerComponent != nullptr && pOtherComponent != nullptr)
       {
-        const ezPxTriggerComponent* pTrigger = static_cast<const ezPxTriggerComponent*>(pComponentA);
-
-        msg.m_hSenderObject = pComponentA->GetOwner()->GetHandle();
-        msg.m_hSenderComponent = pComponentA->GetHandle();
-        msg.m_TriggerState = pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
-        msg.m_uiMessageStringHash = pTrigger->m_sTriggerMessage.GetHash();
-        msg.m_hTriggeringObject = pComponentB->GetOwner()->GetHandle();
-
-        pComponentA->GetOwner()->PostMessage(msg, ezObjectMsgQueueType::PostTransform, ezObjectMsgRouting::ToEventHandler);
+        ezTriggerState::Enum triggerState = pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+        pTriggerComponent->PostTriggerMessage(pOtherComponent, triggerState);
       }
     }
   }

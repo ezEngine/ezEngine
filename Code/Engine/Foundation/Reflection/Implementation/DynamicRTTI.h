@@ -72,7 +72,7 @@
       GetTypeVersion(),                                                             \
       ezVariant::TypeDeduction<OwnType>::value,                                     \
       flags,                                                                        \
-      &Allocator, Properties, Attributes, MessageHandlers, EZ_REFLECTION_DEBUG_GETPARENTFUNC);  \
+      &Allocator, Properties, Attributes, MessageHandlers, MessageSenders, EZ_REFLECTION_DEBUG_GETPARENTFUNC);  \
   }
 
 #ifdef EZ_SUPPORT_EZARCHIVE

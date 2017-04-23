@@ -44,6 +44,12 @@ protected:
   bool m_bIsConst;
 };
 
+struct ezMessageSenderInfo
+{
+  const char* m_szName;
+  const ezRTTI* m_pMessageType;
+};
+
 namespace ezInternal
 {
   template <typename Class, typename MessageType>

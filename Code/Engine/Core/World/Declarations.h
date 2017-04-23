@@ -144,9 +144,6 @@ struct ezObjectFlags
     SimulationStarted = EZ_BIT(4),
     SimulationStarting = EZ_BIT(5),
     UnhandledMessageHandler = EZ_BIT(6), ///< For components, when a message is not handled, a virtual function is called
-    IsEventHandler = EZ_BIT(7), ///< 'Event' messages will be delivered to this node, but not further. Used by script components to prevent event messages from further dispatch.
-    IsGlobalEventHandler = EZ_BIT(7), ///< This component has been registered to listen for all global events, ie. events that haven't been handled locally
-    EnableDebugOutput = EZ_BIT(8), ///< Not serialized, typically set by the editor to enable debug output that it can visualize
 
     Default = Dynamic | Active
   };
@@ -160,29 +157,10 @@ struct ezObjectFlags
     StorageType SimulationStarted : 1;
     StorageType SimulationStarting : 1;
     StorageType UnhandledMessageHandler : 1;
-    StorageType IsEventHandler : 1;
-    StorageType IsGlobalEventHandler : 1;
-    StorageType EnableDebugOutput : 1;
   };
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezObjectFlags);
-
-/// \brief Different options for routing a message through the game object graph.
-struct ezObjectMsgRouting
-{
-  enum Enum
-  {
-    ToObjectOnly, ///< Send the message only to the object itself.
-    ToComponents, ///< Send the message to the object itself and its components.
-    ToAllParents, ///< Send the message to the object, all parent objects and their components.
-    ToChildren,   ///< Send the message to the object, all child objects (recursively) and their components.
-    ToSubTree,    ///< Send the message to the whole subtree starting at the top-level parent object.
-    ToEventHandler, ///< Send the message up the tree to the next node/component that has ezObjectFlags::IsEventHandler, but no further.
-    ToParentEventHandler, ///< Same as ToEventHandler, but starts searching for the event handler at the target's parent node. Useful to break out of the current event handler, and propagate an event to the next one.
-    Default = ToComponents
-  };
-};
 
 /// \brief Specifies at which phase the queued message should be processed.
 struct ezObjectMsgQueueType

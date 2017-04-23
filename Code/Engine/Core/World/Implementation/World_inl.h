@@ -252,8 +252,7 @@ template <typename ComponentType>
 inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
   CheckForWriteAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
-    "Not a valid component type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
@@ -275,8 +274,7 @@ template <typename ComponentType>
 inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
 {
   CheckForReadAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
-    "Not a valid component type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
@@ -294,21 +292,22 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, const C
   return false;
 }
 
-EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
-  ezObjectMsgRouting::Enum routing /*= ezObjectMsgRouting::Default*/)
+EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg)
 {
   CheckForWriteAccess();
 
   ezGameObject* pReceiverObject = nullptr;
   if (TryGetObject(receiverObject, pReceiverObject))
   {
-    pReceiverObject->SendMessage(msg, routing);
+    pReceiverObject->SendMessage(msg);
   }
   else
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+    if (msg.GetDebugMessageRouting())
+    {
       ezLog::Warning("ezWorld::SendMessage: The receiver ezGameObject for message of type {0} does not exist.", msg.GetId());
+    }
 #endif
   }
 }
@@ -325,8 +324,10 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverCompo
   else
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+    if (msg.GetDebugMessageRouting())
+    {
       ezLog::Warning("ezWorld::SendMessage: The receiver ezComponent for message of type {0} does not exist.", msg.GetId());
+    }
 #endif
   }
 }

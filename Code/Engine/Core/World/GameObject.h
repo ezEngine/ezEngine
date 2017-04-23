@@ -248,18 +248,16 @@ public:
 
 
   /// \brief Sends a message to all components of this object. Depending on the routing options the message is also send to parents or children.
-  void SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+  void SendMessage(ezMessage& msg);
 
   /// \brief Sends a message to all components of this object. Depending on the routing options the message is also send to parents or children.
-  void SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default) const;
+  void SendMessage(ezMessage& msg) const;
 
   /// \brief Queues the message for the given phase and processes it later in that phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default) const;
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default) const;
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
 
   /// \brief Returns the tag set associated with this object.
@@ -326,8 +324,6 @@ private:
 
     void UpdateSpatialData(bool bWasAlwaysVisible, bool bIsAlwaysVisible);
   };
-
-  friend class ezComponent;
 
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;

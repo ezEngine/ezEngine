@@ -2,6 +2,7 @@
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
 class ezVisualScriptInstance;
@@ -17,9 +18,9 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptComponentActivityEvent
   ezVisualScriptInstanceActivity* m_pActivity = nullptr;
 };
 
-class EZ_GAMEENGINE_DLL ezVisualScriptComponent : public ezComponent
+class EZ_GAMEENGINE_DLL ezVisualScriptComponent : public ezEventMessageHandlerComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezVisualScriptComponent, ezComponent, ezVisualScriptComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezVisualScriptComponent, ezEventMessageHandlerComponent, ezVisualScriptComponentManager);
 
 public:
   ezVisualScriptComponent();
@@ -37,14 +38,13 @@ public:
   void SetIsGlobalEventHandler(bool enable);
   bool GetIsGlobalEventHandler() const { return m_bGlobalEventHandler; }
 
+  virtual bool HandlesEventMessage(const ezEventMessage& msg) const override;
+
   void Update();
 
   static ezEvent<const ezVisualScriptComponentActivityEvent&> s_ActivityEvents;
 
 protected:
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
-
   virtual bool OnUnhandledMessage(ezMessage& msg) override;
   virtual bool OnUnhandledMessage(ezMessage& msg) const override;
 

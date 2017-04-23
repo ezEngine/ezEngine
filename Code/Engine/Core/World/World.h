@@ -152,29 +152,23 @@ public:
   ///@{
 
   /// \brief Sends a message to all components of the receiverObject. Depending on the routing options the message is also send to parents or children.
-  void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
-    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+  void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
   /// \brief Queues the message for the given phase and send it later in that phase to the receiverObject.
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
-    ezObjectMsgQueueType::Enum queueType, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
-    ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
   /// \brief Queues the message for the given phase and send it later in that phase to the receiverComponent.
-  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType);
+  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
-
-  /// \brief Sends the message to all components that are registered as global message handlers
-  void DeliverMessageToGlobalHandlers(ezMessage& msg);
+  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
   ///@}
 

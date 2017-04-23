@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include <GameEngine/Basics.h>
-#include <Core/World/World.h>
-#include <Core/World/Component.h>
 #include <Core/Input/Declarations.h>
+#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/World/World.h>
 
 typedef ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating> ezInputComponentManager;
 
@@ -65,4 +65,6 @@ public:
 
   ezString m_sInputSet;
   ezEnum<ezInputMessageGranularity> m_Granularity;
+
+  ezEventMessageSender<ezInputEventMessage> m_InputEventSender;
 };
