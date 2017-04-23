@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
+#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/ResourceManager/Resource.h>
 
 typedef ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating> ezFmodEventComponentManager;

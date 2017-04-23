@@ -203,7 +203,7 @@ o
 			Uuid{u4{15485107134311690276,17207442112535416250}}
 		}
 		Vec2 %Node::Pos{f{0xAF2182C3,0xF6460E44}}
-		s %Type{"ezRaycastMessageComponent"}
+		s %Type{"ezPxRaycastInteractComponent"}
 	}
 }
 o
@@ -325,7 +325,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7015304998123668388,5646540825533331613}}
-		u4 %Hash{7547870256852557454}
+		u4 %Hash{18023529626713315017}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

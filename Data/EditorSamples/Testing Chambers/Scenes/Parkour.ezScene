@@ -2272,6 +2272,19 @@ o
 }
 o
 {
+	Uuid %id{u4{1771066554273120683,4987162075577318781}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{0}
+		f %Intensity{0x00007A44}
+		ColorGamma %LightColor{u1{188,0,255,255}}
+		f %Range{0x00002041}
+	}
+}
+o
+{
 	Uuid %id{u4{11649679808978584709,4987683084756000112}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -2437,6 +2450,19 @@ o
 		b %Active{1}
 		f %Intensity{0}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+	}
+}
+o
+{
+	Uuid %id{u4{7346982956613873063,5087708757037025872}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{0}
+		f %Intensity{0x00007A44}
+		ColorGamma %LightColor{u1{188,0,255,255}}
+		f %Range{0x00002041}
 	}
 }
 o
@@ -2620,7 +2646,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{14522828632922912952}
+		u4 %Hash{17668242499005493550}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2809,10 +2835,10 @@ o
 	{
 		b %Active{0}
 		Angle %InnerSpotAngle{f{0x4D51253F}}
-		f %Intensity{0x00401C46}
+		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0x7618713F}}
-		f %Range{0}
+		f %Range{0x00002041}
 	}
 }
 o
@@ -4130,6 +4156,7 @@ o
 			Uuid{u4{3368183494605644862,7718947553085197403}}
 			Uuid{u4{9003399644029959419,8420617064282026100}}
 			Uuid{u4{3064421418622694143,8239720984993416742}}
+			Uuid{u4{1771066554273120683,4987162075577318781}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x6571A540,0x4A63C840,0x75841040}}
@@ -7440,6 +7467,7 @@ o
 			Uuid{u4{13080607024418590169,13443876903679241649}}
 			Uuid{u4{269079100133353110,14145546414876070346}}
 			Uuid{u4{12776844948435639450,13964650335587460988}}
+			Uuid{u4{7346982956613873063,5087708757037025872}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xCAE21A40,0xA5310441,0x75841040}}
