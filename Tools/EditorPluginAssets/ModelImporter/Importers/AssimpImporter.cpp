@@ -265,6 +265,9 @@ namespace ezModelImporter
     {
       for (unsigned int metadataIdx = 0; metadataIdx < assimpNode->mMetaData->mNumProperties; ++metadataIdx)
       {
+        if (assimpNode->mMetaData->mValues[metadataIdx].mData == nullptr)
+          continue;
+
         Node::Metadata data;
         data.m_Key = assimpNode->mMetaData->mKeys[metadataIdx].C_Str();
         switch (assimpNode->mMetaData->mValues[metadataIdx].mType)

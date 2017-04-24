@@ -168,6 +168,7 @@ namespace ezModelImporter
   void Mesh::AddData(const Mesh& mesh, const ezTransform& transform)
   {
     ezMat4 transformMat = transform.GetAsMat4();
+    ezMat4 normalTransformMat = transformMat.GetInverse().GetTranspose();
 
     // Create new triangles.
     ezUInt32 oldTriangleCount = GetNumTriangles();
@@ -214,7 +215,7 @@ namespace ezModelImporter
           for (ezUInt32 i = targetBaseDataIndex; i < targetStream->m_Data.GetCount(); i += attributeSize)
           {
             ezVec3& dir = *reinterpret_cast<ezVec3*>(&targetStream->m_Data[i]);
-            dir = transformMat.TransformDirection(dir);
+            dir = normalTransformMat.TransformDirection(dir);
           }
         }
       }
@@ -447,7 +448,7 @@ namespace ezModelImporter
           bitangentStream->SetDataIndex(v, bitangentIndexNegative);
       }
     };
-    
+
     // If there is already a data stream with 3 component bitangents, remove it.
     {
       VertexDataStream* bitangents = GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
