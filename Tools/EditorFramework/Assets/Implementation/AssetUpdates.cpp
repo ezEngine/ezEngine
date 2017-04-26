@@ -470,6 +470,7 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezAsse
     }
 
     stat.m_Timestamp = pFileStat->m_LastModificationTime;
+    stat.m_Status = FileStatus::Status::Valid;
   }
 
   // update the paths
