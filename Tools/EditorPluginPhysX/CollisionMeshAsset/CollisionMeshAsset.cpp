@@ -174,17 +174,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(ezCollisionMeshAssetPr
 
     // Set changes.
     {
-      ezAbstractObjectGraph graph;
-      ezRttiConverterContext context;
-      ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
-
-      ezDocumentObject* pPropObj = GetPropertyObject();
-      context.RegisterObject(pPropObj->GetGuid(), pPropObj->GetTypeAccessor().GetType(), pProp);
-      auto* pNode = rttiConverter.AddObjectToGraph(pProp, "Object");
-
-      ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
-      objectConverter.ApplyPropertiesToObject(pNode, pPropObj);
-
+      ApplyNativePropertyChangesToObjectManager();
       pProp = GetProperties();
     }
   }

@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 template<typename ObjectProperties>
 class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
