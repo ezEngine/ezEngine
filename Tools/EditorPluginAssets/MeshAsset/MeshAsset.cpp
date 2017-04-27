@@ -330,14 +330,15 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   {
     ezStopwatch timer;
     // Prepare streams.
-    const static int maxNumMeshStreams = 5;
+    const static int maxNumMeshStreams = 6;
     enum Streams
     {
       Position,
       Texcoord0,
       Normal,
       Tangent,
-      BiTangent
+      BiTangent,
+      Color
     };
 
     const ezModelImporter::VertexDataStream* dataStreams[maxNumMeshStreams];
@@ -361,6 +362,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
     dataStreams[Tangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
     dataStreams[BiTangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
+    dataStreams[Color] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Color);
 
     // Compute indices for interleaved data.
     ezHashTable<ImportHelper::DataIndexBundle<maxNumMeshStreams>, ezUInt32> dataIndices_to_InterleavedVertexIndices;
@@ -392,6 +394,13 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     if (dataStreams[Texcoord0])
 #endif
       uiTexStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+
+    ezUInt32 uiColorStream = 0;
+    if (dataStreams[Color])
+    {
+      uiColorStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
+    }
+
     desc.MeshBufferDesc().AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
     // Read in vertices.
@@ -486,6 +495,22 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       }
     }
 #endif
+
+    // Set Color.
+    if (dataStreams[Color])
+    {
+      const ezModelImporter::TypedVertexDataStreamView<ezVec4> streamColor(*dataStreams[Color]);
+
+      for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+      {
+        ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+        ezUInt32 uiVertexIndex = it.Value();
+
+        ezVec4 c = streamColor.GetValue(dataIndices[Color]);
+        ezColorLinearUB color = ezColor(c.x, c.y, c.z, c.w);
+        desc.MeshBufferDesc().SetVertexData(uiColorStream, uiVertexIndex, color);
+      }
+    }
 
     // Read in indices.
     if (bFlipTriangles)

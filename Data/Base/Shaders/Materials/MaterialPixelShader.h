@@ -42,9 +42,11 @@
 
   #if RENDER_PASS == RENDER_PASS_FORWARD
     #if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
+      //litColor = ApplyFog(litColor, matData.worldPosition);
+    
       return float4(litColor, opacity);
     #else
-      return float4(matData.diffuseColor, opacity);
+      return float4(matData.diffuseColor + matData.emissiveColor, opacity);
     #endif
 
   #elif RENDER_PASS == RENDER_PASS_EDITOR

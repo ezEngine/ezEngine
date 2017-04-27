@@ -177,7 +177,7 @@ namespace ezModelImporter
       if (assimpMesh->HasVertexColors(0))
       {
         VertexDataStream* colors = mesh->AddDataStream(ezGALVertexAttributeSemantic::Color, 4);
-        ezArrayPtr<char> assimpColorsPtr(reinterpret_cast<char*>(assimpMesh->mColors), assimpMesh->mNumVertices * sizeof(ezVec4));
+        ezArrayPtr<char> assimpColorsPtr(reinterpret_cast<char*>(assimpMesh->mColors[0]), assimpMesh->mNumVertices * sizeof(ezVec4));
         colors->AddValues(assimpColorsPtr);
         vertexDataStreams.PushBack(colors);
 

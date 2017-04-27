@@ -83,7 +83,7 @@ void ezMaterialContext::OnInitialize()
       // Build geometry
       ezGeometry geom;
 
-      geom.AddSphere(1, 64, 64, ezColor::White);
+      geom.AddSphere(1, 64, 64, ezColor::Red);
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
@@ -91,6 +91,7 @@ void ezMaterialContext::OnInitialize()
       desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
       desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
       desc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+      desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, desc, szMeshBufferName);

@@ -98,6 +98,28 @@ Node %VertexTangent
   }
 }
 
+Node %VertexColor
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+  
+  string %CodeVertexShader { "
+#define USE_COLOR
+" }
+  
+  string %CodePixelDefines { "
+#define USE_COLOR
+" }
+
+  OutputPin %Color
+  {
+    string %Type { "float4" }
+    unsigned_int8 %Color { 255, 128, 128 }
+    string %Inline { "Input.Color" }
+    string %Tooltip { "The vertex color" }
+  }
+}
+
 Node %Camera
 {
   string %Category { "Input" }

@@ -185,7 +185,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         {
           for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
           {
-            SetVertexData<ezColorGammaUB>(s, v, geom.GetVertices()[v].m_Color);
+            SetVertexData<ezColorLinearUB>(s, v, geom.GetVertices()[v].m_Color);
           }
         }
         else
