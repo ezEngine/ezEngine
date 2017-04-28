@@ -28,12 +28,12 @@ public:
   ezUInt32 CreateShapeId();
   void DeleteShapeId(ezUInt32 uiShapeId);
 
+  void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
   virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
+  float GetMaxDepenetrationVelocity() const { return m_Settings.m_fMaxDepenetrationVelocity; }
 
   // ezPhysicsWorldModuleInterface implementation
-  void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
-
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
     ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
 
@@ -63,7 +63,7 @@ private:
   ezUInt32 m_uiNextShapeId;
   ezDynamicArray<ezUInt32> m_FreeShapeIds;
 
-  ezDynamicArray<ezUInt8> m_ScratchMemory;
+  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_ScratchMemory;
 
   ezTime m_AccumulatedTimeSinceUpdate;
 

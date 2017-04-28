@@ -520,12 +520,22 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
 {
+  ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>();
+  ezPxTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezPxTriggerComponentManager>();
+
+  EZ_PX_WRITE_LOCK(*m_pPxScene);
+
   if (ezPxSettingsComponentManager* pSettingsManager = GetWorld()->GetComponentManager<ezPxSettingsComponentManager>())
   {
     ezPxSettingsComponent* pSettings = pSettingsManager->GetSingletonComponent();
     if (pSettings != nullptr && pSettings->IsModified())
     {
       SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
+
+      if (pDynamicActorManager != nullptr && pSettings->IsModified(EZ_BIT(2))) // max depenetration velocity
+      {
+        pDynamicActorManager->UpdateMaxDepenetrationVelocity(pSettings->GetMaxDepenetrationVelocity());
+      }
 
       m_Settings = pSettings->GetSettings();
       m_AccumulatedTimeSinceUpdate.SetZero();
@@ -536,22 +546,14 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
     }
   }
 
-  ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>();
-  ezPxTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezPxTriggerComponentManager>();
-
-  if (pDynamicActorManager || pTriggerManager)
+  if (pDynamicActorManager != nullptr)
   {
-    EZ_PX_WRITE_LOCK(*m_pPxScene);
+    pDynamicActorManager->UpdateKinematicActors();
+  }
 
-    if (pDynamicActorManager)
-    {
-      pDynamicActorManager->UpdateKinematicActors();
-    }
-
-    if (pTriggerManager)
-    {
-      pTriggerManager->UpdateKinematicActors();
-    }
+  if (pTriggerManager != nullptr)
+  {
+    pTriggerManager->UpdateKinematicActors();
   }
 
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(&m_SimulateTask, ezTaskPriority::EarlyThisFrame);
@@ -603,15 +605,17 @@ void ezPhysXWorldModule::Simulate()
   }
   else if (m_Settings.m_SteppingMode == ezPxSteppingMode::SemiFixed)
   {
-    float fDiff = (float)tDiff.GetSeconds();
+    float fDiff = (float)(m_AccumulatedTimeSinceUpdate + tDiff).GetSeconds();
     float fFixedStep = 1.0f / m_Settings.m_fFixedFrameRate;
+    float fMinStep = fFixedStep / 4.0f;
+
     if (fFixedStep * m_Settings.m_uiMaxSubSteps < fDiff)
     {
       ///\todo add warning?
       fFixedStep = fDiff / m_Settings.m_uiMaxSubSteps;
     }
 
-    while (fDiff > 0.0f)
+    while (fDiff > fMinStep)
     {
       float fDeltaTime = ezMath::Min(fFixedStep, fDiff);
 
@@ -619,6 +623,8 @@ void ezPhysXWorldModule::Simulate()
 
       fDiff -= fDeltaTime;
     }
+
+    m_AccumulatedTimeSinceUpdate += ezTime::Seconds(fDiff);
   }
   else
   {
@@ -635,9 +641,7 @@ void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
 
   {
     EZ_PROFILE("Simulate");
-    ///\todo this should prevent temporary allocations every frame, but it crashes inside the solver instead.
-    //m_pPxScene->simulate(fDeltaTime, nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
-    m_pPxScene->simulate(fDeltaTime, nullptr);
+    m_pPxScene->simulate(fDeltaTime, nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
   }
 
   {

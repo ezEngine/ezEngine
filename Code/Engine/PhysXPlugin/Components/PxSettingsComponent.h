@@ -26,6 +26,9 @@ public:
   const ezVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
   void SetCharacterGravity(const ezVec3& v);
 
+  float GetMaxDepenetrationVelocity() const { return m_Settings.m_fMaxDepenetrationVelocity; }
+  void SetMaxDepenetrationVelocity(float fMaxVelocity);
+
   ezPxSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; }
   void SetSteppingMode(ezPxSteppingMode::Enum mode);
 

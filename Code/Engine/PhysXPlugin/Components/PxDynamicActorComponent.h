@@ -18,6 +18,8 @@ private:
   void UpdateKinematicActors();
   void UpdateDynamicActors(ezArrayPtr<const physx::PxActiveTransform> activeTransforms);
 
+  void UpdateMaxDepenetrationVelocity(float fMaxVelocity);
+
   ezDynamicArray<ezPxDynamicActorComponent*> m_KinematicActorComponents;
 };
 

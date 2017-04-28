@@ -63,6 +63,14 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
   }
 }
 
+void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMaxVelocity)
+{
+  for (auto it = GetComponents(); it.IsValid(); ++it)
+  {
+    it->GetActor()->setMaxDepenetrationVelocity(fMaxVelocity);
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
@@ -173,9 +181,6 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
 
   AddShapesFromObject(GetOwner(), m_pActor, globalTransform);
 
-  m_pActor->setLinearDamping(ezMath::Clamp(m_fLinearDamping, 0.0f, 1000.0f));
-  m_pActor->setAngularDamping(ezMath::Clamp(m_fAngularDamping, 0.0f, 1000.0f));
-
   if (m_pActor->getNbShapes() == 0)
   {
     m_pActor->release();
@@ -184,6 +189,10 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
     ezLog::Error("Rigid Body '{0}' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
     return;
   }
+
+  m_pActor->setLinearDamping(ezMath::Clamp(m_fLinearDamping, 0.0f, 1000.0f));
+  m_pActor->setAngularDamping(ezMath::Clamp(m_fAngularDamping, 0.0f, 1000.0f));
+  m_pActor->setMaxDepenetrationVelocity(pModule->GetMaxDepenetrationVelocity());
 
   ezVec3 vCenterOfMass(0.0f);
   if (FindCenterOfMass(GetOwner(), vCenterOfMass))

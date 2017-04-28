@@ -46,6 +46,7 @@ struct ezPxSettings
   {
     m_vObjectGravity.Set(0, 0, -9.81f);
     m_vCharacterGravity.Set(0, 0, -12.0f);
+    m_fMaxDepenetrationVelocity = 1.0f;
 
     m_SteppingMode = ezPxSteppingMode::SemiFixed;
     m_fFixedFrameRate = 60.0f;
@@ -56,6 +57,7 @@ struct ezPxSettings
 
   ezVec3 m_vObjectGravity;
   ezVec3 m_vCharacterGravity;
+  float m_fMaxDepenetrationVelocity;
 
   ezEnum<ezPxSteppingMode> m_SteppingMode;
   float m_fFixedFrameRate;
