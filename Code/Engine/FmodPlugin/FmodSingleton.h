@@ -26,8 +26,20 @@ public:
 
   static void GameApplicationEventHandler(const ezGameApplicationEvent& e);
 
+  /// \brief Configures how many reverb ('EAX') volumes are being blended/mixed for a sound.
+  ///
+  /// The number is clamped between 0 and 4. 0 Means all environmental effects are disabled for all sound sources.
+  /// 1 means only the most important reverb is applied. 2, 3 and 4 allow to add more fidelity, but will cost more CPU resources.
+  ///
+  /// The default is currently 4.
+  void SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes);
+
+  /// \brief See SetNumBlendedReverbVolumes()
+  ezUInt8 GetNumBlendedReverbVolumes() const { return m_uiNumBlendedVolumes; }
+
 private:
   bool m_bInitialized;
+  ezUInt8 m_uiNumBlendedVolumes = 4;
 
   FMOD::Studio::System* m_pFmodSystem;
   FMOD::System* m_pLowLevelSystem;

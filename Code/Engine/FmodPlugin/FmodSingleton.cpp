@@ -87,5 +87,10 @@ void ezFmod::GameApplicationEventHandler(const ezGameApplicationEvent& e)
   }
 }
 
+void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
+{
+  m_uiNumBlendedVolumes = ezMath::Clamp<ezUInt8>(m_uiNumBlendedVolumes, 0, 4);
+}
+
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);
 

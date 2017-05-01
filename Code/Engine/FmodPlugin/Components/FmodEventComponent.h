@@ -44,6 +44,9 @@ public:
   void SetPaused(bool b);
   bool GetPaused() const { return m_bPaused; }
 
+  void SetApplyEnvironmentReverb(bool b);
+  bool GetApplyEnvironmentReverb() const { return m_bApplyEnvironmentReverb; }
+
   void SetPitch(float f);
   float GetPitch() const { return m_fPitch; }
 
@@ -62,6 +65,7 @@ public:
 
 protected:
   bool m_bPaused;
+  bool m_bApplyEnvironmentReverb = true; ///< Whether 'EAX' effects should be used for this event
   float m_fPitch;
   float m_fVolume;
   ezFmodSoundEventResourceHandle m_hSoundEvent;
@@ -92,6 +96,7 @@ protected:
 
   void Update();
   void SetParameters3d(FMOD::Studio::EventInstance* pEventInstance);
+  void SetReverbParameters(FMOD::Studio::EventInstance* pEventInstance);
 
   FMOD::Studio::EventDescription* m_pEventDesc;
   FMOD::Studio::EventInstance* m_pEventInstance;

@@ -40,6 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
+    EZ_ACCESSOR_PROPERTY("EnvironmentReverb", GetApplyEnvironmentReverb, SetApplyEnvironmentReverb)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("Sound Event")),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
     EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
@@ -117,6 +118,19 @@ void ezFmodEventComponent::SetPaused(bool b)
   else if (!m_bPaused)
   {
     Restart();
+  }
+}
+
+void ezFmodEventComponent::SetApplyEnvironmentReverb(bool b)
+{
+  if (m_bApplyEnvironmentReverb == b)
+    return;
+
+  m_bApplyEnvironmentReverb = b;
+
+  if (m_pEventInstance != nullptr)
+  {
+    SetReverbParameters(m_pEventInstance);
   }
 }
 
@@ -218,8 +232,11 @@ void ezFmodEventComponent::Restart()
   }
 
   m_bPaused = false;
-  EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
-  EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+  
+  SetReverbParameters(m_pEventInstance);
+  SetParameters3d(m_pEventInstance);
+
+  EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
   EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
 
   EZ_FMOD_ASSERT(m_pEventInstance->start());
@@ -249,6 +266,8 @@ void ezFmodEventComponent::StartOneShot()
   EZ_ASSERT_DEV(pEventInstance != nullptr, "Sound Event Instance pointer should be valid");
 
   SetParameters3d(pEventInstance);
+  SetReverbParameters(pEventInstance);
+
   EZ_FMOD_ASSERT(pEventInstance->setVolume(m_fVolume));
 
   EZ_FMOD_ASSERT(pEventInstance->start());
@@ -317,6 +336,31 @@ void ezFmodEventComponent::SetParameters3d(FMOD::Studio::EventInstance* pEventIn
   // have to update pitch every time, in case the clock speed changes
   EZ_FMOD_ASSERT(pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   EZ_FMOD_ASSERT(pEventInstance->set3DAttributes(&attr));
+}
+
+void ezFmodEventComponent::SetReverbParameters(FMOD::Studio::EventInstance* pEventInstance)
+{
+  if (m_bApplyEnvironmentReverb)
+  {
+    const ezUInt8 uiNumReverbs = ezFmod::GetSingleton()->GetNumBlendedReverbVolumes();
+
+    for (ezUInt8 i = 0; i < uiNumReverbs; ++i)
+    {
+      EZ_FMOD_ASSERT(pEventInstance->setReverbLevel(i, 1.0f));
+    }
+
+    for (ezUInt8 i = uiNumReverbs; i < 4; ++i)
+    {
+      EZ_FMOD_ASSERT(pEventInstance->setReverbLevel(i, 0.0f));
+    }
+  }
+  else
+  {
+    for (ezUInt8 i = 0; i < 4; ++i)
+    {
+      EZ_FMOD_ASSERT(pEventInstance->setReverbLevel(0, 0.0f));
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);
