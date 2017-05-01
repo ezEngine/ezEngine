@@ -15,7 +15,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 4, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)

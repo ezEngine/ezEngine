@@ -386,6 +386,7 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
     return ezImageFormat::BC4_UNORM;
 
   case MAKE_FOURCC('A', 'T', 'I', '2'):
+  case MAKE_FOURCC('B', 'C', '5', 'U'):
     return ezImageFormat::BC5_UNORM;
 
   // old legacy DirectX formats

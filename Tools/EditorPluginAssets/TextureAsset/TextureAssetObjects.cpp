@@ -140,6 +140,11 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
 
 ezInt32 ezTextureAssetProperties::GetNumChannels() const
 {
+  if (m_TextureUsage == ezTexture2DUsageEnum::NormalMap && m_bCompression)
+  {
+    return 2;
+  }
+
   switch (m_ChannelMapping)
   {
   case ezTexture2DChannelMappingEnum::R1:

@@ -65,12 +65,20 @@ Node %NormalTexture
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   unsigned_int8 %Color { 0, 89, 153 }
-  string %CodeMaterialParams { "Texture2D NormalTexture @Default(\"$prop0\");" }
+  string %CodeMaterialParams { "
+Texture2D $prop0 @Default(\"$prop1\");
+" }
 
   string %CodePixelSamplers { "
-Texture2D NormalTexture;
-SamplerState NormalTexture_AutoSampler;
+Texture2D $prop0;
+SamplerState $prop0_AutoSampler;
 " }
+
+  Property %Name
+  {
+    string %Type { "identifier" }
+    string %DefaultValue { "NormalTexture" }
+  }
 
   Property %Texture
   {
@@ -90,7 +98,7 @@ SamplerState NormalTexture_AutoSampler;
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 128, 255 }
-    string %Inline { "normalize(NormalTexture.Sample(NormalTexture_AutoSampler, ToFloat2($in0)).xyz * 2.0 - 1.0)" }
+    string %Inline { "DecodeNormalTexture($prop0.Sample($prop0_AutoSampler, ToFloat2($in0)))" }
     string %Tooltip { "Normal in Tangent Space" }
   }
 }
@@ -297,5 +305,31 @@ SamplerState $prop0_AutoSampler;
     string %Type { "float" }
     unsigned_int8 %Color { 175, 175, 117 }
     string %Inline { "$prop0.Sample($in1, ToFloat2($in0)).w" }
+  }
+}
+
+Node %BlendNormals
+{
+  string %Category { "Texturing" }
+  unsigned_int8 %Color { 216, 86, 0 }
+
+  InputPin %BaseNormal
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+  }
+  
+  InputPin %DetailNormal
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 200, 200 }
+  }
+
+  OutputPin %Normal
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 128, 128, 255 }
+    string %Inline { "BlendNormals($in0, $in1)" }
+    string %Tooltip { "Blended Normal" }
   }
 }

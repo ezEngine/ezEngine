@@ -488,7 +488,7 @@ ezResult ezTexConv::ValidateConfiguration()
   if (m_bHDROutput && m_bSRGBOutput)
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
-    ezLog::Error("-srgb and -hdr falg can not be specified together as srgb textures can not be hdr.");
+    ezLog::Error("-srgb and -hdr flag can not be specified together as srgb textures can not be hdr.");
     return EZ_FAILURE;
   }
 

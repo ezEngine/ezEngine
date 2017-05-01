@@ -93,7 +93,7 @@ float3 GetNormal(PS_IN Input)
   [branch]
   if (UseNormalAndRoughnessTexture)
   {
-    float3 normalTS = NormalTexture.Sample(NormalTexture_AutoSampler, Input.TexCoords.xy).rgb * 2.0f - 1.0f;
+    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, Input.TexCoords.xy));
     return TangentToWorldSpace(normalTS, Input);
   }
   else

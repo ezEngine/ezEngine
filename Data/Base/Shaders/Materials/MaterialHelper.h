@@ -118,3 +118,17 @@ ezMaterialData FillMaterialData(PS_IN Input)
     return normalTS.x * Input.Tangent + normalTS.y * Input.BiTangent + normalTS.z * Input.Normal;
   }
 #endif
+
+float3 DecodeNormalTexture(float4 normalTex)
+{
+  float2 xy = normalTex.xy * 2.0f - 1.0f;
+  float z = sqrt(max(1.0f - dot(xy, xy), 0.0));
+  return float3(xy, z);
+}
+
+float3 BlendNormals(float3 baseNormal, float3 detailNormal)
+{
+  float3 t = baseNormal + float3(0, 0, 1);
+  float3 u = detailNormal * float3(-1, -1, 1);
+  return t * dot(t, u) - u * t.z;
+}
