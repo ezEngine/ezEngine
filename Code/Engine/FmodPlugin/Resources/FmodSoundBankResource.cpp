@@ -58,6 +58,10 @@ ezResourceLoadDesc ezFmodSoundBankResource::UpdateContent(ezStreamReader* Stream
   EZ_ASSERT_DEV(m_pSoundBankData != nullptr, "Invalid Sound Bank Data pointer in stream");
 
   res.m_State = ezResourceState::Loaded;
+
+  // the newly loaded sound bank might contain VCAs that had not been loaded yet
+  ezFmod::GetSingleton()->UpdateSoundGroupVolumes();
+
   return res;
 }
 
