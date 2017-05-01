@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
+#include <Core/ResourceManager/ResourceBase.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -58,14 +59,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
     EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
   }
   EZ_END_PROPERTIES
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezFmodEventComponent_RestartSoundMsg, RestartSound),
     EZ_MESSAGE_HANDLER(ezFmodEventComponent_StopSoundMsg, StopSound),
     EZ_MESSAGE_HANDLER(ezFmodEventComponent_SoundCueMsg, SoundCue),
   }
   EZ_END_MESSAGEHANDLERS
-  EZ_BEGIN_MESSAGESENDERS
+    EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_SoundFinishedEventSender),
   }
@@ -98,7 +99,7 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fVolume;
 
   s << m_hSoundEvent;
-  
+
   ezOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
   s << type;
 
@@ -161,7 +162,7 @@ void ezFmodEventComponent::SetPitch(float f)
 
   if (m_pEventInstance != nullptr)
   {
-    EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float) GetWorld()->GetClock().GetSpeed()));
+    EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   }
 }
 
@@ -200,8 +201,6 @@ const char* ezFmodEventComponent::GetSoundEventFile() const
 
 void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent)
 {
-  m_hSoundEvent = hSoundEvent;
-
   if (m_pEventInstance)
   {
     ezFmodEventComponent_StopSoundMsg msg;
@@ -210,7 +209,17 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
 
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (m_pSubscripedTo)
+    {
+      m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
+      m_pSubscripedTo = nullptr;
+    }
+#endif
   }
+
+  m_hSoundEvent = hSoundEvent;
 }
 
 void ezFmodEventComponent::OnDeactivated()
@@ -220,6 +229,14 @@ void ezFmodEventComponent::OnDeactivated()
     EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (m_pSubscripedTo)
+    {
+      m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
+      m_pSubscripedTo = nullptr;
+    }
+#endif
   }
 }
 
@@ -238,10 +255,19 @@ void ezFmodEventComponent::Restart()
 
   if (m_pEventInstance == nullptr)
   {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    EZ_ASSERT_DEV(m_pSubscripedTo == nullptr, "Cannot be subscribed already at this time");
+#endif
+
     ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
     if (pEvent->IsMissingResource())
       return;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    m_pSubscripedTo = pEvent.operator->();
+    m_pSubscripedTo->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
+#endif
 
     m_pEventInstance = pEvent->CreateInstance();
     EZ_ASSERT_DEV(m_pEventInstance != nullptr, "Sound Event Instance pointer should be valid");
@@ -250,7 +276,7 @@ void ezFmodEventComponent::Restart()
   }
 
   m_bPaused = false;
-  
+
   SetReverbParameters(m_pEventInstance);
   SetParameters3d(m_pEventInstance);
 
@@ -391,6 +417,23 @@ void ezFmodEventComponent::SetReverbParameters(FMOD::Studio::EventInstance* pEve
     }
   }
 }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
+void ezFmodEventComponent::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (m_pEventInstance != nullptr && e.m_EventType == ezResourceEventType::ResourceContentUnloaded)
+  {
+    ezLog::Debug("Fmod event component resource is dead, invalidating pointer");
+
+    m_pEventInstance = nullptr; // pointer is no longer valid!
+
+    m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
+    m_pSubscripedTo = nullptr;
+  }
+}
+
+#endif
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);
 

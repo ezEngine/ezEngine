@@ -34,6 +34,8 @@ ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pEventDescription)
   {
+    // this will kill all event pointers in the components
+     // which is why the components actually listen for unload events on these resources
     m_pEventDescription->releaseAllInstances();
     m_pEventDescription->unloadSampleData();
     m_pEventDescription = nullptr;
@@ -45,7 +47,7 @@ ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
-  res.m_uiQualityLevelsLoadable = 0;
+  res.m_uiQualityLevelsLoadable = 1;
   res.m_State = ezResourceState::Unloaded;
 
   return res;

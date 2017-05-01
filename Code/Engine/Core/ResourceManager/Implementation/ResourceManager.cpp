@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -130,7 +130,11 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
 
   // if there is nothing else that could be loaded, just return right away
   if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
+  {
+    // due to the threading this can happen for all resource types and is valid
+    //EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "Invalid flag on resource type '{0}'", pResource->GetDynamicRTTI()->GetTypeName());
     return;
+  }
 
   // if we are already preloading this resource, but now it has highest priority
   // and it is still in the task queue (so not yet started)
@@ -144,11 +148,16 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
       // move it to the front of the queue
       // if it is not in the queue anymore, it has already been started by some thread
       if (m_RequireLoading.Remove(li))
+      {
+        //ezLog::Info("Moving Resource to front of preloading queue");
         m_RequireLoading.PushFront(li);
+      }
     }
 
     return;
   }
+
+  //ezLog::Info("Resource not yet preloading, adding to queue");
 
   EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
   pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
@@ -163,7 +172,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   else
     m_RequireLoading.PushBack(li);
 
-  //ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
+  ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
 
   ezResourceEvent e;
   e.m_pResource = pResource;
@@ -230,7 +239,10 @@ void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
       EZ_LOCK(s_ResourceMutex);
 
       if (pResource == nullptr || !pResource->m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
+      {
+        //ezLog::Info("Resource not preloading anymore");
         break;
+      }
     }
   }
 
@@ -442,8 +454,6 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
       pResourceToLoad->m_MemoryUsage = MemUsage;
     }
 
-    /// \todo Proper cleanup
-    //EZ_DEFAULT_DELETE(pStream);
     pLoader->CloseDataStream(pResourceToLoad, LoaderData);
   }
 
@@ -628,7 +638,10 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
     // everything else will be loaded on demand
     if (pResource->GetLastAcquireTime() >= tNow - ezTime::Seconds(30.0))
     {
-      PreloadResource(pResource, tNow - pResource->GetLastAcquireTime());
+      // for some reason, preloading sound bank resources will actually make them fail to load
+
+      //ezLog::Info("Preloading resource: {0} ({1})", pResource->GetResourceID(), pResource->GetResourceDescription());
+      //PreloadResource(pResource, tNow - pResource->GetLastAcquireTime());
     }
   }
 }

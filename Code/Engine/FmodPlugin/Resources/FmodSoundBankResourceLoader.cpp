@@ -82,6 +82,8 @@ void ezFmodSoundBankResourceLoader::CloseDataStream(const ezResourceBase* pResou
 
 bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
@@ -99,6 +101,12 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResourceBase* pRe
 #endif
 
   return true;
+
+#else
+
+  return false; // we cannot reload these resources without overhead, so only allow this during development
+
+#endif
 }
 
 

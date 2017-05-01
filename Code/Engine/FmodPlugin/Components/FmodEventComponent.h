@@ -8,6 +8,8 @@
 typedef ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating> ezFmodEventComponentManager;
 typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
 
+struct ezResourceEvent;
+
 //////////////////////////////////////////////////////////////////////////
 
 struct EZ_FMODPLUGIN_DLL ezFmodEventComponent_RestartSoundMsg : public ezScriptFunctionMessage
@@ -127,6 +129,11 @@ protected:
   FMOD::Studio::EventInstance* m_pEventInstance;
 
   ezEventMessageSender<ezFmodSoundFinishedEventMessage> m_SoundFinishedEventSender;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  void ResourceEventHandler(const ezResourceEvent& e);
+  ezFmodSoundEventResource* m_pSubscripedTo = nullptr;
+#endif
 };
 
 

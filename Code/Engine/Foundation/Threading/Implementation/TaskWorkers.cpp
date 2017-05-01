@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/System/SystemInformation.h>
 
@@ -46,6 +46,7 @@ bool ezTaskSystem::IsLoadingThread()
   if (s_WorkerThreads[ezWorkerThreadType::FileAccess].IsEmpty())
     return false;
 
+  EZ_ASSERT_DEBUG(s_WorkerThreads[ezWorkerThreadType::FileAccess].GetCount() == 1, "The number of loading threads cannot be changed without adjusting other code");
   return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
 }
 

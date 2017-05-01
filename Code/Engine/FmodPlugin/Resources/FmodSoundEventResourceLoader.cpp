@@ -83,9 +83,17 @@ void ezFmodSoundEventResourceLoader::CloseDataStream(const ezResourceBase* pReso
 
 bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+
   // if the sound bank ever gets reloaded, the sound events may be invalid, so always reload all events
   /// \todo not sure whether this can be reduced to only reloading when the bank is outdated
   return true;
+
+#else
+
+  return false; // we cannot reload these resources without overhead, so only allow this during development
+
+#endif
 }
 
 

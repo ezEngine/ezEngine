@@ -8,8 +8,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezFmodSoundBankResource::ezFmodSoundBankResource() : ezResource<ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
-
-  m_pSoundBank = nullptr;
 }
 
 ezFmodSoundBankResource::~ezFmodSoundBankResource()
@@ -31,7 +29,7 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
-  res.m_uiQualityLevelsLoadable = 0;
+  res.m_uiQualityLevelsLoadable = 1;
   res.m_State = ezResourceState::Unloaded;
 
   return res;
