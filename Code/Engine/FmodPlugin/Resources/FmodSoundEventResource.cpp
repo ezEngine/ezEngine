@@ -34,6 +34,7 @@ ezResourceLoadDesc ezFmodSoundEventResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pEventDescription)
   {
+    m_pEventDescription->releaseAllInstances();
     m_pEventDescription->unloadSampleData();
     m_pEventDescription = nullptr;
   }

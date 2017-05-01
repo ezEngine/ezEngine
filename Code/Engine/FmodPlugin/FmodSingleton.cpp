@@ -8,6 +8,10 @@ EZ_IMPLEMENT_SINGLETON(ezFmod);
 
 static ezFmod g_FmodSingleton;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  HANDLE g_hLiveUpdateMutex = NULL;
+#endif
+
 ezFmod::ezFmod()
   : m_SingletonRegistrar(this)
 {
@@ -33,14 +37,41 @@ void ezFmod::Startup()
   void *extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
 
+  /// \todo fmod live update doesn't work with multiple instances
+  // bank loading fails, once two processes are running that use this feature
+  // therefore this is deactivated for now
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    // mutex handle will be closed automatically on process termination
+    GetLastError();
+    g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
+
+    if (g_hLiveUpdateMutex != NULL && GetLastError() != ERROR_ALREADY_EXISTS)
+    {
+      studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
+    }
+    else
+    {
+      ezLog::Warning("Fmod Live-Update not available for this process, another process using fmod is already running.");
+    }
+#else
+    studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
+#endif
+  }
 #endif
 
   const int maxChannels = 32;
 
   EZ_FMOD_ASSERT(m_pStudioSystem->initialize(maxChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
   /// \todo Configure max channels etc.
+
+  if ((studioflags & FMOD_STUDIO_INIT_LIVEUPDATE) != 0)
+  {
+    ezLog::Success("Fmod Live-Update is enabled for this process.");
+  }
+
+  UpdateFmod();
 }
 
 void ezFmod::Shutdown()

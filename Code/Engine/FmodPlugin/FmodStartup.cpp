@@ -17,6 +17,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 
   ON_CORE_STARTUP
   {
+  }
+
+  ON_CORE_SHUTDOWN
+  {
+  }
+
+  ON_ENGINE_STARTUP
+  {
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(&s_SoundBankResourceLoader);
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(&s_SoundEventResourceLoader);
     ezFmod::GetSingleton()->Startup();
@@ -32,21 +40,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
     ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(&ezFmod::GameApplicationEventHandler);
   }
 
-  ON_CORE_SHUTDOWN
+  ON_ENGINE_SHUTDOWN
   {
     ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(&ezFmod::GameApplicationEventHandler);
 
-    ezFmod::GetSingleton()->Shutdown();
-    ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
-    ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(nullptr);
-  }
-
-  ON_ENGINE_STARTUP
-  {
-  }
-
-  ON_ENGINE_SHUTDOWN
-  {
+  ezFmod::GetSingleton()->Shutdown();
+  ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
+  ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(nullptr);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

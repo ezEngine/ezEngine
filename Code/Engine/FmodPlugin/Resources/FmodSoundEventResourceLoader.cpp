@@ -39,7 +39,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
       const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sSubPath);
       const FMOD_GUID* fmodGuid = reinterpret_cast<const FMOD_GUID*>(&guid);
 
-      if (ezFmod::GetSingleton()->GetSystem()->getEventByID(fmodGuid, &pData->m_pEventDescription) != FMOD_OK)
+      if (ezFmod::GetSingleton()->GetStudioSystem()->getEventByID(fmodGuid, &pData->m_pEventDescription) != FMOD_OK)
       {
         ezLog::Error("Fmod event could not be found. GUID: '{0}'", sSubPath);
         return res;
@@ -47,7 +47,7 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
     }
     else
     {
-      if (ezFmod::GetSingleton()->GetSystem()->getEvent(sSubPath.GetData(), &pData->m_pEventDescription) != FMOD_OK)
+      if (ezFmod::GetSingleton()->GetStudioSystem()->getEvent(sSubPath.GetData(), &pData->m_pEventDescription) != FMOD_OK)
       {
         ezLog::Error("Fmod event could not be found. Path: '{0}'", sSubPath);
         return res;

@@ -43,7 +43,11 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 
       // The fmod documentation says it is fully thread-safe, so I assume we can call loadBankMemory at any time
-      auto res = ezFmod::GetSingleton()->GetSystem()->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
+      auto pStudio = ezFmod::GetSingleton()->GetStudioSystem();
+      auto res = pStudio->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
+
+      // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using fmod are running and both have the FMOD_STUDIO_INIT_LIVEUPDATE flag set
+      // somehow fmod cannot handle this and bank loading then fails
       EZ_FMOD_ASSERT(res);
     }
 

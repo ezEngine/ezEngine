@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/Components/FmodListenerComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -73,7 +73,7 @@ void ezFmodListenerComponent::Update()
   attr.velocity.y = vel.y;
   attr.velocity.z = vel.z;
 
-  ezFmod::GetSingleton()->GetSystem()->setListenerAttributes(m_uiListenerIndex, &attr);
+  ezFmod::GetSingleton()->GetStudioSystem()->setListenerAttributes(m_uiListenerIndex, &attr);
 }
 
 

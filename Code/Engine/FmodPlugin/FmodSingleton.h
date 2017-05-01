@@ -17,7 +17,7 @@ public:
   void Startup();
   void Shutdown();
 
-  FMOD::Studio::System* GetSystem() const { return m_pStudioSystem; }
+  FMOD::Studio::System* GetStudioSystem() const { return m_pStudioSystem; }
   FMOD::System* GetLowLevelSystem() const { return m_pLowLevelSystem; }
 
   /// \brief Automatically called by the plugin every time ezGameApplicationEvent::BeforeUpdatePlugins is fired.
