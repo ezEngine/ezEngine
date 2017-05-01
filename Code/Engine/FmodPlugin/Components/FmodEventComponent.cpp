@@ -33,6 +33,18 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodSoundFinishedEventMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundFinishedEventMessage, 1, ezRTTIDefaultAllocator<ezFmodSoundFinishedEventMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodEventComponent_SoundCueMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodEventComponent_SoundCueMsg, 1, ezRTTIDefaultAllocator<ezFmodEventComponent_SoundCueMsg>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
@@ -50,8 +62,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
   {
     EZ_MESSAGE_HANDLER(ezFmodEventComponent_RestartSoundMsg, RestartSound),
     EZ_MESSAGE_HANDLER(ezFmodEventComponent_StopSoundMsg, StopSound),
+    EZ_MESSAGE_HANDLER(ezFmodEventComponent_SoundCueMsg, SoundCue),
   }
   EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGESENDERS
+  {
+    EZ_MESSAGE_SENDER(m_SoundFinishedEventSender),
+  }
+  EZ_END_MESSAGESENDERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -289,6 +307,14 @@ void ezFmodEventComponent::StopSound(ezFmodEventComponent_StopSoundMsg& msg)
   }
 }
 
+void ezFmodEventComponent::SoundCue(ezFmodEventComponent_SoundCueMsg& msg)
+{
+  if (m_pEventInstance != nullptr)
+  {
+    EZ_FMOD_ASSERT(m_pEventInstance->triggerCue());
+  }
+}
+
 void ezFmodEventComponent::Update()
 {
   if (m_pEventInstance)
@@ -300,6 +326,9 @@ void ezFmodEventComponent::Update()
 
     if (state == FMOD_STUDIO_PLAYBACK_STOPPED)
     {
+      ezFmodSoundFinishedEventMessage msg;
+      m_SoundFinishedEventSender.SendMessage(msg, this, GetOwner());
+
       if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteEntity)
       {
         GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

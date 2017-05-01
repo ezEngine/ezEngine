@@ -97,8 +97,12 @@ void ezVisualScriptComponent::SetIsGlobalEventHandler(bool enable)
 
 bool ezVisualScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
 {
-  /// \todo Check whether the script actually handles the message from the given sender.
-  return true;
+  if (m_Script)
+  {
+    return m_Script->HandlesEventMessage(msg);
+  }
+
+  return false;
 }
 
 void ezVisualScriptComponent::Update()

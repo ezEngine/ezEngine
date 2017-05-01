@@ -24,7 +24,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Base class for all messages that are sent as 'events'
+/// \brief Sent when something enters or leaves the trigger
 struct EZ_PHYSXPLUGIN_DLL ezPxTriggerEventMessage : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezPxTriggerEventMessage, ezEventMessage);

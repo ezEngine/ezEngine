@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
@@ -67,7 +67,12 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    it->GetActor()->setMaxDepenetrationVelocity(fMaxVelocity);
+    physx::PxRigidDynamic* pActor = it->GetActor();
+
+    if (pActor != nullptr)
+    {
+      pActor->setMaxDepenetrationVelocity(fMaxVelocity);
+    }
   }
 }
 

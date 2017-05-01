@@ -15,6 +15,7 @@ struct ezVisualScriptResourceDescriptor;
 class ezGameObject;
 class ezWorld;
 struct ezVisualScriptInstanceActivity;
+struct ezEventMessage;
 
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
@@ -60,6 +61,9 @@ public:
 
   static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func);
   static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType);
+
+  /// \brief Returns whether this script has a node that handles this type of event message.
+  bool HandlesEventMessage(const ezEventMessage& msg) const;
 
 private:
   friend class ezVisualScriptNode;

@@ -7,6 +7,7 @@
 #include <Core/World/Declarations.h>
 #include <Core/World/GameObject.h>
 #include <Foundation/Communication/Message.h>
+#include <Core/Messages/EventMessage.h>
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 
@@ -342,3 +343,17 @@ ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunctio
   return nullptr;
 }
 
+bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const
+{
+  /// \todo Precompute which nodes actually have message handlers!
+
+  const ezMessageId id = msg.GetId();
+
+  for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
+  {
+    if (m_Nodes[i]->GetDynamicRTTI()->CanHandleMessage(id))
+      return true;
+  }
+
+  return false;
+}
