@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -117,7 +117,19 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
   if (thumbnailRect.contains(event->localPos().toPoint()))
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
-    ezAssetCurator::GetSingleton()->TransformAsset(guid, false);
+    
+    auto ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, false);
+
+    if (ret.m_Result.Failed())
+    {
+      QString path = index.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
+      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage.GetData(), path.toUtf8().data());
+    }
+    else
+    {
+      ezAssetCurator::GetSingleton()->WriteAssetTables();
+    }
+
     event->accept();
     return true;
   }

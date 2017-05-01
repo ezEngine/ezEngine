@@ -93,9 +93,13 @@ bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& m
 ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventHandler(const ezWorld* pWorld)
 {
   ezUInt32 uiWorldIndex = pWorld->GetIndex();
-  if (auto globalEventHandler = s_GlobalEventHandlerPerWorld[uiWorldIndex])
+
+  if (uiWorldIndex < s_GlobalEventHandlerPerWorld.GetCount())
   {
-    return globalEventHandler->GetArrayPtr();
+    if (auto globalEventHandler = s_GlobalEventHandlerPerWorld[uiWorldIndex])
+    {
+      return globalEventHandler->GetArrayPtr();
+    }
   }
 
   return ezArrayPtr<ezComponentHandle>();

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
 
@@ -19,7 +19,7 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_uiVersion = 0;
   stream >> m_uiVersion;
 
-  EZ_ASSERT_DEV(m_uiVersion <= 3, "Invalid version {0}", m_uiVersion);
+  EZ_ASSERT_DEV(m_uiVersion <= 4, "Invalid version {0}", m_uiVersion);
 
   if (m_uiVersion >= 3)
   {
@@ -219,10 +219,17 @@ ezUInt64 ezWorldReader::GetHeapMemoryUsage() const
 void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
 {
   ezGameObjectDesc& desc = godesc.m_Desc;
-  ezStringBuilder sName;
+  ezStringBuilder sName, sGlobalKey;
 
   *m_pStream >> godesc.m_uiParentHandleIdx;
   *m_pStream >> sName;
+
+  if (m_uiVersion >= 4)
+  {
+    *m_pStream >> sGlobalKey;
+    godesc.m_sGlobalKey = sGlobalKey;
+  }
+
   *m_pStream >> desc.m_LocalPosition;
   *m_pStream >> desc.m_LocalRotation;
   *m_pStream >> desc.m_LocalScaling;
@@ -347,6 +354,11 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
       ezGameObject* pObject;
       m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
 
+      if (!godesc.m_sGlobalKey.IsEmpty())
+      {
+        pObject->SetGlobalKey(godesc.m_sGlobalKey);
+      }
+
       if (out_CreatedRootObjects)
         out_CreatedRootObjects->PushBack(pObject);
     }
@@ -360,6 +372,11 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 
       ezGameObject* pObject;
       m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
+
+      if (!godesc.m_sGlobalKey.IsEmpty())
+      {
+        pObject->SetGlobalKey(godesc.m_sGlobalKey);
+      }
 
       if (out_CreatedRootObjects)
         out_CreatedRootObjects->PushBack(pObject);
@@ -388,6 +405,11 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
     ezGameObject* pObject;
 
     m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
+
+    if (!godesc.m_sGlobalKey.IsEmpty())
+    {
+      pObject->SetGlobalKey(godesc.m_sGlobalKey);
+    }
 
     if (out_CreatedRootObjects)
       out_CreatedRootObjects->PushBack(pObject);

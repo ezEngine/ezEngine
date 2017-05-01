@@ -52,13 +52,14 @@ void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_hResource;
 
+  bool globalEventHandler = false; // dummy to prevent early out in SetIsGlobalEventHandler
   if (uiVersion >= 2)
   {
-    s >> m_bGlobalEventHandler;
+    s >> globalEventHandler;
   }
 
   /// \todo Read script state
-  SetIsGlobalEventHandler(m_bGlobalEventHandler);
+  SetIsGlobalEventHandler(globalEventHandler);
 }
 
 void ezVisualScriptComponent::SetScriptFile(const char* szFile)

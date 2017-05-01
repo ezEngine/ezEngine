@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/World/World.h>
 #include <Foundation/IO/Stream.h>
@@ -64,6 +64,7 @@ private:
   struct GameObjectToCreate
   {
     ezGameObjectDesc m_Desc;
+    ezString m_sGlobalKey;
     ezUInt32 m_uiParentHandleIdx;
   };
 
