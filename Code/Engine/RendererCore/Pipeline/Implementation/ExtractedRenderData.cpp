@@ -18,6 +18,11 @@ void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRen
   sortableRenderData.m_uiSortingKey = pRenderData->GetCategorySortingKey(category, uiRenderDataSortingKey, m_Camera);
 }
 
+void ezExtractedRenderData::AddFrameData(const ezRenderData* pFrameData)
+{
+  m_FrameData.PushBack(pFrameData);
+}
+
 void ezExtractedRenderData::SortAndBatch()
 {
   EZ_PROFILE("SortAndBatch");
@@ -76,6 +81,8 @@ void ezExtractedRenderData::Clear()
     dataPerCategory.m_SortableRenderData.Clear();
   }
 
+  m_FrameData.Clear();
+
   // TODO: intelligent compact
 }
 
@@ -93,7 +100,18 @@ ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ez
   return ezRenderDataBatchList();
 }
 
+const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) const
+{
+  for (auto pData : m_FrameData)
+  {
+    if (pData->IsInstanceOf(pRtti))
+    {
+      return pData;
+    }
+  }
 
+  return nullptr;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_ExtractedRenderData);
 

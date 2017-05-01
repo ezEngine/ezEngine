@@ -295,6 +295,9 @@ bool ezRenderPipeline::RebuildInternal(const ezView& view)
     return false;
   if (!InitRenderPipelinePasses())
     return false;
+
+  SortExtractors();
+
   return true;
 }
 
@@ -598,6 +601,61 @@ bool ezRenderPipeline::InitRenderPipelinePasses()
   return true;
 }
 
+void ezRenderPipeline::SortExtractors()
+{
+  struct Helper
+  {
+    static bool FindDependency(const ezHashedString& sDependency, ezArrayPtr<ezUniquePtr<ezExtractor>> container)
+    {
+      for (auto& extractor : container)
+      {
+        if (sDependency == extractor->GetDynamicRTTI()->GetTypeNameHash())
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+  };
+
+  ezDynamicArray<ezUniquePtr<ezExtractor>> sortedExtractors;
+  sortedExtractors.Reserve(m_Extractors.GetCount());
+
+  ezUInt32 uiIndex = 0;
+  while (!m_Extractors.IsEmpty())
+  {
+    auto& extractor = m_Extractors[uiIndex];
+
+    bool allDependenciesFound = true;
+    for (auto& sDependency : extractor->m_DependsOn)
+    {
+      if (!Helper::FindDependency(sDependency, sortedExtractors))
+      {
+        allDependenciesFound = false;
+        break;
+      }
+    }
+
+    if (allDependenciesFound)
+    {
+      sortedExtractors.PushBack(std::move(extractor));
+      m_Extractors.RemoveAt(uiIndex);
+    }
+    else
+    {
+      ++uiIndex;
+    }
+
+    if (uiIndex >= m_Extractors.GetCount())
+    {
+      uiIndex = 0;
+    }
+  }
+
+  m_Extractors.Swap(sortedExtractors);
+}
+
 void ezRenderPipeline::AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor)
 {
   m_Extractors.PushBack(std::move(pExtractor));
@@ -807,11 +865,23 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   {
     if (pExtractor->m_bActive)
     {
+      EZ_PROFILE(pExtractor->m_sName.GetData());
+
       pExtractor->Extract(view, m_visibleObjects, &data);
     }
   }
 
   data.SortAndBatch();
+
+  for (auto& pExtractor : m_Extractors)
+  {
+    if (pExtractor->m_bActive)
+    {
+      EZ_PROFILE(pExtractor->m_sName.GetData());
+
+      pExtractor->PostSortAndBatch(view, m_visibleObjects, &data);
+    }
+  }
 
   m_CurrentExtractThread = (ezThreadID)0;
 }

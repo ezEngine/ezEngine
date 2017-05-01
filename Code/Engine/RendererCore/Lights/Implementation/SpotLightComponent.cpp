@@ -130,6 +130,9 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
   if (msg.m_OverrideCategory != ezInvalidIndex)
     return;
 
+  if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f || m_OuterSpotAngle.GetRadian() <= 0.0f)
+    return;
+
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);

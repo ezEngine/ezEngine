@@ -43,6 +43,16 @@ ezAmbientLightComponent::~ezAmbientLightComponent()
 
 }
 
+void ezAmbientLightComponent::OnActivated()
+{
+  GetOwner()->UpdateLocalBounds();
+}
+
+void ezAmbientLightComponent::OnDeactivated()
+{
+  GetOwner()->UpdateLocalBounds();
+}
+
 void ezAmbientLightComponent::SetTopColor(ezColorGammaUB color)
 {
   m_TopColor = color;

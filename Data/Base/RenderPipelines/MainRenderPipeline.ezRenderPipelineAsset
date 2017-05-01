@@ -340,7 +340,7 @@ o
 		b %Active{1}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xFCABCFC3,0xE45205C4}}
+		Vec2 %Node::Pos{f{0x4D5CA0C3,0xEC8F29C4}}
 	}
 }
 o
@@ -368,6 +368,7 @@ o
 			Uuid{u4{8822139890538759351,5659142191672036562}}
 			Uuid{u4{17158037350687856310,5273637871777512332}}
 			Uuid{u4{9143673445087126165,5438228896904804009}}
+			Uuid{u4{8045596856047656890,5615459532741541307}}
 		}
 	}
 }
@@ -421,6 +422,19 @@ o
 		f %Radius{0xCDCC4C3E}
 		VarArray %Renderers{}
 		f %Threshold{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{8045596856047656890,5615459532741541307}}
+	s %t{"ezClusteredDataExtractor"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Name{""}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0xF410A2C3,0x9FAE0DC4}}
 	}
 }
 o
@@ -536,7 +550,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{2839003454804122313}
+		u4 %Hash{6056397629079449706}
 		VarArray %Outputs{}
 		VarArray %References
 		{

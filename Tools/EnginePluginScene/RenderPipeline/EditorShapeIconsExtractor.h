@@ -9,7 +9,7 @@ class ezEditorShapeIconsExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorShapeIconsExtractor, ezExtractor);
 public:
-  ezEditorShapeIconsExtractor();
+  ezEditorShapeIconsExtractor(const char* szName = "EditorShapeIconsExtractor");
   ~ezEditorShapeIconsExtractor();
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,

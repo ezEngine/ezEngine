@@ -36,23 +36,22 @@
   #endif
   
   ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
-
-  float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw);
+  
+  #if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
+    float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw);
+  #else
+    float3 litColor = matData.diffuseColor;
+  #endif
+  
   litColor += matData.emissiveColor;
 
   #if RENDER_PASS == RENDER_PASS_FORWARD
-    #if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
-      //litColor = ApplyFog(litColor, matData.worldPosition);
+    return float4(litColor, opacity);
     
-      return float4(litColor, opacity);
-    #else
-      return float4(matData.diffuseColor + matData.emissiveColor, opacity);
-    #endif
-
   #elif RENDER_PASS == RENDER_PASS_EDITOR
     if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
     {
-      return float4(SrgbToLinear(litColor * Exposure), 1);
+      return float4(SrgbToLinear(litColor * Exposure), opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT)
     {

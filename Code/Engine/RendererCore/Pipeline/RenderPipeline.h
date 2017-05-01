@@ -70,6 +70,7 @@ private:
   bool InitRenderTargetDescriptions(const ezView& view);
   bool CreateRenderTargetUsage(const ezView& view);
   bool InitRenderPipelinePasses();
+  void SortExtractors();
 
   void RemoveConnections(ezRenderPipelinePass* pPass);
   void ClearRenderPassGraphTextures();

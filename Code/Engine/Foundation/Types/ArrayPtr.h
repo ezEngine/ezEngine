@@ -124,6 +124,12 @@ public:
   }
 
   /// \brief Reinterprets this array as a byte array.
+  EZ_FORCE_INLINE ezArrayPtr<const ByteType> ToByteArray() const
+  {
+    return ezArrayPtr<const ByteType>(reinterpret_cast<const ByteType*>(GetPtr()), GetCount() * sizeof(T));
+  }
+
+  /// \brief Reinterprets this array as a byte array.
   EZ_FORCE_INLINE ezArrayPtr<ByteType> ToByteArray()
   {
     return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));

@@ -63,6 +63,7 @@ public:
   }
 
   void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiRenderDataSortingKey);
+  void AddFrameData(const ezRenderData* pFrameData);
 
   void SortAndBatch();
 
@@ -70,7 +71,15 @@ public:
 
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 
+  template <typename T>
+  EZ_FORCE_INLINE const T* GetFrameData() const
+  {
+    return static_cast<const T*>(GetFrameData(ezGetStaticRTTI<T>()));
+  }
+
 private:
+
+  const ezRenderData* GetFrameData(const ezRTTI* pRtti) const;
 
   struct DataPerCategory
   {
@@ -86,4 +95,5 @@ private:
   ezDebugRendererContext m_ViewDebugContext;
 
   ezHybridArray< DataPerCategory, 16 > m_DataPerCategory;
+  ezHybridArray<const ezRenderData*, 16> m_FrameData;
 };

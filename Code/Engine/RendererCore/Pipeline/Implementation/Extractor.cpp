@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/Pipeline/Implementation/DataProviders/ClusteredDataUtils.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <Core/World/World.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
@@ -94,9 +93,23 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezExtractor::ezExtractor(const char* szName)
+{
+  m_bActive = true;
+  m_sName.Assign(szName);
+}
+
+ezExtractor::~ezExtractor()
+{
+
+}
+
 void ezExtractor::SetName(const char* szName)
 {
-  m_sName.Assign(szName);
+  if (!ezStringUtils::IsNullOrEmpty(szName))
+  {
+    m_sName.Assign(szName);
+  }
 }
 
 const char* ezExtractor::GetName() const
@@ -115,10 +128,26 @@ bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObje
   return false;
 }
 
+void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData* pExtractedRenderData)
+{
+
+}
+
+void ezExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData* pExtractedRenderData)
+{
+
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisibleObjectsExtractor, 1, ezRTTIDefaultAllocator<ezVisibleObjectsExtractor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
+  : ezExtractor(szName)
+{
+
+}
 
 void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
   ezExtractedRenderData* pExtractedRenderData)
@@ -132,9 +161,6 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray
 
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     VisualizeSpatialData(view);
-
-    ///\todo Move this to somewhere else once we create the clustered data during extraction phase.
-    VisualizeClusteredData(view);
   #endif
 
   for (auto pObject : visibleObjects)
@@ -162,7 +188,8 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezSelectedObjectsExtractor::ezSelectedObjectsExtractor()
+ezSelectedObjectsExtractor::ezSelectedObjectsExtractor(const char* szName)
+  : ezExtractor(szName)
 {
   m_OverrideCategory = ezDefaultRenderDataCategories::Selection;
 }

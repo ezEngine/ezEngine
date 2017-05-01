@@ -61,15 +61,17 @@ namespace ReflectionDetail
     msg.GetWriter() << pRTTI->GetPluginName();
 
     {
-      const ezArrayPtr<ezAbstractProperty*>& Properties = pRTTI->GetProperties();
+      const ezArrayPtr<ezAbstractProperty*>& properties = pRTTI->GetProperties();
 
-      msg.GetWriter() << Properties.GetCount();
+      msg.GetWriter() << properties.GetCount();
 
-      for (ezUInt32 i = 0; i < Properties.GetCount(); ++i)
+      for (auto& prop : properties)
       {
-        msg.GetWriter() << Properties[i]->GetPropertyName();
-        msg.GetWriter() << (ezInt8)Properties[i]->GetCategory();
-        msg.GetWriter() << Properties[i]->GetSpecificType()->GetTypeName();
+        msg.GetWriter() << prop->GetPropertyName();
+        msg.GetWriter() << (ezInt8)prop->GetCategory();
+
+        const ezRTTI* pType = prop->GetSpecificType();
+        msg.GetWriter() << (pType ? pType->GetTypeName() : "<Unknown Type>");
       }
     }
 

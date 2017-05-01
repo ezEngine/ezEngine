@@ -19,7 +19,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorShapeIconsExtractor, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor()
+ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
+  : ezExtractor(szName)
 {
   m_fSize = 1.0f;
   m_fMaxScreenSize = 64.0f;

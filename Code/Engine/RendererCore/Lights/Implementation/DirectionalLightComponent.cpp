@@ -45,6 +45,9 @@ void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage
   if (msg.m_OverrideCategory != ezInvalidIndex)
     return;
 
+  if (m_fIntensity <= 0.0f)
+    return;
+
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner(), uiBatchId);

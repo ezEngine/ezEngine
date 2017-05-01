@@ -8,6 +8,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleExtractor, 1, ezRTTIDefaultAllocator<ezParticleExtractor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezParticleExtractor::ezParticleExtractor(const char* szName)
+  : ezExtractor(szName)
+{
+  m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
+}
+
 void ezParticleExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
   ezExtractedRenderData* pExtractedRenderData)
 {

@@ -25,7 +25,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridRenderer, 1, ezRTTIDefaultAllocator<ezGridRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezEditorGridExtractor::ezEditorGridExtractor()
+ezEditorGridExtractor::ezEditorGridExtractor(const char* szName)
+  : ezExtractor(szName)
 {
   m_pSceneContext = nullptr;
 }

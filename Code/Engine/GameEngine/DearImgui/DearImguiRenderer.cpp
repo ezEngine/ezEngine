@@ -17,6 +17,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderer, 1, ezRTTIDefaultAllocator<ezImguiRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezImguiExtractor::ezImguiExtractor(const char* szName)
+  : ezExtractor(szName)
+{
+
+}
 
 void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
   ezExtractedRenderData* pExtractedRenderData)

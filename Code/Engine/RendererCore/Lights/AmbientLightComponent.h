@@ -27,6 +27,9 @@ public:
   ezAmbientLightComponent();
   ~ezAmbientLightComponent();
 
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   void SetTopColor(ezColorGammaUB color);
   ezColorGammaUB GetTopColor() const;
 

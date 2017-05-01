@@ -382,6 +382,19 @@ o
 }
 o
 {
+	Uuid %id{u4{2204032524017944226,5053734181102349697}}
+	s %t{"ezClusteredDataExtractor"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Name{""}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0x3F5D83C3,0xFB7437C4}}
+	}
+}
+o
+{
 	Uuid %id{u4{16883636273468668820,5091626474797130685}}
 	s %t{"ezSpriteRenderer"}
 	u3 %v{1}
@@ -550,7 +563,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{15639533294703386000}
+		u4 %Hash{15192437101393499282}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -568,7 +581,7 @@ o
 		b %Active{1}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x3F1800C2,0x37D20AC4}}
+		Vec2 %Node::Pos{f{0x3C4A86C3,0x6FCB52C4}}
 	}
 }
 o
@@ -627,6 +640,7 @@ o
 			Uuid{u4{13104320872804311201,4767145777032331907}}
 			Uuid{u4{94515345573827984,4760964661041040509}}
 			Uuid{u4{16469536899644782007,5647150639815068078}}
+			Uuid{u4{2204032524017944226,5053734181102349697}}
 		}
 	}
 }
@@ -748,7 +762,7 @@ o
 		b %Active{1}
 		s %Name{"EditorSelectedObjectsExtractor"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xF6226DC2,0xEABB25C4}}
+		Vec2 %Node::Pos{f{0x8DE9A141,0x7E7B4BC4}}
 		Uuid %SceneContext{u4{0,0}}
 	}
 }
@@ -762,7 +776,7 @@ o
 		b %Active{1}
 		s %Name{"EditorGrid"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x43B76E43,0xEABB0BC4}}
+		Vec2 %Node::Pos{f{0xE599DA41,0x1B513EC4}}
 		Uuid %SceneContext{u4{0,0}}
 	}
 }
@@ -789,7 +803,7 @@ o
 		f %MaxScreenSize{0x00008042}
 		s %Name{"EditorShapeIconsExtractor"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x5FA48BC3,0xEABB23C4}}
+		Vec2 %Node::Pos{f{0x914D8541,0x7F5458C4}}
 		Uuid %SceneContext{u4{0,0}}
 		f %Size{0x0000803F}
 	}
@@ -804,7 +818,7 @@ o
 		b %Active{1}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x5F2480C3,0xEAFB0FC4}}
+		Vec2 %Node::Pos{f{0x0E2068C3,0x319645C4}}
 	}
 }
 o
@@ -1143,7 +1157,7 @@ o
 			Uuid{u4{12548472470294395549,2208822893882285306}}
 		}
 		s %TypeName{"ezEditorGridExtractor"}
-		u3 %TypeSize{32}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1173,7 +1187,7 @@ o
 			Uuid{u4{17681360642012237503,918567023148729502}}
 		}
 		s %TypeName{"ezEditorSelectedObjectsExtractor"}
-		u3 %TypeSize{40}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1353,7 +1367,7 @@ o
 			Uuid{u4{9754146004690067010,15666469013180105351}}
 		}
 		s %TypeName{"ezEditorShapeIconsExtractor"}
-		u3 %TypeSize{72}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }

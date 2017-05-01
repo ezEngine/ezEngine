@@ -11,8 +11,8 @@ class EZ_RENDERERCORE_DLL ezExtractor : public ezReflectedClass
   EZ_DISALLOW_COPY_AND_ASSIGN(ezExtractor);
 
 public:
-  ezExtractor() {}
-  virtual ~ezExtractor() {}
+  ezExtractor(const char* szName);
+  virtual ~ezExtractor();
 
   /// \brief Sets the name of the extractor.
   void SetName(const char* szName);
@@ -24,7 +24,10 @@ public:
   bool FilterByViewTags(const ezView& view, const ezGameObject* pObject) const;
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData) = 0;
+    ezExtractedRenderData* pExtractedRenderData);
+
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData* pExtractedRenderData);
 
 private:
   friend class ezRenderPipeline;
@@ -32,6 +35,9 @@ private:
   bool m_bActive;
 
   ezHashedString m_sName;
+
+protected:
+  ezHybridArray<ezHashedString, 4> m_DependsOn;
 };
 
 
@@ -39,7 +45,7 @@ class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisibleObjectsExtractor, ezExtractor);
 public:
-  ezVisibleObjectsExtractor() {}
+  ezVisibleObjectsExtractor(const char* szName = "VisibleObjectsExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
     ezExtractedRenderData* pExtractedRenderData) override;
@@ -49,7 +55,7 @@ class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsExtractor, ezExtractor);
 public:
-  ezSelectedObjectsExtractor();
+  ezSelectedObjectsExtractor(const char* szName = "SelectedObjectsExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
     ezExtractedRenderData* pExtractedRenderData) override;

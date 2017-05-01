@@ -29,7 +29,7 @@ class ezEditorGridExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorGridExtractor, ezExtractor);
 public:
-  ezEditorGridExtractor();
+  ezEditorGridExtractor(const char* szName = "EditorGridExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
     ezExtractedRenderData* pExtractedRenderData) override;
