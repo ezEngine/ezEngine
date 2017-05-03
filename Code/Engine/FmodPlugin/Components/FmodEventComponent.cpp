@@ -5,6 +5,7 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Core/ResourceManager/ResourceBase.h>
+#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -341,6 +342,40 @@ void ezFmodEventComponent::SoundCue(ezFmodEventComponent_SoundCueMsg& msg)
   }
 }
 
+ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
+{
+  if (m_pEventInstance == nullptr)
+    return -1;
+
+  FMOD::Studio::EventDescription* pEventDesc = nullptr;
+  if (m_pEventInstance->getDescription(&pEventDesc) != FMOD_OK || pEventDesc == nullptr)
+    return -1;
+
+  FMOD_STUDIO_PARAMETER_DESCRIPTION paramDesc;
+  if (pEventDesc->getParameter(szName, &paramDesc) != FMOD_OK)
+    return -1;
+
+  return paramDesc.index;
+}
+
+void ezFmodEventComponent::SetParameter(ezInt32 iParamIndex, float fValue)
+{
+  if (m_pEventInstance == nullptr || iParamIndex < 0)
+    return;
+
+  m_pEventInstance->setParameterValueByIndex(iParamIndex, fValue);
+}
+
+float ezFmodEventComponent::GetParameter(ezInt32 iParamIndex) const
+{
+  if (m_pEventInstance == nullptr || iParamIndex < 0)
+    return 0.0f;
+
+  float value = 0;
+  m_pEventInstance->getParameterValueByIndex(iParamIndex, &value, nullptr);
+  return value;
+}
+
 void ezFmodEventComponent::Update()
 {
   if (m_pEventInstance)
@@ -434,6 +469,81 @@ void ezFmodEventComponent::ResourceEventHandler(const ezResourceEvent& e)
 }
 
 #endif
+
+//////////////////////////////////////////////////////////////////////////
+
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SetFmodEventParameter>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Sound")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Parameter", GetParameterName, SetParameterName),
+    // Execution Pins (Input)
+    EZ_INPUT_EXECUTION_PIN("run", 0),
+    // Execution Pins (Output)
+    EZ_OUTPUT_EXECUTION_PIN("then", 0),
+    // Data Pins (Input)
+    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
+    EZ_INPUT_DATA_PIN("Value", 1, ezVisualScriptDataPinType::Number),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_SetFmodEventParameter::ezVisualScriptNode_SetFmodEventParameter() { }
+
+void ezVisualScriptNode_SetFmodEventParameter::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_iParameterIndex != -2)
+  {
+    ezFmodEventComponent* pEvent = nullptr;
+    if (!pInstance->GetWorld()->TryGetComponent(m_hComponent, pEvent))
+      goto failure;
+
+    // index not yet initialized
+    if (m_iParameterIndex < 0)
+    {
+      m_iParameterIndex = pEvent->FindParameter(m_sParameterName.GetData());
+
+      // parameter not found
+      if (m_iParameterIndex < 0)
+        goto failure;
+    }
+
+    pEvent->SetParameter(m_iParameterIndex, (float)m_fValue);
+  }
+
+  pInstance->ExecuteConnectedNodes(this, 0);
+  return;
+
+failure:
+  ezLog::Warning("Script: Fmod Event Parameter '{0}' could not be found. Note that event parameters are not available for one-shot events and events that are not playing.", m_sParameterName.GetString());
+
+  m_iParameterIndex = -2; // make sure we don't try this again
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+void* ezVisualScriptNode_SetFmodEventParameter::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+  case 0:
+    return &m_hComponent;
+
+  case 1:
+    return &m_fValue;
+  }
+
+  return nullptr;
+}
+
+
+
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);
 

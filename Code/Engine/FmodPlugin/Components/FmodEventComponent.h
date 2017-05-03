@@ -4,6 +4,7 @@
 #include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/Messages/EventMessage.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 typedef ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating> ezFmodEventComponentManager;
 typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
@@ -79,8 +80,6 @@ public:
 
   ezOnComponentFinishedAction::Enum m_OnFinishedAction;
 
-  /// \todo Event Parameters (expose, modify)
-
 protected:
   bool m_bPaused;
   bool m_bApplyEnvironmentReverb = true; ///< Whether 'EAX' effects should be used for this event
@@ -116,8 +115,18 @@ public:
   /// Stops the current sound from playing. Typically allows the sound to fade out briefly, unless specified otherwise.
   void StopSound(ezFmodEventComponent_StopSoundMsg& msg);
 
-  /// Triggers an fmod sound cue. Whatever that is useful for.
+  /// \brief Triggers an fmod sound cue. Whatever that is useful for.
   void SoundCue(ezFmodEventComponent_SoundCueMsg& msg);
+
+  /// \brief Tries to find the fmod event parameter by name. Returns the parameter index or -1, if no such parameter exists.
+  /// \note Fmod event parameter names are case-insensitive.
+  ezInt32 FindParameter(const char* szName) const;
+
+  /// \brief Sets an fmod event parameter value. See FindParameter() for the index.
+  void SetParameter(ezInt32 iParamIndex, float fValue);
+
+  /// \brief Gets an fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
+  float GetParameter(ezInt32 iParamIndex) const;
 
 protected:
 
@@ -137,3 +146,23 @@ protected:
 };
 
 
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FMODPLUGIN_DLL ezVisualScriptNode_SetFmodEventParameter : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_SetFmodEventParameter, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_SetFmodEventParameter();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+  const char* GetParameterName() const { return m_sParameterName.GetData(); }
+  void SetParameterName(const char* sz) { m_sParameterName.Assign(sz); }
+
+private:
+  ezComponentHandle m_hComponent;
+  double m_fValue;
+  ezInt32 m_iParameterIndex = -1;
+  ezHashedString m_sParameterName;
+};
