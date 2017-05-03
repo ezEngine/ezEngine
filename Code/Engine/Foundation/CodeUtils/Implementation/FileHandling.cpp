@@ -1,8 +1,10 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+
+using namespace ezTokenParseUtils;
 
 ezMap<ezString, ezTokenizedFileCache::FileData>::ConstIterator ezTokenizedFileCache::Lookup(const ezString& sFileName) const
 {

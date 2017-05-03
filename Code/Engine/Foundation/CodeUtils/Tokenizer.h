@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
@@ -77,7 +77,7 @@ public:
   ezTokenizer();
 
   /// \brief Clears any previous result and creates a new token stream for the given array.
-  void Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* pLog);
+  void Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog);
 
   /// \brief Gives read access to the token stream.
   const ezDeque<ezToken>& GetTokens() const { return m_Tokens; }

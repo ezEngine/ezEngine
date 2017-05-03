@@ -1,5 +1,7 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
+
+using namespace ezTokenParseUtils;
 
 ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)
 {

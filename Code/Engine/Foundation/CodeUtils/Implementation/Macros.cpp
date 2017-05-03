@@ -1,5 +1,7 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
+
+using namespace ezTokenParseUtils;
 
 ezPreprocessor::MacroDefinition::MacroDefinition()
 {

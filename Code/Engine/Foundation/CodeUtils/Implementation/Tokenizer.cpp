@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
 
 const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
@@ -75,7 +75,7 @@ void ezTokenizer::AddToken()
   m_CurMode = ezTokenType::Unknown;
 }
 
-void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* pLog)
+void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
 {
   m_Data.Clear();
   m_Data.Reserve(m_Data.GetCount() + 1);

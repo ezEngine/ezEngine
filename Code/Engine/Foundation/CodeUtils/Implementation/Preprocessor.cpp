@@ -1,7 +1,9 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 ezString ezPreprocessor::s_ParamNames[32];
+
+using namespace ezTokenParseUtils;
 
 ezPreprocessor::ezPreprocessor()
 {

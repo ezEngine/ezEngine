@@ -1,5 +1,7 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
+
+using namespace ezTokenParseUtils;
 
 bool ezPreprocessor::RemoveDefine(const char* szName)
 {

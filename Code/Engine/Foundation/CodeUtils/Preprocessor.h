@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
+#include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/Map.h>
@@ -83,8 +84,7 @@ public:
   /// If the callback returns false, an error is generated and parsing fails. The callback thus acts as a whitelist for all commands that shall be passed through.
   typedef ezDelegate<bool (const char* szUnknownCommand)> PassThroughUnknownCmdCB;
 
-  typedef ezHybridArray<const ezToken*, 32> TokenStream;
-  typedef ezDeque<TokenStream> MacroParameters;
+  typedef ezDeque<ezTokenParseUtils::TokenStream> MacroParameters;
 
   /// \brief The event data that the processor broadcasts
   ///
@@ -173,7 +173,7 @@ public:
   /// \brief Processes the given file and returns the result as a stream of tokens.
   ///
   /// This function is useful when you want to further process the output afterwards and thus need it in a tokenized form anyway.
-  ezResult Process(const char* szMainFile, TokenStream& TokenOutput);
+  ezResult Process(const char* szMainFile, ezTokenParseUtils::TokenStream& TokenOutput);
 
   /// \brief Processes the given file and returns the result as a string.
   ///
@@ -236,8 +236,8 @@ private:
 
   ezDeque<IfDefState> m_IfdefActiveStack;
 
-  ezResult ProcessFile(const char* szFile, TokenStream& TokenOutput);
-  ezResult ProcessCmd(const TokenStream& Tokens, TokenStream& TokenOutput);
+  ezResult ProcessFile(const char* szFile, ezTokenParseUtils::TokenStream& TokenOutput);
+  ezResult ProcessCmd(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& TokenOutput);
 
 private: // *** File Handling ***
   ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
@@ -251,7 +251,7 @@ private: // *** File Handling ***
 private: // *** Macro Definition ***
 
   bool RemoveDefine(const char* szName);
-  ezResult HandleDefine(const TokenStream& Tokens, ezUInt32& uiCurToken);
+  ezResult HandleDefine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken);
 
   struct MacroDefinition
   {
@@ -262,11 +262,11 @@ private: // *** Macro Definition ***
     bool m_bCurrentlyExpanding;
     bool m_bHasVarArgs;
     ezInt32 m_iNumParameters;
-    TokenStream m_Replacement;
+    ezTokenParseUtils::TokenStream m_Replacement;
   };
 
-  ezResult StoreDefine(const ezToken* pMacroNameToken, const TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs);
-  ezResult ExtractParameterName(const TokenStream& Tokens, ezUInt32& uiCurToken, ezString& sIdentifierName);
+  ezResult StoreDefine(const ezToken* pMacroNameToken, const ezTokenParseUtils::TokenStream* pReplacementTokens, ezUInt32 uiFirstReplacementToken, ezInt32 iNumParameters, bool bUsesVarArgs);
+  ezResult ExtractParameterName(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezString& sIdentifierName);
 
   ezMap<ezString, MacroDefinition> m_Macros;
 
@@ -276,58 +276,46 @@ private: // *** Macro Definition ***
 
 private: // *** #if condition parsing ***
 
-  ezResult EvaluateCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionMul(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionOr(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionAnd(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionPlus(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionShift(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionBitOr(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionBitAnd(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
-  ezResult ParseExpressionBitXor(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult EvaluateCondition(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseCondition(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseFactor(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionMul(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionOr(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionAnd(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionPlus(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionShift(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionBitOr(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionBitAnd(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionBitXor(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
 
 
 private: // *** Parsing ***
-  static void SkipWhitespace(const TokenStream& Tokens, ezUInt32& uiCurToken);
-  static void SkipWhitespaceAndNewline(const TokenStream& Tokens, ezUInt32& uiCurToken);
-  static bool IsEndOfLine(const TokenStream& Tokens, ezUInt32 uiCurToken, bool bIgnoreWhitespace);
-  static void CopyRelevantTokens(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, bool bPreserveNewLines);
-  ezResult CopyTokensAndEvaluateDefined(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination);
 
-  bool Accept(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken, ezUInt32* pAccepted = nullptr);
-  bool Accept(const TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenType::Enum Type, ezUInt32* pAccepted = nullptr);
-  bool Accept(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted = nullptr);
-  bool AcceptUnless(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted = nullptr);
+  ezResult CopyTokensAndEvaluateDefined(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination);
+  void CopyTokensReplaceParams(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
 
-  ezResult Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken, ezUInt32* pAccepted = nullptr);
-  ezResult Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenType::Enum Type, ezUInt32* pAccepted = nullptr);
-  ezResult Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted = nullptr);
-  ezResult ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& uiCurToken);
-
-  void CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
-  void CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
-  void CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
-  void CreateCleanTokenStream(const TokenStream& Tokens, ezUInt32 uiCurToken, TokenStream& Destination, bool bKeepComments);
+  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken, ezUInt32* pAccepted = nullptr);
+  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenType::Enum Type, ezUInt32* pAccepted = nullptr);
+  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted = nullptr);
+  ezResult ExpectEndOfLine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken);
 
 private: // *** Macro Expansion ***
-  ezResult Expand(const TokenStream& Tokens, TokenStream& Output);
-  ezResult ExpandOnce(const TokenStream& Tokens, TokenStream& Output);
-  ezResult ExpandObjectMacro(MacroDefinition& Macro, TokenStream& Output, const ezToken* pMacroToken);
-  ezResult ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output, const ezToken* pMacroToken);
-  ezResult ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, TokenStream& Output, const MacroDefinition& Macro);
-  void PassThroughFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output);
+  ezResult Expand(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output);
+  ezResult ExpandOnce(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output);
+  ezResult ExpandObjectMacro(MacroDefinition& Macro, ezTokenParseUtils::TokenStream& Output, const ezToken* pMacroToken);
+  ezResult ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, ezTokenParseUtils::TokenStream& Output, const ezToken* pMacroToken);
+  ezResult ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  void PassThroughFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, ezTokenParseUtils::TokenStream& Output);
   ezToken* AddCustomToken(const ezToken* pPrevious, const char* szNewText);
-  void OutputNotExpandableMacro(MacroDefinition& Macro, TokenStream& Output);
-  ezResult ExtractAllMacroParameters(const TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque< TokenStream >& AllParameters);
-  ezResult ExtractParameterValue(const TokenStream& Tokens, ezUInt32& uiCurToken, TokenStream& ParamTokens);
+  void OutputNotExpandableMacro(MacroDefinition& Macro, ezTokenParseUtils::TokenStream& Output);
+  ezResult ExtractAllMacroParameters(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque< ezTokenParseUtils::TokenStream >& AllParameters);
+  ezResult ExtractParameterValue(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenParseUtils::TokenStream& ParamTokens);
 
-  ezResult InsertParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro);
+  ezResult InsertParameters(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
 
-  ezResult InsertStringifiedParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro);
-  ezResult ConcatenateParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro);
-  void MergeTokens(const ezToken* pFirst, const ezToken* pSecond, TokenStream& Output, const MacroDefinition& Macro);
+  ezResult InsertStringifiedParameters(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  ezResult ConcatenateParameters(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
+  void MergeTokens(const ezToken* pFirst, const ezToken* pSecond, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
 
   struct CustomToken
   {
@@ -351,20 +339,20 @@ private: // *** Macro Expansion ***
   ezDeque<CustomToken> m_CustomTokens;
 
 private: // *** Other ***
-  static void StringifyTokens(const TokenStream& Tokens, ezStringBuilder& sResult, bool bSurroundWithQuotes);
+  static void StringifyTokens(const ezTokenParseUtils::TokenStream& Tokens, ezStringBuilder& sResult, bool bSurroundWithQuotes);
   ezToken* CreateStringifiedParameter(ezUInt32 uiParam, const ezToken* pParamToken, const MacroDefinition& Macro);
 
-  ezResult HandleErrorDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleWarningDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleErrorDirective(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleWarningDirective(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleUndef(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
 
-  ezResult HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleElif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleIf(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleElse(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
-  ezResult HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef);
-  ezResult HandleInclude(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput);
-  ezResult HandleLine(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput);
+  ezResult HandleEndif(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleElif(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleIf(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleElse(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleIfdef(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef);
+  ezResult HandleInclude(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, ezTokenParseUtils::TokenStream& TokenOutput);
+  ezResult HandleLine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, ezTokenParseUtils::TokenStream& TokenOutput);
 };
 
 #define PP_LOG0(Type, FormatStr, ErrorToken) \
