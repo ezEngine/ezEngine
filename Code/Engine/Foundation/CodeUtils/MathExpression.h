@@ -23,15 +23,26 @@ class EZ_FOUNDATION_DLL ezMathExpression
 public:
   static const char* s_szValidVariableCharacters;
 
+  /// \brief Creates a new invalid math expression.
+  ///
+  /// Need to call Reset before you can do anything with it.
+  ezMathExpression(ezLogInterface* pLog = nullptr);
+
   /// \brief Inits using a given expression.
   ///
   /// If anything goes wrong it is logged and the math expression is in an invalid state.
   /// \param log
   ///   If null, default log interface will be used.
-  ezMathExpression(const char* expression, ezLogInterface* log = nullptr);  // [tested]
+  ezMathExpression(const char* szExpressionString, ezLogInterface* pLog = nullptr);  // [tested]
+
+  /// \brief Reinits using the given expression.
+  void Reset(const char* szExpressionString);
 
   /// Whether the expression is valid and can be evaluated.
   bool IsValid() const { return m_bIsValid; }
+
+  /// Returns the original expression string that this MathExpression can evaluate.
+  const char* GetExpressionString() const { return m_OriginalExpression; }
 
   /// \brief Evaluates parsed expression with given variable configuration.
   ///
@@ -53,8 +64,8 @@ private:
   ezResult ParseFactor(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken);
 
 
-  ezLogInterface* const m_Log;
-  const ezString m_OriginalExpression;
+  ezLogInterface* const m_pLog;
+  ezString m_OriginalExpression;
 
   // Instruction stream.
 private:

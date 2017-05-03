@@ -54,8 +54,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptUpdateEvent, 1, ezRTTID
   {
     new ezCategoryAttribute("Events")
   }
-  EZ_END_ATTRIBUTES
-  EZ_BEGIN_PROPERTIES
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
   {
     EZ_OUTPUT_EXECUTION_PIN("OnUpdate", 0),
   }

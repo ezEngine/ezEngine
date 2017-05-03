@@ -9,12 +9,26 @@ using namespace ezTokenParseUtils;
 
 const char* ezMathExpression::s_szValidVariableCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
 
-ezMathExpression::ezMathExpression(const char* expressionString, ezLogInterface* log)
-  : m_OriginalExpression(expressionString)
-  , m_Log(log ? log : ezLog::GetThreadLocalLogSystem())
+ezMathExpression::ezMathExpression(ezLogInterface* pLog)
+  : m_pLog(pLog ? pLog : ezLog::GetThreadLocalLogSystem())
 {
+}
+
+
+ezMathExpression::ezMathExpression(const char* szExpressionString, ezLogInterface* pLog)
+  : m_pLog(pLog ? pLog : ezLog::GetThreadLocalLogSystem())
+{
+  Reset(szExpressionString);
+}
+
+void ezMathExpression::Reset(const char* szExpressionString)
+{
+  m_OriginalExpression = szExpressionString;
+  m_InstructionStream.Clear();
+  m_Constants.Clear();
+
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezMakeArrayPtr<ezUInt8>(const_cast<ezUInt8*>(reinterpret_cast<const ezUInt8*>(m_OriginalExpression.GetData())), m_OriginalExpression.GetElementCount()), m_Log);
+  tokenizer.Tokenize(ezMakeArrayPtr<ezUInt8>(const_cast<ezUInt8*>(reinterpret_cast<const ezUInt8*>(m_OriginalExpression.GetData())), m_OriginalExpression.GetElementCount()), m_pLog);
 
   ezUInt32 readTokens = 0;
   TokenStream tokenStream;
@@ -24,14 +38,13 @@ ezMathExpression::ezMathExpression(const char* expressionString, ezLogInterface*
   m_bIsValid = ParseExpression(tokenStream, curToken).Succeeded();
   if (curToken != readTokens)
   {
-    ezLog::Error(m_Log, "Did not parse the entire math expression. This can happen if the last recognized token is followed by an unknown token.");
+    ezLog::Error(m_pLog, "Did not parse the entire math expression. This can happen if the last recognized token is followed by an unknown token.");
     m_bIsValid = false;
   }
 
-
   tokenStream.Clear();
   if (tokenizer.GetNextLine(readTokens, tokenStream).Succeeded() && !tokenStream.IsEmpty())
-    ezLog::Warning(m_Log, "Only the first line of a math expression is parsed, all following lines are ignored!");
+    ezLog::Warning(m_pLog, "Only the first line of a math expression is parsed, all following lines are ignored!");
 }
 
 double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>& variableResolveFunction) const
@@ -40,7 +53,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 
   if (!IsValid())
   {
-    ezLog::Error(m_Log, "Can't evaluate invalid math expression '{0}'", m_OriginalExpression);
+    ezLog::Error(m_pLog, "Can't evaluate invalid math expression '{0}'", m_OriginalExpression);
     return errorOutput;
   }
 
@@ -56,7 +69,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
     {
       if(evaluationStack.GetCount() < 2)
       {
-        ezLog::Error(m_Log, "Expected at least two operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+        ezLog::Error(m_pLog, "Expected at least two operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
         return errorOutput;
       }
 
@@ -87,7 +100,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
     {
       if (evaluationStack.GetCount() < 1)
       {
-        ezLog::Error(m_Log, "Expected at least operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+        ezLog::Error(m_pLog, "Expected at least operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
         return errorOutput;
       }
 
@@ -132,7 +145,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
   }
   else
   {
-    ezLog::Error(m_Log, "Evaluation of '{0}' yielded more than one value on the evaluation stack.", m_OriginalExpression);
+    ezLog::Error(m_pLog, "Evaluation of '{0}' yielded more than one value on the evaluation stack.", m_OriginalExpression);
     return errorOutput;
   }
 }
@@ -237,7 +250,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
         }
         if (*validChar == '\0')  // Walked to the end, so the varChar was not any of the valid chars!
         {
-          ezLog::Error(m_Log, "Invalid character {1} in variable name: {0}", sVal, varChar);
+          ezLog::Error(m_pLog, "Invalid character {1} in variable name: {0}", sVal, varChar);
           return EZ_FAILURE;
         }
       }
@@ -256,13 +269,13 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
     if (!Accept(tokens, uiCurToken, ")"))
     {
-      ezLog::Error(m_Log, "Syntax error, ')' after token '{0}' in column {0}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
+      ezLog::Error(m_pLog, "Syntax error, ')' after token '{0}' in column {0}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
       return EZ_FAILURE;
     }
     else
       return EZ_SUCCESS;
   }
 
-  ezLog::Error(m_Log, "Syntax error, expected identifier, number or '(' after token '{0}' in column {0}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
+  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {0}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
   return EZ_FAILURE;
 }
