@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.09.00">
+    <object class="EncodableAsset" id="{7950f765-ff3a-474b-b228-002e07298ca3}">
+        <property name="assetPath">
+            <value>Sonnis/Explosions/</value>
+        </property>
+        <relationship name="masterAssetFolder">
+            <destination>{38395770-0db2-44d2-8ad3-1114e556ca7a}</destination>
+        </relationship>
+    </object>
+</objects>
