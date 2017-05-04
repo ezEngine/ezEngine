@@ -13,7 +13,7 @@ public:
   bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
 
 protected:
-  virtual ezView* CreateView() override;
+  virtual ezViewHandle CreateView() override;
 
   ezMeshContext* m_pMeshContext;
 };

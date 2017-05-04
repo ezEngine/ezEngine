@@ -5,6 +5,7 @@
 
 class ezWorld;
 class ezView;
+class ezViewHandle;
 
 class EZ_RENDERERCORE_DLL ezDebugRendererContext
 {
@@ -12,7 +13,7 @@ public:
   EZ_FORCE_INLINE ezDebugRendererContext() : m_Id(-1) { }
 
   ezDebugRendererContext(const ezWorld* pWorld);
-  ezDebugRendererContext(const ezView* pView);
+  ezDebugRendererContext(const ezViewHandle& hView);
 
   EZ_FORCE_INLINE bool operator==(const ezDebugRendererContext& other) const
   {
@@ -22,7 +23,7 @@ public:
 private:
   friend struct ezHashHelper<ezDebugRendererContext>;
 
-  ezUInt64 m_Id;
+  ezUInt32 m_Id;
 };
 
 
@@ -31,7 +32,7 @@ struct ezHashHelper<ezDebugRendererContext>
 {
   EZ_FORCE_INLINE static ezUInt32 Hash(ezDebugRendererContext value)
   {
-    return ezHashHelper<ezUInt64>::Hash(value.m_Id);
+    return ezHashHelper<ezUInt32>::Hash(value.m_Id);
   }
 
   EZ_FORCE_INLINE static bool Equal(ezDebugRendererContext a, ezDebugRendererContext b)

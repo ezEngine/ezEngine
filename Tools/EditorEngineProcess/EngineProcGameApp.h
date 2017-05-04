@@ -1,12 +1,6 @@
 #pragma once
 
 #include <PCH.h>
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/Time/Clock.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 

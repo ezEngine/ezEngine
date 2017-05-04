@@ -1,6 +1,6 @@
 ﻿#include <PCH.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
@@ -104,12 +104,12 @@ ezRenderContext::ezRenderContext()
 
   m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
 
-  ezRenderLoop::s_EndFrameEvent.AddEventHandler(ezMakeDelegate(&ezRenderContext::OnEndFrame, this));
+  ezRenderWorld::s_EndFrameEvent.AddEventHandler(ezMakeDelegate(&ezRenderContext::OnEndFrame, this));
 }
 
 ezRenderContext::~ezRenderContext()
 {
-  ezRenderLoop::s_EndFrameEvent.RemoveEventHandler(ezMakeDelegate(&ezRenderContext::OnEndFrame, this));
+  ezRenderWorld::s_EndFrameEvent.RemoveEventHandler(ezMakeDelegate(&ezRenderContext::OnEndFrame, this));
 
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
 

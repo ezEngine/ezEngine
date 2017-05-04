@@ -1,4 +1,9 @@
 
+EZ_ALWAYS_INLINE ezViewHandle ezView::GetHandle() const
+{
+  return ezViewHandle(m_InternalId);
+}
+
 EZ_FORCE_INLINE const char* ezView::GetName() const
 {
   return m_sName.GetString().GetData();

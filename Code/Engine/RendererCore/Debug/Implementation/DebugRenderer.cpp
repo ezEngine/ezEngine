@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
@@ -18,10 +18,12 @@ ezDebugRendererContext::ezDebugRendererContext(const ezWorld* pWorld)
 {
 }
 
-ezDebugRendererContext::ezDebugRendererContext(const ezView* pView)
-  : m_Id(reinterpret_cast<size_t>(pView))
+ezDebugRendererContext::ezDebugRendererContext(const ezViewHandle& hView)
+  : m_Id(hView.GetInternalID().m_Data)
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -82,8 +84,8 @@ namespace
   {
     DoubleBufferedPerContextData& doubleBufferedData = s_PerContextData[context];
 
-    const ezUInt32 uiDataIndex = ezRenderLoop::IsRenderingThread() && (doubleBufferedData.m_uiLastRenderedFrame != ezRenderLoop::GetFrameCounter()) ?
-      ezRenderLoop::GetDataIndexForRendering() : ezRenderLoop::GetDataIndexForExtraction();
+    const ezUInt32 uiDataIndex = ezRenderWorld::IsRenderingThread() && (doubleBufferedData.m_uiLastRenderedFrame != ezRenderWorld::GetFrameCounter()) ?
+      ezRenderWorld::GetDataIndexForRendering() : ezRenderWorld::GetDataIndexForExtraction();
 
     PerContextData* pData = doubleBufferedData.m_pData[uiDataIndex];
     if (pData == nullptr)
@@ -100,7 +102,7 @@ namespace
     // No lock needed since clear is executed during ezRenderLoop::EndFrame which is always single-threaded.
     for (auto it = s_PerContextData.GetIterator(); it.IsValid(); ++it)
     {
-      PerContextData* pData = it.Value().m_pData[ezRenderLoop::GetDataIndexForRendering()];
+      PerContextData* pData = it.Value().m_pData[ezRenderWorld::GetDataIndexForRendering()];
       if (pData)
       {
         pData->m_lineVertices.Clear();
@@ -516,9 +518,9 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     return;
   }
 
-  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderLoop::GetFrameCounter();
+  pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
 
-  PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderLoop::GetDataIndexForRendering()];
+  PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForRendering()];
   if (pData == nullptr)
   {
     return;
@@ -750,12 +752,12 @@ void ezDebugRenderer::OnEngineStartup()
   s_hDebugPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugPrimitive.ezShader");
   s_hDebugTextShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugText.ezShader");
 
-  ezRenderLoop::s_EndFrameEvent.AddEventHandler(&ClearRenderData);
+  ezRenderWorld::s_EndFrameEvent.AddEventHandler(&ClearRenderData);
 }
 
 void ezDebugRenderer::OnEngineShutdown()
 {
-  ezRenderLoop::s_EndFrameEvent.RemoveEventHandler(&ClearRenderData);
+  ezRenderWorld::s_EndFrameEvent.RemoveEventHandler(&ClearRenderData);
 
   for (ezUInt32 i = 0; i < BufferType::Count; ++i)
   {

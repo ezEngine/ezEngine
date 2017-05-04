@@ -3,7 +3,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -26,13 +26,13 @@ void ezCameraComponentManager::Initialize()
 
   this->RegisterUpdateFunction(desc);
 
-  ezRenderLoop::s_ViewCreatedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
+  ezRenderWorld::s_ViewCreatedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
 }
 
 
 void ezCameraComponentManager::Deinitialize()
 {
-  ezRenderLoop::s_ViewCreatedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
+  ezRenderWorld::s_ViewCreatedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
 }
 
 void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -47,12 +47,9 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
 
     ezCameraUsageHint::Enum usageHint = pCameraComponent->GetUsageHint();
 
-    for (auto pView : ezRenderLoop::GetAllViews())
+    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(usageHint))
     {
-      if (pView->GetCameraUsageHint() == usageHint)
-      {
-        pCameraComponent->ApplySettingsToView(pView);
-      }
+      pCameraComponent->ApplySettingsToView(pView);
     }
 
     pCameraComponent->m_bIsModified = false;

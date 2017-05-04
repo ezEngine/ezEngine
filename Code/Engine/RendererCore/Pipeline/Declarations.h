@@ -32,6 +32,15 @@ struct ezRenderViewContext
   const ezDebugRendererContext* m_pViewDebugContext;
 };
 
+typedef ezGenericId<24, 8> ezViewId;
+
+class ezViewHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezViewHandle, ezViewId);
+
+  friend class ezRenderWorld;
+};
+
 /// \brief This is the base class for types that handle rendering of different object types.
 ///
 /// E.g. there are different renderers for meshes, particle effects, light sources, etc.

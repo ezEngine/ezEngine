@@ -72,7 +72,7 @@ namespace
             float r = ezMath::Clamp(normalizedCount, 0.0f, 1.0f);
             float g = ezMath::Clamp(2.0f - normalizedCount, 0.0f, 1.0f);
 
-            ezDebugRenderer::DrawSolidTriangles(&view, tris, ezColor(r, g, 0.0f, 0.05f));
+            ezDebugRenderer::DrawSolidTriangles(view.GetHandle(), tris, ezColor(r, g, 0.0f, 0.05f));
           }
         }
       }
@@ -92,7 +92,7 @@ namespace
         lines[2] = ezDebugRenderer::Line(p2, p3);
         lines[3] = ezDebugRenderer::Line(p3, p0);
 
-        ezDebugRenderer::DrawLines(&view, lines, lineColor);
+        ezDebugRenderer::DrawLines(view.GetHandle(), lines, lineColor);
       }
     }
   }

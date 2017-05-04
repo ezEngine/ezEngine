@@ -4,7 +4,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <System/Screen/Screen.h>
 #include <Core/World/World.h>
@@ -34,15 +34,14 @@ void ezGameState::OnActivation(ezWorld* pWorld)
 
 void ezGameState::OnDeactivation()
 {
-  ezRenderLoop::DeleteView(m_pMainView);
-  m_pMainView = nullptr;
+  ezRenderWorld::DeleteView(m_hMainView);
 
   DestroyMainWindow();
 }
 
 void ezGameState::AddAllMainViews()
 {
-  ezRenderLoop::AddMainView(m_pMainView);
+  ezRenderWorld::AddMainView(m_hMainView);
 }
 
 void ezGameState::CreateMainWindow()
@@ -106,36 +105,38 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 {
   EZ_LOG_BLOCK("SetupMainView");
 
-  m_pMainView = ezRenderLoop::CreateView("MainView");
-  m_pMainView->SetCameraUsageHint(ezCameraUsageHint::MainView);
+  ezView* pView = nullptr;
+  m_hMainView = ezRenderWorld::CreateView("MainView", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::MainView);
 
   ezGALRenderTagetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, hBackBuffer);
-  m_pMainView->SetRenderTargetSetup(renderTargetSetup);
+  pView->SetRenderTargetSetup(renderTargetSetup);
 
-  m_pMainView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
+  pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
 
   ezSizeU32 size = m_pMainWindow->GetClientAreaSize();
-  m_pMainView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
+  pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
 
-  m_pMainView->SetWorld(m_pMainWorld);
-  m_pMainView->SetCamera(&m_MainCamera);
+  pView->SetWorld(m_pMainWorld);
+  pView->SetCamera(&m_MainCamera);
 
   const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
   // exclude all editor objects from rendering in proper game views
-  m_pMainView->m_ExcludeTags.Set(*tagEditor);
+  pView->m_ExcludeTags.Set(*tagEditor);
 
-  ezRenderLoop::AddMainView(m_pMainView);
+  ezRenderWorld::AddMainView(m_hMainView);
 }
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)
 {
   m_pMainWorld = pNewMainWorld;
 
-  if (m_pMainView)
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hMainView, pView))
   {
-    m_pMainView->SetWorld(m_pMainWorld);
+    pView->SetWorld(m_pMainWorld);
   }
 }
 

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
+#include <RendererCore/Pipeline/Declarations.h>
 #include <System/Window/Window.h>
-#include <RendererFoundation/Device/Device.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
@@ -10,7 +10,6 @@ class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
-class ezView;
 class ezGALRenderTagetSetup;
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
@@ -69,7 +68,7 @@ protected:
   virtual ezRenderPipelineResourceHandle CreateDebugRenderPipeline();
 
   /// \brief Create the actual view.
-  virtual ezView* CreateView() = 0;
+  virtual ezViewHandle CreateView() = 0;
 
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
@@ -77,7 +76,7 @@ private:
 
 protected:
   ezCamera m_Camera;
-  ezView* m_pView;
+  ezViewHandle m_hView;
   ezUInt32 m_uiViewID;
 };
 

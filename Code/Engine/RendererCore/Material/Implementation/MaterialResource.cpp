@@ -3,7 +3,6 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/OpenDdlReader.h>

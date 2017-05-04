@@ -29,7 +29,7 @@ namespace
 
         for (auto& box : boxes)
         {
-          ezDebugRenderer::DrawLineBox(&view, box, ezColor::Cyan);
+          ezDebugRenderer::DrawLineBox(view.GetHandle(), box, ezColor::Cyan);
         }
       }
     }
@@ -45,7 +45,7 @@ namespace
       const ezBoundingBoxSphere& localBounds = pObject->GetLocalBounds();
       if (localBounds.IsValid())
       {
-        ezDebugRenderer::DrawLineBox(&view, localBounds.GetBox(), ezColor::Yellow, pObject->GetGlobalTransform());
+        ezDebugRenderer::DrawLineBox(view.GetHandle(), localBounds.GetBox(), ezColor::Yellow, pObject->GetGlobalTransform());
       }
     }
 
@@ -54,8 +54,8 @@ namespace
       const ezBoundingBoxSphere& globalBounds = pObject->GetGlobalBounds();
       if (globalBounds.IsValid())
       {
-        ezDebugRenderer::DrawLineBox(&view, globalBounds.GetBox(), ezColor::Lime);
-        ezDebugRenderer::DrawLineSphere(&view, globalBounds.GetSphere(), ezColor::Magenta);
+        ezDebugRenderer::DrawLineBox(view.GetHandle(), globalBounds.GetBox(), ezColor::Lime);
+        ezDebugRenderer::DrawLineSphere(view.GetHandle(), globalBounds.GetSphere(), ezColor::Magenta);
       }
     }
 
@@ -67,7 +67,7 @@ namespace
         ezBoundingBox box;
         if (pSpatialSystemGrid->GetCellBoxForSpatialData(pObject->GetSpatialData(), box).Succeeded())
         {
-          ezDebugRenderer::DrawLineBox(&view, box, ezColor::Cyan);
+          ezDebugRenderer::DrawLineBox(view.GetHandle(), box, ezColor::Cyan);
         }
       }
     }

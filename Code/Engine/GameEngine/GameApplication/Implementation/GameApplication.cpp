@@ -5,7 +5,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <Core/World/World.h>
 #include <Foundation/Communication/Telemetry.h>
@@ -403,7 +403,7 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
   {
     ProcessWindowMessages();
 
-    if (ezRenderLoop::GetMainViews().GetCount() > 0)
+    if (ezRenderWorld::GetMainViews().GetCount() > 0)
     {
       ezClock::GetGlobalClock()->Update();
 
@@ -427,10 +427,10 @@ void ezGameApplication::UpdateWorldsAndRender()
     m_Events.Broadcast(e);
   }
 
-  ezRenderLoop::BeginFrame();
+  ezRenderWorld::BeginFrame();
 
   ezTaskGroupID updateTaskID;
-  if (ezRenderLoop::GetUseMultithreadedRendering())
+  if (ezRenderWorld::GetUseMultithreadedRendering())
   {
     updateTaskID = ezTaskSystem::StartSingleTask(&m_UpdateTask, ezTaskPriority::EarlyThisFrame);
   }
@@ -446,27 +446,12 @@ void ezGameApplication::UpdateWorldsAndRender()
     RenderFps();
     RenderConsole();
 
-    ezRenderLoop::Render(ezRenderContext::GetDefaultInstance());
+    ezRenderWorld::Render(ezRenderContext::GetDefaultInstance());
 
-    if (ezRenderLoop::GetUseMultithreadedRendering())
+    if (ezRenderWorld::GetUseMultithreadedRendering())
     {
       EZ_PROFILE("Wait for UpdateWorldsAndExtractViews");
       ezTaskSystem::WaitForGroup(updateTaskID);
-    }
-
-    {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::BeforeUpdatePlugins;
-      m_Events.Broadcast(e);
-    }
-
-    // for plugins that need to hook into this without a link dependency on this lib
-    EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
-
-    {
-      ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::AfterUpdatePlugins;
-      m_Events.Broadcast(e);
     }
 
     ezTelemetry::PerFrameUpdate();
@@ -483,7 +468,7 @@ void ezGameApplication::UpdateWorldsAndRender()
       EZ_PROFILE("GameApplication.Present");
       for (auto& windowContext : m_Windows)
       {
-        if (ezRenderLoop::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
+        if (ezRenderWorld::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
         {
           windowContext.m_bFirstFrame = false;
         }
@@ -504,7 +489,7 @@ void ezGameApplication::UpdateWorldsAndRender()
     pDevice->EndFrame();
   }
 
-  ezRenderLoop::EndFrame();
+  ezRenderWorld::EndFrame();
 
   // for plugins that need to hook into this without a link dependency on this lib
   EZ_BROADCAST_EVENT(GameApp_EndFrame);
@@ -536,17 +521,21 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   static ezHybridArray<ezWorld*, 16> worldsToUpdate;
   worldsToUpdate.Clear();
 
-  auto views = ezRenderLoop::GetMainViews();
-  for (ezUInt32 i = 0; i < views.GetCount(); ++i)
+  auto mainViews = ezRenderWorld::GetMainViews();
+  for (auto hView : mainViews)
   {
-    ezWorld* pWorld = views[i]->GetWorld();
-    if (!worldsToUpdate.Contains(pWorld))
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(hView, pView))
     {
-      worldsToUpdate.PushBack(pWorld);
+      ezWorld* pWorld = pView->GetWorld();
+      if (!worldsToUpdate.Contains(pWorld))
+      {
+        worldsToUpdate.PushBack(pWorld);
+      }
     }
   }
 
-  if (ezRenderLoop::GetUseMultithreadedRendering())
+  if (ezRenderWorld::GetUseMultithreadedRendering())
   {
     ezTaskGroupID updateWorldsTaskID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
     for (ezUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
@@ -580,7 +569,22 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     }
   }
 
-  ezRenderLoop::ExtractMainViews();
+  {
+    ezGameApplicationEvent e;
+    e.m_Type = ezGameApplicationEvent::Type::BeforeUpdatePlugins;
+    m_Events.Broadcast(e);
+  }
+
+  // for plugins that need to hook into this without a link dependency on this lib
+  EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
+
+  {
+    ezGameApplicationEvent e;
+    e.m_Type = ezGameApplicationEvent::Type::AfterUpdatePlugins;
+    m_Events.Broadcast(e);
+  }
+
+  ezRenderWorld::ExtractMainViews();
 }
 
 void ezGameApplication::DoUnloadPlugins()
@@ -635,14 +639,14 @@ void ezGameApplication::RenderFps()
 
   if (m_bShowFps)
   {
-    if (const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView))
+    if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
       ezStringBuilder sFps;
       sFps.Format("{0} fps, {1} ms", ezArgF(1.0 / fElapsedTime.GetSeconds(), 1, false, 4), ezArgF(fElapsedTime.GetSeconds() * 1000.0, 1, false, 4));
 
       ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 
-      ezDebugRenderer::DrawText(pView, sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
+      ezDebugRenderer::DrawText(pView->GetHandle(), sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
     }
   }
 }
@@ -652,9 +656,11 @@ void ezGameApplication::RenderConsole()
   if (!m_bShowConsole || !m_pConsole)
     return;
 
-  const ezView* pView = ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::MainView);
+  const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView);
   if (pView == nullptr)
     return;
+
+  ezViewHandle hView = pView->GetHandle();
 
   const float fViewWidth = pView->GetViewport().width;
   const float fViewHeight = pView->GetViewport().height;
@@ -668,11 +674,11 @@ void ezGameApplication::RenderConsole()
 
   {
     ezColor backgroundColor(0.3f, 0.3f, 0.3f, 0.7f);
-    ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
+    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
 
     ezColor foregroundColor(0.0f, 0.0f, 0.0f, 0.8f);
-    ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
-    ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
   }
 
   {
@@ -686,17 +692,17 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::DrawText(pView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+      ezDebugRenderer::DrawText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
     }
 
     ezStringView sInputLine(m_pConsole->GetInputLine());
-    ezDebugRenderer::DrawText(pView, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
+    ezDebugRenderer::DrawText(hView, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
 
     if (ezMath::Fraction(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds()) > 0.5)
     {
       float fCaretPosition = (float)m_pConsole->GetCaretPosition();
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
-      ezDebugRenderer::Draw2DRectangle(pView, ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
+      ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
     }
   }
 }

@@ -6,7 +6,7 @@
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <Core/World/World.h>
@@ -275,7 +275,7 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
   else
   {
     // make sure the renderdata stores the updated view data
-    auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
+    auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
 
     data.SetCamera(*view.GetCamera());
     data.SetViewData(view.GetData());
@@ -836,19 +836,19 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   m_CurrentExtractThread = ezThreadUtils::GetCurrentThreadID();
 
   // Is this view already extracted?
-  if (m_uiLastExtractionFrame == ezRenderLoop::GetFrameCounter())
+  if (m_uiLastExtractionFrame == ezRenderWorld::GetFrameCounter())
   {
     EZ_REPORT_FAILURE("View '{0}' is extracted multiple times", view.GetName());
     return;
   }
 
-  m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
+  m_uiLastExtractionFrame = ezRenderWorld::GetFrameCounter();
 
   // Determine visible objects
   FindVisibleObjects(view);
 
   // Extract and sort data
-  auto& data = m_Data[ezRenderLoop::GetDataIndexForExtraction()];
+  auto& data = m_Data[ezRenderWorld::GetDataIndexForExtraction()];
 
   // Usually clear is not needed, only if the multithreading flag is switched during runtime.
   data.Clear();
@@ -858,7 +858,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   data.SetViewData(view.GetData());
   data.SetWorldTime(view.GetWorld()->GetClock().GetAccumulatedTime());
   data.SetWorldDebugContext(view.GetWorld());
-  data.SetViewDebugContext(&view);
+  data.SetViewDebugContext(view.GetHandle());
 
   // Extract object render data
   for (auto& pExtractor : m_Extractors)
@@ -903,31 +903,33 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, bRecordStats ? &stats : nullptr);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezViewHandle hView = view.GetHandle();
+
   if (s_DebugCulling && bIsMainView)
   {
-    ezDebugRenderer::DrawLineFrustum(&view, frustum, ezColor::LimeGreen, true);
+    ezDebugRenderer::DrawLineFrustum(hView, frustum, ezColor::LimeGreen, true);
   }
 
   if (bRecordStats)
   {
     ezStringBuilder sb;
 
-    ezDebugRenderer::DrawText(&view, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+    ezDebugRenderer::DrawText(hView, "Visibility Culling Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
 
     sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
-    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
 
     sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
-    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
 
     sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
-    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
+    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
     m_fAverageCullingTime = ezMath::Lerp(m_fAverageCullingTime, stats.m_fTimeTaken, 0.01f);
 
     sb.Format("Time Taken: {0}ms", m_fAverageCullingTime * 1000.0f);
-    ezDebugRenderer::DrawText(&view, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
+    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
   }
 #endif
 }
@@ -945,11 +947,11 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   EZ_ASSERT_DEV(m_CurrentRenderThread == (ezThreadID)0, "Render must not be called from multiple threads.");
   m_CurrentRenderThread = ezThreadUtils::GetCurrentThreadID();
 
-  EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderLoop::GetFrameCounter(), "Render must not be called multiple times per frame.");
-  m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
+  EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderWorld::GetFrameCounter(), "Render must not be called multiple times per frame.");
+  m_uiLastRenderFrame = ezRenderWorld::GetFrameCounter();
 
 
-  auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
+  auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   const ezCamera* pCamera = &data.GetCamera();
   const ezViewData* pViewData = &data.GetViewData();
 
@@ -1067,12 +1069,12 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
 const ezExtractedRenderData& ezRenderPipeline::GetRenderData() const
 {
-  return m_Data[ezRenderLoop::GetDataIndexForRendering()];
+  return m_Data[ezRenderWorld::GetDataIndexForRendering()];
 }
 
 ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
 {
-  auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
+  auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   return data.GetRenderDataBatchesWithCategory(category, filter);
 }
 

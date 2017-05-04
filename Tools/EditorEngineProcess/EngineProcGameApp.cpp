@@ -3,9 +3,10 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
@@ -94,7 +95,7 @@ void ezEngineProcessGameApplication::AfterCoreShutdown()
 
 ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
 {
-  ezRenderLoop::ClearMainViews();
+  ezRenderWorld::ClearMainViews();
 
   bool bPendingOpInProgress = ezEngineProcessDocumentContext::PendingOperationsInProgress();
   if (ProcessIPCMessages(bPendingOpInProgress))

@@ -3,7 +3,7 @@
 #include <EnginePluginAssets/TextureCubeAsset/TextureCubeContext.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
@@ -11,29 +11,24 @@ ezTextureCubeViewContext::ezTextureCubeViewContext(ezTextureCubeContext* pContex
   : ezEngineProcessViewContext(pContext)
 {
   m_pTextureContext = pContext;
-  m_pView = nullptr;
 }
 
 ezTextureCubeViewContext::~ezTextureCubeViewContext()
 {
-  ezRenderLoop::DeleteView(m_pView);
 
-  if (GetEditorWindow().m_hWnd != 0)
-  {
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&GetEditorWindow());
-  }
 }
 
-ezView* ezTextureCubeViewContext::CreateView()
+ezViewHandle ezTextureCubeViewContext::CreateView()
 {
-  ezView* pView = ezRenderLoop::CreateView("Texture Editor - View");
+  ezView* pView = nullptr;
+  ezRenderWorld::CreateView("Texture Cube Editor - View", pView);
 
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
   pView->SetCamera(&m_Camera);
-  return pView;
+  return pView->GetHandle();
 }
 
 void ezTextureCubeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
@@ -65,6 +60,6 @@ void ezTextureCubeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     sText.PrependFormat("{0}x{1}x6 - ", uiWidthAndHeight, uiWidthAndHeight);
 
-    ezDebugRenderer::DrawText(m_pView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+    ezDebugRenderer::DrawText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
   }
 }

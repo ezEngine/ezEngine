@@ -13,7 +13,7 @@ public:
   void PositionThumbnailCamera();
 
 protected:
-  virtual ezView* CreateView() override;
+  virtual ezViewHandle CreateView() override;
 
   ezMaterialContext* m_pMaterialContext;
 };

@@ -1,29 +1,33 @@
 #include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
-  : m_pDocumentContext(pContext), m_pView(nullptr)
+  : m_pDocumentContext(pContext)
 {
   m_uiViewID = 0xFFFFFFFF;
 }
 
 ezEngineProcessViewContext::~ezEngineProcessViewContext()
 {
+  ezRenderWorld::DeleteView(m_hView);
+  m_hView.Invalidate();
 
+  if (GetEditorWindow().m_hWnd != 0)
+  {
+    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&GetEditorWindow());
+  }
 }
 
 void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
@@ -94,13 +98,17 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTagetSetup& render
 
   // setup view
   {
-    if (m_pView == nullptr)
+    if (m_hView.IsInvalidated())
     {
-      m_pView = CreateView();
+      m_hView = CreateView();
     }
 
-    m_pView->SetRenderTargetSetup(renderTargetSetup);
-    m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hView, pView))
+    {
+      pView->SetRenderTargetSetup(renderTargetSetup);
+      pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
+    }
   }
 }
 
@@ -114,20 +122,23 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   }
   // setting to only update one view ?
   //else
+
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
   {
     const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
     if (!bRenderEditorGizmos)
     {
       // exclude all editor objects from rendering in proper game views
-      m_pView->m_ExcludeTags.Set(*tagEditor);
+      pView->m_ExcludeTags.Set(*tagEditor);
     }
     else
     {
-      m_pView->m_ExcludeTags.Remove(*tagEditor);
+      pView->m_ExcludeTags.Remove(*tagEditor);
     }
 
-    ezRenderLoop::AddMainView(m_pView);
+    ezRenderWorld::AddMainView(m_hView);
   }
 }
 
@@ -160,33 +171,34 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   bool bModeFromCamera = false;
 
-  if (m_pView != nullptr && m_pView->GetWorld() != nullptr)
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView) && pView->GetWorld() != nullptr)
   {
-    m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
+    pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
 
     if (pMsg->m_uiRenderMode == ezViewRenderMode::None)
     {
       bool bResetDefaultPipeline = true;
 
-      if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
+      if (const ezCameraComponentManager* pCameraManager = pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
       {
         if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
         {
           bResetDefaultPipeline = !pCamera->GetRenderPipeline().IsValid();
           bModeFromCamera = true;
 
-          pCamera->ApplySettingsToView(m_pView);
+          pCamera->ApplySettingsToView(pView);
         }
       }
 
       if (bResetDefaultPipeline)
       {
-        m_pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+        pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
       }
     }
     else
     {
-      m_pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
+      pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
     }
   }
 
@@ -197,14 +209,14 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   }
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
-  if (m_pView)
+  if (pView)
   {
-    m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
-    m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
+    pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
+    pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
 
     // by default this stuff is disabled, derived classes can enable it
-    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
+    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
   }
 }
 

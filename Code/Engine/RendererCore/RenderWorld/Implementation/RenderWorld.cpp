@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Foundation/Configuration/CVar.h>
@@ -8,20 +8,23 @@
 
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 
-ezEvent<ezView*> ezRenderLoop::s_ViewCreatedEvent;
-ezEvent<ezView*> ezRenderLoop::s_ViewDeletedEvent;
-ezEvent<ezUInt64> ezRenderLoop::s_BeginFrameEvent;
-ezEvent<ezUInt64> ezRenderLoop::s_EndFrameEvent;
+ezEvent<ezView*> ezRenderWorld::s_ViewCreatedEvent;
+ezEvent<ezView*> ezRenderWorld::s_ViewDeletedEvent;
+ezEvent<ezUInt64> ezRenderWorld::s_BeginFrameEvent;
+ezEvent<ezUInt64> ezRenderWorld::s_EndFrameEvent;
 
-ezUInt64 ezRenderLoop::s_uiFrameCounter;
-ezDynamicArray<ezView*> ezRenderLoop::s_Views;
-ezDynamicArray<ezView*> ezRenderLoop::s_MainViews;
+ezUInt64 ezRenderWorld::s_uiFrameCounter;
 
 namespace
 {
   static bool s_bInExtract;
   static ezTaskGroupID s_ExtractionFinishedTaskID;
   static ezThreadID s_RenderingThreadID;
+
+  static ezMutex s_ViewsMutex;
+  static ezIdTable<ezViewId, ezView*> s_Views;
+
+  static ezDynamicArray<ezViewHandle> s_MainViews;
 
   static ezMutex s_ViewsToRenderMutex;
   static ezDynamicArray<ezView*> s_ViewsToRender;
@@ -33,7 +36,7 @@ namespace
     EZ_DECLARE_POD_TYPE();
 
     ezRenderPipeline* m_pPipeline;
-    ezView* m_pView;
+    ezViewHandle m_hView;
   };
 
   static ezMutex s_PipelinesToRebuildMutex;
@@ -49,28 +52,39 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererLoop)
 
   ON_ENGINE_SHUTDOWN
   {
-    ezRenderLoop::OnEngineShutdown();
+    ezRenderWorld::OnEngineShutdown();
   }
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-ezView* ezRenderLoop::CreateView(const char* szName)
+ezViewHandle ezRenderWorld::CreateView(const char* szName, ezView*& out_pView)
 {
-  // can't use EZ_DEFAULT_NEW because it wants to create a destructor function which is not possible since the view destructor is private
-  ezView* pView = new (ezFoundation::GetDefaultAllocator()->Allocate(sizeof(ezView), EZ_ALIGNMENT_OF(ezView))) ezView();
+  ezView* pView = EZ_DEFAULT_NEW(ezView);
+
+  {
+    EZ_LOCK(s_ViewsMutex);
+    pView->m_InternalId = s_Views.Insert(pView);
+  }
 
   pView->SetName(szName);
   pView->InitializePins();
 
-  s_Views.PushBack(pView);
-
   s_ViewCreatedEvent.Broadcast(pView);
 
-  return pView;
+  out_pView = pView;
+  return pView->GetHandle();
 }
 
-void ezRenderLoop::DeleteView(ezView* pView)
+void ezRenderWorld::DeleteView(const ezViewHandle& hView)
 {
+  ezView* pView = nullptr;
+
+  {
+    EZ_LOCK(s_ViewsMutex);
+    if (!s_Views.Remove(hView, &pView))
+      return;
+  }
+
   s_ViewDeletedEvent.Broadcast(pView);
 
   {
@@ -78,57 +92,31 @@ void ezRenderLoop::DeleteView(ezView* pView)
 
     for (ezUInt32 i = s_PipelinesToRebuild.GetCount(); i-- > 0;)
     {
-      if (s_PipelinesToRebuild[i].m_pView == pView)
+      if (s_PipelinesToRebuild[i].m_hView == hView)
       {
         s_PipelinesToRebuild.RemoveAt(i);
       }
     }
   }
 
-  RemoveMainView(pView);
-  s_Views.Remove(pView);
+  RemoveMainView(hView);
 
-  pView->~ezView();
-  ezFoundation::GetDefaultAllocator()->Deallocate(pView);
+  EZ_DEFAULT_DELETE(pView);
 }
 
-void ezRenderLoop::AddMainView(ezView* pView)
+bool ezRenderWorld::TryGetView(const ezViewHandle& hView, ezView*& out_pView)
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot add main view during extraction");
-
-  if (!s_MainViews.Contains(pView))
-    s_MainViews.PushBack(pView);
+  EZ_LOCK(s_ViewsMutex);
+  return s_Views.TryGetValue(hView, out_pView);
 }
 
-void ezRenderLoop::AddMainViews(const ezArrayPtr<ezView*>& views)
+ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint)
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot add main views during extraction");
+  EZ_LOCK(s_ViewsMutex);
 
-  for (auto pView : views)
+  for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    if (!s_MainViews.Contains(pView))
-      s_MainViews.PushBack(pView);
-  }
-}
-
-void ezRenderLoop::RemoveMainView(ezView* pView)
-{
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot remove main view during extraction");
-
-  s_MainViews.Remove(pView);
-}
-
-void ezRenderLoop::ClearMainViews()
-{
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot clear main views during extraction");
-
-  s_MainViews.Clear();
-}
-
-ezView* ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint)
-{
-  for (auto pView : s_Views)
-  {
+    ezView* pView = it.Value();
     if (pView->GetCameraUsageHint() == usageHint)
     {
       return pView;
@@ -138,12 +126,45 @@ ezView* ezRenderLoop::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint)
   return nullptr;
 }
 
-void ezRenderLoop::AddViewToRender(ezView* pView)
+void ezRenderWorld::AddMainView(const ezViewHandle& hView)
 {
-  EZ_LOCK(s_ViewsToRenderMutex);
-  EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
+  EZ_ASSERT_DEV(!s_bInExtract, "Cannot add main view during extraction");
 
-  s_ViewsToRender.PushBack(pView);
+  if (!s_MainViews.Contains(hView))
+    s_MainViews.PushBack(hView);
+}
+
+void ezRenderWorld::RemoveMainView(const ezViewHandle& hView)
+{
+  EZ_ASSERT_DEV(!s_bInExtract, "Cannot remove main view during extraction");
+
+  s_MainViews.Remove(hView);
+}
+
+void ezRenderWorld::ClearMainViews()
+{
+  EZ_ASSERT_DEV(!s_bInExtract, "Cannot clear main views during extraction");
+
+  s_MainViews.Clear();
+}
+
+ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
+{
+  return s_MainViews;
+}
+
+void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
+{
+  ezView* pView = nullptr;
+  if (!TryGetView(hView, pView))
+    return;
+
+  {
+    EZ_LOCK(s_ViewsToRenderMutex);
+    EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
+
+    s_ViewsToRender.PushBack(pView);
+  }
 
   if (CVarMultithreadedRendering)
   {
@@ -160,7 +181,7 @@ void ezRenderLoop::AddViewToRender(ezView* pView)
   }
 }
 
-void ezRenderLoop::ExtractMainViews()
+void ezRenderWorld::ExtractMainViews()
 {
   EZ_ASSERT_DEV(!s_bInExtract, "ExtractMainViews must not be called from multiple threads.");
 
@@ -174,13 +195,17 @@ void ezRenderLoop::ExtractMainViews()
     ezTaskSystem::AddTaskGroupDependency(s_ExtractionFinishedTaskID, extractTaskID);
 
     {
-      ezLock<ezMutex> lock(s_ViewsToRenderMutex);
+      EZ_LOCK(s_ViewsMutex);
+      EZ_LOCK(s_ViewsToRenderMutex);
+
       for (ezUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
       {
-        ezView* pView = s_MainViews[i];
-
-        s_ViewsToRender.PushBack(pView);
-        ezTaskSystem::AddTaskToGroup(extractTaskID, pView->GetExtractTask());
+        ezView* pView = nullptr;
+        if (s_Views.TryGetValue(s_MainViews[i], pView))
+        {
+          s_ViewsToRender.PushBack(pView);
+          ezTaskSystem::AddTaskToGroup(extractTaskID, pView->GetExtractTask());
+        }
       }
     }
 
@@ -196,8 +221,12 @@ void ezRenderLoop::ExtractMainViews()
   {
     for (ezUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
     {
-      s_ViewsToRender.PushBack(s_MainViews[i]);
-      s_MainViews[i]->ExtractData();
+      ezView* pView = nullptr;
+      if (s_Views.TryGetValue(s_MainViews[i], pView))
+      {
+        s_ViewsToRender.PushBack(pView);
+        pView->ExtractData();
+      }
     }
   }
 
@@ -221,7 +250,7 @@ void ezRenderLoop::ExtractMainViews()
   }
 }
 
-void ezRenderLoop::Render(ezRenderContext* pRenderContext)
+void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
 
@@ -238,18 +267,23 @@ void ezRenderLoop::Render(ezRenderContext* pRenderContext)
   filteredRenderPipelines.Clear();
 }
 
-void ezRenderLoop::BeginFrame()
+void ezRenderWorld::BeginFrame()
 {
   s_RenderingThreadID = ezThreadUtils::GetCurrentThreadID();
 
-  for (auto& view : s_MainViews)
+  for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    view->EnsureUpToDate();
+    ezView* pView = it.Value();
+    pView->EnsureUpToDate();
   }
 
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)
   {
-    pipelineToRebuild.m_pPipeline->Rebuild(*pipelineToRebuild.m_pView);
+    ezView* pView = nullptr;
+    if (s_Views.TryGetValue(pipelineToRebuild.m_hView, pView))
+    {
+      pipelineToRebuild.m_pPipeline->Rebuild(*pView);
+    }
   }
 
   s_PipelinesToRebuild.Clear();
@@ -257,38 +291,39 @@ void ezRenderLoop::BeginFrame()
   s_BeginFrameEvent.Broadcast(s_uiFrameCounter);
 }
 
-void ezRenderLoop::EndFrame()
+void ezRenderWorld::EndFrame()
 {
   s_EndFrameEvent.Broadcast(s_uiFrameCounter);
 
   ++s_uiFrameCounter;
 
-  for (auto& view : s_MainViews)
+  for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    view->ReadBackPassProperties();
+    ezView* pView = it.Value();
+    pView->ReadBackPassProperties();
   }
 
   s_RenderingThreadID = (ezThreadID)0;
 }
 
-bool ezRenderLoop::GetUseMultithreadedRendering()
+bool ezRenderWorld::GetUseMultithreadedRendering()
 {
   return CVarMultithreadedRendering;
 }
 
 
-bool ezRenderLoop::IsRenderingThread()
+bool ezRenderWorld::IsRenderingThread()
 {
   return s_RenderingThreadID == ezThreadUtils::GetCurrentThreadID();
 }
 
-void ezRenderLoop::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView)
+void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView)
 {
   EZ_LOCK(s_PipelinesToRebuildMutex);
 
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)
   {
-    if (pipelineToRebuild.m_pView == pView)
+    if (pipelineToRebuild.m_hView == hView)
     {
       pipelineToRebuild.m_pPipeline = pRenderPipeline;
       return;
@@ -297,21 +332,23 @@ void ezRenderLoop::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline,
 
   auto& pipelineToRebuild = s_PipelinesToRebuild.ExpandAndGetRef();
   pipelineToRebuild.m_pPipeline = pRenderPipeline;
-  pipelineToRebuild.m_pView = pView;
+  pipelineToRebuild.m_hView = hView;
 }
 
-void ezRenderLoop::OnEngineShutdown()
+void ezRenderWorld::OnEngineShutdown()
 {
   s_FilteredRenderPipelines[0].Clear();
   s_FilteredRenderPipelines[1].Clear();
 
-  for (auto pView : s_MainViews)
+  ClearMainViews();
+
+  for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
-    pView->~ezView();
-    ezFoundation::GetDefaultAllocator()->Deallocate(pView);
+    ezView* pView = it.Value();
+    EZ_DEFAULT_DELETE(pView);
   }
 
-  ClearMainViews();
+  s_Views.Clear();
 }
 
 

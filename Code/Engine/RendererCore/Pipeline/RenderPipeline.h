@@ -60,7 +60,7 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
 
 private:
-  friend class ezRenderLoop;
+  friend class ezRenderWorld;
   friend class ezView;
 
   // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.

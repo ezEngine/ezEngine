@@ -25,6 +25,8 @@ private:
   ~ezView();
 
 public:
+  ezViewHandle GetHandle() const;
+
   void SetName(const char* szName);
   const char* GetName() const;
 
@@ -105,8 +107,10 @@ public:
   ezTagSet m_ExcludeTags;
 
 private:
-  friend class ezRenderLoop;
+  friend class ezRenderWorld;
+  friend class ezMemoryUtils;
 
+  ezViewId m_InternalId;
   ezHashedString m_sName;
 
   ezDelegateTask<void> m_ExtractTask;

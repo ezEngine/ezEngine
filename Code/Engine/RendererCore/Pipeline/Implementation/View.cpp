@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
@@ -63,7 +63,7 @@ void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
   m_RenderTargetSetup = renderTargetSetup;
   if (m_pRenderPipeline)
   {
-    ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline, this);
+    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
     m_pRenderPipeline->ResetPipelineState();
   }
 }
@@ -200,7 +200,7 @@ void ezView::EnsureUpToDate()
     m_uiRenderPipelineResourceDescriptionCounter = uiCounter;
 
     m_pRenderPipeline = pPipeline->CreateRenderPipeline();
-    ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline, this);
+    ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
 
     ezStringBuilder sb = m_sName.GetString();
     sb.Append(".RenderPipeline");

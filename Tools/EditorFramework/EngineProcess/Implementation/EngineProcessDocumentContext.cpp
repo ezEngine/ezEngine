@@ -16,6 +16,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Image/Image.h>

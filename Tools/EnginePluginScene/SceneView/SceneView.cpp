@@ -5,7 +5,7 @@
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -14,8 +14,6 @@
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <Core/World/GameObject.h>
-#include <Core/World/Component.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
 #include <SceneContext/SceneContext.h>
 #include <RenderPipeline/EditorSelectedObjectsExtractor.h>
@@ -36,12 +34,7 @@ ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
 
 ezSceneViewContext::~ezSceneViewContext()
 {
-  ezRenderLoop::DeleteView(m_pView);
 
-  if (GetEditorWindow().m_hWnd != 0)
-  {
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&GetEditorWindow());
-  }
 }
 
 void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
@@ -52,11 +45,12 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
   {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
 
-    if (m_pView)
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      m_pView->SetRenderPassProperty("EditorPickingPass", "Active", pMsg2->m_bUpdatePickingData);
-      m_pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", pMsg2->m_bEnablePickingSelected);
-      m_pView->SetRenderPassProperty("EditorPickingPass.ezGizmoRenderer", "Enabled", pMsg2->m_bEnablePickingSelected);
+      pView->SetRenderPassProperty("EditorPickingPass", "Active", pMsg2->m_bUpdatePickingData);
+      pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", pMsg2->m_bEnablePickingSelected);
+      pView->SetRenderPassProperty("EditorPickingPass.ezGizmoRenderer", "Enabled", pMsg2->m_bEnablePickingSelected);
     }
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
@@ -69,12 +63,13 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
 bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
-  if (m_pView)
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
   {
-    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
-    m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
-    m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
+    pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
+    pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
+    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
   }
 
   return !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
@@ -82,19 +77,23 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
 
 void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
-
-  if (m_pView->GetCamera()->GetCameraMode() == ezCameraMode::OrthoFixedHeight ||
-      m_pView->GetCamera()->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
   {
-    m_pView->m_ExcludeTags.Set(*tagNoOrtho);
-  }
-  else
-  {
-    m_pView->m_ExcludeTags.Remove(*tagNoOrtho);
-  }
+    const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
-  m_pView->SetRenderPassProperty("SimplePass.ezGizmoRenderer", "HighlightID", GetDocumentContext()->m_Context.m_uiHighlightID);
+    if (pView->GetCamera()->GetCameraMode() == ezCameraMode::OrthoFixedHeight ||
+      pView->GetCamera()->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+    {
+      pView->m_ExcludeTags.Set(*tagNoOrtho);
+    }
+    else
+    {
+      pView->m_ExcludeTags.Remove(*tagNoOrtho);
+    }
+
+    pView->SetRenderPassProperty("SimplePass.ezGizmoRenderer", "HighlightID", GetDocumentContext()->m_Context.m_uiHighlightID);
+  }
 
   ezEngineProcessViewContext::Redraw(bRenderEditorGizmos);
 }
@@ -103,14 +102,17 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   ezEngineProcessViewContext::SetCamera(pMsg);
 
+  ezView* pView = nullptr;
+  ezRenderWorld::TryGetView(m_hView, pView);
+
   bool bDebugCulling = false;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   bDebugCulling = ezRenderPipeline::s_DebugCulling;
 #endif
 
-  if (bDebugCulling && m_pView != nullptr)
+  if (bDebugCulling && pView != nullptr)
   {
-    if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
+    if (const ezCameraComponentManager* pCameraManager = pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
     {
       if (const ezCameraComponent* pCameraComponent = pCameraManager->GetCameraByUsageHint(ezCameraUsageHint::Culling))
       {
@@ -128,16 +130,17 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     m_CullingCamera = m_Camera;
   }
 
-  if (m_pView)
+  if (pView != nullptr)
   {
-    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", m_pSceneContext->GetRenderSelectionOverlay());
-    m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", m_pSceneContext->GetRenderShapeIcons());
+    pView->SetRenderPassProperty("EditorSelectionPass", "Active", m_pSceneContext->GetRenderSelectionOverlay());
+    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", m_pSceneContext->GetRenderShapeIcons());
   }
 }
 
-ezView* ezSceneViewContext::CreateView()
+ezViewHandle ezSceneViewContext::CreateView()
 {
-  ezView* pView = ezRenderLoop::CreateView("Editor - View");
+  ezView* pView = nullptr;
+  ezRenderWorld::CreateView("Editor - View", pView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
@@ -155,25 +158,26 @@ ezView* ezSceneViewContext::CreateView()
   const ezTag* tagHidden = tagReg.RegisterTag("EditorHidden");
 
   pView->m_ExcludeTags.Set(*tagHidden);
-  return pView;
+  return pView->GetHandle();
 }
 
 void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 {
   ezViewPickingResultMsgToEditor res;
 
-  if (m_pView != nullptr && m_pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickingMatrix"))
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView) && pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickingMatrix"))
   {
-    m_pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
-    ezVariant varMat = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingMatrix");
+    pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
+    ezVariant varMat = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingMatrix");
 
     if (varMat.IsA<ezMat4>())
     {
-      const ezUInt32 uiPickingID = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingID").ConvertTo<ezUInt32>();
-      //const float fPickingDepth = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
-      res.m_vPickedNormal = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingNormal").ConvertTo<ezVec3>();
-      res.m_vPickingRayStartPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
-      res.m_vPickedPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
+      const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingID").ConvertTo<ezUInt32>();
+      //const float fPickingDepth = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
+      res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingNormal").ConvertTo<ezVec3>();
+      res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
+      res.m_vPickedPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
 
       EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
 

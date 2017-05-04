@@ -5,6 +5,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <RendererFoundation/Basics.h>
+#include <RendererCore/Pipeline/Declarations.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
@@ -112,8 +113,10 @@ protected:
 
   ezWindow* m_pMainWindow = nullptr;
   ezGALSwapChainHandle m_hMainSwapChain;
+  ezViewHandle m_hMainView;
+
   ezWorld* m_pMainWorld = nullptr;
-  ezView* m_pMainView = nullptr;
+
   ezCamera m_MainCamera;
   bool m_bStateWantsToQuit = false;
 

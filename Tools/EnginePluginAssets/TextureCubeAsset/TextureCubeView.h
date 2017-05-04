@@ -11,7 +11,7 @@ public:
   ~ezTextureCubeViewContext();
 
 protected:
-  virtual ezView* CreateView() override;
+  virtual ezViewHandle CreateView() override;
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
 
   ezTextureCubeContext* m_pTextureContext;

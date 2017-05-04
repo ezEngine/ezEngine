@@ -1,36 +1,22 @@
 #pragma once
 
 #include <RendererCore/Pipeline/Declarations.h>
-#include <Foundation/Threading/TaskSystem.h>
-#include <Foundation/Types/UniquePtr.h>
 
-class ezView;
-class ezRenderContext;
-class ezRenderPipeline;
-
-class EZ_RENDERERCORE_DLL ezRenderLoop
+class EZ_RENDERERCORE_DLL ezRenderWorld
 {
 public:
-  static ezView* CreateView(const char* szName);
-  static void DeleteView(ezView* pView);
-  static void AddMainView(ezView* pView);
-  static void AddMainViews(const ezArrayPtr<ezView*>& views);
-  static void RemoveMainView(ezView* pView);
-  static void ClearMainViews();
+  static ezViewHandle CreateView(const char* szName, ezView*& out_pView);
+  static void DeleteView(const ezViewHandle& hView);
 
-  EZ_FORCE_INLINE static ezArrayPtr<ezView*> GetMainViews()
-  {
-    return s_MainViews;
-  }
-
-  EZ_FORCE_INLINE static ezArrayPtr<ezView*> GetAllViews()
-  {
-    return s_Views;
-  }
-
+  static bool TryGetView(const ezViewHandle& hView, ezView*& out_pView);
   static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint);
 
-  static void AddViewToRender(ezView* pView);
+  static void AddMainView(const ezViewHandle& hView);
+  static void RemoveMainView(const ezViewHandle& hView);
+  static void ClearMainViews();
+  static ezArrayPtr<ezViewHandle> GetMainViews();
+
+  static void AddViewToRender(const ezViewHandle& hView);
 
   static void ExtractMainViews();
 
@@ -67,13 +53,10 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererLoop);
   friend class ezView;
 
-  static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView);
+  static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView);
 
   static void OnEngineShutdown();
 
   static ezUInt64 s_uiFrameCounter;
-
-  static ezDynamicArray<ezView*> s_Views;
-  static ezDynamicArray<ezView*> s_MainViews;
 };
 

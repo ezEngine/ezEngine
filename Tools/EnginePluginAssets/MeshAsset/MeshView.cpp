@@ -2,12 +2,7 @@
 #include <EnginePluginAssets/MeshAsset/MeshView.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
-#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -25,7 +20,6 @@ ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)
 {
   m_pMeshContext = pMeshContext;
-  m_pView = nullptr;
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
@@ -34,12 +28,7 @@ ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
 
 ezMeshViewContext::~ezMeshViewContext()
 {
-  ezRenderLoop::DeleteView(m_pView);
 
-  if (GetEditorWindow().m_hWnd != 0)
-  {
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&GetEditorWindow());
-  }
 }
 
 bool ezMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
@@ -48,14 +37,15 @@ bool ezMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 }
 
 
-ezView* ezMeshViewContext::CreateView()
+ezViewHandle ezMeshViewContext::CreateView()
 {
-  ezView* pView = ezRenderLoop::CreateView("Mesh Editor - View");
+  ezView* pView = nullptr;
+  ezRenderWorld::CreateView("Mesh Editor - View", pView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
   pView->SetCamera(&m_Camera);
-  return pView;
+  return pView->GetHandle();
 }
