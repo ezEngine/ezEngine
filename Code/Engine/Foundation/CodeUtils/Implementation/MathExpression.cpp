@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/MathExpression.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
@@ -59,15 +59,19 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 
   ezHybridArray<double, 8> evaluationStack;
 
-  for (ezUInt32 instructionIdx=0; instructionIdx < m_InstructionStream.GetCount(); ++instructionIdx)
+  for (ezUInt32 instructionIdx = 0; instructionIdx < m_InstructionStream.GetCount(); ++instructionIdx)
   {
-    ezUInt32 instructionInt = m_InstructionStream[instructionIdx];
     InstructionType instruction = static_cast<InstructionType>(m_InstructionStream[instructionIdx]);
 
-    // Binary operation.
-    if (instructionInt <= static_cast<ezUInt32>(InstructionType::Divide))
+    switch (instruction)
     {
-      if(evaluationStack.GetCount() < 2)
+    // Binary operations.
+    case InstructionType::Add:
+    case InstructionType::Subtract:
+    case InstructionType::Multiply:
+    case InstructionType::Divide:
+    {
+      if (evaluationStack.GetCount() < 2)
       {
         ezLog::Error(m_pLog, "Expected at least two operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
         return errorOutput;
@@ -94,9 +98,10 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
         break;
       }
     }
+    break;
 
-    // Unary operation
-    else if(instruction == InstructionType::Negate)
+    // Unary operations.
+    case InstructionType::Negate:
     {
       if (evaluationStack.GetCount() < 1)
       {
@@ -106,9 +111,10 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 
       evaluationStack.PeekBack() = -evaluationStack.PeekBack();
     }
+    break;
 
-    // Push Constant
-    else if(instruction == InstructionType::PushConstant)
+    // Push Constant.
+    case InstructionType::PushConstant:
     {
       EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 1, "ezMathExpression::InstructionType::PushConstant should always be followed by another integer in the instruction stream.");
 
@@ -116,24 +122,24 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
       ezUInt32 constantIndex = m_InstructionStream[instructionIdx];
       evaluationStack.PushBack(m_Constants[constantIndex]); // constantIndex is not a user input, so it should be impossible for it to be outside!
     }
+    break;
 
-    // Push Variable
-    else if (instruction == InstructionType::PushVariable)
+    // Push Variable.
+    case InstructionType::PushVariable:
     {
       EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 2, "ezMathExpression::InstructionType::PushVariable should always be followed by two more integers in the instruction stream.");
 
-      ezUInt32 variableSubstringStart = m_InstructionStream[instructionIdx+1];
-      ezUInt32 variableSubstringEnd = m_InstructionStream[instructionIdx+2];
+      ezUInt32 variableSubstringStart = m_InstructionStream[instructionIdx + 1];
+      ezUInt32 variableSubstringEnd = m_InstructionStream[instructionIdx + 2];
       instructionIdx += 2;
 
       ezStringView variableName(m_OriginalExpression + variableSubstringStart, m_OriginalExpression + variableSubstringEnd);
       double variable = variableResolveFunction(variableName);
       evaluationStack.PushBack(variable);
     }
+    break;
 
-    // Unknown
-    else
-    {
+    default:
       EZ_REPORT_FAILURE("Unknown instruction in MathExpression!");
     }
   }
