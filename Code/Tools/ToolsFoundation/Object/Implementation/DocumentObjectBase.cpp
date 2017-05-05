@@ -23,7 +23,7 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* sz
   const ezRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(szProperty);
   EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner), "");
-  
+
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     if (!index.IsValid() || (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1))
@@ -37,6 +37,12 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* sz
       bool bRes = accessor.InsertValue(szProperty, index, pObject->GetGuid());
       EZ_ASSERT_DEV(bRes, "");
     }
+  }
+  else if (pProp->GetCategory() == ezPropertyCategory::Map)
+  {
+    EZ_ASSERT_DEV(index.IsA<ezString>(), "Map key must be a string.");
+    bool bRes = accessor.InsertValue(szProperty, index, pObject->GetGuid());
+    EZ_ASSERT_DEV(bRes, "");
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Member)
   {
@@ -60,7 +66,9 @@ void ezDocumentObject::RemoveSubObject(ezDocumentObject* pObject)
   // Property patching
   const ezRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(pObject->m_sParentProperty);
-  if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
+  if (pProp->GetCategory() == ezPropertyCategory::Array ||
+    pProp->GetCategory() == ezPropertyCategory::Set ||
+    pProp->GetCategory() == ezPropertyCategory::Map)
   {
     ezVariant index = accessor.GetPropertyChildIndex(pObject->m_sParentProperty, pObject->GetGuid());
     bool bRes = accessor.RemoveValue(pObject->m_sParentProperty, index);
@@ -166,6 +174,18 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
       for (const ezVariant& var : keys)
       {
         uiHash = var.ComputeHash(uiHash);
+      }
+    }
+    else if (pProperty->GetCategory() == ezPropertyCategory::Map)
+    {
+      ezHybridArray<ezVariant, 16> keys;
+      acc.GetKeys(pProperty->GetPropertyName(), keys);
+      keys.Sort([](const ezVariant& a, const ezVariant& b) { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
+      for (const ezVariant& key : keys)
+      {
+        uiHash = key.ComputeHash(uiHash);
+        ezVariant value = acc.GetValue(pProperty->GetPropertyName(), key);
+        uiHash = value.ComputeHash(uiHash);
       }
     }
   }

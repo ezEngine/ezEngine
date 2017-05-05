@@ -66,7 +66,7 @@ ezRttiConverterObject ezRttiConverterContext::GetObjectByGUID(const ezUuid& guid
   return object;
 }
 
-ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, void* pObject) const
+ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const
 {
   ezUuid guid;
 
@@ -119,7 +119,7 @@ ezRttiConverterObject ezRttiConverterContext::DequeueObject()
 
 
 
-ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, void* pObject, const char* szNodeName)
+ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName)
 {
   const ezUuid guid = m_pContext->GetObjectGUID(pRtti, pObject);
   ezAbstractObjectNode* pNode = AddSubObjectToGraph(pRtti, pObject, guid, szNodeName);
@@ -136,7 +136,7 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
   return pNode;
 }
 
-ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, void* pObject, const ezUuid& guid, const char* szNodeName)
+ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid, const char* szNodeName)
 {
   ezAbstractObjectNode* pNode = m_pGraph->AddNode(guid, pRtti->GetTypeName(), pRtti->GetTypeVersion(), szNodeName);
   AddProperties(pNode, pRtti, pObject);
@@ -316,6 +316,66 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           ValuesCopied[i] = guid;
         }
 
+        pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
+      }
+    }
+    break;
+  case ezPropertyCategory::Map:
+    {
+      const ezAbstractMapProperty* pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
+
+      ezHybridArray<ezString, 16> keys;
+      pSpecific->GetKeys(pObject, keys);
+
+      ezVariantDictionary ValuesCopied;
+      ValuesCopied.Reserve(keys.GetCount());
+
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+      {
+        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+        {
+          ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
+          ValuesCopied.Insert(keys[i], value);
+        }
+        pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
+      }
+      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      {
+        ezUuid propertyGuid = pNode->GetGuid();
+        propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
+        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+        {
+          ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
+          void* pRefrencedObject = value.ConvertTo<void*>();
+
+          ezUuid guid;
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          {
+            // TODO: pointer sets are never stable unless they use an array based pseudo set as storage.
+            guid = propertyGuid;
+            guid.CombineWithSeed(ezUuid::StableUuidForInt(i));
+            guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
+          }
+          else
+            guid = m_pContext->GetObjectGUID(pPropType, pRefrencedObject);
+
+          ValuesCopied.Insert(keys[i], guid);
+        }
+
+        pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
+      }
+      else
+      {
+        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+        {
+          const void* pSubObject = pSpecific->GetValue(pObject, keys[i]);
+
+          ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
+          sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), keys[i]);
+          const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
+          AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
+          ValuesCopied.Insert(keys[i], SubObjectGuid);
+        }
         pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
       }
     }

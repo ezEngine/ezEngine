@@ -302,13 +302,34 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///
 /// \note Container<Type> can be any container that can be iterated via range based for loops.
 #define EZ_SET_ACCESSOR_PROPERTY(PropertyName, GetValues, Insert, Remove)   \
-  (new ezAccessorSetProperty<OwnType, ezMemberFunctionParameterTypeResolver<decltype(&OwnType::Insert)>::ParameterType, EZ_SET_CONTAINER_TYPE(OwnType, GetValues)>   \
+  (new ezAccessorSetProperty<OwnType, ezFunctionParameterTypeResolver<0, decltype(&OwnType::Insert)>::ParameterType, EZ_SET_CONTAINER_TYPE(OwnType, GetValues)>   \
     (PropertyName, &OwnType::GetValues, &OwnType::Insert, &OwnType::Remove)) \
 
 /// \brief Same as EZ_SET_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
 #define EZ_SET_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, GetValues)   \
   (new ezAccessorSetProperty<OwnType, EZ_SET_CONTAINER_SUB_TYPE(OwnType, GetValues), EZ_SET_CONTAINER_TYPE(OwnType, GetValues)>   \
     (PropertyName, &OwnType::GetValues, nullptr, nullptr)) \
+
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access a map.
+///
+/// \param PropertyName
+///   The unique (in this class) name under which the property should be registered.
+/// \param GetContainer
+///   Function signature: const Container<Key, Type>& GetValues() const;
+/// \param Insert
+///   Function signature: void Insert(const char* szKey, Type value);
+/// \param Remove
+///   Function signature: void Remove(const char* szKey);
+///
+/// \note Container can be ezMap or ezHashTable
+#define EZ_MAP_ACCESSOR_PROPERTY(PropertyName, GetContainer, Insert, Remove)   \
+  (new ezAccessorMapProperty<OwnType, ezFunctionParameterTypeResolver<1, decltype(&OwnType::Insert)>::ParameterType, EZ_SET_CONTAINER_TYPE(OwnType, GetContainer)>   \
+    (PropertyName, &OwnType::GetContainer, &OwnType::Insert, &OwnType::Remove)) \
+
+/// \brief Same as EZ_MAP_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
+#define EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, GetContainer)   \
+  (new ezAccessorMapProperty<OwnType, EZ_SET_CONTAINER_SUB_TYPE(OwnType, GetContainer), EZ_SET_CONTAINER_TYPE(OwnType, GetContainer)>   \
+    (PropertyName, &OwnType::GetContainer, nullptr, nullptr)) \
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom getter / setter functions.
 ///
@@ -386,18 +407,32 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
     nullptr))  \
 
-/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a set (ezSet).
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a set (ezSet, ezHashSet).
 #define EZ_SET_MEMBER_PROPERTY(PropertyName, MemberName)                          \
   (new ezMemberSetProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
     (PropertyName,                                                            \
     &ezSetPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
     &ezSetPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetContainer))  \
 
-/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a read-only set (ezSet).
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a read-only set (ezSet, ezHashSet).
 #define EZ_SET_MEMBER_PROPERTY_READ_ONLY(PropertyName, MemberName)                          \
   (new ezMemberSetProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
     (PropertyName,                                                            \
     &ezSetPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
+    nullptr))  \
+
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a map (ezMap, ezHashTable).
+#define EZ_MAP_MEMBER_PROPERTY(PropertyName, MemberName)                          \
+  (new ezMemberMapProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
+    (PropertyName,                                                            \
+    &ezMapPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
+    &ezMapPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetContainer))  \
+
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a read-only map (ezMap, ezHashTable).
+#define EZ_MAP_MEMBER_PROPERTY_READ_ONLY(PropertyName, MemberName)                          \
+  (new ezMemberMapProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
+    (PropertyName,                                                            \
+    &ezMapPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
     nullptr))  \
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that actually exists as a member.

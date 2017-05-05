@@ -33,14 +33,14 @@ public:
   virtual void UnregisterObject(const ezUuid& guid);
 
   virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const;
-  virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, void* pObject) const;
+  virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const;
 
   virtual ezUuid EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
   virtual ezRttiConverterObject DequeueObject();
 
 protected:
   ezHashTable<ezUuid, ezRttiConverterObject> m_GuidToObject;
-  mutable ezHashTable<void*, ezUuid> m_ObjectToGuid;
+  mutable ezHashTable<const void*, ezUuid> m_ObjectToGuid;
   ezSet<ezUuid> m_QueuedObjects;
 };
 
@@ -58,12 +58,12 @@ public:
   }
 
   ezAbstractObjectNode* AddObjectToGraph(ezReflectedClass* pObject, const char* szNodeName = nullptr) { return AddObjectToGraph(pObject->GetDynamicRTTI(), pObject, szNodeName); }
-  ezAbstractObjectNode* AddObjectToGraph(const ezRTTI* pRtti, void* pObject, const char* szNodeName = nullptr);
+  ezAbstractObjectNode* AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName = nullptr);
 
   void AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const void* pObject);
   void AddProperties(ezAbstractObjectNode* pNode, const ezRTTI* pRtti, const void* pObject);
 
-  ezAbstractObjectNode* AddSubObjectToGraph(const ezRTTI* pRtti, void* pObject, const ezUuid& guid, const char* szNodeName);
+  ezAbstractObjectNode* AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid, const char* szNodeName);
 
 private:
   ezRttiConverterContext* m_pContext;

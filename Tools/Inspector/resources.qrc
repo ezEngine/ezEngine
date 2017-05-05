@@ -23,9 +23,11 @@
     <file>Icons/AllThreads.png</file>
     <file>Icons/LoadingThread.png</file>
     <file>Icons/MainThread.png</file>
+    <file>Icons/Map.png</file>
     <file>Icons/OtherThread.png</file>
     <file>Icons/GlobalEvent.png</file>
     <file>Icons/Time.png</file>
+    <file>Icons/Set.png</file>
     <file>Icons/StatFavourite.png</file>
     <file>Icons/Stat.png</file>
     <file>Icons/StatGroup.png</file>

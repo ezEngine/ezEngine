@@ -261,6 +261,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     case ezPropertyCategory::Member:
     case ezPropertyCategory::Array:
     case ezPropertyCategory::Set:
+    case ezPropertyCategory::Map:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
         out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), prop->GetFlags(), prop->GetAttributes()));

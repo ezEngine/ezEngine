@@ -63,7 +63,19 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
         }
       }
       break;
-
+    case ezPropertyCategory::Map:
+      {
+        const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+        if (index.IsA<ezString>())
+        {
+          const ezString& sIndex = index.Get<ezString>();
+          if (const ezVariant* pValue = values.GetValue(sIndex))
+          {
+            return *pValue;
+          }
+        }
+      }
+      break;
     default:
       break;
     }
@@ -127,7 +139,26 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
         }
       }
       break;
+    case ezPropertyCategory::Map:
+      {
+        const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+        if (index.IsA<ezString>() && values.Contains(index.Get<ezString>()))
+        {
+          const ezString& sIndex = index.Get<ezString>();
+          ezVariantDictionary changedValues = values;
+          const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
 
+          if (value.CanConvertTo(SpecVarType))
+          {
+            // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
+            // that may have a different type now as someone reloaded the type information and replaced a type.
+            changedValues[sIndex] = value.ConvertTo(SpecVarType);
+            m_Data[storageInfo->m_uiIndex] = changedValues;
+            return true;
+          }
+        }
+      }
+      break;
     default:
       break;
     }
@@ -155,7 +186,11 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
         const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
         return values.GetCount();
       }
-
+    case ezPropertyCategory::Map:
+      {
+        const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+        return values.GetCount();
+      }
     default:
       break;
     }
@@ -247,7 +282,26 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
         }
       }
       break;
+    case ezPropertyCategory::Map:
+      {
+        const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+        if (index.IsA<ezString>() && !values.Contains(index.Get<ezString>()))
+        {
+          const ezString& sIndex = index.Get<ezString>();
+          ezVariantDictionary changedValues = values;
+          const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
 
+          if (value.CanConvertTo(SpecVarType))
+          {
+            // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
+            // that may have a different type now as someone reloaded the type information and replaced a type.
+            changedValues.Insert(sIndex, value.ConvertTo(SpecVarType));
+            m_Data[storageInfo->m_uiIndex] = changedValues;
+            return true;
+          }
+        }
+      }
+      break;
     default:
       break;
     }
@@ -286,7 +340,19 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const char* szProperty, ezVaria
         }
       }
       break;
-
+    case ezPropertyCategory::Map:
+      {
+        const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+        if (index.IsA<ezString>() && values.Contains(index.Get<ezString>()))
+        {
+          const ezString& sIndex = index.Get<ezString>();
+          ezVariantDictionary changedValues = values;
+          changedValues.Remove(sIndex);
+          m_Data[storageInfo->m_uiIndex] = changedValues;
+          return true;
+        }
+      }
+      break;
     default:
       break;
     }
@@ -333,7 +399,19 @@ bool ezReflectedTypeStorageAccessor::MoveValue(const char* szProperty, ezVariant
         }
       }
       break;
-
+    case ezPropertyCategory::Map:
+      {
+        const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+        if (oldIndex.IsA<ezString>() && values.Contains(oldIndex.Get<ezString>()) && newIndex.IsA<ezString>())
+        {
+          const ezString& sIndex = oldIndex.Get<ezString>();
+          ezVariantDictionary changedValues = values;
+          changedValues.Insert(newIndex.Get<ezString>(), changedValues[sIndex]);
+          changedValues.Remove(sIndex);
+          m_Data[storageInfo->m_uiIndex] = changedValues;
+          return true;
+        }
+      }
     default:
       break;
     }
@@ -370,7 +448,20 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
         }
       }
       break;
-
+    case ezPropertyCategory::Map:
+      {
+        const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+        if (value.CanConvertTo(SpecVarType))
+        {
+          const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();
+          for (auto it = values.GetIterator(); it.IsValid(); ++it)
+          {
+            if (it.Value() == value)
+              return it.Key();
+          }
+        }
+      }
+      break;
     default:
       break;
     }

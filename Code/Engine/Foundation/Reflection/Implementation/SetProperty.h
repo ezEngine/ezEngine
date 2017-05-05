@@ -84,7 +84,7 @@ public:
     // e.g. ezArrayPtr by value.
     while (!IsEmpty(pInstance))
     {
-      Container c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
+      decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
       auto it = cbegin(c);
       RealType value = *it;
       Remove(pInstance, &value);

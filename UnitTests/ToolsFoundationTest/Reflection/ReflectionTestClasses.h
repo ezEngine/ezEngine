@@ -249,6 +249,10 @@ public:
 
   ezDynamicArray<ezString> m_StandardTypeSet;
   ezSet<ezObjectTest*> m_SubObjectSet;
+
+  ezMap<ezString, double> m_StandardTypeMap;
+  ezHashTable<ezString, OuterClass> m_ClassMap;
+  ezMap<ezString, ezReflectedClass*> m_ClassPtrMap;
 };
 
 

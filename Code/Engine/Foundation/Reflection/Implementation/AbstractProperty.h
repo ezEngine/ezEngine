@@ -7,6 +7,8 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Containers/HashSet.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/HashTable.h>
 
 class ezRTTI;
 class ezPropertyAttribute;
@@ -257,7 +259,7 @@ public:
 
   }
 
-  /// \brief Returns ezPropertyCategory::Array.
+  /// \brief Returns ezPropertyCategory::Set.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Set; }
 
   /// \brief Returns whether the set is empty.
@@ -281,6 +283,94 @@ public:
 };
 
 
+/// \brief The base class for a property that represents a set of values.
+///
+/// The element type must either be a standard type or a pointer.
+class EZ_FOUNDATION_DLL ezAbstractMapProperty : public ezAbstractProperty
+{
+public:
+  /// \brief Passes the property name through to ezAbstractProperty.
+  ezAbstractMapProperty(const char* szPropertyName) : ezAbstractProperty(szPropertyName)
+  {
+  }
+
+  /// \brief Returns ezPropertyCategory::Map.
+  virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Map; }
+
+  /// \brief Returns whether the set is empty.
+  virtual bool IsEmpty(const void* pInstance) const = 0;
+
+  /// \brief Clears the set.
+  virtual void Clear(void* pInstance) = 0;
+
+  /// \brief Inserts the target of pObject into the set.
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) = 0;
+
+  /// \brief Removes the target of pObject from the set.
+  virtual void Remove(void* pInstance, const char* szKey) = 0;
+
+  /// \brief Returns whether the target of pObject is in the set.
+  virtual bool Contains(const void* pInstance, const char* szKey) const = 0;
+
+  /// \brief Writes element at index uiIndex to the target of pObject.
+  virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const = 0;
+
+  /// \brief Returns a pointer to the value under the key or nullptr if the key is not present. If a valid pointer is returned, that pointer and the information from GetSpecificType() can
+  /// be used to step deeper into the type (if required).
+  virtual const void* GetValue(const void* pInstance, const char* szKey) const = 0;
+
+  /// \brief Writes the content of the set to out_keys.
+  virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const = 0;
+
+};
+
+/// \brief Use getArgument<N, Args...>::Type to get the type of the Nth argument in Args.
+template<int _Index, class... Args>
+struct getArgument;
+
+template<class Head, class... Tail>
+struct getArgument<0, Head, Tail...>
+{
+  typedef Head Type;
+};
+
+template<int _Index, class Head, class... Tail>
+struct getArgument<_Index, Head, Tail...>
+{
+  typedef typename getArgument<_Index - 1, Tail...>::Type Type;
+};
+
+/// \brief Template that allows to probe a function for a parameter and return type.
+template <int I, typename FUNC>
+struct ezFunctionParameterTypeResolver
+{
+};
+
+template <int I, typename R, typename... P>
+struct ezFunctionParameterTypeResolver<I, R(*)(P...) >
+{
+  enum Constants
+  {
+    Arguments = sizeof...(P),
+  };
+  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  typedef typename getArgument<I, P...>::Type ParameterType;
+  typedef R ReturnType;
+};
+
+template <int I, class Class, typename R, typename... P>
+struct ezFunctionParameterTypeResolver<I, R(Class::*)(P...) >
+{
+  enum Constants
+  {
+    Arguments = sizeof...(P),
+  };
+  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  typedef typename getArgument<I, P...>::Type ParameterType;
+  typedef R ReturnType;
+};
+
+
 /// \brief Template that allows to probe a single parameter function for parameter and return type.
 template <typename FUNC>
 struct ezMemberFunctionParameterTypeResolver
@@ -299,7 +389,6 @@ template <typename CONTAINER>
 struct ezContainerSubTypeResolver
 {
 };
-
 
 template <typename T>
 struct ezContainerSubTypeResolver<ezArrayPtr<T> >
@@ -333,6 +422,18 @@ struct ezContainerSubTypeResolver<ezSet<T> >
 
 template <typename T>
 struct ezContainerSubTypeResolver<ezHashSet<T> >
+{
+  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+};
+
+template <typename K, typename T>
+struct ezContainerSubTypeResolver<ezHashTable<K, T> >
+{
+  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+};
+
+template <typename K, typename T>
+struct ezContainerSubTypeResolver<ezMap<K, T> >
 {
   typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
 };

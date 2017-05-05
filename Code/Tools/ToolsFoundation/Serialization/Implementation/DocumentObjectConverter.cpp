@@ -90,6 +90,29 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
       pNode->AddProperty(pProp->GetPropertyName(), values);
     }
     break;
+  case ezPropertyCategory::Map:
+    {
+
+      const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
+      EZ_ASSERT_DEV(iCount >= 0, "Invalid map property size {0}", iCount);
+
+      ezVariantDictionary values;
+      values.Reserve(iCount);
+      ezHybridArray<ezVariant, 16> keys;
+      pObject->GetTypeAccessor().GetKeys(pProp->GetPropertyName(), keys);
+
+      for (const ezVariant& key : keys)
+      {
+        ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), key);
+        values.Insert(key.Get<ezString>(), value);
+        if (!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          m_QueuedObjects.Insert(m_pManager->GetObject(value.Get<ezUuid>()));
+        }
+      }
+      pNode->AddProperty(pProp->GetPropertyName(), values);
+    }
+    break;
   case ezPropertyCategory::Constant:
     // Nothing to do here.
     break;
@@ -320,6 +343,56 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
       }
     }
   }
+  else if (pProp->GetCategory() == ezPropertyCategory::Map)
+  {
+    const ezVariantDictionary& values = op.m_Value.Get<ezVariantDictionary>();
+    ezHybridArray<ezVariant, 16> keys;
+    EZ_VERIFY(pObjectAccessor->GetKeys(pObject, pProp, keys).Succeeded(), "Property is not a map, getting keys failed.");
+
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    {
+      for (const ezVariant& key : keys)
+      {
+        const ezString& sKey = key.Get<ezString>();
+        if (!values.Contains(sKey))
+        {
+          EZ_VERIFY(pObjectAccessor->RemoveValue(pObject, pProp, key).Succeeded(), "RemoveValue failed.");
+        }
+      }
+      for (auto it = values.GetIterator(); it.IsValid(); ++it)
+      {
+        if (keys.Contains(it.Key()))
+          pObjectAccessor->SetValue(pObject, pProp, it.Value(), it.Key());
+        else
+          pObjectAccessor->InsertValue(pObject, pProp, it.Value(), it.Key());
+      }
+    }
+    else
+    {
+      for (const ezVariant& key : keys)
+      {
+        const ezString& sKey = key.Get<ezString>();
+        ezVariant value;
+        EZ_VERIFY(pObjectAccessor->GetValue(pObject, pProp, value, key).Succeeded(), "");
+        if (NeedsToBeDeleted(value.Get<ezUuid>()))
+        {
+          pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()));
+        }
+      }
+      for (auto it = values.GetIterator(); it.IsValid(); ++it)
+      {
+        const ezVariant& value = it.Value();
+        if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(value.Get<ezUuid>()))
+        {
+          pObjectAccessor->AddObject(pObject, pProp, it.Key(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+        }
+        else
+        {
+          pObjectAccessor->MoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()), pObject, pProp, it.Key());
+        }
+      }
+    }
+  }
 }
 
 void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
@@ -395,6 +468,38 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
           {
             pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), -1);
           }
+
+          if (pSubObject)
+          {
+            ApplyPropertiesToObject(pSubNode, pSubObject);
+          }
+        }
+      }
+    }
+  }
+  else if (pProp->GetCategory() == ezPropertyCategory::Map)
+  {
+    const ezVariantDictionary& values = pSource->m_Value.Get<ezVariantDictionary>();
+
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    {
+      for (auto it = values.GetIterator(); it.IsValid(); ++it)
+      {
+          pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), it.Key(), it.Value());
+      }
+    }
+    else
+    {
+      for (auto it = values.GetIterator(); it.IsValid(); ++it)
+      {
+        const ezVariant& value = it.Value();
+        const ezUuid guid = value.Get<ezUuid>();
+
+        if (guid.IsValid())
+        {
+          auto* pSubNode = m_pGraph->GetNode(guid);
+          EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+          ezDocumentObject* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), it.Key());
 
           if (pSubObject)
           {

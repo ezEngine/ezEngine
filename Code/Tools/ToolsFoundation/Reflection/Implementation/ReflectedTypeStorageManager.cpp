@@ -175,7 +175,37 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
         value = values;
       }
       break;
+    case ezPropertyCategory::Map:
+      {
+        if (value.GetType() != ezVariantType::VariantDictionary)
+        {
+          value = ezVariantDictionary();
+          continue;
+        }
+        ezVariantDictionary values = value.Get<ezVariantDictionary>();
+        if (values.IsEmpty())
+          continue;
 
+        // Same conversion logic as for ezPropertyCategory::Member, but for each element instead.
+        for (auto it = values.GetIterator(); it.IsValid(); ++it)
+        {
+          if (it.Value().GetType() == SpecVarType)
+          {
+            continue;
+          }
+          else
+          {
+            ezResult res(EZ_FAILURE);
+            it.Value() = it.Value().ConvertTo(SpecVarType, &res);
+            if (res == EZ_FAILURE)
+            {
+              it.Value() = GetStorageDefault(pProperty);
+            }
+          }
+        }
+        value = values;
+      }
+      break;
     default:
       break;
     }
@@ -219,7 +249,11 @@ ezVariantType::Enum ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::
       type = ezVariantType::VariantArray;
     }
     break;
-
+  case ezPropertyCategory::Map:
+    {
+      type = ezVariantType::VariantDictionary;
+    }
+    break;
   default:
     break;
   }
@@ -232,6 +266,8 @@ ezVariant ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::GetStorage
 {
   if (pProperty->GetCategory() == ezPropertyCategory::Array || pProperty->GetCategory() == ezPropertyCategory::Set)
     return ezVariantArray();
+  else if (pProperty->GetCategory() == ezPropertyCategory::Map)
+    return ezVariantDictionary();
   else
     return ezToolsReflectionUtils::GetDefaultValue(pProperty);
 

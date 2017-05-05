@@ -95,3 +95,24 @@ private:
   ezRTTI* m_pPropertyType;
 };
 
+
+class ezPhantomMapProperty : public ezAbstractMapProperty
+{
+public:
+  ezPhantomMapProperty(const ezReflectedPropertyDescriptor* pDesc);
+  ~ezPhantomMapProperty();
+
+  virtual const ezRTTI* GetSpecificType() const override;
+  virtual bool IsEmpty(const void* pInstance) const override { return true; }
+  virtual void Clear(void* pInstance) override {}
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override {}
+  virtual void Remove(void* pInstance, const char* szKey) override {}
+  virtual bool Contains(const void* pInstance, const char* szKey) const override { return false; }
+  virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const override { return false; }
+  virtual const void* GetValue(const void* pInstance, const char* szKey) const override { return nullptr; }
+  virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override {}
+
+private:
+  ezString m_sPropertyNameStorage;
+  ezRTTI* m_pPropertyType;
+};

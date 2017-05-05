@@ -72,8 +72,7 @@ void ezPhantomRTTI::SetProperties(const ezDynamicArray<ezReflectedPropertyDescri
       break;
     case ezPropertyCategory::Map:
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        //m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMapProperty, &properties[i]));
+        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMapProperty, &properties[i]));
       }
       break;
     }
@@ -175,7 +174,8 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
       break;
     case ezPropertyCategory::Map:
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+          return false;
       }
       break;
 

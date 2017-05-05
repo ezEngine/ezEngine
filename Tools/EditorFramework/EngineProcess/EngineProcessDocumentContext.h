@@ -87,7 +87,7 @@ public:
   virtual void UnregisterObject(const ezUuid& guid) override;
 
   virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const override;
-  virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, void* pObject) const override;
+  virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const override;
 
   ezWorld* m_pWorld;
   ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;

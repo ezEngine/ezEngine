@@ -129,4 +129,26 @@ const ezRTTI* ezPhantomSetProperty::GetSpecificType() const
   return m_pPropertyType;
 }
 
+ezPhantomMapProperty::ezPhantomMapProperty(const ezReflectedPropertyDescriptor* pDesc)
+  : ezAbstractMapProperty(nullptr)
+{
+  m_sPropertyNameStorage = pDesc->m_sName;
+  m_szPropertyName = m_sPropertyNameStorage.GetData();
+  m_pPropertyType = ezRTTI::FindTypeByName(pDesc->m_sType);
 
+  m_Flags = pDesc->m_Flags;
+  m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Attributes = pDesc->m_Attributes;
+  pDesc->m_Attributes.Clear();
+}
+
+ezPhantomMapProperty::~ezPhantomMapProperty()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+}
+
+const ezRTTI* ezPhantomMapProperty::GetSpecificType() const
+{
+  return m_pPropertyType;
+}

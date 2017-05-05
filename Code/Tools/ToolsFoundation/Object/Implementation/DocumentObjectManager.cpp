@@ -195,6 +195,18 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
         return ezStatus(ezFmt("Cannot add object to its new location '{0}' is out of the bounds of the parent's property range '{1}'!"
           , iNewIndex, (ezInt32)iCount));
     }
+    if (pProp->GetCategory() == ezPropertyCategory::Map)
+    {
+      if (!index.IsA<ezString>())
+        return ezStatus(ezFmt("Cannot add object to the map property '{0}' as its index type is not a string.", szParentProperty));
+      ezVariant value = accessor.GetValue(szParentProperty, index);
+      if (value.IsValid() && value.IsA<ezUuid>())
+      {
+        ezUuid guid = value.Get<ezUuid>();
+        if (guid.IsValid())
+          return ezStatus(ezFmt("Cannot add object to the map property '{0}' at key '{1}'. Delete old value first.", szParentProperty, index.Get<ezString>()));
+      }
+    }
     else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
       if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
@@ -293,6 +305,18 @@ ezStatus ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const
       ezInt32 iCurrentIndex = oldAccessor.GetPropertyChildIndex(szParentProperty, pObject->GetGuid()).ConvertTo<ezInt32>();
       if (iChildIndex == iCurrentIndex || iChildIndex == iCurrentIndex + 1)
         return ezStatus("Can't move object onto itself!");
+    }
+  }
+  if (pProp->GetCategory() == ezPropertyCategory::Map)
+  {
+    if (!index.IsA<ezString>())
+      return ezStatus(ezFmt("Cannot add object to the map property '{0}' as its index type is not a string.", szParentProperty));
+    ezVariant value = accessor.GetValue(szParentProperty, index);
+    if (value.IsValid() && value.IsA<ezUuid>())
+    {
+      ezUuid guid = value.Get<ezUuid>();
+      if (guid.IsValid())
+        return ezStatus(ezFmt("Cannot add object to the map property '{0}' at key '{1}'. Delete old value first.", szParentProperty, index.Get<ezString>()));
     }
   }
 

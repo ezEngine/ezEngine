@@ -147,7 +147,7 @@ protected:
 };
 
 
-/// Used for pointers and embedded classes. 
+/// Used for pointers and embedded classes.
 /// Does not inherit from ezQtEmbeddedClassPropertyWidget as it just embeds
 /// a ezQtTypeWidget for the property's value which handles everything already.
 class EZ_GUIFOUNDATION_DLL ezQtPropertyTypeWidget : public ezQtPropertyWidget
@@ -246,6 +246,7 @@ protected:
   QVBoxLayout* m_pGroupLayout;
   ezQtAddSubElementButton* m_pAddButton;
 
+  mutable ezHybridArray<ezVariant, 16> m_Keys;
   ezDynamicArray<Element> m_Elements;
 };
 

@@ -197,6 +197,41 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       //pObjectAccessor->AddObject(pObject, pProp, 0, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
     }
   }
+  else if (pProp->GetCategory() == ezPropertyCategory::Map)
+  {
+    ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    {
+      ezHybridArray<ezVariant, 16> keys;
+      pObjectAccessor->GetKeys(pObject, pProp, keys);
+      for (const ezVariant& key : keys)
+      {
+        pObjectAccessor->RemoveValue(pObject, pProp, key);
+      }
+
+      ezVariant value1 = ezToolsReflectionUtils::GetDefaultValue(pProp);
+      ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
+      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, "value1").m_Result.Succeeded());
+      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, "value2").m_Result.Succeeded());
+    }
+    else
+    {
+      ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
+      ezHybridArray<ezVariant, 16> currentValues;
+      pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
+      for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
+      {
+        EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).m_Result.Succeeded());
+      }
+
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::EmbeddedClass))
+      {
+        ezUuid newGuid;
+        newGuid.CreateNewUuid();
+        EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, "value1", pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
+      }
+    }
+  }
 }
 
 void RecursiveModifyObject(const ezDocumentObject* pObject, ezObjectAccessorBase* pAccessor)

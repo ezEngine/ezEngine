@@ -207,16 +207,16 @@ ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid&
   return object;
 }
 
-ezUuid ezWorldRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, void* pObject) const
+ezUuid ezWorldRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const
 {
   if (pRtti == ezGetStaticRTTI<ezGameObject>())
   {
-    ezGameObject* pGameObject = static_cast<ezGameObject*>(pObject);
+    const ezGameObject* pGameObject = static_cast<const ezGameObject*>(pObject);
     return m_GameObjectMap.GetGuid(pGameObject->GetHandle());
   }
   else if (pRtti->IsDerivedFrom<ezComponent>())
   {
-    ezComponent* pComponent = static_cast<ezComponent*>(pObject);
+    const ezComponent* pComponent = static_cast<const ezComponent*>(pObject);
     return m_ComponentMap.GetGuid(pComponent->GetHandle());
   }
   return ezRttiConverterContext::GetObjectGUID(pRtti, pObject);

@@ -268,7 +268,40 @@ namespace
         }
       }
       break;
+    case ezPropertyCategory::Map:
+      {
+        ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
 
+        // Delete old values
+        if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+        {
+          ezHybridArray<ezString, 16> keys;
+          pSpecific->GetKeys(pClone, keys);
+          for (const ezString& sKey : keys)
+          {
+            ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pClone, sKey);
+            void* pOldClone = value.ConvertTo<void*>();
+            pSpecific->Remove(pClone, sKey);
+            if (pOldClone)
+              ezReflectionUtils::DeleteObject(pOldClone, pProp);
+          }
+        }
+        pSpecific->Clear(pClone);
+
+        ezHybridArray<ezString, 16> keys;
+        pSpecific->GetKeys(pObject, keys);
+
+        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+        {
+          const void* pValue = pSpecific->GetValue(pObject, keys[i]);
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && pValue)
+          {
+            pValue = ezReflectionSerializer::Clone(pValue, pPropType);
+          }
+          pSpecific->Insert(pClone, keys[i], pValue);
+        }
+      }
+      break;
     default:
       break;
     }

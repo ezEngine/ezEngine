@@ -50,228 +50,315 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
     return;
 
-  if (pProp->GetCategory() == ezPropertyCategory::Member)
+  switch (pProp->GetCategory())
   {
-    ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
-
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+  case ezPropertyCategory::Member:
     {
-      ezReflectionUtils::SetMemberPropertyValue(pSpecific, pObject, pSource->m_Value);
-    }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-    {
-      if (!pSource->m_Value.IsA<ezUuid>())
-        return;
+      ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
 
-      ezUuid guid = pSource->m_Value.Get<ezUuid>();
-      void* pRefrencedObject = nullptr;
-
-      if (guid.IsValid())
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
       {
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        ezReflectionUtils::SetMemberPropertyValue(pSpecific, pObject, pSource->m_Value);
+      }
+      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      {
+        if (!pSource->m_Value.IsA<ezUuid>())
+          return;
+
+        ezUuid guid = pSource->m_Value.Get<ezUuid>();
+        void* pRefrencedObject = nullptr;
+
+        if (guid.IsValid())
         {
-          auto* pNode = m_pGraph->GetNode(guid);
-          EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
-          pRefrencedObject = CreateObjectFromNode(pNode);
-          if (pRefrencedObject == nullptr)
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
           {
-            //ezLog::Error("Failed to set property '{0}', type could not be created!", pProp->GetPropertyName());
-            return;
+            auto* pNode = m_pGraph->GetNode(guid);
+            EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+            pRefrencedObject = CreateObjectFromNode(pNode);
+            if (pRefrencedObject == nullptr)
+            {
+              //ezLog::Error("Failed to set property '{0}', type could not be created!", pProp->GetPropertyName());
+              return;
+            }
+          }
+          else
+          {
+            pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
           }
         }
-        else
-        {
-          pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
-        }
-      }
-      
-      void* pOldObject = nullptr;
-      pSpecific->GetValuePtr(pObject, &pOldObject);
-      pSpecific->SetValuePtr(pObject, &pRefrencedObject);
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-        ezReflectionUtils::DeleteObject(pOldObject, pProp);
-    }
-    else
-    {
-      if (!pSource->m_Value.IsA<ezUuid>())
-        return;
 
-      void* pDirectPtr = pSpecific->GetPropertyPointer(pObject);
-      bool bDelete = false;
-      const ezUuid sourceGuid = pSource->m_Value.Get<ezUuid>();
-
-      if (pDirectPtr == nullptr)
-      {
-        bDelete = true;
-        pDirectPtr = m_pContext->CreateObject(sourceGuid, pPropType);
-      }
-
-      auto* pNode = m_pGraph->GetNode(sourceGuid);
-      EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
-
-      ApplyPropertiesToObject(pNode, pPropType, pDirectPtr);
-
-      if (bDelete)
-      {
-        pSpecific->SetValuePtr(pObject, pDirectPtr);
-        m_pContext->DeleteObject(sourceGuid);
-      }
-    }
-  }
-  else if (pProp->GetCategory() == ezPropertyCategory::Array)
-  {
-    ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
-    if (!pSource->m_Value.IsA<ezVariantArray>())
-      return;
-    const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
-    // Delete old values
-    if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
-    {
-      const ezInt32 uiOldCount = (ezInt32)pSpecific->GetCount(pObject);
-      for (ezInt32 i = uiOldCount - 1; i >= 0; --i)
-      {
         void* pOldObject = nullptr;
-        pSpecific->GetValue(pObject, i, &pOldObject);
-        pSpecific->Remove(pObject, i);
-        if (pOldObject)
+        pSpecific->GetValuePtr(pObject, &pOldObject);
+        pSpecific->SetValuePtr(pObject, &pRefrencedObject);
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
           ezReflectionUtils::DeleteObject(pOldObject, pProp);
       }
-    }
+      else
+      {
+        if (!pSource->m_Value.IsA<ezUuid>())
+          return;
 
-    pSpecific->SetCount(pObject, array.GetCount());
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
-    {
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
-      {
-        ezReflectionUtils::SetArrayPropertyValue(pSpecific, pObject, i, array[i]);
-      }
-    }
-    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer))
-    {
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
-      {
-        if (!array[i].IsA<ezUuid>())
-          continue;
-        ezUuid guid = array[i].Get<ezUuid>();
-        void* pRefrencedObject = nullptr;
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        void* pDirectPtr = pSpecific->GetPropertyPointer(pObject);
+        bool bDelete = false;
+        const ezUuid sourceGuid = pSource->m_Value.Get<ezUuid>();
+
+        if (pDirectPtr == nullptr)
         {
-          auto* pNode = m_pGraph->GetNode(guid);
-          EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
-          pRefrencedObject = CreateObjectFromNode(pNode);
-          if (pRefrencedObject == nullptr)
-          {
-            ezLog::Error("Failed to set array property '{0}' element, type could not be created!", pProp->GetPropertyName());
-            continue;
-          }
+          bDelete = true;
+          pDirectPtr = m_pContext->CreateObject(sourceGuid, pPropType);
         }
-        else
-        {
-          pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
-        }
-        pSpecific->SetValue(pObject, i, &pRefrencedObject);
-      }
-    }
-    else
-    {
-      ezUuid temp;
-      temp.CreateNewUuid();
-      void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
-      {
-        if (!array[i].IsA<ezUuid>())
-          continue;
-
-        const ezUuid sourceGuid = array[i].Get<ezUuid>();
         auto* pNode = m_pGraph->GetNode(sourceGuid);
         EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
 
-        ApplyPropertiesToObject(pNode, pPropType, pValuePtr);
-        pSpecific->SetValue(pObject, i, pValuePtr);
+        ApplyPropertiesToObject(pNode, pPropType, pDirectPtr);
+
+        if (bDelete)
+        {
+          pSpecific->SetValuePtr(pObject, pDirectPtr);
+          m_pContext->DeleteObject(sourceGuid);
+        }
+      }
+    }
+    break;
+  case ezPropertyCategory::Array:
+    {
+      ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
+      if (!pSource->m_Value.IsA<ezVariantArray>())
+        return;
+      const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
+      // Delete old values
+      if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+      {
+        const ezInt32 uiOldCount = (ezInt32)pSpecific->GetCount(pObject);
+        for (ezInt32 i = uiOldCount - 1; i >= 0; --i)
+        {
+          void* pOldObject = nullptr;
+          pSpecific->GetValue(pObject, i, &pOldObject);
+          pSpecific->Remove(pObject, i);
+          if (pOldObject)
+            ezReflectionUtils::DeleteObject(pOldObject, pProp);
+        }
       }
 
-      m_pContext->DeleteObject(temp);
+      pSpecific->SetCount(pObject, array.GetCount());
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+      {
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        {
+          ezReflectionUtils::SetArrayPropertyValue(pSpecific, pObject, i, array[i]);
+        }
+      }
+      else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer))
+      {
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        {
+          if (!array[i].IsA<ezUuid>())
+            continue;
+          ezUuid guid = array[i].Get<ezUuid>();
+          void* pRefrencedObject = nullptr;
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          {
+            auto* pNode = m_pGraph->GetNode(guid);
+            EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+            pRefrencedObject = CreateObjectFromNode(pNode);
+            if (pRefrencedObject == nullptr)
+            {
+              ezLog::Error("Failed to set array property '{0}' element, type could not be created!", pProp->GetPropertyName());
+              continue;
+            }
+          }
+          else
+          {
+            pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
+          }
+          pSpecific->SetValue(pObject, i, &pRefrencedObject);
+        }
+      }
+      else
+      {
+        ezUuid temp;
+        temp.CreateNewUuid();
+        void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
+
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        {
+          if (!array[i].IsA<ezUuid>())
+            continue;
+
+          const ezUuid sourceGuid = array[i].Get<ezUuid>();
+          auto* pNode = m_pGraph->GetNode(sourceGuid);
+          EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+
+          ApplyPropertiesToObject(pNode, pPropType, pValuePtr);
+          pSpecific->SetValue(pObject, i, pValuePtr);
+        }
+
+        m_pContext->DeleteObject(temp);
+      }
     }
-  }
-  else if (pProp->GetCategory() == ezPropertyCategory::Set)
-  {
-    ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
-    if (!pSource->m_Value.IsA<ezVariantArray>())
-      return;
-
-    const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
-
-    // Delete old values
-    if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+    break;
+  case ezPropertyCategory::Set:
     {
-      ezHybridArray<ezVariant, 16> keys;
-      pSpecific->GetValues(pObject, keys);
+      ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
+      if (!pSource->m_Value.IsA<ezVariantArray>())
+        return;
+
+      const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
+
+      // Delete old values
+      if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+      {
+        ezHybridArray<ezVariant, 16> keys;
+        pSpecific->GetValues(pObject, keys);
+        pSpecific->Clear(pObject);
+        for (ezVariant& value : keys)
+        {
+          void* pOldObject = value.ConvertTo<void*>();
+          if (pOldObject)
+            ezReflectionUtils::DeleteObject(pOldObject, pProp);
+        }
+      }
+
       pSpecific->Clear(pObject);
-      for (ezVariant& value : keys)
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
       {
-        void* pOldObject = value.ConvertTo<void*>();
-        if (pOldObject)
-          ezReflectionUtils::DeleteObject(pOldObject, pProp);
-      }
-    }
-
-    pSpecific->Clear(pObject);
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
-    {
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
-      {
-        ezReflectionUtils::InsertSetPropertyValue(pSpecific, pObject, array[i]);
-      }
-    }
-    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer))
-    {
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
-      {
-        if (!array[i].IsA<ezUuid>())
-          continue;
-
-        ezUuid guid = array[i].Get<ezUuid>();
-        void* pRefrencedObject = nullptr;
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
         {
-          auto* pNode = m_pGraph->GetNode(guid);
-          EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
-          pRefrencedObject = CreateObjectFromNode(pNode);
-          if (pRefrencedObject == nullptr)
-          {
-            ezLog::Error("Failed to insert set element in to property '{0}', type could not be created!", pProp->GetPropertyName());
+          ezReflectionUtils::InsertSetPropertyValue(pSpecific, pObject, array[i]);
+        }
+      }
+      else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer))
+      {
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        {
+          if (!array[i].IsA<ezUuid>())
             continue;
+
+          ezUuid guid = array[i].Get<ezUuid>();
+          void* pRefrencedObject = nullptr;
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          {
+            auto* pNode = m_pGraph->GetNode(guid);
+            EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+            pRefrencedObject = CreateObjectFromNode(pNode);
+            if (pRefrencedObject == nullptr)
+            {
+              ezLog::Error("Failed to insert set element in to property '{0}', type could not be created!", pProp->GetPropertyName());
+              continue;
+            }
           }
+          else
+          {
+            pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
+          }
+          pSpecific->Insert(pObject, &pRefrencedObject);
         }
-        else
-        {
-          pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
-        }
-        pSpecific->Insert(pObject, &pRefrencedObject);
       }
-    }
-    else
-    {
-      ezUuid temp;
-      temp.CreateNewUuid();
-      void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
-
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+      else
       {
-        if (!array[i].IsA<ezUuid>())
-          continue;
+        ezUuid temp;
+        temp.CreateNewUuid();
+        void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
-        const ezUuid sourceGuid = array[i].Get<ezUuid>();
-        auto* pNode = m_pGraph->GetNode(sourceGuid);
-        EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        {
+          if (!array[i].IsA<ezUuid>())
+            continue;
 
-        ApplyPropertiesToObject(pNode, pPropType, pValuePtr);
-        pSpecific->Insert(pObject, pValuePtr);
+          const ezUuid sourceGuid = array[i].Get<ezUuid>();
+          auto* pNode = m_pGraph->GetNode(sourceGuid);
+          EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+
+          ApplyPropertiesToObject(pNode, pPropType, pValuePtr);
+          pSpecific->Insert(pObject, pValuePtr);
+        }
+
+        m_pContext->DeleteObject(temp);
+      }
+    }
+    break;
+  case ezPropertyCategory::Map:
+    {
+      ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
+      if (!pSource->m_Value.IsA<ezVariantDictionary>())
+        return;
+
+      const ezVariantDictionary& dict = pSource->m_Value.Get<ezVariantDictionary>();
+
+      // Delete old values
+      if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
+      {
+        ezHybridArray<ezString, 16> keys;
+        pSpecific->GetKeys(pObject, keys);
+        for (const ezString& sKey : keys)
+        {
+          ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, sKey);
+          void* pOldClone = value.ConvertTo<void*>();
+          pSpecific->Remove(pObject, sKey);
+          if (pOldClone)
+            ezReflectionUtils::DeleteObject(pOldClone, pProp);
+        }
       }
 
-      m_pContext->DeleteObject(temp);
+      pSpecific->Clear(pObject);
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+      {
+        for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+        {
+          ezReflectionUtils::SetMapPropertyValue(pSpecific, pObject, it.Key(), it.Value());
+        }
+      }
+      else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer))
+      {
+        for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+        {
+          if (!it.Value().IsA<ezUuid>())
+            continue;
+
+          ezUuid guid = it.Value().Get<ezUuid>();
+          void* pRefrencedObject = nullptr;
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          {
+            auto* pNode = m_pGraph->GetNode(guid);
+            EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+            pRefrencedObject = CreateObjectFromNode(pNode);
+            if (pRefrencedObject == nullptr)
+            {
+              ezLog::Error("Failed to insert set element in to property '{0}', type could not be created!", pProp->GetPropertyName());
+              continue;
+            }
+          }
+          else
+          {
+            pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
+          }
+          pSpecific->Insert(pObject, it.Key(), &pRefrencedObject);
+        }
+      }
+      else
+      {
+        ezUuid temp;
+        temp.CreateNewUuid();
+        void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
+
+        for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+        {
+          if (!it.Value().IsA<ezUuid>())
+            continue;
+
+          const ezUuid sourceGuid = it.Value().Get<ezUuid>();
+          auto* pNode = m_pGraph->GetNode(sourceGuid);
+          EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
+
+          ApplyPropertiesToObject(pNode, pPropType, pValuePtr);
+          pSpecific->Insert(pObject, it.Key(), pValuePtr);
+        }
+
+        m_pContext->DeleteObject(temp);
+      }
     }
+    break;
   }
 }
 

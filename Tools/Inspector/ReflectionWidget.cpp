@@ -169,6 +169,10 @@ bool ezQtReflectionWidget::UpdateTree()
           pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
           pProperty->setIcon(0, QIcon(":/Icons/Icons/Set.png"));
           break;
+        case ezPropertyCategory::Map:
+          pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
+          pProperty->setIcon(0, QIcon(":/Icons/Icons/Map.png"));
+          break;
         }
 
         pProperty->setText(1, it.Value().m_Properties[i].m_sPropertyName.GetData());

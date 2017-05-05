@@ -349,6 +349,34 @@ public:
   ezDynamicArray<ezString> m_Array;
 };
 
+class ezTestMaps : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestMaps, ezReflectedClass);
+
+public:
+  ezTestMaps()
+  {
+  }
+
+  bool operator==(const ezTestMaps& rhs) const
+  {
+    return true;
+  }
+
+  const ezMap<ezString, ezInt64>& GetContainer() const;
+  void Insert(const char* szKey, ezInt64 value);
+  void Remove(const char* szKey);
+
+  const ezHashTable<ezString, ezString>& GetContainer2() const;
+  void Insert2(const char* szKey, const ezString& value);
+  void Remove2(const char* szKey);
+
+  ezMap<ezString, int> m_MapMember;
+  ezMap<ezString, ezInt64> m_MapAccessor;
+
+  ezHashTable<ezString, double> m_HashTableMember;
+  ezHashTable<ezString, ezString> m_HashTableAccessor;
+};
 
 class ezTestPtr : public ezReflectedClass
 {

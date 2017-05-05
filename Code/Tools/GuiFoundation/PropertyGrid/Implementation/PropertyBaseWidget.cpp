@@ -685,7 +685,7 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
   {
     // Add Buttons
     auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
-    if (!pAttr || pAttr->CanMove())
+    if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
     {
       ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->Header, ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);
       pSubGroup->HeaderLayout->addWidget(pUpButton);
@@ -748,16 +748,46 @@ void ezQtPropertyContainerWidget::UpdateElements()
 
 ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
 {
-  ezInt32 iElements = 0x7FFFFFFF;
-  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
-  for (const auto& item : m_Items)
+  if (m_pProp->GetCategory() == ezPropertyCategory::Map)
   {
-    ezInt32 iCount = 0;
-    EZ_VERIFY(pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).m_Result.Succeeded(), "GetCount should always succeed.");
-    iElements = ezMath::Min(iElements, iCount);
+    ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+    m_Keys.Clear();
+    EZ_VERIFY(pObjectAccessor->GetKeys(m_Items[0].m_pObject, m_pProp, m_Keys).m_Result.Succeeded(), "GetKeys should always succeed.");
+    ezHybridArray<ezVariant, 16> keys;
+    for (ezUInt32 i = 1; i < m_Items.GetCount(); i++)
+    {
+      keys.Clear();
+      EZ_VERIFY(pObjectAccessor->GetKeys(m_Items[i].m_pObject, m_pProp, keys).m_Result.Succeeded(), "GetKeys should always succeed.");
+      for (ezInt32 k = (ezInt32)m_Keys.GetCount() - 1; k >= 0; --k)
+      {
+        if (!keys.Contains(m_Keys[k]))
+        {
+          m_Keys.RemoveAtSwap(k);
+        }
+      }
+    }
+    m_Keys.Sort([](const ezVariant& a, const ezVariant& b) { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
+    return m_Keys.GetCount();
   }
-  EZ_ASSERT_DEV(iElements >= 0, "Mismatch between storage and RTTI ({0})", iElements);
-  return ezUInt32(iElements);
+  else
+  {
+    ezInt32 iElements = 0x7FFFFFFF;
+    ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+    for (const auto& item : m_Items)
+    {
+      ezInt32 iCount = 0;
+      EZ_VERIFY(pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).m_Result.Succeeded(), "GetCount should always succeed.");
+      iElements = ezMath::Min(iElements, iCount);
+    }
+    EZ_ASSERT_DEV(iElements >= 0, "Mismatch between storage and RTTI ({0})", iElements);
+    m_Keys.Clear();
+    for (ezUInt32 i = 0; i < (ezUInt32)iElements; i++)
+    {
+      m_Keys.PushBack(i);
+    }
+
+    return ezUInt32(iElements);
+  }
 }
 
 void ezQtPropertyContainerWidget::Clear()
@@ -825,6 +855,7 @@ void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<ezPropertySelection,
 
 void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<ezPropertySelection, 8>& items, ezInt32 iMove)
 {
+  EZ_ASSERT_DEV(m_pProp->GetCategory() != ezPropertyCategory::Map, "Map entries can't be moved.");
   ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
   pObjectAccessor->StartTransaction("Reparent Object");
 
@@ -909,13 +940,13 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
   {
     ezPropertySelection sel;
     sel.m_pObject = item.m_pObject;
-    sel.m_Index = index;
+    sel.m_Index = m_Keys[index];
 
     SubItems.PushBack(sel);
   }
 
   ezStringBuilder sTitle;
-  sTitle.Format("[{0}]", index);
+  sTitle.Format("[{0}]", m_Keys[index].ConvertTo<ezString>());
 
   elem.m_pSubGroup->setTitle(sTitle);
   m_pGrid->SetCollapseState(elem.m_pSubGroup);
@@ -965,7 +996,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
   {
     ezPropertySelection sel;
     sel.m_pObject = item.m_pObject;
-    sel.m_Index = index;
+    sel.m_Index = m_Keys[index];
 
     SubItems.PushBack(sel);
   }
@@ -986,7 +1017,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     {
       // Label
       ezStringBuilder sTitle;
-      sTitle.Format("[{0}] - {1}", index, ezTranslate(pCommonType->GetTypeName()));
+      sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName()));
       elem.m_pSubGroup->setTitle(sTitle);
     }
     {

@@ -15,6 +15,7 @@
 #include <Foundation/Reflection/Implementation/BitflagsProperty.h>
 #include <Foundation/Reflection/Implementation/ArrayProperty.h>
 #include <Foundation/Reflection/Implementation/SetProperty.h>
+#include <Foundation/Reflection/Implementation/MapProperty.h>
 #include <Foundation/Reflection/Implementation/MessageHandler.h>
 #include <Foundation/Reflection/Implementation/Casts.h>
 

@@ -331,6 +331,7 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
     break;
   case ezPropertyCategory::Set:
   case ezPropertyCategory::Array:
+  case ezPropertyCategory::Map:
     {
       // Try to create a registered container widget for an existing ezContainerWidgetAttribute.
       const ezContainerWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezContainerWidgetAttribute>();

@@ -1000,6 +1000,94 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
   TestSerialization<ezTestSets>(containers);
 }
 
+template<typename T>
+void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& value1, T& value2)
+{
+  ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
+  EZ_TEST_BOOL(pProp != nullptr);
+  EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Map);
+  ezAbstractMapProperty* pMapProp = static_cast<ezAbstractMapProperty*>(pProp);
+  const ezRTTI* pElemRtti = pProp->GetSpecificType();
+  EZ_TEST_BOOL(pElemRtti == ezGetStaticRTTI<T>());
+  EZ_TEST_BOOL(ezReflectionUtils::IsBasicType(pElemRtti));
+
+  if (!pMapProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+  {
+    pMapProp->Clear(pObject);
+    EZ_TEST_BOOL(pMapProp->IsEmpty(pObject));
+    pMapProp->Insert(pObject, "value1", &value1);
+    EZ_TEST_BOOL(!pMapProp->IsEmpty(pObject));
+    EZ_TEST_BOOL(pMapProp->Contains(pObject, "value1"));
+    EZ_TEST_BOOL(!pMapProp->Contains(pObject, "value2"));
+    T getValue;
+    EZ_TEST_BOOL(!pMapProp->GetValue(pObject, "value2", &getValue));
+    EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value1", &getValue));
+    EZ_TEST_BOOL(getValue == value1);
+
+    pMapProp->Insert(pObject, "value2", &value2);
+    EZ_TEST_BOOL(!pMapProp->IsEmpty(pObject));
+    EZ_TEST_BOOL(pMapProp->Contains(pObject, "value1"));
+    EZ_TEST_BOOL(pMapProp->Contains(pObject, "value2"));
+    EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value1", &getValue));
+    EZ_TEST_BOOL(getValue == value1);
+    EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value2", &getValue));
+    EZ_TEST_BOOL(getValue == value2);
+  }
+
+  // Assumes this function gets called first by a writeable property, and then immediately by the same data as a read-only property.
+  // So the checks are valid for the read-only version, too.
+  T getValue2;
+  EZ_TEST_BOOL(!pMapProp->IsEmpty(pObject));
+  EZ_TEST_BOOL(pMapProp->Contains(pObject, "value1"));
+  EZ_TEST_BOOL(pMapProp->Contains(pObject, "value2"));
+  EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value1", &getValue2));
+  EZ_TEST_BOOL(getValue2 == value1);
+  EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value2", &getValue2));
+  EZ_TEST_BOOL(getValue2 == value2);
+
+  ezHybridArray<ezString, 16> keys;
+  pMapProp->GetKeys(pObject, keys);
+  EZ_TEST_INT(keys.GetCount(), 2);
+  keys.Sort();
+  EZ_TEST_BOOL(keys[0] == "value1");
+  EZ_TEST_BOOL(keys[1] == "value2");
+}
+
+EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
+{
+  ezTestMaps containers;
+  const ezRTTI* pRtti = ezGetStaticRTTI<ezTestMaps>();
+  EZ_TEST_BOOL(pRtti != nullptr);
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMap")
+  {
+    int iValue1 = -5;
+    int iValue2 = 127;
+    TestMapProperty<int>("Map", &containers, pRtti, iValue1, iValue2);
+    TestMapProperty<int>("MapRO", &containers, pRtti, iValue1, iValue2);
+
+    ezInt64 iValue1b = 5;
+    ezInt64 iValue2b = -3;
+    TestMapProperty<ezInt64>("AcMap", &containers, pRtti, iValue1b, iValue2b);
+    TestMapProperty<ezInt64>("AcMapRO", &containers, pRtti, iValue1b, iValue2b);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashMap")
+  {
+    double fValue1 = -5;
+    double fValue2 = 127;
+    TestMapProperty<double>("HashTable", &containers, pRtti, fValue1, fValue2);
+    TestMapProperty<double>("HashTableRO", &containers, pRtti, fValue1, fValue2);
+
+    ezString sValue1 = "Bla";
+    ezString sValue2 = "Test";
+    TestMapProperty<ezString>("AcHashTable", &containers, pRtti, sValue1, sValue2);
+    TestMapProperty<ezString>("AcHashTableRO", &containers, pRtti, sValue1, sValue2);
+  }
+
+  TestSerialization<ezTestMaps>(containers);
+}
+
 
 template<typename T>
 void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T* pExpectedValue)

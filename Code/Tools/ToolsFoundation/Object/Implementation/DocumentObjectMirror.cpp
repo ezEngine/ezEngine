@@ -475,6 +475,18 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
         ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, pValue);
       }
+      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      {
+        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        {
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.Get<ezString>(), &pValue);
+        }
+        else
+        {
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.Get<ezString>(), pValue);
+        }
+      }
 
       if (!pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
       {
@@ -514,6 +526,11 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
         auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
         ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, valueObject.m_pObject);
+      }
+      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      {
+        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<ezString>());
       }
 
       if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
@@ -555,6 +572,11 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
         ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, value);
       }
+      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      {
+        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), value);
+      }
     }
     break;
   case ezObjectChangeType::PropertyRemoved:
@@ -575,6 +597,11 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
 
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
         ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, value);
+      }
+      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      {
+        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<ezString>());
       }
     }
     break;
@@ -650,6 +677,31 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
           RetrieveObject(subObject, change, path.GetSubArray(1));
 
           pSpecific->SetValue(object.m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
+          pPropType->GetAllocator()->Deallocate(subObject.m_pObject);
+        }
+        else
+        {
+          EZ_REPORT_FAILURE("Non-allocatable property should not be part of an object chain!");
+        }
+      }
+      break;
+    case ezPropertyCategory::Map:
+      {
+        ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
+
+        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType), "");
+        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "");
+
+        if (pPropType->GetAllocator()->CanAllocate())
+        {
+          ezRttiConverterObject subObject;
+          subObject.m_pObject = pPropType->GetAllocator()->Allocate();
+          subObject.m_pType = pPropType;
+          pSpecific->GetValue(object.m_pObject, path[0].m_Index.Get<ezString>(), subObject.m_pObject);
+
+          RetrieveObject(subObject, change, path.GetSubArray(1));
+
+          pSpecific->Insert(object.m_pObject, path[0].m_Index.Get<ezString>(), subObject.m_pObject);
           pPropType->GetAllocator()->Deallocate(subObject.m_pObject);
         }
         else

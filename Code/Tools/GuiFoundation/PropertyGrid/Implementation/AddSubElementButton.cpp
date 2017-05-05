@@ -11,6 +11,7 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <QInputDialog>
 
 ezQtAddSubElementButton::ezQtAddSubElementButton()
   : ezQtPropertyWidget()
@@ -325,8 +326,36 @@ void ezQtAddSubElementButton::OnMenuAction()
 void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
-
+  ezVariant index = (ezInt32)-1;
   ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+  if (m_pProp->GetCategory() == ezPropertyCategory::Map)
+  {
+    QString text;
+    bool bOk = false;
+    while (!bOk)
+    {
+      text = QInputDialog::getText(this, "Set map key for new element", "Key:", QLineEdit::Normal, text, &bOk);
+      if (!bOk)
+        return;
+
+      index = text.toUtf8().data();
+      for (auto& item : m_Items)
+      {
+        ezVariant value;
+        ezStatus res = pObjectAccessor->GetValue(item.m_pObject, m_pProp, value, index);
+        if (res.m_Result.Succeeded())
+        {
+          bOk = false;
+          break;
+        }
+      }
+      if (!bOk)
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxInformation("The selected key is already used in the selection.");
+      }
+    }
+  }
+
   pObjectAccessor->StartTransaction("Add Element");
 
   ezStatus res;
@@ -334,7 +363,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      res = pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultValue(GetProperty()), -1);
+      res = pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultValue(GetProperty()), index);
       if (res.m_Result.Failed())
         break;
     }
@@ -344,7 +373,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
     for (auto& item : m_Items)
     {
       ezUuid guid;
-      res = pObjectAccessor->AddObject(item.m_pObject, m_pProp, -1, pRtti, guid);
+      res = pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
       if (res.m_Result.Failed())
         break;
     }

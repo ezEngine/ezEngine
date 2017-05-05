@@ -298,6 +298,57 @@ void ezTestSets::PseudoRemove2b(const char* value)
   m_Array.Remove(value);
 }
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestMaps, 1, ezRTTIDefaultAllocator<ezTestMaps>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MAP_MEMBER_PROPERTY("Map", m_MapMember),
+    EZ_MAP_MEMBER_PROPERTY_READ_ONLY("MapRO", m_MapMember),
+    EZ_MAP_MEMBER_PROPERTY("HashTable", m_HashTableMember),
+    EZ_MAP_MEMBER_PROPERTY_READ_ONLY("HashTableRO", m_HashTableMember),
+    EZ_MAP_ACCESSOR_PROPERTY("AcMap", GetContainer, Insert, Remove),
+    EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AcMapRO", GetContainer),
+    EZ_MAP_ACCESSOR_PROPERTY("AcHashTable", GetContainer2, Insert2, Remove2),
+    EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AcHashTableRO", GetContainer2),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+void ezTestMaps::Insert(const char* szKey, ezInt64 value)
+{
+  m_MapAccessor.Insert(szKey, value);
+}
+
+void ezTestMaps::Remove(const char* szKey)
+{
+  m_MapAccessor.Remove(szKey);
+}
+
+
+const ezHashTable<ezString, ezString>& ezTestMaps::GetContainer2() const
+{
+  return m_HashTableAccessor;
+}
+
+
+void ezTestMaps::Insert2(const char* szKey, const ezString& value)
+{
+  m_HashTableAccessor.Insert(szKey, value);
+}
+
+
+void ezTestMaps::Remove2(const char* szKey)
+{
+  m_HashTableAccessor.Remove(szKey);
+}
+
+const ezMap<ezString, ezInt64>& ezTestMaps::GetContainer() const
+{
+  return m_MapAccessor;
+}
+
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>)
 {
   EZ_BEGIN_PROPERTIES

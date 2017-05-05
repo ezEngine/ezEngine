@@ -321,6 +321,41 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ez
         }
       }
     }
+    // Maps may be of owner guids and could be remapped.
+    else if (prop.m_Value.IsA<ezVariantDictionary>())
+    {
+      const ezVariantDictionary& values = prop.m_Value.Get<ezVariantDictionary>();
+      for (auto lhsIt = values.GetIterator(); lhsIt.IsValid(); ++lhsIt)
+      {
+        auto& subValue = lhsIt.Value();
+        if (subValue.IsA<ezUuid>() && subValue.Get<ezUuid>().IsValid())
+        {
+          // if the guid is an owned object in the graph, remap to map element.
+          auto it = m_Nodes.Find(subValue.Get<ezUuid>());
+          if (it.IsValid())
+          {
+            if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_szPropertyName))
+            {
+              if (rhsProp->m_Value.IsA<ezVariantDictionary>())
+              {
+                const ezVariantDictionary& rhsValues = rhsProp->m_Value.Get<ezVariantDictionary>();
+                if (rhsValues.Contains(lhsIt.Key()))
+                {
+                  const auto& rhsElemValue = *rhsValues.GetValue(lhsIt.Key());
+                  if (rhsElemValue.IsA<ezUuid>() && rhsElemValue.Get<ezUuid>().IsValid())
+                  {
+                    if (const ezAbstractObjectNode* rhsPropNode = rhsGraph.GetNode(rhsElemValue.Get<ezUuid>()))
+                    {
+                      ReMapNodeGuidsToMatchGraphRecursive(guidMap, it.Value(), rhsGraph, rhsPropNode);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -693,6 +728,30 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, e
       for (auto& subValue : newValues)
       {
         RemapVariant(subValue, guidMap);
+      }
+      value = newValues;
+    }
+  }
+  // Maps may be of uuids
+  else if (value.IsA<ezVariantDictionary>())
+  {
+    const ezVariantDictionary& values = value.Get<ezVariantDictionary>();
+    bool bNeedToRemap = false;
+    for (auto it = values.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value().IsA<ezUuid>() && guidMap.Contains(it.Value().Get<ezUuid>()))
+      {
+        bNeedToRemap = true;
+        break;
+      }
+    }
+
+    if (bNeedToRemap)
+    {
+      ezVariantDictionary newValues = values;
+      for (auto it = newValues.GetIterator(); it.IsValid(); ++it)
+      {
+        RemapVariant(it.Value(), guidMap);
       }
       value = newValues;
     }

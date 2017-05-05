@@ -70,13 +70,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
-  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2) 
+  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2)
   EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
 EZ_END_STATIC_REFLECTED_ENUM();
 
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2) 
+  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2)
   EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
@@ -126,6 +126,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTest, 1, ezRTTIDefaultAllocator<ezObject
     EZ_ARRAY_MEMBER_PROPERTY("ClassPtrArray", m_ClassPtrArray)->AddFlags(ezPropertyFlags::PointerOwner),
     EZ_SET_ACCESSOR_PROPERTY("StandardTypeSet", GetStandardTypeSet, StandardTypeSetInsert, StandardTypeSetRemove),
     EZ_SET_MEMBER_PROPERTY("SubObjectSet", m_SubObjectSet)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_MAP_MEMBER_PROPERTY("StandardTypeMap", m_StandardTypeMap),
+    EZ_MAP_MEMBER_PROPERTY("ClassMap", m_ClassMap),
+    EZ_MAP_MEMBER_PROPERTY("ClassPtrMap", m_ClassPtrMap)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
 }
