@@ -285,3 +285,5 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
   ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {0}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
   return EZ_FAILURE;
 }
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_MathExpression);
