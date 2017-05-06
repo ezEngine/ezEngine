@@ -3,6 +3,13 @@
 class ezFmodInterface
 {
 public:
+  /// \brief Can be called before startup to load the fmod configs from a different file.
+  /// Otherwise will automatically be loaded by fmod startup with the default path ":project/FmodConfig.ddl"
+  virtual void LoadConfiguration(const char* szFile) = 0;
+
+  /// \brief By default the fmod integration will auto-detect the platform (and thus the config) to use.
+  /// Calling this before startup allows to override which configuration is used.
+  virtual void SetOverridePlatform(const char* szPlatform) = 0;
 
   /// \brief Has to be called once per frame to update fmod
   virtual void UpdateFmod() = 0;

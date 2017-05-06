@@ -6,6 +6,29 @@
 #include <Foundation/Configuration/Singleton.h>
 
 struct ezGameApplicationEvent;
+class ezOpenDdlWriter;
+class ezOpenDdlReaderElement;
+
+/// \brief The fmod configuration to be used on a specific platform
+struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
+{
+  ezString m_sPathToMasterSoundBank;
+  ezUInt16 m_uiVirtualChannels = 32; ///< See FMOD::Studio::System::initialize
+  ezUInt32 m_uiSamplerRate = 0; ///< See FMOD::System::setSoftwareFormat
+  FMOD_SPEAKERMODE m_SpeakerMode = FMOD_SPEAKERMODE_5POINT1; ///< This must be set to what is configured in Fmod Studio for the target platform. Using anything else is incorrect.
+
+  void Save(ezOpenDdlWriter& ddl) const;
+  void Load(const ezOpenDdlReaderElement& ddl);
+};
+
+/// \brief All available fmod platform configurations 
+struct EZ_FMODPLUGIN_DLL ezFmodPlatformConfigs
+{
+  ezResult Save(const char* szFile) const;
+  ezResult Load(const char* szFile);
+
+  ezMap<ezString, ezFmodConfiguration> m_PlatformConfigs;
+};
 
 class EZ_FMODPLUGIN_DLL ezFmod : public ezFmodInterface
 {
@@ -19,6 +42,14 @@ public:
 
   FMOD::Studio::System* GetStudioSystem() const { return m_pStudioSystem; }
   FMOD::System* GetLowLevelSystem() const { return m_pLowLevelSystem; }
+
+  /// \brief Can be called before startup to load the fmod configs from a different file.
+  /// Otherwise will automatically be loaded by fmod startup with the default path ":project/FmodConfig.ddl"
+  virtual void LoadConfiguration(const char* szFile) override;
+
+  /// \brief By default the fmod integration will auto-detect the platform (and thus the config) to use.
+  /// Calling this before startup allows to override which configuration is used.
+  virtual void SetOverridePlatform(const char* szPlatform) override;
 
   /// \brief Automatically called by the plugin every time ezGameApplicationEvent::BeforeUpdatePlugins is fired.
   virtual void UpdateFmod() override;
@@ -37,7 +68,7 @@ public:
 
   /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
-  /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambience' or 'Speech'.
+  /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
   /// Note that the fmod strings banks are never loaded, so the given string must be a GUID (fmod Studio -> Copy GUID).
   virtual void SetSoundGroupVolume(const char* szVcaGroupGuid, float volume) override;
   virtual float GetSoundGroupVolume(const char* szVcaGroupGuid) const override;
@@ -61,6 +92,9 @@ public:
   ezUInt8 GetNumBlendedReverbVolumes() const { return m_uiNumBlendedVolumes; }
 
 private:
+  void DetectPlatform();
+  void LoadMasterSoundBank(const char* szPathToMasterSoundBank);
+
   bool m_bInitialized;
   ezUInt8 m_uiNumBlendedVolumes = 4;
 
@@ -68,6 +102,8 @@ private:
   FMOD::System* m_pLowLevelSystem;
   
   ezMap<ezString, float> m_VcaVolumes;
+  ezFmodPlatformConfigs m_Configs;
+  ezString m_sPlatform;
 };
 
 EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_FMODPLUGIN_DLL, ezFmodPlugin);

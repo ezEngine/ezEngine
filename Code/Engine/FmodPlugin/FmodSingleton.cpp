@@ -28,18 +28,50 @@ void ezFmod::Startup()
 
   m_bInitialized = true;
 
+  DetectPlatform();
+
+  if (m_Configs.m_PlatformConfigs.IsEmpty())
+  {
+    LoadConfiguration(":project/FmodConfig.ddl");
+  }
+
+  if (!m_Configs.m_PlatformConfigs.Find(m_sPlatform).IsValid())
+  {
+    ezLog::Error("Fmod configuration for platform '{0}' not available. Fmod will be deactivated.", m_sPlatform);
+    return;
+  }
+
+  const auto& config = m_Configs.m_PlatformConfigs[m_sPlatform];
+
+  {
+    ezString sMode = "Unknown";
+    switch (config.m_SpeakerMode)
+    {
+    case FMOD_SPEAKERMODE_MONO: sMode = "Mono"; break;
+    case FMOD_SPEAKERMODE_QUAD: sMode = "Quad"; break;
+    case FMOD_SPEAKERMODE_SURROUND: sMode = "Surround"; break;
+    case FMOD_SPEAKERMODE_5POINT1: sMode = "5.1"; break;
+    case FMOD_SPEAKERMODE_7POINT1: sMode = "7.1"; break;
+    case FMOD_SPEAKERMODE_STEREO: sMode = "Stereo"; break;
+    }
+
+    EZ_LOG_BLOCK("Fmod Configuration");
+    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
+    ezLog::Dev("Master Bank = '{0}'", config.m_sPathToMasterSoundBank);
+  }
+
   EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pStudioSystem));
 
   // The example Studio project is authored for 5.1 sound, so set up the system output mode to match
   EZ_FMOD_ASSERT(m_pStudioSystem->getLowLevelSystem(&m_pLowLevelSystem));
-  EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(0, FMOD_SPEAKERMODE_5POINT1, 0)); /// \todo Hardcoded format
+  EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, config.m_SpeakerMode, 0));
 
   void *extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
 
-  /// \todo fmod live update doesn't work with multiple instances
-  // bank loading fails, once two processes are running that use this feature
-  // therefore this is deactivated for now
+  // fmod live update doesn't work with multiple instances and the same default IP
+  // bank loading fails, once two processes are running that use this feature with the same IP
+  // this could be reconfigured through the advanced settings, but for now we just enable live update for the first process
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -54,6 +86,7 @@ void ezFmod::Startup()
     else
     {
       ezLog::Warning("Fmod Live-Update not available for this process, another process using fmod is already running.");
+      CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
     }
 #else
     studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
@@ -61,16 +94,14 @@ void ezFmod::Startup()
   }
 #endif
 
-  const int maxChannels = 32;
-
-  EZ_FMOD_ASSERT(m_pStudioSystem->initialize(maxChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
-  /// \todo Configure max channels etc.
+  EZ_FMOD_ASSERT(m_pStudioSystem->initialize(config.m_uiVirtualChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
 
   if ((studioflags & FMOD_STUDIO_INIT_LIVEUPDATE) != 0)
   {
     ezLog::Success("Fmod Live-Update is enabled for this process.");
   }
 
+  LoadMasterSoundBank(config.m_sPathToMasterSoundBank);
   UpdateFmod();
 }
 
@@ -99,6 +130,16 @@ ezUInt8 ezFmod::GetNumListeners()
   int i = 0;
   m_pStudioSystem->getNumListeners(&i);
   return i;
+}
+
+void ezFmod::LoadConfiguration(const char* szFile)
+{
+  m_Configs.Load(szFile);
+}
+
+void ezFmod::SetOverridePlatform(const char* szPlatform)
+{
+  m_sPlatform = szPlatform;
 }
 
 void ezFmod::UpdateFmod()
@@ -208,5 +249,34 @@ void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
   m_uiNumBlendedVolumes = ezMath::Clamp<ezUInt8>(m_uiNumBlendedVolumes, 0, 4);
 }
 
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);
+void ezFmod::DetectPlatform()
+{
+  if (!m_sPlatform.IsEmpty())
+    return;
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  m_sPlatform = "Desktop";
+
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode
+
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode (Android)
+
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+  m_sPlatform = "Desktop";
+
+#elif EZ_ENABLED(EZ_PLATFORM_IOS)
+  m_sPlatform = "Mobile";
+
+#elif
+  #error "Unknown Platform"
+
+#endif
+}
+
+void ezFmod::LoadMasterSoundBank(const char* szPathToMasterSoundBank)
+{
+}
+
+EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);
