@@ -6,8 +6,10 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <Foundation/IO/OSFile.h>
 
 #include <fmod_studio.hpp>
+
 #define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code {0}", res)
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
@@ -87,6 +89,8 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
   auto* pSystem = m_Fmod->GetSystem();
 
+  ezHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
+
   for (const ezString& dep : assetInfo.m_AssetTransformDependencies)
   {
     if (!ezPathUtils::HasExtension(dep, "bank"))
@@ -97,18 +101,36 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
         continue;
 
-
       FMOD::Studio::Bank* pBank = nullptr;
       auto res = pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
-      if (res != FMOD_OK)
+      if (res != FMOD_OK || pBank == nullptr)
         continue;
 
-      ezStringBuilder sStringsBank = sAssetFile;
-      sStringsBank.RemoveFileExtension();
-      sStringsBank.Append(".strings.bank");
+      loadedBanks.PushBack(pBank);
 
-      FMOD::Studio::Bank* pStringsBank = nullptr;
-      pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank);
+      ezStringBuilder sStringsBank = sAssetFile;
+      sStringsBank.PathParentDirectory();
+      sStringsBank.AppendPath("*.strings.bank");
+
+      // honestly we have no idea what the strings bank name should be
+      // and if there are multiple, which one is the correct one
+      // so we just load everything that we can find
+      ezFileSystemIterator fsIt;
+      if (fsIt.StartSearch(sStringsBank, false, false).Succeeded())
+      {
+        do
+        {
+          sStringsBank = fsIt.GetCurrentPath();
+          sStringsBank.AppendPath(fsIt.GetStats().m_sFileName);
+
+          FMOD::Studio::Bank* pStringsBank = nullptr;
+          if (pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank) == FMOD_OK && pStringsBank != nullptr)
+          {
+            loadedBanks.PushBack(pStringsBank);
+          }
+        }
+        while (fsIt.Next().Succeeded());
+      }
 
       int iEvents = 0;
       EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
@@ -150,9 +172,12 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           sub.m_sAssetTypeName = sAssetTypeName;
         }
       }
-
-      EZ_FMOD_ASSERT(pBank->unload());
     }
+  }
+
+  for (FMOD::Studio::Bank* pBank : loadedBanks)
+  {
+    EZ_FMOD_ASSERT(pBank->unload());
   }
 }
 

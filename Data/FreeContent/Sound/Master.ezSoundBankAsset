@@ -7,7 +7,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %SoundBankFile{"Sound/Soundbanks/Desktop/Master Bank.bank"}
+		s %SoundBankFile{"Sound/Soundbanks/Desktop/Master.bank"}
 	}
 }
 AssetInfo
@@ -21,10 +21,10 @@ AssetInfo
 		s %AssetType{"Sound Bank"}
 		VarArray %Dependencies
 		{
-			s{"Sound/Soundbanks/Desktop/Master Bank.bank"}
+			s{"Sound/Soundbanks/Desktop/Master.bank"}
 		}
 		Uuid %DocumentID{u4{856061880010174871,5292707809165242272}}
-		u4 %Hash{14104584489103900739}
+		u4 %Hash{1881442980112110138}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

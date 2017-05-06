@@ -33,7 +33,14 @@ void ezFmod::Startup()
 
   if (m_Configs.m_PlatformConfigs.IsEmpty())
   {
-    LoadConfiguration(":project/FmodConfig.ddl");
+    const char* szFile = ":project/FmodConfig.ddl";
+    LoadConfiguration(szFile);
+
+    if (m_Configs.m_PlatformConfigs.IsEmpty())
+    {
+      ezLog::Warning("No valid fmod configuration file available in '{0}'. Fmod will be deactivated.", szFile);
+      return;
+    }
   }
 
   if (!m_Configs.m_PlatformConfigs.Find(m_sPlatform).IsValid())
