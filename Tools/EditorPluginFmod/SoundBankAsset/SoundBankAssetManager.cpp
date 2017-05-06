@@ -156,18 +156,48 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
   }
 }
 
+ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
+{
+  // at the moment we don't reference the actual transformed asset file
+  // instead we reference the source fmod sound bank file
+  // this makes development easier, as we don't need to wait for an asset transform before changes are available
+
+  /// \todo For final release we should reference the transformed file, as it's the one that gets packaged etc.
+  /// Maybe we should add another platform target for that ?
+
+  if (ezStringUtils::IsEqual(szPlatform, "PC"))
+  {
+    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info.m_AssetTransformDependencies)
+    {
+      if (dep.EndsWith_NoCase(".bank") && !dep.EndsWith_NoCase(".strings.bank"))
+      {
+        ezStringBuilder result;
+        result.Set("?", dep); // ? is an option to tell the system to skip the redirection prefix and use the path as is
+        return result;
+      }
+    }
+  }
+  else
+  {
+    SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, szPlatform);
+  }
+
+  return ezString();
+}
+
 ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
 {
   if (pSubAsset->m_bMainAsset)
   {
-    return SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, szPlatform);
+    return GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, szPlatform);
   }
   else
   {
+    ezStringBuilder result = GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, szPlatform);
+
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(pSubAsset->m_Data.m_Guid, sGuid);
 
-    ezStringBuilder result = SUPER::GetAssetTableEntry(pSubAsset, szDataDirectory, szPlatform);
     result.Append("|", sGuid);
 
     return result;

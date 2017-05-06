@@ -125,7 +125,7 @@ void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstan
 
 void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloaded && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezParticleEffectResource>())
+  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezParticleEffectResource>())
   {
     EZ_LOCK(m_Mutex);
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 
@@ -136,7 +136,7 @@ void ezPrefabReferenceComponentManager::Initialize()
 
 void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if (e.m_EventType == ezResourceEventType::ResourceContentUnloaded && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPrefabResource>())
+  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPrefabResource>())
   {
     ezPrefabResourceHandle hPrefab((ezPrefabResource*)(e.m_pResource));
 

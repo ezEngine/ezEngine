@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/World/Declarations.h>
 #include <Foundation/Strings/HashedString.h>
@@ -90,7 +90,7 @@ protected:
   /// \brief Internal only.
   static ezUInt16 GetNextTypeId();
 
-private:
+protected:
 
   /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this is the method where updates function are registered.
   virtual void Initialize() { }

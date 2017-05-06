@@ -20,21 +20,27 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
     if (SoundBankAssetFile.Open(pResource->GetResourceID()).Failed())
       return res;
 
-    ezLog::Info("Loading sound bank {0}", SoundBankAssetFile.GetFilePathRelative().GetData());
-
-    // skip the asset header
-    ezAssetFileHeader header;
-    header.Read(SoundBankAssetFile);
-
     res.m_sResourceDescription = SoundBankAssetFile.GetFilePathRelative().GetData();
-
-    ezUInt8 uiVersion = 0;
-    SoundBankAssetFile >> uiVersion;
-
-    EZ_ASSERT_DEV(uiVersion == 1, "Soundbank resource file version '{0}' is invalid", uiVersion);
-
     ezUInt32 uiSoundBankSize = 0;
-    SoundBankAssetFile >> uiSoundBankSize;
+
+    if (SoundBankAssetFile.GetFilePathRelative().EndsWith_NoCase("ezFmodSoundBank")) // a transformed asset file
+    {
+      // skip the asset header
+      ezAssetFileHeader header;
+      header.Read(SoundBankAssetFile);
+
+      ezUInt8 uiVersion = 0;
+      SoundBankAssetFile >> uiVersion;
+
+      EZ_ASSERT_DEV(uiVersion == 1, "Soundbank resource file version '{0}' is invalid", uiVersion);
+
+      SoundBankAssetFile >> uiSoundBankSize;
+    }
+    else
+    {
+      // otherwise we assume it is directly an fmod sound bank file
+      uiSoundBankSize = (ezUInt32)SoundBankAssetFile.GetFileSize();
+    }
 
     if (uiSoundBankSize > 0)
     {

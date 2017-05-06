@@ -6,7 +6,18 @@
 #include <Core/Messages/EventMessage.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-typedef ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating> ezFmodEventComponentManager;
+class ezFmodEventComponentManager : public ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>
+{
+public:
+  ezFmodEventComponentManager(ezWorld* pWorld);
+  
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
+
+private:
+  void ResourceEventHandler(const ezResourceEvent& e);
+};
+
 typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
 
 struct ezResourceEvent;
@@ -49,6 +60,7 @@ class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezFmodEventComponent, ezFmodComponent, ezFmodEventComponentManager);
   virtual void ezFmodComponentIsAbstract() override {}
+  friend class ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>;
 
 public:
   ezFmodEventComponent();
@@ -62,9 +74,6 @@ public:
 
   void SetPaused(bool b);
   bool GetPaused() const { return m_bPaused; }
-
-  void SetApplyEnvironmentReverb(bool b);
-  bool GetApplyEnvironmentReverb() const { return m_bApplyEnvironmentReverb; }
 
   void SetPitch(float f);
   float GetPitch() const { return m_fPitch; }
@@ -82,9 +91,9 @@ public:
 
 protected:
   bool m_bPaused;
-  bool m_bApplyEnvironmentReverb = true; ///< Whether 'EAX' effects should be used for this event
   float m_fPitch;
   float m_fVolume;
+  ezInt32 m_iTimelinePosition = -1; // used to restore a sound after reloading the resource
   ezFmodSoundEventResourceHandle m_hSoundEvent;
 
 
@@ -131,17 +140,14 @@ protected:
 
   void Update();
   void SetParameters3d(FMOD::Studio::EventInstance* pEventInstance);
-  void SetReverbParameters(FMOD::Studio::EventInstance* pEventInstance);
+
+  /// Called when the event resource has been unloaded (for a reload)
+  void InvalidateResource(bool bTryToRestore);
 
   FMOD::Studio::EventDescription* m_pEventDesc;
   FMOD::Studio::EventInstance* m_pEventInstance;
 
   ezEventMessageSender<ezFmodSoundFinishedEventMessage> m_SoundFinishedEventSender;
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  void ResourceEventHandler(const ezResourceEvent& e);
-  ezFmodSoundEventResource* m_pSubscripedTo = nullptr;
-#endif
 };
 
 

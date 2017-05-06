@@ -203,12 +203,12 @@ namespace ezDataDirectory
   {
     if (pClosed->IsReader())
     {
-      FolderReader* pReader = (FolderReader*) pClosed;
+      FolderReader* pReader = (FolderReader*)pClosed;
       pReader->m_bIsInUse = false;
     }
     else
     {
-      FolderWriter* pWriter = (FolderWriter*) pClosed;
+      FolderWriter* pWriter = (FolderWriter*)pClosed;
       pWriter->m_bIsInUse = false;
     }
   }
@@ -262,10 +262,19 @@ namespace ezDataDirectory
     // Check if we know about a file redirection for this
     auto it = m_FileRedirection.Find(szFile);
 
+    // if available, open the file that is mentioned in the redirection file instead
     if (it.IsValid())
     {
-      // if available, open the file that is mentioned in the redirection file instead
-      out_sRedirection.Set(s_sRedirectionPrefix, it.Value());
+
+      if (it.Value().StartsWith("?"))
+      {
+        // ? is an option to tell the system to skip the redirection prefix and use the path as is
+        out_sRedirection = &it.Value().GetData()[1];
+      }
+      else
+      {
+        out_sRedirection.Set(s_sRedirectionPrefix, it.Value());
+      }
       return true;
     }
     else

@@ -73,6 +73,11 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
 {
   EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID().GetData());
 
+  ezResourceEvent e;
+  e.m_pResource = this;
+  e.m_EventType = ezResourceEventType::ResourceContentUnloading;
+  ezResourceManager::BroadcastResourceEvent(e);
+
   ezResourceLoadDesc ld = UnloadData(WhatToUnload);
 
   EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UnloadData() did not return a valid resource load state");
@@ -82,11 +87,6 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
   m_LoadingState = ld.m_State;
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
-
-  ezResourceEvent e;
-  e.m_pResource = this;
-  e.m_EventType = ezResourceEventType::ResourceContentUnloaded;
-  ezResourceManager::BroadcastResourceEvent(e);
 }
 
 void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)

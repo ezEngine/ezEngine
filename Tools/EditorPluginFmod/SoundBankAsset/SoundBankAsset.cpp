@@ -52,6 +52,10 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
   if (SoundBankFile.Open(sAssetFile).Failed())
     return ezStatus(ezFmt("Could not open sound-bank for reading: '{0}'", sAssetFile));
 
+  // we copy the entire sound bank into our transformed asset
+  // however, at least during development, we typically do not load the data from there,
+  // but from the fmod sound bank files directly, so that we do not need to wait for an asset transform
+
   ezMemoryStreamStorage storage;
 
   // copy the file from disk into memory

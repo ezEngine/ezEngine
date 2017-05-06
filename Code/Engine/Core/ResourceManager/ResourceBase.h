@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/Strings/HashedString.h>
@@ -17,7 +17,7 @@ enum class ezResourceEventType
   ResourceCreated,
   ResourceDeleted,
   ResourceContentUpdated,
-  ResourceContentUnloaded,
+  ResourceContentUnloading, ///< Resource is about to be unloaded, but still valid at this point
   ResourceInPreloadQueue,
   ResourceOutOfPreloadQueue,
   ResourcePriorityChanged,

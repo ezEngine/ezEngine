@@ -54,7 +54,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("EnvironmentReverb", GetApplyEnvironmentReverb, SetApplyEnvironmentReverb)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("Sound Event")),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
     EZ_FUNCTION_PROPERTY("Preview", StartOneShot), // This doesn't seem to be working anymore, and I cannot find code for exposing it in the UI either
@@ -104,7 +103,22 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   ezOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
   s << type;
 
-  /// \todo store and restore current playback position
+  ezInt32 iTimelinePosition = -1;
+
+  if (m_pEventInstance)
+  {
+    FMOD_STUDIO_PLAYBACK_STATE state;
+    m_pEventInstance->getPlaybackState(&state);
+
+    if (state == FMOD_STUDIO_PLAYBACK_STARTING ||
+        state == FMOD_STUDIO_PLAYBACK_PLAYING ||
+        state == FMOD_STUDIO_PLAYBACK_SUSTAINING)
+    {
+      m_pEventInstance->getTimelinePosition(&iTimelinePosition);
+    }
+  }
+
+  s << iTimelinePosition;
 }
 
 void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
@@ -122,6 +136,8 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
   ezOnComponentFinishedAction::StorageType type;
   s >> type;
   m_OnFinishedAction = (ezOnComponentFinishedAction::Enum) type;
+  
+  s >> m_iTimelinePosition;
 }
 
 void ezFmodEventComponent::SetPaused(bool b)
@@ -141,19 +157,6 @@ void ezFmodEventComponent::SetPaused(bool b)
   }
 }
 
-void ezFmodEventComponent::SetApplyEnvironmentReverb(bool b)
-{
-  if (m_bApplyEnvironmentReverb == b)
-    return;
-
-  m_bApplyEnvironmentReverb = b;
-
-  if (m_pEventInstance != nullptr)
-  {
-    SetReverbParameters(m_pEventInstance);
-  }
-}
-
 void ezFmodEventComponent::SetPitch(float f)
 {
   if (f == m_fPitch)
@@ -163,6 +166,7 @@ void ezFmodEventComponent::SetPitch(float f)
 
   if (m_pEventInstance != nullptr)
   {
+    /// \todo Global pitch might better be a bus setting
     EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
   }
 }
@@ -210,14 +214,7 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
 
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (m_pSubscripedTo)
-    {
-      m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
-      m_pSubscripedTo = nullptr;
-    }
-#endif
+    m_iTimelinePosition = -1;
   }
 
   m_hSoundEvent = hSoundEvent;
@@ -230,14 +227,7 @@ void ezFmodEventComponent::OnDeactivated()
     EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (m_pSubscripedTo)
-    {
-      m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
-      m_pSubscripedTo = nullptr;
-    }
-#endif
+    m_iTimelinePosition = -1;
   }
 }
 
@@ -251,15 +241,14 @@ void ezFmodEventComponent::OnSimulationStarted()
 
 void ezFmodEventComponent::Restart()
 {
+  // reset this, using the value is handled outside this function
+  m_iTimelinePosition = -1;
+
   if (!m_hSoundEvent.IsValid() || !IsActiveAndSimulating())
     return;
 
   if (m_pEventInstance == nullptr)
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    EZ_ASSERT_DEV(m_pSubscripedTo == nullptr, "Cannot be subscribed already at this time");
-#endif
-
     ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
     if (pEvent->IsMissingResource())
@@ -267,11 +256,6 @@ void ezFmodEventComponent::Restart()
       ezLog::Debug("Cannot start sound event, resource is missing.");
       return;
     }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    m_pSubscripedTo = pEvent.operator->();
-    m_pSubscripedTo->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
-#endif
 
     m_pEventInstance = pEvent->CreateInstance();
     if (m_pEventInstance == nullptr)
@@ -283,7 +267,6 @@ void ezFmodEventComponent::Restart()
 
   m_bPaused = false;
 
-  SetReverbParameters(m_pEventInstance);
   SetParameters3d(m_pEventInstance);
 
   EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
@@ -330,7 +313,6 @@ void ezFmodEventComponent::StartOneShot()
   }
 
   SetParameters3d(pEventInstance);
-  SetReverbParameters(pEventInstance);
 
   EZ_FMOD_ASSERT(pEventInstance->setVolume(m_fVolume));
 
@@ -349,6 +331,7 @@ void ezFmodEventComponent::StopSound(ezFmodEventComponent_StopSoundMsg& msg)
 {
   if (m_pEventInstance != nullptr)
   {
+    m_iTimelinePosition = -1;
     EZ_FMOD_ASSERT(m_pEventInstance->stop(msg.m_bImmediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT));
   }
 }
@@ -403,16 +386,7 @@ void ezFmodEventComponent::Update()
   {
     if (!m_pEventInstance->isValid())
     {
-      ezLog::Debug("Fmod instance pointer has been invalidated.");
-      m_pEventInstance = nullptr;
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      if (m_pSubscripedTo)
-      {
-        m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
-        m_pSubscripedTo = nullptr;
-      }
-#endif
+      InvalidateResource(false);
       return;
     }
 
@@ -423,6 +397,8 @@ void ezFmodEventComponent::Update()
 
     if (state == FMOD_STUDIO_PLAYBACK_STOPPED)
     {
+      m_iTimelinePosition = -1;
+
       ezFmodSoundFinishedEventMessage msg;
       m_SoundFinishedEventSender.SendMessage(msg, this, GetOwner());
 
@@ -434,6 +410,22 @@ void ezFmodEventComponent::Update()
       {
         GetManager()->DeleteComponent(GetHandle());
       }
+    }
+  }
+  else if (m_iTimelinePosition >= 0 && !m_bPaused)
+  {
+    // Restore the event to the last playback position
+    const ezInt32 iTimelinePos = m_iTimelinePosition;
+
+    Restart(); // will reset m_iTimelinePosition, that's why it is copied first
+
+    if (m_pEventInstance)
+    {
+      // we need to store this value again, because it is very likely during a resource reload that we
+      // run into the InvalidateResource(false) case at the top of this function, right after this
+      // so we can restore the timeline position again
+      m_iTimelinePosition = iTimelinePos;
+      m_pEventInstance->setTimelinePosition(iTimelinePos);
     }
   }
 }
@@ -464,48 +456,74 @@ void ezFmodEventComponent::SetParameters3d(FMOD::Studio::EventInstance* pEventIn
   EZ_FMOD_ASSERT(pEventInstance->set3DAttributes(&attr));
 }
 
-void ezFmodEventComponent::SetReverbParameters(FMOD::Studio::EventInstance* pEventInstance)
+void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
 {
-  if (m_bApplyEnvironmentReverb)
+  if (m_pEventInstance)
   {
-    const ezUInt8 uiNumReverbs = ezFmod::GetSingleton()->GetNumBlendedReverbVolumes();
+    if (bTryToRestore)
+    {
+      FMOD_STUDIO_PLAYBACK_STATE state;
+      m_pEventInstance->getPlaybackState(&state);
 
-    for (ezUInt8 i = 0; i < uiNumReverbs; ++i)
-    {
-      EZ_FMOD_ASSERT(pEventInstance->setReverbLevel(i, 1.0f));
+      if (state == FMOD_STUDIO_PLAYBACK_STARTING ||
+          state == FMOD_STUDIO_PLAYBACK_PLAYING ||
+          state == FMOD_STUDIO_PLAYBACK_SUSTAINING)
+      {
+        m_pEventInstance->getTimelinePosition(&m_iTimelinePosition);
+      }
+      else
+      {
+        // only reset when bTryToRestore is true, otherwise keep the old value
+        m_iTimelinePosition = -1;
+      }
     }
 
-    for (ezUInt8 i = uiNumReverbs; i < 4; ++i)
-    {
-      EZ_FMOD_ASSERT(pEventInstance->setReverbLevel(i, 0.0f));
-    }
-  }
-  else
-  {
-    for (ezUInt8 i = 0; i < 4; ++i)
-    {
-      EZ_FMOD_ASSERT(pEventInstance->setReverbLevel(0, 0.0f));
-    }
+    // pointer is no longer valid!
+    m_pEventInstance = nullptr;
+
+    //ezLog::Debug("Fmod instance pointer has been invalidated.");
   }
 }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-
-void ezFmodEventComponent::ResourceEventHandler(const ezResourceEvent& e)
-{
-  if (m_pEventInstance != nullptr && e.m_EventType == ezResourceEventType::ResourceContentUnloaded)
-  {
-    m_pEventInstance = nullptr; // pointer is no longer valid!
-
-    m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
-    m_pSubscripedTo = nullptr;
-  }
-}
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////
 
+ezFmodEventComponentManager::ezFmodEventComponentManager(ezWorld* pWorld)
+  : ezComponentManagerSimple(pWorld)
+{
+
+}
+
+void ezFmodEventComponentManager::Initialize()
+{
+  ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>::Initialize();
+
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+}
+
+void ezFmodEventComponentManager::Deinitialize()
+{
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+
+  ezComponentManagerSimple<class ezFmodEventComponent, ezComponentUpdateType::WhenSimulating>::Deinitialize();
+}
+
+void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (e.m_EventType == ezResourceEventType::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezFmodSoundEventResource>())
+  {
+    ezFmodSoundEventResourceHandle hResource((ezFmodSoundEventResource*)(e.m_pResource));
+
+    for (auto it = GetComponents(); it.IsValid(); it.Next())
+    {
+      if (it->m_hSoundEvent == hResource)
+      {
+        it->InvalidateResource(true);
+      }
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_SetFmodEventParameter>)
 {
