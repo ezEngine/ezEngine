@@ -113,6 +113,20 @@ void ezFmodConfiguration::Load(const ezOpenDdlReaderElement& ddl)
   }
 }
 
+bool ezFmodConfiguration::operator==(const ezFmodConfiguration& rhs) const
+{
+  if (m_sMasterSoundBank != rhs.m_sMasterSoundBank)
+    return false;
+  if (m_uiVirtualChannels != rhs.m_uiVirtualChannels)
+    return false;
+  if (m_uiSamplerRate != rhs.m_uiSamplerRate)
+    return false;
+  if (m_SpeakerMode != rhs.m_SpeakerMode)
+    return false;
+
+  return true;
+}
+
 ezResult ezFmodPlatformConfigs::Save(const char* szFile) const
 {
   ezFileWriter file;
@@ -123,11 +137,14 @@ ezResult ezFmodPlatformConfigs::Save(const char* szFile) const
 
   for (auto it = m_PlatformConfigs.GetIterator(); it.IsValid(); ++it)
   {
-    ddl.BeginObject("Platform", it.Key());
+    if (!it.Key().IsEmpty())
+    {
+      ddl.BeginObject("Platform", it.Key());
 
-    it.Value().Save(ddl);
+      it.Value().Save(ddl);
 
-    ddl.EndObject();
+      ddl.EndObject();
+    }
   }
 
   return EZ_SUCCESS;

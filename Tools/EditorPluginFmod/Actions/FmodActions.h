@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorPluginFmod/Plugin.h>
 #include <GuiFoundation/Basics.h>
@@ -13,8 +13,8 @@ public:
 
   static void MapMenuActions();
 
-  //static ezActionDescriptorHandle s_hCategoryFmod;
-  //static ezActionDescriptorHandle s_hProjectSettings;
+  static ezActionDescriptorHandle s_hCategoryFmod;
+  static ezActionDescriptorHandle s_hProjectSettings;
   //static ezActionDescriptorHandle s_hSceneSettings;
 };
 
@@ -26,7 +26,7 @@ public:
 
   enum class ActionType
   {
-    //ProjectSettings,
+    ProjectSettings,
     //SceneSettings,
   };
 

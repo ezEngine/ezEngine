@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <GuiFoundation/Basics.h>
@@ -70,13 +70,11 @@ void ezQtPhysxProjectSettingsDlg::SetupTable()
 
 ezResult ezQtPhysxProjectSettingsDlg::Save()
 {
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sPath.AppendPath("Physics/CollisionLayers.cfg");
-
-  if (m_Config.Save(sPath).Failed())
+  const char* szFile = ":project/Physics/CollisionLayers.cfg";
+  if (m_Config.Save(szFile).Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Collision Layer file\n'{0}'", sPath.GetData());
+    sError.Format("Failed to save the Collision Layer file\n'{0}'", szFile);
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
@@ -90,10 +88,7 @@ ezResult ezQtPhysxProjectSettingsDlg::Save()
 
 ezResult ezQtPhysxProjectSettingsDlg::Load()
 {
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sPath.AppendPath("Physics/CollisionLayers.cfg");
-
-  auto res = m_Config.Load(sPath);
+  auto res = m_Config.Load(":project/Physics/CollisionLayers.cfg");
 
   if (res.Failed())
   {

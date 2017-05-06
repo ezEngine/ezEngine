@@ -4,6 +4,7 @@
 #include <FmodPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 struct ezGameApplicationEvent;
 class ezOpenDdlWriter;
@@ -21,6 +22,9 @@ struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 
   void Save(ezOpenDdlWriter& ddl) const;
   void Load(const ezOpenDdlReaderElement& ddl);
+
+  bool operator==(const ezFmodConfiguration& rhs) const;
+  bool operator!=(const ezFmodConfiguration& rhs) const { return !operator==(rhs); }
 };
 
 /// \brief All available fmod platform configurations 

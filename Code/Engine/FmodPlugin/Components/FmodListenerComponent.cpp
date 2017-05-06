@@ -41,17 +41,6 @@ void ezFmodListenerComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiListenerIndex;
 }
 
-
-void ezFmodListenerComponent::Initialize()
-{
-}
-
-
-void ezFmodListenerComponent::Deinitialize()
-{
-
-}
-
 void ezFmodListenerComponent::Update()
 {
   const auto pos = GetOwner()->GetGlobalPosition();

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
@@ -20,14 +20,8 @@ public:
   ezUInt8 m_uiListenerIndex;
 
 
-protected:
-
-
   // ************************************* FUNCTIONS *****************************
 
-public:
-  virtual void Initialize() override;
-  virtual void Deinitialize() override;
 
 protected:
   void Update();
