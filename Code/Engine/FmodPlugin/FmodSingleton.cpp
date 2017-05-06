@@ -3,6 +3,7 @@
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <FmodPlugin/Resources/FmodSoundEventResource.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
 
@@ -57,7 +58,7 @@ void ezFmod::Startup()
 
     EZ_LOG_BLOCK("Fmod Configuration");
     ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
-    ezLog::Dev("Master Bank = '{0}'", config.m_sPathToMasterSoundBank);
+    ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
 
   EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pStudioSystem));
@@ -101,7 +102,12 @@ void ezFmod::Startup()
     ezLog::Success("Fmod Live-Update is enabled for this process.");
   }
 
-  LoadMasterSoundBank(config.m_sPathToMasterSoundBank);
+  if (LoadMasterSoundBank(config.m_sMasterSoundBank).Failed())
+  {
+    ezLog::Error("Failed to load fmod master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
+    return;
+  }
+
   UpdateFmod();
 }
 
@@ -146,6 +152,12 @@ void ezFmod::UpdateFmod()
 {
   if (m_pStudioSystem == nullptr)
     return;
+
+  // make sure to reload the sound bank, if it has been unloaded
+  if (m_hMasterBank.IsValid())
+  {
+    ezResourceLock<ezFmodSoundBankResource> pMaster(m_hMasterBank, ezResourceAcquireMode::NoFallback);
+  }
 
   m_pStudioSystem->update();
 }
@@ -275,8 +287,22 @@ void ezFmod::DetectPlatform()
 #endif
 }
 
-void ezFmod::LoadMasterSoundBank(const char* szPathToMasterSoundBank)
+ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
 {
+  if (ezStringUtils::IsNullOrEmpty(szMasterBankResourceID))
+  {
+    ezLog::Error("Fmod master bank name has not been configured.");
+    return EZ_FAILURE;
+  }
+
+  m_hMasterBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(szMasterBankResourceID);
+
+  ezResourceLock<ezFmodSoundBankResource> pResource(m_hMasterBank, ezResourceAcquireMode::NoFallback);
+
+  if (pResource->IsMissingResource())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);

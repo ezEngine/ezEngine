@@ -119,7 +119,6 @@ public:
   void SoundCue(ezFmodEventComponent_SoundCueMsg& msg);
 
   /// \brief Tries to find the fmod event parameter by name. Returns the parameter index or -1, if no such parameter exists.
-  /// \note Fmod event parameter names are case-insensitive.
   ezInt32 FindParameter(const char* szName) const;
 
   /// \brief Sets an fmod event parameter value. See FindParameter() for the index.

@@ -263,7 +263,10 @@ void ezFmodEventComponent::Restart()
     ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
     if (pEvent->IsMissingResource())
+    {
+      ezLog::Debug("Cannot start sound event, resource is missing.");
       return;
+    }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     m_pSubscripedTo = pEvent.operator->();
@@ -271,9 +274,11 @@ void ezFmodEventComponent::Restart()
 #endif
 
     m_pEventInstance = pEvent->CreateInstance();
-    EZ_ASSERT_DEV(m_pEventInstance != nullptr, "Sound Event Instance pointer should be valid");
-
-    EZ_FMOD_ASSERT(m_pEventInstance->setUserData(this));
+    if (m_pEventInstance == nullptr)
+    {
+      ezLog::Debug("Cannot start sound event, instance could not be created.");
+      return;
+    }
   }
 
   m_bPaused = false;
@@ -295,7 +300,16 @@ void ezFmodEventComponent::StartOneShot()
   ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
   if (pEvent->IsMissingResource())
+  {
+    ezLog::Debug("Cannot start one-shot sound event, resource is missing.");
     return;
+  }
+
+  if (pEvent->GetDescriptor() == nullptr)
+  {
+    ezLog::Debug("Cannot start one-shot sound event, descriptor is null.");
+    return;
+  }
 
   bool bIsOneShot = false;
   pEvent->GetDescriptor()->isOneshot(&bIsOneShot);
@@ -308,7 +322,12 @@ void ezFmodEventComponent::StartOneShot()
   }
 
   FMOD::Studio::EventInstance* pEventInstance = pEvent->CreateInstance();
-  EZ_ASSERT_DEV(pEventInstance != nullptr, "Sound Event Instance pointer should be valid");
+
+  if (pEventInstance == nullptr)
+  {
+    ezLog::Debug("Cannot start one-shot sound event, instance could not be created.");
+    return;
+  }
 
   SetParameters3d(pEventInstance);
   SetReverbParameters(pEventInstance);
@@ -336,7 +355,7 @@ void ezFmodEventComponent::StopSound(ezFmodEventComponent_StopSoundMsg& msg)
 
 void ezFmodEventComponent::SoundCue(ezFmodEventComponent_SoundCueMsg& msg)
 {
-  if (m_pEventInstance != nullptr)
+  if (m_pEventInstance != nullptr && m_pEventInstance->isValid())
   {
     EZ_FMOD_ASSERT(m_pEventInstance->triggerCue());
   }
@@ -344,11 +363,13 @@ void ezFmodEventComponent::SoundCue(ezFmodEventComponent_SoundCueMsg& msg)
 
 ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
 {
-  if (m_pEventInstance == nullptr)
+  if (!m_hSoundEvent.IsValid())
     return -1;
 
-  FMOD::Studio::EventDescription* pEventDesc = nullptr;
-  if (m_pEventInstance->getDescription(&pEventDesc) != FMOD_OK || pEventDesc == nullptr)
+  ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
+
+  FMOD::Studio::EventDescription* pEventDesc = pEvent->GetDescriptor();
+  if (pEventDesc == nullptr || !pEventDesc->isValid())
     return -1;
 
   FMOD_STUDIO_PARAMETER_DESCRIPTION paramDesc;
@@ -360,7 +381,7 @@ ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
 
 void ezFmodEventComponent::SetParameter(ezInt32 iParamIndex, float fValue)
 {
-  if (m_pEventInstance == nullptr || iParamIndex < 0)
+  if (m_pEventInstance == nullptr || iParamIndex < 0 || !m_pEventInstance->isValid())
     return;
 
   m_pEventInstance->setParameterValueByIndex(iParamIndex, fValue);
@@ -368,7 +389,7 @@ void ezFmodEventComponent::SetParameter(ezInt32 iParamIndex, float fValue)
 
 float ezFmodEventComponent::GetParameter(ezInt32 iParamIndex) const
 {
-  if (m_pEventInstance == nullptr || iParamIndex < 0)
+  if (m_pEventInstance == nullptr || iParamIndex < 0 || !m_pEventInstance->isValid())
     return 0.0f;
 
   float value = 0;
@@ -380,6 +401,21 @@ void ezFmodEventComponent::Update()
 {
   if (m_pEventInstance)
   {
+    if (!m_pEventInstance->isValid())
+    {
+      ezLog::Debug("Fmod instance pointer has been invalidated.");
+      m_pEventInstance = nullptr;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      if (m_pSubscripedTo)
+      {
+        m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));
+        m_pSubscripedTo = nullptr;
+      }
+#endif
+      return;
+    }
+
     SetParameters3d(m_pEventInstance);
 
     FMOD_STUDIO_PLAYBACK_STATE state;
@@ -459,8 +495,6 @@ void ezFmodEventComponent::ResourceEventHandler(const ezResourceEvent& e)
 {
   if (m_pEventInstance != nullptr && e.m_EventType == ezResourceEventType::ResourceContentUnloaded)
   {
-    ezLog::Debug("Fmod event component resource is dead, invalidating pointer");
-
     m_pEventInstance = nullptr; // pointer is no longer valid!
 
     m_pSubscripedTo->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponent::ResourceEventHandler, this));

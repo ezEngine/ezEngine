@@ -1,0 +1,47 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{11034217170744470185,5190248186161805725}}
+	s %t{"ezSoundBankAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %SoundBankFile{"Sound/Soundbanks/Desktop/Master Bank.bank"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{856061880010174871,5292707809165242272}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Sound Bank"}
+		VarArray %Dependencies
+		{
+			s{"Sound/Soundbanks/Desktop/Master Bank.bank"}
+		}
+		Uuid %DocumentID{u4{856061880010174871,5292707809165242272}}
+		u4 %Hash{14104584489103900739}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11034217170744470185,5190248186161805725}}
+		}
+	}
+}
+}
+Types{}

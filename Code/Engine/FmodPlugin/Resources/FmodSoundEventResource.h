@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <FmodPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -19,8 +19,10 @@ public:
   ezFmodSoundEventResource();
   ~ezFmodSoundEventResource();
 
+  /// \brief Creates a new sound event instance of this fmod sound event. May return nullptr, if the event data could not be loaded.
   FMOD::Studio::EventInstance* CreateInstance() const;
 
+  /// \brief Returns the fmod sound event descriptor. May be nullptr, if the sound bank could not be loaded or the event GUID was invalid.
   FMOD::Studio::EventDescription* GetDescriptor() const { return m_pEventDescription; }
 
 private:
@@ -31,7 +33,7 @@ private:
 
 private:
   ezFmodSoundBankResourceHandle m_hSoundBank;
-  FMOD::Studio::EventDescription* m_pEventDescription;
+  FMOD::Studio::EventDescription* m_pEventDescription = nullptr;
 };
 
 class EZ_FMODPLUGIN_DLL ezFmodSoundEventResourceLoader : public ezResourceTypeLoader

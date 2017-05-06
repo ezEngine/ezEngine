@@ -19,6 +19,8 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pSoundBank)
   {
+    ezLog::Debug("Unloading sound bank {0}", GetResourceDescription());
+
     m_pSoundBank->unload();
     m_pSoundBank = nullptr;
   }
@@ -65,13 +67,20 @@ ezResourceLoadDesc ezFmodSoundBankResource::UpdateContent(ezStreamReader* Stream
 
 void ezFmodSoundBankResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezFmodSoundBankResource) + (ezUInt32)m_pSoundBankData->GetHeapMemoryUsage() + sizeof(*m_pSoundBankData);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
+
+  if (m_pSoundBankData)
+  {
+    out_NewMemoryUsage.m_uiMemoryCPU += (ezUInt32)m_pSoundBankData->GetHeapMemoryUsage() + sizeof(*m_pSoundBankData);
+  }
+
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
 ezResourceLoadDesc ezFmodSoundBankResource::CreateResource(const ezFmodSoundBankResourceDescriptor& descriptor)
 {
-  EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  // have to create one 'missing' resource
+  //EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

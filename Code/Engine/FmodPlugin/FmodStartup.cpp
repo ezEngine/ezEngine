@@ -32,17 +32,24 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
   {
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(&s_SoundBankResourceLoader);
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(&s_SoundEventResourceLoader);
-    ezFmod::GetSingleton()->Startup();
 
     ezResourceManager::RegisterResourceForAssetType("Sound Event", ezGetStaticRTTI<ezFmodSoundEventResource>());
 
-    ezFmodSoundEventResourceDescriptor desc;
-    ezFmodSoundEventResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundEventResource>("FmodEventMissing", desc, "Fallback for missing Sound event");
-    ezFmodSoundEventResource::SetTypeMissingResource(hResource);
+    {
+      ezFmodSoundEventResourceDescriptor desc;
+      ezFmodSoundEventResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundEventResource>("FmodEventMissing", desc, "Fallback for missing sound event");
+      ezFmodSoundEventResource::SetTypeMissingResource(hResource);
+    }
 
-    /// \todo Missing sound bank resource
+    {
+      ezFmodSoundBankResourceDescriptor desc;
+      ezFmodSoundBankResourceHandle hResource = ezResourceManager::CreateResource<ezFmodSoundBankResource>("FmodBankMissing", desc, "Fallback for missing sound bank");
+      ezFmodSoundBankResource::SetTypeMissingResource(hResource);
+    }
 
     ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(&ezFmod::GameApplicationEventHandler);
+
+    ezFmod::GetSingleton()->Startup();
   }
 
   ON_ENGINE_SHUTDOWN
@@ -58,7 +65,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 void ezFmodConfiguration::Save(ezOpenDdlWriter& ddl) const
 {
-    ezOpenDdlUtils::StoreString(ddl, m_sPathToMasterSoundBank, "MasterBank");
+    ezOpenDdlUtils::StoreString(ddl, m_sMasterSoundBank, "MasterBank");
     ezOpenDdlUtils::StoreUInt16(ddl, m_uiVirtualChannels, "VirtualChannels");
     ezOpenDdlUtils::StoreUInt32(ddl, m_uiSamplerRate, "SamplerRate");
 
@@ -80,7 +87,7 @@ void ezFmodConfiguration::Load(const ezOpenDdlReaderElement& ddl)
 {
   if (const ezOpenDdlReaderElement* pElement = ddl.FindChildOfType(ezOpenDdlPrimitiveType::String, "MasterBank"))
   {
-    m_sPathToMasterSoundBank = pElement->GetPrimitivesString()[0];
+    m_sMasterSoundBank = pElement->GetPrimitivesString()[0];
   }
 
   if (const ezOpenDdlReaderElement* pElement = ddl.FindChildOfType(ezOpenDdlPrimitiveType::UInt16, "VirtualChannels"))

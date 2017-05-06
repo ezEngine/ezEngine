@@ -9,10 +9,12 @@ struct ezGameApplicationEvent;
 class ezOpenDdlWriter;
 class ezOpenDdlReaderElement;
 
+typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
+
 /// \brief The fmod configuration to be used on a specific platform
 struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 {
-  ezString m_sPathToMasterSoundBank;
+  ezString m_sMasterSoundBank;
   ezUInt16 m_uiVirtualChannels = 32; ///< See FMOD::Studio::System::initialize
   ezUInt32 m_uiSamplerRate = 0; ///< See FMOD::System::setSoftwareFormat
   FMOD_SPEAKERMODE m_SpeakerMode = FMOD_SPEAKERMODE_5POINT1; ///< This must be set to what is configured in Fmod Studio for the target platform. Using anything else is incorrect.
@@ -93,9 +95,9 @@ public:
 
 private:
   void DetectPlatform();
-  void LoadMasterSoundBank(const char* szPathToMasterSoundBank);
+  ezResult LoadMasterSoundBank(const char* szMasterBankResourceID);
 
-  bool m_bInitialized;
+  bool m_bInitialized = false;
   ezUInt8 m_uiNumBlendedVolumes = 4;
 
   FMOD::Studio::System* m_pStudioSystem;
@@ -104,6 +106,7 @@ private:
   ezMap<ezString, float> m_VcaVolumes;
   ezFmodPlatformConfigs m_Configs;
   ezString m_sPlatform;
+  ezFmodSoundBankResourceHandle m_hMasterBank;
 };
 
 EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_FMODPLUGIN_DLL, ezFmodPlugin);

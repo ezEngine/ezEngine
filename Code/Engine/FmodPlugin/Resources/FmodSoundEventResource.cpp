@@ -8,15 +8,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezFmodSoundEventResource::ezFmodSoundEventResource() : ezResource<ezFmodSoundEventResource, ezFmodSoundEventResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundEventResource);
-
-  m_pEventDescription = nullptr;
 }
 
 ezFmodSoundEventResource::~ezFmodSoundEventResource()
 {
   EZ_ASSERT_DEV(m_pEventDescription == nullptr, "SoundEvent has not been freed correctly");
 }
-
 
 FMOD::Studio::EventInstance* ezFmodSoundEventResource::CreateInstance() const
 {

@@ -172,7 +172,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   else
     m_RequireLoading.PushBack(li);
 
-  ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
+  //ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
 
   ezResourceEvent e;
   e.m_pResource = pResource;
@@ -617,12 +617,12 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
       if (!pLoader->IsResourceOutdated(pResource))
         return;
 
-      ezLog::Dev("Resource '{0}' is outdated and will be reloaded", pResource->GetResourceID().GetData());
+      ezLog::Dev("Resource '{0}' is outdated and will be reloaded ('{1}')", pResource->GetResourceID().GetData(), pResource->GetResourceDescription());
     }
   }
   else
   {
-    ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded", pResource->GetResourceID().GetData());
+    ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", pResource->GetResourceID().GetData(), pResource->GetResourceDescription());
   }
 
   // make sure existing data is purged
