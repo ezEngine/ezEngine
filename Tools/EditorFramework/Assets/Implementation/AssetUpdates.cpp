@@ -13,6 +13,12 @@
 ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 {
   ezStringBuilder tmp;
+  auto it = m_KnownSubAssets.Find(assetGuid);
+  if (it.IsValid())
+  {
+    // If assetGuid is a sub-asset, redirect to main asset.
+    assetGuid = it.Value().m_pAssetInfo->m_Info.m_DocumentID;
+  }
 
   if (EnsureAssetInfoUpdated(assetGuid).Failed())
   {
