@@ -2,7 +2,6 @@
 #include <PCH.h>
 #include <Foundation/Utilities/StackTracer.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Configuration/Plugin.h>
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

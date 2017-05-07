@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Configuration/Plugin.h>
 
 /// \brief Helper class to capture the current stack and print a captured stack
 class EZ_FOUNDATION_DLL ezStackTracer
