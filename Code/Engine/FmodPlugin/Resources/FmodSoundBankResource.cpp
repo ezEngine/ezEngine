@@ -20,8 +20,6 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pSoundBank)
   {
-    ezLog::Debug("Unloading sound bank {0}", GetResourceDescription());
-
     m_pSoundBank->unload();
     m_pSoundBank = nullptr;
   }

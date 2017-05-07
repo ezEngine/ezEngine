@@ -30,27 +30,29 @@ void ezFmod::Startup()
 
   m_bInitialized = true;
 
+  m_pData = EZ_DEFAULT_NEW(Data);
+
   DetectPlatform();
 
-  if (m_Configs.m_PlatformConfigs.IsEmpty())
+  if (m_pData->m_Configs.m_PlatformConfigs.IsEmpty())
   {
     const char* szFile = ":project/FmodConfig.ddl";
     LoadConfiguration(szFile);
 
-    if (m_Configs.m_PlatformConfigs.IsEmpty())
+    if (m_pData->m_Configs.m_PlatformConfigs.IsEmpty())
     {
       ezLog::Warning("No valid fmod configuration file available in '{0}'. Fmod will be deactivated.", szFile);
       return;
     }
   }
 
-  if (!m_Configs.m_PlatformConfigs.Find(m_sPlatform).IsValid())
+  if (!m_pData->m_Configs.m_PlatformConfigs.Find(m_pData->m_sPlatform).IsValid())
   {
-    ezLog::Error("Fmod configuration for platform '{0}' not available. Fmod will be deactivated.", m_sPlatform);
+    ezLog::Error("Fmod configuration for platform '{0}' not available. Fmod will be deactivated.", m_pData->m_sPlatform);
     return;
   }
 
-  const auto& config = m_Configs.m_PlatformConfigs[m_sPlatform];
+  const auto& config = m_pData->m_Configs.m_PlatformConfigs[m_pData->m_sPlatform];
 
   FMOD_SPEAKERMODE fmodMode = FMOD_SPEAKERMODE_5POINT1;
   {
@@ -72,7 +74,7 @@ void ezFmod::Startup()
     }
 
     EZ_LOG_BLOCK("Fmod Configuration");
-    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
+    ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
     ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
 
@@ -103,6 +105,7 @@ void ezFmod::Startup()
     {
       ezLog::Warning("Fmod Live-Update not available for this process, another process using fmod is already running.");
       CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
+      g_hLiveUpdateMutex = NULL;
     }
 #else
     studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
@@ -132,11 +135,13 @@ void ezFmod::Shutdown()
     return;
 
   m_bInitialized = false;
+  m_pData.Reset();
 
   ezResourceManager::FreeUnusedResources(true);
 
   m_pStudioSystem->release();
   m_pStudioSystem = nullptr;
+  m_pLowLevelSystem = nullptr;
 }
 
 void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)
@@ -155,12 +160,12 @@ ezUInt8 ezFmod::GetNumListeners()
 
 void ezFmod::LoadConfiguration(const char* szFile)
 {
-  m_Configs.Load(szFile);
+  m_pData->m_Configs.Load(szFile);
 }
 
 void ezFmod::SetOverridePlatform(const char* szPlatform)
 {
-  m_sPlatform = szPlatform;
+  m_pData->m_sPlatform = szPlatform;
 }
 
 void ezFmod::UpdateFmod()
@@ -169,9 +174,9 @@ void ezFmod::UpdateFmod()
     return;
 
   // make sure to reload the sound bank, if it has been unloaded
-  if (m_hMasterBank.IsValid())
+  if (m_pData->m_hMasterBank.IsValid())
   {
-    ezResourceLock<ezFmodSoundBankResource> pMaster(m_hMasterBank, ezResourceAcquireMode::NoFallback);
+    ezResourceLock<ezFmodSoundBankResource> pMaster(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
   }
 
   m_pStudioSystem->update();
@@ -235,14 +240,14 @@ bool ezFmod::GetMasterChannelPaused() const
 
 void ezFmod::SetSoundGroupVolume(const char* szVcaGroupGuid, float volume)
 {
-  m_VcaVolumes[szVcaGroupGuid] = ezMath::Clamp(volume, 0.0f, 1.0f);
+  m_pData->m_VcaVolumes[szVcaGroupGuid] = ezMath::Clamp(volume, 0.0f, 1.0f);
 
   UpdateSoundGroupVolumes();
 }
 
 float ezFmod::GetSoundGroupVolume(const char* szVcaGroupGuid) const
 {
-  auto it = m_VcaVolumes.Find(szVcaGroupGuid);
+  auto it = m_pData->m_VcaVolumes.Find(szVcaGroupGuid);
   if (it.IsValid())
     return it.Value();
 
@@ -251,7 +256,7 @@ float ezFmod::GetSoundGroupVolume(const char* szVcaGroupGuid) const
 
 void ezFmod::UpdateSoundGroupVolumes()
 {
-  for (auto it = m_VcaVolumes.GetIterator(); it.IsValid(); ++it)
+  for (auto it = m_pData->m_VcaVolumes.GetIterator(); it.IsValid(); ++it)
   {
     FMOD::Studio::VCA* pVca = nullptr;
     m_pStudioSystem->getVCA(it.Key().GetData(), &pVca);
@@ -278,23 +283,23 @@ void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
 
 void ezFmod::DetectPlatform()
 {
-  if (!m_sPlatform.IsEmpty())
+  if (!m_pData->m_sPlatform.IsEmpty())
     return;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  m_sPlatform = "Desktop";
+  m_pData->m_sPlatform = "Desktop";
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode
+  m_pData->m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode
 
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode (Android)
+  m_pData->m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode (Android)
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  m_sPlatform = "Desktop";
+  m_pData->m_sPlatform = "Desktop";
 
 #elif EZ_ENABLED(EZ_PLATFORM_IOS)
-  m_sPlatform = "Mobile";
+  m_pData->m_sPlatform = "Mobile";
 
 #elif
 #error "Unknown Platform"
@@ -310,9 +315,9 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
     return EZ_FAILURE;
   }
 
-  m_hMasterBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(szMasterBankResourceID);
+  m_pData->m_hMasterBank = ezResourceManager::LoadResource<ezFmodSoundBankResource>(szMasterBankResourceID);
 
-  ezResourceLock<ezFmodSoundBankResource> pResource(m_hMasterBank, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezFmodSoundBankResource> pResource(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
 
   if (pResource->IsMissingResource())
     return EZ_FAILURE;

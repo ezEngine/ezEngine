@@ -5,6 +5,7 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Types/UniquePtr.h>
 
 struct ezGameApplicationEvent;
 class ezOpenDdlWriter;
@@ -114,11 +115,16 @@ private:
 
   FMOD::Studio::System* m_pStudioSystem;
   FMOD::System* m_pLowLevelSystem;
-  
-  ezMap<ezString, float> m_VcaVolumes;
-  ezFmodPlatformConfigs m_Configs;
-  ezString m_sPlatform;
-  ezFmodSoundBankResourceHandle m_hMasterBank;
+
+  struct Data
+  {
+    ezMap<ezString, float> m_VcaVolumes;
+    ezFmodPlatformConfigs m_Configs;
+    ezString m_sPlatform;
+    ezFmodSoundBankResourceHandle m_hMasterBank;
+  };
+
+  ezUniquePtr<Data> m_pData;
 };
 
 EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_FMODPLUGIN_DLL, ezFmodPlugin);
