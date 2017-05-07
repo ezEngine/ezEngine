@@ -14,7 +14,7 @@ class QSpacerItem;
 class QVBoxLayout;
 class QScrollArea;
 
-class ezQtCollapsibleGroupBox;
+class ezQtGroupBoxBase;
 class ezDocument;
 class ezDocumentObjectManager;
 class ezCommandHistory;
@@ -43,7 +43,7 @@ public:
   static ezQtPropertyWidget* CreateMemberPropertyWidget(const ezAbstractProperty* pProp);
   static ezQtPropertyWidget* CreatePropertyWidget(const ezAbstractProperty* pProp);
 
-  void SetCollapseState(ezQtCollapsibleGroupBox* pBox);
+  void SetCollapseState(ezQtGroupBoxBase* pBox);
 
 public slots:
   void OnCollapseStateChanged(bool bCollapsed);
@@ -59,7 +59,7 @@ private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e);
   void TypeEventHandler(const ezPhantomRttiManagerEvent& e);
-  ezUInt32 GetGroupBoxHash(ezQtCollapsibleGroupBox* pBox) const;
+  ezUInt32 GetGroupBoxHash(ezQtGroupBoxBase* pBox) const;
 
 private:
   ezDocument* m_pDocument;

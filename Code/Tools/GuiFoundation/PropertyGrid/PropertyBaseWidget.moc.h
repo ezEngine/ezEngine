@@ -14,7 +14,7 @@ class QHBoxLayout;
 class QVBoxLayout;
 class QLabel;
 class QMenu;
-class ezQtCollapsibleGroupBox;
+class ezQtGroupBoxBase;
 class ezQtAddSubElementButton;
 class ezQtPropertyGridWidget;
 class ezQtElementGroupButton;
@@ -167,7 +167,7 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout;
-  ezQtCollapsibleGroupBox* m_pGroup;
+  ezQtGroupBoxBase* m_pGroup;
   QHBoxLayout* m_pGroupLayout;
   ezQtTypeWidget* m_pTypeWidget;
 };
@@ -194,7 +194,7 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout;
-  ezQtCollapsibleGroupBox* m_pGroup;
+  ezQtGroupBoxBase* m_pGroup;
   ezQtAddSubElementButton* m_pAddButton;
   ezQtElementGroupButton* m_pDeleteButton;
   QHBoxLayout* m_pGroupLayout;
@@ -221,12 +221,13 @@ protected:
   struct Element
   {
     Element() : m_pSubGroup(nullptr), m_pWidget(nullptr) {}
-    Element(ezQtCollapsibleGroupBox* pSubGroup, ezQtPropertyWidget* pWidget) : m_pSubGroup(pSubGroup), m_pWidget(pWidget) {}
+    Element(ezQtGroupBoxBase* pSubGroup, ezQtPropertyWidget* pWidget) : m_pSubGroup(pSubGroup), m_pWidget(pWidget) {}
 
-    ezQtCollapsibleGroupBox* m_pSubGroup;
+    ezQtGroupBoxBase* m_pSubGroup;
     ezQtPropertyWidget* m_pWidget;
   };
 
+  virtual ezQtGroupBoxBase* CreateElement(QWidget* pParent);
   virtual Element& AddElement(ezUInt32 index);
   virtual void RemoveElement(ezUInt32 index);
   virtual void UpdateElement(ezUInt32 index) = 0;
@@ -242,7 +243,7 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout;
-  ezQtCollapsibleGroupBox* m_pGroup;
+  ezQtGroupBoxBase* m_pGroup;
   QVBoxLayout* m_pGroupLayout;
   ezQtAddSubElementButton* m_pAddButton;
 
@@ -259,6 +260,7 @@ public:
   virtual ~ezQtPropertyStandardTypeContainerWidget();
 
 protected:
+  virtual ezQtGroupBoxBase* CreateElement(QWidget* pParent) override;
   virtual Element& AddElement(ezUInt32 index) override;
   virtual void RemoveElement(ezUInt32 index) override;
   virtual void UpdateElement(ezUInt32 index) override;

@@ -22,6 +22,7 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QMimeData>
+#include <Widgets/InlinedGroupBox.moc.h>
 
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget() : QWidget(nullptr), m_pGrid(nullptr), m_pProp(nullptr)
@@ -231,15 +232,15 @@ ezQtPropertyPointerWidget::ezQtPropertyPointerWidget()
   m_pGroupLayout = new QHBoxLayout(nullptr);
   m_pGroupLayout->setSpacing(1);
   m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
-  m_pGroup->setInnerLayout(m_pGroupLayout);
+  m_pGroup->GetContent()->setLayout(m_pGroupLayout);
 
   m_pLayout->addWidget(m_pGroup);
 
   m_pAddButton = new ezQtAddSubElementButton();
-  m_pGroup->HeaderLayout->addWidget(m_pAddButton);
+  m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
 
-  m_pDeleteButton = new ezQtElementGroupButton(m_pGroup->Header, ezQtElementGroupButton::ElementAction::DeleteElement, this);
-  m_pGroup->HeaderLayout->addWidget(m_pDeleteButton);
+  m_pDeleteButton = new ezQtElementGroupButton(m_pGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, this);
+  m_pGroup->GetHeader()->layout()->addWidget(m_pDeleteButton);
   connect(m_pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyPointerWidget::OnDeleteButtonClicked);
 
   m_pTypeWidget = nullptr;
@@ -252,9 +253,9 @@ ezQtPropertyPointerWidget::~ezQtPropertyPointerWidget()
 
 void ezQtPropertyPointerWidget::OnInit()
 {
-  m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
+  m_pGroup->SetTitle(ezTranslate(m_pProp->GetPropertyName()));
   m_pGrid->SetCollapseState(m_pGroup);
-  connect(m_pGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
+  connect(m_pGroup, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 
   // Add Buttons
   auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
@@ -312,7 +313,7 @@ void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<ezPropertySelec
   {
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(subItems);
 
-    m_pTypeWidget = new ezQtTypeWidget(m_pGroup->Content, m_pGrid, pCommonType);
+    m_pTypeWidget = new ezQtTypeWidget(m_pGroup->GetContent(), m_pGrid, pCommonType);
     m_pTypeWidget->SetSelection(subItems);
 
     m_pGroupLayout->addWidget(m_pTypeWidget);
@@ -513,7 +514,7 @@ ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
     m_pGroupLayout = new QHBoxLayout(nullptr);
     m_pGroupLayout->setSpacing(1);
     m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
-    m_pGroup->setInnerLayout(m_pGroupLayout);
+    m_pGroup->GetContent()->setLayout(m_pGroupLayout);
 
     m_pLayout->addWidget(m_pGroup);
   }
@@ -528,9 +529,9 @@ void ezQtPropertyTypeWidget::OnInit()
 {
   if (m_pGroup)
   {
-    m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
+    m_pGroup->SetTitle(ezTranslate(m_pProp->GetPropertyName()));
     m_pGrid->SetCollapseState(m_pGroup);
-    connect(m_pGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
+    connect(m_pGroup, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
   }
 }
 
@@ -541,7 +542,7 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelectio
   ezQtPropertyWidget::SetSelection(items);
 
   QHBoxLayout* pLayout = m_pGroup != nullptr ? m_pGroupLayout : m_pLayout;
-  QWidget* pOwner = m_pGroup != nullptr ? m_pGroup->Content : this;
+  QWidget* pOwner = m_pGroup != nullptr ? m_pGroup->GetContent() : this;
   if (m_pTypeWidget)
   {
     pLayout->removeWidget(m_pTypeWidget);
@@ -603,7 +604,7 @@ ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   m_pGroupLayout = new QVBoxLayout(nullptr);
   m_pGroupLayout->setSpacing(1);
   m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
-  m_pGroup->setInnerLayout(m_pGroupLayout);
+  m_pGroup->GetContent()->setLayout(m_pGroupLayout);
 
   m_pLayout->addWidget(m_pGroup);
 }
@@ -660,17 +661,23 @@ void ezQtPropertyContainerWidget::OnElementButtonClicked()
   }
 }
 
+
+ezQtGroupBoxBase* ezQtPropertyContainerWidget::CreateElement(QWidget* pParent)
+{
+  return new ezQtCollapsibleGroupBox(pParent);
+}
+
 ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ezUInt32 index)
 {
-  ezQtCollapsibleGroupBox* pSubGroup = new ezQtCollapsibleGroupBox(m_pGroup);
-  connect(pSubGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
+  ezQtGroupBoxBase* pSubGroup = CreateElement(m_pGroup);
+  connect(pSubGroup, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 
   pSubGroup->SetFillColor(palette().window().color());
 
   QVBoxLayout* pSubLayout = new QVBoxLayout(nullptr);
   pSubLayout->setContentsMargins(5, 0, 0, 0);
   pSubLayout->setSpacing(1);
-  pSubGroup->setInnerLayout(pSubLayout);
+  pSubGroup->GetContent()->setLayout(pSubLayout);
 
   m_pGroupLayout->insertWidget((int)index, pSubGroup);
 
@@ -687,19 +694,19 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
     auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
     if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
     {
-      ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->Header, ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);
-      pSubGroup->HeaderLayout->addWidget(pUpButton);
+      ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);
+      pSubGroup->GetHeader()->layout()->addWidget(pUpButton);
       connect(pUpButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
 
-      ezQtElementGroupButton* pDownButton = new ezQtElementGroupButton(pSubGroup->Header, ezQtElementGroupButton::ElementAction::MoveElementDown, pNewWidget);
-      pSubGroup->HeaderLayout->addWidget(pDownButton);
+      ezQtElementGroupButton* pDownButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::MoveElementDown, pNewWidget);
+      pSubGroup->GetHeader()->layout()->addWidget(pDownButton);
       connect(pDownButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
     }
 
     if (!pAttr || pAttr->CanDelete())
     {
-      ezQtElementGroupButton* pDeleteButton = new ezQtElementGroupButton(pSubGroup->Header, ezQtElementGroupButton::ElementAction::DeleteElement, pNewWidget);
-      pSubGroup->HeaderLayout->addWidget(pDeleteButton);
+      ezQtElementGroupButton* pDeleteButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, pNewWidget);
+      pSubGroup->GetHeader()->layout()->addWidget(pDeleteButton);
       connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
     }
   }
@@ -802,18 +809,18 @@ void ezQtPropertyContainerWidget::Clear()
 
 void ezQtPropertyContainerWidget::OnInit()
 {
-  m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
+  m_pGroup->SetTitle(ezTranslate(m_pProp->GetPropertyName()));
 
   const ezContainerAttribute* pArrayAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
   if (!pArrayAttr || pArrayAttr->CanAdd())
   {
     m_pAddButton = new ezQtAddSubElementButton();
     m_pAddButton->Init(m_pGrid, m_pProp);
-    m_pGroup->HeaderLayout->addWidget(m_pAddButton);
+    m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
   }
 
   m_pGrid->SetCollapseState(m_pGroup);
-  connect(m_pGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
+  connect(m_pGroup, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 }
 
 void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<ezPropertySelection, 8>& items)
@@ -913,6 +920,12 @@ ezQtPropertyStandardTypeContainerWidget::~ezQtPropertyStandardTypeContainerWidge
 {
 }
 
+
+ezQtGroupBoxBase* ezQtPropertyStandardTypeContainerWidget::CreateElement(QWidget* pParent)
+{
+  return new ezQtInlinedGroupBox(pParent);
+}
+
 ezQtPropertyContainerWidget::Element& ezQtPropertyStandardTypeContainerWidget::AddElement(ezUInt32 index)
 {
   ezQtPropertyContainerWidget::Element& elem = ezQtPropertyContainerWidget::AddElement(index);
@@ -948,7 +961,7 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
   ezStringBuilder sTitle;
   sTitle.Format("[{0}]", m_Keys[index].ConvertTo<ezString>());
 
-  elem.m_pSubGroup->setTitle(sTitle);
+  elem.m_pSubGroup->SetTitle(sTitle);
   m_pGrid->SetCollapseState(elem.m_pSubGroup);
   elem.m_pWidget->SetSelection(SubItems);
 }
@@ -1018,13 +1031,13 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
       // Label
       ezStringBuilder sTitle;
       sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName()));
-      elem.m_pSubGroup->setTitle(sTitle);
+      elem.m_pSubGroup->SetTitle(sTitle);
     }
     {
       // Icon
       ezStringBuilder sIconName;
       sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
-      elem.m_pSubGroup->Icon2->setPixmap(ezQtUiServices::GetCachedPixmapResource(sIconName.GetData()));
+      elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedPixmapResource(sIconName.GetData()));
     }
   }
 

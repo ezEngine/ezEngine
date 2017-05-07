@@ -1,15 +1,13 @@
 #pragma once
 
-
 #include <GuiFoundation/Basics.h>
-#include <Code/Tools/GuiFoundation/ui_CollapsibleGroupBox.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 
-class EZ_GUIFOUNDATION_DLL ezQtCollapsibleGroupBox : public ezQtGroupBoxBase, protected Ui_CollapsibleGroupBox
+class EZ_GUIFOUNDATION_DLL ezQtInlinedGroupBox : public ezQtGroupBoxBase
 {
   Q_OBJECT
 public:
-  explicit ezQtCollapsibleGroupBox(QWidget* pParent);
+  explicit ezQtInlinedGroupBox(QWidget* pParent);
 
   virtual void SetTitle(const char* szTitle) override;
   virtual QString GetTitle() const override;
@@ -26,12 +24,14 @@ public:
   virtual QWidget* GetHeader() override;
 
 protected:
-  virtual bool eventFilter(QObject* object, QEvent* event) override;
   virtual void paintEvent(QPaintEvent* event) override;
 
 protected:
+  QWidget* m_pContent;
+  QWidget* m_pHeader;
   QColor m_FillColor;
-  bool m_bCollapsed;
+  QString m_sTitle;
+  QPixmap m_Icon;
 };
 
 

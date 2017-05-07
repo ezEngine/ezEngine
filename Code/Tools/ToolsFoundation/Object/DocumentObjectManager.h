@@ -34,6 +34,7 @@ struct ezDocumentObjectStructureEvent
   ezDocumentObjectStructureEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr)
   {}
 
+  const ezAbstractProperty* GetProperty() const;
   ezVariant getInsertIndex() const;
   enum class Type
   {
@@ -62,6 +63,7 @@ struct ezDocumentObjectPropertyEvent
   {
     m_pObject = nullptr;
   }
+  ezVariant getInsertIndex() const;
 
   enum class Type
   {

@@ -19,6 +19,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget(
 
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
+  m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
   m_pWidget = new ezQtAssetLineEdit(this);

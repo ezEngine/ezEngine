@@ -1001,10 +1001,9 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
     e.m_pObject = m_pObject;
     e.m_OldIndex = m_OldIndex;
     e.m_NewIndex = m_NewIndex;
-    e.m_NewValue = accessor.GetValue(m_sProperty, m_NewIndex);
-
     e.m_sProperty = m_sProperty;
-
+    e.m_NewValue = accessor.GetValue(m_sProperty, e.getInsertIndex());
+    EZ_ASSERT_DEV(e.m_NewValue.IsValid(), "Value at new pos should be valid now, index missmatch?");
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }
 

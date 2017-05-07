@@ -28,6 +28,28 @@ void ezDocumentRootObject::RemoveSubObject(ezDocumentObject* pObject)
   return ezDocumentObject::RemoveSubObject(pObject);
 }
 
+ezVariant ezDocumentObjectPropertyEvent::getInsertIndex() const
+{
+  if (m_EventType == Type::PropertyMoved)
+  {
+    const ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    const ezRTTI* pType = accessor.GetType();
+    auto* pProp = pType->FindPropertyByName(m_sProperty);
+    if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
+    {
+      ezInt32 iCurrentIndex = m_OldIndex.ConvertTo<ezInt32>();
+      ezInt32 iNewIndex = m_NewIndex.ConvertTo<ezInt32>();
+      // Move after oneself?
+      if (iNewIndex > iCurrentIndex)
+      {
+        iNewIndex -= 1;
+        return ezVariant(iNewIndex);
+      }
+    }
+  }
+  return m_NewIndex;
+}
+
 ezDocumentObjectManager::ezDocumentObjectManager()
   : m_pDocument(nullptr)
 {
@@ -482,6 +504,12 @@ void ezDocumentObjectManager::PatchEmbeddedClassObjectsInternal(ezDocumentObject
       }
     }
   }
+}
+
+
+const ezAbstractProperty* ezDocumentObjectStructureEvent::GetProperty() const
+{
+  return m_pObject->GetParentPropertyType();
 }
 
 ezVariant ezDocumentObjectStructureEvent::getInsertIndex() const

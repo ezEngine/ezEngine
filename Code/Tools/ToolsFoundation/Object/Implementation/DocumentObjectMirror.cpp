@@ -168,6 +168,12 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
           // Object is now a root object, nothing to do to attach it to its new parent.
           break;
         }
+
+        if (e.GetProperty()->GetCategory() == ezPropertyCategory::Set && e.m_pPreviousParent == e.m_pNewParent)
+        {
+          // Sets only have ordering in the editor. We can ignore set order changes in the mirror.
+          break;
+        }
         ezObjectChange change;
         CreatePath(change, e.m_pNewParent, e.m_sParentProperty);
 
@@ -206,6 +212,12 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         if (e.m_pPreviousParent == nullptr || e.m_pPreviousParent == m_pManager->GetRootObject())
         {
           // Object is currently a root object, nothing to do to detach it from its parent.
+          break;
+        }
+
+        if (e.GetProperty()->GetCategory() == ezPropertyCategory::Set && e.m_pPreviousParent == e.m_pNewParent)
+        {
+          // Sets only have ordering in the editor. We can ignore set order changes in the mirror.
           break;
         }
 

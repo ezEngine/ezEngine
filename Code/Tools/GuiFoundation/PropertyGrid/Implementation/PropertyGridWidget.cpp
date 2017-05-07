@@ -367,7 +367,7 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
   return new ezQtUnsupportedPropertyWidget();
 }
 
-void ezQtPropertyGridWidget::SetCollapseState(ezQtCollapsibleGroupBox* pBox)
+void ezQtPropertyGridWidget::SetCollapseState(ezQtGroupBoxBase* pBox)
 {
   ezUInt32 uiHash = GetGroupBoxHash(pBox);
   bool bCollapsed = false;
@@ -380,7 +380,7 @@ void ezQtPropertyGridWidget::SetCollapseState(ezQtCollapsibleGroupBox* pBox)
 
 void ezQtPropertyGridWidget::OnCollapseStateChanged(bool bCollapsed)
 {
-  ezQtCollapsibleGroupBox* pBox = qobject_cast<ezQtCollapsibleGroupBox*>(sender());
+  ezQtGroupBoxBase* pBox = qobject_cast<ezQtGroupBoxBase*>(sender());
   ezUInt32 uiHash = GetGroupBoxHash(pBox);
   m_CollapseState[uiHash] = pBox->GetCollapseState();
 }
@@ -463,17 +463,17 @@ void ezQtPropertyGridWidget::TypeEventHandler(const ezPhantomRttiManagerEvent& e
   SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
 }
 
-ezUInt32 ezQtPropertyGridWidget::GetGroupBoxHash(ezQtCollapsibleGroupBox* pBox) const
+ezUInt32 ezQtPropertyGridWidget::GetGroupBoxHash(ezQtGroupBoxBase* pBox) const
 {
   ezUInt32 uiHash = 0;
 
   QWidget* pCur = pBox;
   while (pCur != nullptr && pCur != this)
   {
-    ezQtCollapsibleGroupBox* pCurBox = qobject_cast<ezQtCollapsibleGroupBox*>(pCur);
+    ezQtGroupBoxBase* pCurBox = qobject_cast<ezQtGroupBoxBase*>(pCur);
     if (pCurBox != nullptr)
     {
-      uiHash = ezHashing::MurmurHash(ezHashing::StringWrapper(pCurBox->title().toUtf8().data()), uiHash);
+      uiHash = ezHashing::MurmurHash(ezHashing::StringWrapper(pCurBox->GetTitle().toUtf8().data()), uiHash);
     }
     pCur = pCur->parentWidget();
   }

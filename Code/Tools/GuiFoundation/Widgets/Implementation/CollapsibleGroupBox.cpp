@@ -1,20 +1,11 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <ToolsFoundation/CommandHistory/CommandHistory.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <QStyleOptionToolButton>
-#include <QStyle>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QScrollArea>
-#include <QRect>
-#include <QRectF>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
 
-ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent), m_bCollapsed(false)
+ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent) : ezQtGroupBoxBase(pParent), m_bCollapsed(false)
 {
   setupUi(this);
 
@@ -22,20 +13,31 @@ ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent) : QWidget(pPa
   Caption->installEventFilter(this);
 }
 
-void ezQtCollapsibleGroupBox::setTitle(const char* szTitle)
+void ezQtCollapsibleGroupBox::SetTitle(const char* szTitle)
 {
   Caption->setText(QString::fromUtf8(szTitle));
 }
 
-QString ezQtCollapsibleGroupBox::title() const
+QString ezQtCollapsibleGroupBox::GetTitle() const
 {
   return Caption->text();
+}
+
+
+void ezQtCollapsibleGroupBox::SetIcon(const QPixmap& icon)
+{
+  Icon2->setPixmap(icon);
 }
 
 void ezQtCollapsibleGroupBox::SetFillColor(const QColor& color)
 {
   m_FillColor = color;
   update();
+}
+
+QColor ezQtCollapsibleGroupBox::GetFillColor() const
+{
+  return m_FillColor;
 }
 
 void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
@@ -64,6 +66,16 @@ void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
 bool ezQtCollapsibleGroupBox::GetCollapseState() const
 {
   return m_bCollapsed;
+}
+
+QWidget* ezQtCollapsibleGroupBox::GetContent()
+{
+  return Content;
+}
+
+QWidget* ezQtCollapsibleGroupBox::GetHeader()
+{
+  return Header;
 }
 
 bool ezQtCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
