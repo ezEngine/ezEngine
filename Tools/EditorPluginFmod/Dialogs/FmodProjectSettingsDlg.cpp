@@ -5,8 +5,8 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <../../../../../SKDs/5.8.0vs140x64/vs140x64/include/QtWidgets/QInputDialog>
-#include <../../../../../SKDs/5.8.0vs140x64/vs140x64/include/QtWidgets/QFileDialog>
+#include <QInputDialog>
+#include <QFileDialog>
 
 ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent) : QDialog(parent)
 {
