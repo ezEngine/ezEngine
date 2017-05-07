@@ -435,6 +435,9 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
 bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
   ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
 {
+  if (fDistance <= 0.001f || vDir.IsZero())
+    return false;
+
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
   filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;

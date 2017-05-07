@@ -780,7 +780,7 @@ o
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0}}
 		Time %MinDelay{d{0x9A9999999999C93F}}
-		s %Prefab{"{ 3e9e4d44-0673-43ed-ad7d-0a8970551944 }"}
+		s %Prefab{"{ 69eca029-cda2-45a9-a90d-574b97fe2a0f }"}
 		b %SpawnAtStart{0}
 		b %SpawnContinuously{0}
 	}
@@ -1075,7 +1075,7 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{6119109376935587366}
+		u4 %Hash{11596252450165209120}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -1091,6 +1091,7 @@ AssetInfo
 			s{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 			s{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
+			s{"{ 69eca029-cda2-45a9-a90d-574b97fe2a0f }"}
 			s{"{ 6b7bcc15-ba46-4793-9e22-4051d11482c8 }"}
 			s{"{ 7771b49b-cbbc-4db7-8721-307042a07748 }"}
 			s{"{ 8d3701d6-83c9-4039-b341-88d33fbaa0d3 }"}
@@ -2268,7 +2269,7 @@ o
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0xD34DA23F}}
-		Quat %LocalRotation{f{0,0,0x0000803F,0x2EBD3B33}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{"Player"}

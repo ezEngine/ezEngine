@@ -35,7 +35,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4907047210820730285,4894575462063164740}}
-		u4 %Hash{3483331513555922195}
+		u4 %Hash{16403512666887767471}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -110,15 +110,15 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{8}
 		f %GravityMultiplier{0}
 		VarArray %Interactions
 		{
 			Uuid{u4{2859870038709046770,18066025895901625926}}
 		}
-		Time %MaxLifetime{d{0x0000000000000040}}
+		Time %MaxLifetime{d{0x0000000000002440}}
 		s %OnTimeoutSpawn{"{ e658e83a-dc29-4db3-bcec-be6764431578 }"}
-		f %Speed{0x00007041}
+		f %Speed{0x0000A041}
 	}
 }
 o

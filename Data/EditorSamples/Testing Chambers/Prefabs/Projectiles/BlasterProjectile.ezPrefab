@@ -1,0 +1,122 @@
+Objects
+{
+AssetInfo
+{
+	Uuid %id{u4{1092965785348279721,5019769357126639657}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{1092965785348279721,5019769357126639657}}
+		u4 %Hash{9662391128906626126}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+			s{"{ 66a97691-4402-c101-07cb-364520809cc7 }"}
+			s{"{ ca2907cf-f167-4003-a685-b460cabe9f7d }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{15774419694220762113,17938266066446168772}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4679188952548771314,17504372203063908829}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		b %Paused{0}
+		f %Pitch{0x0000803F}
+		s %SoundEvent{"{ ca2907cf-f167-4003-a685-b460cabe9f7d }"}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{13474270006615379462,17864947019639413729}}
+	s %t{"ezSpriteComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxScreenSize{0x00004843}
+		f %Size{0x0000803F}
+		s %Texture{"{ 66a97691-4402-c101-07cb-364520809cc7 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15774419694220762113,17938266066446168772}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6881530066718206450,18051216167657086425}}
+			Uuid{u4{13474270006615379462,17864947019639413729}}
+			Uuid{u4{4679188952548771314,17504372203063908829}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x240E5741,0x43F48540,0xA052803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{6881530066718206450,18051216167657086425}}
+	s %t{"ezProjectileComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{8}
+		f %GravityMultiplier{0x0000003F}
+		VarArray %Interactions
+		{
+			Uuid{u4{5598719634342028772,18244784341018912470}}
+		}
+		Time %MaxLifetime{d{0x0000000000000840}}
+		s %OnTimeoutSpawn{""}
+		f %Speed{0x0000C841}
+	}
+}
+o
+{
+	Uuid %id{u4{5598719634342028772,18244784341018912470}}
+	s %t{"ezProjectileSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Interaction{"PulseImpact"}
+		s %Reaction{"ezProjectileReaction::Reflect"}
+		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+	}
+}
+}
+Types{}
