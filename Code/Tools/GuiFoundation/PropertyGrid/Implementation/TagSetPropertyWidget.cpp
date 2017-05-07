@@ -4,13 +4,10 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QMenu>
 #include <QPushButton>
-#include <QAction>
 #include <QWidgetAction>
 #include <QCheckBox>
 

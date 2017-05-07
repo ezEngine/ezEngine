@@ -1,7 +1,6 @@
 ﻿#include <PCH.h>
 #include <GuiFoundation/Dialogs/PickDocumentObjectDlg.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <QTreeWidget>
 #include <ToolsFoundation/Document/Document.h>
 
 ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* parent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject)

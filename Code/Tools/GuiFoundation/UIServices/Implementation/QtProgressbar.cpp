@@ -1,10 +1,8 @@
 #include <PCH.h>
-#include <Foundation/Math/Math.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QProgressDialog>
 #include <QApplication>
-#include <QCoreApplication>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <QtWinExtras/QWinTaskbarButton>

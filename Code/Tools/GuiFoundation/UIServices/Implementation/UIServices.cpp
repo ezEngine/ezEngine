@@ -4,8 +4,6 @@
 #include <QProcess>
 #include <QDir>
 #include <QIcon>
-#include <QImage>
-#include <QPixmap>
 #include <QUrl>
 #include <QDesktopServices>
 

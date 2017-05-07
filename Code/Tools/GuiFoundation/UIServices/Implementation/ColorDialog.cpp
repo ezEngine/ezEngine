@@ -1,10 +1,7 @@
 #include <PCH.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/UIServices/ColorDialog.moc.h>
-#include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <QColor>
-#include <QColorDialog>
 
 QPoint ezQtColorDialog::s_LastDialogPosition;
 

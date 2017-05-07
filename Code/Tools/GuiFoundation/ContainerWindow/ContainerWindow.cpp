@@ -1,19 +1,12 @@
 #include <PCH.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Foundation/IO/OSFile.h>
 #include <QSettings>
 #include <QTimer>
-#include <QFileDialog>
 #include <QCloseEvent>
 #include <QTabBar>
 #include <QStatusBar>
 #include <QLabel>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <Foundation/Types/ScopeExit.h>
 

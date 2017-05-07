@@ -1,13 +1,9 @@
 #include <PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <QPushButton>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <QHBoxLayout>
-#include <QSpacerItem>
 #include <QMenu>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>

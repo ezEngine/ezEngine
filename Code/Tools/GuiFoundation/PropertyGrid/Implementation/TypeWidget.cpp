@@ -132,7 +132,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
       ezQtManipulatorLabel* pLabel = new ezQtManipulatorLabel(this);
       pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel()));
       pLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-      pLabel->setContentsMargins(18, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
+      pLabel->setContentsMargins(0, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
       pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
       connect(pLabel, &QWidget::customContextMenuRequested, pNewWidget, &ezQtPropertyWidget::OnCustomContextMenu);

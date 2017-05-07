@@ -1,19 +1,10 @@
 #include <PCH.h>
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/CommandHistory/CommandHistory.h>
-#include <Foundation/Logging/Log.h>
-#include <QGraphicsGridLayout>
-#include <QGraphicsProxyWidget>
-#include <QLabel>
 #include <QApplication>
-#include <QPen>
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
-#include <QStyleOptionGraphicsItem>
 
 ezQtNode::ezQtNode() : m_pManager(nullptr), m_pObject(nullptr)
 {

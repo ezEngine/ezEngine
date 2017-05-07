@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Basics.h>
 #include <QWidget>
-#include <QObject>
 
 ezQtScopedUpdatesDisabled::ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2, QWidget* pWidget3, QWidget* pWidget4, QWidget* pWidget5, QWidget* pWidget6)
 {
@@ -16,7 +15,7 @@ ezQtScopedUpdatesDisabled::ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget*
     }
     else
     {
-      m_pWidgets[i] = nullptr; 
+      m_pWidgets[i] = nullptr;
     }
   }
 }

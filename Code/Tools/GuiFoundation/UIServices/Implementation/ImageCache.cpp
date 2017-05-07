@@ -1,8 +1,6 @@
 #include <PCH.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Threading/Lock.h>
-#include <QPixmap>
 #include <QtConcurrent/qtconcurrentrun.h>
 
 static ezQtImageCache g_ImageCacheSingleton;

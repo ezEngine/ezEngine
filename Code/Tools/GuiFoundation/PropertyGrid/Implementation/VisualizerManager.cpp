@@ -1,7 +1,5 @@
 #include <PCH.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Selection/SelectionManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualizerManager);

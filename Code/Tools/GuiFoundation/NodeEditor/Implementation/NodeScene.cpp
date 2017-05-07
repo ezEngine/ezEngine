@@ -1,23 +1,13 @@
 ﻿#include <PCH.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Selection/SelectionManager.h>
-#include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
-#include <QClipboard>
-#include <QMimeData>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Serialization/DdlSerializer.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;

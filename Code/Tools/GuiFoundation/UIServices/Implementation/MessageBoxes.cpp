@@ -2,7 +2,6 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <Foundation/Logging/Log.h>
-#include <QMessageBox>
 
 void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg, bool bOnlySuccessMsgIfDetails)
 {

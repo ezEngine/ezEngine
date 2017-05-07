@@ -2,8 +2,6 @@
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <QMouseEvent>
-#include <QWheelEvent>
-#include <QScrollBar>
 
 ezQtNodeView::ezQtNodeView(QWidget* parent) : QGraphicsView(parent), m_pScene(nullptr), m_bPanning(false), m_iPanCounter(0)
 {

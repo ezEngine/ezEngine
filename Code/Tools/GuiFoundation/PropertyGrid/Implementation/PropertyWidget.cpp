@@ -1,25 +1,16 @@
 #include <PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
-#include <qcheckbox.h>
-#include <qspinbox.h>
-#include <qlayout.h>
-#include <QLineEdit>
-#include <QLabel>
-#include <QKeyEvent>
-#include <QSpinBox>
-#include <QPushButton>
-#include <QColor>
-#include <QComboBox>
-#include <QStandardItemModel>
-#include <QStyledItemDelegate>
-#include <QMenu>
-#include <QWidgetAction>
-#include <QToolButton>
-#include <QFileDialog>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <qcheckbox.h>
+#include <qlayout.h>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QComboBox>
+#include <QMenu>
+#include <QWidgetAction>
+
 
 /// *** CHECKBOX ***
 
