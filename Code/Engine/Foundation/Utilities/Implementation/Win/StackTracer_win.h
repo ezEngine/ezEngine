@@ -63,6 +63,7 @@ namespace
     StackWalk stackWalk;
     SymbolFromAddressFunc symbolFromAddress;
     LineFromAddressFunc lineFromAdress;
+    bool m_bInitDbgHelp = false;
 
     StackTracerImplementation()
     {
@@ -90,12 +91,6 @@ namespace
           getFunctionTableAccess == nullptr || getModuleBase == nullptr || stackWalk == nullptr)
           return;
 
-        if (!(*symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))
-         {
-           ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
-           return;
-        }
-
         symbolFromAddress = (SymbolFromAddressFunc)GetProcAddress(dbgHelpDll, "SymFromAddrW");
         lineFromAdress = (LineFromAddressFunc)GetProcAddress(dbgHelpDll, "SymGetLineFromAddrW64");
       }
@@ -113,15 +108,36 @@ namespace
       EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
     }
   }
+
+  static void SymbolInitialize()
+  {
+    if (!s_pImplementation->m_bInitDbgHelp)
+    {
+      s_pImplementation->m_bInitDbgHelp = true;
+      if (!(*s_pImplementation->symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))
+      {
+        ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+      }
+    }
+  }
 }
 
 void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
 {
+  Initialize();
+
   if (s_pImplementation->symbolLoadModule == nullptr || s_pImplementation->getModuleInfo == nullptr)
     return;
 
+  // Can't get dbghelp functions to work correctly. SymLoadModuleEx will fail on every dll after the first call.
+  // However, SymInitialize works to load dynamic dlls if we postpone it until all dlls are loaded.
+  // So we defer init until the first DLL is un-loaded or the first callstack is to be resolved.
+  if (e.m_EventType == ezPlugin::PluginEvent::BeforeUnloading)
+  {
+    SymbolInitialize();
+  }
 
-  if (e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
+  if (false)//e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
   {
     char buffer[1024];
     strcpy_s(buffer, ezOSFile::GetApplicationDirectory());
@@ -226,6 +242,7 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc)
 {
   Initialize();
+  SymbolInitialize();
 
   if (s_pImplementation->symbolFromAddress != nullptr && s_pImplementation->lineFromAdress != nullptr)
   {
