@@ -57,6 +57,16 @@ public:
   float m_fJumpImpulse;
 
   float m_fPushingForce; ///< force to push other rigid bodies
+  ezHashedString m_sWalkSurfaceInteraction;
+  ezSurfaceResourceHandle m_hFallbackWalkSurface;
+  float m_fWalkInteractionDistance;
+  float m_fRunInteractionDistance;
+
+  void SetWalkSurfaceInteraction(const char* sz) { m_sWalkSurfaceInteraction.Assign(sz); }
+  const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); }
+
+  void SetFallbackWalkSurfaceFile(const char* szFile);
+  const char* GetFallbackWalkSurfaceFile() const;
 
 protected:
 
@@ -86,6 +96,7 @@ protected:
   ezVec3 m_vVelocityLateral;
 
   ezVec3 m_vExternalVelocity;
+  float m_fAccumulatedWalkDistance;
 };
 
 

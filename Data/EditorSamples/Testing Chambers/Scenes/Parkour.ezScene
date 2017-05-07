@@ -2241,6 +2241,21 @@ o
 }
 o
 {
+	Uuid %id{u4{12488799340373456006,4972026541316252440}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		b %Paused{0}
+		f %Pitch{0x0000803F}
+		s %SoundEvent{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{14847168656001625766,4984817416655678920}}
 	s %t{"ezPxCharacterProxyComponent"}
 	u3 %v{2}
@@ -2314,6 +2329,27 @@ o
 		b %Active{1}
 		VarArray %Materials{}
 		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{7252150373657257914,5008289839113648941}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12488799340373456006,4972026541316252440}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000803E,0x0000803E,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
 	}
 }
 o
@@ -2646,20 +2682,21 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{17668242499005493550}
+		u4 %Hash{15547343107554504644}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 			s{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
 			s{"{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"}
 			s{"{ 15723cbd-9706-4c86-b695-bd945c5ada6a }"}
 			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
 			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
-			s{"{ 326a101b-d4a5-445d-95cc-708deae4d064 }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
 			s{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
 			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
+			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
 			s{"{ 5aca09be-6ccf-4dda-9281-2ffd1b411a96 }"}
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 			s{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
@@ -2670,6 +2707,7 @@ AssetInfo
 			s{"{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }"}
 			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
 			s{"{ a2e664de-7b3e-47d8-99d3-d058896f7255 }"}
+			s{"{ a59d471e-7f13-4ccf-9776-36a655519c87 }"}
 			s{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
 			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
 			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
@@ -2999,17 +3037,20 @@ o
 {
 	Uuid %id{u4{3944063209475990452,5332446421198049134}}
 	s %t{"ezPxCharacterControllerComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		f %AirFriction{0x0000003F}
 		f %AirSpeed{0x00002040}
+		s %FallbackWalkSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 		f %JumpImpulse{0x0000C040}
 		f %PushingForce{0x0000FA43}
 		Angle %RotateSpeed{f{0xDB0FC93F}}
 		f %RunSpeed{0x00007041}
+		f %WalkInteractionDistance{0x00000040}
 		f %WalkSpeed{0x0000A040}
+		s %WalkSurfaceInteraction{"Footstep"}
 	}
 }
 o
@@ -3973,12 +4014,13 @@ o
 {
 	Uuid %id{u4{17309103479706075778,5736885279805763870}}
 	s %t{"ezPxSettingsComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		Vec3 %CharacterGravity{f{0,0,0x000040C1}}
 		f %FixedFrameRate{0x00007042}
+		f %MaxDepenetrationVelocity{0x0000803F}
 		u3 %MaxSubSteps{4}
 		Vec3 %ObjectGravity{f{0,0,0xC3F51CC1}}
 		s %SteppingMode{"ezPxSteppingMode::SemiFixed"}
@@ -5322,7 +5364,7 @@ o
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{1}
 		f %Pitch{0x0000803F}
-		s %SoundEvent{"{ 326a101b-d4a5-445d-95cc-708deae4d064 }"}
+		s %SoundEvent{"{ a59d471e-7f13-4ccf-9776-36a655519c87 }"}
 		f %Volume{0x0000803F}
 	}
 }
@@ -5507,7 +5549,7 @@ o
 			Uuid{u4{16679751090236404764,9403904801699804632}}
 		}
 		s %GlobalKey{"Sound1"}
-		Vec3 %LocalPosition{f{0x0000A03F,0x000080BF,0x00009840}}
+		Vec3 %LocalPosition{f{0x0000D840,0x000098C0,0x0000C040}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -9906,7 +9948,10 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{7252150373657257914,5008289839113648941}}
+		}
 		VarArray %Components
 		{
 			Uuid{u4{7647332653682143773,10890890465694324547}}
@@ -9934,227 +9979,4 @@ o
 	}
 }
 }
-Types
-{
-o
-{
-	Uuid %id{u4{6005124763988445957,644489658209099401}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
-		s %Name{"OnFinishedAction"}
-		s %Type{"ezOnComponentFinishedAction"}
-	}
-}
-o
-{
-	Uuid %id{u4{11852399130965337762,1180647988113932230}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezFmodComponent"}
-		s %PluginName{"ezFmodPlugin"}
-		VarArray %Properties
-		{
-			Uuid{u4{13365762824312373271,7382524954421525565}}
-			Uuid{u4{13194828712121763392,17090328222285606292}}
-			Uuid{u4{4702776234696293889,1427183228231423566}}
-			Uuid{u4{15430909137858390617,3903032763436204306}}
-			Uuid{u4{6005124763988445957,644489658209099401}}
-		}
-		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4702776234696293889,1427183228231423566}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{9696167687491312184,12448080015331761259}}
-			Uuid{u4{11836104868624217573,12152796789385868591}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Pitch"}
-		s %Type{"float"}
-	}
-}
-o
-{
-	Uuid %id{u4{8896355706434428056,1455891328350875338}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ListenerIndex"}
-		s %Type{"ezUInt8"}
-	}
-}
-o
-{
-	Uuid %id{u4{15430909137858390617,3903032763436204306}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{1977556516943857296,14923929550536541999}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"SoundEvent"}
-		s %Type{"ezConstCharPtr"}
-	}
-}
-o
-{
-	Uuid %id{u4{13365762824312373271,7382524954421525565}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Paused"}
-		s %Type{"bool"}
-	}
-}
-o
-{
-	Uuid %id{u4{1881413272340135460,9369197709730499701}}
-	s %t{"ezClampValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		f %Max{0x0000803F}
-		f %Min{0}
-	}
-}
-o
-{
-	Uuid %id{u4{1636123206047010939,9656076789046550064}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Sound"}
-	}
-}
-o
-{
-	Uuid %id{u4{18188220164916781687,9664480935676392369}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x0000803F}
-	}
-}
-o
-{
-	Uuid %id{u4{5675634624259089979,9863162998230605952}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezFmodComponent"}
-		s %PluginName{"ezFmodPlugin"}
-		VarArray %Properties
-		{
-			Uuid{u4{8896355706434428056,1455891328350875338}}
-		}
-		s %TypeName{"ezFmodListenerComponent"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11836104868624217573,12152796789385868591}}
-	s %t{"ezClampValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		f %Max{0x0000C842}
-		f %Min{0x0AD7233C}
-	}
-}
-o
-{
-	Uuid %id{u4{9696167687491312184,12448080015331761259}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x0000803F}
-	}
-}
-o
-{
-	Uuid %id{u4{1977556516943857296,14923929550536541999}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Filter{";Sound Event;"}
-	}
-}
-o
-{
-	Uuid %id{u4{15089475826961544260,17081924075655763987}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{1636123206047010939,9656076789046550064}}
-		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezFmodPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezFmodComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{13194828712121763392,17090328222285606292}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{18188220164916781687,9664480935676392369}}
-			Uuid{u4{1881413272340135460,9369197709730499701}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Volume"}
-		s %Type{"float"}
-	}
-}
-}
+Types{}

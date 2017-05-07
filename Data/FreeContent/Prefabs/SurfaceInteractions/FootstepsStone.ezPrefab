@@ -1,0 +1,73 @@
+Objects
+{
+AssetInfo
+{
+	Uuid %id{u4{10656125845132406420,4615196946006643739}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10656125845132406420,4615196946006643739}}
+		u4 %Hash{5255541394934433166}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 80c6b33b-40d7-40ad-a42f-f951577869f9 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10738567052295122090,5004600917964773205}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13823761371778096550,5072856738857791266}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{13823761371778096550,5072856738857791266}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteEntity"}
+		b %Paused{0}
+		f %Pitch{0x0000803F}
+		s %SoundEvent{"{ 80c6b33b-40d7-40ad-a42f-f951577869f9 }"}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{10738567052295122090,5004600917964773205}}
+		}
+	}
+}
+}
+Types{}

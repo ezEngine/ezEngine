@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
@@ -68,7 +68,7 @@ void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::Update
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 3)
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -79,6 +79,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 3)
     EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
     EZ_MEMBER_PROPERTY("PushingForce", m_fPushingForce)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDefaultValueAttribute("Footstep")),
+    EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
+    EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
@@ -106,6 +110,10 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
   m_vExternalVelocity.SetZero();
+  m_sWalkSurfaceInteraction.Assign("Footstep");
+  m_fWalkInteractionDistance = 1.0f;
+  m_fRunInteractionDistance = 3.0f;
+  m_fAccumulatedWalkDistance = 0;
 }
 
 
@@ -121,6 +129,12 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
   s << m_RotateSpeed;
   s << m_fJumpImpulse;
   s << m_fPushingForce;
+
+  // Version 4
+  s << m_sWalkSurfaceInteraction;
+  s << m_fWalkInteractionDistance;
+  s << m_fRunInteractionDistance;
+  s << m_hFallbackWalkSurface;
 }
 
 
@@ -159,6 +173,14 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   if (uiVersion >= 3)
   {
     s >> m_fPushingForce;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_sWalkSurfaceInteraction;
+    s >> m_fWalkInteractionDistance;
+    s >> m_fRunInteractionDistance;
+    s >> m_hFallbackWalkSurface;
   }
 }
 
@@ -207,11 +229,13 @@ void ezPxCharacterControllerComponent::Update()
 
   ezVec3 vNewVelocity(0.0f);
 
+  float fAddWalkDistance = 0.0f;
   if (m_vExternalVelocity.IsZero())
   {
     if (isOnGround)
     {
       vNewVelocity = vIntendedMovement;
+      fAddWalkDistance = vIntendedMovement.GetLength();
     }
     else
     {
@@ -239,6 +263,8 @@ void ezPxCharacterControllerComponent::Update()
   /// After move forwards, sweep test downwards to stick character to floor and detect falling
   if (isOnGround && (!wantsJump || !canJump))
   {
+    m_fAccumulatedWalkDistance += ezMath::Min(fAddWalkDistance, (posAfter - posBefore).GetLength());
+
     ezTransform t;
     t.SetIdentity();
     t.m_vPosition.Set((float)posAfter.x, (float)posAfter.y, (float)posAfter.z);
@@ -249,9 +275,33 @@ void ezPxCharacterControllerComponent::Update()
       pProxy->Move(ezVec3(0, 0, -hitResult.m_fDistance));
 
       //ezLog::Info("Floor Distance: {0} ({1} | {2} | {3}) -> ({4} | {5} | {6}), Radius: {7}, Height: {8}", ezArgF(fSweepDistance, 2), ezArgF(t.m_vPosition.x, 2), ezArgF(t.m_vPosition.y, 2), ezArgF(t.m_vPosition.z, 2), ezArgF(vSweepPosition.x, 2), ezArgF(vSweepPosition.y, 2), ezArgF(vSweepPosition.z, 2), ezArgF(m_fCapsuleRadius, 2), ezArgF(m_fCapsuleHeight, 2));
+
+      // Footstep Surface Interaction
+      if (!m_sWalkSurfaceInteraction.IsEmpty())
+      {
+        ezSurfaceResourceHandle hSurface;
+        if (hitResult.m_hSurface.IsValid())
+          hSurface = hitResult.m_hSurface;
+        else
+          hSurface = m_hFallbackWalkSurface;
+
+        if (hSurface.IsValid())
+        {
+          const bool bRun = (m_InputStateBits & InputStateBits::Run) != 0;
+          if (!bRun && m_fAccumulatedWalkDistance >= m_fWalkInteractionDistance ||
+              bRun&& m_fAccumulatedWalkDistance >= m_fRunInteractionDistance)
+          {
+            m_fAccumulatedWalkDistance = 0.0f;
+
+            ezResourceLock<ezSurfaceResource> pSurface(hSurface);
+            pSurface->InteractWithSurface(GetWorld(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1), m_sWalkSurfaceInteraction);
+          }
+        }
+      }
     }
     else
     {
+      m_fAccumulatedWalkDistance = 0.0f;
       //ezLog::Dev("Falling");
     }
 
@@ -318,10 +368,32 @@ void ezPxCharacterControllerComponent::OnSimulationStarted()
   }
 }
 
+void ezPxCharacterControllerComponent::SetFallbackWalkSurfaceFile(const char* szFile)
+{
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+  }
+
+  if (m_hFallbackWalkSurface.IsValid())
+    ezResourceManager::PreloadResource(m_hFallbackWalkSurface, ezTime::Seconds(1.0));
+}
+
+const char* ezPxCharacterControllerComponent::GetFallbackWalkSurfaceFile() const
+{
+  if (!m_hFallbackWalkSurface.IsValid())
+    return "";
+
+  return m_hFallbackWalkSurface.GetResourceID();
+}
 
 void ezPxCharacterControllerComponent::MoveCharacter(ezPxCharacterController_MoveCharacterMsg& msg)
 {
+  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
+
   m_vRelativeMoveDirection += ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
+  m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector());
+  m_vRelativeMoveDirection *= fDistanceToMove;
 
   m_RotateZ += m_RotateSpeed * (float)(msg.m_fRotateRight - msg.m_fRotateLeft);
 
