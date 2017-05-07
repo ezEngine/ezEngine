@@ -33,7 +33,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 2)
     EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("GravityMultiplier", m_fGravityMultiplier),
     EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Prefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
@@ -329,6 +329,17 @@ void ezProjectileComponentManager::Initialize()
   ezComponentManagerSimple<ezProjectileComponent, ezComponentUpdateType::WhenSimulating>::Initialize();
 
   m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+}
+
+
+void ezProjectileComponentManager::SimpleUpdate(const ezWorldModule::UpdateContext& context)
+{
+  if (m_pPhysicsInterface == nullptr)
+  {
+    m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+  }
+
+  SUPER::SimpleUpdate(context);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
@@ -96,7 +96,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 
   ezDocument* pSceneDocument = nullptr;
 
-  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument("ezPrefab", szFile, pSceneDocument, false));
+  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument("Prefab", szFile, pSceneDocument, false));
 
   out_NewDocumentGuid = pSceneDocument->GetGuid();
 

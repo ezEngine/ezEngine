@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -136,7 +136,7 @@ public:
   virtual void Initialize() override;
 
   /// \brief A simple update function that iterates over all components and calls Update() on every component
-  void SimpleUpdate(const ezWorldModule::UpdateContext& context);
+  virtual void SimpleUpdate(const ezWorldModule::UpdateContext& context);
 
 private:
   static void SimpleUpdateName(ezStringBuilder& out_sName);

@@ -225,7 +225,18 @@ void ezFmodEventComponent::OnDeactivated()
 {
   if (m_pEventInstance != nullptr)
   {
-    EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
+    // we could expose this decision as a property 'AlwaysFinish' or so
+    bool bLetFinish = true;
+
+    FMOD::Studio::EventDescription* pDesc = nullptr;
+    m_pEventInstance->getDescription(&pDesc);
+    pDesc->isOneshot(&bLetFinish);
+
+    if (!bLetFinish)
+    {
+      EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
+    }
+
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
     m_iTimelinePosition = -1;

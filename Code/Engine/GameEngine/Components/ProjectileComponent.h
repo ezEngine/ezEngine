@@ -10,10 +10,14 @@ class ezPhysicsWorldModuleInterface;
 
 class EZ_GAMEENGINE_DLL ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>
 {
+  typedef ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating> SUPER;
+
 public:
   ezProjectileComponentManager(ezWorld* pWorld);
 
   virtual void Initialize() override;
+
+  virtual void SimpleUpdate(const ezWorldModule::UpdateContext& context) override;
 
 private:
   friend class ezProjectileComponent;
