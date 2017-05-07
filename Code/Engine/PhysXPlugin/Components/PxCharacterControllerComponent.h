@@ -2,8 +2,10 @@
 
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 struct ezCollisionMessage;
+typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
 {
