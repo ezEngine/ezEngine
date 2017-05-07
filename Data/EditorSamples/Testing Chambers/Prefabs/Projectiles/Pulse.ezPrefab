@@ -1,0 +1,137 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{13944112891682145536,169027717902397093}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{984191235803852269,18002530868580769924}}
+			Uuid{u4{6612864571463947507,17777668651177228215}}
+			Uuid{u4{2592296611093444090,17861282767751492198}}
+			Uuid{u4{10554915254622187441,5079162010757754016}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{4907047210820730285,4894575462063164740}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{4907047210820730285,4894575462063164740}}
+		u4 %Hash{3483331513555922195}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+			s{"{ 0e3a619d-fef8-b4ce-3988-eff149839b27 }"}
+			s{"{ a23314a9-b6dd-4d21-adce-ff4ed20974c6 }"}
+			s{"{ e658e83a-dc29-4db3-bcec-be6764431578 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10554915254622187441,5079162010757754016}}
+	s %t{"ezSpriteComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxScreenSize{0x00008042}
+		f %Size{0x0000803F}
+		s %Texture{"{ 0e3a619d-fef8-b4ce-3988-eff149839b27 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13944112891682145536,169027717902397093}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6612864571463947507,17777668651177228215}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		f %Intensity{0x0000A041}
+		ColorGamma %LightColor{u1{211,54,222,255}}
+		f %Range{0x00008040}
+	}
+}
+o
+{
+	Uuid %id{u4{2592296611093444090,17861282767751492198}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		b %Paused{0}
+		f %Pitch{0x0000803F}
+		s %SoundEvent{"{ a23314a9-b6dd-4d21-adce-ff4ed20974c6 }"}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{984191235803852269,18002530868580769924}}
+	s %t{"ezProjectileComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{0}
+		f %GravityMultiplier{0}
+		VarArray %Interactions
+		{
+			Uuid{u4{2859870038709046770,18066025895901625926}}
+		}
+		Time %MaxLifetime{d{0x0000000000000040}}
+		s %OnTimeoutSpawn{"{ e658e83a-dc29-4db3-bcec-be6764431578 }"}
+		f %Speed{0x00007041}
+	}
+}
+o
+{
+	Uuid %id{u4{2859870038709046770,18066025895901625926}}
+	s %t{"ezProjectileSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Interaction{"PulseImpact"}
+		s %Reaction{"ezProjectileReaction::Absorb"}
+		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+	}
+}
+}
+Types{}
