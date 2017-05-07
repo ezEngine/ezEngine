@@ -2,6 +2,18 @@ Objects
 {
 o
 {
+	Uuid %id{u4{1389662871128848183,41962412072882930}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"then"}
+		Uuid %Target{u4{12974575226001587644,4860828333760845534}}
+		s %TargetPin{"run"}
+	}
+}
+o
+{
 	Uuid %id{u4{15808137498407403599,289948143254470978}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -22,6 +34,18 @@ o
 		s %SourcePin{"Value"}
 		Uuid %Target{u4{1530829682028441518,4909649186227001362}}
 		s %TargetPin{"StrafeRight"}
+	}
+}
+o
+{
+	Uuid %id{u4{16428395801720120678,1104458996465582783}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"OnTrue"}
+		Uuid %Target{u4{10662037177857959835,4883201207463229785}}
+		s %TargetPin{"send"}
 	}
 }
 o
@@ -78,6 +102,38 @@ o
 }
 o
 {
+	Uuid %id{u4{4217970800032597384,4825613823747987511}}
+	s %t{"VisualScriptNode::ezVisualScriptNode_FindChildObject"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Gun"}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{10142260035835018126,9548020990183444946}}
+		}
+		Vec2 %Node::Pos{f{0x0F525A44,0x2383BB43}}
+	}
+}
+o
+{
+	Uuid %id{u4{12974575226001587644,4860828333760845534}}
+	s %t{"VisualScriptNode::ezVisualScriptNode_CompareExec"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Node::Connections
+		{
+			Uuid{u4{16428395801720120678,1104458996465582783}}
+		}
+		Vec2 %Node::Pos{f{0xEF935944,0x863A6643}}
+		s %Operator{"ezLogicOperator::Greater"}
+		d %Value1{0}
+		d %Value2{0x000000000000E03F}
+	}
+}
+o
+{
 	Uuid %id{u4{10610274155896709562,4868041930480809726}}
 	s %t{"VisualScriptNode::ezVisualScriptNode_InputState"}
 	u3 %v{1}
@@ -90,6 +146,19 @@ o
 		}
 		Vec2 %Node::Pos{f{0x594F6141,0x5655E542}}
 		b %OnlyKeyPressed{0}
+	}
+}
+o
+{
+	Uuid %id{u4{10662037177857959835,4883201207463229785}}
+	s %t{"VisualScriptNode::ezSpawnComponent_SpawnMsg"}
+	u3 %v{1}
+	p
+	{
+		b %Continuous{0}
+		Time %Delay{d{0}}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0xF9728D44,0x78138443}}
 	}
 }
 o
@@ -119,7 +188,10 @@ o
 		b %Jump{0}
 		d %MoveBackwards{0}
 		d %MoveForwards{0}
-		VarArray %Node::Connections{}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{1389662871128848183,41962412072882930}}
+		}
 		Vec2 %Node::Pos{f{0x7F040444,0x8BE61AC3}}
 		d %RotateLeft{0}
 		d %RotateRight{0}
@@ -243,6 +315,10 @@ o
 			Uuid{u4{12054697937876757894,5720926827482165515}}
 			Uuid{u4{2600791046838078095,5478426693412414064}}
 			Uuid{u4{6846082589471721663,5209661904674159347}}
+			Uuid{u4{10662037177857959835,4883201207463229785}}
+			Uuid{u4{12448918648620125588,5458903853706758106}}
+			Uuid{u4{12974575226001587644,4860828333760845534}}
+			Uuid{u4{4217970800032597384,4825613823747987511}}
 		}
 	}
 }
@@ -260,6 +336,22 @@ o
 		}
 		Vec2 %Node::Pos{f{0xA0BF0041,0x5752E3C2}}
 		b %OnlyKeyPressed{0}
+	}
+}
+o
+{
+	Uuid %id{u4{12448918648620125588,5458903853706758106}}
+	s %t{"VisualScriptNode::ezVisualScriptNode_InputState"}
+	u3 %v{1}
+	p
+	{
+		s %InputAction{"Shoot"}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{10547894200539535327,12002069457443818899}}
+		}
+		Vec2 %Node::Pos{f{0xC940D141,0x3150DB43}}
+		b %OnlyKeyPressed{1}
 	}
 }
 o
@@ -309,6 +401,7 @@ o
 			Uuid{u4{14718656555087340167,13796505789343501406}}
 			Uuid{u4{12403829779307599432,5305562096685014303}}
 			Uuid{u4{6631204110791355179,7783941950296676588}}
+			Uuid{u4{647779914399110985,7157359889841103204}}
 		}
 		Vec2 %Node::Pos{f{0x0FE297C3,0x4C6771C1}}
 		s %Type{"ezInputComponent"}
@@ -325,7 +418,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7015304998123668388,5646540825533331613}}
-		u4 %Hash{18023529626713315017}
+		u4 %Hash{16084366567854630260}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -384,6 +477,18 @@ o
 }
 o
 {
+	Uuid %id{u4{647779914399110985,7157359889841103204}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Component"}
+		Uuid %Target{u4{12448918648620125588,5458903853706758106}}
+		s %TargetPin{"Component"}
+	}
+}
+o
+{
 	Uuid %id{u4{8509663075917580060,7196550854671800024}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -416,6 +521,18 @@ o
 		s %SourcePin{"OnPressed"}
 		Uuid %Target{u4{12054697937876757894,5720926827482165515}}
 		s %TargetPin{"send"}
+	}
+}
+o
+{
+	Uuid %id{u4{10142260035835018126,9548020990183444946}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Object"}
+		Uuid %Target{u4{10662037177857959835,4883201207463229785}}
+		s %TargetPin{"Object"}
 	}
 }
 o
@@ -464,6 +581,18 @@ o
 		s %SourcePin{"Component"}
 		Uuid %Target{u4{8417684445943398298,5482382875820169954}}
 		s %TargetPin{"Component"}
+	}
+}
+o
+{
+	Uuid %id{u4{10547894200539535327,12002069457443818899}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{12974575226001587644,4860828333760845534}}
+		s %TargetPin{"Value1"}
 	}
 }
 o
@@ -545,6 +674,41 @@ o
 }
 o
 {
+	Uuid %id{u4{7573017800401649449,1390996122812017841}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Delay"}
+		s %Type{"ezTime"}
+	}
+}
+o
+{
+	Uuid %id{u4{6385449585236495967,1724826101354370293}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezVisualScriptNodeBase"}
+		s %PluginName{"VisualScriptTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{7573017800401649449,1390996122812017841}}
+			Uuid{u4{875648545232074241,8571746055998381495}}
+		}
+		s %TypeName{"VisualScriptNode::ezSpawnComponent_SpawnMsg"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6591052494489019591,1980304784071328620}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{1}
@@ -600,6 +764,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18043477838805884449,3284669428312550740}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4590125217891351128,14305566215412888433}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Value2"}
+		s %Type{"double"}
+	}
+}
+o
+{
 	Uuid %id{u4{15901160839133665700,4477253438068454355}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{1}
@@ -610,6 +791,17 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"InputAction"}
 		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{12612614758048813448,5452195914272228191}}
+	s %t{"ezVisScriptDataPinInAttribute"}
+	u3 %v{1}
+	p
+	{
+		u1 %Slot{0}
+		s %Type{"ezVisualScriptDataPinType::Number"}
 	}
 }
 o
@@ -627,6 +819,20 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Type"}
 		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{875648545232074241,8571746055998381495}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Continuous"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -700,6 +906,20 @@ o
 		s %TypeName{"ezVisualScriptNodeBase"}
 		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2110782033541533329,10083565940555767430}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"Operator"}
+		s %Type{"ezLogicOperator"}
 	}
 }
 o
@@ -781,6 +1001,34 @@ o
 }
 o
 {
+	Uuid %id{u4{7619223305253795153,12878043200881442114}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12612614758048813448,5452195914272228191}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Value1"}
+		s %Type{"double"}
+	}
+}
+o
+{
+	Uuid %id{u4{4590125217891351128,14305566215412888433}}
+	s %t{"ezVisScriptDataPinInAttribute"}
+	u3 %v{1}
+	p
+	{
+		u1 %Slot{1}
+		s %Type{"ezVisualScriptDataPinType::Number"}
+	}
+}
+o
+{
 	Uuid %id{u4{3382814614185085552,14341487100451289110}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -811,6 +1059,28 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Name"}
 		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{5074187064613764390,14935988147682880474}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezVisualScriptNodeBase"}
+		s %PluginName{"VisualScriptTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{2110782033541533329,10083565940555767430}}
+			Uuid{u4{7619223305253795153,12878043200881442114}}
+			Uuid{u4{18043477838805884449,3284669428312550740}}
+		}
+		s %TypeName{"VisualScriptNode::ezVisualScriptNode_CompareExec"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
 	}
 }
 o

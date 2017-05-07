@@ -185,7 +185,7 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool
   {
     for (auto it = GetChildren(); it.IsValid(); ++it)
     {
-      ezGameObject* pChild = FindChildByName(name, bRecursive);
+      ezGameObject* pChild = it->FindChildByName(name, bRecursive);
 
       if (pChild != nullptr)
         return pChild;
