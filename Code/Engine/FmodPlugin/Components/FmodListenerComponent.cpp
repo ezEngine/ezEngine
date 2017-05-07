@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <FmodPlugin/FmodSingleton.h>
+#include <FmodPlugin/FmodIncludes.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezFmodListenerComponent, 1)
 {

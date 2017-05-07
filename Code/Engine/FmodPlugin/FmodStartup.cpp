@@ -9,6 +9,7 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <FmodPlugin/FmodIncludes.h>
 
 static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
 static ezFmodSoundEventResourceLoader s_SoundEventResourceLoader;
@@ -71,13 +72,13 @@ void ezFmodConfiguration::Save(ezOpenDdlWriter& ddl) const
 
     switch (m_SpeakerMode)
     {
-    case FMOD_SPEAKERMODE_STEREO:
+    case ezFmodSpeakerMode::ModeStereo:
       ezOpenDdlUtils::StoreString(ddl, "Stereo", "Mode");
       break;
-    case FMOD_SPEAKERMODE_5POINT1:
+    case ezFmodSpeakerMode::Mode5Point1:
       ezOpenDdlUtils::StoreString(ddl, "5.1", "Mode");
       break;
-    case FMOD_SPEAKERMODE_7POINT1:
+    case ezFmodSpeakerMode::Mode7Point1:
       ezOpenDdlUtils::StoreString(ddl, "7.1", "Mode");
       break;
     }
@@ -105,11 +106,11 @@ void ezFmodConfiguration::Load(const ezOpenDdlReaderElement& ddl)
     auto mode = pElement->GetPrimitivesString()[0];
 
     if (mode == "Stereo")
-      m_SpeakerMode = FMOD_SPEAKERMODE_STEREO;
+      m_SpeakerMode = ezFmodSpeakerMode::ModeStereo;
     else if (mode == "7.1")
-      m_SpeakerMode = FMOD_SPEAKERMODE_7POINT1;
+      m_SpeakerMode = ezFmodSpeakerMode::Mode7Point1;
     else
-      m_SpeakerMode = FMOD_SPEAKERMODE_5POINT1;
+      m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1;
   }
 }
 

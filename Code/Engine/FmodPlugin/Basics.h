@@ -11,7 +11,17 @@
   #define EZ_FMODPLUGIN_DLL
 #endif
 
-#include <fmod_studio.hpp>
+// Forward declarations
 
-#define EZ_FMOD_ASSERT(func) { auto fmodErrorCode = func; EZ_VERIFY(fmodErrorCode == FMOD_OK, "Fmod failed with error code {0}", fmodErrorCode); }
+namespace FMOD
+{
+  namespace Studio
+  {
+    class Bank;
+    class System;
+    class EventInstance;
+    class EventDescription;
+  }
 
+  class System;
+}

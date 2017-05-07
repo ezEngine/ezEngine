@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
+#include <FmodPlugin/FmodIncludes.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundBankResource, 1, ezRTTIDefaultAllocator<ezFmodSoundBankResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE

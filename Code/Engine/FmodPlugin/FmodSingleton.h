@@ -12,13 +12,21 @@ class ezOpenDdlReaderElement;
 
 typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
 
+/// \brief Abstraction of FMOD_SPEAKERMODE
+enum class ezFmodSpeakerMode : ezUInt8
+{
+  ModeStereo,
+  Mode5Point1,
+  Mode7Point1,
+};
+
 /// \brief The fmod configuration to be used on a specific platform
 struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 {
   ezString m_sMasterSoundBank;
+  ezFmodSpeakerMode m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1; ///< This must be set to what is configured in Fmod Studio for the target platform. Using anything else is incorrect.
   ezUInt16 m_uiVirtualChannels = 32; ///< See FMOD::Studio::System::initialize
   ezUInt32 m_uiSamplerRate = 0; ///< See FMOD::System::setSoftwareFormat
-  FMOD_SPEAKERMODE m_SpeakerMode = FMOD_SPEAKERMODE_5POINT1; ///< This must be set to what is configured in Fmod Studio for the target platform. Using anything else is incorrect.
 
   void Save(ezOpenDdlWriter& ddl) const;
   void Load(const ezOpenDdlReaderElement& ddl);

@@ -6,6 +6,7 @@
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Core/ResourceManager/ResourceBase.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <FmodPlugin/FmodIncludes.h>
 
 //////////////////////////////////////////////////////////////////////////
 

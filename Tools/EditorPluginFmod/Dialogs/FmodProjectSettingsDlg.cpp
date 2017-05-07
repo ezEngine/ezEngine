@@ -93,15 +93,14 @@ void ezQtFmodProjectSettingsDlg::SetCurrentPlatform(const char* szPlatform)
 
   switch (cfg.m_SpeakerMode)
   {
-  case FMOD_SPEAKERMODE_STEREO:
+  case ezFmodSpeakerMode::ModeStereo:
     ComboMode->setCurrentIndex(0);
     break;
-  case FMOD_SPEAKERMODE_7POINT1:
+  case ezFmodSpeakerMode::Mode7Point1:
     ComboMode->setCurrentIndex(2);
-    break;
-  case FMOD_SPEAKERMODE_5POINT1:
-    ComboMode->setCurrentIndex(1);
+  case ezFmodSpeakerMode::Mode5Point1:
   default:
+    ComboMode->setCurrentIndex(1);
     break;
   }
 }
@@ -123,13 +122,13 @@ void ezQtFmodProjectSettingsDlg::StoreCurrentPlatform()
   switch (ComboMode->currentIndex())
   {
   case 0:
-    cfg.m_SpeakerMode = FMOD_SPEAKERMODE_STEREO;
+    cfg.m_SpeakerMode = ezFmodSpeakerMode::ModeStereo;
     break;
   case 1:
-    cfg.m_SpeakerMode = FMOD_SPEAKERMODE_5POINT1;
+    cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode5Point1;
     break;
   case 2:
-    cfg.m_SpeakerMode = FMOD_SPEAKERMODE_7POINT1;
+    cfg.m_SpeakerMode = ezFmodSpeakerMode::Mode7Point1;
     break;
   }
 }

@@ -4,13 +4,14 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
+#include <FmodPlugin/FmodIncludes.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
 
 static ezFmod g_FmodSingleton;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  HANDLE g_hLiveUpdateMutex = NULL;
+HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
 ezFmod::ezFmod()
@@ -51,16 +52,23 @@ void ezFmod::Startup()
 
   const auto& config = m_Configs.m_PlatformConfigs[m_sPlatform];
 
+  FMOD_SPEAKERMODE fmodMode = FMOD_SPEAKERMODE_5POINT1;
   {
     ezString sMode = "Unknown";
     switch (config.m_SpeakerMode)
     {
-    case FMOD_SPEAKERMODE_MONO: sMode = "Mono"; break;
-    case FMOD_SPEAKERMODE_QUAD: sMode = "Quad"; break;
-    case FMOD_SPEAKERMODE_SURROUND: sMode = "Surround"; break;
-    case FMOD_SPEAKERMODE_5POINT1: sMode = "5.1"; break;
-    case FMOD_SPEAKERMODE_7POINT1: sMode = "7.1"; break;
-    case FMOD_SPEAKERMODE_STEREO: sMode = "Stereo"; break;
+    case ezFmodSpeakerMode::ModeStereo:
+      sMode = "Stereo";
+      fmodMode = FMOD_SPEAKERMODE_STEREO;
+      break;
+    case ezFmodSpeakerMode::Mode5Point1:
+      sMode = "5.1";
+      fmodMode = FMOD_SPEAKERMODE_5POINT1;
+      break;
+    case ezFmodSpeakerMode::Mode7Point1:
+      sMode = "7.1";
+      fmodMode = FMOD_SPEAKERMODE_7POINT1;
+      break;
     }
 
     EZ_LOG_BLOCK("Fmod Configuration");
@@ -72,7 +80,7 @@ void ezFmod::Startup()
 
   // The example Studio project is authored for 5.1 sound, so set up the system output mode to match
   EZ_FMOD_ASSERT(m_pStudioSystem->getLowLevelSystem(&m_pLowLevelSystem));
-  EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, config.m_SpeakerMode, 0));
+  EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, fmodMode, 0));
 
   void *extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
@@ -99,7 +107,7 @@ void ezFmod::Startup()
 #else
     studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
 #endif
-  }
+    }
 #endif
 
   EZ_FMOD_ASSERT(m_pStudioSystem->initialize(config.m_uiVirtualChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
@@ -116,7 +124,7 @@ void ezFmod::Startup()
   }
 
   UpdateFmod();
-}
+  }
 
 void ezFmod::Shutdown()
 {
@@ -289,7 +297,7 @@ void ezFmod::DetectPlatform()
   m_sPlatform = "Mobile";
 
 #elif
-  #error "Unknown Platform"
+#error "Unknown Platform"
 
 #endif
 }

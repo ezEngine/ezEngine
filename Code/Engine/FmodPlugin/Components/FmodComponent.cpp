@@ -1,5 +1,6 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FmodPlugin/Components/FmodComponent.h>
+#include <FmodPlugin/FmodIncludes.h>
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezFmodComponent, 1)
 {

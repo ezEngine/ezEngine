@@ -7,10 +7,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Foundation/IO/OSFile.h>
-
-#include <fmod_studio.hpp>
-
-#define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code {0}", res)
+#include <FmodPlugin/FmodIncludes.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
