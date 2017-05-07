@@ -12,7 +12,6 @@
 
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
-#include <Foundation/Configuration/Plugin.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Logging/Log.h>
@@ -92,9 +91,9 @@ namespace
           return;
 
         if (!(*symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))
-        {
-          ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
-          return;
+         {
+           ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+           return;
         }
 
         symbolFromAddress = (SymbolFromAddressFunc)GetProcAddress(dbgHelpDll, "SymFromAddrW");
@@ -105,59 +104,6 @@ namespace
 
   static StackTracerImplementation* s_pImplementation;
 
-  static void OnPluginEvent(const ezPlugin::PluginEvent& e)
-  {
-    if (s_pImplementation->symbolLoadModule == nullptr || s_pImplementation->getModuleInfo == nullptr)
-      return;
-
-    if (e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
-    {
-      char buffer[1024];
-      strcpy_s(buffer, ezOSFile::GetApplicationDirectory());
-      strcat_s(buffer, e.m_szPluginFile);
-      strcat_s(buffer, ".dll");
-
-      wchar_t szPluginPath[1024];
-      mbstowcs(szPluginPath, buffer, EZ_ARRAY_SIZE(szPluginPath));
-
-      wchar_t szPluginName[256];
-      mbstowcs(szPluginName, e.m_szPluginFile, EZ_ARRAY_SIZE(szPluginName));
-
-      HANDLE currentProcess = GetCurrentProcess();
-
-      DWORD64 moduleAddress = (*s_pImplementation->symbolLoadModule)(currentProcess, nullptr, szPluginPath, szPluginName, 0, 0, nullptr, 0);
-      if (moduleAddress == 0)
-      {
-        DWORD err = GetLastError();
-        if (err != ERROR_SUCCESS)
-        {
-          ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_szPluginFile, ezArgErrorCode(err));
-        }
-
-        return;
-      }
-
-      IMAGEHLP_MODULEW64 moduleInfo;
-      ezMemoryUtils::ZeroFill(&moduleInfo);
-      moduleInfo.SizeOfStruct = sizeof(IMAGEHLP_MODULEW64);
-
-      if (!(*s_pImplementation->getModuleInfo)(currentProcess, moduleAddress, &moduleInfo))
-      {
-        DWORD err = GetLastError();
-        LPVOID lpMsgBuf = nullptr;
-
-        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
-
-        char errStr[1024];
-        sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
-        OutputDebugStringA(errStr);
-
-        LocalFree(lpMsgBuf);
-      }
-    }
-  }
-
   static void Initialize()
   {
     if (s_pImplementation == nullptr)
@@ -165,8 +111,60 @@ namespace
       static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
       EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
+    }
+  }
+}
 
-      //ezPlugin::s_PluginEvents.AddEventHandler(OnPluginEvent);
+void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
+{
+  if (s_pImplementation->symbolLoadModule == nullptr || s_pImplementation->getModuleInfo == nullptr)
+    return;
+
+
+  if (e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
+  {
+    char buffer[1024];
+    strcpy_s(buffer, ezOSFile::GetApplicationDirectory());
+    strcat_s(buffer, e.m_szPluginFile);
+    strcat_s(buffer, ".dll");
+
+    wchar_t szPluginPath[1024];
+    mbstowcs(szPluginPath, buffer, EZ_ARRAY_SIZE(szPluginPath));
+
+    wchar_t szPluginName[256];
+    mbstowcs(szPluginName, e.m_szPluginFile, EZ_ARRAY_SIZE(szPluginName));
+
+    HANDLE currentProcess = GetCurrentProcess();
+
+    DWORD64 moduleAddress = (*s_pImplementation->symbolLoadModule)(currentProcess, nullptr, szPluginPath, szPluginName, 0, 0, nullptr, 0);
+    if (moduleAddress == 0)
+    {
+      DWORD err = GetLastError();
+      if (err != ERROR_SUCCESS)
+      {
+        ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_szPluginFile, ezArgErrorCode(err));
+      }
+
+      return;
+    }
+
+    IMAGEHLP_MODULEW64 moduleInfo;
+    ezMemoryUtils::ZeroFill(&moduleInfo);
+    moduleInfo.SizeOfStruct = sizeof(IMAGEHLP_MODULEW64);
+
+    if (!(*s_pImplementation->getModuleInfo)(currentProcess, moduleAddress, &moduleInfo))
+    {
+      DWORD err = GetLastError();
+      LPVOID lpMsgBuf = nullptr;
+
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+        err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
+
+      char errStr[1024];
+      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
+      OutputDebugStringA(errStr);
+
+      LocalFree(lpMsgBuf);
     }
   }
 }

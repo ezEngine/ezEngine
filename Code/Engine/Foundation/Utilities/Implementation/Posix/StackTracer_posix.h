@@ -9,6 +9,10 @@
 #include <execinfo.h>
 #include <Foundation/Math/Math.h>
 
+void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
+{
+}
+
 //static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 {

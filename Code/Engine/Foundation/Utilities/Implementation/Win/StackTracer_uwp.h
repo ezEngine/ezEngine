@@ -5,6 +5,10 @@
 
 #define EZ_STACKTRACER_UWP_INL_H_INCLUDED
 
+void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
+{
+}
+
 //static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 {

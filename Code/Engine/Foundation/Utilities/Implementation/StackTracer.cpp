@@ -1,6 +1,8 @@
 
 #include <PCH.h>
 #include <Foundation/Utilities/StackTracer.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Configuration/Plugin.h>
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -17,6 +19,23 @@
   #error "StackTracer is not implemented on current platform"
 #endif
 
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, StackTracer)
+
+BEGIN_SUBSYSTEM_DEPENDENCIES
+"Time"
+END_SUBSYSTEM_DEPENDENCIES
+
+ON_CORE_STARTUP
+{
+  ezPlugin::s_PluginEvents.AddEventHandler(ezStackTracer::OnPluginEvent);
+}
+
+ON_CORE_SHUTDOWN
+{
+  ezPlugin::s_PluginEvents.RemoveEventHandler(ezStackTracer::OnPluginEvent);
+}
+
+EZ_END_SUBSYSTEM_DECLARATION
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_StackTracer);
 
