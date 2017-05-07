@@ -364,10 +364,23 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
     return;
   }
 
+  if (m_Topology != topology)
+  {
+    m_Topology = topology;
+
+    ezTempHashedString sTopologies[ezGALPrimitiveTopology::ENUM_COUNT] =
+    {
+      ezTempHashedString("POINTS"),
+      ezTempHashedString("LINES"),
+      ezTempHashedString("TRIANGLES")
+    };
+
+    SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_Topology]);
+  }
+
   m_hVertexBuffer = hVertexBuffer;
   m_hIndexBuffer = hIndexBuffer;
   m_pVertexDeclarationInfo = pVertexDeclarationInfo;
-  m_Topology = topology;
   m_uiMeshBufferPrimitiveCount = uiPrimitiveCount;
 
   m_StateFlags.Add(ezRenderContextFlags::MeshBufferBindingChanged);
@@ -904,15 +917,6 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
 
   if (!pShader || !pShader->IsShaderValid())
     return nullptr;
-
-  ezTempHashedString sTopologies[ezGALPrimitiveTopology::ENUM_COUNT] =
-  {
-    ezTempHashedString("POINTS"),
-    ezTempHashedString("LINES"),
-    ezTempHashedString("TRIANGLES")
-  };
-
-  SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_Topology]);
 
   m_hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, ezTime::Seconds(0.0));
 
