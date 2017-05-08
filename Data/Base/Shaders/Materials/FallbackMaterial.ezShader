@@ -19,7 +19,7 @@ INSTANCING
 
 VS_OUT main(VS_IN Input)
 {
-	return FillVertexData(Input);
+  return FillVertexData(Input);
 }
 
 [GEOMETRYSHADER]
@@ -28,48 +28,48 @@ VS_OUT main(VS_IN Input)
 
 struct GS_IN
 {
-	float4 Position : SV_Position;
-	float3 WorldPos : WORLDPOS;
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
 
-	#if INSTANCING
-		uint InstanceID : SV_InstanceID;
-	#endif
+  #if INSTANCING
+    uint InstanceID : SV_InstanceID;
+  #endif
 };
 
 struct GS_OUT
 {
-	float4 Position : SV_Position;
-	float3 WorldPos : WORLDPOS;
-	float3 Normal : NORMAL;
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
+  float3 Normal : NORMAL;
 
-	#if INSTANCING
-		uint InstanceID : SV_InstanceID;
-	#endif
+  #if INSTANCING
+    uint InstanceID : SV_InstanceID;
+  #endif
 };
 
 [maxvertexcount(3)]
 void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 {
-	float3 edge1 = input[1].WorldPos - input[0].WorldPos;
-	float3 edge2 = input[2].WorldPos - input[0].WorldPos;
-	float3 normal = normalize(cross(edge1, edge2));
+  float3 edge1 = input[1].WorldPos - input[0].WorldPos;
+  float3 edge2 = input[2].WorldPos - input[0].WorldPos;
+  float3 normal = normalize(cross(edge1, edge2));
 
-	GS_OUT output;
+  GS_OUT output;
 
-	for (uint i = 0; i < 3; ++i)
-	{
-		output.Position = input[i].Position;
-		output.WorldPos = input[i].WorldPos;
-		output.Normal = normal;
+  for (uint i = 0; i < 3; ++i)
+  {
+    output.Position = input[i].Position;
+    output.WorldPos = input[i].WorldPos;
+    output.Normal = normal;
 
-		#if INSTANCING
-			output.InstanceID = input[i].InstanceID;
-		#endif
+    #if INSTANCING
+      output.InstanceID = input[i].InstanceID;
+    #endif
 
-		outputStream.Append(output);
-	}
+    outputStream.Append(output);
+  }
 
-	outputStream.RestartStrip();
+  outputStream.RestartStrip();
 }
 
 #endif
@@ -77,7 +77,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 [PIXELSHADER]
 
 #if TOPOLOGY == TOPOLOGY_TRIANGLES
-	#define USE_NORMAL
+  #define USE_NORMAL
 #endif
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
@@ -88,44 +88,33 @@ SamplerState BaseTexture_AutoSampler;
 
 float3 GetNormal(PS_IN Input)
 {
-	#if TOPOLOGY == TOPOLOGY_TRIANGLES
-		return Input.Normal;
-	#else
-		return float3(0.0f, 0.0f, 1.0f);
-	#endif
+  #if TOPOLOGY == TOPOLOGY_TRIANGLES
+    return Input.Normal;
+  #else
+    return float3(0.0f, 0.0f, 1.0f);
+  #endif
 }
 
 float3 GetDiffuseColor(PS_IN Input)
 {
-	#if TOPOLOGY == TOPOLOGY_TRIANGLES
-		float3 blendWeights = abs(Input.Normal);
-		blendWeights = max((blendWeights - 0.2) * 7.0, 0.0);
-		blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z );
-
-		float3 tex1 = BaseTexture.Sample(BaseTexture_AutoSampler, Input.WorldPosition.yz + 0.5).rgb;
-		float3 tex2 = BaseTexture.Sample(BaseTexture_AutoSampler, Input.WorldPosition.zx + 0.5).rgb;
-		float3 tex3 = BaseTexture.Sample(BaseTexture_AutoSampler, Input.WorldPosition.xy + 0.5).rgb;
-
-		float3 blendedColor = tex1 * blendWeights.x + tex2 * blendWeights.y + tex3 * blendWeights.z;
-
-		return blendedColor;
-
-	#else
-		return float4(0.5, 0.5, 0.5, 1.0);
-	#endif
+  #if TOPOLOGY == TOPOLOGY_TRIANGLES
+    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, Input.Normal, Input.WorldPosition, 1.0);
+  #else
+    return float4(0.5, 0.5, 0.5, 1.0);
+  #endif
 }
 
 float3 GetSpecularColor(PS_IN Input)
 {
-	return 0.04f;
+  return 0.04f;
 }
 
 float GetRoughness(PS_IN Input)
 {
-	return 1.0f;
+  return 1.0f;
 }
 
 float GetOpacity(PS_IN Input)
 {
-	return 1.0f;
+  return 1.0f;
 }

@@ -308,6 +308,53 @@ SamplerState $prop0_AutoSampler;
   }
 }
 
+Node %Texture3Way
+{
+  string %Category { "Texturing" }
+  string %NodeType { "Texture" }
+  unsigned_int8 %Color { 0, 89, 153 }
+  string %CodeMaterialParams { "
+Texture2D $prop0 @Default(\"$prop1\");
+" }
+
+  string %CodePixelSamplers { "
+Texture2D $prop0;
+SamplerState $prop0_AutoSampler;
+" }
+
+  Property %Name
+  {
+    string %Type { "identifier" }
+    string %DefaultValue { "CustomTexture" }
+  }
+
+  Property %Texture
+  {
+    string %Type { "Texture2D" }
+    string %DefaultValue {"" }
+  }
+  
+  Property %Tiling
+  {
+    string %Type { "float" }
+    string %DefaultValue { "1" }
+  }
+  
+  InputPin %WorldNormal
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 128, 128, 255 }
+    string %DefaultValue { "Input.Normal" }
+  }
+
+  OutputPin %RGBA
+  {
+    string %Type { "float4" }
+    unsigned_int8 %Color { 200, 200, 200 }
+    string %Inline { "SampleTexture3Way($prop0, $prop0_AutoSampler, $in0, Input.WorldPosition, $prop2)" }
+  }
+}
+
 Node %BlendNormals
 {
   string %Category { "Texturing" }
