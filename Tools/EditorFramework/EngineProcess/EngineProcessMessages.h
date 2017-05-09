@@ -77,6 +77,15 @@ public:
 
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezChangeCVarMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezChangeCVarMsgToEngine, ezEditorEngineMsg);
+
+public:
+  ezString m_sCVarName;
+  ezVariant m_NewValue;
+};
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 /// \brief Base class for all messages that are tied to some document.

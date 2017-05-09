@@ -86,6 +86,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezChangeCVarMsgToEngine, 1, ezRTTIDefaultAllocator<ezChangeCVarMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sCVarName),
+    EZ_MEMBER_PROPERTY("Value", m_NewValue),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, 1, ezRTTINoAllocator)

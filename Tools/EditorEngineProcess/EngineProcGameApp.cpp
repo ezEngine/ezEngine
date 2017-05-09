@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
@@ -240,7 +240,37 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
       ezResourceManager::ReloadAllResources(false);
     }
     else
-      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo.GetData());
+      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg->m_sWhatToDo);
+  }
+  else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezChangeCVarMsgToEngine>())
+  {
+    const ezChangeCVarMsgToEngine* pMsg = static_cast<const ezChangeCVarMsgToEngine*>(e.m_pMessage);
+
+    if (ezCVar* pCVar = ezCVar::FindCVarByName(pMsg->m_sCVarName))
+    {
+      if (pCVar->GetType() == ezCVarType::Int && pMsg->m_NewValue.CanConvertTo<ezInt32>())
+      {
+        *static_cast<ezCVarInt*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezInt32>();
+      }
+      if (pCVar->GetType() == ezCVarType::Float && pMsg->m_NewValue.CanConvertTo<float>())
+      {
+        *static_cast<ezCVarFloat*>(pCVar) = pMsg->m_NewValue.ConvertTo<float>();
+      }
+      if (pCVar->GetType() == ezCVarType::Bool && pMsg->m_NewValue.CanConvertTo<bool>())
+      {
+        *static_cast<ezCVarBool*>(pCVar) = pMsg->m_NewValue.ConvertTo<bool>();
+      }
+      if (pCVar->GetType() == ezCVarType::String && pMsg->m_NewValue.CanConvertTo<ezString>())
+      {
+        *static_cast<ezCVarString*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezString>();
+      }
+      else
+      {
+        ezLog::Warning("ezChangeCVarMsgToEngine: New value for CVar '{0}' is incompatible with CVar type", pMsg->m_sCVarName);
+      }
+    }
+    else
+      ezLog::Warning("ezChangeCVarMsgToEngine: Unknown CVar '{0}'", pMsg->m_sCVarName);
   }
 
   // Document Messages:

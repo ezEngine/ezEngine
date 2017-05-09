@@ -3,7 +3,7 @@
 #include <EditorPluginFmod/Plugin.h>
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/Action/BaseActions.h>
-
+#include <Foundation/Configuration/CVar.h>
 
 class EZ_EDITORPLUGINFMOD_DLL ezFmodActions
 {
@@ -15,7 +15,7 @@ public:
 
   static ezActionDescriptorHandle s_hCategoryFmod;
   static ezActionDescriptorHandle s_hProjectSettings;
-  //static ezActionDescriptorHandle s_hSceneSettings;
+  static ezActionDescriptorHandle s_hMuteSound;
 };
 
 
@@ -27,7 +27,7 @@ public:
   enum class ActionType
   {
     ProjectSettings,
-    //SceneSettings,
+    MuteSound,
   };
 
   ezFmodAction(const ezActionContext& context, const char* szName, ActionType type);
@@ -36,6 +36,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
+  void CVarEventHandler(const ezCVar::CVarEvent& e);
 
   ActionType m_Type;
 };

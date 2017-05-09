@@ -5,6 +5,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <FmodPlugin/FmodIncludes.h>
+#include <Foundation/Configuration/CVar.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
 
@@ -13,6 +14,9 @@ static ezFmod g_FmodSingleton;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
+
+ezCVarFloat g_FmodMasterVolume("fmod_MasterVolume", 1.0f, ezCVarFlags::Default, "Master volume for all fmod output");
+ezCVarBool g_FmodMute("fmod_Mute", false, ezCVarFlags::Default, "Whether Fmod sound output is muted");
 
 ezFmod::ezFmod()
   : m_SingletonRegistrar(this)
@@ -179,44 +183,42 @@ void ezFmod::UpdateFmod()
     ezResourceLock<ezFmodSoundBankResource> pMaster(m_pData->m_hMasterBank, ezResourceAcquireMode::NoFallback);
   }
 
+  // Master Volume
+  {
+    FMOD::ChannelGroup* channel;
+    m_pLowLevelSystem->getMasterChannelGroup(&channel);
+    channel->setVolume(ezMath::Clamp<float>(g_FmodMasterVolume, 0.0f, 1.0f));
+  }
+
+  // Mute
+  {
+    FMOD::ChannelGroup* channel;
+    m_pLowLevelSystem->getMasterChannelGroup(&channel);
+
+    channel->setMute(g_FmodMute);
+  }
+
   m_pStudioSystem->update();
 }
 
 void ezFmod::SetMasterChannelVolume(float volume)
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  channel->setVolume(ezMath::Clamp(volume, 0.0f, 1.0f));
+  g_FmodMasterVolume = ezMath::Clamp<float>(volume, 0.0f, 1.0f);
 }
 
 float ezFmod::GetMasterChannelVolume() const
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  float volume = 1.0f;
-  channel->getVolume(&volume);
-  return volume;
+  return g_FmodMasterVolume;
 }
 
 void ezFmod::SetMasterChannelMute(bool mute)
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  channel->setMute(mute);
+  g_FmodMute = mute;
 }
 
 bool ezFmod::GetMasterChannelMute() const
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  bool mute = false;
-  channel->getMute(&mute);
-
-  return mute;
+  return g_FmodMute;
 }
 
 void ezFmod::SetMasterChannelPaused(bool paused)
