@@ -107,7 +107,11 @@ void ezPxTriggerComponent::OnSimulationStarted()
 
   m_pActor->userData = &m_UserData;
 
-  AddShapesFromObject(GetOwner(), m_pActor, globalTransform);
+  // PhysX does not get any scale value, so to correctly position child objects
+  // we have to pretend that this parent object applies no scale on its children
+  ezSimdTransform globalTransformNoScale = globalTransform;
+  globalTransformNoScale.m_Scale.Set(1.0f);
+  AddShapesFromObject(GetOwner(), m_pActor, globalTransformNoScale);
 
   const ezUInt32 uiNumShapes = m_pActor->getNbShapes();
   if (uiNumShapes == 0)

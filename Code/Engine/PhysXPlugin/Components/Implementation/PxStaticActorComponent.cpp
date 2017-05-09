@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
@@ -86,7 +86,11 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
   m_pActor->userData = &m_UserData;
 
-  AddShapesFromObject(GetOwner(), m_pActor, globalTransform);
+  // PhysX does not get any scale value, so to correctly position child objects
+  // we have to pretend that this parent object applies no scale on its children
+  ezSimdTransform globalTransformNoScale = globalTransform;
+  globalTransformNoScale.m_Scale.Set(1.0f);
+  AddShapesFromObject(GetOwner(), m_pActor, globalTransformNoScale);
 
   PxShape* pShape = nullptr;
 

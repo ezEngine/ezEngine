@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -47,8 +47,6 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
     ezPxActorComponent* pActorComponent;
     if (itChild->TryGetComponentOfBaseType<ezPxActorComponent>(pActorComponent))
       continue;
-
-    /// \todo Wouldn't we need to accumulate the parent transforms here ?
 
     AddShapesFromObject(itChild, pRigidActor, ParentTransform);
   }

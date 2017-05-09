@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -72,7 +72,7 @@ void ezPxShapeSphereComponent::SetRadius(float f)
 
 PxShape* ezPxShapeSphereComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
-  float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
+  const float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
 
   return pActor->createShape(PxSphereGeometry(m_fRadius * fScale), *GetPxMaterial());
 }

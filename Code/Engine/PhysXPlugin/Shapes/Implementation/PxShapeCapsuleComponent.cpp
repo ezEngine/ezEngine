@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -86,11 +86,13 @@ void ezPxShapeCapsuleComponent::SetHeight(float value)
 
 PxShape* ezPxShapeCapsuleComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
+  const float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
+
   out_ShapeTransform.q = PxQuat(ezAngle::Degree(90.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f));
 
   PxCapsuleGeometry capsule;
-  capsule.radius = m_fRadius;
-  capsule.halfHeight = m_fHeight * 0.5f;
+  capsule.radius = m_fRadius * fScale;
+  capsule.halfHeight = m_fHeight * 0.5f * fScale;
 
   return pActor->createShape(capsule, *GetPxMaterial());
 }

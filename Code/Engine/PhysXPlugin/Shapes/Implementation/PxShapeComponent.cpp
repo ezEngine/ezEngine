@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
@@ -117,7 +117,7 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
   localTransform.SetLocalTransform(parentTransform, ownerTransform);
 
   PxTransform t = ezPxConversionUtils::ToTransform(localTransform);
-  pShape->setLocalPose(shapeTransform * t);
+  pShape->setLocalPose(t * shapeTransform);
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   m_uiShapeId = pModule->CreateShapeId();

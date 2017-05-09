@@ -402,6 +402,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
       return;
     }
 
+    ezResourceManager::ReloadAllResources(false);
     OnPlayTheGameModeStarted();
   }
   else
