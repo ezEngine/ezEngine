@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/World/World.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -32,6 +32,8 @@ public:
 
   void SetCubeMap(const char* szFile);
   const char* GetCubeMap() const;
+
+  virtual void OnActivated() override;
 
 private:
 

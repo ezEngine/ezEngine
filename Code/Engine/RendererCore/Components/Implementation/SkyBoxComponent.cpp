@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
@@ -69,7 +69,8 @@ void ezSkyBoxComponent::Initialize()
     m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, desc, szMeshResourceName);
   }
 
-  const char* cubeMapMaterialName = "SkyBoxMaterial_CubeMap";
+  ezStringBuilder cubeMapMaterialName = "SkyBoxMaterial_CubeMap";
+  cubeMapMaterialName.AppendFormat("_{0}", ezArgP(GetWorld())); // make the resource unique for each world
 
   m_hCubeMapMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(cubeMapMaterialName);
   if (!m_hCubeMapMaterial.IsValid())
@@ -196,6 +197,14 @@ void ezSkyBoxComponent::SetCubeMap(const char* szFile)
 const char* ezSkyBoxComponent::GetCubeMap() const
 {
   return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID() : "";
+}
+
+
+void ezSkyBoxComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  UpdateMaterials();
 }
 
 void ezSkyBoxComponent::UpdateMaterials()
