@@ -159,6 +159,20 @@ namespace
     }
   };
 
+  class ezPxOverlapCallback : public PxOverlapCallback
+  {
+  public:
+    ezPxOverlapCallback()
+      : PxOverlapCallback(nullptr, 0)
+    {
+    }
+
+    virtual PxAgain processTouches(const PxOverlapHit* buffer, PxU32 nbHits) override
+    {
+      return false;
+    }
+  };
+
   template <typename T>
   void FillHitResult(const T& hit, ezPhysicsHitResult& out_HitResult)
   {
@@ -519,6 +533,50 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
   }
 
   return false;
+}
+
+bool ezPhysXWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+{
+  PxSphereGeometry sphere;
+  sphere.radius = fSphereRadius;
+
+  PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
+
+  return OverlapTest(sphere, transform, uiCollisionLayer, uiIgnoreShapeId);
+
+}
+
+bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+{
+  PxCapsuleGeometry capsule;
+  capsule.radius = fCapsuleRadius;
+  capsule.halfHeight = fCapsuleHeight * 0.5f;
+  EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = {0}, Height = {1}", ezArgF(fCapsuleRadius, 2), ezArgF(fCapsuleHeight, 2));
+
+  ezQuat qFixRot;
+  qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
+
+  ezQuat qRot;
+  qRot.SetFromMat3(start.m_Rotation);
+  qRot = qFixRot * qRot;
+
+  PxTransform transform = ezPxConversionUtils::ToTransform(start.m_vPosition, qRot);
+
+  return OverlapTest(capsule, transform, uiCollisionLayer, uiIgnoreShapeId);
+}
+
+bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId)
+{
+  PxQueryFilterData filterData;
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+  filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER | PxQueryFlag::eANY_HIT;
+
+  ezPxOverlapCallback closestHit;
+  ezPxQueryFilter queryFilter;
+
+  EZ_PX_READ_LOCK(*m_pPxScene);
+
+  return m_pPxScene->overlap(geometry, transform, closestHit, filterData, &queryFilter);
 }
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)

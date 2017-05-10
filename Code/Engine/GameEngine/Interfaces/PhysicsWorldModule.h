@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/WorldModule.h>
@@ -38,6 +38,9 @@ public:
 
   virtual bool SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
     ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
+
+  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
+  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
 
   virtual ezVec3 GetGravity() const = 0;
 

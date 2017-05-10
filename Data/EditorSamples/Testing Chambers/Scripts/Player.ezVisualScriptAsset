@@ -244,7 +244,7 @@ o
 		{
 			Uuid{u4{3353837264853325423,8479757070810673593}}
 		}
-		Vec2 %Node::Pos{f{0x7A6A71C3,0x988DB343}}
+		Vec2 %Node::Pos{f{0x597CA8C3,0x3553E243}}
 	}
 }
 o
@@ -274,7 +274,7 @@ o
 		{
 			Uuid{u4{15485107134311690276,17207442112535416250}}
 		}
-		Vec2 %Node::Pos{f{0xAF2182C3,0xF6460E44}}
+		Vec2 %Node::Pos{f{0xD4D6A5C3,0x65692544}}
 		s %Type{"ezPxRaycastInteractComponent"}
 	}
 }
@@ -319,6 +319,7 @@ o
 			Uuid{u4{12448918648620125588,5458903853706758106}}
 			Uuid{u4{12974575226001587644,4860828333760845534}}
 			Uuid{u4{4217970800032597384,4825613823747987511}}
+			Uuid{u4{15345475889093776448,10428615059109909296}}
 		}
 	}
 }
@@ -350,7 +351,7 @@ o
 		{
 			Uuid{u4{10547894200539535327,12002069457443818899}}
 		}
-		Vec2 %Node::Pos{f{0xC940D141,0x3150DB43}}
+		Vec2 %Node::Pos{f{0xCF34C941,0x3150DB43}}
 		b %OnlyKeyPressed{1}
 	}
 }
@@ -402,6 +403,7 @@ o
 			Uuid{u4{12403829779307599432,5305562096685014303}}
 			Uuid{u4{6631204110791355179,7783941950296676588}}
 			Uuid{u4{647779914399110985,7157359889841103204}}
+			Uuid{u4{2432019690968949771,11398334501959701529}}
 		}
 		Vec2 %Node::Pos{f{0x0FE297C3,0x4C6771C1}}
 		s %Type{"ezInputComponent"}
@@ -418,7 +420,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7015304998123668388,5646540825533331613}}
-		u4 %Hash{16084366567854630260}
+		u4 %Hash{2338626737423478755}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -432,7 +434,7 @@ o
 	{
 		Time %Delay{d{0}}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x790DB542,0x76130E44}}
+		Vec2 %Node::Pos{f{0x8CE69A42,0x25B52444}}
 	}
 }
 o
@@ -549,6 +551,34 @@ o
 }
 o
 {
+	Uuid %id{u4{15345475889093776448,10428615059109909296}}
+	s %t{"VisualScriptNode::ezVisualScriptNode_InputState"}
+	u3 %v{1}
+	p
+	{
+		s %InputAction{"Crouch"}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{1376960869303640544,10547391610023561372}}
+		}
+		Vec2 %Node::Pos{f{0x81FBA841,0x3D850444}}
+		b %OnlyKeyPressed{0}
+	}
+}
+o
+{
+	Uuid %id{u4{1376960869303640544,10547391610023561372}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{1530829682028441518,4909649186227001362}}
+		s %TargetPin{"Crouch"}
+	}
+}
+o
+{
 	Uuid %id{u4{16032543411174892168,11066396406372770107}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -580,6 +610,18 @@ o
 	{
 		s %SourcePin{"Component"}
 		Uuid %Target{u4{8417684445943398298,5482382875820169954}}
+		s %TargetPin{"Component"}
+	}
+}
+o
+{
+	Uuid %id{u4{2432019690968949771,11398334501959701529}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Component"}
+		Uuid %Target{u4{15345475889093776448,10428615059109909296}}
 		s %TargetPin{"Component"}
 	}
 }

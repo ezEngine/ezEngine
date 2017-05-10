@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
@@ -119,6 +119,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 2)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CapsuleHeight", m_fCapsuleHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
+    EZ_MEMBER_PROPERTY("CapsuleCrouchHeight", m_fCapsuleCrouchHeight)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("CapsuleRadius", m_fCapsuleRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
     EZ_MEMBER_PROPERTY("Mass", m_fMass)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxStepHeight", m_fMaxStepHeight)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
@@ -146,6 +147,7 @@ ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
   : m_UserData(this)
 {
   m_fCapsuleHeight = 1.0f;
+  m_fCapsuleCrouchHeight = 0.2f;
   m_fCapsuleRadius = 0.25f;
   m_fMass = 100.0f;
   m_fMaxStepHeight = 0.3f;
@@ -296,7 +298,7 @@ void ezPxCharacterProxyComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage
   msg.AddBounds(ezBoundingSphere(ezVec3(0, 0,  m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
 }
 
-ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const ezVec3& vMotion)
+ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const ezVec3& vMotion, bool bCrouch)
 {
   if (m_pController != nullptr)
   {
@@ -310,6 +312,33 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
 
     ezVec3 vNewPos = ezPxConversionUtils::ToVec3(m_pController->getPosition());
     pOwner->SetGlobalPosition(vNewPos);
+
+    if (m_bIsCrouching != bCrouch)
+    {
+      if (bCrouch)
+      {
+        m_bIsCrouching = true;
+        m_pController->resize(m_fCapsuleCrouchHeight);
+      }
+      else
+      {
+        // little offset upwards, to get out of the ground, otherwise the CC is stuck in it
+        /// \todo support different gravity directions
+        ezVec3 vStandUpPos = vNewPos + ezVec3(0, 0, (m_fCapsuleHeight - m_fCapsuleCrouchHeight) * 0.5f + 0.01f);
+
+        ezTransform t;
+        t.SetIdentity();
+        t.m_vPosition.Set(vStandUpPos.x, vStandUpPos.y, vStandUpPos.z);
+
+        // make sure the character controller does not overlap with anything when standing up
+        ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+        if (!pModule->OverlapTestCapsule(m_fCapsuleRadius, m_fCapsuleHeight, t, m_uiCollisionLayer, GetShapeId()))
+        {
+          m_bIsCrouching = false;
+          m_pController->resize(m_fCapsuleHeight);
+        }
+      }
+    }
 
     return ConvertCollisionFlags(collisionFlags);
   }

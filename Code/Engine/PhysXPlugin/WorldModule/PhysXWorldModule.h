@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/PhysXInterface.h>
 #include <Core/World/WorldModule.h>
@@ -46,9 +46,13 @@ public:
   virtual bool SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
     ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
 
+  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+
 private:
-  bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId);
+  bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, 
+                 ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId);
+  bool OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId);
 
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);

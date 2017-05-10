@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
@@ -47,7 +47,9 @@ public:
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
 
-  ezBitflags<ezPxCharacterCollisionFlags> Move(const ezVec3& vMotion);
+  ezBitflags<ezPxCharacterCollisionFlags> Move(const ezVec3& vMotion, bool bCrouch);
+  bool IsCrouching() const { return m_bIsCrouching; }
+  float GetCurrentCapsuleHeight() const { return m_bIsCrouching ? m_fCapsuleCrouchHeight : m_fCapsuleHeight; }
 
   ezBitflags<ezPxCharacterCollisionFlags> GetCollisionFlags() const;
   bool IsGrounded() const { return GetCollisionFlags().IsSet(ezPxCharacterCollisionFlags::Below); }
@@ -58,6 +60,7 @@ public:
 public:
 
   float m_fCapsuleHeight; ///< real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
+  float m_fCapsuleCrouchHeight; ///< real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
   float m_fCapsuleRadius; ///< real character height is m_fCapsuleHeight + 2 * m_fCapsuleRadius
   float m_fMass; ///< mass is used to calculate pushing force from other rigid bodies
   float m_fMaxStepHeight; ///< how tall steps the character will climb automatically
@@ -69,6 +72,7 @@ public:
 
 protected:
   ezUInt32 m_uiShapeId;
+  bool m_bIsCrouching = false;
 
   physx::PxCapsuleController* m_pController;
 

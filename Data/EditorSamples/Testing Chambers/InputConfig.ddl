@@ -118,3 +118,14 @@ InputAction
 		float %Scale{1}
 	}
 }
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"Crouch"}
+	bool %TimeScale{false}
+	Slot
+	{
+		string %Key{"keyboard_left_ctrl"}
+		float %Scale{1}
+	}
+}

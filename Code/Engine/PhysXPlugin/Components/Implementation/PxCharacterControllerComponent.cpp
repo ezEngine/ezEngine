@@ -197,7 +197,8 @@ void ezPxCharacterControllerComponent::Update()
   const bool isOnGround = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Below);
   const bool touchesCeiling = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Above);
   const bool canJump = isOnGround && !touchesCeiling;
-  const bool wantsJump = m_InputStateBits & InputStateBits::Jump;
+  const bool wantsJump = (m_InputStateBits & InputStateBits::Jump) != 0;
+  const bool wantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
 
   const float fGravityFactor = 1.0f;
   const float fJumpFactor = 1.0f;// 0.01f;
@@ -253,10 +254,10 @@ void ezPxCharacterControllerComponent::Update()
   vNewVelocity.z = m_fVelocityUp;
 
   auto posBefore = GetOwner()->GetGlobalPosition();
-  //{
+  {
     const ezVec3 vMoveDiff = vNewVelocity * tDiff;
-    pProxy->Move(vMoveDiff);
-  //}
+    pProxy->Move(vMoveDiff, wantsCrouch);
+  }
 
   auto posAfter = GetOwner()->GetGlobalPosition();
 
@@ -270,11 +271,9 @@ void ezPxCharacterControllerComponent::Update()
     t.m_vPosition.Set((float)posAfter.x, (float)posAfter.y, (float)posAfter.z);
 
     ezPhysicsHitResult hitResult;
-    if (pModule->SweepTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
+    if (pModule->SweepTestCapsule(pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
     {
-      pProxy->Move(ezVec3(0, 0, -hitResult.m_fDistance));
-
-      //ezLog::Info("Floor Distance: {0} ({1} | {2} | {3}) -> ({4} | {5} | {6}), Radius: {7}, Height: {8}", ezArgF(fSweepDistance, 2), ezArgF(t.m_vPosition.x, 2), ezArgF(t.m_vPosition.y, 2), ezArgF(t.m_vPosition.z, 2), ezArgF(vSweepPosition.x, 2), ezArgF(vSweepPosition.y, 2), ezArgF(vSweepPosition.z, 2), ezArgF(m_fCapsuleRadius, 2), ezArgF(m_fCapsuleHeight, 2));
+      pProxy->Move(ezVec3(0, 0, -hitResult.m_fDistance), wantsCrouch);
 
       // Footstep Surface Interaction
       if (!m_sWalkSurfaceInteraction.IsEmpty())
@@ -295,6 +294,7 @@ void ezPxCharacterControllerComponent::Update()
 
             ezResourceLock<ezSurfaceResource> pSurface(hSurface);
             pSurface->InteractWithSurface(GetWorld(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1), m_sWalkSurfaceInteraction);
+            ezLog::Debug("Footstep: {0}|{1}|{2}", hitResult.m_vPosition.x, hitResult.m_vPosition.y, hitResult.m_vPosition.z);
           }
         }
       }
