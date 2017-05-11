@@ -114,7 +114,7 @@ struct ezPxCharacterProxyData
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -180,6 +180,7 @@ void ezPxCharacterProxyComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_bForceSlopeSliding;
   s << m_bConstrainedClimbingMode;
   s << m_uiCollisionLayer;
+  s << m_fCapsuleCrouchHeight;
 }
 
 
@@ -202,6 +203,11 @@ void ezPxCharacterProxyComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bForceSlopeSliding;
   s >> m_bConstrainedClimbingMode;
   s >> m_uiCollisionLayer;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fCapsuleCrouchHeight;
+  }
 }
 
 void ezPxCharacterProxyComponent::Initialize()

@@ -52,7 +52,8 @@ public:
 public:
 
   float m_fWalkSpeed; ///< How many meters the character walks per second
-  float m_fRunSpeed;
+  float m_fRunSpeed; ///< How many meters the character runs per second
+  float m_fCrouchSpeed; ///< How many meters the character walks per second while crouching
   float m_fAirSpeed; ///< How fast the character can change direction while not standing on solid round
   float m_fAirFriction; ///< How much damping is applied to the velocity when the character is jumping
   ezAngle m_RotateSpeed; ///< How many degrees per second the character turns
@@ -94,11 +95,11 @@ protected:
   ezVec3 m_vRelativeMoveDirection;
   ezAngle m_RotateZ;
 
-  float m_fVelocityUp;
-  ezVec3 m_vVelocityLateral;
+  float m_fVelocityUp = 0.0f;
+  ezVec3 m_vVelocityLateral = ezVec3(0.0f);
 
-  ezVec3 m_vExternalVelocity;
-  float m_fAccumulatedWalkDistance;
+  ezVec3 m_vExternalVelocity = ezVec3(0.0f);
+  float m_fAccumulatedWalkDistance = 0.0f;
 };
 
 

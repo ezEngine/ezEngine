@@ -44,6 +44,14 @@ void ezFmodActions::MapMenuActions()
     pSceneMap->MapAction(s_hCategoryFmod, "", 6.5f);
     pSceneMap->MapAction(s_hMuteSound, "Fmod", 0.0f);
   }
+
+  {
+    ezActionMap* pSceneMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
+    EZ_ASSERT_DEV(pSceneMap != nullptr, "Mmapping the actions failed!");
+
+    pSceneMap->MapAction(s_hCategoryFmod, "Menu.Scene", 5.0f);
+    pSceneMap->MapAction(s_hMuteSound, "Menu.Scene/Fmod", 0.0f);
+  }
 }
 
 ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type) : ezButtonAction(context, szName, false, "")

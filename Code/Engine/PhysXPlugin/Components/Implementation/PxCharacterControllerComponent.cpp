@@ -68,13 +68,14 @@ void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::Update
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 4)
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 50.0f)),
     EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(15.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("CrouchSpeed", m_fCrouchSpeed)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
@@ -102,6 +103,7 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
 
   m_fWalkSpeed = 5.0f;
   m_fRunSpeed = 15.0f;
+  m_fCrouchSpeed = 2.0f;
   m_fAirSpeed = 2.5f;
   m_fAirFriction = 0.5f;
   m_RotateSpeed = ezAngle::Degree(90.0f);
@@ -135,6 +137,9 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
   s << m_fWalkInteractionDistance;
   s << m_fRunInteractionDistance;
   s << m_hFallbackWalkSurface;
+
+  // Version 5
+  s << m_fCrouchSpeed;
 }
 
 
@@ -182,6 +187,11 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
     s >> m_fRunInteractionDistance;
     s >> m_hFallbackWalkSurface;
   }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_fCrouchSpeed;
+  }
 }
 
 void ezPxCharacterControllerComponent::Update()
@@ -198,7 +208,7 @@ void ezPxCharacterControllerComponent::Update()
   const bool touchesCeiling = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Above);
   const bool canJump = isOnGround && !touchesCeiling;
   const bool wantsJump = (m_InputStateBits & InputStateBits::Jump) != 0;
-  const bool wantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
+  bool wantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
 
   const float fGravityFactor = 1.0f;
   const float fJumpFactor = 1.0f;// 0.01f;
@@ -219,13 +229,39 @@ void ezPxCharacterControllerComponent::Update()
   if (isOnGround)
   {
     fIntendedSpeed = (m_InputStateBits & InputStateBits::Run) ? m_fRunSpeed : m_fWalkSpeed;
+
+    if (pProxy->IsCrouching())
+      fIntendedSpeed = m_fCrouchSpeed;
   }
 
   const ezVec3 vIntendedMovement = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection * fIntendedSpeed;
 
+  const auto posBefore = GetOwner()->GetGlobalPosition();
+
   if (wantsJump && canJump)
   {
     m_fVelocityUp = m_fJumpImpulse;
+  }
+  else if (isOnGround && !pProxy->IsCrouching())
+  {
+    // auto-crouch functionality
+
+    ezVec3 vWalkDir = vIntendedMovement;
+    vWalkDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+
+    ezTransform tDestination;
+    tDestination.m_Rotation.SetIdentity();
+    tDestination.m_vPosition = posBefore + vWalkDir * pProxy->m_fCapsuleRadius;
+
+    // if the destination is blocked (standing upright)
+    if (pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, tDestination, pProxy->m_uiCollisionLayer, pProxy->GetShapeId()))
+    {
+      // but it is not blocked when crouched
+      if (!pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleCrouchHeight, tDestination, pProxy->m_uiCollisionLayer, pProxy->GetShapeId()))
+      {
+        wantsCrouch = true;
+      }
+    }
   }
 
   ezVec3 vNewVelocity(0.0f);
@@ -253,12 +289,11 @@ void ezPxCharacterControllerComponent::Update()
 
   vNewVelocity.z = m_fVelocityUp;
 
-  auto posBefore = GetOwner()->GetGlobalPosition();
+  
   {
     const ezVec3 vMoveDiff = vNewVelocity * tDiff;
     pProxy->Move(vMoveDiff, wantsCrouch);
   }
-
   auto posAfter = GetOwner()->GetGlobalPosition();
 
   /// After move forwards, sweep test downwards to stick character to floor and detect falling
@@ -268,7 +303,7 @@ void ezPxCharacterControllerComponent::Update()
 
     ezTransform t;
     t.SetIdentity();
-    t.m_vPosition.Set((float)posAfter.x, (float)posAfter.y, (float)posAfter.z);
+    t.m_vPosition = posAfter;
 
     ezPhysicsHitResult hitResult;
     if (pModule->SweepTestCapsule(pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
@@ -294,7 +329,6 @@ void ezPxCharacterControllerComponent::Update()
 
             ezResourceLock<ezSurfaceResource> pSurface(hSurface);
             pSurface->InteractWithSurface(GetWorld(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1), m_sWalkSurfaceInteraction);
-            ezLog::Debug("Footstep: {0}|{1}|{2}", hitResult.m_vPosition.x, hitResult.m_vPosition.y, hitResult.m_vPosition.z);
           }
         }
       }
