@@ -104,6 +104,7 @@ ezPointLightComponent;Point Light
 ezSkyBoxComponent;Sky Box
 ezSpriteComponent;Sprite
 ezRotorComponent;Rotor
+ezHeadBoneComponent;Head Bone
 ezSliderComponent;Slider
 ezCollectionComponent;Collection
 Components;Components

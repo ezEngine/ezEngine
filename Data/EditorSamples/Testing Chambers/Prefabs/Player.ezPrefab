@@ -2,122 +2,6 @@ Objects
 {
 o
 {
-	Uuid %id{u4{13524314363091094277,16116298798433298}}
-	s %t{"ezCameraComponent"}
-	u3 %v{5}
-	p
-	{
-		b %Active{1}
-		f %Aperture{0x0000803F}
-		f %Dimensions{0x00002041}
-		VarArray %ExcludeTags{}
-		f %ExposureCompensation{0}
-		f %FOV{0x00007042}
-		f %FarPlane{0x00007A44}
-		f %ISO{0x0000C842}
-		VarArray %IncludeTags{}
-		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
-		f %NearPlane{0x0000803E}
-		s %RenderPipeline{""}
-		f %ShutterTime{0x0000803F}
-		s %UsageHint{"ezCameraUsageHint::None"}
-	}
-}
-o
-{
-	Uuid %id{u4{11482770367435285810,695350770188455868}}
-	s %t{"ezPxCharacterControllerComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		f %AirFriction{0x0000003F}
-		f %AirSpeed{0x00002040}
-		f %CapsuleHeight{0x0000803F}
-		f %CapsuleRadius{0x0000803E}
-		u1 %CollisionLayer{0}
-		b %ConstrainedClimbMode{0}
-		b %ForceSlopeSliding{1}
-		f %JumpImpulse{0x0000803F}
-		Angle %MaxSlopeAngle{f{0xC2B8323F}}
-		f %MaxStepHeight{0x9A99993E}
-		Angle %RotateSpeed{f{0xDB0FC93F}}
-		f %RunSpeed{0x0000C040}
-		f %WalkSpeed{0x00004040}
-	}
-}
-o
-{
-	Uuid %id{u4{13056508937727594270,696292054071660151}}
-	s %t{"ezFmodListenerComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		u1 %ListenerIndex{0}
-	}
-}
-o
-{
-	Uuid %id{u4{12506728917502680070,719998922322523871}}
-	s %t{"ezInputComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		s %Granularity{"ezInputMessageGranularity::PressReleaseAndDown"}
-		s %InputSet{"Player"}
-	}
-}
-o
-{
-	Uuid %id{u4{11039784889306524456,796538126699787767}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{7717848645816668422,1047992774470414771}}
-		}
-		VarArray %Components
-		{
-			Uuid{u4{11482770367435285810,695350770188455868}}
-			Uuid{u4{12506728917502680070,719998922322523871}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00000040}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Name{"Player"}
-		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{7717848645816668422,1047992774470414771}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{13524314363091094277,16116298798433298}}
-			Uuid{u4{13056508937727594270,696292054071660151}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x0000003F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Name{""}
-		VarArray %Tags{}
-	}
-}
-o
-{
 	Uuid %id{u4{4538525219092991391,5381193384925595199}}
 	s %t{"ezDocumentRoot"}
 	u3 %v{1}
@@ -126,7 +10,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{11039784889306524456,796538126699787767}}
+			Uuid{u4{1196162600860251376,15328517051795534642}}
 		}
 	}
 }
@@ -141,75 +25,248 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9948428539788972452,5693514604989640662}}
-		u4 %Hash{7011077610056984167}
-		VarArray %References{}
-	}
-}
-}
-Types
-{
-o
-{
-	Uuid %id{u4{8896355706434428056,1455891328350875338}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ListenerIndex"}
-		s %Type{"ezUInt8"}
-	}
-}
-o
-{
-	Uuid %id{u4{1636123206047010939,9656076789046550064}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Sound"}
-	}
-}
-o
-{
-	Uuid %id{u4{5675634624259089979,9863162998230605952}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezFmodComponent"}
-		s %PluginName{"ezFmodPlugin"}
-		VarArray %Properties
+		u4 %Hash{5805305022087446012}
+		VarArray %Outputs{}
+		VarArray %References
 		{
-			Uuid{u4{8896355706434428056,1455891328350875338}}
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+			s{"{ 69eca029-cda2-45a9-a90d-574b97fe2a0f }"}
+			s{"{ d3a7b89d-8af6-4e5c-a403-2f24ba5e5b61 }"}
+			s{"{ ebf96ed8-77cc-4c17-8357-18f9948882de }"}
 		}
-		s %TypeName{"ezFmodListenerComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{15089475826961544260,17081924075655763987}}
-	s %t{"ezReflectedTypeDescriptor"}
+	Uuid %id{u4{14224599489002157105,9522248280666659809}}
+	s %t{"ezHeadBoneComponent"}
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes
+		b %Active{1}
+		Angle %VerticalRotation{f{0xC2B8B23F}}
+	}
+}
+o
+{
+	Uuid %id{u4{13819290468574562151,9874296431289774898}}
+	s %t{"ezSpawnComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %AttachAsChild{0}
+		Time %DelayRange{d{0}}
+		Angle %Deviation{f{0}}
+		Time %MinDelay{d{0x9A9999999999C93F}}
+		s %Prefab{"{ 69eca029-cda2-45a9-a90d-574b97fe2a0f }"}
+		b %SpawnAtStart{0}
+		b %SpawnContinuously{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16397042654655143761,9995491143102243932}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteComponent"}
+		b %Paused{0}
+		f %Pitch{0x0000803F}
+		s %SoundEvent{"{ ebf96ed8-77cc-4c17-8357-18f9948882de }"}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{7591883057963567146,10073051972631724214}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
 		{
-			Uuid{u4{1636123206047010939,9656076789046550064}}
+			Uuid{u4{13819290468574562151,9874296431289774898}}
 		}
-		s %Flags{"ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezFmodPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezFmodComponent"}
-		u3 %TypeSize{40}
-		u3 %TypeVersion{1}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x78917731,0x368EB525,0xB09A2BBE}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{"Gun"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{3680692074644821197,14548095223894180173}}
+	s %t{"ezCameraComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		f %Dimensions{0x00002041}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0xCDCCCC3D}
+		s %RenderPipeline{""}
+		b %ShowStats{0}
+		f %ShutterTime{0x0000803F}
+		s %UsageHint{"ezCameraUsageHint::MainView"}
+	}
+}
+o
+{
+	Uuid %id{u4{2189590226492283342,14624852544138178788}}
+	s %t{"ezPxRaycastInteractComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{0}
+		f %MaxDistance{0x00000040}
+		s %UserMessage{"Use"}
+	}
+}
+o
+{
+	Uuid %id{u4{6077719088545909983,14673286384444732120}}
+	s %t{"ezFmodListenerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %ListenerIndex{0}
+	}
+}
+o
+{
+	Uuid %id{u4{13565034080654770949,14763355487724406436}}
+	s %t{"ezVisualScriptComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		s %Script{"{ d3a7b89d-8af6-4e5c-a403-2f24ba5e5b61 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12542253525514648044,14879700690741832529}}
+	s %t{"ezPxCharacterProxyComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		f %CapsuleCrouchHeight{0xCDCC4C3E}
+		f %CapsuleHeight{0x6666A63F}
+		f %CapsuleRadius{0x0000803E}
+		u1 %CollisionLayer{6}
+		b %ConstrainedClimbMode{0}
+		b %ForceSlopeSliding{1}
+		f %Mass{0x0000C842}
+		Angle %MaxSlopeAngle{f{0xC2B8323F}}
+		f %MaxStepHeight{0x9A99993E}
+	}
+}
+o
+{
+	Uuid %id{u4{1639148078989012730,15227329695284202743}}
+	s %t{"ezPxCharacterControllerComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		f %AirFriction{0x0000003F}
+		f %AirSpeed{0x00002040}
+		f %CrouchSpeed{0x00000040}
+		s %FallbackWalkSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		f %JumpImpulse{0x0000C040}
+		f %PushingForce{0x0000FA43}
+		Angle %RotateSpeed{f{0xDB0FC93F}}
+		f %RunInteractionDistance{0x00004040}
+		f %RunSpeed{0x00007041}
+		f %WalkInteractionDistance{0x00000040}
+		f %WalkSpeed{0x0000A040}
+		s %WalkSurfaceInteraction{"Footstep"}
+	}
+}
+o
+{
+	Uuid %id{u4{2663106629056406990,15251977847418270746}}
+	s %t{"ezInputComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %Granularity{"ezInputMessageGranularity::PressReleaseAndDown"}
+		s %InputSet{"Player"}
+	}
+}
+o
+{
+	Uuid %id{u4{1196162600860251376,15328517051795534642}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16320970431079946958,15579971699566161646}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{1639148078989012730,15227329695284202743}}
+			Uuid{u4{12542253525514648044,14879700690741832529}}
+			Uuid{u4{2663106629056406990,15251977847418270746}}
+			Uuid{u4{13565034080654770949,14763355487724406436}}
+			Uuid{u4{6077719088545909983,14673286384444732120}}
+			Uuid{u4{16397042654655143761,9995491143102243932}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{"Player"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{16320970431079946958,15579971699566161646}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7591883057963567146,10073051972631724214}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{14224599489002157105,9522248280666659809}}
+			Uuid{u4{3680692074644821197,14548095223894180173}}
+			Uuid{u4{2189590226492283342,14624852544138178788}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{"Camera"}
+		VarArray %Tags{}
 	}
 }
 }
+Types{}

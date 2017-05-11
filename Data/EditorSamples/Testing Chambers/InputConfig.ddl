@@ -129,3 +129,35 @@ InputAction
 		float %Scale{1}
 	}
 }
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"LookUp"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_up"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"mouse_move_negy"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"LookDown"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_down"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"mouse_move_posy"}
+		float %Scale{1}
+	}
+}

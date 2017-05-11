@@ -49,6 +49,9 @@ public:
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
 
+  /// \brief Applies an impulse to the given shape at the global position
+  virtual void ApplyImpulseAtPos(void* pTargetShape, const ezVec3& vPosition, const ezVec3& vImpulse) override;
+
 private:
   bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, 
                  ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId);

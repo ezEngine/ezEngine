@@ -13,6 +13,7 @@ struct ezPhysicsHitResult
   ezVec3 m_vPosition;
   ezVec3 m_vNormal;
   float m_fDistance;
+  void* m_pShape = nullptr; // the object inside the physics engine that was hit
 
   ezGameObjectHandle m_hGameObject;
   ezSurfaceResourceHandle m_hSurface;
@@ -41,6 +42,8 @@ public:
 
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
+
+  virtual void ApplyImpulseAtPos(void* pTargetShape, const ezVec3& vPosition, const ezVec3& vImpulse) = 0;
 
   virtual ezVec3 GetGravity() const = 0;
 

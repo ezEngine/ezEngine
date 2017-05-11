@@ -14,19 +14,20 @@ EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
 EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 2, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("Interaction", m_sInteraction),
+    EZ_MEMBER_PROPERTY("Force", m_fForce),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -35,6 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 2)
     EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
     EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
   EZ_END_PROPERTIES
@@ -111,7 +113,9 @@ void ezProjectileComponent::Update()
     ezPhysicsHitResult hitResult;
     if (pPhysicsInterface->CastRay(pEntity->GetGlobalPosition(), vCurDirection, fDistance, m_uiCollisionLayer, hitResult))
     {
-      const ezInt32 iInteraction = FindSurfaceInteraction(hitResult.m_hSurface);
+      const ezSurfaceResourceHandle hSurface = hitResult.m_hSurface.IsValid() ? hitResult.m_hSurface : m_hFallbackSurface;
+
+      const ezInt32 iInteraction = FindSurfaceInteraction(hSurface);
 
       if (iInteraction == -1)
       {
@@ -124,9 +128,13 @@ void ezProjectileComponent::Update()
 
         if (!interaction.m_sInteraction.IsEmpty())
         {
-          TriggerSurfaceInteraction(hitResult.m_hSurface, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
+          TriggerSurfaceInteraction(hSurface, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
         }
 
+        if (interaction.m_fForce > 0.0f && hitResult.m_pShape != nullptr)
+        {
+          pPhysicsInterface->ApplyImpulseAtPos(hitResult.m_pShape, hitResult.m_vPosition, vCurDirection * interaction.m_fForce);
+        }
 
         if (interaction.m_Reaction == ezProjectileReaction::Absorb)
         {
@@ -188,6 +196,9 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_MaxLifetime;
   s << m_hTimeoutPrefab;
 
+  // Version 3
+  s << m_hFallbackSurface;
+
   s << m_SurfaceInteractions.GetCount();
   for (const auto& ia : m_SurfaceInteractions)
   {
@@ -197,13 +208,16 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& stream) const
     s << storage;
 
     s << ia.m_sInteraction;
+
+    // Version 3
+    s << ia.m_fForce;
   }
 }
 
 void ezProjectileComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_fMetersPerSecond;
@@ -212,18 +226,29 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_MaxLifetime;
   s >> m_hTimeoutPrefab;
 
+  if (uiVersion >= 3)
+  {
+    s >> m_hFallbackSurface;
+  }
+
   ezUInt32 count;
   s >> count;
   m_SurfaceInteractions.SetCount(count);
   for (ezUInt32 i = 0; i < count; ++i)
   {
-    s >> m_SurfaceInteractions[i].m_hSurface;
+    auto& ia = m_SurfaceInteractions[i];
+    s >> ia.m_hSurface;
 
     ezProjectileReaction::StorageType storage = 0;
     s >> storage;
-    m_SurfaceInteractions[i].m_Reaction = (ezProjectileReaction::Enum)storage;
+    ia.m_Reaction = (ezProjectileReaction::Enum)storage;
 
-    s >> m_SurfaceInteractions[i].m_sInteraction;
+    s >> ia.m_sInteraction;
+
+    if (uiVersion >= 3)
+    {
+      s >> ia.m_fForce;
+    }
   }
 }
 
@@ -305,7 +330,6 @@ void ezProjectileComponent::SetTimeoutPrefab(const char* szPrefab)
   m_hTimeoutPrefab = hPrefab;
 }
 
-
 const char* ezProjectileComponent::GetTimeoutPrefab() const
 {
   if (!m_hTimeoutPrefab.IsValid())
@@ -313,6 +337,26 @@ const char* ezProjectileComponent::GetTimeoutPrefab() const
 
   return m_hTimeoutPrefab.GetResourceID();
 }
+
+void ezProjectileComponent::SetFallbackSurfaceFile(const char* szFile)
+{
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hFallbackSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+
+  }
+  if (m_hFallbackSurface.IsValid())
+    ezResourceManager::PreloadResource(m_hFallbackSurface, ezTime::Seconds(1.0));
+}
+
+const char* ezProjectileComponent::GetFallbackSurfaceFile() const
+{
+  if (!m_hFallbackSurface.IsValid())
+    return "";
+
+  return m_hFallbackSurface.GetResourceID();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 

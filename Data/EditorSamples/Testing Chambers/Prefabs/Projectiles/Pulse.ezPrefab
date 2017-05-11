@@ -35,7 +35,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4907047210820730285,4894575462063164740}}
-		u4 %Hash{10017618152983350346}
+		u4 %Hash{16044034543603772728}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -106,11 +106,12 @@ o
 {
 	Uuid %id{u4{984191235803852269,18002530868580769924}}
 	s %t{"ezProjectileComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{8}
+		s %FallbackSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 		f %GravityMultiplier{0}
 		VarArray %Interactions
 		{
@@ -125,9 +126,10 @@ o
 {
 	Uuid %id{u4{2859870038709046770,18066025895901625926}}
 	s %t{"ezProjectileSurfaceInteraction"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		f %Force{0x00003443}
 		s %Interaction{"PulseImpact"}
 		s %Reaction{"ezProjectileReaction::Absorb"}
 		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}

@@ -56,6 +56,9 @@ struct EZ_GAMEENGINE_DLL ezProjectileSurfaceInteraction
 
   /// \brief Which interaction should be triggered. See ezSurfaceResource.
   ezString m_sInteraction;
+
+  /// \brief The force (or rather impulse) that is applied on the object
+  float m_fForce = 0.0f;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezProjectileSurfaceInteraction);
@@ -80,10 +83,14 @@ public:
   float m_fGravityMultiplier; ///< If 0, the projectile is not affected by gravity.
   ezUInt8 m_uiCollisionLayer;
   ezTime m_MaxLifetime; ///< After this time the projectile is killed, if it didn't die already
+  ezSurfaceResourceHandle m_hFallbackSurface;
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions;
 
   void SetTimeoutPrefab(const char* szPrefab);
   const char* GetTimeoutPrefab() const;
+
+  void SetFallbackSurfaceFile(const char* szFile);
+  const char* GetFallbackSurfaceFile() const;
 
 private:
 

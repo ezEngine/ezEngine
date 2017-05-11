@@ -49,5 +49,6 @@
 	<file>ezAmbientLightComponent.png</file>
 	<file>ezSpriteComponent.png</file>
 	<file>ezVisualScriptComponent.png</file>
+	<file>ezHeadBoneComponent.png</file>
   </qresource>  
 </RCC>
