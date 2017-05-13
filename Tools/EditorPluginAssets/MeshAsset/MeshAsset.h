@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
-#include <EditorPluginAssets/ModelImporter/Declarations.h>
+#include <ModelImporter/Declarations.h>
 
 class ezMeshResourceDescriptor;
 class ezGeometry;

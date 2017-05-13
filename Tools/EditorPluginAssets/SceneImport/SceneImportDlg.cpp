@@ -1,8 +1,8 @@
 #include <PCH.h>
 #include <EditorPluginAssets/SceneImport/SceneImportDlg.moc.h>
-#include <EditorPluginAssets/ModelImporter/ModelImporter.h>
-#include <EditorPluginAssets/ModelImporter/Mesh.h>
-#include <EditorPluginAssets/ModelImporter/Node.h>
+#include <ModelImporter/ModelImporter.h>
+#include <ModelImporter/Mesh.h>
+#include <ModelImporter/Node.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 
 #include <Foundation/Types/ScopeExit.h>

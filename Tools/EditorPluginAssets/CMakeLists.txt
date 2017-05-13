@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -38,6 +38,7 @@ SET (LINK_LIBRARIES
   RendererCore
   GameEngine
   SharedPluginAssets
+  ModelImporter
 )
 
 SET (ADDITIONAL_DEPENDENCIES
@@ -79,3 +80,6 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
           $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
 endif()
+
+
+

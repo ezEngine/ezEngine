@@ -4,10 +4,10 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
-#include <EditorPluginAssets/ModelImporter/Material.h>
-#include <EditorPluginAssets/ModelImporter/Mesh.h>
-#include <EditorPluginAssets/ModelImporter/ModelImporter.h>
-#include <EditorPluginAssets/ModelImporter/VertexData.h>
+#include <ModelImporter/Material.h>
+#include <ModelImporter/Mesh.h>
+#include <ModelImporter/ModelImporter.h>
+#include <ModelImporter/VertexData.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
