@@ -1,7 +1,4 @@
 ﻿#include <PCH.h>
-
-#if 0
-
 #include <ModelImporter/Importers/PbrtImporter.h>
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
 #include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
@@ -222,5 +219,3 @@ namespace ezModelImporter
     return std::move(outScene);
   }
 }
-
-#endif

@@ -1,7 +1,4 @@
 ﻿#include <PCH.h>
-
-#if 0
-
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
 #include <ModelImporter/Material.h>
 #include <ModelImporter/Scene.h>
@@ -186,5 +183,3 @@ namespace ezModelImporter
     }
   }
 }
-
-#endif

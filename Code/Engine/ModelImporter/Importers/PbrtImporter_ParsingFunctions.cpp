@@ -1,7 +1,5 @@
 ﻿#include <PCH.h>
 
-#if 0
-
 #include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
 
 #include <Foundation/Logging/Log.h>
@@ -260,5 +258,3 @@ namespace ezModelImporter
     }
   }
 }
-
-#endif

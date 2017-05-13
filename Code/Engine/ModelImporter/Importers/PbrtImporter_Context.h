@@ -33,6 +33,8 @@ namespace ezModelImporter
 
     class EZ_MODELIMPORTER_DLL ParseContext
     {
+      EZ_DISALLOW_COPY_AND_ASSIGN(ParseContext);
+
     public:
       ParseContext(const char* modelFilename);
 

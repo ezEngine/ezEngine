@@ -1,7 +1,4 @@
 ﻿#include <PCH.h>
-
-#if 0
-
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
 #include <ModelImporter/Importers/PbrtImporter_ImportFunctions.h>
 #include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
@@ -264,7 +261,7 @@ namespace ezModelImporter
         VertexDataStream* positionStreamRaw = mesh->AddDataStream(ezGALVertexAttributeSemantic::Position, 3);
         streams.PushBack(positionStreamRaw);
         positionStreamRaw->ReserveData(positions.GetCount());
-        TypedVertexDataStreamView<ezVec3, false> positionStream(*positionStreamRaw);
+        TypedVertexDataStreamView_ReadWrite<ezVec3> positionStream(*positionStreamRaw);
         for (ezUInt32 i = 0; i < positions.GetCount(); ++i)
           positionStream.AddValue(positions[i]);
 
@@ -273,7 +270,7 @@ namespace ezModelImporter
           VertexDataStream* normalStreamRaw = mesh->AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
           streams.PushBack(normalStreamRaw);
           normalStreamRaw->ReserveData(normals.GetCount());
-          TypedVertexDataStreamView<ezVec3, false> normalStream(*normalStreamRaw);
+          TypedVertexDataStreamView_ReadWrite<ezVec3> normalStream(*normalStreamRaw);
           for (ezUInt32 i = 0; i < normals.GetCount(); ++i)
             normalStream.AddValue(normals[i]);
         }
@@ -282,7 +279,7 @@ namespace ezModelImporter
           VertexDataStream* tangentStreamRaw = mesh->AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
           streams.PushBack(tangentStreamRaw);
           tangentStreamRaw->ReserveData(tangents.GetCount());
-          TypedVertexDataStreamView<ezVec3, false> tangentStream(*tangentStreamRaw);
+          TypedVertexDataStreamView_ReadWrite<ezVec3> tangentStream(*tangentStreamRaw);
           for (ezUInt32 i = 0; i < tangents.GetCount(); ++i)
             tangentStream.AddValue(tangents[i]);
         }
@@ -629,5 +626,3 @@ namespace ezModelImporter
     }
   }
 }
-
-#endif
