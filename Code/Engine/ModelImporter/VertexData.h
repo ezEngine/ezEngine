@@ -80,7 +80,7 @@ namespace ezModelImporter
     ezUInt32 GetAttributeSize() const         { return GetElementSize() * m_uiNumElementsPerVertex; }
 
   private:
-    friend Mesh;
+    friend class Mesh;
     template<typename Attribute, bool>
     friend class TypedVertexDataStreamView;
 

@@ -66,7 +66,7 @@ void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute&
 {
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  const ezVec3 vDirection = GetOwner()->GetDirForwards();
+  const ezVec3 vDirection = GetOwner()->GetDirForwards().GetNormalized();
 
   ezUInt32 uiIgnoreShapeID = ezInvalidIndex;
 

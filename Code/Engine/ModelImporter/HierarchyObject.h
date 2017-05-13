@@ -38,7 +38,7 @@ namespace ezModelImporter
       if (!std::is_same<T, class Mesh>::value) return nullptr;
       break;
     case ObjectHandle::NODE:
-      if (!std::is_same<T, Node>::value) return nullptr;
+      if (!std::is_same<T, class Node>::value) return nullptr;
       break;
     default:
       return nullptr;
