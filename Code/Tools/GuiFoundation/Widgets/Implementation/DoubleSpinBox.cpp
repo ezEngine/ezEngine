@@ -17,7 +17,7 @@ inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode) : Q
   m_bDragging = false;
   m_fStartDragValue = 0;
   m_iDragDelta = 0;
-
+  setDecimals(6);
   setSingleStep(0.1f);
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, &QWidget::customContextMenuRequested, this, &ezQtDoubleSpinBox::onCustomContextMenuRequested);

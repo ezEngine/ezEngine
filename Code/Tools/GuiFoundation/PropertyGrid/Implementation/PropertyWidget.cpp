@@ -90,7 +90,6 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(0.1f);
     m_pWidget[c]->setAccelerated(true);
-    m_pWidget[c]->setDecimals(3);
 
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
@@ -365,7 +364,6 @@ ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget() : ezQtStandardPrope
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
-    m_pWidget->setDecimals(3);
 
     policy.setHorizontalStretch(2);
     m_pWidget->setSizePolicy(policy);
@@ -441,7 +439,6 @@ ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget() : ezQtStandardPro
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
-    m_pWidget->setDecimals(2);
 
     policy.setHorizontalStretch(2);
     m_pWidget->setSizePolicy(policy);
@@ -604,7 +601,6 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget() : ezQtS
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(1.0);
     m_pWidget[c]->setAccelerated(true);
-    m_pWidget[c]->setDecimals(3);
     m_pWidget[c]->setDisplaySuffix("\xC2\xB0");
 
     policy.setHorizontalStretch(2);

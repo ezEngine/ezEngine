@@ -4,6 +4,7 @@
 
 #include <ModelImporter/ImporterImplementation.h>
 #include <ModelImporter/Node.h>
+#include <ModelImporter/Mesh.h>
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
