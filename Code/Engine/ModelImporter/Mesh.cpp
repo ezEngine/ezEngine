@@ -3,6 +3,7 @@
 #include <ModelImporter/VertexData.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Strings/Implementation/FormatStringArgs.h>
 
 #include <ThirdParty/mikktspace/mikktspace.h>
 
