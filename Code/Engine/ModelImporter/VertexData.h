@@ -163,7 +163,7 @@ namespace ezModelImporter
 
   /// Read only version.
   template<typename Attribute>
-  using TypedVertexDataStreamView = typename TypedVertexDataStreamView_Base<Attribute, true>;
+  using TypedVertexDataStreamView = TypedVertexDataStreamView_Base<Attribute, true>;
 }
 
 #include <ModelImporter/VertexData.inl>
