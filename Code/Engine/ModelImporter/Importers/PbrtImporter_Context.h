@@ -8,6 +8,7 @@ namespace ezModelImporter
 {
   class MaterialHandle;
   class Mesh;
+  class Scene;
 
   namespace Pbrt
   {

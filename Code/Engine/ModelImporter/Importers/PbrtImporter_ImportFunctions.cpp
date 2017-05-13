@@ -349,7 +349,7 @@ namespace ezModelImporter
       }
     }
 
-    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter, ezModelImporter::Material& material, ezArrayPtr<Parameter> parameters, ezVariant default)
+    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter, ezModelImporter::Material& material, ezArrayPtr<Parameter> parameters, ezVariant defaultValue)
     {
       for (const Parameter& param : parameters)
       {
@@ -370,8 +370,8 @@ namespace ezModelImporter
         }
       }
 
-      if (default.IsValid())
-        material.m_Properties.PushBack(Property(semantic, materialParameter, default));
+      if (defaultValue.IsValid())
+        material.m_Properties.PushBack(Property(semantic, materialParameter, defaultValue));
     }
 
     ezUniquePtr<ezModelImporter::Material> PareMaterialImpl(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
