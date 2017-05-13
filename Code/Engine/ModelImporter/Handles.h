@@ -40,7 +40,7 @@ namespace ezModelImporter
     // Only the scene is allowed to create these handles.
     friend class Scene;
     // Access for easier hashing.
-    friend struct ezHashHelper<ObjectHandle>;
+    friend struct ::ezHashHelper<ObjectHandle>;
 
 
     ObjectHandle(Type type, ObjectId id) : m_Type(type), m_Id(id) {}
@@ -48,24 +48,6 @@ namespace ezModelImporter
 
     Type m_Type;
     ObjectId m_Id;
-  };
-
-  /// Hash function for ObjectHandle
-  template <>
-  struct ezHashHelper<ObjectHandle>
-  {
-    static ezUInt32 Hash(ObjectHandle value)
-    {
-      // First 24 bit are instance. It's unlikely those will ever be fully used.
-      // Type takes exactly 2 bit as of writing.
-      ezUInt32 idValue = value.m_Id.m_Data; 
-      return idValue ^ (value.m_Type << 22);
-    }
-
-    static bool Equal(ObjectHandle a, ObjectHandle b)
-    {
-      return a == b;
-    }
   };
 
   typedef ezGenericId<22, 10> MaterialId;
@@ -78,3 +60,21 @@ namespace ezModelImporter
   };
 
 }
+
+/// Hash function for ObjectHandle
+template <>
+struct ezHashHelper<ezModelImporter::ObjectHandle>
+{
+  static ezUInt32 Hash(ezModelImporter::ObjectHandle value)
+  {
+    // First 24 bit are instance. It's unlikely those will ever be fully used.
+    // Type takes exactly 2 bit as of writing.
+    ezUInt32 idValue = value.m_Id.m_Data;
+    return idValue ^ (value.m_Type << 22);
+  }
+
+  static bool Equal(ezModelImporter::ObjectHandle a, ezModelImporter::ObjectHandle b)
+  {
+    return a == b;
+  }
+};

@@ -9,10 +9,6 @@
 
 BUILD_CONDITIONAL(EZ_BUILD_UNITTESTS)
 
-if (POLICY CMP0043)
-  cmake_policy(SET CMP0043 NEW)
-endif()
-
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)

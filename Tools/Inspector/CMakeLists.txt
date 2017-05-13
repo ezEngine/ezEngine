@@ -11,10 +11,6 @@
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
-if (POLICY CMP0043)
-  cmake_policy(SET CMP0043 NEW)
-endif()
-
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
