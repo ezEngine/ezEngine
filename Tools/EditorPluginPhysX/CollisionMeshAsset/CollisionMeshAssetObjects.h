@@ -3,6 +3,8 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
+struct ezPropertyMetaStateEvent;
+
 struct ezSurfaceResourceSlot
 {
   ezString m_sLabel;
@@ -36,6 +38,8 @@ class ezCollisionMeshAssetProperties : public ezReflectedClass
 
 public:
   ezCollisionMeshAssetProperties();
+
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
   ezString m_sSubMeshName;

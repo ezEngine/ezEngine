@@ -890,6 +890,52 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
 
 }
 
+void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fHeight, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+{
+  EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
+
+  bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
+  const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
+
+  const ezVec3 vTopCenter(0, 0, fHeight * 0.5f);
+  const ezVec3 vBottomCenter(0, 0, -fHeight * 0.5f);
+
+  // cylinder wall
+  {
+    ezHybridArray<ezUInt32, 512> VertsTop;
+    ezHybridArray<ezUInt32, 512> VertsBottom;
+
+    for (ezInt32 i = 0; i < uiSegments; ++i)
+    {
+      const ezAngle deg = (float)i * fDegStep;
+
+      float fU = 4.0f - deg.GetDegree() / 90.0f;
+
+      const float fX = ezMath::Cos(deg);
+      const float fY = ezMath::Sin(deg);
+
+      const ezVec3 vDir(fX, fY, 0);
+
+      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, iCustomIndex, mTransform));
+      VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, iCustomIndex, mTransform));
+    }
+
+    for (ezUInt32 i = 1; i <= uiSegments; ++i)
+    {
+      ezUInt32 quad[4];
+      quad[0] = VertsBottom[i - 1];
+      quad[1] = VertsBottom[i % uiSegments];
+      quad[2] = VertsTop[i % uiSegments];
+      quad[3] = VertsTop[i - 1];
+
+      AddPolygon(quad, bFlipWinding);
+    }
+
+    AddPolygon(VertsTop, bFlipWinding);
+    AddPolygon(VertsBottom, !bFlipWinding);
+  }
+}
+
 void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cone with only {0} segments", uiSegments);

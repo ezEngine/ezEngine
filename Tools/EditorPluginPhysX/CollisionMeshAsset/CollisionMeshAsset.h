@@ -24,7 +24,7 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   ezStatus CreateMeshFromFile(const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh);
-  ezStatus CreateMeshFromGeom(ezCollisionMeshAssetProperties* pProp, const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh);
-  ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezCollisionMeshAssetProperties* pProp, const ezPhysXCookingMesh& mesh);
+  ezStatus CreateMeshFromGeom(ezGeometry& geom, ezPhysXCookingMesh& outMesh);
+  ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh);
 
 };

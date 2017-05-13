@@ -94,6 +94,9 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   {
     ezPhysXCookingMesh xMesh;
 
+    // TODO verify
+    xMesh.m_bFlipNormals = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
+
     if (pProp->m_MeshType == ezCollisionMeshType::ConvexHull || pProp->m_MeshType == ezCollisionMeshType::TriangleMesh)
     {
       EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(mTransformation, xMesh));
@@ -105,17 +108,13 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
       if (pProp->m_MeshType == ezCollisionMeshType::Cylinder)
       {
-        /// \todo Merged vertices
-        geom.AddCylinder(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight, true, true, ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezColor::White, mTrans);
+        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
       }
 
-      //CreateMeshFromGeom(pProp, geom, desc);
-      EZ_ASSERT_NOT_IMPLEMENTED;
-
+      EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));
     }
 
-    pProp = GetProperties();
-    EZ_SUCCEED_OR_RETURN(WriteToStream(chunk, pProp, xMesh));
+    EZ_SUCCEED_OR_RETURN(WriteToStream(chunk, xMesh));
   }
 
   chunk.EndStream();
@@ -161,9 +160,6 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezMat3 &mTransfo
   using namespace ezModelImporter;
 
   ezCollisionMeshAssetProperties* pProp = GetProperties();
-
-  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
-  outMesh.m_bFlipNormals = bFlipTriangles; // TODO verify
 
   ezSharedPtr<Scene> scene;
   Mesh* mesh = nullptr;
@@ -236,39 +232,58 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezMat3 &mTransfo
   return ezStatus(EZ_SUCCESS);
 }
 
-/*
-void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezGeometry& geom, ezMeshResourceDescriptor& desc)
+ezStatus ezCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezPhysXCookingMesh& outMesh)
 {
-//// Material setup.
-//{
-//  // Ensure there is just one slot.
-//  if (pProp->m_Slots.GetCount() != 1)
-//  {
-//    GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
+  ezCollisionMeshAssetProperties* pProp = GetProperties();
 
-//    pProp->m_Slots.SetCount(1);
-//    pProp->m_Slots[0].m_sLabel = "Default";
+  // Material setup.
+  {
+    // Ensure there is just one slot.
+    if (pProp->m_Slots.GetCount() != 1)
+    {
+      GetObjectAccessor()->StartTransaction("Update Mesh Material Info");
 
-//    ApplyNativePropertyChangesToObjectManager();
-//    GetObjectAccessor()->FinishTransaction();
+      pProp->m_Slots.SetCount(1);
+      pProp->m_Slots[0].m_sLabel = "Default";
 
-//    // Need to reacquire pProp pointer since it might be reallocated.
-//    pProp = GetProperties();
-//  }
+      ApplyNativePropertyChangesToObjectManager();
+      GetObjectAccessor()->FinishTransaction();
 
-//  // Set material for mesh.
-//  if (!pProp->m_Slots.IsEmpty())
-//    desc.SetMaterial(0, pProp->m_Slots[0].m_sResource);
-//  else
-//    desc.SetMaterial(0, "");
-//}
+      // Need to reacquire pProp pointer since it might be reallocated.
+      pProp = GetProperties();
+    }
+  }
 
-desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+  // copy vertex positions
+  {
+    outMesh.m_Vertices.SetCountUninitialized(geom.GetVertices().GetCount());
+    for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+    {
+      outMesh.m_Vertices[v] = geom.GetVertices()[v].m_vPosition;
+    }
+  }
 
-desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+  // Copy Polygon Data
+  {
+    outMesh.m_PolygonSurfaceID.SetCountUninitialized(geom.GetPolygons().GetCount());
+    outMesh.m_VerticesInPolygon.SetCountUninitialized(geom.GetPolygons().GetCount());
+    outMesh.m_PolygonIndices.Reserve(geom.GetPolygons().GetCount() * 4);
+
+    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+    {
+      const auto& poly = geom.GetPolygons()[p];
+      outMesh.m_VerticesInPolygon[p] = poly.m_Vertices.GetCount();
+      outMesh.m_PolygonSurfaceID[p] = 0;
+
+      for (ezUInt32 posIdx : poly.m_Vertices)
+      {
+        outMesh.m_PolygonIndices.PushBack(posIdx);
+      }
+    }
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
-*/
 
 //ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
 //{
@@ -276,8 +291,10 @@ desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
 //  return status;
 //}
 
-ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezCollisionMeshAssetProperties* pProp, const ezPhysXCookingMesh& mesh)
+ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh)
 {
+  const ezCollisionMeshAssetProperties* pProp = GetProperties();
+
   ezResult resCooking = EZ_FAILURE;
 
   {

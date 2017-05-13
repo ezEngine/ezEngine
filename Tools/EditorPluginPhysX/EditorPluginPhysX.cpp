@@ -15,6 +15,8 @@
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
+#include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
 
@@ -26,8 +28,10 @@ void OnLoadPlugin(bool bReloading)
 
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
-  // Mesh Asset
+  // Collision Mesh Asset
   {
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler);
+
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar");

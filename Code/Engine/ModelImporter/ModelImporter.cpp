@@ -1,5 +1,4 @@
 ﻿#include <PCH.h>
-#include <ModelImporter/Node.h>
 #include <ModelImporter/ModelImporter.h>
 
 #include <ModelImporter/ImporterImplementation.h>

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/Math/Vec3.h>
@@ -151,6 +151,8 @@ public:
   /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
   /// When \a fraction is set to any value below 360 degree, a pie / pacman shaped cylinder is created.
   void AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0, ezAngle fraction = ezAngle::Degree(360.0f));
+
+  void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fHeight, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a cylinder. The origin is at the center of the bottom.
   ///
