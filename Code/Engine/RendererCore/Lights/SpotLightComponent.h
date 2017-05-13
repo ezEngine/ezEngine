@@ -33,6 +33,7 @@ public:
 
   void SetRange(float fRange);
   float GetRange() const;
+  float GetEffectiveRange() const;
 
   void SetInnerSpotAngle(ezAngle fSpotAngle);
   ezAngle GetInnerSpotAngle() const;

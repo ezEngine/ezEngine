@@ -64,6 +64,12 @@ float3 CubeMapDirection(float3 inDirection)
 	return float3(inDirection.x, inDirection.z, -inDirection.y);
 }
 
+float InterleavedGradientNoise(float2 screenSpacePosition)
+{
+  float3 magic = float3(0.06711056, 0.00583715, 52.9829189);
+  return frac(magic.z * frac(dot(screenSpacePosition, magic.xy)));
+}
+
 float square(float x)
 {
 	return x * x;

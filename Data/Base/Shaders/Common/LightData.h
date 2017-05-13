@@ -6,17 +6,13 @@
 #define LIGHT_TYPE_POINT 0
 #define LIGHT_TYPE_SPOT 1
 #define LIGHT_TYPE_DIR 2
-#define LIGHT_TYPE_MASK 0x7
-
-#define LIGHT_HAS_SHADOWS (1 << 3)
-#define LIGHT_HAS_PROJECTOR (1 << 4)
 
 struct EZ_ALIGN_16(ezPerLightData)
 {
   UINT1(colorAndType);
   FLOAT1(intensity);
   UINT1(direction); // 10 bits fixed point per axis
-  UINT1(shadowDataIndex);
+  UINT1(shadowDataOffset);
 
   FLOAT3(position);
   FLOAT1(invSqrAttRadius);
@@ -29,9 +25,28 @@ struct EZ_ALIGN_16(ezPerLightData)
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)
-  StructuredBuffer<ezPerLightData> perLightData;
+  StructuredBuffer<ezPerLightData> perLightDataBuffer;
 #else
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLightData) == 48);
+#endif
+
+struct EZ_ALIGN_16(ezPointShadowData)
+{
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel
+  MAT4(worldToLightMatrix)[6];
+};
+
+struct EZ_ALIGN_16(ezSpotShadowData)
+{
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel
+  MAT4(worldToLightMatrix);
+};
+
+#define GET_SHADOW_PARAMS_OFFSET(baseOffset) (baseOffset + 0)
+#define GET_WORLD_TO_LIGHT_MATRIX_OFFSET(baseOffset, index) (baseOffset + 1 + 4 * index)
+
+#if EZ_ENABLED(PLATFORM_DX11)
+  StructuredBuffer<float4> shadowDataBuffer;
 #endif
 
 CONSTANT_BUFFER(ezClusteredDataConstants, 3)
@@ -39,9 +54,10 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
   FLOAT1(DepthSliceScale);
   FLOAT1(DepthSliceBias);
   FLOAT2(InvTileSize);
-  
+
   UINT1(NumLights);
-  UINT3(Padding);
+  FLOAT1(ShadowTexelSize);
+  UINT2(Padding);
 
   COLOR4F(AmbientTopColor);
   COLOR4F(AmbientBottomColor);
@@ -60,6 +76,6 @@ struct ezPerClusterData
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)
-  StructuredBuffer<ezPerClusterData> perClusterData;
-  StructuredBuffer<uint> clusterItemList;
+  StructuredBuffer<ezPerClusterData> perClusterDataBuffer;
+  StructuredBuffer<uint> clusterItemBuffer;
 #endif

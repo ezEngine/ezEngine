@@ -66,6 +66,7 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
     EditorView,
     Thumbnail,
     Culling,
+    Shadow,
 
     ENUM_COUNT,
 

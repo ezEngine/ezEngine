@@ -31,6 +31,7 @@ public:
 
   void SetRange(float fRange);
   float GetRange() const;
+  float GetEffectiveRange() const;
 
   void SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture);
   const ezTextureCubeResourceHandle& GetProjectedTexture() const;

@@ -2,6 +2,7 @@
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
@@ -9,34 +10,48 @@ ezClusteredDataGPU::ezClusteredDataGPU()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  ezGALBufferCreationDescription desc;
-
   {
-    desc.m_uiStructSize = sizeof(ezPerLightData);
-    desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_LIGHT_DATA;
-    desc.m_BufferType = ezGALBufferType::Generic;
-    desc.m_bUseAsStructuredBuffer = true;
-    desc.m_bAllowShaderResourceView = true;
-    desc.m_ResourceAccess.m_bImmutable = false;
+    ezGALBufferCreationDescription desc;
 
-    m_hLightDataBuffer = pDevice->CreateBuffer(desc);
-  }
+    {
+      desc.m_uiStructSize = sizeof(ezPerLightData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_LIGHT_DATA;
+      desc.m_BufferType = ezGALBufferType::Generic;
+      desc.m_bUseAsStructuredBuffer = true;
+      desc.m_bAllowShaderResourceView = true;
+      desc.m_ResourceAccess.m_bImmutable = false;
 
-  {
-    desc.m_uiStructSize = sizeof(ezPerClusterData);
-    desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
+      m_hLightDataBuffer = pDevice->CreateBuffer(desc);
+    }
 
-    m_hClusterDataBuffer = pDevice->CreateBuffer(desc);
-  }
+    {
+      desc.m_uiStructSize = sizeof(ezPerClusterData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
 
-  {
-    desc.m_uiStructSize = sizeof(ezUInt32);
-    desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_LIGHTS_PER_CLUSTER * NUM_CLUSTERS;
+      m_hClusterDataBuffer = pDevice->CreateBuffer(desc);
+    }
 
-    m_hClusterItemListBuffer = pDevice->CreateBuffer(desc);
+    {
+      desc.m_uiStructSize = sizeof(ezUInt32);
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_LIGHTS_PER_CLUSTER * NUM_CLUSTERS;
+
+      m_hClusterItemBuffer = pDevice->CreateBuffer(desc);
+    }
   }
 
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezClusteredDataConstants>();
+
+  {
+    ezGALSamplerStateCreationDescription desc;
+    desc.m_AddressU = ezGALTextureAddressMode::Clamp;
+    desc.m_AddressV = ezGALTextureAddressMode::Clamp;
+    desc.m_AddressW = ezGALTextureAddressMode::Clamp;
+    desc.m_SampleCompareFunc = ezGALCompareFunc::Less;
+
+    m_hShadowSampler = pDevice->CreateSamplerState(desc);
+  }
+
+  m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
 }
 
 ezClusteredDataGPU::~ezClusteredDataGPU()
@@ -45,7 +60,8 @@ ezClusteredDataGPU::~ezClusteredDataGPU()
 
   pDevice->DestroyBuffer(m_hLightDataBuffer);
   pDevice->DestroyBuffer(m_hClusterDataBuffer);
-  pDevice->DestroyBuffer(m_hClusterItemListBuffer);
+  pDevice->DestroyBuffer(m_hClusterItemBuffer);
+  pDevice->DestroySamplerState(m_hShadowSampler);
 
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
@@ -54,12 +70,21 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::UpdateShadowDataBuffer(pRenderContext->GetGALContext()));
+  auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
+
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perLightData", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perClusterData", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "clusterItemList", pDevice->GetDefaultResourceView(m_hClusterItemListBuffer));
+    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
+    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perClusterDataBuffer", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
+    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "clusterItemBuffer", pDevice->GetDefaultResourceView(m_hClusterItemBuffer));
+
+    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "shadowDataBuffer", hShadowDataBufferView);
+    pRenderContext->BindTexture2D((ezGALShaderStage::Enum)stage, "ShadowAtlasTexture", hShadowAtlasTextureView);
+    pRenderContext->BindSamplerState((ezGALShaderStage::Enum)stage, "ShadowSampler", m_hShadowSampler);
   }
+
+  pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
 
   pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
 }
@@ -91,7 +116,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     if (!pData->m_LightData.IsEmpty())
     {
       pGALContext->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, pData->m_LightData.ToByteArray());
-      pGALContext->UpdateBuffer(m_Data.m_hClusterItemListBuffer, 0, pData->m_ClusterItemList.ToByteArray());
+      pGALContext->UpdateBuffer(m_Data.m_hClusterItemBuffer, 0, pData->m_ClusterItemList.ToByteArray());
     }
 
     pGALContext->UpdateBuffer(m_Data.m_hClusterDataBuffer, 0, pData->m_ClusterData.ToByteArray());
@@ -104,6 +129,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->DepthSliceBias = s_fDepthSliceBias;
     pConstants->InvTileSize = ezVec2(NUM_CLUSTERS_X / viewport.width, NUM_CLUSTERS_Y / viewport.height);
     pConstants->NumLights = pData->m_LightData.GetCount();
+    pConstants->ShadowTexelSize = ezShadowPool::GetShadowAtlasTexelSize();
     pConstants->AmbientTopColor = pData->m_AmbientTopColor;
     pConstants->AmbientBottomColor = pData->m_AmbientBottomColor;
   }

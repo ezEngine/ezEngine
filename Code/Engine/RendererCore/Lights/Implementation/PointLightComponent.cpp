@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -60,6 +61,11 @@ float ezPointLightComponent::GetRange() const
   return m_fRange;
 }
 
+float ezPointLightComponent::GetEffectiveRange() const
+{
+  return m_fEffectiveRange;
+}
+
 void ezPointLightComponent::SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture)
 {
   m_hProjectedTexture = hProjectedTexture;
@@ -90,15 +96,17 @@ const char* ezPointLightComponent::GetProjectedTextureFile() const
   return m_hProjectedTexture.GetResourceID();
 }
 
-void ezPointLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
+void ezPointLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  // Don't extract light render data for selection or in shadow views.
+  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f)
     return;
 
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
+  float fScreenSpaceSize = 1.0f;
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner(), uiBatchId);
 
@@ -107,7 +115,7 @@ void ezPointLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fRange = m_fEffectiveRange;
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
-  pRenderData->m_bCastShadows = m_bCastShadows;
+  pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddPointLight(this, fScreenSpaceSize) : ezInvalidIndex;
 
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
 }

@@ -1251,8 +1251,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).
       RT(DXGI_FORMAT_R16_UNORM).
       VA(DXGI_FORMAT_R16_UNORM).
-      RV(DXGI_FORMAT_R16_UNORM).
-      D(DXGI_FORMAT_D16_UNORM)
+      RV(DXGI_FORMAT_R16_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
@@ -1310,6 +1309,14 @@ void ezGALDeviceDX11::FillFormatLookupTable()
       VA(DXGI_FORMAT_A8_UNORM).
       RV(DXGI_FORMAT_A8_UNORM)
       );
+
+  m_FormatLookupTable.SetFormatInfo(
+    ezGALResourceFormat::D16,
+    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).
+    RV(DXGI_FORMAT_R16_UNORM).
+    DS(DXGI_FORMAT_D16_UNORM).
+    D(DXGI_FORMAT_R16_UNORM)
+  );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::D24S8,

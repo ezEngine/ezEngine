@@ -11,7 +11,7 @@ class EZ_RENDERERCORE_DLL ezLightRenderData : public ezRenderData
 public:
   ezColor m_LightColor;
   float m_fIntensity;
-  bool m_bCastShadows;
+  ezUInt32 m_uiShadowDataOffset;
 };
 
 /// \brief Base class for all ez light components containing shared properties
@@ -21,6 +21,7 @@ class EZ_RENDERERCORE_DLL ezLightComponent : public ezRenderComponent
 
 public:
   ezLightComponent();
+  ~ezLightComponent();
 
   void SetLightColor(ezColorGammaUB LightColor);
   ezColorGammaUB GetLightColor() const;
@@ -29,7 +30,7 @@ public:
   float GetIntensity() const;
 
   void SetCastShadows(bool bCastShadows);
-  bool GetCastShadows();
+  bool GetCastShadows() const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;

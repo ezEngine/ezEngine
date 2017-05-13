@@ -63,7 +63,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
     RGByteNormalized,
 
     DFloat,
-    
+
     RFloat,
     RUInt,
     RInt,
@@ -79,6 +79,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 
     AUByteNormalized,
 
+    D16,
     D24S8,
 
     BC1,
@@ -119,7 +120,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
   static bool IsSrgb(ezGALResourceFormat::Enum format);
 
 private:
-  
+
   static const ezUInt8 s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT];
 
   static const ezUInt8 s_ChannelCount[ezGALResourceFormat::ENUM_COUNT];

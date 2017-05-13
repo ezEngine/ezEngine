@@ -100,7 +100,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
       pGALContext->UpdateBuffer(hPerInstanceData, 0, m_perInstanceData.GetByteArrayPtr());
 
       const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
-      if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, batch.GetCount()).Failed())
+      if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiCount).Failed())
       {
         for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
         {

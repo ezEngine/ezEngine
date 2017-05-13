@@ -28,7 +28,7 @@ VS_OUT FillVertexData(VS_IN Input)
 {
   ezPerInstanceData data = GetInstanceData(Input);
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
-  float3x3 objectToWorldNormal = (float3x3)TransformToMatrix(data.ObjectToWorldNormal);
+  float3x3 objectToWorldNormal = TransformToRotation(data.ObjectToWorldNormal);
 
   float3 objectPosition = Input.Position;
   #if defined(USE_OBJECT_POSITION_OFFSET)

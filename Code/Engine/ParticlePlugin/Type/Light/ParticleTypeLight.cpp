@@ -144,7 +144,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
     pRenderData->m_LightColor = pColor[i];
     pRenderData->m_fIntensity = m_fIntensity;
     pRenderData->m_fRange = pSize[i] * m_fSizeFactor;
-    pRenderData->m_bCastShadows = false;
+    pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
 
     pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
   }

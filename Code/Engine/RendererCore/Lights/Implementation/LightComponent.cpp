@@ -12,10 +12,10 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 2)
   {
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
-    //EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
+    EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering/Lighting"),
   }
@@ -30,6 +30,9 @@ ezLightComponent::ezLightComponent()
 {
 }
 
+ezLightComponent::~ezLightComponent()
+{
+}
 
 void ezLightComponent::SetLightColor(ezColorGammaUB LightColor)
 {
@@ -58,7 +61,7 @@ void ezLightComponent::SetCastShadows(bool bCastShadows)
   m_bCastShadows = bCastShadows;
 }
 
-bool ezLightComponent::GetCastShadows()
+bool ezLightComponent::GetCastShadows() const
 {
   return m_bCastShadows;
 }

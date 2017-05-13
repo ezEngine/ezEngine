@@ -18,8 +18,10 @@ ezUInt64 ezRenderWorld::s_uiFrameCounter;
 namespace
 {
   static bool s_bInExtract;
-  static ezTaskGroupID s_ExtractionFinishedTaskID;
   static ezThreadID s_RenderingThreadID;
+
+  static ezMutex s_ExtractTasksMutex;
+  static ezDynamicArray<ezTaskGroupID> s_ExtractTasks;
 
   static ezMutex s_ViewsMutex;
   static ezIdTable<ezViewId, ezView*> s_Views;
@@ -43,7 +45,7 @@ namespace
   static ezDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
 }
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererLoop)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -159,6 +161,9 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
   if (!TryGetView(hView, pView))
     return;
 
+  if (!pView->IsValid())
+    return;
+
   {
     EZ_LOCK(s_ViewsToRenderMutex);
     EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
@@ -168,12 +173,12 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
 
   if (CVarMultithreadedRendering)
   {
-    ezTaskGroupID extractTaskID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
-    ezTaskSystem::AddTaskGroupDependency(s_ExtractionFinishedTaskID, extractTaskID);
+    ezTaskGroupID extractTaskID = ezTaskSystem::StartSingleTask(pView->GetExtractTask(), ezTaskPriority::EarlyThisFrame);
 
-    ezTaskSystem::AddTaskToGroup(extractTaskID, pView->GetExtractTask());
-
-    ezTaskSystem::StartTaskGroup(extractTaskID);
+    {
+      EZ_LOCK(s_ExtractTasksMutex);
+      s_ExtractTasks.PushBack(extractTaskID);
+    }
   }
   else
   {
@@ -189,19 +194,18 @@ void ezRenderWorld::ExtractMainViews()
 
   if (CVarMultithreadedRendering)
   {
-    s_ExtractionFinishedTaskID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+    s_ExtractTasks.Clear();
 
     ezTaskGroupID extractTaskID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
-    ezTaskSystem::AddTaskGroupDependency(s_ExtractionFinishedTaskID, extractTaskID);
+    s_ExtractTasks.PushBack(extractTaskID);
 
     {
       EZ_LOCK(s_ViewsMutex);
-      EZ_LOCK(s_ViewsToRenderMutex);
 
       for (ezUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
       {
         ezView* pView = nullptr;
-        if (s_Views.TryGetValue(s_MainViews[i], pView))
+        if (s_Views.TryGetValue(s_MainViews[i], pView) && pView->IsValid())
         {
           s_ViewsToRender.PushBack(pView);
           ezTaskSystem::AddTaskToGroup(extractTaskID, pView->GetExtractTask());
@@ -209,12 +213,26 @@ void ezRenderWorld::ExtractMainViews()
       }
     }
 
-    ezTaskSystem::StartTaskGroup(s_ExtractionFinishedTaskID);
     ezTaskSystem::StartTaskGroup(extractTaskID);
 
     {
       EZ_PROFILE("Wait for Extraction");
-      ezTaskSystem::WaitForGroup(s_ExtractionFinishedTaskID);
+
+      while (true)
+      {
+        ezTaskGroupID taskID;
+
+        {
+          EZ_LOCK(s_ExtractTasksMutex);
+          if (s_ExtractTasks.IsEmpty())
+            break;
+
+          taskID = s_ExtractTasks.PeekBack();
+          s_ExtractTasks.PopBack();
+        }
+
+        ezTaskSystem::WaitForGroup(taskID);
+      }
     }
   }
   else
@@ -222,7 +240,7 @@ void ezRenderWorld::ExtractMainViews()
     for (ezUInt32 i = 0; i < s_MainViews.GetCount(); ++i)
     {
       ezView* pView = nullptr;
-      if (s_Views.TryGetValue(s_MainViews[i], pView))
+      if (s_Views.TryGetValue(s_MainViews[i], pView) && pView->IsValid())
       {
         s_ViewsToRender.PushBack(pView);
         pView->ExtractData();
@@ -271,6 +289,8 @@ void ezRenderWorld::BeginFrame()
 {
   s_RenderingThreadID = ezThreadUtils::GetCurrentThreadID();
 
+  s_BeginFrameEvent.Broadcast(s_uiFrameCounter);
+
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
     ezView* pView = it.Value();
@@ -287,8 +307,6 @@ void ezRenderWorld::BeginFrame()
   }
 
   s_PipelinesToRebuild.Clear();
-
-  s_BeginFrameEvent.Broadcast(s_uiFrameCounter);
 }
 
 void ezRenderWorld::EndFrame()
@@ -300,7 +318,10 @@ void ezRenderWorld::EndFrame()
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
     ezView* pView = it.Value();
-    pView->ReadBackPassProperties();
+    if (pView->IsValid())
+    {
+      pView->ReadBackPassProperties();
+    }
   }
 
   s_RenderingThreadID = (ezThreadID)0;

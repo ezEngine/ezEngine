@@ -62,6 +62,7 @@ namespace
 
     perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
     perLightData.intensity = pLightRenderData->m_fIntensity;
+    perLightData.shadowDataOffset = pLightRenderData->m_uiShadowDataOffset;
   }
 
   void FillPointLightData(ezPerLightData& perLightData, const ezPointLightRenderData* pPointLightRenderData)

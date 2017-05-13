@@ -5,7 +5,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAFloat, ezGALResourceFormat::RGBAHalf)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGB10A2UIntNormalized, ezGALResourceFormat::RG11B10Float)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RGBAUByteNormalized, ezGALResourceFormat::RGBAUByteNormalizedsRGB)
-  EZ_ENUM_CONSTANTS(ezGALResourceFormat::D24S8)
+  EZ_ENUM_CONSTANTS(ezGALResourceFormat::D16, ezGALResourceFormat::D24S8)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BGRAUByteNormalized, ezGALResourceFormat::BGRAUByteNormalizedsRGB)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC1, ezGALResourceFormat::BC1sRGB)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC2, ezGALResourceFormat::BC2sRGB)
@@ -82,6 +82,7 @@ const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_CO
   8, // RByteNormalized
   8, // AUByteNormalized
 
+  16, // D16
   32, // D24S8
 
   // For compressed formats see: http://msdn.microsoft.com/en-us/library/windows/desktop/hh308955%28v=vs.85%29.aspx
@@ -170,6 +171,7 @@ const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUN
   1, // RByteNormalized
   1, // AUByteNormalized
 
+  1, // D16
   2, // D24S8
 
   // For compressed formats see: http://msdn.microsoft.com/en-us/library/windows/desktop/hh308955%28v=vs.85%29.aspx

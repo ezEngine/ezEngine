@@ -13,9 +13,12 @@ public:
 
   ezGALBufferHandle m_hLightDataBuffer;
   ezGALBufferHandle m_hClusterDataBuffer;
-  ezGALBufferHandle m_hClusterItemListBuffer;
+  ezGALBufferHandle m_hClusterItemBuffer;
 
   ezConstantBufferStorageHandle m_hConstantBuffer;
+
+  ezGALSamplerStateHandle m_hShadowSampler;
+  ezTexture2DResourceHandle m_hNoiseTexture;
 
   void BindResources(ezRenderContext* pRenderContext);
 };

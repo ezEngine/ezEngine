@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -42,7 +43,8 @@ ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
 
 void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  // Don't extract light render data for selection or in shadow views.
+  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (m_fIntensity <= 0.0f)
@@ -55,7 +57,7 @@ void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
-  pRenderData->m_bCastShadows = m_bCastShadows;
+  pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddDirectionalLight(this) : ezInvalidIndex;
 
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
 }

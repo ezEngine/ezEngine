@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -73,6 +74,11 @@ float ezSpotLightComponent::GetRange() const
   return m_fRange;
 }
 
+float ezSpotLightComponent::GetEffectiveRange() const
+{
+  return m_fEffectiveRange;
+}
+
 void ezSpotLightComponent::SetInnerSpotAngle(ezAngle spotAngle)
 {
   m_InnerSpotAngle = ezMath::Clamp(spotAngle, ezAngle::Degree(0.0f), m_OuterSpotAngle);
@@ -125,15 +131,17 @@ const char* ezSpotLightComponent::GetProjectedTextureFile() const
   return m_hProjectedTexture.GetResourceID();
 }
 
-void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
+void ezSpotLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  // Don't extract light render data for selection or in shadow views.
+  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f || m_OuterSpotAngle.GetRadian() <= 0.0f)
     return;
 
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
+  float fScreenSpaceSize = 1.0f;
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);
 
@@ -144,7 +152,7 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
   pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
   pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
-  pRenderData->m_bCastShadows = m_bCastShadows;
+  pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddSpotLight(this, fScreenSpaceSize) : ezInvalidIndex;
 
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
 }

@@ -98,9 +98,9 @@ float3 GetNormal(PS_IN Input)
 float3 GetDiffuseColor(PS_IN Input)
 {
   #if TOPOLOGY == TOPOLOGY_TRIANGLES
-    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, Input.Normal, Input.WorldPosition, 1.0);
+    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, Input.Normal, Input.WorldPosition, 1.0).rgb;
   #else
-    return float4(0.5, 0.5, 0.5, 1.0);
+    return float3(0.5, 0.5, 0.5);
   #endif
 }
 
