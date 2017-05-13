@@ -6,6 +6,21 @@
 
 #include <ThirdParty/mikktspace/mikktspace.h>
 
+template <>
+struct ezHashHelper<ezVec3>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(const ezVec3& value)
+  {
+    // could do something more clever that uses the fact it is a normalized vector
+    return ezHashing::MurmurHash(&value, sizeof(ezVec3));
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezVec3& a, const ezVec3& b)
+  {
+    return a == b;
+  }
+};
+
 namespace ezModelImporter
 {
   Mesh::Mesh()
@@ -298,9 +313,9 @@ namespace ezModelImporter
     }
 
     if (m_Triangles.GetCount() > trianglesNew.GetCount())
-      ezLog::Warning("There were some triangles in submeshes of the mesh '{0}' that were not referenced by any submesh. These triangles were discarded while merging submeshes.", m_Name.GetData());
+      ezLog::Warning("There were some triangles in submeshes of the mesh '{0}' that were not referenced by any submesh. These triangles were discarded while merging submeshes.", m_Name);
     else if (m_Triangles.GetCount() < trianglesNew.GetCount())
-      ezLog::Warning("There are submeshes in '{0}' with overlapping triangle use. These triangles were duplicated while merging submeshes.", m_Name.GetData());
+      ezLog::Warning("There are submeshes in '{0}' with overlapping triangle use. These triangles were duplicated while merging submeshes.", m_Name);
 
     m_Triangles = std::move(trianglesNew);
     m_SubMeshes = std::move(subMeshesNew);
@@ -313,7 +328,7 @@ namespace ezModelImporter
     const VertexDataStream* positionStreamRaw = GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (positionStreamRaw == nullptr)
     {
-      ezLog::Error("Can't compute vertex normals for the mesh {0}, because it doesn't have vertex positions.", m_Name.GetData());
+      ezLog::Error("Can't compute vertex normals for the mesh {0}, because it doesn't have vertex positions.", m_Name);
       return EZ_FAILURE;
     }
     const TypedVertexDataStreamView<ezVec3, true> positionStream(*positionStreamRaw);
@@ -349,24 +364,9 @@ namespace ezModelImporter
     for (ezUInt32 n = 0; n < normalStream->m_Data.GetCount(); n += sizeof(ezVec3))
       reinterpret_cast<ezVec3*>(&normalStream->m_Data[n])->NormalizeIfNotZero();
 
-    ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name.GetData(), ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+    ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name, ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
     return EZ_SUCCESS;
   }
-
-  template <>
-  struct ezHashHelper<ezVec3>
-  {
-    EZ_FORCE_INLINE static ezUInt32 Hash(const ezVec3& value)
-    {
-      // could do something more clever that uses the fact it is a normalized vector
-      return ezHashing::MurmurHash(&value, sizeof(ezVec3));
-    }
-
-    EZ_ALWAYS_INLINE static bool Equal(const ezVec3& a, const ezVec3& b)
-    {
-      return a == b;
-    }
-  };
 
   ezResult Mesh::ComputeTangents()
   {
@@ -459,19 +459,19 @@ namespace ezModelImporter
     const VertexDataStream* positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (positionStream == nullptr)
     {
-      ezLog::Error("Can't compute vertex tangents for the mesh '{0}', because it doesn't have vertex positions.", m_Name.GetData());
+      ezLog::Error("Can't compute vertex tangents for the mesh '{0}', because it doesn't have vertex positions.", m_Name);
       return EZ_FAILURE;
     }
     const VertexDataStream* normalStream = GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (normalStream == nullptr)
     {
-      ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have vertex noramls.", m_Name.GetData());
+      ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have vertex normals.", m_Name);
       return EZ_FAILURE;
     }
     const VertexDataStream* texStream = GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
     if (texStream == nullptr || texStream->GetNumElementsPerVertex() != 2)
     {
-      ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have TexCoord0 stream with two components.", m_Name.GetData());
+      ezLog::Error("Can't compute tangents for the mesh '{0}', because it doesn't have TexCoord0 stream with two components.", m_Name);
       return EZ_FAILURE;
     }
 
@@ -492,11 +492,11 @@ namespace ezModelImporter
 
     if (!genTangSpaceDefault(&context))
     {
-      ezLog::Error("Failed to compute compute tangents for the mesh {0}.", m_Name.GetData());
+      ezLog::Error("Failed to compute compute tangents for the mesh {0}.", m_Name);
       return EZ_FAILURE;
     }
 
-    ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name.GetData(), ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+    ezLog::Debug("Computed mesh normals ('{0}') in '{1}'s", m_Name, ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
     return EZ_SUCCESS;
   }
 }

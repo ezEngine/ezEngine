@@ -14,7 +14,8 @@ namespace ezModelImporter
   /// Singleton to import models.
   class EZ_MODELIMPORTER_DLL Importer
   {
-    EZ_DECLARE_SINGLETON(ezModelImporter::Importer);
+    EZ_DECLARE_SINGLETON(Importer);
+
   public:
     Importer();
     ~Importer();
