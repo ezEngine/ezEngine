@@ -1,5 +1,6 @@
 #pragma once
 
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 

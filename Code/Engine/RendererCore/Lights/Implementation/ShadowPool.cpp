@@ -1,8 +1,16 @@
 #include <PCH.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Math/Rect.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
