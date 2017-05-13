@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
@@ -6,6 +6,7 @@
 class ezPhysXMeshResourceDescriptor;
 class ezGeometry;
 class ezChunkStreamWriter;
+struct ezPhysXCookingMesh;
 
 class ezCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezCollisionMeshAssetProperties>
 {
@@ -22,6 +23,8 @@ public:
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
-  ezStatus CreateMeshFromFile(ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream);
+  ezStatus CreateMeshFromFile(const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh);
+  ezStatus CreateMeshFromGeom(ezCollisionMeshAssetProperties* pProp, const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh);
+  ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezCollisionMeshAssetProperties* pProp, const ezPhysXCookingMesh& mesh);
 
 };

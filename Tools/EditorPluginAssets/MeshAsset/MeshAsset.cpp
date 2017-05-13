@@ -137,45 +137,10 @@ namespace ImportHelper
     outMeshFileAbs = filename;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
     {
-      ezLog::Error("Mesh Asset Transform failed: Input Path '{0}' is not in any data directory", outMeshFileAbs.GetData());
       return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs.GetData()));
     }
 
-    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(outMeshFileAbs);
-    if (!outScene)
-    {
-      ezLog::Error("Could not import file '{0}'", outMeshFileAbs.GetData());
-      return ezStatus(ezFmt("Mesh Asset input file '{0}' could not be imported", outMeshFileAbs.GetData()));
-    }
-
-    if (outScene->GetMeshes().GetCount() == 0)
-    {
-      return ezStatus("Scene does not contain any meshes.");
-    }
-
-    if (ezStringUtils::IsNullOrEmpty(subMeshFilename))
-    {
-      outMesh = outScene->MergeAllMeshes();
-    }
-    else
-    {
-      outMesh = nullptr;
-      for (auto it = outScene->GetMeshes().GetIterator(); it.IsValid(); ++it)
-      {
-        if (it.Value()->m_Name == subMeshFilename)
-        {
-          outMesh = it.Value().Borrow();
-          break;
-        }
-      }
-
-      if (outMesh == nullptr)
-      {
-        return ezStatus(ezFmt("Scene does not contain a mesh with name '{0}'.", subMeshFilename));
-      }
-    }
-
-    return ezStatus(EZ_SUCCESS);
+    return ezModelImporter::Importer::GetSingleton()->ImportMesh(outMeshFileAbs, subMeshFilename, outScene, outMesh);
   }
 }
 
@@ -301,9 +266,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   ezSharedPtr<Scene> scene;
   Mesh* mesh = nullptr;
   ezString sMeshFileAbs;
-  ezStatus importStatus = ImportHelper::ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs);
-  if (importStatus.Failed())
-    return importStatus;
+  EZ_SUCCEED_OR_RETURN(ImportHelper::ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs));
 
   ezUInt32 uiTriangles = mesh->GetNumTriangles();
   ezLog::Info("Number of Triangles: {0}", uiTriangles);

@@ -6,6 +6,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HashSet.h>
+#include <Foundation/Types/Status.h>
 
 namespace ezModelImporter
 {
@@ -42,6 +43,11 @@ namespace ezModelImporter
 
     /// Returns a set of all supported types.
     ezHashSet<ezString> GetSupportedTypes();
+
+    /// \brief Utility function that imports the given scene. If szSubMesh is set, only the sub-mesh with that name is extracted.
+    ///
+    /// If szSubMesh is empty, the entire scene is merged into one big mesh and returned.
+    ezStatus ImportMesh(const char* szSceneFile, const char* szSubMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh);
 
   private:
     ezHybridArray<ezUniquePtr<ImporterImplementation>, 4> m_ImporterImplementations;

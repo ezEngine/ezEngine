@@ -134,4 +134,43 @@ namespace ezModelImporter
     }
     return supportedFormats;
   }
+
+  ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
+  {
+    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(szSceneFile);
+    if (!outScene)
+    {
+      return ezStatus(ezFmt("Input file '{0}' could not be imported", szSceneFile));
+    }
+
+    if (outScene->GetMeshes().GetCount() == 0)
+    {
+      return ezStatus("Scene does not contain any meshes.");
+    }
+
+    if (ezStringUtils::IsNullOrEmpty(szSubMesh))
+    {
+      outMesh = outScene->MergeAllMeshes();
+    }
+    else
+    {
+      outMesh = nullptr;
+      for (auto it = outScene->GetMeshes().GetIterator(); it.IsValid(); ++it)
+      {
+        if (it.Value()->m_Name == szSubMesh)
+        {
+          outMesh = it.Value().Borrow();
+          break;
+        }
+      }
+
+      if (outMesh == nullptr)
+      {
+        return ezStatus(ezFmt("Scene does not contain a mesh with name '{0}'.", szSubMesh));
+      }
+    }
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
 }

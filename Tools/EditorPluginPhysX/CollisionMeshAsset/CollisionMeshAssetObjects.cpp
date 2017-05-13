@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
@@ -13,9 +13,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceResourceSlot, ezNoBase, 1, ezRTTIDefault
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCollisionMeshType, 1)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCollisionMeshType, 2)
   EZ_ENUM_CONSTANT(ezCollisionMeshType::ConvexHull),
   EZ_ENUM_CONSTANT(ezCollisionMeshType::TriangleMesh),
+  EZ_ENUM_CONSTANT(ezCollisionMeshType::Cylinder),
+  EZ_ENUM_CONSTANT(ezCollisionMeshType::Tetraeder),
+  EZ_ENUM_CONSTANT(ezCollisionMeshType::Oktaeder),
+  EZ_ENUM_CONSTANT(ezCollisionMeshType::Pyramid),
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetProperties>)
@@ -26,9 +30,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefault
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_ENUM_MEMBER_PROPERTY("MeshType", ezCollisionMeshType, m_MeshType),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("NonUniformScaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx")),
+    EZ_MEMBER_PROPERTY("SubmeshName", m_sSubMeshName),
     EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   }
   EZ_END_PROPERTIES
@@ -39,11 +48,15 @@ ezCollisionMeshAssetProperties::ezCollisionMeshAssetProperties()
 {
   m_uiVertices = 0;
   m_uiTriangles = 0;
-  m_ForwardDir = ezBasisAxis::PositiveX;
-  m_RightDir = ezBasisAxis::PositiveY;
-  m_UpDir = ezBasisAxis::PositiveZ;
+  m_ForwardDir = ezBasisAxis::NegativeZ;
+  m_RightDir = ezBasisAxis::PositiveX;
+  m_UpDir = ezBasisAxis::PositiveY;
   m_fUniformScaling = 1.0f;
-  m_MeshType = ezCollisionMeshType::ConvexHull;
+  m_vNonUniformScaling.Set(1.0f);
+  m_fRadius = 0.5f;
+  m_fRadius2 = 0.5f;
+  m_fHeight = 1.0f;
+  m_uiDetail = 1;
 }
 
 const ezString ezCollisionMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const

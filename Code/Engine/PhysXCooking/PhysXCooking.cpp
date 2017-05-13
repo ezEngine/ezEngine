@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXCooking/PhysXCooking.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -95,7 +95,7 @@ public:
 
 };
 
-ezResult ezPhysXCooking::CookTriangleMesh(const Mesh& mesh, ezStreamWriter& OutputStream)
+ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream)
 {
   PxTriangleMeshDesc desc;
   desc.setToDefault();
@@ -113,7 +113,7 @@ ezResult ezPhysXCooking::CookTriangleMesh(const Mesh& mesh, ezStreamWriter& Outp
   return EZ_SUCCESS;
 }
 
-ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& OutputStream)
+ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream)
 {
   if (mesh.m_VerticesInPolygon.GetCount() > 255)
   {
@@ -188,7 +188,7 @@ ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& Output
   return EZ_SUCCESS;
 }
 
-void ezPhysXCooking::CreateMeshDesc(const Mesh& mesh, PxSimpleTriangleMesh& desc, ezDynamicArray<ezUInt32>& TriangleIndices)
+void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTriangleMesh& desc, ezDynamicArray<ezUInt32>& TriangleIndices)
 {
   desc.setToDefault();
 

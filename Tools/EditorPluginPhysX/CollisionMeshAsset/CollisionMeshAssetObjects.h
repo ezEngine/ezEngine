@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
@@ -17,6 +17,10 @@ struct ezCollisionMeshType
   {
     ConvexHull,
     TriangleMesh,
+    Cylinder,
+    Pyramid,
+    Tetraeder, // 3 sided pyramid
+    Oktaeder, // Double 4 sided pyramid
 
     Default = TriangleMesh
   };
@@ -34,6 +38,7 @@ public:
   ezCollisionMeshAssetProperties();
 
   ezString m_sMeshFile;
+  ezString m_sSubMeshName;
   float m_fUniformScaling;
   ezVec3 m_vNonUniformScaling;
 
@@ -41,6 +46,12 @@ public:
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
   ezEnum<ezCollisionMeshType> m_MeshType;
+
+  // Cylinder
+  float m_fRadius;
+  float m_fRadius2;
+  float m_fHeight;
+  ezUInt8 m_uiDetail;
 
   ezHybridArray<ezSurfaceResourceSlot, 8> m_Slots;
 

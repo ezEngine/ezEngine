@@ -34,20 +34,4 @@ SET (LINK_LIBRARIES
   ModelImporter
 )
 
-if (BUILDSYSTEM_PLATFORM_64BIT)
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
-    optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
-  )
-
-else()
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib32/assimp.lib
-    optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib32/assimp.lib
-  )
-
-endif()
-
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
