@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/PhysXInterface.h>
 #include <Foundation/Configuration/Plugin.h>
@@ -68,7 +68,6 @@ public:
 
 
   // helper functions
-  static void AddForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode);
 
   static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, bool bReportContact = false);
 

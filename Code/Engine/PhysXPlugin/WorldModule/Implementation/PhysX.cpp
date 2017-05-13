@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 
@@ -259,18 +259,6 @@ ezAllocatorBase* ezPhysX::GetAllocator()
 {
   return &(m_pAllocatorCallback->m_Allocator);
 }
-
-//static
-void ezPhysX::AddForceAtPos(PxRigidBody& body, const PxVec3& force, const PxVec3& globalPos, PxForceMode::Enum mode)
-{
-  const PxTransform globalPose = body.getGlobalPose();
-  const PxVec3 centerOfMass = globalPose.transform(body.getCMassLocalPose().p);
-
-  const PxVec3 torque = (globalPos - centerOfMass).cross(force);
-  body.addForce(force, mode);
-  body.addTorque(torque, mode);
-}
-
 
 PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId, bool bReportContact)
 {

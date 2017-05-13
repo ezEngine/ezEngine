@@ -8,6 +8,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 using namespace physx;
 
@@ -90,6 +91,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
     EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezPhysicsAddForceMsg, AddForceAtPos),
+    EZ_MESSAGE_HANDLER(ezPhysicsAddImpulseMsg, AddImpulseAtPos),
+  }
+  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -131,7 +138,6 @@ void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fMass;
   s >> m_bDisableGravity;
 }
-
 
 void ezPxDynamicActorComponent::SetKinematic(bool b)
 {
@@ -323,23 +329,23 @@ void ezPxDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
   }
 }
 
-void ezPxDynamicActorComponent::AddForceAtPos(const ezVec3& vForce, const ezVec3& vPos)
-{
-  if (m_pActor != nullptr && !m_bKinematic) // adding force on a kinematic object results in an error message by PhysX
-  {
-    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
-
-    ezPhysX::AddForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(vForce), ezPxConversionUtils::ToVec3(vPos), PxForceMode::eFORCE);
-  }
-}
-
-void ezPxDynamicActorComponent::AddImpulseAtPos(const ezVec3& vImpulse, const ezVec3& vPos)
+void ezPxDynamicActorComponent::AddForceAtPos(ezPhysicsAddForceMsg& msg)
 {
   if (m_pActor != nullptr && !m_bKinematic)
   {
-    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+    EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
-    ezPhysX::AddForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(vImpulse), ezPxConversionUtils::ToVec3(vPos), PxForceMode::eIMPULSE);
+    PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
+  }
+}
+
+void ezPxDynamicActorComponent::AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg)
+{
+  if (m_pActor != nullptr && !m_bKinematic)
+  {
+    EZ_PX_WRITE_LOCK(*m_pActor->getScene());
+
+    PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
   }
 }
 

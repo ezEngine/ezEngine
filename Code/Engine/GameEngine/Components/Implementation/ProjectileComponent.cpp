@@ -21,7 +21,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 2, ezRT
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("Interaction", m_sInteraction),
-    EZ_MEMBER_PROPERTY("Force", m_fForce),
+    EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
   }
   EZ_END_PROPERTIES
 }
@@ -131,9 +131,18 @@ void ezProjectileComponent::Update()
           TriggerSurfaceInteraction(hSurface, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
         }
 
-        if (interaction.m_fForce > 0.0f && hitResult.m_pShape != nullptr)
+        if (interaction.m_fImpulse > 0.0f && !hitResult.m_hActorObject.IsInvalidated())
         {
-          pPhysicsInterface->ApplyImpulseAtPos(hitResult.m_pShape, hitResult.m_vPosition, vCurDirection * interaction.m_fForce);
+          
+          ezGameObject* pObject;
+          if (GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
+          {
+            ezPhysicsAddImpulseMsg msg;
+            msg.m_vGlobalPosition = hitResult.m_vPosition;
+            msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
+
+            pObject->SendMessage(msg);
+          }
         }
 
         if (interaction.m_Reaction == ezProjectileReaction::Absorb)
@@ -165,7 +174,7 @@ void ezProjectileComponent::Update()
           vNewPosition = hitResult.m_vPosition;
 
           ezGameObject* pObject;
-          if (GetWorld()->TryGetObject(hitResult.m_hGameObject, pObject))
+          if (GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
           {
             pObject->AddChild(GetOwner()->GetHandle(), ezGameObject::TransformPreservation::PreserveGlobal);
           }
@@ -210,7 +219,7 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& stream) const
     s << ia.m_sInteraction;
 
     // Version 3
-    s << ia.m_fForce;
+    s << ia.m_fImpulse;
   }
 }
 
@@ -247,7 +256,7 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& stream)
 
     if (uiVersion >= 3)
     {
-      s >> ia.m_fForce;
+      s >> ia.m_fImpulse;
     }
   }
 }

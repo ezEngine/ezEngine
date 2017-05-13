@@ -1,9 +1,13 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 
 class ezPxDynamicActorComponent;
+struct ezPhysicsAddImpulseMsg;
+struct ezPhysicsAddForceMsg;
+
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponentManager : public ezComponentManager<ezPxDynamicActorComponent, ezBlockStorageType::FreeList>
 {
@@ -23,6 +27,8 @@ private:
   ezDynamicArray<ezPxDynamicActorComponent*> m_KinematicActorComponents;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponent : public ezPxActorComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxDynamicActorComponent, ezPxActorComponent, ezPxDynamicActorComponentManager);
@@ -32,6 +38,12 @@ public:
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  void AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg);
+  void AddForceAtPos(ezPhysicsAddForceMsg& msg);
+
+  //////////////////////////////////////////////////////////////////////////
+  // Properties
 
   bool GetKinematic() const { return m_bKinematic; }
   void SetKinematic(bool b);
@@ -54,14 +66,13 @@ public:
   ezVec3 GetLocalCenterOfMass() const;
   ezVec3 GetGlobalCenterOfMass() const;
 
+  /// \todo Turn these into messages ?
+
   void AddLinearForce(const ezVec3& vForce);
   void AddLinearImpulse(const ezVec3& vImpulse);
 
   void AddAngularForce(const ezVec3& vForce);
   void AddAngularImpulse(const ezVec3& vImpulse);
-
-  void AddForceAtPos(const ezVec3& vForce, const ezVec3& vPos);
-  void AddImpulseAtPos(const ezVec3& vImpulse, const ezVec3& vPos);
 
 protected:
   bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;

@@ -3,6 +3,7 @@
 #include <GameEngine/Basics.h>
 #include <Core/World/WorldModule.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Communication/Message.h>
 
 class ezGameObjectHandle;
 
@@ -13,9 +14,9 @@ struct ezPhysicsHitResult
   ezVec3 m_vPosition;
   ezVec3 m_vNormal;
   float m_fDistance;
-  void* m_pShape = nullptr; // the object inside the physics engine that was hit
 
-  ezGameObjectHandle m_hGameObject;
+  ezGameObjectHandle m_hShapeObject; ///< The game object to which the hit physics shape is attached.
+  ezGameObjectHandle m_hActorObject; ///< The game object to which the parent actor of the hit physics shape is attached.
   ezSurfaceResourceHandle m_hSurface;
 };
 
@@ -43,10 +44,26 @@ public:
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
 
-  virtual void ApplyImpulseAtPos(void* pTargetShape, const ezVec3& vPosition, const ezVec3& vImpulse) = 0;
-
   virtual ezVec3 GetGravity() const = 0;
 
 private:
 
+};
+
+/// \brief Used to apply a physical impulse on the object
+struct EZ_GAMEENGINE_DLL ezPhysicsAddImpulseMsg : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezPhysicsAddImpulseMsg, ezMessage);
+
+  ezVec3 m_vGlobalPosition;
+  ezVec3 m_vImpulse;
+};
+
+/// \brief Used to apply a physical force on the object
+struct EZ_GAMEENGINE_DLL ezPhysicsAddForceMsg : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezPhysicsAddForceMsg, ezMessage);
+
+  ezVec3 m_vGlobalPosition;
+  ezVec3 m_vForce;
 };

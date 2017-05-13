@@ -470,7 +470,10 @@ void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
         const ezVec3 vIntendedMovement = pOwner->GetGlobalRotation() * m_vRelativeMoveDirection;
         const ezVec3 vForce = vIntendedMovement * m_fPushingForce;
 
-        pDynamicActorComponent->AddForceAtPos(vForce, vHitPos);
+        ezPhysicsAddForceMsg msg;
+        msg.m_vForce = vForce;
+        msg.m_vGlobalPosition = vHitPos;
+        pDynamicActorComponent->AddForceAtPos(msg);
       }
     }
   }

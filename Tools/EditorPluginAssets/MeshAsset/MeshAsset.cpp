@@ -48,10 +48,15 @@ static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)
 
 static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
 {
+  const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+  const float sx = ezMath::Clamp(pProp->m_vNonUniformScaling.x, 0.0001f, 10000.0f);
+  const float sy = ezMath::Clamp(pProp->m_vNonUniformScaling.y, 0.0001f, 10000.0f);
+  const float sz = ezMath::Clamp(pProp->m_vNonUniformScaling.z, 0.0001f, 10000.0f);
+
   ezMat3 mResult;
-  mResult.SetColumn(0, GetBasisVector(pProp->m_ForwardDir) * pProp->m_fUniformScaling * pProp->m_vNonUniformScaling.x);
-  mResult.SetColumn(1, GetBasisVector(pProp->m_RightDir) * pProp->m_fUniformScaling * pProp->m_vNonUniformScaling.y);
-  mResult.SetColumn(2, GetBasisVector(pProp->m_UpDir) * pProp->m_fUniformScaling * pProp->m_vNonUniformScaling.z);
+  mResult.SetColumn(0, GetBasisVector(pProp->m_ForwardDir) * us * sx);
+  mResult.SetColumn(1, GetBasisVector(pProp->m_RightDir) * us * sy);
+  mResult.SetColumn(2, GetBasisVector(pProp->m_UpDir) * us * sz);
 
   return mResult.GetTranspose();
 }
@@ -186,7 +191,6 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
   ezMeshResourceDescriptor desc;
 
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
-  //const bool bFlipTriangles = mTransformation.GetDeterminant() < 0.0f; //(mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
@@ -241,6 +245,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
       geom.AddTorus(pProp->m_fRadius, ezMath::Max(pProp->m_fRadius + 0.01f, pProp->m_fRadius2), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail2), ezColor::White, mTrans);
     }
 
+    geom.ComputeFaceNormals();
     geom.TriangulatePolygons(4);
     geom.ComputeTangents();
     CreateMeshFromGeom(pProp, geom, desc);

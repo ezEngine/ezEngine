@@ -179,17 +179,23 @@ namespace
     PxShape* pHitShape = hit.shape;
     EZ_ASSERT_DEBUG(pHitShape != nullptr, "Raycast should have hit a shape");
 
-    out_HitResult.m_pShape = pHitShape;
     out_HitResult.m_vPosition = ezPxConversionUtils::ToVec3(hit.position);
     out_HitResult.m_vNormal = ezPxConversionUtils::ToVec3(hit.normal);
     out_HitResult.m_fDistance = hit.distance;
     EZ_ASSERT_DEBUG(!out_HitResult.m_vPosition.IsNaN(), "Raycast hit Position is NaN");
     EZ_ASSERT_DEBUG(!out_HitResult.m_vNormal.IsNaN(), "Raycast hit Normal is NaN");
 
-    ezComponent* pComponent = ezPxUserData::GetComponent(pHitShape->userData);
-    EZ_ASSERT_DEBUG(pComponent != nullptr, "Shape should have set a component as user data");
+    {
+      ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData);
+      EZ_ASSERT_DEBUG(pShapeComponent != nullptr, "Shape should have set a component as user data");
+      out_HitResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
+    }
 
-    out_HitResult.m_hGameObject = pComponent->GetOwner()->GetHandle();
+    {
+      ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData);
+      EZ_ASSERT_DEBUG(pActorComponent != nullptr, "Actor should have set a component as user data");
+      out_HitResult.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
+    }
 
     if (PxMaterial* pMaterial = pHitShape->getMaterialFromInternalFaceIndex(hit.faceIndex))
     {
@@ -564,28 +570,6 @@ bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsule
   PxTransform transform = ezPxConversionUtils::ToTransform(start.m_vPosition, qRot);
 
   return OverlapTest(capsule, transform, uiCollisionLayer, uiIgnoreShapeId);
-}
-
-
-void ezPhysXWorldModule::ApplyImpulseAtPos(void* pTargetShape, const ezVec3& vPosition, const ezVec3& vImpulse)
-{
-  PxShape* pShape = static_cast<PxShape*>(pTargetShape);
-
-  if (pShape == nullptr)
-    return;
-
-  EZ_PX_WRITE_LOCK(*m_pPxScene);
-
-  PxRigidActor* pActor = pShape->getActor();
-  if (pActor->getType() != PxActorType::eRIGID_DYNAMIC)
-    return;
-
-  PxRigidBody* pBody = static_cast<PxRigidBody*>(pActor);
-
-  if (pBody->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
-    return;
-
-  PxRigidBodyExt::addForceAtPos(*pBody, ezPxConversionUtils::ToVec3(vImpulse), ezPxConversionUtils::ToVec3(vPosition), PxForceMode::eIMPULSE);
 }
 
 bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId)
