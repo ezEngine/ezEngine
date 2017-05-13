@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -31,6 +31,7 @@ SET (LINK_LIBRARIES
   Core
   PhysXCooking
   GameEngine
+  ModelImporter
 )
 
 if (BUILDSYSTEM_PLATFORM_64BIT)

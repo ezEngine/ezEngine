@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
 // This file includes everything from Foundation to ensure that all template code is looked at when building the Foundation library.
 // For non-template code this is not really necessary, but to be sure, just include everything.
@@ -15,6 +15,7 @@
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/Status.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Types/Uuid.h>
 

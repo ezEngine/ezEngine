@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Basics.h>
-#include <ToolsFoundation/Basics/Status.h>
+#include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezAbstractObjectGraph;

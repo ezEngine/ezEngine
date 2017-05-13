@@ -2,7 +2,7 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Communication/Event.h>
-#include <ToolsFoundation/Basics/Status.h>
+#include <Foundation/Types/Status.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/Uuid.h>
 

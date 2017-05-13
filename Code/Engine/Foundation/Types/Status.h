@@ -2,13 +2,13 @@
 
 /// \file
 
-#include <ToolsFoundation/Basics.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Strings/StringBuilder.h>
 
 class ezLogInterface;
 
 /// \brief An ezResult with an additional message for the reason of failure
-struct EZ_TOOLSFOUNDATION_DLL ezStatus
+struct EZ_FOUNDATION_DLL ezStatus
 {
   explicit ezStatus() : m_Result(EZ_FAILURE)
   {

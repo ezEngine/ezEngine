@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
-#include <ToolsFoundation/Basics/Status.h>
+#include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/Document.h>
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentManager : public ezReflectedClass

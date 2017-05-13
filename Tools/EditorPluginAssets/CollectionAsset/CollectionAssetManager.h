@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <ToolsFoundation/Basics/Status.h>
+#include <Foundation/Types/Status.h>
 
 class ezCollectionAssetDocumentManager : public ezAssetDocumentManager
 {

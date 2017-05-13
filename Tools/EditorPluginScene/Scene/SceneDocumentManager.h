@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Document/DocumentManager.h>
-#include <ToolsFoundation/Basics/Status.h>
+#include <Foundation/Types/Status.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 
 class ezSceneDocumentManager : public ezAssetDocumentManager

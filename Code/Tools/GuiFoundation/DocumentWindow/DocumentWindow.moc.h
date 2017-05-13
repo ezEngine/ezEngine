@@ -4,7 +4,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
-#include <ToolsFoundation/Basics/Status.h>
+#include <Foundation/Types/Status.h>
 #include <QMainWindow>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
