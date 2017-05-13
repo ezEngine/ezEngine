@@ -17,7 +17,9 @@ namespace ezModelImporter
     friend class Mesh;
     friend class VertexDataStream;
     template<typename Attribute, bool>
-    friend class TypedVertexDataStreamView;
+    friend class TypedVertexDataStreamView_Base;
+    template<typename Attribute>
+    friend class TypedVertexDataStreamView_ReadWrite;
 
     EZ_ALWAYS_INLINE operator ezUInt32 () const { return m_Value; }
 

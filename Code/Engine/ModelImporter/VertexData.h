@@ -24,7 +24,9 @@ namespace ezModelImporter
   private:
     friend class VertexDataStream;
     template<typename Attribute, bool>
-    friend class TypedVertexDataStreamView;
+    friend class TypedVertexDataStreamView_Base;
+    template<typename Attribute>
+    friend class TypedVertexDataStreamView_ReadWrite;
 
     operator ezUInt32 () const { return m_Value; }
 
@@ -82,7 +84,9 @@ namespace ezModelImporter
   private:
     friend class Mesh;
     template<typename Attribute, bool>
-    friend class TypedVertexDataStreamView;
+    friend class TypedVertexDataStreamView_Base;
+    template<typename Attribute>
+    friend class TypedVertexDataStreamView_ReadWrite;
 
     VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles, VertexElementType elementType);
 
@@ -108,16 +112,16 @@ namespace ezModelImporter
   ///
   /// Implementation notes:
   /// Inheriting from VertexDataStream would be nice, but creation as such is not practical. Casting into it anyway would be possible but non-standard and weird.
-  template<typename Attribute, bool ReadOnly = true>
-  class TypedVertexDataStreamView
+  template<typename Attribute, bool ReadOnly>
+  class TypedVertexDataStreamView_Base
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(TypedVertexDataStreamView);
+    EZ_DISALLOW_COPY_AND_ASSIGN(TypedVertexDataStreamView_Base);
 
   public:
     using StreamType = std::conditional_t<ReadOnly, const VertexDataStream, VertexDataStream>;
 
     /// Asserts if the Attribute type is invalid or does not fulfill the element type and count properties of this data stream.
-    TypedVertexDataStreamView(StreamType& sourceDataStream);
+    TypedVertexDataStreamView_Base(StreamType& sourceDataStream);
 
     /// Retrieves the value for a given VertexIndex.
     ///
@@ -131,21 +135,34 @@ namespace ezModelImporter
     /// If index is invalid, a null attribute will be returned.
     Attribute GetValue(VertexDataIndex index) const;
 
-    /// Sets a value for vertex. If the vertex is pointing to an invalid DataIndex, a new data entry will be created.
-    std::enable_if_t<!ReadOnly> SetValue(VertexIndex index, const Attribute& value);
-
-    /// Adds a vertex attribute value to the data array.
-    std::enable_if_t<!ReadOnly> AddValue(const Attribute& value);
-
-    /// Adds a vertex attribute values to the data array.
-    std::enable_if_t<!ReadOnly> AddValues(const ezArrayPtr<Attribute>& values);
-
     /// Access to wrapped data stream.
     StreamType* operator -> () { return &m_DataStream; }
 
-  private:
+  protected:
     StreamType& m_DataStream;
   };
+
+  /// Read/write version.
+  template<typename Attribute>
+  class TypedVertexDataStreamView_ReadWrite : public TypedVertexDataStreamView_Base<Attribute, false>
+  {
+  public:
+    /// Asserts if the Attribute type is invalid or does not fulfill the element type and count properties of this data stream.
+    TypedVertexDataStreamView_ReadWrite(StreamType& sourceDataStream) : TypedVertexDataStreamView_Base<Attribute, false>(sourceDataStream) {}
+
+    /// Sets a value for vertex. If the vertex is pointing to an invalid DataIndex, a new data entry will be created.
+    void SetValue(VertexIndex index, const Attribute& value);
+
+    /// Adds a vertex attribute value to the data array.
+    void AddValue(const Attribute& value);
+
+    /// Adds a vertex attribute values to the data array.
+    void AddValues(const ezArrayPtr<Attribute>& values);
+  };
+
+  /// Read only version.
+  template<typename Attribute>
+  using TypedVertexDataStreamView = typename TypedVertexDataStreamView_Base<Attribute, true>;
 }
 
 #include <ModelImporter/VertexData.inl>

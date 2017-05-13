@@ -46,7 +46,7 @@
 
 
   template<typename Attribute, bool ReadOnly>
-  TypedVertexDataStreamView<Attribute, ReadOnly>::TypedVertexDataStreamView(StreamType& sourceDataStream)
+  TypedVertexDataStreamView_Base<Attribute, ReadOnly>::TypedVertexDataStreamView_Base(StreamType& sourceDataStream)
     : m_DataStream(sourceDataStream)
   {
     EZ_ASSERT_DEV(sizeof(Attribute) % this->m_DataStream.GetAttributeSize() == 0,
@@ -106,21 +106,21 @@
   }
 
   template<typename Attribute, bool ReadOnly>
-  inline Attribute TypedVertexDataStreamView<Attribute, ReadOnly>::GetValue(VertexIndex index) const
+  inline Attribute TypedVertexDataStreamView_Base<Attribute, ReadOnly>::GetValue(VertexIndex index) const
   {
     if (!this->m_DataStream.HasValue(index)) return Attribute { 0 };
     return *reinterpret_cast<const Attribute*>(&this->m_DataStream.m_Data[this->m_DataStream.m_IndexToData[index]]);
   }
 
   template<typename Attribute, bool ReadOnly>
-  inline Attribute TypedVertexDataStreamView<Attribute, ReadOnly>::GetValue(VertexDataIndex index) const
+  inline Attribute TypedVertexDataStreamView_Base<Attribute, ReadOnly>::GetValue(VertexDataIndex index) const
   {
     if (!index.IsValid()) return Attribute { 0 };
     return *reinterpret_cast<const Attribute*>(&this->m_DataStream.m_Data[index]);
   }
 
-  template<typename Attribute, bool ReadOnly>
-  inline std::enable_if_t<!ReadOnly> TypedVertexDataStreamView<Attribute, ReadOnly>::SetValue(VertexIndex index, const Attribute& value)
+  template<typename Attribute>
+  inline void TypedVertexDataStreamView_ReadWrite<Attribute>::SetValue(VertexIndex index, const Attribute& value)
   {
     const char* data = reinterpret_cast<const char*>(&value);
 
@@ -136,15 +136,15 @@
     }
   }
 
-  template<typename Attribute, bool ReadOnly>
-  inline std::enable_if_t<!ReadOnly> TypedVertexDataStreamView<Attribute, ReadOnly>::AddValue(const Attribute& value)
+  template<typename Attribute>
+  inline void TypedVertexDataStreamView_ReadWrite<Attribute>::AddValue(const Attribute& value)
   {
     const char* data = reinterpret_cast<const char*>(&value);
     this->m_DataStream.m_Data.PushBackRange(ezMakeArrayPtr(data, sizeof(Attribute)));
   }
 
-  template<typename Attribute, bool ReadOnly>
-  inline std::enable_if_t<!ReadOnly> TypedVertexDataStreamView<Attribute, ReadOnly>::AddValues(const ezArrayPtr<Attribute>& values)
+  template<typename Attribute>
+  inline void TypedVertexDataStreamView_ReadWrite<Attribute>::AddValues(const ezArrayPtr<Attribute>& values)
   {
     const char* data = reinterpret_cast<const char*>(values.GetPtr());
     this->m_DataStream.m_Data.PushBackRange(ezMakeArrayPtr(data, values.GetCount() * sizeof(Attribute)));

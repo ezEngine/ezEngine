@@ -332,10 +332,10 @@ namespace ezModelImporter
       ezLog::Error("Can't compute vertex normals for the mesh {0}, because it doesn't have vertex positions.", m_Name);
       return EZ_FAILURE;
     }
-    const TypedVertexDataStreamView<ezVec3, true> positionStream(*positionStreamRaw);
+    const TypedVertexDataStreamView<ezVec3> positionStream(*positionStreamRaw);
 
     VertexDataStream* normalStreamRaw = AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
-    TypedVertexDataStreamView<ezVec3, false> normalStream(*normalStreamRaw);
+    TypedVertexDataStreamView_ReadWrite<ezVec3> normalStream(*normalStreamRaw);
 
     // Normals have same mapping as positions.
     normalStream->m_IndexToData = positionStreamRaw->m_IndexToData;
@@ -391,11 +391,11 @@ namespace ezModelImporter
       }
 
       ezArrayPtr<Triangle> triangles;
-      const TypedVertexDataStreamView<ezVec3, true> positionStream;
-      const TypedVertexDataStreamView<ezVec3, true> normalStream;
-      const TypedVertexDataStreamView<ezVec2, true> texStream;
-      TypedVertexDataStreamView<ezVec3, false> tangentStream;
-      TypedVertexDataStreamView<float, false> bitangentStream;
+      const TypedVertexDataStreamView<ezVec3> positionStream;
+      const TypedVertexDataStreamView<ezVec3> normalStream;
+      const TypedVertexDataStreamView<ezVec2> texStream;
+      TypedVertexDataStreamView_ReadWrite<ezVec3> tangentStream;
+      TypedVertexDataStreamView_ReadWrite<float> bitangentStream;
       VertexDataIndex bitangentIndexPositive;
       VertexDataIndex bitangentIndexNegative;
 
