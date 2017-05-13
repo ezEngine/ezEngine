@@ -1,4 +1,4 @@
-﻿#cmake
+#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -6,6 +6,10 @@
 #
 # *** Modify this file as required ***
 #
+
+if (POLICY CMP0043)
+  cmake_policy(SET CMP0043 NEW)
+endif()
 
 BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 BUILD_CONDITIONAL(EZ_BUILD_PHYSX)
@@ -27,7 +31,6 @@ SET (LINK_LIBRARIES
   Core
   PhysXCooking
   GameEngine
-  ModelImporter
 )
 
 if (BUILDSYSTEM_PLATFORM_64BIT)
