@@ -50,7 +50,7 @@
     : m_DataStream(sourceDataStream)
   {
     EZ_ASSERT_DEV(sizeof(Attribute) % this->m_DataStream.GetAttributeSize() == 0,
-                  "Size of attribute type ({0}) must equal the attribute size of the wrapped vertex stream ({1})", sizeof(Attribute), this->m_DataStream.GetAttributeSize());
+                  "Size of attribute type ({0}) must equal the attribute size of the wrapped vertex stream ({1})", (ezUInt32)sizeof(Attribute), this->m_DataStream.GetAttributeSize());
 
     // We could allow arbitrary types, but for sanity we don't. See static_assert in class decl.
     // This would be a great place for C++17 constexpr if.
