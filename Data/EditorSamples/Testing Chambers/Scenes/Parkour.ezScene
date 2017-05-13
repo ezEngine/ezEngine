@@ -594,6 +594,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0xB81E053F}
@@ -1107,6 +1108,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0xD7A3D03F}
@@ -1812,6 +1814,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0xE951CC41}
@@ -1883,6 +1886,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x85EB8940}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0x7B146E3F}
@@ -2209,6 +2213,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0x00002041}
@@ -2234,6 +2239,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0x295CAF3F}
@@ -2243,7 +2249,7 @@ o
 {
 	Uuid %id{u4{12488799340373456006,4972026541316252440}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -2258,10 +2264,11 @@ o
 {
 	Uuid %id{u4{14847168656001625766,4984817416655678920}}
 	s %t{"ezPxCharacterProxyComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		f %CapsuleCrouchHeight{0xCDCC4C3E}
 		f %CapsuleHeight{0x6666A63F}
 		f %CapsuleRadius{0x0000803E}
 		u1 %CollisionLayer{6}
@@ -2293,6 +2300,7 @@ o
 	p
 	{
 		b %Active{0}
+		b %CastShadows{0}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{188,0,255,255}}
 		f %Range{0x00002041}
@@ -2398,6 +2406,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		Angle %InnerSpotAngle{f{0x920A863E}}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -2429,6 +2438,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{1}
 		Angle %InnerSpotAngle{f{0x920A863E}}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -2484,6 +2494,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 	}
@@ -2496,6 +2507,7 @@ o
 	p
 	{
 		b %Active{0}
+		b %CastShadows{0}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{188,0,255,255}}
 		f %Range{0x00002041}
@@ -2682,7 +2694,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{15547343107554504644}
+		u4 %Hash{8773824594505722043}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2763,6 +2775,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x00004842}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0x0000A040}
@@ -2872,6 +2885,7 @@ o
 	p
 	{
 		b %Active{0}
+		b %CastShadows{0}
 		Angle %InnerSpotAngle{f{0x4D51253F}}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -3037,16 +3051,18 @@ o
 {
 	Uuid %id{u4{3944063209475990452,5332446421198049134}}
 	s %t{"ezPxCharacterControllerComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		f %AirFriction{0x0000003F}
 		f %AirSpeed{0x00002040}
+		f %CrouchSpeed{0x00000040}
 		s %FallbackWalkSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 		f %JumpImpulse{0x0000C040}
 		f %PushingForce{0x0000FA43}
 		Angle %RotateSpeed{f{0xDB0FC93F}}
+		f %RunInteractionDistance{0x00004040}
 		f %RunSpeed{0x00007041}
 		f %WalkInteractionDistance{0x00000040}
 		f %WalkSpeed{0x0000A040}
@@ -3588,6 +3604,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0x93C28941}
@@ -5357,7 +5374,7 @@ o
 {
 	Uuid %id{u4{16679751090236404764,9403904801699804632}}
 	s %t{"ezFmodEventComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -5810,6 +5827,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0xB81E053F}
@@ -6231,6 +6249,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0x295CAF3F}
@@ -6523,6 +6542,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		Angle %InnerSpotAngle{f{0x920A863E}}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -8815,6 +8835,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0xB81E053F}
@@ -9361,6 +9382,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %Range{0xD7A3D03F}

@@ -106,12 +106,15 @@ void ezPointLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg)
   if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f)
     return;
 
-  ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
-  float fScreenSpaceSize = 1.0f;
+  ezTransform t = GetOwner()->GetGlobalTransform();
 
+  float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
+  fScreenSpaceSize = ezMath::Min(fScreenSpaceSize, 1.0f);
+
+  ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner(), uiBatchId);
 
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+  pRenderData->m_GlobalTransform = t;
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fRange = m_fEffectiveRange;

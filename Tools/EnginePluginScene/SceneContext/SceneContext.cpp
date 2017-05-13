@@ -446,13 +446,13 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
       file.WriteBytes(szSceneTag, sizeof(char) * 16);
     }
 
-    const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+    const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
-    const ezTag* tagEditorPrefabInstance = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
+    const ezTag& tagEditorPrefabInstance = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
     ezTagSet tags;
-    tags.Set(*tagEditor);
-    tags.Set(*tagEditorPrefabInstance);
+    tags.Set(tagEditor);
+    tags.Set(tagEditorPrefabInstance);
 
     ezWorldWriter ww;
     ww.Write(file, *m_pWorld, &tags);
@@ -510,8 +510,8 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
 
     if (bSetEditorTag)
     {
-      const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-      obj.m_Tags.Set(*tagEditor); // to prevent it from being exported
+      const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+      obj.m_Tags.Set(tagEditor); // to prevent it from being exported
     }
 
     ezGameObject* pLight;

@@ -6,13 +6,14 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
+    EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.01f), new ezSuffixAttribute(" m"))
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -26,6 +27,7 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezLightComponent::ezLightComponent()
   : m_LightColor(ezColor::White)
   , m_fIntensity(10.0f)
+  , m_fPenumbraSize(0.01f)
   , m_bCastShadows(false)
 {
 }
@@ -66,6 +68,15 @@ bool ezLightComponent::GetCastShadows() const
   return m_bCastShadows;
 }
 
+void ezLightComponent::SetPenumbraSize(float fPenumbraSize)
+{
+  m_fPenumbraSize = fPenumbraSize;
+}
+
+float ezLightComponent::GetPenumbraSize() const
+{
+  return m_fPenumbraSize;
+}
 
 void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -74,18 +85,25 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_LightColor;
   s << m_fIntensity;
+  s << m_fPenumbraSize;
   s << m_bCastShadows;
 }
 
 void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  /*const ezUInt32 uiVersion = */stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
 
   s >> m_LightColor;
   s >> m_fIntensity;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fPenumbraSize;
+  }
+
   s >> m_bCastShadows;
 }
 
@@ -100,6 +118,22 @@ float ezLightComponent::CalculateEffectiveRange(float fRange, float fIntensity)
   }
 
   return ezMath::Min(fRange, fEffectiveRange);
+}
+
+//static
+float ezLightComponent::CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera)
+{
+  if (camera.IsPerspective())
+  {
+    float dist = (sphere.m_vCenter - camera.GetPosition()).GetLength();
+    float fHalfHeight = ezMath::Tan(camera.GetFovY(1.0f) * 0.5f) * dist;
+    return ezMath::Pow(sphere.m_fRadius / fHalfHeight, 0.8f); // tweak factor to make transitions more linear.
+  }
+  else
+  {
+    float fHalfHeight = camera.GetDimensionY(1.0f) * 0.5f;
+    return sphere.m_fRadius / fHalfHeight;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -27,10 +27,10 @@ public:
   static ezTagRegistry& GetGlobalRegistry();
 
   /// \brief Ensures the tag with the given name exists and returns a pointer to it.
-  const ezTag* RegisterTag(const char* szTagString); // [tested]
+  const ezTag& RegisterTag(const char* szTagString); // [tested]
 
   /// \brief Ensures the tag with the given name exists and returns a pointer to it.
-  const ezTag* RegisterTag(const ezHashedString& TagString); // [tested]
+  const ezTag& RegisterTag(const ezHashedString& TagString); // [tested]
 
   /// \brief Searches for a tag with the given name and returns a pointer to it
   const ezTag* GetTagByName(const ezTempHashedString& TagString) const; // [tested]

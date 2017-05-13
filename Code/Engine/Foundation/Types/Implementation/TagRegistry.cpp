@@ -15,7 +15,7 @@ ezTagRegistry& ezTagRegistry::GetGlobalRegistry()
   return s_GlobalRegistry;
 }
 
-const ezTag* ezTagRegistry::RegisterTag(const char* szTagString)
+const ezTag& ezTagRegistry::RegisterTag(const char* szTagString)
 {
   ezHashedString TagString;
   TagString.Assign(szTagString);
@@ -23,7 +23,7 @@ const ezTag* ezTagRegistry::RegisterTag(const char* szTagString)
   return RegisterTag(TagString);
 }
 
-const ezTag* ezTagRegistry::RegisterTag(const ezHashedString& TagString)
+const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& TagString)
 {
   EZ_LOCK(m_TagRegistryMutex);
 
@@ -31,7 +31,7 @@ const ezTag* ezTagRegistry::RegisterTag(const ezHashedString& TagString)
   const ezTag* pResult = GetTagByName(TagString);
 
   if (pResult != nullptr)
-    return pResult;
+    return *pResult;
 
   const ezUInt32 uiNextTagIndex = m_TagsByIndex.GetCount();
 
@@ -48,7 +48,7 @@ const ezTag* ezTagRegistry::RegisterTag(const ezHashedString& TagString)
   m_TagsByIndex.PushBack(&it.Value());
 
   ezLog::Debug("Registered Tag '{0}'", TagString.GetData());
-  return m_TagsByIndex.PeekBack();
+  return *m_TagsByIndex.PeekBack();
 }
 
 const ezTag* ezTagRegistry::GetTagByName(const ezTempHashedString& TagString) const

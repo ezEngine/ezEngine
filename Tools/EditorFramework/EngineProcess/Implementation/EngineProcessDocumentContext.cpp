@@ -726,7 +726,7 @@ void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const 
 {
   ezGameObjectHandle hObject = m_Context.m_GameObjectMap.GetHandle(object);
 
-  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
+  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
 
   ezGameObject* pObject;
   if (m_pWorld->TryGetObject(hObject, pObject))
@@ -734,16 +734,16 @@ void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const 
     if (recursive)
     {
       if (bSet)
-        SetTagRecursive(pObject, *tag);
+        SetTagRecursive(pObject, tag);
       else
-        ClearTagRecursive(pObject, *tag);
+        ClearTagRecursive(pObject, tag);
     }
     else
     {
       if (bSet)
-        pObject->GetTags().Set(*tag);
+        pObject->GetTags().Set(tag);
       else
-        pObject->GetTags().Remove(*tag);
+        pObject->GetTags().Remove(tag);
     }
   }
 }

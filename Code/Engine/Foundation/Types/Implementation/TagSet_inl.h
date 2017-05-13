@@ -258,26 +258,26 @@ void ezTagSetTemplate<BlockStorageAllocator>::Clear()
 template<typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::SetByName(const char* szTag)
 {
-  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
-  Set(*tag);
+  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
+  Set(tag);
 }
 
 template<typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::RemoveByName(const char* szTag)
 {
-  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag));
-
-  if (tag != nullptr)
+  if (const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag)))
+  {
     Remove(*tag);
+  }
 }
 
 template<typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(const char* szTag) const
 {
-  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag));
-
-  if (tag != nullptr)
+  if (const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag)))
+  {
     return IsSet(*tag);
+  }
 
   return false;
 }

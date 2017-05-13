@@ -52,6 +52,7 @@ namespace
     ezRectU32 m_AtlasRect;
     ezUInt32 m_uiType;
     float m_fShadowMapScale;
+    float m_fPenumbraSize;
     ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
   };
 
@@ -65,6 +66,8 @@ namespace
   static ezUInt32 s_uiShadowAtlasTextureWidth = 4096; ///\todo make this configurable
   static ezUInt32 s_uiShadowAtlasTextureHeight = 4096;
   static ezUInt32 s_uiShadowMapSize = 1024;
+  static float s_fFadeOutScaleStart = 65.0f / s_uiShadowMapSize;
+  static float s_fFadeOutScaleEnd = s_fFadeOutScaleStart * 0.5f;
   static ezGALTextureHandle s_hShadowAtlasTexture;
   static ezGALBufferHandle s_hShadowDataBuffer;
   static bool s_bShadowDataBufferUpdated;
@@ -187,14 +190,9 @@ namespace
     ezUInt32 uiPackedDataOffset = packedShadowData.GetCount();
     packedShadowData.SetCountUninitialized(uiPackedDataOffset + uiPackedDataSize / sizeof(ezVec4));
 
-    ezVec4& shadowParams = packedShadowData[uiPackedDataOffset];
-    shadowParams.x = 0.001f;
-    shadowParams.y = 0.0002f;
-    shadowParams.z = 8.0f;
-    shadowParams.w = 0.0f;
-
     out_pData = &s_ShadowData[s_uiUsedShadowData];
     out_pData->m_fShadowMapScale = fShadowMapScale;
+    out_pData->m_fPenumbraSize = pLight->GetPenumbraSize();
     out_pData->m_uiPackedDataOffset = uiPackedDataOffset;
 
     if (pLight != nullptr)
@@ -286,6 +284,11 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
 
+  if (fScreenSpaceSize < s_fFadeOutScaleEnd)
+  {
+    return ezInvalidIndex;
+  }
+
   return ezInvalidIndex;
 }
 
@@ -293,6 +296,11 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize)
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
+
+  if (fScreenSpaceSize < s_fFadeOutScaleEnd)
+  {
+    return ezInvalidIndex;
+  }
 
   ShadowData* pData = nullptr;
   if (GetDataForExtraction(pSpotLight, fScreenSpaceSize, sizeof(ezSpotShadowData), pData))
@@ -344,12 +352,7 @@ ezGALTextureHandle ezShadowPool::GetShadowAtlasTexture()
 //static
 float ezShadowPool::GetShadowAtlasTexelSize()
 {
-  if (auto pTexture = ezGALDevice::GetDefaultDevice()->GetTexture(s_hShadowAtlasTexture))
-  {
-    return 1.0f / pTexture->GetDescription().m_uiWidth;
-  }
-
-  return 1.0f;
+  return 1.0f / s_uiShadowAtlasTextureWidth;
 }
 
 //static
@@ -410,6 +413,9 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
   {
     auto& shadowData = s_ShadowData[uiShadowDataIndex];
 
+    ezUInt32 uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(s_uiShadowMapSize * ezMath::Clamp(shadowData.m_fShadowMapScale, s_fFadeOutScaleStart, 1.0f)));
+    ezAngle fov;
+
     for (ezUInt32 uiViewIndex = 0; uiViewIndex < shadowData.m_Views.GetCount(); ++uiViewIndex)
     {
       ezView* pShadowView = nullptr;
@@ -418,7 +424,6 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
         continue;
       }
 
-      ezUInt32 uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(s_uiShadowMapSize * shadowData.m_fShadowMapScale));
       ezRectU32 atlasRect = FindAtlasRect(uiShadowMapSize, uiShadowDataIndex);
       pShadowView->SetViewport(ezRectFloat((float)atlasRect.x, (float)atlasRect.y, (float)atlasRect.width, (float)atlasRect.height));
 
@@ -430,12 +435,26 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
       atlasMatrix.SetDiagonal(ezVec4(scale.x, scale.y, 1.0f, 1.0f));
       atlasMatrix.SetTranslationVector(offset.GetAsVec3(0.0f));
 
+      fov = pShadowView->GetCamera()->GetFovY(1.0f);
       const ezMat4& viewProjection = pShadowView->GetViewProjectionMatrix();
 
       ezUInt32 uiMatrixOffset = GET_WORLD_TO_LIGHT_MATRIX_OFFSET(shadowData.m_uiPackedDataOffset, uiViewIndex);
       ezMat4& worldToLightMatrix = *reinterpret_cast<ezMat4*>(&packedShadowData[uiMatrixOffset]);
       worldToLightMatrix = atlasMatrix * texScaleMatrix * viewProjection;
     }
+
+    float screenHeight = ezMath::Tan(fov * 0.5f) * 2.0f;
+    float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
+
+    float penumbraSize = ezMath::Max((shadowData.m_fPenumbraSize / screenHeight) * relativeShadowSize, fAtlasInvHeight);
+    float fadeOut = ezMath::Clamp((shadowData.m_fShadowMapScale - s_fFadeOutScaleEnd) / (s_fFadeOutScaleStart - s_fFadeOutScaleEnd), 0.0f, 1.0f);
+
+    ezUInt32 uiParamsOffset = GET_SHADOW_PARAMS_OFFSET(shadowData.m_uiPackedDataOffset);
+    ezVec4& shadowParams = packedShadowData[uiParamsOffset];
+    shadowParams.x = 0.001f;
+    shadowParams.y = 0.0002f;
+    shadowParams.z = penumbraSize;
+    shadowParams.w = ezMath::Sqrt(fadeOut);
   }
 
   s_bShadowDataBufferUpdated = false;

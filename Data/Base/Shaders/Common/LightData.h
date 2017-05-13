@@ -32,13 +32,13 @@ struct EZ_ALIGN_16(ezPerLightData)
 
 struct EZ_ALIGN_16(ezPointShadowData)
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
   MAT4(worldToLightMatrix)[6];
 };
 
 struct EZ_ALIGN_16(ezSpotShadowData)
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
   MAT4(worldToLightMatrix);
 };
 

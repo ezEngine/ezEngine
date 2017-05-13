@@ -80,7 +80,7 @@ float CalculateShadow(float4 shadowPosition, float3 shadowPosDX, float3 shadowPo
   float bias = min(dot(ShadowTexelSize, abs(receiverPlaneDepthBias)), shadowParams.x) + shadowParams.y;
   shadowPosition.z -= bias;
   
-  float offsetScale = ShadowTexelSize * shadowParams.z;
+  float offsetScale = shadowParams.z;
   
   float shadowTerm = 0.0f;
   for (int i = 0; i < 8; ++i)
@@ -161,6 +161,12 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
         
         float4 shadowParams = shadowDataBuffer[GET_SHADOW_PARAMS_OFFSET(shadowDataOffset)];
         float shadowTerm = CalculateShadow(shadowPosition, shadowPosDX, shadowPosDY, randomRotation, shadowParams);
+        
+        if (type != LIGHT_TYPE_DIR)
+        {
+          shadowTerm = lerp(1.0f, shadowTerm, shadowParams.w);
+        }
+        
         attenuation *= shadowTerm;
       }
 

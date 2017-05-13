@@ -126,16 +126,16 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {
-    const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+    const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
     if (!bRenderEditorGizmos)
     {
       // exclude all editor objects from rendering in proper game views
-      pView->m_ExcludeTags.Set(*tagEditor);
+      pView->m_ExcludeTags.Set(tagEditor);
     }
     else
     {
-      pView->m_ExcludeTags.Remove(*tagEditor);
+      pView->m_ExcludeTags.Remove(tagEditor);
     }
 
     ezRenderWorld::AddMainView(m_hView);

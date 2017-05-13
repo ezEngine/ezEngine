@@ -121,10 +121,10 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
   pView->SetWorld(m_pMainWorld);
   pView->SetCamera(&m_MainCamera);
 
-  const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+  const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
   // exclude all editor objects from rendering in proper game views
-  pView->m_ExcludeTags.Set(*tagEditor);
+  pView->m_ExcludeTags.Set(tagEditor);
 
   ezRenderWorld::AddMainView(m_hMainView);
 }

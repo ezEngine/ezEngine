@@ -59,11 +59,6 @@ EZ_FORCE_INLINE const ezCamera* ezView::GetCullingCamera() const
   return m_pCullingCamera != nullptr ? m_pCullingCamera : m_pCamera;
 }
 
-EZ_FORCE_INLINE void ezView::SetViewport(const ezRectFloat& viewport)
-{
-  m_Data.m_ViewPortRect = viewport;
-}
-
 EZ_FORCE_INLINE const ezRectFloat& ezView::GetViewport() const
 {
   return m_Data.m_ViewPortRect;

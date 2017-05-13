@@ -32,15 +32,20 @@ public:
   void SetCastShadows(bool bCastShadows);
   bool GetCastShadows() const;
 
+  void SetPenumbraSize(float fPenumbraSize);
+  float GetPenumbraSize() const;
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   static float CalculateEffectiveRange(float fRange, float fIntensity);
+  static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:
 
   ezColorGammaUB m_LightColor;
   float m_fIntensity;
+  float m_fPenumbraSize;
   bool m_bCastShadows;
 
 };
