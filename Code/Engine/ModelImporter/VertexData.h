@@ -147,8 +147,9 @@ namespace ezModelImporter
   class TypedVertexDataStreamView_ReadWrite : public TypedVertexDataStreamView_Base<Attribute, false>
   {
   public:
+
     /// Asserts if the Attribute type is invalid or does not fulfill the element type and count properties of this data stream.
-    TypedVertexDataStreamView_ReadWrite(StreamType& sourceDataStream) : TypedVertexDataStreamView_Base<Attribute, false>(sourceDataStream) {}
+    TypedVertexDataStreamView_ReadWrite(VertexDataStream& sourceDataStream) : TypedVertexDataStreamView_Base<Attribute, false>(sourceDataStream) {}
 
     /// Sets a value for vertex. If the vertex is pointing to an invalid DataIndex, a new data entry will be created.
     void SetValue(VertexIndex index, const Attribute& value);
