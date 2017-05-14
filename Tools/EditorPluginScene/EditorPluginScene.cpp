@@ -21,6 +21,7 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <Actions/SceneActions.h>
+#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
 void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
@@ -52,6 +53,11 @@ void OnLoadPlugin(bool bReloading)
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginScene", "ezEnginePluginScene");
 
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ToolsProjectEventHandler);
+
+  // Add built in tags
+  {
+    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
+  }
 
   ezGizmoActions::RegisterActions();
   ezSelectionActions::RegisterActions();

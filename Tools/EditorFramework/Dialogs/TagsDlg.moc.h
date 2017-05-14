@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_TagsDlg.h>
@@ -15,7 +15,7 @@ public:
 public:
   ezQtTagsDlg(QWidget* parent);
 
-  private slots:
+private slots:
   void on_ButtonNewCategory_clicked();
   void on_ButtonNewTag_clicked();
   void on_ButtonRemove_clicked();
@@ -30,7 +30,7 @@ private:
   void FillList();
   void GetTagsFromList();
 
-  QTreeWidgetItem* CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag);
+  QTreeWidgetItem* CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag, bool bBuiltIn);
 
   ezHybridArray<ezToolsTag, 32> m_Tags;
   ezMap<ezString, QTreeWidgetItem*> m_CategoryToItem;

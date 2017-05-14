@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -26,7 +26,7 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
 
 void ezQtEditorApp::ReadTagRegistry()
 {
-  EZ_LOG_BLOCK("ezQtEditorApp::ReadTagRegistry()");
+  EZ_LOG_BLOCK("ezQtEditorApp::ReadTagRegistry");
 
   ezToolsTagRegistry::Clear();
 

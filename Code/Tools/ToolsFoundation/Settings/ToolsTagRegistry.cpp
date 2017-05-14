@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -6,25 +6,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
-ezMap<ezString, ezToolsTag> ezToolsTagRegistry::m_NameToTags;
-
-EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ToolsTagRegistry)
-
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation"
-END_SUBSYSTEM_DEPENDENCIES
-
-ON_CORE_STARTUP
-{
-  ezToolsTagRegistry::Startup();
-}
-
-ON_CORE_SHUTDOWN
-{
-  ezToolsTagRegistry::Shutdown();
-}
-
-EZ_END_SUBSYSTEM_DECLARATION
+#include <Foundation/IO/OpenDdlUtils.h>
 
 struct TagComparer
 {
@@ -40,9 +22,21 @@ struct TagComparer
 // ezToolsTagRegistry public functions
 ////////////////////////////////////////////////////////////////////////
 
+ezMap<ezString, ezToolsTag> ezToolsTagRegistry::m_NameToTags;
+
 void ezToolsTagRegistry::Clear()
 {
-  m_NameToTags.Clear();
+  for (auto it = m_NameToTags.GetIterator(); it.IsValid(); )
+  {
+    if (!it.Value().m_bBuiltInTag)
+    {
+      it = m_NameToTags.Remove(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
 }
 
 void ezToolsTagRegistry::WriteToDDL(ezStreamWriter& stream)
@@ -75,7 +69,9 @@ ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& stream)
   {
     return ezStatus("Failed to read data from ToolsTagRegistry stream!");
   }
-  m_NameToTags.Clear();
+
+  // Makes sure not to remove the built-in tags
+  Clear();
 
   const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
 
@@ -114,6 +110,12 @@ bool ezToolsTagRegistry::AddTag(const ezToolsTag& tag)
   auto it = m_NameToTags.Find(tag.m_sName);
   if (it.IsValid())
   {
+    if (tag.m_bBuiltInTag)
+    {
+      // Make sure to pass this on, as it is not stored in the DDL file (because we don't want to rely on that)
+      it.Value().m_bBuiltInTag = true;
+    }
+
     return false;
   }
   else
@@ -159,18 +161,4 @@ void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categ
     }
   }
   out_tags.Sort(TagComparer());
-}
-
-
-////////////////////////////////////////////////////////////////////////
-// ezToolsTagRegistry private functions
-////////////////////////////////////////////////////////////////////////
-
-void ezToolsTagRegistry::Startup()
-{
-}
-
-void ezToolsTagRegistry::Shutdown()
-{
-  m_NameToTags.Clear();
 }

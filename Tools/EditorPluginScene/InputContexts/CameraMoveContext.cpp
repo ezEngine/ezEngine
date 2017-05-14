@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -589,7 +589,7 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       if (m_bOrbitCamera)
       {
-        fDistToOrbit = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
+        fDistToOrbit = ezMath::Max(0.01f, (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength());
       }
 
       float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;

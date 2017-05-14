@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QInputDialog>
@@ -60,7 +60,7 @@ void ezQtTagsDlg::on_ButtonNewTag_clicked()
   if (TreeTags->indexOfTopLevelItem(pItem) < 0)
     pItem = pItem->parent();
 
-  auto pNewItem = CreateTagItem(pItem, sResult);
+  auto pNewItem = CreateTagItem(pItem, sResult, false);
   pItem->setExpanded(true);
 
   TreeTags->clearSelection();
@@ -137,9 +137,9 @@ void ezQtTagsDlg::LoadTags()
     auto& tag = m_Tags.ExpandAndGetRef();
     tag.m_sCategory = pTag->m_sCategory;
     tag.m_sName = pTag->m_sName;
+    tag.m_bBuiltInTag = pTag->m_bBuiltInTag;
   }
 }
-
 
 void ezQtTagsDlg::SaveTags()
 {
@@ -147,7 +147,10 @@ void ezQtTagsDlg::SaveTags()
 
   for (const auto& tag : m_Tags)
   {
-    ezToolsTagRegistry::AddTag(tag);
+    if (!tag.m_bBuiltInTag)
+    {
+      ezToolsTagRegistry::AddTag(tag);
+    }
   }
 
   ezQtEditorApp::GetSingleton()->SaveTagRegistry();
@@ -182,7 +185,7 @@ void ezQtTagsDlg::FillList()
   {
     QTreeWidgetItem* pParentItem = m_CategoryToItem[tag.m_sCategory];
 
-    CreateTagItem(pParentItem, QString::fromUtf8(tag.m_sName.GetData()));
+    CreateTagItem(pParentItem, QString::fromUtf8(tag.m_sName.GetData()), tag.m_bBuiltInTag);
 
 
     pParentItem->setExpanded(true);
@@ -200,23 +203,37 @@ void ezQtTagsDlg::GetTagsFromList()
     const auto* pSetItem = TreeTags->topLevelItem(sets);
     const ezString sCategoryName = pSetItem->text(0).toUtf8().data();
 
-    for (int children = 0; children < pSetItem->childCount(); ++children)
+    for (int childIdx = 0; childIdx < pSetItem->childCount(); ++childIdx)
     {
+      const auto* pTagItem = pSetItem->child(childIdx);
+
+      // ignore disabled items, those are the built-in ones
+      if (!pTagItem->flags().testFlag(Qt::ItemFlag::ItemIsEnabled))
+        continue;
+
       ezToolsTag& cfg = m_Tags.ExpandAndGetRef();
       cfg.m_sCategory = sCategoryName;
 
-      auto* pTagItem = pSetItem->child(children);
 
       cfg.m_sName = pTagItem->text(0).toUtf8().data();
     }
   }
 }
 
-QTreeWidgetItem* ezQtTagsDlg::CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag)
+QTreeWidgetItem* ezQtTagsDlg::CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag, bool bBuiltIn)
 {
   auto* pItem = new QTreeWidgetItem(pParentItem);
-  pItem->setText(0, tag);
-  pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable);
+
+  if (bBuiltIn)
+  {
+    pItem->setText(0, tag + QString(" (built in)"));
+    pItem->setFlags(0);
+  }
+  else
+  {
+    pItem->setText(0, tag);
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable);
+  }
 
   return pItem;
 }

@@ -50,5 +50,6 @@
 	<file>ezSpriteComponent.png</file>
 	<file>ezVisualScriptComponent.png</file>
 	<file>ezHeadBoneComponent.png</file>
+	<file>ezAreaDamageComponent.png</file>
   </qresource>  
 </RCC>
