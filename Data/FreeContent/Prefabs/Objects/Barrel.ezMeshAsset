@@ -13,7 +13,7 @@ o
 		u2 %Detail{32}
 		u2 %Detail2{1}
 		s %ForwardDir{"ezBasisAxis::PositiveX"}
-		f %Height{0x0000803F}
+		f %Height{0x3333733F}
 		b %ImportMaterials{1}
 		b %InvertNormals{0}
 		VarArray %Materials
@@ -44,7 +44,7 @@ AssetInfo
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{68497958601710778,4803677859114050671}}
-		u4 %Hash{12540181167943831831}
+		u4 %Hash{610873279854074991}
 		VarArray %Outputs{}
 		VarArray %References
 		{
