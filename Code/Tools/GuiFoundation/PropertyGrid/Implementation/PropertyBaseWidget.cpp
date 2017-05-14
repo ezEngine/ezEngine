@@ -1028,7 +1028,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
       // Icon
       ezStringBuilder sIconName;
       sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
-      elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedPixmapResource(sIconName.GetData()));
+      elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
     }
   }
 

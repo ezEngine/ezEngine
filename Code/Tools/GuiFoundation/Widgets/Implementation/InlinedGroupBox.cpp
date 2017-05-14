@@ -30,37 +30,24 @@ ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent) : ezQtGroupBoxBase(pP
   pRootLayout->setStretch(0, 1);
   pRootLayout->addWidget(m_pContent);
   pRootLayout->addWidget(m_pHeader);
-  //Icon->installEventFilter(this);
-  //Caption->installEventFilter(this);
 }
 
 void ezQtInlinedGroupBox::SetTitle(const char* szTitle)
 {
-  m_sTitle = szTitle;
+  ezQtGroupBoxBase::SetTitle(szTitle);
   update();
 }
 
-QString ezQtInlinedGroupBox::GetTitle() const
+void ezQtInlinedGroupBox::SetIcon(const QIcon& icon)
 {
-  return m_sTitle;
-}
-
-
-void ezQtInlinedGroupBox::SetIcon(const QPixmap& icon)
-{
-  m_Icon = icon;
+  ezQtGroupBoxBase::SetIcon(icon);
   update();
 }
 
 void ezQtInlinedGroupBox::SetFillColor(const QColor& color)
 {
-  m_FillColor = color;
+  ezQtGroupBoxBase::SetFillColor(color);
   update();
-}
-
-QColor ezQtInlinedGroupBox::GetFillColor() const
-{
-  return m_FillColor;
 }
 
 void ezQtInlinedGroupBox::SetCollapseState(bool bCollapsed)
@@ -89,21 +76,17 @@ void ezQtInlinedGroupBox::paintEvent(QPaintEvent* event)
 
   QPainter p(this);
   p.setRenderHint(QPainter::Antialiasing);
-  ezInt32 iRounding = 4;
+
   QRect wr = contentsRect();
 
   if (m_FillColor.isValid())
   {
     QRectF wrAdjusted = wr;
-    wrAdjusted.adjust(0.5, 0.5, iRounding, -0.5);
+    wrAdjusted.adjust(0.5, 0.5, Rounding, -0.5);
     QPainterPath oPath;
-    oPath.addRoundedRect(wrAdjusted, iRounding, iRounding);
+    oPath.addRoundedRect(wrAdjusted, Rounding, Rounding);
     p.fillPath(oPath, pal.alternateBase());
   }
 
-  QRect textRect = wr.adjusted(iRounding, 0, 0, 0);
-  QStyle* style = QWidget::style();
-  int flags = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextExpandTabs | Qt::TextForceLeftToRight;
-  style->drawItemText(&p, textRect, flags, pal, isEnabled(), m_sTitle, foregroundRole());
-
+  DrawHeader(p, wr.adjusted(Rounding, 0, 0, 0), m_sTitle, m_Icon, false);
 }

@@ -9,13 +9,14 @@ class EZ_GUIFOUNDATION_DLL ezQtGroupBoxBase : public QWidget
 public:
   explicit ezQtGroupBoxBase(QWidget* pParent) : QWidget(pParent) {}
 
-  virtual void SetTitle(const char* szTitle) = 0;
-  virtual QString GetTitle() const = 0;
+  virtual void SetTitle(const char* szTitle);
+  QString GetTitle() const;
 
-  virtual void SetIcon(const QPixmap& icon) = 0;
+  virtual void SetIcon(const QIcon& icon);
+  QIcon GetIcon() const;
 
-  virtual void SetFillColor(const QColor& color) = 0;
-  virtual QColor GetFillColor() const = 0;
+  virtual void SetFillColor(const QColor& color);
+  QColor GetFillColor() const;
 
   virtual void SetCollapseState(bool bCollapsed) = 0;
   virtual bool GetCollapseState() const = 0;
@@ -25,6 +26,19 @@ public:
 
 signals:
   void CollapseStateChanged(bool bCollapsed);
+
+protected:
+  enum Constants
+  {
+    Rounding = 4,
+    Spacing = 1,
+  };
+
+  void DrawHeader(QPainter& p, const QRect& rect, const QString& sTitle, const QIcon& icon, bool bCollapsible);
+
+  QColor m_FillColor;
+  QString m_sTitle;
+  QIcon m_Icon;
 };
 
 

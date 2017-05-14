@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>297</width>
+    <width>237</width>
     <height>300</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
     <number>4</number>
    </property>
    <item>
-    <widget class="QFrame" name="Header">
+    <widget class="QWidget" name="Header" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -45,18 +45,6 @@
      </property>
      <property name="autoFillBackground">
       <bool>false</bool>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <property name="lineWidth">
-      <number>0</number>
-     </property>
-     <property name="midLineWidth">
-      <number>1</number>
      </property>
      <layout class="QHBoxLayout" name="HeaderLayout">
       <property name="spacing">
@@ -75,34 +63,17 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="Icon">
-        <property name="text">
-         <string/>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="pixmap">
-         <pixmap resource="../QtResources/resources.qrc">:/GuiFoundation/Icons/groupOpen.png</pixmap>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="Icon2">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="Caption">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Label</string>
-        </property>
-       </widget>
+       </spacer>
       </item>
      </layout>
     </widget>

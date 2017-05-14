@@ -58,7 +58,13 @@ const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier)
   if (it.IsValid())
     return it.Value();
 
-  map[sIdentifier] = QIcon(QString::fromUtf8(szIdentifier));
+  QIcon icon(QString::fromUtf8(szIdentifier));
+
+  // Workaround for QIcon being stupid and treating failed to load icons as not-null.
+  if (!icon.pixmap(QSize(16, 16)).isNull())
+    map[sIdentifier] = icon;
+  else
+    map[sIdentifier] = QIcon();
 
   return map[sIdentifier];
 }

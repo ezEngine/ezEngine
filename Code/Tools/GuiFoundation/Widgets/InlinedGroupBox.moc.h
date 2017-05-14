@@ -10,12 +10,8 @@ public:
   explicit ezQtInlinedGroupBox(QWidget* pParent);
 
   virtual void SetTitle(const char* szTitle) override;
-  virtual QString GetTitle() const override;
-
-  virtual void SetIcon(const QPixmap& icon) override;
-
+  virtual void SetIcon(const QIcon& icon) override;
   virtual void SetFillColor(const QColor& color) override;
-  virtual QColor GetFillColor() const override;
 
   virtual void SetCollapseState(bool bCollapsed) override;
   virtual bool GetCollapseState() const override;
@@ -29,9 +25,6 @@ protected:
 protected:
   QWidget* m_pContent;
   QWidget* m_pHeader;
-  QColor m_FillColor;
-  QString m_sTitle;
-  QPixmap m_Icon;
 };
 
 

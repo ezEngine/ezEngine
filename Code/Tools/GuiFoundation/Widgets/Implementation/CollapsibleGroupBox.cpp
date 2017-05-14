@@ -9,35 +9,25 @@ ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent) : ezQtGroupBo
 {
   setupUi(this);
 
-  Icon->installEventFilter(this);
-  Caption->installEventFilter(this);
+  Header->installEventFilter(this);
 }
 
 void ezQtCollapsibleGroupBox::SetTitle(const char* szTitle)
 {
-  Caption->setText(QString::fromUtf8(szTitle));
+  ezQtGroupBoxBase::SetTitle(szTitle);
+  update();
 }
 
-QString ezQtCollapsibleGroupBox::GetTitle() const
+void ezQtCollapsibleGroupBox::SetIcon(const QIcon& icon)
 {
-  return Caption->text();
-}
-
-
-void ezQtCollapsibleGroupBox::SetIcon(const QPixmap& icon)
-{
-  Icon2->setPixmap(icon);
+  ezQtGroupBoxBase::SetIcon(icon);
+  update();
 }
 
 void ezQtCollapsibleGroupBox::SetFillColor(const QColor& color)
 {
-  m_FillColor = color;
+  ezQtGroupBoxBase::SetFillColor(color);
   update();
-}
-
-QColor ezQtCollapsibleGroupBox::GetFillColor() const
-{
-  return m_FillColor;
 }
 
 void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
@@ -57,8 +47,6 @@ void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
     pCur->updateGeometry();
     pCur = pCur->parentWidget();
   }
-
-  Icon->setPixmap(Content->isVisible() ? ezQtUiServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupOpen.png") : ezQtUiServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupClosed.png"));
 
   emit CollapseStateChanged(bCollapsed);
 }
@@ -101,28 +89,28 @@ void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
 
   QPainter p(this);
   p.setRenderHint(QPainter::Antialiasing);
-  ezInt32 iRounding = 4;
   QRect wr = contentsRect();
-
   QRect hr = Header->contentsRect();
   hr.moveTopLeft(Header->pos());
 
   QRect cr = wr;
   cr.setTop(hr.height());
-  cr.adjust(2, 0, 0, -2);
+  cr.adjust(Rounding / 2, 0, 0, -Rounding / 2);
 
   if (m_FillColor.isValid())
   {
     QRectF wrAdjusted = wr;
-    wrAdjusted.adjust(0.5, 0.5, iRounding, -0.5);
+    wrAdjusted.adjust(0.5, 0.5, Rounding, -0.5);
     QPainterPath oPath;
-    oPath.addRoundedRect(wrAdjusted, iRounding, iRounding);
+    oPath.addRoundedRect(wrAdjusted, Rounding, Rounding);
     p.fillPath(oPath, pal.alternateBase());
 
     QRectF crAdjusted = cr;
-    crAdjusted.adjust(0.5, 0.5, iRounding, -0.5);
+    crAdjusted.adjust(0.5, 0.5, Rounding, -0.5);
     QPainterPath path;
-    path.addRoundedRect(crAdjusted, iRounding, iRounding);
+    path.addRoundedRect(crAdjusted, Rounding, Rounding);
     p.fillPath(path, pal.window());
   }
+
+  DrawHeader(p, hr, m_sTitle, m_Icon, true);
 }

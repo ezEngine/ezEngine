@@ -12,12 +12,8 @@ public:
   explicit ezQtCollapsibleGroupBox(QWidget* pParent);
 
   virtual void SetTitle(const char* szTitle) override;
-  virtual QString GetTitle() const override;
-
-  virtual void SetIcon(const QPixmap& icon) override;
-
+  virtual void SetIcon(const QIcon& icon) override;
   virtual void SetFillColor(const QColor& color) override;
-  virtual QColor GetFillColor() const override;
 
   virtual void SetCollapseState(bool bCollapsed) override;
   virtual bool GetCollapseState() const override;
@@ -30,7 +26,6 @@ protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 protected:
-  QColor m_FillColor;
   bool m_bCollapsed;
 };
 
