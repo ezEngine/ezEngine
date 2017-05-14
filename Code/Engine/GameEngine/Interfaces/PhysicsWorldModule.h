@@ -9,6 +9,7 @@ class ezGameObjectHandle;
 
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
+/// \brief Used for raycast and seep tests
 struct ezPhysicsHitResult
 {
   ezVec3 m_vPosition;
@@ -18,6 +19,18 @@ struct ezPhysicsHitResult
   ezGameObjectHandle m_hShapeObject; ///< The game object to which the hit physics shape is attached.
   ezGameObjectHandle m_hActorObject; ///< The game object to which the parent actor of the hit physics shape is attached.
   ezSurfaceResourceHandle m_hSurface;
+};
+
+/// \brief Used to report overlap query results
+struct ezPhysicsOverlapResult
+{
+  struct Hit
+  {
+    ezGameObjectHandle m_hShapeObject; ///< The game object to which the hit physics shape is attached.
+    ezGameObjectHandle m_hActorObject; ///< The game object to which the parent actor of the hit physics shape is attached.
+  };
+
+  ezDynamicArray<Hit> m_Results;
 };
 
 class EZ_GAMEENGINE_DLL ezPhysicsWorldModuleInterface : public ezWorldModule
@@ -43,6 +56,8 @@ public:
 
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
+
+  virtual void QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
 
   virtual ezVec3 GetGravity() const = 0;
 

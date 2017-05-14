@@ -87,11 +87,11 @@ namespace
 
   PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
   {
-    bool kinematic0 = PxFilterObjectIsKinematic(attributes0);
-    bool kinematic1 = PxFilterObjectIsKinematic(attributes1);
+    const bool kinematic0 = PxFilterObjectIsKinematic(attributes0);
+    const bool kinematic1 = PxFilterObjectIsKinematic(attributes1);
 
-    bool static0 = PxGetFilterObjectType(attributes0) == PxFilterObjectType::eRIGID_STATIC;
-    bool static1 = PxGetFilterObjectType(attributes1) == PxFilterObjectType::eRIGID_STATIC;
+    const bool static0 = PxGetFilterObjectType(attributes0) == PxFilterObjectType::eRIGID_STATIC;
+    const bool static1 = PxGetFilterObjectType(attributes1) == PxFilterObjectType::eRIGID_STATIC;
 
     if ((kinematic0 || kinematic1) && (static0 || static1))
     {
@@ -415,9 +415,9 @@ void ezPhysXWorldModule::OnSimulationStarted()
 
   pPhysX->LoadCollisionFilters();
 
-  #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    pPhysX->StartupVDB();
-  #endif
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  pPhysX->StartupVDB();
+#endif
 }
 
 ezUInt32 ezPhysXWorldModule::CreateShapeId()
@@ -454,7 +454,7 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
 }
 
 bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-  ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
+                                 ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
@@ -469,7 +469,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   EZ_PX_READ_LOCK(*m_pPxScene);
 
   if (m_pPxScene->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance,
-    closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
+                          closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
 
@@ -500,7 +500,7 @@ bool ezPhysXWorldModule::SweepTestBox(ezVec3 vBoxExtends, const ezTransform& sta
 }
 
 bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
-  ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
+                                          ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
 {
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
@@ -520,7 +520,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHe
 }
 
 bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance,
-  ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
+                                   ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
 {
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
@@ -532,7 +532,7 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
   EZ_PX_READ_LOCK(*m_pPxScene);
 
   if (m_pPxScene->sweep(geometry, transform, ezPxConversionUtils::ToVec3(vDir), fDistance,
-    closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
+                        closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
 
@@ -584,6 +584,45 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
   EZ_PX_READ_LOCK(*m_pPxScene);
 
   return m_pPxScene->overlap(geometry, transform, closestHit, filterData, &queryFilter);
+}
+
+static PxOverlapHit g_OverlapHits[256];
+
+void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+{
+  PxQueryFilterData filterData;
+  filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
+
+  // PxQueryFlag::eNO_BLOCK : All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
+  // PxQueryFlag::eDYNAMIC : we ignore all static geometry
+  filterData.flags = PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER | PxQueryFlag::eNO_BLOCK;
+
+  ezPxQueryFilter queryFilter;
+
+  PxSphereGeometry sphere;
+  sphere.radius = fSphereRadius;
+
+  PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
+
+  PxOverlapBuffer allOverlaps(g_OverlapHits, EZ_ARRAY_SIZE(g_OverlapHits));
+
+  EZ_PX_READ_LOCK(*m_pPxScene);
+
+  m_pPxScene->overlap(sphere, transform, allOverlaps, filterData, &queryFilter);
+
+  out_Results.m_Results.SetCountUninitialized(allOverlaps.nbTouches);
+  for (ezUInt32 i = 0; i < allOverlaps.nbTouches; ++i)
+  {
+    {
+      ezComponent* pShapeComponent = ezPxUserData::GetComponent(g_OverlapHits[i].shape->userData);
+      out_Results.m_Results[i].m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
+    }
+
+    {
+      ezComponent* pActorComponent = ezPxUserData::GetComponent(g_OverlapHits[i].actor->userData);
+      out_Results.m_Results[i].m_hActorObject = pActorComponent->GetOwner()->GetHandle();
+    }
+  }
 }
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
