@@ -436,12 +436,16 @@ void ezQtAssetBrowserWidget::UpdateDirectoryTree()
 
   m_uiKnownAssetFolderCount = Folders.GetCount();
 
-  for (auto sDir : Folders)
+  ezStringBuilder tmp;
+
+  for (const auto& sDir : Folders)
   {
-    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sDir))
+    tmp = sDir;
+
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(tmp))
       continue;
 
-    BuildDirectoryTree(sDir, TreeFolderFilter->topLevelItem(0), "");
+    BuildDirectoryTree(tmp, TreeFolderFilter->topLevelItem(0), "");
   }
 
   TreeFolderFilter->setSortingEnabled(true);
@@ -540,9 +544,9 @@ void ezQtAssetBrowserWidget::OnTreeOpenExplorer()
   if (!TreeFolderFilter->currentItem())
     return;
 
-  ezString sPath = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  ezStringBuilder sPath = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
-  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+  if (!ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath))
     return;
 
   ezQtUiServices::OpenInExplorer(sPath);

@@ -139,6 +139,9 @@ public:
   bool MakePathDataDirectoryRelative(ezStringBuilder& sPath) const;
   bool MakePathDataDirectoryRelative(ezString& sPath) const;
 
+  bool MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) const;
+  bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const;
+
   void AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency);
 
   ezStatus SaveTagRegistry();
