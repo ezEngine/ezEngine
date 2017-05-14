@@ -145,7 +145,7 @@ void ezSpotLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) 
 
   float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
   float fAngleFactor = m_OuterSpotAngle.GetRadian() / ezMath::BasicType<float>::Pi();
-  fScreenSpaceSize = ezMath::Min(fScreenSpaceSize * fAngleFactor, 1.0f);
+  fScreenSpaceSize = fScreenSpaceSize * fAngleFactor;
 
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);

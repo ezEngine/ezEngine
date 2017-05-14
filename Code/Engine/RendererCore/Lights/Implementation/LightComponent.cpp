@@ -14,7 +14,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 3)
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
-    EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.01f), new ezSuffixAttribute(" m"))
+    EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezDefaultValueAttribute(0.01f), new ezSuffixAttribute(" m"))
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -111,7 +111,7 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
 //static
 float ezLightComponent::CalculateEffectiveRange(float fRange, float fIntensity)
 {
-  const float fThreshold = 0.05f;
+  const float fThreshold = 0.10f; // aggressive threshold to prevent large lights
   const float fEffectiveRange = ezMath::Sqrt(fIntensity) / ezMath::Sqrt(fThreshold);
   if (fRange <= 0.0f)
   {

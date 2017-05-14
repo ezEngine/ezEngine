@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
@@ -10,7 +11,9 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Math/Rect.h>
+#include <Foundation/Profiling/Profiling.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
@@ -34,6 +37,10 @@ ON_ENGINE_SHUTDOWN
 
 EZ_END_SUBSYSTEM_DECLARATION
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
+#endif
+
 namespace
 {
   struct ShadowView
@@ -54,6 +61,22 @@ namespace
     float m_fShadowMapScale;
     float m_fPenumbraSize;
     ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
+  };
+
+  struct SortedShadowData
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt32 m_uiIndex;
+    float m_fShadowMapScale;
+
+    EZ_ALWAYS_INLINE bool operator<(const SortedShadowData& other) const
+    {
+      if (m_fShadowMapScale > other.m_fShadowMapScale) // we want to sort descending (higher scale first)
+        return true;
+
+      return m_uiIndex < other.m_uiIndex;
+    }
   };
 
   static ezMutex s_ShadowDataMutex;
@@ -163,7 +186,10 @@ namespace
     }
 
     auto& shadowView = s_ShadowViews[s_uiUsedViews];
-    ezRenderWorld::TryGetView(shadowView.m_hView, out_pView);
+    if (ezRenderWorld::TryGetView(shadowView.m_hView, out_pView))
+    {
+      out_pView->SetCamera(&shadowView.m_Camera);
+    }
 
     s_uiUsedViews++;
     return shadowView;
@@ -319,7 +345,6 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   {
     pView->SetName("SpotLightView");
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
-    pView->SetCamera(&shadowView.m_Camera);
   }
 
   // Setup camera
@@ -378,6 +403,15 @@ ezGALBufferHandle ezShadowPool::UpdateShadowDataBuffer(ezGALContext* pGALContext
 void ezShadowPool::OnEngineStartup()
 {
   s_PackedShadowData[0] = ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper>();
+  s_PackedShadowData[1] = ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper>();
+
+  // pre-warm the shadow views array
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    ezView* pView = nullptr;
+    GetShadowView(pView);
+  }
+  s_uiUsedViews = 0;
 
   ezRenderWorld::s_BeginFrameEvent.AddEventHandler(OnBeginFrame);
 }
@@ -395,6 +429,23 @@ void ezShadowPool::OnEngineShutdown()
 //static
 void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
 {
+  EZ_PROFILE("Shadow Pool Update");
+
+  // Sort by shadow map scale
+  static ezDynamicArray<SortedShadowData> sortedShadowData;
+  sortedShadowData.Clear();
+
+  for (ezUInt32 uiShadowDataIndex = 0; uiShadowDataIndex < s_uiUsedShadowData; ++uiShadowDataIndex)
+  {
+    auto& shadowData = s_ShadowData[uiShadowDataIndex];
+
+    auto& sorted = sortedShadowData.ExpandAndGetRef();
+    sorted.m_uiIndex = uiShadowDataIndex;
+    sorted.m_fShadowMapScale = shadowData.m_uiType == LIGHT_TYPE_DIR ? 100.0f : ezMath::Min(shadowData.m_fShadowMapScale, 10.0f);
+  }
+
+  sortedShadowData.Sort();
+
   // Fill atlas and collect shadow data
   s_AtlasCells.Clear();
   s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(0, 0, s_uiShadowAtlasTextureWidth, s_uiShadowAtlasTextureHeight);
@@ -407,10 +458,26 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
   texScaleMatrix.SetDiagonal(ezVec4(0.5f, -0.5f, 1.0f, 1.0f));
   texScaleMatrix.SetTranslationVector(ezVec3(0.5f, 0.5f, 0.0f));
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezUInt32 uiTotalAtlasSize = s_uiShadowAtlasTextureWidth * s_uiShadowAtlasTextureHeight;
+  ezUInt32 uiUsedAtlasSize = 0;
+
+  ezDebugRendererContext debugContext(ezWorld::GetWorld(0));
+
+  if (CVarShadowPoolStats)
+  {
+    ezDebugRenderer::DrawText(debugContext, "Shadow Pool Stats", ezVec2I32(10, 200), ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawText(debugContext, "Details (Name: Size - Atlas Offset)", ezVec2I32(10, 250), ezColor::LightSteelBlue);
+  }
+
+  ezInt32 iCurrentStatsOffset = 270;
+#endif
+
   auto& packedShadowData = s_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
 
-  for (ezUInt32 uiShadowDataIndex = 0; uiShadowDataIndex < s_uiUsedShadowData; ++uiShadowDataIndex)
+  for (auto& sorted : sortedShadowData)
   {
+    ezUInt32 uiShadowDataIndex = sorted.m_uiIndex;
     auto& shadowData = s_ShadowData[uiShadowDataIndex];
 
     ezUInt32 uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(s_uiShadowMapSize * ezMath::Clamp(shadowData.m_fShadowMapScale, s_fFadeOutScaleStart, 1.0f)));
@@ -426,6 +493,19 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
 
       ezRectU32 atlasRect = FindAtlasRect(uiShadowMapSize, uiShadowDataIndex);
       pShadowView->SetViewport(ezRectFloat((float)atlasRect.x, (float)atlasRect.y, (float)atlasRect.width, (float)atlasRect.height));
+
+      #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+        if (CVarShadowPoolStats)
+        {
+          ezStringBuilder sb;
+          sb.Format("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y);
+
+          ezDebugRenderer::DrawText(debugContext, sb, ezVec2I32(10, iCurrentStatsOffset), ezColor::LightSteelBlue);
+          iCurrentStatsOffset += 20;
+
+          uiUsedAtlasSize += atlasRect.width * atlasRect.height;
+        }
+      #endif
 
       ezVec2 scale = ezVec2(atlasRect.width * fAtlasInvWidth, atlasRect.height * fAtlasInvHeight);
       ezVec2 offset = ezVec2(atlasRect.x * fAtlasInvWidth, atlasRect.y * fAtlasInvHeight);
@@ -456,6 +536,16 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
     shadowParams.z = penumbraSize;
     shadowParams.w = ezMath::Sqrt(fadeOut);
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (CVarShadowPoolStats)
+  {
+    ezStringBuilder sb;
+    sb.Format("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2));
+
+    ezDebugRenderer::DrawText(debugContext, sb, ezVec2I32(10, 220), ezColor::LightSteelBlue);
+  }
+#endif
 
   s_bShadowDataBufferUpdated = false;
 
