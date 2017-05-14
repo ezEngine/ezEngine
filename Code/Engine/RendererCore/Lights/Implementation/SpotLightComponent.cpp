@@ -1,10 +1,16 @@
 ﻿#include <PCH.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Foundation/Configuration/CVar.h>
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezCVarBool CVarVisLightSize("r_VisLightScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
+#endif
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -52,14 +58,7 @@ ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 
-  const float t = ezMath::Tan(m_OuterSpotAngle * 0.5f);
-  const float p = ezMath::Min(t * m_fEffectiveRange, m_fEffectiveRange);
-
-  ezBoundingBox box;
-  box.m_vMin = ezVec3(0.0f, -p, -p);
-  box.m_vMax = ezVec3(m_fEffectiveRange, p, p);
-
-  bounds = box;
+  bounds = CalculateBoundingSphere(ezTransform::Identity(), m_fEffectiveRange);
   return EZ_SUCCESS;
 }
 
@@ -142,10 +141,22 @@ void ezSpotLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) 
     return;
 
   ezTransform t = GetOwner()->GetGlobalTransform();
+  ezBoundingSphere bs = CalculateBoundingSphere(t, m_fEffectiveRange * 0.5f);
 
-  float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
-  float fAngleFactor = m_OuterSpotAngle.GetRadian() / ezMath::BasicType<float>::Pi();
-  fScreenSpaceSize = fScreenSpaceSize * fAngleFactor;
+  float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (CVarVisLightSize)
+  {
+    ezVec3 textPos;
+    msg.m_pView->ComputeScreenSpacePos(t.m_vPosition, textPos);
+
+    ezStringBuilder sb;
+    sb.Format("{0}", fScreenSpaceSize);
+    ezDebugRenderer::DrawText(msg.m_pView->GetHandle(), sb, ezVec2I32((int)textPos.x, (int)textPos.y), ezColor::Olive);
+    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, ezColor::Olive);
+  }
+#endif
 
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);
@@ -187,6 +198,27 @@ void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
   ezStringBuilder temp;
   s >> temp;
   SetProjectedTextureFile(temp);
+}
+
+ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform& t, float fRange) const
+{
+  ezBoundingSphere res;
+  ezAngle halfAngle = m_OuterSpotAngle / 2.0f;
+  ezVec3 position = t.m_vPosition;
+  ezVec3 forwardDir = t.m_Rotation.TransformDirection(ezVec3(1.0f, 0.0f, 0.0f));
+
+  if (halfAngle > ezAngle::Degree(45.0f))
+  {
+    res.m_vCenter = position + ezMath::Cos(halfAngle) * fRange * forwardDir;
+    res.m_fRadius = ezMath::Sin(halfAngle) * fRange;
+  }
+  else
+  {
+    res.m_vCenter = position + fRange / (2.0f * ezMath::Cos(halfAngle)) * forwardDir;
+    res.m_fRadius = fRange / (2.0f * ezMath::Cos(halfAngle));
+  }
+
+  return res;
 }
 
 //////////////////////////////////////////////////////////////////////////

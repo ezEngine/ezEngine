@@ -83,6 +83,7 @@ namespace
   static ezDeque<ShadowData> s_ShadowData;
   static ezUInt32 s_uiUsedShadowData;
   static ezHashTable<const ezLightComponent*, ezUInt32> s_LightToShadowDataTable;
+  static ezDynamicArray<SortedShadowData> s_SortedShadowData;
 
   static ezDynamicArray<ezVec4> s_PackedShadowData[2];
 
@@ -432,19 +433,18 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
   EZ_PROFILE("Shadow Pool Update");
 
   // Sort by shadow map scale
-  static ezDynamicArray<SortedShadowData> sortedShadowData;
-  sortedShadowData.Clear();
+  s_SortedShadowData.Clear();
 
   for (ezUInt32 uiShadowDataIndex = 0; uiShadowDataIndex < s_uiUsedShadowData; ++uiShadowDataIndex)
   {
     auto& shadowData = s_ShadowData[uiShadowDataIndex];
 
-    auto& sorted = sortedShadowData.ExpandAndGetRef();
+    auto& sorted = s_SortedShadowData.ExpandAndGetRef();
     sorted.m_uiIndex = uiShadowDataIndex;
     sorted.m_fShadowMapScale = shadowData.m_uiType == LIGHT_TYPE_DIR ? 100.0f : ezMath::Min(shadowData.m_fShadowMapScale, 10.0f);
   }
 
-  sortedShadowData.Sort();
+  s_SortedShadowData.Sort();
 
   // Fill atlas and collect shadow data
   s_AtlasCells.Clear();
@@ -475,7 +475,7 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
 
   auto& packedShadowData = s_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
 
-  for (auto& sorted : sortedShadowData)
+  for (auto& sorted : s_SortedShadowData)
   {
     ezUInt32 uiShadowDataIndex = sorted.m_uiIndex;
     auto& shadowData = s_ShadowData[uiShadowDataIndex];

@@ -80,10 +80,16 @@ EZ_FORCE_INLINE ezTask* ezView::GetExtractTask()
   return &m_ExtractTask;
 }
 
-EZ_FORCE_INLINE ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir)
+EZ_FORCE_INLINE ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir) const
 {
   UpdateCachedMatrices();
   return m_Data.ComputePickingRay(fScreenPosX, fScreenPosY, out_RayStartPos, out_RayDir);
+}
+
+EZ_FORCE_INLINE ezResult ezView::ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos) const
+{
+  UpdateCachedMatrices();
+  return m_Data.ComputeScreenSpacePos(vPoint, out_vScreenPos);
 }
 
 EZ_FORCE_INLINE const ezMat4& ezView::GetProjectionMatrix() const

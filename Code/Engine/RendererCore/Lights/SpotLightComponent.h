@@ -54,6 +54,8 @@ public:
 
 private:
 
+  ezBoundingSphere CalculateBoundingSphere(const ezTransform& t, float fRange) const;
+
   float m_fRange;
   float m_fEffectiveRange;
 
