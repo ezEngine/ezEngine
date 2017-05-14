@@ -1,5 +1,19 @@
 Objects
 {
+o
+{
+	Uuid %id{u4{10277991936073723549,4876126054718862806}}
+	s %t{"ezProjectileSurfaceInteraction"}
+	u3 %v{3}
+	p
+	{
+		f %Damage{0}
+		f %Impulse{0}
+		s %Interaction{""}
+		s %Reaction{"ezProjectileReaction::Absorb"}
+		s %Surface{""}
+	}
+}
 AssetInfo
 {
 	Uuid %id{u4{1092965785348279721,5019769357126639657}}
@@ -11,7 +25,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1092965785348279721,5019769357126639657}}
-		u4 %Hash{12335345298479994722}
+		u4 %Hash{1085901112112798071}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -91,7 +105,7 @@ o
 {
 	Uuid %id{u4{6881530066718206450,18051216167657086425}}
 	s %t{"ezProjectileComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -101,6 +115,7 @@ o
 		VarArray %Interactions
 		{
 			Uuid{u4{5598719634342028772,18244784341018912470}}
+			Uuid{u4{10277991936073723549,4876126054718862806}}
 		}
 		Time %MaxLifetime{d{0x0000000000000840}}
 		s %OnTimeoutSpawn{""}
@@ -111,10 +126,11 @@ o
 {
 	Uuid %id{u4{5598719634342028772,18244784341018912470}}
 	s %t{"ezProjectileSurfaceInteraction"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		f %Force{0x00009643}
+		f %Damage{0x00002041}
+		f %Impulse{0x00002042}
 		s %Interaction{"PulseImpact"}
 		s %Reaction{"ezProjectileReaction::Reflect"}
 		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}

@@ -1,0 +1,76 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{1709166094090470817,4649627308040790487}}
+	s %t{"ezCollisionMeshAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		u1 %Detail{12}
+		s %ForwardDir{"ezBasisAxis::PositiveX"}
+		f %Height{0x0000803F}
+		s %MeshFile{"FleetOps/Raptor/raptor.obj"}
+		s %MeshType{"ezCollisionMeshType::Cylinder"}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %Radius{0x9A99993E}
+		f %Radius2{0x9A99993E}
+		s %RightDir{"ezBasisAxis::PositiveY"}
+		s %SubmeshName{""}
+		VarArray %Surfaces
+		{
+			Uuid{u4{18266362992385878218,15619902116515098638}}
+		}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveZ"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{1709166094090470817,4649627308040790487}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{7161358030105095869,5569181095683251272}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Collision Mesh (Convex)"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Raptor/raptor.obj"}
+		}
+		Uuid %DocumentID{u4{7161358030105095869,5569181095683251272}}
+		u4 %Hash{1282198549035749744}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18266362992385878218,15619902116515098638}}
+	s %t{"ezSurfaceResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"DefaultMaterial"}
+		s %Resource{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+	}
+}
+}
+Types{}

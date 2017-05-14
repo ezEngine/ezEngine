@@ -124,3 +124,4 @@ ezOnComponentFinishedAction::None;None
 ezOnComponentFinishedAction::DeleteComponent;Delete Component
 ezOnComponentFinishedAction::DeleteEntity;Delete Entity
 ezVisualScriptComponent;Visual Script
+ezAreaDamageComponent;Area Damage

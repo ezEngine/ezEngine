@@ -35,7 +35,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4907047210820730285,4894575462063164740}}
-		u4 %Hash{16044034543603772728}
+		u4 %Hash{16792479795242851390}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -82,8 +82,10 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
 		f %Intensity{0x0000A041}
 		ColorGamma %LightColor{u1{211,54,222,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x00008040}
 	}
 }
@@ -106,7 +108,7 @@ o
 {
 	Uuid %id{u4{984191235803852269,18002530868580769924}}
 	s %t{"ezProjectileComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -126,10 +128,11 @@ o
 {
 	Uuid %id{u4{2859870038709046770,18066025895901625926}}
 	s %t{"ezProjectileSurfaceInteraction"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		f %Force{0x00003443}
+		f %Damage{0x0000A040}
+		f %Impulse{0x0000A041}
 		s %Interaction{"PulseImpact"}
 		s %Reaction{"ezProjectileReaction::Absorb"}
 		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}

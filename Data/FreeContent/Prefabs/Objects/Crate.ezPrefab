@@ -1,0 +1,106 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6585905904131278903,10404336114153511774}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{4164851200052211131,5539737611233729819}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{4164851200052211131,5539737611233729819}}
+		u4 %Hash{6900149167257427995}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
+			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{953997374051839317,10043653091389627950}}
+	s %t{"ezMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Materials
+		{
+			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
+		}
+		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6585905904131278903,10404336114153511774}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{953997374051839317,10043653091389627950}}
+			Uuid{u4{4490999615861240136,10932551636270286503}}
+			Uuid{u4{15855319619819093080,10647297437977050217}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{15855319619819093080,10647297437977050217}}
+	s %t{"ezPxDynamicActorComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %AngularDamping{0xCDCC4C3D}
+		f %Density{0x00000040}
+		b %DisableGravity{0}
+		b %Kinematic{0}
+		f %LinearDamping{0xCDCCCC3D}
+		f %Mass{0}
+	}
+}
+o
+{
+	Uuid %id{u4{4490999615861240136,10932551636270286503}}
+	s %t{"ezPxShapeBoxComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{0}
+		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		b %ReportContact{0}
+		s %Surface{""}
+	}
+}
+}
+Types{}

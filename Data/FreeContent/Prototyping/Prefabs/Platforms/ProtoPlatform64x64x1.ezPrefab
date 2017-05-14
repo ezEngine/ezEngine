@@ -10,7 +10,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 241d96eb-8e2c-4735-99eb-083a4fcf97f4 }"}
+			s{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
 		}
 		s %Mesh{"{ 87012036-2712-42af-80ba-c0fd29d5a480 }"}
 	}
@@ -75,13 +75,13 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7239474629639086,4968403740519093659}}
-		u4 %Hash{1085788235440211635}
+		u4 %Hash{16291390334474702713}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
-			s{"{ 241d96eb-8e2c-4735-99eb-083a4fcf97f4 }"}
 			s{"{ 87012036-2712-42af-80ba-c0fd29d5a480 }"}
+			s{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
 		}
 	}
 }

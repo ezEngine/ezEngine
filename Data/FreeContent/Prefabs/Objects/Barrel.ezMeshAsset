@@ -1,0 +1,81 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{14323685177609829267,4792752478624921724}}
+	s %t{"ezMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		f %Angle{0x0000B443}
+		b %Cap{1}
+		b %Cap2{1}
+		u2 %Detail{32}
+		u2 %Detail2{1}
+		s %ForwardDir{"ezBasisAxis::PositiveX"}
+		f %Height{0x0000803F}
+		b %ImportMaterials{1}
+		b %InvertNormals{0}
+		VarArray %Materials
+		{
+			Uuid{u4{17296997461042625421,6714415500602280008}}
+		}
+		s %MeshFile{""}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %PrimitiveType{"ezMeshPrimitive::Cylinder"}
+		f %Radius{0x9A99993E}
+		f %Radius2{0x9A99993E}
+		b %RecalculateNormals{0}
+		s %RightDir{"ezBasisAxis::PositiveY"}
+		s %SubmeshName{""}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveZ"}
+		b %UseSubfolderForMaterialImport{1}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{68497958601710778,4803677859114050671}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{68497958601710778,4803677859114050671}}
+		u4 %Hash{12540181167943831831}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{14323685177609829267,4792752478624921724}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17296997461042625421,6714415500602280008}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Default"}
+		s %Resource{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
+	}
+}
+}
+Types{}

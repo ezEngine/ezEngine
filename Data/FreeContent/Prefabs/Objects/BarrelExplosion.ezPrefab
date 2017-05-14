@@ -1,0 +1,108 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{13982649432811035806,4649044115169939370}}
+	s %t{"ezAreaDamageComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{0}
+		f %Damage{0x00002041}
+		f %Impulse{0x00002042}
+		b %OnCreation{1}
+		f %Radius{0x0000C040}
+	}
+}
+o
+{
+	Uuid %id{u4{115719885463177347,4865277656950115669}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteEntity"}
+		b %Paused{0}
+		f %Pitch{0x0000803F}
+		s %SoundEvent{"{ 384630de-7888-48fa-9695-a47936f2c4d1 }"}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{8966195037082314147,5379275455194162391}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16066207511823804328,5414987928874355234}}
+			Uuid{u4{115719885463177347,4865277656950115669}}
+			Uuid{u4{13982649432811035806,4649044115169939370}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8966195037082314147,5379275455194162391}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16066207511823804328,5414987928874355234}}
+	s %t{"ezParticleComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AutoRestart{0}
+		s %Effect{"{ 6647c90c-1552-4217-8ba8-f010b656d931 }"}
+		Time %MinRestartDelay{d{0}}
+		u4 %RandomSeed{0}
+		Time %RestartDelayRange{d{0}}
+		s %SharedInstanceName{""}
+		b %SpawnAtStart{1}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{8442476130659817125,5462836412014684702}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{8442476130659817125,5462836412014684702}}
+		u4 %Hash{13139472450346271995}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 384630de-7888-48fa-9695-a47936f2c4d1 }"}
+			s{"{ 6647c90c-1552-4217-8ba8-f010b656d931 }"}
+		}
+	}
+}
+}
+Types{}
