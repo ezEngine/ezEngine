@@ -597,6 +597,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xB81E053F}
 	}
 }
@@ -1111,6 +1112,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xD7A3D03F}
 	}
 }
@@ -1814,9 +1816,10 @@ o
 	p
 	{
 		b %Active{1}
-		b %CastShadows{0}
+		b %CastShadows{1}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xE951CC41}
 	}
 }
@@ -1889,6 +1892,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x85EB8940}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x7B146E3F}
 	}
 }
@@ -2216,6 +2220,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x00002041}
 	}
 }
@@ -2242,6 +2247,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x295CAF3F}
 	}
 }
@@ -2300,9 +2306,10 @@ o
 	p
 	{
 		b %Active{0}
-		b %CastShadows{0}
+		b %CastShadows{1}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{188,0,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x00002041}
 	}
 }
@@ -2411,6 +2418,7 @@ o
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0xC2259A3F}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x0000C03F}
 	}
 }
@@ -2443,6 +2451,7 @@ o
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0x3C46713F}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x7E14DE41}
 	}
 }
@@ -2497,6 +2506,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 	}
 }
 o
@@ -2507,9 +2517,10 @@ o
 	p
 	{
 		b %Active{0}
-		b %CastShadows{0}
+		b %CastShadows{1}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{188,0,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x00002041}
 	}
 }
@@ -2694,7 +2705,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{8773824594505722043}
+		u4 %Hash{14212022366512614144}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2778,6 +2789,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x00004842}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x0000A040}
 	}
 }
@@ -2890,6 +2902,7 @@ o
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0x7618713F}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x00002041}
 	}
 }
@@ -3607,6 +3620,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x93C28941}
 	}
 }
@@ -5830,6 +5844,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xB81E053F}
 	}
 }
@@ -6252,6 +6267,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x295CAF3F}
 	}
 }
@@ -6547,6 +6563,7 @@ o
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0x9756683F}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x00004842}
 	}
 }
@@ -8838,6 +8855,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xB81E053F}
 	}
 }
@@ -9385,6 +9403,7 @@ o
 		b %CastShadows{0}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xD7A3D03F}
 	}
 }

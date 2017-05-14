@@ -61,6 +61,20 @@ float2 ReceiverPlaneDepthBias(float3 shadowPosDX, float3 shadowPosDY)
     return biasUV;
 }
 
+uint GetPointShadowFaceIndex(float3 dir)
+{
+  if (abs(dir.z) >= abs(dir.x) && abs(dir.z) >= abs(dir.y))
+  {
+    return (dir.z < 0.0) ? 5 : 4;
+  }
+  else if (abs(dir.y) >= abs(dir.x))
+  {
+    return (dir.y < 0.0) ? 3 : 2;
+  }
+  
+  return (dir.x < 0.0) ? 1 : 0;
+}
+
 float CalculateShadow(float4 shadowPosition, float3 shadowPosDX, float3 shadowPosDY, float2x2 randomRotation, float4 shadowParams)
 {
   float2 offsets[] = 
@@ -147,6 +161,11 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
         uint shadowDataOffset = lightData.shadowDataOffset;
           
         uint matrixIndex = 0;
+        if (type == LIGHT_TYPE_POINT)
+        {
+          matrixIndex = GetPointShadowFaceIndex(-lightVector);
+        }
+        
         uint matrixOffset = GET_WORLD_TO_LIGHT_MATRIX_OFFSET(shadowDataOffset, matrixIndex);
         
         // manual matrix multiplication because d3d compiler generates very inefficient code otherwise

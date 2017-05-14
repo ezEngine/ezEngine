@@ -14,7 +14,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 ezDebugRendererContext::ezDebugRendererContext(const ezWorld* pWorld)
-  : m_Id(pWorld->GetIndex())
+  : m_Id(pWorld != nullptr ? pWorld->GetIndex() : 0)
 {
 }
 
