@@ -1,0 +1,84 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{5567099264838371444,4634255902589804557}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"1 - Default"}
+		s %Resource{"{ 3550d7c1-1b7d-4c5f-977d-1a189e1544c3 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{13946901604784327556,4737342365917344413}}
+	s %t{"ezMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		f %Angle{0x0000B443}
+		b %Cap{1}
+		b %Cap2{1}
+		u2 %Detail{1}
+		u2 %Detail2{1}
+		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		f %Height{0x0000803F}
+		b %ImportMaterials{0}
+		b %InvertNormals{0}
+		VarArray %Materials
+		{
+			Uuid{u4{5567099264838371444,4634255902589804557}}
+		}
+		s %MeshFile{"Stuff/Fern.FBX"}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %PrimitiveType{"ezMeshPrimitive::File"}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
+		b %RecalculateNormals{0}
+		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %SubmeshName{""}
+		f %UniformScaling{0x0AD7233C}
+		s %UpDir{"ezBasisAxis::PositiveY"}
+		b %UseSubfolderForMaterialImport{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13946901604784327556,4737342365917344413}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{9642918425809047473,5547520881020995788}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies
+		{
+			s{"Stuff/Fern.FBX"}
+		}
+		Uuid %DocumentID{u4{9642918425809047473,5547520881020995788}}
+		u4 %Hash{7374422252297150696}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 3550d7c1-1b7d-4c5f-977d-1a189e1544c3 }"}
+		}
+	}
+}
+}
+Types{}

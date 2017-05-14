@@ -1,0 +1,84 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{4238557265512815553,5008906090079458878}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"07 - Default"}
+		s %Resource{"{ bdb5b5b8-6c82-48d6-b3a7-75325a9416b6 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16360390312366882192,5514839690587214903}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{8556050135023066752,5443192748025149350}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies
+		{
+			s{"Stuff/Tire.FBX"}
+		}
+		Uuid %DocumentID{u4{8556050135023066752,5443192748025149350}}
+		u4 %Hash{6526048935628870709}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ bdb5b5b8-6c82-48d6-b3a7-75325a9416b6 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16360390312366882192,5514839690587214903}}
+	s %t{"ezMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		f %Angle{0x0000B443}
+		b %Cap{1}
+		b %Cap2{1}
+		u2 %Detail{1}
+		u2 %Detail2{1}
+		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		f %Height{0x0000803F}
+		b %ImportMaterials{0}
+		b %InvertNormals{0}
+		VarArray %Materials
+		{
+			Uuid{u4{4238557265512815553,5008906090079458878}}
+		}
+		s %MeshFile{"Stuff/Tire.FBX"}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %PrimitiveType{"ezMeshPrimitive::File"}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
+		b %RecalculateNormals{0}
+		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %SubmeshName{""}
+		f %UniformScaling{0x0AD7A33C}
+		s %UpDir{"ezBasisAxis::PositiveY"}
+		b %UseSubfolderForMaterialImport{1}
+	}
+}
+}
+Types{}
