@@ -406,14 +406,6 @@ void ezShadowPool::OnEngineStartup()
   s_PackedShadowData[0] = ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper>();
   s_PackedShadowData[1] = ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper>();
 
-  // pre-warm the shadow views array
-  for (ezUInt32 i = 0; i < 4; ++i)
-  {
-    ezView* pView = nullptr;
-    GetShadowView(pView);
-  }
-  s_uiUsedViews = 0;
-
   ezRenderWorld::s_BeginFrameEvent.AddEventHandler(OnBeginFrame);
 }
 
@@ -423,8 +415,17 @@ void ezShadowPool::OnEngineShutdown()
   ezRenderWorld::s_BeginFrameEvent.RemoveEventHandler(OnBeginFrame);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  pDevice->DestroyTexture(s_hShadowAtlasTexture);
-  pDevice->DestroyBuffer(s_hShadowDataBuffer);
+  if (!s_hShadowAtlasTexture.IsInvalidated())
+  {
+    pDevice->DestroyTexture(s_hShadowAtlasTexture);
+    s_hShadowAtlasTexture.Invalidate();
+  }
+
+  if (!s_hShadowDataBuffer.IsInvalidated())
+  {
+    pDevice->DestroyBuffer(s_hShadowDataBuffer);
+    s_hShadowDataBuffer.Invalidate();
+  }
 }
 
 //static
@@ -556,6 +557,7 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
   s_PackedShadowData[ezRenderWorld::GetDataIndexForExtraction()].Clear();
 
   // clear atlas texture
+  if (!s_hShadowAtlasTexture.IsInvalidated())
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
     ezGALContext* pGALContext = pDevice->GetPrimaryContext();
