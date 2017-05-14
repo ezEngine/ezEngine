@@ -6,6 +6,19 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetOwner : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetOwner, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_GetOwner();
+  ~ezVisualScriptNode_GetOwner();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_FindChildObject : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FindChildObject, ezVisualScriptNode);

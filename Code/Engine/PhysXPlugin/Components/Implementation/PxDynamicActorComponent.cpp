@@ -56,6 +56,10 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
 
     ezGameObject* pObject = pComponent->GetOwner();
 
+    /// \todo Apparently this can happen when you delete an entity!
+    if (pObject == nullptr)
+      return;
+
     // preserve scaling
     ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(activeTransform.actor2World);
     t.m_Scale = ezSimdConversion::ToVec3(pObject->GetGlobalScaling());

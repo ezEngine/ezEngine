@@ -6,6 +6,7 @@
 #include <Core/Messages/TriggerMessage.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <GameEngine/Messages/DamageMessage.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 1)
 EZ_ENUM_CONSTANT(ezProjectileReaction::Absorb),
@@ -14,7 +15,7 @@ EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
 EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 2, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -22,12 +23,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 2, ezRT
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("Interaction", m_sInteraction),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
+    EZ_MEMBER_PROPERTY("Damage", m_fDamage),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 3)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -131,17 +133,35 @@ void ezProjectileComponent::Update()
           TriggerSurfaceInteraction(hSurface, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
         }
 
-        if (interaction.m_fImpulse > 0.0f && !hitResult.m_hActorObject.IsInvalidated())
+        // if we hit some valid object
+        if (!hitResult.m_hActorObject.IsInvalidated())
         {
-          
-          ezGameObject* pObject;
-          if (GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
-          {
-            ezPhysicsAddImpulseMsg msg;
-            msg.m_vGlobalPosition = hitResult.m_vPosition;
-            msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
+          ezGameObject* pObject = nullptr;
 
-            pObject->SendMessage(msg);
+          // apply a physical impulse
+          if (interaction.m_fImpulse > 0.0f)
+          {
+            if (GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
+            {
+              ezPhysicsAddImpulseMsg msg;
+              msg.m_vGlobalPosition = hitResult.m_vPosition;
+              msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
+
+              pObject->SendMessage(msg);
+            }
+          }
+
+          // apply damage
+          if (interaction.m_fDamage > 0.0f)
+          {
+            // skip the TryGetObject if we already did that above
+            if (pObject != nullptr || GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
+            {
+              ezDamageMessage msg;
+              msg.m_fDamage = interaction.m_fDamage;
+
+              pObject->SendMessage(msg);
+            }
           }
         }
 
@@ -220,6 +240,9 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& stream) const
 
     // Version 3
     s << ia.m_fImpulse;
+
+    // Version 4
+    s << ia.m_fDamage;
   }
 }
 
@@ -257,6 +280,11 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& stream)
     if (uiVersion >= 3)
     {
       s >> ia.m_fImpulse;
+    }
+
+    if (uiVersion >= 4)
+    {
+      s >> ia.m_fDamage;
     }
   }
 }

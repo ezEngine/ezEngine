@@ -147,8 +147,12 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   // Hacky feature to add a ground plane for static actors that have no shapes at all
   if (m_pActor->getNbShapes() == 0)
   {
-    pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
-    pShape->setLocalPose(PxTransform(PxQuat(ezAngle::Degree(270.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f))));
+    ezLog::Error("Static Physics Actor component without shape is used.");
+
+    //pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+    //pShape->setLocalPose(PxTransform(PxQuat(ezAngle::Degree(270.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f))));
+
+    return;
   }
 
   if (pShape != nullptr)

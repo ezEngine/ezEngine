@@ -6,6 +6,33 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetOwner, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GetOwner>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("References")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    // Data Pins (Output)
+    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_GetOwner::ezVisualScriptNode_GetOwner() {}
+ezVisualScriptNode_GetOwner::~ezVisualScriptNode_GetOwner() {}
+
+void ezVisualScriptNode_GetOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  ezGameObjectHandle hObject = pInstance->GetOwner()->GetHandle();
+  pInstance->SetOutputPinValue(this, 0, &hObject);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_FindChildObject>)
 {
   EZ_BEGIN_ATTRIBUTES

@@ -59,6 +59,9 @@ struct EZ_GAMEENGINE_DLL ezProjectileSurfaceInteraction
 
   /// \brief The force (or rather impulse) that is applied on the object
   float m_fImpulse = 0.0f;
+
+  /// \brief How much damage to do on this type of surface. Send via ezDamageMessage
+  float m_fDamage = 0.0f;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezProjectileSurfaceInteraction);
