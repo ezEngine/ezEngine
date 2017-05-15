@@ -45,7 +45,7 @@ ezPxCharacterControllerComponentManager::~ezPxCharacterControllerComponentManage
 void ezPxCharacterControllerComponentManager::Initialize()
 {
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPxCharacterControllerComponentManager::Update, this);
-  desc.m_Phase = UpdateFunctionDesc::Phase::PostTransform;
+  desc.m_Phase = UpdateFunctionDesc::Phase::PostAsync;
 
   this->RegisterUpdateFunction(desc);
 }

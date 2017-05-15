@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
@@ -11,6 +11,7 @@
 #include <QScrollArea>
 #include <QStringBuilder>
 #include <QMenu>
+#include <QLabel>
 #include <QClipboard>
 #include <QMimeData>
 #include <Widgets/InlinedGroupBox.moc.h>

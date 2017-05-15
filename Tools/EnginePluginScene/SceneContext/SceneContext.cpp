@@ -13,6 +13,8 @@
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <GameEngine/Interfaces/SoundInterface.h>
+#include <Foundation/Configuration/Singleton.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -243,6 +245,11 @@ void ezSceneContext::OnSimulationEnabled()
   ezResourceManager::ReloadAllResources(false);
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
+
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  {
+    pSoundInterface->SetListenerOverrideMode(true);
+  }
 }
 
 void ezSceneContext::OnSimulationDisabled()
@@ -250,6 +257,11 @@ void ezSceneContext::OnSimulationDisabled()
   ezLog::Info("World Simulation disabled");
 
   ezResourceManager::ResetAllResources();
+
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  {
+    pSoundInterface->SetListenerOverrideMode(false);
+  }
 }
 
 ezGameState* ezSceneContext::GetGameState() const

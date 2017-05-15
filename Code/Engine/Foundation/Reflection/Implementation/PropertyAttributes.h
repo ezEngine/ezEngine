@@ -43,6 +43,24 @@ private:
   ezUntrackedString m_sCategory;
 };
 
+/// \brief Used to categorize types (e.g. add component menu)
+class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTitleAttribute, ezPropertyAttribute);
+
+public:
+  ezTitleAttribute() {}
+  ezTitleAttribute(const char* szTitle)
+  {
+    m_sTitle = szTitle;
+  }
+
+  const char* GetTitle() const { return m_sTitle; }
+
+private:
+  ezUntrackedString m_sTitle;
+};
+
 /// \brief Used to colorize types
 class EZ_FOUNDATION_DLL ezColorAttribute : public ezPropertyAttribute
 {

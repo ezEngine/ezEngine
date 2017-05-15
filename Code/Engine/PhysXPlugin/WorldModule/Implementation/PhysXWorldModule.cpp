@@ -379,6 +379,7 @@ void ezPhysXWorldModule::Initialize()
 
   {
     auto startSimDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPhysXWorldModule::StartSimulation, this);
+    startSimDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
     startSimDesc.m_bOnlyUpdateWhenSimulating = true;
     // Start physics simulation as late as possible in the first synchronous phase
     // so all kinematic objects have a chance to update their transform before.

@@ -12,7 +12,7 @@ struct EZ_GAMEENGINE_DLL ezDamageMessage : public ezScriptFunctionMessage
 };
 
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_DamageEvent: public ezVisualScriptNode
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_DamageEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_DamageEvent, ezVisualScriptNode);
 public:

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <FmodPlugin/Basics.h>
-#include <FmodPlugin/PluginInterface.h>
+#include <GameEngine/Interfaces/SoundInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -45,9 +45,9 @@ struct EZ_FMODPLUGIN_DLL ezFmodPlatformConfigs
   ezMap<ezString, ezFmodConfiguration> m_PlatformConfigs;
 };
 
-class EZ_FMODPLUGIN_DLL ezFmod : public ezFmodInterface
+class EZ_FMODPLUGIN_DLL ezFmod : public ezSoundInterface
 {
-  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezFmod, ezFmodInterface);
+  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezFmod, ezSoundInterface);
 
 public:
   ezFmod();
@@ -106,11 +106,16 @@ public:
   /// \brief See SetNumBlendedReverbVolumes()
   ezUInt8 GetNumBlendedReverbVolumes() const { return m_uiNumBlendedVolumes; }
 
+
+  virtual void SetListenerOverrideMode(bool enabled) override;
+  virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
+
 private:
   void DetectPlatform();
   ezResult LoadMasterSoundBank(const char* szMasterBankResourceID);
 
   bool m_bInitialized = false;
+  bool m_bListenerOverrideMode = false;
   ezUInt8 m_uiNumBlendedVolumes = 4;
 
   FMOD::Studio::System* m_pStudioSystem;

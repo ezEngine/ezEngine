@@ -2,7 +2,6 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginFmod/Actions/FmodActions.h>
-#include <FmodPlugin/PluginInterface.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
 #include <Foundation/Configuration/CVar.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>

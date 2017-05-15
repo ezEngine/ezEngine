@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -18,6 +18,8 @@
 #include <SceneContext/SceneContext.h>
 #include <RenderPipeline/EditorSelectedObjectsExtractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <GameEngine/Interfaces/SoundInterface.h>
+#include <Foundation/Configuration/Singleton.h>
 
 ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
   : ezEngineProcessViewContext(pSceneContext)
@@ -52,6 +54,16 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
       pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", pMsg2->m_bEnablePickingSelected);
       pView->SetRenderPassProperty("EditorPickingPass.ezGizmoRenderer", "Enabled", pMsg2->m_bEnablePickingSelected);
     }
+
+    if (pMsg2->m_CameraUsageHint == ezCameraUsageHint::EditorView &&
+      (pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovX || pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovY))
+    {
+      if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+      {
+        pSoundInterface->SetListener(-1, pMsg2->m_vPosition, pMsg2->m_vDirForwards, pMsg2->m_vDirUp, ezVec3::ZeroVector());
+      }
+    }
+        
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
   {

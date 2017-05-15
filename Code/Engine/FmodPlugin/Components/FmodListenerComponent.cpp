@@ -49,21 +49,7 @@ void ezFmodListenerComponent::Update()
   const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0)).GetNormalized();
   const auto up  = (GetOwner()->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized();
 
-  FMOD_3D_ATTRIBUTES attr;
-  attr.position.x = pos.x;
-  attr.position.y = pos.y;
-  attr.position.z = pos.z;
-  attr.forward.x = fwd.x;
-  attr.forward.y = fwd.y;
-  attr.forward.z = fwd.z;
-  attr.up.x = up.x;
-  attr.up.y = up.y;
-  attr.up.z = up.z;
-  attr.velocity.x = vel.x;
-  attr.velocity.y = vel.y;
-  attr.velocity.z = vel.z;
-
-  ezFmod::GetSingleton()->GetStudioSystem()->setListenerAttributes(m_uiListenerIndex, &attr);
+  ezFmod::GetSingleton()->SetListener(m_uiListenerIndex, pos, fwd, up, vel);
 }
 
 

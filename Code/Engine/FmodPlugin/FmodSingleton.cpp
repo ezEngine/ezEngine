@@ -1,5 +1,4 @@
 ﻿#include <PCH.h>
-#include <FmodPlugin/PluginInterface.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -281,6 +280,41 @@ void ezFmod::GameApplicationEventHandler(const ezGameApplicationEvent& e)
 void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
 {
   m_uiNumBlendedVolumes = ezMath::Clamp<ezUInt8>(m_uiNumBlendedVolumes, 0, 4);
+}
+
+void ezFmod::SetListenerOverrideMode(bool enabled)
+{
+  m_bListenerOverrideMode = enabled;
+}
+
+void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity)
+{
+  if (m_bListenerOverrideMode)
+  {
+    if (iIndex != -1)
+      return;
+
+    iIndex = 0;
+  }
+
+  if (iIndex < 0 || iIndex >= FMOD_MAX_LISTENERS)
+    return;
+
+  FMOD_3D_ATTRIBUTES attr;
+  attr.position.x = vPosition.x;
+  attr.position.y = vPosition.y;
+  attr.position.z = vPosition.z;
+  attr.forward.x = vForward.x;
+  attr.forward.y = vForward.y;
+  attr.forward.z = vForward.z;
+  attr.up.x = vUp.x;
+  attr.up.y = vUp.y;
+  attr.up.z = vUp.z;
+  attr.velocity.x = vVelocity.x;
+  attr.velocity.y = vVelocity.y;
+  attr.velocity.z = vVelocity.z;
+
+  m_pStudioSystem->setListenerAttributes(iIndex, &attr);
 }
 
 void ezFmod::DetectPlatform()
