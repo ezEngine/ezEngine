@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <QWidget>
+#include <QIcon>
 
 class EZ_GUIFOUNDATION_DLL ezQtGroupBoxBase : public QWidget
 {
