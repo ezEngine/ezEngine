@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -23,6 +23,7 @@ struct ezVisualScriptNodeDescriptor
 {
   ezString m_sTypeName;
   ezString m_sCategory;
+  ezString m_sTitle;
   ezColorGammaUB m_Color;
 
   ezHybridArray<ezVisualScriptPinDescriptor, 4> m_InputPins;

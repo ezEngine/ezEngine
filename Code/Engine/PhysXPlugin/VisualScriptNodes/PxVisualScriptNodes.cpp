@@ -9,7 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PxTriggerEvent, 1, ezRTTIDefa
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Physics/Events")
+    new ezCategoryAttribute("Physics/Events"),
+    new ezTitleAttribute("Trigger Event '{0}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

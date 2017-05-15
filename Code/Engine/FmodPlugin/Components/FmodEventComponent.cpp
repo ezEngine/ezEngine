@@ -541,7 +541,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1, ezR
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Sound")
+    new ezCategoryAttribute("Sound"),
+    new ezTitleAttribute("Set Fmod Parameter '{0}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

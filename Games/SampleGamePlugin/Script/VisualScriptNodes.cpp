@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <SampleGamePlugin/Script/VisualScriptNodes.h>
 #include <Foundation/Logging/Log.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
@@ -7,7 +7,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SampleNode, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Sample")
+    new ezCategoryAttribute("Sample"),
+    new ezTitleAttribute("Sample Node '{0}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMathExpressionNode.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
@@ -6,7 +6,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MathExpression, 1, ezRTTIDefa
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Math")
+    new ezCategoryAttribute("Math"),
+    new ezTitleAttribute("Expression '{4}'"),
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES

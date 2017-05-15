@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptLogicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
@@ -47,7 +47,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic")
+    new ezCategoryAttribute("Logic"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

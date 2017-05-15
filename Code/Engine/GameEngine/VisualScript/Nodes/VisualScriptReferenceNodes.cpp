@@ -37,7 +37,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("References")
+    new ezCategoryAttribute("References"),
+    new ezTitleAttribute("Child '{0}'"),
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
@@ -83,7 +84,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("References")
+    new ezCategoryAttribute("References"),
+    new ezTitleAttribute("Component '{0}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -151,7 +153,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("References")
+    new ezCategoryAttribute("References"),
+    new ezTitleAttribute("Global Object '{0}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

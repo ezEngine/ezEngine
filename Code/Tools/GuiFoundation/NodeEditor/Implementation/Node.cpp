@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <ToolsFoundation/Document/Document.h>
@@ -55,17 +55,14 @@ void ezQtNode::EnableDropShadow(bool enable)
   }
 }
 
-void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText /*= nullptr*/)
+void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {
   m_pManager = pManager;
   m_pObject = pObject;
   CreatePins();
   prepareGeometryChange();
 
-  if (szHeaderText == nullptr)
-    m_pLabel->setPlainText(pObject->GetTypeAccessor().GetType()->GetTypeName());
-  else
-    m_pLabel->setPlainText(szHeaderText);
+  UpdateTitle();
 
   auto labelRect = m_pLabel->boundingRect();
 
@@ -140,6 +137,11 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     ezColorGammaUB col = pColorAttr->GetColor();
     m_HeaderColor = qRgb(col.r, col.g, col.b);
   }
+}
+
+void ezQtNode::UpdateTitle()
+{
+  m_pLabel->setPlainText(m_pObject->GetTypeAccessor().GetType()->GetTypeName());
 }
 
 void ezQtNode::CreatePins()

@@ -355,16 +355,9 @@ ezQtVisualScriptNode::ezQtVisualScriptNode()
   EnableDropShadow(false);
 }
 
-void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText /*= nullptr*/)
+void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {
-  ezStringBuilder temp = pObject->GetTypeAccessor().GetType()->GetTypeName();
-  if (temp.StartsWith_NoCase("VisualScriptNode::"))
-    temp.Shrink(18, 0);
-
-  if (temp.StartsWith_NoCase("ezVisualScriptNode_"))
-    temp.Shrink(19, 0);
-
-  ezQtNode::InitNode(pManager, pObject, temp);
+  ezQtNode::InitNode(pManager, pObject);
 
   const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
 
@@ -377,5 +370,37 @@ void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const
     m_HeaderColor = qRgb(255, 0, 0);
     ezLog::Error("Could not initialize node type, node descriptor is invalid");
   }
+}
+
+void ezQtVisualScriptNode::UpdateTitle()
+{
+  ezStringBuilder temp;
+  
+  const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
+
+  if (!pDesc->m_sTitle.IsEmpty())
+  {
+    ezHybridArray<ezAbstractProperty*, 32> properties;
+    GetObject()->GetType()->GetAllProperties(properties);
+
+    ezVariant values[4];
+    for (ezUInt32 i = 0; i < ezMath::Min(4U, properties.GetCount()); ++i)
+    {
+      values[i] = GetObject()->GetTypeAccessor().GetValue(properties[i]->GetPropertyName());
+    }
+
+    temp.Format(pDesc->m_sTitle, values[0].ConvertTo<ezString>(), values[1].ConvertTo<ezString>(), values[2].ConvertTo<ezString>(), values[3].ConvertTo<ezString>());
+  }
+  else
+  {
+    temp = GetObject()->GetTypeAccessor().GetType()->GetTypeName();
+    if (temp.StartsWith_NoCase("VisualScriptNode::"))
+      temp.Shrink(18, 0);
+
+    if (temp.StartsWith_NoCase("ezVisualScriptNode_"))
+      temp.Shrink(19, 0);
+  }
+
+  m_pLabel->setPlainText(temp.GetData());
 }
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
@@ -40,7 +40,7 @@ public:
   virtual int type() const override { return ezQtNodeScene::Node; }
 
   const ezDocumentObject* GetObject() const { return m_pObject; }
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText = nullptr);
+  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject);
   void CreatePins();
 
   ezQtPin* GetInputPin(const ezPin* pPin);
@@ -54,6 +54,7 @@ public:
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+  virtual void UpdateTitle();
 
   QColor m_HeaderColor;
   QGraphicsTextItem* m_pLabel;

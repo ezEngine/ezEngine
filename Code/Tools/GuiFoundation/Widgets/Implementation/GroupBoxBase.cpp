@@ -1,8 +1,9 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 #include <QStyleOptionToolButton>
 #include <QPainter>
 #include <QBoxLayout>
+#include <UIServices/UIServices.moc.h>
 
 void ezQtGroupBoxBase::SetTitle(const char* szTitle)
 {

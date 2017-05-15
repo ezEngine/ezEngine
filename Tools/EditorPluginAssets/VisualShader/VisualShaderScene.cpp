@@ -209,13 +209,9 @@ ezQtVisualShaderNode::ezQtVisualShaderNode()
   EnableDropShadow(false);
 }
 
-void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText /*= nullptr*/)
+void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {
-  ezStringBuilder temp = pObject->GetTypeAccessor().GetType()->GetTypeName();
-  if (temp.StartsWith_NoCase("ShaderNode::"))
-    temp.Shrink(12, 0);
-
-  ezQtNode::InitNode(pManager, pObject, temp);
+  ezQtNode::InitNode(pManager, pObject);
 
   const auto* pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
 
@@ -228,5 +224,14 @@ void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const
     m_HeaderColor = qRgb(255, 0, 0);
     ezLog::Error("Could not initialize node type, node descriptor is invalid");
   }
+}
+
+void ezQtVisualShaderNode::UpdateTitle()
+{
+  ezStringBuilder temp = GetObject()->GetTypeAccessor().GetType()->GetTypeName();
+  if (temp.StartsWith_NoCase("ShaderNode::"))
+    temp.Shrink(12, 0);
+
+  m_pLabel->setPlainText(temp.GetData());
 }
 

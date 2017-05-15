@@ -45,7 +45,8 @@ class ezQtVisualShaderNode : public ezQtNode
 public:
   ezQtVisualShaderNode();
 
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject, const char* szHeaderText = nullptr) override;
+  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
 
+  virtual void UpdateTitle() override;
 };
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
@@ -168,6 +168,11 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       nd.m_Color = ezColorGammaUB(0, 89, 153);
     else if (nd.m_sCategory == "Variables")
       nd.m_Color = ezColorGammaUB(250, 70, 0);
+  }
+
+  if (const ezTitleAttribute* pAttr = pRtti->GetAttributeByType<ezTitleAttribute>())
+  {
+    nd.m_sTitle = pAttr->GetTitle();
   }
 
   if (const ezColorAttribute* pAttr = pRtti->GetAttributeByType<ezColorAttribute>())
