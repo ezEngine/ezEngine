@@ -50,11 +50,11 @@ public:
   void ResetFlags();
 
   void EnableDropShadow(bool enable);
+  virtual void UpdateTitle();
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-  virtual void UpdateTitle();
 
   QColor m_HeaderColor;
   QGraphicsTextItem* m_pLabel;

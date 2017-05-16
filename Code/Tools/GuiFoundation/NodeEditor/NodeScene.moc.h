@@ -47,6 +47,7 @@ private:
   void CreateNode(const ezDocumentObject* pObject);
   void DeleteNode(const ezDocumentObject* pObject);
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
+  void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
   void SelectionEventsHandler(const ezSelectionManagerEvent& e);
   void GetSelection(ezDeque<const ezDocumentObject*>& selection) const;
   void GetSelectedNodes(ezDeque<ezQtNode*>& selection) const;

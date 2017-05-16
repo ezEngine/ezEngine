@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/Console/LuaInterpreter.h>
 #include <Core/Scripting/LuaWrapper.h>
 
@@ -87,12 +87,21 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
   ezStringView sCommandIt = sCommand;
 
   const ezString sVarName = GetNextWord(sCommandIt);
-  const ezString sFunctionParam = GetRestWords(sCommandIt);
-  const ezString sMiddle = GetNextWord(sCommandIt);
+
+  while (ezStringUtils::IsWhiteSpace(sCommandIt.GetCharacter()))
+  {
+    sCommandIt.Shrink(1, 0);
+  }
+
+  const bool bSetValue = sCommandIt.StartsWith("=");
+
+  if (bSetValue)
+  {
+    sCommandIt.Shrink(1, 0);
+  }
+
   ezStringBuilder sValue = GetRestWords(sCommandIt);
   bool bValueEmpty = sValue.IsEmpty();
-
-  const bool bSetValue = (sMiddle == "=");
 
   ezStringBuilder sTemp;
 

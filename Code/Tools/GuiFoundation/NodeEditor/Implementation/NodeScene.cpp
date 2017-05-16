@@ -39,6 +39,7 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
   {
     m_pManager->m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
     m_pManager->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
+    m_pManager->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
   }
 
   m_pManager = pManager;
@@ -47,6 +48,7 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
   {
     pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
     m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
+    m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
 
     // Create Nodes
     const auto& rootObjects = pManager->GetRootObject()->GetChildren();
@@ -493,6 +495,17 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
   default:
     break;
   }
+}
+
+
+void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  auto it = m_Nodes.Find(e.m_pObject);
+
+  if (!it.IsValid())
+    return;
+
+  it.Value()->UpdateTitle();
 }
 
 void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
