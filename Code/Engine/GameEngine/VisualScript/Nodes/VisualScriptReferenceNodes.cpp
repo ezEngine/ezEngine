@@ -27,7 +27,7 @@ ezVisualScriptNode_GetOwner::~ezVisualScriptNode_GetOwner() {}
 
 void ezVisualScriptNode_GetOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  ezGameObjectHandle hObject = pInstance->GetOwner()->GetHandle();
+  ezGameObjectHandle hObject = pInstance->GetOwner();
   pInstance->SetOutputPinValue(this, 0, &hObject);
 }
 
@@ -59,8 +59,11 @@ void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstan
 {
   if (m_hObject.IsInvalidated() && !m_sObjectName.IsEmpty())
   {
+    ezGameObject* pRoot = nullptr;
+    pInstance->GetWorld()->TryGetObject(pInstance->GetOwner(), pRoot);
+
     const ezTempHashedString name(m_sObjectName.GetData());
-    ezGameObject* pChild = pInstance->GetOwner()->FindChildByName(name, true);
+    ezGameObject* pChild = pRoot->FindChildByName(name, true);
 
     if (pChild != nullptr)
     {
@@ -108,11 +111,16 @@ void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance
 {
   if (m_hComponent.IsInvalidated() && !m_sType.IsEmpty())
   {
-    ezGameObject* pObject = pInstance->GetOwner();
+    ezGameObject* pObject = nullptr;
 
     if (!m_hObject.IsInvalidated())
     {
       if (!pObject->GetWorld()->TryGetObject(m_hObject, pObject))
+        goto fail;
+    }
+    else
+    {
+      if (!pInstance->GetWorld()->TryGetObject(pInstance->GetOwner(), pObject))
         goto fail;
     }
 

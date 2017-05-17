@@ -36,7 +36,7 @@ void ezVisualScriptNode_DeleteObject::Execute(ezVisualScriptInstance* pInstance,
   }
   else
   {
-    pInstance->GetWorld()->DeleteObjectDelayed(pInstance->GetOwner()->GetHandle());
+    pInstance->GetWorld()->DeleteObjectDelayed(pInstance->GetOwner());
   }
 
   pInstance->ExecuteConnectedNodes(this, 0);

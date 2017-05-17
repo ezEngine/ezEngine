@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/Messages/TriggerMessage.h>
@@ -131,8 +131,11 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
       }
       else
       {
-        ezGameObject* pObject = pInstance->GetOwner();
-        pObject->SendMessage(*m_pMessageToSend);
+        ezGameObject* pObject = nullptr;
+        if (pWorld->TryGetObject(pInstance->GetOwner(), pObject))
+        {
+          pObject->SendMessage(*m_pMessageToSend);
+        }
       }
     }
     else
@@ -149,8 +152,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
       }
       else
       {
-        ezGameObject* pObject = pInstance->GetOwner();
-        pWorld->PostMessage(pObject->GetHandle(), *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
+        pWorld->PostMessage(pInstance->GetOwner(), *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
       }
     }
   }

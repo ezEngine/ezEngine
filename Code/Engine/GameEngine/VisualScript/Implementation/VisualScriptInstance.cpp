@@ -81,7 +81,6 @@ void ezVisualScriptInstance::Clear()
   }
 
   m_pWorld = nullptr;
-  m_pOwner = nullptr;
   m_Nodes.Clear();
   m_ExecutionConnections.Clear();
   m_DataConnections.Clear();
@@ -130,11 +129,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
 {
   Clear();
 
-  m_pOwner = pOwner;
+  m_hOwner = pOwner->GetHandle();
 
-  if (m_pOwner)
+  if (pOwner)
   {
-    m_pWorld = m_pOwner->GetWorld();
+    m_pWorld = pOwner->GetWorld();
   }
 
   m_Nodes.Reserve(resource.m_Nodes.GetCount());

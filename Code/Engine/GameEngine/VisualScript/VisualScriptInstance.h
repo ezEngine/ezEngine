@@ -45,7 +45,7 @@ public:
   void ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget);
 
   /// \brief Returns the ezGameObject that owns this script. May be nullptr, if the instance is not attached to a game object.
-  ezGameObject* GetOwner() const { return m_pOwner; }
+  ezGameObjectHandle GetOwner() const { return m_hOwner; }
 
   /// \brief Returns the world of the owner game object.
   ezWorld* GetWorld() const { return m_pWorld; }
@@ -96,7 +96,7 @@ private:
     ezUInt8 m_uiTargetPin;
   };
 
-  ezGameObject* m_pOwner = nullptr;
+  ezGameObjectHandle m_hOwner;
   ezWorld* m_pWorld = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;
