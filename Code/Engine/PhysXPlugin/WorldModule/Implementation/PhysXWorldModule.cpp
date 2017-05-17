@@ -703,7 +703,7 @@ void ezPhysXWorldModule::Simulate()
     m_AccumulatedTimeSinceUpdate += tDiff;
     ezUInt32 uiNumSubSteps = 0;
 
-    while (m_AccumulatedTimeSinceUpdate >= tFixedStep || uiNumSubSteps == m_Settings.m_uiMaxSubSteps)
+    while (m_AccumulatedTimeSinceUpdate >= tFixedStep && uiNumSubSteps < m_Settings.m_uiMaxSubSteps)
     {
       SimulateStep((float)tFixedStep.GetSeconds());
 
@@ -713,26 +713,23 @@ void ezPhysXWorldModule::Simulate()
   }
   else if (m_Settings.m_SteppingMode == ezPxSteppingMode::SemiFixed)
   {
-    float fDiff = (float)(m_AccumulatedTimeSinceUpdate + tDiff).GetSeconds();
-    float fFixedStep = 1.0f / m_Settings.m_fFixedFrameRate;
-    float fMinStep = fFixedStep / 4.0f;
+    m_AccumulatedTimeSinceUpdate += tDiff;
+    ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
+    ezTime tMinStep = tFixedStep * 0.25;
 
-    if (fFixedStep * m_Settings.m_uiMaxSubSteps < fDiff)
+    if (tFixedStep * m_Settings.m_uiMaxSubSteps < m_AccumulatedTimeSinceUpdate)
     {
-      ///\todo add warning?
-      fFixedStep = fDiff / m_Settings.m_uiMaxSubSteps;
+      tFixedStep = m_AccumulatedTimeSinceUpdate / (double)m_Settings.m_uiMaxSubSteps;
     }
 
-    while (fDiff > fMinStep)
+    while (m_AccumulatedTimeSinceUpdate > tMinStep)
     {
-      float fDeltaTime = ezMath::Min(fFixedStep, fDiff);
+      ezTime tDeltaTime = ezMath::Min(tFixedStep, m_AccumulatedTimeSinceUpdate);
 
-      SimulateStep(fDeltaTime);
+      SimulateStep((float)tDeltaTime.GetSeconds());
 
-      fDiff -= fDeltaTime;
+      m_AccumulatedTimeSinceUpdate -= tDeltaTime;
     }
-
-    m_AccumulatedTimeSinceUpdate += ezTime::Seconds(fDiff);
   }
   else
   {
