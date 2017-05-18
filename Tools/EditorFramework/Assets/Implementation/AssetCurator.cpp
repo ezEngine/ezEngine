@@ -477,14 +477,42 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
 
   auto FindAsset = [this](ezStringView path) -> ezAssetInfo*
   {
+    // try to find the 'exact' relative path
+    // otherwise find the shortest possible path
+    ezUInt32 uiMinLength = 0xFFFFFFFF;
+    ezAssetInfo* pBestInfo = nullptr;
+
+    if (path.IsEmpty())
+      return nullptr;
+
+    const ezStringBuilder sPathWithSlash("/", path.GetData());
+
     for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
     {
-      if (path.IsEqual_NoCase(it.Value()->m_sDataDirRelativePath.GetData()))
+      if (it.Value()->m_sDataDirRelativePath.EndsWith_NoCase(path.GetData()))
       {
-        return it.Value();
+        // endswith -> could also be equal
+        if (path.IsEqual_NoCase(it.Value()->m_sDataDirRelativePath.GetData()))
+        {
+          // if equal, just take it
+          return it.Value();
+        }
+
+        // need to check again with a slash to make sure we don't return something that is of an invalid type
+        // this can happen where the user is allowed to type random paths
+        if (it.Value()->m_sDataDirRelativePath.EndsWith_NoCase(sPathWithSlash))
+        {
+          const ezUInt32 uiLength = it.Value()->m_sDataDirRelativePath.GetElementCount();
+          if (uiLength < uiMinLength)
+          {
+            uiMinLength = uiLength;
+            pBestInfo = it.Value();
+          }
+        }
       }
     }
-    return nullptr;
+
+    return pBestInfo;
   };
 
   const char* szSeparator = ezStringUtils::FindSubString(szPathOrGuid, "|");
@@ -509,7 +537,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   sPath.MakeCleanPath();
   if (sPath.IsAbsolutePath())
   {
-    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(sPath))
       return ezLockedSubAsset();
   }
 
@@ -779,7 +807,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   }
 
   if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)
-    && !resReferences.m_Result.Failed())
+      && !resReferences.m_Result.Failed())
   {
     if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
     {

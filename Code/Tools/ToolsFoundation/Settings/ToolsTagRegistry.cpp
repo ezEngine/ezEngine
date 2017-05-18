@@ -95,7 +95,7 @@ ezStatus ezToolsTagRegistry::ReadFromDDL(ezStreamReader& stream)
 
     if (!ezToolsTagRegistry::AddTag(tag))
     {
-      ezLog::Error("Failed to add tag '{0}'", tag.m_sName.GetData());
+      ezLog::Error("Failed to add tag '{0}'", tag.m_sName);
     }
   }
 
@@ -116,7 +116,7 @@ bool ezToolsTagRegistry::AddTag(const ezToolsTag& tag)
       it.Value().m_bBuiltInTag = true;
     }
 
-    return false;
+    return true;
   }
   else
   {

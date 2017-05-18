@@ -1084,7 +1084,7 @@ ezUuid ezMaterialAssetDocument::GetLitBaseMaterial()
 {
   if (!s_LitBaseMaterial.IsValid())
   {
-    static const char* szLitMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
+    static const char* szLitMaterialAssetPath = "Base/Materials/BaseMaterials/Lit.ezMaterialAsset";
     auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitMaterialAssetPath);
     if (assetInfo)
       s_LitBaseMaterial = assetInfo->m_Data.m_Guid;
@@ -1098,7 +1098,7 @@ ezUuid ezMaterialAssetDocument::GetLitAlphaTextBaseMaterial()
 {
   if (!s_LitAlphaTextBaseMaterial.IsValid())
   {
-    static const char* szLitAlphaTestMaterialAssetPath = "Materials/BaseMaterials/LitAlphaTest.ezMaterialAsset";
+    static const char* szLitAlphaTestMaterialAssetPath = "Base/Materials/BaseMaterials/LitAlphaTest.ezMaterialAsset";
     auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szLitAlphaTestMaterialAssetPath);
     if (assetInfo)
       s_LitAlphaTextBaseMaterial = assetInfo->m_Data.m_Guid;
@@ -1112,7 +1112,7 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
 {
   if (!s_NeutralNormalMap.IsValid())
   {
-    static const char* szNeutralNormalMapAssetPath = "Textures/NeutralNormal.ezTextureAsset";
+    static const char* szNeutralNormalMapAssetPath = "Base/Textures/NeutralNormal.ezTextureAsset";
     auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szNeutralNormalMapAssetPath);
     if (assetInfo)
       s_NeutralNormalMap = assetInfo->m_Data.m_Guid;

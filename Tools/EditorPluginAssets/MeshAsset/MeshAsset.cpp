@@ -496,7 +496,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   }
 
   // Materials/Submeshes.
-  static const char* defaultMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
+  static const char* defaultMaterialAssetPath = "Base/Materials/BaseMaterials/Lit.ezMaterialAsset";
   ezStringBuilder defaultMaterialAssetId;
   ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindSubAsset(defaultMaterialAssetPath)->m_Data.m_Guid, defaultMaterialAssetId);
 
