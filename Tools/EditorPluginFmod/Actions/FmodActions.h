@@ -5,6 +5,8 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <Foundation/Configuration/CVar.h>
 
+class ezPreferences;
+
 class EZ_EDITORPLUGINFMOD_DLL ezFmodActions
 {
 public:
@@ -16,6 +18,7 @@ public:
   static ezActionDescriptorHandle s_hCategoryFmod;
   static ezActionDescriptorHandle s_hProjectSettings;
   static ezActionDescriptorHandle s_hMuteSound;
+  static ezActionDescriptorHandle s_hMasterVolume;
 };
 
 
@@ -36,8 +39,30 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void CVarEventHandler(const ezCVar::CVarEvent& e);
+  void OnPreferenceChange(ezPreferences* pref);
 
   ActionType m_Type;
 };
 
+class EZ_EDITORPLUGINFMOD_DLL ezFmodSliderAction : public ezSliderAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSliderAction, ezSliderAction);
+
+public:
+
+  enum class ActionType
+  {
+    MasterVolume,
+  };
+
+  ezFmodSliderAction(const ezActionContext& context, const char* szName, ActionType type);
+  ~ezFmodSliderAction();
+
+  virtual void Execute(const ezVariant& value) override;
+
+private:
+  void OnPreferenceChange(ezPreferences* pref);
+  void UpdateState();
+
+  ActionType m_Type;
+};

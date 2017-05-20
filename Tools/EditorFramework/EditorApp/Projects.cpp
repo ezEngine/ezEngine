@@ -123,8 +123,6 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
     {
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
-
-      ezPreferences::ClearProjectPreferences();
     }
     break;
 

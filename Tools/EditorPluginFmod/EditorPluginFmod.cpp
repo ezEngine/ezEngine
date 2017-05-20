@@ -14,14 +14,16 @@
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
 #include <GameEngine/CollisionFilter/CollisionFilter.h>
+#include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
-void UpdateCollisionLayerDynamicEnumValues();
-
+static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginFmod", "ezFmodPlugin");
 
+  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+  
   // Mesh Asset
   {
     // Menu Bar
@@ -60,7 +62,18 @@ void OnLoadPlugin(bool bReloading)
 void OnUnloadPlugin(bool bReloading)
 {
   ezFmodActions::UnregisterActions();
+  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
 }
+
+static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+{
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
+  {
+    ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+    pPreferences->SyncCVars();
+  }
+}
+
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
 

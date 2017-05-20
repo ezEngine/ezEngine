@@ -6,19 +6,27 @@
 #include <Foundation/Configuration/CVar.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSliderAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezFmodActions::s_hCategoryFmod;
 ezActionDescriptorHandle ezFmodActions::s_hProjectSettings;
 ezActionDescriptorHandle ezFmodActions::s_hMuteSound;
+ezActionDescriptorHandle ezFmodActions::s_hMasterVolume;
 
 void ezFmodActions::RegisterActions()
 {
   s_hCategoryFmod = EZ_REGISTER_CATEGORY("Fmod");
   s_hProjectSettings = EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
   s_hMuteSound = EZ_REGISTER_ACTION_1("Fmod.Mute", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
+
+  s_hMasterVolume = EZ_REGISTER_ACTION_1("Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
 }
 
 void ezFmodActions::UnregisterActions()
@@ -26,6 +34,7 @@ void ezFmodActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCategoryFmod);
   ezActionManager::UnregisterAction(s_hProjectSettings);
   ezActionManager::UnregisterAction(s_hMuteSound);
+  ezActionManager::UnregisterAction(s_hMasterVolume);
 }
 
 void ezFmodActions::MapMenuActions()
@@ -50,6 +59,7 @@ void ezFmodActions::MapMenuActions()
 
     pSceneMap->MapAction(s_hCategoryFmod, "Menu.Scene", 5.0f);
     pSceneMap->MapAction(s_hMuteSound, "Menu.Scene/Fmod", 0.0f);
+    pSceneMap->MapAction(s_hMasterVolume, "Menu.Scene/Fmod", 1.0f);
   }
 }
 
@@ -62,20 +72,21 @@ ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, A
   case ActionType::ProjectSettings:
     SetIconPath(":/AssetIcons/Sound_Event.png");
     break;
+
   case ActionType::MuteSound:
-    SetCheckable(true);
-    
-    if (ezCVarBool* cvar = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("fmod_Mute")))
     {
-      if (cvar->GetValue())
+      SetCheckable(true);
+
+      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezFmodAction::OnPreferenceChange, this));
+
+      if (pPreferences->GetMute())
         SetIconPath(":/Icons/SoundOff16.png");
       else
         SetIconPath(":/Icons/SoundOn16.png");
 
-      SetChecked(cvar->GetValue());
-      cvar->m_CVarEvents.AddEventHandler(ezMakeDelegate(&ezFmodAction::CVarEventHandler, this));
+      SetChecked(pPreferences->GetMute());
     }
-
     break;
   }
 }
@@ -84,10 +95,8 @@ ezFmodAction::~ezFmodAction()
 {
   if (m_Type == ActionType::MuteSound)
   {
-    if (ezCVarBool* cvar = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("fmod_Mute")))
-    {
-      cvar->m_CVarEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodAction::CVarEventHandler, this));
-    }
+    ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+    pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezFmodAction::OnPreferenceChange, this));
   }
 }
 
@@ -101,28 +110,93 @@ void ezFmodAction::Execute(const ezVariant& value)
 
   if (m_Type == ActionType::MuteSound)
   {
-    if (ezCVarBool* cvar = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("fmod_Mute")))
-    {
-      *cvar = !cvar->GetValue();
-
-      ezChangeCVarMsgToEngine msg;
-      msg.m_sCVarName = "fmod_Mute";
-      msg.m_NewValue = cvar->GetValue();
-
-      ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
-    }
+    ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+    pPreferences->SetMute(!pPreferences->GetMute());
   }
 }
 
-void ezFmodAction::CVarEventHandler(const ezCVar::CVarEvent& e)
+void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
 {
-  ezCVarBool* cvar = static_cast<ezCVarBool*>(e.m_pCVar);
+  ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
 
-  if (cvar->GetValue())
-    SetIconPath(":/Icons/SoundOff16.png");
-  else
-    SetIconPath(":/Icons/SoundOn16.png");
+  if (m_Type == ActionType::MuteSound)
+  {
+    if (pPreferences->GetMute())
+      SetIconPath(":/Icons/SoundOff16.png");
+    else
+      SetIconPath(":/Icons/SoundOn16.png");
 
-  SetChecked(cvar->GetValue());
+    SetChecked(pPreferences->GetMute());
+  }
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+ezFmodSliderAction::ezFmodSliderAction(const ezActionContext& context, const char* szName, ActionType type)
+  : ezSliderAction(context, szName)
+{
+  m_Type = type;
+
+  switch (m_Type)
+  {
+  case ActionType::MasterVolume:
+    {
+      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+
+      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezFmodSliderAction::OnPreferenceChange, this));
+
+      SetRange(0, 20);
+    }
+    break;
+  }
+
+  UpdateState();
+}
+
+ezFmodSliderAction::~ezFmodSliderAction()
+{
+  switch (m_Type)
+  {
+  case ActionType::MasterVolume:
+    {
+      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+      pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezFmodSliderAction::OnPreferenceChange, this));
+    }
+    break;
+  }
+}
+
+void ezFmodSliderAction::Execute(const ezVariant& value)
+{
+  const ezInt32 iValue = value.Get<ezInt32>();
+
+  switch (m_Type)
+  {
+  case ActionType::MasterVolume:
+    {
+      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+
+      pPreferences->SetVolume(iValue / 20.0f);
+    }
+    break;
+  }
+}
+
+void ezFmodSliderAction::OnPreferenceChange(ezPreferences* pref)
+{
+  UpdateState();
+}
+
+void ezFmodSliderAction::UpdateState()
+{
+  switch (m_Type)
+  {
+  case ActionType::MasterVolume:
+    {
+      ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+
+      SetValue(ezMath::Clamp((ezInt32)(pPreferences->GetVolume() * 20.0f), 0, 20));
+    }
+    break;
+  }
+}

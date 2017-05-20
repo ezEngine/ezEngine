@@ -1,5 +1,6 @@
 Fmod.Settings.Project;Fmod Project Settings
 Fmod.Mute;Mute Sounds
+Fmod.MasterVolume;Volume
 ezFmodReverbPresets::Off;Off
 ezFmodReverbPresets::Generic;Generic
 ezFmodReverbPresets::PaddedCell;Padded Cell

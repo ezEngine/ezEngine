@@ -252,15 +252,15 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
       {
         *static_cast<ezCVarInt*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezInt32>();
       }
-      if (pCVar->GetType() == ezCVarType::Float && pMsg->m_NewValue.CanConvertTo<float>())
+      else if (pCVar->GetType() == ezCVarType::Float && pMsg->m_NewValue.CanConvertTo<float>())
       {
         *static_cast<ezCVarFloat*>(pCVar) = pMsg->m_NewValue.ConvertTo<float>();
       }
-      if (pCVar->GetType() == ezCVarType::Bool && pMsg->m_NewValue.CanConvertTo<bool>())
+      else if (pCVar->GetType() == ezCVarType::Bool && pMsg->m_NewValue.CanConvertTo<bool>())
       {
         *static_cast<ezCVarBool*>(pCVar) = pMsg->m_NewValue.ConvertTo<bool>();
       }
-      if (pCVar->GetType() == ezCVarType::String && pMsg->m_NewValue.CanConvertTo<ezString>())
+      else if (pCVar->GetType() == ezCVarType::String && pMsg->m_NewValue.CanConvertTo<ezString>())
       {
         *static_cast<ezCVarString*>(pCVar) = pMsg->m_NewValue.ConvertTo<ezString>();
       }
