@@ -72,6 +72,7 @@ ezSceneContext::ezSceneContext()
   m_bRenderShapeIcons = true;
   m_fGridDensity = 0;
   m_GridTransform.SetIdentity();
+  m_pWorld = nullptr;
 
   ezVisualScriptComponent::s_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
 }
@@ -271,8 +272,7 @@ ezGameState* ezSceneContext::GetGameState() const
 
 void ezSceneContext::OnInitialize()
 {
-  auto pWorld = m_pWorld;
-  EZ_LOCK(pWorld->GetWriteMarker());
+  EZ_LOCK(m_pWorld->GetWriteMarker());
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
@@ -349,6 +349,8 @@ void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivit
   // therefore we first need to filter out, whether the component comes from the same world, as this context operates on
   if (e.m_pComponent->GetWorld() != GetWorld())
     return;
+
+  EZ_ASSERT_DEV(e.m_pComponent->GetDebugOutput(), "This component should not send debug data.");
 
   const ezUuid guid = m_Context.m_ComponentMap.GetGuid(e.m_pComponent->GetHandle());
 

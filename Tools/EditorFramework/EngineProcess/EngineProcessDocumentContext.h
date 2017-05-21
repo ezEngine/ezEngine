@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/IPC/IPCObjectMirror.h>
@@ -32,6 +32,8 @@ public:
   {
     m_GuidToHandle[guid] = handle;
     m_HandleToGuid[handle] = guid;
+
+    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check oeprator< for handle type.");
   }
 
   void UnregisterObject(ezUuid guid)
@@ -39,6 +41,8 @@ public:
     const HandleType handle = m_GuidToHandle[guid];
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
+
+    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check oeprator< for handle type.");
   }
 
   void UnregisterObject(HandleType handle)
@@ -46,6 +50,8 @@ public:
     const ezUuid guid = m_HandleToGuid[handle];
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
+
+    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check oeprator< for handle type.");
   }
 
   HandleType GetHandle(ezUuid guid) const
@@ -68,7 +74,7 @@ private:
   ezMap<HandleType, ezUuid> m_HandleToGuid;
 };
 
-/// \brief The world rtti converter context tracks created objects and is capable of also handlings
+/// \brief The world rtti converter context tracks created objects and is capable of also handling
 ///  components / game objects. Used by the ezIPCObjectMirror to create / destroy objects.
 ///
 /// Atm it does not remove owner ptr when a parent is deleted, so it will accumulate zombie entries.

@@ -38,7 +38,7 @@ struct ezGameObjectId
   EZ_DECLARE_ID_TYPE(ezGameObjectId, 20, 6);
 
   EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, StorageType generation,
-    StorageType worldIndex = 0)
+                                 StorageType worldIndex = 0)
   {
     m_Data = 0;
     m_InstanceIndex = instanceIndex;
@@ -111,6 +111,36 @@ struct ezComponentId : public ezGenericComponentId
     m_WorldIndex = worldIndex;
   }
 
+  EZ_FORCE_INLINE bool operator==(const ezComponentId other) const
+  {
+    const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
+    const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
+
+    return m_Data == other.m_Data && d1 == d2;
+
+  }
+  EZ_FORCE_INLINE bool operator!=(const ezComponentId other) const
+  {
+    const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
+    const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
+
+    return m_Data != other.m_Data || d1 != d2;
+  }
+
+  EZ_FORCE_INLINE bool operator<(const ezComponentId other) const
+  {
+    const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
+    const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
+
+    if (d1 == d2)
+    {
+      return m_Data < other.m_Data;
+    }
+
+    return d1 < d2;
+  }
+
+  // don't change the order or alignment of these, otherwise the comparison above fails
   ezUInt16 m_TypeId;
   ezUInt16 m_WorldIndex;
 };
@@ -138,7 +168,7 @@ struct ezObjectFlags
   {
     None = 0,
     Dynamic = EZ_BIT(0),
-    Active  = EZ_BIT(1),
+    Active = EZ_BIT(1),
     Initialized = EZ_BIT(2),
     Initializing = EZ_BIT(3),
     SimulationStarted = EZ_BIT(4),
