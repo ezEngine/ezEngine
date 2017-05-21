@@ -35,6 +35,12 @@ public:
   void SetPenumbraSize(float fPenumbraSize);
   float GetPenumbraSize() const;
 
+  void SetSlopeBias(float fShadowBias);
+  float GetSlopeBias() const;
+
+  void SetConstantBias(float fShadowBias);
+  float GetConstantBias() const;
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -46,6 +52,8 @@ protected:
   ezColorGammaUB m_LightColor;
   float m_fIntensity;
   float m_fPenumbraSize;
+  float m_fSlopeBias;
+  float m_fConstantBias;
   bool m_bCastShadows;
 
 };

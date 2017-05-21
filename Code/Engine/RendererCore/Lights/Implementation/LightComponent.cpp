@@ -7,14 +7,16 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 3)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
-    EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezDefaultValueAttribute(0.01f), new ezSuffixAttribute(" m"))
+    EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezDefaultValueAttribute(0.01f), new ezSuffixAttribute(" m")),
+    EZ_ACCESSOR_PROPERTY("SlopeBias", GetSlopeBias, SetSlopeBias)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(0.25f)),
+    EZ_ACCESSOR_PROPERTY("ConstantBias", GetConstantBias, SetConstantBias)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(0.1f))
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -29,6 +31,8 @@ ezLightComponent::ezLightComponent()
   : m_LightColor(ezColor::White)
   , m_fIntensity(10.0f)
   , m_fPenumbraSize(0.01f)
+  , m_fSlopeBias(1.0f)
+  , m_fConstantBias(0.1f)
   , m_bCastShadows(false)
 {
 }
@@ -79,6 +83,26 @@ float ezLightComponent::GetPenumbraSize() const
   return m_fPenumbraSize;
 }
 
+void ezLightComponent::SetSlopeBias(float fBias)
+{
+  m_fSlopeBias = fBias;
+}
+
+float ezLightComponent::GetSlopeBias() const
+{
+  return m_fSlopeBias;
+}
+
+void ezLightComponent::SetConstantBias(float fBias)
+{
+  m_fConstantBias = fBias;
+}
+
+float ezLightComponent::GetConstantBias() const
+{
+  return m_fConstantBias;
+}
+
 void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -87,6 +111,8 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_LightColor;
   s << m_fIntensity;
   s << m_fPenumbraSize;
+  s << m_fSlopeBias;
+  s << m_fConstantBias;
   s << m_bCastShadows;
 }
 
@@ -103,6 +129,12 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_fPenumbraSize;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_fSlopeBias;
+    s >> m_fConstantBias;
   }
 
   s >> m_bCastShadows;

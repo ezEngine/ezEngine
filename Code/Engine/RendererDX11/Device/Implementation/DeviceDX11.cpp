@@ -1200,9 +1200,8 @@ void ezGALDeviceDX11::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::DFloat,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).
-      RT(DXGI_FORMAT_D32_FLOAT).
-      RV(DXGI_FORMAT_D32_FLOAT).
-      D(DXGI_FORMAT_D32_FLOAT).
+      RV(DXGI_FORMAT_R32_FLOAT).
+      D(DXGI_FORMAT_R32_FLOAT).
       DS(DXGI_FORMAT_D32_FLOAT)
       );
 

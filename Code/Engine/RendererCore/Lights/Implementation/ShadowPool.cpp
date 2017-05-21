@@ -59,6 +59,8 @@ namespace
     ezUInt32 m_uiType;
     float m_fShadowMapScale;
     float m_fPenumbraSize;
+    float m_fSlopeBias;
+    float m_fConstantBias;
     ezUInt32 m_uiPackedDataOffset; // in 16 bytes steps
   };
 
@@ -220,6 +222,8 @@ namespace
     out_pData = &s_ShadowData[s_uiUsedShadowData];
     out_pData->m_fShadowMapScale = fShadowMapScale;
     out_pData->m_fPenumbraSize = pLight->GetPenumbraSize();
+    out_pData->m_fSlopeBias = pLight->GetSlopeBias() * 100.0f;
+    out_pData->m_fConstantBias = pLight->GetConstantBias() / 100.0f;
     out_pData->m_uiPackedDataOffset = uiPackedDataOffset;
 
     if (pLight != nullptr)
@@ -593,32 +597,42 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
         }
       #endif
 
-      ezVec2 scale = ezVec2(atlasRect.width * fAtlasInvWidth, atlasRect.height * fAtlasInvHeight);
-      ezVec2 offset = ezVec2(atlasRect.x * fAtlasInvWidth, atlasRect.y * fAtlasInvHeight);
-
-      ezMat4 atlasMatrix;
-      atlasMatrix.SetIdentity();
-      atlasMatrix.SetDiagonal(ezVec4(scale.x, scale.y, 1.0f, 1.0f));
-      atlasMatrix.SetTranslationVector(offset.GetAsVec3(0.0f));
-
-      fov = pShadowView->GetCamera()->GetFovY(1.0f);
-      const ezMat4& viewProjection = pShadowView->GetViewProjectionMatrix();
-
       ezUInt32 uiMatrixOffset = GET_WORLD_TO_LIGHT_MATRIX_OFFSET(shadowData.m_uiPackedDataOffset, uiViewIndex);
       ezMat4& worldToLightMatrix = *reinterpret_cast<ezMat4*>(&packedShadowData[uiMatrixOffset]);
-      worldToLightMatrix = atlasMatrix * texScaleMatrix * viewProjection;
+
+      if (atlasRect.HasNonZeroArea())
+      {
+        ezVec2 scale = ezVec2(atlasRect.width * fAtlasInvWidth, atlasRect.height * fAtlasInvHeight);
+        ezVec2 offset = ezVec2(atlasRect.x * fAtlasInvWidth, atlasRect.y * fAtlasInvHeight);
+
+        ezMat4 atlasMatrix;
+        atlasMatrix.SetIdentity();
+        atlasMatrix.SetDiagonal(ezVec4(scale.x, scale.y, 1.0f, 1.0f));
+        atlasMatrix.SetTranslationVector(offset.GetAsVec3(0.0f));
+
+        fov = pShadowView->GetCamera()->GetFovY(1.0f);
+        const ezMat4& viewProjection = pShadowView->GetViewProjectionMatrix();
+
+        worldToLightMatrix = atlasMatrix * texScaleMatrix * viewProjection;
+      }
+      else
+      {
+        worldToLightMatrix.SetIdentity();
+      }
     }
 
     float screenHeight = ezMath::Tan(fov * 0.5f) * 2.0f;
     float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
 
+    float slopeBias = shadowData.m_fSlopeBias * shadowData.m_fPenumbraSize * ezMath::Tan(fov * 0.5f);
+    float constantBias = shadowData.m_fConstantBias * s_uiShadowMapSize / uiShadowMapSize;
     float penumbraSize = ezMath::Max((shadowData.m_fPenumbraSize / screenHeight) * relativeShadowSize, fAtlasInvHeight);
     float fadeOut = ezMath::Clamp((shadowData.m_fShadowMapScale - fadeOutEnd) / (fadeOutStart - fadeOutEnd), 0.0f, 1.0f);
 
     ezUInt32 uiParamsOffset = GET_SHADOW_PARAMS_OFFSET(shadowData.m_uiPackedDataOffset);
     ezVec4& shadowParams = packedShadowData[uiParamsOffset];
-    shadowParams.x = 0.001f;
-    shadowParams.y = 0.0004f * (fov / ezAngle::Degree(90.0f).GetRadian()).GetRadian();
+    shadowParams.x = slopeBias;
+    shadowParams.y = constantBias;
     shadowParams.z = penumbraSize;
     shadowParams.w = ezMath::Sqrt(fadeOut);
   }

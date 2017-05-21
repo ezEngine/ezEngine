@@ -815,12 +815,14 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{1}
+		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0x920A063F}}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{248,173,61,255}}
 		Angle %OuterSpotAngle{f{0x67A8BB3F}}
 		f %PenumbraSize{0x0AD7233C}
-		f %Range{0}
+		f %Range{0x0000F041}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -853,12 +855,14 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{1}
+		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0x920A863E}}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{216,225,145,255}}
 		Angle %OuterSpotAngle{f{0x63828A3F}}
 		f %PenumbraSize{0x0AD7233C}
-		f %Range{0}
+		f %Range{0x0000F041}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -1196,10 +1200,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{48,225,85,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -1307,10 +1313,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{1}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000FA44}
 		ColorGamma %LightColor{u1{219,178,131,255}}
 		f %PenumbraSize{0x0AD7233C}
-		f %Range{0}
+		f %Range{0x0000C842}
+		f %SlopeBias{0x00008040}
 	}
 }
 o
@@ -1555,10 +1563,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000A041}
 		ColorGamma %LightColor{u1{83,169,229,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -1596,10 +1606,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{47,151,70,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -1643,12 +1655,14 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{1}
+		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0}}
 		f %Intensity{0x0000FA44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0xA9ACE43F}}
 		f %PenumbraSize{0x0AD7233C}
-		f %Range{0}
+		f %Range{0x00004842}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -2003,7 +2017,7 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{11744342756550048468}
+		u4 %Hash{13137297228129499811}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2192,10 +2206,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{229,75,75,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -2291,10 +2307,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00004842}
 		ColorGamma %LightColor{u1{67,232,216,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -2607,10 +2625,12 @@ o
 	{
 		b %Active{0}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{191,177,0,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x0000A040}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -3454,10 +3474,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{83,169,229,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -4042,10 +4064,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000A041}
 		ColorGamma %LightColor{u1{214,92,92,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -4103,10 +4127,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{48,225,85,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -4132,9 +4158,11 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000A040}
 		ColorGamma %LightColor{u1{85,20,20,255}}
 		f %PenumbraSize{0x0AD7233C}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -4146,10 +4174,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{47,151,70,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -4369,10 +4399,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{229,75,75,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -4634,10 +4666,12 @@ o
 	{
 		b %Active{0}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00004843}
 		ColorGamma %LightColor{u1{0,182,191,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x0000A040}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -5505,10 +5539,12 @@ o
 	{
 		b %Active{1}
 		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{83,169,229,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o

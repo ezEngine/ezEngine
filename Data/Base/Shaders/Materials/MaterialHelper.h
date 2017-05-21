@@ -75,6 +75,12 @@ ezMaterialData FillMaterialData(PS_IN Input)
   #else
     matData.worldNormal = worldNormal;
   #endif
+  
+  #if defined(USE_NORMAL)
+    matData.vertexNormal = normalize(Input.Normal);
+  #else
+    matData.vertexNormal = float3(0, 0, 1);
+  #endif
 
   #if defined(USE_SIMPLE_MATERIAL_MODEL)
     float3 baseColor = GetBaseColor(Input);
@@ -100,7 +106,7 @@ ezMaterialData FillMaterialData(PS_IN Input)
 
   #if defined(USE_MATERIAL_OCCLUSION)
     #if defined(USE_NORMAL)
-      float occlusionFade = saturate(dot(Input.Normal, matData.normalizedViewVector));
+      float occlusionFade = saturate(dot(matData.vertexNormal, matData.normalizedViewVector));
     #else
       float occlusionFade = 1.0f;
     #endif

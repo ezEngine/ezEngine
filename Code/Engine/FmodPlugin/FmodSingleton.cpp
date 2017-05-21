@@ -314,7 +314,10 @@ void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& 
   attr.velocity.y = vVelocity.y;
   attr.velocity.z = vVelocity.z;
 
-  m_pStudioSystem->setListenerAttributes(iIndex, &attr);
+  if (m_pStudioSystem != nullptr)
+  {
+    m_pStudioSystem->setListenerAttributes(iIndex, &attr);
+  }
 }
 
 void ezFmod::DetectPlatform()

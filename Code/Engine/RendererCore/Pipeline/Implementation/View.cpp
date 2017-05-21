@@ -177,7 +177,7 @@ void ezView::UpdateCachedMatrices() const
     m_Data.m_InverseViewMatrix = m_Data.m_ViewMatrix.GetInverse();
   }
 
-  const float fViewportAspectRatio = m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height;
+  const float fViewportAspectRatio = m_Data.m_ViewPortRect.HasNonZeroArea() ? m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height : 1.0f;
   if (m_uiLastCameraSettingsModification != pCamera->GetSettingsModificationCounter() ||
     m_fLastViewportAspectRatio != fViewportAspectRatio)
   {

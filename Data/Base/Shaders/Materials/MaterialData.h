@@ -6,6 +6,7 @@ struct ezMaterialData
 {
   float3 worldPosition;
   float3 worldNormal;
+  float3 vertexNormal;
   float3 normalizedViewVector;
 
   float3 diffuseColor;
