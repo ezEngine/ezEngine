@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Containers/ArrayMap.h>
 
 typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 
@@ -11,6 +12,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
 {
   void Load(ezStreamReader& stream);
   void Save(ezStreamWriter& stream) const;
+  void PrecomputeMessageHandlers();
 
   struct Node
   {
@@ -52,6 +54,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
   ezDynamicArray<Node> m_Nodes;
   ezDynamicArray<ExecutionConnection> m_ExecutionPaths;
   ezDynamicArray<DataConnection> m_DataPaths;
+  ezArrayMap<ezMessageId, ezUInt16> m_MessageHandlers;
   ezDeque<Property> m_Properties;
 };
 

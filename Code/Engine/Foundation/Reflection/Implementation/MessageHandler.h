@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -69,7 +69,7 @@ namespace ezInternal
       Impl()
       {
         m_DispatchFunc = &Dispatch;
-        m_Id = MessageType::GetMsgId();
+        m_Id = MessageType::GetTypeMsgId();
         m_bIsConst = false;
       }
 
@@ -91,7 +91,7 @@ namespace ezInternal
       Impl()
       {
         m_ConstDispatchFunc = &Dispatch;
-        m_Id = MessageType::GetMsgId();
+        m_Id = MessageType::GetTypeMsgId();
         m_bIsConst = true;
       }
 

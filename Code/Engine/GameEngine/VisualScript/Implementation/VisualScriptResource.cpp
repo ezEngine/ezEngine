@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -146,6 +146,8 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
     stream >> prop.m_sName;
     stream >> prop.m_Value;
   }
+
+  PrecomputeMessageHandlers();
 }
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
@@ -201,5 +203,32 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     stream << prop.m_sName;
     stream << prop.m_Value;
+  }
+}
+
+void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
+{
+  for (ezUInt32 uiNode = 0; uiNode < m_Nodes.GetCount(); ++uiNode)
+  {
+    auto& node = m_Nodes[uiNode];
+
+    const ezRTTI* pType = node.m_pType;
+
+    while (pType != nullptr)
+    {
+      const auto& handlers = node.m_pType->GetMessageHandlers();
+
+      for (const auto& msgType : handlers)
+      {
+        // make sure no node is inserted twice
+        // this may happen if a derived class overrides a message handler
+        if (!m_MessageHandlers.Contains(msgType->GetMessageId()))
+        {
+          m_MessageHandlers.Insert(msgType->GetMessageId(), (ezUInt16)uiNode);
+        }
+      }
+
+      pType = pType->GetParentType();
+    }
   }
 }

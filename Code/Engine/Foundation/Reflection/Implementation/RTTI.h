@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -109,7 +109,7 @@ public:
   template <typename MessageType>
   EZ_ALWAYS_INLINE bool CanHandleMessage() const
   {
-    return CanHandleMessage(MessageType::GetMsgId());
+    return CanHandleMessage(MessageType::GetTypeMsgId());
   }
 
   /// \brief Returns whether this type can handle the message type with the given id.

@@ -8,6 +8,8 @@
 #include <Foundation/Containers/Map.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GameEngine/GameState/StateMap.h>
+#include <Foundation/Containers/ArrayMap.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 class ezVisualScriptNode;
 class ezMessage;
@@ -19,6 +21,7 @@ struct ezEventMessage;
 
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
+typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 
 typedef bool(*ezVisualScriptDataPinAssignFunc)(const void* src, void* dst);
 
@@ -30,7 +33,7 @@ public:
   ~ezVisualScriptInstance();
 
   /// \brief Clears the current state and recreates the script instance from the given template.
-  void Configure(const ezVisualScriptResourceDescriptor& resource, ezGameObject* pOwner);
+  void Configure(const ezVisualScriptResourceHandle& hScript, ezGameObject* pOwner);
 
   /// \brief Runs all nodes that are marked for execution. Typically nodes that handle events will mark themselves for execution in the next update.
   void ExecuteScript(ezVisualScriptInstanceActivity* pActivity = nullptr);
@@ -96,6 +99,7 @@ private:
     ezUInt8 m_uiTargetPin;
   };
 
+  ezVisualScriptResourceHandle m_hScriptResource;
   ezGameObjectHandle m_hOwner;
   ezWorld* m_pWorld = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
@@ -104,6 +108,7 @@ private:
   ezHashTable<ezVisualScriptPinConnectionID, ezHybridArray<DataPinConnection, 2> > m_DataConnections;
   ezStateMap m_LocalVariables;
   ezVisualScriptInstanceActivity* m_pActivity = nullptr;
+  const ezArrayMap<ezMessageId, ezUInt16>* m_pMessageHandlers = nullptr;
 
   struct AssignFuncKey
   {

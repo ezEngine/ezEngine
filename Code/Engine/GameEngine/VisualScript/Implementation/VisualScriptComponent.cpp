@@ -118,9 +118,7 @@ void ezVisualScriptComponent::Update()
 
     if (m_hResource.IsValid())
     {
-      ezResourceLock<ezVisualScriptResource> pResource(m_hResource, ezResourceAcquireMode::NoFallback);
-
-      m_Script->Configure(pResource->GetDescriptor(), GetOwner());
+      m_Script->Configure(m_hResource, GetOwner());
     }
   }
 

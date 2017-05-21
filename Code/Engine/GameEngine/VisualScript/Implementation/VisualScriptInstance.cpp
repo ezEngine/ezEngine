@@ -99,6 +99,7 @@ void ezVisualScriptInstance::Clear()
   m_ExecutionConnections.Clear();
   m_DataConnections.Clear();
   m_LocalVariables.Clear();
+  m_hScriptResource.Invalidate();
 }
 
 
@@ -141,10 +142,15 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
   }
 }
 
-void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& resource, ezGameObject* pOwner)
+void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScript, ezGameObject* pOwner)
 {
   Clear();
 
+  ezResourceLock<ezVisualScriptResource> pScript(hScript, ezResourceAcquireMode::NoFallback);
+  const auto& resource = pScript->GetDescriptor();
+  m_pMessageHandlers = &resource.m_MessageHandlers;
+
+  m_hScriptResource = hScript;
   m_hOwner = pOwner->GetHandle();
 
   if (pOwner)
@@ -277,11 +283,18 @@ void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActi
 
 void ezVisualScriptInstance::HandleMessage(ezMessage& msg)
 {
-  /// \todo Precompute which nodes actually have message handlers!
+  ezUInt32 uiFirstHandler = m_pMessageHandlers->LowerBound(msg.GetId());
 
-  for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
+  while (uiFirstHandler < m_pMessageHandlers->GetCount())
   {
-    m_Nodes[i]->GetDynamicRTTI()->DispatchMessage(m_Nodes[i], msg);
+    const auto& data = (*m_pMessageHandlers)[uiFirstHandler];
+    if (data.key != msg.GetId())
+      return;
+
+    const ezUInt32 uiNodeId = data.value;
+    m_Nodes[uiNodeId]->GetDynamicRTTI()->DispatchMessage(m_Nodes[uiNodeId], msg);
+
+    ++uiFirstHandler;
   }
 }
 
@@ -372,15 +385,5 @@ ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunctio
 
 bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const
 {
-  /// \todo Precompute which nodes actually have message handlers!
-
-  const ezMessageId id = msg.GetId();
-
-  for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
-  {
-    if (m_Nodes[i]->GetDynamicRTTI()->CanHandleMessage(id))
-      return true;
-  }
-
-  return false;
+  return m_pMessageHandlers->LowerBound(msg.GetId()) != ezInvalidIndex;
 }
