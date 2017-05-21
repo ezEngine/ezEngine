@@ -43,7 +43,7 @@ namespace ezDataDirectory
 
     virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
 
-    virtual bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection);
+    virtual bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection) override;
     virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;

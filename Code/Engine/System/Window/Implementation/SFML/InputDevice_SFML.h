@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <System/Basics.h>
 #include <SFML/Window.hpp>
@@ -60,7 +60,7 @@ public:
   virtual void SetShowMouseCursor(bool bShow) override;
 
   /// \brief Returns whether the mouse cursor is shown.
-  virtual bool GetShowMouseCursor() const { return m_bShowCursor; }
+  virtual bool GetShowMouseCursor() const override { return m_bShowCursor; }
 
 private:
   virtual void InitializeDevice() override { }

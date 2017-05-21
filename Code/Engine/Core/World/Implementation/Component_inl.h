@@ -1,8 +1,8 @@
 ﻿#include <Foundation/Logging/Log.h>
 
 EZ_FORCE_INLINE ezComponent::ezComponent() :
-  m_ComponentFlags(ezObjectFlags::Default),
   m_pMessageDispatchType(nullptr),
+  m_ComponentFlags(ezObjectFlags::Default),
   m_pManager(nullptr),
   m_pOwner(nullptr)
 {

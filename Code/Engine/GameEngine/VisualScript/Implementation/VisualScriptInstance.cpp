@@ -154,7 +154,6 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceDescriptor& r
 
   m_Nodes.Reserve(resource.m_Nodes.GetCount());
 
-  ezUInt16 uiNodeId = 0;
   for (ezUInt32 n = 0; n < resource.m_Nodes.GetCount(); ++n)
   {
     const auto& node = resource.m_Nodes[n];
@@ -205,7 +204,7 @@ void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ez
     const auto& prop = resource.m_Properties[uiProp];
 
     ezAbstractProperty* pAbstract = pNode->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
-    if (!pAbstract->GetCategory() == ezPropertyCategory::Member)
+    if (pAbstract->GetCategory() != ezPropertyCategory::Member)
       continue;
 
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
@@ -241,7 +240,7 @@ void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisua
       continue;
     }
 
-    if (!pAbstract->GetCategory() == ezPropertyCategory::Member)
+    if (pAbstract->GetCategory() != ezPropertyCategory::Member)
       continue;
 
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
@@ -253,7 +252,9 @@ void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisua
 
 void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActivity /*= nullptr*/)
 {
-  if (m_pActivity = pActivity)
+  m_pActivity = pActivity;
+
+  if (m_pActivity != nullptr)
   {
     m_pActivity->Clear();
   }

@@ -137,7 +137,8 @@ void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstan
       return;
     }
 
-    pInstance->SetOutputPinValue(this, 0, &pChild->GetHandle());
+    ezGameObjectHandle hResult = pChild->GetHandle();
+    pInstance->SetOutputPinValue(this, 0, &hResult);
   }
 }
 
@@ -209,7 +210,8 @@ void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance
       return;
     }
 
-    pInstance->SetOutputPinValue(this, 0, &pComponent->GetHandle());
+    ezComponentHandle hResult = pComponent->GetHandle();
+    pInstance->SetOutputPinValue(this, 0, &hResult);
   }
 }
 
@@ -261,7 +263,8 @@ void ezVisualScriptNode_QueryGlobalObject::Execute(ezVisualScriptInstance* pInst
       return;
     }
 
-    pInstance->SetOutputPinValue(this, 0, &pObject->GetHandle());
+    ezGameObjectHandle hResult = pObject->GetHandle();
+    pInstance->SetOutputPinValue(this, 0, &hResult);
   }
 }
 
@@ -313,7 +316,8 @@ void ezVisualScriptNode_FindParent::Execute(ezVisualScriptInstance* pInstance, e
       {
         if (pObject->HasName(name))
         {
-          pInstance->SetOutputPinValue(this, 0, &pObject->GetHandle());
+          ezGameObjectHandle hResult = pObject->GetHandle();
+          pInstance->SetOutputPinValue(this, 0, &hResult);
           return;
         }
 

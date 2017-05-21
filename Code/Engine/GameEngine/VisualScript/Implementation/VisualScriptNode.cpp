@@ -69,10 +69,10 @@ bool ezVisualScriptNode::IsManuallyStepped() const
 
   for (auto prop : properties)
   {
-    if (const ezVisScriptExecPinOutAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinOutAttribute>())
+    if (prop->GetAttributeByType<ezVisScriptExecPinOutAttribute>() != nullptr)
       return true;
 
-    if (const ezVisScriptExecPinInAttribute* pAttr = prop->GetAttributeByType<ezVisScriptExecPinInAttribute>())
+    if (prop->GetAttributeByType<ezVisScriptExecPinInAttribute>() != nullptr)
       return true;
   }
 
