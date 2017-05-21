@@ -164,7 +164,7 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
   return ezVariant();
 }
 
-ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty)
+ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pProperty)
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
@@ -173,33 +173,7 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
   {
   case ezPropertyCategory::Member:
     {
-      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
-      {
-        if (pAttrib)
-        {
-          if (pAttrib->GetValue().CanConvertTo(type))
-          {
-            return pAttrib->GetValue().ConvertTo(type);
-          }
-        }
-        return GetDefaultVariantFromType(type);
-      }
-      else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
-      {
-        ezInt64 iValue = ezReflectionUtils::DefaultEnumerationValue(pProperty->GetSpecificType());
-        if (pAttrib)
-        {
-          if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
-            iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
-        }
-
-        return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
-      }
-      else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer | ezPropertyFlags::EmbeddedClass))
-      {
-        return ezUuid();
-      }
-      EZ_REPORT_FAILURE("Not reachable.");
+      return ezToolsReflectionUtils::GetDefaultValue(pProperty);
     }
     break;
   case ezPropertyCategory::Array:
@@ -225,6 +199,41 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
     }
     break;
   }
+  return ezVariant();
+}
+
+
+ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty)
+{
+  const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
+  auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+  if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
+  {
+    if (pAttrib)
+    {
+      if (pAttrib->GetValue().CanConvertTo(type))
+      {
+        return pAttrib->GetValue().ConvertTo(type);
+      }
+    }
+    return GetDefaultVariantFromType(type);
+  }
+  else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+  {
+    ezInt64 iValue = ezReflectionUtils::DefaultEnumerationValue(pProperty->GetSpecificType());
+    if (pAttrib)
+    {
+      if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
+        iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
+    }
+
+    return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
+  }
+  else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer | ezPropertyFlags::EmbeddedClass))
+  {
+    return ezUuid();
+  }
+  EZ_REPORT_FAILURE("Not reachable.");
   return ezVariant();
 }
 

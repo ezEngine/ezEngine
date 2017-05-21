@@ -72,7 +72,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
     {
       // Value already present, update type and instances
       storageInfo->m_Type = GetStorageType(pProperty);
-      storageInfo->m_DefaultValue = GetStorageDefault(pProperty);
+      storageInfo->m_DefaultValue = ezToolsReflectionUtils::GetStorageDefault(pProperty);
       UpdateInstances(storageInfo->m_uiIndex, pProperty, requiresPatchingEmbeddedClass);
     }
     else
@@ -80,7 +80,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
       const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
 
       // Add value, new entries are appended
-      m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, GetStorageType(pProperty), GetStorageDefault(pProperty)));
+      m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, GetStorageType(pProperty), ezToolsReflectionUtils::GetStorageDefault(pProperty)));
       AddPropertyToInstances(uiIndex, pProperty, requiresPatchingEmbeddedClass);
     }
   }
@@ -112,7 +112,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
           }
           else
           {
-            value = GetStorageDefault(pProperty);
+            value = ezToolsReflectionUtils::GetStorageDefault(pProperty);
             requiresPatchingEmbeddedClass.Insert(it.Key()->GetOwner());
           }
           continue;
@@ -136,7 +136,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
             }
             else
             {
-              value = GetStorageDefault(pProperty);
+              value = ezToolsReflectionUtils::GetStorageDefault(pProperty);
             }
             continue;
           }
@@ -168,7 +168,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
             var = var.ConvertTo(SpecVarType, &res);
             if (res == EZ_FAILURE)
             {
-              var = GetStorageDefault(pProperty);
+              var = ezToolsReflectionUtils::GetDefaultValue(pProperty);
             }
           }
         }
@@ -199,7 +199,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
             it.Value() = it.Value().ConvertTo(SpecVarType, &res);
             if (res == EZ_FAILURE)
             {
-              it.Value() = GetStorageDefault(pProperty);
+              it.Value() = ezToolsReflectionUtils::GetDefaultValue(pProperty);
             }
           }
         }
@@ -221,7 +221,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
   {
     ezDynamicArray<ezVariant>& data = it.Key()->m_Data;
     EZ_ASSERT_DEV(data.GetCount() == uiIndex, "ezReflectedTypeStorageAccessor found with a property count that does not match its storage mapping!");
-    data.PushBack(GetStorageDefault(pProperty));
+    data.PushBack(ezToolsReflectionUtils::GetStorageDefault(pProperty));
     if (pProperty->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
     {
       requiresPatchingEmbeddedClass.Insert(it.Key()->GetOwner());
@@ -259,12 +259,6 @@ ezVariantType::Enum ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::
   }
 
   return type;
-}
-
-
-ezVariant ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::GetStorageDefault(const ezAbstractProperty* pProperty)
-{
-  return ezToolsReflectionUtils::GetDefaultValue(pProperty);
 }
 
 ////////////////////////////////////////////////////////////////////////

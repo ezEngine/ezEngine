@@ -13,7 +13,10 @@ public:
   /// \brief Returns a global default initialization value for the given variant type.
   static ezVariant GetDefaultVariantFromType(ezVariant::Type::Enum type); // [tested]
 
+  /// \brief Returns the default value for the specific type of the given property.
   static ezVariant GetDefaultValue(const ezAbstractProperty* pProperty);
+  /// \brief Returns the default value for the entire property as it is stored on the editor side.
+  static ezVariant GetStorageDefault(const ezAbstractProperty* pProperty);
 
   static bool GetFloatFromVariant(const ezVariant& val, double& out_fValue);
   static bool GetVariantFromFloat(double fValue, ezVariantType::Enum type, ezVariant& out_val);

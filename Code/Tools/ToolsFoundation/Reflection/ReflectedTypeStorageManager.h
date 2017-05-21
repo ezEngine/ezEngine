@@ -41,7 +41,6 @@ private:
     void AddPropertyToInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass);
 
     ezVariantType::Enum GetStorageType(const ezAbstractProperty* pProperty);
-    ezVariant GetStorageDefault(const ezAbstractProperty* pProperty);
 
     ezSet<ezReflectedTypeStorageAccessor*> m_Instances;
     ezHashTable<ezString, StorageInfo> m_PathToStorageInfoTable;
