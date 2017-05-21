@@ -49,7 +49,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -75,7 +78,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7239474629639086,4968403740519093659}}
-		u4 %Hash{16291390334474702713}
+		u4 %Hash{8223240816229967930}
 		VarArray %Outputs{}
 		VarArray %References
 		{

@@ -172,9 +172,8 @@ namespace
     // Set viewport size to something valid, this will be changed to the proper location in the atlas texture in OnBeginFrame before rendering.
     pView->SetViewport(ezRectFloat(0.0f, 0.0f, 1024.0f, 1024.0f));
 
-    ///\todo
-    /*const ezTag* tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadows");
-    pView->m_IncludeTags.Set(*tagCastShadows);*/
+    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
+    pView->m_IncludeTags.Set(tagCastShadows);
 
     return hView;
   }

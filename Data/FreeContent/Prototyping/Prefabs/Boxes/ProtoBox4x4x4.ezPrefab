@@ -20,7 +20,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 AssetInfo
@@ -34,7 +37,8 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9297666211630358687,4895304862000256443}}
-		u4 %Hash{1581487360821030710}
+		u4 %Hash{7753416922175774412}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }"}
@@ -77,6 +81,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x00008040,0x00008040,0x00008040}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }

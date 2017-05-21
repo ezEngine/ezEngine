@@ -8,9 +8,13 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{209,105,105,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x7B14CE3F}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -21,11 +25,15 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0x920A863E}}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0xC2259A3F}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x0000C03F}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -69,9 +77,13 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{197,159,0,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xB81E053F}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -82,9 +94,13 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{209,105,105,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x48E1DA3F}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -119,7 +135,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xCDCCCC3D}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -154,7 +173,8 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11408055175736252601,5552736627244250231}}
-		u4 %Hash{13800934460744320248}
+		u4 %Hash{16796317588021701368}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
@@ -169,9 +189,13 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{197,159,0,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xB81E053F}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -224,9 +248,13 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{99,143,206,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x9A994940}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -237,9 +265,13 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x7B142E3F}
 		ColorGamma %LightColor{u1{197,160,27,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0xB81E053F}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -334,9 +366,13 @@ o
 	p
 	{
 		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x85EB8940}
 		ColorGamma %LightColor{u1{95,169,209,255}}
+		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x7B146E3F}
+		f %SlopeBias{0x0000803E}
 	}
 }
 o

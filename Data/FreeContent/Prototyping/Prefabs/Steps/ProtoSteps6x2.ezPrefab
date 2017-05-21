@@ -10,6 +10,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -23,6 +24,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -36,6 +38,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -59,7 +62,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -82,7 +88,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -105,7 +114,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -200,7 +212,8 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3901924571102045885,4668118196077602704}}
-		u4 %Hash{11756391094237141144}
+		u4 %Hash{8430723367560317110}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
@@ -218,6 +231,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -241,7 +255,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -327,6 +344,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -340,6 +358,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -363,7 +382,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -386,7 +408,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -453,6 +478,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -476,7 +502,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -489,6 +518,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -527,7 +557,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -579,6 +612,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -602,7 +636,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -642,6 +679,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -665,7 +703,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -678,6 +719,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -691,6 +733,7 @@ o
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		Vec3 %Extents{f{0x0000003F,0x00000040,0x0000803E}}
+		b %ReportContact{0}
 		s %Surface{""}
 	}
 }
@@ -729,7 +772,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -752,7 +798,10 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
