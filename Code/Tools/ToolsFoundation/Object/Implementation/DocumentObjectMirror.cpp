@@ -305,6 +305,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
     {
       ezUInt32 uiOldIndex = e.m_OldIndex.ConvertTo<ezUInt32>();
       ezUInt32 uiNewIndex = e.m_NewIndex.ConvertTo<ezUInt32>();
+      EZ_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
 
       {
         ezObjectChange change;
@@ -313,7 +314,6 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
         change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = uiOldIndex;
         change.m_Change.m_Value = e.m_NewValue;
-        EZ_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
         ApplyOp(change);
       }
 
@@ -328,6 +328,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
 
         change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
         change.m_Change.m_Index = uiNewIndex;
+        change.m_Change.m_Value = e.m_NewValue;
         ApplyOp(change);
       }
 
