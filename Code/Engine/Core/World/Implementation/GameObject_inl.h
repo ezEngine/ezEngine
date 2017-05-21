@@ -1,4 +1,4 @@
-
+﻿
 EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject) :
   m_pObject(pObject)
 {
@@ -118,6 +118,11 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalKey(const char* szGlobalKey)
 EZ_ALWAYS_INLINE const char* ezGameObject::GetName() const
 {
   return m_sName.GetString().GetData();
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::HasName(const ezTempHashedString& name) const
+{
+  return m_sName == name;
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)

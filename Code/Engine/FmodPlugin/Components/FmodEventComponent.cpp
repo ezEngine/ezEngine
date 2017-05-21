@@ -564,7 +564,7 @@ ezVisualScriptNode_SetFmodEventParameter::ezVisualScriptNode_SetFmodEventParamet
 
 void ezVisualScriptNode_SetFmodEventParameter::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_iParameterIndex != -2)
+  if (m_bInputValuesChanged && m_iParameterIndex != -2)
   {
     ezFmodEventComponent* pEvent = nullptr;
     if (!pInstance->GetWorld()->TryGetComponent(m_hComponent, pEvent))
@@ -587,7 +587,7 @@ void ezVisualScriptNode_SetFmodEventParameter::Execute(ezVisualScriptInstance* p
   return;
 
 failure:
-  ezLog::Warning("Script: Fmod Event Parameter '{0}' could not be found. Note that event parameters are not available for one-shot events and events that are not playing.", m_sParameterName.GetString());
+  ezLog::Warning("Script: Fmod Event Parameter '{0}' could not be found. Note that event parameters are not available for one-shot events.", m_sParameterName.GetString());
 
   m_iParameterIndex = -2; // make sure we don't try this again
   pInstance->ExecuteConnectedNodes(this, 0);

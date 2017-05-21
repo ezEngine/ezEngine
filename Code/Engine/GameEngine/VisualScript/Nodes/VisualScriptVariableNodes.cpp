@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetNumberProperty, 1, ezRTTID
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Get Number Property '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -45,11 +45,13 @@ void ezVisualScriptNode_GetNumberProperty::Execute(ezVisualScriptInstance* pInst
       if (var.CanConvertTo<double>())
       {
         value = var.ConvertTo<double>();
+        pInstance->SetOutputPinValue(this, 0, &value);
+        return;
       }
     }
   }
 
-  pInstance->SetOutputPinValue(this, 0, &value);
+  ezLog::Warning("Script: Number Property '{0}' could not be found on the given component.", m_sVariable);
 }
 
 
@@ -68,7 +70,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTID
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Set Number Property '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -124,7 +126,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetBoolProperty, 1, ezRTTIDef
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Get Bool Property '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -156,11 +158,13 @@ void ezVisualScriptNode_GetBoolProperty::Execute(ezVisualScriptInstance* pInstan
       if (var.CanConvertTo<bool>())
       {
         value = var.ConvertTo<bool>();
+        pInstance->SetOutputPinValue(this, 0, &value);
+        return;
       }
     }
   }
 
-  pInstance->SetOutputPinValue(this, 0, &value);
+  ezLog::Warning("Script: Bool Property '{0}' could not be found on the given component.", m_sVariable);
 }
 
 
@@ -178,7 +182,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDef
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Set Bool Property '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -235,7 +239,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAlloc
     new ezTitleAttribute("Number '{0}' ({1})"),
   }
   EZ_END_ATTRIBUTES
-  EZ_BEGIN_PROPERTIES
+    EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
     EZ_MEMBER_PROPERTY("Default", m_Value),
@@ -268,7 +272,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Store Number '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -309,7 +313,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocat
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Bool '{0}' ({1})"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -343,7 +347,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Store Bool '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -383,7 +387,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultA
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Toggle Bool '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),

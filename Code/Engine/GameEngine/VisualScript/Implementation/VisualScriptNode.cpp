@@ -59,9 +59,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode::ezVisualScriptNode()
-{
-}
+ezVisualScriptNode::ezVisualScriptNode() { }
+ezVisualScriptNode::~ezVisualScriptNode() { }
 
 bool ezVisualScriptNode::IsManuallyStepped() const
 {
@@ -193,7 +192,7 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Printer>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Log, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Log>)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -206,30 +205,33 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Printer, 1, ezRTTIDefaultAllo
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins
-    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Number, m_Value),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value1", 0, ezVisualScriptDataPinType::Number, m_Value1),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value2", 1, ezVisualScriptDataPinType::Number, m_Value2),
+    // Properties
+    EZ_MEMBER_PROPERTY("Text", m_sLog)->AddAttributes(new ezDefaultValueAttribute("Value1: {0}, Value2: {1}")),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_Printer::ezVisualScriptNode_Printer()
-{
-  m_sPrint = "Current Value: {0}";
-}
+ezVisualScriptNode_Log::ezVisualScriptNode_Log() { }
+ezVisualScriptNode_Log::~ezVisualScriptNode_Log() { }
 
-void ezVisualScriptNode_Printer::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+void ezVisualScriptNode_Log::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  ezLog::Info(m_sPrint, m_Value);
+  ezLog::Debug(m_sLog, m_Value1, m_Value2);
 
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
-void* ezVisualScriptNode_Printer::GetInputPinDataPointer(ezUInt8 uiPin)
+void* ezVisualScriptNode_Log::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
   case 0:
-    return &m_Value;
+    return &m_Value1;
+  case 1:
+    return &m_Value2;
   }
 
   return nullptr;

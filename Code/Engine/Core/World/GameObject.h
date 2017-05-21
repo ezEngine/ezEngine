@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/SimdMath/SimdConversion.h>
@@ -118,6 +118,7 @@ public:
   void SetName(const char* szName);
   void SetName(const ezHashedString& sName);
   const char* GetName() const;
+  bool HasName(const ezTempHashedString& name) const;
 
   /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
   void SetGlobalKey(const char* szGlobalKey);

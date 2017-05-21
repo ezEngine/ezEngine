@@ -14,6 +14,7 @@ class EZ_GAMEENGINE_DLL ezVisualScriptNode : public ezReflectedClass
 
 public:
   ezVisualScriptNode();
+  ~ezVisualScriptNode();
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) = 0;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) = 0;
@@ -25,6 +26,8 @@ protected:
 
   /// When this is set to true (e.g. in a message handler, the node will be stepped during the next script update)
   bool m_bStepNode = false;
+  /// Set to true whenever the input values have been modified before 'Execute' is called. Automatically set to false afterwards.
+  bool m_bInputValuesChanged = true;
 
 private:
   friend class ezVisualScriptInstance;
@@ -125,16 +128,18 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_Printer : public ezVisualScriptNode
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_Log : public ezVisualScriptNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Printer, ezVisualScriptNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Log, ezVisualScriptNode);
 public:
-  ezVisualScriptNode_Printer();
+  ezVisualScriptNode_Log();
+  ~ezVisualScriptNode_Log();
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
-  ezString m_sPrint;
-  double m_Value = 0;
+  ezString m_sLog;
+  double m_Value1 = 0;
+  double m_Value2 = 0;
 };
 

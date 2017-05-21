@@ -31,6 +31,12 @@ ezVisualScriptNode_SampleNode::ezVisualScriptNode_SampleNode()
 
 void ezVisualScriptNode_SampleNode::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
+  if (m_bInputValuesChanged)
+  {
+    // do stuff that depends on input values
+    // skipping pInstance->SetOutputPinValue is valid, if the result cannot have changed (and saves some performance)
+  }
+
   ezLog::Info(m_sPrint, m_Value);
   m_Value += 1;
 

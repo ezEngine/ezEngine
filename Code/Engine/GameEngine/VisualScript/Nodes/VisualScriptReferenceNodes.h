@@ -6,15 +6,31 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetOwner : public ezVisualScriptNode
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetScriptOwner : public ezVisualScriptNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetOwner, ezVisualScriptNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetScriptOwner, ezVisualScriptNode);
 public:
-  ezVisualScriptNode_GetOwner();
-  ~ezVisualScriptNode_GetOwner();
+  ezVisualScriptNode_GetScriptOwner();
+  ~ezVisualScriptNode_GetScriptOwner();
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_GetComponentOwner : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GetComponentOwner, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_GetComponentOwner();
+  ~ezVisualScriptNode_GetComponentOwner();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+private:
+  ezComponentHandle m_hComponent;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,11 +43,11 @@ public:
   ~ezVisualScriptNode_FindChildObject();
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
 private:
   ezGameObjectHandle m_hObject;
-  ezString m_sObjectName;
+  ezString m_sChildObjectName;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,7 +64,6 @@ public:
 
 private:
   ezGameObjectHandle m_hObject;
-  ezComponentHandle m_hComponent;
   ezString m_sType;
 };
 
@@ -65,9 +80,27 @@ public:
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
 
 private:
+  ezString m_sObjectName;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_FindParent : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FindParent, ezVisualScriptNode);
+public:
+  ezVisualScriptNode_FindParent();
+  ~ezVisualScriptNode_FindParent();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+
+private:
   ezGameObjectHandle m_hObject;
   ezString m_sObjectName;
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+
 

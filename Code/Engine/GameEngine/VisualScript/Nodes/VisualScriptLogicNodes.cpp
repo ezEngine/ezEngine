@@ -96,7 +96,12 @@ void ezVisualScriptNode_Compare::Execute(ezVisualScriptInstance* pInstance, ezUI
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
-  pInstance->SetOutputPinValue(this, 0, &result);
+  // we can skip this and save some performance, if the inputs did not change, because the result won't have changed either
+  if (m_bInputValuesChanged)
+  {
+    pInstance->SetOutputPinValue(this, 0, &result);
+  }
+
   pInstance->ExecuteConnectedNodes(this, result ? 0 : 1);
 }
 
@@ -261,15 +266,18 @@ ezVisualScriptNode_Logic::~ezVisualScriptNode_Logic() { }
 
 void ezVisualScriptNode_Logic::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  const bool Or = m_Value1 || m_Value2;
-  const bool And = m_Value1 && m_Value2;
-  const bool Xor = m_Value1 ^ m_Value2;
-  const bool NotA = !m_Value1;
+  if (m_bInputValuesChanged)
+  {
+    const bool Or = m_Value1 || m_Value2;
+    const bool And = m_Value1 && m_Value2;
+    const bool Xor = m_Value1 ^ m_Value2;
+    const bool NotA = !m_Value1;
 
-  pInstance->SetOutputPinValue(this, 0, &Or);
-  pInstance->SetOutputPinValue(this, 1, &And);
-  pInstance->SetOutputPinValue(this, 2, &Xor);
-  pInstance->SetOutputPinValue(this, 3, &NotA);
+    pInstance->SetOutputPinValue(this, 0, &Or);
+    pInstance->SetOutputPinValue(this, 1, &And);
+    pInstance->SetOutputPinValue(this, 2, &Xor);
+    pInstance->SetOutputPinValue(this, 3, &NotA);
+  }
 }
 
 void* ezVisualScriptNode_Logic::GetInputPinDataPointer(ezUInt8 uiPin)

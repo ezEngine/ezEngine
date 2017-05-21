@@ -378,6 +378,9 @@ void ezQtVisualScriptNode::UpdateTitle()
   
   const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
 
+  if (pDesc == nullptr)
+    return;
+
   if (!pDesc->m_sTitle.IsEmpty())
   {
     ezHybridArray<ezAbstractProperty*, 32> properties;

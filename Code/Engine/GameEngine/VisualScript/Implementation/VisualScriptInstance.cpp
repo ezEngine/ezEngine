@@ -11,39 +11,53 @@
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 
-void ezVisualScriptAssignNumberNumber(const void* src, void* dst)
+bool ezVisualScriptAssignNumberNumber(const void* src, void* dst)
 {
+  const bool res = *reinterpret_cast<double*>(dst) != *reinterpret_cast<const double*>(src);
   *reinterpret_cast<double*>(dst) = *reinterpret_cast<const double*>(src);
+  return res;
 }
 
-void ezVisualScriptAssignBoolBool(const void* src, void* dst)
+bool ezVisualScriptAssignBoolBool(const void* src, void* dst)
 {
+  const bool res = *reinterpret_cast<bool*>(dst) != *reinterpret_cast<const bool*>(src);
   *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const bool*>(src);
+  return res;
 }
 
-void ezVisualScriptAssignNumberBool(const void* src, void* dst)
+bool ezVisualScriptAssignNumberBool(const void* src, void* dst)
 {
+  const bool res = *reinterpret_cast<bool*>(dst) != *reinterpret_cast<const double*>(src) > 0.0;
   *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const double*>(src) > 0.0;
+  return res;
 }
 
-void ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
+bool ezVisualScriptAssignVec3Vec3(const void* src, void* dst)
 {
+  const bool res = *reinterpret_cast<ezVec3*>(dst) != *reinterpret_cast<const ezVec3*>(src);
   *reinterpret_cast<ezVec3*>(dst) = *reinterpret_cast<const ezVec3*>(src);
+  return res;
 }
 
-void ezVisualScriptAssignNumberVec3(const void* src, void* dst)
+bool ezVisualScriptAssignNumberVec3(const void* src, void* dst)
 {
+  const bool res = *reinterpret_cast<ezVec3*>(dst) != ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
   *reinterpret_cast<ezVec3*>(dst) = ezVec3(static_cast<float>(*reinterpret_cast<const double*>(src)));
+  return res;
 }
 
-void ezVisualScriptAssignGameObject(const void* src, void* dst)
+bool ezVisualScriptAssignGameObject(const void* src, void* dst)
 {
+  const bool res = *reinterpret_cast<ezGameObjectHandle*>(dst) != *reinterpret_cast<const ezGameObjectHandle*>(src);
   *reinterpret_cast<ezGameObjectHandle*>(dst) = *reinterpret_cast<const ezGameObjectHandle*>(src);
+  return res;
 }
 
-void ezVisualScriptAssignComponent(const void* src, void* dst)
+bool ezVisualScriptAssignComponent(const void* src, void* dst)
 {
+  const bool res = *reinterpret_cast<ezComponentHandle*>(dst) != *reinterpret_cast<const ezComponentHandle*>(src);
   *reinterpret_cast<ezComponentHandle*>(dst) = *reinterpret_cast<const ezComponentHandle*>(src);
+  return res;
 }
 
 ezVisualScriptInstance::ezVisualScriptInstance()
@@ -117,11 +131,13 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
   for (ezUInt32 i = 0; i < dep.GetCount(); ++i)
   {
     const ezUInt32 uiDependency = dep[i];
+    auto* pNode = m_Nodes[uiDependency];
 
     // recurse to the most dependent nodes first
     ExecuteDependentNodes(uiDependency);
 
-    m_Nodes[uiDependency]->Execute(this, 0);
+    pNode->Execute(this, 0);
+    pNode->m_bInputValuesChanged = false;
   }
 }
 
@@ -244,12 +260,16 @@ void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActi
 
   for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
   {
-    if (m_Nodes[i]->m_bStepNode)
+    auto* pNode = m_Nodes[i];
+
+    if (pNode->m_bStepNode)
     {
       ExecuteDependentNodes(i);
 
-      m_Nodes[i]->m_bStepNode = false;
-      m_Nodes[i]->Execute(this, 0);
+      // node stepping is always executed, even if the node only 'wants' to be executed on input change
+      pNode->m_bStepNode = false;
+      pNode->Execute(this, 0);
+      pNode->m_bInputValuesChanged = false;
     }
   }
 }
@@ -292,7 +312,10 @@ void ezVisualScriptInstance::SetOutputPinValue(const ezVisualScriptNode* pNode, 
   {
     if (TargetNodeAndPin.m_AssignFunc)
     {
-      TargetNodeAndPin.m_AssignFunc(pValue, TargetNodeAndPin.m_pTargetData);
+      if (TargetNodeAndPin.m_AssignFunc(pValue, TargetNodeAndPin.m_pTargetData))
+      {
+        m_Nodes[TargetNodeAndPin.m_uiTargetNode]->m_bInputValuesChanged = true;
+      }
     }
   }
 
@@ -310,8 +333,12 @@ void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNo
   if (!m_ExecutionConnections.TryGetValue(uiConnectionID, TargetNode))
     return;
 
+  auto* pTargetNode = m_Nodes[TargetNode.m_uiTargetNode];
+
   ExecuteDependentNodes(TargetNode.m_uiTargetNode);
-  m_Nodes[TargetNode.m_uiTargetNode]->Execute(this, TargetNode.m_uiTargetPin);
+
+  pTargetNode->Execute(this, TargetNode.m_uiTargetPin);
+  pTargetNode->m_bInputValuesChanged = false;
 
   if (m_pActivity != nullptr)
   {

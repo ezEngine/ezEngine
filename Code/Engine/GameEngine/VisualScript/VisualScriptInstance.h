@@ -20,7 +20,7 @@ struct ezEventMessage;
 typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
 
-typedef void(*ezVisualScriptDataPinAssignFunc)(const void* src, void* dst);
+typedef bool(*ezVisualScriptDataPinAssignFunc)(const void* src, void* dst);
 
 /// \brief An instance of a visual script resource. Stores the current script state and executes nodes.
 class EZ_GAMEENGINE_DLL ezVisualScriptInstance

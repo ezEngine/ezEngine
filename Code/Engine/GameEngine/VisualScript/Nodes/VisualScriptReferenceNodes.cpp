@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetOwner, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GetOwner>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetScriptOwner, 2, ezRTTIDefaultAllocator<ezVisualScriptNode_GetScriptOwner>)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -22,13 +22,68 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetOwner, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_GetOwner::ezVisualScriptNode_GetOwner() {}
-ezVisualScriptNode_GetOwner::~ezVisualScriptNode_GetOwner() {}
+ezVisualScriptNode_GetScriptOwner::ezVisualScriptNode_GetScriptOwner() {}
+ezVisualScriptNode_GetScriptOwner::~ezVisualScriptNode_GetScriptOwner() {}
 
-void ezVisualScriptNode_GetOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+void ezVisualScriptNode_GetScriptOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  ezGameObjectHandle hObject = pInstance->GetOwner();
-  pInstance->SetOutputPinValue(this, 0, &hObject);
+  // we have no input values here that could change, but this will still be executed once after initial startup
+  // after that the value will not change, so no need to reexecute
+  if (m_bInputValuesChanged)
+  {
+    ezGameObjectHandle hObject = pInstance->GetOwner();
+    pInstance->SetOutputPinValue(this, 0, &hObject);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetComponentOwner, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GetComponentOwner>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("References")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    // Data Pins (Input)
+    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
+    // Data Pins (Output)
+    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_GetComponentOwner::ezVisualScriptNode_GetComponentOwner() {}
+ezVisualScriptNode_GetComponentOwner::~ezVisualScriptNode_GetComponentOwner() {}
+
+void ezVisualScriptNode_GetComponentOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_bInputValuesChanged)
+  {
+    ezComponent* pComponent = nullptr;
+    ezGameObjectHandle hObject;
+
+    if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
+    {
+      hObject = pComponent->GetOwner()->GetHandle();
+    }
+
+    pInstance->SetOutputPinValue(this, 0, &hObject);
+  }
+}
+
+void* ezVisualScriptNode_GetComponentOwner::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+  case 0:
+    return &m_hComponent;
+  }
+
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -41,12 +96,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
     new ezTitleAttribute("Child '{0}'"),
   }
   EZ_END_ATTRIBUTES
-  EZ_BEGIN_PROPERTIES
+    EZ_BEGIN_PROPERTIES
   {
+    // Data Pins (Input)
+    EZ_INPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
     // Data Pins (Output)
-    EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+    EZ_OUTPUT_DATA_PIN("Child", 0, ezVisualScriptDataPinType::GameObjectHandle),
     // Exposed Properties
-    EZ_MEMBER_PROPERTY("Name", m_sObjectName),
+    EZ_MEMBER_PROPERTY("Name", m_sChildObjectName),
   }
   EZ_END_PROPERTIES
 }
@@ -57,28 +114,43 @@ ezVisualScriptNode_FindChildObject::~ezVisualScriptNode_FindChildObject() {}
 
 void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_hObject.IsInvalidated() && !m_sObjectName.IsEmpty())
+  if (m_bInputValuesChanged)
   {
-    ezGameObject* pRoot = nullptr;
-    pInstance->GetWorld()->TryGetObject(pInstance->GetOwner(), pRoot);
-
-    const ezTempHashedString name(m_sObjectName.GetData());
-    ezGameObject* pChild = pRoot->FindChildByName(name, true);
-
-    if (pChild != nullptr)
+    if (m_hObject.IsInvalidated())
     {
-      m_hObject = pChild->GetHandle();
+      m_hObject = pInstance->GetOwner();
     }
-    else
+
+    ezGameObject* pParent = nullptr;
+    if (!pInstance->GetWorld()->TryGetObject(m_hObject, pParent))
     {
-      // make sure we don't try this again
-      ezLog::Warning("Script: Child-Object with Name '{0}' does not exist.", m_sObjectName);
-      m_sObjectName.Clear();
-      m_hObject.Invalidate();
+      ezLog::Warning("Script: FindChildObject: Cannot find child '{0}', parent object is already invalid.", m_sChildObjectName);
+      return;
     }
+
+    const ezTempHashedString name(m_sChildObjectName.GetData());
+    ezGameObject* pChild = pParent->FindChildByName(name, true);
+
+    if (pChild == nullptr)
+    {
+      ezLog::Warning("Script: Child-Object with Name '{0}' does not exist.", m_sChildObjectName);
+      return;
+    }
+
+    pInstance->SetOutputPinValue(this, 0, &pChild->GetHandle());
+  }
+}
+
+
+void* ezVisualScriptNode_FindChildObject::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+  case 0:
+    return &m_hObject;
   }
 
-  pInstance->SetOutputPinValue(this, 0, &m_hObject);
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,7 +162,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
     new ezCategoryAttribute("References"),
     new ezTitleAttribute("Component '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -109,39 +181,36 @@ ezVisualScriptNode_FindComponent::~ezVisualScriptNode_FindComponent() {}
 
 void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_hComponent.IsInvalidated() && !m_sType.IsEmpty())
+  if (m_bInputValuesChanged)
   {
-    ezGameObject* pObject = nullptr;
-
-    if (!m_hObject.IsInvalidated())
+    if (m_hObject.IsInvalidated())
     {
-      if (!pObject->GetWorld()->TryGetObject(m_hObject, pObject))
-        goto fail;
+      m_hObject = pInstance->GetOwner();
     }
-    else
+
+    ezGameObject* pParent = nullptr;
+    if (!pInstance->GetWorld()->TryGetObject(m_hObject, pParent))
     {
-      if (!pInstance->GetWorld()->TryGetObject(pInstance->GetOwner(), pObject))
-        goto fail;
+      ezLog::Warning("Script: FindComponent: Cannot find component '{0}', parent object is already invalid.", m_sType);
+      return;
     }
 
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_sType);
     if (pRtti == nullptr)
-      goto fail;
+    {
+      ezLog::Error("Script: FindComponent: Component type '{0}' is unknown.", m_sType);
+      return;
+    }
 
     ezComponent* pComponent = nullptr;
-    if (!pObject->TryGetComponentOfBaseType(pRtti, pComponent))
-      goto fail;
+    if (!pParent->TryGetComponentOfBaseType(pRtti, pComponent))
+    {
+      ezLog::Warning("Script: Component of type '{0}' does not exist at this node.", m_sType);
+      return;
+    }
 
-    m_hComponent = pComponent->GetHandle();
+    pInstance->SetOutputPinValue(this, 0, &pComponent->GetHandle());
   }
-
-  pInstance->SetOutputPinValue(this, 0, &m_hComponent);
-  return;
-
-fail:
-  ezLog::Warning("Script: Component of type '{0}' does not exist at this node.", m_sType);
-  m_hComponent.Invalidate();
-  m_sType.Clear();
 }
 
 void* ezVisualScriptNode_FindComponent::GetInputPinDataPointer(ezUInt8 uiPin)
@@ -164,7 +233,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
     new ezCategoryAttribute("References"),
     new ezTitleAttribute("Global Object '{0}'"),
   }
-    EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Output)
@@ -181,25 +250,90 @@ ezVisualScriptNode_QueryGlobalObject::~ezVisualScriptNode_QueryGlobalObject() {}
 
 void ezVisualScriptNode_QueryGlobalObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_hObject.IsInvalidated() && !m_sObjectName.IsEmpty())
+  if (m_bInputValuesChanged)
   {
     const ezTempHashedString name(m_sObjectName.GetData());
     ezGameObject* pObject;
 
-    if (pInstance->GetWorld()->TryGetObjectWithGlobalKey(name, pObject))
+    if (!pInstance->GetWorld()->TryGetObjectWithGlobalKey(name, pObject))
     {
-      m_hObject = pObject->GetHandle();
-    }
-    else
-    {
-      // make sure we don't try this again
       ezLog::Warning("Script: Object with Global Key '{0}' does not exist.", m_sObjectName);
-      m_sObjectName.Clear();
-      m_hObject.Invalidate();
+      return;
     }
+
+    pInstance->SetOutputPinValue(this, 0, &pObject->GetHandle());
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindParent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_FindParent>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("References")
+  }
+    EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    // Data Pins (Input)
+    EZ_INPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
+    // Exposed Properties
+    EZ_MEMBER_PROPERTY("Name", m_sObjectName),
+    // Data Pins (Output)
+    EZ_OUTPUT_DATA_PIN("Parent", 0, ezVisualScriptDataPinType::GameObjectHandle),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_FindParent::ezVisualScriptNode_FindParent() {}
+ezVisualScriptNode_FindParent::~ezVisualScriptNode_FindParent() {}
+
+void ezVisualScriptNode_FindParent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_bInputValuesChanged)
+  {
+    const ezTempHashedString name(m_sObjectName.GetData());
+    ezGameObject* pObject;
+
+    // 'self' if nothing is connected
+    if (m_hObject.IsInvalidated())
+    {
+      m_hObject = pInstance->GetOwner();
+    }
+
+    if (pInstance->GetWorld()->TryGetObject(m_hObject, pObject))
+    {
+      // skip starting object
+      pObject = pObject->GetParent();
+
+      // search for a parent with the given name
+      while (pObject != nullptr)
+      {
+        if (pObject->HasName(name))
+        {
+          pInstance->SetOutputPinValue(this, 0, &pObject->GetHandle());
+          return;
+        }
+
+        pObject = pObject->GetParent();
+      }
+    }
+
+    ezLog::Warning("Script: Parent Object with Name '{0}' could not be found.", m_sObjectName);
+  }
+}
+
+void* ezVisualScriptNode_FindParent::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  switch (uiPin)
+  {
+  case 0:
+    return &m_hObject;
   }
 
-  pInstance->SetOutputPinValue(this, 0, &m_hObject);
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

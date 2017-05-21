@@ -44,8 +44,11 @@ double ezVisualScriptNode_MathExpression::ResolveVariable(const ezStringView& va
 
 void ezVisualScriptNode_MathExpression::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  const double result = m_MathExpression.Evaluate([this](const ezStringView& variableString) { return ResolveVariable(variableString); });
-  pInstance->SetOutputPinValue(this, 0, &result);
+  if (m_bInputValuesChanged)
+  {
+    const double result = m_MathExpression.Evaluate([this](const ezStringView& variableString) { return ResolveVariable(variableString); });
+    pInstance->SetOutputPinValue(this, 0, &result);
+  }
 }
 
 void* ezVisualScriptNode_MathExpression::GetInputPinDataPointer(ezUInt8 uiPin)

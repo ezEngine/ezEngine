@@ -223,8 +223,9 @@ o
 			Uuid{u4{18416536830933049260,10198258839303268154}}
 			Uuid{u4{8518550214746452845,15149946171998803465}}
 			Uuid{u4{15927006907577287610,5813647880691386200}}
+			Uuid{u4{10162014598067754143,17921838920299708914}}
 		}
-		Vec2 %Node::Pos{f{0xCF4903C4,0x91840A44}}
+		Vec2 %Node::Pos{f{0xB3300CC4,0xFFC51144}}
 	}
 }
 o
@@ -513,7 +514,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7015304998123668388,5646540825533331613}}
-		u4 %Hash{4819028839499735083}
+		u4 %Hash{10283903101225921061}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -553,8 +554,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %SourcePin{"Object"}
-		Uuid %Target{u4{3070714561733386331,9527960545792460949}}
+		s %SourcePin{"Child"}
+		Uuid %Target{u4{4217970800032597384,4825613823747987511}}
 		s %TargetPin{"Object"}
 	}
 }
@@ -674,7 +675,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %SourcePin{"Object"}
+		s %SourcePin{"Child"}
 		Uuid %Target{u4{10662037177857959835,4883201207463229785}}
 		s %TargetPin{"Object"}
 	}
@@ -702,8 +703,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %SourcePin{"Object"}
-		Uuid %Target{u4{16531644505509496734,5271008743774562159}}
+		s %SourcePin{"Child"}
+		Uuid %Target{u4{3070714561733386331,9527960545792460949}}
 		s %TargetPin{"Object"}
 	}
 }
@@ -866,7 +867,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %SourcePin{"Object"}
+		s %SourcePin{"Child"}
 		Uuid %Target{u4{11167546552710132131,4829517468080502114}}
 		s %TargetPin{"Object"}
 	}
@@ -917,6 +918,18 @@ o
 		s %SourcePin{"Component"}
 		Uuid %Target{u4{1673198381148573794,10358956796000752702}}
 		s %TargetPin{"Component"}
+	}
+}
+o
+{
+	Uuid %id{u4{10162014598067754143,17921838920299708914}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Child"}
+		Uuid %Target{u4{16531644505509496734,5271008743774562159}}
+		s %TargetPin{"Object"}
 	}
 }
 }
