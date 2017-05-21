@@ -5,7 +5,9 @@
 #include <QMouseEvent>
 #include <QScrollArea>
 
-ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent) : ezQtGroupBoxBase(pParent), m_bCollapsed(false)
+ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent)
+  : ezQtGroupBoxBase(pParent, true)
+  , m_bCollapsed(false)
 {
   setupUi(this);
 
@@ -68,17 +70,20 @@ QWidget* ezQtCollapsibleGroupBox::GetHeader()
 
 bool ezQtCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
 {
-  if (event->type() == QEvent::Type::MouseButtonPress || event->type() == QEvent::Type::MouseButtonDblClick)
+  switch (event->type())
   {
-    QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(event);
-
-    if (pMouseEvent->button() == Qt::MouseButton::LeftButton)
-    {
-      SetCollapseState(!m_bCollapsed);
-      return true;
-    }
+  case QEvent::Type::MouseButtonPress:
+    HeaderMousePress(static_cast<QMouseEvent*>(event));
+    return true;
+  case QEvent::Type::MouseMove:
+    HeaderMouseMove(static_cast<QMouseEvent*>(event));
+    return true;
+  case QEvent::Type::MouseButtonRelease:
+    HeaderMouseRelease(static_cast<QMouseEvent*>(event));
+    return true;
+  default:
+    break;
   }
-
   return false;
 }
 
@@ -112,5 +117,5 @@ void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
     p.fillPath(path, pal.window());
   }
 
-  DrawHeader(p, hr, m_sTitle, m_Icon, true);
+  DrawHeader(p, hr);
 }

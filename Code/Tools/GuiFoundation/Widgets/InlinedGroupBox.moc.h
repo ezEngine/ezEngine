@@ -21,6 +21,7 @@ public:
 
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
+  virtual bool eventFilter(QObject* object, QEvent* event) override;
 
 protected:
   QWidget* m_pContent;

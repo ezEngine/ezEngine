@@ -3,8 +3,10 @@
 #include <QStyleOptionToolButton>
 #include <QPainter>
 #include <QBoxLayout>
+#include <QMouseEvent>
 
-ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent) : ezQtGroupBoxBase(pParent)
+ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent)
+  : ezQtGroupBoxBase(pParent, false)
 {
   QHBoxLayout* pRootLayout = new QHBoxLayout(this);
   pRootLayout->setContentsMargins(0, 1, 0, 1);
@@ -30,6 +32,8 @@ ezQtInlinedGroupBox::ezQtInlinedGroupBox(QWidget* pParent) : ezQtGroupBoxBase(pP
   pRootLayout->setStretch(0, 1);
   pRootLayout->addWidget(m_pContent);
   pRootLayout->addWidget(m_pHeader);
+
+  installEventFilter(this);
 }
 
 void ezQtInlinedGroupBox::SetTitle(const char* szTitle)
@@ -88,5 +92,24 @@ void ezQtInlinedGroupBox::paintEvent(QPaintEvent* event)
     p.fillPath(oPath, pal.alternateBase());
   }
 
-  DrawHeader(p, wr.adjusted(Rounding, 0, 0, 0), m_sTitle, m_Icon, false);
+  DrawHeader(p, wr.adjusted(Rounding, 0, 0, 0));
+}
+
+bool ezQtInlinedGroupBox::eventFilter(QObject* object, QEvent* event)
+{
+  switch (event->type())
+  {
+  case QEvent::Type::MouseButtonPress:
+    HeaderMousePress(static_cast<QMouseEvent*>(event));
+    return true;
+  case QEvent::Type::MouseMove:
+    HeaderMouseMove(static_cast<QMouseEvent*>(event));
+    return true;
+  case QEvent::Type::MouseButtonRelease:
+    HeaderMouseRelease(static_cast<QMouseEvent*>(event));
+    return true;
+  default:
+    break;
+  }
+  return false;
 }

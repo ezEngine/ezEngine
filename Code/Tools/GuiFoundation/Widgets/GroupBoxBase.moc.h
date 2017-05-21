@@ -4,11 +4,13 @@
 #include <QWidget>
 #include <QIcon>
 
+class QMimeData;
+
 class EZ_GUIFOUNDATION_DLL ezQtGroupBoxBase : public QWidget
 {
   Q_OBJECT
 public:
-  explicit ezQtGroupBoxBase(QWidget* pParent) : QWidget(pParent) {}
+  ezQtGroupBoxBase(QWidget* pParent, bool bCollapsible);
 
   virtual void SetTitle(const char* szTitle);
   QString GetTitle() const;
@@ -19,6 +21,9 @@ public:
   virtual void SetFillColor(const QColor& color);
   QColor GetFillColor() const;
 
+  virtual void SetDraggable(bool bDraggable);
+  bool IsDraggable() const;
+
   virtual void SetCollapseState(bool bCollapsed) = 0;
   virtual bool GetCollapseState() const = 0;
 
@@ -27,6 +32,7 @@ public:
 
 signals:
   void CollapseStateChanged(bool bCollapsed);
+  void DragStarted(QMimeData& mimeData);
 
 protected:
   enum Constants
@@ -35,8 +41,16 @@ protected:
     Spacing = 1,
   };
 
-  void DrawHeader(QPainter& p, const QRect& rect, const QString& sTitle, const QIcon& icon, bool bCollapsible);
+  void DrawHeader(QPainter& p, const QRect& rect);
+  void HeaderMousePress(QMouseEvent* me);
+  void HeaderMouseMove(QMouseEvent* me);
+  void HeaderMouseRelease(QMouseEvent* me);
 
+  bool m_bDragging = false;
+  QPoint m_startCursor;
+
+  bool m_bCollapsible = false;
+  bool m_bDraggable = false;
   QColor m_FillColor;
   QString m_sTitle;
   QIcon m_Icon;

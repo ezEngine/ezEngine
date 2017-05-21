@@ -1,20 +1,22 @@
 ﻿#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ElementGroupButton.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
+#include <GuiFoundation/Widgets/InlinedGroupBox.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <Foundation/Strings/TranslationLookup.h>
+#include <QClipboard>
+#include <QDragEnterEvent>
+#include <QLabel>
+#include <QMenu>
+#include <QMimeData>
+#include <QPainter>
 #include <QScrollArea>
 #include <QStringBuilder>
-#include <QMenu>
-#include <QLabel>
-#include <QClipboard>
-#include <QMimeData>
-#include <Widgets/InlinedGroupBox.moc.h>
 
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget() : QWidget(nullptr), m_pGrid(nullptr), m_pProp(nullptr)
@@ -598,6 +600,7 @@ ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
   m_pGroup->GetContent()->setLayout(m_pGroupLayout);
 
+  setAcceptDrops(true);
   m_pLayout->addWidget(m_pGroup);
 }
 
@@ -627,6 +630,120 @@ void ezQtPropertyContainerWidget::DoPrepareToDie()
   }
 }
 
+void ezQtPropertyContainerWidget::dragEnterEvent(QDragEnterEvent* event)
+{
+  updateDropIndex(event);
+}
+
+void ezQtPropertyContainerWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+  updateDropIndex(event);
+}
+
+void ezQtPropertyContainerWidget::dragLeaveEvent(QDragLeaveEvent* event)
+{
+  m_iDropSource = -1;
+  m_iDropTarget = -1;
+  update();
+}
+
+void ezQtPropertyContainerWidget::dropEvent(QDropEvent* event)
+{
+  if (updateDropIndex(event))
+  {
+    ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(event->source());
+    Element* pDragElement = std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem)->bool
+    {
+      return elem.m_pSubGroup == pGroup;
+    });
+    if (pDragElement)
+    {
+      const ezAbstractProperty* pProp = pDragElement->m_pWidget->GetProperty();
+      ezHybridArray<ezPropertySelection, 8> items = pDragElement->m_pWidget->GetSelection();
+      if (m_iDropSource != m_iDropTarget && (m_iDropSource + 1) != m_iDropTarget)
+      {
+        MoveItems(items, m_iDropTarget - m_iDropSource);
+      }
+    }
+
+  }
+  m_iDropSource = -1;
+  m_iDropTarget = -1;
+  update();
+}
+
+void ezQtPropertyContainerWidget::paintEvent(QPaintEvent* event)
+{
+  ezQtPropertyWidget::paintEvent(event);
+  if (m_iDropSource != -1 && m_iDropTarget != -1)
+  {
+    ezInt32 iYPos = 0;
+    if (m_iDropTarget < (ezInt32)m_Elements.GetCount())
+    {
+      const QPoint globalPos = m_Elements[m_iDropTarget].m_pSubGroup->mapToGlobal(QPoint(0, 0));
+      iYPos = mapFromGlobal(globalPos).y();
+    }
+    else
+    {
+      const QPoint globalPos = m_Elements[m_Elements.GetCount() - 1].m_pSubGroup->mapToGlobal(QPoint(0, 0));
+      iYPos = mapFromGlobal(globalPos).y() + m_Elements[m_Elements.GetCount() - 1].m_pSubGroup->height();
+    }
+
+    QPainter painter(this);
+    painter.setPen(QPen(Qt::PenStyle::NoPen));
+    painter.setBrush(palette().brush(QPalette::Highlight));
+    painter.drawRect(0, iYPos - 3, width(), 4);
+  }
+}
+
+bool ezQtPropertyContainerWidget::updateDropIndex(QDropEvent* pEvent)
+{
+  if (pEvent->source() && pEvent->mimeData()->hasFormat("application/x-groupBoxDragProperty"))
+  {
+    // Is the drop source part of this widget?
+    for (ezUInt32 i = 0; i < m_Elements.GetCount(); i++)
+    {
+      if (m_Elements[i].m_pSubGroup == pEvent->source())
+      {
+        pEvent->setDropAction(Qt::MoveAction);
+        pEvent->accept();
+        ezInt32 iNewDropTarget = -1;
+        // Find closest drop target.
+        const ezInt32 iGlobalYPos = mapToGlobal(pEvent->pos()).y();
+        for (ezUInt32 j = 0; j < m_Elements.GetCount(); j++)
+        {
+          const QRect rect(m_Elements[j].m_pSubGroup->mapToGlobal(QPoint(0,0)), m_Elements[j].m_pSubGroup->size());
+          if (iGlobalYPos > rect.center().y())
+          {
+            iNewDropTarget = (ezInt32)j + 1;
+          }
+          else if (iGlobalYPos < rect.center().y())
+          {
+            iNewDropTarget = (ezInt32)j;
+            break;
+          }
+        }
+        if (m_iDropSource != (ezInt32)i || m_iDropTarget != iNewDropTarget)
+        {
+          m_iDropSource = (ezInt32)i;
+          m_iDropTarget = iNewDropTarget;
+          update();
+        }
+        return true;
+      }
+    }
+  }
+
+  if (m_iDropSource != -1 || m_iDropTarget != -1)
+  {
+    m_iDropSource = -1;
+    m_iDropTarget = -1;
+    update();
+  }
+  pEvent->ignore();
+  return false;
+}
+
 void ezQtPropertyContainerWidget::OnElementButtonClicked()
 {
   ezQtElementGroupButton* pButton = qobject_cast<ezQtElementGroupButton*>(sender());
@@ -653,6 +770,18 @@ void ezQtPropertyContainerWidget::OnElementButtonClicked()
   }
 }
 
+void ezQtPropertyContainerWidget::OnDragStarted(QMimeData& mimeData)
+{
+  ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(sender());
+  Element* pDragElement = std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem)->bool
+  {
+    return elem.m_pSubGroup == pGroup;
+  });
+  if (pDragElement)
+  {
+    mimeData.setData("application/x-groupBoxDragProperty", QByteArray());
+  }
+}
 
 ezQtGroupBoxBase* ezQtPropertyContainerWidget::CreateElement(QWidget* pParent)
 {
@@ -686,13 +815,18 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
     auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
     if ((!pAttr || pAttr->CanMove()) && m_pProp->GetCategory() != ezPropertyCategory::Map)
     {
-      ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);
-      pSubGroup->GetHeader()->layout()->addWidget(pUpButton);
-      connect(pUpButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
+      // Do we need move buttons at all if we have drag&drop?
+      //ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);
+      //pSubGroup->GetHeader()->layout()->addWidget(pUpButton);
+      //connect(pUpButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
 
-      ezQtElementGroupButton* pDownButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::MoveElementDown, pNewWidget);
-      pSubGroup->GetHeader()->layout()->addWidget(pDownButton);
-      connect(pDownButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
+      //ezQtElementGroupButton* pDownButton = new ezQtElementGroupButton(pSubGroup->GetHeader(), ezQtElementGroupButton::ElementAction::MoveElementDown, pNewWidget);
+      //pSubGroup->GetHeader()->layout()->addWidget(pDownButton);
+      //connect(pDownButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
+
+      pSubGroup->SetDraggable(true);
+      connect(pSubGroup, &ezQtGroupBoxBase::DragStarted, this, &ezQtPropertyContainerWidget::OnDragStarted);
+
     }
 
     if (!pAttr || pAttr->CanDelete())

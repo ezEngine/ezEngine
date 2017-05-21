@@ -18,6 +18,7 @@ class ezQtGroupBoxBase;
 class ezQtAddSubElementButton;
 class ezQtPropertyGridWidget;
 class ezQtElementGroupButton;
+class QMimeData;
 struct ezCommandHistoryEvent;
 
 /// \brief Base class for all property widgets
@@ -216,6 +217,7 @@ public:
 
 public slots:
   void OnElementButtonClicked();
+  void OnDragStarted(QMimeData& mimeData);
 
 protected:
   struct Element
@@ -240,6 +242,14 @@ protected:
   void DeleteItems(ezHybridArray<ezPropertySelection, 8>& items);
   void MoveItems(ezHybridArray<ezPropertySelection, 8>& items, ezInt32 iMove);
   virtual void DoPrepareToDie() override;
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;
+  virtual void dragMoveEvent(QDragMoveEvent* event) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+  virtual void dropEvent(QDropEvent* event) override;
+  virtual void paintEvent(QPaintEvent *event) override;
+
+private:
+  bool updateDropIndex(QDropEvent* pEvent);
 
 protected:
   QHBoxLayout* m_pLayout;
@@ -249,6 +259,8 @@ protected:
 
   mutable ezHybridArray<ezVariant, 16> m_Keys;
   ezDynamicArray<Element> m_Elements;
+  ezInt32 m_iDropSource = -1;
+  ezInt32 m_iDropTarget = -1;
 };
 
 
