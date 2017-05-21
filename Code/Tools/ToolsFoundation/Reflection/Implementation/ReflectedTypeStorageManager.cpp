@@ -264,13 +264,7 @@ ezVariantType::Enum ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::
 
 ezVariant ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::GetStorageDefault(const ezAbstractProperty* pProperty)
 {
-  if (pProperty->GetCategory() == ezPropertyCategory::Array || pProperty->GetCategory() == ezPropertyCategory::Set)
-    return ezVariantArray();
-  else if (pProperty->GetCategory() == ezPropertyCategory::Map)
-    return ezVariantDictionary();
-  else
-    return ezToolsReflectionUtils::GetDefaultValue(pProperty);
-
+  return ezToolsReflectionUtils::GetDefaultValue(pProperty);
 }
 
 ////////////////////////////////////////////////////////////////////////

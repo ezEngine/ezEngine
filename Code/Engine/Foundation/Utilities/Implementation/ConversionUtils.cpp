@@ -668,6 +668,12 @@ namespace ezConversionUtils
     return out_Result;
   }
 
+  const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_Result)
+  {
+    out_Result = value;
+    return out_Result;
+  }
+
   bool IsStringUuid(const char* szText)
   {
     /// \test This is new

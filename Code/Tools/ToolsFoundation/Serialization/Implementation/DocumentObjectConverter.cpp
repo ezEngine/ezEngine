@@ -437,21 +437,30 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
   else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
-
+    const ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
     if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
-        pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), i, array[i]);
+        if (i < (ezUInt32)iCurrentCount)
+        {
+          pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), array[i], i);
+        }
+        else
+        {
+          pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), i, array[i]);
+        }
+      }
+      for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)array.GetCount(); i--)
+      {
+        pObject->GetTypeAccessor().RemoveValue(pProp->GetPropertyName(), i);
       }
     }
     else
     {
-      ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
         const ezUuid guid = array[i].Get<ezUuid>();
-
         if (guid.IsValid())
         {
           auto* pSubNode = m_pGraph->GetNode(guid);
@@ -474,6 +483,10 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
             ApplyPropertiesToObject(pSubNode, pSubObject);
           }
         }
+      }
+      for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)array.GetCount(); i--)
+      {
+        EZ_REPORT_FAILURE("Not implemented");
       }
     }
   }

@@ -225,6 +225,9 @@ namespace ezConversionUtils
   /// \brief Converts a Uuid to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_Result); // [tested]
 
+  /// \brief Converts a ezStringView to a string
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_Result);
+
   /// \brief Converts a ezVariantArray to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value, ezStringBuilder& out_Result);
 

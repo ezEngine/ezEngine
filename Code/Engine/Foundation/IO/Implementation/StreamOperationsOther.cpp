@@ -199,7 +199,7 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
   (*m_pStream) >> iCount;
   data.SetCount(iCount);
 
-  m_pStream->ReadBytes(data.GetData(), iCount); 
+  m_pStream->ReadBytes(data.GetData(), iCount);
   *m_pValue = data;
 }
 
@@ -209,6 +209,8 @@ void operator<< (ezStreamWriter& Stream, const ezVariant& Value)
   Stream << variantVersion;
   ezVariant::Type::Enum type = Value.GetType();
   ezUInt8 typeStorage = type;
+  if (typeStorage == ezVariantType::StringView)
+    typeStorage = ezVariantType::String;
   Stream << typeStorage;
 
   if (type != ezVariant::Type::Invalid)

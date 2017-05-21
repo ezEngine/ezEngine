@@ -168,33 +168,63 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
-  if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
+
+  switch (pProperty->GetCategory())
   {
-    if (pAttrib)
+  case ezPropertyCategory::Member:
     {
-      if (pAttrib->GetValue().CanConvertTo(type))
+      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
       {
-        return pAttrib->GetValue().ConvertTo(type);
+        if (pAttrib)
+        {
+          if (pAttrib->GetValue().CanConvertTo(type))
+          {
+            return pAttrib->GetValue().ConvertTo(type);
+          }
+        }
+        return GetDefaultVariantFromType(type);
       }
+      else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+      {
+        ezInt64 iValue = ezReflectionUtils::DefaultEnumerationValue(pProperty->GetSpecificType());
+        if (pAttrib)
+        {
+          if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
+            iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
+        }
+
+        return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
+      }
+      else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer | ezPropertyFlags::EmbeddedClass))
+      {
+        return ezUuid();
+      }
+      EZ_REPORT_FAILURE("Not reachable.");
     }
-    return GetDefaultVariantFromType(type);
-  }
-  else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
-  {
-    ezInt64 iValue = ezReflectionUtils::DefaultEnumerationValue(pProperty->GetSpecificType());
-    if (pAttrib)
+    break;
+  case ezPropertyCategory::Array:
+  case ezPropertyCategory::Set:
     {
-      if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
-        iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
+      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType) && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
+      {
+        const ezVariantArray& value = pAttrib->GetValue().Get<ezVariantArray>();
+        ezVariantArray ret;
+        ret.SetCount(value.GetCount());
+        for (ezUInt32 i = 0; i < value.GetCount(); i++)
+        {
+          ret[i] = value[i].ConvertTo(type);
+        }
+        return ret;
+      }
+      return ezVariantArray();
     }
-
-    return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
+    break;
+  case ezPropertyCategory::Map:
+    {
+      return ezVariantDictionary();
+    }
+    break;
   }
-  else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer | ezPropertyFlags::EmbeddedClass))
-  {
-    return ezUuid();
-  }
-
   return ezVariant();
 }
 
