@@ -542,7 +542,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1, ezR
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Sound"),
-    new ezTitleAttribute("Set Fmod Parameter '{0}'"),
+    new ezTitleAttribute("Fmod Param '{Parameter}' = {Value}"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -554,7 +554,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1, ezR
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     // Data Pins (Input)
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
-    EZ_INPUT_DATA_PIN("Value", 1, ezVisualScriptDataPinType::Number),
+    EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 1, ezVisualScriptDataPinType::Number, m_fValue),
   }
   EZ_END_PROPERTIES
 }

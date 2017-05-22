@@ -9,6 +9,8 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <QPainter>
 #include <QTimer>
+#include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezQtVisualScriptAssetScene::ezQtVisualScriptAssetScene(QObject* parent)
   : ezQtNodeScene(parent)
@@ -374,8 +376,8 @@ void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const
 
 void ezQtVisualScriptNode::UpdateTitle()
 {
-  ezStringBuilder temp;
-  
+  ezStringBuilder sTitle;
+
   const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
 
   if (pDesc == nullptr)
@@ -383,27 +385,52 @@ void ezQtVisualScriptNode::UpdateTitle()
 
   if (!pDesc->m_sTitle.IsEmpty())
   {
+    ezStringBuilder temp;
+
     ezHybridArray<ezAbstractProperty*, 32> properties;
     GetObject()->GetType()->GetAllProperties(properties);
 
-    ezVariant values[4];
-    for (ezUInt32 i = 0; i < ezMath::Min(4U, properties.GetCount()); ++i)
+    sTitle = pDesc->m_sTitle;
+
+    for (const auto& pin : GetInputPins())
     {
-      values[i] = GetObject()->GetTypeAccessor().GetValue(properties[i]->GetPropertyName());
+      if (pin->HasAnyConnections())
+      {
+        temp.Set("{", pin->GetPin()->GetName(), "}");
+        sTitle.ReplaceAll(temp, pin->GetPin()->GetName());
+      }
     }
 
-    temp.Format(pDesc->m_sTitle, values[0].ConvertTo<ezString>(), values[1].ConvertTo<ezString>(), values[2].ConvertTo<ezString>(), values[3].ConvertTo<ezString>());
+    ezVariant val;
+    ezStringBuilder sVal;
+    for (const auto& prop : properties)
+    {
+      val = GetObject()->GetTypeAccessor().GetValue(prop->GetPropertyName());
+
+      if (prop->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || prop->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+      {
+        ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sVal);
+        sVal = ezTranslate(sVal);
+      }
+      else if (val.CanConvertTo<ezString>())
+      {
+        sVal = val.ConvertTo<ezString>();
+      }
+
+      temp.Set("{", prop->GetPropertyName(), "}");
+      sTitle.ReplaceAll(temp, sVal);
+    }
   }
   else
   {
-    temp = GetObject()->GetTypeAccessor().GetType()->GetTypeName();
-    if (temp.StartsWith_NoCase("VisualScriptNode::"))
-      temp.Shrink(18, 0);
+    sTitle = GetObject()->GetTypeAccessor().GetType()->GetTypeName();
+    if (sTitle.StartsWith_NoCase("VisualScriptNode::"))
+      sTitle.Shrink(18, 0);
 
-    if (temp.StartsWith_NoCase("ezVisualScriptNode_"))
-      temp.Shrink(19, 0);
+    if (sTitle.StartsWith_NoCase("ezVisualScriptNode_"))
+      sTitle.Shrink(19, 0);
   }
 
-  m_pLabel->setPlainText(temp.GetData());
+  m_pLabel->setPlainText(sTitle.GetData());
 }
 

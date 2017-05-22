@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDef
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Events"),
-    new ezTitleAttribute("UserEvent '{0}'"),
+    new ezTitleAttribute("UserEvent '{Message}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -86,7 +86,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputState, 1, ezRTTIDefaultA
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input"),
-    new ezTitleAttribute("Input '{0}'")
+    new ezTitleAttribute("Input '{InputAction}'")
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -138,7 +138,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input/Events"),
-    new ezTitleAttribute("InputEvent '{0}'"),
+    new ezTitleAttribute("InputEvent '{InputAction}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

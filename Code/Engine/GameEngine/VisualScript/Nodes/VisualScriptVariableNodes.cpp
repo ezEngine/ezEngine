@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetNumberProperty, 1, ezRTTID
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Get Number Property '{0}'"),
+    new ezTitleAttribute("Get Number Property '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -68,7 +68,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTID
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Set Number Property '{0}'"),
+    new ezTitleAttribute("Set Number Property '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -124,7 +124,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetBoolProperty, 1, ezRTTIDef
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Get Bool Property '{0}'"),
+    new ezTitleAttribute("Get Bool Property '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -180,7 +180,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDef
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Properties"),
-    new ezTitleAttribute("Set Bool Property '{0}'"),
+    new ezTitleAttribute("Set Bool Property '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -236,7 +236,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAlloc
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Number '{0}' ({1})"),
+    new ezTitleAttribute("Number '{Name}' (={Default})"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -270,7 +270,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Store Number '{0}'"),
+    new ezTitleAttribute("Store Number '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -311,7 +311,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocat
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Bool '{0}' ({1})"),
+    new ezTitleAttribute("Bool '{Name}' (={Default})"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -345,7 +345,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Store Bool '{0}'"),
+    new ezTitleAttribute("Store Bool '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -385,7 +385,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultA
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Toggle Bool '{0}'"),
+    new ezTitleAttribute("Toggle Bool '{Name}' (={Default})"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

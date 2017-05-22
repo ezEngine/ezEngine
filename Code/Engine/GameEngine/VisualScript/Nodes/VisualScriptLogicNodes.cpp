@@ -48,6 +48,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Logic"),
+    new ezTitleAttribute("Compare: {Value1} {Operator} {Value2}"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -125,7 +126,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_CompareExec, 1, ezRTTIDefault
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Logic")
+    new ezCategoryAttribute("Logic"),
+    new ezTitleAttribute("Compare: {Value1} {Operator} {Value2}"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

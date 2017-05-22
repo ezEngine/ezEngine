@@ -26,6 +26,7 @@ public:
   void AddConnection(ezQtConnection* pConnection);
   void RemoveConnection(ezQtConnection* pConnection);
   ezArrayPtr<ezQtConnection*> GetConnections() { return m_Connections; }
+  bool HasAnyConnections() const { return !m_Connections.IsEmpty(); }
 
   const ezPin* GetPin() const { return m_pPin; }
   virtual void SetPin(const ezPin* pPin);

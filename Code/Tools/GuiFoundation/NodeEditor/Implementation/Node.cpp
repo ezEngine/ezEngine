@@ -60,9 +60,23 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
   m_pManager = pManager;
   m_pObject = pObject;
   CreatePins();
-  prepareGeometryChange();
-
   UpdateTitle();
+
+  UpdateGeometry();
+
+  const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>();
+  if (pColorAttr)
+  {
+    ezColorGammaUB col = pColorAttr->GetColor();
+    m_HeaderColor = qRgb(col.r, col.g, col.b);
+  }
+
+  m_DirtyFlags.Add(ezNodeFlags::UpdateTitle);
+}
+
+void ezQtNode::UpdateGeometry()
+{
+  prepareGeometryChange();
 
   auto labelRect = m_pLabel->boundingRect();
 
@@ -129,13 +143,6 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     QPainterPath p;
     p.addRoundedRect(-5, -5, w + 10, maxheight + 10, 5, 5);
     setPath(p);
-  }
-
-  const ezColorAttribute* pColorAttr = pObject->GetType()->GetAttributeByType<ezColorAttribute>();
-  if (pColorAttr)
-  {
-    ezColorGammaUB col = pColorAttr->GetColor();
-    m_HeaderColor = qRgb(col.r, col.g, col.b);
   }
 }
 
@@ -205,11 +212,18 @@ ezBitflags<ezNodeFlags> ezQtNode::GetFlags() const
 
 void ezQtNode::ResetFlags()
 {
-  m_DirtyFlags = ezNodeFlags::None;
+  m_DirtyFlags = ezNodeFlags::UpdateTitle;
 }
 
 void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
+  if (m_DirtyFlags.IsSet(ezNodeFlags::UpdateTitle))
+  {
+    UpdateTitle();
+    UpdateGeometry();
+    m_DirtyFlags.Remove(ezNodeFlags::UpdateTitle);
+  }
+
   auto palette = QApplication::palette();
 
   // Draw background

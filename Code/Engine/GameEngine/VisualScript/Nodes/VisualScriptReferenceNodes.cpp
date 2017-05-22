@@ -28,7 +28,7 @@ ezVisualScriptNode_GetScriptOwner::~ezVisualScriptNode_GetScriptOwner() {}
 void ezVisualScriptNode_GetScriptOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   // we have no input values here that could change, but this will still be executed once after initial startup
-  // after that the value will not change, so no need to reexecute
+  // after that the value will not change, so no need to re-execute
   if (m_bInputValuesChanged)
   {
     ezGameObjectHandle hObject = pInstance->GetOwner();
@@ -93,7 +93,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("References"),
-    new ezTitleAttribute("Child '{0}'"),
+    new ezTitleAttribute("Child '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -161,7 +161,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("References"),
-    new ezTitleAttribute("Component '{0}'"),
+    new ezTitleAttribute("Component '{Type}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -233,7 +233,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("References"),
-    new ezTitleAttribute("Global Object '{0}'"),
+    new ezTitleAttribute("Global Object '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -274,7 +274,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindParent, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("References")
+    new ezCategoryAttribute("References"),
+    new ezTitleAttribute("Parent '{Name}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

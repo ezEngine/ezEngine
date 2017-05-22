@@ -125,3 +125,9 @@ ezOnComponentFinishedAction::DeleteComponent;Delete Component
 ezOnComponentFinishedAction::DeleteEntity;Delete Entity
 ezVisualScriptComponent;Visual Script
 ezAreaDamageComponent;Area Damage
+ezLogicOperator::Equal;=
+ezLogicOperator::Unequal;<>
+ezLogicOperator::Less;<
+ezLogicOperator::LessEqual;<=
+ezLogicOperator::Greater;>
+ezLogicOperator::GreaterEqual;>=

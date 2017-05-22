@@ -196,7 +196,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Log, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Debug")
+    new ezCategoryAttribute("Debug"),
+    new ezTitleAttribute("Log: '{Text}'"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES

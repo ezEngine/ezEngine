@@ -22,6 +22,7 @@ struct ezNodeFlags
     None = 0,
     SelectionChanged = EZ_BIT(0),
     Moved = EZ_BIT(1),
+    UpdateTitle = EZ_BIT(2),
     Default = None
   };
 
@@ -29,6 +30,7 @@ struct ezNodeFlags
   {
     StorageType SelectionChanged : 1;
     StorageType Moved : 1;
+    StorageType UpdateTitle : 1;
   };
 };
 
@@ -41,6 +43,9 @@ public:
 
   const ezDocumentObject* GetObject() const { return m_pObject; }
   virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject);
+
+  void UpdateGeometry();
+
   void CreatePins();
 
   ezQtPin* GetInputPin(const ezPin* pPin);
@@ -51,6 +56,10 @@ public:
 
   void EnableDropShadow(bool enable);
   virtual void UpdateTitle();
+
+  const ezDocumentNodeManager* GetNodeManager() const { return m_pManager; }
+  const ezHybridArray<ezQtPin*, 6>& GetInputPins() const { return m_Inputs; }
+  const ezHybridArray<ezQtPin*, 6>& GetOutputPins() const { return m_Outputs; }
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;

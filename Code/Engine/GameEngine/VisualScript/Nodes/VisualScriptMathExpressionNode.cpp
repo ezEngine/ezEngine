@@ -7,7 +7,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MathExpression, 1, ezRTTIDefa
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Math"),
-    new ezTitleAttribute("Expression '{4}'"),
+    new ezTitleAttribute("Expression '{Expression}'"),
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES

@@ -8,7 +8,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MultiplyAdd, 1, ezRTTIDefault
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Math")
+    new ezCategoryAttribute("Math"),
+    new ezTitleAttribute("'{a1}*{a2} + {b1}*{b2}'"),
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_PROPERTIES
@@ -60,7 +61,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Div, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Math")
+    new ezCategoryAttribute("Math"),
+    new ezTitleAttribute("Div: {a} / {b}"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -106,7 +108,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Min, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Math")
+    new ezCategoryAttribute("Math"),
+    new ezTitleAttribute("Min ({a}, {b})"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -152,7 +155,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Max, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Math")
+    new ezCategoryAttribute("Math"),
+    new ezTitleAttribute("Max ({a}, {b})"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
@@ -198,7 +202,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Clamp, 1, ezRTTIDefaultAlloca
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Math")
+    new ezCategoryAttribute("Math"),
+    new ezTitleAttribute("Clamp ({Min}, {Max})"),
   }
     EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
