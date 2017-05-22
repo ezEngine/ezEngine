@@ -5,6 +5,7 @@
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <GameEngine/Messages/BuildNavMeshMessage.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 1)
 {
@@ -14,6 +15,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 1)
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezBuildNavMeshMessage, OnBuildNavMesh),
+  }
+  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -169,6 +175,11 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
     pModule->GetPxScene()->addActor(*m_pActor);
   }
+}
+
+void ezPxStaticActorComponent::OnBuildNavMesh(ezBuildNavMeshMessage& msg) const
+{
+  AddShapesToNavMesh(GetOwner(), msg);
 }
 
 void ezPxStaticActorComponent::SetMeshFile(const char* szFile)

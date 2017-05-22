@@ -129,6 +129,10 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
   pShape->userData = &m_UserData;
 }
 
+void ezPxShapeComponent::AddToNavMesh(ezBuildNavMeshMessage& msg) const
+{
+}
+
 PxMaterial* ezPxShapeComponent::GetPxMaterial()
 {
   if (m_hSurface.IsValid())

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/IO/OSFile.h>
@@ -117,7 +117,7 @@ bool ezToolsProject::CanCloseProject()
   ezToolsProjectRequest e;
   e.m_Type = ezToolsProjectRequest::Type::CanCloseProject;
   e.m_bCanClose = true;
-  s_Requests.Broadcast(e);
+  s_Requests.Broadcast(e, 1); // when the save dialog pops up and the user presses 'Save' we need to allow one more recursion
 
   return e.m_bCanClose;
 }

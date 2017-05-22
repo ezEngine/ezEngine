@@ -52,7 +52,29 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
   }
 }
 
+void ezPxActorComponent::AddShapesToNavMesh(const ezGameObject* pObject, ezBuildNavMeshMessage& msg) const
+{
+  ezHybridArray<ezPxShapeComponent*, 8> shapes;
+  pObject->TryGetComponentsOfBaseType(shapes);
 
+  for (auto pShape : shapes)
+  {
+    if (pShape->IsActive())
+    {
+      pShape->AddToNavMesh(msg);
+    }
+  }
+
+  for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
+  {
+    // ignore all children that are actors themselves
+    ezPxActorComponent* pActorComponent;
+    if (itChild->TryGetComponentOfBaseType<ezPxActorComponent>(pActorComponent))
+      continue;
+
+    AddShapesToNavMesh(itChild, msg);
+  }
+}
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxActorComponent);
 

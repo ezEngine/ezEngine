@@ -18,7 +18,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezBuildNavMeshMessage, OnBuildNavMesh),
   }
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
@@ -34,7 +33,6 @@ ezPxShapeBoxComponent::ezPxShapeBoxComponent()
 {
   m_vExtents.Set(1.0f);
 }
-
 
 void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -53,17 +51,14 @@ void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
   s >> m_vExtents;
-
-
 }
-
 
 void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
   msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
 }
 
-void ezPxShapeBoxComponent::OnBuildNavMesh(ezBuildNavMeshMessage& msg) const
+void ezPxShapeBoxComponent::AddToNavMesh(ezBuildNavMeshMessage& msg) const
 {
   const ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
 

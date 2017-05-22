@@ -51,6 +51,8 @@ public:
   bool m_bShowBoxObstacles = false;
   bool m_bShowNavMesh = false;
 
+  ezRecastConfig m_NavMeshConfig;
+
 protected:
   virtual void OnSimulationStarted() override;
 

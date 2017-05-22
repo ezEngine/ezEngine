@@ -17,7 +17,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
-  void OnBuildNavMesh(ezBuildNavMeshMessage& msg) const;
+  
 
   // ************************************* PROPERTIES ***********************************
 public:
@@ -34,6 +34,7 @@ protected:
 public:
 
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
+  virtual void AddToNavMesh(ezBuildNavMeshMessage& msg) const override;
 
 protected:
 

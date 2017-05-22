@@ -6,6 +6,9 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <ThirdParty/Recast/Recast.h>
+#include <Foundation/Configuration/CVar.h>
+
+ezCVarBool g_AiShowNavMesh("ai_ShowNavMesh", false, ezCVarFlags::Default, "Draws the navmesh, if one is available");
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +33,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1)
   {
     EZ_MEMBER_PROPERTY("ShowBoxObstacles", m_bShowBoxObstacles),
     EZ_MEMBER_PROPERTY("ShowNavMesh", m_bShowNavMesh),
+    EZ_MEMBER_PROPERTY("NavMeshConfig", m_NavMeshConfig),
   }
   EZ_END_PROPERTIES
 }
@@ -68,7 +72,7 @@ void ezRcNavMeshComponent::Update()
       }
     }
 
-    if (m_bShowNavMesh)
+    if (m_bShowNavMesh || g_AiShowNavMesh)
     {
       const auto& mesh = *m_NavMeshBuilder.m_polyMesh;
 
@@ -122,7 +126,7 @@ void ezRcNavMeshComponent::Update()
         }
       }
 
-      ezDebugRenderer::DrawSolidTriangles(GetWorld(), triangles, ezColor::MidnightBlue);
+      ezDebugRenderer::DrawSolidTriangles(GetWorld(), triangles, ezColor::CadetBlue);
     }
 
     return;
@@ -152,7 +156,7 @@ void ezRcNavMeshComponent::Update()
     ezLog::Dev("Gathering NavMesh description: {0}ms", ezArgF(sw.Checkpoint().GetMilliseconds(), 2));
     ezLog::Dev("NavMesh Box Obstacles: {0}", m_NavMeshDesc.m_BoxObstacles.GetCount());
 
-    m_NavMeshBuilder.Build(m_NavMeshDesc);
+    m_NavMeshBuilder.Build(m_NavMeshDesc, m_NavMeshConfig);
   }
 }
 

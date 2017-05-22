@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
 
+struct ezBuildNavMeshMessage;
 typedef ezComponentManager<class ezPxStaticActorComponent, ezBlockStorageType::FreeList> ezPxStaticActorComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
@@ -20,6 +21,8 @@ public:
   virtual void Deinitialize() override;
 
   virtual void OnSimulationStarted() override;
+
+  void OnBuildNavMesh(ezBuildNavMeshMessage& msg) const;
 
   // ************************************* PROPERTIES ***********************************
 public:

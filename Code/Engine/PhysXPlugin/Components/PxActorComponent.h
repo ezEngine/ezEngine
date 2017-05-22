@@ -1,6 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Components/PxComponent.h>
+
+struct ezBuildNavMeshMessage;
 
 class EZ_PHYSXPLUGIN_DLL ezPxActorComponent : public ezPxComponent
 {
@@ -14,6 +16,7 @@ public:
 
 protected:
   void AddShapesFromObject(ezGameObject* pObject, physx::PxRigidActor* pActor, const ezSimdTransform& ParentTransform);
+  void AddShapesToNavMesh(const ezGameObject* pObject, ezBuildNavMeshMessage& msg) const;
 };
 
 

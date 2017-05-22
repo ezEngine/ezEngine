@@ -3,7 +3,27 @@
 #include <ThirdParty/Recast/Recast.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Configuration/CVar.h>
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezRecastConfig>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("AgentHeight", m_fAgentHeight)->AddAttributes(new ezDefaultValueAttribute(1.5f)),
+    EZ_MEMBER_PROPERTY("AgentRadius", m_fAgentRadius)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
+    EZ_MEMBER_PROPERTY("AgentClimbHeight", m_fAgentClimbHeight)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
+    EZ_MEMBER_PROPERTY("WalkableSlope", m_WalkableSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(45))),
+    EZ_MEMBER_PROPERTY("CellSize", m_fCellSize)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
+    EZ_MEMBER_PROPERTY("CellHeight", m_fCellHeight)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
+    EZ_MEMBER_PROPERTY("MinRegionSize", m_fMinRegionSize)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
+    EZ_MEMBER_PROPERTY("RegionMergeSize", m_fRegionMergeSize)->AddAttributes(new ezDefaultValueAttribute(20.0f)),
+    EZ_MEMBER_PROPERTY("SampleDistanceFactor", m_fDetailMeshSampleDistanceFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("SampleErrorFactor", m_fDetailMeshSampleErrorFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("MaxSimplification", m_fMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(1.3f)),
+    EZ_MEMBER_PROPERTY("MaxEdgeLength", m_fMaxEdgeLength)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 class ezRcBuildContext : public rcContext
 {
@@ -40,7 +60,7 @@ ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder()
   rcFreePolyMeshDetail(m_detailMesh);
 }
 
-void ezRecastNavMeshBuilder::Build(const ezNavMeshDescription& desc)
+void ezRecastNavMeshBuilder::Build(const ezNavMeshDescription& desc, const ezRecastConfig& config)
 {
   EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build");
 
@@ -54,7 +74,7 @@ void ezRecastNavMeshBuilder::Build(const ezNavMeshDescription& desc)
 
   ezLog::Debug("Generate Triangle Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
 
-  BuildRecastNavMesh();
+  BuildRecastNavMesh(config);
 
   ezLog::Debug("Build Recast Nav Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
 }
@@ -136,20 +156,8 @@ void ezRecastNavMeshBuilder::ComputeBoundingBox()
   m_BoundingBox.SetFromPoints(m_Vertices.GetData(), m_Vertices.GetCount());
 }
 
-ezCVarInt g_CVarMinRegionArea("ai_MinRegionArea", 0, ezCVarFlags::Default, "");
-ezCVarInt g_CVarMergeRegionArea("ai_MergeRegionArea", 0, ezCVarFlags::Default, "");
-
-void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg)
+void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& config)
 {
-  const float fAgentHeight = 1.5f;
-  const float fAgentClimb = 0.9f;
-  const float fAgentRadius = 0.2f;
-  const float fMaxEdgeLen = 12.0f;
-  const float fMaxWalkSlope = 45.0f;
-  const float fMinRegionSize = 0.0f;//1
-  const float fRegionMergeSize = 20.0f;//2
-  const float detailSampleDist = 6.0f;
-
   ezMemoryUtils::ZeroFill(&cfg);
   cfg.bmin[0] = m_BoundingBox.m_vMin.x;
   cfg.bmin[1] = m_BoundingBox.m_vMin.y;
@@ -157,27 +165,27 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg)
   cfg.bmax[0] = m_BoundingBox.m_vMax.x;
   cfg.bmax[1] = m_BoundingBox.m_vMax.y;
   cfg.bmax[2] = m_BoundingBox.m_vMax.z;
-  cfg.ch = 0.2f;
-  cfg.cs = 0.3f;
-  cfg.walkableSlopeAngle = fMaxWalkSlope;
-  cfg.walkableHeight = (int)ceilf(fAgentHeight / cfg.ch);
-  cfg.walkableClimb = (int)floorf(fAgentClimb / cfg.ch);
-  cfg.walkableRadius = (int)ceilf(fAgentRadius / cfg.cs);
-  cfg.maxEdgeLen = (int)(fMaxEdgeLen / cfg.cs);
-  cfg.maxSimplificationError = 1.3f;
-  cfg.minRegionArea = g_CVarMinRegionArea;// (int)ezMath::Square(8);// fMinRegionSize / cfg.cs);
-  cfg.mergeRegionArea = g_CVarMergeRegionArea;//(int)ezMath::Square(20);// fRegionMergeSize / cfg.cs);
+  cfg.ch = config.m_fCellHeight;
+  cfg.cs = config.m_fCellSize;
+  cfg.walkableSlopeAngle = config.m_WalkableSlope.GetDegree();
+  cfg.walkableHeight = (int)ceilf(config.m_fAgentHeight / cfg.ch);
+  cfg.walkableClimb = (int)floorf(config.m_fAgentClimbHeight / cfg.ch);
+  cfg.walkableRadius = (int)ceilf(config.m_fAgentRadius / cfg.cs);
+  cfg.maxEdgeLen = (int)(config.m_fMaxEdgeLength / cfg.cs);
+  cfg.maxSimplificationError = config.m_fMaxSimplificationError;
+  cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize / cfg.cs);
+  cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize / cfg.cs);
   cfg.maxVertsPerPoly = 6;
-  cfg.detailSampleDist = detailSampleDist < 0.9f ? 0 : cfg.cs * detailSampleDist;
-  cfg.detailSampleMaxError = cfg.ch * 1.0f;
+  cfg.detailSampleDist = config.m_fDetailMeshSampleDistanceFactor < 0.9f ? 0 : cfg.cs * config.m_fDetailMeshSampleDistanceFactor;
+  cfg.detailSampleMaxError = cfg.ch * config.m_fDetailMeshSampleDistanceFactor;
 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
 
-void ezRecastNavMeshBuilder::BuildRecastNavMesh()
+void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
 {
   rcConfig cfg;
-  FillOutConfig(cfg);
+  FillOutConfig(cfg, config);
 
   ezRcBuildContext* pContext = m_pRecastContext;
   const float* pVertices = &m_Vertices[0].x;
