@@ -321,6 +321,8 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:fast")
   # enable floating point exceptions
   #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:except")
+  # enable default exception handling
+  set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /EHsc")
   
   # enable standard conform casting behavior - casting results always in rvalue
   set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /Zc:rvalueCast")
