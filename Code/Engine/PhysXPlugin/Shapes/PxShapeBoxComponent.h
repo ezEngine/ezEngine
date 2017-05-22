@@ -1,8 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
 typedef ezComponentManager<class ezPxShapeBoxComponent, ezBlockStorageType::FreeList> ezPxShapeBoxComponentManager;
+
+struct ezBuildNavMeshMessage;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeBoxComponent : public ezPxShapeComponent
 {
@@ -15,6 +17,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
+  void OnBuildNavMesh(ezBuildNavMeshMessage& msg) const;
 
   // ************************************* PROPERTIES ***********************************
 public:
