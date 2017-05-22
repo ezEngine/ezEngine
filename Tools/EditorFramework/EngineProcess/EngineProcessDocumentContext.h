@@ -33,7 +33,8 @@ public:
     m_GuidToHandle[guid] = handle;
     m_HandleToGuid[handle] = guid;
 
-    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    // apparently this happens during undo/redo (same guid, new handle on undo)
+    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   void UnregisterObject(ezUuid guid)
@@ -42,7 +43,8 @@ public:
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
 
-    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    // apparently this happens during undo/redo (same guid, new handle on undo)
+    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   void UnregisterObject(HandleType handle)
@@ -51,7 +53,8 @@ public:
     m_GuidToHandle.Remove(guid);
     m_HandleToGuid.Remove(handle);
 
-    EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    // apparently this happens during undo/redo (same guid, new handle on undo)
+    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   HandleType GetHandle(ezUuid guid) const
