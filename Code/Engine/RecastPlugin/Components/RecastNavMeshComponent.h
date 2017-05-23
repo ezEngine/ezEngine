@@ -6,6 +6,8 @@
 #include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 
+class ezRecastWorldModule;
+
 //////////////////////////////////////////////////////////////////////////
 
 class EZ_RECASTPLUGIN_DLL ezRcComponent : public ezComponent
@@ -30,7 +32,12 @@ public:
 
   virtual void Initialize() override;
 
+  ezRecastWorldModule* GetRecastWorldModule() const { return m_pWorldModule; }
+
   void Update(const ezWorldModule::UpdateContext& context);
+
+private:
+  ezRecastWorldModule* m_pWorldModule;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,7 +55,6 @@ public:
 
   void Update();
 
-  bool m_bShowBoxObstacles = false;
   bool m_bShowNavMesh = false;
 
   ezRecastConfig m_NavMeshConfig;
@@ -57,6 +63,5 @@ protected:
   virtual void OnSimulationStarted() override;
 
   ezUInt32 m_uiDelay = 2;
-  ezNavMeshDescription m_NavMeshDesc;
   ezRecastNavMeshBuilder m_NavMeshBuilder;
 };

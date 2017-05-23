@@ -7,6 +7,7 @@
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <ThirdParty/Recast/Recast.h>
 #include <Foundation/Configuration/CVar.h>
+#include <RecastPlugin/WorldModule/RecastWorldModule.h>
 
 ezCVarBool g_AiShowNavMesh("ai_ShowNavMesh", false, ezCVarFlags::Default, "Draws the navmesh, if one is available");
 
@@ -31,7 +32,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ShowBoxObstacles", m_bShowBoxObstacles),
     EZ_MEMBER_PROPERTY("ShowNavMesh", m_bShowNavMesh),
     EZ_MEMBER_PROPERTY("NavMeshConfig", m_NavMeshConfig),
   }
@@ -54,24 +54,11 @@ void ezRcNavMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezRcNavMeshComponent::Update()
 {
+  if (!IsActiveAndSimulating())
+    return;
+
   if (m_uiDelay == 0)
   {
-    if (m_bShowBoxObstacles)
-    {
-      for (const auto& box : m_NavMeshDesc.m_BoxObstacles)
-      {
-        ezBoundingBox bb;
-        bb.SetCenterAndHalfExtents(ezVec3::ZeroVector(), box.m_vHalfExtents);
-
-        ezTransform m;
-        m.SetIdentity();
-        m.m_Rotation = box.m_qRotation.GetAsMat3();
-        m.m_vPosition = box.m_vPosition;
-
-        ezDebugRenderer::DrawSolidBox(GetWorld(), bb, ezColor::Ivory, m);
-      }
-    }
-
     if (m_bShowNavMesh || g_AiShowNavMesh)
     {
       const auto& mesh = *m_NavMeshBuilder.m_polyMesh;
@@ -137,27 +124,9 @@ void ezRcNavMeshComponent::Update()
   if (m_uiDelay > 0)
     return;
 
-  EZ_LOG_BLOCK("NavMeshComponent::Build");
+  m_NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld());
 
-  ezStopwatch sw;
-
-  {
-    m_NavMeshDesc.Clear();
-
-    ezBuildNavMeshMessage msg;
-    msg.m_pNavMeshDescription = &m_NavMeshDesc;
-
-    // gather all nav mesh related information from all objects in the world
-    for (auto it = GetWorld()->GetObjects(); it.IsValid(); ++it)
-    {
-      it->SendMessage(msg);
-    }
-
-    ezLog::Dev("Gathering NavMesh description: {0}ms", ezArgF(sw.Checkpoint().GetMilliseconds(), 2));
-    ezLog::Dev("NavMesh Box Obstacles: {0}", m_NavMeshDesc.m_BoxObstacles.GetCount());
-
-    m_NavMeshBuilder.Build(m_NavMeshDesc, m_NavMeshConfig);
-  }
+  GetManager()->GetRecastWorldModule()->SetNavMesh(m_NavMeshBuilder.m_pNavMesh);
 }
 
 void ezRcNavMeshComponent::OnSimulationStarted()
@@ -173,6 +142,9 @@ ezRcNavMeshComponentManager::~ezRcNavMeshComponentManager() { }
 void ezRcNavMeshComponentManager::Initialize()
 {
   SUPER::Initialize();
+
+  // make sure this world module exists
+  m_pWorldModule = GetWorld()->GetOrCreateModule<ezRecastWorldModule>();
 
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRcNavMeshComponentManager::Update, this);
 

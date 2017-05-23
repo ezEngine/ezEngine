@@ -8,6 +8,8 @@
 class ezRcBuildContext;
 struct rcPolyMesh;
 struct rcPolyMeshDetail;
+class ezWorld;
+class dtNavMesh;
 
 struct ezRecastConfig
 {
@@ -35,16 +37,18 @@ public:
   ezRecastNavMeshBuilder();
   ~ezRecastNavMeshBuilder();
 
-  void Build(const ezNavMeshDescription& desc, const ezRecastConfig& config);
+  ezResult Build(const ezRecastConfig& config, const ezWorld& world);
+  ezResult Build(const ezRecastConfig& config, const ezNavMeshDescription& desc);
 
   rcPolyMesh* m_polyMesh = nullptr;
   rcPolyMeshDetail* m_detailMesh = nullptr;
+  dtNavMesh* m_pNavMesh = nullptr;
 
 private:
   void ReserveMemory(const ezNavMeshDescription& desc);
   void GenerateTriangleMeshFromDescription(const ezNavMeshDescription& desc);
   void ComputeBoundingBox();
-  void BuildRecastNavMesh(const ezRecastConfig& config);
+  ezResult BuildRecastNavMesh(const ezRecastConfig& config);
   void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config);
 
 
@@ -68,5 +72,6 @@ private:
 
   ezRcBuildContext* m_pRecastContext;
 
+  ezResult CreateDetourNavMesh(const ezRecastConfig& config);
 };
 

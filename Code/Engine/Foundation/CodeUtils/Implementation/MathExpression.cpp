@@ -16,7 +16,7 @@ ezMathExpression::ezMathExpression(ezLogInterface* pLog)
 
 
 ezMathExpression::ezMathExpression(const char* szExpressionString, ezLogInterface* pLog)
-  : m_pLog(pLog ? pLog : ezLog::GetThreadLocalLogSystem())
+  : m_pLog(pLog)
 {
   Reset(szExpressionString);
 }

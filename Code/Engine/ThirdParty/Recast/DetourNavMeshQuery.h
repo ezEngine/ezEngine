@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,6 +19,7 @@
 #ifndef DETOURNAVMESHQUERY_H
 #define DETOURNAVMESHQUERY_H
 
+#include "RecastDll.h"
 #include "DetourNavMesh.h"
 #include "DetourStatus.h"
 
@@ -32,7 +33,7 @@
 
 /// Defines polygon filtering and traversal costs for navigation mesh query operations.
 /// @ingroup detour
-class dtQueryFilter
+class RECAST_API dtQueryFilter
 {
 	float m_areaCost[DT_MAX_AREAS];		///< Cost per area type. (Used by default implementation.)
 	unsigned short m_includeFlags;		///< Flags for polygons that can be visited. (Used by default implementation.)
@@ -151,7 +152,7 @@ struct dtRaycastHit
 /// Provides custom polygon query behavior.
 /// Used by dtNavMeshQuery::queryPolygons.
 /// @ingroup detour
-class dtPolyQuery
+class RECAST_API dtPolyQuery
 {
 public:
 	virtual ~dtPolyQuery() { }
@@ -164,7 +165,7 @@ public:
 /// Provides the ability to perform pathfinding related queries against
 /// a navigation mesh.
 /// @ingroup detour
-class dtNavMeshQuery
+class RECAST_API dtNavMeshQuery
 {
 public:
 	dtNavMeshQuery();
@@ -565,11 +566,11 @@ private:
 /// Allocates a query object using the Detour allocator.
 /// @return An allocated query object, or null on failure.
 /// @ingroup detour
-dtNavMeshQuery* dtAllocNavMeshQuery();
+RECAST_API dtNavMeshQuery* dtAllocNavMeshQuery();
 
 /// Frees the specified query object using the Detour allocator.
 ///  @param[in]		query		A query object allocated using #dtAllocNavMeshQuery
 /// @ingroup detour
-void dtFreeNavMeshQuery(dtNavMeshQuery* query);
+RECAST_API void dtFreeNavMeshQuery(dtNavMeshQuery* query);
 
 #endif // DETOURNAVMESHQUERY_H

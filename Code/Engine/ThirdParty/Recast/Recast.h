@@ -19,15 +19,7 @@
 #ifndef RECAST_H
 #define RECAST_H
 
-#ifdef BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
-  #if BUILDSYSTEM_BUILDING_THIRDPARTY_LIB
-    #define RECAST_API __declspec(dllexport)
-  #else
-    #define RECAST_API __declspec(dllimport)
-  #endif
-#else
-  #define RECAST_API
-#endif
+#include "RecastDll.h"
 
 /// The value of PI used by Recast.
 static const float RC_PI = 3.14159265f;

@@ -3,6 +3,10 @@
 #include <ThirdParty/Recast/Recast.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Core/World/World.h>
+#include <GameEngine/Messages/BuildNavMeshMessage.h>
+#include <ThirdParty/Recast/DetourNavMeshBuilder.h>
+#include <ThirdParty/Recast/DetourNavMesh.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezRecastConfig>)
 {
@@ -60,9 +64,32 @@ ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder()
   rcFreePolyMeshDetail(m_detailMesh);
 }
 
-void ezRecastNavMeshBuilder::Build(const ezNavMeshDescription& desc, const ezRecastConfig& config)
+ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorld& world)
 {
-  EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build");
+  EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build (world)");
+
+  ezStopwatch sw;
+
+  ezNavMeshDescription desc;
+
+  ezBuildNavMeshMessage msg;
+  msg.m_pNavMeshDescription = &desc;
+
+  // gather all nav mesh related information from all objects in the world
+  for (auto it = world.GetObjects(); it.IsValid(); ++it)
+  {
+    it->SendMessage(msg);
+  }
+
+  ezLog::Debug("Gathering NavMesh description: {0}ms", ezArgF(sw.Checkpoint().GetMilliseconds(), 2));
+  ezLog::Debug("NavMesh Box Obstacles: {0}", desc.m_BoxObstacles.GetCount());
+
+  return Build(config, desc);
+}
+
+ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezNavMeshDescription& desc)
+{
+  EZ_LOG_BLOCK("ezRecastNavMeshBuilder::Build (desc)");
 
   ezStopwatch watch;
 
@@ -74,9 +101,12 @@ void ezRecastNavMeshBuilder::Build(const ezNavMeshDescription& desc, const ezRec
 
   ezLog::Debug("Generate Triangle Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
 
-  BuildRecastNavMesh(config);
+  if (BuildRecastNavMesh(config).Failed())
+    return EZ_FAILURE;
 
   ezLog::Debug("Build Recast Nav Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
+
+  return EZ_SUCCESS;
 }
 
 void ezRecastNavMeshBuilder::ReserveMemory(const ezNavMeshDescription& desc)
@@ -182,7 +212,7 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
 
-void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
+ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
 {
   rcConfig cfg;
   FillOutConfig(cfg, config);
@@ -197,15 +227,16 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
   if (!rcCreateHeightfield(pContext, *heightfield, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
   {
     pContext->log(RC_LOG_ERROR, "Could not create solid heightfield");
-    return;
+    return EZ_FAILURE;
   }
 
+  // TODO Instead of this, it should use area IDs and then clear the non-walkable triangles
   rcMarkWalkableTriangles(pContext, cfg.walkableSlopeAngle, pVertices, m_Vertices.GetCount(), pTriangles, m_Triangles.GetCount(), m_TriangleAreaIDs.GetData());
 
   if (!rcRasterizeTriangles(pContext, pVertices, m_Vertices.GetCount(), pTriangles, m_TriangleAreaIDs.GetData(), m_Triangles.GetCount(), *heightfield, cfg.walkableClimb))
   {
     pContext->log(RC_LOG_ERROR, "Could not rasterize triangles");
-    return;
+    return EZ_FAILURE;
   }
 
   // Optional stuff
@@ -226,13 +257,13 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
   if (!rcBuildCompactHeightfield(pContext, cfg.walkableHeight, cfg.walkableClimb, *heightfield, *compactHeightfield))
   {
     pContext->log(RC_LOG_ERROR, "Could not build compact data");
-    return;
+    return EZ_FAILURE;
   }
 
   if (!rcErodeWalkableArea(pContext, cfg.walkableRadius, *compactHeightfield))
   {
     pContext->log(RC_LOG_ERROR, "Could not erode with character radius");
-    return;
+    return EZ_FAILURE;
   }
 
   // (Optional) Mark areas.
@@ -252,14 +283,14 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
       if (!rcBuildDistanceField(pContext, *compactHeightfield))
       {
         pContext->log(RC_LOG_ERROR, "Could not build distance field.");
-        return;
+        return EZ_FAILURE;
       }
 
       // Partition the walkable surface into simple regions without holes.
       if (!rcBuildRegions(pContext, *compactHeightfield, 0, cfg.minRegionArea, cfg.mergeRegionArea))
       {
         pContext->log(RC_LOG_ERROR, "Could not build watershed regions.");
-        return;
+        return EZ_FAILURE;
       }
     }
 
@@ -270,7 +301,7 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
     //  if (!rcBuildRegionsMonotone(pContext, *compactHeightfield, 0, cfg.minRegionArea, cfg.mergeRegionArea))
     //  {
     //    pContext->log(RC_LOG_ERROR, "Could not build monotone regions.");
-    //    return;
+    //    return EZ_FAILURE;
     //  }
     //}
 
@@ -280,7 +311,7 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
     //  if (!rcBuildLayerRegions(pContext, *compactHeightfield, 0, cfg.minRegionArea))
     //  {
     //    pContext->log(RC_LOG_ERROR, "Could not build layer regions.");
-    //    return;
+    //    return EZ_FAILURE;
     //  }
     //}
   }
@@ -291,7 +322,7 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
   if (!rcBuildContours(pContext, *compactHeightfield, cfg.maxSimplificationError, cfg.maxEdgeLen, *contourSet))
   {
     pContext->log(RC_LOG_ERROR, "Could not create contours");
-    return;
+    return EZ_FAILURE;
   }
 
   m_polyMesh = rcAllocPolyMesh();
@@ -300,7 +331,7 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
   if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, *m_polyMesh))
   {
     pContext->log(RC_LOG_ERROR, "Could not triangulate contours");
-    return;
+    return EZ_FAILURE;
   }
 
   m_detailMesh = rcAllocPolyMeshDetail();
@@ -309,10 +340,71 @@ void ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config)
   if (!rcBuildPolyMeshDetail(pContext, *m_polyMesh, *compactHeightfield, cfg.detailSampleDist, cfg.detailSampleMaxError, *m_detailMesh))
   {
     pContext->log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
-    return;
+    return EZ_FAILURE;
   }
 
-  ezLog::Success("Recast Nav Mesh generated.");
+  //////////////////////////////////////////////////////////////////////////
+  // Detour Navmesh
+
+  // TODO modify area IDs and flags 
+
+  for (int i = 0; i < m_polyMesh->npolys; ++i)
+  {
+    if (m_polyMesh->areas[i] == RC_WALKABLE_AREA)
+    {
+      m_polyMesh->flags[i] = 0xFFFF;
+    }
+  }
+
+  return CreateDetourNavMesh(config);
+}
+
+
+ezResult ezRecastNavMeshBuilder::CreateDetourNavMesh(const ezRecastConfig& config)
+{
+  dtNavMeshCreateParams params;
+  ezMemoryUtils::ZeroFill(&params);
+
+  params.verts = m_polyMesh->verts;
+  params.vertCount = m_polyMesh->nverts;
+  params.polys = m_polyMesh->polys;
+  params.polyAreas = m_polyMesh->areas;
+  params.polyFlags = m_polyMesh->flags;
+  params.polyCount = m_polyMesh->npolys;
+  params.nvp = m_polyMesh->nvp;
+  params.detailMeshes = m_detailMesh->meshes;
+  params.detailVerts = m_detailMesh->verts;
+  params.detailVertsCount = m_detailMesh->nverts;
+  params.detailTris = m_detailMesh->tris;
+  params.detailTriCount = m_detailMesh->ntris;
+  params.walkableHeight = config.m_fAgentHeight;
+  params.walkableRadius = config.m_fAgentRadius;
+  params.walkableClimb = config.m_fAgentClimbHeight;
+  rcVcopy(params.bmin, m_polyMesh->bmin);
+  rcVcopy(params.bmax, m_polyMesh->bmax);
+  params.cs = config.m_fCellSize;
+  params.ch = config.m_fCellHeight;
+  params.buildBvTree = true;
+
+  ezUInt8* navData = nullptr;
+  ezInt32 navDataSize = 0;
+
+  if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+  {
+    ezLog::Error("Could not build Detour navmesh.");
+    return EZ_FAILURE;
+  }
+
+  m_pNavMesh = dtAllocNavMesh();
+
+  if (dtStatusFailed(m_pNavMesh->init(navData, navDataSize, DT_TILE_FREE_DATA)))
+  {
+    dtFree(navData);
+    ezLog::Error("Could not init Detour navmesh");
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
 }
 
 

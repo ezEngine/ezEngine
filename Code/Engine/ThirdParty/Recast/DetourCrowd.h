@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -18,6 +18,8 @@
 
 #ifndef DETOURCROWD_H
 #define DETOURCROWD_H
+
+#include "RecastDll.h"
 
 #include "DetourNavMeshQuery.h"
 #include "DetourObstacleAvoidance.h"
@@ -200,7 +202,7 @@ struct dtCrowdAgentDebugInfo
 
 /// Provides local steering behaviors for a group of agents. 
 /// @ingroup crowd
-class dtCrowd
+class RECAST_API dtCrowd
 {
 	int m_maxAgents;
 	dtCrowdAgent* m_agents;
@@ -353,12 +355,12 @@ private:
 /// Allocates a crowd object using the Detour allocator.
 /// @return A crowd object that is ready for initialization, or null on failure.
 ///  @ingroup crowd
-dtCrowd* dtAllocCrowd();
+RECAST_API dtCrowd* dtAllocCrowd();
 
 /// Frees the specified crowd object using the Detour allocator.
 ///  @param[in]		ptr		A crowd object allocated using #dtAllocCrowd
 ///  @ingroup crowd
-void dtFreeCrowd(dtCrowd* ptr);
+RECAST_API void dtFreeCrowd(dtCrowd* ptr);
 
 
 #endif // DETOURCROWD_H

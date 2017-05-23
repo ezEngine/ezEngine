@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/OpenDdlParser.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Logging/Log.h>
 
 /// \brief Represents a single 'object' in a DDL document, e.g. either a custom type or a primitives list.
 class EZ_FOUNDATION_DLL ezOpenDdlReaderElement
@@ -119,7 +120,7 @@ public:
   /// \param pLog is used for outputting details about parsing errors. If nullptr is given, no details are logged.
   /// \param uiCacheSizeInKB is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single list,
   /// increasing the cache size can improve performance, but typically this doesn't need to be adjusted.
-  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = nullptr, ezUInt32 uiCacheSizeInKB = 4); // [tested]
+  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem(), ezUInt32 uiCacheSizeInKB = 4); // [tested]
 
   /// \brief Every document has exactly one root element.
   const ezOpenDdlReaderElement* GetRootElement() const; // [tested]

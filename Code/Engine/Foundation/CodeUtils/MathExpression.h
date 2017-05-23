@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -33,7 +33,7 @@ public:
   /// If anything goes wrong it is logged and the math expression is in an invalid state.
   /// \param log
   ///   If null, default log interface will be used.
-  ezMathExpression(const char* szExpressionString, ezLogInterface* pLog = nullptr);  // [tested]
+  ezMathExpression(const char* szExpressionString, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());  // [tested]
 
   /// \brief Reinits using the given expression.
   void Reset(const char* szExpressionString);

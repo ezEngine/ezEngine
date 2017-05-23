@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,6 +19,7 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
+#include "RecastDll.h"
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
@@ -320,7 +321,7 @@ struct dtNavMeshParams
 
 /// A navigation mesh based on tiles of convex polygons.
 /// @ingroup detour
-class dtNavMesh
+class RECAST_API dtNavMesh
 {
 public:
 	dtNavMesh();
@@ -660,12 +661,12 @@ private:
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.
 ///  @ingroup detour
-dtNavMesh* dtAllocNavMesh();
+RECAST_API dtNavMesh* dtAllocNavMesh();
 
 /// Frees the specified navigation mesh object using the Detour allocator.
 ///  @param[in]	navmesh		A navigation mesh allocated using #dtAllocNavMesh
 ///  @ingroup detour
-void dtFreeNavMesh(dtNavMesh* navmesh);
+RECAST_API void dtFreeNavMesh(dtNavMesh* navmesh);
 
 #endif // DETOURNAVMESH_H
 
