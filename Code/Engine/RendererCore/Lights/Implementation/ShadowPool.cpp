@@ -338,6 +338,12 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 {
   EZ_ASSERT_DEBUG(pDirLight->GetCastShadows(), "Implementation error");
 
+  // No shadows in orthographic views
+  if (pReferenceView->GetCamera()->IsOrthographic())
+  {
+    return ezInvalidIndex;
+  }
+
   ShadowData* pData = nullptr;
   if (GetDataForExtraction(pDirLight, pReferenceView, pDirLight->GetMinShadowRange(), sizeof(ezDirShadowData), pData))
   {
@@ -595,6 +601,7 @@ ezGALBufferHandle ezShadowPool::UpdateShadowDataBuffer(ezGALContext* pGALContext
       pGALContext->UpdateBuffer(s_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
     }
 
+    packedShadowData.Clear();
     s_bShadowDataBufferUpdated = true;
   }
 
@@ -673,8 +680,6 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
   ezInt32 iCurrentStatsOffset = 270;
 #endif
 
-  auto& packedShadowData = s_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
-
   for (auto& sorted : s_SortedShadowData)
   {
     ezUInt32 uiShadowDataIndex = sorted.m_uiIndex;
@@ -726,6 +731,8 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
     }
 
     // Fill shadow data
+    auto& packedShadowData = s_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
+
     if (shadowData.m_uiType == LIGHT_TYPE_DIR)
     {
       ezUInt32 uiNumCascades = shadowData.m_Views.GetCount();
