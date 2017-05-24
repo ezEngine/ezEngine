@@ -2428,7 +2428,7 @@ o
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{3}
 		f %PenumbraSize{0xCDCC4C3D}
-		f %SlopeBias{0x0000803E}
+		f %SlopeBias{0x9A99193E}
 		f %SplitModeWeight{0x3333333F}
 	}
 }
@@ -2651,7 +2651,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{2814080455149140479}
+		u4 %Hash{2028951618893548324}
 		VarArray %Outputs{}
 		VarArray %References
 		{

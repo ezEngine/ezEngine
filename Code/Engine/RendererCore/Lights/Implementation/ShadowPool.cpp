@@ -783,13 +783,13 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
       float cascadeSize = pFirstCascadeCamera->GetFovOrDim();
       float texelSize = 1.0f / uiShadowMapSize;
       float penumbraSize = ezMath::Max(shadowData.m_fPenumbraSize / cascadeSize, texelSize);
-      float goodPenumbraSize = 4.0f / uiShadowMapSize;
+      float goodPenumbraSize = 8.0f / uiShadowMapSize;
       float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
 
       // params
       {
         // tweak values to keep the default values consistent with spot and point lights
-        float slopeBias = shadowData.m_fSlopeBias * ezMath::Max(penumbraSize, goodPenumbraSize) * 2.0f;
+        float slopeBias = shadowData.m_fSlopeBias * ezMath::Max(penumbraSize, goodPenumbraSize);
         float constantBias = shadowData.m_fConstantBias * 0.2f;
         ezUInt32 uilastCascadeIndex = uiNumCascades - 1;
 
@@ -811,10 +811,10 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
 
         ezUInt32 uiParams2Index = GET_SHADOW_PARAMS2_INDEX(shadowData.m_uiPackedDataOffset);
         ezVec4& shadowParams2 = packedShadowData[uiParams2Index];
-        shadowParams2.x = 1.0f - ezMath::Max(penumbraSize, goodPenumbraSize) * 2.0f;
+        shadowParams2.x = 1.0f - (ezMath::Max(penumbraSize, goodPenumbraSize) + texelSize) * 2.0f;
         shadowParams2.y = ditherMultiplier;
         shadowParams2.z = ditherMultiplier * zRange;
-        shadowParams2.w = penumbraSizeIncrement;
+        shadowParams2.w = penumbraSizeIncrement * relativeShadowSize;
       }
 
       // fadeout
