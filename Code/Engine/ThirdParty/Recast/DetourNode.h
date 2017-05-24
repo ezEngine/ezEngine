@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -46,7 +46,7 @@ struct dtNode
 
 static const int DT_MAX_STATES_PER_NODE = 1 << DT_NODE_STATE_BITS;	// number of extra states per node. See dtNode::state
 
-class dtNodePool
+class RECAST_API dtNodePool
 {
 public:
 	dtNodePool(int maxNodes, int hashSize);
@@ -105,7 +105,7 @@ private:
 	int m_nodeCount;
 };
 
-class dtNodeQueue
+class RECAST_API dtNodeQueue
 {
 public:
 	dtNodeQueue(int n);

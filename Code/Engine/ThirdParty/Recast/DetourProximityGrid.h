@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,7 +19,9 @@
 #ifndef DETOURPROXIMITYGRID_H
 #define DETOURPROXIMITYGRID_H
 
-class dtProximityGrid
+#include "RecastDll.h"
+
+class RECAST_API dtProximityGrid
 {
 	float m_cellSize;
 	float m_invCellSize;
@@ -66,8 +68,8 @@ private:
 	dtProximityGrid& operator=(const dtProximityGrid&);
 };
 
-dtProximityGrid* dtAllocProximityGrid();
-void dtFreeProximityGrid(dtProximityGrid* ptr);
+RECAST_API dtProximityGrid* dtAllocProximityGrid();
+RECAST_API void dtFreeProximityGrid(dtProximityGrid* ptr);
 
 
 #endif // DETOURPROXIMITYGRID_H

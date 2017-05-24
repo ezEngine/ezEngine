@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,10 +19,11 @@
 #ifndef DETOURLOCALBOUNDARY_H
 #define DETOURLOCALBOUNDARY_H
 
+#include "RecastDll.h"
 #include "DetourNavMeshQuery.h"
 
 
-class dtLocalBoundary
+class RECAST_API dtLocalBoundary
 {
 	static const int MAX_LOCAL_SEGS = 8;
 	static const int MAX_LOCAL_POLYS = 16;

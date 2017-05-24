@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,7 +23,7 @@
 
 /// Represents a dynamic polygon corridor used to plan agent movement.
 /// @ingroup crowd, detour
-class dtPathCorridor
+class RECAST_API dtPathCorridor
 {
 	float m_pos[3];
 	float m_target[3];
@@ -139,13 +139,13 @@ private:
 	dtPathCorridor& operator=(const dtPathCorridor&);
 };
 
-int dtMergeCorridorStartMoved(dtPolyRef* path, const int npath, const int maxPath,
+RECAST_API int dtMergeCorridorStartMoved(dtPolyRef* path, const int npath, const int maxPath,
 							  const dtPolyRef* visited, const int nvisited);
 
-int dtMergeCorridorEndMoved(dtPolyRef* path, const int npath, const int maxPath,
+RECAST_API int dtMergeCorridorEndMoved(dtPolyRef* path, const int npath, const int maxPath,
 							const dtPolyRef* visited, const int nvisited);
 
-int dtMergeCorridorStartShortcut(dtPolyRef* path, const int npath, const int maxPath,
+RECAST_API int dtMergeCorridorStartShortcut(dtPolyRef* path, const int npath, const int maxPath,
 								 const dtPolyRef* visited, const int nvisited);
 
 #endif // DETOUTPATHCORRIDOR_H

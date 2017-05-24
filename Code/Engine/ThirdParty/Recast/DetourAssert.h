@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,6 +19,8 @@
 #ifndef DETOURASSERT_H
 #define DETOURASSERT_H
 
+#include "RecastDll.h"
+
 // Note: This header file's only purpose is to include define assert.
 // Feel free to change the file and include your own implementation instead.
 
@@ -38,10 +40,10 @@ typedef void (dtAssertFailFunc)(const char* expression, const char* file, int li
 
 /// Sets the base custom assertion failure function to be used by Detour.
 ///  @param[in]		assertFailFunc	The function to be invoked in case of failure of #dtAssert
-void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc);
+RECAST_API void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc);
 
 /// Gets the base custom assertion failure function to be used by Detour.
-dtAssertFailFunc* dtAssertFailGetCustom();
+RECAST_API dtAssertFailFunc* dtAssertFailGetCustom();
 
 #	include <assert.h> 
 #	define dtAssert(expression) \

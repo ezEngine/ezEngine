@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -26,7 +26,7 @@ static const unsigned int DT_PATHQ_INVALID = 0;
 
 typedef unsigned int dtPathQueueRef;
 
-class dtPathQueue
+class RECAST_API dtPathQueue
 {
 	struct PathQuery
 	{

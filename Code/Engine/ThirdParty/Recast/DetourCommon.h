@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,6 +19,7 @@
 #ifndef DETOURCOMMON_H
 #define DETOURCOMMON_H
 
+#include "RecastDll.h"
 #include "DetourMath.h"
 #include <stddef.h>
 
@@ -363,7 +364,7 @@ inline bool dtOverlapBounds(const float* amin, const float* amax,
 ///  @param[in]		a		Vertex A of triangle ABC. [(x, y, z)]
 ///  @param[in]		b		Vertex B of triangle ABC. [(x, y, z)]
 ///  @param[in]		c		Vertex C of triangle ABC. [(x, y, z)]
-void dtClosestPtPointTriangle(float* closest, const float* p,
+RECAST_API void dtClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c);
 
 /// Derives the y-axis height of the closest point on the triangle from the specified reference point.
@@ -372,14 +373,14 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 ///  @param[in]		b		Vertex B of triangle ABC. [(x, y, z)]
 ///  @param[in]		c		Vertex C of triangle ABC. [(x, y, z)]
 ///  @param[out]	h		The resulting height.
-bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h);
+RECAST_API bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h);
 
-bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
+RECAST_API bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
 							  const float* verts, int nverts,
 							  float& tmin, float& tmax,
 							  int& segMin, int& segMax);
 
-bool dtIntersectSegSeg2D(const float* ap, const float* aq,
+RECAST_API bool dtIntersectSegSeg2D(const float* ap, const float* aq,
 						 const float* bp, const float* bq,
 						 float& s, float& t);
 
@@ -388,19 +389,19 @@ bool dtIntersectSegSeg2D(const float* ap, const float* aq,
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * @p nverts]
 ///  @param[in]		nverts	The number of vertices. [Limit: >= 3]
 /// @return True if the point is inside the polygon.
-bool dtPointInPolygon(const float* pt, const float* verts, const int nverts);
+RECAST_API bool dtPointInPolygon(const float* pt, const float* verts, const int nverts);
 
-bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
+RECAST_API bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
 							float* ed, float* et);
 
-float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t);
+RECAST_API float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t);
 
 /// Derives the centroid of a convex polygon.
 ///  @param[out]	tc		The centroid of the polgyon. [(x, y, z)]
 ///  @param[in]		idx		The polygon indices. [(vertIndex) * @p nidx]
 ///  @param[in]		nidx	The number of indices in the polygon. [Limit: >= 3]
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * vertCount]
-void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
+RECAST_API void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
 
 /// Determines if the two convex polygons overlap on the xz-plane.
 ///  @param[in]		polya		Polygon A vertices.	[(x, y, z) * @p npolya]
@@ -408,7 +409,7 @@ void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const floa
 ///  @param[in]		polyb		Polygon B vertices.	[(x, y, z) * @p npolyb]
 ///  @param[in]		npolyb		The number of vertices in polygon B.
 /// @return True if the two polygons overlap.
-bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
+RECAST_API bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 						 const float* polyb, const int npolyb);
 
 /// @}

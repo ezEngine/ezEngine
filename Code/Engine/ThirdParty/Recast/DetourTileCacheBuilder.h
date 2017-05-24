@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -76,7 +76,7 @@ struct dtTileCachePolyMesh
 };
 
 
-struct dtTileCacheAlloc
+struct RECAST_API dtTileCacheAlloc
 {
 	virtual ~dtTileCacheAlloc() {}
 
@@ -93,7 +93,7 @@ struct dtTileCacheAlloc
 	}
 };
 
-struct dtTileCacheCompressor
+struct RECAST_API dtTileCacheCompressor
 {
 	virtual ~dtTileCacheCompressor() { }
 
@@ -105,41 +105,41 @@ struct dtTileCacheCompressor
 };
 
 
-dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
+RECAST_API dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   dtTileCacheLayerHeader* header,
 							   const unsigned char* heights,
 							   const unsigned char* areas,
 							   const unsigned char* cons,
 							   unsigned char** outData, int* outDataSize);
 
-void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer);
+RECAST_API void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer);
 
-dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompressor* comp,
+RECAST_API dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompressor* comp,
 									unsigned char* compressed, const int compressedSize,
 									dtTileCacheLayer** layerOut);
 
-dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc);
-void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset);
+RECAST_API dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc);
+RECAST_API void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset);
 
-dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc);
-void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh);
+RECAST_API dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc);
+RECAST_API void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh);
 
-dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+RECAST_API dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
 							const float* pos, const float radius, const float height, const unsigned char areaId);
 
-dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+RECAST_API dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
 					   const float* bmin, const float* bmax, const unsigned char areaId);
 
-dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
+RECAST_API dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 								 dtTileCacheLayer& layer,
 								 const int walkableClimb);
 
-dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
+RECAST_API dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 								  dtTileCacheLayer& layer,
 								  const int walkableClimb, 	const float maxError,
 								  dtTileCacheContourSet& lcset);
 
-dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
+RECAST_API dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 								  dtTileCacheContourSet& lcset,
 								  dtTileCachePolyMesh& mesh);
 
@@ -147,7 +147,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 /// Tile layer data does not need endian swapping as it consits only of bytes.
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
-bool dtTileCacheHeaderSwapEndian(unsigned char* data, const int dataSize);
+RECAST_API bool dtTileCacheHeaderSwapEndian(unsigned char* data, const int dataSize);
 
 
 #endif // DETOURTILECACHEBUILDER_H

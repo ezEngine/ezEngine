@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,6 +19,8 @@
 #ifndef DETOUROBSTACLEAVOIDANCE_H
 #define DETOUROBSTACLEAVOIDANCE_H
 
+#include "RecastDll.h"
+
 struct dtObstacleCircle
 {
 	float p[3];				///< Position of the obstacle
@@ -35,7 +37,7 @@ struct dtObstacleSegment
 };
 
 
-class dtObstacleAvoidanceDebugData
+class RECAST_API dtObstacleAvoidanceDebugData
 {
 public:
 	dtObstacleAvoidanceDebugData();
@@ -73,8 +75,8 @@ private:
 	float* m_tpen;
 };
 
-dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData();
-void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr);
+RECAST_API dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData();
+RECAST_API void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr);
 
 
 static const int DT_MAX_PATTERN_DIVS = 32;	///< Max numver of adaptive divs.
@@ -94,7 +96,7 @@ struct dtObstacleAvoidanceParams
 	unsigned char adaptiveDepth;	///< adaptive
 };
 
-class dtObstacleAvoidanceQuery
+class RECAST_API dtObstacleAvoidanceQuery
 {
 public:
 	dtObstacleAvoidanceQuery();
@@ -152,8 +154,8 @@ private:
 	int m_nsegments;
 };
 
-dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery();
-void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr);
+RECAST_API dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery();
+RECAST_API void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr);
 
 
 #endif // DETOUROBSTACLEAVOIDANCE_H

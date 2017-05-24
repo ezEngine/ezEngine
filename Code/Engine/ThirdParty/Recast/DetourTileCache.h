@@ -1,9 +1,8 @@
-#ifndef DETOURTILECACHE_H
+﻿#ifndef DETOURTILECACHE_H
 #define DETOURTILECACHE_H
 
+#include "RecastDll.h"
 #include "DetourStatus.h"
-
-
 
 typedef unsigned int dtObstacleRef;
 
@@ -86,7 +85,7 @@ struct dtTileCacheParams
 	int maxObstacles;
 };
 
-struct dtTileCacheMeshProcess
+struct RECAST_API dtTileCacheMeshProcess
 {
 	virtual ~dtTileCacheMeshProcess() { }
 
@@ -95,7 +94,7 @@ struct dtTileCacheMeshProcess
 };
 
 
-class dtTileCache
+class RECAST_API dtTileCache
 {
 public:
 	dtTileCache();
@@ -241,7 +240,7 @@ private:
 	int m_nupdate;
 };
 
-dtTileCache* dtAllocTileCache();
-void dtFreeTileCache(dtTileCache* tc);
+RECAST_API dtTileCache* dtAllocTileCache();
+RECAST_API void dtFreeTileCache(dtTileCache* tc);
 
 #endif

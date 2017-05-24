@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Threading/Lock.h>
@@ -12,6 +12,11 @@
 #include <RendererCore/Components/CameraComponent.h>
 #include <GameEngine/Components/SliderComponent.h>
 #include <GameEngine/Components/InputComponent.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <InputXBox360/InputDeviceXBox.h>
+ezInputDeviceXBox360 g_XboxInputDevice;
+#endif
 
 ezPlayerApplication::ezPlayerApplication()
   : ezGameApplication("ezPlayer", ezGameApplicationType::StandAlone, nullptr)
