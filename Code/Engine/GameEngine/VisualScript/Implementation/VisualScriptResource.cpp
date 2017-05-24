@@ -222,7 +222,7 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
       {
         // make sure no node is inserted twice
         // this may happen if a derived class overrides a message handler
-        if (!m_MessageHandlers.Contains(msgType->GetMessageId()))
+        if (!m_MessageHandlers.Contains(msgType->GetMessageId(), (ezUInt16)uiNode))
         {
           m_MessageHandlers.Insert(msgType->GetMessageId(), (ezUInt16)uiNode);
         }

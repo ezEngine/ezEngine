@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template<typename KEY, typename VALUE>
 inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocatorBase* pAllocator) : m_Data(pAllocator)
@@ -236,6 +236,31 @@ EZ_FORCE_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key) const
 {
   return Find(key) != ezInvalidIndex;
 }
+
+template<typename KEY, typename VALUE>
+bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key, const VALUE& value) const
+{
+  /// \test this is new
+
+  ezUInt32 atpos = LowerBound(key);
+
+  if (atpos == ezInvalidIndex)
+    return false;
+
+  while (atpos < m_Data.GetCount())
+  {
+    if (m_Data[atpos].key != key)
+      return false;
+
+    if (m_Data[atpos].value == value)
+      return true;
+
+    ++atpos;
+  }
+
+  return false;
+}
+
 
 template<typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE void ezArrayMapBase<KEY, VALUE>::Reserve(ezUInt32 size)

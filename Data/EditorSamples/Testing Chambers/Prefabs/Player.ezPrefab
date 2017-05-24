@@ -14,6 +14,25 @@ o
 		}
 	}
 }
+o
+{
+	Uuid %id{u4{14283332304885699466,5570654917162997573}}
+	s %t{"ezSpotLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{0}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
+		Angle %InnerSpotAngle{f{0x920A863E}}
+		f %Intensity{0x00007A44}
+		ColorGamma %LightColor{u1{255,255,255,255}}
+		Angle %OuterSpotAngle{f{0xF3665F3F}}
+		f %PenumbraSize{0xCDCCCC3D}
+		f %Range{0}
+		f %SlopeBias{0x0000803E}
+	}
+}
 AssetInfo
 {
 	Uuid %id{u4{9948428539788972452,5693514604989640662}}
@@ -25,7 +44,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9948428539788972452,5693514604989640662}}
-		u4 %Hash{5805305022087446012}
+		u4 %Hash{11338022653874829012}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -90,6 +109,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{13819290468574562151,9874296431289774898}}
+			Uuid{u4{14283332304885699466,5570654917162997573}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x78917731,0x368EB525,0xB09A2BBE}}

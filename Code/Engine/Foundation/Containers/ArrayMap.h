@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
 
@@ -105,6 +105,9 @@ public:
 
   /// \brief Returns whether an element with the given key exists.
   bool Contains(const KEY& key) const; // [tested]
+
+  /// \brief Returns whether an element with the given key and value already exists.
+  bool Contains(const KEY& key, const VALUE& value) const;
 
   /// \brief Reserves enough memory to store \a size elements.
   void Reserve(ezUInt32 size); // [tested]

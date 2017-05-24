@@ -9,6 +9,11 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <InputXBox360/InputDeviceXBox.h>
+ezInputDeviceXBox360 g_XboxInputDevice;
+#endif
+
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
 {
