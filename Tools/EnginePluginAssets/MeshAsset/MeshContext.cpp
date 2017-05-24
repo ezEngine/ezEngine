@@ -63,6 +63,9 @@ void ezMeshContext::OnInitialize()
     obj.m_sName.Assign("MeshPreview");
     pWorld->CreateObject(obj, m_pMeshObject);
 
+    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
+    m_pMeshObject->GetTags().Set(tagCastShadows);
+
     ezMeshComponent::CreateComponent(m_pMeshObject, pMesh);
     ezStringBuilder sMeshGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
@@ -80,6 +83,7 @@ void ezMeshContext::OnInitialize()
 
     ezDirectionalLightComponent* pDirLight;
     ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
+    pDirLight->SetCastShadows(true);
 
     ezAmbientLightComponent* pAmbLight;
     ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);

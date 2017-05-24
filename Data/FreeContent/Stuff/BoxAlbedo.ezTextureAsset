@@ -1,0 +1,59 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7671202743307448497,5571377936639085308}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{7426557848921589900,5501373919580532739}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Stuff/Box_basecolor.png"}
+		}
+		Uuid %DocumentID{u4{7426557848921589900,5501373919580532739}}
+		u4 %Hash{16138391200035649458}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{7671202743307448497,5571377936639085308}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		b %Compression{1}
+		s %Input1{"Stuff/Box_basecolor.png"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+	}
+}
+}
+Types{}

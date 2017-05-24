@@ -2042,9 +2042,9 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 5aca09be-6ccf-4dda-9281-2ffd1b411a96 }"}
+			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
 		}
-		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
+		s %Mesh{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 	}
 }
 o
@@ -2651,10 +2651,11 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{10011592788741584286}
+		u4 %Hash{2814080455149140479}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
 			s{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
 			s{"{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"}
 			s{"{ 15723cbd-9706-4c86-b695-bd945c5ada6a }"}
@@ -2662,6 +2663,7 @@ AssetInfo
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
+			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
 			s{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
 			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
@@ -2670,7 +2672,6 @@ AssetInfo
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 			s{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
 			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
-			s{"{ 7b9a9c53-8684-44b3-97da-9e5afd0fd369 }"}
 			s{"{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }"}
 			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
 			s{"{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }"}
@@ -2791,7 +2792,7 @@ o
 	{
 		b %Active{1}
 		s %CubeMap{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
-		f %ExposureBias{0x3333333F}
+		f %ExposureBias{0x0000803F}
 		b %InverseTonemap{0}
 	}
 }
@@ -5576,9 +5577,9 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 5aca09be-6ccf-4dda-9281-2ffd1b411a96 }"}
+			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
 		}
-		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
+		s %Mesh{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 	}
 }
 o
@@ -8510,11 +8511,8 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Materials
-		{
-			s{"{ 7b9a9c53-8684-44b3-97da-9e5afd0fd369 }"}
-		}
-		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
+		VarArray %Materials{}
+		s %Mesh{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 	}
 }
 o

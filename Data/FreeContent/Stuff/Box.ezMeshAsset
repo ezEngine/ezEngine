@@ -7,8 +7,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Label{"DefaultMaterial"}
-		s %Resource{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
+		s %Label{"Material"}
+		s %Resource{"{ 6050f082-3194-428a-8aa7-e64d21cf0a67 }"}
 	}
 }
 o
@@ -72,11 +72,11 @@ AssetInfo
 			s{"Stuff/Box.FBX"}
 		}
 		Uuid %DocumentID{u4{9222742976553252257,5711196105140488960}}
-		u4 %Hash{9537020078818566722}
+		u4 %Hash{14596954678523432478}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
+			s{"{ 6050f082-3194-428a-8aa7-e64d21cf0a67 }"}
 		}
 	}
 }

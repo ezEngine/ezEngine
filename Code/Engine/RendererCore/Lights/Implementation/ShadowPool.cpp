@@ -89,20 +89,6 @@ namespace
     const ezView* m_pReferenceView;
   };
 
-  template <>
-  struct ezHashHelper<LightAndRefView>
-  {
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(LightAndRefView value)
-    {
-      return ezHashing::MurmurHash(&value.m_pLight, sizeof(LightAndRefView));
-    }
-
-    EZ_ALWAYS_INLINE static bool Equal(const LightAndRefView& a, const LightAndRefView& b)
-    {
-      return a.m_pLight == b.m_pLight && a.m_pReferenceView == b.m_pReferenceView;
-    }
-  };
-
   static ezMutex s_ShadowDataMutex;
   static ezDeque<ShadowData> s_ShadowData;
   static ezUInt32 s_uiUsedShadowData;
@@ -331,6 +317,21 @@ namespace
     return fNewFov;
   }
 }
+
+// must not be in anonymous namespace
+template <>
+struct ezHashHelper<LightAndRefView>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(LightAndRefView value)
+  {
+    return ezHashing::MurmurHash(&value.m_pLight, sizeof(LightAndRefView));
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(const LightAndRefView& a, const LightAndRefView& b)
+  {
+    return a.m_pLight == b.m_pLight && a.m_pReferenceView == b.m_pReferenceView;
+  }
+};
 
 //static
 ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView* pReferenceView)
