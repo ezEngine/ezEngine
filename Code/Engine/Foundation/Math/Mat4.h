@@ -146,7 +146,7 @@ public:
   ezResult Invert(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
 
   /// \brief Returns the inverse of this matrix.
-  const ezMat4Template<Type> GetInverse() const; // [tested]
+  const ezMat4Template<Type> GetInverse(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()) const; // [tested]
 
 // *** Checks ***
 public:

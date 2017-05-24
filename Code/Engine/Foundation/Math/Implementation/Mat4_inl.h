@@ -210,10 +210,10 @@ const ezMat4Template<Type> ezMat4Template<Type>::GetTranspose() const
 }
 
 template<typename Type>
-const ezMat4Template<Type> ezMat4Template<Type>::GetInverse() const
+const ezMat4Template<Type> ezMat4Template<Type>::GetInverse(Type fEpsilon) const
 {
   ezMat4Template<Type> Inverse = *this;
-  Inverse.Invert();
+  Inverse.Invert(fEpsilon);
   return Inverse;
 }
 

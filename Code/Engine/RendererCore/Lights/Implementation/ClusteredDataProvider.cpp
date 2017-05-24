@@ -5,6 +5,7 @@
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 ezClusteredDataGPU::ezClusteredDataGPU()
 {
@@ -108,10 +109,12 @@ ezClusteredDataProvider::~ezClusteredDataProvider()
 
 void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  EZ_PROFILE_AND_MARKER(pGALContext, "Update Clustered Data");
+
   if (auto pData = extractedData.GetFrameData<ezClusteredDataCPU>())
   {
-    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-
     // Update buffer
     if (!pData->m_LightData.IsEmpty())
     {
@@ -121,6 +124,8 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
 
     pGALContext->UpdateBuffer(m_Data.m_hClusterDataBuffer, 0, pData->m_ClusterData.ToByteArray());
 
+    ezShadowPool::UpdateShadowDataBuffer(pGALContext);
+
     // Update Constants
     const ezRectFloat& viewport = renderViewContext.m_pViewData->m_ViewPortRect;
 
@@ -129,7 +134,6 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->DepthSliceBias = s_fDepthSliceBias;
     pConstants->InvTileSize = ezVec2(NUM_CLUSTERS_X / viewport.width, NUM_CLUSTERS_Y / viewport.height);
     pConstants->NumLights = pData->m_LightData.GetCount();
-    pConstants->ShadowTexelSize = ezShadowPool::GetShadowAtlasTexelSize();
     pConstants->AmbientTopColor = pData->m_AmbientTopColor;
     pConstants->AmbientBottomColor = pData->m_AmbientBottomColor;
   }

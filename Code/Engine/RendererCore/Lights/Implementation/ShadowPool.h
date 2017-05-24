@@ -12,12 +12,11 @@ class EZ_RENDERERCORE_DLL ezShadowPool
 {
 public:
 
-  static ezUInt32 AddDirectionalLight(const ezDirectionalLightComponent* pDirLight);
+  static ezUInt32 AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView* pReferenceView);
   static ezUInt32 AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize);
   static ezUInt32 AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize);
 
   static ezGALTextureHandle GetShadowAtlasTexture();
-  static float GetShadowAtlasTexelSize();
   static ezGALBufferHandle UpdateShadowDataBuffer(ezGALContext* pGALContext);
 
 private:

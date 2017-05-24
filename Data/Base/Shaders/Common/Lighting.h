@@ -66,7 +66,7 @@ uint GetPointShadowFaceIndex(float3 dir)
   return (dir.x < 0.0) ? 1 : 0;
 }
 
-float CalculateShadow(float3 shadowPosition, float2x2 randomRotation, float penumbraSize)
+float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbraSize)
 {
   float2 offsets[] =
   {
@@ -97,14 +97,130 @@ float CalculateShadow(float3 shadowPosition, float2x2 randomRotation, float penu
 #endif
 }
 
+float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float distanceToLight, uint type,
+  uint shadowDataOffset, float noise, float2x2 randomRotation, out float3 debugColor)
+{
+  float3 debugColors[] =
+  {
+    float3(1, 0, 0),
+    float3(1, 1, 0),
+    float3(0, 1, 0),
+    float3(0, 1, 1),
+    float3(0, 0, 1),
+    float3(1, 0, 1)
+  };
+
+  float4 shadowParams = shadowDataBuffer[GET_SHADOW_PARAMS_INDEX(shadowDataOffset)];
+
+  // normal offset bias
+  float normalOffsetBias = shadowParams.x * distanceToLight;
+  float normalOffsetScale = normalOffsetBias - dot(matData.vertexNormal, lightVector) * normalOffsetBias;
+  float3 worldPosition = matData.worldPosition + matData.vertexNormal * normalOffsetScale;
+
+  float constantBias = shadowParams.y;
+  float penumbraSize = shadowParams.z;
+  float fadeOut = shadowParams.w;
+
+  float4 shadowPosition;
+
+  [branch]
+  if (type == LIGHT_TYPE_DIR)
+  {
+    uint matrixIndex = GET_WORLD_TO_LIGHT_MATRIX_INDEX(shadowDataOffset, 0);
+
+    // manual matrix multiplication because d3d compiler generates very inefficient code otherwise
+    shadowPosition.xyz = shadowDataBuffer[matrixIndex + 0].xyz * worldPosition.x + shadowDataBuffer[matrixIndex + 3].xyz;
+    shadowPosition.xyz += shadowDataBuffer[matrixIndex + 1].xyz * worldPosition.y;
+    shadowPosition.xyz += shadowDataBuffer[matrixIndex + 2].xyz * worldPosition.z;
+    shadowPosition.w = 1.0f;
+
+    float4 firstCascadePosition = shadowPosition;
+    float penumbraSizeScale = 1.0f;
+
+    float4 shadowParams2 = shadowDataBuffer[GET_SHADOW_PARAMS2_INDEX(shadowDataOffset)];
+    float2 threshold = float2(shadowParams2.x, 1.0f) - shadowParams2.yz * noise;
+
+    uint cascadeIndex = 0;
+    uint lastCascadeIndex = asuint(shadowParams.w);
+    while (cascadeIndex < lastCascadeIndex)
+    {
+      if (all(abs(shadowPosition.xyz) < threshold.xxy))
+        break;
+
+      float4 cascadeScale = shadowDataBuffer[GET_CASCADE_SCALE_INDEX(shadowDataOffset, cascadeIndex)];
+      float4 cascadeOffset = shadowDataBuffer[GET_CASCADE_OFFSET_INDEX(shadowDataOffset, cascadeIndex)];
+      shadowPosition.xyz = firstCascadePosition.xyz * cascadeScale.xyz + cascadeOffset.xyz;
+      penumbraSizeScale = cascadeScale.x;
+
+      ++cascadeIndex;
+    }
+
+    constantBias /= penumbraSizeScale;
+    penumbraSize = (penumbraSize + shadowParams2.w * matData.viewDistance) * penumbraSizeScale;
+
+    if (cascadeIndex == lastCascadeIndex)
+    {
+      float4 fadeOutParams = shadowDataBuffer[GET_FADE_OUT_PARAMS_INDEX(shadowDataOffset)];
+      float xyMax = max(abs(shadowPosition.x), abs(shadowPosition.y));
+      float xyFadeOut = saturate(xyMax * fadeOutParams.x + fadeOutParams.y);
+      float zFadeOut = saturate(shadowPosition.z * fadeOutParams.z + fadeOutParams.w);
+
+      fadeOut = min(xyFadeOut, zFadeOut);
+    }
+    else
+    {
+      fadeOut = 1.0f;
+    }
+
+    float4 atlasScaleOffset = shadowDataBuffer[GET_ATLAS_SCALE_OFFSET_INDEX(shadowDataOffset, cascadeIndex)];
+    shadowPosition.xy = shadowPosition.xy * atlasScaleOffset.xy + atlasScaleOffset.zw;
+
+    debugColor = debugColors[fadeOut > 0 ? cascadeIndex : cascadeIndex + 1];
+  }
+  else
+  {
+    uint index = 0;
+    if (type == LIGHT_TYPE_POINT)
+    {
+      index = GetPointShadowFaceIndex(-lightVector);
+    }
+
+    uint matrixIndex = GET_WORLD_TO_LIGHT_MATRIX_INDEX(shadowDataOffset, index);
+
+    // manual matrix multiplication because d3d compiler generates very inefficient code otherwise
+    shadowPosition = shadowDataBuffer[matrixIndex + 0] * worldPosition.x + shadowDataBuffer[matrixIndex + 3];
+    shadowPosition += shadowDataBuffer[matrixIndex + 1] * worldPosition.y;
+    shadowPosition += shadowDataBuffer[matrixIndex + 2] * worldPosition.z;
+
+    debugColor = debugColors[matrixIndex];
+  }
+
+  [branch]
+  if (fadeOut > 0.0f)
+  {
+    // constant bias
+    shadowPosition.z -= constantBias;
+
+    shadowPosition.xyz /= shadowPosition.w;
+
+    float shadowTerm = SampleShadow(shadowPosition.xyz, randomRotation, penumbraSize);
+
+    // fade out
+    shadowTerm = lerp(1.0f, shadowTerm, fadeOut);
+    return shadowTerm;
+  }
+
+  return 1.0f;
+}
+
 float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition)
 {
   float3 viewVector = matData.normalizedViewVector;
 
   float3 totalLight = 0.0f;
 
-  float noise = InterleavedGradientNoise(screenPosition.xy) * 2.0f * PI;
-  float2 randomAngle; sincos(noise, randomAngle.x, randomAngle.y);
+  float noise = InterleavedGradientNoise(screenPosition.xy);
+  float2 randomAngle; sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
   float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
 
   uint firstItemIndex = clusterData.offset;
@@ -148,47 +264,25 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
     {
       attenuation *= MicroShadow(matData.occlusion, matData.worldNormal, lightVector);
 
+      float3 debugColor = 1.0f;
+
       if (lightData.shadowDataOffset != 0xFFFFFFFF)
       {
         uint shadowDataOffset = lightData.shadowDataOffset;
-        float4 shadowParams = shadowDataBuffer[GET_SHADOW_PARAMS_OFFSET(shadowDataOffset)];
-        
-        // normal offset bias
-        float normalOffsetBias = shadowParams.x * distanceToLight;
-        float normalOffsetScale = normalOffsetBias - dot(matData.vertexNormal, lightVector) * normalOffsetBias;
-        float3 offsettedWorldPos = matData.worldPosition + matData.vertexNormal * normalOffsetScale;
-        
-        uint matrixIndex = 0;
-        if (type == LIGHT_TYPE_POINT)
-        {
-          matrixIndex = GetPointShadowFaceIndex(-lightVector);
-        }
 
-        uint matrixOffset = GET_WORLD_TO_LIGHT_MATRIX_OFFSET(shadowDataOffset, matrixIndex);
-
-        // manual matrix multiplication because d3d compiler generates very inefficient code otherwise
-        float4 shadowPosition = shadowDataBuffer[matrixOffset + 0] * offsettedWorldPos.x + shadowDataBuffer[matrixOffset + 3];
-        shadowPosition += shadowDataBuffer[matrixOffset + 1] * offsettedWorldPos.y;
-        shadowPosition += shadowDataBuffer[matrixOffset + 2] * offsettedWorldPos.z;
-        
-        // constant bias
-        float constantBias = shadowParams.y;
-        shadowPosition.z -= constantBias;
-        
-        shadowPosition.xyz /= shadowPosition.w;
-        
-        float shadowTerm = CalculateShadow(shadowPosition, randomRotation, shadowParams.z);
-
-        if (type != LIGHT_TYPE_DIR)
-        {
-          shadowTerm = lerp(1.0f, shadowTerm, shadowParams.w);
-        }
+        float shadowTerm = CalculateShadowTerm(matData, lightVector, distanceToLight, type,
+          shadowDataOffset, noise, randomRotation, debugColor);
 
         attenuation *= shadowTerm;
       }
 
       float intensity = lightData.intensity;
       float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+
+      // debug cascade or point face selection
+      #if 0
+        lightColor = lerp(1.0f, debugColor, 0.5f);
+      #endif
 
       totalLight += DefaultShading(matData, lightVector, viewVector, float2(1.0f, 1.0f)) * lightColor * (intensity * attenuation);
     }

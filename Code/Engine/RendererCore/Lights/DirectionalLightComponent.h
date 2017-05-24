@@ -27,10 +27,30 @@ public:
   // ezRenderComponent interface
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
+  void SetNumCascades(ezUInt32 uiNumCascades);
+  ezUInt32 GetNumCascades() const;
+
+  void SetMinShadowRange(float fMinShadowRange);
+  float GetMinShadowRange() const;
+
+  void SetFadeOutStart(float fFadeOutStart);
+  float GetFadeOutStart() const;
+
+  void SetSplitModeWeight(float fSplitModeWeight);
+  float GetSplitModeWeight() const;
+
+  void SetNearPlaneOffset(float fNearPlaneOffset);
+  float GetNearPlaneOffset() const;
+
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 private:
+  ezUInt32 m_uiNumCascades;
+  float m_fMinShadowRange;
+  float m_fFadeOutStart;
+  float m_fSplitModeWeight;
+  float m_fNearPlaneOffset;
 };

@@ -174,7 +174,10 @@ void ezView::UpdateCachedMatrices() const
     m_uiLastCameraOrientationModification = pCamera->GetOrientationModificationCounter();
 
     pCamera->GetViewMatrix(m_Data.m_ViewMatrix);
-    m_Data.m_InverseViewMatrix = m_Data.m_ViewMatrix.GetInverse();
+
+    // Some of our matrices contain very small values so that the matrix inversion will fall below the default epsilon.
+    // We pass zero as epsilon here since all view and projection matrices are invertible.
+    m_Data.m_InverseViewMatrix = m_Data.m_ViewMatrix.GetInverse(0.0f);
   }
 
   const float fViewportAspectRatio = m_Data.m_ViewPortRect.HasNonZeroArea() ? m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height : 1.0f;
@@ -186,13 +189,13 @@ void ezView::UpdateCachedMatrices() const
     m_fLastViewportAspectRatio = fViewportAspectRatio;
 
     pCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_Data.m_ProjectionMatrix);
-    m_Data.m_InverseProjectionMatrix = m_Data.m_ProjectionMatrix.GetInverse();
+    m_Data.m_InverseProjectionMatrix = m_Data.m_ProjectionMatrix.GetInverse(0.0f);
   }
 
   if (bUpdateVP)
   {
     m_Data.m_ViewProjectionMatrix = m_Data.m_ProjectionMatrix * m_Data.m_ViewMatrix;
-    m_Data.m_InverseViewProjectionMatrix = m_Data.m_ViewProjectionMatrix.GetInverse();
+    m_Data.m_InverseViewProjectionMatrix = m_Data.m_ViewProjectionMatrix.GetInverse(0.0f);
   }
 }
 

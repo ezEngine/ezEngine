@@ -67,7 +67,7 @@ ezMaterialData FillMaterialData(PS_IN Input)
     matData.worldPosition = float3(0.0, 0.0, 0.0);
   #endif
 
-  matData.normalizedViewVector = normalize(CameraPosition - matData.worldPosition);
+  matData.normalizedViewVector = NormalizeAndGetLength(CameraPosition - matData.worldPosition, matData.viewDistance);
 
   float3 worldNormal = normalize(GetNormal(Input));
   #if TWO_SIDED == TRUE
@@ -75,7 +75,7 @@ ezMaterialData FillMaterialData(PS_IN Input)
   #else
     matData.worldNormal = worldNormal;
   #endif
-  
+
   #if defined(USE_NORMAL)
     matData.vertexNormal = normalize(Input.Normal);
   #else
@@ -144,9 +144,9 @@ float4 SampleTexture3Way(Texture2D tex, SamplerState samplerState, float3 worldN
   float3 blendWeights = abs(worldNormal);
   blendWeights = max((blendWeights - 0.2) * 7.0, 0.0);
   blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z );
-  
+
   float3 ns = sign(worldNormal) * tiling;
-  
+
   float4 color1 = tex.Sample(samplerState, worldPosition.yz * float2(-ns.x, -tiling));
   float4 color2 = tex.Sample(samplerState, worldPosition.xz * float2(ns.y, -tiling));
   float4 color3 = tex.Sample(samplerState, worldPosition.xy * float2(ns.z, tiling));
