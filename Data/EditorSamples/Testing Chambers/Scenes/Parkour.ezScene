@@ -1790,23 +1790,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13608971573070797461,4697694952802744143}}
-	s %t{"ezPointLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{1}
-		f %ConstantBias{0xCDCCCC3D}
-		f %Intensity{0x00007A44}
-		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %PenumbraSize{0x0AD7233C}
-		f %Range{0xE951CC41}
-		f %SlopeBias{0x0000803E}
-	}
-}
-o
-{
 	Uuid %id{u4{2336921589124949950,4699948962058672309}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -2120,27 +2103,6 @@ o
 }
 o
 {
-	Uuid %id{u4{15716054243594010813,4881534563301601891}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{10625902934794238855,5572836470970756516}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xE0330D3F,0xA244BA40,0x466A9040}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Name{""}
-		VarArray %Tags{}
-	}
-}
-o
-{
 	Uuid %id{u4{7165347154927110319,4904037833927165563}}
 	s %t{"ezRotorComponent"}
 	u3 %v{2}
@@ -2401,11 +2363,11 @@ o
 		b %CastShadows{1}
 		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0x920A863E}}
-		f %Intensity{0x00007A44}
-		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %Intensity{0x0000FA44}
+		ColorGamma %LightColor{u1{255,63,0,255}}
 		Angle %OuterSpotAngle{f{0x3C46713F}}
-		f %PenumbraSize{0x0AD7233C}
-		f %Range{0x7E14DE41}
+		f %PenumbraSize{0xCDCCCC3D}
+		f %Range{0x00002042}
 		f %SlopeBias{0x0000803E}
 	}
 }
@@ -2453,16 +2415,21 @@ o
 {
 	Uuid %id{u4{14187024319429469621,5084406715485139366}}
 	s %t{"ezDirectionalLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
-		b %CastShadows{0}
+		b %CastShadows{1}
 		f %ConstantBias{0xCDCCCC3D}
-		f %Intensity{0}
+		f %FadeOutStart{0xCDCC4C3F}
+		f %Intensity{0x00008040}
 		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %MinShadowRange{0x00004842}
+		f %NearPlaneOffset{0x0000C842}
+		u3 %NumCascades{3}
+		f %PenumbraSize{0xCDCC4C3D}
 		f %SlopeBias{0x0000803E}
+		f %SplitModeWeight{0x3333333F}
 	}
 }
 o
@@ -2684,7 +2651,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{8409608289167129137}
+		u4 %Hash{10011592788741584286}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2768,7 +2735,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00004842}
 		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000A040}
 		f %SlopeBias{0x0000803E}
 	}
@@ -2822,9 +2789,9 @@ o
 	u3 %v{3}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		s %CubeMap{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
-		f %ExposureBias{0x295CCF3F}
+		f %ExposureBias{0x3333333F}
 		b %InverseTonemap{0}
 	}
 }
@@ -2897,7 +2864,7 @@ o
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0x7618713F}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00002041}
 		f %SlopeBias{0x0000803E}
 	}
@@ -2937,27 +2904,6 @@ o
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
-	}
-}
-o
-{
-	Uuid %id{u4{2495893321544007088,5259490288118428639}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{13608971573070797461,4697694952802744143}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xBDA49040,0x22D07A41,0x70211441}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Name{""}
-		VarArray %Tags{}
 	}
 }
 o
@@ -3141,7 +3087,6 @@ o
 			Uuid{u4{438311664427441831,11425714937321503712}}
 			Uuid{u4{2654168725583521914,2925669330307143638}}
 			Uuid{u4{15965519842966496417,5238364738951370966}}
-			Uuid{u4{15716054243594010813,4881534563301601891}}
 			Uuid{u4{3242737491232811681,5647830017602705294}}
 			Uuid{u4{6141515265703231680,2566063351885901146}}
 			Uuid{u4{15682033848360507729,7450802129576321276}}
@@ -3168,7 +3113,6 @@ o
 			Uuid{u4{16479898334834194845,5275045303773937129}}
 			Uuid{u4{15665298784122222478,5725843771057583409}}
 			Uuid{u4{12903990840493988757,5696089217231623871}}
-			Uuid{u4{2495893321544007088,5259490288118428639}}
 			Uuid{u4{17579521487756929563,9364763216043413610}}
 			Uuid{u4{7934449834691509833,11030128932873449915}}
 			Uuid{u4{8914895473801792674,5549354162315949644}}
@@ -3318,7 +3262,7 @@ o
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0xE2719B3E,0xD28D6E3E,0x76A33BBF,0xE6FA0F3F}}
+		Quat %LocalRotation{f{0x5CA25D3E,0x0000C032,0x8AEE79BF,0}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
@@ -3590,23 +3534,6 @@ o
 }
 o
 {
-	Uuid %id{u4{10625902934794238855,5572836470970756516}}
-	s %t{"ezPointLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{0}
-		f %ConstantBias{0xCDCCCC3D}
-		f %Intensity{0x0000C842}
-		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %PenumbraSize{0x0AD7233C}
-		f %Range{0x93C28941}
-		f %SlopeBias{0x0000803E}
-	}
-}
-o
-{
 	Uuid %id{u4{18215258748948171147,5581893186821017665}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -3736,7 +3663,7 @@ o
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x00002441}}
-		Quat %LocalRotation{f{0,0,0xD8B35D3F,0xFEFFFF3E}}
+		Quat %LocalRotation{f{0,0,0xF3B3513F,0xE8D5123F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{""}
@@ -6505,8 +6432,8 @@ o
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0xFA809E3F}}
-		f %PenumbraSize{0x0AD7233C}
-		f %Range{0x00004842}
+		f %PenumbraSize{0xCDCCCC3D}
+		f %Range{0x0000F041}
 		f %SlopeBias{0x0000803E}
 	}
 }

@@ -834,7 +834,7 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
         fadeOutParams.w = zOffset;
       }
     }
-    else
+    else // spot or point light
     {
       ezMat4 texMatrix;
       texMatrix.SetIdentity();
@@ -873,7 +873,7 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
         }
       }
 
-      float screenHeight = ezMath::Tan(fov * 0.5f) * 2.0f;
+      float screenHeight = ezMath::Tan(fov * 0.5f) * 20.0f; // screen height in worldspace at 10m distance
       float texelSize = 1.0f / uiShadowMapSize;
       float penumbraSize = ezMath::Max(shadowData.m_fPenumbraSize / screenHeight, texelSize);
       float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;

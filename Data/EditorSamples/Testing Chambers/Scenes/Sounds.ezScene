@@ -820,7 +820,7 @@ o
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{248,173,61,255}}
 		Angle %OuterSpotAngle{f{0x67A8BB3F}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000F041}
 		f %SlopeBias{0x0000803E}
 	}
@@ -1319,7 +1319,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000FA44}
 		ColorGamma %LightColor{u1{219,178,131,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000C842}
 		f %SlopeBias{0x00008040}
 	}
@@ -1572,7 +1572,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000A041}
 		ColorGamma %LightColor{u1{83,169,229,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
 	}
@@ -1666,7 +1666,7 @@ o
 		f %Intensity{0x0000FA44}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0xA9ACE43F}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00004842}
 		f %SlopeBias{0x0000803E}
 	}
@@ -2023,7 +2023,7 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{14027989753838221160}
+		u4 %Hash{2598250715604914341}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2215,7 +2215,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{229,75,75,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
 	}
@@ -2316,7 +2316,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00004842}
 		ColorGamma %LightColor{u1{67,232,216,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
 	}
@@ -3483,7 +3483,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{83,169,229,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
 	}
@@ -4076,7 +4076,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000A041}
 		ColorGamma %LightColor{u1{214,92,92,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
 	}
@@ -4162,16 +4162,21 @@ o
 {
 	Uuid %id{u4{14256565761026183795,10612502372717643564}}
 	s %t{"ezDirectionalLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x0000A040}
 		ColorGamma %LightColor{u1{85,20,20,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %MinShadowRange{0x00004842}
+		f %NearPlaneOffset{0x0000C842}
+		u3 %NumCascades{3}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %SlopeBias{0x0000803E}
+		f %SplitModeWeight{0x3333333F}
 	}
 }
 o
@@ -4414,7 +4419,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{229,75,75,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
 	}
@@ -5554,7 +5559,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{83,169,229,255}}
-		f %PenumbraSize{0x0AD7233C}
+		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
 		f %SlopeBias{0x0000803E}
 	}
