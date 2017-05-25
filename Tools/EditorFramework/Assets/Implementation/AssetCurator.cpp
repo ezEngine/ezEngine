@@ -633,7 +633,7 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
 void ezAssetCurator::GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count)
 {
   EZ_LOCK(m_CuratorMutex);
-  out_count.SetCount(ezAssetInfo::TransformState::COUNT);
+  out_count.SetCountUninitialized(ezAssetInfo::TransformState::COUNT);
   for (int i = 0; i < ezAssetInfo::TransformState::COUNT; i++)
   {
     out_count[i] = m_TransformState[i].GetCount();

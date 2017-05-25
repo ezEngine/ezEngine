@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <Foundation/Types/Tag.h>
@@ -306,10 +306,12 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
 
   ezHybridArray<ezUInt64, 32, BlockStorageAllocator> helperArray;
 
+  /// \todo SetCountUninitialized will fail the tests, but I don't see why
   helperArray.SetCount(uiNewBlockArraySize);
 
   const ezUInt32 uiOldBlockStartOffset = m_uiTagBlockStart - uiNewTagBlockStart;
 
+  /// \todo When SetCount already zeros everything I don't think this is necessary
   if (uiOldBlockStartOffset > 0)
   {
     ezMemoryUtils::ZeroFill(helperArray.GetData(), uiOldBlockStartOffset);

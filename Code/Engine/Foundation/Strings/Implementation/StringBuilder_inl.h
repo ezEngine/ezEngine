@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Strings/StringConversion.h>
 
@@ -95,7 +95,7 @@ inline ezStringBuilder::operator ezStringView() const
 inline void ezStringBuilder::Clear()
 {
   m_uiCharacterCount = 0;
-  m_Data.SetCount(1);
+  m_Data.SetCountUninitialized(1);
   m_Data[0] = '\0';
 }
 
@@ -107,7 +107,7 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
   ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
   ezUInt32 uiCharLen = (ezUInt32)(pChar - szChar);
   ezUInt32 uiOldCount = m_Data.GetCount();
-  m_Data.SetCount(uiOldCount + uiCharLen);
+  m_Data.SetCountUninitialized(uiOldCount + uiCharLen);
   uiOldCount--;
   for (ezUInt32 i = 0; i < uiCharLen; i++)
   {
@@ -172,7 +172,7 @@ inline void ezStringBuilder::ToUpper()
   const ezUInt32 uiNewStringLength = ezStringUtils::ToUpperString(&m_Data[0]);
 
   // the array stores the number of bytes, so set the count to the actually used number of bytes
-  m_Data.SetCount(uiNewStringLength + 1);
+  m_Data.SetCountUninitialized(uiNewStringLength + 1);
 }
 
 inline void ezStringBuilder::ToLower()
@@ -180,7 +180,7 @@ inline void ezStringBuilder::ToLower()
   const ezUInt32 uiNewStringLength = ezStringUtils::ToLowerString(&m_Data[0]);
 
   // the array stores the number of bytes, so set the count to the actually used number of bytes
-  m_Data.SetCount(uiNewStringLength + 1);
+  m_Data.SetCountUninitialized(uiNewStringLength + 1);
 }
 
 inline void ezStringBuilder::Printf(const char* szUtf8Format, ...)

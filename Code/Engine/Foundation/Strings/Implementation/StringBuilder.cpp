@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/FormatString.h>
@@ -66,7 +66,7 @@ void ezStringBuilder::Append(const ezStringView& view)
   EZ_ASSERT_DEBUG(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
 
   // now resize
-  m_Data.SetCount(uiPrevCount + uiMoreBytes);
+  m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
 
   // and then append all the strings
   {
@@ -111,7 +111,7 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
   EZ_ASSERT_DEBUG(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
 
   // now resize
-  m_Data.SetCount(uiPrevCount + uiMoreBytes);
+  m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
 
   // and then append all the strings
   for (ezUInt32 i = 0; i < uiMaxParams; ++i)
@@ -158,7 +158,7 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
   EZ_ASSERT_DEBUG(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
 
   // now resize
-  m_Data.SetCount(uiPrevCount + uiMoreBytes);
+  m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
 
   // move the previous string data at the end
   ezMemoryUtils::CopyOverlapped(&m_Data[0] + uiMoreBytes, GetData(), uiPrevCount);
@@ -201,7 +201,7 @@ void ezStringBuilder::PrintfArgs(const char* szUtf8Format, va_list args0)
   if (iCount > TempBuffer - 1)
   {
     ezDynamicArray<char> Temp;
-    Temp.SetCount(iCount + 1);
+    Temp.SetCountUninitialized(iCount + 1);
 
     ezStringUtils::vsnprintf(&Temp[0], iCount + 1, szUtf8Format, args);
 
@@ -263,7 +263,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(iterator& it, ezUInt32 uiCharacter
     const ezUInt32 uiTrailStringBytes = (ezUInt32)(GetData() + GetElementCount() - it.GetData() - uiOldCharLength + 1);
     auto iCurrentPos = (it.GetData() - GetData());
     // resize the array
-    m_Data.SetCount(m_Data.GetCount() + uiDifference);
+    m_Data.SetCountUninitialized(m_Data.GetCount() + uiDifference);
 
     // these might have changed (array realloc)
     pPos = &m_Data[0] + iCurrentPos;
@@ -391,7 +391,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     const ezUInt64 uiRelativeWritePosition = szWritePos - GetData();
     const ezUInt64 uiDataByteCountBefore = m_Data.GetCount();
 
-    m_Data.SetCount(m_Data.GetCount() + uiDifference);
+    m_Data.SetCountUninitialized(m_Data.GetCount() + uiDifference);
 
     // all pointer are now possibly invalid since the data may be reallocated!
     szWritePos = const_cast<char*>(GetData()) + uiRelativeWritePosition;
@@ -646,7 +646,7 @@ void ezStringBuilder::operator=(const ezStringView& rhs)
 
   // if we need more room, allocate up front (rhs cannot use our own data in this case)
   if (uiBytes + 1 > m_Data.GetCount())
-    m_Data.SetCount(uiBytes + 1);
+    m_Data.SetCountUninitialized(uiBytes + 1);
 
   // the data might actually come from our very own string, so we 'move' the memory in there, just to be safe
   // if it comes from our own array, the data will always be a sub-set -> smaller than this array
@@ -654,7 +654,7 @@ void ezStringBuilder::operator=(const ezStringView& rhs)
   // however, when the new data is larger than the old, it cannot be from our own data, so we can (and must) reallocate before copying
   ezMemoryUtils::CopyOverlapped(&m_Data[0], rhs.GetData(), uiBytes);
 
-  m_Data.SetCount(uiBytes + 1);
+  m_Data.SetCountUninitialized(uiBytes + 1);
   m_Data[uiBytes] = '\0';
 
   m_uiCharacterCount = uiCharacters;
@@ -771,7 +771,7 @@ void ezStringBuilder::MakeCleanPath()
 
   // make sure to write the terminating \0 and reset the count
   szCurWritePos[writeOffset] = '\0';
-  m_Data.SetCount(uiNewByteCount);
+  m_Data.SetCountUninitialized(uiNewByteCount);
 
 }
 
@@ -994,7 +994,7 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
 
   // make sure to write the terminating \0 and reset the count
   *szCurWritePos = '\0';
-  m_Data.SetCount(uiNewByteCount);
+  m_Data.SetCountUninitialized(uiNewByteCount);
 
 }
 

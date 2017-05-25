@@ -110,7 +110,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
     {
       const auto& surfaces = pMesh->GetSurfaces();
-      pxMaterials.SetCount(surfaces.GetCount());
+      pxMaterials.SetCountUninitialized(surfaces.GetCount());
 
       for (ezUInt32 i = 0; i < surfaces.GetCount(); ++i)
       {

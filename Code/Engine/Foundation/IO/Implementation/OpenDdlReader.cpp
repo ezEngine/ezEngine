@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/OpenDdlReader.h>
 
 ezOpenDdlReader::ezOpenDdlReader()
@@ -143,7 +143,7 @@ void ezOpenDdlReader::StorePrimitiveData(bool bThisIsAll, ezUInt32 bytecount, co
   {
     // if this is not all, accumulate the data in a temp buffer
     ezUInt32 offset = m_TempCache.GetCount();
-    m_TempCache.SetCount(m_TempCache.GetCount() + bytecount);
+    m_TempCache.SetCountUninitialized(m_TempCache.GetCount() + bytecount);
     pTarget = &m_TempCache[offset]; // have to index m_TempCache after the resize, otherwise it could be empty and not like it
   }
   else
@@ -228,7 +228,7 @@ void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pDat
   const ezUInt32 uiDataSize = count * sizeof(ezStringView);
 
   const ezUInt32 offset = m_TempCache.GetCount();
-  m_TempCache.SetCount(m_TempCache.GetCount() + uiDataSize);
+  m_TempCache.SetCountUninitialized(m_TempCache.GetCount() + uiDataSize);
   ezStringView* pTarget = (ezStringView*)&m_TempCache[offset];
 
   for (ezUInt32 i = 0; i < count; ++i)

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Image/ImageFormat.h>
 
@@ -37,7 +37,7 @@ static void SetupImageFormatTable()
   if (!s_formatMetaData.IsEmpty())
     return;
 
-  s_formatMetaData.SetCount(ezImageFormat::NUM_FORMATS);
+  s_formatMetaData.SetCountUninitialized(ezImageFormat::NUM_FORMATS);
 
 #define DEFINE_FORMAT(format, bpp, redmask, greenmask, bluemask, alphamask, type) \
   s_formatMetaData[ezImageFormat::format] = ezImageFormatMetaData(#format, bpp, redmask, greenmask, bluemask, alphamask, ezImageFormatType::type)

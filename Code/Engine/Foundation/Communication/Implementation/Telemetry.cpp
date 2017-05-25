@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <ThirdParty/enet/enet.h>
 #include <Foundation/Threading/ThreadUtils.h>
@@ -358,7 +358,7 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, c
     // when we do have a connection, just send the message out
 
     ezHybridArray<ezUInt8, 64> TempData;
-    TempData.SetCount(8 + uiDataBytes);
+    TempData.SetCountUninitialized(8 + uiDataBytes);
     *((ezUInt32*) &TempData[0]) = uiSystemID;
     *((ezUInt32*) &TempData[4]) = uiMsgID;
 
@@ -379,7 +379,7 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
   const ezUInt32 uiStackSize = 1024;
 
   ezHybridArray<ezUInt8, uiStackSize + 8> TempData;
-  TempData.SetCount(8);
+  TempData.SetCountUninitialized(8);
   *((ezUInt32*) &TempData[0]) = uiSystemID;
   *((ezUInt32*) &TempData[4]) = uiMsgID;
 
@@ -389,14 +389,14 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
     while (true)
     {
       const ezUInt32 uiOffset = TempData.GetCount();
-      TempData.SetCount(uiOffset + uiStackSize); // no allocation the first time
+      TempData.SetCountUninitialized(uiOffset + uiStackSize); // no allocation the first time
 
       const ezUInt32 uiRead = static_cast<ezUInt32>(Stream.ReadBytes(&TempData[uiOffset], uiStackSize));
 
       if (uiRead < uiStackSize)
       {
         // resize the array down to its actual size
-        TempData.SetCount(uiOffset + uiRead);
+        TempData.SetCountUninitialized(uiOffset + uiRead);
         break;
       }
     }
@@ -404,7 +404,7 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
   }
   else
   {
-    TempData.SetCount(8 + iDataBytes);
+    TempData.SetCountUninitialized(8 + iDataBytes);
 
     if (iDataBytes > 0)
       Stream.ReadBytes(&TempData[8], iDataBytes);

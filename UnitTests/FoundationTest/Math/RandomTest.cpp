@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -160,7 +160,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     r.Save(writer);
 
     ezDynamicArray<ezUInt32> temp;
-    temp.SetCount(1000);
+    temp.SetCountUninitialized(1000);
 
     for (int i = 0; i < 1000; ++i)
       temp[i] = r.UInt();
@@ -289,7 +289,7 @@ EZ_CREATE_SIMPLE_TEST(Math, RandomGauss)
     r.Save(writer);
 
     ezDynamicArray<ezUInt32> temp;
-    temp.SetCount(1000);
+    temp.SetCountUninitialized(1000);
 
     for (int i = 0; i < 1000; ++i)
       temp[i] = r.UnsignedValue();

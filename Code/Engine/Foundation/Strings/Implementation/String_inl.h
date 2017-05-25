@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template<ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(ezAllocatorBase* pAllocator) :
@@ -56,7 +56,7 @@ ezHybridStringBase<Size>::operator ezStringView() const
 template<ezUInt16 Size>
 void ezHybridStringBase<Size>::Clear()
 {
-  m_Data.SetCount(1);
+  m_Data.SetCountUninitialized(1);
   m_Data[0] = '\0';
   m_uiCharacterCount = 0;
 }
@@ -124,7 +124,7 @@ void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 {
   EZ_ASSERT_DEBUG(rhs.GetData() < m_Data.GetData() || rhs.GetData() >= m_Data.GetData() + m_Data.GetCount(), "Can't assign string a value that points to ourself!");
 
-  m_Data.SetCount(rhs.GetElementCount() + 1);
+  m_Data.SetCountUninitialized(rhs.GetElementCount() + 1);
   ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetData(), rhs.GetEndPosition());
   m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -101,7 +101,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
       continue;
 
     ezHybridArray<ezUInt8, 4096> buffer;
-    buffer.SetCount(numberOfBytes);
+    buffer.SetCountUninitialized(numberOfBytes);
     buffer.GetArrayPtr().CopyFrom(m_pImpl->m_buffer.GetArrayPtr().GetSubArray(0, numberOfBytes));
 
     //Reissue the read request
@@ -116,7 +116,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
       if (bytesNeeded > 0)
       {
         ezHybridArray<char, 1024> dir;
-        dir.SetCount(bytesNeeded+1);
+        dir.SetCountUninitialized(bytesNeeded+1);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
         dir[bytesNeeded] = '\0';
         ezDirectoryWatcherAction action;

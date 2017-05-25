@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
@@ -105,10 +105,12 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
     const ezUInt32 uiCount = sData.GetElementCount();
     const char* szString = sData.GetData();
 
-    FileContent.SetCount(uiCount);
+    FileContent.SetCountUninitialized(uiCount);
 
-    for (ezUInt32 i = 0; i < uiCount; ++i)
-      FileContent[i] = (ezUInt8)(szString[i]);
+    if (uiCount > 0)
+    {
+      ezMemoryUtils::Copy<ezUInt8>(FileContent.GetData(), (const ezUInt8*)szString, uiCount);
+    }
 
     return EZ_SUCCESS;
   }
@@ -121,10 +123,12 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
       const ezUInt32 uiCount = sData.GetElementCount();
       const char* szString = sData.GetData();
 
-      FileContent.SetCount(uiCount);
+      FileContent.SetCountUninitialized(uiCount);
 
-      for (ezUInt32 i = 0; i < uiCount; ++i)
-        FileContent[i] = (ezUInt8)(szString[i]);
+      if (uiCount > 0)
+      {
+        ezMemoryUtils::Copy<ezUInt8>(FileContent.GetData(), (const ezUInt8*)szString, uiCount);
+      }
 
       return EZ_SUCCESS;
     }

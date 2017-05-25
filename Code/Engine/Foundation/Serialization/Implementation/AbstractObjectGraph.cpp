@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Logging/Log.h>
 
@@ -836,7 +836,7 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
   }
 
   ezDynamicArray<ezInt32> leftOrder;
-  leftOrder.SetCount(leftArray.GetCount());
+  leftOrder.SetCountUninitialized(leftArray.GetCount());
   for (ezInt32 i = 0; i < (ezInt32)leftArray.GetCount(); i++)
   {
     const ezVariant& val = leftArray[i];
@@ -862,7 +862,7 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
   }
 
   ezDynamicArray<ezInt32> rightOrder;
-  rightOrder.SetCount(rightArray.GetCount());
+  rightOrder.SetCountUninitialized(rightArray.GetCount());
   for (ezInt32 i = 0; i < (ezInt32)rightArray.GetCount(); i++)
   {
     const ezVariant& val = rightArray[i];

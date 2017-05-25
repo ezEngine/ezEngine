@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Image/Formats/BmpFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/Stream.h>
@@ -504,7 +504,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     }
 
     ezDynamicArray<ezBmpBgrxQuad> palette;
-    palette.SetCount(paletteSize);
+    palette.SetCountUninitialized(paletteSize);
     if (stream.ReadBytes(&palette[0], paletteSize * sizeof(ezBmpBgrxQuad)) != paletteSize * sizeof(ezBmpBgrxQuad))
     {
       ezLog::Error(pLog, "Failed to read palette data.");

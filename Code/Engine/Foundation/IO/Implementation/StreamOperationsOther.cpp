@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 
@@ -197,7 +197,7 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
   ezDataBuffer data;
   ezUInt32 iCount;
   (*m_pStream) >> iCount;
-  data.SetCount(iCount);
+  data.SetCountUninitialized(iCount);
 
   m_pStream->ReadBytes(data.GetData(), iCount);
   *m_pValue = data;

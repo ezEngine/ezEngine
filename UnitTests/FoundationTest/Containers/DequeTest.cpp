@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -774,7 +774,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       d.PushBack(i);
 
     ezDynamicArray<ezInt32> a;
-    a.SetCount(d.GetCount());
+    a.SetCountUninitialized(d.GetCount());
 
     ezUInt32 uiArrayPos = 0;
 
@@ -791,7 +791,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       uiArrayPos += uiRange;
     }
 
-    a.SetCount(uiArrayPos);
+    a.SetCountUninitialized(uiArrayPos);
 
     uiArrayPos = 0;
 

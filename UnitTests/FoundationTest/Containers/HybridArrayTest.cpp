@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 
@@ -33,7 +33,7 @@ namespace HybridArrayTestDetail
   static ezHybridArray<ezConstructionCounter, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
   {
     ezHybridArray<ezConstructionCounter, 16> a;
-    a.SetCount(uiSize);
+    a.SetCountUninitialized(uiSize);
 
     for (ezUInt32 i = 0; i < uiSize; ++i)
       a[i] = uiOffset + i;
@@ -199,10 +199,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")
   {
     ezHybridArray<ezInt32, 16> a1;
-    a1.SetCount(100);
+    a1.SetCountUninitialized(100);
 
     for (ezInt32 i = 0; i < 100; ++i)
-      a1[i] = i;;
+      a1[i] = i;
 
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], i);

@@ -143,7 +143,7 @@ void ezGeometry::TriangulatePolygons(ezUInt32 uiMaxVerticesInPolygon /*= 3*/)
       {
         auto& tri = m_Polygons.ExpandAndGetRef();
         tri.m_vNormal = poly.m_vNormal;
-        tri.m_Vertices.SetCount(3);
+        tri.m_Vertices.SetCountUninitialized(3);
         tri.m_Vertices[0] = poly.m_Vertices[0];
         tri.m_Vertices[1] = poly.m_Vertices[v - 1];
         tri.m_Vertices[2] = poly.m_Vertices[v];

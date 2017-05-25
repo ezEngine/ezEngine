@@ -200,7 +200,7 @@ void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTria
   for (auto numIndices : mesh.m_VerticesInPolygon)
     uiTriangles += numIndices - 2;
 
-  TriangleIndices.SetCount(uiTriangles * 3);
+  TriangleIndices.SetCountUninitialized(uiTriangles * 3);
 
   ezUInt32 uiFirstIndex = 0;
   ezUInt32 uiFirstTriangleIdx = 0;

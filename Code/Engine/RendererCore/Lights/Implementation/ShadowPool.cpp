@@ -1,4 +1,4 @@
-#include <PCH.h>
+ï»¿#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -416,8 +416,8 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       // Find the enclosing sphere for the frustum:
       // The sphere center must be on the view's center ray and should be equally far away from the corner points.
       // x = distance from camera origin to sphere center
-      // d1² = sc.x² + sc.y² + (x - sc.z)²
-      // d2² = ec.x² + ec.y² + (x - ec.z)²
+      // d1^2 = sc.x^2 + sc.y^2 + (x - sc.z)^2
+      // d2^2 = ec.x^2 + ec.y^2 + (x - ec.z)^2
       // d1 == d2 and solve for x:
       float x = (endCorner.Dot(endCorner) - startCorner.Dot(startCorner)) / (2.0f * (endCorner.z - startCorner.z));
       x = ezMath::Min(x, fCascadeEnd);

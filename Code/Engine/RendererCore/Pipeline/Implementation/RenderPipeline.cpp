@@ -429,7 +429,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
     bool bRes = pPass->GetRenderTargetDescriptions(view, inputs, outputs);
     if (!bRes)
     {
-      ezLog::Error("The pass could not be successfully queried for render target descs.");
+      ezLog::Error("The pass could not be successfully queried for render target descriptions.");
       return false;
     }
 
@@ -442,7 +442,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
       }
     }
 
-    // Check passthrough consistency of input / output target desc.
+    // Check pass-through consistency of input / output target desc.
     auto inputPins = pPass->GetInputPins();
     for (const ezNodePin* pPin : inputPins)
     {
@@ -457,7 +457,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
           }
           else if (data.m_Outputs[pPin->m_uiOutputIndex]->m_Desc.CalculateHash() != data.m_Inputs[pPin->m_uiInputIndex]->m_Desc.CalculateHash())
           {
-            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and putput!", pPass->GetPinName(pPin).GetData());
+            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and output!", pPass->GetPinName(pPin).GetData());
             return false;
           }
         }

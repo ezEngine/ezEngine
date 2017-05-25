@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <Foundation/Strings/String.h>
@@ -174,7 +174,7 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezHybridString<Size,
   if (uiLength > 0)
   {
     ezHybridArray<ezUInt8, 256> sTemp;
-    sTemp.SetCount(uiLength + 1);
+    sTemp.SetCountUninitialized(uiLength + 1);
 
     Stream.ReadBytes(&sTemp[0], uiLength);
     sTemp[uiLength] = '\0';

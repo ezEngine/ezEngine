@@ -340,7 +340,7 @@ namespace ezModelImporter
     // Normals have same mapping as positions.
     normalStream->m_IndexToData = positionStreamRaw->m_IndexToData;
     // Reset all normals to zero.
-    normalStream->m_Data.SetCount(positionStreamRaw->m_Data.GetCount());
+    normalStream->m_Data.SetCountUninitialized(positionStreamRaw->m_Data.GetCount());
     ezMemoryUtils::ZeroFill<char>(normalStream->m_Data.GetData(), normalStream->m_Data.GetCount());
 
 

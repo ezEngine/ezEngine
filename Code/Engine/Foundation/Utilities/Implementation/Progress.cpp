@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Utilities/Progress.h>
 
 static ezProgress* s_pGlobal = nullptr;
@@ -138,7 +138,7 @@ ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bo
   m_bAllowCancel = bAllowCancel;
   m_uiCurrentStep = 0;
   m_sDisplayText = szDisplayText;
-  m_StepWeights.SetCount(uiSteps);
+  m_StepWeights.SetCountUninitialized(uiSteps);
   m_SummedWeight = (double)uiSteps;
 
   for (ezUInt32 s = 0; s < uiSteps; ++s)

@@ -383,7 +383,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<ezToken*
   ezHybridArray<const ezToken*, 32> Tokens0;
   ezResult r = GetNextLine(uiFirstToken, Tokens0);
 
-  Tokens.SetCount(Tokens0.GetCount());
+  Tokens.SetCountUninitialized(Tokens0.GetCount());
   for (ezUInt32 i = 0; i < Tokens0.GetCount(); ++i)
     Tokens[i] = const_cast<ezToken*>(Tokens0[i]); // soo evil !
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -38,7 +38,7 @@ ezStreamReader& operator >> (ezStreamReader& Stream, ezStringBuilder& sValue)
   if (uiLength > 0)
   {
     ezHybridArray<ezUInt8, 256> sTemp;
-    sTemp.SetCount(uiLength + 1);
+    sTemp.SetCountUninitialized(uiLength + 1);
 
     Stream.ReadBytes(&sTemp[0], uiLength);
     sTemp[uiLength] = '\0';

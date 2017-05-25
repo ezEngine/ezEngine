@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Time/Timestamp.h>
 
@@ -160,7 +160,7 @@ void ezRandomGauss::SetupTable(ezUInt32 uiMaxValue, float fSigma)
   const double UsefulRange = 5.0;
 
   m_fSigma = fSigma;
-  m_GaussAreaSum.SetCount(uiMaxValue);
+  m_GaussAreaSum.SetCountUninitialized(uiMaxValue);
 
   const double fBase2 = Gauss(UsefulRange, fSigma); // we clamp to zero at uiMaxValue, so we need the Gauss value there to subtract it from all other values
 

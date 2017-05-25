@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -181,7 +181,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")
   {
     ezDynamicArray<ezInt32> a1;
-    a1.SetCount(100);
+    a1.SetCountUninitialized(100);
 
     for (ezInt32 i = 0; i < 100; ++i)
       a1[i] = i;
@@ -824,7 +824,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetArrayPtr")
   {
       ezDynamicArray<ezInt32> a1;
-      a1.SetCount(10);
+      a1.SetCountUninitialized(10);
 
       EZ_TEST_BOOL(a1.GetArrayPtr().GetCount() == 10);
       EZ_TEST_BOOL(a1.GetArrayPtr().GetPtr() == a1.GetData());

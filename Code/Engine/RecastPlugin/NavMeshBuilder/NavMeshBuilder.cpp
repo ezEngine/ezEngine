@@ -174,7 +174,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMesh
     }
 
     // initialize the IDs to zero
-    m_TriangleAreaIDs.SetCount(m_Triangles.GetCount());
+    m_TriangleAreaIDs.SetCountUninitialized(m_Triangles.GetCount());
   }
 
   ezLog::Debug("Vertices: {0}, Triangles: {1}", m_Vertices.GetCount(), m_Triangles.GetCount());

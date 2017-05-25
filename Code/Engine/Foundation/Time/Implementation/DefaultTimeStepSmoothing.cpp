@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
 ezDefaultTimeStepSmoothing::ezDefaultTimeStepSmoothing()
@@ -28,7 +28,7 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime RawTimeStep, const
   m_LastTimeSteps.PushBack(RawTimeStep);
 
   ezStaticArray<ezTime, 11> Sorted;
-  Sorted.SetCount(m_LastTimeSteps.GetCount());
+  Sorted.SetCountUninitialized(m_LastTimeSteps.GetCount());
 
   for (ezUInt32 i = 0; i < m_LastTimeSteps.GetCount(); ++i)
     Sorted[i] = m_LastTimeSteps[i];

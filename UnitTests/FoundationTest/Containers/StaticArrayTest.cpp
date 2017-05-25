@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/StaticArray.h>
 
 namespace StaticArrayTestDetail
@@ -126,10 +126,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")
   {
     ezStaticArray<ezInt32, 128> a1;
-    a1.SetCount(100);
+    a1.SetCountUninitialized(100);
 
     for (ezInt32 i = 0; i < 100; ++i)
-      a1[i] = i;;
+      a1[i] = i;
 
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], i);

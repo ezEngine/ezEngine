@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlWriter.h>
@@ -675,7 +675,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
 
       const ezStringView* pValues = pString->GetPrimitivesString();
 
-      value.SetCount(pValues[0].GetElementCount() / 2);
+      value.SetCountUninitialized(pValues[0].GetElementCount() / 2);
       ezConversionUtils::ConvertHexToBinary(pValues[0].GetData(), value.GetData(), value.GetCount());
 
       out_result = value;

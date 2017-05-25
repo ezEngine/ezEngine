@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Inspector/DataTransferWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
@@ -199,7 +199,7 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
     Reader >> uiHeight;
 
     ezDynamicArray<ezUInt8> Image;
-    Image.SetCount(uiWidth * uiHeight * 4);
+    Image.SetCountUninitialized(uiWidth * uiHeight * 4);
 
     Reader.ReadBytes(&Image[0], Image.GetCount());
 
@@ -210,7 +210,7 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   else if (sMime == "text/xml")
   {
     ezHybridArray<ezUInt8, 1024> Temp;
-    Temp.SetCount(Reader.GetByteCount() + 1);
+    Temp.SetCountUninitialized(Reader.GetByteCount() + 1);
 
     Reader.ReadBytes(&Temp[0], Reader.GetByteCount());
     Temp[Reader.GetByteCount()] = '\0';
@@ -239,7 +239,7 @@ bool ezQtDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
   }
 
   ezHybridArray<ezUInt8, 1024> Temp;
-  Temp.SetCount(Reader.GetByteCount());
+  Temp.SetCountUninitialized(Reader.GetByteCount());
 
   Reader.ReadBytes(&Temp[0], Reader.GetByteCount());
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <StochasticRendering/Passes/StochasticPass.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
@@ -144,7 +144,7 @@ void ezStochasticPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelineP
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_randomNumbers.SetCount(8196);
+  m_randomNumbers.SetCountUninitialized(8196);
 
   ezGALBufferCreationDescription desc;
   desc.m_bAllowShaderResourceView = true;

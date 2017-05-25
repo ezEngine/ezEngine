@@ -475,7 +475,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         return;
 
       ezHybridArray<ezUInt8, sizeof(RAWINPUT)> InputData;
-      InputData.SetCount(uiSize);
+      InputData.SetCountUninitialized(uiSize);
 
       if (GetRawInputData((HRAWINPUT) lParam, RID_INPUT, &InputData[0], &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
         return;
