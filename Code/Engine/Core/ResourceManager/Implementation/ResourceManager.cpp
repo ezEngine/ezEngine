@@ -900,6 +900,9 @@ void ezResourceManager::OnCoreShutdown()
 
 ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable)
 {
+  if (ezStringUtils::IsNullOrEmpty(szResourceID))
+    return nullptr;
+
   ezResourceBase* pResource = nullptr;
 
   ezTempHashedString sResourceHash(szResourceID);
