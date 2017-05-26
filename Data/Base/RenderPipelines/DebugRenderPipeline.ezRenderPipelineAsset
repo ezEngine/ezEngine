@@ -2,6 +2,13 @@ Objects
 {
 o
 {
+	Uuid %id{u4{11123972810708753565,179857278088878715}}
+	s %t{"ezPassThroughNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{945475715834709288,485679657885951862}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -14,6 +21,13 @@ o
 }
 o
 {
+	Uuid %id{u4{1274249901806187935,528223914354702831}}
+	s %t{"ezOutputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{7328947067230554015,1144694700996534929}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
@@ -23,6 +37,13 @@ o
 {
 	Uuid %id{u4{6991084334796150597,1676373877529699261}}
 	s %t{"ezPassThroughNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{17141577005745368364,3643115634013300643}}
+	s %t{"ezOutputNodePin"}
 	u3 %v{1}
 	p{}
 }
@@ -87,6 +108,30 @@ o
 }
 o
 {
+	Uuid %id{u4{17816379312820437916,4727305077288242978}}
+	s %t{"ezScreenSpaceAmbientOcclusionPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %AmbientObscurance{u4{17141577005745368364,3643115634013300643}}
+		Uuid %Depth{u4{13093187497150740359,16601182287564718053}}
+		f %DepthCutoffDistance{0x00000040}
+		b %DistributedGathering{1}
+		u3 %LineSampleDistanceFactor{1}
+		u3 %LineToLineDistance{5}
+		s %Name{"SSAOPass"}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{1119898604610021353,9388399405278485357}}
+		}
+		Vec2 %Node::Pos{f{0xAE642FC4,0x49B8B3C3}}
+		f %OcclusionFalloff{0x9A99193E}
+		VarArray %Renderers{}
+	}
+}
+o
+{
 	Uuid %id{u4{5838920634544973977,4736227885877821259}}
 	s %t{"ezTargetPass"}
 	u3 %v{1}
@@ -110,6 +155,25 @@ o
 }
 o
 {
+	Uuid %id{u4{8884804810238014123,4785135554151734805}}
+	s %t{"ezMsaaResolvePass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Input{u4{10292640009181527225,14195933655578006268}}
+		s %Name{""}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{10186750766222725158,14730356951024868470}}
+		}
+		Vec2 %Node::Pos{f{0xC1FC5DC4,0x49B8B3C3}}
+		Uuid %Output{u4{1274249901806187935,528223914354702831}}
+		VarArray %Renderers{}
+	}
+}
+o
+{
 	Uuid %id{u4{15327313555978245641,4817543209996196754}}
 	s %t{"ezOutputNodePin"}
 	u3 %v{1}
@@ -125,7 +189,7 @@ o
 		b %Active{1}
 		s %Name{"EditorPickingPass"}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x0080BAC3,0x0000BCC3}}
+		Vec2 %Node::Pos{f{0x5A369DC3,0x3157B7C3}}
 		b %PickSelected{0}
 		Vec2 %PickingPosition{f{0,0}}
 		VarArray %Renderers
@@ -155,7 +219,7 @@ o
 		{
 			Uuid{u4{8282653485448939509,5577434206779283353}}
 		}
-		Vec2 %Node::Pos{f{0x00402DC4,0x0000F6C3}}
+		Vec2 %Node::Pos{f{0x544A92C4,0x44E8E7C3}}
 		Uuid %Output{u4{14249063597274481687,16366600835580842682}}
 		VarArray %Renderers{}
 	}
@@ -189,7 +253,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{1370581953268083963}
+		u4 %Hash{16082079541586550291}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -315,6 +379,9 @@ o
 			Uuid{u4{13240644261472551090,5328813400344816463}}
 			Uuid{u4{1740826491796214458,4619938283453585985}}
 			Uuid{u4{10051606199603989152,5590351558667711007}}
+			Uuid{u4{11432862170679191463,5656331313000316867}}
+			Uuid{u4{8884804810238014123,4785135554151734805}}
+			Uuid{u4{17816379312820437916,4727305077288242978}}
 		}
 	}
 }
@@ -374,7 +441,7 @@ o
 	p
 	{
 		s %SourcePin{"Output"}
-		Uuid %Target{u4{544518838222088365,5289325014509718110}}
+		Uuid %Target{u4{11432862170679191463,5656331313000316867}}
 		s %TargetPin{"DepthStencil"}
 	}
 }
@@ -414,6 +481,28 @@ o
 }
 o
 {
+	Uuid %id{u4{11432862170679191463,5656331313000316867}}
+	s %t{"ezDepthOnlyPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %DepthStencil{u4{11123972810708753565,179857278088878715}}
+		s %Name{"DepthPrePass"}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{15047630005220324798,5736669138922324241}}
+			Uuid{u4{11985688365771949098,9197239912491587397}}
+		}
+		Vec2 %Node::Pos{f{0xA5A271C4,0xDB5901C4}}
+		VarArray %Renderers
+		{
+			Uuid{u4{18006142286075838397,5753952985944765643}}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{6528679805516370852,5699755674464051544}}
 	s %t{"ezParticleExtractor"}
 	u3 %v{1}
@@ -440,6 +529,25 @@ o
 		Uuid %SceneContext{u4{0,0}}
 		f %Size{0x0000803F}
 	}
+}
+o
+{
+	Uuid %id{u4{15047630005220324798,5736669138922324241}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{544518838222088365,5289325014509718110}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
+	Uuid %id{u4{18006142286075838397,5753952985944765643}}
+	s %t{"ezMeshRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -472,6 +580,30 @@ o
 		s %SourcePin{"Color"}
 		Uuid %Target{u4{1740826491796214458,4619938283453585985}}
 		s %TargetPin{"Input"}
+	}
+}
+o
+{
+	Uuid %id{u4{11985688365771949098,9197239912491587397}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{8884804810238014123,4785135554151734805}}
+		s %TargetPin{"Input"}
+	}
+}
+o
+{
+	Uuid %id{u4{1119898604610021353,9388399405278485357}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"AmbientObscurance"}
+		Uuid %Target{u4{544518838222088365,5289325014509718110}}
+		s %TargetPin{"SSAO"}
 	}
 }
 o
@@ -530,6 +662,13 @@ o
 }
 o
 {
+	Uuid %id{u4{10292640009181527225,14195933655578006268}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{9863354671111622160,14241425569889992395}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
@@ -541,6 +680,18 @@ o
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{10186750766222725158,14730356951024868470}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{17816379312820437916,4727305077288242978}}
+		s %TargetPin{"Depth"}
+	}
 }
 o
 {
@@ -596,6 +747,13 @@ o
 {
 	Uuid %id{u4{14249063597274481687,16366600835580842682}}
 	s %t{"ezOutputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{13093187497150740359,16601182287564718053}}
+	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
 }

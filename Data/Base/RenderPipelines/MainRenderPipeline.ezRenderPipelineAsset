@@ -499,7 +499,7 @@ o
 		b %DistributedGathering{1}
 		u3 %LineSampleDistanceFactor{1}
 		u3 %LineToLineDistance{5}
-		s %Name{""}
+		s %Name{"SSAOPass"}
 		VarArray %Node::Connections
 		{
 			Uuid{u4{12840291537622090936,7120117218080742269}}
@@ -550,7 +550,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{6056397629079449706}
+		u4 %Hash{43513120220161240}
 		VarArray %Outputs{}
 		VarArray %References
 		{

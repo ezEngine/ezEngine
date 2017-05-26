@@ -30,7 +30,7 @@ namespace
     ezVec3 dirRight = pCamera->GetCenterDirRight();
     ezVec3 dirUp = pCamera->GetCenterDirUp();
 
-    ezColor lineColor = ezColor(1.0f, 1.0f, 1.0f);
+    ezColor lineColor = ezColor(1.0f, 1.0f, 1.0f, 0.1f);
 
     ezInt32 debugSlice = CVarVisClusterDepthSlice;
     ezUInt32 maxSlice = debugSlice < 0 ? NUM_CLUSTERS_Z : debugSlice + 1;
@@ -38,15 +38,21 @@ namespace
 
     for (ezUInt32 z = maxSlice; z-- > minSlice;)
     {
-      float fDepth = GetDepthFromSliceIndex(z);
+      float fDepthFar = GetDepthFromSliceIndex(z);
+      float fDepthNear = (z > 0) ? GetDepthFromSliceIndex(z - 1) : 0.0f;
 
-      float fHalfWidth = fDepth * fTanFovX;
-      float fHalfHeight = fDepth * fTanFovY;
+      float fHalfWidthFar = fDepthFar * fTanFovX;
+      float fHalfHeightFar = fDepthFar * fTanFovY;
+      float fHalfWidthNear = fDepthNear * fTanFovX;
+      float fHalfHeightNear = fDepthNear * fTanFovY;
 
-      ezVec3 depth = pos + dirForward * fDepth;
+      ezVec3 depthFar = pos + dirForward * fDepthFar;
+      ezVec3 depthNear = pos + dirForward * fDepthNear;
 
-      float fStepX = (fHalfWidth * 2.0f) / NUM_CLUSTERS_X;
-      float fStepY = (fHalfHeight * 2.0f) / NUM_CLUSTERS_Y;
+      float fStepXf = (fHalfWidthFar * 2.0f) / NUM_CLUSTERS_X;
+      float fStepYf = (fHalfHeightFar * 2.0f) / NUM_CLUSTERS_Y;
+      float fStepXn = (fHalfWidthNear * 2.0f) / NUM_CLUSTERS_X;
+      float fStepYn = (fHalfHeightNear * 2.0f) / NUM_CLUSTERS_Y;
 
       for (ezInt32 y = 0; y < NUM_CLUSTERS_Y; ++y)
       {
@@ -57,34 +63,77 @@ namespace
 
           if (clusterData.counts > 0)
           {
-            float fX = (x - (NUM_CLUSTERS_X / 2)) * fStepX;
-            float fY = (y - (NUM_CLUSTERS_Y / 2)) * fStepY;
-            ezVec3 tlCorner = depth + dirRight * fX - dirUp * fY;
-            ezVec3 trCorner = tlCorner + dirRight * fStepX;
-            ezVec3 blCorner = tlCorner - dirUp * fStepY;
-            ezVec3 brCorner = blCorner + dirRight * fStepX;
+            float fXf = (x - (NUM_CLUSTERS_X / 2)) * fStepXf;
+            float fYf = (y - (NUM_CLUSTERS_Y / 2)) * fStepYf;
 
-            ezDebugRenderer::Triangle tris[2];
-            tris[0] = ezDebugRenderer::Triangle(tlCorner, trCorner, blCorner);
-            tris[1] = ezDebugRenderer::Triangle(blCorner, trCorner, brCorner);
+            ezVec3 tlCornerF = depthFar + dirRight * fXf - dirUp * fYf;
+            ezVec3 trCornerF = tlCornerF + dirRight * fStepXf;
+            ezVec3 blCornerF = tlCornerF - dirUp * fStepYf;
+            ezVec3 brCornerF = blCornerF + dirRight * fStepXf;
+
+            float fXn = (x - (NUM_CLUSTERS_X / 2)) * fStepXn;
+            float fYn = (y - (NUM_CLUSTERS_Y / 2)) * fStepYn;
+
+            ezVec3 tlCornerN = depthNear + dirRight * fXn - dirUp * fYn;
+            ezVec3 trCornerN = tlCornerN + dirRight * fStepXn;
+            ezVec3 blCornerN = tlCornerN - dirUp * fStepYn;
+            ezVec3 brCornerN = blCornerN + dirRight * fStepXn;
 
             float normalizedCount = (clusterData.counts - 1) / 16.0f;
             float r = ezMath::Clamp(normalizedCount, 0.0f, 1.0f);
             float g = ezMath::Clamp(2.0f - normalizedCount, 0.0f, 1.0f);
 
-            ezDebugRenderer::DrawSolidTriangles(view.GetHandle(), tris, ezColor(r, g, 0.0f, 0.05f));
+            ezDebugRenderer::Triangle tris[12];
+            //back
+            tris[0] = ezDebugRenderer::Triangle(tlCornerF, blCornerF, trCornerF);
+            tris[1] = ezDebugRenderer::Triangle(blCornerF, brCornerF, trCornerF);
+            //front
+            tris[2] = ezDebugRenderer::Triangle(tlCornerN, trCornerN, blCornerN);
+            tris[3] = ezDebugRenderer::Triangle(blCornerN, trCornerN, brCornerN);
+            //top
+            tris[4] = ezDebugRenderer::Triangle(tlCornerN, tlCornerF, trCornerN);
+            tris[5] = ezDebugRenderer::Triangle(tlCornerF, trCornerF, trCornerN);
+            //bottom
+            tris[6] = ezDebugRenderer::Triangle(blCornerN, brCornerN, blCornerF);
+            tris[7] = ezDebugRenderer::Triangle(blCornerF, brCornerN, brCornerF);
+            //left
+            tris[8] = ezDebugRenderer::Triangle(tlCornerN, blCornerN, tlCornerF);
+            tris[9] = ezDebugRenderer::Triangle(tlCornerF, blCornerN, blCornerF);
+            //right
+            tris[10] = ezDebugRenderer::Triangle(trCornerN, trCornerF, brCornerN);
+            tris[11] = ezDebugRenderer::Triangle(trCornerF, brCornerF, brCornerN);
+
+            ezDebugRenderer::DrawSolidTriangles(view.GetHandle(), tris, ezColor(r, g, 0.0f, 0.1f));
+
+            ezDebugRenderer::Line lines[12];
+            lines[0] = ezDebugRenderer::Line(tlCornerN, trCornerN);
+            lines[1] = ezDebugRenderer::Line(trCornerN, brCornerN);
+            lines[2] = ezDebugRenderer::Line(brCornerN, blCornerN);
+            lines[3] = ezDebugRenderer::Line(blCornerN, tlCornerN);
+
+            lines[4] = ezDebugRenderer::Line(tlCornerF, trCornerF);
+            lines[5] = ezDebugRenderer::Line(trCornerF, brCornerF);
+            lines[6] = ezDebugRenderer::Line(brCornerF, blCornerF);
+            lines[7] = ezDebugRenderer::Line(blCornerF, tlCornerF);
+
+            lines[8] = ezDebugRenderer::Line(tlCornerN, tlCornerF);
+            lines[9] = ezDebugRenderer::Line(trCornerN, trCornerF);
+            lines[10] = ezDebugRenderer::Line(brCornerN, brCornerF);
+            lines[11] = ezDebugRenderer::Line(blCornerN, blCornerF);
+
+            ezDebugRenderer::DrawLines(view.GetHandle(), lines, ezColor(r, g, 0.0f));
           }
         }
       }
 
       {
-        ezVec3 halfWidth = dirRight * fHalfWidth;
-        ezVec3 halfHeight = dirUp * fHalfHeight;
+        ezVec3 halfWidth = dirRight * fHalfWidthFar;
+        ezVec3 halfHeight = dirUp * fHalfHeightFar;
 
-        ezVec3 p0 = depth + halfWidth + halfHeight;
-        ezVec3 p1 = depth + halfWidth - halfHeight;
-        ezVec3 p2 = depth - halfWidth - halfHeight;
-        ezVec3 p3 = depth - halfWidth + halfHeight;
+        ezVec3 p0 = depthFar + halfWidth + halfHeight;
+        ezVec3 p1 = depthFar + halfWidth - halfHeight;
+        ezVec3 p2 = depthFar - halfWidth - halfHeight;
+        ezVec3 p3 = depthFar - halfWidth + halfHeight;
 
         ezDebugRenderer::Line lines[4];
         lines[0] = ezDebugRenderer::Line(p0, p1);

@@ -212,9 +212,11 @@ void ezPhysX::Shutdown()
 
 void ezPhysX::StartupVDB()
 {
-  // return if we already have a connection
+  // disconnect if we already have a connection
   if (m_PvdConnection->isConnected(false))
-    return;
+  {
+    m_PvdConnection->disconnect();
+  }
 
   // setup connection parameters
   const char* pvd_host_ip = "127.0.0.1"; // IP of the PC which is running PVD

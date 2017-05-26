@@ -260,12 +260,14 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
 
     attenuation *= saturate(dot(matData.worldNormal, lightVector));
 
+    [branch]
     if (attenuation > 0.0f)
     {
       attenuation *= MicroShadow(matData.occlusion, matData.worldNormal, lightVector);
 
       float3 debugColor = 1.0f;
 
+      [branch]
       if (lightData.shadowDataOffset != 0xFFFFFFFF)
       {
         uint shadowDataOffset = lightData.shadowDataOffset;

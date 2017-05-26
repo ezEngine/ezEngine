@@ -81,13 +81,17 @@ PS_OUT main(PS_IN Input)
     {
       float lightCount = clusterData.counts;
       if (lightCount == 0)
+      {
         Output.Color = float4(0, 0, 0, 1);
-      
-      float x = (lightCount - 1) / 16;
-      float r = saturate(x);
-      float g = saturate(2 - x);
-      
-      Output.Color = float4(r, g, 0, 1);
+      }
+      else
+      {
+        float x = (lightCount - 1) / 16;
+        float r = saturate(x);
+        float g = saturate(2 - x);
+        
+        Output.Color = float4(r, g, 0, 1);
+      }
     }
     else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
     {
@@ -106,7 +110,7 @@ PS_OUT main(PS_IN Input)
       #if defined(USE_NORMAL)
         Output.Color = float4(SrgbToLinear(normalize(Input.Normal) * 0.5 + 0.5), 1);
       #else
-        Output.Color = float4(0, 0, 0, 0);
+        Output.Color = float4(0, 0, 0, 1);
       #endif
     }
     else if (RenderPass == EDITOR_RENDER_PASS_VERTEX_TANGENTS)
@@ -114,42 +118,49 @@ PS_OUT main(PS_IN Input)
       #if defined(USE_TANGENT)
         Output.Color = float4(SrgbToLinear(normalize(Input.Tangent) * 0.5 + 0.5), 1);
       #else
-        Output.Color = float4(0, 0, 0, 0);
+        Output.Color = float4(0, 0, 0, 1);
       #endif
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_COLOR)
     {
-      Output.Color = float4(matData.diffuseColor, 1);
+      Output.Color = float4(matData.diffuseColor, opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_COLOR_RANGE)
     {
+      Output.Color = float4(matData.diffuseColor, opacity);
+      
       float luminance = GetLuminance(matData.diffuseColor);
       if (luminance < 0.017) // 40 srgb
       {
-        Output.Color = float4(1, 0, 1, 1);
+        Output.Color = float4(1, 0, 1, opacity);
       }
       else if (luminance > 0.9) // 243 srgb
       {
-        Output.Color = float4(0, 1, 0, 1);
+        Output.Color = float4(0, 1, 0, opacity);
       }
-
-      Output.Color = float4(matData.diffuseColor, 1);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_SPECULAR_COLOR)
     {
-      Output.Color = float4(matData.specularColor, 1);
+      Output.Color = float4(matData.specularColor, opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_EMISSIVE_COLOR)
     {
-      Output.Color = float4(matData.emissiveColor, 1);
+      Output.Color = float4(matData.emissiveColor, opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_ROUGHNESS)
     {
-      Output.Color = float4(SrgbToLinear(matData.roughness), 1);
+      Output.Color = float4(SrgbToLinear(matData.roughness), opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
     {
-      Output.Color = float4(SrgbToLinear(matData.occlusion), 1);
+      float occlusion = matData.occlusion;
+      
+      #if USE_SSAO
+        float ssao = SSAOTexture.SampleLevel(PointClampSampler, Input.Position.xy * ViewportSize.zw, 0.0f).r;
+        occlusion = min(occlusion, ssao);
+      #endif
+      
+      Output.Color = float4(SrgbToLinear(occlusion), opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DEPTH)
     {
