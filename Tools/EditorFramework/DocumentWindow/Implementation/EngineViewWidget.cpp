@@ -203,8 +203,8 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
   {
     ezViewPickingMsgToEngine msg;
     msg.m_uiViewID = GetViewID();
-    msg.m_uiPickPosX = uiScreenPosX;
-    msg.m_uiPickPosY = uiScreenPosY;
+    msg.m_uiPickPosX = uiScreenPosX * devicePixelRatio();
+    msg.m_uiPickPosY = uiScreenPosY * devicePixelRatio();
 
     GetDocumentWindow()->GetDocument()->SendMessageToEngine(&msg);
   }
