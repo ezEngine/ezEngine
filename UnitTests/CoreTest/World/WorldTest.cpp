@@ -67,6 +67,43 @@ namespace
     }
   }
 
+  void SanityCheckWorld(ezWorld& world)
+  {
+    struct Traverser
+    {
+      Traverser(ezWorld& world) : m_World(world) {}
+
+      ezWorld& m_World;
+      ezSet<ezGameObject*> m_Found;
+
+      ezVisitorExecution::Enum Visit(ezGameObject* pObject)
+      {
+        ezGameObject* pObject2 = nullptr;
+        EZ_TEST_BOOL_MSG(m_World.TryGetObject(pObject->GetHandle(), pObject2), "Visited object that is not part of the world!");
+        EZ_TEST_BOOL_MSG(pObject2 == pObject, "Handle did not resolve to the same object!");
+        EZ_TEST_BOOL_MSG(!m_Found.Contains(pObject), "Object visited twice!");
+        m_Found.Insert(pObject);
+
+        const ezUInt32 uiChildren = pObject->GetChildCount();
+        ezUInt32 uiChildren2 = 0;
+        for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+        {
+          uiChildren2++;
+          auto handle = it->GetHandle();
+          ezGameObject* pChild = nullptr;
+          EZ_TEST_BOOL_MSG(m_World.TryGetObject(handle, pChild), "Could not resolve child!");
+          ezGameObject* pParent = pChild->GetParent();
+          EZ_TEST_BOOL_MSG(pParent == pObject, "pObject's child's parent does not point to pObject!");
+        }
+        EZ_TEST_INT(uiChildren, uiChildren2);
+        return ezVisitorExecution::Continue;
+      }
+    };
+
+    Traverser traverser(world);
+    world.Traverse(ezWorld::VisitorFunc(&Traverser::Visit, &traverser), ezWorld::TraversalMethod::BreadthFirst);
+  }
+
   class CustomCoordinateSystemProvider : public ezCoordinateSystemProvider
   {
   public:
@@ -194,6 +231,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     // do one update step so dead objects get deleted
     world.Update();
+    SanityCheckWorld(world);
 
     EZ_TEST_BOOL(!world.IsValidObject(childObjects[0]));
     EZ_TEST_BOOL(!world.IsValidObject(childObjects[3]));
@@ -223,6 +261,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     // do one update step so dead objects get deleted
     world.Update();
+    SanityCheckWorld(world);
 
     EZ_TEST_BOOL(!world.IsValidObject(parentObject));
 
@@ -244,7 +283,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     o.pParent1->AddChild(o.pParent2->GetHandle());
     o.pParent2->SetParent(o.pParent1->GetHandle());
-
+    SanityCheckWorld(world);
     // No need to update the world since re-parenting is now done immediately.
     //world.Update();
 
@@ -278,7 +317,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     TestWorldObjects o = CreateTestWorld(world);
 
     o.pChild21->SetParent(ezGameObjectHandle());
-
+    SanityCheckWorld(world);
     // No need to update the world since re-parenting is now done immediately.
     //world.Update();
 
@@ -297,6 +336,31 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_INT(o.pParent2->GetChildCount(), 0);
     it = o.pParent2->GetChildren();
     EZ_TEST_BOOL(!it.IsValid());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 3")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    TestWorldObjects o = CreateTestWorld(world);
+    SanityCheckWorld(world);
+    // Here we test whether the sibling information is correctly cleared.
+
+    o.pChild21->SetParent(o.pParent1->GetHandle());
+    SanityCheckWorld(world);
+    // pChild21 has a previous (pChild11) sibling.
+    o.pParent2->SetParent(o.pParent1->GetHandle());
+    SanityCheckWorld(world);
+    // pChild21 has a previous (pChild11) and next (pParent2) sibling.
+    o.pChild21->SetParent(ezGameObjectHandle());
+    SanityCheckWorld(world);
+    // pChild21 has no siblings.
+    o.pChild21->SetParent(o.pParent1->GetHandle());
+    SanityCheckWorld(world);
+    // pChild21 has a previous (pChild11) sibling again.
+
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Traversal")
