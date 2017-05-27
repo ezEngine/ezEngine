@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Map.h>
@@ -20,12 +20,12 @@ public:
 
   /// \todo Events for new/deleted singletons -> ezInspector integration
 
-  /// \test This is new
+  /// \brief Retrieves a singleton instance by type name.
+  static void* GetSingletonInstance(const char* szSingletonClassType); // [tested]
 
-  static void* GetSingletonInstance(const char* szSingletonClassType);
-
+  /// \brief Retrieves a singleton instance by type name and casts it to the desired interface.
   template<typename Interface>
-  static Interface* GetSingletonInstance(const char* szSingletonClassType)
+  static Interface* GetSingletonInstance(const char* szSingletonClassType) // [tested]
   {
     return static_cast<Interface*>(GetSingletonInstance(szSingletonClassType));
   }
@@ -33,8 +33,11 @@ public:
   /// \brief Allows to inspect all known singletons
   static const ezMap<ezString, void*>& GetAllRegisteredSingletons();
 
-  static void Register(void* pSingletonInstance, const char* szTypeName);
-  static void Unregister(const char* szTypeName);
+  /// \brief Registers a singleton instance under a given type name. This is automatically called by ezSingletonRegistrar.
+  static void Register(void* pSingletonInstance, const char* szTypeName); // [tested]
+
+  /// \brief Unregisters a singleton instance. This is automatically called by ezSingletonRegistrar.
+  static void Unregister(const char* szTypeName); // [tested]
 
 private:
   template<typename>
@@ -108,12 +111,12 @@ template<class TYPE>
 class ezSingletonRegistrar
 {
 public:
-  ezSingletonRegistrar(TYPE* pType)
+  ezSingletonRegistrar(TYPE* pType) // [tested]
   {
     pType->RegisterSingleton();
   }
 
-  ~ezSingletonRegistrar()
+  ~ezSingletonRegistrar() // [tested]
   {
     TYPE::UnregisterSingleton();
   }

@@ -46,11 +46,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReader::GetRootElement() const
 
 const ezOpenDdlReaderElement* ezOpenDdlReader::FindElement(const char* szGlobalName) const
 {
-  auto it = m_GlobalNames.Find(szGlobalName);
-  if (it.IsValid())
-    return it.Value();
-
-  return nullptr;
+  return m_GlobalNames.GetValueOrDefault(szGlobalName, nullptr);
 }
 
 const char* ezOpenDdlReader::CopyString(const ezStringView& string)

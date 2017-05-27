@@ -58,11 +58,7 @@ const char* ezAbstractObjectGraph::RegisterString(const char* szString)
 
 ezAbstractObjectNode* ezAbstractObjectGraph::GetNode(const ezUuid& guid)
 {
-  auto it = m_Nodes.Find(guid);
-  if (it.IsValid())
-    return it.Value();
-
-  return nullptr;
+  return m_Nodes.GetValueOrDefault(guid, nullptr);
 }
 
 const ezAbstractObjectNode* ezAbstractObjectGraph::GetNode(const ezUuid& guid) const
@@ -77,11 +73,7 @@ const ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szN
 
 ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szName)
 {
-  auto itNode = m_NodesByName.Find(szName);
-  if (!itNode.IsValid())
-    return nullptr;
-
-  return itNode.Value();
+  return  m_NodesByName.GetValueOrDefault(szName, nullptr);
 }
 
 ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const char* szType, ezUInt32 uiTypeVersion, const char* szNodeName)

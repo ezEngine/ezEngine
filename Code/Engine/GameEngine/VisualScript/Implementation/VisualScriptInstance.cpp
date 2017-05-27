@@ -375,12 +375,7 @@ ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunctio
   key.m_SourceType = sourceType;
   key.m_DstType = dstType;
 
-  auto it = s_DataPinAssignFunctions.Find(key);
-
-  if (it.IsValid())
-    return it.Value();
-
-  return nullptr;
+  return  s_DataPinAssignFunctions.GetValueOrDefault(key, nullptr);
 }
 
 bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const

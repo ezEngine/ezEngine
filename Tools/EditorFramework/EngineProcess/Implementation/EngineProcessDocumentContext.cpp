@@ -449,10 +449,7 @@ void ezEngineProcessDocumentContext::RemoveSyncObject(ezEditorEngineSyncObject* 
 
 ezEditorEngineSyncObject* ezEngineProcessDocumentContext::FindSyncObject(const ezUuid& guid)
 {
-  auto it = m_SyncObjects.Find(guid);
-  if (it.IsValid())
-    return it.Value();
-  return nullptr;
+  return m_SyncObjects.GetValueOrDefault(guid, nullptr);
 }
 
 void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent& e)

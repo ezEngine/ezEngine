@@ -113,12 +113,7 @@ const ezRTTI* ezResourceManager::FindResourceForAssetType(const char* szAssetTyp
   ezStringBuilder s = szAssetTypeName;
   s.ToLower();
 
-  auto it = s_AssetToResourceType.Find(s);
-
-  if (it.IsValid())
-    return it.Value();
-
-  return nullptr;
+  return s_AssetToResourceType.GetValueOrDefault(s, nullptr);
 }
 
 void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority)

@@ -66,10 +66,7 @@ public:
 
   ezUuid GetGuid(HandleType handle) const
   {
-    auto it = m_HandleToGuid.Find(handle);
-    if (it.IsValid())
-      return it.Value();
-    return ezUuid();
+    return m_HandleToGuid.GetValueOrDefault(handle, ezUuid());
   }
 
 private:

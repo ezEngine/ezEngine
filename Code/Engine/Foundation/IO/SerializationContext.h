@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/Map.h>
@@ -41,11 +41,7 @@ public:
   /// As long as you use the EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS() macro, it is typically not necessary to call this function directly.
   static DERIVED* GetReaderContext(ezStreamReader* pStream) // [tested]
   {
-    auto it = s_ActiveReaderContexts.Find(pStream);
-    if (it.IsValid())
-      return it.Value();
-
-    return nullptr;
+    return s_ActiveReaderContexts.GetValueOrDefault(pStream, nullptr);
   }
 
   /// \brief Returns the serialization context that is associated with the given stream (may be nullptr).
@@ -53,11 +49,7 @@ public:
   /// As long as you use the EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS() macro, it is typically not necessary to call this function directly.
   static DERIVED* GetWriterContext(ezStreamWriter* pStream) // [tested]
   {
-    auto it = s_ActiveWriterContexts.Find(pStream);
-    if (it.IsValid())
-      return it.Value();
-
-    return nullptr;
+    return s_ActiveWriterContexts.GetValueOrDefault(pStream, nullptr);
   }
 
 protected:

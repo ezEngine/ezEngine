@@ -1,16 +1,11 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Configuration/Singleton.h>
 
 ezMap<ezString, void*> ezSingletonRegistry::s_Singletons;
 
 void* ezSingletonRegistry::GetSingletonInstance(const char* szSingletonClassType)
 {
-  auto it = s_Singletons.Find(szSingletonClassType);
-
-  if (it.IsValid())
-    return it.Value();
-
-  return nullptr;
+  return s_Singletons.GetValueOrDefault(szSingletonClassType, nullptr);
 }
 
 const ezMap<ezString, void*>& ezSingletonRegistry::GetAllRegisteredSingletons()

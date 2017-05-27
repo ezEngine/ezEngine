@@ -248,11 +248,7 @@ void ezFmod::SetSoundGroupVolume(const char* szVcaGroupGuid, float volume)
 
 float ezFmod::GetSoundGroupVolume(const char* szVcaGroupGuid) const
 {
-  auto it = m_pData->m_VcaVolumes.Find(szVcaGroupGuid);
-  if (it.IsValid())
-    return it.Value();
-
-  return 1.0f;
+  return m_pData->m_VcaVolumes.GetValueOrDefault(szVcaGroupGuid, 1.0f);
 }
 
 void ezFmod::UpdateSoundGroupVolumes()

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <algorithm>
@@ -165,6 +165,34 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(*m.GetValue(i), i * 10);
 
     EZ_TEST_BOOL(m.GetValue(101) == nullptr);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue (const)")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      m[i] = i * 10;
+
+    const ezMap<ezUInt32, ezUInt32>& mConst = m;
+
+    for (ezInt32 i = 100 - 1; i >= 0; --i)
+      EZ_TEST_INT(*mConst.GetValue(i), i * 10);
+
+    EZ_TEST_BOOL(mConst.GetValue(101) == nullptr);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValueOrDefault")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      m[i] = i * 10;
+
+    for (ezInt32 i = 100 - 1; i >= 0; --i)
+      EZ_TEST_INT(m.GetValueOrDefault(i, 999), i * 10);
+
+    EZ_TEST_BOOL(m.GetValueOrDefault(101, 999) == 999);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains")

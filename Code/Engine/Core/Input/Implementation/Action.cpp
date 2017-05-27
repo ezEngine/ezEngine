@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Input/InputManager.h>
 
 ezInputActionConfig::ezInputActionConfig()
@@ -320,12 +320,7 @@ void ezInputManager::SetActionDisplayName(const char* szAction, const char* szDi
 
 const char* ezInputManager::GetActionDisplayName(const char* szAction)
 {
-  auto it = GetInternals().s_ActionDisplayNames.Find(szAction);
-
-  if (it.IsValid())
-    return it.Value().GetData();
-
-  return szAction;
+  return GetInternals().s_ActionDisplayNames.GetValueOrDefault(szAction, szAction);
 }
 
 void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames)

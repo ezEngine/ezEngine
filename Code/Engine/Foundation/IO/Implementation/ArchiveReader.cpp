@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
 #ifdef EZ_SUPPORT_EZARCHIVE
 
@@ -22,12 +22,7 @@ void ezArchiveReader::RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveS
 
 ezUInt32 ezArchiveReader::GetStoredTypeVersion(const ezRTTI* pRtti) const
 {
-  auto it = m_StoredVersion.Find(pRtti);
-
-  if (it.IsValid())
-    return it.Value();
-
-  return 0xFFFFFFFF;
+  return m_StoredVersion.GetValueOrDefault(pRtti, 0xFFFFFFFF);
 }
 
 ezArchiveSerializer* ezArchiveReader::GetTypeSerializer(const ezRTTI* pRttiBase)
