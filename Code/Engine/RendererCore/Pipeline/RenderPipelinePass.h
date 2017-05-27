@@ -57,14 +57,14 @@ public:
     ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
 
   /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
-  /// with the inputs and outputs for review. Un-connected pins have a nullptr value in the passed in arrays.
-  /// This is the time to create addtional resources that are not covered by the pins automatically, e.g. a picking texture or eye adaptation buffer.
+  /// with the inputs and outputs for review. Disconnected pins have a nullptr value in the passed in arrays.
+  /// This is the time to create additional resources that are not covered by the pins automatically, e.g. a picking texture or eye adaptation buffer.
   virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
 
   /// \brief Render into outputs. Both inputs and outputs are passed in with actual texture handles.
-  /// Un-connected pins have a nullptr value in the passed in arrays. You can now create views and render target setups on the fly and
-  /// fille the output targets with data.
+  /// Disconnected pins have a nullptr value in the passed in arrays. You can now create views and render target setups on the fly and
+  /// fill the output targets with data.
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) = 0;
 

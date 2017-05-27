@@ -132,16 +132,15 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
   {
     const ezRenderDataBatch& batch = batchList.GetBatch(i);
 
-    const ezRenderData* pRenderData = batch.GetFirstData<ezRenderData>();
-    if (pRenderData == nullptr)
-      continue;
-
-    const ezRTTI* pType = pRenderData->GetDynamicRTTI();
-
-    ezUInt32 uiRendererIndex = ezInvalidIndex;
-    if (m_TypeToRendererIndex.TryGetValue(pType, uiRendererIndex))
+    if (const ezRenderData* pRenderData = batch.GetFirstData<ezRenderData>())
     {
-      m_Renderer[uiRendererIndex]->RenderBatch(renderViewContext, this, batch);
+      const ezRTTI* pType = pRenderData->GetDynamicRTTI();
+
+      ezUInt32 uiRendererIndex = ezInvalidIndex;
+      if (m_TypeToRendererIndex.TryGetValue(pType, uiRendererIndex))
+      {
+        m_Renderer[uiRendererIndex]->RenderBatch(renderViewContext, this, batch);
+      }
     }
   }
 }

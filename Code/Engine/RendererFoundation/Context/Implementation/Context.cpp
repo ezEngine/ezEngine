@@ -413,8 +413,18 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessV
     return;
   }
 
-  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
+  bool bFlushNeeded = false;
 
+  const ezGALUnorderedAccessView* pUnorderedAccessView = m_pDevice->GetUnorderedAccessView(hUnorderedAccessView);
+  if (pUnorderedAccessView != nullptr)
+  {
+    bFlushNeeded |= UnsetResourceViews(pUnorderedAccessView->GetResource());
+  }
+
+  if (bFlushNeeded)
+  {
+    FlushPlatform();
+  }
   SetUnorderedAccessViewPlatform(uiSlot, pUnorderedAccessView);
 
   m_State.m_hUnorderedAccessViews[uiSlot] = hUnorderedAccessView;
@@ -559,7 +569,7 @@ void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
 void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
-  
+
   auto query = m_pDevice->GetQuery(hQuery);
   EZ_ASSERT_DEV(query->m_bStarted || query->GetDescription().m_type == ezGALQueryType::Timestamp, "Can't end ezGALQuery, query hasn't started yet.");
 
@@ -616,7 +626,7 @@ void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffs
   }
 }
 
-void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
+void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode)
 {
   AssertRenderingThread();
 
@@ -627,7 +637,7 @@ void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, 
   if (pDest != nullptr)
   {
     EZ_VERIFY(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
-    UpdateBufferPlatform(pDest, uiDestOffset, pSourceData);
+    UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, updateMode);
   }
   else
   {

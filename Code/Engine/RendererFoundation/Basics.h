@@ -261,6 +261,16 @@ struct ezGALTextureAddressMode
   };
 };
 
+struct ezGALUpdateMode
+{
+  enum Enum
+  {
+    Discard,
+    NoOverwrite,
+    CopyToTempStorage
+  };
+};
+
 // Basic structs
 struct ezGALTextureSubresource
 {

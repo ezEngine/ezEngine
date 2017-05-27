@@ -34,9 +34,7 @@ struct VS_IN
 		float4 Color : COLOR;
 	#endif
 
-	#if INSTANCING
-		uint InstanceID : SV_InstanceID;
-	#endif
+	uint InstanceID : SV_InstanceID;
 };
 
 struct VS_OUT
@@ -72,9 +70,7 @@ struct VS_OUT
 		CUSTOM_INTERPOLATOR
 	#endif
 
-	#if INSTANCING
-		uint InstanceID : SV_InstanceID;
-	#endif
+	uint InstanceOffset : INSTANCEOFFSET;
 
 	#if defined(PIXEL_SHADER) && TWO_SIDED == TRUE
 		uint FrontFace : SV_IsFrontFace;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 /// \brief A standard forward render pass that renders into the color target.
@@ -23,5 +24,9 @@ protected:
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;
   ezInputNodePin m_PinSSAO;
+
+  bool m_bWriteDepth;
   bool m_applySSAOToDirectLight;
+
+  ezTexture2DResourceHandle m_hWhiteTexture;
 };

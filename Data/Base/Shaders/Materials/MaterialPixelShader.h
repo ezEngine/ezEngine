@@ -7,11 +7,16 @@
 #define USE_WORLDPOS
 
 #if BLEND_MODE == BLEND_MODE_MASKED && RENDER_PASS != RENDER_PASS_WIREFRAME
-  #define USE_ALPHA_TEST
   
-  #if MSAA
-    #define USE_ALPHA_TEST_SUPER_SAMPLING
+  // No need to do alpha test again if we have a depth prepass
+  #if (RENDER_PASS != RENDER_PASS_FORWARD && RENDER_PASS != RENDER_PASS_EDITOR) || WRITE_DEPTH
+    #define USE_ALPHA_TEST
+  
+    #if MSAA
+      #define USE_ALPHA_TEST_SUPER_SAMPLING
+    #endif
   #endif
+  
 #endif
 
 #include <Shaders/Common/Lighting.h>
@@ -34,15 +39,18 @@ PS_OUT main(PS_IN Input)
   
   float opacity = 1.0f;
 
-  #if defined(USE_ALPHA_TEST)
-    uint coverage = CalculateCoverage(Input);
-    if (coverage == 0)
-    { 
-      discard;
-    }
-      
-    #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
-      Output.Coverage = coverage;
+  #if BLEND_MODE == BLEND_MODE_MASKED
+  
+    #if defined(USE_ALPHA_TEST)
+      uint coverage = CalculateCoverage(Input);
+      if (coverage == 0)
+      { 
+        discard;
+      }
+        
+      #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+        Output.Coverage = coverage;
+      #endif
     #endif
     
   #elif BLEND_MODE != BLEND_MODE_OPAQUE
@@ -153,12 +161,8 @@ PS_OUT main(PS_IN Input)
     }
     else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
     {
-      float occlusion = matData.occlusion;
-      
-      #if USE_SSAO
-        float ssao = SSAOTexture.SampleLevel(PointClampSampler, Input.Position.xy * ViewportSize.zw, 0.0f).r;
-        occlusion = min(occlusion, ssao);
-      #endif
+      float ssao = SSAOTexture.SampleLevel(PointClampSampler, Input.Position.xy * ViewportSize.zw, 0.0f).r;
+      float occlusion = min(matData.occlusion, ssao);
       
       Output.Color = float4(SrgbToLinear(occlusion), opacity);
     }

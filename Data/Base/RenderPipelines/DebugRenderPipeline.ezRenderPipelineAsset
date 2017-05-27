@@ -253,7 +253,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{16082079541586550291}
+		u4 %Hash{11250456808397714214}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -332,6 +332,7 @@ o
 		}
 		Uuid %SSAO{u4{12032788958806667816,14050651437212261905}}
 		s %ViewRenderMode{"ezViewRenderMode::None"}
+		b %WriteDepth{1}
 	}
 }
 o
@@ -971,7 +972,7 @@ o
 			Uuid{u4{17400899627489303928,16143989509050117712}}
 		}
 		s %TypeName{"ezEditorRenderPass"}
-		u3 %TypeSize{232}
+		u3 %TypeSize{240}
 		u3 %TypeVersion{1}
 	}
 }

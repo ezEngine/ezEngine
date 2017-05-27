@@ -30,11 +30,7 @@ float GetOpacity(PS_IN Input);
 
 ezPerInstanceData GetInstanceData(PS_IN Input)
 {
-  #if INSTANCING
-    return perInstanceData[Input.InstanceID];
-  #else
-    return perInstanceData;
-  #endif
+  return perInstanceData[Input.InstanceOffset];
 }
 
 uint CalculateCoverage(PS_IN Input)

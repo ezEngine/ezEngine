@@ -4,6 +4,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -16,14 +17,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
     EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
+    EZ_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ApplySSAOToDirectLighting", m_applySSAOToDirectLight),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezForwardRenderPass::ezForwardRenderPass(const char* szName) : ezRenderPipelinePass(szName), m_applySSAOToDirectLight(false)
+ezForwardRenderPass::ezForwardRenderPass(const char* szName)
+  : ezRenderPipelinePass(szName)
+  , m_bWriteDepth(true)
+  , m_applySSAOToDirectLight(false)
 {
+  m_hWhiteTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 }
 
 ezForwardRenderPass::~ezForwardRenderPass()
@@ -88,25 +94,35 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   SetupPermutationVars(renderViewContext);
 
+  if (m_bWriteDepth)
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("WRITE_DEPTH", "TRUE");
+  }
+  else
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("WRITE_DEPTH", "FALSE");
+  }
+
   // Setup clustered data
   auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
   pClusteredData->BindResources(renderViewContext.m_pRenderContext);
 
-  // Optionally enable SSAO.
-  if (inputs[m_PinSSAO.m_uiInputIndex])
+  // SSAO texture
   {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "TRUE");
-    ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
+    if (inputs[m_PinSSAO.m_uiInputIndex])
+    {
+      ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
+      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
 
-    if(m_applySSAOToDirectLight)
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "TRUE");
+      if (m_applySSAOToDirectLight)
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "TRUE");
+      else
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "FALSE");
+    }
     else
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "FALSE");
-  }
-  else
-  {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("USE_SSAO", "FALSE");
+    {
+      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::NoFallback);
+    }
   }
 
   // Render

@@ -17,16 +17,14 @@
 
 ezPerInstanceData GetInstanceData(VS_IN Input)
 {
-  #if INSTANCING
-    return perInstanceData[Input.InstanceID];
-  #else
-    return perInstanceData;
-  #endif
+  return perInstanceData[Input.InstanceID + InstanceDataOffset];
 }
 
 VS_OUT FillVertexData(VS_IN Input)
 {
-  ezPerInstanceData data = GetInstanceData(Input);
+  uint instanceDataOffset = Input.InstanceID + InstanceDataOffset;
+  ezPerInstanceData data = perInstanceData[instanceDataOffset];
+  
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
   float3x3 objectToWorldNormal = TransformToRotation(data.ObjectToWorldNormal);
 
@@ -67,9 +65,7 @@ VS_OUT FillVertexData(VS_IN Input)
     Output.Color = Input.Color;
   #endif
 
-  #if INSTANCING
-    Output.InstanceID = Input.InstanceID;
-  #endif
+  Output.InstanceOffset = instanceDataOffset;
 
   return Output;
 }

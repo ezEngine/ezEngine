@@ -32,7 +32,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
   D3D11_BUFFER_DESC BufferDesc;
-  
+
   switch(m_Description.m_BufferType)
   {
     case ezGALBufferType::ConstantBuffer:
@@ -65,7 +65,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
     BufferDesc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
 
   BufferDesc.ByteWidth = m_Description.m_uiTotalSize;
-  BufferDesc.CPUAccessFlags = 0; // We always use staging buffers for updates (except for constant buffers)
+  BufferDesc.CPUAccessFlags = 0;
   BufferDesc.MiscFlags = 0;
 
   if(m_Description.m_bUseForIndirectArguments)
@@ -89,7 +89,22 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
   }
   else
   {
-    BufferDesc.Usage = m_Description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
+    if (m_Description.m_ResourceAccess.IsImmutable())
+    {
+      BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+    }
+    else
+    {
+      if (m_Description.m_bAllowUAV) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
+      {
+        BufferDesc.Usage = D3D11_USAGE_DEFAULT;
+      }
+      else
+      {
+        BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+      }
+    }
   }
 
   D3D11_SUBRESOURCE_DATA DXInitialData;

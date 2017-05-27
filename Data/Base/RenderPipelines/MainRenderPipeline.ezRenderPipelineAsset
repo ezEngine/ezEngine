@@ -456,6 +456,7 @@ o
 			Uuid{u4{229765027644355237,5099929926165633682}}
 		}
 		Uuid %SSAO{u4{15713158408781853199,5430503316859563305}}
+		b %WriteDepth{0}
 	}
 }
 o
@@ -523,7 +524,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{12316058558126434829}
+		u4 %Hash{2975390765435082767}
 		VarArray %Outputs{}
 		VarArray %References
 		{

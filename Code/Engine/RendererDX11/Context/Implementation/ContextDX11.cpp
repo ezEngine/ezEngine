@@ -615,7 +615,7 @@ void ezGALContextDX11::CopyBufferRegionPlatform(const ezGALBuffer* pDestination,
   m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXSource, 0, &srcBox);
 }
 
-void ezGALContextDX11::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
+void ezGALContextDX11::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode)
 {
   EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
 
@@ -635,22 +635,37 @@ void ezGALContextDX11::UpdateBufferPlatform(const ezGALBuffer* pDestination, ezU
   }
   else
   {
-    if (ID3D11Resource* pDXTempBuffer = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
+    if (updateMode == ezGALUpdateMode::CopyToTempStorage)
     {
-      D3D11_MAPPED_SUBRESOURCE MapResult;
-      HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, 0, &MapResult);
-      EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+      if (ID3D11Resource* pDXTempBuffer = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
+      {
+        D3D11_MAPPED_SUBRESOURCE MapResult;
+        HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, 0, &MapResult);
+        EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
 
-      memcpy(MapResult.pData, pSourceData.GetPtr(), pSourceData.GetCount());
+        memcpy(MapResult.pData, pSourceData.GetPtr(), pSourceData.GetCount());
 
-      m_pDXContext->Unmap(pDXTempBuffer, 0);
+        m_pDXContext->Unmap(pDXTempBuffer, 0);
 
-      D3D11_BOX srcBox = { 0, 0, 0, pSourceData.GetCount(), 1, 1 };
-      m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXTempBuffer, 0, &srcBox);
+        D3D11_BOX srcBox = { 0, 0, 0, pSourceData.GetCount(), 1, 1 };
+        m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXTempBuffer, 0, &srcBox);
+      }
+      else
+      {
+        EZ_REPORT_FAILURE("Could not find a temp buffer for update.");
+      }
     }
     else
     {
-      EZ_REPORT_FAILURE("Could not find a temp buffer for update.");
+      D3D11_MAP mapType = (updateMode == ezGALUpdateMode::Discard) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
+
+      D3D11_MAPPED_SUBRESOURCE MapResult;
+      if (SUCCEEDED(m_pDXContext->Map(pDXDestination, 0, mapType, 0, &MapResult)))
+      {
+        memcpy(ezMemoryUtils::AddByteOffset(MapResult.pData, uiDestOffset), pSourceData.GetPtr(), pSourceData.GetCount());
+
+        m_pDXContext->Unmap(pDXDestination, 0);
+      }
     }
   }
 }

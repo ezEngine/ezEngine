@@ -4,16 +4,11 @@
 #include <Shaders/Common/LightData.h>
 #include <Shaders/Common/BRDF.h>
 
-#if USE_SSAO
-  Texture2D SSAOTexture;
-  SamplerState PointClampSampler;
-#endif
+Texture2D SSAOTexture;
+SamplerState PointClampSampler;
 
 Texture2D ShadowAtlasTexture;
 SamplerComparisonState ShadowSampler;
-
-Texture2D NoiseTexture;
-SamplerState PointSampler;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -292,13 +287,10 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
 
   totalLight *= (1.0f / PI);
 
-  float occlusion = matData.occlusion;
-  #if USE_SSAO
-    float ssao = SSAOTexture.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
-    occlusion = min(occlusion, ssao);
-    #if APPLY_SSAO_TO_DIRECT_LIGHTING
-      totalLight *= occlusion;
-    #endif
+  float ssao = SSAOTexture.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+  float occlusion = min(matData.occlusion, ssao);
+  #if APPLY_SSAO_TO_DIRECT_LIGHTING
+    totalLight *= occlusion;
   #endif
 
   // simple two color diffuse ambient

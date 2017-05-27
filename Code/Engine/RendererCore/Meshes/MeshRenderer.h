@@ -1,9 +1,8 @@
 #pragma once
 
 #include <RendererCore/Pipeline/Declarations.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
+struct ezPerInstanceData;
 
 /// \brief Implements rendering of static meshes
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
@@ -21,11 +20,8 @@ public:
   virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
 
 protected:
-  ezGALBufferHandle CreateInstanceDataBuffer(bool bUseInstancing);
-  void DeleteInstanceDataBuffer(ezGALBufferHandle hBuffer);
-  virtual void FillPerInstanceData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+  virtual void FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount);
 
   ezInt32 m_iInstancingThreshold;
-  ezDynamicArray<ezPerInstanceData, ezAlignedAllocatorWrapper> m_perInstanceData;
 };
 

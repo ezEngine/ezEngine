@@ -1,9 +1,9 @@
 #pragma once
 
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/Texture2DResource.h>
 
 class EZ_RENDERERCORE_DLL ezTonemapPass : public ezRenderPipelinePass
 {

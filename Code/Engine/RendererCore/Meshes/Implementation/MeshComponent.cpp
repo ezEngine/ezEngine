@@ -189,7 +189,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     }
 
     // Sort by material and then by mesh
-    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
+    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
     msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
   }
 }
