@@ -213,17 +213,25 @@ void ezPhysX::Shutdown()
 void ezPhysX::StartupVDB()
 {
   // disconnect if we already have a connection
-  if (m_PvdConnection->isConnected(false))
+  // this check does not work when the PVD app was closed, instead just always call disconnect
+  //if (m_PvdConnection->isConnected(false))
   {
     m_PvdConnection->disconnect();
   }
+
+  PxPvdTransport* pTransport = m_PvdConnection->getTransport();
+  if (pTransport != nullptr)
+  {
+    pTransport->release();
+  }
+
 
   // setup connection parameters
   const char* pvd_host_ip = "127.0.0.1"; // IP of the PC which is running PVD
   int port = 5425; // TCP port to connect to, where PVD is listening
   unsigned int timeout = 100; // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
 
-  PxPvdTransport* pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
+  pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
   m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL);
 }
 
@@ -231,6 +239,8 @@ void ezPhysX::ShutdownVDB()
 {
   if (m_PvdConnection == nullptr)
     return;
+
+  m_PvdConnection->disconnect();
 
   PxPvdTransport* pTransport = m_PvdConnection->getTransport();
   if (pTransport != nullptr)
