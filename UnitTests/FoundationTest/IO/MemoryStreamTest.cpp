@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Containers/DynamicArray.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(IO);
 
