@@ -573,7 +573,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetDegree() <= dev.GetDegree() + 1.0f);
     }
   }
 }

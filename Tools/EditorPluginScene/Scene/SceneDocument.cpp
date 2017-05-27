@@ -17,6 +17,7 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <GameEngine/Components/ShapeIconComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -459,6 +460,17 @@ ezStatus ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPo
       history->CancelTransaction();
       return res;
     }
+  }
+
+  // Add a dummy shape icon component, which enables picking
+  {
+    ezAddObjectCommand cmdAdd;
+    cmdAdd.m_pType = ezGetStaticRTTI<ezShapeIconComponent>();
+    cmdAdd.m_sParentProperty = "Components";
+    cmdAdd.m_Index = -1;
+    cmdAdd.m_Parent = NewNode;
+
+    auto res = history->AddCommand(cmdAdd);
   }
 
   history->FinishTransaction();
