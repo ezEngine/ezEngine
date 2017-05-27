@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/StringView.h>
@@ -178,37 +178,37 @@ template<>
 struct ezCompareHelper<ezString>
 {
   template <typename DerivedLhs, typename DerivedRhs>
-  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
   }
 
   template <typename DerivedRhs>
-  EZ_FORCE_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return rhs.Compare(lhs) > 0;
   }
 
   template <typename DerivedLhs>
-  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
   {
     return lhs.Compare(rhs) < 0;
   }
 
   template <typename DerivedLhs, typename DerivedRhs>
-  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
   }
 
   template <typename DerivedRhs>
-  EZ_FORCE_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return rhs.IsEqual(lhs);
   }
 
   template <typename DerivedLhs>
-  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
   {
     return lhs.IsEqual(rhs);
   }
@@ -217,37 +217,37 @@ struct ezCompareHelper<ezString>
 struct ezCompareString_NoCase
 {
   template <typename DerivedLhs, typename DerivedRhs>
-  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
   }
 
   template <typename DerivedRhs>
-  EZ_FORCE_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Less(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return rhs.Compare_NoCase(lhs) > 0;
   }
 
   template <typename DerivedLhs>
-  EZ_FORCE_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
   {
     return lhs.Compare_NoCase(rhs) < 0;
   }
 
   template <typename DerivedLhs, typename DerivedRhs>
-  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return ezStringUtils::IsEqual_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
   }
 
   template <typename DerivedRhs>
-  EZ_FORCE_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
+  EZ_ALWAYS_INLINE bool Equal(const char* lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
     return rhs.IsEqual_NoCase(lhs);
   }
 
   template <typename DerivedLhs>
-  EZ_FORCE_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
+  EZ_ALWAYS_INLINE bool Equal(const ezStringBase<DerivedLhs>& lhs, const char* rhs) const
   {
     return lhs.IsEqual_NoCase(rhs);
   }
@@ -256,13 +256,13 @@ struct ezCompareString_NoCase
 struct CompareConstChar
 {
   /// \brief Returns true if a is less than b
-  EZ_FORCE_INLINE bool Less(const char* a, const char* b) const
+  EZ_ALWAYS_INLINE bool Less(const char* a, const char* b) const
   {
     return ezStringUtils::Compare(a, b) < 0;
   }
 
   /// \brief Returns true if a is equal to b
-  EZ_FORCE_INLINE bool Equal(const char* a, const char* b) const
+  EZ_ALWAYS_INLINE bool Equal(const char* a, const char* b) const
   {
     return ezStringUtils::IsEqual(a, b);
   }

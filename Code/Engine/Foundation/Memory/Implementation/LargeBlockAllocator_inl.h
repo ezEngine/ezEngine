@@ -1,6 +1,6 @@
-
+﻿
 template <typename T, ezUInt32 SizeInBytes>
-EZ_FORCE_INLINE ezDataBlock<T, SizeInBytes>::ezDataBlock(T* pData, ezUInt32 uiCount)
+EZ_ALWAYS_INLINE ezDataBlock<T, SizeInBytes>::ezDataBlock(T* pData, ezUInt32 uiCount)
 {
   m_pData = pData;
   m_uiCount = uiCount;
@@ -99,19 +99,19 @@ EZ_FORCE_INLINE void ezLargeBlockAllocator<BlockSize>::DeallocateBlock(ezDataBlo
 }
 
 template <ezUInt32 BlockSize>
-EZ_FORCE_INLINE const char* ezLargeBlockAllocator<BlockSize>::GetName() const
+EZ_ALWAYS_INLINE const char* ezLargeBlockAllocator<BlockSize>::GetName() const
 {
   return ezMemoryTracker::GetAllocatorName(m_Id);
 }
 
 template <ezUInt32 BlockSize>
-EZ_FORCE_INLINE ezAllocatorId ezLargeBlockAllocator<BlockSize>::GetId() const
+EZ_ALWAYS_INLINE ezAllocatorId ezLargeBlockAllocator<BlockSize>::GetId() const
 {
   return m_Id;
 }
 
 template <ezUInt32 BlockSize>
-EZ_FORCE_INLINE const ezAllocatorBase::Stats& ezLargeBlockAllocator<BlockSize>::GetStats() const
+EZ_ALWAYS_INLINE const ezAllocatorBase::Stats& ezLargeBlockAllocator<BlockSize>::GetStats() const
 {
   return ezMemoryTracker::GetAllocatorStats(m_Id);
 }

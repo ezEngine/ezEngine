@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -25,7 +25,7 @@ struct ezNodePin
     };
   };
 
-  EZ_FORCE_INLINE ezNodePin()
+  EZ_ALWAYS_INLINE ezNodePin()
   {
     m_uiInputIndex = 0xFF;
     m_uiOutputIndex = 0xFF;
@@ -42,7 +42,7 @@ struct ezInputNodePin : public ezNodePin
 {
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE ezInputNodePin()
+  EZ_ALWAYS_INLINE ezInputNodePin()
   {
     m_Type = Type::Input;
   }
@@ -52,7 +52,7 @@ struct ezOutputNodePin : public ezNodePin
 {
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE ezOutputNodePin()
+  EZ_ALWAYS_INLINE ezOutputNodePin()
   {
     m_Type = Type::Output;
   }
@@ -62,7 +62,7 @@ struct ezPassThroughNodePin : public ezNodePin
 {
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE ezPassThroughNodePin()
+  EZ_ALWAYS_INLINE ezPassThroughNodePin()
   {
     m_Type = Type::PassThrough;
   }

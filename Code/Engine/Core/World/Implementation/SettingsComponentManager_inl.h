@@ -1,4 +1,4 @@
-
+﻿
 template <typename ComponentType>
 ezSettingsComponentManager<ComponentType>::ezSettingsComponentManager(ezWorld* pWorld)
   : ezComponentManagerBase(pWorld)
@@ -15,20 +15,20 @@ ezSettingsComponentManager<ComponentType>::~ezSettingsComponentManager()
 }
 
 template <typename ComponentType>
-EZ_FORCE_INLINE ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent()
+EZ_ALWAYS_INLINE ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent()
 {
   return m_pSingletonComponent.Borrow();
 }
 
 template <typename ComponentType>
-EZ_FORCE_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent() const
+EZ_ALWAYS_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>::GetSingletonComponent() const
 {
   return m_pSingletonComponent.Borrow();
 }
 
 //static
 template <typename ComponentType>
-EZ_FORCE_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::TypeId()
+EZ_ALWAYS_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::TypeId()
 {
   return ComponentType::TypeId();
 }
@@ -68,7 +68,7 @@ void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezCompone
 
 //static
 template <typename ComponentType>
-EZ_FORCE_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::GetNextTypeId()
+EZ_ALWAYS_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::GetNextTypeId()
 {
   return ezWorldModule::GetNextTypeId();
 }

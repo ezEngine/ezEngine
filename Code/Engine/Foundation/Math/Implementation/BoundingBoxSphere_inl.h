@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template<typename Type>
 EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate()
@@ -132,7 +132,7 @@ EZ_FORCE_INLINE bool operator== (const ezBoundingBoxSphereTemplate<Type>& lhs, c
 
 /// \brief Checks whether this box and the other are not identical.
 template<typename Type>
-EZ_FORCE_INLINE bool operator!= (const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBoxSphereTemplate<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator!= (const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBoxSphereTemplate<Type>& rhs)
 {
   return !(lhs == rhs);
 }

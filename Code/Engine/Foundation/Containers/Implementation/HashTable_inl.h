@@ -1,4 +1,4 @@
-
+﻿
 #define ezInvalidIndex 0xFFFFFFFF
 
 // ***** Const Iterator *****
@@ -29,19 +29,19 @@ EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator==(const t
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator!=(const typename ezHashTableBase<K, V, H>::ConstIterator& it2) const
+EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator!=(const typename ezHashTableBase<K, V, H>::ConstIterator& it2) const
 {
   return !(*this == it2);
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE const K& ezHashTableBase<K, V, H>::ConstIterator::Key() const
+EZ_ALWAYS_INLINE const K& ezHashTableBase<K, V, H>::ConstIterator::Key() const
 {
   return m_hashTable.m_pEntries[m_uiCurrentIndex].key;
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE const V& ezHashTableBase<K, V, H>::ConstIterator::Value() const
+EZ_ALWAYS_INLINE const V& ezHashTableBase<K, V, H>::ConstIterator::Value() const
 {
   return m_hashTable.m_pEntries[m_uiCurrentIndex].value;
 }
@@ -61,7 +61,7 @@ void ezHashTableBase<K, V, H>::ConstIterator::Next()
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE void ezHashTableBase<K, V, H>::ConstIterator::operator++()
+EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::ConstIterator::operator++()
 {
   Next();
 }
@@ -211,7 +211,7 @@ bool ezHashTableBase<K, V, H>::operator== (const ezHashTableBase<K, V, H>& rhs) 
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::operator!= (const ezHashTableBase<K, V, H>& rhs) const
+EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::operator!= (const ezHashTableBase<K, V, H>& rhs) const
 {
   return !(*this == rhs);
 }
@@ -246,13 +246,13 @@ void ezHashTableBase<K, V, H>::Compact()
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE ezUInt32 ezHashTableBase<K, V, H>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezHashTableBase<K, V, H>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
@@ -460,19 +460,19 @@ EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::Contains(const CompatibleKeyType&
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::GetIterator()
+EZ_ALWAYS_INLINE typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::GetIterator()
 {
   return Iterator(*this);
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE typename ezHashTableBase<K, V, H>::ConstIterator ezHashTableBase<K, V, H>::GetIterator() const
+EZ_ALWAYS_INLINE typename ezHashTableBase<K, V, H>::ConstIterator ezHashTableBase<K, V, H>::GetIterator() const
 {
   return ConstIterator(*this);
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE ezAllocatorBase* ezHashTableBase<K, V, H>::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocatorBase* ezHashTableBase<K, V, H>::GetAllocator() const
 {
   return m_pAllocator;
 }
@@ -515,7 +515,7 @@ void ezHashTableBase<K, V, H>::SetCapacity(ezUInt32 uiCapacity)
 
 template <typename K, typename V, typename H>
 template <typename CompatibleKeyType>
-EZ_FORCE_INLINE ezUInt32 ezHashTableBase<K, V, H>::FindEntry(const CompatibleKeyType& key) const
+EZ_ALWAYS_INLINE ezUInt32 ezHashTableBase<K, V, H>::FindEntry(const CompatibleKeyType& key) const
 {
   return FindEntry(H::Hash(key), key);
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
@@ -33,7 +33,7 @@ public:
   typedef typename ByteTypeHelper<T>::type ByteType;
 
   /// \brief Initializes the ezArrayPtr to be empty.
-  EZ_FORCE_INLINE ezArrayPtr() : m_ptr(nullptr), m_uiCount(0u) // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr() : m_ptr(nullptr), m_uiCount(0u) // [tested]
   {
   }
 
@@ -50,12 +50,12 @@ public:
 
   /// \brief Initializes the ezArrayPtr to encapsulate the given array.
   template <size_t N>
-  EZ_FORCE_INLINE ezArrayPtr(T (&staticArray)[N]) : m_ptr(staticArray), m_uiCount(static_cast<ezUInt32>(N)) // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N]) : m_ptr(staticArray), m_uiCount(static_cast<ezUInt32>(N)) // [tested]
   {
   }
 
   /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
-  EZ_FORCE_INLINE ezArrayPtr(const ezArrayPtr<T>& other) : m_ptr(other.m_ptr), m_uiCount(other.m_uiCount) // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) : m_ptr(other.m_ptr), m_uiCount(other.m_uiCount) // [tested]
   {
   }
 
@@ -63,32 +63,32 @@ public:
   operator ezArrayPtr<const T>() const { return ezArrayPtr<const T>(GetPtr(), GetCount()); } // [tested]
 
   /// \brief Copies the pointer and size of /a other. Does not allocate any data.
-  EZ_FORCE_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
+  EZ_ALWAYS_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
   {
     m_ptr = other.m_ptr;
     m_uiCount = other.m_uiCount;
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_FORCE_INLINE const T* GetPtr() const // [tested]
+  EZ_ALWAYS_INLINE const T* GetPtr() const // [tested]
   {
     return m_ptr;
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_FORCE_INLINE T* GetPtr() // [tested]
+  EZ_ALWAYS_INLINE T* GetPtr() // [tested]
   {
     return m_ptr;
   }
 
   /// \brief Returns whether the array is empty.
-  EZ_FORCE_INLINE bool IsEmpty() const // [tested]
+  EZ_ALWAYS_INLINE bool IsEmpty() const // [tested]
   {
     return GetCount() == 0;
   }
 
   /// \brief Returns the number of elements in the array.
-  EZ_FORCE_INLINE ezUInt32 GetCount() const // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCount() const // [tested]
   {
     return m_uiCount;
   }
@@ -124,13 +124,13 @@ public:
   }
 
   /// \brief Reinterprets this array as a byte array.
-  EZ_FORCE_INLINE ezArrayPtr<const ByteType> ToByteArray() const
+  EZ_ALWAYS_INLINE ezArrayPtr<const ByteType> ToByteArray() const
   {
     return ezArrayPtr<const ByteType>(reinterpret_cast<const ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
   /// \brief Reinterprets this array as a byte array.
-  EZ_FORCE_INLINE ezArrayPtr<ByteType> ToByteArray()
+  EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray()
   {
     return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
@@ -162,7 +162,7 @@ public:
   }
 
   /// \brief Compares the two arrays for inequality.
-  EZ_FORCE_INLINE bool operator!=(const ezArrayPtr<const T>& other) const // [tested]
+  EZ_ALWAYS_INLINE bool operator!=(const ezArrayPtr<const T>& other) const // [tested]
   {
     return !(*this == other);
   }
@@ -176,7 +176,7 @@ public:
   }
 
   /// \brief Resets the ezArray to be empty.
-  EZ_FORCE_INLINE void Reset() // [tested]
+  EZ_ALWAYS_INLINE void Reset() // [tested]
   {
     m_ptr = nullptr;
     m_uiCount = 0;
@@ -194,14 +194,14 @@ private:
 
 /// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
 template<typename T>
-EZ_FORCE_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* ptr, ezUInt32 uiCount)
+EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* ptr, ezUInt32 uiCount)
 {
   return ezArrayPtr<T>(ptr, uiCount);
 }
 
 /// \brief Helper function to create ezArrayPtr from a static array the a size known at compile-time.
 template<typename T, ezUInt32 N>
-EZ_FORCE_INLINE ezArrayPtr<T> ezMakeArrayPtr(T(&staticArray)[N])
+EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T(&staticArray)[N])
 {
   return ezArrayPtr<T>(staticArray);
 }

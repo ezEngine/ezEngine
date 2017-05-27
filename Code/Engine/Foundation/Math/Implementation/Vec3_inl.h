@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template<typename Type>
 EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template()
@@ -13,17 +13,17 @@ EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template()
 }
 
 template<typename Type>
-EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template(Type X, Type Y, Type Z) : x (X), y (Y), z (Z)
+EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type X, Type Y, Type Z) : x (X), y (Y), z (Z)
 {
 }
 
 template<typename Type>
-EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template(Type V) : x (V), y (V), z (V)
+EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type V) : x (V), y (V), z (V)
 {
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::Set(Type xyz)
+EZ_ALWAYS_INLINE void ezVec3Template<Type>::Set(Type xyz)
 {
   x = xyz;
   y = xyz;
@@ -31,7 +31,7 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::Set(Type xyz)
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::Set(Type X, Type Y, Type Z)
+EZ_ALWAYS_INLINE void ezVec3Template<Type>::Set(Type X, Type Y, Type Z)
 {
   x = X;
   y = Y;
@@ -39,13 +39,13 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::Set(Type X, Type Y, Type Z)
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::SetZero()
+EZ_ALWAYS_INLINE void ezVec3Template<Type>::SetZero()
 {
   x = y = z = 0.0f;
 }
 
 template<typename Type>
-EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLength() const
+EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetLength() const
 {
   return (ezMath::Sqrt(GetLengthSquared()));
 }
@@ -86,7 +86,7 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::GetNormalized()
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec3Template<Type>::Normalize()
+EZ_ALWAYS_INLINE void ezVec3Template<Type>::Normalize()
 {
   *this /= GetLength ();
 }
@@ -379,13 +379,13 @@ bool ezVec3Template<Type>::IsEqual(const ezVec3Template<Type>& rhs, Type fEpsilo
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator== (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
+EZ_ALWAYS_INLINE bool operator== (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
 {
   return v1.IsIdentical(v2);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator!= (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
+EZ_ALWAYS_INLINE bool operator!= (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2)
 {
   return !v1.IsIdentical(v2);
 }

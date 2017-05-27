@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/OpenDdlParser.h>
@@ -132,8 +132,8 @@ protected:
     bool m_bPrimitivesWritten;
   };
 
-  EZ_FORCE_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)); }
-  EZ_FORCE_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount); }
+  EZ_ALWAYS_INLINE void OutputString(const char* sz) { m_pOutput->WriteBytes(sz, ezStringUtils::GetStringElementCount(sz)); }
+  EZ_ALWAYS_INLINE void OutputString(const char* sz, ezUInt32 uiElementCount) { m_pOutput->WriteBytes(sz, uiElementCount); }
   void OutputEscapedString(const ezStringView& string);
   void OutputIndentation();
   void OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType type);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -47,7 +47,7 @@ private:
       return uiHash;
     }
 
-    EZ_FORCE_INLINE static bool Equal(const VersionKey& a, const VersionKey& b)
+    EZ_ALWAYS_INLINE static bool Equal(const VersionKey& a, const VersionKey& b)
     {
       return a.m_pType == b.m_pType && a.m_uiTypeVersion == b.m_uiTypeVersion;
     }

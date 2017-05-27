@@ -21,12 +21,12 @@ public:
 
     EZ_DETECT_TYPE_CLASS(KEY, VALUE);
 
-    EZ_FORCE_INLINE bool operator<(const Pair& rhs) const
+    EZ_ALWAYS_INLINE bool operator<(const Pair& rhs) const
     {
       return key < rhs.key;
     }
 
-    EZ_FORCE_INLINE bool operator==(const Pair& rhs) const
+    EZ_ALWAYS_INLINE bool operator==(const Pair& rhs) const
     {
       return key == rhs.key;
     }

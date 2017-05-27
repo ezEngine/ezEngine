@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
@@ -7,13 +7,13 @@
 #include <Foundation/Math/Mat4.h>
 
 template<typename Type>
-EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezBoundingSphereTemplate<Type>& sphere) const
+EZ_ALWAYS_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezBoundingSphereTemplate<Type>& sphere) const
 {
   return Contains(sphere.GetBoundingBox());
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingSphereTemplate<Type>& sphere) const
+EZ_ALWAYS_INLINE bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingSphereTemplate<Type>& sphere) const
 {
   // check whether the closest point between box and sphere is inside the sphere (it is definitely inside the box)
   return sphere.Contains(GetClampedPoint(sphere.m_vCenter));

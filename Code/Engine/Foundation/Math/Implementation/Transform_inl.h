@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Transform.h>
 
@@ -89,37 +89,37 @@ inline void ezTransformTemplate<Type>::Decompose(ezVec3& vPos, ezQuat& qRot, ezV
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4() const
+EZ_ALWAYS_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4() const
 {
   return ezMat4Template<Type>(m_Rotation, m_vPosition);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezTransformTemplate<Type>::operator*=(const ezQuatTemplate<Type>& q)
+EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::operator*=(const ezQuatTemplate<Type>& q)
 {
   m_Rotation = q.GetAsMat3() * m_Rotation;
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<Type>& q, const ezTransformTemplate<Type>& t)
+EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<Type>& q, const ezTransformTemplate<Type>& t)
 {
   return ezTransformTemplate<Type>(t.m_vPosition, q.GetAsMat3() * t.m_Rotation);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezTransformTemplate<Type> operator+(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
+EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator+(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
 {
   return ezTransformTemplate<Type>(t.m_vPosition + v, t.m_Rotation);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezTransformTemplate<Type> operator-(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
+EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator-(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
 {
   return ezTransformTemplate<Type>(t.m_vPosition - v, t.m_Rotation);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator*(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
+EZ_ALWAYS_INLINE const ezVec3Template<Type> operator*(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
 {
   return (t.m_Rotation * v) + t.m_vPosition;
 }

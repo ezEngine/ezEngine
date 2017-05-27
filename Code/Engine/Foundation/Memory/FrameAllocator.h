@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Memory/StackAllocator.h>
 
@@ -8,7 +8,7 @@ class EZ_FOUNDATION_DLL ezFrameAllocator
 public:
   typedef ezStackAllocator<ezMemoryTrackingFlags::None> StackAllocatorType;
 
-  EZ_FORCE_INLINE static ezAllocatorBase* GetCurrentAllocator()
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetCurrentAllocator()
   {
     return s_pCurrentAllocator;
   }

@@ -1,4 +1,4 @@
-namespace ezInternal
+﻿namespace ezInternal
 {
   template <typename AllocationPolicy, ezUInt32 TrackingFlags>
   class ezAllocatorImpl : public ezAllocatorBase
@@ -117,7 +117,7 @@ ezAllocatorBase::Stats ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetStats()
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-EZ_FORCE_INLINE ezAllocatorBase* ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetParent() const
+EZ_ALWAYS_INLINE ezAllocatorBase* ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetParent() const
 {
   return m_allocator.GetParent();
 }

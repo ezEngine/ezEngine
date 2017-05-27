@@ -1,4 +1,4 @@
-
+﻿
 template <typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>
 struct ezDelegate<R (EZ_LIST(ARG, ARG_COUNT))> : public ezDelegateBase
 {
@@ -91,7 +91,7 @@ public:
   }
 
   /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
-  EZ_FORCE_INLINE bool operator==(const SelfType& other) const
+  EZ_ALWAYS_INLINE bool operator==(const SelfType& other) const
   {
     return m_pInstance.m_Ptr == other.m_pInstance.m_Ptr &&
       m_pDispatchFunction == other.m_pDispatchFunction &&
@@ -105,7 +105,7 @@ public:
   }
 
   /// \brief Returns true when the delegate is bound to a valid non-nullptr function.
-  EZ_FORCE_INLINE bool IsValid() const
+  EZ_ALWAYS_INLINE bool IsValid() const
   {
     return m_pDispatchFunction != nullptr;
   }
@@ -134,7 +134,7 @@ private:
   }
 
   template <typename Function>
-  static EZ_FORCE_INLINE R DispatchToFunction(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  static EZ_ALWAYS_INLINE R DispatchToFunction(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
     return (*reinterpret_cast<Function*>(&self.m_Data))(EZ_LIST(arg, ARG_COUNT));
   }

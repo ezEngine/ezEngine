@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -10,13 +10,13 @@
   static const StorageType INVALID_INSTANCE_INDEX = MAX_INSTANCES - 1; \
   static const StorageType INDEX_AND_GENERATION_MASK = (1ULL << (instanceIndexBits + generationBits)) - 1; \
   EZ_DECLARE_POD_TYPE(); \
-  EZ_FORCE_INLINE name() { m_Data = INVALID_INSTANCE_INDEX; } \
-  EZ_FORCE_INLINE explicit name(StorageType internalData) { m_Data = internalData; } \
-  EZ_FORCE_INLINE bool operator==(const name other) const { return m_Data == other.m_Data; } \
-  EZ_FORCE_INLINE bool operator!=(const name other) const { return m_Data != other.m_Data; } \
-  EZ_FORCE_INLINE bool operator<(const name other) const { return m_Data < other.m_Data; } \
-  EZ_FORCE_INLINE void Invalidate() { m_Data = INVALID_INSTANCE_INDEX; } \
-  EZ_FORCE_INLINE bool IsIndexAndGenerationEqual(const name other) const { \
+  EZ_ALWAYS_INLINE name() { m_Data = INVALID_INSTANCE_INDEX; } \
+  EZ_ALWAYS_INLINE explicit name(StorageType internalData) { m_Data = internalData; } \
+  EZ_ALWAYS_INLINE bool operator==(const name other) const { return m_Data == other.m_Data; } \
+  EZ_ALWAYS_INLINE bool operator!=(const name other) const { return m_Data != other.m_Data; } \
+  EZ_ALWAYS_INLINE bool operator<(const name other) const { return m_Data < other.m_Data; } \
+  EZ_ALWAYS_INLINE void Invalidate() { m_Data = INVALID_INSTANCE_INDEX; } \
+  EZ_ALWAYS_INLINE bool IsIndexAndGenerationEqual(const name other) const { \
     return (m_Data & INDEX_AND_GENERATION_MASK) == (other.m_Data & INDEX_AND_GENERATION_MASK); }
 
 
@@ -31,7 +31,7 @@ struct ezGenericId
 
   EZ_DECLARE_ID_TYPE(ezGenericId, InstanceIndexBits, GenerationBits);
 
-  EZ_FORCE_INLINE ezGenericId(StorageType instanceIndex, StorageType generation)
+  EZ_ALWAYS_INLINE ezGenericId(StorageType instanceIndex, StorageType generation)
   {
     m_Data = 0;
     m_InstanceIndex = instanceIndex;
@@ -52,14 +52,14 @@ struct ezGenericId
 #define EZ_DECLARE_HANDLE_TYPE(name, idType) \
   public: \
     EZ_DECLARE_POD_TYPE(); \
-    EZ_FORCE_INLINE name() { } \
-    EZ_FORCE_INLINE explicit name(idType internalId) : m_InternalId(internalId) { } \
-    EZ_FORCE_INLINE bool operator==(const name other) const { return m_InternalId == other.m_InternalId; } \
-    EZ_FORCE_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
-    EZ_FORCE_INLINE bool operator<(const name other) const { return m_InternalId < other.m_InternalId; } \
-    EZ_FORCE_INLINE void Invalidate() { m_InternalId.Invalidate(); } \
-    EZ_FORCE_INLINE bool IsInvalidated() const { return m_InternalId == idType(); } \
-    EZ_FORCE_INLINE idType GetInternalID() const { return m_InternalId; } \
+    EZ_ALWAYS_INLINE name() { } \
+    EZ_ALWAYS_INLINE explicit name(idType internalId) : m_InternalId(internalId) { } \
+    EZ_ALWAYS_INLINE bool operator==(const name other) const { return m_InternalId == other.m_InternalId; } \
+    EZ_ALWAYS_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
+    EZ_ALWAYS_INLINE bool operator<(const name other) const { return m_InternalId < other.m_InternalId; } \
+    EZ_ALWAYS_INLINE void Invalidate() { m_InternalId.Invalidate(); } \
+    EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_InternalId == idType(); } \
+    EZ_ALWAYS_INLINE idType GetInternalID() const { return m_InternalId; } \
     typedef idType IdType; \
   protected: \
     idType m_InternalId; \

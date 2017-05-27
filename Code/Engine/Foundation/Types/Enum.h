@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -40,38 +40,38 @@ public:
   typedef typename Derived::StorageType StorageType;
 
   /// \brief Default constructor
-  EZ_FORCE_INLINE ezEnum() : m_value(Derived::Default) {} // [tested]
+  EZ_ALWAYS_INLINE ezEnum() : m_value(Derived::Default) {} // [tested]
 
   /// \brief Construct from a C++ enum, and implicit conversion from enum type
-  EZ_FORCE_INLINE ezEnum(typename Derived::Enum init) : m_value(init) {} // [tested]
+  EZ_ALWAYS_INLINE ezEnum(typename Derived::Enum init) : m_value(init) {} // [tested]
 
   /// \brief Assignment operator
-  EZ_FORCE_INLINE void operator= (const SelfType& rh) // [tested]
+  EZ_ALWAYS_INLINE void operator= (const SelfType& rh) // [tested]
   {
     m_value = rh.m_value;
   }
 
   /// \brief Assignment operator.
-  EZ_FORCE_INLINE void operator= (const typename Derived::Enum value) // [tested]
+  EZ_ALWAYS_INLINE void operator= (const typename Derived::Enum value) // [tested]
   {
     m_value = value;
   }
 
   /// \brief Implicit conversion to enum type.
-  EZ_FORCE_INLINE operator typename Derived::Enum() const // [tested]
+  EZ_ALWAYS_INLINE operator typename Derived::Enum() const // [tested]
   {
     return static_cast<typename Derived::Enum>(m_value);
   }
 
   /// \brief Returns the enum value as an integer
-  EZ_FORCE_INLINE StorageType GetValue() const
+  EZ_ALWAYS_INLINE StorageType GetValue() const
   {
     /// \test this is new
     return m_value;
   }
 
   /// \brief Sets the enum value through an integer
-  EZ_FORCE_INLINE void SetValue(StorageType value)
+  EZ_ALWAYS_INLINE void SetValue(StorageType value)
   {
     /// \test this is new
     m_value = value;

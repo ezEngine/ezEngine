@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ThirdParty/utf8/utf8.h>
 #include <Foundation/Basics.h>
@@ -245,8 +245,8 @@ public:
   static ezAtomicInteger32 g_MaxUsedStringLength;
   static ezAtomicInteger32 g_UsedStringLengths[256];
 #else
-  EZ_FORCE_INLINE static void AddUsedStringLength(ezUInt32 uiLength) { }
-  EZ_FORCE_INLINE static void PrintStringLengthStatistics() { }
+  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32 uiLength) { }
+  EZ_ALWAYS_INLINE static void PrintStringLengthStatistics() { }
 #endif
 };
 

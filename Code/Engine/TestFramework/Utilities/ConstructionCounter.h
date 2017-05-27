@@ -132,7 +132,7 @@ struct ezConstructionCounter
 template <>
 struct ezHashHelper<ezConstructionCounter>
 {
-  ezUInt32 Hash(const ezConstructionCounter& value)
+  static ezUInt32 Hash(const ezConstructionCounter& value)
   {
     return ezHashHelper<ezInt32>::Hash(value.m_iData);
   }

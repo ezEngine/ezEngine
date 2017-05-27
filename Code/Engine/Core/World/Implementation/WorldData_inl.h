@@ -1,8 +1,8 @@
-
+﻿
 namespace ezInternal
 {
   //static
-  EZ_FORCE_INLINE WorldData::HierarchyType::Enum WorldData::GetHierarchyType(bool bIsDynamic)
+  EZ_ALWAYS_INLINE WorldData::HierarchyType::Enum WorldData::GetHierarchyType(bool bIsDynamic)
   {
     return bIsDynamic ? HierarchyType::Dynamic : HierarchyType::Static;
   }
@@ -70,7 +70,7 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_FORCE_INLINE WorldData::ReadMarker::ReadMarker(const WorldData& data) : m_Data(data)
+  EZ_ALWAYS_INLINE WorldData::ReadMarker::ReadMarker(const WorldData& data) : m_Data(data)
   {
   }
 
@@ -81,14 +81,14 @@ namespace ezInternal
     m_Data.m_iReadCounter.Increment();
   }
 
-  EZ_FORCE_INLINE void WorldData::ReadMarker::Release()
+  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Release()
   {
     m_Data.m_iReadCounter.Decrement();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_FORCE_INLINE WorldData::WriteMarker::WriteMarker(WorldData& data) : m_Data(data)
+  EZ_ALWAYS_INLINE WorldData::WriteMarker::WriteMarker(WorldData& data) : m_Data(data)
   {
   }
 

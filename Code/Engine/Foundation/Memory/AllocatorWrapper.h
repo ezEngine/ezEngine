@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Threading/ThreadLocalPointer.h>
 
@@ -13,7 +13,7 @@ struct ezNullAllocatorWrapper
 
 struct ezDefaultAllocatorWrapper
 {
-  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
   {
     return ezFoundation::GetDefaultAllocator();
   }
@@ -21,7 +21,7 @@ struct ezDefaultAllocatorWrapper
 
 struct ezStaticAllocatorWrapper
 {
-  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
   {
     return ezFoundation::GetStaticAllocator();
   }
@@ -29,7 +29,7 @@ struct ezStaticAllocatorWrapper
 
 struct ezAlignedAllocatorWrapper
 {
-  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
   {
     return ezFoundation::GetAlignedAllocator();
   }
@@ -37,17 +37,17 @@ struct ezAlignedAllocatorWrapper
 
 struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
 {
-  EZ_FORCE_INLINE ezLocalAllocatorWrapper(ezAllocatorBase* pAllocator)
+  EZ_ALWAYS_INLINE ezLocalAllocatorWrapper(ezAllocatorBase* pAllocator)
   {
     m_pAllocator = pAllocator;
   }
 
-  EZ_FORCE_INLINE void Reset()
+  EZ_ALWAYS_INLINE void Reset()
   {
     m_pAllocator = nullptr;
   }
 
-  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
   {
     return m_pAllocator;
   }

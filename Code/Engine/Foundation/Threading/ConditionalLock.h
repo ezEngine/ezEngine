@@ -1,18 +1,18 @@
-#pragma once
+﻿#pragma once
 
 /// \brief Manages a lock (e.g. a mutex) and ensures that it is properly released as the lock object goes out of scope. The lock/unlock will only be done if the boolean condition is satisfied at scope creation time.
 template <typename T>
 class ezConditionalLock
 {
 public:
-  EZ_FORCE_INLINE explicit ezConditionalLock(T& lock, bool bCondition) :
+  EZ_ALWAYS_INLINE explicit ezConditionalLock(T& lock, bool bCondition) :
     m_lock(lock), m_bCondition(bCondition)
   {
     if (m_bCondition)
       m_lock.Acquire();
   }
 
-  EZ_FORCE_INLINE ~ezConditionalLock()
+  EZ_ALWAYS_INLINE ~ezConditionalLock()
   {
     if (m_bCondition)
       m_lock.Release();

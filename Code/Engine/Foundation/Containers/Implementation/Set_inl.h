@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Math.h>
 
@@ -115,7 +115,7 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
 // ***** ezSetBase *****
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE ezSetBase<KeyType, Comparer>::NilNode::NilNode() : m_uiLevel(0), m_pParent(nullptr)
+EZ_ALWAYS_INLINE ezSetBase<KeyType, Comparer>::NilNode::NilNode() : m_uiLevel(0), m_pParent(nullptr)
 {
   m_pLink[0] = nullptr;
   m_pLink[1] = nullptr;
@@ -197,13 +197,13 @@ EZ_ALWAYS_INLINE ezUInt32 ezSetBase<KeyType, Comparer>::GetCount() const
 
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetIterator() const
+EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetIterator() const
 {
   return Iterator(GetLeftMost());
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetLastIterator() const
+EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetLastIterator() const
 {
   return Iterator(GetRightMost());
 }
@@ -261,13 +261,13 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Find(const CompatibleKeyType& key) const
+EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Find(const CompatibleKeyType& key) const
 {
   return Iterator(Internal_Find(key));
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const KeyType& key) const
+EZ_ALWAYS_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const KeyType& key) const
 {
   return Internal_Find(key) != nullptr;
 }
@@ -310,7 +310,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::LowerBound(const CompatibleKeyType& key) const
+EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::LowerBound(const CompatibleKeyType& key) const
 {
   return Iterator(Internal_LowerBound(key));
 }
@@ -345,7 +345,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
 template <typename KeyType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::UpperBound(const CompatibleKeyType& key) const
+EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::UpperBound(const CompatibleKeyType& key) const
 {
   return Iterator(Internal_UpperBound(key));
 }

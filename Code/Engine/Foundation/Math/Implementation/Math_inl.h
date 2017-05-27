@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 
@@ -16,7 +16,7 @@ namespace ezMath
     return (ezUInt32)ret;
   }
 
-  constexpr EZ_FORCE_INLINE int Pow2(int i)
+  constexpr EZ_ALWAYS_INLINE int Pow2(int i)
   {
     return (1 << i);
   }
@@ -40,43 +40,43 @@ namespace ezMath
   }
 
   template <typename T>
-  constexpr EZ_FORCE_INLINE T Sign(T f)
+  constexpr EZ_ALWAYS_INLINE T Sign(T f)
   {
     return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
   }
 
   template <typename T>
-  constexpr EZ_FORCE_INLINE T Abs(T f)
+  constexpr EZ_ALWAYS_INLINE T Abs(T f)
   {
     return (f < 0 ? -f : f);
   }
 
   template <typename T>
-  constexpr EZ_FORCE_INLINE T Min(T f1, T f2)
+  constexpr EZ_ALWAYS_INLINE T Min(T f1, T f2)
   {
     return (f2 < f1 ? f2 : f1);
   }
 
   template <typename T, typename ...ARGS>
-  constexpr EZ_FORCE_INLINE T Min(T f1, T f2, ARGS... f)
+  constexpr EZ_ALWAYS_INLINE T Min(T f1, T f2, ARGS... f)
   {
     return Min(Min(f1, f2), f...);
   }
 
   template <typename T>
-  constexpr EZ_FORCE_INLINE T Max(T f1, T f2)
+  constexpr EZ_ALWAYS_INLINE T Max(T f1, T f2)
   {
     return (f1 < f2 ? f2 : f1);
   }
 
   template <typename T, typename ...ARGS>
-  constexpr EZ_FORCE_INLINE T Max(T f1, T f2, ARGS... f)
+  constexpr EZ_ALWAYS_INLINE T Max(T f1, T f2, ARGS... f)
   {
     return Max(Max(f1, f2), f...);
   }
 
   template <typename T>
-  constexpr EZ_FORCE_INLINE T Clamp(T value, T min_val, T max_val)
+  constexpr EZ_ALWAYS_INLINE T Clamp(T value, T min_val, T max_val)
   {
     return value < min_val ? min_val :
           (max_val < value ? max_val :
@@ -115,12 +115,12 @@ namespace ezMath
     return ((Type)1) / f;
   }
 
-  constexpr EZ_FORCE_INLINE bool IsOdd(ezInt32 i)
+  constexpr EZ_ALWAYS_INLINE bool IsOdd(ezInt32 i)
   {
     return ((i & 1) != 0);
   }
 
-  constexpr EZ_FORCE_INLINE bool IsEven(ezInt32 i)
+  constexpr EZ_ALWAYS_INLINE bool IsEven(ezInt32 i)
   {
     return ((i & 1) == 0);
   }
@@ -148,7 +148,7 @@ namespace ezMath
   }
 
   template <typename T>
-  EZ_FORCE_INLINE void Swap(T& f1, T& f2)
+  EZ_ALWAYS_INLINE void Swap(T& f1, T& f2)
   {
     std::swap(f1, f2);
   }
@@ -198,7 +198,7 @@ namespace ezMath
   }
 
   template<typename Type>
-  EZ_FORCE_INLINE Type Trunc(Type f)
+  EZ_ALWAYS_INLINE Type Trunc(Type f)
   {
     if (f > 0)
       return Floor(f);
@@ -207,19 +207,19 @@ namespace ezMath
   }
 
   template<typename Type>
-  EZ_FORCE_INLINE Type Round(Type f)
+  EZ_ALWAYS_INLINE Type Round(Type f)
   {
     return Floor(f + (Type) 0.5);
   }
 
   template<typename Type>
-  EZ_FORCE_INLINE Type Round(Type f, Type fRoundTo)
+  EZ_ALWAYS_INLINE Type Round(Type f, Type fRoundTo)
   {
     return Round(f / fRoundTo) * fRoundTo;
   }
 
   template<typename Type>
-  EZ_FORCE_INLINE Type Fraction(Type f)
+  EZ_ALWAYS_INLINE Type Fraction(Type f)
   {
     return (f - Trunc(f));
   }

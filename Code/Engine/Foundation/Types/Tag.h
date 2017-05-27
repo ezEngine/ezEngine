@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
@@ -16,19 +16,19 @@ class EZ_FOUNDATION_DLL ezTag
 {
 public:
 
-  EZ_FORCE_INLINE ezTag();
+  EZ_ALWAYS_INLINE ezTag();
 
-  EZ_FORCE_INLINE bool operator == (const ezTag& rhs) const; // [tested]
+  EZ_ALWAYS_INLINE bool operator == (const ezTag& rhs) const; // [tested]
 
-  EZ_FORCE_INLINE bool operator != (const ezTag& rhs) const; // [tested]
+  EZ_ALWAYS_INLINE bool operator != (const ezTag& rhs) const; // [tested]
 
-  EZ_FORCE_INLINE bool operator < (const ezTag& rhs) const;
+  EZ_ALWAYS_INLINE bool operator < (const ezTag& rhs) const;
 
-  EZ_FORCE_INLINE const ezString& GetTagString() const; // [tested]
+  EZ_ALWAYS_INLINE const ezString& GetTagString() const; // [tested]
 
-  EZ_FORCE_INLINE ezUInt32 GetTagHash() const; // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetTagHash() const; // [tested]
 
-  EZ_FORCE_INLINE bool IsValid() const; // [tested]
+  EZ_ALWAYS_INLINE bool IsValid() const; // [tested]
 
 private:
 

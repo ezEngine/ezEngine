@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Mat3.h>
 
@@ -377,7 +377,7 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezMat4Template<Type>::GetTranslationV
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezMat4Template<Type>::SetTranslationVector(const ezVec3Template<Type>& v)
+EZ_ALWAYS_INLINE void ezMat4Template<Type>::SetTranslationVector(const ezVec3Template<Type>& v)
 {
   Element(3, 0) = v.x;
   Element(3, 1) = v.y;
@@ -447,13 +447,13 @@ const ezMat4Template<Type> operator* (const ezMat4Template<Type>& m1, const ezMa
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator* (const ezMat4Template<Type>& m, const ezVec3Template<Type>& v)
+EZ_ALWAYS_INLINE const ezVec3Template<Type> operator* (const ezMat4Template<Type>& m, const ezVec3Template<Type>& v)
 {
   return m.TransformPosition(v);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec4Template<Type> operator* (const ezMat4Template<Type>& m, const ezVec4Template<Type>& v)
+EZ_ALWAYS_INLINE const ezVec4Template<Type> operator* (const ezMat4Template<Type>& m, const ezVec4Template<Type>& v)
 {
   return m.Transform(v);
 }
@@ -501,7 +501,7 @@ EZ_FORCE_INLINE Type GetDeterminantOf4x4Matrix(const ezMat4Template<Type>& m)
 // *** free functions ***
 
 template<typename Type>
-EZ_FORCE_INLINE const ezMat4Template<Type> operator* (Type f, const ezMat4Template<Type>& m1)
+EZ_ALWAYS_INLINE const ezMat4Template<Type> operator* (Type f, const ezMat4Template<Type>& m1)
 {
   return operator* (m1, f);
 }
@@ -581,13 +581,13 @@ bool ezMat4Template<Type>::IsEqual(const ezMat4Template<Type>& rhs, Type fEpsilo
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator== (const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator== (const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator!= (const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator!= (const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }

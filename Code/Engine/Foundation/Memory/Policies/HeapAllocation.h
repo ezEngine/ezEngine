@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -10,8 +10,8 @@ namespace ezMemoryPolicies
   class ezHeapAllocation
   {
   public:
-    EZ_FORCE_INLINE ezHeapAllocation(ezAllocatorBase* pParent) { }
-    EZ_FORCE_INLINE ~ezHeapAllocation() { }
+    EZ_ALWAYS_INLINE ezHeapAllocation(ezAllocatorBase* pParent) { }
+    EZ_ALWAYS_INLINE ~ezHeapAllocation() { }
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
     {
@@ -29,12 +29,12 @@ namespace ezMemoryPolicies
       return result;
     }
 
-    EZ_FORCE_INLINE void Deallocate(void* ptr)
+    EZ_ALWAYS_INLINE void Deallocate(void* ptr)
     {
       free(ptr);
     }
      
-    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
+    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
   };
 }
 

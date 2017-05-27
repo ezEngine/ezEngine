@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Color.h>
@@ -233,7 +233,7 @@ namespace ezConversionUtils
 
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>
-  EZ_FORCE_INLINE const ezStringBuilder& ToString(const T& value, ezStringBuilder& out_Result)
+  EZ_ALWAYS_INLINE const ezStringBuilder& ToString(const T& value, ezStringBuilder& out_Result)
   {
     out_Result = "N/A";
     return out_Result;

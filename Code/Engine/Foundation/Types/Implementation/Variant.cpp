@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -24,7 +24,7 @@ struct ComputeHashFunc
 };
 
 template <>
-EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezString > ()
+EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezString > ()
 {
   ezString* pData = (ezString*) m_pData;
 
@@ -32,25 +32,25 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezString > ()
 }
 
 template <>
-EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezMat3 > ()
+EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezMat3 > ()
 {
   m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezMat3), m_uiHash);
 }
 
 template <>
-EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezMat4 > ()
+EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezMat4 > ()
 {
   m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezMat4), m_uiHash);
 }
 
 template <>
-EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezTransform > ()
+EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezTransform > ()
 {
   m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezTransform), m_uiHash);
 }
 
 template <>
-EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezDataBuffer > ()
+EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezDataBuffer > ()
 {
   ezDataBuffer* pData = (ezDataBuffer*)m_pData;
 
@@ -78,7 +78,7 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezVariantDictionary > ()
 struct CompareFunc
 {
   template <typename T>
-  EZ_FORCE_INLINE void operator()()
+  EZ_ALWAYS_INLINE void operator()()
   {
     m_bResult = m_pThis->Cast<T>() == m_pOther->Cast<T>();
   }
@@ -101,7 +101,7 @@ struct IndexFunc
   }
 
   template <typename T>
-  EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<0>)
+  EZ_ALWAYS_INLINE ezVariant Impl(ezTraitInt<0>)
   {
     return ezVariant();
   }
@@ -130,13 +130,13 @@ struct KeyFunc
   }
 
   template <typename T>
-  EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<0>)
+  EZ_ALWAYS_INLINE ezVariant Impl(ezTraitInt<0>)
   {
     return ezVariant();
   }
 
   template <typename T>
-  EZ_FORCE_INLINE void operator()()
+  EZ_ALWAYS_INLINE void operator()()
   {
     m_Result = Impl<T>(ezTraitInt<ezVariant::TypeDeduction<T>::hasReflectedMembers>());
   }
@@ -149,7 +149,7 @@ struct KeyFunc
 struct ConvertFunc
 {
   template <typename T>
-  EZ_FORCE_INLINE void operator()()
+  EZ_ALWAYS_INLINE void operator()()
   {
     T result;
     ezVariantHelper::To(*m_pThis, result, m_bSuccessful);

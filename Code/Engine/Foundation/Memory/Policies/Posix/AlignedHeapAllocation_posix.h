@@ -1,4 +1,4 @@
-
+﻿
 EZ_FORCE_INLINE void* ezAlignedHeapAllocation::Allocate(size_t uiSize, size_t uiAlign)
 {
   // alignment has to be at least sizeof(void*) otherwise posix_memalign will fail
@@ -15,7 +15,7 @@ EZ_FORCE_INLINE void* ezAlignedHeapAllocation::Allocate(size_t uiSize, size_t ui
   return ptr;
 }
 
-EZ_FORCE_INLINE void ezAlignedHeapAllocation::Deallocate(void* ptr)
+EZ_ALWAYS_INLINE void ezAlignedHeapAllocation::Deallocate(void* ptr)
 {
   free(ptr);
 }

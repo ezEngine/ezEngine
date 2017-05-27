@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Logging/Log.h>
 
@@ -7,7 +7,7 @@ namespace
   struct GetTypeFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_ALWAYS_INLINE void operator()()
     {
       m_pType = ezGetStaticRTTI<T>();
     }
@@ -18,22 +18,22 @@ namespace
 
 
   template <>
-  EZ_FORCE_INLINE void GetTypeFunc::operator() < ezVariantArray > ()
+  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < ezVariantArray > ()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_FORCE_INLINE void GetTypeFunc::operator() < ezVariantDictionary > ()
+  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < ezVariantDictionary > ()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_FORCE_INLINE void GetTypeFunc::operator() < ezReflectedClass* > ()
+  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < ezReflectedClass* > ()
   {
     m_pType = m_pVariant->Get<ezReflectedClass*>()->GetDynamicRTTI();
   }
   template <>
-  EZ_FORCE_INLINE void GetTypeFunc::operator() < void* > ()
+  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < void* > ()
   {
     m_pType = nullptr;
   }
@@ -41,7 +41,7 @@ namespace
   struct GetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_ALWAYS_INLINE void operator()()
     {
       T value;
       m_pProp->GetValuePtr(m_pObject, &value);

@@ -1,4 +1,4 @@
-
+﻿
 EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentHandle& component) const
 {
   return m_Components.Contains(component);
@@ -17,7 +17,7 @@ EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHa
   return res;
 }
 
-EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 {
   return m_Components.GetCount();
 }
@@ -93,20 +93,20 @@ EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const e
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator ezComponentManager<T, StorageType>::GetComponents()
+EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator ezComponentManager<T, StorageType>::GetComponents()
 {
   return m_ComponentStorage.GetIterator();
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator ezComponentManager<T, StorageType>::GetComponents() const
+EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator ezComponentManager<T, StorageType>::GetComponents() const
 {
   return m_ComponentStorage.GetIterator();
 }
 
 //static
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, StorageType>::TypeId()
+EZ_ALWAYS_INLINE ezUInt16 ezComponentManager<T, StorageType>::TypeId()
 {
   return T::TypeId();
 }
@@ -134,7 +134,7 @@ void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezC
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezComponent* ezComponentManager<T, StorageType>::CreateComponentStorage()
+EZ_ALWAYS_INLINE ezComponent* ezComponentManager<T, StorageType>::CreateComponentStorage()
 {
   return m_ComponentStorage.Create();
 }
@@ -159,7 +159,7 @@ EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(
 
 //static
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezUInt16 ezComponentManager<T, StorageType>::GetNextTypeId()
+EZ_ALWAYS_INLINE ezUInt16 ezComponentManager<T, StorageType>::GetNextTypeId()
 {
   return ezWorldModule::GetNextTypeId();
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Mat4.h>
 
@@ -161,13 +161,13 @@ bool ezPlaneTemplate<Type>::IsEqual(const ezPlaneTemplate& rhs, Type fEpsilon) c
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator== (const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator== (const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator!= (const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator!= (const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Types/ArrayPtr.h>
@@ -36,7 +36,7 @@ public:
     const KeyType& Key() const; // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType& operator*() { return Key(); }
+    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); }
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]

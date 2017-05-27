@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 template<typename Type>
-EZ_FORCE_INLINE ezVec2Template<Type>::ezVec2Template()
+EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
@@ -12,43 +12,43 @@ EZ_FORCE_INLINE ezVec2Template<Type>::ezVec2Template()
 }
 
 template<typename Type>
-EZ_FORCE_INLINE ezVec2Template<Type>::ezVec2Template(Type X, Type Y) : x (X), y (Y)
+EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type X, Type Y) : x (X), y (Y)
 {
 }
 
 template<typename Type>
-EZ_FORCE_INLINE ezVec2Template<Type>::ezVec2Template(Type V) : x (V), y (V)
+EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type V) : x (V), y (V)
 {
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec2Template<Type>::Set(Type xy)
+EZ_ALWAYS_INLINE void ezVec2Template<Type>::Set(Type xy)
 {
   x = xy;
   y = xy; 
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec2Template<Type>::Set(Type X, Type Y)
+EZ_ALWAYS_INLINE void ezVec2Template<Type>::Set(Type X, Type Y)
 {
   x = X;
   y = Y;
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec2Template<Type>::SetZero()
+EZ_ALWAYS_INLINE void ezVec2Template<Type>::SetZero()
 {
   x = y = 0;
 }
 
 template<typename Type>
-EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLength() const
+EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLength() const
 {
   return (ezMath::Sqrt(GetLengthSquared()));
 }
 
 template<typename Type>
-EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLengthSquared() const
+EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLengthSquared() const
 {
   return (x * x + y * y);
 }
@@ -71,7 +71,7 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetNormalized()
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezVec2Template<Type>::Normalize()
+EZ_ALWAYS_INLINE void ezVec2Template<Type>::Normalize()
 {
   *this /= GetLength ();
 }

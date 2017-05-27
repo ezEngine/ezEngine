@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template <typename T, ezUInt32 C>
 ezStaticRingBuffer<T, C>::ezStaticRingBuffer()
@@ -49,7 +49,7 @@ bool ezStaticRingBuffer<T, C>::operator==(const ezStaticRingBuffer<T, C>& rhs) c
 }
 
 template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE bool ezStaticRingBuffer<T, C>::operator!=(const ezStaticRingBuffer<T, C>& rhs) const
+EZ_ALWAYS_INLINE bool ezStaticRingBuffer<T, C>::operator!=(const ezStaticRingBuffer<T, C>& rhs) const
 {
   return !(*this == rhs);
 }

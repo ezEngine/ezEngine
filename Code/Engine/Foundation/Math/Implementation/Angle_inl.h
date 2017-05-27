@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template<typename Type>
 constexpr EZ_ALWAYS_INLINE Type ezAngle::Pi()
@@ -7,13 +7,13 @@ constexpr EZ_ALWAYS_INLINE Type ezAngle::Pi()
 }
 
 template<typename Type>
-constexpr EZ_FORCE_INLINE Type ezAngle::DegToRadMultiplier()
+constexpr EZ_ALWAYS_INLINE Type ezAngle::DegToRadMultiplier()
 {
   return Pi<Type>() / (Type) 180;
 }
 
 template<typename Type>
-constexpr EZ_FORCE_INLINE Type ezAngle::RadToDegMultiplier()
+constexpr EZ_ALWAYS_INLINE Type ezAngle::RadToDegMultiplier()
 {
   return ((Type) 180) / Pi<Type>();
 }
@@ -73,17 +73,17 @@ inline bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
   return aNorm.IsEqualSimple(bNorm, epsilon);
 }
 
-constexpr EZ_FORCE_INLINE ezAngle ezAngle::operator - () const
+constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::operator - () const
 {
   return ezAngle(-m_fRadian);
 }
 
-EZ_FORCE_INLINE void ezAngle::operator += (ezAngle r)
+EZ_ALWAYS_INLINE void ezAngle::operator += (ezAngle r)
 {
   m_fRadian += r.m_fRadian;
 }
 
-EZ_FORCE_INLINE void ezAngle::operator -= (ezAngle r)
+EZ_ALWAYS_INLINE void ezAngle::operator -= (ezAngle r)
 {
   m_fRadian -= r.m_fRadian;
 }
@@ -98,22 +98,22 @@ constexpr inline ezAngle ezAngle::operator - (ezAngle r) const
   return ezAngle(m_fRadian - r.m_fRadian);
 }
 
-constexpr EZ_FORCE_INLINE bool ezAngle::operator == (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator == (const ezAngle& r) const
 {
   return m_fRadian == r.m_fRadian;
 }
 
-constexpr EZ_FORCE_INLINE bool ezAngle::operator != (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator != (const ezAngle& r) const
 {
   return m_fRadian != r.m_fRadian;
 }
 
-constexpr EZ_FORCE_INLINE bool ezAngle::operator< (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator< (const ezAngle& r) const
 {
   return m_fRadian < r.m_fRadian;
 }
 
-constexpr EZ_FORCE_INLINE bool ezAngle::operator> (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator> (const ezAngle& r) const
 {
   return m_fRadian > r.m_fRadian;
 }

@@ -1,6 +1,6 @@
 ﻿#include <Foundation/Logging/Log.h>
 
-EZ_FORCE_INLINE ezComponent::ezComponent() :
+EZ_ALWAYS_INLINE ezComponent::ezComponent() :
   m_pMessageDispatchType(nullptr),
   m_ComponentFlags(ezObjectFlags::Default),
   m_pManager(nullptr),
@@ -9,7 +9,7 @@ EZ_FORCE_INLINE ezComponent::ezComponent() :
   m_uiUniqueID = 0xFFFFFFFF;
 }
 
-EZ_FORCE_INLINE ezComponent::~ezComponent()
+EZ_ALWAYS_INLINE ezComponent::~ezComponent()
 {
   m_pMessageDispatchType = nullptr;
   m_pManager = nullptr;

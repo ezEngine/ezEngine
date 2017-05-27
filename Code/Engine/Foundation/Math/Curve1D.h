@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Vec2.h>
@@ -24,7 +24,7 @@ public:
     /// \brief The tangent for the curve segment to the right that affects the spline interpolation
     ezVec2 m_RightTangent;
 
-    EZ_FORCE_INLINE bool operator<(const ControlPoint& rhs) const { return m_Position.x < rhs.m_Position.x; }
+    EZ_ALWAYS_INLINE bool operator<(const ControlPoint& rhs) const { return m_Position.x < rhs.m_Position.x; }
   };
 
 public:

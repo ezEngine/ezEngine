@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
@@ -14,22 +14,22 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Default constructor. Constructed Uuid will be invalid. [tested]
-  EZ_FORCE_INLINE ezUuid();
+  EZ_ALWAYS_INLINE ezUuid();
 
   /// \brief Constructs the Uuid from existing values
-  EZ_FORCE_INLINE ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh) { m_uiLow = uiLow; m_uiHigh = uiHigh; }
+  EZ_ALWAYS_INLINE ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh) { m_uiLow = uiLow; m_uiHigh = uiHigh; }
 
   /// \brief Comparison operator. [tested]
-  EZ_FORCE_INLINE bool operator == (const ezUuid& Other) const;
+  EZ_ALWAYS_INLINE bool operator == (const ezUuid& Other) const;
 
   /// \brief Comparison operator. [tested]
-  EZ_FORCE_INLINE bool operator != (const ezUuid& Other) const;
+  EZ_ALWAYS_INLINE bool operator != (const ezUuid& Other) const;
 
   /// \brief Comparison operator.
-  EZ_FORCE_INLINE bool operator < (const ezUuid& Other) const;
+  EZ_ALWAYS_INLINE bool operator < (const ezUuid& Other) const;
 
   /// \brief Returns true if this is a valid Uuid.
-  EZ_FORCE_INLINE bool IsValid() const;
+  EZ_ALWAYS_INLINE bool IsValid() const;
 
   /// \brief Creates a new Uuid and stores is it in this object.
   void CreateNewUuid();
@@ -44,10 +44,10 @@ public:
   static ezUuid StableUuidForInt(ezInt64 iInt);
 
   /// \brief Adds the given seed value to this guid, creating a new guid. The process is reversible.
-  EZ_FORCE_INLINE void CombineWithSeed(const ezUuid& seed);
+  EZ_ALWAYS_INLINE void CombineWithSeed(const ezUuid& seed);
 
   /// \brief Subtracts the given seed from this guid, restoring the original guid.
-  EZ_FORCE_INLINE void RevertCombinationWithSeed(const ezUuid& seed);
+  EZ_ALWAYS_INLINE void RevertCombinationWithSeed(const ezUuid& seed);
 
 private:
 

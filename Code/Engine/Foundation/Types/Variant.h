@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
@@ -232,7 +232,7 @@ private:
   {
     void* m_Ptr;
     ezAtomicInteger32 m_uiRef;
-    EZ_FORCE_INLINE SharedData(void* ptr) : m_Ptr(ptr), m_uiRef(1) { }
+    EZ_ALWAYS_INLINE SharedData(void* ptr) : m_Ptr(ptr), m_uiRef(1) { }
     virtual ~SharedData() { }
   };
 
@@ -242,7 +242,7 @@ private:
   private:
     T m_t;
   public:
-    EZ_FORCE_INLINE TypedSharedData(const T& value) : SharedData(&m_t), m_t(value) { }
+    EZ_ALWAYS_INLINE TypedSharedData(const T& value) : SharedData(&m_t), m_t(value) { }
   };
 
   union Data

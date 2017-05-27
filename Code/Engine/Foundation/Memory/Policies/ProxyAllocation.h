@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -38,7 +38,7 @@ namespace ezMemoryPolicies
       return m_pParent->AllocatedSize(ptr);
     }
 
-    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
+    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
 
   private:
     ezAllocatorBase* m_pParent;

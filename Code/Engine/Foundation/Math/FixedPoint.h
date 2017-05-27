@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Declarations.h>
 
@@ -23,7 +23,7 @@ class ezFixedPoint
 {
 public:
   /// \brief Default constructor does not do any initialization.
-  EZ_FORCE_INLINE ezFixedPoint() { } // [tested]
+  EZ_ALWAYS_INLINE ezFixedPoint() { } // [tested]
 
   /// \brief Construct from an integer.
   /* implicit */ ezFixedPoint(ezInt32 IntVal) { *this = IntVal; } // [tested]

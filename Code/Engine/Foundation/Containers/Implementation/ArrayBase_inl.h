@@ -1,4 +1,4 @@
-
+﻿
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::ezArrayBase()
 {
@@ -39,13 +39,13 @@ void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<const T>& rhs)
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezArrayBase<T, Derived>::operator ezArrayPtr<const T>() const
+EZ_ALWAYS_INLINE ezArrayBase<T, Derived>::operator ezArrayPtr<const T>() const
 {
   return ezArrayPtr<const T>(m_pElements, m_uiCount);
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezArrayBase<T, Derived>::operator ezArrayPtr<T>()
+EZ_ALWAYS_INLINE ezArrayBase<T, Derived>::operator ezArrayPtr<T>()
 {
   return ezArrayPtr<T>(m_pElements, m_uiCount);
 }
@@ -355,25 +355,25 @@ EZ_ALWAYS_INLINE const T* ezArrayBase<T, Derived>::GetData() const
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezArrayPtr<T> ezArrayBase<T, Derived>::GetArrayPtr()
+EZ_ALWAYS_INLINE ezArrayPtr<T> ezArrayBase<T, Derived>::GetArrayPtr()
 {
     return ezArrayPtr<T>(GetData(), GetCount());
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
+EZ_ALWAYS_INLINE ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
 {
     return ezArrayPtr<const T>(GetData(), GetCount());
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezArrayPtr<typename ezArrayPtr<T>::ByteType> ezArrayBase<T, Derived>::GetByteArrayPtr()
+EZ_ALWAYS_INLINE ezArrayPtr<typename ezArrayPtr<T>::ByteType> ezArrayBase<T, Derived>::GetByteArrayPtr()
 {
   return GetArrayPtr().ToByteArray();
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezArrayPtr<typename ezArrayPtr<const T>::ByteType> ezArrayBase<T, Derived>::GetByteArrayPtr() const
+EZ_ALWAYS_INLINE ezArrayPtr<typename ezArrayPtr<const T>::ByteType> ezArrayBase<T, Derived>::GetByteArrayPtr() const
 {
   return GetArrayPtr().ToByteArray();
 }

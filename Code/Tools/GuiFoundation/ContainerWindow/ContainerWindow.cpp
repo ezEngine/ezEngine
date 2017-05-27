@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <QSettings>
@@ -446,7 +446,7 @@ void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 
   struct WindowComparer
   {
     WindowComparer(QTabWidget* pTabs) : m_pTabs(pTabs) {}
-    EZ_FORCE_INLINE bool Less(ezQtDocumentWindow* a, ezQtDocumentWindow* b) const
+    EZ_ALWAYS_INLINE bool Less(ezQtDocumentWindow* a, ezQtDocumentWindow* b) const
     {
       int iIndexA = m_pTabs->indexOf(a);
       int iIndexB = m_pTabs->indexOf(b);

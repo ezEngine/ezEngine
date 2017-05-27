@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Declarations.h>
@@ -24,7 +24,7 @@ public:
     ezUInt8 m_GammaGreen;
     ezUInt8 m_GammaBlue;
 
-    EZ_FORCE_INLINE bool operator<(const ColorCP& rhs) const { return m_PosX < rhs.m_PosX; }
+    EZ_ALWAYS_INLINE bool operator<(const ColorCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
 
   /// \brief Alpha control point.
@@ -35,7 +35,7 @@ public:
     float m_PosX;
     ezUInt8 m_Alpha;
 
-    EZ_FORCE_INLINE bool operator<(const AlphaCP& rhs) const { return m_PosX < rhs.m_PosX; }
+    EZ_ALWAYS_INLINE bool operator<(const AlphaCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
 
   /// \brief Intensity control point. Used to scale rgb for high-dynamic range values.
@@ -46,7 +46,7 @@ public:
     float m_PosX;
     float m_Intensity;
 
-    EZ_FORCE_INLINE bool operator<(const IntensityCP& rhs) const { return m_PosX < rhs.m_PosX; }
+    EZ_ALWAYS_INLINE bool operator<(const IntensityCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
 
 public:

@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <Foundation/Types/TagRegistry.h>
@@ -40,7 +40,7 @@ public:
   ezUInt32 GetNumTagsSet() const;
 
   /// \brief True if the tag set never contained any tag or was cleared.
-  EZ_FORCE_INLINE bool IsEmpty() const;
+  EZ_ALWAYS_INLINE bool IsEmpty() const;
 
   /// \brief Removes all tags from the set
   void Clear();
@@ -64,12 +64,12 @@ public:
     const ezTag* operator*() const;
 
     /// \brief Returns whether the iterator is still pointing to a valid item
-    EZ_FORCE_INLINE bool IsValid() const
+    EZ_ALWAYS_INLINE bool IsValid() const
     {
       return m_uiIndex != 0xFFFFFFFF;
     }
 
-    EZ_FORCE_INLINE bool operator!=(const Iterator& rhs) const
+    EZ_ALWAYS_INLINE bool operator!=(const Iterator& rhs) const
     {
       return m_pTagSet != rhs.m_pTagSet || m_uiIndex != rhs.m_uiIndex;
     }
@@ -102,7 +102,7 @@ public:
 private:
   friend class Iterator;
 
-  EZ_FORCE_INLINE bool IsTagInAllocatedRange(const ezTag& Tag) const;
+  EZ_ALWAYS_INLINE bool IsTagInAllocatedRange(const ezTag& Tag) const;
 
   void Reallocate(ezUInt32 uiNewTagBlockStart, ezUInt32 uiNewMaxBlockIndex);
 

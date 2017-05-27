@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Bitflags.h>
@@ -59,12 +59,12 @@ public:
     ezUInt16 m_uiAlignment;
     ezUInt16 m_uiStackTraceLength;
 
-    EZ_FORCE_INLINE const ezArrayPtr<void*> GetStackTrace() const
+    EZ_ALWAYS_INLINE const ezArrayPtr<void*> GetStackTrace() const
     {
       return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength);
     }
 
-    EZ_FORCE_INLINE ezArrayPtr<void*> GetStackTrace()
+    EZ_ALWAYS_INLINE ezArrayPtr<void*> GetStackTrace()
     {
       return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength);
     }
@@ -88,12 +88,12 @@ public:
     void Next();
     bool IsValid() const;
 
-    EZ_FORCE_INLINE void operator++() { Next(); }
+    EZ_ALWAYS_INLINE void operator++() { Next(); }
 
   private:
     friend class ezMemoryTracker;
 
-    EZ_FORCE_INLINE Iterator(void* pData) : m_pData(pData) { }
+    EZ_ALWAYS_INLINE Iterator(void* pData) : m_pData(pData) { }
     
     void* m_pData;
   };

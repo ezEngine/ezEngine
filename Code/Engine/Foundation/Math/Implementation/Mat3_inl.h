@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 template<typename Type>
 ezMat3Template<Type>::ezMat3Template()
@@ -29,7 +29,7 @@ ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1,
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix()
+EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix()
 {
   return ezMat3Template<Type>(1, 0, 0,
                 0, 1, 0,
@@ -37,7 +37,7 @@ EZ_FORCE_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix(
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
+EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
 {
   return ezMat3Template<Type>(0, 0, 0,
                 0, 0, 0,
@@ -281,7 +281,7 @@ const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, const ezMa
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> operator* (const ezMat3Template<Type>& m, const ezVec3Template<Type>& v)
+EZ_ALWAYS_INLINE const ezVec3Template<Type> operator* (const ezMat3Template<Type>& m, const ezVec3Template<Type>& v)
 {
   return m.TransformDirection(v);
 }
@@ -291,7 +291,7 @@ EZ_FORCE_INLINE const ezVec3Template<Type> operator* (const ezMat3Template<Type>
 // *** free functions ***
 
 template<typename Type>
-EZ_FORCE_INLINE const ezMat3Template<Type> operator* (Type f, const ezMat3Template<Type>& m1)
+EZ_ALWAYS_INLINE const ezMat3Template<Type> operator* (Type f, const ezMat3Template<Type>& m1)
 {
   return operator* (m1, f);
 }
@@ -310,7 +310,7 @@ const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, Type f)
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezMat3Template<Type> operator/ (const ezMat3Template<Type>& m1, Type f)
+EZ_ALWAYS_INLINE const ezMat3Template<Type> operator/ (const ezMat3Template<Type>& m1, Type f)
 {
   return operator* (m1, ezMath::Invert(f));
 }
@@ -374,13 +374,13 @@ bool ezMat3Template<Type>::IsEqual(const ezMat3Template<Type>& rhs, Type fEpsilo
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator== (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator== (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator!= (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator!= (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }

@@ -101,48 +101,48 @@ EZ_FORCE_INLINE ezHashedString ezMakeHashedString(const char(&szString)[N])
 //////////////////////////////////////////////////////////////////////////
 
 template <size_t N>
-EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const char(&szString)[N])
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char(&szString)[N])
 {
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(ezHashing::StringWrapper szString)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezHashing::StringWrapper szString)
 {
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
 {
   m_uiHash = rhs.m_uiHash;
 }
 
-EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
 {
   m_uiHash = rhs.GetHash();
 }
 
-EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
 {
   m_uiHash = uiHash;
 }
 
 template <size_t N>
-EZ_FORCE_INLINE void ezTempHashedString::operator= (const char(&szString)[N])
+EZ_ALWAYS_INLINE void ezTempHashedString::operator= (const char(&szString)[N])
 {
   m_uiHash = ezHashing::MurmurHash<N>(szString);
 }
 
-EZ_FORCE_INLINE void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
+EZ_ALWAYS_INLINE void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
 {
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-EZ_FORCE_INLINE void ezTempHashedString::operator= (const ezTempHashedString& rhs)
+EZ_ALWAYS_INLINE void ezTempHashedString::operator= (const ezTempHashedString& rhs)
 {
   m_uiHash = rhs.m_uiHash;
 }
 
-EZ_FORCE_INLINE void ezTempHashedString::operator= (const ezHashedString& rhs)
+EZ_ALWAYS_INLINE void ezTempHashedString::operator= (const ezHashedString& rhs)
 {
   m_uiHash = rhs.GetHash();
 }

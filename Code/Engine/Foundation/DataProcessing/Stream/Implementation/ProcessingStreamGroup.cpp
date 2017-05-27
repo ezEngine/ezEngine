@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <Foundation/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
@@ -283,7 +283,7 @@ void ezProcessingStreamGroup::RunPendingSpawns()
 
 struct ProcessorComparer
 {
-  EZ_FORCE_INLINE bool Less(const ezProcessingStreamProcessor* a, const ezProcessingStreamProcessor* b) const
+  EZ_ALWAYS_INLINE bool Less(const ezProcessingStreamProcessor* a, const ezProcessingStreamProcessor* b) const
   {
     return a->m_fPriority < b->m_fPriority;
   }

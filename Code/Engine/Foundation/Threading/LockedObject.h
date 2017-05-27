@@ -1,22 +1,22 @@
-#pragma once
+﻿#pragma once
 
 /// \brief Provides access to an object while managing a lock (e.g. a mutex) that ensures that during its lifetime the access to the object happens under the lock.
 template <typename T, typename O>
 class ezLockedObject
 {
 public:
-  EZ_FORCE_INLINE explicit ezLockedObject(T& lock, O* pObject) :
+  EZ_ALWAYS_INLINE explicit ezLockedObject(T& lock, O* pObject) :
     m_pLock(&lock), m_pObject(pObject)
   {
     m_pLock->Acquire();
   }
-  EZ_FORCE_INLINE ezLockedObject()
+  EZ_ALWAYS_INLINE ezLockedObject()
   {
     m_pLock = nullptr;
     m_pObject = nullptr;
   }
 
-  EZ_FORCE_INLINE ezLockedObject(const ezLockedObject<T, O>&& rhs)
+  EZ_ALWAYS_INLINE ezLockedObject(const ezLockedObject<T, O>&& rhs)
   {
     *this = std::move(rhs);
   }
@@ -31,14 +31,14 @@ public:
     rhs.m_pObject = nullptr;
   }
 
-  EZ_FORCE_INLINE ~ezLockedObject()
+  EZ_ALWAYS_INLINE ~ezLockedObject()
   {
     if (m_pLock)
       m_pLock->Release();
   }
 
   /// \brief Whether the encapsulated object exists at all or is nullptr
-  EZ_FORCE_INLINE bool isValid() const
+  EZ_ALWAYS_INLINE bool isValid() const
   {
     return m_pObject != nullptr;
   }

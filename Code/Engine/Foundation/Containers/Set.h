@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/Deque.h>
 
@@ -44,22 +44,22 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_FORCE_INLINE Iterator() : m_pElement(nullptr) { } // [tested]
+    EZ_ALWAYS_INLINE Iterator() : m_pElement(nullptr) { } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
-    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
+    EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
-    EZ_FORCE_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }
+    EZ_ALWAYS_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }
 
     /// \brief Checks whether the two iterators point to the same element.
-    EZ_FORCE_INLINE bool operator!=(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement != it2.m_pElement); }
+    EZ_ALWAYS_INLINE bool operator!=(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT_DEV(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
+    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType& operator*() { return Key(); }
+    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); }
 
     /// \brief Advances the iterator to the next element in the set. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -68,15 +68,15 @@ public:
     void Prev(); // [tested]
 
     /// \brief Shorthand for 'Next'
-    EZ_FORCE_INLINE void operator++() { Next();  } // [tested]
+    EZ_ALWAYS_INLINE void operator++() { Next();  } // [tested]
 
     /// \brief Shorthand for 'Prev'
-    EZ_FORCE_INLINE void operator--() { Prev(); } // [tested]
+    EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
 
   protected:
     friend class ezSetBase<KeyType, Comparer>;
 
-    EZ_FORCE_INLINE explicit Iterator(Node* pInit)              : m_pElement(pInit) { }
+    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)              : m_pElement(pInit) { }
 
     Node* m_pElement;
   };

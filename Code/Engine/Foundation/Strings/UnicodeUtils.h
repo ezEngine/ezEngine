@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <ThirdParty/utf8/utf8.h>
@@ -92,11 +92,11 @@ public:
   template <typename IntType, typename Container>
   struct UtfInserter
   {
-    EZ_FORCE_INLINE UtfInserter(Container* pContainer) { m_pContainer = pContainer; }
-    EZ_FORCE_INLINE void operator++() {}
-    EZ_FORCE_INLINE UtfInserter& operator++(int) { return *this; }
-    EZ_FORCE_INLINE void operator= (IntType rhs) { m_pContainer->PushBack(rhs); }
-    EZ_FORCE_INLINE UtfInserter& operator*() { return *this; }
+    EZ_ALWAYS_INLINE UtfInserter(Container* pContainer) { m_pContainer = pContainer; }
+    EZ_ALWAYS_INLINE void operator++() {}
+    EZ_ALWAYS_INLINE UtfInserter& operator++(int) { return *this; }
+    EZ_ALWAYS_INLINE void operator= (IntType rhs) { m_pContainer->PushBack(rhs); }
+    EZ_ALWAYS_INLINE UtfInserter& operator*() { return *this; }
 
     Container* m_pContainer;
   };

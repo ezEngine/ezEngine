@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Strings/StringUtils.h>
 
@@ -19,7 +19,7 @@ struct ezStringIterator
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Constructs an invalid iterator.
-  EZ_FORCE_INLINE ezStringIterator() : m_String(nullptr), m_pElement(nullptr) { } // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator() : m_String(nullptr), m_pElement(nullptr) { } // [tested]
 
   /// \brief Constructs either a begin or end iterator for the given string.
   EZ_FORCE_INLINE explicit ezStringIterator(const ezStringBase<STRING>& string, bool bIsEnd) : m_String(&string), m_pElement(nullptr) // [tested]
@@ -35,31 +35,31 @@ struct ezStringIterator
   }
 
   /// \brief Checks whether this iterator points to a valid element. Invalid iterators either point to end(m_String) or were never initialized.
-  EZ_FORCE_INLINE bool IsValid() const { return m_pElement != nullptr && m_pElement != m_String->InternalGetDataEnd(); } // [tested]
+  EZ_ALWAYS_INLINE bool IsValid() const { return m_pElement != nullptr && m_pElement != m_String->InternalGetDataEnd(); } // [tested]
   
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_FORCE_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_FORCE_INLINE ezUInt32 Value() const { return GetCharacter(); }
+  EZ_ALWAYS_INLINE ezUInt32 Value() const { return GetCharacter(); }
 
   /// \brief Returns the address the iterator currently points to.
-  EZ_FORCE_INLINE const char* GetData() const { return m_pElement; } // [tested]
+  EZ_ALWAYS_INLINE const char* GetData() const { return m_pElement; } // [tested]
 
   /// \brief Checks whether the two iterators point to the same element.
-  EZ_FORCE_INLINE bool operator==(const ezStringIterator& it2) const { return (m_pElement == it2.m_pElement); } // [tested]
+  EZ_ALWAYS_INLINE bool operator==(const ezStringIterator& it2) const { return (m_pElement == it2.m_pElement); } // [tested]
 
   /// \brief Checks whether the two iterators point to the same element.
-  EZ_FORCE_INLINE bool operator!=(const ezStringIterator& it2) const { return (m_pElement != it2.m_pElement); } // [tested]
+  EZ_ALWAYS_INLINE bool operator!=(const ezStringIterator& it2) const { return (m_pElement != it2.m_pElement); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_FORCE_INLINE ezUInt32 operator*() const { return GetCharacter(); } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 operator*() const { return GetCharacter(); } // [tested]
 
   /// \brief Returns the address the iterator currently points to.
-  EZ_FORCE_INLINE const char* operator->() const { return GetData(); }
+  EZ_ALWAYS_INLINE const char* operator->() const { return GetData(); }
 
   /// \brief Move to the next Utf8 character
-  EZ_FORCE_INLINE ezStringIterator<STRING>& operator++() // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator<STRING>& operator++() // [tested]
   {
     if (m_pElement < m_String->InternalGetDataEnd())
       ezUnicodeUtils::MoveToNextUtf8(m_pElement);
@@ -67,7 +67,7 @@ struct ezStringIterator
   }
 
   /// \brief Move to the previous Utf8 character
-  EZ_FORCE_INLINE ezStringIterator<STRING>& operator--() // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator<STRING>& operator--() // [tested]
   {
     if (m_String->InternalGetData() < m_pElement)
       ezUnicodeUtils::MoveToPriorUtf8(m_pElement);
@@ -75,7 +75,7 @@ struct ezStringIterator
   }
 
   /// \brief Move to the next Utf8 character
-  EZ_FORCE_INLINE ezStringIterator<STRING> operator++(int) // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator<STRING> operator++(int) // [tested]
   {
     ezStringIterator<STRING> tmp = *this;
     ++(*this);
@@ -83,7 +83,7 @@ struct ezStringIterator
   }
 
   /// \brief Move to the previous Utf8 character
-  EZ_FORCE_INLINE ezStringIterator<STRING> operator--(int) // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator<STRING> operator--(int) // [tested]
   {
     ezStringIterator<STRING> tmp = *this;
     --(*this);
@@ -121,7 +121,7 @@ struct ezStringIterator
   }
 
   /// \brief Returns an iterator that is advanced forwards by d characters.
-  EZ_FORCE_INLINE ezStringIterator<STRING> operator+(difference_type d) const // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator<STRING> operator+(difference_type d) const // [tested]
   {
     ezStringIterator<STRING> it = *this;
     it += d;
@@ -129,7 +129,7 @@ struct ezStringIterator
   }
 
   /// \brief Returns an iterator that is advanced backwards by d characters.
-  EZ_FORCE_INLINE ezStringIterator<STRING> operator-(difference_type d) const // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator<STRING> operator-(difference_type d) const // [tested]
   {
     ezStringIterator<STRING> it = *this;
     it -= d;
@@ -167,7 +167,7 @@ struct ezStringReverseIterator
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Constructs an invalid iterator.
-  EZ_FORCE_INLINE ezStringReverseIterator() : m_String(nullptr), m_pElement(nullptr) { } // [tested]
+  EZ_ALWAYS_INLINE ezStringReverseIterator() : m_String(nullptr), m_pElement(nullptr) { } // [tested]
 
   /// \brief Constructs either a rbegin or rend iterator for the given string.
   EZ_FORCE_INLINE explicit ezStringReverseIterator(const ezStringBase<STRING>& string, bool bIsEnd) : m_String(&string), m_pElement(nullptr) // [tested]
@@ -184,25 +184,25 @@ struct ezStringReverseIterator
   }
 
   /// \brief Checks whether this iterator points to a valid element.
-  EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
+  EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_FORCE_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
 
   /// \brief Returns the address the iterator currently points to.
-  EZ_FORCE_INLINE const char* GetData() const { return m_pElement; } // [tested]
+  EZ_ALWAYS_INLINE const char* GetData() const { return m_pElement; } // [tested]
 
   /// \brief Checks whether the two iterators point to the same element.
-  EZ_FORCE_INLINE bool operator==(const ezStringReverseIterator& it2) const { return (m_pElement == it2.m_pElement); } // [tested]
+  EZ_ALWAYS_INLINE bool operator==(const ezStringReverseIterator& it2) const { return (m_pElement == it2.m_pElement); } // [tested]
 
   /// \brief Checks whether the two iterators point to the same element.
-  EZ_FORCE_INLINE bool operator!=(const ezStringReverseIterator& it2) const { return (m_pElement != it2.m_pElement); } // [tested]
+  EZ_ALWAYS_INLINE bool operator!=(const ezStringReverseIterator& it2) const { return (m_pElement != it2.m_pElement); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_FORCE_INLINE ezUInt32 operator*() const { return GetCharacter(); } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 operator*() const { return GetCharacter(); } // [tested]
 
   /// \brief Returns the address the iterator currently points to.
-  EZ_FORCE_INLINE const char* operator->() const { return GetData(); } // [tested]
+  EZ_ALWAYS_INLINE const char* operator->() const { return GetData(); } // [tested]
 
   /// \brief Move to the next Utf8 character
   EZ_FORCE_INLINE ezStringReverseIterator<STRING>& operator++() // [tested]
@@ -233,7 +233,7 @@ struct ezStringReverseIterator
   }
 
   /// \brief Move to the next Utf8 character
-  EZ_FORCE_INLINE ezStringReverseIterator<STRING> operator++(int) // [tested]
+  EZ_ALWAYS_INLINE ezStringReverseIterator<STRING> operator++(int) // [tested]
   {
     ezStringReverseIterator<STRING> tmp = *this;
     ++(*this);
@@ -241,7 +241,7 @@ struct ezStringReverseIterator
   }
 
   /// \brief Move to the previous Utf8 character
-  EZ_FORCE_INLINE ezStringReverseIterator<STRING> operator--(int) // [tested]
+  EZ_ALWAYS_INLINE ezStringReverseIterator<STRING> operator--(int) // [tested]
   {
     ezStringReverseIterator<STRING> tmp = *this;
     --(*this);
@@ -279,7 +279,7 @@ struct ezStringReverseIterator
   }
 
   /// \brief Returns an iterator that is advanced forwards by d characters.
-  EZ_FORCE_INLINE ezStringReverseIterator<STRING> operator+(difference_type d) const // [tested]
+  EZ_ALWAYS_INLINE ezStringReverseIterator<STRING> operator+(difference_type d) const // [tested]
   {
     ezStringReverseIterator<STRING> it = *this;
     it += d;
@@ -287,7 +287,7 @@ struct ezStringReverseIterator
   }
 
   /// \brief Returns an iterator that is advanced backwards by d characters.
-  EZ_FORCE_INLINE ezStringReverseIterator<STRING> operator-(difference_type d) const // [tested]
+  EZ_ALWAYS_INLINE ezStringReverseIterator<STRING> operator-(difference_type d) const // [tested]
   {
     ezStringReverseIterator<STRING> it = *this;
     it -= d;

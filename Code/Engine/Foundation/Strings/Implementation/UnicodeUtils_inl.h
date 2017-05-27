@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /*
 You can classify bytes in a UTF-8 stream as follows:
@@ -7,7 +7,7 @@ You can classify bytes in a UTF-8 stream as follows:
   Otherwise, it's the first byte of a multi-byte sequence and the number of leading 1 bits indicates how many bytes there are in total for this sequence (110... means two bytes, 1110... means three bytes, etc).
 */
 
-EZ_FORCE_INLINE bool ezUnicodeUtils::IsUtf8StartByte(char uiByte)
+EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8StartByte(char uiByte)
 {
   // valid utf8 start bytes are 0x0-------, 0x110-----, 0x1110----, 0x11110---, etc
   return
@@ -18,13 +18,13 @@ EZ_FORCE_INLINE bool ezUnicodeUtils::IsUtf8StartByte(char uiByte)
     ((uiByte & 0xFC) == 0xF8);
 }
 
-EZ_FORCE_INLINE bool ezUnicodeUtils::IsUtf8ContinuationByte(char uiByte)
+EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8ContinuationByte(char uiByte)
 {
   // check whether the two upper bits are set to '10'
   return (uiByte & 0xC0) == 0x80;
 }
 
-EZ_FORCE_INLINE bool ezUnicodeUtils::IsASCII(ezUInt32 uiChar)
+EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsASCII(ezUInt32 uiChar)
 {
   return (uiChar <= 127);
 }

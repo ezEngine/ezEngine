@@ -372,7 +372,7 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
     return;
 
   UnlinkFromParent(pObject);
-  // UnlinkFromParent does not clear these as they are still needed in DeleteObjectNow to allow deletes while itterating.
+  // UnlinkFromParent does not clear these as they are still needed in DeleteObjectNow to allow deletes while iterating.
   pObject->m_NextSiblingIndex = 0;
   pObject->m_PrevSiblingIndex = 0;
   if (pNewParent != nullptr)

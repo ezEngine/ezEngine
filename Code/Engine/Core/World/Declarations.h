@@ -75,7 +75,7 @@ class ezGameObjectHandle
 template <>
 struct ezHashHelper<ezGameObjectHandle>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(ezGameObjectHandle value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value)
   {
     return value.GetInternalID().m_Data * 2654435761U;
   }
@@ -91,27 +91,27 @@ typedef ezGenericId<24, 8> ezGenericComponentId;
 /// \brief Internal component id used by ezComponentHandle.
 struct ezComponentId : public ezGenericComponentId
 {
-  EZ_FORCE_INLINE ezComponentId() : ezGenericComponentId()
+  EZ_ALWAYS_INLINE ezComponentId() : ezGenericComponentId()
   {
     m_TypeId = 0;
     m_WorldIndex = 0;
   }
 
-  EZ_FORCE_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0, ezUInt16 worldIndex = 0) :
+  EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0, ezUInt16 worldIndex = 0) :
     ezGenericComponentId(instanceIndex, generation)
   {
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
   }
 
-  EZ_FORCE_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId, ezUInt16 worldIndex) :
+  EZ_ALWAYS_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId, ezUInt16 worldIndex) :
     ezGenericComponentId(genericId)
   {
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
   }
 
-  EZ_FORCE_INLINE bool operator==(const ezComponentId other) const
+  EZ_ALWAYS_INLINE bool operator==(const ezComponentId other) const
   {
     const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
     const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
@@ -119,7 +119,7 @@ struct ezComponentId : public ezGenericComponentId
     return m_Data == other.m_Data && d1 == d2;
 
   }
-  EZ_FORCE_INLINE bool operator!=(const ezComponentId other) const
+  EZ_ALWAYS_INLINE bool operator!=(const ezComponentId other) const
   {
     const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
     const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
@@ -127,7 +127,7 @@ struct ezComponentId : public ezGenericComponentId
     return m_Data != other.m_Data || d1 != d2;
   }
 
-  EZ_FORCE_INLINE bool operator<(const ezComponentId other) const
+  EZ_ALWAYS_INLINE bool operator<(const ezComponentId other) const
   {
     const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
     const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);

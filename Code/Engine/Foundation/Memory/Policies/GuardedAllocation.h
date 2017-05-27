@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Math/Math.h>
@@ -11,12 +11,12 @@ namespace ezMemoryPolicies
   {
   public:
     ezGuardedAllocation(ezAllocatorBase* pParent);
-    EZ_FORCE_INLINE ~ezGuardedAllocation() { }
+    EZ_ALWAYS_INLINE ~ezGuardedAllocation() { }
 
     void* Allocate(size_t uiSize, size_t uiAlign);
     void Deallocate(void* ptr);
 
-    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
+    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
 
   private:
     ezMutex m_mutex;

@@ -1,10 +1,10 @@
-
-EZ_FORCE_INLINE const char* ezWorld::GetName() const
+﻿
+EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
 {
   return m_Data.m_sName.GetData();
 }
 
-EZ_FORCE_INLINE ezUInt32 ezWorld::GetIndex() const
+EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetIndex() const
 {
   return m_uiIndex;
 }
@@ -332,17 +332,17 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverCompo
   }
 }
 
-EZ_FORCE_INLINE void ezWorld::SetWorldSimulationEnabled(bool bEnable)
+EZ_ALWAYS_INLINE void ezWorld::SetWorldSimulationEnabled(bool bEnable)
 {
   m_Data.m_bSimulateWorld = bEnable;
 }
 
-EZ_FORCE_INLINE bool ezWorld::GetWorldSimulationEnabled() const
+EZ_ALWAYS_INLINE bool ezWorld::GetWorldSimulationEnabled() const
 {
   return m_Data.m_bSimulateWorld;
 }
 
-EZ_FORCE_INLINE ezTask* ezWorld::GetUpdateTask()
+EZ_ALWAYS_INLINE ezTask* ezWorld::GetUpdateTask()
 {
   return &m_UpdateTask;
 }
@@ -361,7 +361,7 @@ EZ_FORCE_INLINE const ezSpatialSystem& ezWorld::GetSpatialSystem() const
   return *(m_Data.m_pSpatialSystem.Borrow());
 }
 
-EZ_FORCE_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const
+EZ_ALWAYS_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const
 {
   m_Data.m_pCoordinateSystemProvider->GetCoordinateSystem(vGlobalPosition, out_CoordinateSystem);
 }
@@ -374,47 +374,47 @@ EZ_FORCE_INLINE void ezWorld::SetCoordinateSystemProvider(ezUniquePtr<ezCoordina
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 }
 
-EZ_FORCE_INLINE ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider()
+EZ_ALWAYS_INLINE ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider()
 {
   return *(m_Data.m_pCoordinateSystemProvider.Borrow());
 }
 
-EZ_FORCE_INLINE const ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider() const
+EZ_ALWAYS_INLINE const ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider() const
 {
   return *(m_Data.m_pCoordinateSystemProvider.Borrow());
 }
 
-EZ_FORCE_INLINE ezClock& ezWorld::GetClock()
+EZ_ALWAYS_INLINE ezClock& ezWorld::GetClock()
 {
   return m_Data.m_Clock;
 }
 
-EZ_FORCE_INLINE const ezClock& ezWorld::GetClock() const
+EZ_ALWAYS_INLINE const ezClock& ezWorld::GetClock() const
 {
   return m_Data.m_Clock;
 }
 
-EZ_FORCE_INLINE ezRandom& ezWorld::GetRandomNumberGenerator()
+EZ_ALWAYS_INLINE ezRandom& ezWorld::GetRandomNumberGenerator()
 {
   return m_Data.m_Random;
 }
 
-EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
+EZ_ALWAYS_INLINE ezAllocatorBase* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;
 }
 
-EZ_FORCE_INLINE ezInternal::WorldLargeBlockAllocator* ezWorld::GetBlockAllocator()
+EZ_ALWAYS_INLINE ezInternal::WorldLargeBlockAllocator* ezWorld::GetBlockAllocator()
 {
   return &m_Data.m_BlockAllocator;
 }
 
-EZ_FORCE_INLINE ezInternal::WorldData::ReadMarker& ezWorld::GetReadMarker() const
+EZ_ALWAYS_INLINE ezInternal::WorldData::ReadMarker& ezWorld::GetReadMarker() const
 {
   return m_Data.m_ReadMarker;
 }
 
-EZ_FORCE_INLINE ezInternal::WorldData::WriteMarker& ezWorld::GetWriteMarker()
+EZ_ALWAYS_INLINE ezInternal::WorldData::WriteMarker& ezWorld::GetWriteMarker()
 {
   return m_Data.m_WriteMarker;
 }
@@ -434,13 +434,13 @@ EZ_FORCE_INLINE void* ezWorld::GetUserData() const
 }
 
 //static
-EZ_FORCE_INLINE ezUInt32 ezWorld::GetWorldCount()
+EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetWorldCount()
 {
   return s_Worlds.GetCount();
 }
 
 //static
-EZ_FORCE_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
+EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 {
   return s_Worlds[uiIndex];
 }
@@ -455,7 +455,7 @@ EZ_FORCE_INLINE void ezWorld::CheckForWriteAccess() const
   EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(), "Trying to write to World '{0}', but it is not marked for writing.", GetName());
 }
 
-EZ_FORCE_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
+EZ_ALWAYS_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
 {
   return m_Data.m_Objects.GetValueUnchecked(uiIndex);
 }

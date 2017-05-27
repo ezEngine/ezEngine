@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/HybridArray.h>
 
@@ -126,7 +126,7 @@ namespace ezMemoryPolicies
       m_pNextAllocation = m_currentBucket.GetPtr();
     }
 
-    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
+    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
 
   private:
     struct Bucket

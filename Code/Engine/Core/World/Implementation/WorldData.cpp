@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
@@ -185,7 +185,7 @@ void WorldData::TraverseBreadthFirst(VisitorFunc& func)
 {
   struct Helper
   {
-    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
       return (*static_cast<VisitorFunc*>(pUserData))(pData->m_pObject);
     }
@@ -212,7 +212,7 @@ void WorldData::TraverseDepthFirst(VisitorFunc& func)
 {
   struct Helper
   {
-    EZ_FORCE_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
       return WorldData::TraverseObjectDepthFirst(pData->m_pObject, *static_cast<VisitorFunc*>(pUserData));
     }

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Memory/Allocator.h>
@@ -17,7 +17,7 @@ namespace
 
   struct TrackerDataAllocatorWrapper
   {
-    EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+    EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
     {
       return s_pTrackerDataAllocator;
     }
@@ -26,7 +26,7 @@ namespace
 
   struct AllocatorData
   {
-    EZ_FORCE_INLINE AllocatorData()
+    EZ_ALWAYS_INLINE AllocatorData()
     {
     }
 
@@ -40,8 +40,8 @@ namespace
 
   struct TrackerData
   {
-    EZ_FORCE_INLINE void Acquire() { m_Mutex.Acquire(); }
-    EZ_FORCE_INLINE void Release() { m_Mutex.Release(); }
+    EZ_ALWAYS_INLINE void Acquire() { m_Mutex.Acquire(); }
+    EZ_ALWAYS_INLINE void Release() { m_Mutex.Release(); }
 
     ezMutex m_Mutex;
 
@@ -287,7 +287,7 @@ struct LeakInfo
   size_t m_uiSize;
   const void* m_pParentLeak;
 
-  EZ_FORCE_INLINE bool IsRootLeak() const
+  EZ_ALWAYS_INLINE bool IsRootLeak() const
   {
     return m_pParentLeak == nullptr && m_AllocatorId != s_pTrackerData->m_StaticAllocatorId;
   }

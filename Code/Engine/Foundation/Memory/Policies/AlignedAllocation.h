@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Math.h>
 
@@ -58,7 +58,7 @@ namespace ezMemoryPolicies
       return m_allocator.UsedMemorySize(pMemory);
     }
 
-    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const
+    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const
     { 
       return m_allocator.GetParent(); 
     }
@@ -80,17 +80,17 @@ namespace ezMemoryPolicies
 
     // Store offset between pMemory and pAlignedMemory in the lower 24 bit of meta-data. 
     // The upper 8 bit are used to store the Log2 of the alignment.
-    EZ_FORCE_INLINE ezUInt32 PackMetadata(ezUInt32 uiOffset, ezUInt32 uiAlignment)
+    EZ_ALWAYS_INLINE ezUInt32 PackMetadata(ezUInt32 uiOffset, ezUInt32 uiAlignment)
     {
       return uiOffset | (ezMath::Log2i(uiAlignment) << 24);
     }
 
-    EZ_FORCE_INLINE ezUInt32 UnpackOffset(ezUInt32 uiMetadata)
+    EZ_ALWAYS_INLINE ezUInt32 UnpackOffset(ezUInt32 uiMetadata)
     {
       return uiMetadata & 0x00FFFFFF;
     }
 
-    EZ_FORCE_INLINE ezUInt32 UnpackAlignment(ezUInt32 uiMetadata)
+    EZ_ALWAYS_INLINE ezUInt32 UnpackAlignment(ezUInt32 uiMetadata)
     {
       return 1 << (uiMetadata >> 24);
     }

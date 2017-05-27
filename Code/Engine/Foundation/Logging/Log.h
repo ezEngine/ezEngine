@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/AtomicInteger.h>
@@ -64,7 +64,7 @@ public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) = 0;
 
   /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
-  EZ_FORCE_INLINE void SetLogLevel(ezLogMsgType::Enum LogLevel) { m_LogLevel = LogLevel; }
+  EZ_ALWAYS_INLINE void SetLogLevel(ezLogMsgType::Enum LogLevel) { m_LogLevel = LogLevel; }
 
   /// \brief Returns the currently set log level.
   EZ_ALWAYS_INLINE ezLogMsgType::Enum GetLogLevel() { return m_LogLevel; }

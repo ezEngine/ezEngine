@@ -1,15 +1,15 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/FixedPoint.h>
 
 namespace ezMath
 {
   #define FIXEDPOINT_OVERLOADS(Bits) \
-    template<> EZ_FORCE_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::MaxValue()        { return (ezFixedPoint<Bits>)((1 << (31 - Bits)) - 1); } \
-    template<> EZ_FORCE_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::SmallEpsilon()    { return (ezFixedPoint<Bits>) 0.0001; } \
-    template<> EZ_FORCE_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::DefaultEpsilon()  { return (ezFixedPoint<Bits>) 0.001; } \
-    template<> EZ_FORCE_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::LargeEpsilon()    { return (ezFixedPoint<Bits>) 0.01; } \
-    template<> EZ_FORCE_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::HugeEpsilon()     { return (ezFixedPoint<Bits>) 0.1; }
+    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::MaxValue()        { return (ezFixedPoint<Bits>)((1 << (31 - Bits)) - 1); } \
+    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::SmallEpsilon()    { return (ezFixedPoint<Bits>) 0.0001; } \
+    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::DefaultEpsilon()  { return (ezFixedPoint<Bits>) 0.001; } \
+    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::LargeEpsilon()    { return (ezFixedPoint<Bits>) 0.01; } \
+    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::HugeEpsilon()     { return (ezFixedPoint<Bits>) 0.1; }
 
   FIXEDPOINT_OVERLOADS(1);
   FIXEDPOINT_OVERLOADS(2);

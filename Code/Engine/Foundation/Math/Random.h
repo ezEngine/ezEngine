@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/IO/Stream.h>
@@ -42,10 +42,10 @@ public:
   ezInt32 IntMinMax(ezInt32 iMinValue, ezInt32 iMaxValue); // [tested]
 
   /// \brief Returns a value in range [0.0 ; 1.0), ie. including zero, but excluding one
-  EZ_FORCE_INLINE double DoubleZeroToOneExclusive() { return (double)UInt() / (double)(0xFFFFFFFFUL); } // [tested]
+  EZ_ALWAYS_INLINE double DoubleZeroToOneExclusive() { return (double)UInt() / (double)(0xFFFFFFFFUL); } // [tested]
 
   /// \brief Returns a value in range [0.0 ; 1.0], ie. including zero and one
-  EZ_FORCE_INLINE double DoubleZeroToOneInclusive() { return (double)UInt() / (double)(0xFFFFFFFFUL + 1.0); } // [tested]
+  EZ_ALWAYS_INLINE double DoubleZeroToOneInclusive() { return (double)UInt() / (double)(0xFFFFFFFFUL + 1.0); } // [tested]
 
   /// \brief Returns a double value in range [fMinValue ; fMinValue + fRange)
   double DoubleInRange(double fMinValue, double fRange); // [tested]

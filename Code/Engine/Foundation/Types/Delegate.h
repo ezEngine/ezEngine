@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -12,7 +12,7 @@ public:
     const void* m_ConstPtr;
   };
 
-  EZ_FORCE_INLINE ezDelegateBase()
+  EZ_ALWAYS_INLINE ezDelegateBase()
   {
     m_pInstance.m_Ptr = nullptr;
   }

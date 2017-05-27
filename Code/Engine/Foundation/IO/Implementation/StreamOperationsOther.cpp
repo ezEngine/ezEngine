@@ -66,7 +66,7 @@ void operator>> (ezStreamReader& Stream, ezHashedString& Value)
 struct WriteValueFunc
 {
   template <typename T>
-  EZ_FORCE_INLINE void operator()()
+  EZ_ALWAYS_INLINE void operator()()
   {
     (*m_pStream) << m_pValue->Get<T>();
   }
@@ -101,13 +101,13 @@ EZ_FORCE_INLINE void WriteValueFunc::operator()<ezVariantDictionary>()
 }
 
 template <>
-EZ_FORCE_INLINE void WriteValueFunc::operator()<ezReflectedClass*>()
+inline void WriteValueFunc::operator()<ezReflectedClass*>()
 {
   EZ_REPORT_FAILURE("Type 'ezReflectedClass*' not supported in serialization.");
 }
 
 template <>
-EZ_FORCE_INLINE void WriteValueFunc::operator()<void*>()
+inline void WriteValueFunc::operator()<void*>()
 {
   EZ_REPORT_FAILURE("Type 'void*' not supported in serialization.");
 }
@@ -174,19 +174,19 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezVariantDictionary>()
 }
 
 template <>
-EZ_FORCE_INLINE void ReadValueFunc::operator()<ezReflectedClass*>()
+inline void ReadValueFunc::operator()<ezReflectedClass*>()
 {
   EZ_REPORT_FAILURE("Type 'ezReflectedClass*' not supported in serialization.");
 }
 
 template <>
-EZ_FORCE_INLINE void ReadValueFunc::operator()<void*>()
+inline void ReadValueFunc::operator()<void*>()
 {
   EZ_REPORT_FAILURE("Type 'void*' not supported in serialization.");
 }
 
 template <>
-EZ_FORCE_INLINE void ReadValueFunc::operator()<ezStringView>()
+inline void ReadValueFunc::operator()<ezStringView>()
 {
   EZ_REPORT_FAILURE("Type 'ezStringView' not supported in serialization.");
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Mat4.h>
 
@@ -101,19 +101,19 @@ bool ezBoundingSphereTemplate<Type>::IsEqual(const ezBoundingSphereTemplate<Type
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator== (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator== (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator!= (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
+EZ_ALWAYS_INLINE bool operator!= (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::Translate(const ezVec3Template<Type>& vTranslation)
+EZ_ALWAYS_INLINE void ezBoundingSphereTemplate<Type>::Translate(const ezVec3Template<Type>& vTranslation)
 {
   m_vCenter += vTranslation;
 }

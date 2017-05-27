@@ -1,13 +1,13 @@
-#pragma once
+﻿#pragma once
 
 template<class Container>
-EZ_FORCE_INLINE ezUInt32 ezBitfield<Container>::GetBitInt(ezUInt32 uiBitIndex) const
+EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetBitInt(ezUInt32 uiBitIndex) const
 {
   return (uiBitIndex >> 5); // div 32
 }
 
 template<class Container>
-EZ_FORCE_INLINE ezUInt32 ezBitfield<Container>::GetBitMask(ezUInt32 uiBitIndex) const
+EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetBitMask(ezUInt32 uiBitIndex) const
 {
   return 1 << (uiBitIndex & 0x1F); // modulo 32, shifted to bit position
 }

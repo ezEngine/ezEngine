@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -23,7 +23,7 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    EZ_FORCE_INLINE Stats() { ezMemoryUtils::ZeroFill(this); }
+    EZ_ALWAYS_INLINE Stats() { ezMemoryUtils::ZeroFill(this); }
 
     ezUInt64 m_uiNumAllocations;      ///< total number of allocations
     ezUInt64 m_uiNumDeallocations;    ///< total number of deallocations

@@ -1,32 +1,32 @@
-
-EZ_FORCE_INLINE ezVariant::ezVariant()
+﻿
+EZ_ALWAYS_INLINE ezVariant::ezVariant()
 {
   m_Type = Type::Invalid;
   m_bIsShared = false;
 }
 
-EZ_FORCE_INLINE ezVariant::ezVariant(const ezVariant& other)
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
 {
   CopyFrom(other);
 }
 
-EZ_FORCE_INLINE ezVariant::ezVariant(ezVariant&& other)
+EZ_ALWAYS_INLINE ezVariant::ezVariant(ezVariant&& other)
 {
   MoveFrom(std::move(other));
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezVariant::ezVariant(const T& value)
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const T& value)
 {
   Init(value);
 }
 
-EZ_FORCE_INLINE ezVariant::~ezVariant()
+EZ_ALWAYS_INLINE ezVariant::~ezVariant()
 {
   Release();
 }
 
-EZ_FORCE_INLINE void ezVariant::operator=(const ezVariant& other)
+EZ_ALWAYS_INLINE void ezVariant::operator=(const ezVariant& other)
 {
   if (this != &other)
   {
@@ -35,7 +35,7 @@ EZ_FORCE_INLINE void ezVariant::operator=(const ezVariant& other)
   }
 }
 
-EZ_FORCE_INLINE void ezVariant::operator=(ezVariant&& other)
+EZ_ALWAYS_INLINE void ezVariant::operator=(ezVariant&& other)
 {
   if (this != &other)
   {
@@ -45,7 +45,7 @@ EZ_FORCE_INLINE void ezVariant::operator=(ezVariant&& other)
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezVariant::operator=(const T& value)
+EZ_ALWAYS_INLINE void ezVariant::operator=(const T& value)
 {
   Release();
   Init(value);
@@ -339,7 +339,7 @@ EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<0>)
 }
 
 template <typename StorageType, typename T>
-EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
+EZ_ALWAYS_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
 {
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value);
   m_bIsShared = true;
@@ -372,7 +372,7 @@ inline void ezVariant::CopyFrom(const ezVariant& other)
   }
 }
 
-EZ_FORCE_INLINE void ezVariant::MoveFrom(ezVariant&& other)
+EZ_ALWAYS_INLINE void ezVariant::MoveFrom(ezVariant&& other)
 {
   m_Type = other.m_Type;
   m_bIsShared = other.m_bIsShared;
@@ -407,12 +407,12 @@ EZ_FORCE_INLINE const T& ezVariant::Cast() const
     *reinterpret_cast<const T*>(&m_Data);
 }
 
-EZ_FORCE_INLINE bool ezVariant::IsNumber(ezUInt32 type)
+EZ_ALWAYS_INLINE bool ezVariant::IsNumber(ezUInt32 type)
 {
   return type > Type::Invalid && type <= Type::Double;
 }
 
-EZ_FORCE_INLINE bool ezVariant::IsFloatingPoint(ezUInt32 type)
+EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPoint(ezUInt32 type)
 {
   return type == Type::Float || type == Type::Double;
 }
@@ -453,13 +453,13 @@ T ezVariant::ConvertNumber() const
 template <>
 struct ezHashHelper<ezVariant>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const ezVariant& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezVariant& value)
   {
     ezUInt64 uiHash = value.ComputeHash(0);
     return (ezUInt32)uiHash;
   }
 
-  EZ_FORCE_INLINE static bool Equal(const ezVariant& a, const ezVariant& b)
+  EZ_ALWAYS_INLINE static bool Equal(const ezVariant& a, const ezVariant& b)
   {
     return a == b;
   }

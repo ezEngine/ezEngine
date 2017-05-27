@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-EZ_FORCE_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/)
+EZ_ALWAYS_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/)
 {
   r = R;
   g = G;
@@ -30,7 +30,7 @@ inline ezColor ezColorLinearUB::ToLinearFloat() const
 
 // *****************
 
-EZ_FORCE_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A)
+EZ_ALWAYS_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A)
 {
   r = R;
   g = G;

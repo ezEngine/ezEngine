@@ -1,29 +1,29 @@
-
+﻿
 class ezVariantHelper
 {
   friend class ezVariant;
   friend struct ConvertFunc;
 
   template <typename T>
-  EZ_FORCE_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<1>)
+  EZ_ALWAYS_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<1>)
   {
     return v.ConvertNumber<double>() == static_cast<double>(other);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<0>)
+  EZ_ALWAYS_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<0>)
   {
     return false;
   }
 
   template <typename T>
-  EZ_FORCE_INLINE static bool CompareNumber(const ezVariant& v, const T& other, ezTraitInt<1>)
+  EZ_ALWAYS_INLINE static bool CompareNumber(const ezVariant& v, const T& other, ezTraitInt<1>)
   {
     return v.ConvertNumber<ezInt64>() == static_cast<ezInt64>(other);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE static bool CompareNumber(const ezVariant& v, const T& other, ezTraitInt<0>)
+  EZ_ALWAYS_INLINE static bool CompareNumber(const ezVariant& v, const T& other, ezTraitInt<0>)
   {
     return false;
   }
@@ -212,7 +212,7 @@ class ezVariantHelper
   struct ToStringFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_ALWAYS_INLINE void operator()()
     {
       ezStringBuilder tmp;
       *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>(), tmp);

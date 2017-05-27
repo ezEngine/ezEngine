@@ -1,4 +1,4 @@
-
+﻿
 template <typename T, ezUInt32 Size>
 ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezAllocatorBase* pAllocator)
 {
@@ -49,13 +49,13 @@ ezHybridArrayBase<T, Size>::~ezHybridArrayBase()
 }
 
 template <typename T, ezUInt32 Size>
-EZ_FORCE_INLINE T* ezHybridArrayBase<T, Size>::GetStaticArray()
+EZ_ALWAYS_INLINE T* ezHybridArrayBase<T, Size>::GetStaticArray()
 {
   return reinterpret_cast<T*>(m_StaticData);
 }
 
 template <typename T, ezUInt32 Size>
-EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (const ezHybridArrayBase<T, Size>& rhs)
+EZ_ALWAYS_INLINE void ezHybridArrayBase<T, Size>::operator= (const ezHybridArrayBase<T, Size>& rhs)
 {
   ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
 }

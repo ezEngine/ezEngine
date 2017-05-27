@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Mat4.h>
 
 template<typename Type>
-EZ_FORCE_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
+EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
@@ -14,25 +14,25 @@ EZ_FORCE_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 }
 
 template<typename Type>
-EZ_FORCE_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type X, Type Y, Type Z, Type W) : v(X, Y, Z), w(W)
+EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type X, Type Y, Type Z, Type W) : v(X, Y, Z), w(W)
 {
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::IdentityQuaternion()
+EZ_ALWAYS_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::IdentityQuaternion()
 {
   return ezQuatTemplate(0, 0, 0, 1);
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezQuatTemplate<Type>::SetElements(Type X, Type Y, Type Z, Type W)
+EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetElements(Type X, Type Y, Type Z, Type W)
 {
   v.Set(X, Y, Z);
   w = W;
 }
 
 template<typename Type>
-EZ_FORCE_INLINE void ezQuatTemplate<Type>::SetIdentity()
+EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetIdentity()
 {
   v.SetZero();
   w = (Type)1;
@@ -93,7 +93,7 @@ const ezVec3Template<Type> operator* (const ezQuatTemplate<Type>& q, const ezVec
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezQuatTemplate<Type> operator* (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+EZ_ALWAYS_INLINE const ezQuatTemplate<Type> operator* (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
 {
   ezQuatTemplate<Type> q;
 
@@ -370,13 +370,13 @@ void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQ
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator== (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+EZ_ALWAYS_INLINE bool operator== (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
 {
   return q1.v.IsIdentical(q2.v) && q1.w == q2.w;
 }
 
 template<typename Type>
-EZ_FORCE_INLINE bool operator!= (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+EZ_ALWAYS_INLINE bool operator!= (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
 {
   return !(q1 == q2);
 }

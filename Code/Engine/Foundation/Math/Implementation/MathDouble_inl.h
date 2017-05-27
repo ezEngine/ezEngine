@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace ezMath
 {
@@ -14,7 +14,7 @@ namespace ezMath
     return true;
   }
 
-  EZ_FORCE_INLINE bool IsFinite(double value)
+  EZ_ALWAYS_INLINE bool IsFinite(double value)
   {
     // Check the 11 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -25,7 +25,7 @@ namespace ezMath
     return ((i2f.i & 0x7FF0000000000000LL) != 0x7FF0000000000000LL);
   }
 
-  EZ_FORCE_INLINE bool IsNaN(double value)
+  EZ_ALWAYS_INLINE bool IsNaN(double value)
   {
     // Check the 11 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -38,7 +38,7 @@ namespace ezMath
   }
 
   template<>
-  EZ_FORCE_INLINE double BasicType<double>::GetNaN()
+  EZ_ALWAYS_INLINE double BasicType<double>::GetNaN()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
@@ -52,7 +52,7 @@ namespace ezMath
   };
 
   template<>
-  EZ_FORCE_INLINE double BasicType<double>::GetInfinity()
+  EZ_ALWAYS_INLINE double BasicType<double>::GetInfinity()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
@@ -66,17 +66,17 @@ namespace ezMath
   }
 
   template<>
-  EZ_FORCE_INLINE double BasicType<double>::MaxValue()
+  EZ_ALWAYS_INLINE double BasicType<double>::MaxValue()
   {
     return 1.7976931348623158e+307;
   }
 
-  EZ_FORCE_INLINE double Floor(double f)
+  EZ_ALWAYS_INLINE double Floor(double f)
   {
     return floor(f);
   }
 
-  EZ_FORCE_INLINE double Ceil(double f)
+  EZ_ALWAYS_INLINE double Ceil(double f)
   {
     return ceil(f);
   }
@@ -95,52 +95,52 @@ namespace ezMath
     return fFactor * fMultiple;
   }
 
-  EZ_FORCE_INLINE double Exp(double f)
+  EZ_ALWAYS_INLINE double Exp(double f)
   {
     return exp(f);
   }
 
-  EZ_FORCE_INLINE double Ln(double f)
+  EZ_ALWAYS_INLINE double Ln(double f)
   {
     return log(f);
   }
 
-  EZ_FORCE_INLINE double Log2(double f)
+  EZ_ALWAYS_INLINE double Log2(double f)
   {
     return log10(f) / log10(2.0);
   }
 
-  EZ_FORCE_INLINE double Log10(double f)
+  EZ_ALWAYS_INLINE double Log10(double f)
   {
     return log10(f);
   }
 
-  EZ_FORCE_INLINE double Log(double fBase, double f)
+  EZ_ALWAYS_INLINE double Log(double fBase, double f)
   {
     return log10(f) / log10(fBase);
   }
 
-  EZ_FORCE_INLINE double Pow2(double f)
+  EZ_ALWAYS_INLINE double Pow2(double f)
   {
     return pow(2.0, f);
   }
 
-  EZ_FORCE_INLINE double Pow(double base, double exp)
+  EZ_ALWAYS_INLINE double Pow(double base, double exp)
   {
     return pow(base, exp);
   }
 
-  EZ_FORCE_INLINE double Root(double f, double NthRoot)
+  EZ_ALWAYS_INLINE double Root(double f, double NthRoot)
   {
     return pow(f, 1.0 / NthRoot);
   }
 
-  EZ_FORCE_INLINE double Sqrt(double f)
+  EZ_ALWAYS_INLINE double Sqrt(double f)
   {
     return sqrt(f);
   }
 
-  EZ_FORCE_INLINE double Mod(double f, double div)
+  EZ_ALWAYS_INLINE double Mod(double f, double div)
   {
     return fmod(f, div);
   }

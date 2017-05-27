@@ -10,7 +10,7 @@ class ezMessage;
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:
-  EZ_FORCE_INLINE void operator()(void* pInstance, ezMessage& msg)
+  EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& msg)
   {
     (*m_DispatchFunc)(pInstance, msg);
   }
@@ -21,12 +21,12 @@ public:
     (*m_ConstDispatchFunc)(pInstance, msg);
   }
 
-  EZ_FORCE_INLINE ezMessageId GetMessageId() const
+  EZ_ALWAYS_INLINE ezMessageId GetMessageId() const
   {
     return m_Id;
   }
 
-  EZ_FORCE_INLINE bool IsConst() const
+  EZ_ALWAYS_INLINE bool IsConst() const
   {
     return m_bIsConst;
   }

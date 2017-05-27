@@ -1,4 +1,4 @@
-
+﻿
 // ***** Const Iterator *****
 
 template <typename IdType, typename ValueType>
@@ -15,7 +15,7 @@ ezIdTableBase<IdType, ValueType>::ConstIterator::ConstIterator(const ezIdTableBa
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::IsValid() const
+EZ_ALWAYS_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::IsValid() const
 {
   return m_uiCurrentCount < m_idTable.m_uiCount;
 }
@@ -27,13 +27,13 @@ EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::operator==
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::operator!=(const typename ezIdTableBase<IdType, ValueType>::ConstIterator& it2) const
+EZ_ALWAYS_INLINE bool ezIdTableBase<IdType, ValueType>::ConstIterator::operator!=(const typename ezIdTableBase<IdType, ValueType>::ConstIterator& it2) const
 {
   return !(*this == it2);
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE IdType ezIdTableBase<IdType, ValueType>::ConstIterator::Id() const
+EZ_ALWAYS_INLINE IdType ezIdTableBase<IdType, ValueType>::ConstIterator::Id() const
 {
   return m_idTable.m_pEntries[m_uiCurrentIndex].id;
 }
@@ -59,7 +59,7 @@ void ezIdTableBase<IdType, ValueType>::ConstIterator::Next()
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE void ezIdTableBase<IdType, ValueType>::ConstIterator::operator++()
+EZ_ALWAYS_INLINE void ezIdTableBase<IdType, ValueType>::ConstIterator::operator++()
 {
   Next();
 }
@@ -74,7 +74,7 @@ ezIdTableBase<IdType, ValueType>::Iterator::Iterator(const ezIdTableBase<IdType,
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::Iterator::Value()
+EZ_ALWAYS_INLINE ValueType& ezIdTableBase<IdType, ValueType>::Iterator::Value()
 {
   return this->m_idTable.m_pEntries[this->m_uiCurrentIndex].value;
 }
@@ -320,19 +320,19 @@ EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::Contains(const IdType id)
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE typename ezIdTableBase<IdType, ValueType>::Iterator ezIdTableBase<IdType, ValueType>::GetIterator()
+EZ_ALWAYS_INLINE typename ezIdTableBase<IdType, ValueType>::Iterator ezIdTableBase<IdType, ValueType>::GetIterator()
 {
   return Iterator(*this);
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE typename ezIdTableBase<IdType, ValueType>::ConstIterator ezIdTableBase<IdType, ValueType>::GetIterator() const
+EZ_ALWAYS_INLINE typename ezIdTableBase<IdType, ValueType>::ConstIterator ezIdTableBase<IdType, ValueType>::GetIterator() const
 {
   return ConstIterator(*this);
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE ezAllocatorBase* ezIdTableBase<IdType, ValueType>::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocatorBase* ezIdTableBase<IdType, ValueType>::GetAllocator() const
 {
   return m_pAllocator;
 }

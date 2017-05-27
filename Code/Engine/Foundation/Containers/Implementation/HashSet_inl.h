@@ -1,4 +1,4 @@
-
+﻿
 #define ezInvalidIndex 0xFFFFFFFF
 
 // ***** Const Iterator *****
@@ -72,7 +72,7 @@ void ezHashSetBase<K, H>::ConstIterator::Next()
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE void ezHashSetBase<K, H>::ConstIterator::operator++()
+EZ_ALWAYS_INLINE void ezHashSetBase<K, H>::ConstIterator::operator++()
 {
   Next();
 }
@@ -203,7 +203,7 @@ bool ezHashSetBase<K, H>::operator== (const ezHashSetBase<K, H>& rhs) const
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::operator!= (const ezHashSetBase<K, H>& rhs) const
+EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::operator!= (const ezHashSetBase<K, H>& rhs) const
 {
   return !(*this == rhs);
 }
@@ -238,13 +238,13 @@ void ezHashSetBase<K, H>::Compact()
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE ezUInt32 ezHashSetBase<K, H>::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezHashSetBase<K, H>::GetCount() const
 {
   return m_uiCount;
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE bool ezHashSetBase<K, H>::IsEmpty() const
+EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
@@ -370,7 +370,7 @@ EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>:
 }
 
 template <typename K, typename H>
-EZ_FORCE_INLINE ezAllocatorBase* ezHashSetBase<K, H>::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocatorBase* ezHashSetBase<K, H>::GetAllocator() const
 {
   return m_pAllocator;
 }

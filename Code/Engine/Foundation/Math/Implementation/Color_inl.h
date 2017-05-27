@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 inline ezColor::ezColor()
 {
@@ -184,12 +184,12 @@ inline const ezColor operator/ (const ezColor& c, float f)
   return ezColor(c.r * f_inv, c.g * f_inv, c.b * f_inv, c.a * f_inv);
 }
 
-EZ_FORCE_INLINE bool operator== (const ezColor& c1, const ezColor& c2)
+EZ_ALWAYS_INLINE bool operator== (const ezColor& c1, const ezColor& c2)
 {
   return c1.IsIdenticalRGBA(c2);
 }
 
-EZ_FORCE_INLINE bool operator!= (const ezColor& c1, const ezColor& c2)
+EZ_ALWAYS_INLINE bool operator!= (const ezColor& c1, const ezColor& c2)
 {
   return !c1.IsIdenticalRGBA(c2);
 }

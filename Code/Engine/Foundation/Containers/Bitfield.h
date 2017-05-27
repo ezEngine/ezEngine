@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -16,7 +16,7 @@ public:
   ezBitfield();
 
   /// \brief Returns the number of bits that this bitfield stores.
-  EZ_FORCE_INLINE ezUInt32 GetCount(); // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCount(); // [tested]
 
   /// \brief Resizes the Bitfield to hold the given number of bits. This version does NOT initialize new bits!
   void SetCount(ezUInt32 uiBitCount); // [tested]
@@ -25,19 +25,19 @@ public:
   void SetCount(ezUInt32 uiBitCount, bool bSetNew); // [tested]
 
   /// \brief Returns true, if the bitfield does not store any bits.
-  EZ_FORCE_INLINE bool IsEmpty() const; // [tested]
+  EZ_ALWAYS_INLINE bool IsEmpty() const; // [tested]
 
   /// \brief Discards all bits and sets count to zero.
   void Clear(); // [tested]
 
   /// \brief Sets the given bit to 1.
-  EZ_FORCE_INLINE void SetBit(ezUInt32 uiBit); // [tested]
+  EZ_ALWAYS_INLINE void SetBit(ezUInt32 uiBit); // [tested]
 
   /// \brief Clears the given bit to 0.
-  EZ_FORCE_INLINE void ClearBit(ezUInt32 uiBit); // [tested]
+  EZ_ALWAYS_INLINE void ClearBit(ezUInt32 uiBit); // [tested]
 
   /// \brief Returns true, if the given bit is set to 1.
-  EZ_FORCE_INLINE bool IsSet(ezUInt32 uiBit) const; // [tested]
+  EZ_ALWAYS_INLINE bool IsSet(ezUInt32 uiBit) const; // [tested]
 
   /// \brief Clears all bits to 0.
   void ClearAllBits(); // [tested]
@@ -52,8 +52,8 @@ public:
   void ClearRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit); // [tested]
 
 private:
-  EZ_FORCE_INLINE ezUInt32 GetBitInt(ezUInt32 uiBitIndex) const;
-  EZ_FORCE_INLINE ezUInt32 GetBitMask(ezUInt32 uiBitIndex) const;
+  EZ_ALWAYS_INLINE ezUInt32 GetBitInt(ezUInt32 uiBitIndex) const;
+  EZ_ALWAYS_INLINE ezUInt32 GetBitMask(ezUInt32 uiBitIndex) const;
 
   ezUInt32 m_uiCount;
   Container m_Container;

@@ -159,13 +159,13 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::UpperBound(const KEY& key) const
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE const KEY& ezArrayMapBase<KEY, VALUE>::GetKey(ezUInt32 index) const
+EZ_ALWAYS_INLINE const KEY& ezArrayMapBase<KEY, VALUE>::GetKey(ezUInt32 index) const
 {
   return m_Data[index].key;
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE const VALUE& ezArrayMapBase<KEY, VALUE>::GetValue(ezUInt32 index) const
+EZ_ALWAYS_INLINE const VALUE& ezArrayMapBase<KEY, VALUE>::GetValue(ezUInt32 index) const
 {
   return m_Data[index].value;
 }
@@ -194,13 +194,13 @@ VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const CompatibleKeyType& key, bool*
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE VALUE& ezArrayMapBase<KEY, VALUE>::operator[](const KEY& key)
+EZ_ALWAYS_INLINE VALUE& ezArrayMapBase<KEY, VALUE>::operator[](const KEY& key)
 {
   return FindOrAdd(key);
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<KEY, VALUE>::operator[](ezUInt32 index) const
+EZ_ALWAYS_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<KEY, VALUE>::operator[](ezUInt32 index) const
 {
   return m_Data[index];
 }
@@ -232,7 +232,7 @@ bool ezArrayMapBase<KEY, VALUE>::Remove(const KEY& key, bool bKeepSorted)
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key) const
+EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key) const
 {
   return Find(key) != ezInvalidIndex;
 }

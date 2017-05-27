@@ -210,7 +210,7 @@ inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)
   ChangeCharacterNonASCII(it, uiCharacter);
 }
 
-EZ_FORCE_INLINE bool ezStringBuilder::IsPureASCII() const
+EZ_ALWAYS_INLINE bool ezStringBuilder::IsPureASCII() const
 {
   return m_uiCharacterCount + 1 == m_Data.GetCount();
 }

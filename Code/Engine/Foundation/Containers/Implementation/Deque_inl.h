@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Math.h>
 
@@ -664,7 +664,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::MoveIndexChunksRight(ezUInt32 ui
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetFirstUsedChunk() const
+EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetFirstUsedChunk() const
 {
   return m_uiFirstElement / CHUNK_SIZE(T);
 }
@@ -679,7 +679,7 @@ EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetLastUsedChunk(ezUInt32 ui
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetLastUsedChunk() const
+EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetLastUsedChunk() const
 {
   return GetLastUsedChunk(m_uiCount);
 }
@@ -729,7 +729,7 @@ void ezDequeBase<T, Construct>::DeallocateUnusedChunks(ezUInt32 uiMaxChunks)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::ResetReduceSizeCounter()
+EZ_ALWAYS_INLINE void ezDequeBase<T, Construct>::ResetReduceSizeCounter()
 {
   m_iReduceSizeTimer = CHUNK_SIZE(T) * 8; // every time 8 chunks might be unused -> check whether to reduce the deque's size
 }
@@ -764,7 +764,7 @@ void ezDequeBase<T, Construct>::ReduceSize(ezInt32 iReduction)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetCurMaxCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezDequeBase<T, Construct>::GetCurMaxCount() const
 {
   return m_uiChunks * CHUNK_SIZE(T) - m_uiFirstElement;
 }
