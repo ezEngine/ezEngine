@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Types/Variant.h>
@@ -459,8 +459,6 @@ namespace ezConversionUtils
 
   void ConvertHexToBinary(const char* szHEX, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer)
   {
-    /// \test This is new
-
     if (ezStringUtils::IsNullOrEmpty(szHEX))
       return;
 
@@ -552,8 +550,6 @@ namespace ezConversionUtils
 
   const ezStringBuilder& ToString(const ezColorGammaUB& value, ezStringBuilder& out_Result)
   {
-    /// \test This is new
-
     out_Result.Format("{ r={0}, g={1}, b={2}, a={3} }", value.r, value.g, value.b, value.a);
     return out_Result;
   }
@@ -676,8 +672,6 @@ namespace ezConversionUtils
 
   bool IsStringUuid(const char* szText)
   {
-    /// \test This is new
-
     if (ezStringUtils::IsNullOrEmpty(szText))
       return false;
 
@@ -695,7 +689,6 @@ namespace ezConversionUtils
 
   ezUuid ConvertStringToUuid(const char* szText)
   {
-    /// \test This is new
     EZ_ASSERT_DEBUG(IsStringUuid(szText), "The given string is not in the correct Uuid format: '{0}'", szText);
 
     while (*szText == '{' || ezStringUtils::IsWhiteSpace(*szText))
@@ -761,12 +754,10 @@ namespace ezConversionUtils
     return result;
   }
 
-#define Check(name) if (ezStringUtils::IsEqual_NoCase(szColorName, #name)) return ezColor::name
+#define Check(name) if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name))) return ezColor::name
 
   ezColor GetColorByName(const char* szColorName, bool* out_ValidColorName)
   {
-    /// \test This is new
-
     if (out_ValidColorName)
       *out_ValidColorName = false;
 
@@ -818,7 +809,7 @@ namespace ezConversionUtils
       Check(Chartreuse);
       Check(Chocolate);
       Check(Coral);
-      Check(CornflowerBlue);
+      Check(CornflowerBlue); // The Original!
       Check(Cornsilk);
       Check(Crimson);
       Check(Cyan);
@@ -963,8 +954,6 @@ namespace ezConversionUtils
 
   ezString GetColorName(const ezColor& col)
   {
-    /// \test This is new
-
     Check(AliceBlue);
     Check(AntiqueWhite);
     Check(Aqua);
@@ -982,7 +971,7 @@ namespace ezConversionUtils
     Check(Chartreuse);
     Check(Chocolate);
     Check(Coral);
-    Check(CornflowerBlue);
+    Check(CornflowerBlue); // The Original!
     Check(Cornsilk);
     Check(Crimson);
     Check(Cyan);

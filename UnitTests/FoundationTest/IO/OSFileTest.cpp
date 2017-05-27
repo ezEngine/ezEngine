@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/OSFile.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
@@ -91,6 +91,21 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szTemp, sFileContent.GetData(), uiTextLen));
     EZ_TEST_BOOL(ezMemoryUtils::IsEqual(&szTemp[uiTextLen], sFileContent.GetData(), uiTextLen));
+
+    f.Close();
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
+  {
+    ezOSFile f;
+    EZ_TEST_BOOL(f.Open(sOutputFile, ezFileMode::Read) == EZ_SUCCESS);
+
+    ezDynamicArray<ezUInt8> fileContent;
+    const ezUInt64 bytes = f.ReadAll(fileContent);
+
+    EZ_TEST_INT(bytes, uiTextLen * 2);
+
+    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(fileContent.GetData(), (const ezUInt8*)sFileContent.GetData(), uiTextLen));
 
     f.Close();
   }

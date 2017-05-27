@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
@@ -110,6 +110,34 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 
     EZ_TEST_BOOL(sa.Contains("a"));
     EZ_TEST_BOOL(sa.Contains("z"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains")
+  {
+    ezArrayMap<ezString, ezInt32> sa;
+
+    EZ_TEST_BOOL(!sa.Contains("a", 0));
+    EZ_TEST_BOOL(!sa.Contains("z", 0));
+
+    sa.Insert("z", 0);
+    sa.Insert("y", 1);
+    sa.Insert("x", 2);
+
+    EZ_TEST_BOOL(!sa.Contains("a", 0));
+    EZ_TEST_BOOL(sa.Contains("z", 0));
+    EZ_TEST_BOOL(sa.Contains("y", 1));
+    EZ_TEST_BOOL(sa.Contains("x", 2));
+
+    sa.Insert("c", 3);
+    sa.Insert("b", 4);
+    sa.Insert("a", 5);
+
+    EZ_TEST_BOOL(sa.Contains("a", 5));
+    EZ_TEST_BOOL(sa.Contains("b", 4));
+    EZ_TEST_BOOL(sa.Contains("c", 3));
+    EZ_TEST_BOOL(sa.Contains("z", 0));
+    EZ_TEST_BOOL(sa.Contains("y", 1));
+    EZ_TEST_BOOL(sa.Contains("x", 2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue / GetKey / Copy Constructor")

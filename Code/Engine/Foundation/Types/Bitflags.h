@@ -200,9 +200,8 @@ public:
   }
 
   /// \brief Overwrites the flags with a new value.
-  EZ_ALWAYS_INLINE void SetValue(StorageType value)
+  EZ_ALWAYS_INLINE void SetValue(StorageType value) // [tested]
   {
-    /// \test this is new
     m_Value = value;
   }
 

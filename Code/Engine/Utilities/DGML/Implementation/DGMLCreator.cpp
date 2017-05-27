@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <Utilities/DGML/DGMLWriter.h>
 #include <Utilities/DGML/DGMLCreator.h>
@@ -28,7 +28,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph
       name.Format("GameObject: \"{0}\"", ezStringUtils::IsNullOrEmpty(pObject->GetName()) ? "<Unnamed>" : pObject->GetName());
 
       // Create node for game object
-      auto gameObjectNodeId = m_Graph.AddNode( name.GetData(), ezColor::CornflowerBlue, ezDGMLGraph::NodeShape::Rectangle );
+      auto gameObjectNodeId = m_Graph.AddNode( name.GetData(), ezColor::CornflowerBlue /* The Original! */, ezDGMLGraph::NodeShape::Rectangle );
 
       m_VisitedObjects.Insert( pObject, gameObjectNodeId );
 

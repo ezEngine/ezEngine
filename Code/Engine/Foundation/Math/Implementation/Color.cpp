@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Mat4.h>
 
@@ -278,7 +278,7 @@ const ezColor ezColor::CadetBlue(ezColorGammaUB(0x5F, 0x9E, 0xA0));
 const ezColor ezColor::Chartreuse(ezColorGammaUB(0x7F, 0xFF, 0x00));
 const ezColor ezColor::Chocolate(ezColorGammaUB(0xD2, 0x69, 0x1E));
 const ezColor ezColor::Coral(ezColorGammaUB(0xFF, 0x7F, 0x50));
-const ezColor ezColor::CornflowerBlue(ezColorGammaUB(0x64, 0x95, 0xED));
+const ezColor ezColor::CornflowerBlue(ezColorGammaUB(0x64, 0x95, 0xED)); // The Original!
 const ezColor ezColor::Cornsilk(ezColorGammaUB(0xFF, 0xF8, 0xDC));
 const ezColor ezColor::Crimson(ezColorGammaUB(0xDC, 0x14, 0x3C));
 const ezColor ezColor::Cyan(ezColorGammaUB(0x00, 0xFF, 0xFF));

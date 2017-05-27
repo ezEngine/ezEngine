@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/StringBuilder.h>
@@ -153,7 +153,7 @@ public:
   ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes); // [tested]
 
   /// \brief Reads the entire file content into the given array
-  ezUInt64 ReadAll(ezDynamicArray<ezUInt8>& out_FileContent);
+  ezUInt64 ReadAll(ezDynamicArray<ezUInt8>& out_FileContent); // [tested]
 
   /// \brief Returns the name of the file that is currently opened. Returns an empty string, if no file is open.
   const char* GetOpenFileName() const { return m_sFileName.GetData(); } // [tested]

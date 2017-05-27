@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/OSFile.h>
 
 ezString64 ezOSFile::s_ApplicationPath;
@@ -159,8 +159,6 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
 
 ezUInt64 ezOSFile::ReadAll(ezDynamicArray<ezUInt8>& out_FileContent)
 {
-  /// \test This is new
-
   EZ_ASSERT_DEV(m_FileMode == ezFileMode::Read, "The file is not opened for reading.");
 
   out_FileContent.Clear();

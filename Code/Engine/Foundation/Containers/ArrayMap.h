@@ -107,7 +107,7 @@ public:
   bool Contains(const KEY& key) const; // [tested]
 
   /// \brief Returns whether an element with the given key and value already exists.
-  bool Contains(const KEY& key, const VALUE& value) const;
+  bool Contains(const KEY& key, const VALUE& value) const; // [tested]
 
   /// \brief Reserves enough memory to store \a size elements.
   void Reserve(ezUInt32 size); // [tested]

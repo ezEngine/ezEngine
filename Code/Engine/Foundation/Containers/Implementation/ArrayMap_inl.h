@@ -240,8 +240,6 @@ EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key) const
 template<typename KEY, typename VALUE>
 bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key, const VALUE& value) const
 {
-  /// \test this is new
-
   ezUInt32 atpos = LowerBound(key);
 
   if (atpos == ezInvalidIndex)

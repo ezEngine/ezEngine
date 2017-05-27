@@ -64,16 +64,14 @@ public:
   }
 
   /// \brief Returns the enum value as an integer
-  EZ_ALWAYS_INLINE StorageType GetValue() const
+  EZ_ALWAYS_INLINE StorageType GetValue() const // [tested]
   {
-    /// \test this is new
     return m_value;
   }
 
   /// \brief Sets the enum value through an integer
-  EZ_ALWAYS_INLINE void SetValue(StorageType value)
+  EZ_ALWAYS_INLINE void SetValue(StorageType value) // [tested]
   {
-    /// \test this is new
     m_value = value;
   }
 

@@ -1,5 +1,6 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Math/Random.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Utility);
 
@@ -184,25 +185,25 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     const char* szResultPos = nullptr;
 
     double fRes = 42;
-    szString =  "23.45";
+    szString = "23.45";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 23.45, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "-2345";
+    szString = "-2345";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, -2345.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "-0";
+    szString = "-0";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 0.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "0_0000.0_00000_";
+    szString = "0_0000.0_00000_";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 0.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
@@ -212,25 +213,25 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_FAILURE);
 
     fRes = 42;
-    szString =  ".123456789";
+    szString = ".123456789";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 0.123456789, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "+123E1";
+    szString = "+123E1";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 1230.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "  \r\t 123e0";
+    szString = "  \r\t 123e0";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 123.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "\n123e6";
+    szString = "\n123e6";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 123000000.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
@@ -242,46 +243,46 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "  123E-6";
+    szString = "  123E-6";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 0.000123, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  " + - -+-123.45e-10";
+    szString = " + - -+-123.45e-10";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, -0.000000012345, 0.0000001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  nullptr;
+    szString = nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_DOUBLE(fRes, 42.0, 0.00001);
 
     fRes = 42;
-    szString =  "";
+    szString = "";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_DOUBLE(fRes, 42.0, 0.00001);
 
     fRes = 42;
-    szString =  "-----";
+    szString = "-----";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_DOUBLE(fRes, 42.0, 0.00001);
 
     fRes = 42;
-    szString =  " + - +++ - \r \n";
+    szString = " + - +++ - \r \n";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_DOUBLE(fRes, 42.0, 0.00001);
 
 
     fRes = 42;
-    szString =  "65.345789xabc";
+    szString = "65.345789xabc";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 65.345789, 0.000001);
     EZ_TEST_BOOL(szResultPos == szString + 9);
 
     fRes = 42;
-    szString =  " \n \r \t + - 2314565.345789ff xabc";
+    szString = " \n \r \t + - 2314565.345789ff xabc";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, -2314565.345789, 0.000001);
     EZ_TEST_BOOL(szResultPos == szString + 25);
@@ -448,13 +449,40 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("a"), 10);
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0xb"), 11);
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("000c"), 12);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("000c"), 12);
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("AA"), 170);
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("aAbB"), 43707);
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("FFFFffff"), 4294967295);
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0000FFFFffff"), 4294967295);
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("100000000"), 0);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertBinaryToHex and ConvertHexStringToBinary")
+  {
+    ezDynamicArray<ezUInt8> binary;
+    binary.SetCountUninitialized(1024);
+
+    ezRandom r;
+    r.InitializeFromCurrentTime();
+
+    for (auto& val : binary)
+    {
+      val = r.UIntInRange(256);
+    }
+
+    ezStringBuilder sHex;
+    ezConversionUtils::ConvertBinaryToHex(binary.GetData(), binary.GetCount(), [&sHex](const char* s)
+    {
+      sHex.Append(s);
+    });
+
+    ezDynamicArray<ezUInt8> binary2;
+    binary2.SetCountUninitialized(1024);
+
+    ezConversionUtils::ConvertHexToBinary(sHex, binary2.GetData(), binary2.GetCount());
+
+    EZ_TEST_BOOL(binary == binary2);
+  }
+
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExtractFloatsFromString")
   {
@@ -468,8 +496,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
     ezMemoryUtils::ZeroFill(v, 16);
     EZ_TEST_INT(ezConversionUtils::ExtractFloatsFromString(szText, 3, v), 3);
-    EZ_TEST_FLOAT(v[0], 1.0f,  0.0001f);
-    EZ_TEST_FLOAT(v[1], 2.3f,  0.0001f);
+    EZ_TEST_FLOAT(v[0], 1.0f, 0.0001f);
+    EZ_TEST_FLOAT(v[1], 2.3f, 0.0001f);
     EZ_TEST_FLOAT(v[2], 3.141f, 0.0001f);
     EZ_TEST_FLOAT(v[3], 0.0f, 0.0f);
 
@@ -494,6 +522,211 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_FLOAT(v[6], 9.101f, 0.0001f);
     EZ_TEST_FLOAT(v[7], 0.0f, 0.0f);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertStringToUuid and IsStringUuid")
+  {
+    ezUuid guid;
+    ezStringBuilder sGuid;
+
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      guid.CreateNewUuid();
+
+      ezConversionUtils::ToString(guid, sGuid);
+
+      EZ_TEST_BOOL(ezConversionUtils::IsStringUuid(sGuid));
+
+      ezUuid guid2 = ezConversionUtils::ConvertStringToUuid(sGuid);
+
+      EZ_TEST_BOOL(guid == guid2);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorName")
+  {
+    EZ_TEST_STRING(ezConversionUtils::GetColorName(ezColorGammaUB(1, 2, 3)), "#010203");
+    EZ_TEST_STRING(ezConversionUtils::GetColorName(ezColorGammaUB(10, 20, 30, 40)), "#0A141E28");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorByName")
+  {
+    EZ_TEST_BOOL(ezConversionUtils::GetColorByName("#010203") == ezColorGammaUB(1, 2, 3));
+    EZ_TEST_BOOL(ezConversionUtils::GetColorByName("#0A141E28") == ezColorGammaUB(10, 20, 30, 40));
+
+    EZ_TEST_BOOL(ezConversionUtils::GetColorByName("#010203") == ezColorGammaUB(1, 2, 3));
+    EZ_TEST_BOOL(ezConversionUtils::GetColorByName("#0a141e28") == ezColorGammaUB(10, 20, 30, 40));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorByName and GetColorName")
+  {
+#define Check(name) \
+{\
+    bool valid = false; \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
+    EZ_TEST_BOOL(valid); \
+    ezString sName = ezConversionUtils::GetColorName(c); \
+    EZ_TEST_STRING(sName, EZ_STRINGIZE(name)); \
+}
+
+#define Check2(name, otherName) \
+{\
+    bool valid = false; \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
+    EZ_TEST_BOOL(valid); \
+    ezString sName = ezConversionUtils::GetColorName(c); \
+    EZ_TEST_STRING(sName, EZ_STRINGIZE(otherName)); \
+}
+
+    Check(AliceBlue);
+    Check(AntiqueWhite);
+    Check(Aqua);
+    Check(Aquamarine);
+    Check(Azure);
+    Check(Beige);
+    Check(Bisque);
+    Check(Black);
+    Check(BlanchedAlmond);
+    Check(Blue);
+    Check(BlueViolet);
+    Check(Brown);
+    Check(BurlyWood);
+    Check(CadetBlue);
+    Check(Chartreuse);
+    Check(Chocolate);
+    Check(Coral);
+    Check(CornflowerBlue); // The Original!
+    Check(Cornsilk);
+    Check(Crimson);
+    Check2(Cyan, Aqua);
+    Check(DarkBlue);
+    Check(DarkCyan);
+    Check(DarkGoldenRod);
+    Check(DarkGray);
+    Check2(DarkGrey, DarkGray);
+    Check(DarkGreen);
+    Check(DarkKhaki);
+    Check(DarkMagenta);
+    Check(DarkOliveGreen);
+    Check(DarkOrange);
+    Check(DarkOrchid);
+    Check(DarkRed);
+    Check(DarkSalmon);
+    Check(DarkSeaGreen);
+    Check(DarkSlateBlue);
+    Check(DarkSlateGray);
+    Check2(DarkSlateGrey, DarkSlateGray);
+    Check(DarkTurquoise);
+    Check(DarkViolet);
+    Check(DeepPink);
+    Check(DeepSkyBlue);
+    Check(DimGray);
+    Check2(DimGrey, DimGray);
+    Check(DodgerBlue);
+    Check(FireBrick);
+    Check(FloralWhite);
+    Check(ForestGreen);
+    Check(Fuchsia);
+    Check(Gainsboro);
+    Check(GhostWhite);
+    Check(Gold);
+    Check(GoldenRod);
+    Check(Gray);
+    Check2(Grey, Gray);
+    Check(Green);
+    Check(GreenYellow);
+    Check(HoneyDew);
+    Check(HotPink);
+    Check(IndianRed);
+    Check(Indigo);
+    Check(Ivory);
+    Check(Khaki);
+    Check(Lavender);
+    Check(LavenderBlush);
+    Check(LawnGreen);
+    Check(LemonChiffon);
+    Check(LightBlue);
+    Check(LightCoral);
+    Check(LightCyan);
+    Check(LightGoldenRodYellow);
+    Check(LightGray);
+    Check2(LightGrey, LightGray);
+    Check(LightGreen);
+    Check(LightPink);
+    Check(LightSalmon);
+    Check(LightSeaGreen);
+    Check(LightSkyBlue);
+    Check(LightSlateGray);
+    Check2(LightSlateGrey, LightSlateGray);
+    Check(LightSteelBlue);
+    Check(LightYellow);
+    Check(Lime);
+    Check(LimeGreen);
+    Check(Linen);
+    Check2(Magenta, Fuchsia);
+    Check(Maroon);
+    Check(MediumAquaMarine);
+    Check(MediumBlue);
+    Check(MediumOrchid);
+    Check(MediumPurple);
+    Check(MediumSeaGreen);
+    Check(MediumSlateBlue);
+    Check(MediumSpringGreen);
+    Check(MediumTurquoise);
+    Check(MediumVioletRed);
+    Check(MidnightBlue);
+    Check(MintCream);
+    Check(MistyRose);
+    Check(Moccasin);
+    Check(NavajoWhite);
+    Check(Navy);
+    Check(OldLace);
+    Check(Olive);
+    Check(OliveDrab);
+    Check(Orange);
+    Check(OrangeRed);
+    Check(Orchid);
+    Check(PaleGoldenRod);
+    Check(PaleGreen);
+    Check(PaleTurquoise);
+    Check(PaleVioletRed);
+    Check(PapayaWhip);
+    Check(PeachPuff);
+    Check(Peru);
+    Check(Pink);
+    Check(Plum);
+    Check(PowderBlue);
+    Check(Purple);
+    Check(RebeccaPurple);
+    Check(Red);
+    Check(RosyBrown);
+    Check(RoyalBlue);
+    Check(SaddleBrown);
+    Check(Salmon);
+    Check(SandyBrown);
+    Check(SeaGreen);
+    Check(SeaShell);
+    Check(Sienna);
+    Check(Silver);
+    Check(SkyBlue);
+    Check(SlateBlue);
+    Check(SlateGray);
+    Check2(SlateGrey, SlateGray);
+    Check(Snow);
+    Check(SpringGreen);
+    Check(SteelBlue);
+    Check(Tan);
+    Check(Teal);
+    Check(Thistle);
+    Check(Tomato);
+    Check(Turquoise);
+    Check(Violet);
+    Check(Wheat);
+    Check(White);
+    Check(WhiteSmoke);
+    Check(Yellow);
+    Check(YellowGreen);
+  }
+
 }
 
 
