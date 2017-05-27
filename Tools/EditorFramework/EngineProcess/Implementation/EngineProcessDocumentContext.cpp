@@ -522,10 +522,7 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     pSyncObject = it.Value();
   }
 
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezMemoryStreamReader reader(&storage);
-  writer.WriteBytes(msg.m_ObjectData.GetData(), msg.m_ObjectData.GetCount());
+  ezRawMemoryStreamReader reader(msg.m_ObjectData);
 
   ezReflectionSerializer::ReadObjectPropertiesFromBinary(reader, *pRtti, pSyncObject);
 

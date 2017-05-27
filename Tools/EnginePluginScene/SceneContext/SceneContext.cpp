@@ -357,7 +357,11 @@ void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivit
   if (!guid.IsValid())
     return;
 
-  ezMemoryStreamStorage storage;
+  ezVisualScriptActivityMsgToEditor msg;
+  msg.m_DocumentGuid = GetDocumentGuid();
+  msg.m_ComponentGuid = guid;
+
+  ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&msg.m_Activity);
   ezMemoryStreamWriter writer(&storage);
 
   writer << e.m_pActivity->m_ActiveExecutionConnections.GetCount();
@@ -373,11 +377,6 @@ void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivit
     writer << con;
   }
 
-  ezVisualScriptActivityMsgToEditor msg;
-  msg.m_DocumentGuid = GetDocumentGuid();
-  msg.m_ComponentGuid = guid;
-  msg.m_Activity.SetCountUninitialized(storage.GetStorageSize());
-  ezMemoryUtils::Copy<ezUInt8>(msg.m_Activity.GetData(), storage.GetData(), msg.m_Activity.GetCount());
 
   SendProcessMessage(&msg);
 }

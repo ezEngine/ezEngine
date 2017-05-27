@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/Commands/SceneCommands.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -134,11 +134,7 @@ void ezDuplicateObjectsCommand::SetAsSelection()
 
 void ezDuplicateObjectsCommand::DeserializeGraph(ezAbstractObjectGraph& graph)
 {
-  ezMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
-  memoryWriter.WriteBytes(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
-
-  ezMemoryStreamReader memoryReader(&streamStorage);
+  ezRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
   ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
 }
 

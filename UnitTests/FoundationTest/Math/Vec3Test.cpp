@@ -486,7 +486,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
 
       avg += v;
     }
@@ -515,7 +515,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
 
       avg += v;
     }
@@ -544,7 +544,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
 
       avg += v;
     }
@@ -573,7 +573,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
     }
   }
 }

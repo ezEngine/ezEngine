@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Algorithm/Hashing.h>
 
@@ -93,5 +93,57 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     ezUInt64 uiBytesSkipped = StreamReader.SkipBytes(0xFFFFFFFFFF);
 
     EZ_TEST_BOOL(uiBytesSkipped < 0xFFFFFFFFFF);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Raw Memory Stream Reading")
+  {
+    ezDynamicArray<ezUInt8> OrigStorage;
+    OrigStorage.SetCountUninitialized(1000);
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      OrigStorage[i] = i % 256;
+    }
+
+    {
+      ezRawMemoryStreamReader reader(OrigStorage);
+
+      ezDynamicArray<ezUInt8> CopyStorage;
+      CopyStorage.SetCountUninitialized(reader.GetByteCount());
+      reader.ReadBytes(CopyStorage.GetData(), reader.GetByteCount());
+
+      EZ_TEST_BOOL(OrigStorage == CopyStorage);
+    }
+
+    {
+      ezRawMemoryStreamReader reader(OrigStorage.GetData() + 510, 490);
+
+      ezDynamicArray<ezUInt8> CopyStorage;
+      CopyStorage.SetCountUninitialized(reader.GetByteCount());
+      reader.ReadBytes(CopyStorage.GetData(), reader.GetByteCount());
+
+      EZ_TEST_BOOL(OrigStorage != CopyStorage);
+
+      for (ezUInt32 i = 0; i < 490; ++i)
+      {
+        CopyStorage[i] = (i + 10) % 256;
+      }
+    }
+
+    {
+      ezRawMemoryStreamReader reader(OrigStorage.GetData(), 1000);
+      reader.SkipBytes(510);
+
+      ezDynamicArray<ezUInt8> CopyStorage;
+      CopyStorage.SetCountUninitialized(490);
+      reader.ReadBytes(CopyStorage.GetData(), 490);
+
+      EZ_TEST_BOOL(OrigStorage != CopyStorage);
+
+      for (ezUInt32 i = 0; i < 490; ++i)
+      {
+        CopyStorage[i] = (i + 10) % 256;
+      }
+    }
   }
 }

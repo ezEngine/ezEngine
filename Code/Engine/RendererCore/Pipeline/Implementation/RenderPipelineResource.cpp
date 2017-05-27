@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
@@ -111,7 +111,6 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
     (*Stream) >> uiSize;
 
     m_Desc.m_SerializedPipeline.SetCountUninitialized(uiSize);
-    ezMemoryStreamStorage storage;
     Stream->ReadBytes(m_Desc.m_SerializedPipeline.GetData(), uiSize);
 
     EZ_ASSERT_DEV(uiSize > 0, "RenderPipeline resourse contains no pipeline data!");

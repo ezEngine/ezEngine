@@ -35,5 +35,4 @@ public:
 private:
   ezUInt64 m_uiHash;
   ezUInt16 m_uiVersion;
-  static ezUInt16 s_uiSerializedHeaderSize;
 };

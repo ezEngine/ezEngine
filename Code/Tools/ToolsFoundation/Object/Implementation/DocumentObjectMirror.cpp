@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/BinarySerializer.h>
@@ -39,10 +39,8 @@ ezObjectChange::ezObjectChange(const ezObjectChange&)
 void ezObjectChange::GetGraph(ezAbstractObjectGraph& graph) const
 {
   graph.Clear();
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  writer.WriteBytes(m_GraphData.GetData(), m_GraphData.GetCount());
-  ezMemoryStreamReader reader(&storage);
+
+  ezRawMemoryStreamReader reader(m_GraphData);
   ezAbstractGraphBinarySerializer::Read(reader, &graph);
 }
 

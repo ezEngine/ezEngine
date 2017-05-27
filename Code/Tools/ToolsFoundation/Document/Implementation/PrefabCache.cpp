@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -61,11 +61,8 @@ void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGr
   if (!it.IsValid())
   {
     it = m_CachedGraphs.Insert(uiHash, ezUniquePtr<ezAbstractObjectGraph>(EZ_DEFAULT_NEW(ezAbstractObjectGraph)));
-    ezMemoryStreamStorage storage;
-    ezMemoryStreamWriter stringWriter(&storage);
-    ezMemoryStreamReader stringReader(&storage);
-    stringWriter.WriteBytes(sGraph.GetData(), sGraph.GetElementCount());
 
+    ezRawMemoryStreamReader stringReader(sGraph.GetData(), sGraph.GetElementCount());
     ezAbstractGraphDdlSerializer::Read(stringReader, it.Value().Borrow());
   }
 

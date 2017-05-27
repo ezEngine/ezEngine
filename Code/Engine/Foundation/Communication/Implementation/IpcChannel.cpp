@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -155,11 +155,7 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<ezUInt8> data)
 
     {
       // Message complete, de-serialize
-      ezMemoryStreamStorage storage(uiMessageSize);
-      ezMemoryStreamWriter writer(&storage);
-      writer.WriteBytes(m_MessageAccumulator.GetData() + HEADER_SIZE, uiMessageSize - HEADER_SIZE);
-
-      ezMemoryStreamReader reader(&storage);
+      ezRawMemoryStreamReader reader(m_MessageAccumulator.GetData() + HEADER_SIZE, uiMessageSize - HEADER_SIZE);
       const ezRTTI* pRtti = nullptr;
 
       ezProcessMessage* pMsg = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);

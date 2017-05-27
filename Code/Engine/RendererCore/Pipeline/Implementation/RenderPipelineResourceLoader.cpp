@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -134,11 +134,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
   ezRenderPipelineRttiConverterContext context;
   context.m_pRenderPipeline = pPipeline;
 
-  ezMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
-  memoryWriter.WriteBytes(desc.m_SerializedPipeline.GetData(), desc.m_SerializedPipeline.GetCount());
-
-  ezMemoryStreamReader memoryReader(&streamStorage);
+  ezRawMemoryStreamReader memoryReader(desc.m_SerializedPipeline);
 
   ezAbstractObjectGraph graph;
   ezAbstractGraphBinarySerializer::Read(memoryReader, &graph);
@@ -214,9 +210,6 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 {
   ezRenderPipelineRttiConverterContext context;
 
-  ezMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
-
   ezAbstractObjectGraph graph;
 
   ezRttiConverterWriter rttiConverter(&graph, &context, false, true);
@@ -280,9 +273,10 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 
   }
 
+  ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);
+
+  ezMemoryStreamWriter memoryWriter(&storage);
   ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph);
-  desc.m_SerializedPipeline.SetCountUninitialized(streamStorage.GetStorageSize());
-  ezMemoryUtils::Copy(desc.m_SerializedPipeline.GetData(), streamStorage.GetData(), streamStorage.GetStorageSize());
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);

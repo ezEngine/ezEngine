@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -245,11 +245,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 
     {
       // Deserialize
-      ezMemoryStreamStorage streamStorage;
-      ezMemoryStreamWriter memoryWriter(&streamStorage);
-      memoryWriter.WriteBytes(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
-
-      ezMemoryStreamReader memoryReader(&streamStorage);
+      ezRawMemoryStreamReader memoryReader(m_sGraphTextFormat.GetData(), m_sGraphTextFormat.GetElementCount());
       ezAbstractGraphDdlSerializer::Read(memoryReader, &graph);
     }
 
