@@ -2,6 +2,7 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
+#include <Foundation/Math/Random.h>
 
 
 EZ_CREATE_SIMPLE_TEST(Math, Vec3)

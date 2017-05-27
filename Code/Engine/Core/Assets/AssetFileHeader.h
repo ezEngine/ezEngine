@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/IO/Stream.h>
@@ -28,7 +28,9 @@ public:
   ezUInt16 GetFileVersion() const { return m_uiVersion; }
 
   /// \brief Returns size of a serialized header. Needed to read header appended to files.
-  static ezUInt16 GetSerializedSize();
+  ///
+  /// \note Verified by unit test
+  static EZ_ALWAYS_INLINE ezUInt16 GetSerializedSize() { return 18; }
 
 private:
   ezUInt64 m_uiHash;

@@ -869,7 +869,12 @@ ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezString& sAssetGuid)
 
 ezSubAsset* ezAssetCurator::GetSubAssetInternal(const ezUuid& assetGuid)
 {
-  return m_KnownSubAssets.GetValueOrDefault(assetGuid, nullptr);
+  auto it = m_KnownSubAssets.Find(assetGuid);
+
+  if (it.IsValid())
+    return &it.Value();
+
+  return nullptr;
 }
 
 void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/MemoryStream.h>
 
@@ -78,22 +78,6 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
     return;
 
   m_uiHash = uiHash;
-}
-
-ezUInt16 ezAssetFileHeader::GetSerializedSize()
-{
-  if (s_uiSerializedHeaderSize != 0)
-    return s_uiSerializedHeaderSize;
-
-  // Serialize a dummy header to get the size it takes to store it.
-  ezAssetFileHeader temp;
-  temp.SetFileHashAndVersion(123, 1);
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  temp.Write(writer);
-  s_uiSerializedHeaderSize = (ezUInt16)storage.GetStorageSize();
-
-  return s_uiSerializedHeaderSize;
 }
 
 EZ_STATICLINK_FILE(Core, Core_Assets_Implementation_AssetFileHeader);
