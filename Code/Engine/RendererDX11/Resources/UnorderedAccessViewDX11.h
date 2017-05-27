@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
@@ -9,7 +9,7 @@ class ezGALUnorderedAccessViewDX11 : public ezGALUnorderedAccessView
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11UnorderedAccessView* GetDXResourceView() const;
+  EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetDXResourceView() const;
 
 protected:
 

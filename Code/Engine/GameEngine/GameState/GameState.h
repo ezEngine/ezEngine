@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/Declarations.h>
@@ -66,7 +66,7 @@ public:
   virtual void AfterWorldUpdate() { }
 
   /// \brief Returns the ezGameApplication through which this state was created.
-  EZ_FORCE_INLINE ezGameApplication* GetApplication() const { return m_pApplication; }
+  EZ_ALWAYS_INLINE ezGameApplication* GetApplication() const { return m_pApplication; }
 
   /// \brief Called by ezGameApplication to determine which game state is best suited to handle a situation.
   ///

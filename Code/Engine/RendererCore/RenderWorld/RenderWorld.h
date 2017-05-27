@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Pipeline/Declarations.h>
 
@@ -32,7 +32,7 @@ public:
 
   static bool GetUseMultithreadedRendering();
 
-  EZ_FORCE_INLINE static ezUInt64 GetFrameCounter()
+  EZ_ALWAYS_INLINE static ezUInt64 GetFrameCounter()
   {
     return s_uiFrameCounter;
   }

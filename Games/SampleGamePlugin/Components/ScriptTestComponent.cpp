@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <SampleGamePlugin/Components/ScriptTestComponent.h>
 #include <SampleGamePlugin/Script/ScriptRegistry.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -36,7 +36,7 @@ namespace
   struct MakeVariantFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    EZ_ALWAYS_INLINE void operator()()
     {
       T* value = (T*)pValue;
       m_Result = *value;

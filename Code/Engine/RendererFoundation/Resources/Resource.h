@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -12,7 +12,7 @@ public:
 protected:
   friend class ezGALDevice;
 
-  EZ_FORCE_INLINE ~ezGALResourceBase()
+  inline ~ezGALResourceBase()
   {
     EZ_ASSERT_DEV(m_hDefaultResourceView.IsInvalidated(), "");
     EZ_ASSERT_DEV(m_hDefaultRenderTargetView.IsInvalidated(), "");
@@ -35,12 +35,12 @@ template<typename CreationDescription>
 class ezGALResource : public ezGALResourceBase
 {
 public:
-  EZ_FORCE_INLINE ezGALResource(const CreationDescription& Description)
+  EZ_ALWAYS_INLINE ezGALResource(const CreationDescription& Description)
     : m_Description(Description)
   {
   }
 
-  EZ_FORCE_INLINE const CreationDescription& GetDescription() const
+  EZ_ALWAYS_INLINE const CreationDescription& GetDescription() const
   {
     return m_Description;
   }

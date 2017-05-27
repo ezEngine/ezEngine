@@ -1,11 +1,11 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/DynamicArray.h>
 
 namespace
 {
   struct CustomComparer
   {
-    EZ_FORCE_INLINE bool Less(ezInt32 a, ezInt32 b) const
+    EZ_ALWAYS_INLINE bool Less(ezInt32 a, ezInt32 b) const
     {
       return a > b;
     }

@@ -10,7 +10,7 @@
 
 struct TagComparer
 {
-  EZ_FORCE_INLINE bool Less(const ezToolsTag* a, const ezToolsTag* b) const
+  EZ_ALWAYS_INLINE bool Less(const ezToolsTag* a, const ezToolsTag* b) const
   {
     if (a->m_sCategory != b->m_sCategory)
       return a->m_sCategory < b->m_sCategory;

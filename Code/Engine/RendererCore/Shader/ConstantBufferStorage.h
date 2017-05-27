@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Basics.h>
 #include <RendererFoundation/Basics.h>
@@ -19,7 +19,7 @@ public:
 
   void UploadData(ezGALContext* pContext);
 
-  EZ_FORCE_INLINE ezGALBufferHandle GetGALBufferHandle() const
+  EZ_ALWAYS_INLINE ezGALBufferHandle GetGALBufferHandle() const
   { 
     return m_hGALConstantBuffer;
   }

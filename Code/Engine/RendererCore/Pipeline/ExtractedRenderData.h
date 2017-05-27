@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
@@ -12,52 +12,52 @@ public:
 
   ezExtractedRenderData();
 
-  EZ_FORCE_INLINE void SetCamera(const ezCamera& camera)
+  EZ_ALWAYS_INLINE void SetCamera(const ezCamera& camera)
   {
     m_Camera = camera;
   }
 
-  EZ_FORCE_INLINE const ezCamera& GetCamera() const
+  EZ_ALWAYS_INLINE const ezCamera& GetCamera() const
   {
     return m_Camera;
   }
 
-  EZ_FORCE_INLINE void SetViewData(const ezViewData& viewData)
+  EZ_ALWAYS_INLINE void SetViewData(const ezViewData& viewData)
   {
     m_ViewData = viewData;
   }
 
-  EZ_FORCE_INLINE const ezViewData& GetViewData() const
+  EZ_ALWAYS_INLINE const ezViewData& GetViewData() const
   {
     return m_ViewData;
   }
 
-  EZ_FORCE_INLINE void SetWorldTime(ezTime time)
+  EZ_ALWAYS_INLINE void SetWorldTime(ezTime time)
   {
     m_WorldTime = time;
   }
 
-  EZ_FORCE_INLINE ezTime GetWorldTime() const
+  EZ_ALWAYS_INLINE ezTime GetWorldTime() const
   {
     return m_WorldTime;
   }
 
-  EZ_FORCE_INLINE void SetWorldDebugContext(const ezDebugRendererContext& debugContext)
+  EZ_ALWAYS_INLINE void SetWorldDebugContext(const ezDebugRendererContext& debugContext)
   {
     m_WorldDebugContext = debugContext;
   }
 
-  EZ_FORCE_INLINE const ezDebugRendererContext& GetWorldDebugContext() const
+  EZ_ALWAYS_INLINE const ezDebugRendererContext& GetWorldDebugContext() const
   {
     return m_WorldDebugContext;
   }
 
-  EZ_FORCE_INLINE void SetViewDebugContext(const ezDebugRendererContext& debugContext)
+  EZ_ALWAYS_INLINE void SetViewDebugContext(const ezDebugRendererContext& debugContext)
   {
     m_ViewDebugContext = debugContext;
   }
 
-  EZ_FORCE_INLINE const ezDebugRendererContext& GetViewDebugContext() const
+  EZ_ALWAYS_INLINE const ezDebugRendererContext& GetViewDebugContext() const
   {
     return m_ViewDebugContext;
   }
@@ -72,7 +72,7 @@ public:
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 
   template <typename T>
-  EZ_FORCE_INLINE const T* GetFrameData() const
+  EZ_ALWAYS_INLINE const T* GetFrameData() const
   {
     return static_cast<const T*>(GetFrameData(ezGetStaticRTTI<T>()));
   }

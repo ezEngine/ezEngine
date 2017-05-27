@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Basics.h>
 
@@ -6,11 +6,11 @@
 class ezShaderMat3
 {
 public:
-  EZ_FORCE_INLINE ezShaderMat3()
+  EZ_ALWAYS_INLINE ezShaderMat3()
   {
   }
 
-  EZ_FORCE_INLINE ezShaderMat3(const ezMat3& m)
+  EZ_ALWAYS_INLINE ezShaderMat3(const ezMat3& m)
   {
     *this = m;
   }
@@ -34,16 +34,16 @@ private:
 class ezShaderTransform
 {
 public:
-  EZ_FORCE_INLINE ezShaderTransform()
+  EZ_ALWAYS_INLINE ezShaderTransform()
   {
   }
 
-  EZ_FORCE_INLINE ezShaderTransform(const ezTransform& t)
+  EZ_ALWAYS_INLINE ezShaderTransform(const ezTransform& t)
   {
     *this = t;
   }
 
-  EZ_FORCE_INLINE void operator=(const ezTransform& t)
+  EZ_ALWAYS_INLINE void operator=(const ezTransform& t)
   {
     t.GetAsArray(m_Data, ezMatrixLayout::RowMajor);
   }
@@ -56,16 +56,16 @@ private:
 class ezShaderBool
 {
 public:
-  EZ_FORCE_INLINE ezShaderBool()
+  EZ_ALWAYS_INLINE ezShaderBool()
   {
   }
 
-  EZ_FORCE_INLINE ezShaderBool(bool b)
+  EZ_ALWAYS_INLINE ezShaderBool(bool b)
   {
     m_Data = b ? 0xFFFFFFFF : 0;
   }
 
-  EZ_FORCE_INLINE void operator=(bool b)
+  EZ_ALWAYS_INLINE void operator=(bool b)
   {
     m_Data = b ? 0xFFFFFFFF : 0;
   }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/GameState/GameState.h>
@@ -113,7 +113,7 @@ public:
   virtual void RequestQuit();
 
   /// \brief Returns whether RequestQuit() was called.
-  EZ_FORCE_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
+  EZ_ALWAYS_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
 
   /// \brief Checks all parent directories of the scene file and tries to find a file called
   /// 'ezProject' (no extension) which marks the project directory.

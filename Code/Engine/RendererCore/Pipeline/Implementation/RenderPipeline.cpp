@@ -382,7 +382,7 @@ bool ezRenderPipeline::SortPasses()
     }
 
     /// \brief Returns true if a is equal to b
-    EZ_FORCE_INLINE bool Equal(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const
+    EZ_ALWAYS_INLINE bool Equal(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const
     {
       return a.Borrow() == b.Borrow();
     }
@@ -559,7 +559,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   {
     FirstUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage) : m_TextureUsage(textureUsage) {}
 
-    EZ_FORCE_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
+    EZ_ALWAYS_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
     {
       return m_TextureUsage[a].m_uiFirstUsageIdx < m_TextureUsage[b].m_uiFirstUsageIdx;
     }
@@ -571,7 +571,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   {
     LastUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage) : m_TextureUsage(textureUsage) {}
 
-    EZ_FORCE_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
+    EZ_ALWAYS_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
     {
       return m_TextureUsage[a].m_uiLastUsageIdx < m_TextureUsage[b].m_uiLastUsageIdx;
     }

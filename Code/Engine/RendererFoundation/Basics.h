@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Id.h>
@@ -270,7 +270,7 @@ struct ezGALTextureSubresource
 
 struct ezGALSystemMemoryDescription
 {
-  EZ_FORCE_INLINE ezGALSystemMemoryDescription()
+  ezGALSystemMemoryDescription()
     : m_pData(nullptr),
       m_uiRowPitch(0),
       m_uiSlicePitch(0)
@@ -289,12 +289,12 @@ class ezGALObject : public ezRefCounted
 {
 public:
 
-  EZ_FORCE_INLINE ezGALObject(const CreationDescription& Description)
+  ezGALObject(const CreationDescription& Description)
     : m_Description(Description)
   {
   }
 
-  EZ_FORCE_INLINE const CreationDescription& GetDescription() const
+  EZ_ALWAYS_INLINE const CreationDescription& GetDescription() const
   {
     return m_Description;
   }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -41,7 +41,7 @@ public:
   const char* GetPrefabFile() const;
 
   void SetPrefab(const ezPrefabResourceHandle& hPrefab);
-  EZ_FORCE_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
+  EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
 
   void InstantiatePrefab();
 

@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Resources/Fence.h>
@@ -9,7 +9,7 @@ class EZ_RENDERERDX11_DLL ezGALFenceDX11 : public ezGALFence
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11Query* GetDXFence() const
+  EZ_ALWAYS_INLINE ID3D11Query* GetDXFence() const
   {
     return m_pDXFence;
   }

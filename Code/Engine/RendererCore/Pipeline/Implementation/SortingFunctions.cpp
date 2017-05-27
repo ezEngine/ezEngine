@@ -1,11 +1,11 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/SortingFunctions.h>
 #include <Core/Graphics/Camera.h>
 
 namespace
 {
-  EZ_FORCE_INLINE ezUInt32 CalculateTypeHash(const ezRenderData* pRenderData)
+  EZ_ALWAYS_INLINE ezUInt32 CalculateTypeHash(const ezRenderData* pRenderData)
   {
     ezUInt32 uiTypeHash = pRenderData->GetDynamicRTTI()->GetTypeNameHash();
     return (uiTypeHash >> 16) ^ (uiTypeHash & 0xFFFF);

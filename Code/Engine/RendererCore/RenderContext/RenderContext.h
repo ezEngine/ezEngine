@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
@@ -113,7 +113,7 @@ public:
 
   // Constant buffer storage handling
   template <typename T>
-  EZ_FORCE_INLINE static ezConstantBufferStorageHandle CreateConstantBufferStorage()
+  EZ_ALWAYS_INLINE static ezConstantBufferStorageHandle CreateConstantBufferStorage()
   {
     return CreateConstantBufferStorage(sizeof(T));
   }

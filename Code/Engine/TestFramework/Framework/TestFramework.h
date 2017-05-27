@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <TestFramework/Basics.h>
 #include <TestFramework/Framework/Declarations.h>
@@ -81,7 +81,7 @@ public:
 
   // static functions
 public:
-  static EZ_FORCE_INLINE ezTestFramework* GetInstance() { return s_pInstance; }
+  static EZ_ALWAYS_INLINE ezTestFramework* GetInstance() { return s_pInstance; }
 
   /// \brief Returns whether to asset on test fail, will return false if no debugger is attached to prevent crashing.
   static bool GetAssertOnTestFail();

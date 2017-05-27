@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -11,7 +11,7 @@ class ezGALVertexDeclarationDX11 : public ezGALVertexDeclaration
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11InputLayout* GetDXInputLayout() const;
+  EZ_ALWAYS_INLINE ID3D11InputLayout* GetDXInputLayout() const;
 
 protected:
 

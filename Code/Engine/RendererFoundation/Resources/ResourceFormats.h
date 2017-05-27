@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -133,21 +133,21 @@ template<typename NativeFormatType, NativeFormatType InvalidFormat> class ezGALF
 {
 public:
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry();
+  inline ezGALFormatLookupEntry();
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry(NativeFormatType Storage);
+  inline ezGALFormatLookupEntry(NativeFormatType Storage);
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RT(NativeFormatType RenderTargetType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RT(NativeFormatType RenderTargetType);
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& D(NativeFormatType DepthOnlyType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& D(NativeFormatType DepthOnlyType);
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& S(NativeFormatType StencilOnlyType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& S(NativeFormatType StencilOnlyType);
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& DS(NativeFormatType DepthStencilType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& DS(NativeFormatType DepthStencilType);
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& VA(NativeFormatType VertexAttributeType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& VA(NativeFormatType VertexAttributeType);
 
-  EZ_FORCE_INLINE ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RV(NativeFormatType ResourceViewType);
+  inline ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>& RV(NativeFormatType ResourceViewType);
 
   NativeFormatType m_eStorage;
   NativeFormatType m_eRenderTarget;
@@ -166,9 +166,9 @@ public:
 
   ezGALFormatLookupTable();
 
-  EZ_FORCE_INLINE const FormatClass& GetFormatInfo(ezGALResourceFormat::Enum eFormat) const;
+  EZ_ALWAYS_INLINE const FormatClass& GetFormatInfo(ezGALResourceFormat::Enum eFormat) const;
 
-  EZ_FORCE_INLINE void SetFormatInfo(ezGALResourceFormat::Enum eFormat, const FormatClass& NewFormatInfo);
+  EZ_ALWAYS_INLINE void SetFormatInfo(ezGALResourceFormat::Enum eFormat, const FormatClass& NewFormatInfo);
 
 private:
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Containers/Deque.h>
@@ -17,10 +17,10 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleEvent
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventQueue
 {
 public:
-  EZ_FORCE_INLINE void Clear() { m_Queue.Clear(); }
-  EZ_FORCE_INLINE void AddEvent(const ezParticleEvent& e) { m_Queue.PushBack(e); }
-  EZ_FORCE_INLINE const ezDeque<ezParticleEvent>& GetAllEvents() const { return m_Queue; }
-  EZ_FORCE_INLINE ezUInt32 GetEventTypeHash() const { return m_uiEventTypeHash; }
+  EZ_ALWAYS_INLINE void Clear() { m_Queue.Clear(); }
+  EZ_ALWAYS_INLINE void AddEvent(const ezParticleEvent& e) { m_Queue.PushBack(e); }
+  EZ_ALWAYS_INLINE const ezDeque<ezParticleEvent>& GetAllEvents() const { return m_Queue; }
+  EZ_ALWAYS_INLINE ezUInt32 GetEventTypeHash() const { return m_uiEventTypeHash; }
 
 private:
   friend class ezParticleEventQueueManager;

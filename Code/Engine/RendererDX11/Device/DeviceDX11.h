@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererDX11/Basics.h>
@@ -34,11 +34,11 @@ public:
 
 public:
 
-  EZ_FORCE_INLINE ID3D11Device* GetDXDevice() const;
+  EZ_ALWAYS_INLINE ID3D11Device* GetDXDevice() const;
 
-  EZ_FORCE_INLINE IDXGIFactory1* GetDXGIFactory() const;
+  EZ_ALWAYS_INLINE IDXGIFactory1* GetDXGIFactory() const;
 
-  EZ_FORCE_INLINE const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
+  EZ_ALWAYS_INLINE const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
 // These functions need to be implemented by a render API abstraction
 protected:

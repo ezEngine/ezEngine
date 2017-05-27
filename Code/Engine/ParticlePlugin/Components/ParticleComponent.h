@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ParticlePlugin/Basics.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
@@ -62,7 +62,7 @@ public:
   // Properties
 
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
-  EZ_FORCE_INLINE const ezParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }
+  EZ_ALWAYS_INLINE const ezParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }
 
   void SetParticleEffectFile(const char* szFile);
   const char* GetParticleEffectFile() const;

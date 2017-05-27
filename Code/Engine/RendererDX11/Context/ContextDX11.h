@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererDX11/Basics.h>
@@ -10,7 +10,7 @@ namespace ezGALDX11
 {
   struct ModifiedRange
   {
-    EZ_FORCE_INLINE void Reset()
+    EZ_ALWAYS_INLINE void Reset()
     {
       m_uiMin = ezInvalidIndex;
       m_uiMax = 0;
@@ -22,12 +22,12 @@ namespace ezGALDX11
       m_uiMax = ezMath::Max(m_uiMax, value);
     }
 
-    EZ_FORCE_INLINE bool IsValid() const
+    EZ_ALWAYS_INLINE bool IsValid() const
     {
       return m_uiMin <= m_uiMax;
     }
 
-    EZ_FORCE_INLINE ezUInt32 GetCount() const
+    EZ_ALWAYS_INLINE ezUInt32 GetCount() const
     {
       return m_uiMax - m_uiMin + 1;
     }
@@ -53,7 +53,7 @@ class EZ_RENDERERDX11_DLL ezGALContextDX11 : public ezGALContext
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11DeviceContext* GetDXContext() const;
+  EZ_ALWAYS_INLINE ID3D11DeviceContext* GetDXContext() const;
 
 protected:
 

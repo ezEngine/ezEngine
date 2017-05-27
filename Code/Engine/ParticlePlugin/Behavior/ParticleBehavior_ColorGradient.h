@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
@@ -17,7 +17,7 @@ public:
   // ************************************* PROPERTIES ***********************************
 
   void SetColorGradient(const ezColorGradientResourceHandle& hResource) { m_hGradient = hResource; }
-  EZ_FORCE_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
+  EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
 
   void SetColorGradientFile(const char* szFile);
   const char* GetColorGradientFile() const;

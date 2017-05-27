@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
@@ -43,7 +43,7 @@ public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
   void SetMesh(const ezMeshResourceHandle& hMesh);
-  EZ_FORCE_INLINE const ezMeshResourceHandle& GetMesh() const
+  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const
   {
     return m_hMesh;
   }
@@ -51,7 +51,7 @@ public:
   void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
   ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;
 
-  EZ_FORCE_INLINE void SetRenderDataCategory(ezRenderData::Category category)
+  EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category)
   {
     m_RenderDataCategory = category;
   }

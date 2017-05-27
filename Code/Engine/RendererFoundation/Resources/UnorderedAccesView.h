@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Resources/Resource.h>
@@ -7,7 +7,7 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALUnorderedAccessView : public ezGALObject<ezGALUnorderedAccessViewCreationDescription>
 {
 public:
-  EZ_FORCE_INLINE ezGALResourceBase* GetResource() const
+  EZ_ALWAYS_INLINE ezGALResourceBase* GetResource() const
   {
     return m_pResource;
   }

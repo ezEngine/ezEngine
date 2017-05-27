@@ -1,9 +1,9 @@
-#include <Core/World/GameObject.h>
+﻿#include <Core/World/GameObject.h>
 
 //static
 EZ_FORCE_INLINE const char* ezRenderData::GetCategoryName(Category category)
 {
-  return s_CategoryData[category].m_sName.GetString().GetData();
+  return s_CategoryData[category].m_sName.GetString();
 }
 
 EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Types/Id.h>
 
 struct TestId
@@ -7,7 +7,7 @@ struct TestId
 
   EZ_DECLARE_ID_TYPE(TestId, 20, 6);
 
-  EZ_FORCE_INLINE TestId(StorageType instanceIndex, StorageType generation, StorageType systemIndex = 0)
+  EZ_ALWAYS_INLINE TestId(StorageType instanceIndex, StorageType generation, StorageType systemIndex = 0)
   {
     m_Data = 0;
     m_InstanceIndex = instanceIndex;

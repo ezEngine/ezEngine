@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -25,7 +25,7 @@ public:
   const char* GetCollectionFile() const;
 
   void SetCollection(const ezCollectionResourceHandle& hPrefab);
-  EZ_FORCE_INLINE const ezCollectionResourceHandle& GetCollection() const { return m_hCollection; }
+  EZ_ALWAYS_INLINE const ezCollectionResourceHandle& GetCollection() const { return m_hCollection; }
 
   bool m_bPreloadAtStart;
   ezTime m_TimeToLoad;

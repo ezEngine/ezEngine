@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Resources/ResourceView.h>
@@ -9,7 +9,7 @@ class ezGALResourceViewDX11 : public ezGALResourceView
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11ShaderResourceView* GetDXResourceView() const;
+  EZ_ALWAYS_INLINE ID3D11ShaderResourceView* GetDXResourceView() const;
 
 protected:
 

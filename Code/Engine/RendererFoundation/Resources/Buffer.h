@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Resources/Resource.h>
@@ -8,7 +8,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALResource<ezGALBufferCr
 {
 public:
 
-  EZ_FORCE_INLINE ezUInt32 GetSize() const;
+  EZ_ALWAYS_INLINE ezUInt32 GetSize() const;
 
 protected:
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -18,7 +18,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   void SetColorGradient(const ezColorGradientResourceHandle& hResource) { m_hGradient = hResource; }
-  EZ_FORCE_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
+  EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
 
   void SetColorGradientFile(const char* szFile);
   const char* GetColorGradientFile() const;

@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -18,17 +18,17 @@ public:
 
   void SetDebugName(const char* szName) const override;
 
-  EZ_FORCE_INLINE ID3D11VertexShader* GetDXVertexShader() const;
+  EZ_ALWAYS_INLINE ID3D11VertexShader* GetDXVertexShader() const;
 
-  EZ_FORCE_INLINE ID3D11HullShader* GetDXHullShader() const;
+  EZ_ALWAYS_INLINE ID3D11HullShader* GetDXHullShader() const;
 
-  EZ_FORCE_INLINE ID3D11DomainShader* GetDXDomainShader() const;
+  EZ_ALWAYS_INLINE ID3D11DomainShader* GetDXDomainShader() const;
 
-  EZ_FORCE_INLINE ID3D11GeometryShader* GetDXGeometryShader() const;
+  EZ_ALWAYS_INLINE ID3D11GeometryShader* GetDXGeometryShader() const;
 
-  EZ_FORCE_INLINE ID3D11PixelShader* GetDXPixelShader() const;
+  EZ_ALWAYS_INLINE ID3D11PixelShader* GetDXPixelShader() const;
 
-  EZ_FORCE_INLINE ID3D11ComputeShader* GetDXComputeShader() const;
+  EZ_ALWAYS_INLINE ID3D11ComputeShader* GetDXComputeShader() const;
 
 
 protected:

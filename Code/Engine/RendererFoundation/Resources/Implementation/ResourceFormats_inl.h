@@ -1,12 +1,12 @@
-
+﻿
 //static
-EZ_FORCE_INLINE ezUInt32 ezGALResourceFormat::GetBitsPerElement(ezGALResourceFormat::Enum format)
+EZ_ALWAYS_INLINE ezUInt32 ezGALResourceFormat::GetBitsPerElement(ezGALResourceFormat::Enum format)
 {
   return s_BitsPerElement[format];
 }
 
 //static
-EZ_FORCE_INLINE ezUInt8 ezGALResourceFormat::GetChannelCount(ezGALResourceFormat::Enum format)
+EZ_ALWAYS_INLINE ezUInt8 ezGALResourceFormat::GetChannelCount(ezGALResourceFormat::Enum format)
 {
   return s_ChannelCount[format];
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -116,22 +116,22 @@ public:
   ezMeshBufferResource();
   ~ezMeshBufferResource();
 
-  EZ_FORCE_INLINE ezUInt32 GetPrimitiveCount() const
+  EZ_ALWAYS_INLINE ezUInt32 GetPrimitiveCount() const
   {
     return m_uiPrimitiveCount;
   }
 
-  EZ_FORCE_INLINE ezGALBufferHandle GetVertexBuffer() const
+  EZ_ALWAYS_INLINE ezGALBufferHandle GetVertexBuffer() const
   {
     return m_hVertexBuffer;
   }
 
-  EZ_FORCE_INLINE ezGALBufferHandle GetIndexBuffer() const
+  EZ_ALWAYS_INLINE ezGALBufferHandle GetIndexBuffer() const
   {
     return m_hIndexBuffer;
   }
 
-  EZ_FORCE_INLINE ezGALPrimitiveTopology::Enum GetTopology() const
+  EZ_ALWAYS_INLINE ezGALPrimitiveTopology::Enum GetTopology() const
   {
     return m_Topology;
   }

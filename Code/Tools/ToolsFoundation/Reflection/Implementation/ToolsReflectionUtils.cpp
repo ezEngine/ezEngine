@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -15,7 +15,7 @@ namespace
   {
     GetDoubleFunc(const ezVariant& value) : m_Value(value) {}
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    void operator()()
     {
       if (m_Value.CanConvertTo<double>())
       {
@@ -30,14 +30,14 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void GetDoubleFunc::operator() < ezAngle > ()
+  void GetDoubleFunc::operator() < ezAngle > ()
   {
     m_fValue = m_Value.Get<ezAngle>().GetDegree();
     m_bValid = true;
   }
 
   template <>
-  EZ_FORCE_INLINE void GetDoubleFunc::operator() < ezTime > ()
+  void GetDoubleFunc::operator() < ezTime > ()
   {
     m_fValue = m_Value.Get<ezTime>().GetSeconds();
     m_bValid = true;
@@ -48,7 +48,7 @@ namespace
     GetVariantFunc(double fValue, ezVariantType::Enum type, ezVariant& out_value)
       : m_fValue(fValue), m_Type(type), m_Value(out_value) {}
     template <typename T>
-    EZ_FORCE_INLINE void operator()()
+    void operator()()
     {
       m_Value = m_fValue;
       if (m_Value.CanConvertTo(m_Type))
@@ -69,14 +69,14 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void GetVariantFunc::operator() < ezAngle > ()
+  void GetVariantFunc::operator() < ezAngle > ()
   {
     m_Value = ezAngle::Degree((float)m_fValue);
     m_bValid = true;
   }
 
   template <>
-  EZ_FORCE_INLINE void GetVariantFunc::operator() < ezTime > ()
+  void GetVariantFunc::operator() < ezTime > ()
   {
     m_Value = ezTime::Seconds(m_fValue);
     m_bValid = true;

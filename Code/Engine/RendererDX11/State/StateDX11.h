@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/State/State.h>
@@ -13,7 +13,7 @@ class EZ_RENDERERDX11_DLL ezGALBlendStateDX11 : public ezGALBlendState
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11BlendState* GetDXBlendState() const;
+  EZ_ALWAYS_INLINE ID3D11BlendState* GetDXBlendState() const;
 
 protected:
 
@@ -35,7 +35,7 @@ class EZ_RENDERERDX11_DLL ezGALDepthStencilStateDX11 : public ezGALDepthStencilS
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11DepthStencilState* GetDXDepthStencilState() const;
+  EZ_ALWAYS_INLINE ID3D11DepthStencilState* GetDXDepthStencilState() const;
 
 protected:
 
@@ -57,7 +57,7 @@ class EZ_RENDERERDX11_DLL ezGALRasterizerStateDX11 : public ezGALRasterizerState
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11RasterizerState* GetDXRasterizerState() const;
+  EZ_ALWAYS_INLINE ID3D11RasterizerState* GetDXRasterizerState() const;
 
 protected:
 
@@ -79,7 +79,7 @@ class EZ_RENDERERDX11_DLL ezGALSamplerStateDX11 : public ezGALSamplerState
 {
 public:
 
-  EZ_FORCE_INLINE ID3D11SamplerState* GetDXSamplerState() const;
+  EZ_ALWAYS_INLINE ID3D11SamplerState* GetDXSamplerState() const;
 
 protected:
 

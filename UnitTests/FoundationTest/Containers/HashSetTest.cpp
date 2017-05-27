@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/HashSet.h>
 #include <Foundation/Containers/StaticArray.h>
 
@@ -55,12 +55,12 @@ namespace
 template <>
 struct ezHashHelper<Collision>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const Collision& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const Collision& value)
   {
     return value.hash;
   }
 
-  EZ_FORCE_INLINE static bool Equal(const Collision& a, const Collision& b)
+  EZ_ALWAYS_INLINE static bool Equal(const Collision& a, const Collision& b)
   {
     return a == b;
   }
@@ -69,12 +69,12 @@ struct ezHashHelper<Collision>
 template <>
 struct ezHashHelper<OnlyMovable>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const OnlyMovable& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const OnlyMovable& value)
   {
     return value.hash;
   }
 
-  EZ_FORCE_INLINE static bool Equal(const OnlyMovable& a, const OnlyMovable& b)
+  EZ_ALWAYS_INLINE static bool Equal(const OnlyMovable& a, const OnlyMovable& b)
   {
     return a.hash == b.hash;
   }

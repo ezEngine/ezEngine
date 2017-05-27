@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Strings/String.h>
@@ -56,12 +56,12 @@ namespace HashTableTestDetail
 template <>
 struct ezHashHelper<HashTableTestDetail::Collision>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const HashTableTestDetail::Collision& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::Collision& value)
   {
     return value.hash;
   }
 
-  EZ_FORCE_INLINE static bool Equal(const HashTableTestDetail::Collision& a, const HashTableTestDetail::Collision& b)
+  EZ_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::Collision& a, const HashTableTestDetail::Collision& b)
   {
     return a == b;
   }
@@ -70,12 +70,12 @@ struct ezHashHelper<HashTableTestDetail::Collision>
 template <>
 struct ezHashHelper<HashTableTestDetail::OnlyMovable>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const HashTableTestDetail::OnlyMovable& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const HashTableTestDetail::OnlyMovable& value)
   {
     return value.hash;
   }
 
-  EZ_FORCE_INLINE static bool Equal(const HashTableTestDetail::OnlyMovable& a, const HashTableTestDetail::OnlyMovable& b)
+  EZ_ALWAYS_INLINE static bool Equal(const HashTableTestDetail::OnlyMovable& a, const HashTableTestDetail::OnlyMovable& b)
   {
     return a.hash == b.hash;
   }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererFoundation/Resources/Query.h>
 
@@ -10,7 +10,7 @@ public:
 
   void SetDebugName(const char* szName) const override;
 
-  EZ_FORCE_INLINE ID3D11Query* GetDXQuery() const;
+  EZ_ALWAYS_INLINE ID3D11Query* GetDXQuery() const;
 
 protected:
 

@@ -43,7 +43,7 @@ protected:
 
 public:
   void SetMesh(const ezPhysXMeshResourceHandle& hMesh);
-  EZ_FORCE_INLINE const ezPhysXMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
+  EZ_ALWAYS_INLINE const ezPhysXMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
 private:
 

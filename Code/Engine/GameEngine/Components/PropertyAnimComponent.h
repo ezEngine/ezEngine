@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -26,7 +26,7 @@ public:
   const char* GetPropertyAnimFile() const;
 
   void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);
-  EZ_FORCE_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; }
+  EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; }
 
 
 protected:

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Basics.h>
 
@@ -13,43 +13,43 @@ class ezSurfaceResource;
 class ezPxUserData
 {
 public:
-  EZ_FORCE_INLINE ezPxUserData(nullptr_t)
+  EZ_ALWAYS_INLINE ezPxUserData(nullptr_t)
     : m_Type(Invalid)
     , m_pObject(nullptr)
   {
   }
 
-  EZ_FORCE_INLINE ezPxUserData(ezPxDynamicActorComponent* pObject)
+  EZ_ALWAYS_INLINE ezPxUserData(ezPxDynamicActorComponent* pObject)
     : m_Type(DynamicActorComponent)
     , m_pObject(pObject)
   {
   }
 
-  EZ_FORCE_INLINE ezPxUserData(ezPxStaticActorComponent* pObject)
+  EZ_ALWAYS_INLINE ezPxUserData(ezPxStaticActorComponent* pObject)
     : m_Type(StaticActorComponent)
     , m_pObject(pObject)
   {
   }
 
-  EZ_FORCE_INLINE ezPxUserData(ezPxTriggerComponent* pObject)
+  EZ_ALWAYS_INLINE ezPxUserData(ezPxTriggerComponent* pObject)
     : m_Type(TriggerComponent)
     , m_pObject(pObject)
   {
   }
 
-  EZ_FORCE_INLINE ezPxUserData(ezPxCharacterProxyComponent* pObject)
+  EZ_ALWAYS_INLINE ezPxUserData(ezPxCharacterProxyComponent* pObject)
     : m_Type(CharacterProxyComponent)
     , m_pObject(pObject)
   {
   }
 
-  EZ_FORCE_INLINE ezPxUserData(ezPxShapeComponent* pObject)
+  EZ_ALWAYS_INLINE ezPxUserData(ezPxShapeComponent* pObject)
     : m_Type(ShapeComponent)
     , m_pObject(pObject)
   {
   }
 
-  EZ_FORCE_INLINE ezPxUserData(ezSurfaceResource* pObject)
+  EZ_ALWAYS_INLINE ezPxUserData(ezSurfaceResource* pObject)
     : m_Type(SurfaceResource)
     , m_pObject(pObject)
   {

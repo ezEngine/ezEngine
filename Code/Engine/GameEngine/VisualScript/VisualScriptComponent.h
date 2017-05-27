@@ -33,7 +33,7 @@ public:
   const char* GetScriptFile() const;
 
   void SetScript(const ezVisualScriptResourceHandle& hResource);
-  EZ_FORCE_INLINE const ezVisualScriptResourceHandle& GetScript() const { return m_hResource; }
+  EZ_ALWAYS_INLINE const ezVisualScriptResourceHandle& GetScript() const { return m_hResource; }
 
   void SetIsGlobalEventHandler(bool enable);
   bool GetIsGlobalEventHandler() const { return m_bGlobalEventHandler; }

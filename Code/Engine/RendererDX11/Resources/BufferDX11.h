@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Resources/Buffer.h>
@@ -12,9 +12,9 @@ public:
 
   void SetDebugName(const char* szName) const override;
 
-  EZ_FORCE_INLINE ID3D11Buffer* GetDXBuffer() const;
+  EZ_ALWAYS_INLINE ID3D11Buffer* GetDXBuffer() const;
 
-  EZ_FORCE_INLINE DXGI_FORMAT GetIndexFormat() const;
+  EZ_ALWAYS_INLINE DXGI_FORMAT GetIndexFormat() const;
 
 protected:
 

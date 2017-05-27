@@ -10,7 +10,7 @@
 template <>
 struct ezHashHelper<ezVec3>
 {
-  EZ_FORCE_INLINE static ezUInt32 Hash(const ezVec3& value)
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezVec3& value)
   {
     // could do something more clever that uses the fact it is a normalized vector
     return ezHashing::MurmurHash(&value, sizeof(ezVec3));

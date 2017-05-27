@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -41,8 +41,8 @@ class EZ_RENDERERCORE_DLL ezTextureCubeResource : public ezResource<ezTextureCub
 public:
   ezTextureCubeResource();
 
-  EZ_FORCE_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
-  EZ_FORCE_INLINE ezUInt32 GetWidthAndHeight() const { return m_uiWidthAndHeight; }
+  EZ_ALWAYS_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
+  EZ_ALWAYS_INLINE ezUInt32 GetWidthAndHeight() const { return m_uiWidthAndHeight; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

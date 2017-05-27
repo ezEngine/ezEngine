@@ -11,7 +11,7 @@ class ezGALSwapChainDX11 : public ezGALSwapChain
 {
 public:
 
-  EZ_FORCE_INLINE IDXGISwapChain* GetDXSwapChain() const;
+  EZ_ALWAYS_INLINE IDXGISwapChain* GetDXSwapChain() const;
 
 protected:
 

@@ -1,4 +1,4 @@
-
+﻿
 template <typename T>
 EZ_ALWAYS_INLINE const T& ezRenderDataBatch::Iterator<T>::operator*() const
 {
@@ -61,7 +61,7 @@ EZ_FORCE_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderDat
 }
 
 
-EZ_FORCE_INLINE ezUInt32 ezRenderDataBatch::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetCount() const
 {
   return m_Data.GetCount();
 }
@@ -82,7 +82,7 @@ EZ_FORCE_INLINE ezRenderDataBatch::Iterator<T> ezRenderDataBatch::GetIterator(ez
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_FORCE_INLINE ezUInt32 ezRenderDataBatchList::GetBatchCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatchList::GetBatchCount() const
 {
   return m_Batches.GetCount();
 }

@@ -81,7 +81,7 @@ public:
   void SetAttachAsChild(bool b) { m_SpawnFlags.AddOrRemove(ezSpawnComponentFlags::AttachAsChild, b); }
 
   void SetPrefab(const ezPrefabResourceHandle& hPrefab);
-  EZ_FORCE_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
+  EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
 
   /// The minimum delay between spawning objects. This is also enforced for manually spawning things.
   ezTime m_MinDelay;

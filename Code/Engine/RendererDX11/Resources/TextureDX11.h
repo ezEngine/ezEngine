@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -11,9 +11,9 @@ public:
 
   void SetDebugName(const char* szName) const override;
 
-  EZ_FORCE_INLINE ID3D11Resource* GetDXTexture() const;
+  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
 
-  EZ_FORCE_INLINE ID3D11Resource* GetDXStagingTexture() const;
+  EZ_ALWAYS_INLINE ID3D11Resource* GetDXStagingTexture() const;
 
 protected:
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
@@ -37,7 +37,7 @@ public:
   ezRenderer* GetRendererByType(const ezRTTI* pType);
 
   template <typename T>
-  EZ_FORCE_INLINE T* GetRendererByType()
+  EZ_ALWAYS_INLINE T* GetRendererByType()
   {
     return static_cast<T*>(GetRendererByType(ezGetStaticRTTI<T>()));
   }
@@ -76,7 +76,7 @@ public:
 
   void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
 
-  EZ_FORCE_INLINE ezRenderPipeline* GetPipeline()
+  EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline()
   {
     return m_pPipeline;
   }

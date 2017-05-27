@@ -66,7 +66,7 @@ EZ_FORCE_INLINE ezGALResourceAccess::ezGALResourceAccess()
 {
 }
 
-EZ_FORCE_INLINE bool ezGALResourceAccess::IsImmutable() const
+EZ_ALWAYS_INLINE bool ezGALResourceAccess::IsImmutable() const
 {
   return m_bImmutable;
 }
