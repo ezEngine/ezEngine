@@ -415,16 +415,16 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
   m_fScale = 1.0f;
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const char* szColorProperty)
-  : ezVisualizerAttribute(szColorProperty)
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const char* szColorProperty, const char* szLengthProperty /*= nullptr*/)
+  : ezVisualizerAttribute(szColorProperty, szLengthProperty)
 {
   m_Axis = axis;
   m_fScale = fScale;
   m_Color = ezColor::MediumVioletRed;
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
-  : ezVisualizerAttribute(nullptr)
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szLengthProperty /*= nullptr*/)
+  : ezVisualizerAttribute(nullptr, szLengthProperty)
 {
   m_Axis = axis;
   m_fScale = fScale;

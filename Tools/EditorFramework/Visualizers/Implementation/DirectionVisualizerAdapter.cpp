@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -29,11 +29,12 @@ void ezDirectionVisualizerAdapter::Finalize()
 void ezDirectionVisualizerAdapter::Update()
 {
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
 
   if (!pAttr->GetColorProperty().IsEmpty())
   {
+    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
@@ -44,7 +45,20 @@ void ezDirectionVisualizerAdapter::Update()
 
 void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
 {
-  const float fScale = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr)->m_fScale;
+  const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
+  float fScale = pAttr->m_fScale;
+
+  if (!pAttr->GetLengthProperty().IsEmpty())
+  {
+    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetLengthProperty()), value);
+
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
+    fScale *= value.ConvertTo<float>();
+  }
+
   ezMat4 mScale;
   mScale.SetScalingMatrix(ezVec3(fScale));
   mScale.SetTranslationVector(ezVec3(fScale, 0, 0));

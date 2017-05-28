@@ -32,7 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::LightGreen),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::LightGreen, "MaxDistance"),
   }
   EZ_END_ATTRIBUTES
 }

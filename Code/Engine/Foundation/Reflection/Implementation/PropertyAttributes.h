@@ -512,10 +512,11 @@ class EZ_FOUNDATION_DLL ezDirectionVisualizerAttribute : public ezVisualizerAttr
 
 public:
   ezDirectionVisualizerAttribute();
-  ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const char* szColorProperty);
-  ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed);
+  ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const char* szColorProperty, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szLengthProperty = nullptr);
 
   const ezUntrackedString& GetColorProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetLengthProperty() const { return m_sProperty2; }
 
   ezBasisAxis::Enum m_Axis;
   ezColor m_Color;
