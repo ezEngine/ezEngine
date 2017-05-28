@@ -242,27 +242,29 @@ void ezPxCharacterControllerComponent::Update()
   {
     m_fVelocityUp = m_fJumpImpulse;
   }
-  else if (isOnGround && !pProxy->IsCrouching())
-  {
-    // auto-crouch functionality
+  // somehow this messes up the standing/falling state
+  // and the CC seems to oscillate between crouching and standing (but you only see that in the physx visual debugger)
+  //else if (isOnGround && !pProxy->IsCrouching())
+  //{
+  //  // auto-crouch functionality
 
-    ezVec3 vWalkDir = vIntendedMovement;
-    vWalkDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+  //  ezVec3 vWalkDir = vIntendedMovement;
+  //  vWalkDir.NormalizeIfNotZero(ezVec3::ZeroVector());
 
-    ezTransform tDestination;
-    tDestination.m_Rotation.SetIdentity();
-    tDestination.m_vPosition = posBefore + vWalkDir * pProxy->m_fCapsuleRadius;
+  //  ezTransform tDestination;
+  //  tDestination.m_Rotation.SetIdentity();
+  //  tDestination.m_vPosition = posBefore + vWalkDir * pProxy->m_fCapsuleRadius;
 
-    // if the destination is blocked (standing upright)
-    if (pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, tDestination, pProxy->m_uiCollisionLayer, pProxy->GetShapeId()))
-    {
-      // but it is not blocked when crouched
-      if (!pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleCrouchHeight, tDestination, pProxy->m_uiCollisionLayer, pProxy->GetShapeId()))
-      {
-        wantsCrouch = true;
-      }
-    }
-  }
+  //  // if the destination is blocked (standing upright)
+  //  if (pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleHeight, tDestination, pProxy->m_uiCollisionLayer, pProxy->GetShapeId()))
+  //  {
+  //    // but it is not blocked when crouched
+  //    if (!pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleCrouchHeight, tDestination, pProxy->m_uiCollisionLayer, pProxy->GetShapeId()))
+  //    {
+  //      wantsCrouch = true;
+  //    }
+  //  }
+  //}
 
   ezVec3 vNewVelocity(0.0f);
 
@@ -323,7 +325,7 @@ void ezPxCharacterControllerComponent::Update()
         {
           const bool bRun = (m_InputStateBits & InputStateBits::Run) != 0;
           if (!bRun && m_fAccumulatedWalkDistance >= m_fWalkInteractionDistance ||
-              bRun&& m_fAccumulatedWalkDistance >= m_fRunInteractionDistance)
+              bRun && m_fAccumulatedWalkDistance >= m_fRunInteractionDistance)
           {
             m_fAccumulatedWalkDistance = 0.0f;
 

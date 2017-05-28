@@ -96,6 +96,12 @@ void ezPxAllocatorCallback::VerifyAllocations()
 
 PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
 {
+  if (shape->getFlags().isSet(PxShapeFlag::eTRIGGER_SHAPE))
+  {
+    // ignore all trigger shapes
+    return PxQueryHitType::eNONE;
+  }
+
   const PxFilterData& shapeFilterData = shape->getQueryFilterData();
 
   queryFlags = (PxHitFlags)0;
