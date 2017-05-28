@@ -50,16 +50,21 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
     ezVec3T p[4] =
     {
-      ezVec3T( 0, 2, 0),
+      ezVec3T( 2, 6, 0),
       ezVec3T( 4, 2, 0),
       ezVec3T( 2, 0, 0),
-      ezVec3T( 2, 4, 0)
+      ezVec3T( 0, 4, 0)
     };
 
     s.SetFromPoints(p, 4);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(2, 2, 0));
-    EZ_TEST_BOOL(s.m_fRadius == 2);
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(2, 3, 0));
+    EZ_TEST_BOOL(s.m_fRadius == 3);
+
+    for (int i = 0; i < EZ_ARRAY_SIZE(p); ++i)
+    {
+      EZ_TEST_BOOL(s.Contains(p[i]));
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(Point)")
@@ -90,6 +95,11 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
     EZ_TEST_BOOL(s.m_vCenter == ezVec3T(2, 2, 0));
     EZ_TEST_BOOL(s.m_fRadius == 2);
+
+    for (int i = 0; i < EZ_ARRAY_SIZE(p); ++i)
+    {
+      EZ_TEST_BOOL(s.Contains(p[i]));
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (sphere)")
@@ -201,7 +211,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     EZ_TEST_BOOL(s.m_vCenter == ezVec3T(1,2,3));
     EZ_TEST_BOOL(s.m_fRadius == 20);
   }
-  
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromOrigin")
   {
     ezBoundingSphereT s;
@@ -420,7 +430,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      const ezVec3T vDir = ezVec3T(ezMath::Sin(ezAngle::Degree(i * (ezMathTestType) 1)), 
+      const ezVec3T vDir = ezVec3T(ezMath::Sin(ezAngle::Degree(i * (ezMathTestType) 1)),
                                    ezMath::Cos(ezAngle::Degree(i * (ezMathTestType) 3)),
                                    ezMath::Cos(ezAngle::Degree(i * (ezMathTestType) 1))).GetNormalized();
       const ezVec3T vTarget = vDir * s.m_fRadius + s.m_vCenter - vDir;
@@ -447,7 +457,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     mTransform.SetScalingFactors(ezVec3T(4,3,2));
 
     s.TransformFromOrigin(mTransform);
-    
+
     EZ_TEST_BOOL(s.m_vCenter == ezVec3T(9,12,13));
     EZ_TEST_BOOL(s.m_fRadius == 16);
   }
@@ -461,7 +471,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     mTransform.SetScalingFactors(ezVec3T(4,3,2));
 
     s.TransformFromCenter(mTransform);
-    
+
     EZ_TEST_BOOL(s.m_vCenter == ezVec3T(6,8,10));
     EZ_TEST_BOOL(s.m_fRadius == 16);
   }

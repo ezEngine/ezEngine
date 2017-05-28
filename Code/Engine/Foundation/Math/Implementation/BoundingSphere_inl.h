@@ -137,7 +137,7 @@ void ezBoundingSphereTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>&
 
   m_vCenter = m_vCenter.CompMult(vScale);
 
-  // scale the radius by the maximum scaling factor (the sphere cannot become an ellipsoid, 
+  // scale the radius by the maximum scaling factor (the sphere cannot become an ellipsoid,
   // so to be a 'bounding' sphere, it should be as large as possible
   m_fRadius *= ezMath::Max(vScale.x, vScale.y, vScale.z);
 }
@@ -195,7 +195,7 @@ const ezVec3Template<Type> ezBoundingSphereTemplate<Type>::GetClampedPoint(const
 {
   const ezVec3Template<Type> vDir = vPoint - m_vCenter;
   const Type fDistSQR = vDir.GetLengthSquared ();
-  
+
   // return the point, if it is already inside the sphere
   if (fDistSQR <= ezMath::Square (m_fRadius))
     return vPoint;
@@ -275,7 +275,9 @@ void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* p
   pCur = &pPoints[0];
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {
-    fMaxDistSQR = (*pCur - vCenter).GetLengthSquared();
+    const Type fDistSQR = (*pCur - vCenter).GetLengthSquared();
+    fMaxDistSQR = ezMath::Max(fMaxDistSQR, fDistSQR);
+
     pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
   }
 
@@ -298,7 +300,6 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>*
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {
     const Type fDistSQR = (*pCur - m_vCenter).GetLengthSquared();
-
     fMaxDistSQR = ezMath::Max(fMaxDistSQR, fDistSQR);
 
     pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
