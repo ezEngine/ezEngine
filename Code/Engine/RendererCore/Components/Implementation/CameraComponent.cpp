@@ -62,7 +62,7 @@ const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCamera
 {
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    if (it->GetUsageHint() == usageHint)
+    if (it->IsActiveAndInitialized() && it->GetUsageHint() == usageHint)
     {
       return it;
     }
