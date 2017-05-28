@@ -40,7 +40,7 @@ public:
   ezUInt32 GetNumTagsSet() const;
 
   /// \brief True if the tag set never contained any tag or was cleared.
-  EZ_ALWAYS_INLINE bool IsEmpty() const;
+  bool IsEmpty() const;
 
   /// \brief Removes all tags from the set
   void Clear();
@@ -62,6 +62,9 @@ public:
 
     /// \brief Returns a reference to the current tag
     const ezTag* operator*() const;
+
+    /// \brief Returns a pointer to the current tag
+    const ezTag* operator->() const;
 
     /// \brief Returns whether the iterator is still pointing to a valid item
     EZ_ALWAYS_INLINE bool IsValid() const
@@ -108,8 +111,8 @@ private:
 
   ezHybridArray<ezTagSetBlockStorage, 1, BlockStorageAllocator> m_TagBlocks;
 
-  ezUInt32 m_uiTagBlockStart;
-
+  // mutable so IsEmpty and GetNumTagsSet can reset it to 'empty' to prevent reevaluation next time
+  mutable ezUInt32 m_uiTagBlockStart;
 };
 
 /// Default tag set, uses ezDefaultAllocatorWrapper for allocations.

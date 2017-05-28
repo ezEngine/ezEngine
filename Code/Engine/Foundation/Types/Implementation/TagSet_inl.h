@@ -130,6 +130,12 @@ const ezTag* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() cons
   return ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex);
 }
 
+template <typename BlockStorageAllocator>
+const ezTag* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator->() const
+{
+  return ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex);
+}
+
 template<typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::ezTagSetTemplate()
   : m_uiTagBlockStart(0xFFFFFFFFu)
@@ -210,7 +216,8 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& O
 template<typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 ezUInt32 ezTagSetTemplate<BlockStorageAllocator>::GetNumTagsSet() const
 {
-  if (IsEmpty())
+  // early out, if it is completely cleared
+  if (m_uiTagBlockStart == 0xFFFFFFFFu)
     return 0;
 
   ezUInt32 count = 0;
@@ -230,22 +237,42 @@ ezUInt32 ezTagSetTemplate<BlockStorageAllocator>::GetNumTagsSet() const
     }
   }
 
+  if (count == 0)
+  {
+    // make sure we don't need to do the full check next time again
+    m_uiTagBlockStart = 0xFFFFFFFFu;
+  }
+
   return count;
 }
 
 template<typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
 {
+  // early out, if it is completely cleared
   if (m_uiTagBlockStart == 0xFFFFFFFFu)
     return true;
 
-  //for (ezUInt32 i = m_uiTagBlockStart; i < m_uiTagBlockStart; ++i)
-  //{
-  //  if (m_TagBlocks[i - m_uiTagBlockStart] != 0)
-  //    return false;
-  //}
+  ezUInt32 count = 0;
 
-  return false;
+  for (ezUInt32 i = 0; i < m_TagBlocks.GetCount(); ++i)
+  {
+    const ezUInt64 value = m_TagBlocks[i];
+
+    for (ezUInt32 bit = 0; bit < 64; ++bit)
+    {
+      const ezUInt64 pattern = value >> bit;
+
+      if ((pattern & 1U) != 0) // lowest bit is set ?
+      {
+        return false;
+      }
+    }
+  }
+
+  // make sure we don't need to do the full check next time again
+  m_uiTagBlockStart = 0xFFFFFFFFu;
+  return true;
 }
 
 template<typename BlockStorageAllocator>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Types/Tag.h>
 #include <Foundation/Types/TagSet.h>
 #include <Foundation/Types/TagRegistry.h>
@@ -233,6 +233,71 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     OffsetBlock2.Set(RegisteredTags[65]);
     EZ_TEST_BOOL(OffsetBlock.IsAnySet(OffsetBlock2));
     EZ_TEST_BOOL(OffsetBlock2.IsAnySet(OffsetBlock));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Add / Remove / IsEmpty / Clear")
+  {
+    ezTagRegistry TempTestRegistry;
+
+    TempTestRegistry.RegisterTag("TEST_TAG1");
+
+    const ezTag* TestTag1 = TempTestRegistry.GetTagByName("TEST_TAG1");
+    EZ_TEST_BOOL(TestTag1 != nullptr);
+
+    const ezTag& TestTag2 = TempTestRegistry.RegisterTag("TEST_TAG2");
+
+    EZ_TEST_BOOL(TestTag2.IsValid());
+
+    ezTagSet TagSet;
+
+    EZ_TEST_BOOL(TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+
+    TagSet.Clear();
+
+    EZ_TEST_BOOL(TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+
+    TagSet.Set(TestTag2);
+
+    EZ_TEST_BOOL(!TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+
+    TagSet.Remove(TestTag2);
+
+    EZ_TEST_BOOL(TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+
+    TagSet.Set(*TestTag1);
+    TagSet.Set(TestTag2);
+
+    EZ_TEST_BOOL(!TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == true);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+
+    TagSet.Remove(*TestTag1);
+    TagSet.Remove(TestTag2);
+
+    EZ_TEST_BOOL(TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
+
+    TagSet.Set(*TestTag1);
+    TagSet.Set(TestTag2);
+
+    EZ_TEST_BOOL(!TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == true);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
+
+    TagSet.Clear();
+
+    EZ_TEST_BOOL(TagSet.IsEmpty());
+    EZ_TEST_BOOL(TagSet.IsSet(*TestTag1) == false);
+    EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == false);
   }
 }
 
