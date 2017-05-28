@@ -48,4 +48,6 @@ private:
   ezDynamicArray<ezPerLightData> m_TempLightData;
   ezDynamicArray<TempCluster> m_TempClusters;
   ezDynamicArray<ezUInt32> m_TempClusterItemList;
+
+  ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;
 };

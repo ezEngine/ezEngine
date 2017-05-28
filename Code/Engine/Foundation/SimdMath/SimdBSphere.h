@@ -29,6 +29,9 @@ public:
   /// \brief Returns the radius
   ezSimdFloat GetRadius() const; // [tested]
 
+  /// \brief Initializes the sphere to be the bounding sphere of all the given points.
+  void SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezSimdVec4f)); // [tested]
+
   /// \brief Increases the sphere's radius to include this point.
   void ExpandToInclude(const ezSimdVec4f& vPoint); // [tested]
 

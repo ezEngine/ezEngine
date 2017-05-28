@@ -214,8 +214,8 @@ ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform
   }
   else
   {
-    res.m_vCenter = position + fRange / (2.0f * ezMath::Cos(halfAngle)) * forwardDir;
     res.m_fRadius = fRange / (2.0f * ezMath::Cos(halfAngle));
+    res.m_vCenter = position + forwardDir * res.m_fRadius;
   }
 
   return res;

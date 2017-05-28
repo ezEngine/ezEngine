@@ -9,6 +9,7 @@ EZ_DEFINE_AS_POD_TYPE(ezPerClusterData);
 
 #include <Foundation/Math/Float16.h>
 #include <Foundation/SimdMath/SimdConversion.h>
+#include <Foundation/SimdMath/SimdVec4i.h>
 
 namespace
 {
@@ -34,6 +35,37 @@ namespace
     return z * NUM_CLUSTERS_XY + y * NUM_CLUSTERS_X + x;
   }
 
+  // in order: tlf, trf, blf, brf, tln, trn, bln, brn
+  EZ_FORCE_INLINE void GetClusterCornerPoints(const ezCamera& camera, float fZf, float fZn, float fTanFovX, float fTanFovY,
+    ezInt32 x, ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
+  {
+    const ezVec3& pos = camera.GetPosition();
+    const ezVec3& dirForward = camera.GetDirForwards();
+    const ezVec3& dirRight = camera.GetDirRight();
+    const ezVec3& dirUp = camera.GetDirUp();
+
+    float fStepXf = (fZf * fTanFovX) / NUM_CLUSTERS_X;
+    float fStepYf = (fZf * fTanFovY) / NUM_CLUSTERS_Y;
+
+    float fXf = (x - (NUM_CLUSTERS_X / 2)) * fStepXf;
+    float fYf = (y - (NUM_CLUSTERS_Y / 2)) * fStepYf;
+
+    out_pCorners[0] = pos + dirForward * fZf + dirRight * fXf - dirUp * fYf;
+    out_pCorners[1] = out_pCorners[0] + dirRight * fStepXf;
+    out_pCorners[2] = out_pCorners[0] - dirUp * fStepYf;
+    out_pCorners[3] = out_pCorners[2] + dirRight * fStepXf;
+
+    float fStepXn = (fZn * fTanFovX) / NUM_CLUSTERS_X;
+    float fStepYn = (fZn * fTanFovY) / NUM_CLUSTERS_Y;
+    float fXn = (x - (NUM_CLUSTERS_X / 2)) * fStepXn;
+    float fYn = (y - (NUM_CLUSTERS_Y / 2)) * fStepYn;
+
+    out_pCorners[4] = pos + dirForward * fZn + dirRight * fXn - dirUp * fYn;
+    out_pCorners[5] = out_pCorners[4] + dirRight * fStepXn;
+    out_pCorners[6] = out_pCorners[4] - dirUp * fStepYn;
+    out_pCorners[7] = out_pCorners[6] + dirRight * fStepXn;
+  }
+
   EZ_ALWAYS_INLINE ezUInt32 Float3ToRGB10(ezVec3 value)
   {
     ezVec3 unsignedValue = value * 0.5f + ezVec3(0.5f);
@@ -51,6 +83,60 @@ namespace
     ezUInt32 g = ezFloat16(value.y).GetRawData();
 
     return r | (g << 16);
+  }
+
+  void FillClusterBoundingSpheres(const ezCamera& camera, float fAspectRatio, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
+  {
+    float fTanFovX = ezMath::Tan(camera.GetFovX(fAspectRatio) * 0.5f);
+    float fTanFovY = ezMath::Tan(camera.GetFovY(fAspectRatio) * 0.5f);
+    ezSimdVec4f fov = ezSimdVec4f(fTanFovX, fTanFovY, fTanFovX, fTanFovY);
+
+    ezSimdVec4f pos = ezSimdConversion::ToVec3(camera.GetPosition());
+    ezSimdVec4f dirForward = ezSimdConversion::ToVec3(camera.GetDirForwards());
+    ezSimdVec4f dirRight = ezSimdConversion::ToVec3(camera.GetDirRight());
+    ezSimdVec4f dirUp = ezSimdConversion::ToVec3(camera.GetDirUp());
+
+    ezSimdVec4f numClusters = ezSimdVec4f(NUM_CLUSTERS_X, NUM_CLUSTERS_Y, NUM_CLUSTERS_X, NUM_CLUSTERS_Y);
+    ezSimdVec4f halfNumClusters = numClusters * 0.5f;
+    ezSimdVec4f stepScale = fov.CompDiv(halfNumClusters);
+
+    ezSimdVec4f fZn = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f cc[8];
+
+    for (ezInt32 z = 0; z < NUM_CLUSTERS_Z; z++)
+    {
+      ezSimdVec4f fZf = ezSimdVec4f(GetDepthFromSliceIndex(z));
+      ezSimdVec4f zff_znn = fZf.GetCombined<ezSwizzle::XXXX>(fZn);
+      ezSimdVec4f steps = zff_znn.CompMul(stepScale);
+
+      ezSimdVec4f depthF = pos + dirForward * fZf.x();
+      ezSimdVec4f depthN = pos + dirForward * fZn.x();
+
+      for (ezInt32 y = 0; y < NUM_CLUSTERS_Y; y++)
+      {
+        for (ezInt32 x = 0; x < NUM_CLUSTERS_X; x++)
+        {
+          ezSimdVec4f xyxy = ezSimdVec4i(x, y, x, y).ToFloat();
+          ezSimdVec4f xfyf = (xyxy - halfNumClusters).CompMul(steps);
+
+          cc[0] = depthF + dirRight * xfyf.x() - dirUp * xfyf.y();
+          cc[1] = cc[0] + dirRight * steps.x();
+          cc[2] = cc[0] - dirUp * steps.y();
+          cc[3] = cc[2] + dirRight * steps.x();
+
+          cc[4] = depthN + dirRight * xfyf.z() - dirUp * xfyf.w();
+          cc[5] = cc[4] + dirRight * steps.z();
+          cc[6] = cc[4] - dirUp * steps.w();
+          cc[7] = cc[6] + dirRight * steps.z();
+
+          ezSimdBSphere s; s.SetFromPoints(cc, 8);
+
+          clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = s;
+        }
+      }
+
+      fZn = fZf;
+    }
   }
 
   EZ_ALWAYS_INLINE void FillLightData(ezPerLightData& perLightData, const ezLightRenderData* pLightRenderData, ezUInt32 uiType)
@@ -160,36 +246,132 @@ namespace
     }
   }
 
-  template <typename Cluster>
-  void RasterizePointLight(const ezPointLightRenderData* pPointLightRenderData, ezUInt32 uiLightIndex, const ezSimdMat4f& viewProjectionMatrix,
-    const ezVec3& cameraPosition, ezArrayPtr<Cluster> clusters)
+  template <typename Cluster, typename IntersectionFunc>
+  EZ_ALWAYS_INLINE void FillCluster(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax, ezUInt32 uiBlockIndex, ezUInt32 uiMask,
+    Cluster* clusters, IntersectionFunc func)
   {
-    ezBoundingBox box;
-    box.SetCenterAndHalfExtents(pPointLightRenderData->m_GlobalTransform.m_vPosition, ezVec3(pPointLightRenderData->m_fRange));
+    ezSimdVec4f scale = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, -0.5f * NUM_CLUSTERS_Y, 1.0f, 1.0f);
+    ezSimdVec4f bias = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, 0.5f * NUM_CLUSTERS_Y, 0.0f, 0.0f);
 
-    const ezUInt32 uiBlockIndex = uiLightIndex / 32;
-    const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
+    ezSimdVec4f mi = ezSimdVec4f::MulAdd(vMin, scale, bias);
+    ezSimdVec4f ma = ezSimdVec4f::MulAdd(vMax, scale, bias);
 
-    RasterizeBox(box, viewProjectionMatrix, cameraPosition, uiBlockIndex, uiMask, clusters);
+    ezSimdVec4i minXY_maxXY = ezSimdVec4i::Truncate(mi.GetCombined<ezSwizzle::XYXY>(ma));
+
+    ezSimdVec4i maxClusterIndex = ezSimdVec4i(NUM_CLUSTERS_X, NUM_CLUSTERS_Y, NUM_CLUSTERS_X, NUM_CLUSTERS_Y);
+    minXY_maxXY = minXY_maxXY.CompMin(maxClusterIndex - ezSimdVec4i(1));
+    minXY_maxXY = minXY_maxXY.CompMax(ezSimdVec4i::ZeroVector());
+
+    ezUInt32 xMin = minXY_maxXY.x();
+    ezUInt32 yMin = minXY_maxXY.w();
+
+    ezUInt32 xMax = minXY_maxXY.z();
+    ezUInt32 yMax = minXY_maxXY.y();
+
+    ezUInt32 zMin = GetSliceIndexFromDepth(vMin.z());
+    ezUInt32 zMax = GetSliceIndexFromDepth(vMax.z());
+
+    for (ezUInt32 z = zMin; z <= zMax; ++z)
+    {
+      for (ezUInt32 y = yMin; y <= yMax; ++y)
+      {
+        for (ezUInt32 x = xMin; x <= xMax; ++x)
+        {
+          ezUInt32 uiClusterIndex = GetClusterIndexFromCoord(x, y, z);
+          if (func(uiClusterIndex))
+          {
+            clusters[uiClusterIndex].m_BitMask[uiBlockIndex] |= uiMask;
+          }
+        }
+      }
+    }
   }
 
   template <typename Cluster>
-  void RasterizeSpotLight(const ezSpotLightRenderData* pSpotLightRenderData, ezUInt32 uiLightIndex, const ezSimdMat4f& viewProjectionMatrix,
-    const ezVec3& cameraPosition, ezArrayPtr<Cluster> clusters)
+  void RasterizePointLight(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezCamera& camera,
+    Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
-    const float t = ezMath::Tan(pSpotLightRenderData->m_OuterSpotAngle * 0.5f);
-    const float p = ezMath::Min(t * pSpotLightRenderData->m_fRange, pSpotLightRenderData->m_fRange);
+    ezSimdVec4f dirToLight = pointLightSphere.m_CenterAndRadius - ezSimdConversion::ToVec3(camera.GetCenterPosition());
+    ezSimdFloat fDistanceToCenter = dirToLight.Dot<3>(ezSimdConversion::ToVec3(camera.GetCenterDirForwards()));
 
-    ezBoundingBox box;
-    box.m_vMin = ezVec3(0.0f, -p, -p);
-    box.m_vMax = ezVec3(pSpotLightRenderData->m_fRange, p, p);
+    ezSimdFloat fRadius = pointLightSphere.GetRadius();
+    ezSimdFloat fZMin = fDistanceToCenter - fRadius;
+    ezSimdFloat fZMax = fDistanceToCenter + fRadius;
 
-    box.TransformFromOrigin(pSpotLightRenderData->m_GlobalTransform.GetAsMat4());
+    ///\todo Can be optimized by finding proper xy bounds. Needs to work even if the camera is inside the bounding sphere.
+    ezSimdVec4f vMin(-1, -1, fZMin);
+    ezSimdVec4f vMax(1, 1, fZMax);
 
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    RasterizeBox(box, viewProjectionMatrix, cameraPosition, uiBlockIndex, uiMask, clusters);
+    FillCluster(vMin, vMax, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
+    {
+      return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]);
+    });
+  }
+
+  struct BoundingCone
+  {
+    ezSimdBSphere m_BoundingSphere;
+    ezSimdVec4f m_PositionAndRange;
+    ezSimdVec4f m_ForwardDir;
+    ezSimdVec4f m_SinCosAngle;
+  };
+
+  template <typename Cluster>
+  void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezCamera& camera,
+    Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+  {
+    ezSimdVec4f position = spotLightCone.m_PositionAndRange;
+    ezSimdFloat range = spotLightCone.m_PositionAndRange.w();
+    ezSimdVec4f forwardDir = spotLightCone.m_ForwardDir;
+    ezSimdFloat sinAngle = spotLightCone.m_SinCosAngle.x();
+    ezSimdFloat cosAngle = spotLightCone.m_SinCosAngle.y();
+
+    // First calculate a bounding sphere around the cone to get min and max bounds
+    ezSimdVec4f bSphereCenter;
+    ezSimdFloat bSphereRadius;
+    if (sinAngle > 0.707107f) // sin(45)
+    {
+      bSphereCenter = position + forwardDir * cosAngle * range;
+      bSphereRadius = sinAngle * range;
+    }
+    else
+    {
+      bSphereRadius = range / (cosAngle + cosAngle);
+      bSphereCenter = position + forwardDir * bSphereRadius;
+    }
+
+    ezSimdVec4f dirToLight = bSphereCenter - ezSimdConversion::ToVec3(camera.GetCenterPosition());
+    ezSimdFloat fDistanceToCenter = dirToLight.Dot<3>(ezSimdConversion::ToVec3(camera.GetCenterDirForwards()));
+
+    ezSimdFloat fZMin = fDistanceToCenter - bSphereRadius;
+    ezSimdFloat fZMax = fDistanceToCenter + bSphereRadius;
+
+    ///\todo Can be optimized by finding proper xy bounds. Needs to work even if the camera is inside the bounding sphere.
+    ezSimdVec4f vMin(-1, -1, fZMin);
+    ezSimdVec4f vMax(1, 1, fZMax);
+
+    const ezUInt32 uiBlockIndex = uiLightIndex / 32;
+    const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
+
+    FillCluster(vMin, vMax, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
+    {
+      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+      ezSimdFloat clusterRadius = clusterSphere.GetRadius();
+
+      ezSimdVec4f toConePos = clusterSphere.m_CenterAndRadius - position;
+      ezSimdFloat projected = forwardDir.Dot<3>(toConePos);
+      ezSimdFloat distToConeSq = toConePos.Dot<3>(toConePos);
+      ezSimdFloat distClosestP = cosAngle * (distToConeSq - projected * projected).GetSqrt() - projected * sinAngle;
+
+      bool angleCull = distClosestP > clusterRadius;
+      bool frontCull = projected > clusterRadius + range;
+      bool backCull = projected < -clusterRadius;
+
+      return !(angleCull || frontCull || backCull);
+    });
   }
 
   template <typename Cluster>

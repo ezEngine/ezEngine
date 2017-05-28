@@ -15,20 +15,15 @@ ezCVarInt CVarVisClusterDepthSlice("r_VisClusterDepthSlice", -1, ezCVarFlags::De
 
 namespace
 {
-  void VisualizeClusteredData(const ezView& view, const ezClusteredDataCPU* pData)
+  void VisualizeClusteredData(const ezView& view, const ezClusteredDataCPU* pData, ezArrayPtr<ezSimdBSphere> boundingSpheres)
   {
     if (!CVarVisClusteredData)
       return;
 
     const ezCamera* pCamera = view.GetCullingCamera();
     float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
-    float fTanFovX = ezMath::Tan(pCamera->GetFovX(fAspectRatio) * 0.5f);
-    float fTanFovY = ezMath::Tan(pCamera->GetFovY(fAspectRatio) * 0.5f);
-
-    ezVec3 pos = pCamera->GetCenterPosition();
-    ezVec3 dirForward = pCamera->GetCenterDirForwards();
-    ezVec3 dirRight = pCamera->GetCenterDirRight();
-    ezVec3 dirUp = pCamera->GetCenterDirUp();
+    float fTanFovX = ezMath::Tan(pCamera->GetFovX(fAspectRatio) * 0.5f) * 2.0f;
+    float fTanFovY = ezMath::Tan(pCamera->GetFovY(fAspectRatio) * 0.5f) * 2.0f;
 
     ezColor lineColor = ezColor(1.0f, 1.0f, 1.0f, 0.1f);
 
@@ -38,22 +33,8 @@ namespace
 
     for (ezUInt32 z = maxSlice; z-- > minSlice;)
     {
-      float fDepthFar = GetDepthFromSliceIndex(z);
-      float fDepthNear = (z > 0) ? GetDepthFromSliceIndex(z - 1) : 0.0f;
-
-      float fHalfWidthFar = fDepthFar * fTanFovX;
-      float fHalfHeightFar = fDepthFar * fTanFovY;
-      float fHalfWidthNear = fDepthNear * fTanFovX;
-      float fHalfHeightNear = fDepthNear * fTanFovY;
-
-      ezVec3 depthFar = pos + dirForward * fDepthFar;
-      ezVec3 depthNear = pos + dirForward * fDepthNear;
-
-      float fStepXf = (fHalfWidthFar * 2.0f) / NUM_CLUSTERS_X;
-      float fStepYf = (fHalfHeightFar * 2.0f) / NUM_CLUSTERS_Y;
-      float fStepXn = (fHalfWidthNear * 2.0f) / NUM_CLUSTERS_X;
-      float fStepYn = (fHalfHeightNear * 2.0f) / NUM_CLUSTERS_Y;
-
+      float fZf = GetDepthFromSliceIndex(z);
+      float fZn = (z > 0) ? GetDepthFromSliceIndex(z - 1) : 0.0f;
       for (ezInt32 y = 0; y < NUM_CLUSTERS_Y; ++y)
       {
         for (ezInt32 x = 0; x < NUM_CLUSTERS_X; ++x)
@@ -61,23 +42,16 @@ namespace
           ezUInt32 clusterIndex = GetClusterIndexFromCoord(x, y, z);
           auto& clusterData = pData->m_ClusterData[clusterIndex];
 
+          if (false)
+          {
+            ezBoundingSphere s = ezSimdConversion::ToBSphere(boundingSpheres[clusterIndex]);
+            ezDebugRenderer::DrawLineSphere(view.GetHandle(), s, lineColor);
+          }
+
           if (clusterData.counts > 0)
           {
-            float fXf = (x - (NUM_CLUSTERS_X / 2)) * fStepXf;
-            float fYf = (y - (NUM_CLUSTERS_Y / 2)) * fStepYf;
-
-            ezVec3 tlCornerF = depthFar + dirRight * fXf - dirUp * fYf;
-            ezVec3 trCornerF = tlCornerF + dirRight * fStepXf;
-            ezVec3 blCornerF = tlCornerF - dirUp * fStepYf;
-            ezVec3 brCornerF = blCornerF + dirRight * fStepXf;
-
-            float fXn = (x - (NUM_CLUSTERS_X / 2)) * fStepXn;
-            float fYn = (y - (NUM_CLUSTERS_Y / 2)) * fStepYn;
-
-            ezVec3 tlCornerN = depthNear + dirRight * fXn - dirUp * fYn;
-            ezVec3 trCornerN = tlCornerN + dirRight * fStepXn;
-            ezVec3 blCornerN = tlCornerN - dirUp * fStepYn;
-            ezVec3 brCornerN = blCornerN + dirRight * fStepXn;
+            ezVec3 cc[8];
+            GetClusterCornerPoints(*pCamera, fZf, fZn, fTanFovX, fTanFovY, x, y, z, cc);
 
             float normalizedCount = (clusterData.counts - 1) / 16.0f;
             float r = ezMath::Clamp(normalizedCount, 0.0f, 1.0f);
@@ -85,41 +59,41 @@ namespace
 
             ezDebugRenderer::Triangle tris[12];
             //back
-            tris[0] = ezDebugRenderer::Triangle(tlCornerF, blCornerF, trCornerF);
-            tris[1] = ezDebugRenderer::Triangle(blCornerF, brCornerF, trCornerF);
+            tris[0] = ezDebugRenderer::Triangle(cc[0], cc[2], cc[1]);
+            tris[1] = ezDebugRenderer::Triangle(cc[2], cc[3], cc[1]);
             //front
-            tris[2] = ezDebugRenderer::Triangle(tlCornerN, trCornerN, blCornerN);
-            tris[3] = ezDebugRenderer::Triangle(blCornerN, trCornerN, brCornerN);
+            tris[2] = ezDebugRenderer::Triangle(cc[4], cc[5], cc[6]);
+            tris[3] = ezDebugRenderer::Triangle(cc[6], cc[5], cc[7]);
             //top
-            tris[4] = ezDebugRenderer::Triangle(tlCornerN, tlCornerF, trCornerN);
-            tris[5] = ezDebugRenderer::Triangle(tlCornerF, trCornerF, trCornerN);
+            tris[4] = ezDebugRenderer::Triangle(cc[4], cc[0], cc[5]);
+            tris[5] = ezDebugRenderer::Triangle(cc[0], cc[1], cc[5]);
             //bottom
-            tris[6] = ezDebugRenderer::Triangle(blCornerN, brCornerN, blCornerF);
-            tris[7] = ezDebugRenderer::Triangle(blCornerF, brCornerN, brCornerF);
+            tris[6] = ezDebugRenderer::Triangle(cc[6], cc[7], cc[2]);
+            tris[7] = ezDebugRenderer::Triangle(cc[2], cc[7], cc[3]);
             //left
-            tris[8] = ezDebugRenderer::Triangle(tlCornerN, blCornerN, tlCornerF);
-            tris[9] = ezDebugRenderer::Triangle(tlCornerF, blCornerN, blCornerF);
+            tris[8] = ezDebugRenderer::Triangle(cc[4], cc[6], cc[0]);
+            tris[9] = ezDebugRenderer::Triangle(cc[0], cc[6], cc[2]);
             //right
-            tris[10] = ezDebugRenderer::Triangle(trCornerN, trCornerF, brCornerN);
-            tris[11] = ezDebugRenderer::Triangle(trCornerF, brCornerF, brCornerN);
+            tris[10] = ezDebugRenderer::Triangle(cc[5], cc[1], cc[7]);
+            tris[11] = ezDebugRenderer::Triangle(cc[1], cc[3], cc[7]);
 
             ezDebugRenderer::DrawSolidTriangles(view.GetHandle(), tris, ezColor(r, g, 0.0f, 0.1f));
 
             ezDebugRenderer::Line lines[12];
-            lines[0] = ezDebugRenderer::Line(tlCornerN, trCornerN);
-            lines[1] = ezDebugRenderer::Line(trCornerN, brCornerN);
-            lines[2] = ezDebugRenderer::Line(brCornerN, blCornerN);
-            lines[3] = ezDebugRenderer::Line(blCornerN, tlCornerN);
+            lines[0] = ezDebugRenderer::Line(cc[4], cc[5]);
+            lines[1] = ezDebugRenderer::Line(cc[5], cc[7]);
+            lines[2] = ezDebugRenderer::Line(cc[7], cc[6]);
+            lines[3] = ezDebugRenderer::Line(cc[6], cc[4]);
 
-            lines[4] = ezDebugRenderer::Line(tlCornerF, trCornerF);
-            lines[5] = ezDebugRenderer::Line(trCornerF, brCornerF);
-            lines[6] = ezDebugRenderer::Line(brCornerF, blCornerF);
-            lines[7] = ezDebugRenderer::Line(blCornerF, tlCornerF);
+            lines[4] = ezDebugRenderer::Line(cc[0], cc[1]);
+            lines[5] = ezDebugRenderer::Line(cc[1], cc[3]);
+            lines[6] = ezDebugRenderer::Line(cc[3], cc[2]);
+            lines[7] = ezDebugRenderer::Line(cc[2], cc[0]);
 
-            lines[8] = ezDebugRenderer::Line(tlCornerN, tlCornerF);
-            lines[9] = ezDebugRenderer::Line(trCornerN, trCornerF);
-            lines[10] = ezDebugRenderer::Line(brCornerN, brCornerF);
-            lines[11] = ezDebugRenderer::Line(blCornerN, blCornerF);
+            lines[8] = ezDebugRenderer::Line(cc[4], cc[0]);
+            lines[9] = ezDebugRenderer::Line(cc[5], cc[1]);
+            lines[10] = ezDebugRenderer::Line(cc[7], cc[3]);
+            lines[11] = ezDebugRenderer::Line(cc[6], cc[2]);
 
             ezDebugRenderer::DrawLines(view.GetHandle(), lines, ezColor(r, g, 0.0f));
           }
@@ -127,9 +101,10 @@ namespace
       }
 
       {
-        ezVec3 halfWidth = dirRight * fHalfWidthFar;
-        ezVec3 halfHeight = dirUp * fHalfHeightFar;
+        ezVec3 halfWidth = pCamera->GetDirRight() * fZf * fTanFovX * 0.5f;
+        ezVec3 halfHeight = pCamera->GetDirUp() * fZf * fTanFovY * 0.5f;
 
+        ezVec3 depthFar = pCamera->GetPosition() + pCamera->GetDirForwards() * fZf;
         ezVec3 p0 = depthFar + halfWidth + halfHeight;
         ezVec3 p1 = depthFar + halfWidth - halfHeight;
         ezVec3 p2 = depthFar - halfWidth - halfHeight;
@@ -162,6 +137,7 @@ ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
   m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
 
   m_TempClusters.SetCountUninitialized(NUM_CLUSTERS);
+  m_ClusterBoundingSpheres.SetCountUninitialized(NUM_CLUSTERS);
 }
 
 ezClusteredDataExtractor::~ezClusteredDataExtractor()
@@ -181,13 +157,15 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   ezMemoryUtils::ZeroFill(m_TempClusters.GetData(), NUM_CLUSTERS);
 
   const ezCamera* pCamera = view.GetCullingCamera();
-  const float fViewportAspectRatio = view.GetViewport().width / view.GetViewport().height;
+  const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
+
+  FillClusterBoundingSpheres(*pCamera, fAspectRatio, m_ClusterBoundingSpheres);
 
   ezMat4 viewMatrix;
   pCamera->GetViewMatrix(viewMatrix);
 
   ezMat4 projectionMatrix;
-  pCamera->GetProjectionMatrix(fViewportAspectRatio, projectionMatrix);
+  pCamera->GetProjectionMatrix(fAspectRatio, projectionMatrix);
 
   ezSimdMat4f viewProjectionMatrix = ezSimdConversion::ToMat4(projectionMatrix * viewMatrix);
   ezVec3 cameraPosition = pCamera->GetPosition();
@@ -212,13 +190,21 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
       {
         FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
-        RasterizePointLight(pPointLightRenderData, uiLightIndex, viewProjectionMatrix, cameraPosition, m_TempClusters.GetArrayPtr());
+        ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
+        RasterizePointLight(pointLightSphere, uiLightIndex, *pCamera, m_TempClusters.GetData(), m_ClusterBoundingSpheres.GetData());
       }
       else if (auto pSpotLightRenderData = ezDynamicCast<const ezSpotLightRenderData*>(it))
       {
         FillSpotLightData(m_TempLightData.ExpandAndGetRef(), pSpotLightRenderData);
 
-        RasterizeSpotLight(pSpotLightRenderData, uiLightIndex, viewProjectionMatrix, cameraPosition, m_TempClusters.GetArrayPtr());
+        ezAngle halfAngle = pSpotLightRenderData->m_OuterSpotAngle / 2.0f;
+
+        BoundingCone cone;
+        cone.m_PositionAndRange = ezSimdConversion::ToVec3(pSpotLightRenderData->m_GlobalTransform.m_vPosition);
+        cone.m_PositionAndRange.SetW(pSpotLightRenderData->m_fRange);
+        cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_GlobalTransform.m_Rotation.TransformDirection(ezVec3(1.0f, 0.0f, 0.0f)));
+        cone.m_SinCosAngle = ezSimdVec4f(ezMath::Sin(halfAngle), ezMath::Cos(halfAngle), 0.0f);
+        RasterizeSpotLight(cone, uiLightIndex, *pCamera, m_TempClusters.GetData(), m_ClusterBoundingSpheres.GetData());
       }
       else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(it))
       {
@@ -250,7 +236,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   pExtractedRenderData->AddFrameData(pData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  VisualizeClusteredData(view, pData);
+  VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);
 #endif
 }
 
