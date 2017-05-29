@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -66,9 +66,9 @@ void ezConeVisualizerAdapter::Update()
 
 void ezConeVisualizerAdapter::UpdateGizmoTransform()
 {
-  ezMat4 mScale;
-  mScale.SetScalingMatrix(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fFinalScale);
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4() * mScale);
+  ezTransform t = GetObjectTransform();
+  t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fFinalScale);
+  m_Gizmo.SetTransformation(t);
 }
 
 

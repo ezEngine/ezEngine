@@ -19,7 +19,7 @@ ezConeLengthGizmo::ezConeLengthGizmo()
   m_ConeRadius.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), false, true); // this gizmo should be rendered very last so it is always on top
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezConeLengthGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -32,12 +32,12 @@ void ezConeLengthGizmo::OnVisibleChanged(bool bVisible)
   m_ConeRadius.SetVisible(bVisible);
 }
 
-void ezConeLengthGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezConeLengthGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezMat4 mScaleRadius;
+  ezTransform t = transform;
+  t.m_vScale *= ezVec3(1.0f, m_fRadiusScale, m_fRadiusScale) * m_fRadius;
 
-  mScaleRadius.SetScalingMatrix(ezVec3(1.0f, m_fRadiusScale, m_fRadiusScale) * m_fRadius);
-  m_ConeRadius.SetTransformation(transform * mScaleRadius);
+  m_ConeRadius.SetTransformation(t);
 }
 
 void ezConeLengthGizmo::DoFocusLost(bool bCancel)

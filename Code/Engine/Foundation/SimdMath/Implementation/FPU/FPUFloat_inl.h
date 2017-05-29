@@ -52,7 +52,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator-(const ezSimdFloat& f) const
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator*(const ezSimdFloat& f) const
 {
-  return m_v.CompMult(f.m_v);
+  return m_v.CompMul(f.m_v);
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator/(const ezSimdFloat& f) const
@@ -74,7 +74,7 @@ EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator-=(const ezSimdFloat& f)
 
 EZ_ALWAYS_INLINE ezSimdFloat& ezSimdFloat::operator*=(const ezSimdFloat& f)
 {
-  m_v = m_v.CompMult(f.m_v);
+  m_v = m_v.CompMul(f.m_v);
   return *this;
 }
 

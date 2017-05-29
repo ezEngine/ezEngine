@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -22,7 +22,7 @@ void ezSphereManipulatorAdapter::Finalize()
   ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
@@ -48,7 +48,7 @@ void ezSphereManipulatorAdapter::Update()
     m_Gizmo.SetOuterSphere(fValue);
   }
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 void ezSphereManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
@@ -79,7 +79,7 @@ void ezSphereManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
 void ezSphereManipulatorAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 

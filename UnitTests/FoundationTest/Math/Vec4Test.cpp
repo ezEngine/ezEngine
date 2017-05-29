@@ -295,9 +295,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     EZ_TEST_BOOL(vOp1.CompMax(vOp2).IsEqual(ezVec4T(2.0f, 0.2f, 0.5f, 1.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
     EZ_TEST_BOOL(vOp2.CompMax(vOp1).IsEqual(ezVec4T(2.0f, 0.2f, 0.5f, 1.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
 
-    // CompMult
-    EZ_TEST_BOOL(vOp1.CompMult(vOp2).IsEqual(ezVec4T(-8.0f, -0.06f, -3.5f, 0.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(vOp2.CompMult(vOp1).IsEqual(ezVec4T(-8.0f, -0.06f, -3.5f, 0.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    // CompMul
+    EZ_TEST_BOOL(vOp1.CompMul(vOp2).IsEqual(ezVec4T(-8.0f, -0.06f, -3.5f, 0.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec4T(-8.0f, -0.06f, -3.5f, 0.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
 
     // CompDiv
     EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec4T(-2.0f, -0.66666666f, -14.0f, 0.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec3.h>
@@ -72,12 +72,12 @@ void ezSnapProvider::SnapTranslation(ezVec3& value)
   value.z = ezMath::Round(value.z, s_fTranslationSnapValue);
 }
 
-void ezSnapProvider::SnapTranslationInLocalSpace(const ezMat3& rotation, ezVec3& translation)
+void ezSnapProvider::SnapTranslationInLocalSpace(const ezQuat& rotation, ezVec3& translation)
 {
   if (s_fTranslationSnapValue <= 0.0f)
     return;
 
-  const ezMat3 mInvRot = rotation.GetInverse();
+  const ezQuat mInvRot = -rotation;
 
   ezVec3 vLocalTranslation = mInvRot * translation;
   vLocalTranslation.x = ezMath::Round(vLocalTranslation.x, s_fTranslationSnapValue);

@@ -218,7 +218,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator/(const ezSimdFloat& f) const
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompMul(const ezSimdVec4f& v) const
 {
-  return m_v.CompMult(v.m_v);
+  return m_v.CompMul(v.m_v);
 }
 
 template <ezMathAcc::Enum acc>

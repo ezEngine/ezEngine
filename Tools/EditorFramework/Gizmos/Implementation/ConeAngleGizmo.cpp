@@ -20,7 +20,7 @@ ezConeAngleGizmo::ezConeAngleGizmo()
   m_ConeAngle.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), false);
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezConeAngleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -33,13 +33,12 @@ void ezConeAngleGizmo::OnVisibleChanged(bool bVisible)
   m_ConeAngle.SetVisible(bVisible);
 }
 
-void ezConeAngleGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezConeAngleGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezMat4 mScaleAngle, mScaleRadius;
+  ezTransform t = transform;
 
-  mScaleAngle.SetScalingMatrix(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fRadius);
-
-  m_ConeAngle.SetTransformation(transform * mScaleAngle);
+  t.m_vScale *= ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fRadius;
+  m_ConeAngle.SetTransformation(t);
 }
 
 void ezConeAngleGizmo::DoFocusLost(bool bCancel)

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -32,13 +32,12 @@ void ezBoxVisualizerAdapter::Update()
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 
-  m_Scale.SetIdentity();
+  m_Scale.Set(1.0f);
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
 
-    ezVec3 vValue = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
-    m_Scale.SetScalingMatrix(vValue);
+    m_Scale = pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
@@ -52,7 +51,9 @@ void ezBoxVisualizerAdapter::Update()
 
 void ezBoxVisualizerAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4() * m_Scale);
+  ezTransform t = GetObjectTransform();
+  t.m_vScale = t.m_vScale.CompMul(m_Scale);
+  m_Gizmo.SetTransformation(t);
 }
 
 

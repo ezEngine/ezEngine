@@ -100,7 +100,9 @@ namespace ezModelImporter
       {
         ezMat4 lookAt;
         lookAt.SetLookAtMatrix(ezVec3(values[0], values[1], values[2]), ezVec3(values[3], values[4], values[5]), ezVec3(values[6], values[7], values[8]));
-        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(lookAt));
+        ezTransform tLookAt;
+        tLookAt.SetFromMat4(lookAt);
+        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), tLookAt);
       }
       else
         ezLog::Error("Failed parsing LookAt transform command.");
@@ -115,7 +117,9 @@ namespace ezModelImporter
     {
       ezMat4 mat;
       if (ParseMat4(remainingSceneText, mat).Succeeded())
-        context.PeekActiveTransform() = ezTransform(mat);
+      {
+        context.PeekActiveTransform().SetFromMat4(mat);
+      }
       else
         ezLog::Error("Failed parsing Transform transform command.");
     }
@@ -124,7 +128,12 @@ namespace ezModelImporter
     {
       ezMat4 mat;
       if (ParseMat4(remainingSceneText, mat).Succeeded())
-        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), ezTransform(mat));
+      {
+        ezTransform trans;
+        trans.SetFromMat4(mat);
+
+        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), trans);
+      }
       else
         ezLog::Error("Failed parsing Transform transform command.");
     }

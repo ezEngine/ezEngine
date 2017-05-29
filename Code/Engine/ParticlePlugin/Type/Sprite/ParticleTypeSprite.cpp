@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Math/Vec3.h>
@@ -128,7 +128,7 @@ void ezParticleTypeSprite::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 ui
 
     if (m_RotationAxis == ezSpriteAxis::EmitterDirection)
     {
-      vNormal = GetOwnerSystem()->GetTransform().m_Rotation.GetColumn(2).GetNormalized(); // Z axis
+      vNormal = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
     }
     else if (m_RotationAxis == ezSpriteAxis::WorldUp)
     {

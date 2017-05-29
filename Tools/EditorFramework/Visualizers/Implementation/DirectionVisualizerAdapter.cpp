@@ -59,10 +59,11 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     fScale *= value.ConvertTo<float>();
   }
 
-  ezMat4 mScale;
-  mScale.SetScalingMatrix(ezVec3(fScale));
-  mScale.SetTranslationVector(ezVec3(fScale, 0, 0));
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4() * mScale);
+  ezTransform t;
+  t.m_qRotation.SetIdentity();
+  t.m_vScale = ezVec3(fScale);
+  t.m_vPosition = ezVec3(fScale, 0, 0);
+  m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }
 
 

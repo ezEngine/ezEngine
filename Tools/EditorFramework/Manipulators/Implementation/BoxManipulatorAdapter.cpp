@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -22,7 +22,7 @@ void ezBoxManipulatorAdapter::Finalize()
   ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
@@ -42,7 +42,7 @@ void ezBoxManipulatorAdapter::Update()
     m_Gizmo.SetSize(vSize);
   }
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
@@ -73,7 +73,7 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
 void ezBoxManipulatorAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 

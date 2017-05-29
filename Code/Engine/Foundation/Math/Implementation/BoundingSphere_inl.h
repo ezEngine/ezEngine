@@ -135,7 +135,7 @@ void ezBoundingSphereTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>&
   EZ_ASSERT_DEBUG(vScale.y >= 0.0f, "Cannot invert the sphere.");
   EZ_ASSERT_DEBUG(vScale.z >= 0.0f, "Cannot invert the sphere.");
 
-  m_vCenter = m_vCenter.CompMult(vScale);
+  m_vCenter = m_vCenter.CompMul(vScale);
 
   // scale the radius by the maximum scaling factor (the sphere cannot become an ellipsoid,
   // so to be a 'bounding' sphere, it should be as large as possible

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_VelocityCone.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
@@ -90,7 +90,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
     const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
-    pVelocity[i] = GetOwnerSystem()->GetTransform().m_Rotation * dir * fSpeed;
+    pVelocity[i] = GetOwnerSystem()->GetTransform().m_qRotation * dir * fSpeed;
   }
 }
 

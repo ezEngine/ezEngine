@@ -1,9 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
+
+/// \todo Fix docs and unit tests
 
 /// \brief A class that represents a complete position, rotation and scaling through an ezVec3Template<Type> and an ezMat3Template<Type>.
 ///
@@ -24,11 +26,13 @@ class ezTransformTemplate
   // *** Data ***
 public:
 
-  ezMat3Template<Type> m_Rotation;
+  ezQuat m_qRotation;
   ezVec3Template<Type> m_vPosition;
+  ezVec3Template<Type> m_vScale;
+
 
   /// \brief Copies the 12 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
-  void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
+  //void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   // *** Constructors ***
 public:
@@ -36,18 +40,14 @@ public:
   /// \brief Default constructor: Does not do any initialization.
   ezTransformTemplate() { }; // [tested]
 
-  /// \brief Sets position and rotation matrix, which might include scale as well.
-  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezMat3Template<Type>& Rotation); // [tested]
-
   /// \brief Sets position and rotation.
   explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion()); // [tested]
 
   /// \brief Sets position, rotation and scale.
   explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale); // [tested]
 
-  /// \brief Initializes by decomposing a 4x4 matrix. It is assume the given transformation is affine.
-  explicit ezTransformTemplate(const ezMat4Template<Type>& Transformation); // [tested]
-
+  /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling will not work properly though.
+  void SetFromMat4(const ezMat4& mat);
 
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
@@ -67,8 +67,8 @@ public:
   // *** Inverse ***
 public:
 
-  /// \brief Inverts this transform. Return value indicates whether it could be Inverted.
-  ezResult Invert(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
+  /// \brief Inverts this transform.
+  void Invert(); // [tested]
 
   /// \brief Returns the inverse of this transform.
   const ezTransformTemplate GetInverse() const; // [tested]
@@ -84,10 +84,6 @@ public:
 
   /// \brief Returns the transformation as a matrix.
   const ezMat4Template<Type> GetAsMat4() const; // [tested]
-
-  /// \brief Extracts the different transformation parts and returns them.
-  void Decompose(ezVec3& vPos, ezQuat& qRot, ezVec3& vScale) const;
-
 
   // *** Operators ***
 public:
@@ -119,14 +115,6 @@ const ezTransformTemplate<Type> operator-(const ezTransformTemplate<Type>& t, co
 /// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
 template<typename Type>
 const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
-
-/// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
-template<typename Type>
-const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t1, const ezMat4& t2); // [tested]
-
-/// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
-template<typename Type>
-const ezTransformTemplate<Type> operator*(const ezMat4& t1, const ezTransformTemplate<Type>& t2); // [tested]
 
 template<typename Type>
 bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]

@@ -255,15 +255,15 @@ template<typename Type>
 void ezBoundingBoxTemplate<Type>::ScaleFromCenter(const ezVec3Template<Type>& vScale)
 {
   const ezVec3Template<Type> vCenter = GetCenter();
-  m_vMin = vCenter + (m_vMin - vCenter).CompMult(vScale);
-  m_vMax = vCenter + (m_vMax - vCenter).CompMult(vScale);
+  m_vMin = vCenter + (m_vMin - vCenter).CompMul(vScale);
+  m_vMax = vCenter + (m_vMax - vCenter).CompMul(vScale);
 }
 
 template<typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>& vScale)
 {
-  m_vMin = m_vMin.CompMult(vScale);
-  m_vMax = m_vMax.CompMult(vScale);
+  m_vMin = m_vMin.CompMul(vScale);
+  m_vMax = m_vMax.CompMul(vScale);
 }
 
 template<typename Type>

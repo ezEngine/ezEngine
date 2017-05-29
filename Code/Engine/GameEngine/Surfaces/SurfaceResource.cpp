@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
@@ -161,11 +161,15 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosi
   const ezVec3 vTangent = vDir.GetOrthogonalVector().GetNormalized();
   const ezVec3 vBiTangent = vDir.Cross(vTangent);
 
+  ezMat3 mRot;
+  mRot.SetColumn(0, vTangent);
+  mRot.SetColumn(1, vBiTangent);
+  mRot.SetColumn(2, vDir);
+
   ezTransform t;
   t.m_vPosition = vPosition;
-  t.m_Rotation.SetColumn(0, vTangent);
-  t.m_Rotation.SetColumn(1, vBiTangent);
-  t.m_Rotation.SetColumn(2, vDir);
+  t.m_qRotation.SetFromMat3(mRot);
+  t.m_vScale.Set(1.0f);
 
   pPrefab->InstantiatePrefab(*pWorld, t);
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmo, 1, ezRTTINoAllocator);
@@ -7,7 +7,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezGizmo::ezGizmo()
 {
   m_bVisible = false;
-  m_Transformation.SetZero();
+  m_Transformation.SetIdentity();
+  m_Transformation.m_vScale.SetZero();
 }
 
 void ezGizmo::SetVisible(bool bVisible)
@@ -20,7 +21,7 @@ void ezGizmo::SetVisible(bool bVisible)
   OnVisibleChanged(m_bVisible);
 }
 
-void ezGizmo::SetTransformation(const ezMat4& transform)
+void ezGizmo::SetTransformation(const ezTransform& transform)
 {
   if (m_Transformation.IsIdentical(transform))
     return;

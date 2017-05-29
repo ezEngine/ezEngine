@@ -335,13 +335,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     EZ_TEST_VEC2(v2, ezVec2T(3, 3.5f), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompMult")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompMul")
   {
     ezVec2T v1(2, 3);
-    ezVec2T v2 = v1.CompMult(ezVec2T(2, 4));
+    ezVec2T v2 = v1.CompMul(ezVec2T(2, 4));
     EZ_TEST_VEC2(v2, ezVec2T(4, 12), 0);
 
-    v2 = v1.CompMult(ezVec2T(3, 7));
+    v2 = v1.CompMul(ezVec2T(3, 7));
     EZ_TEST_VEC2(v2, ezVec2T(6, 21), 0);
   }
 

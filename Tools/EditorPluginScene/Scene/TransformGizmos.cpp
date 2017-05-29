@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
@@ -101,18 +101,19 @@ void ezQtSceneDocumentWindow::UpdateGizmoPosition()
     const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
 
     /// \todo Pivot point
-    const ezVec3 vPivotPoint = tGlobal.m_Rotation * ezVec3::ZeroVector();// LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+    const ezVec3 vPivotPoint = tGlobal.m_qRotation * ezVec3::ZeroVector();// LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
-    ezMat4 mt;
+    ezTransform mt;
+    mt.SetIdentity();
 
     if (GetSceneDocument()->GetGizmoWorldSpace())
     {
-      mt.SetTranslationMatrix(tGlobal.m_vPosition + vPivotPoint);
+      mt.m_vPosition = tGlobal.m_vPosition + vPivotPoint;
     }
     else
     {
-      mt = ezMat4(tGlobal.m_Rotation, tGlobal.m_vPosition + vPivotPoint);
-      mt.SetScalingFactors(ezVec3(1.0f));
+      mt.m_qRotation = tGlobal.m_qRotation;
+      mt.m_vPosition = tGlobal.m_vPosition + vPivotPoint;
     }
 
     m_TranslateGizmo.SetTransformation(mt);
@@ -222,17 +223,15 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
       if (e.m_pGizmo == &m_RotateGizmo)
       {
         const ezQuat qRotation = m_RotateGizmo.GetRotationResult();
-        const ezVec3 vPivot = m_RotateGizmo.GetTransformation().GetTranslationVector();
-
-        const ezMat3 mRot = qRotation.GetAsMat3();
+        const ezVec3 vPivot = m_RotateGizmo.GetTransformation().m_vPosition;
 
         for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
           const auto& obj = m_GizmoSelection[sel];
 
           tNew = obj.m_GlobalTransform;
-          tNew.m_Rotation = mRot * obj.m_GlobalTransform.m_Rotation;
-          tNew.m_vPosition = vPivot + mRot * (obj.m_GlobalTransform.m_vPosition - vPivot);
+          tNew.m_qRotation = qRotation * obj.m_GlobalTransform.m_qRotation;
+          tNew.m_vPosition = vPivot + qRotation * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
           pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
         }
@@ -270,7 +269,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
             const auto& obj = m_GizmoSelection[sel];
 
             cmd.m_Object = obj.m_pObject->GetGuid();
-            cmd.m_NewValue = obj.m_vLocalScaling.CompMult(vScale);
+            cmd.m_NewValue = obj.m_vLocalScaling.CompMul(vScale);
 
             if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
             {
@@ -295,9 +294,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
 
           if (m_DragToPosGizmo.ModifiesRotation())
           {
-            const ezVec3 vScale = tNew.m_Rotation.GetScalingFactors();
-            tNew.m_Rotation = qRot.GetAsMat3();
-            tNew.m_Rotation.SetScalingFactors(vScale);
+            tNew.m_qRotation = qRot;
           }
 
           pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Translation | TransformationChanges::Rotation);
@@ -338,8 +335,6 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
         {
           const ezQuat qRotation = pOrtho->GetRotationResult();
 
-          const ezMat3 mRot = qRotation.GetAsMat3();
-
           //const ezVec3 vPivot(0);
 
           for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
@@ -347,8 +342,8 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
             const auto& obj = m_GizmoSelection[sel];
 
             tNew = obj.m_GlobalTransform;
-            tNew.m_Rotation = mRot * obj.m_GlobalTransform.m_Rotation;
-            //tNew.m_vPosition = vPivot + mRot * (obj.m_GlobalTransform.m_vPosition - vPivot);
+            tNew.m_qRotation = qRotation * obj.m_GlobalTransform.m_qRotation;
+            //tNew.m_vPosition = vPivot + qRotation * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
             pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation);
           }

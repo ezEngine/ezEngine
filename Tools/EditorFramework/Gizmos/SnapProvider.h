@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Math/Declarations.h>
 
 struct ezSnapProviderEvent
 {
@@ -31,7 +32,7 @@ public:
   static void SnapTranslation(ezVec3& value);
 
   /// \brief Inverts the rotation, applies that to the translation, snaps it and then transforms it back into the original space
-  static void SnapTranslationInLocalSpace(const ezMat3& rotation, ezVec3& translation);
+  static void SnapTranslationInLocalSpace(const ezQuat& rotation, ezVec3& translation);
 
   static void SnapRotation(ezAngle& rotation);
 

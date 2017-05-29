@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
@@ -17,7 +17,7 @@ ezRotateGizmo::ezRotateGizmo()
   m_AxisZ.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128));
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -34,14 +34,15 @@ void ezRotateGizmo::OnVisibleChanged(bool bVisible)
   m_AxisZ.SetVisible(bVisible);
 }
 
-void ezRotateGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezRotateGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezMat4 m;
+  ezTransform m;
+  m.SetIdentity();
 
-  m.SetRotationMatrixY(ezAngle::Degree(-90));
+  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
   m_AxisX.SetTransformation(transform * m);
 
-  m.SetRotationMatrixX(ezAngle::Degree(90));
+  m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
   m_AxisY.SetTransformation(transform * m);
 
   m.SetIdentity();
@@ -75,15 +76,15 @@ ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
-    m_vRotationAxis = m_AxisX.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vRotationAxis = m_AxisX.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
   }
   else if (m_pInteractionGizmoHandle == &m_AxisY)
   {
-    m_vRotationAxis = m_AxisY.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vRotationAxis = m_AxisY.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
   }
   else if (m_pInteractionGizmoHandle == &m_AxisZ)
   {
-    m_vRotationAxis = m_AxisZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vRotationAxis = m_AxisZ.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
   }
   else
     return ezEditorInut::MayBeHandledByOthers;
@@ -96,7 +97,7 @@ ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
-  m_StartRotation.SetFromMat3(GetTransformation().GetRotationalPart());
+  m_StartRotation = GetTransformation().m_qRotation;
 
   ezMat4 mView, mProj, mViewProj;
   m_pCamera->GetViewMatrix(mView);
@@ -108,7 +109,7 @@ ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
   {
     const ezVec3 vAxisWS = m_vRotationAxis.GetNormalized();
     const ezVec3 vMousePos(e->pos().x(), m_Viewport.y - e->pos().y(), 0);
-    const ezVec3 vGizmoPosWS = GetTransformation().GetTranslationVector();
+    const ezVec3 vGizmoPosWS = GetTransformation().m_vPosition;
 
     ezVec3 vPosOnNearPlane, vRayDir;
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vMousePos, vPosOnNearPlane, &vRayDir);
@@ -198,8 +199,8 @@ ezEditorInut ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_CurrentRotation.SetFromAxisAndAngle(m_vRotationAxis, rot);
 
-  ezMat4 mTrans = GetTransformation();
-  mTrans.SetRotationalPart((m_CurrentRotation * m_StartRotation).GetAsMat3());
+  ezTransform mTrans = GetTransformation();
+  mTrans.m_qRotation = m_CurrentRotation * m_StartRotation;
 
   SetTransformation(mTrans);
 

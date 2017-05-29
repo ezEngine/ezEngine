@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Basics.h>
 #include <Foundation/SimdMath/SimdTransform.h>
@@ -74,8 +74,7 @@ namespace ezPxConversionUtils
 
   EZ_ALWAYS_INLINE physx::PxTransform ToTransform(const ezTransform& t)
   {
-    ezQuat q; q.SetFromMat3(t.m_Rotation);
-    return physx::PxTransform(ToVec3(t.m_vPosition), ToQuat(q));
+    return physx::PxTransform(ToVec3(t.m_vPosition), ToQuat(t.m_qRotation));
   }
 
   EZ_ALWAYS_INLINE physx::PxTransform ToTransform(const ezSimdTransform& t)

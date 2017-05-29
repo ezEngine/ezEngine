@@ -287,8 +287,8 @@ void ezSceneDocument::SnapCameraToObject()
 
   const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
-  const ezVec3 vForward = trans.m_Rotation * ezVec3(1, 0, 0);
-  const ezVec3 vUp = trans.m_Rotation * ezVec3(0, 0, 1);
+  const ezVec3 vForward = trans.m_qRotation * ezVec3(1, 0, 0);
+  const ezVec3 vUp = trans.m_qRotation * ezVec3(0, 0, 1);
 
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(trans.m_vPosition, vForward, pCamera->GetFovOrDim(), &vUp);
 }
@@ -308,11 +308,15 @@ void ezSceneDocument::SnapObjectToCamera()
 
   const auto& camera = ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
+  ezMat3 mRot;
+
   ezTransform transform;
+  transform.m_vScale.Set(1.0f);
   transform.m_vPosition = camera.GetCenterPosition();
-  transform.m_Rotation.SetColumn(0, camera.GetCenterDirForwards());
-  transform.m_Rotation.SetColumn(1, camera.GetCenterDirRight());
-  transform.m_Rotation.SetColumn(2, camera.GetCenterDirUp());
+  mRot.SetColumn(0, camera.GetCenterDirForwards());
+  mRot.SetColumn(1, camera.GetCenterDirRight());
+  mRot.SetColumn(2, camera.GetCenterDirUp());
+  transform.m_qRotation.SetFromMat3(mRot);
 
   auto* pHistory = GetCommandHistory();
 

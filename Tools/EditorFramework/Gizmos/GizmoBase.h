@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
@@ -31,8 +31,8 @@ public:
   void SetVisible(bool bVisible);
   bool IsVisible() const { return m_bVisible; }
 
-  void SetTransformation(const ezMat4& transform);
-  const ezMat4& GetTransformation() const { return m_Transformation; }
+  void SetTransformation(const ezTransform& transform);
+  const ezTransform& GetTransformation() const { return m_Transformation; }
 
   void ConfigureInteraction(ezGizmoHandle* pHandle, const ezCamera* pCamera, const ezVec3& vInteractionPivot, const ezVec2I32& viewport)
   {
@@ -46,7 +46,7 @@ public:
 
 protected:
   virtual void OnVisibleChanged(bool bVisible) = 0;
-  virtual void OnTransformationChanged(const ezMat4& transform) = 0;
+  virtual void OnTransformationChanged(const ezTransform& transform) = 0;
 
   const ezCamera* m_pCamera;
   ezGizmoHandle* m_pInteractionGizmoHandle;
@@ -55,6 +55,6 @@ protected:
 
 private:
   bool m_bVisible;
-  ezMat4 m_Transformation;
+  ezTransform m_Transformation;
 
 };

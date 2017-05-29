@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
@@ -164,7 +164,7 @@ namespace
   {
     FillLightData(perLightData, pSpotLightRenderData, LIGHT_TYPE_SPOT);
 
-    perLightData.direction = Float3ToRGB10(-pSpotLightRenderData->m_GlobalTransform.m_Rotation.GetColumn(0));
+    perLightData.direction = Float3ToRGB10(-pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(1, 0, 0));
     perLightData.position = pSpotLightRenderData->m_GlobalTransform.m_vPosition;
     perLightData.invSqrAttRadius = 1.0f / (pSpotLightRenderData->m_fRange * pSpotLightRenderData->m_fRange);
 
@@ -179,7 +179,7 @@ namespace
   {
     FillLightData(perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
 
-    perLightData.direction = Float3ToRGB10(-pDirLightRenderData->m_GlobalTransform.m_Rotation.GetColumn(0));
+    perLightData.direction = Float3ToRGB10(-pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(1, 0, 0));
   }
 
   template <typename Cluster>

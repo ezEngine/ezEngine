@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
@@ -22,7 +22,7 @@ protected:
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezMat4& transform) override;
+  virtual void OnTransformationChanged(const ezTransform& transform) override;
 
 private:
   ezEngineGizmoHandle m_AxisX;

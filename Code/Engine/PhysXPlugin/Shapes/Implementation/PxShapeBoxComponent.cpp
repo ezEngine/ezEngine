@@ -65,7 +65,7 @@ void ezPxShapeBoxComponent::AddToNavMesh(ezBuildNavMeshMessage& msg) const
   ezNavMeshBoxObstacle& box = msg.m_pNavMeshDescription->m_BoxObstacles.ExpandAndGetRef();
   box.m_vPosition = GetOwner()->GetGlobalPosition();
   box.m_qRotation = GetOwner()->GetGlobalRotation();
-  box.m_vHalfExtents = m_vExtents.CompMult(vScale) * 0.5f;
+  box.m_vHalfExtents = m_vExtents.CompMul(vScale) * 0.5f;
 }
 
 void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
@@ -83,7 +83,7 @@ PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& o
   ezVec3 vScale = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().m_Scale.Abs());
 
   PxBoxGeometry box;
-  box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMult(vScale) * 0.5f);
+  box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMul(vScale) * 0.5f);
 
   return pActor->createShape(box, *GetPxMaterial());
 }

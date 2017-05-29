@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
@@ -18,7 +18,7 @@ ezScaleGizmo::ezScaleGizmo()
   m_AxisXYZ.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 128, 0));
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -37,23 +37,22 @@ void ezScaleGizmo::OnVisibleChanged(bool bVisible)
   m_AxisXYZ.SetVisible(bVisible);
 }
 
-void ezScaleGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezScaleGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezMat4 m, s;
+  ezTransform t;
+  t.SetIdentity();
 
-  s.SetScalingMatrix(ezVec3(0.2f));
+  m_AxisX.SetTransformation(transform * t);
 
-  m.SetIdentity();
-  m_AxisX.SetTransformation(transform * m);
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+  m_AxisY.SetTransformation(transform * t);
 
-  m.SetRotationMatrixZ(ezAngle::Degree(90));
-  m_AxisY.SetTransformation(transform * m);
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+  m_AxisZ.SetTransformation(transform * t);
 
-  m.SetRotationMatrixY(ezAngle::Degree(-90));
-  m_AxisZ.SetTransformation(transform * m);
-
-  m.SetIdentity();
-  m_AxisXYZ.SetTransformation(transform * s * m);
+  t.SetIdentity();
+  t.m_vScale = ezVec3(0.2f);
+  m_AxisXYZ.SetTransformation(transform * t);
 }
 
 void ezScaleGizmo::DoFocusLost(bool bCancel)

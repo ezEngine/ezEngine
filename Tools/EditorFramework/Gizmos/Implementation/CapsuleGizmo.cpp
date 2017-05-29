@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/CapsuleGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
@@ -23,7 +23,7 @@ ezCapsuleGizmo::ezCapsuleGizmo()
   m_LengthBottom.Configure(this, ezEngineGizmoHandleType::HalfSphereZ, ezColorLinearUB(200, 200, 200, 128), false);
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezCapsuleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -40,27 +40,29 @@ void ezCapsuleGizmo::OnVisibleChanged(bool bVisible)
   m_Radius.SetVisible(bVisible);
 }
 
-void ezCapsuleGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezCapsuleGizmo::OnTransformationChanged(const ezTransform& transform)
 {
   {
-    ezMat4 mScaleCylinder;
-    mScaleCylinder.SetScalingMatrix(ezVec3(m_fRadius, m_fRadius, m_fLength));
+    ezTransform mScaleCylinder;
+    mScaleCylinder.SetIdentity();
+    mScaleCylinder.m_vScale.Set(m_fRadius);
 
     m_Radius.SetTransformation(transform * mScaleCylinder);
   }
 
   {
-    ezMat4 mScaleSpheres;
-    mScaleSpheres.SetScalingMatrix(ezVec3(m_fRadius));
-    mScaleSpheres.SetTranslationVector(ezVec3(0, 0, m_fLength * 0.5f));
+    ezTransform mScaleSpheres;
+    mScaleSpheres.SetIdentity();
+    mScaleSpheres.m_vScale.Set(m_fRadius);
+    mScaleSpheres.m_vPosition.Set(0, 0, m_fLength * 0.5f);
     m_LengthTop.SetTransformation(transform * mScaleSpheres);
   }
 
   {
-    ezMat4 mScaleSpheres;
-    mScaleSpheres.SetScalingMatrix(ezVec3(m_fRadius, -m_fRadius, -m_fRadius));
-    mScaleSpheres.SetTranslationVector(ezVec3(0, 0, -m_fLength * 0.5f));
-
+    ezTransform mScaleSpheres;
+    mScaleSpheres.SetIdentity();
+    mScaleSpheres.m_vScale.Set(m_fRadius, -m_fRadius, -m_fRadius);
+    mScaleSpheres.m_vPosition.Set(0, 0, -m_fLength * 0.5f);
     m_LengthBottom.SetTransformation(transform * mScaleSpheres);
   }
 }

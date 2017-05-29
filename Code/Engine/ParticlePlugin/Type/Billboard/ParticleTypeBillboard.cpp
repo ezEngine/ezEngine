@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Type/Billboard/ParticleTypeBillboard.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -131,8 +131,9 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
 
     for (ezUInt32 p = 0; p < numParticles; ++p)
     {
-      t.m_Rotation.SetRotationMatrixY(ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
+      t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
       t.m_vPosition = pPosition[p];
+      t.m_vScale.Set(1.0f);
       m_ParticleData[p].Transform = t;
       m_ParticleData[p].Size = pSize[p];
       m_ParticleData[p].Color = pColor[p];

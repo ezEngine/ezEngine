@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EnginePluginScene/Grid/GridRenderer.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
@@ -83,8 +83,8 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd)
   m_Vertices.Reserve(100);
 
   const ezVec3 vCenter = rd.m_GlobalTransform.m_vPosition;
-  const ezVec3 vTangent1 = rd.m_GlobalTransform.m_Rotation * ezVec3(1, 0, 0);
-  const ezVec3 vTangent2 = rd.m_GlobalTransform.m_Rotation * ezVec3(0, 1, 0);
+  const ezVec3 vTangent1 = rd.m_GlobalTransform.m_qRotation * ezVec3(1, 0, 0);
+  const ezVec3 vTangent2 = rd.m_GlobalTransform.m_qRotation * ezVec3(0, 1, 0);
   const ezInt32 iNumLines1 = rd.m_iLastLine1 - rd.m_iFirstLine1;
   const ezInt32 iNumLines2 = rd.m_iLastLine2 - rd.m_iFirstLine2;
   const float maxExtent1 = iNumLines1 * rd.m_fDensity;
@@ -234,9 +234,12 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
 
     pRenderData->m_GlobalTransform.SetIdentity();
     pRenderData->m_GlobalTransform.m_vPosition = cam->GetCenterDirForwards() * cam->GetFarPlane() * 0.9f;
-    pRenderData->m_GlobalTransform.m_Rotation.SetColumn(0, cam->GetCenterDirRight());
-    pRenderData->m_GlobalTransform.m_Rotation.SetColumn(1, cam->GetCenterDirUp());
-    pRenderData->m_GlobalTransform.m_Rotation.SetColumn(2, cam->GetCenterDirForwards());
+
+    ezMat3 mRot;
+    mRot.SetColumn(0, cam->GetCenterDirRight());
+    mRot.SetColumn(1, cam->GetCenterDirUp());
+    mRot.SetColumn(2, cam->GetCenterDirForwards());
+    pRenderData->m_GlobalTransform.m_qRotation.SetFromMat3(mRot);
 
     const ezVec3 vBottomLeft = cam->GetCenterPosition() - cam->GetCenterDirRight() * fDimX - cam->GetCenterDirUp() * fDimY;
     const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;
@@ -272,7 +275,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     pRenderData->m_GlobalTransform = m_pSceneContext->GetGridTransform();
 
     // grid is disabled
-    if (pRenderData->m_GlobalTransform.m_Rotation.IsZero(0.001f))
+    if (pRenderData->m_GlobalTransform.m_vScale.IsZero(0.001f))
       return;
 
     pRenderData->m_fDensity = fDensity;

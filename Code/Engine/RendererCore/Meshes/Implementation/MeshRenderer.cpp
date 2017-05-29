@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -51,8 +51,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
   pInstanceData->BindResources(pContext);
 
-  const ezMat3& rotation = pRenderData->m_GlobalTransform.m_Rotation;
-  const bool bFlipWinding = rotation.GetColumn(0).Cross(rotation.GetColumn(1)).Dot(rotation.GetColumn(2)) < 0.0f;
+  const bool bFlipWinding = pRenderData->m_GlobalTransform.m_vScale.x * pRenderData->m_GlobalTransform.m_vScale.y * pRenderData->m_GlobalTransform.m_vScale.z < 0.0f;
 
   if (bFlipWinding)
   {
@@ -113,17 +112,19 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
     auto& perInstanceData = instanceData[uiStartIndex + uiCurrentIndex];
     perInstanceData.ObjectToWorld = pRenderData->m_GlobalTransform;
 
-    const ezVec3 scalingFactors = pRenderData->m_GlobalTransform.m_Rotation.GetScalingFactors();
+    const ezVec3 scalingFactors = pRenderData->m_GlobalTransform.m_vScale;
     const float fEpsilon = ezMath::BasicType<float>::DefaultEpsilon();
     const bool bHasUniformScale = ezMath::IsEqual(scalingFactors.x, scalingFactors.y, fEpsilon) && ezMath::IsEqual(scalingFactors.x, scalingFactors.z, fEpsilon);
+
     if (bHasUniformScale)
     {
       perInstanceData.ObjectToWorldNormal = pRenderData->m_GlobalTransform;
     }
     else
     {
-      ezMat3 rotation = pRenderData->m_GlobalTransform.m_Rotation.GetInverse().GetTranspose();
-      perInstanceData.ObjectToWorldNormal = ezTransform(ezVec3::ZeroVector(), rotation);
+      ezShaderTransform shaderT;
+      shaderT = pRenderData->m_GlobalTransform.GetAsMat4().GetRotationalPart().GetInverse().GetTranspose();;
+      perInstanceData.ObjectToWorldNormal = shaderT;
     }
 
     perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;

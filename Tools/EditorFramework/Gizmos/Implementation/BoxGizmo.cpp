@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/BoxGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
@@ -25,7 +25,7 @@ ezBoxGizmo::ezBoxGizmo()
   }
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -50,31 +50,31 @@ void ezBoxGizmo::OnVisibleChanged(bool bVisible)
   }
 }
 
-void ezBoxGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezBoxGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezMat4 scale, rot;
-  scale.SetScalingMatrix(m_vSize);
-  scale = transform * scale;
+  ezTransform t;
+  t.SetIdentity();
+  t.m_vScale = m_vSize;
 
-  m_Corners.SetTransformation(scale);
+  m_Corners.SetTransformation(transform * t);
 
-  rot.SetRotationMatrixX(ezAngle::Degree(90));
-  m_Edges[0].SetTransformation(scale * rot);
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+  m_Edges[0].SetTransformation(transform * t);
 
-  rot.SetRotationMatrixY(ezAngle::Degree(90));
-  m_Faces[0].SetTransformation(scale * rot);
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+  m_Faces[0].SetTransformation(transform * t);
 
-  rot.SetIdentity();
-  m_Edges[1].SetTransformation(scale * rot);
+  t.m_qRotation.SetIdentity();
+  m_Edges[1].SetTransformation(transform * t);
 
-  rot.SetRotationMatrixX(ezAngle::Degree(90));
-  m_Faces[1].SetTransformation(scale * rot);
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
+  m_Faces[1].SetTransformation(transform * t);
 
-  rot.SetRotationMatrixZ(ezAngle::Degree(90));
-  m_Edges[2].SetTransformation(scale * rot);
+  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+  m_Edges[2].SetTransformation(transform * t);
 
-  rot.SetIdentity();
-  m_Faces[2].SetTransformation(scale * rot);
+  t.m_qRotation.SetIdentity();
+  m_Faces[2].SetTransformation(transform * t);
 }
 
 void ezBoxGizmo::DoFocusLost(bool bCancel)
@@ -86,7 +86,7 @@ void ezBoxGizmo::DoFocusLost(bool bCancel)
 
   ezViewHighlightMsgToEngine msg;
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
-
+  
   m_ManipulateMode = ManipulateMode::None;
 }
 

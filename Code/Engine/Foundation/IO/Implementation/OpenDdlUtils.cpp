@@ -509,7 +509,9 @@ ezResult ezOpenDdlUtils::ConvertToTransform(const ezOpenDdlReaderElement* pEleme
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_result.m_Rotation.SetFromArray(pValues, ezMatrixLayout::ColumnMajor);
+	/// \todo ezTransform
+    EZ_REPORT_FAILURE("bla");
+    //out_result.m_Rotation.SetFromArray(pValues, ezMatrixLayout::ColumnMajor);
     out_result.m_vPosition.Set(pValues[9], pValues[10], pValues[11]);
 
     return EZ_SUCCESS;
@@ -1092,11 +1094,14 @@ void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& writer, const ezTransform& 
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
+    /// \todo ezTransform
+    EZ_REPORT_FAILURE("bla");
+
     float f[12];
-    value.m_Rotation.GetAsArray(f, ezMatrixLayout::ColumnMajor);
-    f[9] = value.m_vPosition.x;
-    f[10] = value.m_vPosition.y;
-    f[11] = value.m_vPosition.z;
+    //value.m_Rotation.GetAsArray(f, ezMatrixLayout::ColumnMajor);
+    //f[9] = value.m_vPosition.x;
+    //f[10] = value.m_vPosition.y;
+    //f[11] = value.m_vPosition.z;
 
     writer.WriteFloat(f, 12);
     writer.EndPrimitiveList();

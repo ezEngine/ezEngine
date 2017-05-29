@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
@@ -24,7 +24,7 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
   m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -49,26 +49,27 @@ void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)
   m_AlignNZ.SetVisible(bVisible);
 }
 
-void ezDragToPositionGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezDragToPositionGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezMat4 m, s;
+  ezTransform m;
+  m.SetIdentity();
 
-  s.SetScalingMatrix(ezVec3(0.2f));
-  m_Bobble.SetTransformation(transform * s);
+  m.m_vScale = ezVec3(0.2f);
+  m_Bobble.SetTransformation(transform * m);
 
   m.SetIdentity();
   m_AlignPX.SetTransformation(transform * m);
-  m.SetRotationMatrixY(ezAngle::Degree(180));
+  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
   m_AlignNX.SetTransformation(transform * m);
 
-  m.SetRotationMatrixZ(ezAngle::Degree(+90));
+  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(+90));
   m_AlignPY.SetTransformation(transform * m);
-  m.SetRotationMatrixZ(ezAngle::Degree(-90));
+  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
   m_AlignNY.SetTransformation(transform * m);
 
-  m.SetRotationMatrixY(ezAngle::Degree(-90));
+  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
   m_AlignPZ.SetTransformation(transform * m);
-  m.SetRotationMatrixY(ezAngle::Degree(+90));
+  m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(+90));
   m_AlignNZ.SetTransformation(transform * m);
 
 }
@@ -115,7 +116,7 @@ ezEditorInut ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
   //m_AlignNZ.SetVisible(false);
   //m_pInteractionGizmoHandle->SetVisible(true);
 
-  m_vStartPosition = GetTransformation().GetTranslationVector();
+  m_vStartPosition = GetTransformation().m_vPosition;
 
   m_LastInteraction = ezTime::Now();
 
@@ -181,8 +182,8 @@ ezEditorInut ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
     ezSnapProvider::SnapTranslation(vSnappedPosition);
 
   ezMat3 mRot;
-  ezMat4 mTrans = GetTransformation();
-  mTrans.SetTranslationVector(vSnappedPosition);
+  ezTransform mTrans = GetTransformation();
+  mTrans.m_vPosition = vSnappedPosition;
 
   m_bModifiesRotation = true;
 
@@ -228,7 +229,7 @@ ezEditorInut ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
     mRot.SetIdentity();
   }
 
-  mTrans.SetRotationalPart(mRot);
+  mTrans.m_qRotation.SetFromMat3(mRot);
   SetTransformation(mTrans);
 
   ezGizmoEvent ev;

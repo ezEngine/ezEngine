@@ -622,8 +622,8 @@ namespace ezConversionUtils
 
   const ezStringBuilder& ToString(const ezTransform& value, ezStringBuilder& out_Result)
   {
-    ezStringBuilder tmp1, tmp2;
-    out_Result.Format("{ position={0}, rotation={1} }", ToString(value.m_vPosition, tmp1), ToString(value.m_Rotation, tmp2));
+    ezStringBuilder tmp1, tmp2, tmp3;
+    out_Result.Format("{ position={0}, rotation={1}, scale={2} }", ToString(value.m_vPosition, tmp1), ToString(value.m_qRotation, tmp2), ToString(value.m_vScale, tmp3));
     return out_Result;
   }
 

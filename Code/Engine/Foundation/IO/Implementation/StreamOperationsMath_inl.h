@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <Foundation/Math/Vec2.h>
@@ -119,8 +119,9 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezMat4Template<Type>
 template<typename Type>
 inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezTransformTemplate<Type>& Value)
 {
-  Stream << Value.m_Rotation;
+  Stream << Value.m_qRotation;
   Stream << Value.m_vPosition;
+  Stream << Value.m_vScale;
 
   return Stream;
 }
@@ -128,8 +129,9 @@ inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezTransformTem
 template<typename Type>
 inline ezStreamReader& operator >> (ezStreamReader& Stream, ezTransformTemplate<Type>& Value)
 {
-  Stream >> Value.m_Rotation;
+  Stream >> Value.m_qRotation;
   Stream >> Value.m_vPosition;
+  Stream >> Value.m_vScale;
 
   return Stream;
 }

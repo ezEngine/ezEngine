@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
@@ -13,7 +13,7 @@ public:
   ezTranslateGizmo();
 
   const ezVec3 GetStartPosition() const { return m_vStartPosition; }
-  const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
+  const ezVec3 GetTranslationResult() const { return GetTransformation().m_vPosition - m_vStartPosition; }
   const ezVec3 GetTranslationDiff() const { return m_vLastMoveDiff; }
 
   enum class MovementMode
@@ -52,7 +52,7 @@ protected:
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezMat4& transform) override;
+  virtual void OnTransformationChanged(const ezTransform& transform) override;
 
   ezResult GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
   ezResult GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;

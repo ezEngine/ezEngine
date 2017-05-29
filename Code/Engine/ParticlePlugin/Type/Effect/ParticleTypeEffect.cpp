@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Type/Effect/ParticleTypeEffect.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
@@ -139,7 +139,8 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
     if (pWorldModule->TryGetEffectInstance(hInstance, pEffect))
     {
       ezTransform t;
-      t.m_Rotation.SetIdentity();
+      t.m_qRotation.SetIdentity();
+      t.m_vScale.Set(1.0f);
       t.m_vPosition = pPosition[i];
 
       pEffect->SetTransform(t, nullptr);

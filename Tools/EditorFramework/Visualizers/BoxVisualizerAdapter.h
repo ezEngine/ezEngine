@@ -1,4 +1,4 @@
-#pragma once 
+﻿#pragma once 
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
@@ -18,6 +18,6 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezMat4 m_Scale;
+  ezVec3 m_Scale;
   ezEngineGizmoHandle m_Gizmo;
 };

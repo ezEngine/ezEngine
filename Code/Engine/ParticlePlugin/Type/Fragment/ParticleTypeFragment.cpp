@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Type/Fragment/ParticleTypeFragment.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -108,7 +108,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
   const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
   const ezVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
-  const ezVec3 vEmitterDir = GetOwnerSystem()->GetTransform().m_Rotation.GetColumn(2).GetNormalized(); // Z axis
+  const ezVec3 vEmitterDir = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if (m_uiLastExtractedFrame != uiExtractedFrame)

@@ -760,7 +760,7 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
           ezVec4& cascadeOffset = packedShadowData[uiCascadeOffsetIndex];
 
           cascadeScale = ezVec3(1.0f).CompDiv(otherCorner - cascadeCorner).GetAsVec4(1.0f);
-          cascadeOffset = cascadeCorner.GetAsVec4(0.0f).CompMult(-cascadeScale);
+          cascadeOffset = cascadeCorner.GetAsVec4(0.0f).CompMul(-cascadeScale);
         }
 
         ezUInt32 uiAtlasScaleOffsetIndex = GET_ATLAS_SCALE_OFFSET_INDEX(shadowData.m_uiPackedDataOffset, uiViewIndex);

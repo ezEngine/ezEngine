@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -32,7 +32,7 @@ void ezSphereVisualizerAdapter::Update()
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezSphereVisualizerAttribute* pAttr = static_cast<const ezSphereVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Scale.SetIdentity();
+  m_Scale = 1.0f;
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
@@ -40,7 +40,7 @@ void ezSphereVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetRadiusProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezSphereVisualizerAttribute 'radius'");
-    m_Scale.SetScalingMatrix(ezVec3(value.ConvertTo<float>()));
+    m_Scale = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
@@ -55,7 +55,10 @@ void ezSphereVisualizerAdapter::Update()
 
 void ezSphereVisualizerAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4() * m_Scale);
+  ezTransform t = GetObjectTransform();
+  t.m_vScale = t.m_vScale * m_Scale;
+
+  m_Gizmo.SetTransformation(t);
 }
 
 

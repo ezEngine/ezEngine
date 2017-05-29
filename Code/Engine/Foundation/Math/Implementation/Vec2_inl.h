@@ -249,7 +249,7 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMax(const e
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMult(const ezVec2Template<Type>& rhs) const
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMul(const ezVec2Template<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);

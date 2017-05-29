@@ -38,14 +38,41 @@ public:
   {
   }
 
-  EZ_ALWAYS_INLINE ezShaderTransform(const ezTransform& t)
+  inline void operator=(const ezTransform& t)
   {
-    *this = t;
+    *this = t.GetAsMat4();
   }
 
-  EZ_ALWAYS_INLINE void operator=(const ezTransform& t)
+  inline void operator=(const ezMat4& t)
   {
-    t.GetAsArray(m_Data, ezMatrixLayout::RowMajor);
+    float data[16];
+    t.GetAsArray(data, ezMatrixLayout::RowMajor);
+
+    for (ezUInt32 i = 0; i < 12; ++i)
+    {
+      m_Data[i] = data[i];
+    }
+  }
+
+  inline void operator=(const ezMat3& t)
+  {
+    float data[9];
+    t.GetAsArray(data, ezMatrixLayout::RowMajor);
+
+    m_Data[0] = data[0];
+    m_Data[1] = data[1];
+    m_Data[2] = data[2];
+    m_Data[3] = 0;
+
+    m_Data[4] = data[3];
+    m_Data[5] = data[4];
+    m_Data[6] = data[5];
+    m_Data[7] = 0;
+
+    m_Data[8] = data[6];
+    m_Data[9] = data[7];
+    m_Data[10] = data[8];
+    m_Data[11] = 0;
   }
 
 private:

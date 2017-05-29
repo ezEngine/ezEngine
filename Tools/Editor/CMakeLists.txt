@@ -44,6 +44,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorPluginPhysX
   EditorPluginFmod
   EditorPluginParticle
+  EditorPluginFileserve
   PhysXPlugin
   FmodPlugin
   ParticlePlugin

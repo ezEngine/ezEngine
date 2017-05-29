@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Math/Transform.h>
@@ -55,10 +55,7 @@ namespace ezSimdConversion
 
   inline ezSimdTransform ToTransform(const ezTransform& t)
   {
-    ezVec3 position; ezQuat rotation; ezVec3 scale;
-    t.Decompose(position, rotation, scale);
-
-    return ezSimdTransform(ToVec3(position), ToQuat(rotation), ToVec3(scale));
+    return ezSimdTransform(ToVec3(t.m_vPosition), ToQuat(t.m_qRotation), ToVec3(t.m_vScale));
   }
 
   EZ_ALWAYS_INLINE ezMat4 ToMat4(const ezSimdMat4f& m)

@@ -144,13 +144,17 @@ void ezSceneContext::HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* pM
 
     if (pMsg->m_vGridTangent1.IsZero())
     {
-      m_GridTransform.m_Rotation.SetZero();
+      m_GridTransform.m_vScale.SetZero();
     }
     else
     {
-      m_GridTransform.m_Rotation.SetColumn(0, pMsg->m_vGridTangent1);
-      m_GridTransform.m_Rotation.SetColumn(1, pMsg->m_vGridTangent2);
-      m_GridTransform.m_Rotation.SetColumn(2, pMsg->m_vGridTangent1.Cross(pMsg->m_vGridTangent2));
+      m_GridTransform.m_vScale.Set(1.0f);
+
+      ezMat3 mRot;
+      mRot.SetColumn(0, pMsg->m_vGridTangent1);
+      mRot.SetColumn(1, pMsg->m_vGridTangent2);
+      mRot.SetColumn(2, pMsg->m_vGridTangent1.Cross(pMsg->m_vGridTangent2));
+      m_GridTransform.m_qRotation.SetFromMat3(mRot);
     }
   }
 

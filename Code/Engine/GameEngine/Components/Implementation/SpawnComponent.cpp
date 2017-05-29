@@ -86,7 +86,7 @@ bool ezSpawnComponent::SpawnOnce()
       qTurn.SetFromAxisAndAngle(vTurnAxis, turnAngle);
       qDeviate = qTurn * qTilt;
 
-      tLocalSpawn.m_Rotation = qDeviate.GetAsMat3();
+      tLocalSpawn.m_qRotation = qDeviate;
     }
 
     if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))

@@ -154,7 +154,7 @@ public:
   const ezVec2Template<Type> CompMax(const ezVec2Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise multiplication of *this and rhs
-  const ezVec2Template<Type> CompMult(const ezVec2Template<Type>& rhs) const; // [tested]
+  const ezVec2Template<Type> CompMul(const ezVec2Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise division of *this and rhs
   const ezVec2Template<Type> CompDiv(const ezVec2Template<Type>& rhs) const; // [tested]

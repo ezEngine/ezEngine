@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -244,8 +244,7 @@ void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const e
 
   auto& boxData = data.m_lineBoxes.ExpandAndGetRef();
 
-  ezMat3 scalingMat; scalingMat.SetScalingMatrix(box.GetHalfExtents());
-  ezTransform boxTransform(box.GetCenter(), scalingMat);
+  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
@@ -416,8 +415,7 @@ void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const 
 
   auto& boxData = data.m_solidBoxes.ExpandAndGetRef();
 
-  ezMat3 scalingMat; scalingMat.SetScalingMatrix(box.GetHalfExtents());
-  ezTransform boxTransform(box.GetCenter(), scalingMat);
+  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;

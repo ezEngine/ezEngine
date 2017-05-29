@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/SceneImport/SceneImportDlg.moc.h>
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Mesh.h>
@@ -76,13 +76,10 @@ namespace
       case ezModelImporter::ObjectHandle::NODE:
       {
         const ezModelImporter::Node* node = object->Cast<ezModelImporter::Node>();
-        ezVec3 position, scale;
-        ezQuat rotation;
-        node->m_RelativeTransform.Decompose(position, rotation, scale);
 
-        sceneAccessor.SetValue(currentGameObject, "LocalPosition", position);
-        sceneAccessor.SetValue(currentGameObject, "LocalRotation", rotation);
-        sceneAccessor.SetValue(currentGameObject, "LocalScaling", scale);
+        sceneAccessor.SetValue(currentGameObject, "LocalPosition", node->m_RelativeTransform.m_vPosition);
+        sceneAccessor.SetValue(currentGameObject, "LocalRotation", node->m_RelativeTransform.m_qRotation);
+        sceneAccessor.SetValue(currentGameObject, "LocalScaling", node->m_RelativeTransform.m_vScale);
 
         for (ezModelImporter::ObjectHandle childHandle : node->m_Children)
         {

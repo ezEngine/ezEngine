@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoComponent.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -34,7 +34,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezGizmoHandle::ezGizmoHandle()
 {
   m_bVisible = false;
-  m_Transformation.SetZero();
+  m_Transformation.SetIdentity();
+  m_Transformation.m_vScale.SetZero(); // make sure it is different from anything valid
   m_pParentGizmo = nullptr;
 }
 
@@ -47,7 +48,7 @@ void ezGizmoHandle::SetVisible(bool bVisible)
   }
 }
 
-void ezGizmoHandle::SetTransformation(const ezMat4& m)
+void ezGizmoHandle::SetTransformation(const ezTransform& m)
 {
   if (m_Transformation != m)
   {
@@ -522,9 +523,9 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   sName.Format("Gizmo{0}", m_iHandleType);
 
   ezGameObjectDesc god;
-  god.m_LocalPosition = m_Transformation.GetTranslationVector();
-  god.m_LocalRotation.SetFromMat3(m_Transformation.GetRotationalPart());
-  god.m_LocalScaling = m_Transformation.GetScalingFactors();
+  god.m_LocalPosition = m_Transformation.m_vPosition;
+  god.m_LocalRotation = m_Transformation.m_qRotation;
+  god.m_LocalScaling = m_Transformation.m_vScale;
   god.m_sName.Assign(sName.GetData());
 
   ezGameObject* pObject;
@@ -579,17 +580,9 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
   if (!pWorld->TryGetObject(m_hGameObject, pObject))
     return;
 
-  ezTransform t;
-  t.m_vPosition = m_Transformation.GetTranslationVector();
-  t.m_Rotation = m_Transformation.GetRotationalPart();
-
-  ezQuat qRot;
-  ezVec3 vTrans, vScale;
-  t.Decompose(vTrans, qRot, vScale);
-
-  pObject->SetLocalPosition(vTrans);
-  pObject->SetLocalRotation(qRot);
-  pObject->SetLocalScaling(vScale);
+  pObject->SetLocalPosition(m_Transformation.m_vPosition);
+  pObject->SetLocalRotation(m_Transformation.m_qRotation);
+  pObject->SetLocalScaling(m_Transformation.m_vScale);
 
   m_pGizmoComponent->m_GizmoColor = m_Color;
   m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;

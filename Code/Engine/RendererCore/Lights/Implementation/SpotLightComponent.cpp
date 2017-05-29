@@ -205,7 +205,7 @@ ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform
   ezBoundingSphere res;
   ezAngle halfAngle = m_OuterSpotAngle / 2.0f;
   ezVec3 position = t.m_vPosition;
-  ezVec3 forwardDir = t.m_Rotation.TransformDirection(ezVec3(1.0f, 0.0f, 0.0f));
+  ezVec3 forwardDir = t.m_qRotation * ezVec3(1.0f, 0.0f, 0.0f);
 
   if (halfAngle > ezAngle::Degree(45.0f))
   {

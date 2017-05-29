@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/SphereGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
@@ -24,7 +24,7 @@ ezSphereGizmo::ezSphereGizmo()
   m_OuterSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), false);
 
   SetVisible(false);
-  SetTransformation(ezMat4::IdentityMatrix());
+  SetTransformation(ezTransform::Identity());
 }
 
 void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -39,11 +39,13 @@ void ezSphereGizmo::OnVisibleChanged(bool bVisible)
   m_OuterSphere.SetVisible(bVisible);
 }
 
-void ezSphereGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezSphereGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezMat4 mScaleInner, mScaleOuter;
-  mScaleInner.SetScalingMatrix(ezVec3(m_fRadiusInner));
-  mScaleOuter.SetScalingMatrix(ezVec3(m_fRadiusOuter));
+  ezTransform mScaleInner, mScaleOuter;
+  mScaleInner.SetIdentity();
+  mScaleOuter.SetIdentity();
+  mScaleInner.m_vScale = ezVec3(m_fRadiusInner);
+  mScaleOuter.m_vScale = ezVec3(m_fRadiusOuter);
 
   m_InnerSphere.SetTransformation(transform * mScaleInner);
   m_OuterSphere.SetTransformation(transform * mScaleOuter);

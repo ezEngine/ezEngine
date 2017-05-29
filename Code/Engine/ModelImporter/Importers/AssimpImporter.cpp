@@ -258,7 +258,7 @@ namespace ezModelImporter
     // Transformation.
     ezMat4 mTransformation;
     mTransformation.SetFromArray(&assimpNode->mTransformation.a1, ezMatrixLayout::RowMajor);
-    newNode->m_RelativeTransform = ezTransform(mTransformation);
+    newNode->m_RelativeTransform.SetFromMat4(mTransformation);
 
     // Add metadata.
     if (assimpNode->mMetaData)

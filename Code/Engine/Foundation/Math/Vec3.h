@@ -120,11 +120,17 @@ public:
   /// \brief Returns the negation of this vector.
   const ezVec3Template operator- () const; // [tested]
 
-  /// \brief Adds cc component-wise to this vector
-  void operator+= (const ezVec3Template& cc); // [tested]
+  /// \brief Adds rhs component-wise to this vector
+  void operator+= (const ezVec3Template& rhs); // [tested]
 
-  /// \brief Subtracts cc component-wise from this vector
-  void operator-= (const ezVec3Template& cc); // [tested]
+  /// \brief Subtracts rhs component-wise from this vector
+  void operator-= (const ezVec3Template& rhs); // [tested]
+
+  /// \brief Multiplies rhs component-wise to this vector
+  void operator*= (const ezVec3Template& rhs);
+
+  /// \brief Divides this vector component-wise by rhs
+  void operator/= (const ezVec3Template& rhs);
 
   /// \brief Multiplies all components of this vector with f
   void operator*= (Type f); // [tested]
@@ -159,7 +165,7 @@ public:
   const ezVec3Template CompMax(const ezVec3Template& rhs) const; // [tested]
 
   /// \brief Returns the component-wise multiplication of *this and rhs
-  const ezVec3Template CompMult(const ezVec3Template& rhs) const; // [tested]
+  const ezVec3Template CompMul(const ezVec3Template& rhs) const; // [tested]
 
   /// \brief Returns the component-wise division of *this and rhs
   const ezVec3Template CompDiv(const ezVec3Template& rhs) const; // [tested]

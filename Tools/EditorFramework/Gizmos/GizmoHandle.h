@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorFramework/IPC/SyncObject.h>
@@ -20,13 +20,13 @@ public:
 
   void SetVisible(bool bVisible);
 
-  void SetTransformation(const ezMat4& m);
+  void SetTransformation(const ezTransform& m);
 
-  const ezMat4& GetTransformation() const { return m_Transformation; }
+  const ezTransform& GetTransformation() const { return m_Transformation; }
 
 protected:
   bool m_bVisible;
-  ezMat4 m_Transformation;
+  ezTransform m_Transformation;
 
   void SetParentGizmo(ezGizmo* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
 

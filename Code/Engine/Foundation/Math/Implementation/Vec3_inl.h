@@ -191,6 +191,30 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator-= (const ezVec3Template<Type
 }
 
 template<typename Type>
+EZ_FORCE_INLINE void ezVec3Template<Type>::operator*=(const ezVec3Template& rhs)
+{
+  /// \test this is new
+
+  x *= rhs.x;
+  y *= rhs.y;
+  z *= rhs.z;
+
+  EZ_NAN_ASSERT(this);
+}
+
+template<typename Type>
+EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(const ezVec3Template& rhs)
+{
+  /// \test this is new
+
+  x /= rhs.x;
+  y /= rhs.y;
+  z /= rhs.z;
+
+  EZ_NAN_ASSERT(this);
+}
+
+template<typename Type>
 EZ_FORCE_INLINE void ezVec3Template<Type>::operator*= (Type f)
 {
   x *= f;
@@ -297,7 +321,7 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMax(const e
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMult(const ezVec3Template<Type>& rhs) const
+EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMul(const ezVec3Template<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);

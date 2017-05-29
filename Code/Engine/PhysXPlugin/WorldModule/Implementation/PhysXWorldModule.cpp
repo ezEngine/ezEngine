@@ -512,7 +512,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHe
   qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
 
   ezQuat qRot;
-  qRot.SetFromMat3(start.m_Rotation);
+  qRot = start.m_qRotation;
   qRot = qFixRot * qRot;
 
   PxTransform transform = ezPxConversionUtils::ToTransform(start.m_vPosition, qRot);
@@ -565,7 +565,7 @@ bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsule
   qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
 
   ezQuat qRot;
-  qRot.SetFromMat3(start.m_Rotation);
+  qRot = start.m_qRotation;
   qRot = qFixRot * qRot;
 
   PxTransform transform = ezPxConversionUtils::ToTransform(start.m_vPosition, qRot);

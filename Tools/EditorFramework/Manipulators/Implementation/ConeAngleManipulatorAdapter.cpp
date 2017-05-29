@@ -22,7 +22,7 @@ void ezConeAngleManipulatorAdapter::Finalize()
   ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
@@ -49,7 +49,7 @@ void ezConeAngleManipulatorAdapter::Update()
     m_Gizmo.SetAngle(value);
   }
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 void ezConeAngleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
@@ -80,7 +80,7 @@ void ezConeAngleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
 void ezConeAngleManipulatorAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 

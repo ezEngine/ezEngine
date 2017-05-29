@@ -345,7 +345,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
       msg.m_vGridCenter = m_TranslateGizmo.GetStartPosition();
 
       if (m_TranslateGizmo.GetTranslateMode() == ezTranslateGizmo::TranslateMode::Axis)
-        msg.m_vGridCenter = m_TranslateGizmo.GetTransformation().GetTranslationVector();
+        msg.m_vGridCenter = m_TranslateGizmo.GetTransformation().m_vPosition;
 
       if (pSceneDoc->GetGizmoWorldSpace())
       {
@@ -371,16 +371,16 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
       switch (m_TranslateGizmo.GetLastPlaneInteraction())
       {
       case ezTranslateGizmo::PlaneInteraction::PlaneX:
-        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 1, 0));
-        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 0, 1));
+        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
         break;
       case ezTranslateGizmo::PlaneInteraction::PlaneY:
-        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(1, 0, 0));
-        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 0, 1));
+        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
         break;
       case ezTranslateGizmo::PlaneInteraction::PlaneZ:
-        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(1, 0, 0));
-        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().TransformDirection(ezVec3(0, 1, 0));
+        msg.m_vGridTangent1 = m_TranslateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+        msg.m_vGridTangent2 = m_TranslateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
         break;
       }
     }

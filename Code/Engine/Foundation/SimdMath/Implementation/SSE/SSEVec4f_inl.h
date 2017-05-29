@@ -464,7 +464,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<1>(const ezSimdVec4f& v) const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_dp_ps(m_v, v.m_v, 0x1f);
 #else
-  return CompMult(v).HorizontalSum<1>();
+  return CompMul(v).HorizontalSum<1>();
 #endif
 }
 
@@ -474,7 +474,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<2>(const ezSimdVec4f& v) const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_dp_ps(m_v, v.m_v, 0x3f);
 #else
-  return CompMult(v).HorizontalSum<2>();
+  return CompMul(v).HorizontalSum<2>();
 #endif
 }
 
@@ -484,7 +484,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<3>(const ezSimdVec4f& v) const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_dp_ps(m_v, v.m_v, 0x7f);
 #else
-  return CompMult(v).HorizontalSum<3>();
+  return CompMul(v).HorizontalSum<3>();
 #endif
 }
 
@@ -494,7 +494,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<4>(const ezSimdVec4f& v) const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_dp_ps(m_v, v.m_v, 0xff);
 #else
-  return CompMult(v).HorizontalSum<4>();
+  return CompMul(v).HorizontalSum<4>();
 #endif
 }
 

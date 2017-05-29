@@ -22,7 +22,7 @@ void ezConeLengthManipulatorAdapter::Finalize()
   ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
   m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
@@ -42,7 +42,7 @@ void ezConeLengthManipulatorAdapter::Update()
     m_Gizmo.SetRadius(fValue);
   }
 
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 void ezConeLengthManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
@@ -73,7 +73,7 @@ void ezConeLengthManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
 void ezConeLengthManipulatorAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  m_Gizmo.SetTransformation(GetObjectTransform());
 }
 
 

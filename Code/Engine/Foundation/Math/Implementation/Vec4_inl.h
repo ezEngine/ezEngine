@@ -314,7 +314,7 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompMax(const ezVec4Temp
 }
 
 template<typename Type>
-inline const ezVec4Template<Type> ezVec4Template<Type>::CompMult(const ezVec4Template<Type>& rhs) const
+inline const ezVec4Template<Type> ezVec4Template<Type>::CompMul(const ezVec4Template<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);

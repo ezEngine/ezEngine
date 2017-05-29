@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
@@ -202,7 +202,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         BoundingCone cone;
         cone.m_PositionAndRange = ezSimdConversion::ToVec3(pSpotLightRenderData->m_GlobalTransform.m_vPosition);
         cone.m_PositionAndRange.SetW(pSpotLightRenderData->m_fRange);
-        cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_GlobalTransform.m_Rotation.TransformDirection(ezVec3(1.0f, 0.0f, 0.0f)));
+        cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0f, 0.0f));
         cone.m_SinCosAngle = ezSimdVec4f(ezMath::Sin(halfAngle), ezMath::Cos(halfAngle), 0.0f);
         RasterizeSpotLight(cone, uiLightIndex, *pCamera, m_TempClusters.GetData(), m_ClusterBoundingSpheres.GetData());
       }

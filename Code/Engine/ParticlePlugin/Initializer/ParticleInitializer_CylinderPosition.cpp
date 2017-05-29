@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
@@ -125,7 +125,7 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
       const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
       /// \todo Ignore scale ?
-      pVelocity[i] = GetOwnerSystem()->GetTransform().m_Rotation * normalPos * fSpeed;
+      pVelocity[i] = GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
     }
 
     pPosition[i] = GetOwnerSystem()->GetTransform() * pos;

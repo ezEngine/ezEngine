@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
@@ -42,8 +42,8 @@ void ezCapsuleVisualizerAdapter::Update()
   m_SphereTop.SetVisible(m_bVisualizerIsVisible);
   m_SphereBottom.SetVisible(m_bVisualizerIsVisible);
 
-  float fRadius = 1.0f;
-  float fHeight = 0.0f;
+  m_fRadius = 1.0f;
+  m_fHeight = 0.0f;
 
   if (!pAttr->GetRadiusProperty().IsEmpty())
   {
@@ -57,7 +57,7 @@ void ezCapsuleVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, pProp, value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCapsuleVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
-    fRadius = value.ConvertTo<float>();
+    m_fRadius = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetHeightProperty().IsEmpty())
@@ -66,7 +66,7 @@ void ezCapsuleVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezCapsuleVisualizerAttribute 'height'");
-    fHeight = value.ConvertTo<float>();
+    m_fHeight = value.ConvertTo<float>();
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
@@ -79,22 +79,27 @@ void ezCapsuleVisualizerAdapter::Update()
     m_SphereBottom.SetColor(value.ConvertTo<ezColor>());
     m_Cylinder.SetColor(value.ConvertTo<ezColor>());
   }
-
-  m_ScaleCylinder.SetScalingMatrix(ezVec3(fRadius, fRadius, fHeight));
-
-  m_ScaleSphereTop.SetScalingMatrix(ezVec3(fRadius));
-  m_ScaleSphereTop.SetTranslationVector(ezVec3(0, 0, fHeight * 0.5f));
-
-  m_ScaleSphereBottom.SetScalingMatrix(ezVec3(fRadius, -fRadius, -fRadius));
-  m_ScaleSphereBottom.SetTranslationVector(ezVec3(0, 0, -fHeight * 0.5f));
-
 }
 
 void ezCapsuleVisualizerAdapter::UpdateGizmoTransform()
 {
-  m_SphereTop.SetTransformation(GetObjectTransform().GetAsMat4() * m_ScaleSphereTop);
-  m_SphereBottom.SetTransformation(GetObjectTransform().GetAsMat4() * m_ScaleSphereBottom);
-  m_Cylinder.SetTransformation(GetObjectTransform().GetAsMat4() * m_ScaleCylinder);
+  ezTransform tSphereTop;
+  tSphereTop.SetIdentity();
+  tSphereTop.m_vScale = ezVec3(m_fRadius);
+  tSphereTop.m_vPosition.z = m_fHeight * 0.5f;
+
+  ezTransform tSphereBottom;
+  tSphereBottom.SetIdentity();
+  tSphereBottom.m_vScale = ezVec3(m_fRadius, -m_fRadius, -m_fRadius);
+  tSphereBottom.m_vPosition.z = -m_fHeight * 0.5f;
+
+  ezTransform tCylinder;
+  tCylinder.SetIdentity();
+  tCylinder.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fHeight);
+
+  m_SphereTop.SetTransformation(GetObjectTransform() * tSphereTop);
+  m_SphereBottom.SetTransformation(GetObjectTransform() * tSphereBottom);
+  m_Cylinder.SetTransformation(GetObjectTransform()* tCylinder);
 }
 
 

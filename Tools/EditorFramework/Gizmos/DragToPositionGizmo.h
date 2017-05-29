@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <Foundation/Math/Quat.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmo : public ezGizmo
 {
@@ -11,8 +12,8 @@ class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmo : public ezGizmo
 public:
   ezDragToPositionGizmo();
 
-  const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
-  const ezQuat GetRotationResult() const { ezQuat q; q.SetFromMat3(GetTransformation().GetRotationalPart()); return q; }
+  const ezVec3 GetTranslationResult() const { return GetTransformation().m_vPosition - m_vStartPosition; }
+  const ezQuat GetRotationResult() const { return GetTransformation().m_qRotation; }
 
   virtual bool IsPickingSelectedAllowed() const { return false; }
 
@@ -28,7 +29,7 @@ protected:
   
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
-  virtual void OnTransformationChanged(const ezMat4& transform) override;
+  virtual void OnTransformationChanged(const ezTransform& transform) override;
 
   ezEngineGizmoHandle m_Bobble;
   ezEngineGizmoHandle m_AlignPX;

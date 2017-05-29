@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -31,7 +31,7 @@ void ezPointLightVisualizerAdapter::Update()
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezPointLightVisualizerAttribute* pAttr = static_cast<const ezPointLightVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Scale.SetIdentity();
+  m_fScale = 1.0f;
 
   if (!pAttr->GetRangeProperty().IsEmpty() && !pAttr->GetIntensityProperty().IsEmpty())
   {
@@ -43,8 +43,7 @@ void ezPointLightVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetIntensityProperty()), intensity);
     EZ_ASSERT_DEBUG(intensity.CanConvertTo<float>(), "Invalid property bound to ezPointLightVisualizerAttribute 'intensity'");
 
-    float fRange = ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());
-    m_Scale.SetScalingMatrix(ezVec3(fRange));
+    m_fScale = ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())
@@ -59,7 +58,10 @@ void ezPointLightVisualizerAdapter::Update()
 
 void ezPointLightVisualizerAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4() * m_Scale);
+  ezTransform t = GetObjectTransform();
+  t.m_vScale *= m_fScale;
+
+  m_Gizmo.SetTransformation(t);
 }
 
 

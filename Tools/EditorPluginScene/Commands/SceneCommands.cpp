@@ -267,14 +267,13 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
                           ezAngle::Degree(fStep * m_vAccumulativeRotation.y + vRandR.y),
                           ezAngle::Degree(fStep * m_vAccumulativeRotation.z + vRandR.z));
 
-  const ezMat3 mRot = qRot.GetAsMat3();
-
   for (const auto& pi : Duplicates)
   {
     ezTransform tGlobal = pScene->GetGlobalTransform(pi.m_pObject);
 
+    tGlobal.m_vScale.Set(1.0f);
     tGlobal.m_vPosition += vPosOffset + fStep * m_vAccumulativeTranslation + vRandT;
-    tGlobal.m_Rotation = mRot * tGlobal.m_Rotation;
+    tGlobal.m_qRotation = qRot * tGlobal.m_qRotation;
 
     /// \todo Christopher: Modifying the position through a command after creating the object seems to destroy the undo-ability of this operation
     /// Duplicating multiple objects (with some translation) and then undoing that will crash the editor process
