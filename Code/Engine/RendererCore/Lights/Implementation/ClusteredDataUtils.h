@@ -7,6 +7,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 EZ_DEFINE_AS_POD_TYPE(ezPerClusterData);
 
+#include <Core/Graphics/Camera.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdVec4i.h>

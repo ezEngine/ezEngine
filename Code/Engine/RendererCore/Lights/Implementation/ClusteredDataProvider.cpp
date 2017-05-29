@@ -116,7 +116,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
   if (auto pData = extractedData.GetFrameData<ezClusteredDataCPU>())
   {
     // Update buffer
-    if (!pData->m_LightData.IsEmpty())
+    if (!pData->m_ClusterItemList.IsEmpty())
     {
       pGALContext->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, pData->m_LightData.ToByteArray());
       pGALContext->UpdateBuffer(m_Data.m_hClusterItemBuffer, 0, pData->m_ClusterItemList.ToByteArray());
