@@ -150,6 +150,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     EZ_TEST_BOOL(Non0BlockStartSet.IsSet(RegisteredTags[100]));
     EZ_TEST_BOOL(!Non0BlockStartSet.IsSet(RegisteredTags[0]));
 
+    // Also test allocating a tag in an earlier block than the first tag allocated in the set
+    Non0BlockStartSet.Set(RegisteredTags[0]);
+    EZ_TEST_BOOL( Non0BlockStartSet.IsSet( RegisteredTags[100] ) );
+    EZ_TEST_BOOL( Non0BlockStartSet.IsSet( RegisteredTags[0] ) );
 
     // Copying a tag set should work as well
     ezTagSet SecondTagSet = BigTagSet;
