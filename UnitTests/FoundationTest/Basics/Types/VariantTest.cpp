@@ -590,27 +590,20 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
   }
 
-  /// \todo ezTransform
-  //EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTransform")
-  //{
-  //  ezVariant v(ezTransform(ezVec3(1, 2, 3), ezMat3(4, 5, 6, 7, 8, 9, 10, 11, 12)));
-  //  EZ_TEST_BOOL(v.IsValid());
-  //  EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Transform);
-  //  EZ_TEST_BOOL(v.IsA<ezTransform>());
-  //  EZ_TEST_BOOL(v.Get<ezTransform>() == ezTransform(ezVec3(1, 2, 3), ezMat3(4, 5, 6, 7, 8, 9, 10, 11, 12)));
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTransform")
+  {
+    ezVariant v(ezTransform(ezVec3(1, 2, 3), ezQuat(4, 5, 6, 7), ezVec3(8, 9, 10)));
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Transform);
+    EZ_TEST_BOOL(v.IsA<ezTransform>());
+    EZ_TEST_BOOL(v.Get<ezTransform>() == ezTransform(ezVec3(1, 2, 3), ezQuat(4, 5, 6, 7), ezVec3(8, 9, 10)));
 
-  //  EZ_TEST_BOOL(v == ezVariant(ezTransform(ezVec3(1, 2, 3), ezMat3(4, 5, 6, 7, 8, 9, 10, 11, 12))));
-  //  EZ_TEST_BOOL(v != ezVariant(ezTransform(ezVec3(1, 2, 3), ezMat3(4, 5, 6, 7, 8, 9, 10, 11, 11))));
+    EZ_TEST_BOOL(v == ezTransform(ezVec3(1, 2, 3), ezQuat(4, 5, 6, 7), ezVec3(8, 9, 10)));
+    EZ_TEST_BOOL(v != ezTransform(ezVec3(1, 2, 3), ezQuat(4, 5, 6, 7), ezVec3(8, 9, 11)));
 
-  //  EZ_TEST_BOOL(v == ezTransform(ezVec3(1, 2, 3), ezMat3(4, 5, 6, 7, 8, 9, 10, 11, 12)));
-  //  EZ_TEST_BOOL(v != ezTransform(ezVec3(1, 2, 3), ezMat3(2, 5, 6, 7, 8, 9, 10, 11, 12)));
-
-  //  v = ezTransform(ezVec3(5, 8, 9), ezMat3(3, 1, 2, 3, 4, 5, 3, 7, 3));
-  //  EZ_TEST_BOOL(v == ezTransform(ezVec3(5, 8, 9), ezMat3(3, 1, 2, 3, 4, 5, 3, 7, 3)));
-
-  //  v = ezVariant(ezTransform(ezVec3(5, 8, 9), ezMat3(3, 1, 2, 3, 4, 5, 3, 7, 3)));
-  //  EZ_TEST_BOOL(v == ezTransform(ezVec3(5, 8, 9), ezMat3(3, 1, 2, 3, 4, 5, 3, 7, 3)));
-  //}
+    v = ezTransform(ezVec3(5, 8, 9), ezQuat(3, 1, 2, 3), ezVec3(4, 5, 3));
+    EZ_TEST_BOOL(v == ezTransform(ezVec3(5, 8, 9), ezQuat(3, 1, 2, 3), ezVec3(4, 5, 3)));
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "const char*")
   {

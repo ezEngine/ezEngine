@@ -45,7 +45,7 @@ void ezCapsuleGizmo::OnTransformationChanged(const ezTransform& transform)
   {
     ezTransform mScaleCylinder;
     mScaleCylinder.SetIdentity();
-    mScaleCylinder.m_vScale.Set(m_fRadius);
+    mScaleCylinder.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fLength);
 
     m_Radius.SetTransformation(transform * mScaleCylinder);
   }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform()
 {
@@ -122,16 +122,17 @@ EZ_ALWAYS_INLINE void ezSimdTransform::operator*=(const ezSimdTransform& other)
   (*this) = (*this) * other;
 }
 
-EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::operator*(const ezSimdQuat& q) const
-{
-  ezSimdTransform t;
-
-  t.m_Position = m_Position;
-  t.m_Rotation = m_Rotation * q;
-  t.m_Scale = m_Scale;
-
-  return t;
-}
+/// \todo Make a free function, with two parameters, fix order of parameters and internal multiplication
+//EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::operator*(const ezSimdQuat& q) const
+//{
+//  ezSimdTransform t;
+//
+//  t.m_Position = m_Position;
+//  t.m_Rotation = m_Rotation * q;
+//  t.m_Scale = m_Scale;
+//
+//  return t;
+//}
 
 EZ_ALWAYS_INLINE void ezSimdTransform::operator*=(const ezSimdQuat& q)
 {

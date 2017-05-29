@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/SimdMath/SimdQuat.h>
 
@@ -59,7 +59,7 @@ public:
   void operator*=(const ezSimdTransform& other); // [tested]
 
   /// \brief Multiplies \a q into the rotation component, thus rotating the entire transformation.
-  ezSimdTransform operator*(const ezSimdQuat& q) const; // [tested]
+  //ezSimdTransform operator*(const ezSimdQuat& q) const; // [tested]
   void operator*=(const ezSimdQuat& q); // [tested]
 
   /// \brief Translates the transform by the vector. This will move the object in global space.

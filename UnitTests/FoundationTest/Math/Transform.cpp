@@ -134,9 +134,24 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     t.SetIdentity();
 
     t = qRotX * t;
+
+    EZ_TEST_BOOL(t.m_qRotation.IsEqualRotation(qRotX, 0.0001f));
+    EZ_TEST_VEC3(t.m_vPosition, ezVec3T(0, 0, 0), 0.0001f);
+    EZ_TEST_VEC3(t.m_vScale, ezVec3T(1, 1, 1), 0.0001f);
+
     t = t + ezVec3T(1, 2, 3);
-    t = qRotY * t;
+
+    EZ_TEST_BOOL(t.m_qRotation.IsEqualRotation(qRotX, 0.0001f));
     EZ_TEST_VEC3(t.m_vPosition, ezVec3T(1, 2, 3), 0.0001f);
+    EZ_TEST_VEC3(t.m_vScale, ezVec3T(1, 1, 1), 0.0001f);
+
+    /// \todo The rotation order in ezSimdTransform is wrong, we should not allow transform * quat, but only quat * transform and then also fix the internal multiplication order
+    t = qRotY * t;
+
+    EZ_TEST_BOOL(t.m_qRotation.IsEqualRotation(qRotY * qRotX, 0.0001f));
+    EZ_TEST_VEC3(t.m_vPosition, ezVec3T(1, 2, 3), 0.0001f);
+    EZ_TEST_VEC3(t.m_vScale, ezVec3T(1, 1, 1), 0.0001f);
+
     //EZ_TEST_BOOL(t.m_Rotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
 
     ezVec3T v;

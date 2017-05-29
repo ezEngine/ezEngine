@@ -251,25 +251,25 @@ Group $v1 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } }\
     EZ_TEST_BOOL(v1.IsEqual(ezMat4(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
   }
 
-  /// \todo ezTransform
-//  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToTransform")
-//  {
-//    const char* szTestData = "\
-//Group $v1 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } }\
-//";
-//
-//    StringStream stream(szTestData);
-//    ezOpenDdlReader doc;
-//    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
-//
-//    ezTransform v0, v1;
-//
-//    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToTransform(doc.FindElement("v0"), v0).Failed());
-//    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToTransform(doc.FindElement("v1"), v1).Succeeded());
-//
-//    EZ_TEST_BOOL(v1.m_Rotation.IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
-//    EZ_TEST_VEC3(v1.m_vPosition, ezVec3(10, 11, 12), 0.0001f);
-//  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToTransform")
+  {
+    const char* szTestData = "\
+Group $v1 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } }\
+";
+
+    StringStream stream(szTestData);
+    ezOpenDdlReader doc;
+    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
+
+    ezTransform v0, v1;
+
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToTransform(doc.FindElement("v0"), v0).Failed());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToTransform(doc.FindElement("v1"), v1).Succeeded());
+
+    EZ_TEST_VEC3(v1.m_vPosition, ezVec3(1, 2, 3), 0.0001f);
+    EZ_TEST_BOOL(v1.m_qRotation == ezQuat(4, 5, 6, 7));
+    EZ_TEST_VEC3(v1.m_vScale, ezVec3(8, 9, 10), 0.0001f);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToQuat")
   {
@@ -343,7 +343,7 @@ Vec3 $v5 { float { 0.1, 2, 3.2 } }\
 Vec4 $v6 { float { 0.1, 2, 3.2, 44.5 } }\
 Mat3 $v7 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9 } }\
 Mat4 $v8 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } }\
-Transform $v9 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } }\
+Transform $v9 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } }\
 Quat $v10 { float { 0.1, 2, 3.2, 44.5 } }\
 Uuid $v11 { unsigned_int64 { 12345678910, 10987654321 } }\
 Angle $v12 { float { 45.23 } }\
@@ -390,8 +390,9 @@ Angle $v12 { float { 45.23 } }\
     EZ_TEST_VEC4(v6.Get<ezVec4>(), ezVec4(0.1f, 2.0f, 3.2f, 44.5f), 0.0001f);
     EZ_TEST_BOOL(v7.Get<ezMat3>().IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
     EZ_TEST_BOOL(v8.Get<ezMat4>().IsEqual(ezMat4(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
-    //EZ_TEST_BOOL(v9.Get<ezTransform>().m_Rotation.IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
-    EZ_TEST_VEC3(v9.Get<ezTransform>().m_vPosition, ezVec3(10, 11, 12), 0.0001f);
+    EZ_TEST_BOOL(v9.Get<ezTransform>().m_qRotation == ezQuat(4, 5, 6, 7));
+    EZ_TEST_VEC3(v9.Get<ezTransform>().m_vPosition, ezVec3(1, 2, 3), 0.0001f);
+    EZ_TEST_VEC3(v9.Get<ezTransform>().m_vScale, ezVec3(8, 9, 10), 0.0001f);
     EZ_TEST_BOOL(v10.Get<ezQuat>() == ezQuat(0.1f, 2.0f, 3.2f, 44.5f));
     EZ_TEST_BOOL(v11.Get<ezUuid>() == ezUuid(12345678910, 10987654321));
     EZ_TEST_FLOAT(v12.Get<ezAngle>().GetRadian(), 45.23f, 0.0001f);
@@ -493,7 +494,7 @@ Angle $v12 { float { 45.23 } }\
 
   //EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreTransform")
   //{
-  //  StreamComparer sc("Transform $v1{float{1,4,7,2,5,8,3,6,9,10,20,30}}\n");
+  //  StreamComparer sc("Transform $v1{float{1,4,7,2,5,8,3,6,9,10}}\n");
 
   //  ezOpenDdlWriter js;
   //  js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);

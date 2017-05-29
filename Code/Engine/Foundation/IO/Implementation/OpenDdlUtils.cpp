@@ -502,17 +502,23 @@ ezResult ezOpenDdlUtils::ConvertToTransform(const ezOpenDdlReaderElement* pEleme
     pElement = pElement->GetFirstChild();
   }
 
-  if (pElement->GetNumPrimitives() != 12)
+  if (pElement->GetNumPrimitives() != 10)
     return EZ_FAILURE;
 
   if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::Float)
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-	/// \todo ezTransform
-    EZ_REPORT_FAILURE("bla");
-    //out_result.m_Rotation.SetFromArray(pValues, ezMatrixLayout::ColumnMajor);
-    out_result.m_vPosition.Set(pValues[9], pValues[10], pValues[11]);
+    out_result.m_vPosition.x    = pValues[0];
+    out_result.m_vPosition.y = pValues[1];
+    out_result.m_vPosition.z = pValues[2];
+    out_result.m_qRotation.v.x = pValues[3];
+    out_result.m_qRotation.v.y = pValues[4];
+    out_result.m_qRotation.v.z = pValues[5];
+    out_result.m_qRotation.w = pValues[6];
+    out_result.m_vScale.x = pValues[7];
+    out_result.m_vScale.y = pValues[8];
+    out_result.m_vScale.z = pValues[9];
 
     return EZ_SUCCESS;
   }
@@ -1094,16 +1100,22 @@ void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& writer, const ezTransform& 
   {
     writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
-    /// \todo ezTransform
-    EZ_REPORT_FAILURE("bla");
+    float f[10];
 
-    float f[12];
-    //value.m_Rotation.GetAsArray(f, ezMatrixLayout::ColumnMajor);
-    //f[9] = value.m_vPosition.x;
-    //f[10] = value.m_vPosition.y;
-    //f[11] = value.m_vPosition.z;
+    f[0] = value.m_vPosition.x;
+    f[1] = value.m_vPosition.y;
+    f[2] = value.m_vPosition.z;
 
-    writer.WriteFloat(f, 12);
+    f[3] = value.m_qRotation.v.x;
+    f[4] = value.m_qRotation.v.y;
+    f[5] = value.m_qRotation.v.z;
+    f[6] = value.m_qRotation.w;
+
+    f[7] = value.m_vScale.x;
+    f[8] = value.m_vScale.y;
+    f[9] = value.m_vScale.z;
+
+    writer.WriteFloat(f, 10);
     writer.EndPrimitiveList();
   }
   writer.EndObject();

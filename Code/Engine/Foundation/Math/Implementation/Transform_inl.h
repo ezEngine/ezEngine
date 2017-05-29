@@ -110,7 +110,7 @@ EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<
   ezTransform r;
 
   r.m_vPosition = t.m_vPosition;
-  r.m_qRotation = t.m_qRotation * q;
+  r.m_qRotation = q * t.m_qRotation;
   r.m_vScale = t.m_vScale;
 
   return r;
