@@ -88,6 +88,10 @@ namespace
 
   void FillClusterBoundingSpheres(const ezCamera& camera, float fAspectRatio, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
   {
+    ///\todo proper implementation for orthographic views
+    if (camera.IsOrthographic())
+      return;
+
     float fTanFovX = ezMath::Tan(camera.GetFovX(fAspectRatio) * 0.5f);
     float fTanFovY = ezMath::Tan(camera.GetFovY(fAspectRatio) * 0.5f);
     ezSimdVec4f fov = ezSimdVec4f(fTanFovX, fTanFovY, fTanFovX, fTanFovY);
