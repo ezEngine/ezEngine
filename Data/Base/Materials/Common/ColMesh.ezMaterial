@@ -1,0 +1,7 @@
+string %Shader { "Shaders/Materials/FallbackMaterial.ezShader" }
+
+Texture2D
+{
+  string %Variable { "BaseTexture" }
+  string %Value { "White.color" }
+}
