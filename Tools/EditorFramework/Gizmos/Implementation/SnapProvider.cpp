@@ -2,8 +2,7 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec3.h>
-#include <Foundation/Math/Mat3.h>
-#include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Quat.h>
 
 ezAngle ezSnapProvider::s_RotationSnapValue = ezAngle::Degree(15.0f);
 float ezSnapProvider::s_fScaleSnapValue = 0.125f;
