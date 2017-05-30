@@ -3,21 +3,12 @@
 #include <Foundation/Math/Transform.h>
 
 template<typename Type>
-inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation)
-{
-  m_vPosition = vPosition;
-  m_qRotation = qRotation;
-  m_vScale.Set(1.0f);
-}
-
-template<typename Type>
 inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale)
 {
   m_vPosition = vPosition;
   m_qRotation = qRotation;
   m_vScale = vScale;
 }
-
 
 template<typename Type>
 void ezTransformTemplate<Type>::SetFromMat4(const ezMat4& mat)
@@ -98,10 +89,33 @@ EZ_ALWAYS_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4
   return result;
 }
 
+
 template<typename Type>
-EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::operator*=(const ezQuatTemplate<Type>& q)
+void ezTransformTemplate<Type>::operator+=(const ezVec3& v)
 {
-  m_qRotation = q * m_qRotation;
+  m_vPosition += v;
+}
+
+template<typename Type>
+void ezTransformTemplate<Type>::operator-=(const ezVec3& v)
+{
+  m_vPosition -= v;
+}
+
+template<typename Type>
+EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformPosition(const ezVec3& v) const
+{
+  const ezVec3 scaled = m_vScale.CompMul(v);
+  const ezVec3 rotated = m_qRotation * scaled;
+  return m_vPosition + rotated;
+}
+
+template<typename Type>
+EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformDirection(const ezVec3& v) const
+{
+  const ezVec3 scaled = m_vScale.CompMul(v);
+  const ezVec3 rotated = m_qRotation * scaled;
+  return rotated;
 }
 
 template<typename Type>
@@ -111,6 +125,18 @@ EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<
 
   r.m_vPosition = t.m_vPosition;
   r.m_qRotation = q * t.m_qRotation;
+  r.m_vScale = t.m_vScale;
+
+  return r;
+}
+
+template<typename Type>
+EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t, const ezQuatTemplate<Type>& q)
+{
+  ezTransform r;
+
+  r.m_vPosition = t.m_vPosition;
+  r.m_qRotation = t.m_qRotation * q;
   r.m_vScale = t.m_vScale;
 
   return r;
@@ -131,9 +157,7 @@ EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator-(const ezTransformTemp
 template<typename Type>
 EZ_ALWAYS_INLINE const ezVec3Template<Type> operator*(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
 {
-  const ezVec3 scaled = t.m_vScale.CompMul(v);
-  const ezVec3 rotated = t.m_qRotation * scaled;
-  return t.m_vPosition + rotated;
+  return t.TransformPosition(v);
 }
 
 template<typename Type>
@@ -149,20 +173,19 @@ inline const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>
 }
 
 template<typename Type>
-inline bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
+EZ_ALWAYS_INLINE bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
 {
   return t1.IsIdentical(t2);
 }
 
 template<typename Type>
-inline bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
+EZ_ALWAYS_INLINE bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
 {
   return !t1.IsIdentical(t2);
 }
 
-
 template<typename Type>
-inline void ezTransformTemplate<Type>::Invert()
+EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::Invert()
 {
   (*this) = GetInverse();
 }
@@ -176,30 +199,4 @@ inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::GetInverse() c
 
   return ezTransformTemplate<Type>(invPos, invRot, invScale);
 }
-
-//template<typename Type>
-//inline void ezTransformTemplate<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const
-//{
-//  if (layout == ezMatrixLayout::ColumnMajor)
-//  {
-//    ezMemoryUtils::Copy(out_pData, &m_Rotation.m_fElementsCM[0], 12);
-//  }
-//  else
-//  {
-//    out_pData[0] = m_Rotation.Element(0, 0);
-//    out_pData[1] = m_Rotation.Element(1, 0);
-//    out_pData[2] = m_Rotation.Element(2, 0);
-//    out_pData[3] = m_vPosition.x;
-//
-//    out_pData[4] = m_Rotation.Element(0, 1);
-//    out_pData[5] = m_Rotation.Element(1, 1);
-//    out_pData[6] = m_Rotation.Element(2, 1);
-//    out_pData[7] = m_vPosition.y;
-//
-//    out_pData[8] = m_Rotation.Element(0, 2);
-//    out_pData[9] = m_Rotation.Element(1, 2);
-//    out_pData[10] = m_Rotation.Element(2, 2);
-//    out_pData[11] = m_vPosition.z;
-//  }
-//}
 

@@ -21,6 +21,7 @@ public:
   void SetVisible(bool bVisible);
 
   void SetTransformation(const ezTransform& m);
+  void SetTransformation(const ezMat4& m);
 
   const ezTransform& GetTransformation() const { return m_Transformation; }
 

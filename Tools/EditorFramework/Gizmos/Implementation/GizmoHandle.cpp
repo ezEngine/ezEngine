@@ -58,6 +58,12 @@ void ezGizmoHandle::SetTransformation(const ezTransform& m)
   }
 }
 
+void ezGizmoHandle::SetTransformation(const ezMat4& m)
+{
+  ezTransform t;
+  t.SetFromMat4(m);
+  SetTransformation(t);
+}
 
 static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
 {

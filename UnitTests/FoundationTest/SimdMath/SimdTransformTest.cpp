@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdTransform.h>
@@ -157,7 +157,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPos/Dir")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPos / Dir / operator*")
   {
     ezSimdQuat qRotX, qRotY;
     qRotX.SetFromAxisAndAngle(ezSimdVec4f(1, 0, 0), ezAngle::Degree(90.0f));
@@ -171,6 +171,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
 
     v = t.TransformDirection(ezSimdVec4f(4, 5, 6, 13));
     EZ_TEST_BOOL(v.IsEqual(ezSimdVec4f((5 * -2), (-6 * 4), (-4 * 2)), 0.0001f).AllSet<3>());
+
+    v = t * ezSimdVec4f(4, 5, 6, 12);
+    EZ_TEST_BOOL(v.IsEqual(ezSimdVec4f((5 * -2) + 1, (-6 * 4) + 2, (-4 * 2) + 3), 0.0001f).AllSet<3>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
@@ -226,10 +229,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
       q.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(90));
 
       ezSimdTransform t2 = t * q;
+      ezSimdTransform t4 = q * t;
 
       ezSimdTransform t3 = t;
       t3 *= q;
       EZ_TEST_BOOL(t2 == t3);
+      EZ_TEST_BOOL(t3 != t4);
 
       ezSimdVec4f a(7, 8, 9);
       ezSimdVec4f b;

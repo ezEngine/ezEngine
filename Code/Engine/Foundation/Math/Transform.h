@@ -7,32 +7,34 @@
 
 /// \todo Fix docs and unit tests
 
-/// \brief A class that represents a complete position, rotation and scaling through an ezVec3Template<Type> and an ezMat3Template<Type>.
+/// \brief A class that represents position, rotation and scaling via a position vector, a quaternion and a scale vector.
 ///
-/// The rotation is applied first and then the translation is added. Thus the rotation component is always in 'local space',
+/// Scale is applied first, then rotation and finally translation is added. Thus scale and rotation are always in 'local space',
 /// i.e. applying a rotation to the ezTransformTemplate will rotate objects in place around their local center.
 /// Since the translation is added afterwards, the translation component is always the global center position, around which
-/// objects also rotate.
+/// objects rotate.
 ///
 /// The functions SetLocalTransform() and SetGlobalTransform() allow to create transforms that either represent the full
 /// global transformation of an object, factoring its parent's transform in, or the local transformation that will get you
 /// from the parent's global transformation to the current global transformation of a child (i.e. only the difference).
 /// This is particularly useful when editing entities in a hierarchical structure.
-///
-/// Since the 'm_Rotation' member is a full ezMat3Template<Type>, it may also contain scaling, including non-uniform scaling and shearing.
+/// 
+/// This representation cannot handle shearing, which means rotations and scalings cannot be combined correctly.
+/// Many parts of game engine cannot handle shearing or non-uniform scaling across hierarchies anyway. Therefore this
+/// class implements a simplified way of combining scalings when multiplying two ezTransform's. Instead of rotating scale into
+/// the proper space, the two values are simply multiplied component-wise.
+/// 
+/// In situations where this is insufficient, use a 3x3 or 4x4 matrix instead. Sometimes it is sufficient to use the matrix for
+/// the computation and the result can be stored in a transform again.
 template<typename Type>
 class ezTransformTemplate
 {
   // *** Data ***
 public:
 
-  ezQuat m_qRotation;
   ezVec3Template<Type> m_vPosition;
+  ezQuat m_qRotation;
   ezVec3Template<Type> m_vScale;
-
-
-  /// \brief Copies the 12 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
-  //void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   // *** Constructors ***
 public:
@@ -41,12 +43,9 @@ public:
   ezTransformTemplate() { }; // [tested]
 
   /// \brief Sets position and rotation.
-  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion()); // [tested]
+  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(), const ezVec3Template<Type>& vScale = ezVec3(1.0f)); // [tested]
 
-  /// \brief Sets position, rotation and scale.
-  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale); // [tested]
-
-  /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling will not work properly though.
+  /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling and shearing will get lost in the process.
   void SetFromMat4(const ezMat4& mat);
 
   /// \brief Sets the position to be zero and the rotation to identity.
@@ -73,6 +72,12 @@ public:
   /// \brief Returns the inverse of this transform.
   const ezTransformTemplate GetInverse() const; // [tested]
 
+  ezVec3 TransformPosition(const ezVec3& v) const; // [tested]
+  ezVec3 TransformDirection(const ezVec3& v) const; // [tested]
+
+  void operator+=(const ezVec3& v); // [tested]
+  void operator-=(const ezVec3& v); // [tested]
+
   // *** Conversion operations ***
 public:
 
@@ -85,14 +90,7 @@ public:
   /// \brief Returns the transformation as a matrix.
   const ezMat4Template<Type> GetAsMat4() const; // [tested]
 
-  // *** Operators ***
-public:
-
-  /// \brief Multiplies \a q into the rotation component, thus rotating the entire transformation.
-  void operator*=(const ezQuatTemplate<Type>& q); // [tested]
-
 };
-
 
 // *** free functions ***
 
@@ -100,9 +98,13 @@ public:
 template<typename Type>
 const ezVec3Template<Type> operator*(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v); // [tested]
 
-/// \brief Rotates the transform by the given quaternion.
+/// \brief Rotates the transform by the given quaternion. Multiplies q from the left with t.
 template<typename Type>
 const ezTransformTemplate<Type> operator*(const ezQuatTemplate<Type>& q, const ezTransformTemplate<Type>& t); // [tested]
+
+/// \brief Rotates the transform by the given quaternion. Multiplies q from the right with t.
+template<typename Type>
+const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t, const ezQuatTemplate<Type>& q);
 
 /// \brief Translates the ezTransform by the vector. This will move the object in global space.
 template<typename Type>

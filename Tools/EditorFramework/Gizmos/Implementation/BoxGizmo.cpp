@@ -5,6 +5,7 @@
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Math/Mat4.h>
 #include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxGizmo, 1, ezRTTINoAllocator);
@@ -50,45 +51,31 @@ void ezBoxGizmo::OnVisibleChanged(bool bVisible)
   }
 }
 
-const ezTransform mul(const ezTransform& t1, const ezTransform& t2)
-{
-  ezTransform t;
-
-  t.m_vPosition = (t1.m_qRotation * t2.m_vPosition.CompMul(t1.m_vScale)) + t1.m_vPosition;
-  t.m_qRotation = t1.m_qRotation * t2.m_qRotation;
-  t.m_vScale = t1.m_vScale.CompMul(-t1.m_qRotation * t2.m_vScale);
-
-  return t;
-}
-
 void ezBoxGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  ezTransform scale, rot;
-  scale.SetIdentity();
-  scale.m_vScale = m_vSize;
+  ezMat4 scale, rot;
+  scale.SetScalingMatrix(m_vSize);
+  scale = transform.GetAsMat4() * scale;
   
+  m_Corners.SetTransformation(scale);
+
+  rot.SetRotationMatrixX(ezAngle::Degree(90));
+  m_Edges[0].SetTransformation(scale * rot);
+
+  rot.SetRotationMatrixY(ezAngle::Degree(90));
+  m_Faces[0].SetTransformation(scale * rot);
+
   rot.SetIdentity();
-  //rot.m_vScale = m_vSize;
+  m_Edges[1].SetTransformation(scale * rot);
 
-  m_Corners.SetTransformation(transform * scale);
+  rot.SetRotationMatrixX(ezAngle::Degree(90));
+  m_Faces[1].SetTransformation(scale * rot);
 
-  rot.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
-  m_Edges[0].SetTransformation(mul(transform, mul(scale, rot)));
+  rot.SetRotationMatrixZ(ezAngle::Degree(90));
+  m_Edges[2].SetTransformation(scale * rot);
 
-  rot.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
-  m_Faces[0].SetTransformation(mul(transform, mul(scale, rot)));
-
-  rot.m_qRotation.SetIdentity();
-  m_Edges[1].SetTransformation(mul(transform, mul(scale, rot)));
-
-  rot.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
-  m_Faces[1].SetTransformation(mul(transform, mul(scale, rot)));
-
-  rot.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-  m_Edges[2].SetTransformation(mul(transform, mul(scale, rot)));
-
-  rot.m_qRotation.SetIdentity();
-  m_Faces[2].SetTransformation(mul(transform, mul(scale, rot)));
+  rot.SetIdentity();
+  m_Faces[2].SetTransformation(scale * rot);
 }
 
 void ezBoxGizmo::DoFocusLost(bool bCancel)

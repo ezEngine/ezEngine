@@ -55,27 +55,42 @@ public:
   ezSimdVec4f TransformDirection(const ezSimdVec4f& v) const; // [tested]
 
   /// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
-  ezSimdTransform operator*(const ezSimdTransform& other) const; // [tested]
   void operator*=(const ezSimdTransform& other); // [tested]
 
   /// \brief Multiplies \a q into the rotation component, thus rotating the entire transformation.
-  //ezSimdTransform operator*(const ezSimdQuat& q) const; // [tested]
   void operator*=(const ezSimdQuat& q); // [tested]
-
-  /// \brief Translates the transform by the vector. This will move the object in global space.
-  ezSimdTransform operator+(const ezSimdVec4f& v) const; // [tested]
-  ezSimdTransform operator-(const ezSimdVec4f& v) const; // [tested]
 
   void operator+=(const ezSimdVec4f& v); // [tested]
   void operator-=(const ezSimdVec4f& v); // [tested]
-
-  bool operator==(const ezSimdTransform& other) const; // [tested]
-  bool operator!=(const ezSimdTransform& other) const; // [tested]
 
 public:
   ezSimdVec4f m_Position;
   ezSimdQuat m_Rotation;
   ezSimdVec4f m_Scale;
 };
+
+// *** free functions ***
+
+/// \brief Transforms the vector v by the transform.
+EZ_ALWAYS_INLINE const ezSimdVec4f operator*(const ezSimdTransform& t, const ezSimdVec4f& v); // [tested]
+
+/// \brief Rotates the transform by the given quaternion. Multiplies q from the left with t.
+EZ_ALWAYS_INLINE const ezSimdTransform operator*(const ezSimdQuat& q, const ezSimdTransform& t); // [tested]
+
+/// \brief Rotates the transform by the given quaternion. Multiplies q from the right with t.
+EZ_ALWAYS_INLINE const ezSimdTransform operator*(const ezSimdTransform& t, const ezSimdQuat& q); // [tested]
+
+/// \brief Translates the ezSimdTransform by the vector. This will move the object in global space.
+EZ_ALWAYS_INLINE const ezSimdTransform operator+(const ezSimdTransform& t, const ezSimdVec4f& v); // [tested]
+
+/// \brief Translates the ezSimdTransform by the vector. This will move the object in global space.
+EZ_ALWAYS_INLINE const ezSimdTransform operator-(const ezSimdTransform& t, const ezSimdVec4f& v); // [tested]
+
+/// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
+EZ_ALWAYS_INLINE const ezSimdTransform operator*(const ezSimdTransform& lhs, const ezSimdTransform& rhs); // [tested]
+
+EZ_ALWAYS_INLINE bool operator==(const ezSimdTransform& t1, const ezSimdTransform& t2); // [tested]
+EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& t1, const ezSimdTransform& t2); // [tested]
+
 
 #include <Foundation/SimdMath/Implementation/SimdTransform_inl.h>
