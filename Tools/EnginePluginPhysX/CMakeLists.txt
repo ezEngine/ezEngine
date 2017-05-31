@@ -12,6 +12,7 @@ if (POLICY CMP0043)
 endif()
 
 BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+BUILD_CONDITIONAL(EZ_BUILD_PHYSX)
 
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
