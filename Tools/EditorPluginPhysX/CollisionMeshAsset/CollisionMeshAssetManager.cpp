@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetManager.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetWindow.moc.h>
@@ -39,7 +39,7 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollisionMeshAssetDocument>())
       {
-        ezQtCollisionMeshAssetDocumentWindow* pDocWnd = new ezQtCollisionMeshAssetDocumentWindow(e.m_pDocument);
+        ezQtCollisionMeshAssetDocumentWindow* pDocWnd = new ezQtCollisionMeshAssetDocumentWindow(static_cast<ezCollisionMeshAssetDocument*>(e.m_pDocument));
       }
     }
     break;

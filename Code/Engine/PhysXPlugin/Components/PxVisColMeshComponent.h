@@ -40,11 +40,11 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  void SetMesh(const ezPhysXMeshResourceHandle& hMesh);
-  EZ_ALWAYS_INLINE const ezPhysXMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
+  void SetMesh(const ezPxMeshResourceHandle& hMesh);
+  EZ_ALWAYS_INLINE const ezPxMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
 private:
 
-  ezPhysXMeshResourceHandle m_hCollisionMesh;
+  ezPxMeshResourceHandle m_hCollisionMesh;
   mutable ezMeshResourceHandle m_hMesh;
 };

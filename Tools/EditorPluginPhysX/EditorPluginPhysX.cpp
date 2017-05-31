@@ -25,6 +25,8 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginPhysX", "ezPhysXPlugin");
+  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginPhysX", "ezEnginePluginPhysX");
+
 
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 

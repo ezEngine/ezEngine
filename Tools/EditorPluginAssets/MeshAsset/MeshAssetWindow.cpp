@@ -69,10 +69,6 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  m_pLabelInfo = new QLabel(this);
-  m_pLabelInfo->setText("<Mesh Information>");
-  pContainer->GetLayout()->addWidget(m_pLabelInfo, 0);
-
   FinishWindowCreation();
 
   QueryObjectBBox();

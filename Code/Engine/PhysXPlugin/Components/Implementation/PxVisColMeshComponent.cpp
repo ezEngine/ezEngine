@@ -65,7 +65,7 @@ ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
 
 void ezPxVisColMeshComponent::SetMeshFile(const char* szFile)
 {
-  ezPhysXMeshResourceHandle hMesh;
+  ezPxMeshResourceHandle hMesh;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
@@ -83,7 +83,7 @@ const char* ezPxVisColMeshComponent::GetMeshFile() const
   return m_hCollisionMesh.GetResourceID();
 }
 
-void ezPxVisColMeshComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
+void ezPxVisColMeshComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
 {
   if (m_hCollisionMesh != hMesh)
   {

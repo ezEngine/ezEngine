@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -31,6 +31,4 @@ private:
 
   ezSceneViewConfig m_ViewConfig;
   ezQtMeshViewWidget* m_pViewWidget;
-
-  QLabel* m_pLabelInfo;
 };

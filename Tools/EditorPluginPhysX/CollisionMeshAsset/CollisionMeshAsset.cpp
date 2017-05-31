@@ -64,7 +64,7 @@ static ezMat3 CalculateTransformationMatrix(const ezCollisionMeshAssetProperties
 }
 
 ezCollisionMeshAssetDocument::ezCollisionMeshAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezCollisionMeshAssetProperties>(szDocumentPath)
+  : ezSimpleAssetDocument<ezCollisionMeshAssetProperties>(szDocumentPath, true)
 {
 }
 

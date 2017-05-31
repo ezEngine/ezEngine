@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
@@ -23,7 +23,7 @@ public:
 
 
 protected:
-  ezPhysXMeshResourceHandle m_hCollisionMesh;
+  ezPxMeshResourceHandle m_hCollisionMesh;
 
 
   // ************************************* FUNCTIONS *****************************

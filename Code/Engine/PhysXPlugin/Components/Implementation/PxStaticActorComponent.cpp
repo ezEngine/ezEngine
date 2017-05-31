@@ -184,7 +184,7 @@ void ezPxStaticActorComponent::OnBuildNavMesh(ezBuildNavMeshMessage& msg) const
 
 void ezPxStaticActorComponent::SetMeshFile(const char* szFile)
 {
-  ezPhysXMeshResourceHandle hMesh;
+  ezPxMeshResourceHandle hMesh;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
@@ -204,7 +204,7 @@ const char* ezPxStaticActorComponent::GetMeshFile() const
 }
 
 
-void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
+void ezPxStaticActorComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
 {
   m_hCollisionMesh = hMesh;
 }

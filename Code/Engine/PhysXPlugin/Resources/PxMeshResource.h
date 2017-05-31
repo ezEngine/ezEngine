@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <PhysXPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 
-typedef ezTypedResourceHandle<class ezPxMeshResource> ezPhysXMeshResourceHandle;
+typedef ezTypedResourceHandle<class ezPxMeshResource> ezPxMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 struct EZ_PHYSXPLUGIN_DLL ezPhysXMeshResourceDescriptor
