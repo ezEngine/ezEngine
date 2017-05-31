@@ -66,7 +66,7 @@ ezMaterialData FillMaterialData(PS_IN Input)
   matData.normalizedViewVector = NormalizeAndGetLength(CameraPosition - matData.worldPosition, matData.viewDistance);
 
   float3 worldNormal = normalize(GetNormal(Input));
-  #if TWO_SIDED == TRUE
+  #if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
     matData.worldNormal = Input.FrontFace ? worldNormal : -worldNormal;
   #else
     matData.worldNormal = worldNormal;

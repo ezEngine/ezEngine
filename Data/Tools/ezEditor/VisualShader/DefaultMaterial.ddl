@@ -46,7 +46,7 @@ float3 GetObjectPositionOffset(VS_IN Input, ezPerInstanceData data)
   return ToFloat3($in8);
 }
 
-float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data)
+float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldPosition)
 {
   return ToFloat3($in9);
 }
@@ -67,6 +67,7 @@ float MaskThreshold @Default($prop0);
 #define USE_SIMPLE_MATERIAL_MODEL
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
+#define USE_TWO_SIDED_LIGHTING
 " }
 
   string %CodePixelIncludes { "

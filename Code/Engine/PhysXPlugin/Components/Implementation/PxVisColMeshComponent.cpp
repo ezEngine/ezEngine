@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxVisColMeshComponent.h>
+#include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Pipeline/RenderData.h>
@@ -121,7 +122,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh() const
   auto& buffer = md.MeshBufferDesc();
 
   // todo: implement convex mesh case
-  
+
   //if (pMesh->GetConvexMesh() != nullptr)
   //{
   //  auto pConvex = pMesh->GetConvexMesh();

@@ -11,7 +11,7 @@
 #endif
 
 #if defined(USE_WORLD_POSITION_OFFSET)
-  float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data);
+  float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldPosition);
 #endif
 
 
@@ -36,7 +36,7 @@ VS_OUT FillVertexData(VS_IN Input)
   VS_OUT Output;
   Output.WorldPosition = mul(objectToWorld, float4(objectPosition, 1.0)).xyz;
   #if defined(USE_WORLD_POSITION_OFFSET)
-    Output.WorldPosition += GetWorldPositionOffset(Input, data);
+    Output.WorldPosition += GetWorldPositionOffset(Input, data, Output.WorldPosition);
   #endif
 
   Output.Position = mul(WorldToScreenMatrix, float4(Output.WorldPosition, 1.0));
