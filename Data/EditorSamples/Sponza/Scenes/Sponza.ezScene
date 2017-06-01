@@ -145,7 +145,7 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6352536487282240430,5530783045581211485}}
-		u4 %Hash{8861982659428474066}
+		u4 %Hash{5012309787569029522}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -167,7 +167,7 @@ o
 		f %ConstantBias{0xCDCCCC3D}
 		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x00002041}
-		ColorGamma %LightColor{u1{247,248,236,255}}
+		ColorGamma %LightColor{u1{248,230,220,255}}
 		f %MinShadowRange{0x00004842}
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{3}

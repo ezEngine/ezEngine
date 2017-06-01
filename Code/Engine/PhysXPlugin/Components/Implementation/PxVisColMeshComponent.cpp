@@ -13,11 +13,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1)
     EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh;Collision Mesh (Convex)")),
   }
   EZ_END_PROPERTIES
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
+    EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Physics"),
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -121,31 +126,56 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh() const
   ezMeshResourceDescriptor md;
   auto& buffer = md.MeshBufferDesc();
 
-  // todo: implement convex mesh case
+  if (pMesh->GetConvexMesh() != nullptr)
+  {
+    auto pConvex = pMesh->GetConvexMesh();
 
-  //if (pMesh->GetConvexMesh() != nullptr)
-  //{
-  //  auto pConvex = pMesh->GetConvexMesh();
+    ezUInt32 uiNumTriangles = 0;
+    for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
+    {
+      physx::PxHullPolygon poly;
+      pConvex->getPolygonData(p, poly);
 
-  //  buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  ////  buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  ////  buffer.AllocateStreams(pConvex->getNbVertices(), ezGALPrimitiveTopology::Triangles, pConvex->getNbPolygons();
+      uiNumTriangles += poly.mNbVerts - 2;
+    }
 
-  //  pConvex->getPolygonData(
-  //}
-  //else
-  if (pMesh->GetTriangleMesh() != nullptr)
+    const auto pIndices = pConvex->getIndexBuffer();
+
+    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    buffer.AllocateStreams(pConvex->getNbVertices(), ezGALPrimitiveTopology::Triangles, uiNumTriangles);
+
+    for (ezUInt32 v = 0; v < pConvex->getNbVertices(); ++v)
+    {
+      buffer.SetVertexData<PxVec3>(0, v, pConvex->getVertices()[v]);
+    }
+
+    uiNumTriangles = 0;
+    for (ezUInt32 p = 0; p < pConvex->getNbPolygons(); ++p)
+    {
+      physx::PxHullPolygon poly;
+      pConvex->getPolygonData(p, poly);
+
+      const auto pLocalIdx = &pIndices[poly.mIndexBase];
+
+      for (ezUInt32 tri = 2; tri < poly.mNbVerts; ++tri)
+      {
+        buffer.SetTriangleIndices(uiNumTriangles, pLocalIdx[0], pLocalIdx[tri - 1], pLocalIdx[tri]);
+        ++uiNumTriangles;
+      }
+    }
+
+    md.AddSubMesh(uiNumTriangles, 0, 0);
+  }
+  else if (pMesh->GetTriangleMesh() != nullptr)
   {
     auto pTriMesh = pMesh->GetTriangleMesh();
 
     buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    //buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
     buffer.AllocateStreams(pTriMesh->getNbVertices(), ezGALPrimitiveTopology::Triangles, pTriMesh->getNbTriangles());
 
     for (ezUInt32 vtx = 0; vtx < pTriMesh->getNbVertices(); ++vtx)
     {
       buffer.SetVertexData<PxVec3>(0, vtx, pTriMesh->getVertices()[vtx]);
-      //buffer.SetVertexData<ezVec3>(1, vtx, ezVec3(0, 0, 1)); /// \todo Dummy normal
     }
 
     if (pTriMesh->getTriangleMeshFlags().isSet(PxTriangleMeshFlag::e16_BIT_INDICES))
@@ -176,8 +206,6 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh() const
 
   md.ComputeBounds();
 
-  /// \todo Allow to change material ?
-  /// \todo Implement a proper material that uses simple lighting and maybe a procedural pattern
   md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
 
   m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sColMeshName, md, "Collision Mesh Visualization");

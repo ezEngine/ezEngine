@@ -18,8 +18,10 @@ ezPhysXComponent;PhysX Component
 ezPxActorComponent;PhysX Actor
 ezCollisionMeshType::ConvexHull;Convex Hull
 ezCollisionMeshType::TriangleMesh;Triangle Mesh
+ezCollisionMeshType::Cylinder;Cylinder
 ezPxSteppingMode::Variable;Variable
 ezPxSteppingMode::Fixed;Fixed
 ezPxSteppingMode::SemiFixed;SemiFixed
 ezPxTriggerComponent;Trigger
 ezPxRaycastInteractComponent;Raycast Interaction
+ezPxVisColMeshComponent;Collision Mesh Visualization

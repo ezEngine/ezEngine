@@ -1,4 +1,4 @@
-string %Shader { "Shaders/Materials/FallbackMaterial.ezShader" }
+string %Shader { "Shaders/Materials/ColMeshMaterial.ezShader" }
 
 Texture2D
 {

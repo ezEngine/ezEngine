@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/Math/Color8UNorm.h>
@@ -111,15 +111,6 @@ void ezQtCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
   //  emit ColorCpMoved(m_iSelectedColorCP, value);
   //}
 }
-
-void ezQtCurve1DEditorWidget::on_SpinValue_valueChanged(double value)
-{
-  //if (m_iSelectedIntensityCP != -1)
-  //{
-  //  emit IntensityCpChanged(m_iSelectedIntensityCP, value);
-  //}
-}
-
 
 void ezQtCurve1DEditorWidget::on_ButtonNormalizeX_clicked()
 {

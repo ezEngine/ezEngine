@@ -131,3 +131,4 @@ ezLogicOperator::Less;<
 ezLogicOperator::LessEqual;<=
 ezLogicOperator::Greater;>
 ezLogicOperator::GreaterEqual;>=
+ezShapeIconComponent;Shape Icon
