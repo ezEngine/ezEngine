@@ -92,8 +92,8 @@ ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
 
 void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  // Don't render in orthographic views
-  if (msg.m_pView->GetCamera()->IsOrthographic())
+  // Don't extract sky render data for selection or in orthographic views.
+  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
@@ -116,20 +116,9 @@ void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
     pRenderData->m_uiUniqueID = GetUniqueID();
   }
 
-  // Determine render data category.
-  ezRenderData::Category category;
-  if (msg.m_OverrideCategory != ezInvalidIndex)
-  {
-    category = msg.m_OverrideCategory;
-  }
-  else
-  {
-    category = ezDefaultRenderDataCategories::Sky;
-  }
-
   // Sort by material and then by mesh
   ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, uiSortingKey);
 }
 
 void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
