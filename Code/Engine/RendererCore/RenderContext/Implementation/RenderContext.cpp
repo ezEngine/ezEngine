@@ -98,7 +98,7 @@ ezRenderContext::ezRenderContext()
   s_Instances.PushBack(this);
 
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
-  m_Topology = ezGALPrimitiveTopology::Triangles;
+  m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
   m_DefaultTextureFilter = ezTextureFilterSetting::FixedAnisotropic4x;
 
@@ -606,7 +606,7 @@ void ezRenderContext::ResetContextState()
   m_hVertexBuffer.Invalidate();
   m_hIndexBuffer.Invalidate();
   m_pVertexDeclarationInfo = nullptr;
-  m_Topology = ezGALPrimitiveTopology::Triangles;
+  m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
