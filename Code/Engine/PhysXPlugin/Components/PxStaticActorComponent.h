@@ -33,6 +33,7 @@ public:
   ezUInt32 GetShapeId() const { return m_uiShapeId; }
 
   ezUInt8 m_uiCollisionLayer;
+  bool m_bIncludeInNavmesh = true;
 
 protected:
   ezUInt32 m_uiShapeId;

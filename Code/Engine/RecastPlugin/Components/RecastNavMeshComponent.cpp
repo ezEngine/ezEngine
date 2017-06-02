@@ -59,7 +59,7 @@ void ezRcNavMeshComponent::Update()
 
   if (m_uiDelay == 0)
   {
-    if (m_bShowNavMesh || g_AiShowNavMesh)
+    if ((m_bShowNavMesh || g_AiShowNavMesh) && (m_NavMeshBuilder.m_polyMesh != nullptr))
     {
       const auto& mesh = *m_NavMeshBuilder.m_polyMesh;
 

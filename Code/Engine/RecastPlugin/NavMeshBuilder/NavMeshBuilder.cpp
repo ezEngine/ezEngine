@@ -97,6 +97,13 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezNav
   m_pRecastContext = recastContext.Borrow();
 
   GenerateTriangleMeshFromDescription(desc);
+
+  if (m_Vertices.IsEmpty())
+  {
+    ezLog::Debug("Navmesh is empty");
+    return EZ_SUCCESS;
+  }
+
   ComputeBoundingBox();
 
   ezLog::Debug("Generate Triangle Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
@@ -104,7 +111,7 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezNav
   if (BuildRecastNavMesh(config).Failed())
     return EZ_FAILURE;
 
-  ezLog::Debug("Build Recast Nav Mesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
+  ezLog::Debug("Build Recast Navmesh: {0}ms", ezArgF(watch.Checkpoint().GetMilliseconds()));
 
   return EZ_SUCCESS;
 }
@@ -115,9 +122,12 @@ void ezRecastNavMeshBuilder::ReserveMemory(const ezNavMeshDescription& desc)
   const ezUInt32 uiBoxTriangles = uiBoxes * 12;
   const ezUInt32 uiBoxVertices = uiBoxes * 8;
 
-  m_Triangles.Reserve(uiBoxTriangles);
-  m_TriangleAreaIDs.Reserve(uiBoxTriangles);
-  m_Vertices.Reserve(uiBoxVertices);
+  const ezUInt32 uiTriangles = uiBoxTriangles + desc.m_Triangles.GetCount();
+  const ezUInt32 uiVertices = uiBoxVertices + desc.m_Vertices.GetCount();
+
+  m_Triangles.Reserve(uiTriangles);
+  m_TriangleAreaIDs.Reserve(uiTriangles);
+  m_Vertices.Reserve(uiVertices);
 }
 
 void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMeshDescription& desc)
@@ -129,6 +139,21 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMesh
   m_Vertices.Clear();
 
   ReserveMemory(desc);
+
+  {
+    for (const auto& v : desc.m_Vertices)
+    {
+      m_Vertices.PushBack(v);
+    }
+
+    for (const auto& tri : desc.m_Triangles)
+    {
+      auto& nt = m_Triangles.ExpandAndGetRef();
+      nt.m_VertexIdx[0] = tri.m_uiVertexIndices[0];
+      nt.m_VertexIdx[1] = tri.m_uiVertexIndices[1];
+      nt.m_VertexIdx[2] = tri.m_uiVertexIndices[2];
+    }
+  }
 
   for (const auto& box : desc.m_BoxObstacles)
   {
@@ -172,10 +197,10 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMesh
       m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 7, uiFirstVtx + 1, uiFirstVtx + 5);
       m_Triangles.ExpandAndGetRef() = Triangle(uiFirstVtx + 7, uiFirstVtx + 3, uiFirstVtx + 1);
     }
-
-    // initialize the IDs to zero
-    m_TriangleAreaIDs.SetCountUninitialized(m_Triangles.GetCount());
   }
+
+  // initialize the IDs to zero
+  m_TriangleAreaIDs.SetCount(m_Triangles.GetCount());
 
   ezLog::Debug("Vertices: {0}, Triangles: {1}", m_Vertices.GetCount(), m_Triangles.GetCount());
 }
@@ -183,7 +208,10 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMesh
 
 void ezRecastNavMeshBuilder::ComputeBoundingBox()
 {
-  m_BoundingBox.SetFromPoints(m_Vertices.GetData(), m_Vertices.GetCount());
+  if (!m_Vertices.IsEmpty())
+  {
+    m_BoundingBox.SetFromPoints(m_Vertices.GetData(), m_Vertices.GetCount());
+  }
 }
 
 void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& config)

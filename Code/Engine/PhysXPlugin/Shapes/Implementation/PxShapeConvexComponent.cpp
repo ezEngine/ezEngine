@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
@@ -104,7 +104,15 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), *pMaterial);
 }
 
+void ezPxShapeConvexComponent::AddToNavMesh(ezBuildNavMeshMessage& msg) const
+{
+  if (m_hCollisionMesh.IsValid())
+  {
+    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
 
+    pMesh->AddToNavMesh(GetOwner()->GetGlobalTransform(), msg);
+  }
+}
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Shapes_Implementation_PxShapeConvexComponent);
 

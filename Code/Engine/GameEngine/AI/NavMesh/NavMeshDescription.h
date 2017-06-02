@@ -18,6 +18,13 @@ struct EZ_GAMEENGINE_DLL ezNavMeshBoxObstacle : public ezNavMeshObstacle
   ezVec3 m_vHalfExtents;
 };
 
+struct EZ_GAMEENGINE_DLL ezNavMeshTriangle
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezUInt32 m_uiVertexIndices[3];
+};
+
 struct EZ_GAMEENGINE_DLL ezNavMeshDescription
 {
   ezNavMeshDescription();
@@ -26,6 +33,7 @@ struct EZ_GAMEENGINE_DLL ezNavMeshDescription
   void Clear();
 
   ezDeque<ezNavMeshBoxObstacle> m_BoxObstacles;
-
+  ezDeque<ezVec3> m_Vertices;
+  ezDeque<ezNavMeshTriangle> m_Triangles;
 };
 

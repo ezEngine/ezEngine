@@ -7,12 +7,13 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Messages/BuildNavMeshMessage.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh;Collision Mesh (Convex)")),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
@@ -43,6 +44,7 @@ void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hCollisionMesh;
   s << m_uiCollisionLayer;
+  s << m_bIncludeInNavmesh;
 }
 
 
@@ -55,6 +57,11 @@ void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_hCollisionMesh;
   s >> m_uiCollisionLayer;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bIncludeInNavmesh;
+  }
 }
 
 void ezPxStaticActorComponent::Deinitialize()
@@ -179,6 +186,16 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
 void ezPxStaticActorComponent::OnBuildNavMesh(ezBuildNavMeshMessage& msg) const
 {
+  if (!m_bIncludeInNavmesh)
+    return;
+
+  if (m_hCollisionMesh.IsValid())
+  {
+    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
+
+    pMesh->AddToNavMesh(GetOwner()->GetGlobalTransform(), msg);
+  }
+
   AddShapesToNavMesh(GetOwner(), msg);
 }
 
