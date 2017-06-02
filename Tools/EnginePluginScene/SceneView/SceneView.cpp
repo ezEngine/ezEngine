@@ -82,6 +82,7 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
     pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
     pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
     pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+    pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
   }
 
   return !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
@@ -158,7 +159,7 @@ ezViewHandle ezSceneViewContext::CreateView()
   pView->SetRenderPassProperty("EditorPickingPass", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorSelectedObjectsExtractor", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorShapeIconsExtractor", "SceneContext", m_pSceneContext);
-  pView->SetExtractorProperty("EditorGrid", "SceneContext", m_pSceneContext);
+  pView->SetExtractorProperty("EditorGridExtractor", "SceneContext", m_pSceneContext);
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());
