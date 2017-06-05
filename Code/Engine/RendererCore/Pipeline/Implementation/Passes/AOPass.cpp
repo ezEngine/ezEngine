@@ -3,6 +3,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/DownscaleDepthConstants.h>
