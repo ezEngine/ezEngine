@@ -1140,7 +1140,7 @@ ezUInt64 ezGALDevice::GetMemoryConsumptionForTexture(const ezGALTextureCreationD
   // Also account for mip maps
   if (desc.m_uiMipLevelCount > 1)
   {
-    uiMemory = static_cast<ezUInt64>(uiMemory * (1.0 / 3.0) * uiMemory);
+    uiMemory += static_cast<ezUInt64>((1.0 / 3.0) * uiMemory);
   }
 
   return uiMemory;

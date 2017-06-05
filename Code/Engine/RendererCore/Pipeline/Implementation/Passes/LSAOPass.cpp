@@ -1,14 +1,13 @@
 #include <PCH.h>
-#include <RendererCore/Pipeline/Passes/ScreenSpaceAmbientOcclusionPass.h>
+#include <RendererCore/Pipeline/Passes/LSAOPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererFoundation/Profiling/Profiling.h>
-#include <Foundation/Configuration/CVar.h>
 #include <Core/Graphics/Geometry.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScreenSpaceAmbientOcclusionPass, 1, ezRTTIDefaultAllocator<ezScreenSpaceAmbientOcclusionPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLSAOPass, 1, ezRTTIDefaultAllocator<ezLSAOPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -48,12 +47,10 @@ namespace
     }
     return h;
   }
-
-  ezCVarBool s_disableSSAO("r_DisableSSAO", false, ezCVarFlags::None, "Disables SSAO effect. Has the same effect as setting all SSAO ezRenderPipelinePass to active false.");
 }
 
-ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
-  : ezRenderPipelinePass("ScreenSpaceAmbientOcclusionPass")
+ezLSAOPass::ezLSAOPass()
+  : ezRenderPipelinePass("LSAOPass")
   , m_uiLineToLinePixelOffset(2)
   , m_uiLineSamplePixelOffsetFactor(2)
   , m_bSweepDataDirty(true)
@@ -61,23 +58,23 @@ ezScreenSpaceAmbientOcclusionPass::ezScreenSpaceAmbientOcclusionPass()
 {
   {
     // Load shader.
-    m_hShaderLineSweep = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SSAOSweep.ezShader");
+    m_hShaderLineSweep = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/LSAOSweep.ezShader");
     EZ_ASSERT_DEV(m_hShaderLineSweep.IsValid(), "Could not lsao sweep shader!");
-    m_hShaderGather = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SSAOGather.ezShader");
+    m_hShaderGather = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/LSAOGather.ezShader");
     EZ_ASSERT_DEV(m_hShaderGather.IsValid(), "Could not lsao gather shader!");
-    m_hShaderAverage = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/SSAOAverage.ezShader");
+    m_hShaderAverage = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/LSAOAverage.ezShader");
     EZ_ASSERT_DEV(m_hShaderGather.IsValid(), "Could not lsao average shader!");
   }
 
   {
-    m_hLineSweepCB = ezRenderContext::CreateConstantBufferStorage<ezSSAOConstants>();
-    ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+    m_hLineSweepCB = ezRenderContext::CreateConstantBufferStorage<ezLSAOConstants>();
+    ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
     cb->DepthCutoffDistance = 8.0f;
     cb->OcclusionFalloff = 0.25f;
   }
 }
 
-ezScreenSpaceAmbientOcclusionPass::~ezScreenSpaceAmbientOcclusionPass()
+ezLSAOPass::~ezLSAOPass()
 {
   DestroyLineSweepData();
 
@@ -85,7 +82,7 @@ ezScreenSpaceAmbientOcclusionPass::~ezScreenSpaceAmbientOcclusionPass()
   m_hLineSweepCB.Invalidate();
 }
 
-bool ezScreenSpaceAmbientOcclusionPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   EZ_ASSERT_DEBUG(inputs.GetCount() == 1, "Unexpected number of inputs for ezScreenSpaceAmbientOcclusionPass.");
 
@@ -108,17 +105,14 @@ bool ezScreenSpaceAmbientOcclusionPass::GetRenderTargetDescriptions(const ezView
   return true;
 }
 
-void ezScreenSpaceAmbientOcclusionPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezLSAOPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   // Todo: Support half resolution.
   SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
 }
 
-void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  if (s_disableSSAO.GetValue())
-    return ExecuteInactive(renderViewContext, inputs, outputs);
-
   if(m_bSweepDataDirty)
     SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
 
@@ -145,7 +139,7 @@ void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& rende
 
 
   // Constant buffer for both passes.
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hLineSweepCB);
+  renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
   // Depth buffer for both passes.
   ezGALResourceViewCreationDescription rvcd;
   rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
@@ -208,7 +202,7 @@ void ezScreenSpaceAmbientOcclusionPass::Execute(const ezRenderViewContext& rende
   }
 }
 
-void ezScreenSpaceAmbientOcclusionPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
   if (pOutput == nullptr)
@@ -226,43 +220,43 @@ void ezScreenSpaceAmbientOcclusionPass::ExecuteInactive(const ezRenderViewContex
   pGALContext->Clear(ezColor::White);
 }
 
-void ezScreenSpaceAmbientOcclusionPass::SetLineToLinePixelOffset(ezUInt32 uiPixelOffset)
+void ezLSAOPass::SetLineToLinePixelOffset(ezUInt32 uiPixelOffset)
 {
   m_uiLineToLinePixelOffset = uiPixelOffset;
   m_bSweepDataDirty = true;
 }
 
-void ezScreenSpaceAmbientOcclusionPass::SetLineSamplePixelOffset(ezUInt32 uiPixelOffset)
+void ezLSAOPass::SetLineSamplePixelOffset(ezUInt32 uiPixelOffset)
 {
   m_uiLineSamplePixelOffsetFactor = uiPixelOffset;
   m_bSweepDataDirty = true;
 }
 
-float ezScreenSpaceAmbientOcclusionPass::GetDepthCutoffDistance() const
+float ezLSAOPass::GetDepthCutoffDistance() const
 {
-  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
   return cb->DepthCutoffDistance;
 }
 
-void ezScreenSpaceAmbientOcclusionPass::SetDepthCutoffDistance(float fDepthCutoffDistance)
+void ezLSAOPass::SetDepthCutoffDistance(float fDepthCutoffDistance)
 {
-  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
   cb->DepthCutoffDistance = fDepthCutoffDistance;
 }
 
-float ezScreenSpaceAmbientOcclusionPass::GetOcclusionFalloff() const
+float ezLSAOPass::GetOcclusionFalloff() const
 {
-  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
   return cb->OcclusionFalloff;
 }
 
-void ezScreenSpaceAmbientOcclusionPass::SetOcclusionFalloff(float fFalloff)
+void ezLSAOPass::SetOcclusionFalloff(float fFalloff)
 {
-  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
   cb->OcclusionFalloff = fFalloff;
 }
 
-void ezScreenSpaceAmbientOcclusionPass::DestroyLineSweepData()
+void ezLSAOPass::DestroyLineSweepData()
 {
   ezGALDevice* device = ezGALDevice::GetDefaultDevice();
 
@@ -283,13 +277,13 @@ void ezScreenSpaceAmbientOcclusionPass::DestroyLineSweepData()
   m_hLineInfoBuffer.Invalidate();
 }
 
-void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imageResolution)
+void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
 {
   DestroyLineSweepData();
 
   ezDynamicArray<LineInstruction> lineInstructions;
   ezUInt32 totalNumberOfSamples = 0;
-  ezSSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezSSAOConstants>(m_hLineSweepCB);
+  ezLSAOConstants* cb = ezRenderContext::GetConstantBufferData<ezLSAOConstants>(m_hLineSweepCB);
   cb->LineToLinePixelOffset = m_uiLineToLinePixelOffset;
 
   // Compute general information per direction and create line instructions.
@@ -402,7 +396,7 @@ void ezScreenSpaceAmbientOcclusionPass::SetupLineSweepData(const ezVec2I32& imag
   m_bSweepDataDirty = false;
 }
 
-void ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples)
+void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex, ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples)
 {
   EZ_ASSERT_DEBUG(sampleDir.x != 0 || sampleDir.y != 0, "Sample direction is null (not pointing anywhere)");
 

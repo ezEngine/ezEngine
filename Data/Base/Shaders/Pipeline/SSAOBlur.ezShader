@@ -1,0 +1,86 @@
+﻿[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include "SSAOConstants.h"
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D SSAOTexture;
+SamplerState PointClampSampler;
+
+float CalculateDepthWeight(float depthA, float depthB, float scale)
+{
+  return saturate(1 - abs(depthA - depthB) * scale);
+}
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float2 ssaoAndCenterDepth = SSAOTexture.Sample(PointClampSampler, Input.TexCoord0).rg;
+
+  float centerDepth = ssaoAndCenterDepth.y;
+  if (centerDepth >= ClipPlanes.y)
+  {
+    return float4(1, centerDepth, 0, 1);
+  }
+
+  float totalSSAO = ssaoAndCenterDepth.x;
+  float totalWeight = 1.0f;
+
+  float2 offsets[16] =
+  {
+    float2(1, 1),
+    float2(0, 1),
+    float2(-1, 1),
+    float2(-1, 0),
+    float2(-1, -1),
+    float2(0, -1),
+    float2(1, -1),
+    float2(1, 0),
+    float2(1, 2),
+    float2(-1, 2),
+    float2(1, -2),
+    float2(-1, -2),
+    float2(2, 1),
+    float2(2, -1),
+    float2(-2, 1),
+    float2(-2, -1),
+  };
+
+  float2 blurRadius = ViewportSize.zw;
+
+  [unroll]
+  for (int i = 0; i < 16; ++i)
+  {
+    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, Input.TexCoord0 + offsets[i] * blurRadius, 0.0f).rg;
+    float weight = CalculateDepthWeight(centerDepth, ssaoAndDepth.y, DepthBlurScale) / length(offsets[i]);
+
+    totalSSAO += ssaoAndDepth.x * weight;
+    totalWeight += weight;
+  }
+
+  return float4(totalSSAO / totalWeight, centerDepth, 0, 1);
+}
+
+#endif

@@ -1,0 +1,62 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Pipeline/Utils.h>
+#include "DownscaleDepthConstants.h"
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D DepthTexture;
+SamplerState DepthSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  const float2 offsets[] =
+  {
+    float2(0, 0),
+    float2(0, 1),
+    float2(1, 1),
+    float2(1, 0)
+  };
+
+  float2 screenPosition = Input.Position.xy * 2;
+  float depth = 0.0f;  
+  
+  [unroll]
+  for (int i = 0; i < 4; ++i)
+  {
+    float2 samplePos = (screenPosition.xy + offsets[i]) * PixelSize;
+    depth = max(depth, DepthTexture.SampleLevel(DepthSampler, samplePos, 0));
+  }
+
+  if (LinearizeDepth)
+  {
+    depth = LinearizeZBufferDepth(depth);
+  }
+  
+  return depth;
+}
+
+#endif
+

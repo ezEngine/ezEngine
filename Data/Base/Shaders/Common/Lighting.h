@@ -47,6 +47,38 @@ float MicroShadow(float occlusion, float3 normal, float3 lightDir)
   return saturate(abs(dot(normal, lightDir)) + aperture - 1.0f);
 }
 
+float SampleSSAO(float3 screenPosition)
+{
+  const float2 offsets[] =
+  {
+    float2(0, 0),
+    float2(0, 1),
+    float2(1, 0),
+    float2(0, -1),
+    float2(-1, 0)
+  };
+  
+#if 0
+  return SSAOTexture.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+#else  
+  float totalSSAO = 0.0f;
+  float totalWeight = 0.0f;
+  
+  [unroll]
+  for (int i = 0; i < 5; ++i)
+  {
+    float2 samplePos = (screenPosition.xy + offsets[i]) * ViewportSize.zw;
+    float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, samplePos, 0.0f).rg;
+    float weight = saturate(1 - abs(screenPosition.z - ssaoAndDepth.y) * 2.0f);
+    
+    totalSSAO += ssaoAndDepth.x * weight;
+    totalWeight += weight;
+  }
+  
+  return totalWeight > 0.0f ? totalSSAO / totalWeight : 1.0f;
+#endif
+}
+
 uint GetPointShadowFaceIndex(float3 dir)
 {
   if (abs(dir.z) >= abs(dir.x) && abs(dir.z) >= abs(dir.y))
@@ -63,7 +95,7 @@ uint GetPointShadowFaceIndex(float3 dir)
 
 float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbraSize)
 {
-  float2 offsets[] =
+  const float2 offsets[] =
   {
     float2(-0.7071,  0.7071),
     float2(-0.0000, -0.8750),
@@ -287,7 +319,7 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
 
   totalLight *= (1.0f / PI);
 
-  float ssao = SSAOTexture.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+  float ssao = SampleSSAO(screenPosition);
   float occlusion = min(matData.occlusion, ssao);
   #if APPLY_SSAO_TO_DIRECT_LIGHTING
     totalLight *= occlusion;

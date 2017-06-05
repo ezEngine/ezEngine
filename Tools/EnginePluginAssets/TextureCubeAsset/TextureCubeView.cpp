@@ -25,7 +25,7 @@ ezViewHandle ezTextureCubeViewContext::CreateView()
 
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
   pView->SetRenderPassProperty("DepthPrePass", "Active", false);
-  pView->SetRenderPassProperty("SSAOPass", "Active", false);
+  pView->SetRenderPassProperty("AOPass", "Active", false);
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());

@@ -24,7 +24,7 @@ struct PS_IN
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/Common.h>
-#include "SSAOConstants.h"
+#include "LSAOConstants.h"
 #include "Utils.h"
 
 Texture2D DepthBuffer : register(t0);

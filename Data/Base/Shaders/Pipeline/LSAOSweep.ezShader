@@ -6,7 +6,7 @@ ALL
 [COMPUTESHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
-#include "SSAOConstants.h"
+#include "LSAOConstants.h"
 #include "Utils.h"
 
 Texture2D<float> DepthBuffer : register(t0);

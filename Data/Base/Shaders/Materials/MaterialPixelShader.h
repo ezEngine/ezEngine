@@ -161,7 +161,7 @@ PS_OUT main(PS_IN Input)
     }
     else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
     {
-      float ssao = SSAOTexture.SampleLevel(PointClampSampler, Input.Position.xy * ViewportSize.zw, 0.0f).r;
+      float ssao = SampleSSAO(Input.Position.xyw);
       float occlusion = min(matData.occlusion, ssao);
       
       Output.Color = float4(SrgbToLinear(occlusion), opacity);

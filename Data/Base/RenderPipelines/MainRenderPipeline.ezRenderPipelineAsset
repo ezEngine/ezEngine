@@ -217,6 +217,29 @@ o
 }
 o
 {
+	Uuid %id{u4{131739830145733043,4938117585638962621}}
+	s %t{"ezAOPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %Contrast{0x00000040}
+		Uuid %DepthInput{u4{17525208865084826331,15076243312531172180}}
+		f %Intensity{0x3333333F}
+		f %MaxScreenSpaceRadius{0x0000803F}
+		s %Name{"AOPass"}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{17304078844041792371,8828842289773024929}}
+		}
+		Vec2 %Node::Pos{f{0xD2152BC4,0xE2D697C2}}
+		Uuid %Output{u4{9986565663282033582,18243061412813709350}}
+		f %Radius{0x0000803F}
+		VarArray %Renderers{}
+	}
+}
+o
+{
 	Uuid %id{u4{229765027644355237,5099929926165633682}}
 	s %t{"ezSpriteRenderer"}
 	u3 %v{1}
@@ -286,7 +309,7 @@ o
 			Uuid{u4{8885271718945736074,8038724492364506280}}
 			Uuid{u4{1300364773138385847,12836615023600263575}}
 		}
-		Vec2 %Node::Pos{f{0x00C058C4,0x70DEB441}}
+		Vec2 %Node::Pos{f{0x28C359C4,0x59281740}}
 		Uuid %Output{u4{321395160873795197,15581556794423472924}}
 		VarArray %Renderers{}
 	}
@@ -339,10 +362,10 @@ o
 			Uuid{u4{6364028332014496402,4851927279810643395}}
 			Uuid{u4{1098768901678871207,5515637368220210434}}
 			Uuid{u4{16972766189944550570,4911723010182931087}}
-			Uuid{u4{8822139890538759351,5659142191672036562}}
 			Uuid{u4{17158037350687856310,5273637871777512332}}
 			Uuid{u4{9143673445087126165,5438228896904804009}}
 			Uuid{u4{8045596856047656890,5615459532741541307}}
+			Uuid{u4{131739830145733043,4938117585638962621}}
 		}
 	}
 }
@@ -461,30 +484,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8822139890538759351,5659142191672036562}}
-	s %t{"ezScreenSpaceAmbientOcclusionPass"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		Uuid %AmbientObscurance{u4{16180297401482570119,8547799458874749730}}
-		Uuid %Depth{u4{4482823644590135140,11644057536269094221}}
-		f %DepthCutoffDistance{0x00000040}
-		b %DistributedGathering{1}
-		u3 %LineSampleDistanceFactor{1}
-		u3 %LineToLineDistance{5}
-		s %Name{"SSAOPass"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{12840291537622090936,7120117218080742269}}
-		}
-		Vec2 %Node::Pos{f{0x40C234C4,0xE998DFC2}}
-		f %OcclusionFalloff{0x9A99193E}
-		VarArray %Renderers{}
-	}
-}
-o
-{
 	Uuid %id{u4{5890894492341910667,5683842914295571854}}
 	s %t{"ezTargetPass"}
 	u3 %v{1}
@@ -524,7 +523,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{2975390765435082767}
+		u4 %Hash{659103986215982151}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -574,18 +573,6 @@ o
 }
 o
 {
-	Uuid %id{u4{12840291537622090936,7120117218080742269}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"AmbientObscurance"}
-		Uuid %Target{u4{17796431785515833509,5647157096127223658}}
-		s %TargetPin{"SSAO"}
-	}
-}
-o
-{
 	Uuid %id{u4{8142254079914094932,7884160637929403677}}
 	s %t{"ezPassThroughNodePin"}
 	u3 %v{1}
@@ -599,16 +586,9 @@ o
 	p
 	{
 		s %SourcePin{"Output"}
-		Uuid %Target{u4{8822139890538759351,5659142191672036562}}
-		s %TargetPin{"Depth"}
+		Uuid %Target{u4{609676708718451605,5170981321768930991}}
+		s %TargetPin{"DepthStencil"}
 	}
-}
-o
-{
-	Uuid %id{u4{16180297401482570119,8547799458874749730}}
-	s %t{"ezOutputNodePin"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -620,6 +600,18 @@ o
 		s %SourcePin{"Output"}
 		Uuid %Target{u4{5221433484689438359,4806748031007382258}}
 		s %TargetPin{"Bloom"}
+	}
+}
+o
+{
+	Uuid %id{u4{17304078844041792371,8828842289773024929}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{17796431785515833509,5647157096127223658}}
+		s %TargetPin{"SSAO"}
 	}
 }
 o
@@ -662,13 +654,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4482823644590135140,11644057536269094221}}
-	s %t{"ezInputNodePin"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{1550200223900520099,12250501625162488700}}
 	s %t{"ezPassThroughNodePin"}
 	u3 %v{1}
@@ -682,8 +667,8 @@ o
 	p
 	{
 		s %SourcePin{"Output"}
-		Uuid %Target{u4{609676708718451605,5170981321768930991}}
-		s %TargetPin{"DepthStencil"}
+		Uuid %Target{u4{131739830145733043,4938117585638962621}}
+		s %TargetPin{"DepthInput"}
 	}
 }
 o
@@ -703,6 +688,13 @@ o
 o
 {
 	Uuid %id{u4{8862866662286781222,14561899024257998411}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{17525208865084826331,15076243312531172180}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
@@ -768,6 +760,13 @@ o
 {
 	Uuid %id{u4{16271184986969975519,17644264859522915447}}
 	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{9986565663282033582,18243061412813709350}}
+	s %t{"ezOutputNodePin"}
 	u3 %v{1}
 	p{}
 }

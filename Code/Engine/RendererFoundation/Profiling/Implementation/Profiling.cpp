@@ -11,7 +11,7 @@
 
 namespace
 {
-  ezCVarBool s_enableGPUProfiling("r_EnableGPUprofiling", false, ezCVarFlags::None, "If true, every ezProfilingScopeAndMarker scope uses a ezGPUStopwatch to measure the passed GPU time and writes the result in ms to ezStats");
+  ezCVarBool CVarGPUProfiling("r_GPUProfiling", false, ezCVarFlags::None, "If true, every ezProfilingScopeAndMarker scope uses a ezGPUStopwatch to measure the passed GPU time and writes the result in ms to ezStats");
   ezHybridArray<ezString, 4> s_previousProfilingScopes;
 }
 
@@ -22,7 +22,7 @@ ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALContext* pGALContext, 
   m_pGALContext->PushMarker(m_szName);
   s_previousProfilingScopes.PushBack(m_szName);
 
-  if (s_enableGPUProfiling.GetValue())
+  if (CVarGPUProfiling)
   {
     ezGPUStopwatch& stopwatch = m_pGALContext->GetDevice()->GetOrCreateGPUStopwatch(szName);
     stopwatch.Begin(*m_pGALContext);
@@ -34,7 +34,7 @@ ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
   m_pGALContext->PopMarker();
   s_previousProfilingScopes.PopBack();
 
-  if (s_enableGPUProfiling.GetValue())
+  if (CVarGPUProfiling)
   {
     ezGPUStopwatch& stopwatch = m_pGALContext->GetDevice()->GetOrCreateGPUStopwatch(m_szName);
     if (stopwatch.IsRunning())

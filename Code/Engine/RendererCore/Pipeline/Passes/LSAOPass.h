@@ -5,7 +5,7 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Basics.h>
-#include <RendererCore/../../../Data/Base/Shaders/Pipeline/SSAOConstants.h>
+#include <RendererCore/../../../Data/Base/Shaders/Pipeline/LSAOConstants.h>
 
 /// Screen space ambient occlusion using "line sweep ambient occlusion" by Ville Timonen
 ///
@@ -16,13 +16,13 @@
 ///
 /// There are a few adjustments and own ideas worked into this implementation.
 /// The biggest change probably is that pixels in the gather pass compute their target linesample arithmetically instead of relying on lookups.
-class EZ_RENDERERCORE_DLL ezScreenSpaceAmbientOcclusionPass : public ezRenderPipelinePass
+class EZ_RENDERERCORE_DLL ezLSAOPass : public ezRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScreenSpaceAmbientOcclusionPass, ezRenderPipelinePass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLSAOPass, ezRenderPipelinePass);
 
 public:
-  ezScreenSpaceAmbientOcclusionPass();
-  ~ezScreenSpaceAmbientOcclusionPass();
+  ezLSAOPass();
+  ~ezLSAOPass();
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
   virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);

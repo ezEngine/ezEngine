@@ -1,0 +1,230 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Pipeline/Utils.h>
+#include "SSAOConstants.h"
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D DepthTexture;
+Texture2D LowResDepthTexture;
+SamplerState DepthSampler;
+
+Texture2D NoiseTexture;
+SamplerState PointSampler;
+
+#define NUM_AO_SAMPLES 6
+#define SAMPLE_STEPS 1
+
+float SampleDepth(float2 texCoords)
+{
+  return DepthTexture.SampleLevel(DepthSampler, texCoords, 0).r;
+}
+
+float SampleLowResDepth(float2 texCoords, float mipLevel)
+{
+#if 0
+  return LinearizeZBufferDepth(DepthTexture.SampleLevel(DepthSampler, texCoords, 0).r);
+#else
+  texCoords = texCoords * TexCoordsScale;
+  return LowResDepthTexture.SampleLevel(DepthSampler, texCoords, mipLevel).r;
+#endif
+}
+
+float CalculateMipLevel(int sampleID, float scale)
+{
+  float sampleDist = (sampleID + 0.5f) / NUM_AO_SAMPLES;
+
+  return log2(MipLevelScale * scale * sampleDist);
+}
+
+float SmallerAbsDelta(float left, float mid, float right)
+{
+  float a = mid - left;
+  float b = right - mid;
+
+  return (abs(a) < abs(b)) ? a : b;
+}
+
+float3 ReconstructScreenSpacePos(float2 normalizedCoords, float linearDepth)
+{
+  return float3(normalizedCoords * linearDepth, linearDepth);
+}
+
+float ReconstructNormalZ(float2 normal)
+{
+  return sqrt(1 - dot(normal, normal));
+}
+
+float3 ReconstructNormal(float2 texCoords, float centerDepth)
+{
+  float2 texelSize = ViewportSize.zw;
+
+  float leftDepth = SampleDepth(texCoords - float2(texelSize.x, 0));
+  float topDepth = SampleDepth(texCoords - float2(0, texelSize.y));
+  float rightDepth = SampleDepth(texCoords + float2(texelSize.x, 0));
+  float bottomDepth = SampleDepth(texCoords + float2(0, texelSize.y));
+
+  float zDDX = SmallerAbsDelta(leftDepth, centerDepth, rightDepth);
+  float zDDY = SmallerAbsDelta(topDepth, centerDepth, bottomDepth);
+
+  float2 normalizedCoords = texCoords * 2.0f - 1.0f;
+  float3 centerPos = FastScreenCoordToViewSpace(normalizedCoords, centerDepth);
+  float3 rightDir =	FastScreenCoordToViewSpace(normalizedCoords + float2(texelSize.x * 2, 0), centerDepth + zDDX) - centerPos;
+  float3 downDir =	FastScreenCoordToViewSpace(normalizedCoords + float2(0, texelSize.y * 2), centerDepth + zDDY) - centerPos;
+
+  return normalize(cross(downDir, rightDir));
+}
+
+float2 OcclusionSample(float2 normalizedCoords, float2 offset, float3 invFovCorrection, float3 centerPos, float3 viewSpaceNormal, float mipLevel)
+{
+  float2 normalizedCoordA = normalizedCoords + offset;
+  float2 normalizedCoordB = normalizedCoords - offset;
+
+  float linearDepthA = SampleLowResDepth(normalizedCoordA * 0.5 + 0.5, mipLevel);
+  float linearDepthB = SampleLowResDepth(normalizedCoordB * 0.5 + 0.5, mipLevel);
+
+  float3 posA = ReconstructScreenSpacePos(normalizedCoordA, linearDepthA);
+  float3 posB = ReconstructScreenSpacePos(normalizedCoordB, linearDepthB);
+
+  float3 deltaA = (posA - centerPos) * invFovCorrection;
+  float3 deltaB = (posB - centerPos) * invFovCorrection;
+
+  float invNormAngleA = saturate(dot(deltaA, viewSpaceNormal) / (dot(deltaA, deltaA)));
+  float invNormAngleB = saturate(dot(deltaB, viewSpaceNormal) / (dot(deltaB, deltaB)));
+
+  return float2(invNormAngleA, invNormAngleB);
+}
+
+float4 main(PS_IN Input) : SV_Target
+{
+  const float2 offsets[NUM_AO_SAMPLES]=
+  {
+    float2(0.000, 0.200),
+    float2(0.325, 0.101),
+    float2(0.272, -0.396),
+    float2(-0.385, -0.488),
+    float2(-0.711, 0.274),
+    float2(0.060, 0.900)
+  };
+
+  float centerDepth = SampleDepth(Input.TexCoord0);
+  float linearCenterDepth = LinearizeZBufferDepth(centerDepth);
+
+  float fadeOutFactor = saturate(linearCenterDepth * FadeOutParams.x + FadeOutParams.y);
+
+  [branch]
+  if (fadeOutFactor == 0.0f)
+  {
+    return float4(1.0f, linearCenterDepth, 0, 1);
+  }
+
+  float2 normalizedCoords = Input.TexCoord0 * 2.0f - 1.0f;
+  float3 centerPos = ReconstructScreenSpacePos(normalizedCoords, linearCenterDepth);
+
+  float3 viewSpaceNormal = ReconstructNormal(Input.TexCoord0, centerDepth);
+
+  float2 invTanHalfFov = float2(CameraToScreenMatrix._11, CameraToScreenMatrix._22);
+  float3 fovCorrection = float3(invTanHalfFov, 1);
+  float3 invFovCorrection = 1.0f / fovCorrection;
+
+  // bias
+  centerPos += PositionBias * linearCenterDepth * (viewSpaceNormal * fovCorrection);
+  normalizedCoords = centerPos.xy / centerPos.z;
+
+  float2 fovFixXY = fovCorrection.xy / centerPos.z;
+  float aoRadius = WorldRadius;
+  aoRadius = min(aoRadius * fovFixXY, MaxScreenSpaceRadius);
+
+  //float noise = InterleavedGradientNoise(Input.Position.xy);
+  //float2 randomAngle; sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
+
+  float2 noiseCoords = Input.TexCoord0 * (ViewportSize.xy / 4.0f);
+  float2 randomAngle = NoiseTexture.SampleLevel(PointSampler, noiseCoords, 0).rg * 2.0f - 1.0f;
+
+  randomAngle *= aoRadius;;
+  float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
+
+  float occlusion = 0.0f;
+  float totalWeight = 0.0001f;
+
+  float3 scaledViewSpaceNormal = viewSpaceNormal * 16.0f;
+
+  [unroll]
+  for (int i = 0; i < NUM_AO_SAMPLES; ++i)
+  {
+    float2 offset = mul(randomRotation, offsets[i]);
+
+    float2 aoSample = 0;
+
+    [unroll]
+    for (uint step = 0; step < SAMPLE_STEPS; ++step)
+    {
+      float scale = (step + 1) / (float)SAMPLE_STEPS;
+      float mipLevel = CalculateMipLevel(i, aoRadius * scale);
+
+      float2 stepSample = OcclusionSample(normalizedCoords, offset * scale, invFovCorrection, centerPos, scaledViewSpaceNormal, mipLevel);
+
+      // combine samples
+      aoSample = max(aoSample.xy, stepSample.xy);
+    }
+
+    occlusion += square(1 - aoSample.x);
+    occlusion += square(1 - aoSample.y);
+    totalWeight += 2.0f;
+  }
+
+  occlusion /= (NUM_AO_SAMPLES * 2);
+
+  occlusion = 1 - (1 - pow(abs(occlusion), Contrast)) * Intensity * fadeOutFactor;
+
+  #if 1
+    float2 thisPixel = float2(occlusion, linearCenterDepth);
+
+    float2 deltaX = ddx_fine(thisPixel);
+    float2 deltaY = ddy_fine(thisPixel);
+
+    int2 m = (uint2)(Input.Position.xy) % 2;
+
+    float occlusionX = occlusion - deltaX.x * (m.x * 2 - 1);
+    float occlusionY = occlusion - deltaY.x * (m.y * 2 - 1);
+
+    float2 weight;
+
+    const float depthContrast = 2;
+    float invDepth = 1.0f / linearCenterDepth;
+    weight.x = saturate(1 - abs(deltaX.y) * depthContrast);
+    weight.y = saturate(1 - abs(deltaY.y) * depthContrast);
+
+    totalWeight = 1.0f / (1.0f + weight.x + weight.y);
+    weight *= totalWeight;
+
+    occlusion = totalWeight * occlusion + weight.x * occlusionX + weight.y * occlusionY;
+  #endif
+
+  return float4(occlusion, linearCenterDepth, 0, 1);
+}
+
+#endif
+

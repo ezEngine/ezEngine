@@ -213,7 +213,7 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     bool bUseDepthPrePass = pMsg->m_uiRenderMode != ezViewRenderMode::WireframeColor && pMsg->m_uiRenderMode != ezViewRenderMode::WireframeMonochrome;
     pView->SetRenderPassProperty("DepthPrePass", "Active", bUseDepthPrePass);
-    pView->SetRenderPassProperty("SSAOPass", "Active", bUseDepthPrePass); // Also disable SSAO to save some performance
+    pView->SetRenderPassProperty("AOPass", "Active", bUseDepthPrePass); // Also disable SSAO to save some performance
 
     pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
     pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
