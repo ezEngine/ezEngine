@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
@@ -27,6 +27,7 @@ private:
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesPlatformSpecificAssets() const override { return true; }
+  ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const;
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;

@@ -57,9 +57,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
   {
     ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(&ezFmod::GameApplicationEventHandler);
 
-  ezFmod::GetSingleton()->Shutdown();
-  ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
-  ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(nullptr);
+    ezFmod::GetSingleton()->Shutdown();
+    ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
+    ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(nullptr);
+
+    ezFmodSoundEventResource::CleanupDynamicPluginReferences();
+    ezFmodSoundBankResource::CleanupDynamicPluginReferences();
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

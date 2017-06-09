@@ -26,5 +26,5 @@ protected:
   ezStatus CreateMeshFromFile(const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh);
   ezStatus CreateMeshFromGeom(ezGeometry& geom, ezPhysXCookingMesh& outMesh);
   ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh);
-
+  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 };

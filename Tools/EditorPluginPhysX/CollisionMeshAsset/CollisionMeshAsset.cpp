@@ -17,7 +17,7 @@
 #include <ModelImporter/VertexData.h>
 #include <Foundation/Time/Stopwatch.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)
@@ -336,4 +336,10 @@ ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream
 
 
   return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+{
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  return status;
 }

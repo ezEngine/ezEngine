@@ -26,6 +26,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
   {
     ezPxMeshResource::SetTypeMissingResource(ezPxMeshResourceHandle());
     ezPhysX::GetSingleton()->Shutdown();
+
+    ezPxMeshResource::CleanupDynamicPluginReferences();
   }
 
   ON_ENGINE_STARTUP

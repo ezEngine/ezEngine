@@ -864,6 +864,10 @@ void ezResourceManager::OnEngineShutdown()
 {
   ezResourceManagerEvent e;
   e.m_EventType = ezResourceManagerEventType::ManagerShuttingDown;
+
+  // in case of a crash inside the event broadcast, you might have a resource type added through a dynamic plugin
+  // that has already been unloaded, but the event handler is still referenced
+  // to fix this, call CleanupDynamicPluginReferences() on that resource type during engine shutdown
   s_ManagerEvents.Broadcast(e);
 
   EngineAboutToShutdown();

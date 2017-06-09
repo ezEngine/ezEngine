@@ -22,8 +22,8 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Collision Mesh", QPixmap(":/AssetIcons/Collision_Mesh.png"));
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Collision Mesh (Convex)", QPixmap(":/AssetIcons/Collision_Mesh.png"));
+  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Collision Mesh", QPixmap(":/AssetIcons/Collision_Mesh.png"));
+  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Collision Mesh (Convex)", QPixmap(":/AssetIcons/Collision_Mesh.png"));
 }
 
 ezCollisionMeshAssetDocumentManager::~ezCollisionMeshAssetDocumentManager()
@@ -63,5 +63,9 @@ void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDy
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
-
+ezBitflags<ezAssetDocumentFlags> ezCollisionMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
+  return ezAssetDocumentFlags::SupportsThumbnail;
+}
 
