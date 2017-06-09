@@ -8,12 +8,12 @@ typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 struct ezBuildNavMeshMessage;
 
-struct EZ_PHYSXPLUGIN_DLL ezPhysXMeshResourceDescriptor
+struct EZ_PHYSXPLUGIN_DLL ezPxMeshResourceDescriptor
 {
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_PHYSXPLUGIN_DLL ezPxMeshResource : public ezResource<ezPxMeshResource, ezPhysXMeshResourceDescriptor>
+class EZ_PHYSXPLUGIN_DLL ezPxMeshResource : public ezResource<ezPxMeshResource, ezPxMeshResourceDescriptor>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPxMeshResource, ezResourceBase);
 
@@ -40,11 +40,11 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-  virtual ezResourceLoadDesc CreateResource(const ezPhysXMeshResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc CreateResource(const ezPxMeshResourceDescriptor& descriptor) override;
 
 private:
   ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
-  physx::PxTriangleMesh* m_pPxTriangleMesh;
-  physx::PxConvexMesh* m_pPxConvexMesh;
+  physx::PxTriangleMesh* m_pPxTriangleMesh = nullptr;
+  physx::PxConvexMesh* m_pPxConvexMesh = nullptr;
 };
 

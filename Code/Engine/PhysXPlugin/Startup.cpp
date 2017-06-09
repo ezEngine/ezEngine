@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <Foundation/Configuration/Startup.h>
@@ -16,10 +16,15 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 
     ezResourceManager::RegisterResourceForAssetType("Collision Mesh", ezGetStaticRTTI<ezPxMeshResource>());
     ezResourceManager::RegisterResourceForAssetType("Collision Mesh (Convex)", ezGetStaticRTTI<ezPxMeshResource>());
+
+    ezPxMeshResourceDescriptor desc;
+    ezPxMeshResourceHandle hResource = ezResourceManager::CreateResource<ezPxMeshResource>("Missing PhysX Mesh", desc, "Empty collision mesh");
+    ezPxMeshResource::SetTypeMissingResource(hResource);
   }
 
   ON_CORE_SHUTDOWN
   {
+    ezPxMeshResource::SetTypeMissingResource(ezPxMeshResourceHandle());
     ezPhysX::GetSingleton()->Shutdown();
   }
 

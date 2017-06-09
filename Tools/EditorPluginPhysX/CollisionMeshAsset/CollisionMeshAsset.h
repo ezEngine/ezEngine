@@ -3,7 +3,7 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 
-class ezPhysXMeshResourceDescriptor;
+class ezPxMeshResourceDescriptor;
 class ezGeometry;
 class ezChunkStreamWriter;
 struct ezPhysXCookingMesh;

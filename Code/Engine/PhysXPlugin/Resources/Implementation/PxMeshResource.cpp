@@ -9,7 +9,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezPxMeshResource::ezPxMeshResource() : ezResource<ezPxMeshResource, ezPhysXMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezPxMeshResource::ezPxMeshResource() : ezResource<ezPxMeshResource, ezPxMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
   m_pPxTriangleMesh = nullptr;
   m_pPxConvexMesh = nullptr;
@@ -151,9 +151,9 @@ void ezPxMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezPxMeshResource::CreateResource(const ezPhysXMeshResourceDescriptor& descriptor)
+ezResourceLoadDesc ezPxMeshResource::CreateResource(const ezPxMeshResourceDescriptor& descriptor)
 {
-  EZ_REPORT_FAILURE("This resource type does not support creating data.");
+  //EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
