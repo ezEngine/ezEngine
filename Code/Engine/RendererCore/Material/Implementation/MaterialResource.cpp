@@ -841,12 +841,15 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 
       for (auto& constant : pLayout->m_Constants)
       {
-        ezUInt8* pDest = &data[constant.m_uiOffset];
+        if (constant.m_uiOffset + ezShaderConstantBufferLayout::Constant::s_TypeSize[constant.m_Type] <= data.GetCount())
+        {
+          ezUInt8* pDest = &data[constant.m_uiOffset];
 
-        ezVariant* pValue = nullptr;
-        m_CachedParameters.TryGetValue(constant.m_sName, pValue);
+          ezVariant* pValue = nullptr;
+          m_CachedParameters.TryGetValue(constant.m_sName, pValue);
 
-        constant.CopyDataFormVariant(pDest, pValue);
+          constant.CopyDataFormVariant(pDest, pValue);
+        }
       }
     }
   }
