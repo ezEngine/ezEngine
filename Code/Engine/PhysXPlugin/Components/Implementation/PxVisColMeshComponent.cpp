@@ -107,7 +107,7 @@ ezMeshRenderData* ezPxVisColMeshComponent::CreateRenderData(ezUInt32 uiBatchId) 
 
 void ezPxVisColMeshComponent::CreateCollisionRenderMesh() const
 {
-  if (m_hMesh.IsValid() || !m_hCollisionMesh.IsValid())
+  if (!m_hCollisionMesh.IsValid())
     return;
 
   ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
