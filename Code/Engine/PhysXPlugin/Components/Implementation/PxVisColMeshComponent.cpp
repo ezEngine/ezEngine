@@ -52,11 +52,14 @@ void ezPxVisColMeshComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_hCollisionMesh;
+
+  GetManager()->EnqueueUpdate(GetHandle());
 }
 
 ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  CreateCollisionRenderMesh();
+  // have to assume this isn't thread safe
+  //CreateCollisionRenderMesh();
 
   if (m_hMesh.IsValid())
   {
@@ -95,7 +98,7 @@ void ezPxVisColMeshComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
     m_hCollisionMesh = hMesh;
     m_hMesh.Invalidate();
 
-    TriggerLocalBoundsUpdate();
+    GetManager()->EnqueueUpdate(GetHandle());
   }
 }
 
@@ -104,8 +107,7 @@ ezMeshRenderData* ezPxVisColMeshComponent::CreateRenderData(ezUInt32 uiBatchId) 
   return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
 }
 
-
-void ezPxVisColMeshComponent::CreateCollisionRenderMesh() const
+void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
 {
   if (!m_hCollisionMesh.IsValid())
     return;
@@ -121,7 +123,10 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh() const
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sColMeshName);
 
   if (m_hMesh.IsValid())
+  {
+    TriggerLocalBoundsUpdate();
     return;
+  }
 
   ezMeshResourceDescriptor md;
   auto& buffer = md.MeshBufferDesc();
@@ -209,12 +214,12 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh() const
   md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
 
   m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sColMeshName, md, "Collision Mesh Visualization");
+
+  TriggerLocalBoundsUpdate();
 }
 
 void ezPxVisColMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  CreateCollisionRenderMesh();
-
   if (!m_hMesh.IsValid())
     return;
 
@@ -283,4 +288,37 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& ms
     ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
     msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
   }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezPxVisColMeshComponentManager::Initialize()
+{
+  ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPxVisColMeshComponentManager::Update, this);
+  desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
+
+  RegisterUpdateFunction(desc);
+}
+
+void ezPxVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  EZ_LOCK(m_Mutex);
+
+  for (const auto& hComp : m_RequireUpdate)
+  {
+    ezPxVisColMeshComponent* pComp = nullptr;
+    if (!TryGetComponent(hComp, pComp))
+      continue;
+
+    pComp->CreateCollisionRenderMesh();
+  }
+
+  m_RequireUpdate.Clear();
+}
+
+void ezPxVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
+{
+  EZ_LOCK(m_Mutex);
+
+  m_RequireUpdate.PushBack(hComponent);
 }

@@ -7,7 +7,25 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-typedef ezComponentManager<class ezPxVisColMeshComponent, ezBlockStorageType::Compact> ezPxVisColMeshComponentManager;
+class ezPxVisColMeshComponentManager : public ezComponentManager<class ezPxVisColMeshComponent, ezBlockStorageType::Compact>
+{
+public:
+  typedef ezComponentManager<ezPxVisColMeshComponent, ezBlockStorageType::Compact> SUPER;
+
+  ezPxVisColMeshComponentManager(ezWorld* pWorld) : SUPER(pWorld)
+  {
+  }
+
+  virtual void Initialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+
+  void EnqueueUpdate(ezComponentHandle hComponent);
+
+private:
+  ezMutex m_Mutex;
+  ezDeque<ezComponentHandle> m_RequireUpdate;
+};
 
 class EZ_PHYSXPLUGIN_DLL ezPxVisColMeshComponent : public ezRenderComponent
 {
@@ -27,7 +45,7 @@ public:
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
-  void CreateCollisionRenderMesh() const;
+  void CreateCollisionRenderMesh();
 
   // ************************************* PROPERTIES ***********************************
 public:
