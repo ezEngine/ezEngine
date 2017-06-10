@@ -17,7 +17,6 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <GameEngine/Components/ShapeIconComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -469,7 +468,7 @@ ezStatus ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPo
   // Add a dummy shape icon component, which enables picking
   {
     ezAddObjectCommand cmdAdd;
-    cmdAdd.m_pType = ezGetStaticRTTI<ezShapeIconComponent>();
+    cmdAdd.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
     cmdAdd.m_sParentProperty = "Components";
     cmdAdd.m_Index = -1;
     cmdAdd.m_Parent = NewNode;
@@ -584,12 +583,18 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   if (m_GameMode == GameMode::Off)
   {
     // reset the game world
-    ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(this, true);
+    SendGameWorldToEngine();
   }
 
   ezSceneDocumentEvent e;
   e.m_Type = ezSceneDocumentEvent::Type::GameModeChanged;
   m_SceneEvents.Broadcast(e);
+}
+
+
+void ezSceneDocument::SendGameWorldToEngine()
+{
+  ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(this, true);
 }
 
 void ezSceneDocument::StartSimulateWorld()
@@ -1404,9 +1409,17 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
 
 ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
 {
+  if (GetGameMode() != GameMode::Off)
+    return ezStatus("Cannot export while the scene is simulating");
+
   EZ_SUCCEED_OR_RETURN(SaveDocument());
 
-  return ezAssetDocument::RemoteExport(header, szTargetFile);
+  const ezStatus status = ezAssetDocument::RemoteExport(header, szTargetFile);
+
+  // make sure the world is reset
+  SendGameWorldToEngine();
+
+  return status;
 }
 
 void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const

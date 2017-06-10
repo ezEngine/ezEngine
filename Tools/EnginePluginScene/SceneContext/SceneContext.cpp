@@ -15,6 +15,7 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/Interfaces/SoundInterface.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <EditorFramework/SceneExport/SceneExportModifier.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -448,6 +449,8 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
 
 bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld);
+
   ezDeferredFileWriter file;
   file.SetOutput(pMsg->m_sOutputFile);
 
