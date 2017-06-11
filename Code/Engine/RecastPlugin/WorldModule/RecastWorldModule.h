@@ -18,6 +18,8 @@ public:
   virtual void Deinitialize() override;
 
   void SetNavMesh(dtNavMesh* pNavMesh);
+  dtNavMesh* GetNavMesh() const { return m_pNavMesh; }
+
   bool IsInitialized() const { return m_pCrowd != nullptr; }
 
   dtCrowd* m_pCrowd = nullptr;

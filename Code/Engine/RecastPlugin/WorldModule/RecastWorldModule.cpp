@@ -34,6 +34,7 @@ void ezRecastWorldModule::Deinitialize()
 
 void ezRecastWorldModule::SetNavMesh(dtNavMesh* pNavMesh)
 {
+  m_pNavMesh = pNavMesh;
   m_pCrowd = dtAllocCrowd();
   m_pCrowd->init(100, 0.5f, pNavMesh);
 }

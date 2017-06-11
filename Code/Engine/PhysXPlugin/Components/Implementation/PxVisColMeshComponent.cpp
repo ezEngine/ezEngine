@@ -117,6 +117,8 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
   if (pMesh->IsMissingResource())
     return;
 
+  EZ_LOCK(ezResourceManager::GetMutex());
+
   ezStringBuilder sColMeshName = pMesh->GetResourceID();
   sColMeshName.AppendFormat("_{0}_VisColMesh", pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
 
@@ -302,8 +304,6 @@ void ezPxVisColMeshComponentManager::Initialize()
 
 void ezPxVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
-  EZ_LOCK(m_Mutex);
-
   for (const auto& hComp : m_RequireUpdate)
   {
     ezPxVisColMeshComponent* pComp = nullptr;
@@ -318,7 +318,5 @@ void ezPxVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext& 
 
 void ezPxVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 {
-  EZ_LOCK(m_Mutex);
-
   m_RequireUpdate.PushBack(hComponent);
 }

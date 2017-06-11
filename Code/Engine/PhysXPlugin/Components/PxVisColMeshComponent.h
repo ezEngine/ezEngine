@@ -23,7 +23,6 @@ public:
   void EnqueueUpdate(ezComponentHandle hComponent);
 
 private:
-  ezMutex m_Mutex;
   ezDeque<ezComponentHandle> m_RequireUpdate;
 };
 
