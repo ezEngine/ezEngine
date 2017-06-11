@@ -129,7 +129,7 @@ namespace
     ezUInt32 m_uiDataIndex;
   };
 
-  static ezDynamicArray<AtlasCell> s_AtlasCells;
+  static ezDeque<AtlasCell> s_AtlasCells;
 
   enum
   {
