@@ -1,0 +1,219 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{15461194417989267645,4952190663009256191}}
+	s %t{"ezMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Materials{}
+		s %Mesh{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{4742344647184895104,4957233606002623134}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{4742344647184895104,4957233606002623134}}
+		u4 %Hash{13415949745490903068}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6666109862682882702,5104079479388527982}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15461194417989267645,4952190663009256191}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0AD7A33C}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1647596995229317261,5186668026790429264}}
+	s %t{"ezRcAgentComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{5}
+		f %WalkSpeed{0x00008040}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13249062136770926991,5614347728795119741}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13249062136770926991,5614347728795119741}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6666109862682882702,5104079479388527982}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{1647596995229317261,5186668026790429264}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{"Imp"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{13795330661858598546,496556411040670591}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{341978040944065225,11517453198141008284}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"WalkSpeed"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{13545233474985501307,2902044114655242576}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{91880854070967986,13922940901755580269}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezRecastPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezRcComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16420580995817156319,3604333152532835562}}
+	s %t{"ezDynamicEnumAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DynamicEnum{"PhysicsCollisionLayer"}
+	}
+}
+o
+{
+	Uuid %id{u4{11427189543022138024,11030180439142049485}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{16420580995817156319,3604333152532835562}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CollisionLayer"}
+		s %Type{"ezUInt8"}
+	}
+}
+o
+{
+	Uuid %id{u4{341978040944065225,11517453198141008284}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x00008040}
+	}
+}
+o
+{
+	Uuid %id{u4{9559220732555783990,13548708231193085674}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %ParentTypeName{"ezRcComponent"}
+		s %PluginName{"ezRecastPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{13795330661858598546,496556411040670591}}
+			Uuid{u4{11427189543022138024,11030180439142049485}}
+		}
+		s %TypeName{"ezRcAgentComponent"}
+		u3 %TypeSize{448}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{91880854070967986,13922940901755580269}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"AI"}
+	}
+}
+}
