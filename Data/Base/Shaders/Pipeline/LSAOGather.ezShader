@@ -157,5 +157,5 @@ float4 main(PS_IN input) : SV_Target
   float output = 1.0f;
   if (totalWeight > 0.0f)
      output = saturate(1.0f - occlusionAccum / totalWeight);
-  return output.xxxx;
+  return float4(output.x, pixelDepth, 0, 1);
 }

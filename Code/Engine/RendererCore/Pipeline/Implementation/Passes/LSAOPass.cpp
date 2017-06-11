@@ -100,7 +100,7 @@ bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
 
   // Output format maches input format but is f16.
   outputs[m_PinOutput.m_uiOutputIndex] = *inputs[m_PinDepthInput.m_uiInputIndex];
-  outputs[m_PinOutput.m_uiOutputIndex].m_Format = ezGALResourceFormat::RUShortNormalized; // 16 bit integer 0-1
+  outputs[m_PinOutput.m_uiOutputIndex].m_Format = ezGALResourceFormat::RGHalf;
 
   return true;
 }
