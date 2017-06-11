@@ -167,6 +167,12 @@ bool ezColor::IsEqualRGBA(const ezColor& rhs, float fEpsilon) const
           ezMath::IsEqual(a, rhs.a, fEpsilon));
 }
 
+
+ezColor ezColor::WithAlpha(float alpha) const
+{
+  return ezColor(r, g, b, alpha);
+}
+
 void ezColor::operator/= (float f)
 {
   float f_inv = 1.0f / f;

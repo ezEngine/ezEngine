@@ -61,6 +61,7 @@ public:
 
 protected:
   virtual void OnSimulationStarted() override;
+  void VisualizeNavMesh();
 
   ezUInt32 m_uiDelay = 2;
   ezRecastNavMeshBuilder m_NavMeshBuilder;

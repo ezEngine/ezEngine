@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec4.h>
@@ -364,6 +364,9 @@ public:
 
   /// \brief Equality Check with epsilon. Compares all four components.
   bool IsEqualRGBA(const ezColor& rhs, float fEpsilon) const; // [tested]
+
+  /// \brief Returns the current color but with changes the alpha value to the given value.
+  ezColor WithAlpha(float alpha) const;
 };
 
 // *** Operators ***
