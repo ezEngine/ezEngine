@@ -181,8 +181,6 @@ retry:
   // Fill lookup table
   FillFormatLookupTable();
 
-  /// \todo Get features of the device (depending on feature level, CheckFormat* functions etc.)
-
   ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne;
 
 
@@ -698,6 +696,8 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
   {
   case D3D_FEATURE_LEVEL_11_1:
     m_Capabilities.m_bB5G6R5Textures = true;
+    m_Capabilities.m_bNoOverwriteBufferUpdate = true;
+
   case D3D_FEATURE_LEVEL_11_0:
     m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
     m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = true;

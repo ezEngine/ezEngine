@@ -7,6 +7,7 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
 {
   // General capabilities
   m_bMultithreadedResourceCreation = false;
+  m_bNoOverwriteBufferUpdate = false;
 
   // Draw related capabilities
   for (int i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)

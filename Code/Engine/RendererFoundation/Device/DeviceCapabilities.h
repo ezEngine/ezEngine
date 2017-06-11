@@ -9,6 +9,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
 
   // General capabilities
   bool m_bMultithreadedResourceCreation; ///< whether creating resources is allowed on other threads than the main thread
+  bool m_bNoOverwriteBufferUpdate;
 
   // Draw related capabilities
   bool m_bShaderStageSupported[ezGALShaderStage::ENUM_COUNT];

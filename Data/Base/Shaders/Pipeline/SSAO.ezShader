@@ -169,7 +169,7 @@ float4 main(PS_IN Input) : SV_Target
   float occlusion = 0.0f;
   float totalWeight = 0.0001f;
 
-  float3 scaledViewSpaceNormal = viewSpaceNormal * 16.0f;
+  float3 scaledViewSpaceNormal = viewSpaceNormal * 1.0f;
 
   [unroll]
   for (int i = 0; i < NUM_AO_SAMPLES; ++i)

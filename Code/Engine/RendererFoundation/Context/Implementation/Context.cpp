@@ -636,6 +636,11 @@ void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, 
 
   if (pDest != nullptr)
   {
+    if (updateMode == ezGALUpdateMode::NoOverwrite && !(GetDevice()->GetCapabilities().m_bNoOverwriteBufferUpdate))
+    {
+      updateMode = ezGALUpdateMode::CopyToTempStorage;
+    }
+
     EZ_VERIFY(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
     UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, updateMode);
   }
