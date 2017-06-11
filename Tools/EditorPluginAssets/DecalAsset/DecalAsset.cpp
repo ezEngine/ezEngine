@@ -6,8 +6,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Diffuse", m_sDiffuse),
-    EZ_MEMBER_PROPERTY("Normal", m_sNormal),
+    EZ_MEMBER_PROPERTY("Diffuse", m_sDiffuse)->AddAttributes(new ezFileBrowserAttribute("Select Diffuse Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
 
   }
   EZ_END_PROPERTIES
@@ -23,26 +23,12 @@ ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezDecalAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
-{
-  EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
-  const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");
-
-
-  //ezFileStats stat;
-  //if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
-  //{
-  //  // if the file was touched, but nothing written to it, delete the file
-  //  // might happen if TexConv crashed or had an error
-  //  ezOSFile::DeleteFile(szTargetFile);
-  //  result.m_Result = EZ_FAILURE;
-  //}
-
-  //return result;
-  return ezStatus(EZ_SUCCESS);
-}
-
 const char* ezDecalAssetDocument::QueryAssetType() const
 {
   return "Decal";
+}
+
+ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+{
+  return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(szPlatform);
 }
