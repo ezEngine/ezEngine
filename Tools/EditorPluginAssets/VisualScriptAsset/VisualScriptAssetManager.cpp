@@ -52,11 +52,6 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
   }
 }
 
-ezStatus ezVisualScriptAssetManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
-{
-  return ezStatus(EZ_SUCCESS);
-}
-
 ezStatus ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezVisualScriptAssetDocument(szPath);

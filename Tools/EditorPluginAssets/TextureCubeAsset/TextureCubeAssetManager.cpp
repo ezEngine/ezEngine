@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
@@ -46,11 +46,6 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
     }
     break;
   }
-}
-
-ezStatus ezTextureCubeAssetDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
-{
-  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezTextureCubeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)

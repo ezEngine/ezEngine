@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetManager.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
@@ -47,11 +47,6 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
     }
     break;
   }
-}
-
-ezStatus ezMeshAssetDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
-{
-  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetManager.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetWindow.moc.h>
@@ -47,11 +47,6 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
     }
     break;
   }
-}
-
-ezStatus ezPropertyAnimAssetDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
-{
-  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezPropertyAnimAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)

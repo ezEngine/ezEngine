@@ -290,6 +290,26 @@ void OnLoadPlugin(bool bReloading)
     }
   }
 
+  // Decal Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("DecalAssetMenuBar");
+      ezProjectActions::MapActions("DecalAssetMenuBar");
+      ezStandardMenus::MapActions("DecalAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("DecalAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("DecalAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("DecalAssetToolBar");
+      ezDocumentActions::MapActions("DecalAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("DecalAssetToolBar", "");
+      ezAssetActions::MapActions("DecalAssetToolBar", true);
+    }
+  }
+
   // General editor plugin actions
   {
     ezAssetPluginActions::RegisterActions();

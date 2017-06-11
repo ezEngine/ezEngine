@@ -16,6 +16,7 @@
     <file>Curve1D.png</file>
     <file>PropertyAnim.png</file>
 	<file>Visual_Script.png</file>
+	<file>Decal.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
 	<file>VSE_CleanGraph16.png</file>

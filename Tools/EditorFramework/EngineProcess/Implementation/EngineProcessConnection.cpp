@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <QMessageBox>
@@ -241,6 +241,8 @@ void ezEditorEngineProcessConnection::Update()
 
 void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
+  EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does not enable the engine-connection through the constructor of ezAssetDocument.");
+
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
