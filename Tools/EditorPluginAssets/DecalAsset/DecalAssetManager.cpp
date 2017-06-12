@@ -8,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -97,8 +98,6 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
       continue;
 
     uiSettingsHash += asset.m_pAssetInfo->m_Info.m_uiSettingsHash;
-
-    auto guid = it.Key();
   }
 
   ezStringBuilder decalFile = ezToolsProject::GetSingleton()->GetProjectDirectory(); 
@@ -119,6 +118,33 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
     header.SetFileHashAndVersion(uiSettingsHash, uiVersion);
 
     header.Write(file);
+
+    for (auto it = allAssets->GetIterator(); it.IsValid(); ++it)
+    {
+      const auto& asset = it.Value();
+
+      if (asset.m_pAssetInfo->m_pManager != this)
+        continue;
+
+      // does the document already exist and is open ?
+      bool bWasOpen = false;
+      ezDocument* pDoc = GetDocumentByPath(asset.m_pAssetInfo->m_sAbsolutePath);
+      if (pDoc)
+        bWasOpen = true;
+      else
+        pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(asset.m_pAssetInfo->m_sAbsolutePath, false, false);
+
+      if (pDoc == nullptr)
+        return ezStatus(ezFmt("Could not open asset document '{0}'", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData()));
+
+      ezDecalAssetDocument* pDecalAsset = static_cast<ezDecalAssetDocument*>(pDoc);
+
+      file << pDecalAsset->GetProperties()->m_sDiffuse;
+      file << pDecalAsset->GetProperties()->m_sNormal;
+
+      if (!pDoc->HasWindowBeenRequested() && !bWasOpen)
+        pDoc->GetDocumentManager()->CloseDocument(pDoc);
+    }
   }
 
   return ezStatus(EZ_SUCCESS);
