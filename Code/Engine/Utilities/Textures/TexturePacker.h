@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#include <RendererCore/Basics.h>
+#include <Utilities/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Vec2.h>
 
-class EZ_RENDERERCORE_DLL ezTexturePacker
+class EZ_UTILITIES_DLL ezTexturePacker
 {
 public:
   struct Texture

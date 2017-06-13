@@ -66,6 +66,7 @@ public:
   {
     Texture2D,
     Cubemap,
+    DecalAtlas,
     //Volume
   };
 
@@ -128,6 +129,7 @@ public:
   ezResult CreateTextureCube();
   ezResult CreateTextureCubeFromSingleFile();
   ezResult CreateTextureCubeFrom6Files();
+  void CreateDecalAtlas();
 
   ezResult PassImageThrough();
   ezResult GenerateMipmaps();
@@ -142,6 +144,4 @@ public:
   Blob m_outputBlob;
   shared_ptr<ScratchImage> m_pCurrentImage;
   ID3D11Device* m_pD3dDevice;
-
-
 };

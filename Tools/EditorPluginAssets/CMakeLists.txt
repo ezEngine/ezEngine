@@ -39,6 +39,7 @@ SET (LINK_LIBRARIES
   GameEngine
   SharedPluginAssets
   ModelImporter
+  Utilities
 )
 
 SET (ADDITIONAL_DEPENDENCIES

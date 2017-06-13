@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -19,6 +19,7 @@ BUILD_CONDITIONAL(NOT DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
 SET (LINK_LIBRARIES
   Foundation
   Core
+  Utilities
 )
 
 # Visual Studio 2017 issues warnings because DirectXTex uses deprecated functions.

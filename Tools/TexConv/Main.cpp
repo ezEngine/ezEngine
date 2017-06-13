@@ -68,6 +68,12 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     return ezApplication::Quit;
   }
 
+  if (m_TextureType == TextureType::DecalAtlas)
+  {
+    CreateDecalAtlas();
+    return ezApplication::Quit;
+  }
+
   if (LoadInputs().Failed())
     return ezApplication::Quit;
 
@@ -257,7 +263,6 @@ ezResult ezTexConv::SaveThumbnail()
 
   return EZ_SUCCESS;
 }
-
 
 void ezTexConv::BeforeCoreStartup()
 {

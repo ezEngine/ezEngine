@@ -2,7 +2,9 @@
 
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
+typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
 typedef ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact> ezDecalComponentManager;
 
 class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
@@ -30,8 +32,8 @@ public:
 
   /// \todo Size properties (box?)
 
-  //void SetDecal(const ezTextureCubeResourceHandle& hProjectedTexture);
-  //const ezTextureCubeResourceHandle& GetDecal() const;
+  void SetDecal(const ezDecalResourceHandle& hResource);
+  const ezDecalResourceHandle& GetDecal() const;
 
   void SetDecalFile(const char* szFile);
   const char* GetDecalFile() const;
@@ -40,5 +42,5 @@ public:
 
 protected:
 
-  //ezTextureCubeResourceHandle m_hDecal;
+  ezDecalResourceHandle m_hDecal;
 };

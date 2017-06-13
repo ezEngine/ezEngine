@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Graphics/Camera.h>
+#include <RendererCore/Decals/DecalResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -16,7 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 1)
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new ezCategoryAttribute("FX"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::LightSteelBlue),
   }
   EZ_END_ATTRIBUTES
@@ -41,7 +42,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
-  //s << m_hDecal;
+  s << m_hDecal;
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -51,7 +52,7 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezStreamReader& s = stream.GetStream();
 
-  //s >> m_hDecal;
+  s >> m_hDecal;
 }
 
 ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -61,34 +62,34 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   return EZ_SUCCESS;
 }
 
-//void ezDecalComponent::SetDecal(const ezTextureCubeResourceHandle& hDecal)
-//{
-//  //m_hDecal = hDecal;
-//}
-//
-//const ezTextureCubeResourceHandle& ezDecalComponent::GetDecal() const
-//{
-//  //return m_hDecal;
-//}
+void ezDecalComponent::SetDecal(const ezDecalResourceHandle& hDecal)
+{
+  m_hDecal = hDecal;
+}
+
+const ezDecalResourceHandle& ezDecalComponent::GetDecal() const
+{
+  return m_hDecal;
+}
 
 void ezDecalComponent::SetDecalFile(const char* szFile)
 {
-  //ezTextureCubeResourceHandle hResource;
+  ezDecalResourceHandle hResource;
 
-  //if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    //hResource = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
+    hResource = ezResourceManager::LoadResource<ezDecalResource>(szFile);
   }
 
-  //SetDecal(hResource);
+  SetDecal(hResource);
 }
 
 const char* ezDecalComponent::GetDecalFile() const
 {
-  //if (!m_hProjectedTexture.IsValid())
+  if (!m_hDecal.IsValid())
     return "";
 
-  //return m_hProjectedTexture.GetResourceID();
+  return m_hDecal.GetResourceID();
 }
 
 void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const

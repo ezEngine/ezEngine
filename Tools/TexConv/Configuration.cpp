@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 
 #ifdef EZ_PLATFORM_WINDOWS
 #include <d3d11.h>
@@ -87,8 +87,8 @@ namespace
     D3D_FEATURE_LEVEL fl;
     HRESULT hr = s_DynamicD3D11CreateDevice(pAdapter.Get(),
       (pAdapter) ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
-      nullptr, createDeviceFlags, featureLevels, _countof(featureLevels),
-      D3D11_SDK_VERSION, pDevice, &fl, nullptr);
+                                            nullptr, createDeviceFlags, featureLevels, _countof(featureLevels),
+                                            D3D11_SDK_VERSION, pDevice, &fl, nullptr);
     if (SUCCEEDED(hr))
     {
       if (fl < D3D_FEATURE_LEVEL_11_0)
@@ -172,9 +172,9 @@ void ezTexConv::AfterCoreStartup()
   m_2dSource[2].m_uiChannelMask = EZ_BIT(2);
   m_2dSource[3].m_uiChannelMask = EZ_BIT(3);
 
-  #ifdef EZ_PLATFORM_WINDOWS
+#ifdef EZ_PLATFORM_WINDOWS
   CreateDevice(0, &m_pD3dDevice);
-  #endif
+#endif
 
   ParseCommandLine();
 }
@@ -344,6 +344,9 @@ void ezTexConv::ParseCommandLine()
   {
     if (pCmd->GetBoolOption("-cubemap"))
       m_TextureType = TextureType::Cubemap;
+
+    if (pCmd->GetBoolOption("-decal"))
+      m_TextureType = TextureType::DecalAtlas;
   }
 
   if (m_TextureType == TextureType::Cubemap)
@@ -506,6 +509,21 @@ void ezTexConv::PrintConfig()
 {
   EZ_LOG_BLOCK("Configuration");
 
+  switch (m_TextureType)
+  {
+  case TextureType::Texture2D:
+    ezLog::Info("Type: 2D Texture");
+    break;
+  case TextureType::Cubemap:
+    ezLog::Info("Type: Cubemap");
+    break;
+  case TextureType::DecalAtlas:
+    ezLog::Info("Type: Decal Atlas");
+    break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
   ezLog::Info("Output: '{0}'", m_sOutputFile.GetData());
 
   for (ezUInt32 i = 0; i < m_InputFileNames.GetCount(); ++i)
@@ -532,15 +550,5 @@ void ezTexConv::PrintConfig()
     }
   }
 
-  switch (m_TextureType)
-  {
-  case TextureType::Texture2D:
-    ezLog::Info("Type: 2D Texture");
-    break;
-  case TextureType::Cubemap:
-    ezLog::Info("Type: Cubemap");
-    break;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
-  }
+
 }

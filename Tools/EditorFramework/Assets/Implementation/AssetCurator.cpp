@@ -1015,8 +1015,14 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
     {
       ezSubAsset* pSub = GetSubAssetInternal(guid);
       ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, sPlatform);
-      sTemp.Set(ezConversionUtils::ToString(guid, sTemp2), ";", sEntry, "\n");
-      file.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
+
+      // it is valid to write no asset table entry, if no redirection is required
+      // this is used by decal assets for instance
+      if (!sEntry.IsEmpty())
+      {
+        sTemp.Set(ezConversionUtils::ToString(guid, sTemp2), ";", sEntry, "\n");
+        file.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
+      }
     };
 
     WriteEntry(it.Key());

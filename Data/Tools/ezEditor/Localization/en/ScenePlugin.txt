@@ -91,6 +91,7 @@ Lighting;Lighting
 Settings;Settings
 Transform;Transform
 ezProjectileComponent;Projectile
+ezDecalComponent;Decal
 ezSpawnComponent;Spawn
 ezTimedDeathComponent;Timed Death
 ezInputComponent;Input

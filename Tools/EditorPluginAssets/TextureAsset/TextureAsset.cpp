@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
@@ -194,7 +194,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (bUpdateThumbnail)
   {
     ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
-    EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never we nul when reaching this point!");
+    EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
     ezAssetFileHeader assetThumbnailHeader;
     assetThumbnailHeader.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
     AppendThumbnailInfo(sThumbnail, assetThumbnailHeader);
