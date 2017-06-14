@@ -275,6 +275,16 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     }
 
     {
+      ezSimdVec4f a(1.0f, 2.0f, 4.0f, 8.0f);
+      ezSimdVec4f b(1.0f, ezMath::Sqrt(2.0f), ezMath::Sqrt(4.0f), ezMath::Sqrt(8.0f));
+
+      EZ_TEST_BOOL(a.GetSqrt().IsEqual(b, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
+      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::FULL>().IsEqual(b, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
+      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::BITS_23>().IsEqual(b, ezMath::BasicType<float>::DefaultEpsilon()).AllSet());
+      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::BITS_12>().IsEqual(b, ezMath::BasicType<float>::HugeEpsilon()).AllSet());
+    }
+
+    {
       ezSimdVec4f a(2.0f, -2.0f, 4.0f, -8.0f);
       float r[4];
       r[0] = 2.0f;

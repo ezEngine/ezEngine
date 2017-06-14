@@ -40,6 +40,9 @@ public:
   template<ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4f GetReciprocal() const; // [tested]
 
+  template<ezMathAcc::Enum acc = ezMathAcc::FULL>
+  ezSimdVec4f GetSqrt() const; // [tested]
+
   template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetLength() const; // [tested]
 

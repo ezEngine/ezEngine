@@ -11,10 +11,10 @@ public:
   ezSimdTransform(); // [tested]
 
   /// \brief Sets position, rotation and scale.
-  ezSimdTransform(const ezSimdVec4f& position, const ezSimdQuat& rotation = ezSimdQuat::Identity(), const ezSimdVec4f& scale = ezSimdVec4f(1.0f)); // [tested]
+  explicit ezSimdTransform(const ezSimdVec4f& position, const ezSimdQuat& rotation = ezSimdQuat::Identity(), const ezSimdVec4f& scale = ezSimdVec4f(1.0f)); // [tested]
 
   /// \brief Sets rotation.
-  ezSimdTransform(const ezSimdQuat& rotation); // [tested]
+  explicit ezSimdTransform(const ezSimdQuat& rotation); // [tested]
 
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]

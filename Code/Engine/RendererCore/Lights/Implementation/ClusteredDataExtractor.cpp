@@ -161,14 +161,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
   FillClusterBoundingSpheres(*pCamera, fAspectRatio, m_ClusterBoundingSpheres);
 
-  ezMat4 viewMatrix;
-  pCamera->GetViewMatrix(viewMatrix);
+  ezMat4 tmp;
+  pCamera->GetViewMatrix(tmp);
+  ezSimdMat4f viewMatrix = ezSimdConversion::ToMat4(tmp);
 
-  ezMat4 projectionMatrix;
-  pCamera->GetProjectionMatrix(fAspectRatio, projectionMatrix);
-
-  ezSimdMat4f viewProjectionMatrix = ezSimdConversion::ToMat4(projectionMatrix * viewMatrix);
-  ezVec3 cameraPosition = pCamera->GetPosition();
+  pCamera->GetProjectionMatrix(fAspectRatio, tmp);
+  ezSimdMat4f projectionMatrix = ezSimdConversion::ToMat4(tmp);
 
   auto batchList = pExtractedRenderData->GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
   const ezUInt32 uiBatchCount = batchList.GetBatchCount();
@@ -191,7 +189,19 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
         ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
-        RasterizePointLight(pointLightSphere, uiLightIndex, *pCamera, m_TempClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+        RasterizePointLight(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+        if (false)
+        {
+          ezSimdBBox ssb = GetScreenSpaceBounds(pointLightSphere, viewMatrix, projectionMatrix);
+          float minX = ((float)ssb.m_Min.x() * 0.5f + 0.5f) * view.GetViewport().width;
+          float maxX = ((float)ssb.m_Max.x() * 0.5f + 0.5f) * view.GetViewport().width;
+          float minY = ((float)ssb.m_Max.y() * -0.5f + 0.5f) * view.GetViewport().height;
+          float maxY = ((float)ssb.m_Min.y() * -0.5f + 0.5f) * view.GetViewport().height;
+
+          ezRectFloat rect(minX, minY, maxX - minX, maxY - minY);
+          ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rect, 0.0f, ezColor::Blue.WithAlpha(0.3f));
+        }
       }
       else if (auto pSpotLightRenderData = ezDynamicCast<const ezSpotLightRenderData*>(it))
       {
@@ -204,7 +214,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         cone.m_PositionAndRange.SetW(pSpotLightRenderData->m_fRange);
         cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0f, 0.0f));
         cone.m_SinCosAngle = ezSimdVec4f(ezMath::Sin(halfAngle), ezMath::Cos(halfAngle), 0.0f);
-        RasterizeSpotLight(cone, uiLightIndex, *pCamera, m_TempClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+        RasterizeSpotLight(cone, uiLightIndex, viewMatrix, projectionMatrix, m_TempClusters.GetData(), m_ClusterBoundingSpheres.GetData());
       }
       else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(it))
       {

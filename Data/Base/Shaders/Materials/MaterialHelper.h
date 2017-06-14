@@ -67,7 +67,11 @@ ezMaterialData FillMaterialData(PS_IN Input)
 
   float3 worldNormal = normalize(GetNormal(Input));
   #if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
-    matData.worldNormal = Input.FrontFace ? worldNormal : -worldNormal;
+    #if FLIP_WINDING == TRUE
+      matData.worldNormal = Input.FrontFace ? -worldNormal : worldNormal;
+    #else
+      matData.worldNormal = Input.FrontFace ? worldNormal : -worldNormal;
+    #endif
   #else
     matData.worldNormal = worldNormal;
   #endif

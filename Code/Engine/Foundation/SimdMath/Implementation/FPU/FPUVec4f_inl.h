@@ -79,6 +79,18 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetReciprocal() const
   return ezVec4(1.0f).CompDiv(m_v);
 }
 
+template<ezMathAcc::Enum acc>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt() const
+{
+  ezSimdVec4f result;
+  result.m_v.x = ezMath::Sqrt(m_v.x);
+  result.m_v.y = ezMath::Sqrt(m_v.y);
+  result.m_v.z = ezMath::Sqrt(m_v.z);
+  result.m_v.w = ezMath::Sqrt(m_v.w);
+
+  return result;
+}
+
 template<int N, ezMathAcc::Enum acc>
 void ezSimdVec4f::NormalizeIfNotZero(const ezSimdFloat& fEpsilon)
 {

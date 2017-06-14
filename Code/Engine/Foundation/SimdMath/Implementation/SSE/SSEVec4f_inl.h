@@ -138,6 +138,29 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetReciprocal<ezMathAcc::FULL>() const
   return _mm_div_ps(_mm_set1_ps(1.0f), m_v);
 }
 
+template<>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::BITS_12>() const
+{
+  return _mm_mul_ps(m_v, _mm_rsqrt_ps(m_v));
+}
+
+template<>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::BITS_23>() const
+{
+  __m128 x0 = _mm_rsqrt_ps(m_v);
+
+  // One iteration of Newton-Raphson
+  __m128 x1 = _mm_mul_ps(_mm_mul_ps(_mm_set1_ps(0.5f), x0), _mm_sub_ps(_mm_set1_ps(3.0f), _mm_mul_ps(_mm_mul_ps(m_v, x0), x0)));
+
+  return _mm_mul_ps(m_v, x1);
+}
+
+template<>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::FULL>() const
+{
+  return _mm_sqrt_ps(m_v);
+}
+
 template<int N, ezMathAcc::Enum acc>
 void ezSimdVec4f::NormalizeIfNotZero(const ezSimdFloat& fEpsilon)
 {
