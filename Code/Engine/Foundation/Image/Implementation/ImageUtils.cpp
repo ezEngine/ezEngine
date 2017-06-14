@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Image/ImageUtils.h>
 
 template<typename TYPE>
@@ -320,8 +320,28 @@ void ezImageUtils::RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel /*= 0*/
   }
 }
 
+void ezImageUtils::Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ezImage& src, ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
+{
+  EZ_ASSERT_DEV(dst.GetImageFormat() == src.GetImageFormat(), "Can only copy when the image formats are identical");
 
+  const ezUInt32 uiBitsPerPixel = ezImageFormat::GetBitsPerPixel(src.GetImageFormat());
+  const ezUInt32 uiBytesPerPixel = uiBitsPerPixel / 8;
+  EZ_ASSERT_DEV(uiBytesPerPixel > 0 && uiBitsPerPixel % 8 == 0, "Only uncompressed formats can be copied");
 
+  const ezUInt32 width = src.GetWidth(uiMipLevel);
+  const ezUInt32 height = src.GetHeight(uiMipLevel);
+
+  for (ezUInt32 y = 0; y < height; ++y)
+  {
+    for (ezUInt32 x = 0; x < width; ++x)
+    {
+      ezUInt8* pDstData = dst.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, uiPosX + x, uiPosY + y);
+      const ezUInt8* pSrcData = src.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, x, y);
+
+      ezMemoryUtils::Copy<ezUInt8>(pDstData, pSrcData, uiBytesPerPixel);
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageUtils);
 

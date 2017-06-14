@@ -9,6 +9,8 @@ class EZ_UTILITIES_DLL ezTexturePacker
 public:
   struct Texture
   {
+    EZ_DECLARE_POD_TYPE();
+
     ezVec2U32 m_Size;
     ezVec2U32 m_Position;
     ezInt32 m_Priority = 0;

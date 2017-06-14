@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Image/Image.h>
 #include <Foundation/Math/Size.h>
@@ -23,5 +23,11 @@ public:
 
   /// \brief rotates a sub image by 180 degrees in place. Only works with uncompressed images.
   static void RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
+
+  /// \brief Copies the source image into the destination image at the specified location.
+  /// 
+  /// The image must fit, no scaling or cropping is done. Image formats must be identical. Compressed formats are not supported.
+  /// If the target location leaves not enough room for the source image to be copied, bad stuff will happen.
+  static void Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ezImage& src, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
 };
 

@@ -70,7 +70,11 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
   if (m_TextureType == TextureType::DecalAtlas)
   {
-    CreateDecalAtlas();
+    if (CreateDecalAtlas().Failed())
+    {
+      ezLog::Error("Failed to create decal atlas texture");
+    }
+
     return ezApplication::Quit;
   }
 
@@ -121,7 +125,8 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     }
     else
     {
-      if (CreateTexture2D().Failed())
+      ezImage* pCombined = CreateCombined2DImage(m_2dSource);
+      if (CreateTexture2D(pCombined, true).Failed())
         return ezApplication::Quit;
     }
 
@@ -257,7 +262,7 @@ ezResult ezTexConv::SaveThumbnail()
 
   if (FAILED(SaveToWICFile(*pThumbnailSrc, 0, GUID_ContainerFormatJpeg, ezStringWChar(m_sThumbnailFile).GetData())))
   {
-    ezLog::Error("Failed save thumbnail to '{0}'", m_sThumbnailFile);
+    ezLog::Error("Failed to save thumbnail to '{0}'", m_sThumbnailFile);
     return EZ_FAILURE;
   }
 

@@ -32,16 +32,33 @@ void ezTexturePacker::AddTexture(ezUInt32 uiWidth, ezUInt32 uiHeight)
   tex.m_Priority = 2 * uiWidth + 2 * uiHeight;
 }
 
+struct sortdata
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezInt32 m_Priority;
+  ezInt32 m_Index;
+};
+
 ezResult ezTexturePacker::PackTextures()
 {
-  m_Textures.Sort([](const Texture& lhs, const Texture& rhs) -> bool
+  ezDynamicArray<sortdata> sorted;
+  sorted.SetCountUninitialized(m_Textures.GetCount());
+
+  for (ezUInt32 i = 0; i < m_Textures.GetCount(); ++i)
+  {
+    sorted[i].m_Index = i;
+    sorted[i].m_Priority = m_Textures[i].m_Priority;
+  }
+
+  sorted.Sort([](const sortdata& lhs, const sortdata& rhs) -> bool
   {
     return lhs.m_Priority > rhs.m_Priority;
   });
 
-  for (ezUInt32 idx = 0; idx < m_Textures.GetCount(); ++idx)
+  for (ezUInt32 idx = 0; idx < sorted.GetCount(); ++idx)
   {
-    if (!TryPlaceTexture(idx))
+    if (!TryPlaceTexture(sorted[idx].m_Index))
       return EZ_FAILURE;
   }
 

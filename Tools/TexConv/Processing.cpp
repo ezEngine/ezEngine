@@ -137,25 +137,24 @@ ezResult ezTexConv::SaveResultToDDS()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::CreateTexture2D()
+ezResult ezTexConv::CreateTexture2D(ezImage* pImage, bool bCheckAlphaIsMask)
 {
-  ezImage* pCombined = CreateCombined2DImage(m_2dSource);
-
-  if (pCombined == nullptr)
+  if (pImage == nullptr)
     return EZ_FAILURE;
 
-  if (m_uiOutputChannels == 4 && m_bCompress)
+  m_bAlphaIsMaskOnly = false;
+  if (bCheckAlphaIsMask && m_uiOutputChannels == 4 && m_bCompress)
   {
-    m_bAlphaIsMaskOnly = IsImageAlphaBinaryMask(*pCombined);
+    m_bAlphaIsMaskOnly = IsImageAlphaBinaryMask(*pImage);
   }
 
   Image srcImg;
-  srcImg.width = pCombined->GetWidth();
-  srcImg.height = pCombined->GetHeight();
-  srcImg.rowPitch = pCombined->GetRowPitch();
-  srcImg.slicePitch = pCombined->GetDepthPitch();
-  srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(pCombined->GetImageFormat());
-  srcImg.pixels = pCombined->GetDataPointer<ezUInt8>();
+  srcImg.width = pImage->GetWidth();
+  srcImg.height = pImage->GetHeight();
+  srcImg.rowPitch = pImage->GetRowPitch();
+  srcImg.slicePitch = pImage->GetDepthPitch();
+  srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(pImage->GetImageFormat());
+  srcImg.pixels = pImage->GetDataPointer<ezUInt8>();
 
   m_pCurrentImage = make_shared<ScratchImage>();
   m_pCurrentImage->InitializeFromImage(srcImg);
