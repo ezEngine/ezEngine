@@ -78,16 +78,18 @@ public:
     ezUInt8 m_uiChannelMask = 0;
   };
 
+  enum DecalLayer
+  {
+    Diffuse,
+    Normal,
+    ENUM_COUNT,
+  };
+
   struct DecalDesc
   {
-    ezString m_sDiffuse;
-    ezString m_sNormal;
-
-    ezImage m_DiffuseImg;
-    ezImage m_NormalImg;
-
-    ezRectU32 m_DiffuseRect;
-    ezRectU32 m_NormalRect;
+    ezString m_sFile[DecalLayer::ENUM_COUNT];
+    ezImage m_Image[DecalLayer::ENUM_COUNT];
+    ezRectU32 m_Rect[DecalLayer::ENUM_COUNT];
   };
 
   TextureType m_TextureType;
@@ -135,7 +137,7 @@ public:
   ezImage* CreateCombined2DImage(const ChannelMapping* dataSources);
   ezImageFormat::Enum ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask) const;
   bool CanPassThroughInput() const;
-  void WriteTexHeader();
+  void WriteTexHeader(ezStreamWriter& stream);
 
   virtual ezApplication::ApplicationExecution Run() override;
 
@@ -148,21 +150,21 @@ public:
   ezResult GenerateMipmaps();
   ezResult ApplyPremultiplyAlpha();
   ezResult ConvertToOutputFormat();
-  ezResult SaveResultToDDS();
+  ezResult SaveResultToDDS(ezStreamWriter& stream);
   ezResult SaveThumbnail();
 
   ezResult CreateDecalAtlas();
-
+  ezResult PrepareDecalOutputFiles(ezFileWriter* files);
   ezResult LoadDecalInputs(ezTextureGroupDesc &decalAtlasDesc, ezDynamicArray<DecalDesc> &decals);
-  ezResult SortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32& out_ResX, ezUInt32& out_ResY);
-  ezResult CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas);
-  ezResult TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32 uiWidth, ezUInt32 uiHeight);
+  ezResult SortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer);
+  ezResult CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
+  ezResult TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
   ezResult ToFloatImage(const ezImage& src, ezImage& dst);
+  ezResult CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, ezInt32 layer, ezStreamWriter& stream);
 
   ezString m_sThumbnailFile;
   ezFileWriter m_FileOut;
   bool m_bAlphaIsMaskOnly;
-  Blob m_outputBlob;
   shared_ptr<ScratchImage> m_pCurrentImage;
   ID3D11Device* m_pD3dDevice;
 };

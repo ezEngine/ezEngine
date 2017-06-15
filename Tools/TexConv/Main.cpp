@@ -141,7 +141,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     if (ConvertToOutputFormat().Failed())
       return ezApplication::Quit;
 
-    if (SaveResultToDDS().Failed())
+    if (SaveResultToDDS(m_FileOut).Failed())
       return ezApplication::Quit;
   }
 

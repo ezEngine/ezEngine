@@ -2,7 +2,7 @@
 
 ezResult ezTexConv::PassImageThrough()
 {
-  WriteTexHeader();
+  WriteTexHeader(m_FileOut);
 
   ezImage* pImg = &m_InputImages[0];
 
@@ -118,21 +118,23 @@ ezResult ezTexConv::ConvertToOutputFormat()
 }
 
 
-ezResult ezTexConv::SaveResultToDDS()
+ezResult ezTexConv::SaveResultToDDS(ezStreamWriter& stream)
 {
   const ezImageFormat::Enum dxgiOutputFormat = ezImageFormatMappings::FromDxgiFormat((ezUInt32)m_pCurrentImage->GetMetadata().format);
   ezLog::Info("Output Format: {0}", ezImageFormat::GetName(dxgiOutputFormat));
 
-  if (FAILED(SaveToDDSMemory(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), 0, m_outputBlob)))
+  Blob outputBlob;
+
+  if (FAILED(SaveToDDSMemory(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), 0, outputBlob)))
   {
     SetReturnCode(TexConvReturnCodes::FAILED_SAVE_AS_DDS);
     ezLog::Error("Failed to write image to file '{0}'", m_sOutputFile.GetData());
     return EZ_FAILURE;
   }
 
-  WriteTexHeader();
+  WriteTexHeader(stream);
 
-  m_FileOut.WriteBytes(m_outputBlob.GetBufferPointer(), m_outputBlob.GetBufferSize());
+  stream.WriteBytes(outputBlob.GetBufferPointer(), outputBlob.GetBufferSize());
 
   return EZ_SUCCESS;
 }
