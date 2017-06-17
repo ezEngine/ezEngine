@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
@@ -130,7 +130,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
         {
           const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(m_Format) * 4 / 8;
 
-          id.m_uiRowPitch = pImage->GetWidth(mip) * uiMemPitchFactor;
+          id.m_uiRowPitch = ezMath::Max<ezUInt32>(4, pImage->GetWidth(mip)) * uiMemPitchFactor;
         }
         else
         {

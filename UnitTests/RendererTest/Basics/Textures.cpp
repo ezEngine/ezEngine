@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include "Basics.h"
 #include <RendererFoundation/Context/Context.h>
 #include <Core/Graphics/Camera.h>
@@ -65,6 +65,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
   {
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ezLogo_DXT5_NoMips_D.dds");
   }
+
+  /// \todo All below are disabled, because iNumFrames == 10, don't know why
 
   if (m_iFrame == 10)
   {
