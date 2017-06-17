@@ -397,14 +397,15 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           return EZ_FAILURE;
         }
 
-        format = ezImageFormat::FromPixelMask(colorMask.m_red, colorMask.m_green, colorMask.m_blue, 0);
+        format = ezImageFormat::FromPixelMask(colorMask.m_red, colorMask.m_green, colorMask.m_blue, 0, uiBpp);
       }
       else
       {
         // For header version four and higher, the color masks are part of the header
         format = ezImageFormat::FromPixelMask(
           fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask,
-          fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask);
+          fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask,
+          uiBpp);
       }
 
       break;

@@ -12,7 +12,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
-  const ezInt32 iNumFrames = 10;
+  const ezInt32 iNumFrames = 14;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Textured.ezShader");
 
@@ -66,8 +66,6 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ezLogo_DXT5_NoMips_D.dds");
   }
 
-  /// \todo All below are disabled, because iNumFrames == 10, don't know why
-
   if (m_iFrame == 10)
   {
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ezLogo_RGB_Mips_D.dds");
@@ -80,14 +78,12 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   if (m_iFrame == 12)
   {
-    // My GPU seems not to support this format in general
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ezLogo_R5G6B5_NoMips_D.dds");
   }
 
   if (m_iFrame == 13)
   {
-    // This format generally does not support mipmaps
-    //m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ezLogo_R5G6B5_MipsD.dds");
+    m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ezLogo_R5G6B5_MipsD.dds");
   }
 
   ezRenderContext::GetDefaultInstance()->BindTexture2D(ezGALShaderStage::PixelShader, "DiffuseTexture", m_hTexture2D);
@@ -116,7 +112,6 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   if (m_iFrame == 0)
   {
-    /// \todo Christian: Error "The image format is neither specified as a pixel mask nor as a FourCC code"
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/Volume/ezLogo_Volume_A8_NoMips_D.dds");
   }
 
@@ -140,7 +135,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
-  const ezInt32 iNumFrames = 10;
+  const ezInt32 iNumFrames = 12;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/TexturedCube.ezShader");
 
@@ -196,15 +191,11 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   if (m_iFrame == 10)
   {
-    /// \todo Christian: These formats cannot be loaded
-
     m_hTextureCube = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_RGB_NoMips_D.dds");
   }
 
   if (m_iFrame == 11)
   {
-    /// \todo Christian: These formats cannot be loaded
-
     m_hTextureCube = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_RGB_Mips_D.dds");
   }
 

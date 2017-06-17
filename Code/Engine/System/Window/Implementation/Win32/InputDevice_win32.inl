@@ -26,6 +26,11 @@ ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
 
 ezStandardInputDevice::~ezStandardInputDevice()
 {
+  if (!m_bShowCursor)
+  {
+    ShowCursor(true);
+  }
+
   if (m_uiWindowNumber == 0)
     ezStandardInputDevice::s_bMainWindowUsed = false;
 }

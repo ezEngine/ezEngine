@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PCH.h>
 #include "../TestClass/TestClass.h"
@@ -26,9 +26,9 @@ private:
   {
     AddSubTest("Clear Screen", SubTests::ST_ClearScreen);
     AddSubTest("Rasterizer States", SubTests::ST_RasterizerStates);
-    //AddSubTest("Blend States", SubTests::ST_BlendStates);
+    AddSubTest("Blend States", SubTests::ST_BlendStates);
     AddSubTest("2D Textures", SubTests::ST_Textures2D);
-    //AddSubTest("3D Textures", SubTests::ST_Textures3D);
+    //AddSubTest("3D Textures", SubTests::ST_Textures3D); /// \todo 3D Texture support is currently not implemented
     AddSubTest("Cube Textures", SubTests::ST_TexturesCube);
     AddSubTest("Line Rendering", SubTests::ST_LineRendering);
   }

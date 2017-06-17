@@ -129,12 +129,12 @@ static void SetupImageFormatTable()
   DEFINE_FORMAT(R16_SNORM, 16, 0, 0, 0, 0, LINEAR);
   DEFINE_FORMAT(R16_SINT, 16, 0, 0, 0, 0, LINEAR);
 
-  DEFINE_FORMAT(R8_TYPELESS, 8, 0, 0, 0, 0, LINEAR);
-  DEFINE_FORMAT(R8_UNORM, 8, 0, 0, 0, 0, LINEAR);
-  DEFINE_FORMAT(R8_UINT, 8, 0, 0, 0, 0, LINEAR);
+  DEFINE_FORMAT(R8_TYPELESS, 8, 0xFF, 0, 0, 0, LINEAR);
+  DEFINE_FORMAT(R8_UNORM, 8, 0xFF, 0, 0, 0, LINEAR);
+  DEFINE_FORMAT(R8_UINT, 8, 0xFF, 0, 0, 0, LINEAR);
   DEFINE_FORMAT(R8_SNORM, 8, 0, 0, 0, 0, LINEAR);
   DEFINE_FORMAT(R8_SINT, 8, 0, 0, 0, 0, LINEAR);
-  DEFINE_FORMAT(A8_UNORM, 8, 0, 0, 0, 0, LINEAR);
+  DEFINE_FORMAT(A8_UNORM, 8, 0, 0, 0, 0xFF, LINEAR);
 
   DEFINE_FORMAT(R1_UNORM, 1, 0, 0, 0, 0, LINEAR);
 
@@ -180,12 +180,12 @@ ezUInt32 ezImageFormat::GetBitsPerPixel(Enum format)
   return GetImageFormatMetaData(format).m_uiBitsPerPixel;
 }
 
-ezImageFormat::Enum ezImageFormat::FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask)
+ezImageFormat::Enum ezImageFormat::FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel)
 {
   for (ezUInt32 uiFormat = 0; uiFormat < NUM_FORMATS; uiFormat++)
   {
     Enum format = static_cast<Enum>(uiFormat);
-    if (GetRedMask(format) == uiRedMask && GetGreenMask(format) == uiGreenMask && GetBlueMask(format) == uiBlueMask && GetAlphaMask(format) == uiAlphaMask)
+    if (GetRedMask(format) == uiRedMask && GetGreenMask(format) == uiGreenMask && GetBlueMask(format) == uiBlueMask && GetAlphaMask(format) == uiAlphaMask && GetBitsPerPixel(format) == uiBitsPerPixel)
     {
       return format;
     }

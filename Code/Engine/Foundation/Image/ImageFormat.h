@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Types/Types.h>
 #include <Foundation/Basics.h>
@@ -187,6 +187,6 @@ struct EZ_FOUNDATION_DLL ezImageFormat
   static ezImageFormatType::Enum GetType(Enum format);
 
   /// \brief Finds a format matching the given component masks.
-  static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask);
+  static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel);
 };
 

@@ -164,19 +164,23 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
 
   // Data format specified in RGBA masks
-  if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0)
+  if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || 
+    (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 || 
+      (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
   {
     format = ezImageFormat::FromPixelMask(
       fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask,
-      fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask);
+      fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask,
+      fileHeader.m_ddspf.m_uiRGBBitCount);
 
     if (format == ezImageFormat::UNKNOWN)
     {
-      ezLog::Error(pLog, "The pixel mask specified was not recognized (R: {0}, G: {1}, B: {2}, A: {3}).",
+      ezLog::Error(pLog, "The pixel mask specified was not recognized (R: {0}, G: {1}, B: {2}, A: {3}, Bpp: {4}).",
                    ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16),
                    ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
                    ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16),
-                   ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16));
+                   ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16), 
+                   fileHeader.m_ddspf.m_uiRGBBitCount);
       return EZ_FAILURE;
     }
 
@@ -229,17 +233,10 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   image.SetImageFormat(format);
 
-  bool bComplex = (fileHeader.m_uiCaps & ezDdsCaps::COMPLEX) != 0;
-  bool bHasMipMaps = (fileHeader.m_uiCaps & ezDdsCaps::MIPMAP) != 0;
-  bool bCubeMap = (fileHeader.m_uiCaps2 & ezDdsCaps2::CUBEMAP) != 0;
-  bool bVolume = (fileHeader.m_uiCaps2 & ezDdsCaps2::VOLUME) != 0;
+  const bool bHasMipMaps = (fileHeader.m_uiCaps & ezDdsCaps::MIPMAP) != 0;
+  const bool bCubeMap = (fileHeader.m_uiCaps2 & ezDdsCaps2::CUBEMAP) != 0;
+  const bool bVolume = (fileHeader.m_uiCaps2 & ezDdsCaps2::VOLUME) != 0;
 
-  // Complex flag must match cubemap or volume flag
-  if (bComplex != (bCubeMap || bVolume || bHasMipMaps))
-  {
-    ezLog::Error(pLog, "The header specifies the COMPLEX flag, but has neither mip levels, cubemap faces or depth slices.");
-    return EZ_FAILURE;
-  }
 
   if (bHasMipMaps)
   {
@@ -285,6 +282,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
+  const ezUInt32 uiBpp = ezImageFormat::GetBitsPerPixel(format);
 
   const ezUInt32 uiNumFaces = image.GetNumFaces();
   const ezUInt32 uiNumMipLevels = image.GetNumMipLevels();
@@ -407,7 +405,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
   if (!bDxt10)
   {
     // The format has a known mask and we would also recognize it as the same when reading back in, since multiple formats may have the same pixel masks
-    if ((uiRedMask | uiGreenMask | uiBlueMask | uiAlphaMask) && format == ezImageFormat::FromPixelMask(uiRedMask, uiGreenMask, uiBlueMask, uiAlphaMask))
+    if ((uiRedMask | uiGreenMask | uiBlueMask | uiAlphaMask) && format == ezImageFormat::FromPixelMask(uiRedMask, uiGreenMask, uiBlueMask, uiAlphaMask, uiBpp))
     {
       fileHeader.m_ddspf.m_uiFlags = ezDdpfFlags::ALPHAPIXELS | ezDdpfFlags::RGB;
       fileHeader.m_ddspf.m_uiRBitMask = uiRedMask;
