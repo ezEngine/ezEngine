@@ -87,10 +87,10 @@ public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
   /// \brief Allows to register a function as an event receiver.
-  static void AddLogWriter(ezLoggingEvent::Handler handler)    { s_LoggingEvent.AddEventHandler    (handler); }
+  static void AddLogWriter(ezLoggingEvent::Handler handler);
 
   /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
-  static void RemoveLogWriter(ezLoggingEvent::Handler handler) { s_LoggingEvent.RemoveEventHandler (handler); }
+  static void RemoveLogWriter(ezLoggingEvent::Handler handler);
 
   /// \brief Returns how many message of the given type occurred.
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }

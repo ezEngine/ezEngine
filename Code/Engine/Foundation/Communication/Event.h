@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -36,6 +36,9 @@ public:
 
   /// \brief Removes a previously registered handler. It is an error to remove a handler that was not registered.
   void RemoveEventHandler(Handler handler) const; // [tested]
+
+  /// \brief Checks whether an event handler has already been registered.
+  bool HasEventHandler(Handler handler) const;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 

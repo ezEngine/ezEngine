@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -218,7 +218,7 @@ void ezGameApplication::DeactivateGameStateForWorld(ezWorld* pWorld)
 
 void ezGameApplication::ActivateAllGameStates()
 {
-  // There is always at least one gamestate, but if it is null, then our applicatin might not use them at all.
+  // There is always at least one gamestate, but if it is null, then our application might not use them at all.
   if (m_GameStates.IsEmpty() || m_GameStates[0].m_pState == nullptr)
     return;
 
@@ -232,7 +232,7 @@ void ezGameApplication::ActivateAllGameStates()
 
 void ezGameApplication::DeactivateAllGameStates()
 {
-  // There is always at least one gamestate, but if it is null, then our applicatin might not use them at all.
+  // There is always at least one gamestate, but if it is null, then our application might not use them at all.
   if (m_GameStates.IsEmpty() || m_GameStates[0].m_pState == nullptr)
     return;
 

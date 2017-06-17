@@ -21,8 +21,7 @@ namespace ezMemoryPolicies
       // if these asserts fail, you need to check what container made the allocation and change it
       // to use an aligned allocator, e.g. ezAlignedAllocatorWrapper
 
-      /// \todo Actually the assert should check for 4, not 8, but then stuff fails (tm) ... someone should investigate
-      EZ_ASSERT_DEBUG(uiAlign <= 8, "This allocator does not guarantee alignments larger than 4. Use an aligned allocator to allocate the desired data type.");
+      EZ_ASSERT_DEBUG(uiAlign <= EZ_ALIGNMENT_MINIMUM, "This allocator does not guarantee alignments larger than {0}. Use an aligned allocator to allocate the desired data type.", EZ_ALIGNMENT_MINIMUM);
       EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
       return ptr;

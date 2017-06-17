@@ -30,6 +30,15 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) cons
   EZ_ASSERT_DEV(bResult, "ezEvent::RemoveEventHandler: Handler has not been registered or already been unregistered.");
 }
 
+
+template <typename EventData, typename MutexType>
+bool ezEventBase<EventData, MutexType>::HasEventHandler(Handler handler) const
+{
+  EZ_LOCK(m_Mutex);
+
+  return m_EventHandlers.Contains(handler);
+}
+
 /// The notification is sent to all event handlers in the order that they were registered.
 template <typename EventData, typename MutexType>
 void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth)

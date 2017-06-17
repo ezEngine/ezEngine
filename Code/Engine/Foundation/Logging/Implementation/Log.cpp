@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 
@@ -7,6 +7,19 @@ ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
 ezThreadLocalPointer<ezLogInterface> ezLog::s_DefaultLogSystem;
+
+void ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
+{
+  if (!s_LoggingEvent.HasEventHandler(handler))
+  {
+    s_LoggingEvent.AddEventHandler(handler);
+  }
+}
+
+void ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
+{
+  s_LoggingEvent.RemoveEventHandler(handler);
+}
 
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
 {
