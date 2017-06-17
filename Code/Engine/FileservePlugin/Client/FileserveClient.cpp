@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FileservePlugin/Client/FileserveClient.h>
 #include <Foundation/Logging/Log.h>
 #include <FileservePlugin/Network/NetworkInterfaceEnet.h>
@@ -31,6 +31,10 @@ ezFileserveClient::ezFileserveClient()
 
   // command line always has higher priority
   m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, sFallback);
+
+  // You can hardcode an IP address here to begin searching with, if you need to test something
+  // Do not forget to append the port 1042 though!
+  //m_sServerConnectionAddress = "169.254.80.80:1042";
 
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_off"))
     s_bEnableFileserve = false;

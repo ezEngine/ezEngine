@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <FileservePlugin/Fileserver/ClientContext.h>
 #include <Foundation/Containers/HashTable.h>
@@ -84,7 +84,7 @@ public:
   /// \brief Broadcasts to all clients that they should reload their resources
   void BroadcastReloadResourcesCommand();
 
-  static ezResult SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout = ezTime::Seconds(5));
+  static ezResult SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout = ezTime::Seconds(10));
 
 private:
   void NetworkEventHandler(const ezRemoteEvent& e);

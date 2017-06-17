@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FileservePlugin/Network/NetworkInterfaceEnet.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -152,14 +152,17 @@ void ezNetworkInterfaceEnet::InternalUpdateRemoteInterface()
           break;
         }
 
-        char szHostIP[64] = "";
-        char szHostName[64] = "";
-
-        enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
-        enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
         if (GetRemoteMode() == ezRemoteMode::Client)
         {
+          // Querying host IP and name can take a lot of time
+          // Do not do this in the other case, as it may result in timeouts while establishing the connection.
+          char szHostIP[64] = "";
+          char szHostName[64] = "";
+
+          enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
+          enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
+
           m_ServerInfoName = szHostName;
           m_ServerInfoIP = szHostIP;
 
