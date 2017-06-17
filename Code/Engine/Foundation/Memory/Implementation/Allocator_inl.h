@@ -70,7 +70,7 @@ void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, siz
   if (uiSize == 0)
     return nullptr;
 
-  EZ_ASSERT_DEV(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
+  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
   void* ptr = m_allocator.Allocate(uiSize, uiAlign);
   EZ_ASSERT_DEBUG(ptr != nullptr, "Could not allocate {0} bytes. Out of memory?", uiSize);

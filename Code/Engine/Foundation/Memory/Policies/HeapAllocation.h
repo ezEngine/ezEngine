@@ -16,6 +16,13 @@ namespace ezMemoryPolicies
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
     {
       void* ptr = malloc(uiSize);
+
+      // malloc has no alignment guarantees, even though on many systems it returns 16 byte aligned data
+      // if these asserts fail, you need to check what container made the allocation and change it
+      // to use an aligned allocator, e.g. ezAlignedAllocatorWrapper
+
+      /// \todo Actually the assert should check for 4, not 8, but then stuff fails (tm) ... someone should investigate
+      EZ_ASSERT_DEBUG(uiAlign <= 8, "This allocator does not guarantee alignments larger than 4. Use an aligned allocator to allocate the desired data type.");
       EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
       return ptr;

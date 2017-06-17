@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Pipeline/Extractor.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -45,7 +45,7 @@ private:
     ezUInt32 m_BitMask[ezClusteredDataCPU::MAX_LIGHT_DATA / 32];
   };
 
-  ezDynamicArray<ezPerLightData> m_TempLightData;
+  ezDynamicArray<ezPerLightData, ezAlignedAllocatorWrapper> m_TempLightData;
   ezDynamicArray<TempCluster> m_TempClusters;
   ezDynamicArray<ezUInt32> m_TempClusterItemList;
 

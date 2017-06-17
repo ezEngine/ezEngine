@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -68,7 +68,7 @@ protected:
   ezShaderResourceHandle m_hShader;
   ezGALBufferHandle m_hVertexBuffer;
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
-  ezDynamicArray<GridVertex> m_Vertices;
+  ezDynamicArray<GridVertex, ezAlignedAllocatorWrapper> m_Vertices;
 
 private:
   void CreateGrid(const ezGridRenderData& rd);
