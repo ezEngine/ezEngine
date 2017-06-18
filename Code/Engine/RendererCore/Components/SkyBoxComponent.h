@@ -30,8 +30,11 @@ public:
   void SetInverseTonemap(bool bInverseTonemap);
   bool GetInverseTonemap() const { return m_bInverseTonemap; }
 
-  void SetCubeMap(const char* szFile);
-  const char* GetCubeMap() const;
+  void SetCubeMapFile(const char* szFile);
+  const char* GetCubeMapFile() const;
+
+  void SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap);
+  const ezTextureCubeResourceHandle& GetCubeMap() const;
 
   virtual void OnActivated() override;
 

@@ -2,6 +2,7 @@
 #include "TestClass.h"
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Core/World/WorldDesc.h>
 
 ezGameEngineTest::ezGameEngineTest()
 {
@@ -84,7 +85,8 @@ void ezGameEngineTestApplication::AfterCoreStartup()
 
   ezStartup::StartupEngine();
 
-  SetupWorld();
+  ezWorldDesc desc("GameEngineTestWorld");
+  m_pWorld = CreateWorld(desc);
 
   CreateGameStateForWorld(m_pWorld);
 

@@ -21,6 +21,9 @@ public:
   ezWorld(ezWorldDesc& desc);
   ~ezWorld();
 
+  /// \brief Deletes all game objects in a world
+  void Clear();
+
   /// \brief Returns the name of this world.
   const char* GetName() const;
 

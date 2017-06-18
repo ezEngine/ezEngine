@@ -63,6 +63,17 @@ ezWorld::~ezWorld()
   m_uiIndex = ezInvalidIndex;
 }
 
+
+void ezWorld::Clear()
+{
+  CheckForWriteAccess();
+
+  for (auto it = GetObjects(); it.IsValid(); ++it)
+  {
+    DeleteObjectNow(it->GetHandle());
+  }
+}
+
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
 {
   CheckForWriteAccess();

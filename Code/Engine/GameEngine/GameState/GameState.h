@@ -86,6 +86,9 @@ public:
   /// \brief Returns whether the game state wants to quit the application.
   bool WasQuitRequested() const { return m_bStateWantsToQuit; }
 
+  /// \brief Gives access to the game state's main camera object.
+  ezCamera* GetMainCamera() { return &m_MainCamera; }
+
 protected:
   /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
   virtual void CreateMainWindow();

@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 3)
   {
     EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMap, SetCubeMap)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube"))
+    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube"))
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -170,7 +170,7 @@ void ezSkyBoxComponent::SetInverseTonemap(bool bInverseTonemap)
 }
 
 
-void ezSkyBoxComponent::SetCubeMap(const char* szFile)
+void ezSkyBoxComponent::SetCubeMapFile(const char* szFile)
 {
   ezTextureCubeResourceHandle hCubeMap;
   if (!ezStringUtils::IsNullOrEmpty(szFile))
@@ -178,16 +178,24 @@ void ezSkyBoxComponent::SetCubeMap(const char* szFile)
     hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
   }
 
-  m_hCubeMap = hCubeMap;
-
-  UpdateMaterials();
+  SetCubeMap(hCubeMap);
 }
 
-const char* ezSkyBoxComponent::GetCubeMap() const
+const char* ezSkyBoxComponent::GetCubeMapFile() const
 {
   return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID() : "";
 }
 
+void ezSkyBoxComponent::SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap)
+{
+  m_hCubeMap = hCubeMap;
+  UpdateMaterials();
+}
+
+const ezTextureCubeResourceHandle& ezSkyBoxComponent::GetCubeMap() const
+{
+  return m_hCubeMap;
+}
 
 void ezSkyBoxComponent::OnActivated()
 {

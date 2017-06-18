@@ -27,7 +27,6 @@ protected:
   virtual void BeforeCoreStartup() override;
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown() override;
-  virtual void SetupWorld() = 0;
   virtual void DoSaveScreenshot(ezImage& image) override;
   virtual void DoSetupDataDirectories() override;
   virtual ezGameState* CreateCustomGameStateForWorld(ezWorld* pWorld) override;
