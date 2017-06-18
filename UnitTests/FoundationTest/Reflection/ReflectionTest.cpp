@@ -52,6 +52,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int&>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Reference | ezPropertyFlags::Const));
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int*>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Pointer | ezPropertyFlags::Const));
 
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezVariant>() == (ezPropertyFlags::StandardType));
+
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezExampleEnum::Enum>() == ezPropertyFlags::IsEnum);
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezEnum<ezExampleEnum>>() == ezPropertyFlags::IsEnum);
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezBitflags<ezExampleBitflags>>() == ezPropertyFlags::Bitflags);

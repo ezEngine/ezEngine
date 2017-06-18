@@ -82,7 +82,7 @@ struct ezPropertyFlags
   template<class Type>
   static ezBitflags<ezPropertyFlags> GetParameterFlags()
   {
-    using CleanType = ezTypeTraits<Type>::NonConstReferencePointerType;
+    using CleanType = typename ezTypeTraits<Type>::NonConstReferencePointerType;
     ezBitflags<ezPropertyFlags> flags;
     ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename CleanType>::value);
     if (std::is_same<CleanType, ezVariant>::value)
@@ -99,7 +99,7 @@ struct ezPropertyFlags
     else
       flags.Add(ezPropertyFlags::Class);
 
-    if (std::is_const<ezTypeTraits<Type>::NonReferencePointerType>::value)
+    if (std::is_const<typename ezTypeTraits<Type>::NonReferencePointerType>::value)
       flags.Add(ezPropertyFlags::Const);
 
     if (std::is_pointer<Type>::value && !std::is_same<Type, const char*>::value)
@@ -526,8 +526,12 @@ public:
   /// \brief Calls the function. Provide the instance on which the function is supposed to be called.
   ///
   /// arguments must be the size of GetArgumentCount, the following rules apply for both arguments and return value:
-  /// Any standard type must be provided by value, even if it is a pointer to one.
+  /// Any standard type must be provided by value, even if it is a pointer to one. Types must match exactly, no ConvertTo is called.
+  /// enum and bitflags are supported if ezEnum / ezBitflags is used, value must be provided as ezInt64.
+  /// Out values (&, *) are written back to the variant they were read from.
   /// Any class is provided by pointer, regardless of whether it is a pointer or not.
+  /// The returnValue must only be valid if the return value is a ref or by value class. In that case
+  /// returnValue must be a ptr to a valid class instance of the returned type.
   /// An invalid variant is equal to a nullptr, except for if the argument is of type ezVariant, in which case
   /// it is impossible to pass along a nullptr.
   virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue) const = 0;

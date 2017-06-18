@@ -59,7 +59,7 @@ EZ_ALWAYS_INLINE bool ezVariant::operator!=(const ezVariant& other) const
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
 {
-  using StorageType = TypeDeduction<T>::StorageType;
+  using StorageType = typename TypeDeduction<T>::StorageType;
   struct TypeInfo
   {
     enum

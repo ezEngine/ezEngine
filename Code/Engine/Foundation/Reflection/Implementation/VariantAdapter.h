@@ -37,6 +37,7 @@ struct ezCleanType<const char*>
   typedef const char* RttiType;
 };
 
+//////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 struct ezIsOutParam
@@ -52,7 +53,7 @@ struct ezIsOutParam<T&>
 {
   enum
   {
-    value = !std::is_const<ezTypeTraits<T>::NonReferencePointerType>::value,
+    value = !std::is_const<typename ezTypeTraits<T>::NonReferencePointerType>::value,
   };
 };
 
@@ -61,16 +62,19 @@ struct ezIsOutParam<T*>
 {
   enum
   {
-    value = !std::is_const<ezTypeTraits<T>::NonReferencePointerType>::value,
+    value = !std::is_const<typename ezTypeTraits<T>::NonReferencePointerType>::value,
   };
 };
 
+//////////////////////////////////////////////////////////////////////////
 
-template <class T, class C = ezCleanType<T>::Type>
+/// \brief Used to determine if the given type is a
+template <class T, class C = typename ezCleanType<T>::Type>
 struct ezIsStandardType
 {
   enum
   {
+    // TODO: Not quite correct.
     value = ezVariant::TypeDeduction<C>::value != ezVariantType::Invalid,
   };
 };
@@ -85,7 +89,12 @@ struct ezIsStandardType<T, ezVariant>
 };
 
 //////////////////////////////////////////////////////////////////////////
-template<class T, class C = ezCleanType<T>::Type, int STANDARD_TYPE = ezIsStandardType<T>::value>
+
+/// \brief Used to automatically assign any value to an ezVariant using the assignment rules
+/// outlined in ezAbstractFunctionProperty::Execute.
+template<class T, ///< Only this parameter needs to be provided, the actual type of the value.
+  class C = typename ezCleanType<T>::Type, ///< Same as T but without the const&* fluff.
+  int STANDARD_TYPE = ezIsStandardType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType
 struct ezVariantAssignmentAdapter
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
@@ -155,9 +164,12 @@ struct ezVariantAssignmentAdapter<T, C, 1>
 
 //////////////////////////////////////////////////////////////////////////
 
-template<class T, class C = ezCleanType<T>::Type,
-  int STANDARD_TYPE = ezIsStandardType<T>::value,
-  int OUT_PARAM = ezIsOutParam<T>::value>
+/// \brief Used to implicitly retrieve any value from an ezVariant to be used as a function argument
+/// using the assignment rules outlined in ezAbstractFunctionProperty::Execute.
+template<class T, ///< Only this parameter needs to be provided, the actual type of the argument. Rest is used to force specializations.
+  class C = ezCleanType<T>::Type, ///< Same as T but without the const&* fluff.
+  int STANDARD_TYPE = ezIsStandardType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType
+  int OUT_PARAM = ezIsOutParam<T>::value> ///< Is 1 if T a non-const reference or pointer.
 struct ezVariantAdapter
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
@@ -186,7 +198,7 @@ struct ezVariantAdapter<T, ezEnum<S>, 0, 0>
   ezVariantAdapter(ezVariant& value) : m_value(value)
   {
     if (m_value.IsValid())
-      m_realValue = static_cast<S::Enum>(m_value.ConvertTo<ezInt64>());
+      m_realValue = static_cast<typename S::Enum>(m_value.ConvertTo<ezInt64>());
   }
 
   operator const ezEnum<S>&()
@@ -209,7 +221,7 @@ struct ezVariantAdapter<T, ezEnum<S>, 0, 1>
   ezVariantAdapter(ezVariant& value) : m_value(value)
   {
     if (m_value.IsValid())
-      m_realValue = static_cast<S::Enum>(m_value.ConvertTo<ezInt64>());
+      m_realValue = static_cast<typename S::Enum>(m_value.ConvertTo<ezInt64>());
   }
   ~ezVariantAdapter()
   {
@@ -237,7 +249,7 @@ struct ezVariantAdapter<T, ezBitflags<S>, 0, 0>
   ezVariantAdapter(ezVariant& value) : m_value(value)
   {
     if (m_value.IsValid())
-      m_realValue.SetValue(static_cast<S::StorageType>(m_value.ConvertTo<ezInt64>()));
+      m_realValue.SetValue(static_cast<typename S::StorageType>(m_value.ConvertTo<ezInt64>()));
   }
 
   operator const ezBitflags<S>&()
@@ -260,7 +272,7 @@ struct ezVariantAdapter<T, ezBitflags<S>, 0, 1>
   ezVariantAdapter(ezVariant& value) : m_value(value)
   {
     if (m_value.IsValid())
-      m_realValue.SetValue(static_cast<S::StorageType>(m_value.ConvertTo<ezInt64>()));
+      m_realValue.SetValue(static_cast<typename S::StorageType>(m_value.ConvertTo<ezInt64>()));
   }
   ~ezVariantAdapter()
   {

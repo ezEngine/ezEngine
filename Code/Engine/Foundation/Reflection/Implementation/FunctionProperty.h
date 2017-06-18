@@ -6,10 +6,6 @@
 #include <Foundation/Reflection/Implementation/VariantAdapter.h>
 
 
-
-
-
-
 template<class R, class...Args>
 class ezTypedFunctionProperty : public ezAbstractFunctionProperty
 {
@@ -68,7 +64,8 @@ class ezFunctionProperty<R(CLASS::*)(Args...)> : public ezTypedFunctionProperty<
 public:
   typedef R(CLASS::*TargetFunction)(Args...);
 
-  ezFunctionProperty(const char* szPropertyName, TargetFunction func) : ezTypedFunctionProperty(szPropertyName)
+  ezFunctionProperty(const char* szPropertyName, TargetFunction func)
+    : ezTypedFunctionProperty<R, Args...>(szPropertyName)
   {
     m_Function = func;
   }
