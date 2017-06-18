@@ -1,4 +1,4 @@
-#include <Core/ResourceManager/ResourceManager.h>
+﻿#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Graphics/Camera.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -12,6 +12,10 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#include <WindowsMixedReality/HolographicSpace.h>
+#endif
 
 SimpleMeshRendererGameState::SimpleMeshRendererGameState()
 {
@@ -27,6 +31,11 @@ void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)
   EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 
   ezGameState::OnActivation(pWorld);
+
+  // TODO: Prototyping in progress...
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  ezWindowsHolographicSpace::GetSingleton()->InitForWindow(*m_pMainWindow);
+#endif
 
   CreateGameLevel();
 }

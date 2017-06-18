@@ -27,10 +27,10 @@ SET (LINK_LIBRARIES
   GameEngine
 )
 
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-  InspectorPlugin
-)
+# Applicatoin with mixed reality support.
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+  LIST(APPEND LINK_LIBRARIES WindowsMixedReality)
+endif()
 
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
