@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include "TestClass.h"
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Context/Context.h>
@@ -50,7 +50,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
-    ezStringBuilder sReadDir = ">sdk/Data/UnitTests/RendererTest";
+    ezStringBuilder sReadDir = ">sdk/Data/UnitTests";
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
@@ -62,6 +62,10 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     if (ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).Failed())
       return EZ_FAILURE;
 
+    if (ezFileSystem::AddDataDirectory(sReadDir, "UnitTestData").Failed())
+      return EZ_FAILURE;
+
+    sReadDir.AppendPath("RendererTest");
     if (ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").Failed())
       return EZ_FAILURE;
   }
@@ -101,7 +105,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Default.ezShader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Default.ezShader");
 
     ezGALTextureCreationDescription texDesc;
     texDesc.m_uiWidth = uiResolutionX;
