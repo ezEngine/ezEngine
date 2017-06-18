@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Widgets/InlinedGroupBox.moc.h>
 #include <QStyleOptionToolButton>
 #include <QPainter>
