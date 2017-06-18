@@ -128,12 +128,7 @@ namespace
       {
         ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
 
-        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
-        {
-          vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
-          ezReflectionUtils::SetMemberPropertyValue(pSpecific, pClone, vTemp);
-        }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
 
@@ -149,22 +144,30 @@ namespace
           if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
             ezReflectionUtils::DeleteObject(vOldValue.ConvertTo<void*>(), pProp);
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+        else
         {
-          void* pSubObject = pSpecific->GetPropertyPointer(pObject);
-          // Do we have direct access to the property?
-          if (pSubObject != nullptr)
+          if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
           {
-            void* pSubClone = pSpecific->GetPropertyPointer(pClone);
-            ezReflectionSerializer::Clone(pSubObject, pSubClone, pPropType);
+            vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+            ezReflectionUtils::SetMemberPropertyValue(pSpecific, pClone, vTemp);
           }
-          // If the property is behind an accessor, we need to retrieve it first.
-          else if (pPropType->GetAllocator()->CanAllocate())
+          else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
           {
-            pSubObject = pPropType->GetAllocator()->Allocate();
-            pSpecific->GetValuePtr(pObject, pSubObject);
-            pSpecific->SetValuePtr(pClone, pSubObject);
-            pPropType->GetAllocator()->Deallocate(pSubObject);
+            void* pSubObject = pSpecific->GetPropertyPointer(pObject);
+            // Do we have direct access to the property?
+            if (pSubObject != nullptr)
+            {
+              void* pSubClone = pSpecific->GetPropertyPointer(pClone);
+              ezReflectionSerializer::Clone(pSubObject, pSubClone, pPropType);
+            }
+            // If the property is behind an accessor, we need to retrieve it first.
+            else if (pPropType->GetAllocator()->CanAllocate())
+            {
+              pSubObject = pPropType->GetAllocator()->Allocate();
+              pSpecific->GetValuePtr(pObject, pSubObject);
+              pSpecific->SetValuePtr(pClone, pSubObject);
+              pPropType->GetAllocator()->Deallocate(pSubObject);
+            }
           }
         }
       }
@@ -188,15 +191,7 @@ namespace
 
         const ezUInt32 uiCount = pSpecific->GetCount(pObject);
         pSpecific->SetCount(pClone, uiCount);
-        if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
-        {
-          for (ezUInt32 i = 0; i < uiCount; ++i)
-          {
-            vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
-            ezReflectionUtils::SetArrayPropertyValue(pSpecific, pClone, i, vTemp);
-          }
-        }
-        else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           for (ezUInt32 i = 0; i < uiCount; ++i)
           {
@@ -210,17 +205,28 @@ namespace
             ezReflectionUtils::SetArrayPropertyValue(pSpecific, pClone, i, vTemp);
           }
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) && pPropType->GetAllocator()->CanAllocate())
+        else
         {
-          void* pSubObject = pPropType->GetAllocator()->Allocate();
-
-          for (ezUInt32 i = 0; i < uiCount; ++i)
+          if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
           {
-            pSpecific->GetValue(pObject, i, pSubObject);
-            pSpecific->SetValue(pClone, i, pSubObject);
+            for (ezUInt32 i = 0; i < uiCount; ++i)
+            {
+              vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+              ezReflectionUtils::SetArrayPropertyValue(pSpecific, pClone, i, vTemp);
+            }
           }
+          else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
+          {
+            void* pSubObject = pPropType->GetAllocator()->Allocate();
 
-          pPropType->GetAllocator()->Deallocate(pSubObject);
+            for (ezUInt32 i = 0; i < uiCount; ++i)
+            {
+              pSpecific->GetValue(pObject, i, pSubObject);
+              pSpecific->SetValue(pClone, i, pSubObject);
+            }
+
+            pPropType->GetAllocator()->Deallocate(pSubObject);
+          }
         }
       }
       break;
@@ -246,14 +252,8 @@ namespace
         ezHybridArray<ezVariant, 16> values;
         pSpecific->GetValues(pObject, values);
 
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
-        {
-          for (ezUInt32 i = 0; i < values.GetCount(); ++i)
-          {
-            ezReflectionUtils::InsertSetPropertyValue(pSpecific, pClone, values[i]);
-          }
-        }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           for (ezUInt32 i = 0; i < values.GetCount(); ++i)
           {
@@ -264,6 +264,13 @@ namespace
             }
             vTemp = pRefrencedObject;
             ezReflectionUtils::InsertSetPropertyValue(pSpecific, pClone, vTemp);
+          }
+        }
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+          {
+            ezReflectionUtils::InsertSetPropertyValue(pSpecific, pClone, values[i]);
           }
         }
       }

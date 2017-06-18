@@ -153,7 +153,11 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
   }
 
   if (bApplyPatches)
+  {
     ezGraphVersioning::GetSingleton()->PatchGraph(pGraph);
+    if (pTypesGraph)
+      ezGraphVersioning::GetSingleton()->PatchGraph(pTypesGraph);
+  }
   return EZ_SUCCESS;
 }
 

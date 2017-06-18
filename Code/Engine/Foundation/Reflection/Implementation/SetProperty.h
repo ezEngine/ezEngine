@@ -11,15 +11,7 @@ class ezTypedSetProperty : public ezAbstractSetProperty
 public:
   ezTypedSetProperty(const char* szPropertyName) : ezAbstractSetProperty(szPropertyName)
   {
-    ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
-    if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
-      m_Flags.Add(ezPropertyFlags::StandardType);
-
-    if (type == ezVariant::Type::VoidPointer || type == ezVariant::Type::ReflectedPointer)
-      m_Flags.Add(ezPropertyFlags::Pointer);
-
-    if (!m_Flags.IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
-      m_Flags.Add(ezPropertyFlags::EmbeddedClass);
+    m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
   }
 
   virtual const ezRTTI* GetSpecificType() const override
@@ -35,7 +27,7 @@ class ezTypedSetProperty<const char*> : public ezAbstractSetProperty
 public:
   ezTypedSetProperty(const char* szPropertyName) : ezAbstractSetProperty(szPropertyName)
   {
-    m_Flags.Add(ezPropertyFlags::StandardType);
+    m_Flags = ezPropertyFlags::GetParameterFlags<const char*>();
   }
 
   virtual const ezRTTI* GetSpecificType() const override

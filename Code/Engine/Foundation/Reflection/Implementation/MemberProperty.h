@@ -22,15 +22,9 @@ public:
   /// \brief Passes the property name through to ezAbstractMemberProperty.
   ezTypedMemberProperty(const char* szPropertyName) : ezAbstractMemberProperty(szPropertyName)
   {
-    ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
-    if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
-      m_Flags.Add(ezPropertyFlags::StandardType);
-
-    if (type == ezVariant::Type::VoidPointer || type == ezVariant::Type::ReflectedPointer)
-      m_Flags.Add(ezPropertyFlags::Pointer);
-
-    if (!m_Flags.IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
-      m_Flags.Add(ezPropertyFlags::EmbeddedClass);
+    m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
+    EZ_CHECK_AT_COMPILETIME_MSG(!std::is_pointer<Type>::value || ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value == ezVariantType::Invalid,
+      "Pointer to standard types are not supported.");
   }
 
   /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>() to see whether this is an int property.
@@ -62,7 +56,7 @@ public:
   ezTypedMemberProperty(const char* szPropertyName) : ezAbstractMemberProperty(szPropertyName)
   {
     // We treat const char* as a basic type and not a pointer.
-    m_Flags.Add(ezPropertyFlags::StandardType);
+    m_Flags = ezPropertyFlags::GetParameterFlags<const char*>();
   }
 
   virtual const ezRTTI* GetSpecificType() const override // [tested]

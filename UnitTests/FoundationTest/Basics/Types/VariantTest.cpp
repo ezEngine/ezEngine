@@ -620,6 +620,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v == ezString("This is a const char array"));
     EZ_TEST_BOOL(v != ezString("This is another string"));
 
+    EZ_TEST_BOOL(v == "This is a const char array");
+    EZ_TEST_BOOL(v != "This is another string");
+
+    EZ_TEST_BOOL(v == (const char*)"This is a const char array");
+    EZ_TEST_BOOL(v != (const char*)"This is another string");
+
     v = "blurg!";
     EZ_TEST_BOOL(v == ezString("blurg!"));
 

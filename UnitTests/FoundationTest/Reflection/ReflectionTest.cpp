@@ -41,6 +41,25 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_BOOL(bFoundClass2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PropertyFlags")
+  {
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const char*>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Const));
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<int>() == ezPropertyFlags::StandardType);
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<int&>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Reference));
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<int*>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Pointer));
+
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Const));
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int&>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Reference | ezPropertyFlags::Const));
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int*>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Pointer | ezPropertyFlags::Const));
+
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezExampleEnum::Enum>() == ezPropertyFlags::IsEnum);
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezEnum<ezExampleEnum>>() == ezPropertyFlags::IsEnum);
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezBitflags<ezExampleBitflags>>() == ezPropertyFlags::Bitflags);
+
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezTestStruct3>() == ezPropertyFlags::Class);
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezTestClass2>() == ezPropertyFlags::Class);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TypeFlags")
   {
     EZ_TEST_INT(ezGetStaticRTTI<bool>()->GetTypeFlags().GetValue(), ezTypeFlags::StandardType);
@@ -349,7 +368,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     const ezRTTI* pRtti = ezGetStaticRTTI<ezTestClass2>();
 
     {
-      TestMemberProperty<const char*>("Text", &Instance, pRtti, ezPropertyFlags::StandardType, ezString("Legen"), ezString("dary"));
+      TestMemberProperty<const char*>("Text", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::Const, ezString("Legen"), ezString("dary"));
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubVector", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }
@@ -1137,12 +1156,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("ConstCharPtr");
       EZ_TEST_BOOL(pProp != nullptr);
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-      EZ_TEST_INT(pProp->GetFlags().GetValue(), ezPropertyFlags::StandardType);
+      EZ_TEST_INT(pProp->GetFlags().GetValue(), (ezPropertyFlags::StandardType | ezPropertyFlags::Const).GetValue());
       EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<const char*>());
     }
 
-    TestPointerMemberProperty<ezTestArrays>("ArraysPtr", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);
-    TestPointerMemberProperty<ezTestArrays>("ArraysPtrDirect", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArraysDirect);
+    TestPointerMemberProperty<ezTestArrays>("ArraysPtr", &containers, pRtti, ezPropertyFlags::Class | ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);
+    TestPointerMemberProperty<ezTestArrays>("ArraysPtrDirect", &containers, pRtti, ezPropertyFlags::Class | ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArraysDirect);
   }
 
   ezTestPtr containers;

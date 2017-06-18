@@ -26,8 +26,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, DocumentObjectManager)
     EZ_TEST_INT(pObject->GetTypeAccessor().GetCount(szProperty), 1);
 
     EZ_TEST_BOOL(manager.CanAdd(OuterClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0).m_Result.Succeeded());
-    EZ_TEST_BOOL(manager.CanAdd(ezReflectedClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0).m_Result.Succeeded());
-    EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), pObject, "ClassPtrArray", 0).m_Result.Succeeded());
+    EZ_TEST_BOOL(manager.CanAdd(ExtendedOuterClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0).m_Result.Succeeded());
+    EZ_TEST_BOOL(!manager.CanAdd(ezReflectedClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0).m_Result.Succeeded());
 
     for (ezInt32 i = 0; i < EZ_ARRAY_SIZE(pChildren); i++)
     {

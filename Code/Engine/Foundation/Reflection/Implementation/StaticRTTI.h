@@ -50,7 +50,10 @@ namespace ezInternal
   template<typename T>
   struct ezStaticRTTI
   {
-    static const ezRTTI* GetRTTI();
+    static const ezRTTI* GetRTTI()
+    {
+      return nullptr;
+    }
   };
 
   // Special implementation for types that have no base

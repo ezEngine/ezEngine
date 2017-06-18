@@ -370,8 +370,11 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     //  OutputDebugStringA(s.GetData());
     //}
 
-    EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) + pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum)
-      + pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) + pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) <= 1, "Types are mutually exclusive!");
+    if (pProp->GetCategory() != ezPropertyCategory::Function)
+    {
+      EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) + pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum)
+        + pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) + pProp->GetFlags().IsSet(ezPropertyFlags::Class) <= 1, "Types are mutually exclusive!");
+    }
 
     switch (pProp->GetCategory())
     {
@@ -387,8 +390,8 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
           "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_ENUM_MEMBER_PROPERTY / EZ_ENUM_ACCESSOR_PROPERTY for property.");
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags),
           "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_BITFLAGS_MEMBER_PROPERTY / EZ_BITFLAGS_ACCESSOR_PROPERTY for property.");
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) || pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Class),
-          "If ezPropertyFlags::EmbeddedClass is set, the property type must be ezTypeFlags::Class.");
+        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Class) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Class),
+          "If ezPropertyFlags::Class is set, the property type must be ezTypeFlags::Class and vise versa.");
       }
       break;
     case ezPropertyCategory::Array:
@@ -396,6 +399,8 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     case ezPropertyCategory::Map:
       {
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "Property-Type missmatch!");
+        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Class) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Class),
+          "If ezPropertyFlags::Class is set, the property type must be ezTypeFlags::Class and vise versa.");
       }
       break;
     case ezPropertyCategory::Function:

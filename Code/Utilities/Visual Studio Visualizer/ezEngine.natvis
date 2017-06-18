@@ -144,39 +144,47 @@
 	<!-- Basic Types -->
 	<Type Name="ezVariant">
 		<Expand>
-			<Item Name="Type">(Type::Enum) m_Type</Item>
-			<Item Name="Value" Condition="m_Type == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Int8">*reinterpret_cast&lt;ezInt8*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::UInt8">*reinterpret_cast&lt;ezUInt8*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Int16">*reinterpret_cast&lt;ezInt16*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::UInt16">*reinterpret_cast&lt;ezUInt16*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Int32">*reinterpret_cast&lt;ezInt32*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::UInt32">*reinterpret_cast&lt;ezUInt32*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Int64">*reinterpret_cast&lt;ezInt64*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::UInt64">*reinterpret_cast&lt;ezUInt64*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Float">*reinterpret_cast&lt;float*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Double">*reinterpret_cast&lt;double*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Color">*reinterpret_cast&lt;ezColor*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Vector2">*reinterpret_cast&lt;ezVec2Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Vector3">*reinterpret_cast&lt;ezVec3Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Vector4">*reinterpret_cast&lt;ezVec4Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Type">(Type::Enum) m_Type</Item>
+      <Item Name="Value" Condition="m_Type == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Int8">*reinterpret_cast&lt;ezInt8*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::UInt8">*reinterpret_cast&lt;ezUInt8*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Int16">*reinterpret_cast&lt;ezInt16*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::UInt16">*reinterpret_cast&lt;ezUInt16*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Int32">*reinterpret_cast&lt;ezInt32*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::UInt32">*reinterpret_cast&lt;ezUInt32*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Int64">*reinterpret_cast&lt;ezInt64*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::UInt64">*reinterpret_cast&lt;ezUInt64*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Float">*reinterpret_cast&lt;float*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Double">*reinterpret_cast&lt;double*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Color">*reinterpret_cast&lt;ezColor*&gt;(&amp;m_Data)</Item>     
+      <Item Name="Value" Condition="m_Type == Type::Vector2">*reinterpret_cast&lt;ezVec2Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Vector3">*reinterpret_cast&lt;ezVec3Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Vector4">*reinterpret_cast&lt;ezVec4Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
       <Item Name="Value" Condition="m_Type == Type::Vector2I">*reinterpret_cast&lt;ezVec2Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Vector3I">*reinterpret_cast&lt;ezVec3Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Vector4I">*reinterpret_cast&lt;ezVec4Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Quaternion">*reinterpret_cast&lt;ezQuatTemplate&lt;float&gt;*&gt;(&amp;m_Data)</Item>
-      <Item Name="Value" Condition="m_Type == Type::DataBuffer">*reinterpret_cast&lt;ezDynamicArray&lt;unsigned char,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Time">*reinterpret_cast&lt;ezTime*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Uuid">*reinterpret_cast&lt;ezUuid*&gt;(&amp;m_Data)</Item>
-      <Item Name="Value" Condition="m_Type == Type::Angle">*reinterpret_cast&lt;ezAngle*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::VoidPointer">*reinterpret_cast&lt;void**&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::ReflectedPointer">*reinterpret_cast&lt;ezReflectedClass**&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Matrix3">*reinterpret_cast&lt;ezMat3Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
-			<Item Name="Value" Condition="m_Type == Type::Matrix4">*reinterpret_cast&lt;ezMat4Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
-			<Item Name="Value" Condition="m_Type == Type::String">*reinterpret_cast&lt;ezHybridStringBase&lt;32&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Vector3I">*reinterpret_cast&lt;ezVec3Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Vector4I">*reinterpret_cast&lt;ezVec4Template&lt;int&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Vector2U">*reinterpret_cast&lt;ezVec2Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>      
+      <Item Name="Value" Condition="m_Type == Type::Vector3U">*reinterpret_cast&lt;ezVec3Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Vector4U">*reinterpret_cast&lt;ezVec4Template&lt;unsigned int&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Quaternion">*reinterpret_cast&lt;ezQuatTemplate&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Matrix3">*reinterpret_cast&lt;ezMat3Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Matrix4">*reinterpret_cast&lt;ezMat4Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Transform">*reinterpret_cast&lt;ezTransformTemplate&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+      <Item Name="Value" Condition="m_Type == Type::String">*reinterpret_cast&lt;ezHybridStringBase&lt;32&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
       <Item Name="Value" Condition="m_Type == Type::StringView">*reinterpret_cast&lt;ezStringView*&gt;(&amp;m_Data)</Item>
-			<Item Name="Value" Condition="m_Type == Type::VariantArray">*reinterpret_cast&lt;ezDynamicArray&lt;ezVariant,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
-			<Item Name="Value" Condition="m_Type == Type::VariantDictionary">*reinterpret_cast&lt;ezHashTable&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt;,ezVariant,ezHashHelper&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt; &gt;,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
-			<Item Name="IsShared">m_bIsShared != 0</Item>
+      <Item Name="Value" Condition="m_Type == Type::DataBuffer">*reinterpret_cast&lt;ezDynamicArray&lt;unsigned char,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Time">*reinterpret_cast&lt;ezTime*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Uuid">*reinterpret_cast&lt;ezUuid*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::Angle">*reinterpret_cast&lt;ezAngle*&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::ColorGamma">*reinterpret_cast&lt;ezColorGammaUB*&gt;(&amp;m_Data)</Item>
+      
+      <Item Name="Value" Condition="m_Type == Type::VoidPointer">*reinterpret_cast&lt;void**&gt;(&amp;m_Data)</Item>
+      <Item Name="Value" Condition="m_Type == Type::ReflectedPointer">*reinterpret_cast&lt;ezReflectedClass**&gt;(&amp;m_Data)</Item>     
+      
+      <Item Name="Value" Condition="m_Type == Type::VariantArray">*reinterpret_cast&lt;ezDynamicArray&lt;ezVariant,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+      <Item Name="Value" Condition="m_Type == Type::VariantDictionary">*reinterpret_cast&lt;ezHashTable&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt;,ezVariant,ezHashHelper&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt; &gt;,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+
+      <Item Name="IsShared">m_bIsShared != 0</Item>
 		</Expand>
 	</Type>
 

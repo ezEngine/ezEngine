@@ -634,15 +634,15 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
     const ezRTTI* pCurrentType = object.m_pType;
     auto pProp = pCurrentType->FindPropertyByName(path[0].m_sProperty);
     const ezRTTI* pPropType = pProp->GetSpecificType();
+
+    EZ_ASSERT_DEV(pProp->GetFlags().IsAnySet(ezPropertyFlags::Class) && !pProp->GetFlags().IsSet(ezPropertyFlags::Pointer),
+      "Anything else wouldn't need to be traversed as a path but could be accessed directly or is already the end of a path.");
+
     switch (pProp->GetCategory())
     {
     case ezPropertyCategory::Member:
       {
         ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags), "");
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType), "");
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "");
-
         if (pPropType->GetProperties().GetCount() > 0)
         {
           ezRttiConverterObject subObject;
@@ -675,9 +675,6 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
       {
         ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
 
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType), "");
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "");
-
         if (pPropType->GetAllocator()->CanAllocate())
         {
           ezRttiConverterObject subObject;
@@ -699,9 +696,6 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
     case ezPropertyCategory::Map:
       {
         ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
-
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType), "");
-        EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "");
 
         if (pPropType->GetAllocator()->CanAllocate())
         {

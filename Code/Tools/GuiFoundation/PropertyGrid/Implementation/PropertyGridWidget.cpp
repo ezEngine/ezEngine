@@ -321,7 +321,7 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
         if (pWidget != nullptr)
           return pWidget;
 
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
         {
           // Member struct / class
           return new ezQtPropertyTypeWidget(true);
@@ -408,7 +408,7 @@ void GetDefaultValues(const ezRTTI* pType, const ezDocument* pDocument, ezProper
     {
     case ezPropertyCategory::Member:
       {
-        if (!pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+        if (!pProp->GetFlags().IsSet(ezPropertyFlags::Class))
         {
           (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
         }

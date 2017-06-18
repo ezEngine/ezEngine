@@ -2,12 +2,14 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedPropertyDescriptor
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedPropertyDescriptor>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 2, ezRTTIDefaultAllocator<ezReflectedPropertyDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,6 +23,49 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 1, ezRTT
   EZ_END_PROPERTIES
 }
 EZ_END_STATIC_REFLECTED_TYPE
+
+class ezReflectedPropertyDescriptorPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezReflectedPropertyDescriptorPatch_1_2()
+    : ezGraphPatch(ezGetStaticRTTI<ezReflectedPropertyDescriptor>(), 2) {}
+
+  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    if (ezAbstractObjectNode::Property* pProp = pNode->FindProperty("Flags"))
+    {
+      ezStringBuilder sValue = pProp->m_Value.Get<ezString>();
+      ezHybridArray<ezStringView, 32> values;
+      sValue.Split(false, values, "|");
+
+      ezStringBuilder sNewValue;
+      for (ezInt32 i = (ezInt32)values.GetCount() - 1; i >= 0; i--)
+      {
+        if (values[i].IsEqual("ezPropertyFlags::Constant"))
+        {
+          values.RemoveAt(i);
+        }
+        else if (values[i].IsEqual("ezPropertyFlags::EmbeddedClass"))
+        {
+          values[i] = ezStringView("ezPropertyFlags::Class");
+        }
+        else if (values[i].IsEqual("ezPropertyFlags::Pointer"))
+        {
+          values.PushBack(ezStringView("ezPropertyFlags::Class"));
+        }
+      }
+      for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+      {
+        if (i != 0)
+          sNewValue.Append("|");
+        sNewValue.Append(values[i]);
+      }
+      pProp->m_Value = sNewValue.GetData();
+    }
+  }
+};
+
+ezReflectedPropertyDescriptorPatch_1_2 g_ezReflectedPropertyDescriptorPatch_1_2;
 
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags)
@@ -36,7 +81,7 @@ ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory:
 }
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes)
-  : m_Category(ezPropertyCategory::Constant), m_sName(szName), m_sType(), m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly | ezPropertyFlags::Constant)
+  : m_Category(ezPropertyCategory::Constant), m_sName(szName), m_sType(), m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly)
   , m_ConstantValue(constantValue)
 {
   m_ReferenceAttributes = attributes;
@@ -60,7 +105,7 @@ void ezReflectedPropertyDescriptor::operator=(const ezReflectedPropertyDescripto
   m_Flags = rhs.m_Flags;
   m_ConstantValue = rhs.m_ConstantValue;
 
-  m_Attributes = rhs.m_Attributes; 
+  m_Attributes = rhs.m_Attributes;
   rhs.m_Attributes.Clear();
 
   m_ReferenceAttributes = rhs.m_ReferenceAttributes;

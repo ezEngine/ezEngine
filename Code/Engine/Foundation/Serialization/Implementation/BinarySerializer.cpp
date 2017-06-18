@@ -93,7 +93,11 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
   }
 
   if (bApplyPatches)
+  {
     ezGraphVersioning::GetSingleton()->PatchGraph(pGraph);
+    if (pTypesGraph)
+      ezGraphVersioning::GetSingleton()->PatchGraph(pTypesGraph);
+  }
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_BinarySerializer);

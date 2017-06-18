@@ -189,24 +189,27 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
     if (pProp == nullptr)
       return ezStatus(ezFmt("Property '{0}' could not be found in type '{1}'", szParentProperty, pType->GetTypeName()));
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       return ezStatus("Need to use 'InsertValue' action instead.");
     }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
     {
-      if (!pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-        return ezStatus(ezFmt("Cannot add object to the pointer property '{0}' as it does not hold ownership.", szParentProperty));
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      {
+        if (!pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          return ezStatus(ezFmt("Cannot add object to the pointer property '{0}' as it does not hold ownership.", szParentProperty));
 
-      if (!pRtti->IsDerivedFrom(pProp->GetSpecificType()))
-        return ezStatus(ezFmt("Cannot add object to the pointer property '{0}' as its type '{1}' is not derived from the property type '{2}'!"
-          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName()));
-    }
-    else
-    {
-      if (pRtti != pProp->GetSpecificType())
-        return ezStatus(ezFmt("Cannot add object to the property '{0}' as its type '{1}' does not match the property type '{2}'!"
-          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName()));
+        if (!pRtti->IsDerivedFrom(pProp->GetSpecificType()))
+          return ezStatus(ezFmt("Cannot add object to the pointer property '{0}' as its type '{1}' is not derived from the property type '{2}'!"
+            , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName()));
+      }
+      else
+      {
+        if (pRtti != pProp->GetSpecificType())
+          return ezStatus(ezFmt("Cannot add object to the property '{0}' as its type '{1}' does not match the property type '{2}'!"
+            , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName()));
+      }
     }
 
     if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
@@ -231,7 +234,7 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
     }
     else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+      if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         return ezStatus("Embedded classes cannot be changed manually.");
 
       ezVariant value = accessor.GetValue(szParentProperty);
@@ -255,10 +258,10 @@ ezStatus ezDocumentObjectManager::CanRemove(const ezDocumentObject* pObject) con
 
   if (pObject->GetParent())
   {
-    ezAbstractProperty* pProp = pObject->GetParent()->GetTypeAccessor().GetType()->FindPropertyByName(pObject->GetParentProperty());
+    ezAbstractProperty* pProp = pObject->GetParentPropertyType();
     EZ_ASSERT_DEV(pProp != nullptr, "Parent property should always be valid!");
-    if (pProp->GetCategory() == ezPropertyCategory::Member && pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
-      return ezStatus("Embedded member class can't be deleted!");
+    if (pProp->GetCategory() == ezPropertyCategory::Member && !pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      return ezStatus("Non pointer members can't be deleted!");
   }
   EZ_ASSERT_DEV(pObjectInTree == pObject, "Tree Corruption!!!");
 
@@ -469,7 +472,7 @@ void ezDocumentObjectManager::PatchEmbeddedClassObjectsInternal(ezDocumentObject
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     const ezAbstractProperty* pProperty = pType->GetProperties()[i];
-    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::Class) && !pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
       ezUuid value = accessor.GetValue(pProperty->GetPropertyName()).Get<ezUuid>();
       EZ_ASSERT_DEV(addToDoc || !value.IsValid(), "If addToDoc is false, the current value must be invalid!");

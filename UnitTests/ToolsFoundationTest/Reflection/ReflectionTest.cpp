@@ -182,7 +182,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
           AccessorPropertyTest(accessor, pProp->GetPropertyName(), pProp3->GetSpecificType()->GetVariantType());
           uiPropertiesSet++;
         }
-        else // ezPropertyFlags::EmbeddedClass
+        else // ezPropertyFlags::Class
         {
           // Recurs into sub-classes
           const ezUuid& subObjectGuid = accessor.GetValue(pProp->GetPropertyName()).Get<ezUuid>();

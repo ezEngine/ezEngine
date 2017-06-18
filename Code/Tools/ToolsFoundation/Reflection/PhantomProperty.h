@@ -42,15 +42,22 @@ public:
   ezPhantomFunctionProperty(const ezReflectedPropertyDescriptor* pDesc);
   ~ezPhantomFunctionProperty();
 
-  virtual const ezRTTI* GetSpecificType() const override { return nullptr; };
-
-  virtual void Execute(void* pInstance) const override
-  {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-  }
+  virtual const ezRTTI* GetSpecificType() const override;;
+  virtual ezFunctionPropertyType::Enum GetFunctionType() const override;
+  virtual const ezRTTI* GetReturnType() const override;
+  virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const override;
+  virtual ezUInt32 GetArgumentCount() const override;
+  virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override;
+  virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override;
+  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& returnValue) const override;
 
 private:
   ezString m_sPropertyNameStorage;
+  ezEnum<ezFunctionPropertyType> m_FunctionType;
+  ezRTTI* m_pReturnType;
+  ezBitflags<ezPropertyFlags> m_ReturnFlags;
+  ezDynamicArray<ezRTTI*> m_ParameterTypes;
+  ezDynamicArray<ezBitflags<ezPropertyFlags>> m_ParameterFlags;
 };
 
 

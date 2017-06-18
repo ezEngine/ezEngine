@@ -226,6 +226,13 @@ public:
   float m_fP1;
 };
 
+class ExtendedOuterClass : public OuterClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ExtendedOuterClass, OuterClass);
+
+public:
+  ezString m_more;
+};
 
 class ezObjectTest : public ezReflectedClass
 {
@@ -236,6 +243,21 @@ public:
   {
 
   }
+  ~ezObjectTest()
+  {
+    for (OuterClass* pTest : m_ClassPtrArray)
+    {
+      ezGetStaticRTTI<OuterClass>()->GetAllocator()->Deallocate(pTest);
+    }
+    for (ezObjectTest* pTest : m_SubObjectSet)
+    {
+      ezGetStaticRTTI<ezObjectTest>()->GetAllocator()->Deallocate(pTest);
+    }
+    for (auto it = m_ClassPtrMap.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGetStaticRTTI<OuterClass>()->GetAllocator()->Deallocate(it.Value());
+    }
+  }
 
   ezArrayPtr<const ezString> GetStandardTypeSet() const;
   void StandardTypeSetInsert(const ezString& value);
@@ -245,14 +267,14 @@ public:
 
   ezDynamicArray<double> m_StandardTypeArray;
   ezDynamicArray<OuterClass> m_ClassArray;
-  ezDeque<ezReflectedClass*> m_ClassPtrArray;
+  ezDeque<OuterClass*> m_ClassPtrArray;
 
   ezDynamicArray<ezString> m_StandardTypeSet;
   ezSet<ezObjectTest*> m_SubObjectSet;
 
   ezMap<ezString, double> m_StandardTypeMap;
   ezHashTable<ezString, OuterClass> m_ClassMap;
-  ezMap<ezString, ezReflectedClass*> m_ClassPtrMap;
+  ezMap<ezString, OuterClass*> m_ClassPtrMap;
 };
 
 

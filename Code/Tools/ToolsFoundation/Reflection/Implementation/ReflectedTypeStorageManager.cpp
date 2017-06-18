@@ -100,7 +100,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
     {
     case ezPropertyCategory::Member:
       {
-        if (pProperty->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+        if (pProperty->GetFlags().IsSet(ezPropertyFlags::Class) && !pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           // Did the type change from what it was previously?
           if (value.GetType() == SpecVarType)
@@ -222,7 +222,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
     ezDynamicArray<ezVariant>& data = it.Key()->m_Data;
     EZ_ASSERT_DEV(data.GetCount() == uiIndex, "ezReflectedTypeStorageAccessor found with a property count that does not match its storage mapping!");
     data.PushBack(ezToolsReflectionUtils::GetStorageDefault(pProperty));
-    if (pProperty->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+    if (pProperty->GetFlags().IsSet(ezPropertyFlags::Class) && !pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
       requiresPatchingEmbeddedClass.Insert(it.Key()->GetOwner());
     }

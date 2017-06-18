@@ -229,7 +229,7 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
 
     return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
   }
-  else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer | ezPropertyFlags::EmbeddedClass))
+  else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Class))
   {
     return ezUuid();
   }

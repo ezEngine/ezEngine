@@ -19,10 +19,11 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* sz
   EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szProperty), "Child objects must have a parent property to insert into");
   ezIReflectedTypeAccessor& accessor = GetTypeAccessor();
 
-  // Property patching
   const ezRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(szProperty);
-  EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner), "");
+  EZ_ASSERT_DEV(pProp && pProp->GetFlags().IsSet(ezPropertyFlags::Class) &&
+    (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)),
+    "Only class type or pointer to class type that own the object can be inserted, everything else is handled by value.");
 
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {

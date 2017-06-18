@@ -116,7 +116,7 @@ protected:
 };
 
 
-/// \brief Base class for more 'advanced' property type widgets for Pointer or EmbeddedClass type properties.
+/// \brief Base class for more 'advanced' property type widgets for Pointer or Class type properties.
 /// Implements some of ezQtTypeWidget functionality at property widget level.
 class EZ_GUIFOUNDATION_DLL ezQtEmbeddedClassPropertyWidget : public ezQtPropertyWidget
 {

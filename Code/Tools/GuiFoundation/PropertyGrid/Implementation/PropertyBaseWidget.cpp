@@ -559,15 +559,15 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelectio
   }
 
   const ezRTTI* pCommonType = nullptr;
-  if (m_pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+  if (m_pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  {
+    pCommonType = ezQtPropertyWidget::GetCommonBaseType(ResolvedObjects);
+  }
+  else
   {
     // If we create a widget for a member class we already determined the common base type at the parent type widget.
     // As we are not dealing with a pointer in this case the type must match the property exactly.
     pCommonType = m_pProp->GetSpecificType();
-  }
-  else
-  {
-    pCommonType = ezQtPropertyWidget::GetCommonBaseType(ResolvedObjects);
   }
   m_pTypeWidget = new ezQtTypeWidget(pOwner, m_pGrid, pCommonType);
   m_pTypeWidget->SetSelection(ResolvedObjects);

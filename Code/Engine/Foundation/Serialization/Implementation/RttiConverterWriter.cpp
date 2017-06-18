@@ -12,7 +12,7 @@ void ezRttiConverterContext::Clear()
 void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Cannot create object, RTTI type is unknown");
-  if (!pRtti->GetAllocator())
+  if (!pRtti->GetAllocator() || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
   void* pObj = pRtti->GetAllocator()->Allocate();
@@ -161,18 +161,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
     {
       const ezAbstractMemberProperty* pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
 
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
-      {
-        vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
-        ezReflectionUtils::EnumerationToString(pPropType, vTemp.Get<ezInt64>(), sTemp);
-
-        pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
-      }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
-      {
-        pNode->AddProperty(pProp->GetPropertyName(), ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject));
-      }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
         void* pRefrencedObject = vTemp.ConvertTo<void*>();
@@ -190,34 +179,48 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           pNode->AddProperty(pProp->GetPropertyName(), guid);
         }
       }
-      else if (pPropType->GetProperties().GetCount() > 0)
+      else
       {
-        void* pSubObject = pSpecific->GetPropertyPointer(pObject);
-
-        ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
-        sTemp.Append("/", pProp->GetPropertyName());
-
-        const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
-
-        // Do we have direct access to the property?
-        if (pSubObject != nullptr)
+        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
-          pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
+          vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+          ezReflectionUtils::EnumerationToString(pPropType, vTemp.Get<ezInt64>(), sTemp);
 
-          AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
+          pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
         }
-        // If the property is behind an accessor, we need to retrieve it first.
-        else if (pPropType->GetAllocator()->CanAllocate())
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
         {
-          pSubObject = pPropType->GetAllocator()->Allocate();
+          pNode->AddProperty(pProp->GetPropertyName(), ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject));
+        }
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetProperties().GetCount() > 0)
+        {
+          void* pSubObject = pSpecific->GetPropertyPointer(pObject);
 
-          pSpecific->GetValuePtr(pObject, pSubObject);
+          ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
+          sTemp.Append("/", pProp->GetPropertyName());
 
-          pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
+          const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
 
-          AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
+          // Do we have direct access to the property?
+          if (pSubObject != nullptr)
+          {
+            pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
 
-          pPropType->GetAllocator()->Deallocate(pSubObject);
+            AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
+          }
+          // If the property is behind an accessor, we need to retrieve it first.
+          else if (pPropType->GetAllocator()->CanAllocate())
+          {
+            pSubObject = pPropType->GetAllocator()->Allocate();
+
+            pSpecific->GetValuePtr(pObject, pSubObject);
+
+            pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
+
+            AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
+
+            pPropType->GetAllocator()->Deallocate(pSubObject);
+          }
         }
       }
     }
@@ -229,15 +232,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       ezVariantArray values;
       values.SetCount(uiCount);
 
-      if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
-      {
-        for (ezUInt32 i = 0; i < uiCount; ++i)
-        {
-          values[i] = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
-        }
-        pNode->AddProperty(pProp->GetPropertyName(), values);
-      }
-      else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         ezUuid propertyGuid = pNode->GetGuid();
         propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
@@ -261,23 +256,34 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
         pNode->AddProperty(pProp->GetPropertyName(), values);
       }
-      else if (pPropType->GetAllocator()->CanAllocate())
+      else
       {
-        void* pSubObject = pPropType->GetAllocator()->Allocate();
-
-        for (ezUInt32 i = 0; i < uiCount; ++i)
+        if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
         {
-          pSpecific->GetValue(pObject, i, pSubObject);
-
-          ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
-          sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), i);
-          const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
-          AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
-
-          values[i] = SubObjectGuid;
+          for (ezUInt32 i = 0; i < uiCount; ++i)
+          {
+            values[i] = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+          }
+          pNode->AddProperty(pProp->GetPropertyName(), values);
         }
-        pNode->AddProperty(pProp->GetPropertyName(), values);
-        pPropType->GetAllocator()->Deallocate(pSubObject);
+        else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
+        {
+          void* pSubObject = pPropType->GetAllocator()->Allocate();
+
+          for (ezUInt32 i = 0; i < uiCount; ++i)
+          {
+            pSpecific->GetValue(pObject, i, pSubObject);
+
+            ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
+            sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), i);
+            const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
+            AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
+
+            values[i] = SubObjectGuid;
+          }
+          pNode->AddProperty(pProp->GetPropertyName(), values);
+          pPropType->GetAllocator()->Deallocate(pSubObject);
+        }
       }
     }
     break;
@@ -290,11 +296,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
       ezVariantArray ValuesCopied(values);
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
-      {
-        pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
-      }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         ezUuid propertyGuid = pNode->GetGuid();
         propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
@@ -318,6 +320,13 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
         pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
       }
+      else
+      {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
+        }
+      }
     }
     break;
   case ezPropertyCategory::Map:
@@ -330,16 +339,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       ezVariantDictionary ValuesCopied;
       ValuesCopied.Reserve(keys.GetCount());
 
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
-      {
-        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
-        {
-          ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
-          ValuesCopied.Insert(keys[i], value);
-        }
-        pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
-      }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         ezUuid propertyGuid = pNode->GetGuid();
         propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
@@ -366,17 +366,29 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else
       {
-        for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
         {
-          const void* pSubObject = pSpecific->GetValue(pObject, keys[i]);
-
-          ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
-          sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), keys[i]);
-          const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
-          AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
-          ValuesCopied.Insert(keys[i], SubObjectGuid);
+          for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+          {
+            ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
+            ValuesCopied.Insert(keys[i], value);
+          }
+          pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
         }
-        pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+        {
+          for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
+          {
+            const void* pSubObject = pSpecific->GetValue(pObject, keys[i]);
+
+            ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
+            sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), keys[i]);
+            const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
+            AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
+            ValuesCopied.Insert(keys[i], SubObjectGuid);
+          }
+          pNode->AddProperty(pProp->GetPropertyName(), ValuesCopied);
+        }
       }
     }
     break;

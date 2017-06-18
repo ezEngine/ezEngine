@@ -34,17 +34,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
   {
   case ezPropertyCategory::Member:
     {
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
-      {
-        ezStringBuilder sTemp;
-        ezReflectionUtils::EnumerationToString(pPropType, pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).ConvertTo<ezInt64>(), sTemp);
-        pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
-      }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
-      {
-        pNode->AddProperty(pProp->GetPropertyName(), pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()));
-      }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
@@ -59,12 +49,25 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
           pNode->AddProperty(pProp->GetPropertyName(), pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()));
         }
       }
-      else // ezPropertyFlags::EmbeddedClass
+      else
       {
-        const ezUuid guid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezUuid>();
-        EZ_ASSERT_DEV(guid.IsValid(), "Embedded class cannot be null.");
-        pNode->AddProperty(pProp->GetPropertyName(), guid);
-        m_QueuedObjects.Insert(m_pManager->GetObject(guid));
+        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        {
+          ezStringBuilder sTemp;
+          ezReflectionUtils::EnumerationToString(pPropType, pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).ConvertTo<ezInt64>(), sTemp);
+          pNode->AddProperty(pProp->GetPropertyName(), sTemp.GetData());
+        }
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          pNode->AddProperty(pProp->GetPropertyName(), pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()));
+        }
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+        {
+          const ezUuid guid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezUuid>();
+          EZ_ASSERT_DEV(guid.IsValid(), "Embedded class cannot be null.");
+          pNode->AddProperty(pProp->GetPropertyName(), guid);
+          m_QueuedObjects.Insert(m_pManager->GetObject(guid));
+        }
       }
     }
 
@@ -92,7 +95,6 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
     break;
   case ezPropertyCategory::Map:
     {
-
       const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
       EZ_ASSERT_DEV(iCount >= 0, "Invalid map property size {0}", iCount);
 
@@ -263,134 +265,151 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
     return nullptr;
     };
 
-  if (pProp->GetCategory() == ezPropertyCategory::Member)
+  switch (pProp->GetCategory())
   {
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+  case ezPropertyCategory::Member:
     {
-      const ezUuid oldGuid = pObjectAccessor->Get<ezUuid>(pObject, pProp);
-      const ezUuid newGuid = op.m_Value.Get<ezUuid>();
-      if (oldGuid.IsValid())
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
       {
-        if (NeedsToBeDeleted(oldGuid))
+        pObjectAccessor->SetValue(pObject, pProp, op.m_Value);
+      }
+      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+      {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
-          pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid));
-        }
-      }
-
-      if (newGuid.IsValid())
-      {
-        if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(newGuid))
-        {
-          pObjectAccessor->AddObject(pObject, pProp, ezVariant(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
-        }
-
-        const ezDocumentObject* pChild = pObject->GetChild(newGuid);
-        EZ_ASSERT_DEV(pChild != nullptr, "References child object does not exist!");
-      }
-    }
-    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
-    {
-      pObjectAccessor->SetValue(pObject, pProp, op.m_Value);
-    }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
-    {
-      // Noting to do here, value cannot change
-    }
-  }
-  else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
-  {
-    const ezVariantArray& values = op.m_Value.Get<ezVariantArray>();
-    ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-    {
-      for (ezUInt32 i = 0; i < values.GetCount(); ++i)
-      {
-        if (i < (ezUInt32)iCurrentCount)
-          pObjectAccessor->SetValue(pObject, pProp, values[i], i);
-        else
-          pObjectAccessor->InsertValue(pObject, pProp, values[i], i);
-      }
-      for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)values.GetCount(); --i)
-      {
-        pObjectAccessor->RemoveValue(pObject, pProp, i);
-      }
-    }
-    else
-    {
-      ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-      {
-        ezHybridArray<ezVariant, 16> currentValues;
-        pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
-        for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
-        {
-          if (NeedsToBeDeleted(currentValues[i].Get<ezUuid>()))
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
           {
-            pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>()));
-          }
-        }
+            const ezUuid oldGuid = pObjectAccessor->Get<ezUuid>(pObject, pProp);
+            const ezUuid newGuid = op.m_Value.Get<ezUuid>();
+            if (oldGuid.IsValid())
+            {
+              if (NeedsToBeDeleted(oldGuid))
+              {
+                pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid));
+              }
+            }
 
-        for (ezUInt32 i = 0; i < values.GetCount(); ++i)
-        {
-          if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(values[i].Get<ezUuid>()))
-          {
-            pObjectAccessor->AddObject(pObject, pProp, i, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+            if (newGuid.IsValid())
+            {
+              if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(newGuid))
+              {
+                pObjectAccessor->AddObject(pObject, pProp, ezVariant(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+              }
+
+              const ezDocumentObject* pChild = pObject->GetChild(newGuid);
+              EZ_ASSERT_DEV(pChild != nullptr, "References child object does not exist!");
+            }
           }
           else
           {
-            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(values[i].Get<ezUuid>()), pObject, pProp, i);
+            pObjectAccessor->SetValue(pObject, pProp, op.m_Value);
+          }
+        }
+        else
+        {
+          // Noting to do here, value cannot change
+        }
+      }
+      break;
+    }
+  case ezPropertyCategory::Array:
+  case ezPropertyCategory::Set:
+    {
+      const ezVariantArray& values = op.m_Value.Get<ezVariantArray>();
+      ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+      {
+        for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+        {
+          if (i < (ezUInt32)iCurrentCount)
+            pObjectAccessor->SetValue(pObject, pProp, values[i], i);
+          else
+            pObjectAccessor->InsertValue(pObject, pProp, values[i], i);
+        }
+        for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)values.GetCount(); --i)
+        {
+          pObjectAccessor->RemoveValue(pObject, pProp, i);
+        }
+      }
+      else // Class
+      {
+        ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
+        {
+          ezHybridArray<ezVariant, 16> currentValues;
+          pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
+          for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
+          {
+            if (NeedsToBeDeleted(currentValues[i].Get<ezUuid>()))
+            {
+              pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>()));
+            }
+          }
+
+          for (ezUInt32 i = 0; i < values.GetCount(); ++i)
+          {
+            if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(values[i].Get<ezUuid>()))
+            {
+              pObjectAccessor->AddObject(pObject, pProp, i, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+            }
+            else
+            {
+              pObjectAccessor->MoveObject(pObjectAccessor->GetObject(values[i].Get<ezUuid>()), pObject, pProp, i);
+            }
           }
         }
       }
+      break;
     }
-  }
-  else if (pProp->GetCategory() == ezPropertyCategory::Map)
-  {
-    const ezVariantDictionary& values = op.m_Value.Get<ezVariantDictionary>();
-    ezHybridArray<ezVariant, 16> keys;
-    EZ_VERIFY(pObjectAccessor->GetKeys(pObject, pProp, keys).Succeeded(), "Property is not a map, getting keys failed.");
+  case ezPropertyCategory::Map:
+    {
+      const ezVariantDictionary& values = op.m_Value.Get<ezVariantDictionary>();
+      ezHybridArray<ezVariant, 16> keys;
+      EZ_VERIFY(pObjectAccessor->GetKeys(pObject, pProp, keys).Succeeded(), "Property is not a map, getting keys failed.");
 
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-    {
-      for (const ezVariant& key : keys)
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
-        const ezString& sKey = key.Get<ezString>();
-        if (!values.Contains(sKey))
+        for (const ezVariant& key : keys)
         {
-          EZ_VERIFY(pObjectAccessor->RemoveValue(pObject, pProp, key).Succeeded(), "RemoveValue failed.");
+          const ezString& sKey = key.Get<ezString>();
+          if (!values.Contains(sKey))
+          {
+            EZ_VERIFY(pObjectAccessor->RemoveValue(pObject, pProp, key).Succeeded(), "RemoveValue failed.");
+          }
+        }
+        for (auto it = values.GetIterator(); it.IsValid(); ++it)
+        {
+          if (keys.Contains(it.Key()))
+            pObjectAccessor->SetValue(pObject, pProp, it.Value(), it.Key());
+          else
+            pObjectAccessor->InsertValue(pObject, pProp, it.Value(), it.Key());
         }
       }
-      for (auto it = values.GetIterator(); it.IsValid(); ++it)
+      else // Class
       {
-        if (keys.Contains(it.Key()))
-          pObjectAccessor->SetValue(pObject, pProp, it.Value(), it.Key());
-        else
-          pObjectAccessor->InsertValue(pObject, pProp, it.Value(), it.Key());
-      }
-    }
-    else
-    {
-      for (const ezVariant& key : keys)
-      {
-        const ezString& sKey = key.Get<ezString>();
-        ezVariant value;
-        EZ_VERIFY(pObjectAccessor->GetValue(pObject, pProp, value, key).Succeeded(), "");
-        if (NeedsToBeDeleted(value.Get<ezUuid>()))
+        for (const ezVariant& key : keys)
         {
-          pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()));
+          const ezString& sKey = key.Get<ezString>();
+          ezVariant value;
+          EZ_VERIFY(pObjectAccessor->GetValue(pObject, pProp, value, key).Succeeded(), "");
+          if (NeedsToBeDeleted(value.Get<ezUuid>()))
+          {
+            pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()));
+          }
+        }
+        for (auto it = values.GetIterator(); it.IsValid(); ++it)
+        {
+          const ezVariant& value = it.Value();
+          if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(value.Get<ezUuid>()))
+          {
+            pObjectAccessor->AddObject(pObject, pProp, it.Key(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+          }
+          else
+          {
+            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()), pObject, pProp, it.Key());
+          }
         }
       }
-      for (auto it = values.GetIterator(); it.IsValid(); ++it)
-      {
-        const ezVariant& value = it.Value();
-        if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(value.Get<ezUuid>()))
-        {
-          pObjectAccessor->AddObject(pObject, pProp, it.Key(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
-        }
-        else
-        {
-          pObjectAccessor->MoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()), pObject, pProp, it.Key());
-        }
-      }
+      break;
     }
   }
 }
@@ -399,127 +418,150 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
 {
   ezStringBuilder sTemp;
 
-  if (pProp->GetCategory() == ezPropertyCategory::Member)
+  switch (pProp->GetCategory())
   {
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+  case ezPropertyCategory::Member:
     {
-      const ezUuid guid = pSource->m_Value.Get<ezUuid>();
-      if (guid.IsValid())
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        auto* pSubNode = m_pGraph->GetNode(guid);
-        EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
-
-        auto* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), ezVariant());
-
-        if (pSubObject)
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
-          ApplyPropertiesToObject(pSubNode, pSubObject);
-        }
-      }
-    }
-    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
-    {
-      pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), pSource->m_Value);
-    }
-    else // ezPropertyFlags::EmbeddedClass
-    {
-      const ezUuid& nodeGuid = pSource->m_Value.Get<ezUuid>();
+          const ezUuid guid = pSource->m_Value.Get<ezUuid>();
+          if (guid.IsValid())
+          {
+            auto* pSubNode = m_pGraph->GetNode(guid);
+            EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
-      const ezUuid subObjectGuid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezUuid>();
-      ezDocumentObject* pEmbeddedClassObject = pObject->GetChild(subObjectGuid);
-      EZ_ASSERT_DEV(pEmbeddedClassObject != nullptr, "CreateObject should have created all embedded classes!");
-      auto* pSubNode = m_pGraph->GetNode(nodeGuid);
-      EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+            auto* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), ezVariant());
 
-      ApplyPropertiesToObject(pSubNode, pEmbeddedClassObject);
-    }
-  }
-  else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
-  {
-    const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
-    const ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-    {
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
-      {
-        if (i < (ezUInt32)iCurrentCount)
-        {
-          pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), array[i], i);
+            if (pSubObject)
+            {
+              ApplyPropertiesToObject(pSubNode, pSubObject);
+            }
+          }
         }
         else
         {
-          pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), i, array[i]);
+          pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), pSource->m_Value);
         }
       }
-      for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)array.GetCount(); i--)
+      else
       {
-        pObject->GetTypeAccessor().RemoveValue(pProp->GetPropertyName(), i);
-      }
-    }
-    else
-    {
-      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
-      {
-        const ezUuid guid = array[i].Get<ezUuid>();
-        if (guid.IsValid())
+        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
         {
-          auto* pSubNode = m_pGraph->GetNode(guid);
+          pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), pSource->m_Value);
+        }
+        else // ezPropertyFlags::Class
+        {
+          const ezUuid& nodeGuid = pSource->m_Value.Get<ezUuid>();
+
+          const ezUuid subObjectGuid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezUuid>();
+          ezDocumentObject* pEmbeddedClassObject = pObject->GetChild(subObjectGuid);
+          EZ_ASSERT_DEV(pEmbeddedClassObject != nullptr, "CreateObject should have created all embedded classes!");
+          auto* pSubNode = m_pGraph->GetNode(nodeGuid);
           EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
-          ezDocumentObject* pSubObject = nullptr;
+          ApplyPropertiesToObject(pSubNode, pEmbeddedClassObject);
+        }
+      }
+      break;
+    }
+  case ezPropertyCategory::Array:
+  case ezPropertyCategory::Set:
+    {
+      const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
+      const ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+      {
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        {
           if (i < (ezUInt32)iCurrentCount)
           {
-            // Overwrite existing object
-            ezUuid childGuid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i).ConvertTo<ezUuid>();
-            pSubObject = m_pManager->GetObject(childGuid);
+            pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), array[i], i);
           }
           else
           {
-            pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), -1);
-          }
-
-          if (pSubObject)
-          {
-            ApplyPropertiesToObject(pSubNode, pSubObject);
+            pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), i, array[i]);
           }
         }
-      }
-      for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)array.GetCount(); i--)
-      {
-        EZ_REPORT_FAILURE("Not implemented");
-      }
-    }
-  }
-  else if (pProp->GetCategory() == ezPropertyCategory::Map)
-  {
-    const ezVariantDictionary& values = pSource->m_Value.Get<ezVariantDictionary>();
-
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-    {
-      for (auto it = values.GetIterator(); it.IsValid(); ++it)
-      {
-          pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), it.Key(), it.Value());
-      }
-    }
-    else
-    {
-      for (auto it = values.GetIterator(); it.IsValid(); ++it)
-      {
-        const ezVariant& value = it.Value();
-        const ezUuid guid = value.Get<ezUuid>();
-
-        if (guid.IsValid())
+        for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)array.GetCount(); i--)
         {
-          auto* pSubNode = m_pGraph->GetNode(guid);
-          EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
-          ezDocumentObject* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), it.Key());
-
-          if (pSubObject)
+          pObject->GetTypeAccessor().RemoveValue(pProp->GetPropertyName(), i);
+        }
+      }
+      else
+      {
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+        {
+          const ezUuid guid = array[i].Get<ezUuid>();
+          if (guid.IsValid())
           {
-            ApplyPropertiesToObject(pSubNode, pSubObject);
+            auto* pSubNode = m_pGraph->GetNode(guid);
+            EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+
+            ezDocumentObject* pSubObject = nullptr;
+            if (i < (ezUInt32)iCurrentCount)
+            {
+              // Overwrite existing object
+              ezUuid childGuid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i).ConvertTo<ezUuid>();
+              pSubObject = m_pManager->GetObject(childGuid);
+            }
+            else
+            {
+              pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), -1);
+            }
+
+            if (pSubObject)
+            {
+              ApplyPropertiesToObject(pSubNode, pSubObject);
+            }
+          }
+        }
+        for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)array.GetCount(); i--)
+        {
+          EZ_REPORT_FAILURE("Not implemented");
+        }
+      }
+      break;
+    }
+  case ezPropertyCategory::Map:
+    {
+      const ezVariantDictionary& values = pSource->m_Value.Get<ezVariantDictionary>();
+      ezHybridArray<ezVariant, 16> keys;
+      pObject->GetTypeAccessor().GetKeys(pProp->GetPropertyName(), keys);
+
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+      {
+        for (const ezVariant& key : keys)
+        {
+          pObject->GetTypeAccessor().RemoveValue(pProp->GetPropertyName(), key);
+        }
+        for (auto it = values.GetIterator(); it.IsValid(); ++it)
+        {
+          pObject->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), it.Key(), it.Value());
+        }
+      }
+      else
+      {
+        for (auto it = values.GetIterator(); it.IsValid(); ++it)
+        {
+          const ezVariant& value = it.Value();
+          const ezUuid guid = value.Get<ezUuid>();
+
+          if (guid.IsValid())
+          {
+            auto* pSubNode = m_pGraph->GetNode(guid);
+            EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+            ezDocumentObject* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), it.Key());
+
+            if (pSubObject)
+            {
+              ApplyPropertiesToObject(pSubNode, pSubObject);
+            }
           }
         }
       }
+      break;
     }
   }
 }

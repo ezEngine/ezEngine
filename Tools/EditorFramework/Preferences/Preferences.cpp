@@ -106,7 +106,7 @@ void ezPreferences::Save() const
 
   for (ezAbstractProperty* pProp : allProperties)
   {
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Constant | ezPropertyFlags::ReadOnly))
+    if (pProp->GetCategory() == ezPropertyCategory::Constant || pProp->GetFlags().IsAnySet(ezPropertyFlags::ReadOnly))
       continue;
 
     bNothingToSerialize = false;

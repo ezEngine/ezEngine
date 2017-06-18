@@ -59,6 +59,7 @@ EZ_ALWAYS_INLINE bool ezVariant::operator!=(const ezVariant& other) const
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
 {
+  using StorageType = TypeDeduction<T>::StorageType;
   struct TypeInfo
   {
     enum
@@ -76,8 +77,8 @@ EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
     return ezVariantHelper::CompareNumber(*this, other, ezTraitInt<TypeInfo::isNumber>());
   }
 
-  EZ_ASSERT_DEV(IsA<T>(), "Stored type '{0}' does not match comparison type '{1}'", m_Type, TypeDeduction<T>::value);
-  return Cast<T>() == other;
+  EZ_ASSERT_DEV(IsA<StorageType>(), "Stored type '{0}' does not match comparison type '{1}'", m_Type, TypeDeduction<T>::value);
+  return Cast<StorageType>() == other;
 }
 
 template <typename T>

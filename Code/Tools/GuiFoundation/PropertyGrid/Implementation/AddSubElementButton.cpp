@@ -364,7 +364,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
         break;
     }
   }
-  else
+  else if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::Class))
   {
     for (auto& item : m_Items)
     {

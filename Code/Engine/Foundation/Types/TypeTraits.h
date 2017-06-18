@@ -181,6 +181,9 @@ struct ezTypeTraits
   /// \brief removes reference and const qualifier
   typedef typename std::remove_const<typename std::remove_reference<T>::type>::type NonConstReferenceType;
 
+  /// \brief removes reference and pointer qualifier
+  typedef typename std::remove_pointer<typename std::remove_reference<T>::type>::type NonReferencePointerType;
+
   /// \brief removes reference, const and pointer qualifier
   /// Note that this removes the const and reference of the type pointed too, not of the pointer.
   typedef typename std::remove_const<typename std::remove_reference<typename std::remove_pointer<T>::type>::type>::type NonConstReferencePointerType;

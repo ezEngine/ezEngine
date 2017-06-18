@@ -949,13 +949,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
     {
       ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
 
-      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
-      {
-        vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
-        vTemp2 = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject2);
-        return vTemp == vTemp2;
-      }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
         vTemp2 = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject2);
@@ -975,31 +969,40 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
           return pRefrencedObject == pRefrencedObject2;
         }
       }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+      else
       {
-        void* pSubObject = pSpecific->GetPropertyPointer(pObject);
-        void* pSubObject2 = pSpecific->GetPropertyPointer(pObject2);
-        // Do we have direct access to the property?
-        if (pSubObject != nullptr)
+        if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
         {
-          return IsEqual(pSubObject, pSubObject2, pPropType);
+          vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
+          vTemp2 = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject2);
+          return vTemp == vTemp2;
         }
-        // If the property is behind an accessor, we need to retrieve it first.
-        else if (pPropType->GetAllocator()->CanAllocate())
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
         {
-          pSubObject = pPropType->GetAllocator()->Allocate();
-          pSubObject2 = pPropType->GetAllocator()->Allocate();
-          pSpecific->GetValuePtr(pObject, pSubObject);
-          pSpecific->GetValuePtr(pObject2, pSubObject2);
-          bool bEqual = IsEqual(pSubObject, pSubObject2, pPropType);
-          pPropType->GetAllocator()->Deallocate(pSubObject);
-          pPropType->GetAllocator()->Deallocate(pSubObject2);
-          return bEqual;
-        }
-        else
-        {
-          // TODO: return false if prop can't be compared?
-          return true;
+          void* pSubObject = pSpecific->GetPropertyPointer(pObject);
+          void* pSubObject2 = pSpecific->GetPropertyPointer(pObject2);
+          // Do we have direct access to the property?
+          if (pSubObject != nullptr)
+          {
+            return IsEqual(pSubObject, pSubObject2, pPropType);
+          }
+          // If the property is behind an accessor, we need to retrieve it first.
+          else if (pPropType->GetAllocator()->CanAllocate())
+          {
+            pSubObject = pPropType->GetAllocator()->Allocate();
+            pSubObject2 = pPropType->GetAllocator()->Allocate();
+            pSpecific->GetValuePtr(pObject, pSubObject);
+            pSpecific->GetValuePtr(pObject2, pSubObject2);
+            bool bEqual = IsEqual(pSubObject, pSubObject2, pPropType);
+            pPropType->GetAllocator()->Deallocate(pSubObject);
+            pPropType->GetAllocator()->Deallocate(pSubObject2);
+            return bEqual;
+          }
+          else
+          {
+            // TODO: return false if prop can't be compared?
+            return true;
+          }
         }
       }
     }
@@ -1013,18 +1016,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       if (uiCount != uiCount2)
         return false;
 
-      if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
-      {
-        for (ezUInt32 i = 0; i < uiCount; ++i)
-        {
-          vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
-          vTemp2 = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject2, i);
-          if (vTemp != vTemp2)
-            return false;
-        }
-        return true;
-      }
-      else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
+      if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         for (ezUInt32 i = 0; i < uiCount; ++i)
         {
@@ -1050,24 +1042,38 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
         }
         return true;
       }
-      else if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass) && pPropType->GetAllocator()->CanAllocate())
+      else
       {
-        void* pSubObject = pPropType->GetAllocator()->Allocate();
-        void* pSubObject2 = pPropType->GetAllocator()->Allocate();
-
-        bool bEqual = true;
-        for (ezUInt32 i = 0; i < uiCount; ++i)
+        if (pSpecific->GetFlags().IsSet(ezPropertyFlags::StandardType))
         {
-          pSpecific->GetValue(pObject, i, pSubObject);
-          pSpecific->GetValue(pObject2, i, pSubObject2);
-          bEqual = IsEqual(pSubObject, pSubObject2, pPropType);
-          if (!bEqual)
-            break;
+          for (ezUInt32 i = 0; i < uiCount; ++i)
+          {
+            vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
+            vTemp2 = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject2, i);
+            if (vTemp != vTemp2)
+              return false;
+          }
+          return true;
         }
+        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
+        {
+          void* pSubObject = pPropType->GetAllocator()->Allocate();
+          void* pSubObject2 = pPropType->GetAllocator()->Allocate();
 
-        pPropType->GetAllocator()->Deallocate(pSubObject);
-        pPropType->GetAllocator()->Deallocate(pSubObject2);
-        return bEqual;
+          bool bEqual = true;
+          for (ezUInt32 i = 0; i < uiCount; ++i)
+          {
+            pSpecific->GetValue(pObject, i, pSubObject);
+            pSpecific->GetValue(pObject2, i, pSubObject2);
+            bEqual = IsEqual(pSubObject, pSubObject2, pPropType);
+            if (!bEqual)
+              break;
+          }
+
+          pPropType->GetAllocator()->Deallocate(pSubObject);
+          pPropType->GetAllocator()->Deallocate(pSubObject2);
+          return bEqual;
+        }
       }
     }
     break;
@@ -1153,7 +1159,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
         }
         return bEqual;
       }
-      else if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner) || pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+      else if ((!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)) && pProp->GetFlags().IsSet(ezPropertyFlags::Class))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1162,7 +1168,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
           if (!bEqual)
             break;
 
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::EmbeddedClass))
+          if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
           {
             const void* value1 = pSpecific->GetValue(pObject, keys[i]);
             const void* value2 = pSpecific->GetValue(pObject2, keys[i]);
@@ -1197,7 +1203,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const
     const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
     const ezReflectedClass* pRefObject2 = static_cast<const ezReflectedClass*>(pObject2);
     pType = pRefObject->GetDynamicRTTI();
-    if (pType != static_cast<const ezReflectedClass*>(pObject2)->GetDynamicRTTI())
+    if (pType != pRefObject2->GetDynamicRTTI())
       return false;
   }
 

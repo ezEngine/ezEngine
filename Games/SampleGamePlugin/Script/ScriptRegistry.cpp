@@ -52,7 +52,7 @@ ezScriptMemberProperty::ezScriptMemberProperty(const char* szName, const ezRTTI*
     m_Flags.Add(ezPropertyFlags::Pointer);
 
   if (!m_Flags.IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
-    m_Flags.Add(ezPropertyFlags::EmbeddedClass);
+    m_Flags.Add(ezPropertyFlags::Class);
 }
 
 ezScriptMemberProperty::~ezScriptMemberProperty()

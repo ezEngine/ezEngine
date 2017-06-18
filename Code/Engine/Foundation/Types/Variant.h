@@ -54,7 +54,7 @@ public:
       Quaternion,         ///< The variant stores an ezQuat.
       Matrix3,            ///< The variant stores an ezMat3. A heap allocation is required to store this data type.
       Matrix4,            ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
-      Transform,          ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
+      Transform,          ///< The variant stores an ezTransform. A heap allocation is required to store this data type.
       String,             ///< The variant stores a string. A heap allocation is required to store this data type.
       StringView,         ///< The variant stores an ezStringView.
       DataBuffer,         ///< The variant stores an ezDataBuffer, a typedef to DynamicArray<ezUInt8>. A heap allocation is required to store this data type.

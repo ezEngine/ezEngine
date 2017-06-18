@@ -245,8 +245,9 @@ EZ_BITFLAGS_CONSTANTS(ezTypeFlags::StandardType, ezTypeFlags::IsEnum, ezTypeFlag
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPropertyFlags, 1)
-EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::StandardType, ezPropertyFlags::IsEnum, ezPropertyFlags::Bitflags, ezPropertyFlags::Pointer, ezPropertyFlags::EmbeddedClass)
-EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::Constant, ezPropertyFlags::PointerOwner, ezPropertyFlags::ReadOnly, ezPropertyFlags::Hidden, ezPropertyFlags::Phantom)
+EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::StandardType, ezPropertyFlags::IsEnum, ezPropertyFlags::Bitflags, ezPropertyFlags::Class)
+EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::Const, ezPropertyFlags::Reference, ezPropertyFlags::Pointer)
+EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::PointerOwner, ezPropertyFlags::ReadOnly, ezPropertyFlags::Hidden, ezPropertyFlags::Phantom)
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVariantType, 1)

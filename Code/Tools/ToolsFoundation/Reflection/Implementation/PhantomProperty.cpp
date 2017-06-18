@@ -81,6 +81,47 @@ ezPhantomFunctionProperty::~ezPhantomFunctionProperty()
     pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
 }
 
+
+const ezRTTI* ezPhantomFunctionProperty::GetSpecificType() const
+{
+  return m_pReturnType;
+}
+
+ezFunctionPropertyType::Enum ezPhantomFunctionProperty::GetFunctionType() const
+{
+  return m_FunctionType;
+}
+
+const ezRTTI* ezPhantomFunctionProperty::GetReturnType() const
+{
+  return m_pReturnType;
+}
+
+ezBitflags<ezPropertyFlags> ezPhantomFunctionProperty::GetReturnFlags() const
+{
+  return m_ReturnFlags;
+}
+
+ezUInt32 ezPhantomFunctionProperty::GetArgumentCount() const
+{
+  return m_ParameterTypes.GetCount();
+}
+
+const ezRTTI* ezPhantomFunctionProperty::GetArgumentType(ezUInt32 uiParamIndex) const
+{
+  return m_ParameterTypes[uiParamIndex];
+}
+
+ezBitflags<ezPropertyFlags> ezPhantomFunctionProperty::GetArgumentFlags(ezUInt32 uiParamIndex) const
+{
+  return m_ParameterFlags[uiParamIndex];
+}
+
+void ezPhantomFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& returnValue) const
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
 ezPhantomArrayProperty::ezPhantomArrayProperty(const ezReflectedPropertyDescriptor* pDesc)
   : ezAbstractArrayProperty(nullptr)
 {
