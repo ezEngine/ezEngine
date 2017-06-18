@@ -94,9 +94,11 @@ bool ezWindowsHolographicSpace::IsAvailable() const
   if (!m_pHolographicSpaceStatics)
     return false;
 
+#if EZ_WINRT_SDK_VERSION > EZ_WIN_SDK_VERSION_10_RS1
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpaceStatics2> pStatics2;
   if (FAILED(m_pHolographicSpaceStatics.As(&pStatics2)))
   {
+#endif
     // If we have not access to statics to we're running pre Creators Update windows!
     // In this case a headset is exaclty then available if we're on hololens!
 
@@ -113,6 +115,7 @@ bool ezWindowsHolographicSpace::IsAvailable() const
       return false;
     
     return ezStringUtils::IsEqual(ezStringUtf8(deviceFamily).GetData(), "Hololens");
+#if EZ_WINRT_SDK_VERSION > EZ_WIN_SDK_VERSION_10_RS1
   }
   else
   {
@@ -120,6 +123,7 @@ bool ezWindowsHolographicSpace::IsAvailable() const
     pStatics2->get_IsAvailable(&available);
     return available == TRUE;
   }
+#endif
 }
 
 EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_WindowsHolographicSpace);

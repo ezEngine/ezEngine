@@ -38,6 +38,53 @@
 #   define EZ_PLATFORM_WINDOWS_DESKTOP EZ_ON
 # endif
 
+// Windows SDK version. Applies both to classic WinAPI and newer WinRT interfaces.
+enum ezWinRTSDKVersion
+{
+  EZ_WINDOWS_VERSION_7,
+  EZ_WINDOWS_VERSION_8,
+  EZ_WINDOWS_VERSION_8_1,
+  EZ_WINDOWS_VERSION_10_TH1,  // First Windows 10 Release
+  EZ_WINDOWS_VERSION_10_TH2,  // The "November Upgrade"
+  EZ_WINDOWS_VERSION_10_RS1,  // The "Anniversary Update"
+  EZ_WINDOWS_VERSION_10_RS2,  // The "Creator's Update"
+  EZ_WINDOWS_VERSION_10_RS3,  // The "Fall Creator's Update"
+
+  // Assume newer version
+  EZ_WINDOWS_VERSION_UNKNOWN = 127,
+};
+
+// According to Raymond Chen, the NTDDI_VERSION macro was introduced in Windows Vista and is the new standard to determined the supported windows version.
+// https://blogs.msdn.microsoft.com/oldnewthing/20070411-00/?p=27283
+// However, starting in RS2 NTDDI_VERSION is set to the new WDK_NTDDI_VERSION variable which gives you the SDK version.
+// Before that, NTDDI_VERSION gave you only the minimum supported windows version for your current build.
+// So in this case we just take a guess by checking which NTDDI variables are there.
+#if defined(WDK_NTDDI_VERSION)  // >=RS2
+#  if defined(NTDDI_WIN10_RS2) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS2
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS2
+#  elif defined(NTDDI_WIN10_RS3) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS3
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS3
+#  else
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
+#  endif
+#else // <RS2
+#  if defined(NTDDI_WIN10_RS1)
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS1
+#  elif defined(NTDDI_WIN10_TH2)
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_TH2
+#  elif defined(NTDDI_WIN10_TH1)
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_TH1
+#  elif defined(NTDDI_WINBLUE)
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_8_1
+#  elif defined(NTDDI_WIN8)
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_8
+#  elif defined(NTDDI_WIN7)
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_7
+#  else
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
+#  endif
+#endif
+
 
 // unset windows macros
 #undef min
