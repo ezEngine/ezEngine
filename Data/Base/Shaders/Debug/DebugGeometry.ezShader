@@ -44,6 +44,7 @@ VS_OUT main(VS_IN_POS_ONLY Input)
   VS_OUT RetVal;
   RetVal.Position = mul(WorldToScreenMatrix, worldPos);
   RetVal.Color = boxData[Input.InstanceID].color;
+  RetVal.InstanceOffset = 0;
 
   return RetVal;
 }

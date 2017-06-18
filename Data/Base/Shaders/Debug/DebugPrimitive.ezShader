@@ -38,6 +38,7 @@ VS_OUT main(VS_IN Input)
   #endif
 
   RetVal.Color = Input.Color;
+  RetVal.InstanceOffset = 0;
 
   return RetVal;
 }
