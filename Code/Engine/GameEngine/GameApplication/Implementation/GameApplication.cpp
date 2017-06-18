@@ -88,43 +88,49 @@ void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("Create Game State");
 
-  ezGameState* pCurState = nullptr;
-  float fBestPriority = -1.0f;
+  ezGameState* pCurState = CreateCustomGameStateForWorld(pWorld);
 
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  if (pCurState == nullptr)
   {
-    if (!pRtti->IsDerivedFrom<ezGameState>())
-      continue;
+    float fBestPriority = -1.0f;
 
-    if (!pRtti->GetAllocator()->CanAllocate())
-      continue;
-
-    ezGameState* pState = static_cast<ezGameState*>(pRtti->GetAllocator()->Allocate());
-
-    EZ_ASSERT_DEV(pState != nullptr, "Failed to allocate ezGameState object");
-
-    pState->m_pApplication = this;
-
-    float fPriority = pState->CanHandleThis(m_AppType, pWorld);
-
-    if (fPriority < 0.0f)
+    for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
     {
-      pState->GetDynamicRTTI()->GetAllocator()->Deallocate(pState);
-      continue;
-    }
+      if (!pRtti->IsDerivedFrom<ezGameState>())
+        continue;
 
-    if (fPriority > fBestPriority)
-    {
-      fBestPriority = fPriority;
+      if (!pRtti->GetAllocator()->CanAllocate())
+        continue;
 
-      if (pCurState)
+      ezGameState* pState = static_cast<ezGameState*>(pRtti->GetAllocator()->Allocate());
+
+      EZ_ASSERT_DEV(pState != nullptr, "Failed to allocate ezGameState object");
+
+      pState->m_pApplication = this;
+
+      float fPriority = pState->CanHandleThis(m_AppType, pWorld);
+
+      if (fPriority < 0.0f)
       {
-        pCurState->GetDynamicRTTI()->GetAllocator()->Deallocate(pCurState);
+        pState->GetDynamicRTTI()->GetAllocator()->Deallocate(pState);
+        continue;
       }
 
-      pCurState = pState;
+      if (fPriority > fBestPriority)
+      {
+        fBestPriority = fPriority;
+
+        if (pCurState)
+        {
+          pCurState->GetDynamicRTTI()->GetAllocator()->Deallocate(pCurState);
+        }
+
+        pCurState = pState;
+      }
     }
   }
+
+  pCurState->m_pApplication = this;
 
   GameStateData& gsd = m_GameStates.ExpandAndGetRef();
   gsd.m_pState = pCurState;

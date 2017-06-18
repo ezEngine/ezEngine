@@ -8,6 +8,8 @@ class ezWorld;
 
 class ezGameEngineTestApplication_Basics : public ezGameEngineTestApplication
 {
+public:
+  ezGameEngineTestApplication_Basics();
 
 protected:
   virtual void SetupWorld() override;

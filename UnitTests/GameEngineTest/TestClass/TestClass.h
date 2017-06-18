@@ -18,9 +18,9 @@ public:
 class ezGameEngineTestApplication : public ezGameApplication
 {
 public:
-  ezGameEngineTestApplication();
+  ezGameEngineTestApplication(const char* szProjectDirName);
 
-  virtual ezString FindProjectDirectory() const override;
+  virtual ezString FindProjectDirectory() const final override;
   const ezImage& GetLastScreenshot() { return m_LastScreenshot; }
 
 protected:
@@ -30,11 +30,11 @@ protected:
   virtual void SetupWorld() = 0;
   virtual void DoSaveScreenshot(ezImage& image) override;
   virtual void DoSetupDataDirectories() override;
+  virtual ezGameState* CreateCustomGameStateForWorld(ezWorld* pWorld) override;
 
+  ezString m_sProjectDirName;
   ezWorld* m_pWorld = nullptr;
   ezImage m_LastScreenshot;
-
-
 };
 
 class ezGameEngineTest : public ezTestBaseClass

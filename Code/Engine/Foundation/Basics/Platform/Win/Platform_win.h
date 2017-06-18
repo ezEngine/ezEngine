@@ -44,11 +44,11 @@ enum ezWinRTSDKVersion
   EZ_WINDOWS_VERSION_7,
   EZ_WINDOWS_VERSION_8,
   EZ_WINDOWS_VERSION_8_1,
-  EZ_WINDOWS_VERSION_10_TH1,  // First Windows 10 Release
-  EZ_WINDOWS_VERSION_10_TH2,  // The "November Upgrade"
-  EZ_WINDOWS_VERSION_10_RS1,  // The "Anniversary Update"
-  EZ_WINDOWS_VERSION_10_RS2,  // The "Creator's Update"
-  EZ_WINDOWS_VERSION_10_RS3,  // The "Fall Creator's Update"
+  EZ_WINDOWS_VERSION_10_TH1,  // First Windows 10 Release ('Threshold 1')
+  EZ_WINDOWS_VERSION_10_TH2,  // The "November Upgrade" ('Threshold 2')
+  EZ_WINDOWS_VERSION_10_RS1,  // The "Anniversary Update" ('Redstone 1')
+  EZ_WINDOWS_VERSION_10_RS2,  // The "Creator's Update" ('Redstone 2')
+  EZ_WINDOWS_VERSION_10_RS3,  // The "Fall Creator's Update" ('Redstone 3')
 
   // Assume newer version
   EZ_WINDOWS_VERSION_UNKNOWN = 127,
@@ -59,15 +59,16 @@ enum ezWinRTSDKVersion
 // However, starting in RS2 NTDDI_VERSION is set to the new WDK_NTDDI_VERSION variable which gives you the SDK version.
 // Before that, NTDDI_VERSION gave you only the minimum supported windows version for your current build.
 // So in this case we just take a guess by checking which NTDDI variables are there.
-#if defined(WDK_NTDDI_VERSION)  // >=RS2
+#if defined(WDK_NTDDI_VERSION)  // 'RS2' and newer
 #  if defined(NTDDI_WIN10_RS2) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS2
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS2
 #  elif defined(NTDDI_WIN10_RS3) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS3
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS3
 #  else
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
+#     error Unknown Windows SDK Version
 #  endif
-#else // <RS2
+#else // version is lower than 'RS2'
 #  if defined(NTDDI_WIN10_RS1)
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS1
 #  elif defined(NTDDI_WIN10_TH2)
@@ -82,6 +83,7 @@ enum ezWinRTSDKVersion
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_7
 #  else
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
+#     error Unknown Windows SDK Version
 #  endif
 #endif
 

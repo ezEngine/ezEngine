@@ -786,6 +786,13 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
     return false;
   }
 
+  if (imgSmall.GetWidth() != imgExpRGB.GetWidth() || imgSmall.GetHeight() != imgExpRGB.GetHeight())
+  {
+    ezImage imgSameSize;
+    ezImageUtils::ScaleDownArbitrary(imgSmall, imgExpRGB.GetWidth(), imgExpRGB.GetHeight(), imgSameSize);
+    imgSmall = imgSameSize;
+  }
+
   ezImage imgDiff;
   ezImageUtils::ComputeImageDifferenceABS(imgExpRGB, imgSmall, imgDiff);
 

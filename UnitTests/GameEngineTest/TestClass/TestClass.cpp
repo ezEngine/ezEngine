@@ -53,10 +53,11 @@ ezResult ezGameEngineTest::DeInitializeTest()
 //////////////////////////////////////////////////////////////////////////
 
 
-ezGameEngineTestApplication::ezGameEngineTestApplication()
+ezGameEngineTestApplication::ezGameEngineTestApplication(const char* szProjectDirName)
   : ezGameApplication("ezGameEngineTest", ezGameApplicationType::StandAlone, nullptr)
 {
   m_pWorld = nullptr;
+  m_sProjectDirName = szProjectDirName;
 }
 
 
@@ -67,12 +68,12 @@ ezString ezGameEngineTestApplication::FindProjectDirectory() const
 
 void ezGameEngineTestApplication::BeforeCoreStartup()
 {
-  //ezStartup::AddApplicationTag("player");
-
   ezGameApplication::BeforeCoreStartup();
 
+  ezStringBuilder sProjectPath(">sdk/Data/UnitTests/GameEngineTest/", m_sProjectDirName);
+
   ezStringBuilder sProject;
-  ezFileSystem::ResolveSpecialDirectory(">sdk/Data/UnitTests/GameEngineTest/Basics", sProject);
+  ezFileSystem::ResolveSpecialDirectory(sProjectPath, sProject);
   m_sAppProjectPath = sProject;
 }
 
@@ -120,6 +121,11 @@ void ezGameEngineTestApplication::DoSetupDataDirectories()
   }
 }
 
+ezGameState* ezGameEngineTestApplication::CreateCustomGameStateForWorld(ezWorld* pWorld)
+{
+  return EZ_DEFAULT_NEW(ezGameEngineTestGameState);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameEngineTestGameState, 1, ezRTTIDefaultAllocator<ezGameEngineTestGameState>)
@@ -135,7 +141,7 @@ void ezGameEngineTestGameState::ProcessInput()
 
 float ezGameEngineTestGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
-  return 10.0f;
+  return 0.0f;
 }
 
 void ezGameEngineTestGameState::ConfigureInputActions()

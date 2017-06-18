@@ -165,6 +165,9 @@ public:
 
 protected:
 
+  /// \brief Can be overridden for the application to create a specific game state.
+  virtual ezGameState* CreateCustomGameStateForWorld(ezWorld* pWorld) { return nullptr; }
+
   /// \brief Calls Update on all worlds and renders all views through ezRenderLoop::Render()
   void UpdateWorldsAndRender();
 

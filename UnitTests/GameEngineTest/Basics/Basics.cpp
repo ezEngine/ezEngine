@@ -65,6 +65,12 @@ ezTestAppRun ezGameEngineTestBasics::SubtestSimpleScene()
 }
 
 
+ezGameEngineTestApplication_Basics::ezGameEngineTestApplication_Basics()
+  : ezGameEngineTestApplication("Basics")
+{
+
+}
+
 void ezGameEngineTestApplication_Basics::SetupWorld()
 {
   ezWorldDesc desc("GameEngineTestWorld");

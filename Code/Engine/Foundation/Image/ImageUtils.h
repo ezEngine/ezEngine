@@ -19,6 +19,7 @@ public:
   /// \brief Returns the subimage of \a input that starts at \a offset and has the size \a newsize
   static void CropImage(const ezImage& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output);
 
+  /// \brief The resulting image is the input image scaled down by half along each axis. Only RGB8 and RGBA8 formats are supported.
   static void ScaleDownHalf(const ezImage& Image, ezImage& out_Result);
 
   /// \brief rotates a sub image by 180 degrees in place. Only works with uncompressed images.
@@ -29,5 +30,8 @@ public:
   /// The image must fit, no scaling or cropping is done. Image formats must be identical. Compressed formats are not supported.
   /// If the target location leaves not enough room for the source image to be copied, bad stuff will happen.
   static void Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ezImage& src, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
+
+
+  static void ScaleDownArbitrary(const ezImage& src, ezUInt32 uiNewWidth, ezUInt32 uiNewHeight, ezImage& out_Result);
 };
 

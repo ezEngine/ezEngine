@@ -343,5 +343,96 @@ void ezImageUtils::Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ez
   }
 }
 
+void ezImageUtils::ScaleDownArbitrary(const ezImage& Image, ezUInt32 uiNewWidth, ezUInt32 uiNewHeight, ezImage& out_Result)
+{
+  if (uiNewWidth == Image.GetWidth() / 2 && uiNewHeight == Image.GetHeight() / 2)
+  {
+    ScaleDownHalf(Image, out_Result);
+    return;
+  }
+
+  out_Result.SetWidth(uiNewWidth);
+  out_Result.SetHeight(uiNewHeight);
+  out_Result.SetImageFormat(Image.GetImageFormat());
+  out_Result.AllocateImageData();
+
+  const ezUInt32 uiRowPitchImg = Image.GetRowPitch();
+  const ezUInt32 uiRowPitchRes = out_Result.GetRowPitch();
+
+  ezUInt32 uiPixelBytes = 0;
+
+  if (Image.GetImageFormat() == ezImageFormat::R8G8B8A8_UNORM ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_TYPELESS ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_UINT ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_SNORM ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_SINT ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8A8_UNORM ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8X8_UNORM ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8A8_TYPELESS ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8X8_TYPELESS)
+  {
+    uiPixelBytes = 4;
+  }
+  else if (Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+  {
+    uiPixelBytes = 3;
+  }
+
+  /// \todo support 32 Bit float format
+
+  EZ_ASSERT_DEV(uiPixelBytes > 0, "The image format '{0}' is not supported", Image.GetImageFormat());
+
+  ezUInt8* pDataRes = out_Result.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
+  const ezUInt8* pDataImg = Image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
+
+  const double ratioX = Image.GetWidth() / (double)uiNewWidth;
+  const double ratioY = Image.GetHeight() / (double)uiNewHeight;
+
+  for (ezUInt32 y = 0; y < uiNewHeight; ++y)
+  {
+    for (ezUInt32 x = 0; x < uiNewWidth; ++x)
+    {
+      const double startX = x * ratioX;
+      const double endX = (x+1) * ratioX;
+      const double startY = y * ratioY;
+      const double endY = (y + 1) * ratioY;
+
+      double avgValue[4] = { 0, 0, 0, 0 };
+      double numPixels = 0;
+
+      for (ezUInt32 srcY = (ezUInt32)ezMath::Floor(startY); srcY < (ezUInt32)ezMath::Ceil(endY); ++srcY)
+      {
+        for (ezUInt32 srcX = (ezUInt32)ezMath::Floor(startX); srcX < (ezUInt32)ezMath::Ceil(endX); ++srcX)
+        {
+          const ezUInt32 uiSrcPixelIdx = uiRowPitchImg * srcY + srcX * uiPixelBytes;
+
+          const double distToEdgeX = ezMath::Min(1.0 + (srcX - startX), (endX - srcX), 1.0);
+          const double distToEdgeY = ezMath::Min(1.0 + (srcY - startY), (endY - srcY), 1.0);
+
+          const double pixelCoverage = distToEdgeX * distToEdgeY;
+          numPixels += pixelCoverage;
+
+          for (ezUInt32 p = 0; p < uiPixelBytes; ++p)
+          {
+            avgValue[p] += pDataImg[uiSrcPixelIdx + p] * pixelCoverage;
+          }
+        }
+      }
+
+      avgValue[0] /= numPixels;
+      avgValue[1] /= numPixels;
+      avgValue[2] /= numPixels;
+      avgValue[3] /= numPixels;
+
+      const ezUInt32 uiPixelRes = (uiRowPitchRes * y) + x * uiPixelBytes;
+
+      for (ezUInt32 p = 0; p < uiPixelBytes; ++p)
+      {
+        pDataRes[uiPixelRes + p] = ((ezInt32)ezMath::Clamp<double>(avgValue[p], 0.0, 255.0)) & 0xFF;
+      }
+    }
+  }
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageUtils);
 

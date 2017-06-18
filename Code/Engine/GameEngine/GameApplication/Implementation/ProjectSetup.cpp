@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Collection/CollectionResource.h>
@@ -264,10 +264,10 @@ void ezGameApplication::DoSetupGraphicsDevice()
 void ezGameApplication::DoLoadCustomPlugins()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezInspectorPlugin").Succeeded(), "Could not load Inspector Plugin.");
+  ezPlugin::LoadPlugin("ezInspectorPlugin");
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Could not load HLSL Shader Compiler Plugin.");
+  ezPlugin::LoadPlugin("ezShaderCompilerHLSL");
 #endif
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
