@@ -711,6 +711,8 @@ void ezDebugRenderer::OnEngineStartup()
     s_hSolidBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", desc, "Mesh for Rendering Debug Solid Boxes");
   }
 
+  // reset, if already used before
+  s_VertexDeclarationInfo.m_VertexStreams.Clear();
 
   {
     ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();

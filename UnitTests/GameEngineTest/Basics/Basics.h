@@ -14,6 +14,9 @@ public:
 
   void SubTestSkyboxSetup();
   ezTestAppRun SubTestSkyboxExec(ezInt32 iCurFrame);
+
+  void SubTestDebugRenderingSetup();
+  ezTestAppRun SubTestDebugRenderingExec(ezInt32 iCurFrame);
 };
 
 class ezGameEngineTestBasics : public ezGameEngineTest
@@ -27,6 +30,7 @@ private:
   {
     ST_ManyMeshes,
     ST_Skybox,
+    ST_DebugRendering,
   };
 
   virtual void SetupSubTests() override;

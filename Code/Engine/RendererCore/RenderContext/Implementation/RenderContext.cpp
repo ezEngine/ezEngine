@@ -364,6 +364,22 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
     return;
   }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (pVertexDeclarationInfo)
+  {
+    for (ezUInt32 i1 = 0; i1 < pVertexDeclarationInfo->m_VertexStreams.GetCount(); ++i1)
+    {
+      for (ezUInt32 i2 = 0; i2 < pVertexDeclarationInfo->m_VertexStreams.GetCount(); ++i2)
+      {
+        if (i1 != i2)
+        {
+          EZ_ASSERT_DEBUG(pVertexDeclarationInfo->m_VertexStreams[i1].m_Semantic != pVertexDeclarationInfo->m_VertexStreams[i2].m_Semantic, "Same semantic cannot be used twice in the same vertex declaration");
+        }
+      }
+    }
+  }
+#endif
+
   if (m_Topology != topology)
   {
     m_Topology = topology;

@@ -5,6 +5,9 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <Foundation/Math/Rect.h>
+#include <Foundation/Math/Declarations.h>
 
 static ezGameEngineTestBasics s_GameEngineTestBasics;
 
@@ -23,6 +26,7 @@ void ezGameEngineTestBasics::SetupSubTests()
 {
   AddSubTest("Many Meshes", SubTests::ST_ManyMeshes);
   AddSubTest("Skybox", SubTests::ST_Skybox);
+  AddSubTest("Debug Rendering", SubTests::ST_DebugRendering);
 }
 
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
@@ -41,6 +45,12 @@ ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_SUCCESS;
   }
 
+  if (iIdentifier == SubTests::ST_DebugRendering)
+  {
+    m_pOwnApplication->SubTestDebugRenderingSetup();
+    return EZ_SUCCESS;
+  }
+
   return EZ_FAILURE;
 }
 
@@ -53,6 +63,9 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::ST_Skybox)
     return m_pOwnApplication->SubTestSkyboxExec(m_iFrame);
+
+  if (iIdentifier == SubTests::ST_DebugRendering)
+    return m_pOwnApplication->SubTestDebugRenderingExec(m_iFrame);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezTestAppRun::Quit;
@@ -185,6 +198,110 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
 
   if (iCurFrame < 8)
     return ezTestAppRun::Continue;
+
+  return ezTestAppRun::Quit;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezGameEngineTestApplication_Basics::SubTestDebugRenderingSetup()
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  m_pWorld->Clear();
+
+}
+
+ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt32 iCurFrame)
+{
+  {
+    auto pCamera = GetGameStateForWorld(m_pWorld)->GetMainCamera();
+    pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 100.0f, 0.1f, 1000.0f);
+    ezVec3 pos;
+    pos.SetZero();
+    pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+  }
+
+  // line box
+  {
+    ezBoundingBox bbox;
+    bbox.SetCenterAndHalfExtents(ezVec3(10, -5, 1), ezVec3(1, 2, 3));
+
+    ezTransform t;
+    t.SetIdentity();
+    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(25));
+    ezDebugRenderer::DrawLineBox(m_pWorld, bbox, ezColor::HotPink, t);
+  }
+
+  // line box
+  {
+    ezBoundingBox bbox;
+    bbox.SetCenterAndHalfExtents(ezVec3(10, -3, 1), ezVec3(1, 2, 3));
+
+    ezTransform t;
+    t.SetIdentity();
+    t.m_vPosition.Set(0, 5, -2);
+    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(25));
+    ezDebugRenderer::DrawLineBoxCorners(m_pWorld, bbox, 0.5f, ezColor::DeepPink, t);
+  }
+
+  // 2D Rect
+  {
+    ezDebugRenderer::Draw2DRectangle(m_pWorld, ezRectFloat(10, 50, 35, 15), 0.1f, ezColor::LawnGreen);
+  }
+
+  // Sphere
+  {
+    ezBoundingSphere sphere;
+    sphere.SetElements(ezVec3(8, -5, -4), 2);
+    ezDebugRenderer::DrawLineSphere(m_pWorld, sphere, ezColor::Tomato);
+  }
+
+  // Solid box
+  {
+    ezBoundingBox bbox;
+    bbox.SetCenterAndHalfExtents(ezVec3(10, -5, 1), ezVec3(1, 2, 3));
+
+    ezDebugRenderer::DrawSolidBox(m_pWorld, bbox, ezColor::BurlyWood);
+  }
+
+  // Text
+  {
+    ezDebugRenderer::DrawText(m_pWorld, "Not 'a test\"", ezVec2I32(30, 10), ezColor::AntiqueWhite, 24);
+    ezDebugRenderer::DrawText(m_pWorld, "!@#$%^&*()_[]{}|", ezVec2I32(20, 200), ezColor::AntiqueWhite, 24);
+  }
+
+  // Frustum
+  {
+    ezFrustum f;
+    f.SetFrustum(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::Degree(30), ezAngle::Degree(20), 5.0f);
+    ezDebugRenderer::DrawLineFrustum(m_pWorld, f, ezColor::Cornsilk);
+  }
+
+  // Lines
+  {
+    ezHybridArray<ezDebugRenderer::Line, 4> lines;
+    lines.PushBack(ezDebugRenderer::Line(ezVec3(3, -4, -4), ezVec3(4, -2, -3)));
+    lines.PushBack(ezDebugRenderer::Line(ezVec3(4, -2, -3), ezVec3(2, 2, -2)));
+    ezDebugRenderer::DrawLines(m_pWorld, lines, ezColor::SkyBlue);
+  }
+
+  // Triangles
+  {
+    ezHybridArray<ezDebugRenderer::Triangle, 4> tris;
+    tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 0, 0), ezVec3(7, 2, 0), ezVec3(7, 2, 1)));
+    tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 3, 0), ezVec3(7, 1, 0), ezVec3(7, 3, 1)));
+    ezDebugRenderer::DrawSolidTriangles(m_pWorld, tris, ezColor::Gainsboro);
+  }
+
+  if (Run() == ezApplication::Quit)
+    return ezTestAppRun::Quit;
+
+  // first frame no image is captured yet
+  if (iCurFrame < 1)
+    return ezTestAppRun::Continue;
+
+  EZ_TEST_IMAGE(150);
 
   return ezTestAppRun::Quit;
 }
