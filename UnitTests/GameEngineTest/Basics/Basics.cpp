@@ -8,6 +8,9 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Core/Assets/AssetFileHeader.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 static ezGameEngineTestBasics s_GameEngineTestBasics;
 
@@ -27,6 +30,7 @@ void ezGameEngineTestBasics::SetupSubTests()
   AddSubTest("Many Meshes", SubTests::ST_ManyMeshes);
   AddSubTest("Skybox", SubTests::ST_Skybox);
   AddSubTest("Debug Rendering", SubTests::ST_DebugRendering);
+  AddSubTest("Load Scene", SubTests::ST_LoadScene);
 }
 
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
@@ -51,6 +55,12 @@ ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_SUCCESS;
   }
 
+  if (iIdentifier == SubTests::ST_LoadScene)
+  {
+    m_pOwnApplication->SubTestLoadSceneSetup();
+    return EZ_SUCCESS;
+  }
+
   return EZ_FAILURE;
 }
 
@@ -66,6 +76,9 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::ST_DebugRendering)
     return m_pOwnApplication->SubTestDebugRenderingExec(m_iFrame);
+
+  if (iIdentifier == SubTests::ST_LoadScene)
+    return m_pOwnApplication->SubTestLoadSceneExec(m_iFrame);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezTestAppRun::Quit;
@@ -310,6 +323,58 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     return ezTestAppRun::Continue;
 
   EZ_TEST_IMAGE(150);
+
+  return ezTestAppRun::Quit;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  m_pWorld->Clear();
+
+  {
+    ezFileReader file;
+    if (file.Open("GameEngineTest/Basics/AssetCache/Common/Lighting.ezObjectGraph").Succeeded())
+    {
+      // File Header
+      {
+        ezAssetFileHeader header;
+        header.Read(file);
+
+        char szSceneTag[16];
+        file.ReadBytes(szSceneTag, sizeof(char) * 16);
+
+        EZ_ASSERT_RELEASE(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid scene file");
+      }
+
+      ezWorldReader reader;
+      reader.ReadWorldDescription(file);
+      reader.InstantiateWorld(*m_pWorld);
+      //reader.InstantiatePrefab(*m_pWorld, ezVec3(0, 2, 0), ezQuat::IdentityQuaternion(), ezVec3(0.1f));
+    }
+    else
+    {
+      ezLog::Error("Failed to read level");
+    }
+  }
+}
+
+ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
+{
+  if (Run() == ezApplication::Quit)
+    return ezTestAppRun::Quit;
+
+  // first frame no image is captured yet
+  if (iCurFrame < 1)
+    return ezTestAppRun::Continue;
+
+  EZ_TEST_IMAGE(150);
+
+  if (iCurFrame < 2)
+    return ezTestAppRun::Continue;
 
   return ezTestAppRun::Quit;
 }

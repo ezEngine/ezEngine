@@ -1,0 +1,81 @@
+Objects
+{
+AssetInfo
+{
+	Uuid %id{u4{15841622493537707177,4840074449575320627}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{15841622493537707177,4840074449575320627}}
+		u4 %Hash{15310289475654888456}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4769963782572300209,5035539102098998344}}
+	s %t{"ezMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		f %Angle{0x0000B443}
+		b %Cap{1}
+		b %Cap2{1}
+		u2 %Detail{1}
+		u2 %Detail2{1}
+		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		f %Height{0x0000803F}
+		b %ImportMaterials{1}
+		b %InvertNormals{0}
+		VarArray %Materials
+		{
+			Uuid{u4{853543881016998014,17754238859012131237}}
+		}
+		s %MeshFile{""}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %PrimitiveType{"ezMeshPrimitive::Box"}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
+		b %RecalculateNormals{0}
+		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %SubmeshName{""}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveY"}
+		b %UseSubfolderForMaterialImport{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{4769963782572300209,5035539102098998344}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{853543881016998014,17754238859012131237}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Default"}
+		s %Resource{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
+	}
+}
+}
+Types{}

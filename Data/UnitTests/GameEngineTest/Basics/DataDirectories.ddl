@@ -8,7 +8,7 @@ DataDir
 {
 	string %Path{">project/"}
 	string %RootName{"project"}
-	bool %Writable{false}
+	bool %Writable{true}
 }
 DataDir
 {
