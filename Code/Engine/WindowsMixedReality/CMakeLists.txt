@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -23,6 +23,7 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
 SET (LINK_LIBRARIES 
   Foundation
   Core
+  RendererFoundation
   RendererDX11
 )
 

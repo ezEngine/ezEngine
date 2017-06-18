@@ -33,6 +33,10 @@
   //typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#include <WindowsMixedReality/HolographicSpace.h>
+#endif
+
 
 void ezGameApplication::DoProjectSetup()
 {
@@ -239,6 +243,11 @@ void ezGameApplication::DoSetupGraphicsDevice()
   ezGALDeviceCreationDescription DeviceInit;
   DeviceInit.m_bCreatePrimarySwapChain = false;
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  if (m_AppType == ezGameApplicationType::StandAloneMixedReality)
+    DeviceInit.m_pDXGIAdapterOverwrite = ezWindowsHolographicSpace::GetSingleton()->GetDxgiAdapter();
+#endif
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   DeviceInit.m_bDebugDevice = true;
 #endif
@@ -247,6 +256,11 @@ void ezGameApplication::DoSetupGraphicsDevice()
   EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
 
   ezGALDevice::SetDefaultDevice(pDevice);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  if (m_AppType == ezGameApplicationType::StandAloneMixedReality)
+    ezWindowsHolographicSpace::GetSingleton()->SetDX11Device();
+#endif
 
   // Create GPU resource pool
   ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);

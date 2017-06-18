@@ -2,6 +2,16 @@
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <System/Window/Window.h>
 
+#include <RendererFoundation/Device/Device.h>
+#include <RendererDX11/Device/DeviceDX11.h>
+
+#include <d3d11.h>
+#include <dxgi1_4.h>
+#pragma warning (push)
+#pragma warning (disable: 4467) // warning C4467: usage of ATL attributes is deprecated
+#include <windows.graphics.directx.direct3d11.interop.h>
+#pragma warning (pop)
+#include <windows.graphics.directx.direct3d11.h>
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
 
@@ -11,7 +21,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, WindowsHolographicSpace)
 
 ON_CORE_STARTUP
 {
-  EZ_DEFAULT_NEW(ezWindowsHolographicSpace);
+  ezWindowsHolographicSpace* holoSpace = EZ_DEFAULT_NEW(ezWindowsHolographicSpace);
+  holoSpace->InitForMainCoreWindow();
 }
 
 ON_CORE_SHUTDOWN
@@ -44,19 +55,86 @@ ezWindowsHolographicSpace::~ezWindowsHolographicSpace()
 {
 }
 
-ezResult ezWindowsHolographicSpace::InitForWindow(const ezWindow& window)
+ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
 {
-  static_assert(std::is_same<ezWindowHandle, IUnknown*>::value, "ezWindow doesn't use com interface as window handle. Need accessiable UWP ICoreWindow for ezWindowsHolographicSpace!");
-
   if (!m_pHolographicSpaceStatics)
     return EZ_FAILURE;
-  
-  ComPtr<ABI::Windows::UI::Core::ICoreWindow> pCoreWindow;
-  EZ_HRESULT_TO_FAILURE_LOG(ComPtr<IUnknown>(window.GetNativeWindowHandle()).As(&pCoreWindow));
 
-  EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpaceStatics->CreateForCoreWindow(pCoreWindow.Get(), &m_pHolographicSpace));
+  // Create holographic space from core window
+  {
+    ComPtr<ABI::Windows::UI::Core::ICoreWindow> pCoreWindow;
+    {
+      ComPtr<ABI::Windows::ApplicationModel::Core::ICoreImmersiveApplication> application;
+      EZ_HRESULT_TO_FAILURE(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &application));
+
+      ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplicationView> mainView;
+      EZ_HRESULT_TO_FAILURE(application->get_MainView(&mainView));
+
+      EZ_HRESULT_TO_FAILURE(mainView->get_CoreWindow(&pCoreWindow));
+    }
+
+    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpaceStatics->CreateForCoreWindow(pCoreWindow.Get(), &m_pHolographicSpace));
+  }
+
+  // Find out which DXGI factory should be used for DX11 device creation.
+  {
+    ABI::Windows::Graphics::Holographic::HolographicAdapterId adapterID;
+    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->get_PrimaryAdapterId(&adapterID));
+    LUID id;
+    id.HighPart = adapterID.HighPart;
+    id.LowPart = adapterID.LowPart;
+    
+    // When a primary adapter ID is given to the app, the app should find the corresponding DXGI adapter and use it to create Direct3D devices
+    // and device contexts. Otherwise, there is no restriction on the DXGI adapter the app can use.
+    if (adapterID.HighPart != 0 && adapterID.LowPart != 0)
+    {
+      UINT createFlags = 0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      createFlags |= DXGI_CREATE_FACTORY_DEBUG;
+#endif
+      // Create the DXGI factory 4.
+      ComPtr<IDXGIFactory1> pDxgiFactory;
+      EZ_HRESULT_TO_FAILURE_LOG(CreateDXGIFactory2(createFlags, IID_PPV_ARGS(pDxgiFactory.GetAddressOf())));
+      ComPtr<IDXGIFactory4> pDxgiFactory4;
+      EZ_HRESULT_TO_FAILURE_LOG(pDxgiFactory.As(&pDxgiFactory4));
+
+      // Retrieve the adapter specified by the holographic space.
+      Microsoft::WRL::ComPtr<IDXGIAdapter3> m_pDxgiAdapter;
+      EZ_HRESULT_TO_FAILURE_LOG(pDxgiFactory4->EnumAdapterByLuid(id, IID_PPV_ARGS(m_pDxgiAdapter.GetAddressOf())));
+    }
+  }
 
   ezLog::Info("Initialized new holographic space for core window!");
+
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezWindowsHolographicSpace::SetDX11Device()
+{
+  // Retrieve WinRT DX11 device pointer.
+  ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> pDX11DeviceWinRT;
+  {
+    auto pDX11DeviceEz = static_cast<ezGALDeviceDX11*>(ezGALDevice::GetDefaultDevice());
+    if (!pDX11DeviceEz)
+    {
+      ezLog::Error("Windows holographic space requires the default device to be a DX11 device!");
+      return EZ_FAILURE;
+    }
+
+    ComPtr<ID3D11Device> pDX11DeviceWinAPI = pDX11DeviceEz->GetDXDevice();
+
+    // Acquire the DXGI interface for the Direct3D device.
+    ComPtr<IDXGIDevice3> pDxgiDevice;
+    EZ_HRESULT_TO_FAILURE_LOG(pDX11DeviceWinAPI.As(&pDxgiDevice));
+
+    // Wrap the native device using a WinRT interop object.
+    EZ_HRESULT_TO_FAILURE_LOG(CreateDirect3D11DeviceFromDXGIDevice(pDxgiDevice.Get(), &m_pDX11InteropDevice));
+  }
+
+  EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->SetDirect3D11Device(m_pDX11InteropDevice.Get()));
+
+  ezLog::Info("Set DX11 device to holographic space!");
 
   return EZ_SUCCESS;
 }
@@ -114,7 +192,7 @@ bool ezWindowsHolographicSpace::IsAvailable() const
     if (FAILED(pAnalyticsVersionInfo->get_DeviceFamily(deviceFamily.GetAddressOf())))
       return false;
     
-    return ezStringUtils::IsEqual(ezStringUtf8(deviceFamily).GetData(), "Hololens");
+    return ezStringUtils::IsEqual(ezStringUtf8(deviceFamily).GetData(), "Windows.Holographic");
 #if EZ_WINRT_SDK_VERSION > EZ_WIN_SDK_VERSION_10_RS1
   }
   else

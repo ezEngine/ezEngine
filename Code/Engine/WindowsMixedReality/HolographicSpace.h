@@ -16,11 +16,20 @@ namespace ABI
         struct IHolographicSpaceStatics;
         struct IHolographicSpace;
       }
+
+      namespace DirectX
+      {
+        namespace Direct3D11
+        {
+          struct IDirect3DDevice;
+        }
+      }
     }
   }
 }
 
 class ezWindow;
+struct IDXGIAdapter3;
 
 /// \brief Integration of Windows HolographicSpace (WinRT).
 ///
@@ -35,8 +44,19 @@ public:
   ezWindowsHolographicSpace();
   ~ezWindowsHolographicSpace();
 
-  /// Initializes the holographic space for a given window.
-  ezResult InitForWindow(const ezWindow& window);
+  /// \brief Initializes the holographic space for the main core window. Called automatically on startup.
+  ///
+  /// The holographic space requires a window but also determines the DXGI adpater from which we need to create our DX11 device.
+  /// Historically we first create a device and *then* the window.
+  /// However, since in a VR/AR application we have only a single window anyway and UWP does always have a main window, we can just query that one and don't need to fiddle with our init order.
+  /// (as of writing our UWP window implementation actually doesn't support more than this one preexisting window
+  ezResult InitForMainCoreWindow();
+
+  /// Returns the DXGI adapter that should be used for device creation.
+  IDXGIAdapter3* GetDxgiAdapter() const { return m_pDxgiAdapter.Get(); }
+
+  /// \brief Set GAL default device for the holographic space.
+  ezResult SetDX11Device();
 
   /// Wheather vr/mr headsets are supported at all.
   ///
@@ -49,6 +69,9 @@ public:
   bool IsAvailable() const;
 
 private:
+  Microsoft::WRL::ComPtr<IDXGIAdapter3> m_pDxgiAdapter;
+  ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> m_pDX11InteropDevice;
+
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpaceStatics> m_pHolographicSpaceStatics;
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
 };

@@ -6,16 +6,15 @@
 #include <GameEngine/Components/RotorComponent.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
-#include "GameState.h"
+#include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 
+
+#include "GameState.h"
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <WindowsMixedReality/HolographicSpace.h>
-#endif
 
 SimpleMeshRendererGameState::SimpleMeshRendererGameState()
 {
@@ -31,11 +30,6 @@ void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)
   EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 
   ezGameState::OnActivation(pWorld);
-
-  // TODO: Prototyping in progress...
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  ezWindowsHolographicSpace::GetSingleton()->InitForWindow(*m_pMainWindow);
-#endif
 
   CreateGameLevel();
 }
@@ -132,6 +126,10 @@ void SimpleMeshRendererGameState::DestroyGameLevel()
   GetApplication()->DestroyWorld(m_pMainWorld);
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAloneMixedReality, "Data/Samples/SimpleMeshRenderer");
+#else
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone, "Data/Samples/SimpleMeshRenderer");
+#endif
 
 

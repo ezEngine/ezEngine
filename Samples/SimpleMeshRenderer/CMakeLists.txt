@@ -27,7 +27,7 @@ SET (LINK_LIBRARIES
   GameEngine
 )
 
-# Applicatoin with mixed reality support.
+# Application with mixed reality support.
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   LIST(APPEND LINK_LIBRARIES WindowsMixedReality)
 endif()

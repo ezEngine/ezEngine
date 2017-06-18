@@ -19,6 +19,10 @@
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 #include <Foundation/Image/Image.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#include <WindowsMixedReality/HolographicSpace.h>
+#endif
+
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
 
@@ -316,11 +320,31 @@ void ezGameApplication::DestroyWorld(ezWorld* pWorld)
 
 void ezGameApplication::AfterCoreStartup()
 {
+  // Evaluate if we can actually do mixed reality.
+  if (m_AppType == ezGameApplicationType::StandAloneMixedReality)
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    if (!ezWindowsHolographicSpace::GetSingleton())
+    {
+      ezLog::Error("No holographic space available for Mixed Reality app. MixedReality plugin missing?");
+      m_AppType = ezGameApplicationType::StandAlone;
+    }
+    else if (!ezWindowsHolographicSpace::GetSingleton()->IsAvailable())
+    {
+      ezLog::Error("No headset available for Mixed Reality rendering.");
+      m_AppType = ezGameApplicationType::StandAlone;
+    }
+#else
+    ezLog::Error("Mixed reality applications require UWP platform currently");
+    m_AppType = ezGameApplicationType::StandAlone;
+#endif
+  }
+
   DoProjectSetup();
 
   ezStartup::StartupEngine();
 
-  if (m_AppType == ezGameApplicationType::StandAlone)
+  if (m_AppType == ezGameApplicationType::StandAlone || m_AppType == ezGameApplicationType::StandAloneMixedReality)
   {
     CreateGameStateForWorld(nullptr);
 
