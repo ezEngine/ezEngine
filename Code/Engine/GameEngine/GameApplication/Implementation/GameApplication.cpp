@@ -773,7 +773,10 @@ void ezGameApplication::DoSaveScreenshot(ezImage& image)
 
       /// \todo Get rid of Alpha channel before saving
 
-      m_Image.SaveTo(sPath);
+      if (m_Image.SaveTo(sPath).Succeeded())
+      {
+        ezLog::Info("Screenshot saved to '{0}'.", sPath);
+      }
     }
   };
 

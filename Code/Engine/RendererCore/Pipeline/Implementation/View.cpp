@@ -108,6 +108,7 @@ void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
 
+  m_pRenderPipeline->m_sName = m_sName;
   m_pRenderPipeline->ExtractData(*this);
 }
 
@@ -213,10 +214,6 @@ void ezView::EnsureUpToDate()
 
     m_pRenderPipeline = pPipeline->CreateRenderPipeline();
     ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
-
-    ezStringBuilder sb = m_sName.GetString();
-    sb.Append(".RenderPipeline");
-    m_pRenderPipeline->m_sName.Assign(sb.GetData());
 
     ResetAllPropertyStates(m_PassProperties);
     ResetAllPropertyStates(m_ExtractorProperties);
