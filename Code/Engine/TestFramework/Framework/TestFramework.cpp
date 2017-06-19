@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Utilities/StackTracer.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
 #include <FileservePlugin/Plugin.h>
@@ -12,9 +13,27 @@ ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 
 const char* ezTestFramework::s_szTestBlockName = "";
 int ezTestFramework::s_iAssertCounter = 0;
+bool ezTestFramework::s_bCallstackOnAssert = false;
+
+static void PrintCallstack(const char* szText)
+{
+  printf("%s", szText);
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  OutputDebugStringW(ezStringWChar(szText).GetData());
+#endif
+  fflush(stdout);
+  fflush(stderr);
+};
 
 static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
+  if (ezTestFramework::s_bCallstackOnAssert)
+  {
+    void* pBuffer[64];
+    ezArrayPtr<void*> tempTrace(pBuffer);
+    const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, nullptr);
+    ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintCallstack);
+  }
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

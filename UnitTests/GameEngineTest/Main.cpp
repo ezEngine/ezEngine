@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   ezTextureUtils::s_bForceFullQualityAlways = true; // never allow to use low-res textures
 
   // *** Add additional output handlers and configurations here. ***
-
+  ezTestFramework::s_bCallstackOnAssert = true;
   while (ezTestSetup::RunTests() == ezTestAppRun::Continue)
   {
   }

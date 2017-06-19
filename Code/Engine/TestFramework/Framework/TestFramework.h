@@ -78,6 +78,7 @@ protected:
 public:
   static const char* s_szTestBlockName;
   static int s_iAssertCounter;
+  static bool s_bCallstackOnAssert;
 
   // static functions
 public:
