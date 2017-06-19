@@ -165,7 +165,7 @@ struct FunctionTest
 
 typedef std::tuple< const ezRTTI*, ezBitflags<ezPropertyFlags> > ParamSig;
 
-void VerifyFunctionSignature(const ezAbstractFunctionProperty* pFunc, ezArrayPtr<ParamSig>& params, ParamSig& ret)
+void VerifyFunctionSignature(const ezAbstractFunctionProperty* pFunc, ezArrayPtr<ParamSig> params, ParamSig ret)
 {
   EZ_TEST_INT(params.GetCount(), pFunc->GetArgumentCount());
   for (ezUInt32 i = 0; i < ezMath::Min(params.GetCount(), pFunc->GetArgumentCount()); i++)
