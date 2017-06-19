@@ -1,0 +1,137 @@
+Objects
+{
+AssetInfo
+{
+	Uuid %id{u4{11651012211243214981,4697166129003315101}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{11651012211243214981,4697166129003315101}}
+		u4 %Hash{9205746295744346609}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
+			s{"{ b342874a-d967-425a-9bf1-87bb3186350e }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6144761233555775878,4716037241637418807}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17808863345459300517,5394146308431307392}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6144761233555775878,4716037241637418807}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17808863345459300517,5394146308431307392}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9084422380848213598,10316917610287435824}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{4221310641057276825,5740875096380150479}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000003F,0x0000003F,0x00000040}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{4221310641057276825,5740875096380150479}}
+	s %t{"ezMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Materials{}
+		s %Mesh{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
+	}
+}
+o
+{
+	Uuid %id{u4{9084422380848213598,10316917610287435824}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13943613750155741522,10663646398236278911}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13943613750155741522,10663646398236278911}}
+	s %t{"ezMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Materials
+		{
+			s{"{ b342874a-d967-425a-9bf1-87bb3186350e }"}
+		}
+		s %Mesh{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
+	}
+}
+}
+Types{}

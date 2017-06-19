@@ -611,6 +611,10 @@ ezGALBufferHandle ezShadowPool::UpdateShadowDataBuffer(ezGALContext* pGALContext
 //static
 void ezShadowPool::OnEngineStartup()
 {
+  /// \todo This does not work
+  /// s_PackedShadowData will always keep its own (default) allocator, during the assignment the allocator type is not copied
+  /// rather, if the allocators are different, the data is always copied (never moved)
+
   s_PackedShadowData[0] = ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper>();
   s_PackedShadowData[1] = ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper>();
 

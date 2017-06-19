@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -25,6 +25,10 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererDX11
   System
+)
+
+SET (ADDITIONAL_DEPENDENCIES
+  ShaderCompilerHLSL
 )
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)

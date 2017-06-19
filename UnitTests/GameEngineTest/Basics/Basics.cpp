@@ -137,7 +137,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
   if (Run() == ezApplication::Quit)
     return ezTestAppRun::Quit;
 
-  if (iCurFrame > 5)
+  if (iCurFrame > 3)
   {
     EZ_TEST_IMAGE(150);
 
