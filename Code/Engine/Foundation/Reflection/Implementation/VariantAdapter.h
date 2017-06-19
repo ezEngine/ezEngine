@@ -167,7 +167,7 @@ struct ezVariantAssignmentAdapter<T, C, 1>
 /// \brief Used to implicitly retrieve any value from an ezVariant to be used as a function argument
 /// using the assignment rules outlined in ezAbstractFunctionProperty::Execute.
 template<class T, ///< Only this parameter needs to be provided, the actual type of the argument. Rest is used to force specializations.
-  class C = ezCleanType<T>::Type, ///< Same as T but without the const&* fluff.
+  class C = typename ezCleanType<T>::Type, ///< Same as T but without the const&* fluff.
   int STANDARD_TYPE = ezIsStandardType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType
   int OUT_PARAM = ezIsOutParam<T>::value> ///< Is 1 if T a non-const reference or pointer.
 struct ezVariantAdapter
