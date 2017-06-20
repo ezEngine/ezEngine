@@ -3,6 +3,7 @@
 #include <Utilities/Textures/TextureGroupDesc.h>
 #include <Foundation/Math/Rect.h>
 #include <Utilities/Textures/TexturePacker.h>
+#include <Foundation/Strings/HashedString.h>
 
 ezResult ezTexConv::CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, ezInt32 layer, ezStreamWriter& stream)
 {
@@ -20,12 +21,6 @@ ezResult ezTexConv::CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, e
   m_bGeneratedMipmaps = true;
   EZ_SUCCEED_OR_RETURN(GenerateMipmaps());
 
-  //if (layer == DecalLayer::Diffuse)
-  //{
-  //  m_sThumbnailFile = "D:/test.jpg";
-  //  EZ_SUCCEED_OR_RETURN(SaveThumbnail());
-  //}
-
   m_bCompress = true;
   m_bHDROutput = false;
   m_uiOutputChannels = 4;
@@ -37,34 +32,9 @@ ezResult ezTexConv::CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, e
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::PrepareDecalOutputFiles(ezFileWriter* files)
-{
-  const ezStringBuilder sFileName = ezPathUtils::GetFileName(m_sOutputFile);
-
-  ezStringBuilder sNewFileName;
-  ezStringBuilder sFile;
-
-  {
-    sNewFileName.Set(sFileName, "_N");
-    sFile = m_sOutputFile;
-    sFile.ChangeFileName(sNewFileName);
-
-    if (files[1].Open(sFile).Failed())
-    {
-      SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
-      return EZ_FAILURE;
-    }
-  }
-
-  return EZ_SUCCESS;
-}
-
 ezResult ezTexConv::CreateDecalAtlas()
 {
   ezTextureGroupDesc decalAtlasDesc;
-
-  ezFileWriter outputFiles[2];
-  EZ_SUCCEED_OR_RETURN(PrepareDecalOutputFiles(outputFiles));
 
   if (decalAtlasDesc.Load(m_InputFileNames[0]).Failed())
   {
@@ -78,8 +48,13 @@ ezResult ezTexConv::CreateDecalAtlas()
 
   EZ_SUCCEED_OR_RETURN(LoadDecalInputs(decalAtlasDesc, decals));
 
-  EZ_SUCCEED_OR_RETURN(CreateDecalLayerTexture(decals, DecalLayer::Diffuse, m_FileOut)); // m_FileOut is the diffuse file
-  EZ_SUCCEED_OR_RETURN(CreateDecalLayerTexture(decals, DecalLayer::Normal, outputFiles[DecalLayer::Normal]));
+  const ezUInt8 uiVersion = 1;
+  m_FileOut << uiVersion;
+
+  EZ_SUCCEED_OR_RETURN(CreateDecalLayerTexture(decals, DecalLayer::Diffuse, m_FileOut));
+  EZ_SUCCEED_OR_RETURN(CreateDecalLayerTexture(decals, DecalLayer::Normal, m_FileOut));
+
+  WriteDecalAtlasInfo(decals);
 
   SetReturnCode(TexConvReturnCodes::OK);
   return EZ_SUCCESS;
@@ -90,10 +65,11 @@ ezResult ezTexConv::LoadDecalInputs(ezTextureGroupDesc &decalAtlasDesc, ezDynami
   for (const auto& group : decalAtlasDesc.m_Groups)
   {
     auto& decal = decals.ExpandAndGetRef();
+    decal.m_sIdentifier = group.m_sFilepaths[0];
 
     for (ezInt32 layer = 0; layer < DecalLayer::ENUM_COUNT; ++layer)
     {
-      decal.m_sFile[layer] = group.m_sFilepaths[layer];
+      decal.m_sFile[layer] = group.m_sFilepaths[1 + layer];
 
       if (!decal.m_sFile[layer].IsEmpty())
       {
@@ -211,5 +187,27 @@ ezResult ezTexConv::CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& dec
   }
 
   return EZ_SUCCESS;
+}
+
+
+void ezTexConv::WriteDecalAtlasInfo(ezDynamicArray<DecalDesc> decals)
+{
+  m_FileOut << decals.GetCount();
+
+  for (const auto& decal : decals)
+  {
+    const ezUInt32 uiHash = ezTempHashedString::ComputeHash(decal.m_sIdentifier.GetData());
+
+    m_FileOut << decal.m_sIdentifier;
+    m_FileOut << uiHash;
+
+    for (ezInt32 layer = 0; layer < DecalLayer::ENUM_COUNT; ++layer)
+    {
+      m_FileOut << decal.m_Rect[layer].x;
+      m_FileOut << decal.m_Rect[layer].y;
+      m_FileOut << decal.m_Rect[layer].width;
+      m_FileOut << decal.m_Rect[layer].height;
+    }
+  }
 }
 

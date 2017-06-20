@@ -274,23 +274,15 @@ struct ezGALUpdateMode
 // Basic structs
 struct ezGALTextureSubresource
 {
-  ezUInt32 m_uiMipLevel;
-  ezUInt32 m_uiArraySlice;
+  ezUInt32 m_uiMipLevel = 0;
+  ezUInt32 m_uiArraySlice = 0;
 };
 
 struct ezGALSystemMemoryDescription
 {
-  ezGALSystemMemoryDescription()
-    : m_pData(nullptr),
-      m_uiRowPitch(0),
-      m_uiSlicePitch(0)
-  {
-  }
-
-
-  void* m_pData;
-  ezUInt32 m_uiRowPitch;
-  ezUInt32 m_uiSlicePitch;
+  void* m_pData = nullptr;
+  ezUInt32 m_uiRowPitch = 0;
+  ezUInt32 m_uiSlicePitch = 0;
 };
 
 /// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.

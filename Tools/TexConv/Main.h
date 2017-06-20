@@ -87,6 +87,7 @@ public:
 
   struct DecalDesc
   {
+    ezString m_sIdentifier;
     ezString m_sFile[DecalLayer::ENUM_COUNT];
     ezImage m_Image[DecalLayer::ENUM_COUNT];
     ezRectU32 m_Rect[DecalLayer::ENUM_COUNT];
@@ -154,13 +155,14 @@ public:
   ezResult SaveThumbnail();
 
   ezResult CreateDecalAtlas();
-  ezResult PrepareDecalOutputFiles(ezFileWriter* files);
+
   ezResult LoadDecalInputs(ezTextureGroupDesc &decalAtlasDesc, ezDynamicArray<DecalDesc> &decals);
   ezResult SortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer);
   ezResult CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& decals, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
   ezResult TrySortDecalsIntoAtlas(ezDynamicArray<DecalDesc> &decals, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
   ezResult ToFloatImage(const ezImage& src, ezImage& dst);
   ezResult CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, ezInt32 layer, ezStreamWriter& stream);
+  void WriteDecalAtlasInfo(ezDynamicArray<DecalDesc> decals);
 
   ezString m_sThumbnailFile;
   ezFileWriter m_FileOut;

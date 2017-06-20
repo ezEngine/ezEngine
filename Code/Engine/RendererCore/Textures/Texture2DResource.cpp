@@ -58,6 +58,64 @@ ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
+void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels, ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
+{
+  const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
+
+  const ezGALResourceFormat::Enum format = ezTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), bSRGB);
+
+  td.m_DescGAL.m_Format = format;
+  td.m_DescGAL.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
+  td.m_DescGAL.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
+  td.m_DescGAL.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
+  td.m_DescGAL.m_uiMipLevelCount = uiNumMipLevels;
+  td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
+
+  if (td.m_DescGAL.m_uiDepth > 1)
+    td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;
+
+  if (pImage->GetNumFaces() == 6)
+    td.m_DescGAL.m_Type = ezGALTextureType::TextureCube;
+
+  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces");
+
+  out_MemoryUsed = 0;
+
+  initData.Clear();
+
+  for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
+  {
+    for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
+    {
+      for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
+      {
+        ezGALSystemMemoryDescription& id = initData.ExpandAndGetRef();
+
+        id.m_pData = const_cast<ezUInt8*>(pImage->GetDataPointer<ezUInt8>() + pImage->GetDataOffSet(mip, face, array_index));
+
+        if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+        {
+          const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(format) * 4 / 8;
+
+          id.m_uiRowPitch = ezMath::Max<ezUInt32>(4, pImage->GetWidth(mip)) * uiMemPitchFactor;
+        }
+        else
+        {
+          id.m_uiRowPitch = pImage->GetRowPitch(mip);
+        }
+
+        id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
+
+        out_MemoryUsed += id.m_uiSlicePitch;
+      }
+    }
+  }
+
+  const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(initData);
+
+  td.m_InitialContent = InitDataPtr;
+}
+
 ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
 {
   if (Stream == nullptr)
@@ -85,73 +143,17 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   *Stream >> addressModeW;
   *Stream >> textureFilter;
 
-  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
-
-  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
-  const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
-
-  m_Format = ezTextureUtils::ImageFormatToGalFormat(pImage->GetImageFormat(), bSRGB);
-  m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
-  m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
-
-  ezGALTextureCreationDescription texDesc;
-  texDesc.m_Format = m_Format;
-  texDesc.m_uiWidth = m_uiWidth;
-  texDesc.m_uiHeight = m_uiHeight;
-  texDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
-  texDesc.m_uiMipLevelCount = uiNumMipLevels;
-  texDesc.m_uiArraySize = pImage->GetNumArrayIndices();
-
-  if (texDesc.m_uiDepth > 1)
-    texDesc.m_Type = ezGALTextureType::Texture3D;
-
-  if (pImage->GetNumFaces() == 6)
-    texDesc.m_Type = ezGALTextureType::TextureCube;
-
-  m_Type = texDesc.m_Type;
-
-  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID().GetData());
-
-  m_uiMemoryGPU[m_uiLoadedTextures] = 0;
-
-  ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
-
-  for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
-  {
-    for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
-    {
-      for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
-      {
-        ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
-
-        id.m_pData = pImage->GetDataPointer<ezUInt8>() + pImage->GetDataOffSet(mip, face, array_index);
-
-        if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
-        {
-          const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(m_Format) * 4 / 8;
-
-          id.m_uiRowPitch = ezMath::Max<ezUInt32>(4, pImage->GetWidth(mip)) * uiMemPitchFactor;
-        }
-        else
-        {
-          id.m_uiRowPitch = pImage->GetRowPitch(mip);
-        }
-
-        id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
-
-        m_uiMemoryGPU[m_uiLoadedTextures] += id.m_uiSlicePitch;
-      }
-    }
-  }
-
-  const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
 
   ezTexture2DResourceDescriptor td;
-  td.m_DescGAL = texDesc;
   td.m_SamplerDesc.m_AddressU = addressModeU;
   td.m_SamplerDesc.m_AddressV = addressModeV;
   td.m_SamplerDesc.m_AddressW = addressModeW;
-  td.m_InitialContent = InitDataPtr;
+
+  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
+  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
+    
+  ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
+  FillOutDescriptor(td, pImage, bSRGB, uiNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
 
   ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
 
@@ -162,6 +164,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     ezResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
 
+    const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
     if (uiHighestMipLevel == 0)
       res.m_uiQualityLevelsLoadable = 0;
     else
@@ -188,6 +191,7 @@ ezResourceLoadDesc ezTexture2DResource::CreateResource(const ezTexture2DResource
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  m_Type = descriptor.m_DescGAL.m_Type;
   m_Format = descriptor.m_DescGAL.m_Format;
   m_uiWidth = descriptor.m_DescGAL.m_uiWidth;
   m_uiHeight = descriptor.m_DescGAL.m_uiHeight;

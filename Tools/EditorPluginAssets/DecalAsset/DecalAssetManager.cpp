@@ -145,6 +145,10 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
       {
         auto& group = texGroup.m_Groups.ExpandAndGetRef();
 
+        // store the GUID as the decal identifier
+        ezConversionUtils::ToString(pDecalAsset->GetGuid(), sAbsPath);
+        group.m_sFilepaths[0] = sAbsPath;
+
         {
           sAbsPath = pDecalAsset->GetProperties()->m_sDiffuse;
           if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
@@ -152,7 +156,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
             return ezStatus(ezFmt("Invalid texture path '{0}'", sAbsPath));
           }
 
-          group.m_sFilepaths[0] = sAbsPath;
+          group.m_sFilepaths[1] = sAbsPath;
         }
 
         {
@@ -162,7 +166,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
             return ezStatus(ezFmt("Invalid texture path '{0}'", sAbsPath));
           }
 
-          group.m_sFilepaths[1] = sAbsPath;
+          group.m_sFilepaths[2] = sAbsPath;
         }
       }
 

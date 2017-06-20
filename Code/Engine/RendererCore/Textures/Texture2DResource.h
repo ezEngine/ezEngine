@@ -46,6 +46,8 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetHeight() const { return m_uiHeight; }
   EZ_ALWAYS_INLINE ezGALTextureType::Enum GetType() const { return m_Type; }
 
+  static void FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels, ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData);
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
