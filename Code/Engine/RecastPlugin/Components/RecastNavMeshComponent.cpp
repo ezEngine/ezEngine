@@ -45,12 +45,19 @@ ezRcNavMeshComponent::~ezRcNavMeshComponent() { }
 
 void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
+  ezStreamWriter& s = stream.GetStream();
 
+  s << m_bShowNavMesh;
 }
 
 void ezRcNavMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  SUPER::DeserializeComponent(stream);
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = stream.GetStream();
 
+  s >> m_bShowNavMesh;
 }
 
 void ezRcNavMeshComponent::OnSimulationStarted()

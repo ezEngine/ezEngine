@@ -20,6 +20,41 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 1)
 }
 EZ_END_COMPONENT_TYPE
 
+struct ezRcPos
+{
+  float m_Pos[3];
+
+  ezRcPos() {}
+  ezRcPos(const ezVec3& v)
+  {
+    *this = v;
+  }
+
+  void operator=(const ezVec3& v)
+  {
+    m_Pos[0] = v.x;
+    m_Pos[1] = v.z;
+    m_Pos[2] = v.y;
+  }
+
+  void operator=(const float* pos)
+  {
+    m_Pos[0] = pos[0];
+    m_Pos[1] = pos[1];
+    m_Pos[2] = pos[2];
+  }
+
+  operator const float* () const
+  {
+    return &m_Pos[0];
+  }
+
+  operator const ezVec3& () const
+  {
+    return ezVec3(m_Pos[0], m_Pos[2], m_Pos[1]);
+  }
+};
+
 ezRcAgentComponent::ezRcAgentComponent() { }
 ezRcAgentComponent::~ezRcAgentComponent() { }
 
@@ -45,7 +80,7 @@ void ezRcAgentComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezRcAgentComponent::OnSimulationStarted()
 {
-  m_tLastUpdate = GetWorld()->GetClock().GetAccumulatedTime();
+  m_tLastUpdate = ezTime::Seconds(-100);
 
   m_bInitialized = false;
 }
@@ -63,8 +98,11 @@ void ezRcAgentComponent::Update()
   if (!Init())
     return;
 
+  RenderPathCorridorPosition();
+  RenderPathCorridor();
 
-  if (GetWorld()->GetClock().GetAccumulatedTime() - m_tLastUpdate > ezTime::Seconds(3.0f))
+  //if (GetWorld()->GetClock().GetAccumulatedTime() - m_tLastUpdate > ezTime::Seconds(7.0f))
+  if (!m_bHasPath)
   {
     m_tLastUpdate = GetWorld()->GetClock().GetAccumulatedTime();
 
@@ -83,19 +121,15 @@ void ezRcAgentComponent::Update()
     }
   }
 
-  ezHybridArray<ezDebugRenderer::Line, 16> lines;
-  lines.Reserve(m_iNumNextSteps);
 
-  ezVec3 vPrev = GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 0.5f);
-  for (ezInt32 i = m_iFirstNextStep; i < m_iNumNextSteps; ++i)
+  if (HasReachedGoal(1.0f))
   {
-    auto& line = lines.ExpandAndGetRef();
-    line.m_start = vPrev;
-    line.m_end = m_vNextSteps[i] + ezVec3(0, 0, 0.5f);
-    vPrev = line.m_end;
+    m_bHasPath = false;
+    return;
   }
 
-  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::IndianRed);
+  VisualizeCurrentPath();
+  VisualizeTargetPosition();
 
   {
     const ezVec3 vDir = ComputeSteeringDirection(1.0f);
@@ -141,20 +175,63 @@ void ezRcAgentComponent::Update()
         }
       }
 
-      GetOwner()->SetGlobalPosition(vNewPos);
-
-
-      ezMath::Swap(vNewPos.y, vNewPos.z);
-
       if (m_bHasValidCorridor)
       {
+        ezRcPos rcPosNew = vNewPos;
+
         dtQueryFilter filter; /// \todo
-        m_pCorridor->movePosition(&vNewPos.x, m_pQuery.Borrow(), &filter);
+        if (!m_pCorridor->movePosition(rcPosNew, m_pQuery.Borrow(), &filter))
+        {
+          int i = 0;
+          ++i;
+        }
+
+        {
+          rcPosNew = m_pCorridor->getPos();
+          vNewPos = rcPosNew;
+        }
       }
+
+      GetOwner()->SetGlobalPosition(vNewPos);
     }
   }
+}
+
+void ezRcAgentComponent::VisualizeCurrentPath()
+{
+  ezHybridArray<ezDebugRenderer::Line, 16> lines;
+  lines.Reserve(m_iNumNextSteps);
+
+  ezHybridArray<ezDebugRenderer::Line, 16> steps;
+  steps.Reserve(m_iNumNextSteps);
+
+  ezVec3 vPrev = GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 0.5f);
+  for (ezInt32 i = m_iFirstNextStep; i < m_iNumNextSteps; ++i)
+  {
+    auto& line = lines.ExpandAndGetRef();
+    line.m_start = vPrev;
+    line.m_end = m_vNextSteps[i] + ezVec3(0, 0, 0.5f);
+    vPrev = line.m_end;
+
+    auto& step = steps.ExpandAndGetRef();
+    step.m_start = m_vNextSteps[i];
+    step.m_end = m_vNextSteps[i] + ezVec3(0, 0, 1.0f);
+  }
+
+  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::DarkViolet);
+  ezDebugRenderer::DrawLines(GetWorld(), steps, ezColor::LightYellow);
+}
 
 
+void ezRcAgentComponent::VisualizeTargetPosition()
+{
+  ezHybridArray<ezDebugRenderer::Line, 16> lines;
+  auto& line = lines.ExpandAndGetRef();
+
+  line.m_start = m_vEndPosition - ezVec3(0, 0, 0.5f);
+  line.m_end = m_vEndPosition + ezVec3(0, 0, 1.5f);
+
+  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::HotPink);
 }
 
 void ezRcAgentComponent::SetTargetPosition(const ezVec3& vPos)
@@ -197,7 +274,7 @@ void ezRcAgentComponent::SetTargetPosition(const ezVec3& vPos)
     return;
   }
 
-
+  m_bHasPath = true;
 }
 
 
@@ -269,6 +346,12 @@ ezResult ezRcAgentComponent::RecomputePathCorridor()
     return EZ_FAILURE;
   }
 
+  if (m_PathCorridor[m_iPathCorridorLength - 1] != m_endPoly)
+  {
+    ezLog::Warning("Target Position cannot be reached");
+    return EZ_FAILURE;
+  }
+
   m_pCorridor->reset(m_startPoly, &vStart.x);
   m_pCorridor->setCorridor(&vEnd.x, m_PathCorridor.GetData(), m_iPathCorridorLength);
   m_bHasValidCorridor = m_iPathCorridorLength > 0;
@@ -284,7 +367,7 @@ ezResult ezRcAgentComponent::PlanNextSteps()
 
   dtQueryFilter filter; /// \todo Hard-coded filter
   m_iFirstNextStep = 0;
-  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, m_uiStepFlags, m_StepPolys, 16, m_pQuery.Borrow(), &filter);
+  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, m_uiStepFlags, m_StepPolys, 4, m_pQuery.Borrow(), &filter);
 
   for (ezInt32 i = 0; i < m_iNumNextSteps; ++i)
   {
@@ -297,22 +380,43 @@ ezResult ezRcAgentComponent::PlanNextSteps()
 
 ezVec3 ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
 {
+  if (!m_bHasValidCorridor)
+    return ezVec3::ZeroVector();
+
   ezVec3 vCurPos = GetOwner()->GetGlobalPosition();
   vCurPos.z = 0;
 
-  for (ezInt32 i = m_iFirstNextStep; i < m_iNumNextSteps; ++i)
+  ezInt32 iNextStep = 0;
+  for (iNextStep = m_iNumNextSteps - 1; iNextStep >= m_iFirstNextStep; --iNextStep)
   {
-    ezVec3 step = m_vNextSteps[i];
-    step.z = 0;
+    ezVec3 step = m_vNextSteps[iNextStep];
 
-    if ((step - vCurPos).GetLength() < fMaxDistance)
+    if (IsPositionVisible(step))
+      break;
+  }
+
+  if (iNextStep < m_iFirstNextStep)
+  {
+    ezLog::Error("Next step not visible");
+    iNextStep = m_iFirstNextStep;
+  }
+
+  if (iNextStep == m_iNumNextSteps - 1)
+  {
+    if (HasReachedPosition(m_vNextSteps[iNextStep], 1.0f))
     {
-      ++m_iFirstNextStep;
+      PlanNextSteps();
+      return ezVec3::ZeroVector();
     }
   }
 
+  m_iFirstNextStep = iNextStep;
+
   if (m_iFirstNextStep >= m_iNumNextSteps)
+  {
+    PlanNextSteps();
     return ezVec3::ZeroVector();
+  }
 
 
   ezVec3 vDirection = m_vNextSteps[m_iFirstNextStep] - vCurPos;
@@ -320,6 +424,100 @@ ezVec3 ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
   vDirection.NormalizeIfNotZero(ezVec3::ZeroVector());
 
   return vDirection;
+}
+
+
+bool ezRcAgentComponent::HasReachedPosition(const ezVec3& pos, float fMaxDistance) const
+{
+  ezVec3 vTargetPos = pos;
+  ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
+
+  const float fCellHeight = 1.0f;
+
+  // agent component is assumed to be located on the ground (independent of character height)
+  // so max error is dependent on the navmesh resolution mostly (cell height)
+  const float fHeightError = fCellHeight;
+  
+  if (!ezMath::IsInRange(vTargetPos.z, vOwnPos.z - fHeightError, vOwnPos.z + fHeightError))
+    return false;
+
+  vTargetPos.z = 0;
+  vOwnPos.z = 0;
+
+  return (vTargetPos - vOwnPos).GetLength() < fMaxDistance;
+}
+
+bool ezRcAgentComponent::HasReachedGoal(float fMaxDistance) const
+{
+  if (!m_bHasPath)
+    return true;
+
+  return HasReachedPosition(m_vEndPosition, fMaxDistance);
+}
+
+bool ezRcAgentComponent::IsPositionVisible(const ezVec3& pos) const
+{
+  ezRcPos endPos = pos;
+
+  /// \todo Hardcoded filter
+  dtQueryFilter filter;
+  dtRaycastHit hit;
+  if (dtStatusFailed(m_pQuery->raycast(m_pCorridor->getFirstPoly(), m_pCorridor->getPos(), endPos, &filter, 0, &hit)))
+    return false;
+
+  // 'visible' if no hit was detected
+  return (hit.t == FLT_MAX);
+}
+
+void ezRcAgentComponent::RenderPathCorridorPosition()
+{
+  if (!m_bHasPath || !m_bHasValidCorridor)
+    return;
+
+  const float* pos = m_pCorridor->getPos();
+  const ezVec3 vPos(pos[0], pos[2], pos[1]);
+
+  ezBoundingBox box;
+  box.SetCenterAndHalfExtents(ezVec3(0, 0, 1.0f), ezVec3(0.3f, 0.3f, 1.0f));
+
+  ezTransform t;
+  t.SetIdentity();
+  t.m_vPosition = vPos;
+  t.m_qRotation = GetOwner()->GetGlobalRotation();
+
+  ezDebugRenderer::DrawLineBox(GetWorld(), box, ezColor::DarkGreen, t);
+}
+
+void ezRcAgentComponent::RenderPathCorridor()
+{
+  if (!m_bHasPath || !m_bHasValidCorridor)
+    return;
+
+  for (ezInt32 c = 0; c < m_iPathCorridorLength; ++c)
+  {
+    dtPolyRef poly = m_PathCorridor[c];
+
+    const dtMeshTile* pTile;
+    const dtPoly* pPoly;
+    m_pQuery->getAttachedNavMesh()->getTileAndPolyByRef(poly, &pTile, &pPoly);
+
+    ezHybridArray<ezDebugRenderer::Triangle, 32> tris;
+
+    for (ezUInt32 i = 2; i < pPoly->vertCount; ++i)
+    {
+      ezRcPos rcPos[3];
+      rcPos[0] = &(pTile->verts[pPoly->verts[0] * 3]);
+      rcPos[1] = &(pTile->verts[pPoly->verts[i - 1] * 3]);
+      rcPos[2] = &(pTile->verts[pPoly->verts[i] * 3]);
+
+      auto& tri = tris.ExpandAndGetRef();
+      tri.m_p0 = ezVec3(rcPos[0]) + ezVec3(0, 0, 0.1f);
+      tri.m_p2 = ezVec3(rcPos[1]) + ezVec3(0, 0, 0.1f);
+      tri.m_p1 = ezVec3(rcPos[2]) + ezVec3(0, 0, 0.1f);
+    }
+
+    ezDebugRenderer::DrawSolidTriangles(GetWorld(), tris, ezColor::OrangeRed.WithAlpha(0.4f));
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

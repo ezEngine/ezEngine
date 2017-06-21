@@ -47,17 +47,31 @@ public:
 
   void Update();
 
+
   void SetTargetPosition(const ezVec3& vPos);
 
   ezResult FindNavMeshPolyAt(ezVec3& inout_vPosition, dtPolyRef& out_PolyRef) const;
 
   ezVec3 ComputeSteeringDirection(float fMaxDistance);
 
+  bool HasReachedPosition(const ezVec3& pos, float fMaxDistance) const;
+  bool HasReachedGoal(float fMaxDistance) const;
+  bool IsPositionVisible(const ezVec3& pos) const;
+
+  void RenderPathCorridorPosition();
+  void RenderPathCorridor();
+  void VisualizeCurrentPath();
+  void VisualizeTargetPosition();
+
   //////////////////////////////////////////////////////////////////////////
   // Properties
  
   float m_fWalkSpeed = 4.0f;
   ezUInt8 m_uiCollisionLayer = 0;
+
+  /// \todo Expose and use
+  float m_fRadius = 0.2f;
+  float m_fHeight = 1.0f;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -69,6 +83,7 @@ protected:
   ezTime m_tLastUpdate;
 
   bool m_bInitialized = false;
+  bool m_bHasPath = false;
   bool m_bHasValidCorridor = false;
   ezUniquePtr<dtNavMeshQuery> m_pQuery;
   ezUniquePtr<dtPathCorridor> m_pCorridor;

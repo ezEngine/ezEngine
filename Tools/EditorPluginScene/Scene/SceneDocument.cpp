@@ -595,6 +595,8 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 void ezSceneDocument::SendGameWorldToEngine()
 {
   ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(this, true);
+
+  m_iResendSelection = 2;
 }
 
 void ezSceneDocument::StartSimulateWorld()
