@@ -280,6 +280,17 @@ void ezSceneContext::OnInitialize()
   EZ_LOCK(m_pWorld->GetWriteMarker());
 }
 
+
+void ezSceneContext::OnDeinitialize()
+{
+  m_Selection.Clear();
+  m_SelectionWithChildren.Clear();
+  m_SelectionWithChildrenSet.Clear();
+  m_hAmbientLight[0].Invalidate();
+  m_hAmbientLight[1].Invalidate();
+  m_hAmbientLight[2].Invalidate();
+}
+
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
 {
   return EZ_DEFAULT_NEW(ezSceneViewContext, this);

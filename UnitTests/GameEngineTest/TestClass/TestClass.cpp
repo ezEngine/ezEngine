@@ -3,6 +3,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Core/World/WorldDesc.h>
+#include <Core/World/World.h>
 
 ezGameEngineTest::ezGameEngineTest()
 {
@@ -87,6 +88,7 @@ void ezGameEngineTestApplication::AfterCoreStartup()
 
   ezWorldDesc desc("GameEngineTestWorld");
   m_pWorld = CreateWorld(desc);
+  m_pWorld->GetClock().SetFixedTimeStep(ezTime::Seconds(1.0 / 30.0));
 
   CreateGameStateForWorld(m_pWorld);
 
