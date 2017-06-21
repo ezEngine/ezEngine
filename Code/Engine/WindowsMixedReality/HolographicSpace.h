@@ -3,6 +3,7 @@
 #include <WindowsMixedReality/Basics.h>
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Types/UniquePtr.h>
 
 
 namespace ABI
@@ -15,6 +16,9 @@ namespace ABI
       {
         struct IHolographicSpaceStatics;
         struct IHolographicSpace;
+
+        struct IHolographicSpaceCameraAddedEventArgs;
+        struct IHolographicSpaceCameraRemovedEventArgs;
       }
 
       namespace DirectX
@@ -28,7 +32,7 @@ namespace ABI
   }
 }
 
-class ezWindow;
+class ezWindowsHolographicLocationService;
 struct IDXGIAdapter3;
 
 /// \brief Integration of Windows HolographicSpace (WinRT).
@@ -69,10 +73,28 @@ public:
   bool IsAvailable() const;
 
 private:
+
+  void DeInit();
+
+  HRESULT OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args);
+  HRESULT OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args);
+
+
+  /// Static holographic space access. Created on startup. If this is null nothing else will work.
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpaceStatics> m_pHolographicSpaceStatics;
+  /// Windows holographic space, created in init method for a specific window.
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
+
+  // Camera subscriptions on holographic space.
+  EventRegistrationToken m_eventRegistrationOnCameraAdded;
+  EventRegistrationToken m_eventRegistrationOnCameraRemoved;
+
+  /// DXGI adapter given by holographic space.
   Microsoft::WRL::ComPtr<IDXGIAdapter3> m_pDxgiAdapter;
+  /// DX11 interop device with current ezGALDX11 device.
   ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> m_pDX11InteropDevice;
 
-  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpaceStatics> m_pHolographicSpaceStatics;
-  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
+
+  ezUniquePtr<ezWindowsHolographicLocationService> m_pDefaultLocationService;
 };
 

@@ -1,6 +1,6 @@
 ﻿#include <PCH.h>
 #include <WindowsMixedReality/HolographicSpace.h>
-#include <System/Window/Window.h>
+#include <WindowsMixedReality/HolographicLocationService.h>
 
 #include <RendererFoundation/Device/Device.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -14,6 +14,8 @@
 #include <windows.graphics.directx.direct3d11.h>
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
+
+#include <wrl/event.h>
 
 EZ_IMPLEMENT_SINGLETON(ezWindowsHolographicSpace);
 
@@ -53,12 +55,15 @@ ezWindowsHolographicSpace::ezWindowsHolographicSpace()
 
 ezWindowsHolographicSpace::~ezWindowsHolographicSpace()
 {
+  DeInit();
 }
 
 ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
 {
   if (!m_pHolographicSpaceStatics)
     return EZ_FAILURE;
+
+  DeInit();
 
   // Create holographic space from core window
   {
@@ -104,11 +109,46 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     }
   }
 
-  ezLog::Info("Initialized new holographic space for core window!");
+  
+  // Register to camera added/removed
+  {
+    using OnCameraAdded = __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraAddedEventArgs;
+    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->add_CameraAdded(Callback<OnCameraAdded>(this, &ezWindowsHolographicSpace::OnCameraAdded).Get(), &m_eventRegistrationOnCameraAdded));
+
+    using OnCameraRemoved = __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraRemovedEventArgs;
+    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->add_CameraRemoved(Callback<OnCameraRemoved>(this, &ezWindowsHolographicSpace::OnCameraRemoved).Get(), &m_eventRegistrationOnCameraRemoved));
+  }
+
+  // Setup locator
+  {
+    ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocatorStatics> pSpatialLocatorStatics;
+    EZ_HRESULT_TO_FAILURE_LOG(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Perception_Spatial_SpatialLocator).Get(), &pSpatialLocatorStatics));
+
+    ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator> pDefaultSpatialLocator;
+    EZ_HRESULT_TO_FAILURE_LOG(pSpatialLocatorStatics->GetDefault(&pDefaultSpatialLocator));
+
+    m_pDefaultLocationService = EZ_DEFAULT_NEW(ezWindowsHolographicLocationService, pDefaultSpatialLocator);
+  }
+
+  ezLog::Info("Initialized new holographic space for main window!");
 
   return EZ_SUCCESS;
 }
 
+void ezWindowsHolographicSpace::DeInit()
+{
+  if (!m_pHolographicSpaceStatics)
+    return;
+
+  m_pDefaultLocationService.Reset();
+
+  if (m_pHolographicSpace)
+  {
+    m_pHolographicSpace->remove_CameraAdded(m_eventRegistrationOnCameraAdded);
+    m_pHolographicSpace->remove_CameraRemoved(m_eventRegistrationOnCameraRemoved);
+    m_pHolographicSpace = nullptr;
+  }
+}
 
 ezResult ezWindowsHolographicSpace::SetDX11Device()
 {
@@ -202,6 +242,23 @@ bool ezWindowsHolographicSpace::IsAvailable() const
     return available == TRUE;
   }
 #endif
+}
+
+HRESULT ezWindowsHolographicSpace::OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args)
+{
+  // todo
+
+  return S_OK;
+}
+
+HRESULT ezWindowsHolographicSpace::OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args)
+{
+
+  // Holographic frame predictions will not include any information about this camera until
+  // the deferral is completed.
+  //deferral->Complete();
+
+  return S_OK;
 }
 
 EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_WindowsHolographicSpace);
