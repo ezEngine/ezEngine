@@ -23,7 +23,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4742344647184895104,4957233606002623134}}
-		u4 %Hash{13415949745490903068}
+		u4 %Hash{12522522348412481671}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -64,7 +64,7 @@ o
 	{
 		b %Active{1}
 		u1 %CollisionLayer{5}
-		f %WalkSpeed{0x00008040}
+		f %WalkSpeed{0x00004040}
 	}
 }
 o
@@ -115,7 +115,7 @@ o
 {
 	Uuid %id{u4{13795330661858598546,496556411040670591}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -162,7 +162,7 @@ o
 {
 	Uuid %id{u4{11427189543022138024,11030180439142049485}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -202,7 +202,7 @@ o
 			Uuid{u4{11427189543022138024,11030180439142049485}}
 		}
 		s %TypeName{"ezRcAgentComponent"}
-		u3 %TypeSize{448}
+		u3 %TypeSize{456}
 		u3 %TypeVersion{1}
 	}
 }

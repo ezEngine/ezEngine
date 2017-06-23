@@ -12,6 +12,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezEnginePluginPhysX"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginPhysX"}
+}
+Plugin
+{
 	string %Path{"ezEnginePluginScene"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginScene"}
@@ -33,4 +39,10 @@ Plugin
 	string %Path{"ezPhysXPlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>","EditorPluginPhysX"}
+}
+Plugin
+{
+	string %Path{"ezRecastPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>"}
 }

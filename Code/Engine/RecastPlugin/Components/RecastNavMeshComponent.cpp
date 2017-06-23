@@ -101,8 +101,10 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
     ezDynamicArray<ezDebugRenderer::Triangle> triangles;
     triangles.Reserve(mesh.npolys * 3);
 
-    ezDynamicArray<ezDebugRenderer::Line> lines;
-    lines.Reserve(mesh.npolys * 5);
+    ezDynamicArray<ezDebugRenderer::Line> contourLines;
+    contourLines.Reserve(mesh.npolys * 2);
+    ezDynamicArray<ezDebugRenderer::Line> innerLines;
+    innerLines.Reserve(mesh.npolys * 3);
 
     const ezInt32 iMaxNumVertInPoly = m_NavMeshBuilder.m_polyMesh->nvp;
     const float fCellSize = m_NavMeshBuilder.m_polyMesh->cs;
@@ -113,6 +115,7 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
     for (ezInt32 i = 0; i < mesh.npolys; ++i)
     {
       const ezUInt16* polyVtxIndices = &mesh.polys[i * (iMaxNumVertInPoly * 2)];
+      const ezUInt16* neighborData = &mesh.polys[i * (iMaxNumVertInPoly * 2) + iMaxNumVertInPoly];
 
       //const ezUInt8 areaType = mesh.areas[i];
       //if (areaType == RC_WALKABLE_AREA)
@@ -128,15 +131,22 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
         if (polyVtxIndices[j] == RC_MESH_NULL_IDX)
           break;
 
-        auto& line = lines.ExpandAndGetRef();
-        line.m_start = GetNavMeshVertex(&mesh, polyVtxIndices[j - 1], vMeshOrigin, fCellSize, fCellHeight);
-        line.m_end = GetNavMeshVertex(&mesh, polyVtxIndices[j], vMeshOrigin, fCellSize, fCellHeight);
+        const bool bIsContour = neighborData[j - 1] == 0xffff;
+
+        {
+          auto& line = bIsContour ? contourLines.ExpandAndGetRef() : innerLines.ExpandAndGetRef();
+          line.m_start = GetNavMeshVertex(&mesh, polyVtxIndices[j - 1], vMeshOrigin, fCellSize, fCellHeight);
+          line.m_end = GetNavMeshVertex(&mesh, polyVtxIndices[j], vMeshOrigin, fCellSize, fCellHeight);
+        }
       }
 
       // close the loop
-      auto& line = lines.ExpandAndGetRef();
-      line.m_start = GetNavMeshVertex(&mesh, polyVtxIndices[j - 1], vMeshOrigin, fCellSize, fCellHeight);
-      line.m_end = GetNavMeshVertex(&mesh, polyVtxIndices[0], vMeshOrigin, fCellSize, fCellHeight);
+      const bool bIsContour = neighborData[j - 1] == 0xffff;
+      {
+        auto& line = bIsContour ? contourLines.ExpandAndGetRef() : innerLines.ExpandAndGetRef();
+        line.m_start = GetNavMeshVertex(&mesh, polyVtxIndices[j - 1], vMeshOrigin, fCellSize, fCellHeight);
+        line.m_end = GetNavMeshVertex(&mesh, polyVtxIndices[0], vMeshOrigin, fCellSize, fCellHeight);
+      }
 
       for (j = 2; j < iMaxNumVertInPoly; ++j)
       {
@@ -152,7 +162,8 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
     }
 
     ezDebugRenderer::DrawSolidTriangles(GetWorld(), triangles, ezColor::CadetBlue.WithAlpha(0.25f));
-    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::CadetBlue);
+    ezDebugRenderer::DrawLines(GetWorld(), contourLines, ezColor::DarkOrange);
+    ezDebugRenderer::DrawLines(GetWorld(), innerLines, ezColor::CadetBlue);
   }
 }
 

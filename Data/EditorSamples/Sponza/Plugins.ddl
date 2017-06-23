@@ -40,3 +40,9 @@ Plugin
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>","EditorPluginPhysX"}
 }
+Plugin
+{
+	string %Path{"ezRecastPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>"}
+}
