@@ -49,7 +49,7 @@ struct ezRcPos
     return &m_Pos[0];
   }
 
-  operator const ezVec3& () const
+  operator const ezVec3 () const
   {
     return ezVec3(m_Pos[0], m_Pos[2], m_Pos[1]);
   }
@@ -466,7 +466,7 @@ bool ezRcAgentComponent::IsPositionVisible(const ezVec3& pos) const
     return false;
 
   // 'visible' if no hit was detected
-  return (hit.t == FLT_MAX);
+  return (hit.t > 100000.0f);
 }
 
 void ezRcAgentComponent::RenderPathCorridorPosition()
