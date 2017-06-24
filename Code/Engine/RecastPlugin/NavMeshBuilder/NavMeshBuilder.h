@@ -41,7 +41,6 @@ public:
   ezResult Build(const ezRecastConfig& config, const ezNavMeshDescription& desc);
 
   rcPolyMesh* m_polyMesh = nullptr;
-  rcPolyMeshDetail* m_detailMesh = nullptr;
   dtNavMesh* m_pNavMesh = nullptr;
 
 private:

@@ -25,6 +25,7 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererCore
   RendererDX11
+  Utilities
 )
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)

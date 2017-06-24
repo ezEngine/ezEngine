@@ -61,7 +61,6 @@ ezRecastNavMeshBuilder::ezRecastNavMeshBuilder() { }
 ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder()
 {
   rcFreePolyMesh(m_polyMesh);
-  rcFreePolyMeshDetail(m_detailMesh);
 }
 
 ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWorld& world)
@@ -362,15 +361,6 @@ ezResult ezRecastNavMeshBuilder::BuildRecastNavMesh(const ezRecastConfig& config
     return EZ_FAILURE;
   }
 
-  m_detailMesh = rcAllocPolyMeshDetail();
-  // this is not deallocated, it is the final result !
-
-  if (!rcBuildPolyMeshDetail(pContext, *m_polyMesh, *compactHeightfield, cfg.detailSampleDist, cfg.detailSampleMaxError, *m_detailMesh))
-  {
-    pContext->log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
-    return EZ_FAILURE;
-  }
-
   //////////////////////////////////////////////////////////////////////////
   // Detour Navmesh
 
@@ -400,11 +390,6 @@ ezResult ezRecastNavMeshBuilder::CreateDetourNavMesh(const ezRecastConfig& confi
   params.polyFlags = m_polyMesh->flags;
   params.polyCount = m_polyMesh->npolys;
   params.nvp = m_polyMesh->nvp;
-  params.detailMeshes = m_detailMesh->meshes;
-  params.detailVerts = m_detailMesh->verts;
-  params.detailVertsCount = m_detailMesh->nverts;
-  params.detailTris = m_detailMesh->tris;
-  params.detailTriCount = m_detailMesh->ntris;
   params.walkableHeight = config.m_fAgentHeight;
   params.walkableRadius = config.m_fAgentRadius;
   params.walkableClimb = config.m_fAgentClimbHeight;

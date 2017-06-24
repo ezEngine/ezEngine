@@ -8,6 +8,8 @@
 #include <ThirdParty/Recast/Recast.h>
 #include <Foundation/Configuration/CVar.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 ezCVarBool g_AiShowNavMesh("ai_ShowNavMesh", false, ezCVarFlags::Default, "Draws the navmesh, if one is available");
 
@@ -71,6 +73,7 @@ void ezRcNavMeshComponent::Update()
     return;
 
   VisualizeNavMesh();
+  VisualizePointsOfInterest();
 
   --m_uiDelay;
 
@@ -80,6 +83,7 @@ void ezRcNavMeshComponent::Update()
   m_NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld());
 
   GetManager()->GetRecastWorldModule()->SetNavMesh(m_NavMeshBuilder.m_pNavMesh);
+  GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest.ExtractInterestPointsFromMesh(*m_NavMeshBuilder.m_polyMesh, true);
 }
 
 EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
@@ -165,6 +169,26 @@ void ezRcNavMeshComponent::VisualizeNavMesh()
     ezDebugRenderer::DrawLines(GetWorld(), contourLines, ezColor::DarkOrange);
     ezDebugRenderer::DrawLines(GetWorld(), innerLines, ezColor::CadetBlue);
   }
+}
+
+void ezRcNavMeshComponent::VisualizePointsOfInterest()
+{
+  if (!m_bShowNavMesh && !g_AiShowNavMesh)
+    return;
+
+  const auto& graph = GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest.GetGraph();
+
+  ezDynamicArray<ezDebugRenderer::Line> visibleLines;
+
+  for (const auto& point : graph.GetPoints())
+  {
+    auto& line = visibleLines.ExpandAndGetRef();
+
+    line.m_start = point.m_vFloorPosition;
+    line.m_end = point.m_vFloorPosition + ezVec3(0, 0, 1.0f);
+  }
+
+  ezDebugRenderer::DrawLines(GetWorld(), visibleLines, ezColor::DeepSkyBlue);
 }
 
 //////////////////////////////////////////////////////////////////////////

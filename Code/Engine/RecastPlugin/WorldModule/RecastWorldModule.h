@@ -2,6 +2,7 @@
 
 #include <RecastPlugin/Basics.h>
 #include <Core/World/WorldModule.h>
+#include <NavMeshBuilder/NavMeshPointsOfInterest.h>
 
 class dtCrowd;
 class dtNavMesh;
@@ -23,6 +24,8 @@ public:
   bool IsInitialized() const { return m_pCrowd != nullptr; }
 
   dtCrowd* m_pCrowd = nullptr;
+
+  ezNavMeshPointOfInterestGraph m_NavMeshPointsOfInterest;
 
 private:
   void UpdateCrowd(const UpdateContext& ctxt);
