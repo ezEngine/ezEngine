@@ -4,12 +4,19 @@
 
 ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph()
 {
-
 }
 
 ezNavMeshPointOfInterestGraph::~ezNavMeshPointOfInterestGraph()
 {
+}
 
+void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime tNow)
+{
+  if (tNow - m_LastTimeStampStep < ezTime::Seconds(0.5f))
+    return;
+
+  m_LastTimeStampStep = tNow;
+  m_uiCheckVisibilityTimeStamp += 4;
 }
 
 EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)

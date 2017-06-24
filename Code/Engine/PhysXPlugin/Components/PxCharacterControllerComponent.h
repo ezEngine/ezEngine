@@ -3,6 +3,7 @@
 #include <PhysXPlugin/Components/PxComponent.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <GameEngine/Components/CharacterControllerComponent.h>
 
 struct ezCollisionMessage;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
@@ -19,30 +20,17 @@ public:
   void Update(const ezWorldModule::UpdateContext& context);
 };
 
-struct EZ_PHYSXPLUGIN_DLL ezPxCharacterController_MoveCharacterMsg : public ezScriptFunctionMessage
+class EZ_PHYSXPLUGIN_DLL ezPxCharacterControllerComponent : public ezCharacterControllerComponent
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezPxCharacterController_MoveCharacterMsg, ezScriptFunctionMessage);
-
-  double m_fMoveForwards = 0;
-  double m_fMoveBackwards = 0;
-  double m_fStrafeLeft = 0;
-  double m_fStrafeRight = 0;
-  double m_fRotateLeft = 0;
-  double m_fRotateRight = 0;
-  bool m_bRun = false;
-  bool m_bJump = false;
-  bool m_bCrouch = false;
-};
-
-class EZ_PHYSXPLUGIN_DLL ezPxCharacterControllerComponent : public ezPxComponent
-{
-  EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterControllerComponent, ezPxComponent, ezPxCharacterControllerComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterControllerComponent, ezCharacterControllerComponent, ezPxCharacterControllerComponentManager);
 
 public:
   ezPxCharacterControllerComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  virtual void RawMove(const ezVec3& vMove) override;
 
   void Update();
 
@@ -78,7 +66,7 @@ protected:
 
 public:
 
-  void MoveCharacter(ezPxCharacterController_MoveCharacterMsg& msg);
+  virtual void MoveCharacter(ezCharacterController_MoveCharacterMsg& msg) override;
   void OnCollision(ezCollisionMessage& msg);
 
 protected:
@@ -94,6 +82,7 @@ protected:
   ezUInt8 m_InputStateBits;
   ezVec3 m_vRelativeMoveDirection;
   ezAngle m_RotateZ;
+  bool m_bWantsCrouch = false;
 
   float m_fVelocityUp = 0.0f;
   ezVec3 m_vVelocityLateral = ezVec3(0.0f);

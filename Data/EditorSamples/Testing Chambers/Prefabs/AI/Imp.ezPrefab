@@ -23,12 +23,35 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4742344647184895104,4957233606002623134}}
-		u4 %Hash{12522522348412481671}
+		u4 %Hash{5098032124162743677}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{11231609723901893017,5094424647124404838}}
+	s %t{"ezPxCharacterControllerComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		f %AirFriction{0x0000003F}
+		f %AirSpeed{0x00002040}
+		f %CrouchSpeed{0x00000040}
+		s %FallbackWalkSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+		f %JumpImpulse{0x0000C040}
+		f %PushingForce{0x0000FA43}
+		Angle %RotateSpeed{f{0xDB0FC93F}}
+		f %RunInteractionDistance{0x00004040}
+		f %RunSpeed{0x0000A041}
+		f %WalkInteractionDistance{0x0000803F}
+		f %WalkSpeed{0x00002041}
+		s %WalkSurfaceInteraction{"Footstep"}
 	}
 }
 o
@@ -44,7 +67,7 @@ o
 			Uuid{u4{15461194417989267645,4952190663009256191}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
+		Vec3 %LocalPosition{f{0,0,0x666626BF}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0AD7A33C}
@@ -64,7 +87,26 @@ o
 	{
 		b %Active{1}
 		u1 %CollisionLayer{5}
-		f %WalkSpeed{0x00004040}
+		f %WalkSpeed{0x00000041}
+	}
+}
+o
+{
+	Uuid %id{u4{5594704979864345234,5372689443679200370}}
+	s %t{"ezPxCharacterProxyComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		f %CapsuleCrouchHeight{0xCDCC4C3E}
+		f %CapsuleHeight{0x0000803F}
+		f %CapsuleRadius{0x0000803E}
+		u1 %CollisionLayer{0}
+		b %ConstrainedClimbMode{0}
+		b %ForceSlopeSliding{1}
+		f %Mass{0x0000C842}
+		Angle %MaxSlopeAngle{f{0xC2B8323F}}
+		f %MaxStepHeight{0x9A99993E}
 	}
 }
 o
@@ -95,6 +137,8 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{1647596995229317261,5186668026790429264}}
+			Uuid{u4{11231609723901893017,5094424647124404838}}
+			Uuid{u4{5594704979864345234,5372689443679200370}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -202,7 +246,7 @@ o
 			Uuid{u4{11427189543022138024,11030180439142049485}}
 		}
 		s %TypeName{"ezRcAgentComponent"}
-		u3 %TypeSize{456}
+		u3 %TypeSize{464}
 		u3 %TypeVersion{1}
 	}
 }

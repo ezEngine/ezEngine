@@ -176,17 +176,50 @@ void ezRcNavMeshComponent::VisualizePointsOfInterest()
   if (!m_bShowNavMesh && !g_AiShowNavMesh)
     return;
 
-  const auto& graph = GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest.GetGraph();
+  const auto& poi = GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest;
+  const auto& graph = poi.GetGraph();
+
+  const ezUInt32 uiCheckTimeStamp = poi.GetCheckVisibilityTimeStamp();
+  const ezUInt32 uiConsiderInvisibleTimeStamp = uiCheckTimeStamp - 20;
 
   ezDynamicArray<ezDebugRenderer::Line> visibleLines;
   ezDynamicArray<ezDebugRenderer::Line> hiddenLines;
 
   for (const auto& point : graph.GetPoints())
   {
-    auto& line = point.m_uiVisibleMarkerLow == 0 ? visibleLines.ExpandAndGetRef() : hiddenLines.ExpandAndGetRef();
+    if (point.m_uiVisibleMarker < uiConsiderInvisibleTimeStamp || (point.m_uiVisibleMarker & 3U) == 0)
+    {
+      // not updated for too long -> consider invisible
 
-    line.m_start = point.m_vFloorPosition;
-    line.m_end = point.m_vFloorPosition + ezVec3(0, 0, 1.0f);
+      auto& line = hiddenLines.ExpandAndGetRef();
+
+      line.m_start = point.m_vFloorPosition;
+      line.m_end = point.m_vFloorPosition + ezVec3(0, 0, 1.8f);
+      continue;
+    }
+
+    if ((point.m_uiVisibleMarker & 3U) == 3U) // fully visible
+    {
+      auto& line = visibleLines.ExpandAndGetRef();
+
+      line.m_start = point.m_vFloorPosition;
+      line.m_end = point.m_vFloorPosition + ezVec3(0, 0, 1.8f);
+      continue;
+    }
+
+    // else bottom half invisible
+    {
+      auto& line = hiddenLines.ExpandAndGetRef();
+      line.m_start = point.m_vFloorPosition;
+      line.m_end = point.m_vFloorPosition + ezVec3(0, 0, 1.0f);
+    }
+
+    // top half visible
+    {
+      auto& line = visibleLines.ExpandAndGetRef();
+      line.m_start = point.m_vFloorPosition + ezVec3(0, 0, 1.0f);
+      line.m_end = point.m_vFloorPosition + ezVec3(0, 0, 1.8f);
+    }
   }
 
   ezDebugRenderer::DrawLines(GetWorld(), visibleLines, ezColor::DeepSkyBlue);

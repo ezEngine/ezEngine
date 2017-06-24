@@ -6,6 +6,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Components/CharacterControllerComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +84,12 @@ void ezRcAgentComponent::OnSimulationStarted()
   m_tLastUpdate = ezTime::Seconds(-100);
 
   m_bInitialized = false;
+
+  ezCharacterControllerComponent* pCC = nullptr;
+  if (GetOwner()->TryGetComponentOfBaseType<ezCharacterControllerComponent>(pCC))
+  {
+    m_hCharacterController = pCC->GetHandle();
+  }
 }
 
 static float frand()
@@ -150,30 +157,31 @@ void ezRcAgentComponent::Update()
       ezQuat qRot;
       qRot.SetShortestRotation(ezVec3(1, 0, 0), vDir);
 
+      /// \todo Pass through character controller
       GetOwner()->SetGlobalRotation(qRot);
 
-      ezPhysicsWorldModuleInterface* pPhysicsInterface = GetManager()->m_pPhysicsInterface;
-      if (pPhysicsInterface)
-      {
-        /// \todo radius, step height, gravity dir
+      //ezPhysicsWorldModuleInterface* pPhysicsInterface = GetManager()->m_pPhysicsInterface;
+      //if (pPhysicsInterface)
+      //{
+      //  /// \todo radius, step height, gravity dir
 
-        float fStepHeight = 0.2f;
-        ezVec3 vStepHeight = vNewPos + ezVec3(0, 0, fStepHeight);
+      //  float fStepHeight = 0.2f;
+      //  ezVec3 vStepHeight = vNewPos + ezVec3(0, 0, fStepHeight);
 
-        ezPhysicsHitResult res;
-        if (pPhysicsInterface->SweepTestSphere(0.05f, vStepHeight, ezVec3(0, 0, -1), fStepHeight * 2, m_uiCollisionLayer, res))
-        {
-          vNewPos = vStepHeight;
-          vNewPos.z -= res.m_fDistance;
-        }
-        else
-        {
-          // falling
+      //  ezPhysicsHitResult res;
+      //  if (pPhysicsInterface->SweepTestSphere(0.05f, vStepHeight, ezVec3(0, 0, -1), fStepHeight * 2, m_uiCollisionLayer, res))
+      //  {
+      //    vNewPos = vStepHeight;
+      //    vNewPos.z -= res.m_fDistance;
+      //  }
+      //  else
+      //  {
+      //    // falling
 
-          vNewPos = vStepHeight;
-          vNewPos.z -= fStepHeight * 2;
-        }
-      }
+      //    vNewPos = vStepHeight;
+      //    vNewPos.z -= fStepHeight * 2;
+      //  }
+      //}
 
       if (m_bHasValidCorridor)
       {
@@ -189,10 +197,34 @@ void ezRcAgentComponent::Update()
         {
           rcPosNew = m_pCorridor->getPos();
           vNewPos = rcPosNew;
+          vNewPos.z = vOwnerPos.z;
         }
       }
 
-      GetOwner()->SetGlobalPosition(vNewPos);
+      if (!m_hCharacterController.IsInvalidated())
+      {
+        ezCharacterControllerComponent* pCharacter = nullptr;
+        if (GetWorld()->TryGetComponent(m_hCharacterController, pCharacter))
+        {
+          ezTransform curGlobal = GetOwner()->GetGlobalTransform();
+          ezTransform newGlobal(vNewPos, curGlobal.m_qRotation);
+
+          ezTransform rel;
+          rel.SetLocalTransform(curGlobal, newGlobal);
+
+          ezCharacterController_MoveCharacterMsg msg;
+          msg.m_fMoveForwards = ezMath::Max(0.0f, rel.m_vPosition.x);
+          msg.m_fMoveBackwards = ezMath::Max(0.0f, -rel.m_vPosition.x);
+          msg.m_fStrafeLeft = ezMath::Max(0.0f, -rel.m_vPosition.y);
+          msg.m_fStrafeRight = ezMath::Max(0.0f, rel.m_vPosition.y);
+          
+          pCharacter->MoveCharacter(msg);
+        }
+      }
+      else
+      {
+        GetOwner()->SetGlobalPosition(vNewPos);
+      }
     }
   }
 }

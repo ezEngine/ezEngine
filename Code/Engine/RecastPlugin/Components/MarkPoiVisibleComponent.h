@@ -34,4 +34,6 @@ protected:
 
   virtual void OnSimulationStarted() override;
 
+private:
+  ezUInt32 m_uiLastFirstCheckedPoint = 0;
 };

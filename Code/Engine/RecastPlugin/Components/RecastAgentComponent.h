@@ -81,6 +81,7 @@ protected:
   ezResult PlanNextSteps();
 
   ezTime m_tLastUpdate;
+  ezComponentHandle m_hCharacterController;
 
   bool m_bInitialized = false;
   bool m_bHasPath = false;

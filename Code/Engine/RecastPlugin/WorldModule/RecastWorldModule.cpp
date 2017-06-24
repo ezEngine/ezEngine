@@ -41,6 +41,8 @@ void ezRecastWorldModule::SetNavMesh(dtNavMesh* pNavMesh)
 
 void ezRecastWorldModule::UpdateCrowd(const UpdateContext& ctxt)
 {
+  m_NavMeshPointsOfInterest.IncreaseCheckVisibiblityTimeStamp(GetWorld()->GetClock().GetAccumulatedTime());
+
   if (m_pCrowd)
   {
     m_pCrowd->update((float)GetWorld()->GetClock().GetTimeDiff().GetSeconds(), nullptr);

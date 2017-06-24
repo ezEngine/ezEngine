@@ -9,26 +9,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-//////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezPxCharacterController_MoveCharacterMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxCharacterController_MoveCharacterMsg, 1, ezRTTIDefaultAllocator<ezPxCharacterController_MoveCharacterMsg>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("MoveForwards", m_fMoveForwards),
-    EZ_MEMBER_PROPERTY("MoveBackwards", m_fMoveBackwards),
-    EZ_MEMBER_PROPERTY("StrafeLeft", m_fStrafeLeft),
-    EZ_MEMBER_PROPERTY("StrafeRight", m_fStrafeRight),
-    EZ_MEMBER_PROPERTY("RotateLeft", m_fRotateLeft),
-    EZ_MEMBER_PROPERTY("RotateRight", m_fRotateRight),
-    EZ_MEMBER_PROPERTY("Run", m_bRun),
-    EZ_MEMBER_PROPERTY("Jump", m_bJump),
-    EZ_MEMBER_PROPERTY("Crouch", m_bCrouch),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -88,7 +69,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezPxCharacterController_MoveCharacterMsg, MoveCharacter),
     EZ_MESSAGE_HANDLER(ezCollisionMessage, OnCollision)
   }
   EZ_END_MESSAGEHANDLERS
@@ -208,7 +188,7 @@ void ezPxCharacterControllerComponent::Update()
   const bool touchesCeiling = collisionFlags.IsSet(ezPxCharacterCollisionFlags::Above);
   const bool canJump = isOnGround && !touchesCeiling;
   const bool wantsJump = (m_InputStateBits & InputStateBits::Jump) != 0;
-  bool wantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
+  m_bWantsCrouch = (m_InputStateBits & InputStateBits::Crouch) != 0;
 
   const float fGravityFactor = 1.0f;
   const float fJumpFactor = 1.0f;// 0.01f;
@@ -261,7 +241,7 @@ void ezPxCharacterControllerComponent::Update()
   //    // but it is not blocked when crouched
   //    if (!pModule->OverlapTestCapsule(pProxy->m_fCapsuleRadius, pProxy->m_fCapsuleCrouchHeight, tDestination, pProxy->m_uiCollisionLayer, pProxy->GetShapeId()))
   //    {
-  //      wantsCrouch = true;
+  //      m_bWantsCrouch = true;
   //    }
   //  }
   //}
@@ -294,7 +274,7 @@ void ezPxCharacterControllerComponent::Update()
   
   {
     const ezVec3 vMoveDiff = vNewVelocity * tDiff;
-    pProxy->Move(vMoveDiff, wantsCrouch);
+    RawMove(vMoveDiff);
   }
   auto posAfter = GetOwner()->GetGlobalPosition();
 
@@ -310,7 +290,7 @@ void ezPxCharacterControllerComponent::Update()
     ezPhysicsHitResult hitResult;
     if (pModule->SweepTestCapsule(pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
     {
-      pProxy->Move(ezVec3(0, 0, -hitResult.m_fDistance), wantsCrouch);
+      RawMove(ezVec3(0, 0, -hitResult.m_fDistance));
 
       // Footstep Surface Interaction
       if (!m_sWalkSurfaceInteraction.IsEmpty())
@@ -423,7 +403,7 @@ const char* ezPxCharacterControllerComponent::GetFallbackWalkSurfaceFile() const
   return m_hFallbackWalkSurface.GetResourceID();
 }
 
-void ezPxCharacterControllerComponent::MoveCharacter(ezPxCharacterController_MoveCharacterMsg& msg)
+void ezPxCharacterControllerComponent::MoveCharacter(ezCharacterController_MoveCharacterMsg& msg)
 {
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
 
@@ -447,6 +427,16 @@ void ezPxCharacterControllerComponent::MoveCharacter(ezPxCharacterController_Mov
   {
     m_InputStateBits |= InputStateBits::Crouch;
   }
+}
+
+
+void ezPxCharacterControllerComponent::RawMove(const ezVec3& vMove)
+{
+  ezPxCharacterProxyComponent* pProxy = nullptr;
+  if (!GetWorld()->TryGetComponent(m_hProxy, pProxy))
+    return;
+
+  pProxy->Move(vMove, m_bWantsCrouch);
 }
 
 void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
