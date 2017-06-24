@@ -20,14 +20,6 @@ namespace ABI
         struct IHolographicSpaceCameraAddedEventArgs;
         struct IHolographicSpaceCameraRemovedEventArgs;
       }
-
-      namespace DirectX
-      {
-        namespace Direct3D11
-        {
-          struct IDirect3DDevice;
-        }
-      }
     }
   }
 }
@@ -56,12 +48,6 @@ public:
   /// (as of writing our UWP window implementation actually doesn't support more than this one preexisting window
   ezResult InitForMainCoreWindow();
 
-  /// Returns the DXGI adapter that should be used for device creation.
-  IDXGIAdapter3* GetDxgiAdapter() const { return m_pDxgiAdapter.Get(); }
-
-  /// \brief Set GAL default device for the holographic space.
-  ezResult SetDX11Device();
-
   /// Wheather vr/mr headsets are supported at all.
   ///
   /// True for all x64 Windows beyond Creator's Update if the headset was setup already. 
@@ -71,6 +57,12 @@ public:
   ///
   /// Can be called *before* being initialized with a window.
   bool IsAvailable() const;
+
+
+  // Internal
+public:
+
+  ABI::Windows::Graphics::Holographic::IHolographicSpace* GetInternalHolographicSpace() { return m_pHolographicSpace.Get(); }
 
 private:
 
@@ -88,12 +80,6 @@ private:
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;
   EventRegistrationToken m_eventRegistrationOnCameraRemoved;
-
-  /// DXGI adapter given by holographic space.
-  Microsoft::WRL::ComPtr<IDXGIAdapter3> m_pDxgiAdapter;
-  /// DX11 interop device with current ezGALDX11 device.
-  ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> m_pDX11InteropDevice;
-
 
   ezUniquePtr<ezWindowsHolographicLocationService> m_pDefaultLocationService;
 };

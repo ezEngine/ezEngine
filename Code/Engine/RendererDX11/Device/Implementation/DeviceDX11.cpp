@@ -51,20 +51,9 @@ ezGALDeviceDX11::~ezGALDeviceDX11()
 
 // Init & shutdown functions
 
-ezResult ezGALDeviceDX11::InitPlatform()
+ezResult ezGALDeviceDX11::InitPlatform(DWORD dwFlags, IDXGIAdapter* pUsedAdapter)
 {
   EZ_LOG_BLOCK("ezGALDeviceDX11::InitPlatform");
-
-  // Enable BGRA support.
-  // Without this, it won't be possible to set the device to a holographic space if one is around.
-  // According to documentation this is widely supported, so we just leave it always on.
-  //
-  // Note that it is not entirely clear why this error comes up. The error message is just:
-  // "Error: Call 'm_pHolographicSpace->SetDirect3D11Device(m_pDX11InteropDevice.Get())' failed with: The parameter is incorrect."
-  // The documentation only mentions that D3D11_CREATE_DEVICE_BGRA_SUPPORT is necessary for Direct2D interop (which we're not relying on as of writing).
-  DWORD dwFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-
-  IDXGIAdapter* pAdapater = static_cast<IDXGIAdapter*>(m_Description.m_pDXGIAdapterOverwrite);
 
 retry:
 
@@ -89,7 +78,7 @@ retry:
   int FeatureLevelIdx = 0;
   for (FeatureLevelIdx = 0; FeatureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); FeatureLevelIdx++)
   {
-    if (SUCCEEDED(D3D11CreateDevice(pAdapater, D3D_DRIVER_TYPE_HARDWARE, nullptr, dwFlags, &FeatureLevels[FeatureLevelIdx], 1, D3D11_SDK_VERSION, &m_pDevice, &m_FeatureLevel, &pImmediateContext)))
+    if (SUCCEEDED(D3D11CreateDevice(pUsedAdapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, dwFlags, &FeatureLevels[FeatureLevelIdx], 1, D3D11_SDK_VERSION, &m_pDevice, &m_FeatureLevel, &pImmediateContext)))
     {
       break;
     }
@@ -201,6 +190,11 @@ retry:
   }
 
   return EZ_SUCCESS;
+}
+
+ezResult ezGALDeviceDX11::InitPlatform()
+{
+  return InitPlatform(0, nullptr);
 }
 
 ezResult ezGALDeviceDX11::ShutdownPlatform()

@@ -13,6 +13,7 @@ struct IDXGIAdapter1;
 struct IDXGIDevice1;
 struct ID3D11Resource;
 struct ID3D11Query;
+struct IDXGIAdapter;
 enum DXGI_FORMAT;
 enum D3D_FEATURE_LEVEL;
 
@@ -44,6 +45,12 @@ public:
 protected:
 
   // Init & shutdown functions
+
+  /// \brief Internal version of device init that allows to modify device creation flags and graphics adapter.
+  ///
+  /// \param pUsedAdapter
+  ///   Null means default adapter.
+  ezResult InitPlatform(DWORD flags, IDXGIAdapter* pUsedAdapter);
 
   virtual ezResult InitPlatform() override;
 

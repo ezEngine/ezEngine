@@ -2,16 +2,6 @@
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/HolographicLocationService.h>
 
-#include <RendererFoundation/Device/Device.h>
-#include <RendererDX11/Device/DeviceDX11.h>
-
-#include <d3d11.h>
-#include <dxgi1_4.h>
-#pragma warning (push)
-#pragma warning (disable: 4467) // warning C4467: usage of ATL attributes is deprecated
-#include <windows.graphics.directx.direct3d11.interop.h>
-#pragma warning (pop)
-#include <windows.graphics.directx.direct3d11.h>
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
 
@@ -60,6 +50,8 @@ ezWindowsHolographicSpace::~ezWindowsHolographicSpace()
 
 ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
 {
+  EZ_LOG_BLOCK("ezWindowsHolographicSpace::InitForMainCoreWindow");
+
   if (!m_pHolographicSpaceStatics)
     return EZ_FAILURE;
 
@@ -81,35 +73,6 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpaceStatics->CreateForCoreWindow(pCoreWindow.Get(), &m_pHolographicSpace));
   }
 
-  // Find out which DXGI factory should be used for DX11 device creation.
-  {
-    ABI::Windows::Graphics::Holographic::HolographicAdapterId adapterID;
-    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->get_PrimaryAdapterId(&adapterID));
-    LUID id;
-    id.HighPart = adapterID.HighPart;
-    id.LowPart = adapterID.LowPart;
-    
-    // When a primary adapter ID is given to the app, the app should find the corresponding DXGI adapter and use it to create Direct3D devices
-    // and device contexts. Otherwise, there is no restriction on the DXGI adapter the app can use.
-    if (adapterID.HighPart != 0 && adapterID.LowPart != 0)
-    {
-      UINT createFlags = 0;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      createFlags |= DXGI_CREATE_FACTORY_DEBUG;
-#endif
-      // Create the DXGI factory 4.
-      ComPtr<IDXGIFactory1> pDxgiFactory;
-      EZ_HRESULT_TO_FAILURE_LOG(CreateDXGIFactory2(createFlags, IID_PPV_ARGS(pDxgiFactory.GetAddressOf())));
-      ComPtr<IDXGIFactory4> pDxgiFactory4;
-      EZ_HRESULT_TO_FAILURE_LOG(pDxgiFactory.As(&pDxgiFactory4));
-
-      // Retrieve the adapter specified by the holographic space.
-      Microsoft::WRL::ComPtr<IDXGIAdapter3> m_pDxgiAdapter;
-      EZ_HRESULT_TO_FAILURE_LOG(pDxgiFactory4->EnumAdapterByLuid(id, IID_PPV_ARGS(m_pDxgiAdapter.GetAddressOf())));
-    }
-  }
-
-  
   // Register to camera added/removed
   {
     using OnCameraAdded = __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraAddedEventArgs;
@@ -148,35 +111,6 @@ void ezWindowsHolographicSpace::DeInit()
     m_pHolographicSpace->remove_CameraRemoved(m_eventRegistrationOnCameraRemoved);
     m_pHolographicSpace = nullptr;
   }
-}
-
-ezResult ezWindowsHolographicSpace::SetDX11Device()
-{
-  // Retrieve WinRT DX11 device pointer.
-  ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> pDX11DeviceWinRT;
-  {
-    auto pDX11DeviceEz = static_cast<ezGALDeviceDX11*>(ezGALDevice::GetDefaultDevice());
-    if (!pDX11DeviceEz)
-    {
-      ezLog::Error("Windows holographic space requires the default device to be a DX11 device!");
-      return EZ_FAILURE;
-    }
-
-    ComPtr<ID3D11Device> pDX11DeviceWinAPI = pDX11DeviceEz->GetDXDevice();
-
-    // Acquire the DXGI interface for the Direct3D device.
-    ComPtr<IDXGIDevice3> pDxgiDevice;
-    EZ_HRESULT_TO_FAILURE_LOG(pDX11DeviceWinAPI.As(&pDxgiDevice));
-
-    // Wrap the native device using a WinRT interop object.
-    EZ_HRESULT_TO_FAILURE_LOG(CreateDirect3D11DeviceFromDXGIDevice(pDxgiDevice.Get(), &m_pDX11InteropDevice));
-  }
-
-  EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->SetDirect3D11Device(m_pDX11InteropDevice.Get()));
-
-  ezLog::Info("Set DX11 device to holographic space!");
-
-  return EZ_SUCCESS;
 }
 
 /*

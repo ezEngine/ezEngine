@@ -34,9 +34,6 @@ struct ezGALDeviceCreationDescription
   ezGALSwapChainCreationDescription m_PrimarySwapChainDescription;
   bool m_bDebugDevice;
   bool m_bCreatePrimarySwapChain;
-
-  /// DX11 only. Optional overwrite for DXGI adapter.
-  void* m_pDXGIAdapterOverwrite;
 };
 
 struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>

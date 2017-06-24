@@ -14,8 +14,7 @@ inline ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
 inline ezGALDeviceCreationDescription::ezGALDeviceCreationDescription()
   : m_PrimarySwapChainDescription(),
     m_bDebugDevice(false),
-    m_bCreatePrimarySwapChain(true),
-    m_pDXGIAdapterOverwrite(nullptr)
+    m_bCreatePrimarySwapChain(true)
 {
 }
 
