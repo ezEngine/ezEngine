@@ -60,3 +60,5 @@ HRESULT ezWindowsHolographicLocationService::OnLocatabilityChanged(ABI::Windows:
 
   return S_OK;
 }
+
+EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_HolographicLocationService);

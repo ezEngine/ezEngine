@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/HolographicLocationService.h>
+#include <WindowsMixedReality/Graphics/HolographicCamera.h>
 
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
@@ -93,15 +94,19 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     m_pDefaultLocationService = EZ_DEFAULT_NEW(ezWindowsHolographicLocationService, pDefaultSpatialLocator);
   }
 
-  ezLog::Info("Initialized new holographic space for main window!");
+ezLog::Info("Initialized new holographic space for main window!");
 
-  return EZ_SUCCESS;
+return EZ_SUCCESS;
 }
 
 void ezWindowsHolographicSpace::DeInit()
 {
   if (!m_pHolographicSpaceStatics)
     return;
+
+  for (auto pCamera : m_cameras)
+    EZ_DEFAULT_DELETE(pCamera);
+  m_cameras.Clear();
 
   m_pDefaultLocationService.Reset();
 
@@ -165,7 +170,7 @@ bool ezWindowsHolographicSpace::IsAvailable() const
     HString deviceFamily;
     if (FAILED(pAnalyticsVersionInfo->get_DeviceFamily(deviceFamily.GetAddressOf())))
       return false;
-    
+
     return ezStringUtils::IsEqual(ezStringUtf8(deviceFamily).GetData(), "Windows.Holographic");
 #if EZ_WINRT_SDK_VERSION > EZ_WIN_SDK_VERSION_10_RS1
   }
@@ -178,19 +183,91 @@ bool ezWindowsHolographicSpace::IsAvailable() const
 #endif
 }
 
+ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> ezWindowsHolographicSpace::StartNewHolographicFrame()
+{
+  EZ_ASSERT_DEBUG(m_pHolographicSpace, "There is no holographic space.");
+
+  // Handle added/removed holographic cameras.
+  ProcessAddedRemovedCameras();
+
+  // Create holographic frame.
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> pHolographicFrame;
+  HRESULT result = m_pHolographicSpace->CreateNextFrame(pHolographicFrame.GetAddressOf());
+  if (FAILED(result))
+  {
+    ezLog::Error("Failed to create holographic frame: '{0}'", ezHRESULTtoString(result));
+    return nullptr;
+  }
+
+  // Use it to update all our cameras.
+  UpdateCameraPoses(pHolographicFrame);
+
+
+  return std::move(pHolographicFrame);
+}
+
+void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
+{
+  ezLock<ezMutex> lock(m_cameraMutex);
+
+  // Process removals.
+  for (const auto& pCamera : m_pendingCameraRemovals)
+  {
+    for (ezUInt32 i = 0; i < m_cameras.GetCount(); ++i)
+    {
+      if (m_cameras[i]->GetInternalHolographicCamera() == pCamera.Get())
+      {
+        EZ_DEFAULT_DELETE(m_cameras[i]);
+        m_cameras.RemoveAt(i);
+        break;
+      }
+    }
+  }
+  m_pendingCameraRemovals.Clear();
+
+  // Process additions.
+  for (const auto& cameraAddition : m_pendingCameraAdditions)
+  {
+    m_cameras.PushBack(EZ_DEFAULT_NEW(ezWindowsHolographicCamera, cameraAddition.m_pCamera));
+    cameraAddition.m_pDeferral->Complete();
+  }
+  m_pendingCameraAdditions.Clear();
+}
+
+ezResult ezWindowsHolographicSpace::UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame)
+{
+  // Get prediction.
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFramePrediction> pPrediction;
+  EZ_HRESULT_TO_FAILURE(pHolographicFrame->get_CurrentPrediction(pPrediction.GetAddressOf()));
+
+  // Get camera poses.
+  ComPtr<ABI::Windows::Foundation::Collections::IVectorView<ABI::Windows::Graphics::Holographic::HolographicCameraPose*>> pCameraPoses;
+  EZ_HRESULT_TO_FAILURE(pPrediction->get_CameraPoses(&pCameraPoses));
+
+  // TODO
+  // .........
+
+  return EZ_SUCCESS;
+}
+
 HRESULT ezWindowsHolographicSpace::OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args)
 {
-  // todo
+  ezLock<ezMutex> lock(m_cameraMutex);
+
+  auto& pendingAddition = m_pendingCameraAdditions.ExpandAndGetRef();
+  EZ_HRESULT_TO_FAILURE_LOG(args->get_Camera(pendingAddition.m_pCamera.GetAddressOf()));
+  EZ_HRESULT_TO_FAILURE_LOG(args->GetDeferral(pendingAddition.m_pDeferral.GetAddressOf()));
 
   return S_OK;
 }
 
 HRESULT ezWindowsHolographicSpace::OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args)
 {
+  ezLock<ezMutex> lock(m_cameraMutex);
 
-  // Holographic frame predictions will not include any information about this camera until
-  // the deferral is completed.
-  //deferral->Complete();
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pCamera;
+  EZ_HRESULT_TO_FAILURE_LOG(args->get_Camera(pCamera.GetAddressOf()));
+  m_pendingCameraRemovals.PushBack(std::move(pCamera));
 
   return S_OK;
 }

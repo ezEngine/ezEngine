@@ -23,6 +23,7 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
 SET (LINK_LIBRARIES 
   Foundation
   Core
+  System
   RendererFoundation
   RendererDX11
 )

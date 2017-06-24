@@ -34,7 +34,7 @@
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <WindowsMixedReality/HolographicDX11Device.h>
+#include <WindowsMixedReality/Graphics/HolographicDX11Device.h>
 #endif
 
 

@@ -3,7 +3,6 @@
 #include <WindowsMixedReality/Basics.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 
-
 namespace ABI
 {
   namespace Windows
@@ -24,6 +23,8 @@ namespace ABI
     }
   }
 }
+
+class ezGALHolographicSwapChainDX11;
 
 /// \brief A specialization of ezGALDeviceDX11 for windows holographic.
 ///
@@ -51,6 +52,9 @@ protected:
 
   virtual ezGALSwapChain* CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description) override;
 
+  virtual void DestroySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
+
+
   virtual void PresentPlatform(ezGALSwapChain* pSwapChain) override;
 
   // Misc functions
@@ -65,5 +69,6 @@ private:
   ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> m_pDX11InteropDevice;
 
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> m_pCurrentHolographicFrame;
+  bool m_bPresentedCurrentFrame;
 };
 

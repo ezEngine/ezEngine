@@ -10,6 +10,10 @@ namespace ABI
 {
   namespace Windows
   {
+    namespace Foundation
+    {
+      struct IDeferral;
+    }
     namespace Graphics
     {
       namespace Holographic
@@ -19,12 +23,16 @@ namespace ABI
 
         struct IHolographicSpaceCameraAddedEventArgs;
         struct IHolographicSpaceCameraRemovedEventArgs;
+
+        struct IHolographicCamera;
+        struct IHolographicFrame;
       }
     }
   }
 }
 
 class ezWindowsHolographicLocationService;
+class ezWindowsHolographicCamera;
 struct IDXGIAdapter3;
 
 /// \brief Integration of Windows HolographicSpace (WinRT).
@@ -59,8 +67,19 @@ public:
   bool IsAvailable() const;
 
 
+  // Cameras
+public:
+
+  ezArrayPtr<ezWindowsHolographicCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
+
   // Internal
 public:
+
+  /// \brief Called by holographic device.
+  ///
+  /// Applies deferred camera add/remove and updates camera poses.
+  /// May change swap chain backbuffer sizes.
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> StartNewHolographicFrame();
 
   ABI::Windows::Graphics::Holographic::IHolographicSpace* GetInternalHolographicSpace() { return m_pHolographicSpace.Get(); }
 
@@ -68,8 +87,19 @@ private:
 
   void DeInit();
 
+  /// \brief Processes queued holographic camera additions and removals.
+  ///
+  /// Called by HolographicDX11Device.
+  void ProcessAddedRemovedCameras();
+
+  /// \brief Updates all camera poses from holographic frame.
+  ezResult UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame);
+
+  // Callbacks for camera add/remove
   HRESULT OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args);
   HRESULT OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args);
+
+
 
 
   /// Static holographic space access. Created on startup. If this is null nothing else will work.
@@ -77,10 +107,21 @@ private:
   /// Windows holographic space, created in init method for a specific window.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
 
+  ezUniquePtr<ezWindowsHolographicLocationService> m_pDefaultLocationService;
+
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;
   EventRegistrationToken m_eventRegistrationOnCameraRemoved;
 
-  ezUniquePtr<ezWindowsHolographicLocationService> m_pDefaultLocationService;
+  struct PendingCameraAddition
+  {
+    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> m_pCamera;
+    ComPtr<ABI::Windows::Foundation::IDeferral> m_pDeferral;
+  };
+
+  ezMutex m_cameraMutex;
+  ezDynamicArray<ezWindowsHolographicCamera*> m_cameras;
+  ezDynamicArray<ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera>> m_pendingCameraRemovals;
+  ezDynamicArray<PendingCameraAddition> m_pendingCameraAdditions;
 };
 
