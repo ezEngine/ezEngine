@@ -179,16 +179,18 @@ void ezRcNavMeshComponent::VisualizePointsOfInterest()
   const auto& graph = GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest.GetGraph();
 
   ezDynamicArray<ezDebugRenderer::Line> visibleLines;
+  ezDynamicArray<ezDebugRenderer::Line> hiddenLines;
 
   for (const auto& point : graph.GetPoints())
   {
-    auto& line = visibleLines.ExpandAndGetRef();
+    auto& line = point.m_uiVisibleMarkerLow == 0 ? visibleLines.ExpandAndGetRef() : hiddenLines.ExpandAndGetRef();
 
     line.m_start = point.m_vFloorPosition;
     line.m_end = point.m_vFloorPosition + ezVec3(0, 0, 1.0f);
   }
 
   ezDebugRenderer::DrawLines(GetWorld(), visibleLines, ezColor::DeepSkyBlue);
+  ezDebugRenderer::DrawLines(GetWorld(), hiddenLines, ezColor::SlateGrey);
 }
 
 //////////////////////////////////////////////////////////////////////////

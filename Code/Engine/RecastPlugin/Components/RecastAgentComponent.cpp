@@ -44,12 +44,12 @@ struct ezRcPos
     m_Pos[2] = pos[2];
   }
 
-  operator const float* () const
+  operator const float*() const
   {
     return &m_Pos[0];
   }
 
-  operator const ezVec3 () const
+  operator ezVec3() const
   {
     return ezVec3(m_Pos[0], m_Pos[2], m_Pos[1]);
   }

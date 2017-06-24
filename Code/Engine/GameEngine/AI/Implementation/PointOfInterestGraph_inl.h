@@ -24,6 +24,9 @@ POINTTYPE& ezPointOfInterestGraph<POINTTYPE>::AddPoint(const ezVec3& position)
 template<typename POINTTYPE>
 void ezPointOfInterestGraph<POINTTYPE>::FindPointsOfInterest(const ezVec3& position, float radius, ezDynamicArray<ezUInt32>& out_Points) const
 {
+  if (m_Octree.IsEmpty())
+    return;
+
   struct Data
   {
     ezDynamicArray<ezUInt32>* m_pResults;
