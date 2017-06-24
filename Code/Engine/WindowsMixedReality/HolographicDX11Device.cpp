@@ -113,21 +113,49 @@ ezResult ezGALHolographicDeviceDX11::ShutdownPlatform()
 
 ezGALSwapChain* ezGALHolographicDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
 {
+  auto pHolographicSpace = ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
+  EZ_ASSERT_DEBUG(pHolographicSpace, "There is no holographic space.");
+
   // Todo: Create mock swap chain? Or create swapchain per camera?
   return nullptr;
 }
 
 void ezGALHolographicDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 {
-  // Todo: Present holographic frame.
+  EZ_ASSERT_DEV(m_pCurrentHolographicFrame, "There is no holographic frame.");
+
+  // Presents frame and blocks until done.
+  ABI::Windows::Graphics::Holographic::HolographicFramePresentResult presentResult;
+  HRESULT result = m_pCurrentHolographicFrame->PresentUsingCurrentPrediction(&presentResult);
+  if (FAILED(result))
+  {
+    ezLog::Error("Failed to present holographic frame: {1}", ezHRESULTtoString(result));
+  }
+
+  // TODO: Discard all camera views targets.
+
+  if (presentResult == ABI::Windows::Graphics::Holographic::HolographicFramePresentResult_DeviceRemoved)
+  {
+    // TODO: DEVICE LOST.
+  }
 }
 
 void ezGALHolographicDeviceDX11::BeginFramePlatform()
 {
-  // Todo: Create holographic frame.
+  EZ_ASSERT_DEV(!m_pCurrentHolographicFrame, "There is already a running holographic frame.");
+
+  auto pHolographicSpace = ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
+  EZ_ASSERT_DEBUG(pHolographicSpace, "There is no holographic space.");
+
+  HRESULT result = pHolographicSpace->CreateNextFrame(m_pCurrentHolographicFrame.GetAddressOf());
+  if (FAILED(result))
+  {
+    ezLog::Error("Failed to create holographic frame: {1}", ezHRESULTtoString(result));
+  }
 }
 
 void ezGALHolographicDeviceDX11::EndFramePlatform()
 {
-  // Todo: Destroy old holographic frame.
+  EZ_ASSERT_DEV(m_pCurrentHolographicFrame, "There is no holographic frame.");
+  m_pCurrentHolographicFrame.Reset();
 }

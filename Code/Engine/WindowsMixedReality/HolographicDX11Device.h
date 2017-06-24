@@ -17,6 +17,10 @@ namespace ABI
           struct IDirect3DDevice;
         }
       }
+      namespace Holographic
+      {
+        struct IHolographicFrame;
+      }
     }
   }
 }
@@ -59,5 +63,7 @@ private:
 
   /// WinRT DX11 interop device with current ezGALDX11 device.
   ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> m_pDX11InteropDevice;
+
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> m_pCurrentHolographicFrame;
 };
 
