@@ -75,7 +75,7 @@ protected:
   //ezDynamicArray<ezTrailParticlePointsData8> m_TrailPoints8;
   //ezDynamicArray<ezTrailParticlePointsData16> m_TrailPoints16;
   //ezDynamicArray<ezTrailParticlePointsData32> m_TrailPoints32;
-  ezDynamicArray<ezTrailParticlePointsData64> m_TrailPoints64;
+  ezDynamicArray<ezTrailParticlePointsData64, ezAlignedAllocatorWrapper> m_TrailPoints64;
   ezDynamicArray<ezUInt16> m_FreeTrailData;
 };
 
