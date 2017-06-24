@@ -59,7 +59,8 @@ struct ezPropertyFlags
     ReadOnly = EZ_BIT(8),     ///< Can only be read but not modified.
     Hidden = EZ_BIT(9),       ///< This property should not appear in the UI.
     Phantom = EZ_BIT(10),     ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used for data driven types, e.g. by the Visual Shader asset.
-    Default = 0
+    Default = 0,
+    Void = 0
   };
 
   struct Bits
@@ -113,6 +114,12 @@ struct ezPropertyFlags
 
 };
 
+template<>
+inline ezBitflags<ezPropertyFlags> ezPropertyFlags::GetParameterFlags<void>()
+{
+  return ezBitflags<ezPropertyFlags>();
+}
+
 EZ_DECLARE_FLAGS_OPERATORS(ezPropertyFlags)
 
 /// \brief Describes what category a property belongs to.
@@ -127,7 +134,7 @@ struct ezPropertyCategory
     Function, ///< The property is a function which can be called. Cast to ezAbstractFunctionProperty.
     Array,    ///< The property is actually an array of values. The array dimensions might be changeable. Cast to ezAbstractArrayProperty.
     Set,      ///< The property is actually a set of values. Cast to ezAbstractArrayProperty.
-    Map,
+    Map,      ///< The property is actually a map from string to values. Cast to ezAbstractArrayProperty.
     Default = Member
   };
 };
@@ -486,7 +493,7 @@ struct ezContainerSubTypeResolver<ezMap<K, T> >
 
 
 /// \brief Describes what kind of function a property is.
-struct ezFunctionPropertyType
+struct ezFunctionType
 {
   typedef ezUInt8 StorageType;
 
@@ -494,7 +501,7 @@ struct ezFunctionPropertyType
   {
     Member, ///< A normal member function, a valid instance pointer must be provided to call.
     StaticMember, ///< A static member function, instance pointer will be ignored.
-    Constructor, ///< A constructor. Return value must provide a void* for placement new.
+    Constructor, ///< A constructor. Return value is a void* pointing to the new instance allocated with the default allocator.
     Default = Member
   };
 };
@@ -511,7 +518,7 @@ public:
 
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Function; }
   /// \brief Returns the type of function, see ezFunctionPropertyType::Enum.
-  virtual ezFunctionPropertyType::Enum GetFunctionType() const = 0;
+  virtual ezFunctionType::Enum GetFunctionType() const = 0;
   /// \brief Returns the type of the return value.
   virtual const ezRTTI* GetReturnType() const = 0;
   /// \brief Returns property flags of the return value.

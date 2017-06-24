@@ -13,6 +13,7 @@
 
 struct ezRTTIAllocator;
 class ezAbstractProperty;
+class ezAbstractFunctionProperty;
 class ezAbstractMessageHandler;
 struct ezMessageSenderInfo;
 class ezPropertyAttribute;
@@ -32,7 +33,7 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
   ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
-    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezPropertyAttribute*> attributes,
+    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
     ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI*(*fnVerifyParent)());
 
 
@@ -68,6 +69,8 @@ public:
 
   /// \brief Returns the array of properties that this type has. Does NOT include properties from base classes.
   EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; } // [tested]
+
+  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractFunctionProperty*>& GetFunctions() const { return m_Functions; }
 
   EZ_ALWAYS_INLINE const ezArrayPtr<ezPropertyAttribute*>& GetAttributes() const { return m_Attributes; }
 
@@ -131,6 +134,7 @@ protected:
   const char* m_szPluginName;
   const char* m_szTypeName;
   ezArrayPtr<ezAbstractProperty*> m_Properties;
+  ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
   void RegisterType(ezRTTI* pType);

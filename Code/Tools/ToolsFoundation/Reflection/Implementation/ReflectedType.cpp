@@ -5,11 +5,70 @@
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAttributeHolder, ezNoBase, 1, ezRTTINoAllocator)
+{
+  flags.Add(ezTypeFlags::Abstract);
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+ezAttributeHolder::ezAttributeHolder()
+{
+
+}
+
+ezAttributeHolder::~ezAttributeHolder()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+}
+
+void ezAttributeHolder::operator=(const ezAttributeHolder& rhs)
+{
+  m_Attributes = rhs.m_Attributes;
+  rhs.m_Attributes.Clear();
+
+  m_ReferenceAttributes = rhs.m_ReferenceAttributes;
+}
+
+ezUInt32 ezAttributeHolder::GetCount() const
+{
+  return ezMath::Max(m_ReferenceAttributes.GetCount(), m_Attributes.GetCount());
+}
+
+ezPropertyAttribute* ezAttributeHolder::GetValue(ezUInt32 uiIndex) const
+{
+  if (!m_ReferenceAttributes.IsEmpty())
+    return m_ReferenceAttributes[uiIndex];
+
+  return m_Attributes[uiIndex];
+}
+
+void ezAttributeHolder::SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value)
+{
+  m_Attributes[uiIndex] = value;
+}
+
+void ezAttributeHolder::Insert(ezUInt32 uiIndex, ezPropertyAttribute* value)
+{
+  m_Attributes.Insert(value, uiIndex);
+}
+
+void ezAttributeHolder::Remove(ezUInt32 uiIndex)
+{
+  m_Attributes.RemoveAt(uiIndex);
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedPropertyDescriptor
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 2, ezRTTIDefaultAllocator<ezReflectedPropertyDescriptor>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezAttributeHolder, 2, ezRTTIDefaultAllocator<ezReflectedPropertyDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -18,7 +77,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 2, ezRTT
     EZ_MEMBER_PROPERTY("Type", m_sType),
     EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
     EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
 }
@@ -105,51 +163,91 @@ void ezReflectedPropertyDescriptor::operator=(const ezReflectedPropertyDescripto
   m_Flags = rhs.m_Flags;
   m_ConstantValue = rhs.m_ConstantValue;
 
-  m_Attributes = rhs.m_Attributes;
-  rhs.m_Attributes.Clear();
-
-  m_ReferenceAttributes = rhs.m_ReferenceAttributes;
+  ezAttributeHolder::operator=(rhs);
 }
 
 ezReflectedPropertyDescriptor::~ezReflectedPropertyDescriptor()
 {
-  for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
 }
 
-ezUInt32 ezReflectedPropertyDescriptor::GetCount() const
+
+////////////////////////////////////////////////////////////////////////
+// ezFunctionParameterDescriptor
+////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFunctionArgumentDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezFunctionArgumentDescriptor>)
 {
-  return ezMath::Max(m_ReferenceAttributes.GetCount(), m_Attributes.GetCount());
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Type", m_sType),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor()
+{
 }
 
-ezPropertyAttribute* ezReflectedPropertyDescriptor::GetValue(ezUInt32 uiIndex) const
+ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor(const char* szType, ezBitflags<ezPropertyFlags> flags)
+  : m_sType(szType), m_Flags(flags)
 {
-  if (!m_ReferenceAttributes.IsEmpty())
-    return m_ReferenceAttributes[uiIndex];
-
-  return m_Attributes[uiIndex];
 }
 
-void ezReflectedPropertyDescriptor::SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value)
+
+////////////////////////////////////////////////////////////////////////
+// ezReflectedFunctionDescriptor
+////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedFunctionDescriptor, ezAttributeHolder, 1, ezRTTIDefaultAllocator<ezReflectedFunctionDescriptor>)
 {
-  m_Attributes[uiIndex] = value;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
+    EZ_ENUM_MEMBER_PROPERTY("Type", ezFunctionType, m_Type),
+    EZ_MEMBER_PROPERTY("ReturnValue", m_ReturnValue),
+    EZ_ARRAY_MEMBER_PROPERTY("Arguments", m_Arguments),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor()
+{
 }
 
-void ezReflectedPropertyDescriptor::Insert(ezUInt32 uiIndex, ezPropertyAttribute* value)
+ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor(const char* szName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, const ezArrayPtr<ezPropertyAttribute* const> attributes)
+  : m_sName(szName), m_Flags(flags), m_Type(type)
 {
-  m_Attributes.Insert(value, uiIndex);
+  m_ReferenceAttributes = attributes;
+
 }
 
-void ezReflectedPropertyDescriptor::Remove(ezUInt32 uiIndex)
+ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor(const ezReflectedFunctionDescriptor& rhs)
 {
-  m_Attributes.RemoveAt(uiIndex);
+  operator= (rhs);
+}
+
+ezReflectedFunctionDescriptor::~ezReflectedFunctionDescriptor()
+{
+}
+
+void ezReflectedFunctionDescriptor::operator=(const ezReflectedFunctionDescriptor& rhs)
+{
+  m_sName = rhs.m_sName;
+  m_Flags = rhs.m_Flags;
+  m_ReturnValue = rhs.m_ReturnValue;
+  m_Arguments = rhs.m_Arguments;
+  ezAttributeHolder::operator=(rhs);
 }
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedTypeDescriptor
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedTypeDescriptor>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezAttributeHolder, 1, ezRTTIDefaultAllocator<ezReflectedTypeDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -158,7 +256,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezNoBase, 1, ezRTTIDef
     EZ_MEMBER_PROPERTY("ParentTypeName", m_sParentTypeName),
     EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezTypeFlags, m_Flags),
     EZ_ARRAY_MEMBER_PROPERTY("Properties", m_Properties),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_ARRAY_MEMBER_PROPERTY("Functions", m_Functions),
     EZ_MEMBER_PROPERTY("TypeSize", m_uiTypeSize),
     EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
   }
@@ -169,34 +267,5 @@ EZ_END_STATIC_REFLECTED_TYPE
 
 ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor()
 {
-  for (auto pAttr : m_Attributes)
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
 }
 
-ezUInt32 ezReflectedTypeDescriptor::GetCount() const
-{
-  return ezMath::Max(m_ReferenceAttributes.GetCount(), m_Attributes.GetCount());
-}
-
-ezPropertyAttribute* ezReflectedTypeDescriptor::GetValue(ezUInt32 uiIndex) const
-{
-  if (!m_ReferenceAttributes.IsEmpty())
-    return m_ReferenceAttributes[uiIndex];
-
-  return m_Attributes[uiIndex];
-}
-
-void ezReflectedTypeDescriptor::SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value)
-{
-  m_Attributes[uiIndex] = value;
-}
-
-void ezReflectedTypeDescriptor::Insert(ezUInt32 uiIndex, ezPropertyAttribute* value)
-{
-  m_Attributes.Insert(value, uiIndex);
-}
-
-void ezReflectedTypeDescriptor::Remove(ezUInt32 uiIndex)
-{
-  m_Attributes.RemoveAt(uiIndex);
-}

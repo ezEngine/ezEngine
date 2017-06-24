@@ -43,6 +43,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PropertyFlags")
   {
+    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<void>() == (ezPropertyFlags::Void));
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const char*>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Const));
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<int>() == ezPropertyFlags::StandardType);
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<int&>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Reference));

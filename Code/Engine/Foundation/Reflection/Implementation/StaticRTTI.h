@@ -165,6 +165,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
     static AllocatorType Allocator;                                   \
     static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>();\
     static ezArrayPtr<ezAbstractProperty*> Properties;                \
+    static ezArrayPtr<ezAbstractFunctionProperty*> Functions;         \
     static ezArrayPtr<ezPropertyAttribute*> Attributes;               \
     static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers;     \
     static ezArrayPtr<ezMessageSenderInfo> MessageSenders;
@@ -198,7 +199,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
       GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
       flags,                                                        \
-      &Allocator, Properties, Attributes, MessageHandlers, MessageSenders, nullptr);\
+      &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, nullptr);\
   }
 
 
@@ -213,6 +214,17 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
      ;                                                                        \
   Properties = PropertyList;                                                  \
 
+/// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the functions.
+#define EZ_BEGIN_FUNCTIONS                                                    \
+    static ezAbstractFunctionProperty* FunctionList[] =                       \
+                                                                              \
+
+
+/// \brief Ends the block to declare functions that was started with EZ_BEGIN_FUNCTIONS.
+#define EZ_END_FUNCTIONS                                                     \
+     ;                                                                       \
+  Functions = FunctionList;                                                  \
+
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the attributes.
 #define EZ_BEGIN_ATTRIBUTES                                                   \
     static ezPropertyAttribute* AttributeList[] =                             \
@@ -224,16 +236,34 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
      ;                                                                        \
   Attributes = AttributeList;                                                 \
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a function property.
+/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block, this adds a member or static function property stored inside the RTTI data.
+///
+/// \param Function
+///   The function to be executed, must match the C++ function name.
+#define EZ_FUNCTION_PROPERTY(Function)                                         \
+  (new ezFunctionProperty<decltype(&OwnType::Function)>                        \
+    (EZ_STRINGIZE(Function), &OwnType::Function))                              \
+
+/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block, this adds a member or static function property stored inside the RTTI data.
+/// Use this version if you need to change the name of the function or need to cast the function to one of its overload versions.
 ///
 /// \param PropertyName
-///   The unique (in this class) name under which the function property should be registered.
-/// \param FunctionName
-///   The actual C++ name of the function that should be exposed as a property.
+///   The name under which the property should be registered.
 ///
-/// \note Currently only functions that take no parameter and return void can be added as function properties.
-#define EZ_FUNCTION_PROPERTY(PropertyName, FunctionName)                      \
-  new ezFunctionProperty<OwnType>(PropertyName, &OwnType::FunctionName)       \
+/// \param Function
+///   The function to be executed, must match the C++ function name including the class name e.g. 'CLASS::NAME'.
+#define EZ_FUNCTION_PROPERTY_EX(PropertyName, Function)                            \
+  (new ezFunctionProperty<decltype(&Function)>                                  \
+    (PropertyName, &Function))                                                  \
+
+
+/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block, this adds a constructor function property stored inside the RTTI data.
+///
+/// \param Function
+///   The function to be executed in the form of CLASS::FUNCTION_NAME.
+#define EZ_CONSTRUCTOR_PROPERTY(...)                                            \
+  (new ezConstructorFunctionProperty<OwnType, __VA_ARGS__>())                   \
+
 
 // [internal] Helper macro to get the return type of a getter function.
 #define EZ_GETTER_TYPE(Class, GetterFunc)                                     \

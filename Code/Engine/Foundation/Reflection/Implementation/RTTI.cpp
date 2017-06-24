@@ -32,7 +32,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 EZ_END_SUBSYSTEM_DECLARATION
 
 ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
-  ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezPropertyAttribute*> attributes,
+  ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
   ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI*(*fnVerifyParent)())
 {
   UpdateType(pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags);
@@ -42,6 +42,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_szTypeName = szName;
   m_pAllocator = pAllocator;
   m_Properties = properties;
+  m_Functions = functions;
   m_Attributes = attributes;
   m_MessageHandlers = messageHandlers;
   m_uiMsgIdOffset = 0;
@@ -142,7 +143,7 @@ void ezRTTI::VerifyCorrectness() const
   }
 
   {
-    ezSet<ezString> Known;
+    ezSet<ezStringView> Known;
 
     const ezRTTI* pInstance = this;
 
@@ -404,6 +405,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
       }
       break;
     case ezPropertyCategory::Function:
+      EZ_REPORT_FAILURE("Functions need to be put into the EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block.");
       break;
     }
   }

@@ -2,6 +2,7 @@
 
 #include <RecastPlugin/Basics.h>
 #include <GameEngine/AI/PointOfInterestGraph.h>
+#include <Foundation/Time/Time.h>
 
 struct rcPolyMesh;
 

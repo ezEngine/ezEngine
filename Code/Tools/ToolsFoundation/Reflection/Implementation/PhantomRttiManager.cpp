@@ -32,7 +32,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 // ezPhantomRttiManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor& desc)
+const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc)
 {
   ezRTTI* pType = ezRTTI::FindTypeByName(desc.m_sTypeName);
   ezPhantomRTTI* pPhantom = nullptr;

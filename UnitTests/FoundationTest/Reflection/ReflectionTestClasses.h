@@ -117,13 +117,19 @@ public:
   ezTestStruct3()
   {
     m_fFloat1 = 1.1f;
-    m_iInt2 = 2;
     m_UInt8 = 6;
+    m_iInt32 = 2;
+  }
+  ezTestStruct3(double a, ezInt16 b)
+  {
+    m_fFloat1 = a;
+    m_UInt8 = b;
+    m_iInt32 = 32;
   }
 
   bool operator==(const ezTestStruct3& rhs) const
   {
-    return m_fFloat1 == rhs.m_fFloat1 && m_iInt2 == rhs.m_iInt2 && m_UInt8 == rhs.m_UInt8;
+    return m_fFloat1 == rhs.m_fFloat1 && m_iInt32 == rhs.m_iInt32 && m_UInt8 == rhs.m_UInt8;
   }
 
   bool operator!=(const ezTestStruct3& rhs) const
@@ -134,11 +140,12 @@ public:
   double m_fFloat1;
   ezInt16 m_UInt8;
 
+  ezUInt32 GetIntPublic() const { return m_iInt32; }
 private:
-  void SetInt(ezUInt32 i) { m_iInt2 = i; }
-  ezUInt32 GetInt() const { return m_iInt2; }
+  void SetInt(ezUInt32 i) { m_iInt32 = i; }
+  ezUInt32 GetInt() const { return m_iInt32; }
 
-  ezInt32 m_iInt2;
+  ezInt32 m_iInt32;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct3);
@@ -156,6 +163,13 @@ public:
     m_Struct.m_fFloat1 = 33.3f;
 
     m_Color = ezColor::CornflowerBlue; // The Original!
+  }
+
+  ezTestClass1(const ezColor& c, const ezTestStruct& s)
+  {
+    m_Color = c;
+    m_Struct = s;
+    m_MyVector.Set(1, 2, 3);
   }
 
   bool operator==(const ezTestClass1& rhs) const

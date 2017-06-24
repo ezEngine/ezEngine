@@ -1,8 +1,7 @@
 #pragma once
 
 #include <Foundation/Reflection/Reflection.h>
-
-struct ezReflectedPropertyDescriptor;
+#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 class ezPhantomConstantProperty : public ezAbstractConstantProperty
 {
@@ -39,11 +38,10 @@ private:
 class ezPhantomFunctionProperty : public ezAbstractFunctionProperty
 {
 public:
-  ezPhantomFunctionProperty(const ezReflectedPropertyDescriptor* pDesc);
+  ezPhantomFunctionProperty(ezReflectedFunctionDescriptor* pDesc);
   ~ezPhantomFunctionProperty();
 
-  virtual const ezRTTI* GetSpecificType() const override;;
-  virtual ezFunctionPropertyType::Enum GetFunctionType() const override;
+  virtual ezFunctionType::Enum GetFunctionType() const override;
   virtual const ezRTTI* GetReturnType() const override;
   virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const override;
   virtual ezUInt32 GetArgumentCount() const override;
@@ -53,11 +51,9 @@ public:
 
 private:
   ezString m_sPropertyNameStorage;
-  ezEnum<ezFunctionPropertyType> m_FunctionType;
-  ezRTTI* m_pReturnType;
-  ezBitflags<ezPropertyFlags> m_ReturnFlags;
-  ezDynamicArray<ezRTTI*> m_ParameterTypes;
-  ezDynamicArray<ezBitflags<ezPropertyFlags>> m_ParameterFlags;
+  ezEnum<ezFunctionType> m_FunctionType;
+  ezFunctionArgumentDescriptor m_ReturnValue;
+  ezDynamicArray<ezFunctionArgumentDescriptor> m_Arguments;
 };
 
 

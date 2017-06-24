@@ -47,7 +47,8 @@ class EZ_EDITORFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditor
   EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionTypeMsgToEditor, ezEditorEngineMsg);
 
 public:
-  ezReflectedTypeDescriptor m_desc;
+  // Mutable because it is eaten up by ezPhantomRttiManager.
+  mutable ezReflectedTypeDescriptor m_desc;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezSetupProjectMsgToEngine : public ezEditorEngineMsg
