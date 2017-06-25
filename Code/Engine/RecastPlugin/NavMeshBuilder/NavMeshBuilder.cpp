@@ -175,6 +175,8 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezNavMesh
       for (ezUInt32 i = 0; i < 8; ++i)
       {
         ezVec3 pos = box.m_vPosition + box.m_qRotation * exts[i];
+
+        // convert from ez convention (Y up) to recast convention (Z up)
         ezMath::Swap(pos.y, pos.z);
 
         m_Vertices.ExpandAndGetRef() = pos;

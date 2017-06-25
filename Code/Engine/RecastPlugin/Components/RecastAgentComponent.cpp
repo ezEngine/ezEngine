@@ -7,6 +7,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/Components/CharacterControllerComponent.h>
+#include <RecastPlugin/Utils/RcMath.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -21,40 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 1)
 }
 EZ_END_COMPONENT_TYPE
 
-struct ezRcPos
-{
-  float m_Pos[3];
 
-  ezRcPos() {}
-  ezRcPos(const ezVec3& v)
-  {
-    *this = v;
-  }
-
-  void operator=(const ezVec3& v)
-  {
-    m_Pos[0] = v.x;
-    m_Pos[1] = v.z;
-    m_Pos[2] = v.y;
-  }
-
-  void operator=(const float* pos)
-  {
-    m_Pos[0] = pos[0];
-    m_Pos[1] = pos[1];
-    m_Pos[2] = pos[2];
-  }
-
-  operator const float*() const
-  {
-    return &m_Pos[0];
-  }
-
-  operator ezVec3() const
-  {
-    return ezVec3(m_Pos[0], m_Pos[2], m_Pos[1]);
-  }
-};
 
 ezRcAgentComponent::ezRcAgentComponent() { }
 ezRcAgentComponent::~ezRcAgentComponent() { }
@@ -312,19 +280,16 @@ void ezRcAgentComponent::SetTargetPosition(const ezVec3& vPos)
 
 ezResult ezRcAgentComponent::FindNavMeshPolyAt(ezVec3& inout_vPosition, dtPolyRef& out_PolyRef) const
 {
-  ezVec3 vPos = inout_vPosition;
-  ezMath::Swap(vPos.y, vPos.z);
+  ezRcPos rcPos = inout_vPosition;
   ezVec3 vSize(0.5f, 1.0f, 0.5f); /// \todo Hard-coded offset
 
-  ezVec3 resultPos;
+  ezRcPos resultPos;
   dtQueryFilter filter; /// \todo Hard-coded filter
-  if (dtStatusFailed(m_pQuery->findNearestPoly(&vPos.x, &vSize.x, &filter, &out_PolyRef, &resultPos.x)))
+  if (dtStatusFailed(m_pQuery->findNearestPoly(rcPos, &vSize.x, &filter, &out_PolyRef, resultPos)))
     return EZ_FAILURE;
 
-  ezMath::Swap(resultPos.y, resultPos.z);
-
-  if (!ezMath::IsEqual(inout_vPosition.x, resultPos.x, 0.01f) ||
-      !ezMath::IsEqual(inout_vPosition.y, resultPos.y, 0.01f))
+  if (!ezMath::IsEqual(inout_vPosition.x, resultPos.m_Pos[0], 0.01f) ||
+      !ezMath::IsEqual(inout_vPosition.y, resultPos.m_Pos[2], 0.01f))
     return EZ_FAILURE;
 
   inout_vPosition = resultPos;
@@ -363,17 +328,14 @@ ezResult ezRcAgentComponent::RecomputePathCorridor()
 {
   m_bHasValidCorridor = false;
 
-  ezVec3 vStart = m_vStartPosition;
-  ezVec3 vEnd = m_vEndPosition;
-
-  ezMath::Swap(vStart.y, vStart.z);
-  ezMath::Swap(vEnd.y, vEnd.z);
+  ezRcPos rcStart = m_vStartPosition;
+  ezRcPos rcEnd = m_vEndPosition;
 
   dtQueryFilter filter; /// \todo Hard-coded filter
 
   m_iPathCorridorLength = 0;
 
-  if (dtStatusFailed(m_pQuery->findPath(m_startPoly, m_endPoly, &vStart.x, &vEnd.x, &filter, m_PathCorridor.GetData(), &m_iPathCorridorLength, (int)m_PathCorridor.GetCount())))
+  if (dtStatusFailed(m_pQuery->findPath(m_startPoly, m_endPoly, rcStart, rcEnd, &filter, m_PathCorridor.GetData(), &m_iPathCorridorLength, (int)m_PathCorridor.GetCount())))
   {
     return EZ_FAILURE;
   }
@@ -384,8 +346,8 @@ ezResult ezRcAgentComponent::RecomputePathCorridor()
     return EZ_FAILURE;
   }
 
-  m_pCorridor->reset(m_startPoly, &vStart.x);
-  m_pCorridor->setCorridor(&vEnd.x, m_PathCorridor.GetData(), m_iPathCorridorLength);
+  m_pCorridor->reset(m_startPoly, rcStart);
+  m_pCorridor->setCorridor(rcEnd, m_PathCorridor.GetData(), m_iPathCorridorLength);
   m_bHasValidCorridor = m_iPathCorridorLength > 0;
 
   return PlanNextSteps();
@@ -401,6 +363,7 @@ ezResult ezRcAgentComponent::PlanNextSteps()
   m_iFirstNextStep = 0;
   m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, m_uiStepFlags, m_StepPolys, 4, m_pQuery.Borrow(), &filter);
 
+  // convert from Recast convention (Y up) to ez (Z up)
   for (ezInt32 i = 0; i < m_iNumNextSteps; ++i)
   {
     ezMath::Swap(m_vNextSteps[i].y, m_vNextSteps[i].z);

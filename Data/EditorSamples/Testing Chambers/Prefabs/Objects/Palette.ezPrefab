@@ -1,0 +1,132 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{14070666967605993347,4717055928443375844}}
+	s %t{"ezMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Materials{}
+		s %Mesh{"{ 1f6b5778-8216-4ca2-a495-d2bc32930844 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{14487395615935494583,4881262460497993643}}
+	s %t{"ezPxDynamicActorComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %AngularDamping{0xCDCC4C3D}
+		f %Density{0xCDCC8C3F}
+		b %DisableGravity{0}
+		b %Kinematic{0}
+		f %LinearDamping{0xCDCCCC3D}
+		f %Mass{0}
+	}
+}
+o
+{
+	Uuid %id{u4{10480586219450185896,5035241246286580518}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11294963197848080814,5486123640251913063}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{14487395615935494583,4881262460497993643}}
+			Uuid{u4{13683768468298346915,5139794548156529189}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13683768468298346915,5139794548156529189}}
+	s %t{"ezPxShapeBoxComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{0}
+		Vec3 %Extents{f{0xEC51B83F,0x0000803F,0xCDCC4C3E}}
+		b %ReportContact{0}
+		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{10480586219450185896,5035241246286580518}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11294963197848080814,5486123640251913063}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14070666967605993347,4717055928443375844}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x5CE5B6B1,0,0x5AE5B6BD}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{10371698812262963100,5743479418392639992}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10371698812262963100,5743479418392639992}}
+		u4 %Hash{1449889933144567637}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 1f6b5778-8216-4ca2-a495-d2bc32930844 }"}
+			s{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
+		}
+	}
+}
+}
+Types{}

@@ -1,0 +1,107 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{13762275335852286377,4886592643387251742}}
+	s %t{"ezPxDynamicActorComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		f %AngularDamping{0xCDCC4C3D}
+		f %Density{0x0000803F}
+		b %DisableGravity{0}
+		b %Kinematic{0}
+		f %LinearDamping{0xCDCC4C3E}
+		f %Mass{0}
+	}
+}
+o
+{
+	Uuid %id{u4{1355322174008793986,4899642163609680462}}
+	s %t{"ezPxShapeConvexComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{0}
+		s %CollisionMesh{"{ 629d50ce-7686-4a3f-8efc-18f3410c1e14 }"}
+		b %ReportContact{0}
+		s %Surface{"{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{9357573900337802902,5184961634595845146}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Prefab"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{9357573900337802902,5184961634595845146}}
+		u4 %Hash{8713323024738477832}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0e0577a6-1af7-4b8a-809e-7b124432bd76 }"}
+			s{"{ 629d50ce-7686-4a3f-8efc-18f3410c1e14 }"}
+			s{"{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7175774463680643234,5447164627398987341}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7175774463680643234,5447164627398987341}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16631597085437650560,5711724454665261335}}
+			Uuid{u4{1355322174008793986,4899642163609680462}}
+			Uuid{u4{13762275335852286377,4886592643387251742}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16631597085437650560,5711724454665261335}}
+	s %t{"ezMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Materials{}
+		s %Mesh{"{ 0e0577a6-1af7-4b8a-809e-7b124432bd76 }"}
+	}
+}
+}
+Types{}
