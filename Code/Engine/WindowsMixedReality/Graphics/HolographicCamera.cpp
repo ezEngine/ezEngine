@@ -57,14 +57,14 @@ ezRectU32 ezWindowsHolographicCamera::GetBackBufferSize() const
 
 bool ezWindowsHolographicCamera::IsStereoscopic() const
 {
-  boolean isStereo = false;
+  boolean isStereo = FALSE;
   if (FAILED(m_pHolographicCamera->get_IsStereo(&isStereo)))
   {
     ezLog::Error("Failed to check query holographic camera is stereo.");
     return false;
   }
 
-  return isStereo;
+  return isStereo == TRUE;
 }
 
 

@@ -8,6 +8,7 @@
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <ThirdParty/Recast/DetourNavMeshQuery.h>
 #include <ThirdParty/Recast/DetourPathCorridor.h>
+#include <GameEngine/Components/AgentSteeringComponent.h>
 
 class ezRecastWorldModule;
 class ezPhysicsWorldModuleInterface;
@@ -34,9 +35,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RECASTPLUGIN_DLL ezRcAgentComponent : public ezRcComponent
+class EZ_RECASTPLUGIN_DLL ezRcAgentComponent : public ezAgentSteeringComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRcAgentComponent, ezRcComponent, ezRcAgentComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezRcAgentComponent, ezAgentSteeringComponent, ezRcAgentComponentManager);
 
 public:
   ezRcAgentComponent();
