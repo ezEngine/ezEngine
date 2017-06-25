@@ -1,4 +1,4 @@
-﻿
+
 #include <PCH.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -142,6 +142,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
   ezRenderWorld::AddMainView(m_hMainView);
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 void ezGameState::OnHolographicCameraAdded(const ezWindowsHolographicCamera& camera)
 {
   if (m_hMainSwapChain.IsInvalidated())
@@ -157,6 +158,7 @@ void ezGameState::OnHolographicCameraAdded(const ezWindowsHolographicCamera& cam
     ezLog::Warning("New holographic camera was added but ezGameState supports currently only a single holographic camera!");
   }
 }
+#endif
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)
 {
