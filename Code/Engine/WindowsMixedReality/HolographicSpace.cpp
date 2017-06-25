@@ -94,9 +94,9 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     m_pDefaultLocationService = EZ_DEFAULT_NEW(ezWindowsHolographicLocationService, pDefaultSpatialLocator);
   }
 
-ezLog::Info("Initialized new holographic space for main window!");
+  ezLog::Info("Initialized new holographic space for main window!");
 
-return EZ_SUCCESS;
+  return EZ_SUCCESS;
 }
 
 void ezWindowsHolographicSpace::DeInit()
@@ -187,9 +187,6 @@ ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> ezWindowsHolograp
 {
   EZ_ASSERT_DEBUG(m_pHolographicSpace, "There is no holographic space.");
 
-  // Handle added/removed holographic cameras.
-  ProcessAddedRemovedCameras();
-
   // Create holographic frame.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> pHolographicFrame;
   HRESULT result = m_pHolographicSpace->CreateNextFrame(pHolographicFrame.GetAddressOf());
@@ -202,13 +199,14 @@ ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> ezWindowsHolograp
   // Use it to update all our cameras.
   UpdateCameraPoses(pHolographicFrame);
 
-
   return std::move(pHolographicFrame);
 }
 
 void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
 {
   ezLock<ezMutex> lock(m_cameraMutex);
+
+  // TODO: assert no dx11 frame running
 
   // Process removals.
   for (const auto& pCamera : m_pendingCameraRemovals)
@@ -217,6 +215,8 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
     {
       if (m_cameras[i]->GetInternalHolographicCamera() == pCamera.Get())
       {
+        m_cameraRemovedEvent.Broadcast(*m_cameras[i]);
+
         EZ_DEFAULT_DELETE(m_cameras[i]);
         m_cameras.RemoveAt(i);
         break;
@@ -226,10 +226,24 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
   m_pendingCameraRemovals.Clear();
 
   // Process additions.
-  for (const auto& cameraAddition : m_pendingCameraAdditions)
+  if (!m_pendingCameraAdditions.IsEmpty())
   {
-    m_cameras.PushBack(EZ_DEFAULT_NEW(ezWindowsHolographicCamera, cameraAddition.m_pCamera));
-    cameraAddition.m_pDeferral->Complete();
+    for (const auto& cameraAddition : m_pendingCameraAdditions)
+    {
+      m_cameras.PushBack(EZ_DEFAULT_NEW(ezWindowsHolographicCamera, cameraAddition.m_pCamera));
+      cameraAddition.m_pDeferral->Complete();
+    }
+
+    // A lot of system can't work with camera/swapchain that doesn't have an actual backbuffer.
+    // Since we only get this data with a frame, we start and end a dummy holographic frame before we fire added events.
+    //
+    // In the worst case this gives a tiny hickup for all camera every time a camera was added.
+    // What we get for this however in return, is valid camera poses and backbuffers for all engine systems that rely on them.
+    StartNewHolographicFrame();
+
+    // Fire added events for all new cameras.
+    for (auto i = m_cameras.GetCount() - m_pendingCameraAdditions.GetCount(); i < m_cameras.GetCount(); ++i)
+      m_cameraAddedEvent.Broadcast(*m_cameras[i]);
   }
   m_pendingCameraAdditions.Clear();
 }

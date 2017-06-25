@@ -40,6 +40,11 @@ struct IDXGIAdapter3;
 /// Right now window holographic is the only vr/mr platform we support.
 /// In the future this may be the implementation of an abstract interface that allows the use of arbitrary vr/mr device.
 /// For now however, this is entirely platform specific.
+///
+/// The holographic space is an important entry point for:
+/// * Communication with the device (see HolographicDX11Device)
+/// * Adding/removing/updating holographic cameras (see HolographicCamera)
+/// * General information about mixed reality hardware
 class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsHolographicSpace
 {
   EZ_DECLARE_SINGLETON(ezWindowsHolographicSpace);
@@ -70,7 +75,18 @@ public:
   // Cameras
 public:
 
+  /// \brief Processes queued holographic camera additions and removals.
+  ///
+  /// Needs to be called by the user in order to create new cameras and corresponding swap chains.
+  /// If a new camera was added or removed the corresponding events are fired.
+  void ProcessAddedRemovedCameras();
+
+  /// \brief Gets list of all cameras.
   ezArrayPtr<ezWindowsHolographicCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
+
+  // ezEvents for camera add/remove. Always fired on rendering thread.
+  ezEvent<const ezWindowsHolographicCamera&> m_cameraAddedEvent;
+  ezEvent<const ezWindowsHolographicCamera&> m_cameraRemovedEvent;
 
   // Internal
 public:
@@ -83,14 +99,10 @@ public:
 
   ABI::Windows::Graphics::Holographic::IHolographicSpace* GetInternalHolographicSpace() { return m_pHolographicSpace.Get(); }
 
+
 private:
 
   void DeInit();
-
-  /// \brief Processes queued holographic camera additions and removals.
-  ///
-  /// Called by HolographicDX11Device.
-  void ProcessAddedRemovedCameras();
 
   /// \brief Updates all camera poses from holographic frame.
   ezResult UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame);

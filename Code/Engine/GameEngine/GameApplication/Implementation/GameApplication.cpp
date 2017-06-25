@@ -56,7 +56,11 @@ ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
   desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   desc.m_bAllowScreenshots = true;
 
-  windowContext.m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
+  if (m_AppType != ezGameApplicationType::StandAloneMixedReality)
+    windowContext.m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
+  else
+    windowContext.m_hSwapChain.Invalidate();
+
   windowContext.m_bFirstFrame = true;
   return windowContext.m_hSwapChain;
 }
@@ -432,6 +436,11 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
   if (!m_bWasQuitRequested)
   {
     ProcessWindowMessages();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    // Update holographic space since new views might have been added.
+    ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
+#endif
 
     if (ezRenderWorld::GetMainViews().GetCount() > 0)
     {

@@ -11,6 +11,7 @@
 
 class ezWindow;
 class ezView;
+class ezWindowsHolographicCamera;
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
@@ -107,6 +108,10 @@ protected:
 
   /// \brief Creates a default render pipeline. Unless overridden, Activate() will do this for the main window.
   virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  virtual void OnHolographicCameraAdded(const ezWindowsHolographicCamera& camera);
+#endif
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
