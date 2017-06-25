@@ -1,4 +1,4 @@
-
+﻿
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
@@ -74,30 +74,24 @@ void ezSystemInformation::Initialize()
     ComPtr<ABI::Windows::Foundation::Collections::IVectorView<HostName*>> hostNames;
     if (SUCCEEDED(networkInformation->GetHostNames(&hostNames)))
     {
-      unsigned int numHostNames = 0;
-      if (SUCCEEDED(hostNames->get_Size(&numHostNames)))
+      ezWinRtIterateIVectorView<IHostName*>(hostNames, [](UINT, IHostName* hostName)
       {
-        for (unsigned int i = 0; i < numHostNames; ++i)
+        HostNameType hostNameType;
+        if (FAILED(hostName->get_Type(&hostNameType)))
+          return true;
+
+        if (hostNameType == HostNameType_DomainName)
         {
-          ComPtr<IHostName> hostName;
-          if (FAILED(hostNames->GetAt(i, &hostName)))
-            continue;
+          HString name;
+          if (FAILED(hostName->get_CanonicalName(name.GetAddressOf())))
+            return true;
 
-          HostNameType hostNameType;
-          if (FAILED(hostName->get_Type(&hostNameType)))
-            continue;
-
-          if (hostNameType == HostNameType_DomainName)
-          {
-            HString name;
-            if (FAILED(hostName->get_CanonicalName(name.GetAddressOf())))
-              continue;
-
-            ezStringUtils::Copy(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName), ezStringUtf8(name).GetData());
-            break;
-          }
+          ezStringUtils::Copy(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName), ezStringUtf8(name).GetData());
+          return false;
         }
-      }
+
+        return true;
+      });
     }
   }
 
