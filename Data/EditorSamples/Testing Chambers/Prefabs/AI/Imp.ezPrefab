@@ -23,7 +23,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4742344647184895104,4957233606002623134}}
-		u4 %Hash{5098032124162743677}
+		u4 %Hash{7802884545416962920}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -48,9 +48,9 @@ o
 		f %PushingForce{0x0000FA43}
 		Angle %RotateSpeed{f{0xDB0FC93F}}
 		f %RunInteractionDistance{0x00004040}
-		f %RunSpeed{0x0000A041}
+		f %RunSpeed{0x00000040}
 		f %WalkInteractionDistance{0x0000803F}
-		f %WalkSpeed{0x00002041}
+		f %WalkSpeed{0x0000803F}
 		s %WalkSurfaceInteraction{"Footstep"}
 	}
 }
@@ -82,12 +82,11 @@ o
 {
 	Uuid %id{u4{1647596995229317261,5186668026790429264}}
 	s %t{"ezRcAgentComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayer{5}
-		f %WalkSpeed{0x00000041}
+		f %WalkSpeed{0x00004040}
 	}
 }
 o
@@ -174,53 +173,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13545233474985501307,2902044114655242576}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{91880854070967986,13922940901755580269}}
-		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezRecastPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezRcComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{16420580995817156319,3604333152532835562}}
-	s %t{"ezDynamicEnumAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %DynamicEnum{"PhysicsCollisionLayer"}
-	}
-}
-o
-{
-	Uuid %id{u4{11427189543022138024,11030180439142049485}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{16420580995817156319,3604333152532835562}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CollisionLayer"}
-		s %Type{"ezUInt8"}
-	}
-}
-o
-{
 	Uuid %id{u4{341978040944065225,11517453198141008284}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -238,26 +190,16 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezRcComponent"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezAgentSteeringComponent"}
 		s %PluginName{"ezRecastPlugin"}
 		VarArray %Properties
 		{
 			Uuid{u4{13795330661858598546,496556411040670591}}
-			Uuid{u4{11427189543022138024,11030180439142049485}}
 		}
 		s %TypeName{"ezRcAgentComponent"}
-		u3 %TypeSize{464}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{91880854070967986,13922940901755580269}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"AI"}
+		u3 %TypeSize{672}
+		u3 %TypeVersion{2}
 	}
 }
 }

@@ -48,6 +48,12 @@ ezResult ezTexConv::CreateDecalAtlas()
 
   EZ_SUCCEED_OR_RETURN(LoadDecalInputs(decalAtlasDesc, decals));
 
+  {
+    ezAssetFileHeader header;
+    header.SetFileHashAndVersion(m_uiAssetHash, m_uiAssetVersion);
+    header.Write(m_FileOut);
+  }
+
   const ezUInt8 uiVersion = 1;
   m_FileOut << uiVersion;
 

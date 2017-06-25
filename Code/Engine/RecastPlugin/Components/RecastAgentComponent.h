@@ -43,64 +43,83 @@ public:
   ezRcAgentComponent();
   ~ezRcAgentComponent();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent Interface
+  // 
+protected:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void Update();
+  //////////////////////////////////////////////////////////////////////////
+  // ezAgentSteeringComponent Interface
+  // 
+public:
+  virtual void SetTargetPosition(const ezVec3& vPosition) override;
+  virtual ezVec3 GetTargetPosition() const override;
+  virtual void ClearTargetPosition() override;
+  virtual ezAgentPathFindingState::Enum GetPathToTargetState() const override;
 
-
-  void SetTargetPosition(const ezVec3& vPos);
-
-  ezResult FindNavMeshPolyAt(ezVec3& inout_vPosition, dtPolyRef& out_PolyRef) const;
-
-  ezVec3 ComputeSteeringDirection(float fMaxDistance);
-
+  //////////////////////////////////////////////////////////////////////////
+  // Helper Functions
+public:
+  ezResult FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition = nullptr, float fPlaneEpsilon = 0.01f, float fHeightEpsilon = 1.0f) const;
   bool HasReachedPosition(const ezVec3& pos, float fMaxDistance) const;
   bool HasReachedGoal(float fMaxDistance) const;
   bool IsPositionVisible(const ezVec3& pos) const;
 
-  void RenderPathCorridorPosition();
-  void RenderPathCorridor();
+  //////////////////////////////////////////////////////////////////////////
+  // Debug Visualization Functions
+  // 
+private:
+  void VisualizePathCorridorPosition();
+  void VisualizePathCorridor();
   void VisualizeCurrentPath();
   void VisualizeTargetPosition();
 
   //////////////////////////////////////////////////////////////////////////
-  // Properties
- 
-  float m_fWalkSpeed = 4.0f;
-  ezUInt8 m_uiCollisionLayer = 0;
+  // Path Finding and Steering
+private:
+  ezResult ComputePathToTarget();
+  ezResult ComputePathCorridor(dtPolyRef startPoly, dtPolyRef endPoly, bool& bFoundPartialPath);
+  void ComputeSteeringDirection(float fMaxDistance);
+  void ApplySteering(const ezVec3& vDirection, float fSpeed);
+  void SyncSteeringWithReality();
+  void PlanNextSteps();
 
-  /// \todo Expose and use
-  float m_fRadius = 0.2f;
-  float m_fHeight = 1.0f;
-
-protected:
-  virtual void OnSimulationStarted() override;
-
-  bool Init();
-  ezResult RecomputePathCorridor();
-  ezResult PlanNextSteps();
-
-  ezTime m_tLastUpdate;
-  ezComponentHandle m_hCharacterController;
-
-  bool m_bInitialized = false;
-  bool m_bHasPath = false;
-  bool m_bHasValidCorridor = false;
+  ezVec3 m_vTargetPosition;
+  ezEnum<ezAgentPathFindingState> m_PathToTargetState;
+  ezVec3 m_vCurrentPositionOnNavmesh; /// \todo ??? keep update ?
   ezUniquePtr<dtNavMeshQuery> m_pQuery;
   ezUniquePtr<dtPathCorridor> m_pCorridor;
-
-  dtPolyRef m_startPoly = -1;
-  dtPolyRef m_endPoly = -1;
-  ezInt32 m_iPathCorridorLength;
+  dtQueryFilter m_QueryFilter; /// \todo hard-coded filter
   ezDynamicArray<dtPolyRef> m_PathCorridor;
-  ezVec3 m_vStartPosition;
-  ezVec3 m_vEndPosition;
-
   // path following
   ezInt32 m_iFirstNextStep = 0;
   ezInt32 m_iNumNextSteps = 0;
   ezVec3 m_vNextSteps[16];
-  ezUInt8 m_uiStepFlags[16];
-  dtPolyRef m_StepPolys[16];
+  ezVec3 m_vCurrentSteeringDirection;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // Properties
+public:
+  float m_fWalkSpeed = 4.0f;
+  /// \todo Expose and use
+  //float m_fRadius = 0.2f;
+  //float m_fHeight = 1.0f;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // Other
+private:
+
+  ezResult InitializeRecast();
+  virtual void OnSimulationStarted() override;
+  void Update();
+
+  bool m_bRecastInitialized = false;
+  ezComponentHandle m_hCharacterController;
+
+  /// \todo clean up
+  ezTime m_tLastUpdate;
 };

@@ -11,18 +11,15 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("WalkSpeed",m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
-    EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_COMPONENT_TYPE
-
-
 
 ezRcAgentComponent::ezRcAgentComponent() { }
 ezRcAgentComponent::~ezRcAgentComponent() { }
@@ -33,7 +30,6 @@ void ezRcAgentComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_fWalkSpeed;
-  s << m_uiCollisionLayer;
 }
 
 void ezRcAgentComponent::DeserializeComponent(ezWorldReader& stream)
@@ -43,15 +39,239 @@ void ezRcAgentComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fWalkSpeed;
-  s >> m_uiCollisionLayer;
 }
 
+ezResult ezRcAgentComponent::InitializeRecast()
+{
+  if (m_bRecastInitialized)
+    return EZ_SUCCESS;
+
+  if (!GetManager()->GetRecastWorldModule()->IsInitialized())
+    return EZ_FAILURE;
+
+  dtNavMesh* pNavMesh = GetManager()->GetRecastWorldModule()->GetNavMesh();
+  if (pNavMesh == nullptr)
+    return EZ_FAILURE;
+
+  m_bRecastInitialized = true;
+
+  m_pQuery = EZ_DEFAULT_NEW(dtNavMeshQuery);
+  m_pCorridor = EZ_DEFAULT_NEW(dtPathCorridor);
+
+  /// \todo Hard-coded limits
+  m_pQuery->init(pNavMesh, 512);
+  m_pCorridor->init(256);
+
+  return EZ_SUCCESS;
+}
+
+void ezRcAgentComponent::ClearTargetPosition()
+{
+  m_iNumNextSteps = 0;
+  m_iFirstNextStep = 0;
+  m_PathCorridor.Clear();
+  m_vCurrentSteeringDirection.SetZero();
+
+  if (m_PathToTargetState != ezAgentPathFindingState::HasNoTarget)
+  {
+    m_PathToTargetState = ezAgentPathFindingState::HasNoTarget;
+
+    ezAgentSteeringEvent e;
+    e.m_Type = ezAgentSteeringEvent::TargetCleared;
+
+    m_SteeringEvents.Broadcast(e);
+  }
+}
+
+ezAgentPathFindingState::Enum ezRcAgentComponent::GetPathToTargetState() const
+{
+  return m_PathToTargetState;
+}
+
+void ezRcAgentComponent::SetTargetPosition(const ezVec3& vPos)
+{
+  ClearTargetPosition();
+
+  m_vTargetPosition = vPos;
+  m_PathToTargetState = ezAgentPathFindingState::HasTargetWaitingForPath;
+}
+
+ezVec3 ezRcAgentComponent::GetTargetPosition() const
+{
+  return m_vTargetPosition;
+}
+
+ezResult ezRcAgentComponent::FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/) const
+{
+  ezRcPos rcPos = vPosition;
+  ezVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
+
+  ezRcPos resultPos;
+  dtQueryFilter filter; /// \todo Hard-coded filter
+  if (dtStatusFailed(m_pQuery->findNearestPoly(rcPos, &vSize.x, &m_QueryFilter, &out_PolyRef, resultPos)))
+    return EZ_FAILURE;
+
+  if (!ezMath::IsEqual(vPosition.x, resultPos.m_Pos[0], fPlaneEpsilon) ||
+      !ezMath::IsEqual(vPosition.y, resultPos.m_Pos[2], fPlaneEpsilon) ||
+      !ezMath::IsEqual(vPosition.z, resultPos.m_Pos[1], fHeightEpsilon))
+    return EZ_FAILURE;
+
+  if (out_vAdjustedPosition != nullptr)
+  {
+    *out_vAdjustedPosition = resultPos;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRcAgentComponent::ComputePathCorridor(dtPolyRef startPoly, dtPolyRef endPoly, bool& bFoundPartialPath)
+{
+  bFoundPartialPath = false;
+
+  ezRcPos rcStart = m_vCurrentPositionOnNavmesh;
+  ezRcPos rcEnd = m_vTargetPosition;
+
+  ezInt32 iPathCorridorLength = 0;
+
+  // make enough room
+  m_PathCorridor.SetCountUninitialized(256);
+  if (dtStatusFailed(m_pQuery->findPath(startPoly, endPoly, rcStart, rcEnd, &m_QueryFilter, m_PathCorridor.GetData(), &iPathCorridorLength, (int)m_PathCorridor.GetCount())) || iPathCorridorLength <= 0)
+  {
+    m_PathCorridor.Clear();
+    return EZ_FAILURE;
+  }
+
+  // reduce to actual length
+  m_PathCorridor.SetCountUninitialized(iPathCorridorLength);
+
+  if (m_PathCorridor[iPathCorridorLength - 1] != endPoly)
+  {
+    // if this is the case, the target position cannot be reached, but we can walk close to it
+    bFoundPartialPath = true;
+  }
+
+  m_pCorridor->reset(startPoly, rcStart);
+  m_pCorridor->setCorridor(rcEnd, m_PathCorridor.GetData(), iPathCorridorLength);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRcAgentComponent::ComputePathToTarget()
+{
+  const ezVec3 vStartPos = GetOwner()->GetGlobalPosition();
+
+  dtPolyRef startPoly;
+  if (FindNavMeshPolyAt(vStartPos, startPoly, &m_vCurrentPositionOnNavmesh).Failed())
+  {
+    m_PathToTargetState = ezAgentPathFindingState::HasTargetPathFindingFailed;
+
+    ezAgentSteeringEvent e;
+    e.m_Type = ezAgentSteeringEvent::ErrorOutsideNavArea;
+    m_SteeringEvents.Broadcast(e);
+    return EZ_FAILURE;
+  }
+
+  dtPolyRef endPoly;
+  if (FindNavMeshPolyAt(m_vTargetPosition, endPoly).Failed())
+  {
+    m_PathToTargetState = ezAgentPathFindingState::HasTargetPathFindingFailed;
+
+    ezAgentSteeringEvent e;
+    e.m_Type = ezAgentSteeringEvent::ErrorInvalidTargetPosition;
+    m_SteeringEvents.Broadcast(e);
+    return EZ_FAILURE;
+  }
+
+  /// \todo Optimize case when endPoly is same as previously ?
+
+  bool bFoundPartialPath = false;
+  if (ComputePathCorridor(startPoly, endPoly, bFoundPartialPath).Failed() || bFoundPartialPath)
+  {
+    m_PathToTargetState = ezAgentPathFindingState::HasTargetPathFindingFailed;
+
+    /// \todo For now a partial path is considered an error
+
+    ezAgentSteeringEvent e;
+    e.m_Type = bFoundPartialPath ? ezAgentSteeringEvent::WarningNoFullPathToTarget : ezAgentSteeringEvent::ErrorNoPathToTarget;
+    m_SteeringEvents.Broadcast(e);
+    return EZ_FAILURE;
+  }
+
+  m_PathToTargetState = ezAgentPathFindingState::HasTargetAndValidPath;
+
+  ezAgentSteeringEvent e;
+  e.m_Type = ezAgentSteeringEvent::PathToTargetFound;
+  m_SteeringEvents.Broadcast(e);
+  return EZ_SUCCESS;
+}
+
+bool ezRcAgentComponent::HasReachedPosition(const ezVec3& pos, float fMaxDistance) const
+{
+  ezVec3 vTargetPos = pos;
+  ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
+
+  /// \todo The comment below may not always be true
+  const float fCellHeight = 1.5f;
+
+  // agent component is assumed to be located on the ground (independent of character height)
+  // so max error is dependent on the navmesh resolution mostly (cell height)
+  const float fHeightError = fCellHeight;
+
+  if (!ezMath::IsInRange(vTargetPos.z, vOwnPos.z - fHeightError, vOwnPos.z + fHeightError))
+    return false;
+
+  vTargetPos.z = 0;
+  vOwnPos.z = 0;
+
+  return (vTargetPos - vOwnPos).GetLengthSquared() < ezMath::Square(fMaxDistance);
+}
+
+bool ezRcAgentComponent::HasReachedGoal(float fMaxDistance) const
+{
+  if (GetPathToTargetState() == ezAgentPathFindingState::HasNoTarget)
+    return true;
+
+  return HasReachedPosition(m_vTargetPosition, fMaxDistance);
+}
+
+void ezRcAgentComponent::PlanNextSteps()
+{
+  if (m_PathCorridor.IsEmpty())
+    return;
+
+  ezUInt8 stepFlags[16];
+  dtPolyRef stepPolys[16];
+
+  m_iFirstNextStep = 0;
+  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, stepFlags, stepPolys, 4, m_pQuery.Borrow(), &m_QueryFilter);
+
+  // convert from Recast convention (Y up) to ez (Z up)
+  for (ezInt32 i = 0; i < m_iNumNextSteps; ++i)
+  {
+    ezMath::Swap(m_vNextSteps[i].y, m_vNextSteps[i].z);
+  }
+}
+
+bool ezRcAgentComponent::IsPositionVisible(const ezVec3& pos) const
+{
+  ezRcPos endPos = pos;
+
+  dtRaycastHit hit;
+  if (dtStatusFailed(m_pQuery->raycast(m_pCorridor->getFirstPoly(), m_pCorridor->getPos(), endPos, &m_QueryFilter, 0, &hit)))
+    return false;
+
+  // 'visible' if no hit was detected
+  return (hit.t > 100000.0f);
+}
 
 void ezRcAgentComponent::OnSimulationStarted()
 {
+  ClearTargetPosition();
+
+  /// \todo remove "Gameplay" code
   m_tLastUpdate = ezTime::Seconds(-100);
 
-  m_bInitialized = false;
+  m_bRecastInitialized = false;
 
   ezCharacterControllerComponent* pCC = nullptr;
   if (GetOwner()->TryGetComponentOfBaseType<ezCharacterControllerComponent>(pCC))
@@ -60,6 +280,69 @@ void ezRcAgentComponent::OnSimulationStarted()
   }
 }
 
+void ezRcAgentComponent::ApplySteering(const ezVec3& vDirection, float fSpeed)
+{
+  // compute new rotation
+  {
+    ezQuat qDesiredNewRotation;
+    qDesiredNewRotation.SetShortestRotation(ezVec3(1, 0, 0), vDirection);
+
+    /// \todo Pass through character controller
+    GetOwner()->SetGlobalRotation(qDesiredNewRotation);
+  }
+
+  if (!m_hCharacterController.IsInvalidated())
+  {
+    ezCharacterControllerComponent* pCharacter = nullptr;
+    if (GetWorld()->TryGetComponent(m_hCharacterController, pCharacter))
+    {
+      // the character controller already applies time scaling
+      const ezVec3 vRelativeSpeed = (-GetOwner()->GetGlobalRotation() * vDirection) * fSpeed;
+
+      //ezTransform curGlobal = GetOwner()->GetGlobalTransform();
+      //ezTransform newGlobal(vDesiredNewPosition, curGlobal.m_qRotation);
+      //ezTransform rel;
+      //rel.SetLocalTransform(curGlobal, newGlobal);
+
+      ezCharacterController_MoveCharacterMsg msg;
+      msg.m_fMoveForwards = ezMath::Max(0.0f, vRelativeSpeed.x);
+      msg.m_fMoveBackwards = ezMath::Max(0.0f, -vRelativeSpeed.x);
+      msg.m_fStrafeLeft = ezMath::Max(0.0f, -vRelativeSpeed.y);
+      msg.m_fStrafeRight = ezMath::Max(0.0f, vRelativeSpeed.y);
+
+      pCharacter->MoveCharacter(msg);
+    }
+  }
+  else
+  {
+    const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
+    const ezVec3 vOwnerPos = GetOwner()->GetGlobalPosition();
+    const ezVec3 vDesiredNewPosition = vOwnerPos + vDirection * fSpeed * fTimeDiff;
+    
+    GetOwner()->SetGlobalPosition(vDesiredNewPosition);
+  }
+}
+
+void ezRcAgentComponent::SyncSteeringWithReality()
+{
+  const ezRcPos rcCurrentAgentPosition = GetOwner()->GetGlobalPosition();
+
+  if (!m_pCorridor->movePosition(rcCurrentAgentPosition, m_pQuery.Borrow(), &m_QueryFilter))
+  {
+    ezAgentSteeringEvent e;
+    e.m_Type = ezAgentSteeringEvent::ErrorSteeringFailed;
+    m_SteeringEvents.Broadcast(e);
+    ClearTargetPosition();
+    return;
+  }
+
+  const ezRcPos rcPosOnNavmesh = m_pCorridor->getPos();
+  m_vCurrentPositionOnNavmesh = rcPosOnNavmesh;
+
+  /// \todo Check when these values diverge
+}
+
+/// \todo remove "Gameplay" code
 static float frand()
 {
   return (float)rand() / (float)RAND_MAX;
@@ -70,314 +353,85 @@ void ezRcAgentComponent::Update()
   if (!IsActiveAndSimulating())
     return;
 
-  if (!Init())
+  // this can happen the first few frames
+  if (InitializeRecast().Failed())
     return;
 
-  RenderPathCorridorPosition();
-  RenderPathCorridor();
-
-  //if (GetWorld()->GetClock().GetAccumulatedTime() - m_tLastUpdate > ezTime::Seconds(7.0f))
-  if (!m_bHasPath)
+  // visualize various things
   {
-    m_tLastUpdate = GetWorld()->GetClock().GetAccumulatedTime();
-
-    dtCrowd* pCrowd = GetManager()->GetRecastWorldModule()->m_pCrowd;
-
-    dtQueryFilter filter;
-    dtPolyRef ref;
-    float pt[3];
-    if (dtStatusFailed(pCrowd->getNavMeshQuery()->findRandomPoint(&filter, frand, &ref, pt)))
-    {
-      ezLog::Error("Could not find random point");
-    }
-    else
-    {
-      SetTargetPosition(ezVec3(pt[0], pt[2], pt[1]));
-    }
+    VisualizePathCorridorPosition();
+    VisualizePathCorridor();
+    VisualizeCurrentPath();
+    VisualizeTargetPosition();
   }
 
-
-  if (HasReachedGoal(1.0f))
+  // target is set, but no path is computed yet
+  if (GetPathToTargetState() == ezAgentPathFindingState::HasTargetWaitingForPath)
   {
-    m_bHasPath = false;
-    return;
+    if (ComputePathToTarget().Failed())
+      return;
+
+    PlanNextSteps();
   }
 
-  VisualizeCurrentPath();
-  VisualizeTargetPosition();
-
+  // temporary "gameplay" code
   {
-    const ezVec3 vDir = ComputeSteeringDirection(1.0f);
-
-    const ezVec3 vOwnerPos = GetOwner()->GetGlobalPosition();
-    const ezVec3 vTargetPos = vOwnerPos + vDir;
-
-    ezDebugRenderer::Line dir;
-    dir.m_start = vOwnerPos + ezVec3(0, 0, 0.5f);
-    dir.m_end = vTargetPos + ezVec3(0, 0, 0.5f);
-    ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr<ezDebugRenderer::Line>(&dir, 1), ezColor::OldLace);
-
-    if (!vDir.IsZero())
+    if (GetPathToTargetState() == ezAgentPathFindingState::HasTargetPathFindingFailed)
     {
-      const ezVec3 vSpeed = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * m_fWalkSpeed * vDir;
-      ezVec3 vNewPos = vOwnerPos + vSpeed;
+      ClearTargetPosition();
+    }
 
-      ezQuat qRot;
-      qRot.SetShortestRotation(ezVec3(1, 0, 0), vDir);
+    if (GetPathToTargetState() == ezAgentPathFindingState::HasNoTarget)
+    {
+      m_tLastUpdate = GetWorld()->GetClock().GetAccumulatedTime();
 
-      /// \todo Pass through character controller
-      GetOwner()->SetGlobalRotation(qRot);
+      dtCrowd* pCrowd = GetManager()->GetRecastWorldModule()->m_pCrowd;
 
-      //ezPhysicsWorldModuleInterface* pPhysicsInterface = GetManager()->m_pPhysicsInterface;
-      //if (pPhysicsInterface)
-      //{
-      //  /// \todo radius, step height, gravity dir
-
-      //  float fStepHeight = 0.2f;
-      //  ezVec3 vStepHeight = vNewPos + ezVec3(0, 0, fStepHeight);
-
-      //  ezPhysicsHitResult res;
-      //  if (pPhysicsInterface->SweepTestSphere(0.05f, vStepHeight, ezVec3(0, 0, -1), fStepHeight * 2, m_uiCollisionLayer, res))
-      //  {
-      //    vNewPos = vStepHeight;
-      //    vNewPos.z -= res.m_fDistance;
-      //  }
-      //  else
-      //  {
-      //    // falling
-
-      //    vNewPos = vStepHeight;
-      //    vNewPos.z -= fStepHeight * 2;
-      //  }
-      //}
-
-      if (m_bHasValidCorridor)
+      dtPolyRef ref;
+      float pt[3];
+      if (dtStatusFailed(pCrowd->getNavMeshQuery()->findRandomPoint(&m_QueryFilter, frand, &ref, pt)))
       {
-        ezRcPos rcPosNew = vNewPos;
-
-        dtQueryFilter filter; /// \todo
-        if (!m_pCorridor->movePosition(rcPosNew, m_pQuery.Borrow(), &filter))
-        {
-          int i = 0;
-          ++i;
-        }
-
-        {
-          rcPosNew = m_pCorridor->getPos();
-          vNewPos = rcPosNew;
-          vNewPos.z = vOwnerPos.z;
-        }
-      }
-
-      if (!m_hCharacterController.IsInvalidated())
-      {
-        ezCharacterControllerComponent* pCharacter = nullptr;
-        if (GetWorld()->TryGetComponent(m_hCharacterController, pCharacter))
-        {
-          ezTransform curGlobal = GetOwner()->GetGlobalTransform();
-          ezTransform newGlobal(vNewPos, curGlobal.m_qRotation);
-
-          ezTransform rel;
-          rel.SetLocalTransform(curGlobal, newGlobal);
-
-          ezCharacterController_MoveCharacterMsg msg;
-          msg.m_fMoveForwards = ezMath::Max(0.0f, rel.m_vPosition.x);
-          msg.m_fMoveBackwards = ezMath::Max(0.0f, -rel.m_vPosition.x);
-          msg.m_fStrafeLeft = ezMath::Max(0.0f, -rel.m_vPosition.y);
-          msg.m_fStrafeRight = ezMath::Max(0.0f, rel.m_vPosition.y);
-          
-          pCharacter->MoveCharacter(msg);
-        }
+        ezLog::Error("Could not find random point");
       }
       else
       {
-        GetOwner()->SetGlobalPosition(vNewPos);
+        SetTargetPosition(ezVec3(pt[0], pt[2], pt[1]));
       }
     }
   }
-}
 
-void ezRcAgentComponent::VisualizeCurrentPath()
-{
-  ezHybridArray<ezDebugRenderer::Line, 16> lines;
-  lines.Reserve(m_iNumNextSteps);
+  // from here on down, everything has to do with following a valid path
 
-  ezHybridArray<ezDebugRenderer::Line, 16> steps;
-  steps.Reserve(m_iNumNextSteps);
-
-  ezVec3 vPrev = GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 0.5f);
-  for (ezInt32 i = m_iFirstNextStep; i < m_iNumNextSteps; ++i)
-  {
-    auto& line = lines.ExpandAndGetRef();
-    line.m_start = vPrev;
-    line.m_end = m_vNextSteps[i] + ezVec3(0, 0, 0.5f);
-    vPrev = line.m_end;
-
-    auto& step = steps.ExpandAndGetRef();
-    step.m_start = m_vNextSteps[i];
-    step.m_end = m_vNextSteps[i] + ezVec3(0, 0, 1.0f);
-  }
-
-  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::DarkViolet);
-  ezDebugRenderer::DrawLines(GetWorld(), steps, ezColor::LightYellow);
-}
-
-
-void ezRcAgentComponent::VisualizeTargetPosition()
-{
-  ezHybridArray<ezDebugRenderer::Line, 16> lines;
-  auto& line = lines.ExpandAndGetRef();
-
-  line.m_start = m_vEndPosition - ezVec3(0, 0, 0.5f);
-  line.m_end = m_vEndPosition + ezVec3(0, 0, 1.5f);
-
-  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::HotPink);
-}
-
-void ezRcAgentComponent::SetTargetPosition(const ezVec3& vPos)
-{
-  if (!m_bInitialized)
+  if (GetPathToTargetState() != ezAgentPathFindingState::HasTargetAndValidPath)
     return;
 
-  ezVec3 vStartPos = GetOwner()->GetGlobalPosition();
-
-  dtPolyRef startPoly;
-  if (FindNavMeshPolyAt(vStartPos, startPoly).Failed())
+  if (HasReachedGoal(1.0f))
   {
-    ezLog::Warning("ezRcAgentComponent::SetTargetPosition: Agent not on NavMesh");
+    ezAgentSteeringEvent e;
+    e.m_Type = ezAgentSteeringEvent::TargetReached;
+    m_SteeringEvents.Broadcast(e);
+
+    ClearTargetPosition();
     return;
   }
 
-  ezVec3 vEndPos = vPos;
-  dtPolyRef endPoly;
-  if (FindNavMeshPolyAt(vEndPos, endPoly).Failed())
+  ComputeSteeringDirection(1.0f);
+
+  if (m_vCurrentSteeringDirection.IsZero())
   {
-    ezLog::Warning("ezRcAgentComponent::SetTargetPosition: Destination not on NavMesh");
+    /// \todo This would be some sort of error
+    ezLog::Error("Steering Direction is zero.");
+    ClearTargetPosition();
     return;
   }
 
-  if (m_startPoly == startPoly && m_endPoly == endPoly)
-  {
-    //ezLog::Warning("ezRcAgentComponent::SetTargetPosition: Start/End have not changed");
-    return;
-  }
+  ApplySteering(m_vCurrentSteeringDirection, m_fWalkSpeed);
 
-  m_vStartPosition = GetOwner()->GetGlobalPosition();
-  m_vEndPosition = vPos;
-
-  m_startPoly = startPoly;
-  m_endPoly = endPoly;
-
-  if (RecomputePathCorridor().Failed())
-  {
-    ezLog::Warning("ezRcAgentComponent::SetTargetPosition: Failed to compute path corridor");
-    return;
-  }
-
-  m_bHasPath = true;
+  SyncSteeringWithReality();
 }
 
-
-ezResult ezRcAgentComponent::FindNavMeshPolyAt(ezVec3& inout_vPosition, dtPolyRef& out_PolyRef) const
+void ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
 {
-  ezRcPos rcPos = inout_vPosition;
-  ezVec3 vSize(0.5f, 1.0f, 0.5f); /// \todo Hard-coded offset
-
-  ezRcPos resultPos;
-  dtQueryFilter filter; /// \todo Hard-coded filter
-  if (dtStatusFailed(m_pQuery->findNearestPoly(rcPos, &vSize.x, &filter, &out_PolyRef, resultPos)))
-    return EZ_FAILURE;
-
-  if (!ezMath::IsEqual(inout_vPosition.x, resultPos.m_Pos[0], 0.01f) ||
-      !ezMath::IsEqual(inout_vPosition.y, resultPos.m_Pos[2], 0.01f))
-    return EZ_FAILURE;
-
-  inout_vPosition = resultPos;
-  return EZ_SUCCESS;
-}
-
-bool ezRcAgentComponent::Init()
-{
-  if (m_bInitialized)
-    return true;
-
-  if (!GetManager()->GetRecastWorldModule()->IsInitialized())
-    return false;
-
-  dtNavMesh* pNavMesh = GetManager()->GetRecastWorldModule()->GetNavMesh();
-  if (pNavMesh == nullptr)
-    return false;
-
-  m_bInitialized = true;
-
-  m_pQuery = EZ_DEFAULT_NEW(dtNavMeshQuery);
-  m_pCorridor = EZ_DEFAULT_NEW(dtPathCorridor);
-  m_bHasValidCorridor = false;
-
-  /// \todo Hard-coded limits
-  m_pQuery->init(pNavMesh, 512);
-  m_pCorridor->init(256);
-
-  m_PathCorridor.SetCount(256);
-
-  return true;
-}
-
-
-ezResult ezRcAgentComponent::RecomputePathCorridor()
-{
-  m_bHasValidCorridor = false;
-
-  ezRcPos rcStart = m_vStartPosition;
-  ezRcPos rcEnd = m_vEndPosition;
-
-  dtQueryFilter filter; /// \todo Hard-coded filter
-
-  m_iPathCorridorLength = 0;
-
-  if (dtStatusFailed(m_pQuery->findPath(m_startPoly, m_endPoly, rcStart, rcEnd, &filter, m_PathCorridor.GetData(), &m_iPathCorridorLength, (int)m_PathCorridor.GetCount())))
-  {
-    return EZ_FAILURE;
-  }
-
-  if (m_PathCorridor[m_iPathCorridorLength - 1] != m_endPoly)
-  {
-    ezLog::Warning("Target Position cannot be reached");
-    return EZ_FAILURE;
-  }
-
-  m_pCorridor->reset(m_startPoly, rcStart);
-  m_pCorridor->setCorridor(rcEnd, m_PathCorridor.GetData(), m_iPathCorridorLength);
-  m_bHasValidCorridor = m_iPathCorridorLength > 0;
-
-  return PlanNextSteps();
-}
-
-
-ezResult ezRcAgentComponent::PlanNextSteps()
-{
-  if (!m_bHasValidCorridor)
-    return EZ_FAILURE;
-
-  dtQueryFilter filter; /// \todo Hard-coded filter
-  m_iFirstNextStep = 0;
-  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, m_uiStepFlags, m_StepPolys, 4, m_pQuery.Borrow(), &filter);
-
-  // convert from Recast convention (Y up) to ez (Z up)
-  for (ezInt32 i = 0; i < m_iNumNextSteps; ++i)
-  {
-    ezMath::Swap(m_vNextSteps[i].y, m_vNextSteps[i].z);
-  }
-
-  /// \todo Failure ?
-  return EZ_SUCCESS;
-}
-
-ezVec3 ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
-{
-  if (!m_bHasValidCorridor)
-    return ezVec3::ZeroVector();
-
   ezVec3 vCurPos = GetOwner()->GetGlobalPosition();
   vCurPos.z = 0;
 
@@ -392,7 +446,7 @@ ezVec3 ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
 
   if (iNextStep < m_iFirstNextStep)
   {
-    ezLog::Error("Next step not visible");
+    //ezLog::Error("Next step not visible");
     iNextStep = m_iFirstNextStep;
   }
 
@@ -401,7 +455,7 @@ ezVec3 ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
     if (HasReachedPosition(m_vNextSteps[iNextStep], 1.0f))
     {
       PlanNextSteps();
-      return ezVec3::ZeroVector();
+      return; // reuse last steering direction
     }
   }
 
@@ -410,7 +464,7 @@ ezVec3 ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
   if (m_iFirstNextStep >= m_iNumNextSteps)
   {
     PlanNextSteps();
-    return ezVec3::ZeroVector();
+    return; // reuse last steering direction
   }
 
 
@@ -418,55 +472,18 @@ ezVec3 ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
   vDirection.z = 0;
   vDirection.NormalizeIfNotZero(ezVec3::ZeroVector());
 
-  return vDirection;
+  m_vCurrentSteeringDirection = vDirection;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
-bool ezRcAgentComponent::HasReachedPosition(const ezVec3& pos, float fMaxDistance) const
+void ezRcAgentComponent::VisualizePathCorridorPosition()
 {
-  ezVec3 vTargetPos = pos;
-  ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
-
-  const float fCellHeight = 1.0f;
-
-  // agent component is assumed to be located on the ground (independent of character height)
-  // so max error is dependent on the navmesh resolution mostly (cell height)
-  const float fHeightError = fCellHeight;
-  
-  if (!ezMath::IsInRange(vTargetPos.z, vOwnPos.z - fHeightError, vOwnPos.z + fHeightError))
-    return false;
-
-  vTargetPos.z = 0;
-  vOwnPos.z = 0;
-
-  return (vTargetPos - vOwnPos).GetLength() < fMaxDistance;
-}
-
-bool ezRcAgentComponent::HasReachedGoal(float fMaxDistance) const
-{
-  if (!m_bHasPath)
-    return true;
-
-  return HasReachedPosition(m_vEndPosition, fMaxDistance);
-}
-
-bool ezRcAgentComponent::IsPositionVisible(const ezVec3& pos) const
-{
-  ezRcPos endPos = pos;
-
-  /// \todo Hardcoded filter
-  dtQueryFilter filter;
-  dtRaycastHit hit;
-  if (dtStatusFailed(m_pQuery->raycast(m_pCorridor->getFirstPoly(), m_pCorridor->getPos(), endPos, &filter, 0, &hit)))
-    return false;
-
-  // 'visible' if no hit was detected
-  return (hit.t > 100000.0f);
-}
-
-void ezRcAgentComponent::RenderPathCorridorPosition()
-{
-  if (!m_bHasPath || !m_bHasValidCorridor)
+  if (GetPathToTargetState() != ezAgentPathFindingState::HasTargetAndValidPath)
     return;
 
   const float* pos = m_pCorridor->getPos();
@@ -483,12 +500,12 @@ void ezRcAgentComponent::RenderPathCorridorPosition()
   ezDebugRenderer::DrawLineBox(GetWorld(), box, ezColor::DarkGreen, t);
 }
 
-void ezRcAgentComponent::RenderPathCorridor()
+void ezRcAgentComponent::VisualizePathCorridor()
 {
-  if (!m_bHasPath || !m_bHasValidCorridor)
+  if (GetPathToTargetState() != ezAgentPathFindingState::HasTargetAndValidPath)
     return;
 
-  for (ezInt32 c = 0; c < m_iPathCorridorLength; ++c)
+  for (ezUInt32 c = 0; c < m_PathCorridor.GetCount(); ++c)
   {
     dtPolyRef poly = m_PathCorridor[c];
 
@@ -515,6 +532,54 @@ void ezRcAgentComponent::RenderPathCorridor()
   }
 }
 
+void ezRcAgentComponent::VisualizeTargetPosition()
+{
+  if (GetPathToTargetState() == ezAgentPathFindingState::HasNoTarget)
+    return;
+
+  ezHybridArray<ezDebugRenderer::Line, 16> lines;
+  auto& line = lines.ExpandAndGetRef();
+
+  line.m_start = m_vTargetPosition - ezVec3(0, 0, 0.5f);
+  line.m_end = m_vTargetPosition + ezVec3(0, 0, 1.5f);
+
+  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::HotPink);
+}
+
+void ezRcAgentComponent::VisualizeCurrentPath()
+{
+  if (GetPathToTargetState() != ezAgentPathFindingState::HasTargetAndValidPath)
+    return;
+
+  ezHybridArray<ezDebugRenderer::Line, 16> lines;
+  lines.Reserve(m_iNumNextSteps);
+
+  ezHybridArray<ezDebugRenderer::Line, 16> steps;
+  steps.Reserve(m_iNumNextSteps);
+
+  /// \todo Hard-coded height offset
+  ezVec3 vPrev = GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 0.5f);
+  for (ezInt32 i = m_iFirstNextStep; i < m_iNumNextSteps; ++i)
+  {
+    auto& line = lines.ExpandAndGetRef();
+    line.m_start = vPrev;
+    line.m_end = m_vNextSteps[i] + ezVec3(0, 0, 0.5f);
+    vPrev = line.m_end;
+
+    auto& step = steps.ExpandAndGetRef();
+    step.m_start = m_vNextSteps[i];
+    step.m_end = m_vNextSteps[i] + ezVec3(0, 0, 1.0f);
+  }
+
+  ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::DarkViolet);
+  ezDebugRenderer::DrawLines(GetWorld(), steps, ezColor::LightYellow);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 ezRcAgentComponentManager::ezRcAgentComponentManager(ezWorld* pWorld) : SUPER(pWorld) { }
