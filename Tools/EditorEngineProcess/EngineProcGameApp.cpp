@@ -8,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <QApplication>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <InputXBox360/InputDeviceXBox.h>
@@ -172,17 +173,9 @@ void ezEngineProcessGameApplication::SendProjectReadyMessage()
 
 void ezEngineProcessGameApplication::SendReflectionInformation()
 {
-  /// \todo Maybe just send ALL reflection information ? Otherwise custom types are never synchronized.
-  /// Or add a callback such that plugins can add which types they need synchronized.
   ezSet<const ezRTTI*> types;
 
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezReflectedClass>(), types, true);
-  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
-  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), types, true);
-  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), types, true);
-  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderer>(), types, true);
-  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezVisualScriptNode>(), types, true);
-  //ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezScriptFunctionMessage>(), types, true);
 
   ezDynamicArray<const ezRTTI*> sortedTypes;
   ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);

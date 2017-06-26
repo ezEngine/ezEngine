@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Components/AgentSteeringComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 

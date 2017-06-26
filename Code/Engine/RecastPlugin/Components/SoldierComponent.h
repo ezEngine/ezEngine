@@ -5,6 +5,7 @@
 
 class ezRecastWorldModule;
 class ezPhysicsWorldModuleInterface;
+struct ezAgentSteeringEvent;
 
 //////////////////////////////////////////////////////////////////////////
 

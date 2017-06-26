@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -46,7 +46,8 @@ private:
   ezString m_sProjectDirectory;
   ezApplicationFileSystemConfig m_CustomFileSystemConfig;
   ezApplicationPluginConfig m_CustomPluginConfig;
-  QApplication* m_pApp;
   ezProcessCommunication m_IPC;
+
+  class QApplication* m_pApp;
 };
 
