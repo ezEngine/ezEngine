@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <QWidget>
 #include <Foundation/Containers/HybridArray.h>
 #include <Core/Graphics/Camera.h>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
-#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 
 class ezQtEngineDocumentWindow;
 class ezEditorInputContext;

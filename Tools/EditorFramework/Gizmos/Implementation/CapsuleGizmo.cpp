@@ -5,6 +5,7 @@
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <QMouseEvent>
 #include <QDesktopWidget>
 
@@ -28,9 +29,9 @@ ezCapsuleGizmo::ezCapsuleGizmo()
 
 void ezCapsuleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_LengthTop.SetOwner(pOwnerWindow->GetDocument());
-  m_LengthBottom.SetOwner(pOwnerWindow->GetDocument());
-  m_Radius.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_LengthTop);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_LengthBottom);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_Radius);
 }
 
 void ezCapsuleGizmo::OnVisibleChanged(bool bVisible)
@@ -75,7 +76,7 @@ void ezCapsuleGizmo::DoFocusLost(bool bCancel)
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_LengthTop.SetVisible(true);
   m_LengthBottom.SetVisible(true);
@@ -107,7 +108,7 @@ ezEditorInut ezCapsuleGizmo::DoMousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_LastInteraction = ezTime::Now();
 

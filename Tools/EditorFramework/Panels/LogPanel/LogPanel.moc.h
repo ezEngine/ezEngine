@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_LogPanel.h>
-#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 

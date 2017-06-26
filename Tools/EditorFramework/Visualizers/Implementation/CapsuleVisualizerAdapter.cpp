@@ -1,7 +1,8 @@
 ﻿#include <PCH.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezCapsuleVisualizerAdapter::ezCapsuleVisualizerAdapter()
@@ -24,10 +25,9 @@ void ezCapsuleVisualizerAdapter::Finalize()
   m_SphereTop.Configure(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, false, false, true);
   m_SphereBottom.Configure(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, false, false, true);
 
-
-  m_Cylinder.SetOwner(pAssetDocument);
-  m_SphereTop.SetOwner(pAssetDocument);
-  m_SphereBottom.SetOwner(pAssetDocument);
+  pAssetDocument->AddSyncObject(&m_Cylinder);
+  pAssetDocument->AddSyncObject(&m_SphereTop);
+  pAssetDocument->AddSyncObject(&m_SphereBottom);
 
   m_Cylinder.SetVisible(m_bVisualizerIsVisible);
   m_SphereTop.SetVisible(m_bVisualizerIsVisible);

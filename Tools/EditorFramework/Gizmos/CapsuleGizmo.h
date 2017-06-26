@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <QPoint>
 

@@ -1,8 +1,8 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Application/Application.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/IPC/ProcessCommunication.h>
+#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>

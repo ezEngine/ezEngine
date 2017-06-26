@@ -6,9 +6,9 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorFramework/Gizmos/GizmoRenderer.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Core/World/GameObject.h>

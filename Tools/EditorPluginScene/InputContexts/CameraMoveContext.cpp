@@ -512,7 +512,7 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
   // send a message to clear any highlight
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;

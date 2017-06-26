@@ -5,6 +5,8 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/Components/AgentSteeringComponent.h>
+#include <ThirdParty/Recast/DetourCrowd.h>
+#include <RecastPlugin/WorldModule/RecastWorldModule.h>
 
 //////////////////////////////////////////////////////////////////////////
 

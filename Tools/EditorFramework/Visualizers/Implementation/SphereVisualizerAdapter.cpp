@@ -1,6 +1,6 @@
 ﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
@@ -22,7 +22,7 @@ void ezSphereVisualizerAdapter::Finalize()
 
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Sphere, pAttr->m_Color, false, false, true);
 
-  m_Gizmo.SetOwner(pAssetDocument);
+  pAssetDocument->AddSyncObject(&m_Gizmo);
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 

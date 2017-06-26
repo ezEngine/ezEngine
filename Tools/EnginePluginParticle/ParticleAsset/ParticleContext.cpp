@@ -3,7 +3,7 @@
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Core/Graphics/Geometry.h>

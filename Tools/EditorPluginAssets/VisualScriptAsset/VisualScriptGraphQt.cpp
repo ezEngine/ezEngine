@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <QPainter>
 #include <QTimer>
 #include <Foundation/Strings/StringBuilder.h>

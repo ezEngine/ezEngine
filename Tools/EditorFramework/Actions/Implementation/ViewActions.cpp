@@ -1,8 +1,8 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>

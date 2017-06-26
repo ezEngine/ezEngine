@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <ToolsFoundation/Basics.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <Foundation/Logging/Log.h>
 

@@ -7,6 +7,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -29,13 +30,13 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
 
 void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_Bobble.SetOwner(pOwnerWindow->GetDocument());
-  m_AlignPX.SetOwner(pOwnerWindow->GetDocument());
-  m_AlignNX.SetOwner(pOwnerWindow->GetDocument());
-  m_AlignPY.SetOwner(pOwnerWindow->GetDocument());
-  m_AlignNY.SetOwner(pOwnerWindow->GetDocument());
-  m_AlignPZ.SetOwner(pOwnerWindow->GetDocument());
-  m_AlignNZ.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_Bobble);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignPX);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignNX);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignPY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignNY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignPZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AlignNZ);
 }
 
 void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)
@@ -82,7 +83,7 @@ void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_Bobble.SetVisible(true);
   m_AlignPX.SetVisible(true);
@@ -103,7 +104,7 @@ ezEditorInut ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   // The gizmo is actually "hidden" somewhere else during dragging,
   // because it musn't be rendered into the picking buffer, to avoid picking against the gizmo

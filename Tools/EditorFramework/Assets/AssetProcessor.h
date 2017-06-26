@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <EditorFramework/IPC/ProcessCommunication.h>
+#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Logging/Log.h>

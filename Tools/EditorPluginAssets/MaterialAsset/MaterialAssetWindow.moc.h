@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class QLabel;
 class QScrollArea;

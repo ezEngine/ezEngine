@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
-#include <EditorFramework/IPC/SyncObject.h>
-#include <EditorFramework/IPC/IPCObjectMirror.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
 
 class QWidget;
 class QHBoxLayout;

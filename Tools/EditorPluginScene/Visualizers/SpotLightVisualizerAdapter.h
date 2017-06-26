@@ -2,7 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 
 class ezSpotLightVisualizerAdapter : public ezVisualizerAdapter
 {

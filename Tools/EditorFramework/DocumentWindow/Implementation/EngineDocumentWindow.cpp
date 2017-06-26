@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/IPC/SyncObject.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Timestamp.h>

@@ -6,6 +6,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <Foundation/Math/Mat4.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxGizmo, 1, ezRTTINoAllocator);
@@ -31,12 +32,12 @@ ezBoxGizmo::ezBoxGizmo()
 
 void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_Corners.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_Corners);
 
   for (int i = 0; i < 3; ++i)
   {
-    m_Edges[i].SetOwner(pOwnerWindow->GetDocument());
-    m_Faces[i].SetOwner(pOwnerWindow->GetDocument());
+    pOwnerWindow->GetDocument()->AddSyncObject(&m_Edges[i]);
+    pOwnerWindow->GetDocument()->AddSyncObject(&m_Faces[i]);
   }
 }
 
@@ -86,7 +87,7 @@ void ezBoxGizmo::DoFocusLost(bool bCancel)
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
   
   m_ManipulateMode = ManipulateMode::None;
 }
@@ -134,7 +135,7 @@ ezEditorInut ezBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_LastInteraction = ezTime::Now();
 

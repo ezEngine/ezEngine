@@ -3,7 +3,7 @@
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
-#include <EditorFramework/SceneExport/SceneExportModifier.h>
+#include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
 typedef ezComponentManager<class ezShapeIconComponent, ezBlockStorageType::Compact> ezShapeIconComponentManager;
 

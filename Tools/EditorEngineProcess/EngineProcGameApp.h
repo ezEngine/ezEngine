@@ -1,8 +1,12 @@
 ﻿#pragma once
 
 #include <PCH.h>
-#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <Core/Application/Config/FileSystemConfig.h>
+#include <Core/Application/Config/PluginConfig.h>
+
+class ezDocumentOpenMsgToEngine;
 
 class ezEngineProcessGameApplication : public ezGameApplication
 {

@@ -1,6 +1,6 @@
 ﻿#include <PCH.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <RendererCore/Lights/PointLightComponent.h>
@@ -21,7 +21,7 @@ void ezPointLightVisualizerAdapter::Finalize()
 
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Sphere, ezColor::White, false, false, true);
 
-  m_Gizmo.SetOwner(pAssetDocument);
+  pAssetDocument->AddSyncObject(&m_Gizmo);
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 

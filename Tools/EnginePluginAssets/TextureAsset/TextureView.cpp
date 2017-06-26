@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EnginePluginAssets/TextureAsset/TextureView.h>
 #include <EnginePluginAssets/TextureAsset/TextureContext.h>
 
@@ -6,6 +6,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
 ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
   : ezEngineProcessViewContext(pContext)
@@ -36,7 +37,7 @@ ezViewHandle ezTextureViewContext::CreateView()
 void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   // Do not apply render mode here otherwise we would switch to a different pipeline.
-  // Also use hardcoded clipping planes so the quad is not culled to early.
+  // Also use hard-coded clipping planes so the quad is not culled to early.
 
   ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
   m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, 0.0001f, 50.0f);

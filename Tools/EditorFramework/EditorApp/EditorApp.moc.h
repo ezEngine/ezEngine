@@ -4,7 +4,7 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Basics/RecentFilesList.h>
-#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>

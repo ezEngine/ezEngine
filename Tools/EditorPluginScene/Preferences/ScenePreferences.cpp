@@ -1,6 +1,6 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSceneViewPreferences, ezNoBase, 1, ezRTTIDefaultAllocator<ezSceneViewPreferences>)
 {

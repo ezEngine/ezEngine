@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/BaseActions.h>
 

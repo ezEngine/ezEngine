@@ -6,7 +6,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Core/Graphics/Geometry.h>
 #include <SharedPluginAssets/Common/Messages.h>

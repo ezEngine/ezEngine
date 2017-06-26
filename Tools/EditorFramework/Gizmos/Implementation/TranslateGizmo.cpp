@@ -5,6 +5,7 @@
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <QMouseEvent>
 #include <QDesktopWidget>
@@ -35,13 +36,13 @@ ezTranslateGizmo::ezTranslateGizmo()
 
 void ezTranslateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_AxisX.SetOwner(pOwnerWindow->GetDocument());
-  m_AxisY.SetOwner(pOwnerWindow->GetDocument());
-  m_AxisZ.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisX);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisZ);
 
-  m_PlaneXY.SetOwner(pOwnerWindow->GetDocument());
-  m_PlaneXZ.SetOwner(pOwnerWindow->GetDocument());
-  m_PlaneYZ.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_PlaneXY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_PlaneXZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_PlaneYZ);
 }
 
 void ezTranslateGizmo::OnVisibleChanged(bool bVisible)
@@ -92,7 +93,7 @@ void ezTranslateGizmo::DoFocusLost(bool bCancel)
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
@@ -163,7 +164,7 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_vStartPosition = GetTransformation().m_vPosition;
 

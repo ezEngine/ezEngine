@@ -1,11 +1,14 @@
 ﻿#pragma once
 
 #include <EnginePluginScene/Plugin.h>
-#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
 class ezGameState;
+class ezGameModeMsgToEngine;
+class ezSceneSettingsMsgToEngine;
+class ezObjectsForDebugVisMsgToEngine;
 struct ezVisualScriptComponentActivityEvent;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext

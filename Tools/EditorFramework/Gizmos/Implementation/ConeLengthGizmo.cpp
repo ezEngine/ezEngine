@@ -2,6 +2,7 @@
 #include <EditorFramework/Gizmos/ConeLengthGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <QMouseEvent>
 #include <QDesktopWidget>
@@ -24,7 +25,7 @@ ezConeLengthGizmo::ezConeLengthGizmo()
 
 void ezConeLengthGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_ConeRadius.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_ConeRadius);
 }
 
 void ezConeLengthGizmo::OnVisibleChanged(bool bVisible)
@@ -48,7 +49,7 @@ void ezConeLengthGizmo::DoFocusLost(bool bCancel)
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_ConeRadius.SetVisible(true);
 
@@ -74,7 +75,7 @@ ezEditorInut ezConeLengthGizmo::DoMousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_LastInteraction = ezTime::Now();
 

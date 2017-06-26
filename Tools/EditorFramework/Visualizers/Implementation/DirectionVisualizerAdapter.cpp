@@ -1,6 +1,6 @@
 ﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
@@ -22,7 +22,7 @@ void ezDirectionVisualizerAdapter::Finalize()
 
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Arrow, pAttr->m_Color, false, false, true);
 
-  m_Gizmo.SetOwner(pAssetDocument);
+  pAssetDocument->AddSyncObject(&m_Gizmo);
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 

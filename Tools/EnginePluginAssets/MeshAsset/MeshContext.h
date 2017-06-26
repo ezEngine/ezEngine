@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <EnginePluginAssets/Plugin.h>
-#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Declarations.h>
 

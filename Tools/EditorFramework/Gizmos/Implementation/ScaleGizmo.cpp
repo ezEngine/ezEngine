@@ -6,6 +6,7 @@
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -23,10 +24,10 @@ ezScaleGizmo::ezScaleGizmo()
 
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_AxisX.SetOwner(pOwnerWindow->GetDocument());
-  m_AxisY.SetOwner(pOwnerWindow->GetDocument());
-  m_AxisZ.SetOwner(pOwnerWindow->GetDocument());
-  m_AxisXYZ.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisX);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisY);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisZ);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisXYZ);
 }
 
 void ezScaleGizmo::OnVisibleChanged(bool bVisible)
@@ -63,7 +64,7 @@ void ezScaleGizmo::DoFocusLost(bool bCancel)
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
@@ -102,7 +103,7 @@ ezEditorInut ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 

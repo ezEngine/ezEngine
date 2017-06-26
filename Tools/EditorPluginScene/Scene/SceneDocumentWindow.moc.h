@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/IPC/ProcessCommunication.h>
-#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>

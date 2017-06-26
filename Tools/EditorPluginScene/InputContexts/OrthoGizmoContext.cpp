@@ -1,14 +1,14 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginScene/InputContexts/OrthoGizmoContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/IPC/SyncObject.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 

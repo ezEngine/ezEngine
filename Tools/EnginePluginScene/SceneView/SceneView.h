@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>

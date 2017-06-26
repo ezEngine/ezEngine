@@ -14,6 +14,7 @@
 #include <InputXBox360/InputDeviceXBox.h>
 ezInputDeviceXBox360 g_XboxInputDevice;
 #endif
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)

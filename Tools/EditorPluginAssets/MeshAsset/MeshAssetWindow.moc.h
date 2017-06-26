@@ -4,7 +4,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class QLabel;
 class QScrollArea;

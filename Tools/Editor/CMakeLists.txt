@@ -32,6 +32,7 @@ SET (LINK_LIBRARIES
   Core
   ThirdParty
   EditorFramework
+  EditorEngineProcessFramework
   ToolsFoundation
   GuiFoundation
 )

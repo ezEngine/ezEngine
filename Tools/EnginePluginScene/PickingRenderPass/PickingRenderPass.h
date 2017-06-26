@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class ezSceneContext;
 

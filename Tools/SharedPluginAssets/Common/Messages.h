@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SharedPluginAssets/Plugin.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
 
 class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineRestoreResourceMsg : public ezEditorEngineDocumentMsg

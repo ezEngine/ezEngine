@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EnginePluginParticle/Plugin.h>
-#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
 class ezParticleComponent;

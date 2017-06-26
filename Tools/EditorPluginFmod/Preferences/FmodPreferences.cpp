@@ -1,7 +1,7 @@
 ﻿#include <PCH.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodProjectPreferences, 1, ezRTTIDefaultAllocator<ezFmodProjectPreferences>)
 {

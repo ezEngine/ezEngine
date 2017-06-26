@@ -4,8 +4,8 @@
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <EditorPluginFmod/Dialogs/FmodProjectSettingsDlg.moc.h>
 #include <Foundation/Configuration/CVar.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 

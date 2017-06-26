@@ -1,11 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
-#include <EditorFramework/IPC/IPCObjectMirror.h>
+#include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
 
 class ezEditorEngineConnection;
 class ezEditorEngineSyncObject;
@@ -192,7 +192,7 @@ private:
   bool m_bUseIPCObjectMirror;
   bool m_bUseEngineConnection;
 
-  ezIPCObjectMirror m_Mirror;
+  ezIPCObjectMirrorEditor m_Mirror;
   ezEditorEngineConnection* m_pEngineConnection;
 
   mutable ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_AllSyncObjects;

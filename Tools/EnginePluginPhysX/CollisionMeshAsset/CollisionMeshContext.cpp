@@ -9,7 +9,7 @@
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <GameEngine/Components/RotorComponent.h>
 #include <GameEngine/Components/SliderComponent.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Core/Graphics/Geometry.h>
@@ -17,7 +17,7 @@
 #include <GameEngine/Components/SpawnComponent.h>
 #include <GameEngine/Components/TimedDeathComponent.h>
 #include <GameEngine/Components/InputComponent.h>
-#include <EditorFramework/Gizmos/GizmoRenderer.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <SharedPluginAssets/Common/Messages.h>

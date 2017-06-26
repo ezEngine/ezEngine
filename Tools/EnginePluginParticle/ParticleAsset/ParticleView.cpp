@@ -3,8 +3,8 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
-#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 
 ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext)

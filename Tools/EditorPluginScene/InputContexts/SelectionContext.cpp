@@ -3,8 +3,8 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/IPC/SyncObject.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
@@ -211,7 +211,7 @@ ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
       msg.m_HighlightObject = res.m_PickedObject;
   }
 
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   // we only updated the highlight, so others may do additional stuff, if they like
   return ezEditorInut::MayBeHandledByOthers;

@@ -3,9 +3,9 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <EditorFramework/Gizmos/GizmoRenderer.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -15,7 +15,7 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/Interfaces/SoundInterface.h>
 #include <Foundation/Configuration/Singleton.h>
-#include <EditorFramework/SceneExport/SceneExportModifier.h>
+#include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {

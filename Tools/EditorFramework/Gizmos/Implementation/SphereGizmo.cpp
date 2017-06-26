@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <EditorFramework/Gizmos/SphereGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <Foundation/Logging/Log.h>
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
@@ -29,8 +30,8 @@ ezSphereGizmo::ezSphereGizmo()
 
 void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_InnerSphere.SetOwner(pOwnerWindow->GetDocument());
-  m_OuterSphere.SetOwner(pOwnerWindow->GetDocument());
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_InnerSphere);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_OuterSphere);
 }
 
 void ezSphereGizmo::OnVisibleChanged(bool bVisible)
@@ -59,7 +60,7 @@ void ezSphereGizmo::DoFocusLost(bool bCancel)
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_InnerSphere.SetVisible(m_bInnerEnabled);
   m_OuterSphere.SetVisible(true);
@@ -90,7 +91,7 @@ ezEditorInut ezSphereGizmo::DoMousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
+  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   //m_InnerSphere.SetVisible(false);
   //m_OuterSphere.SetVisible(false);

@@ -8,7 +8,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <QTimer>
 #include <QPushButton>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <qlayout.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Core/World/GameObject.h>

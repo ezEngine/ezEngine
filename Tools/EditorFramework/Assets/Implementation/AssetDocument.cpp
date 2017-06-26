@@ -3,7 +3,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <EditorFramework/IPC/SyncObject.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -675,8 +675,12 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
 {
+  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync)
+  {
+    RemoveSyncObject(pSync);
+  });
+
   m_SyncObjects.PushBack(pSync);
-  pSync->m_pOwner = this;
   m_AllSyncObjects[pSync->GetGuid()] = pSync;
 }
 
@@ -685,7 +689,6 @@ void ezAssetDocument::RemoveSyncObject(ezEditorEngineSyncObject* pSync) const
   m_DeletedObjects.PushBack(pSync->GetGuid());
   m_AllSyncObjects.Remove(pSync->GetGuid());
   m_SyncObjects.RemoveSwap(pSync);
-  pSync->m_pOwner = nullptr;
 }
 
 ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezUuid& guid) const

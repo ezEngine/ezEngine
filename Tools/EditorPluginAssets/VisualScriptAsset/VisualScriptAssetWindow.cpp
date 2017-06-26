@@ -10,7 +10,7 @@
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/Dialogs/PickDocumentObjectDlg.moc.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
 
 #include <QLabel>
