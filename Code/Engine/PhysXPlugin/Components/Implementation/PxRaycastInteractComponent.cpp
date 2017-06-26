@@ -84,7 +84,7 @@ void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute&
   }
 
   ezPhysicsHitResult res;
-  if (!pModule->CastRay(GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, m_uiCollisionLayer, res, uiIgnoreShapeID))
+  if (!pModule->CastRay(GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, m_uiCollisionLayer, res, true, uiIgnoreShapeID))
     return;
 
   SendMessage(res);

@@ -91,6 +91,7 @@ protected:
   static ezUInt16 GetNextTypeId();
 
 protected:
+  virtual void DeleteAllComponents() { }
 
   /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this is the method where updates function are registered.
   virtual void Initialize() { }

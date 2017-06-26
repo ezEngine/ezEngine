@@ -18,17 +18,44 @@ public:
   ezSoldierComponent();
   ~ezSoldierComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
   void Update();
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
 
 
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent Interface
 protected:
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  virtual void Deinitialize() override;
   virtual void OnSimulationStarted() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Steering
+
+  void SteeringEventHandler(const ezAgentSteeringEvent& e);
+
+  ezComponentHandle m_hSteeringComponent;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Game State
+
+  enum class State
+  {
+    Idle,
+    WaitingForPath,
+    Walking,
+    ErrorState,
+  };
+
+  State m_State = State::Idle;
+
 
 
 };

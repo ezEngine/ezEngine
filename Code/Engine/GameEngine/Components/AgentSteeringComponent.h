@@ -20,6 +20,7 @@ struct ezAgentSteeringEvent
   };
 
   Type m_Type;
+  class ezAgentSteeringComponent* m_pComponent = nullptr;
 };
 
 struct ezAgentPathFindingState

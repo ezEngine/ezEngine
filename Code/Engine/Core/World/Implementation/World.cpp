@@ -48,12 +48,21 @@ ezWorld::~ezWorld()
     it->m_Flags.Remove(ezObjectFlags::Active);
   }
 
-  // delete all modules before we invalidate the world. Components can still access the world during deinitialization.
+  // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
   for (ezWorldModule* pModule : m_Data.m_Modules)
   {
     if (pModule != nullptr)
     {
+      pModule->DeleteAllComponents();
       pModule->Deinitialize();
+    }
+  }
+
+  // now delete all modules
+  for (ezWorldModule* pModule : m_Data.m_Modules)
+  {
+    if (pModule != nullptr)
+    {
       EZ_DELETE(&m_Data.m_Allocator, pModule);
     }
   }

@@ -56,6 +56,13 @@ ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld) :
 template <typename T, ezBlockStorageType::Enum StorageType>
 ezComponentManager<T, StorageType>::~ezComponentManager()
 {
+  // at this point usually all components should be deleted already
+  DeleteAllComponents();
+}
+
+template <typename T, ezBlockStorageType::Enum StorageType>
+void ezComponentManager<T, StorageType>::DeleteAllComponents()
+{
   for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
   {
     DeinitializeComponent(it);

@@ -101,6 +101,8 @@ protected:
   friend ComponentType;
   friend class ezComponentManagerFactory;
 
+  virtual void DeleteAllComponents() override;
+
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
 

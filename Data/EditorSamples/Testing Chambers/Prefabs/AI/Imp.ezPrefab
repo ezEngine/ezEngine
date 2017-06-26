@@ -23,7 +23,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4742344647184895104,4957233606002623134}}
-		u4 %Hash{7802884545416962920}
+		u4 %Hash{13413158380943462779}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -124,6 +124,16 @@ o
 }
 o
 {
+	Uuid %id{u4{5110227296503394475,5532852110136443493}}
+	s %t{"ezSoldierComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13249062136770926991,5614347728795119741}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -138,6 +148,7 @@ o
 			Uuid{u4{1647596995229317261,5186668026790429264}}
 			Uuid{u4{11231609723901893017,5094424647124404838}}
 			Uuid{u4{5594704979864345234,5372689443679200370}}
+			Uuid{u4{5110227296503394475,5532852110136443493}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -183,6 +194,24 @@ o
 }
 o
 {
+	Uuid %id{u4{2321536512299439599,11598792721568451672}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezNpcComponent"}
+		s %PluginName{"ezRecastPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezSoldierComponent"}
+		u3 %TypeSize{64}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{9559220732555783990,13548708231193085674}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -198,7 +227,7 @@ o
 			Uuid{u4{13795330661858598546,496556411040670591}}
 		}
 		s %TypeName{"ezRcAgentComponent"}
-		u3 %TypeSize{672}
+		u3 %TypeSize{664}
 		u3 %TypeVersion{2}
 	}
 }

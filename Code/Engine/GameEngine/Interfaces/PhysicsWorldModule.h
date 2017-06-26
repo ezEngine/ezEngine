@@ -43,7 +43,7 @@ protected:
 public:
 
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
+    ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic = true, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;
 
   virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
     ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) = 0;

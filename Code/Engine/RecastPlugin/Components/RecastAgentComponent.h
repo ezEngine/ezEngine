@@ -119,7 +119,4 @@ private:
 
   bool m_bRecastInitialized = false;
   ezComponentHandle m_hCharacterController;
-
-  /// \todo clean up
-  ezTime m_tLastUpdate;
 };

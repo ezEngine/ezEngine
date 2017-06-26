@@ -77,9 +77,10 @@ void ezRcAgentComponent::ClearTargetPosition()
     m_PathToTargetState = ezAgentPathFindingState::HasNoTarget;
 
     ezAgentSteeringEvent e;
+    e.m_pComponent = this;
     e.m_Type = ezAgentSteeringEvent::TargetCleared;
 
-    m_SteeringEvents.Broadcast(e);
+    m_SteeringEvents.Broadcast(e, 1);
   }
 }
 
@@ -166,6 +167,7 @@ ezResult ezRcAgentComponent::ComputePathToTarget()
     m_PathToTargetState = ezAgentPathFindingState::HasTargetPathFindingFailed;
 
     ezAgentSteeringEvent e;
+    e.m_pComponent = this;
     e.m_Type = ezAgentSteeringEvent::ErrorOutsideNavArea;
     m_SteeringEvents.Broadcast(e);
     return EZ_FAILURE;
@@ -177,6 +179,7 @@ ezResult ezRcAgentComponent::ComputePathToTarget()
     m_PathToTargetState = ezAgentPathFindingState::HasTargetPathFindingFailed;
 
     ezAgentSteeringEvent e;
+    e.m_pComponent = this;
     e.m_Type = ezAgentSteeringEvent::ErrorInvalidTargetPosition;
     m_SteeringEvents.Broadcast(e);
     return EZ_FAILURE;
@@ -192,6 +195,7 @@ ezResult ezRcAgentComponent::ComputePathToTarget()
     /// \todo For now a partial path is considered an error
 
     ezAgentSteeringEvent e;
+    e.m_pComponent = this;
     e.m_Type = bFoundPartialPath ? ezAgentSteeringEvent::WarningNoFullPathToTarget : ezAgentSteeringEvent::ErrorNoPathToTarget;
     m_SteeringEvents.Broadcast(e);
     return EZ_FAILURE;
@@ -200,6 +204,7 @@ ezResult ezRcAgentComponent::ComputePathToTarget()
   m_PathToTargetState = ezAgentPathFindingState::HasTargetAndValidPath;
 
   ezAgentSteeringEvent e;
+  e.m_pComponent = this;
   e.m_Type = ezAgentSteeringEvent::PathToTargetFound;
   m_SteeringEvents.Broadcast(e);
   return EZ_SUCCESS;
@@ -268,9 +273,6 @@ void ezRcAgentComponent::OnSimulationStarted()
 {
   ClearTargetPosition();
 
-  /// \todo remove "Gameplay" code
-  m_tLastUpdate = ezTime::Seconds(-100);
-
   m_bRecastInitialized = false;
 
   ezCharacterControllerComponent* pCC = nullptr;
@@ -299,11 +301,6 @@ void ezRcAgentComponent::ApplySteering(const ezVec3& vDirection, float fSpeed)
       // the character controller already applies time scaling
       const ezVec3 vRelativeSpeed = (-GetOwner()->GetGlobalRotation() * vDirection) * fSpeed;
 
-      //ezTransform curGlobal = GetOwner()->GetGlobalTransform();
-      //ezTransform newGlobal(vDesiredNewPosition, curGlobal.m_qRotation);
-      //ezTransform rel;
-      //rel.SetLocalTransform(curGlobal, newGlobal);
-
       ezCharacterController_MoveCharacterMsg msg;
       msg.m_fMoveForwards = ezMath::Max(0.0f, vRelativeSpeed.x);
       msg.m_fMoveBackwards = ezMath::Max(0.0f, -vRelativeSpeed.x);
@@ -330,6 +327,7 @@ void ezRcAgentComponent::SyncSteeringWithReality()
   if (!m_pCorridor->movePosition(rcCurrentAgentPosition, m_pQuery.Borrow(), &m_QueryFilter))
   {
     ezAgentSteeringEvent e;
+    e.m_pComponent = this;
     e.m_Type = ezAgentSteeringEvent::ErrorSteeringFailed;
     m_SteeringEvents.Broadcast(e);
     ClearTargetPosition();
@@ -340,12 +338,6 @@ void ezRcAgentComponent::SyncSteeringWithReality()
   m_vCurrentPositionOnNavmesh = rcPosOnNavmesh;
 
   /// \todo Check when these values diverge
-}
-
-/// \todo remove "Gameplay" code
-static float frand()
-{
-  return (float)rand() / (float)RAND_MAX;
 }
 
 void ezRcAgentComponent::Update()
@@ -374,32 +366,6 @@ void ezRcAgentComponent::Update()
     PlanNextSteps();
   }
 
-  // temporary "gameplay" code
-  {
-    if (GetPathToTargetState() == ezAgentPathFindingState::HasTargetPathFindingFailed)
-    {
-      ClearTargetPosition();
-    }
-
-    if (GetPathToTargetState() == ezAgentPathFindingState::HasNoTarget)
-    {
-      m_tLastUpdate = GetWorld()->GetClock().GetAccumulatedTime();
-
-      dtCrowd* pCrowd = GetManager()->GetRecastWorldModule()->m_pCrowd;
-
-      dtPolyRef ref;
-      float pt[3];
-      if (dtStatusFailed(pCrowd->getNavMeshQuery()->findRandomPoint(&m_QueryFilter, frand, &ref, pt)))
-      {
-        ezLog::Error("Could not find random point");
-      }
-      else
-      {
-        SetTargetPosition(ezVec3(pt[0], pt[2], pt[1]));
-      }
-    }
-  }
-
   // from here on down, everything has to do with following a valid path
 
   if (GetPathToTargetState() != ezAgentPathFindingState::HasTargetAndValidPath)
@@ -408,6 +374,7 @@ void ezRcAgentComponent::Update()
   if (HasReachedGoal(1.0f))
   {
     ezAgentSteeringEvent e;
+    e.m_pComponent = this;
     e.m_Type = ezAgentSteeringEvent::TargetReached;
     m_SteeringEvents.Broadcast(e);
 
