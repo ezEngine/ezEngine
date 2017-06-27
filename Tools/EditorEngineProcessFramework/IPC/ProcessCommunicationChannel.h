@@ -5,8 +5,6 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Communication/Event.h>
 
-class QStringList;
-class QProcess;
 class ezIpcChannel;
 class ezProcessMessage;
 
@@ -15,16 +13,6 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessCommunicationChannel
 public:
   ezProcessCommunicationChannel();
   ~ezProcessCommunicationChannel();
-
-  ezResult StartClientProcess(const char* szProcess, const QStringList& args, const ezRTTI* pFirstAllowedMessageType = nullptr, ezUInt32 uiMemSize = 1024 * 1024 * 10);
-
-  ezResult ConnectToHostProcess();
-
-  void CloseConnection();
-
-  bool IsClientAlive() const;
-
-  bool IsHostAlive() const;
 
   void SendMessage(ezProcessMessage* pMessage);
 
@@ -43,15 +31,15 @@ public:
 
   ezEvent<const Event&> m_Events;
 
-private:
   void MessageFunc(const ezProcessMessage* msg);
 
-  ezIpcChannel* m_pChannel;
-  WaitForMessageCallback m_WaitForMessageCallback;
-  const ezRTTI* m_pWaitForMessageType;
-  const ezRTTI* m_pFirstAllowedMessageType;
-  ezInt64 m_iHostPID;
-  ezUInt32 m_uiProcessID;
-  QProcess* m_pClientProcess;
-};
+protected:
 
+  ezIpcChannel* m_pChannel = nullptr;
+  const ezRTTI* m_pFirstAllowedMessageType = nullptr;
+
+private:
+
+  WaitForMessageCallback m_WaitForMessageCallback;
+  const ezRTTI* m_pWaitForMessageType = nullptr;
+};

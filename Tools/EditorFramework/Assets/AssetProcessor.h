@@ -6,6 +6,7 @@
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Logging/Log.h>
+#include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 
 struct ezAssetCuratorEvent;
 class ezTask;
@@ -78,7 +79,7 @@ public:
 private:
   void StartProcess();
   void ShutdownProcess();
-  void EventHandlerIPC(const ezProcessCommunication::Event& e);
+  void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
   bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
   bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
@@ -87,7 +88,7 @@ private:
 
   ezUuid m_assetGuid;
   ezStringBuilder m_sAssetPath;
-  ezProcessCommunication* m_pIPC;
+  ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bWaiting;

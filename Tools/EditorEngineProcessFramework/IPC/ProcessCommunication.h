@@ -66,5 +66,3 @@ private:
 };
 
 #endif
-
-typedef ezProcessCommunicationChannel ezProcessCommunication;

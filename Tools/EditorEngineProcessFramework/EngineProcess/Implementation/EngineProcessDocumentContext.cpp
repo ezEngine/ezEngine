@@ -3,6 +3,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
@@ -229,7 +230,7 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext, ezProcessCommunication* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
@@ -307,7 +308,7 @@ ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
   EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
 }
 
-void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC)
+void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC)
 {
   m_DocumentGuid = DocumentGuid;
   m_pIPC = pIPC;

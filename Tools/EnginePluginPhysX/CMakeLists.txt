@@ -30,7 +30,7 @@ BUILD_REQUIRES_DX11()
 SET (LINK_LIBRARIES
   Foundation
   ToolsFoundation
-  EditorFramework
+  EditorEngineProcessFramework
   Core
   RendererFoundation
   RendererCore

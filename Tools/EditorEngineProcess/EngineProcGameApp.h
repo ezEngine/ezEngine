@@ -1,12 +1,13 @@
 ﻿#pragma once
 
 #include <PCH.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 
 class ezDocumentOpenMsgToEngine;
+class ezEngineProcessDocumentContext;
 
 class ezEngineProcessGameApplication : public ezGameApplication
 {
@@ -38,7 +39,7 @@ private:
   bool ProcessIPCMessages(bool bPendingOpInProgress);
   void SendProjectReadyMessage();
   void SendReflectionInformation();
-  void EventHandlerIPC(const ezProcessCommunication::Event& e);
+  void EventHandlerIPC(const ezEngineProcessCommunicationChannel::Event& e);
   void EventHandlerTypeUpdated(const ezRTTI* pType);
 
   ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
@@ -50,8 +51,6 @@ private:
   ezString m_sProjectDirectory;
   ezApplicationFileSystemConfig m_CustomFileSystemConfig;
   ezApplicationPluginConfig m_CustomPluginConfig;
-  ezProcessCommunication m_IPC;
-
-  class QApplication* m_pApp;
+  ezEngineProcessCommunicationChannel m_IPC;
 };
 

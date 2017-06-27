@@ -12,6 +12,7 @@ class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;
 class ezEditorEngineDocumentMsg;
 class ezEngineProcessViewContext;
+class ezEngineProcessCommunicationChannel;
 class ezProcessMessage;
 class ezEntityMsgToEngine;
 class ezExportDocumentMsgToEngine;
@@ -118,14 +119,14 @@ public:
   ezEngineProcessDocumentContext();
   virtual ~ezEngineProcessDocumentContext();
 
-  void Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC);
+  void Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC);
   void Deinitialize(bool bFullDestruction);
 
   void SendProcessMessage(ezProcessMessage* pMsg = nullptr);
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg);
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);
-  static void AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView, ezProcessCommunication* pIPC);
+  static void AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView, ezEngineProcessCommunicationChannel* pIPC);
   static bool PendingOperationsInProgress();
   static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
@@ -218,7 +219,7 @@ private:
 
   ezUuid m_DocumentGuid;
 
-  ezProcessCommunication* m_pIPC;
+  ezEngineProcessCommunicationChannel* m_pIPC;
   ezHybridArray<ezEngineProcessViewContext*, 4> m_ViewContexts;
 
   ezMap<ezUuid, ezEditorEngineSyncObject*> m_SyncObjects;

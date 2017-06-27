@@ -5,6 +5,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 
 class ezEditorEngineConnection;
 class ezDocument;
@@ -43,11 +44,12 @@ public:
   /// /brief Waits for a message of type pMessageType. If tTimeout is zero, the function will not timeout. If the timeout is valid
   ///        and is it, EZ_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
   ///        and the return values decides whether the message is to be accepted and the waiting has ended.
-  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback = nullptr);
+  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel
+                          ::WaitForMessageCallback* pCallback = nullptr);
   /// /brief Same as WaitForMessage but the message must be to a specific document. Therefore,
   ///        pMessageType must be derived from ezEditorEngineDocumentMsg and the function will only return if the received
   ///        message matches both type, document and is accepted by pCallback.
-  ezResult WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback = nullptr);
+  ezResult WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
@@ -85,14 +87,14 @@ public:
 
 private:
   void Initialize(const ezRTTI* pFirstAllowedMessageType);
-  void HandleIPCEvent(const ezProcessCommunication::Event& e);
+  void HandleIPCEvent(const ezProcessCommunicationChannel::Event& e);
   
 
   bool m_bProcessShouldWaitForDebugger;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
-  ezProcessCommunication m_IPC;
+  ezEditorProcessCommunicationChannel m_IPC;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
   ezHashTable<ezUuid, ezAssetDocument*> m_DocumentByGuid;

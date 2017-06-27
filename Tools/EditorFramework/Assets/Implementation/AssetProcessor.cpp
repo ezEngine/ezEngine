@@ -200,7 +200,7 @@ void ezAssetProcessor::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID)
   : m_uiProcessorID(uiProcessorID), m_bProcessShouldBeRunning(false), m_bProcessCrashed(false), m_bWaiting(false), m_bSuccess(true)
 {
-  m_pIPC = EZ_DEFAULT_NEW(ezProcessCommunication);
+  m_pIPC = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
   m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));
 }
 
@@ -240,7 +240,7 @@ void ezProcessTask::ShutdownProcess()
   m_pIPC->CloseConnection();
 }
 
-void ezProcessTask::EventHandlerIPC(const ezProcessCommunication::Event& e)
+void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& e)
 {
   if (const ezProcessAssetResponse* pMsg = ezDynamicCast<const ezProcessAssetResponse*>(e.m_pMessage))
   {

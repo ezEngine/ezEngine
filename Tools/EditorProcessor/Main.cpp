@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>
@@ -35,7 +36,7 @@ public:
     m_pEditorApp = nullptr;
   }
 
-  void EventHandlerIPC(const ezProcessCommunication::Event& e)
+  void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e)
   {
     if (const ezProcessAsset* pMsg = ezDynamicCast<const ezProcessAsset*>(e.m_pMessage))
     {
@@ -98,7 +99,7 @@ public:
 
 private:
   ezQtEditorApp* m_pEditorApp;
-  ezProcessCommunication m_IPC;
+  ezEngineProcessCommunicationChannel m_IPC;
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);

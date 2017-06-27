@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -29,7 +29,7 @@ BUILD_REQUIRES_DX11()
 SET (LINK_LIBRARIES
   Foundation
   ToolsFoundation
-  EditorFramework
+  EditorEngineProcessFramework
   Core
   System
   RendererFoundation

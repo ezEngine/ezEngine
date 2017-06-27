@@ -554,7 +554,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   GetEditorEngineConnection()->SendMessage(&msg);
 
   bool bSuccess = false;
-  ezProcessCommunication::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg)->bool
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg)->bool
   {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
     bSuccess = pMsg2->m_bOutputSuccess;
@@ -609,7 +609,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
-  ezProcessCommunication::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
   {
     ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;

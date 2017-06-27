@@ -8,26 +8,21 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <QApplication>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <InputXBox360/InputDeviceXBox.h>
 ezInputDeviceXBox360 g_XboxInputDevice;
 #endif
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
 {
-  m_pApp = nullptr;
 }
 
 void ezEngineProcessGameApplication::BeforeCoreStartup()
 {
-  int argc = GetArgumentCount();
-  const char** argv = GetArgumentsArray();
-  m_pApp = new QApplication(argc, (char**)argv);
-
   ezStartup::AddApplicationTag("editorengineprocess");
 
   // Make sure to disable the fileserve plugin
@@ -96,8 +91,6 @@ void ezEngineProcessGameApplication::BeforeCoreShutdown()
 void ezEngineProcessGameApplication::AfterCoreShutdown()
 {
   ezGameApplication::AfterCoreShutdown();
-
-  delete m_pApp;
 }
 
 ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
@@ -189,7 +182,7 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
   }
 }
 
-void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunication::Event& e)
+void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommunicationChannel::Event& e)
 {
   // Sync
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEngine>())

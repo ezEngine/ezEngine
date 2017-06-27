@@ -41,7 +41,7 @@ void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* 
   SendMessage(&m);
 }
 
-void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunication::Event& e)
+void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicationChannel::Event& e)
 {
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
   {
@@ -142,25 +142,25 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   m_IPC.SendMessage(pMessage);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
   return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback /*= nullptr*/)
+ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
   EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
   struct WaitData
   {
     ezUuid m_AssetGuid;
-    ezProcessCommunication::WaitForMessageCallback* m_pCallback;
+    ezProcessCommunicationChannel::WaitForMessageCallback* m_pCallback;
   };
 
   WaitData data;
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunication::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg)->bool
   {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
