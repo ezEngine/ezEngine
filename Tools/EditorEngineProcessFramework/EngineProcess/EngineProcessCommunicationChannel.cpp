@@ -13,7 +13,7 @@ bool ezEngineProcessCommunicationChannel::IsHostAlive() const
 
   bool bValid = true;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   DWORD pid = static_cast<DWORD>(m_iHostPID);
   HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
   bValid = (hProcess != INVALID_HANDLE_VALUE) && (hProcess != nullptr);
