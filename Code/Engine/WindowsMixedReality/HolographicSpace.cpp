@@ -204,7 +204,7 @@ ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> ezWindowsHolograp
 
 void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
 {
-  ezLock<ezMutex> lock(m_cameraMutex);
+  ezLock<ezMutex> lock(m_cameraQueueMutex);
 
   // TODO: assert no dx11 frame running
 
@@ -258,15 +258,37 @@ ezResult ezWindowsHolographicSpace::UpdateCameraPoses(const ComPtr<ABI::Windows:
   ComPtr<ABI::Windows::Foundation::Collections::IVectorView<ABI::Windows::Graphics::Holographic::HolographicCameraPose*>> pCameraPoses;
   EZ_HRESULT_TO_FAILURE(pPrediction->get_CameraPoses(&pCameraPoses));
 
-  // TODO
-  // .........
+
+  // Update camera our cameras.
+  using IPose = ABI::Windows::Graphics::Holographic::IHolographicCameraPose;
+  ezWinRtIterateIVectorView<IPose*>(pCameraPoses, [this, &pHolographicFrame](UINT, IPose* pPose)
+  {
+    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pCurrentHoloCamera;
+    if (FAILED(pPose->get_HolographicCamera(pCurrentHoloCamera.GetAddressOf())))
+      return true;
+
+    // There will never be a lot of cameras, so just look through all our cameras to pick the corresponding one.
+    for (auto pCamera : m_cameras)
+    {
+      if (pCamera->GetInternalHolographicCamera() == pCurrentHoloCamera.Get())
+      {
+        ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters> pCameraRenderingParameters;
+        EZ_HRESULT_TO_LOG(pHolographicFrame->GetRenderingParameters(pPose, pCameraRenderingParameters.GetAddressOf()));
+
+        pCamera->UpdatePose(pPose, pCameraRenderingParameters.Get());
+        break;
+      }
+    }
+
+    return true;
+  });
 
   return EZ_SUCCESS;
 }
 
 HRESULT ezWindowsHolographicSpace::OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args)
 {
-  ezLock<ezMutex> lock(m_cameraMutex);
+  ezLock<ezMutex> lock(m_cameraQueueMutex);
 
   auto& pendingAddition = m_pendingCameraAdditions.ExpandAndGetRef();
   EZ_HRESULT_TO_FAILURE_LOG(args->get_Camera(pendingAddition.m_pCamera.GetAddressOf()));
@@ -277,7 +299,7 @@ HRESULT ezWindowsHolographicSpace::OnCameraAdded(ABI::Windows::Graphics::Hologra
 
 HRESULT ezWindowsHolographicSpace::OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args)
 {
-  ezLock<ezMutex> lock(m_cameraMutex);
+  ezLock<ezMutex> lock(m_cameraQueueMutex);
 
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pCamera;
   EZ_HRESULT_TO_FAILURE_LOG(args->get_Camera(pCamera.GetAddressOf()));

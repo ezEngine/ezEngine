@@ -131,7 +131,7 @@ private:
     ComPtr<ABI::Windows::Foundation::IDeferral> m_pDeferral;
   };
 
-  ezMutex m_cameraMutex;
+  ezMutex m_cameraQueueMutex;
   ezDynamicArray<ezWindowsHolographicCamera*> m_cameras;
   ezDynamicArray<ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera>> m_pendingCameraRemovals;
   ezDynamicArray<PendingCameraAddition> m_pendingCameraAdditions;

@@ -20,7 +20,6 @@ namespace ABI
 }
 
 struct IDXGISwapChain;
-class ezGALHolographicDeviceDX11;
 
 
 /// \brief Swapchain for ezGALHolographicDeviceDX11.
@@ -67,7 +66,7 @@ protected:
   virtual ~ezGALHolographicSwapChainDX11();
 
   /// \brief Makes sure the backbuffer texture exists and has the correct size.
-  ezResult EnsureBackBufferResources(ezGALHolographicDeviceDX11* pDevice, ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters);
+  ezResult EnsureBackBufferResources(ezGALDevice* pDevice, ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters);
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 

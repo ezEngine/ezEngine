@@ -178,6 +178,7 @@ void ezGALHolographicDeviceDX11::BeginFramePlatform()
 {
   EZ_ASSERT_DEV(!m_pCurrentHolographicFrame, "There is already a running holographic frame.");
 
+  // TODO: Creating the holographic frame here might mean that all the updates before were done with more outdated camera poses than necessary.
   m_pCurrentHolographicFrame = ezWindowsHolographicSpace::GetSingleton()->StartNewHolographicFrame();
 
   m_bPresentedCurrentFrame = false;

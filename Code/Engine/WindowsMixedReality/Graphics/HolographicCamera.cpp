@@ -67,5 +67,46 @@ bool ezWindowsHolographicCamera::IsStereoscopic() const
   return isStereo == TRUE;
 }
 
+HRESULT ezWindowsHolographicCamera::UpdatePose(ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pPose,
+                                               ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pRenderingParameters)
+{
+  // Update projection.
+  {
+    ABI::Windows::Graphics::Holographic::HolographicStereoTransform stereoTransform;
+    EZ_HRESULT_TO_FAILURE_LOG(pPose->get_ProjectionTransform(&stereoTransform));
+
+    memcpy_s(&m_projectionMatrices[0], sizeof(m_projectionMatrices[0]), &stereoTransform.Left, sizeof(stereoTransform.Left));
+
+    if (IsStereoscopic())
+      memcpy_s(&m_projectionMatrices[1], sizeof(m_projectionMatrices[1]), &stereoTransform.Right, sizeof(stereoTransform.Right));
+    else
+      m_projectionMatrices[1] = m_projectionMatrices[0];
+  }
+
+  // Update viewport
+  {
+    ABI::Windows::Foundation::Rect viewport;
+    EZ_HRESULT_TO_FAILURE_LOG(pPose->get_Viewport(&viewport));
+    m_viewport.x = viewport.X;
+    m_viewport.y = viewport.Y;
+    m_viewport.height = viewport.Height;
+    m_viewport.width = viewport.Width;
+  }
+
+  // Update view transforms.
+  // TODO ?? Needs to be relative to coordinate system!
+  // Need to do on demand? Store pose?
+
+  // Ensure swap chain is up to date.
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    ezGALHolographicSwapChainDX11* pSwapChain = const_cast<ezGALHolographicSwapChainDX11*>(static_cast<const ezGALHolographicSwapChainDX11*>(pDevice->GetSwapChain(m_associatedSwapChain)));
+    pSwapChain->EnsureBackBufferResources(pDevice, pRenderingParameters);
+  }
+
+  return S_OK;
+}
+
 
 EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_Graphics_HolographicCamera);
+

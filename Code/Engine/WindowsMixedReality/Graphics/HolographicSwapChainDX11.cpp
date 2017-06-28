@@ -22,7 +22,7 @@ ezGALHolographicSwapChainDX11::~ezGALHolographicSwapChainDX11()
 {
 }
 
-ezResult ezGALHolographicSwapChainDX11::EnsureBackBufferResources(ezGALHolographicDeviceDX11* pDevice, ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters)
+ezResult ezGALHolographicSwapChainDX11::EnsureBackBufferResources(ezGALDevice* pDevice, ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters)
 {
   // Retrieve backbuffer texture.
   ComPtr<ID3D11Texture2D> pBackBufferTexture;
@@ -33,7 +33,10 @@ ezResult ezGALHolographicSwapChainDX11::EnsureBackBufferResources(ezGALHolograph
     ComPtr<Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> pDxgiInterfaceAccess;
     EZ_HRESULT_TO_FAILURE_LOG(pSurface->QueryInterface(IID_PPV_ARGS(&pDxgiInterfaceAccess)));
 
-    EZ_HRESULT_TO_FAILURE_LOG(pDxgiInterfaceAccess.As(&pBackBufferTexture));
+    ComPtr<ID3D11Texture2D> pBackBufferResource;
+    EZ_HRESULT_TO_FAILURE_LOG(pDxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(pBackBufferResource.GetAddressOf())));
+
+    EZ_HRESULT_TO_FAILURE_LOG(pBackBufferResource.As(&pBackBufferTexture));
   }
 
   // Determine wheather we need to create a new texture.
@@ -55,7 +58,7 @@ ezResult ezGALHolographicSwapChainDX11::EnsureBackBufferResources(ezGALHolograph
 
     ezGALTextureCreationDescription textureDesc;
     textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height, 
-                                  ezGALResourceFormat::Invalid,  // No means to map DXGI to ezGALResourFormat right now.
+                                  ezGALResourceFormat::BGRAUByteNormalized, // This is what was shown on hololens emulator. Don't have a way yet to convert DGI -> ezGALResourceFormat 
                                   ezGALMSAASampleCount::None);   // Might in theory enforce MSAA, ignore that in the desc for now as well.
     textureDesc.m_uiArraySize = backBufferDesc.ArraySize;   // Should be either one or two, in accordance with ezWindowsHolographicCamera::IsStereoscopic
     textureDesc.m_pExisitingNativeObject = pBackBufferTexture.Get();

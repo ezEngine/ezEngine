@@ -14,6 +14,8 @@ namespace ABI
       namespace Holographic
       {
         struct IHolographicCamera;
+        struct IHolographicCameraPose;
+        struct IHolographicCameraRenderingParameters;
       }
     }
   }
@@ -29,7 +31,7 @@ public:
   ezWindowsHolographicCamera(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pHolographicCamera);
   ~ezWindowsHolographicCamera();
 
-  /// Get unique identifier of this camera.
+  /// \brief Get unique identifier of this camera.
   ezUInt32 GetId() const;
 
   // Todo: Expose
@@ -41,6 +43,28 @@ public:
   ezRectU32 GetBackBufferSize() const;
   bool IsStereoscopic() const;
 
+  // Pose information
+public:
+
+  /// \brief Gets project matrix for the left eye for the active frame.
+  ///
+  /// If this is not a stereoscopic camera, left and right projection matrices are identical.
+  const ezMat4& GetProjectionLeft() const { return m_projectionMatrices[0]; }
+
+  /// \brief Gets project matrix for the left eye for the active frame.
+  ///
+  /// If this is not a stereoscopic camera, left and right projection matrices are identical.
+  const ezMat4& GetProjectionRight() const { return m_projectionMatrices[1]; }
+
+  /// \brief Returns the viewport rectangle the app must render to for the active frame.
+  const ezRectFloat GetViewport() const { return m_viewport; }
+
+  // Internal
+public:
+
+  /// \brief Updates camera pose and swapchain if necessary.
+  HRESULT UpdatePose(ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pPose,
+                     ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pRenderingParameters);
 
   ABI::Windows::Graphics::Holographic::IHolographicCamera* GetInternalHolographicCamera() const { return m_pHolographicCamera.Get(); }
 
@@ -48,4 +72,7 @@ private:
 
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> m_pHolographicCamera;
   ezGALSwapChainHandle m_associatedSwapChain;
+
+  ezMat4 m_projectionMatrices[2];
+  ezRectFloat m_viewport;
 };
