@@ -24,7 +24,7 @@ namespace ABI
   }
 }
 
-class ezGALHolographicSwapChainDX11;
+class ezGALMixedRealitySwapChainDX11;
 
 /// \brief A specialization of ezGALDeviceDX11 for windows holographic.
 ///
@@ -35,14 +35,14 @@ class ezGALHolographicSwapChainDX11;
 /// Other than that this is practically identical to a normal DX11 device.
 ///
 /// Note that there can only be ever a single holographic DX11 device in existance!
-class EZ_WINDOWSMIXEDREALITY_DLL ezGALHolographicDeviceDX11 : public ezGALDeviceDX11
+class EZ_WINDOWSMIXEDREALITY_DLL ezGALMixedRealityDeviceDX11 : public ezGALDeviceDX11
 {
   /// \todo This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
 public:
 
-  ezGALHolographicDeviceDX11(const ezGALDeviceCreationDescription& Description);
+  ezGALMixedRealityDeviceDX11(const ezGALDeviceCreationDescription& Description);
 
-  virtual ~ezGALHolographicDeviceDX11();
+  virtual ~ezGALMixedRealityDeviceDX11();
 
 protected:
 

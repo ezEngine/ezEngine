@@ -1,6 +1,6 @@
 ﻿#include <PCH.h>
-#include <WindowsMixedReality/Graphics/HolographicDX11Device.h>
-#include <WindowsMixedReality/Graphics/HolographicSwapChainDX11.h>
+#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
+#include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 #include <WindowsMixedReality/HolographicSpace.h>
 
 #include <d3d11.h>
@@ -11,19 +11,19 @@
 #include <windows.graphics.directx.direct3d11.interop.h>
 #pragma warning (pop)
 
-ezGALHolographicDeviceDX11::ezGALHolographicDeviceDX11(const ezGALDeviceCreationDescription& Description)
+ezGALMixedRealityDeviceDX11::ezGALMixedRealityDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDeviceDX11(Description)
   , m_bPresentedCurrentFrame(false)
 {
 }
 
-ezGALHolographicDeviceDX11::~ezGALHolographicDeviceDX11()
+ezGALMixedRealityDeviceDX11::~ezGALMixedRealityDeviceDX11()
 {
 }
 
-ezResult ezGALHolographicDeviceDX11::InitPlatform()
+ezResult ezGALMixedRealityDeviceDX11::InitPlatform()
 {
-  EZ_LOG_BLOCK("ezGALHolographicDeviceDX11::InitPlatform");
+  EZ_LOG_BLOCK("ezGALMixedRealityDeviceDX11::InitPlatform");
 
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> pHolographicSpace = ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
   if (!pHolographicSpace)
@@ -98,7 +98,7 @@ ezResult ezGALHolographicDeviceDX11::InitPlatform()
   return EZ_SUCCESS;
 }
 
-ezResult ezGALHolographicDeviceDX11::ShutdownPlatform()
+ezResult ezGALMixedRealityDeviceDX11::ShutdownPlatform()
 {
   auto pHolographicSpace = ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
   if (!pHolographicSpace)
@@ -113,15 +113,15 @@ ezResult ezGALHolographicDeviceDX11::ShutdownPlatform()
   return ShutdownPlatform();
 }
 
-ezGALSwapChain* ezGALHolographicDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
+ezGALSwapChain* ezGALMixedRealityDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
 {
-  if (Description.m_pWindow != &ezGALHolographicSwapChainDX11::s_mockWindow)
+  if (Description.m_pWindow != &ezGALMixedRealitySwapChainDX11::s_mockWindow)
   {
     ezLog::Error("It is not possible to manually create swap chains when using the holographic DX11 device. Swap chains are automatically created by holographic cameras.");
     return nullptr;
   }
 
-  ezGALHolographicSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALHolographicSwapChainDX11, Description);
+  ezGALMixedRealitySwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALMixedRealitySwapChainDX11, Description);
 
   if (!pSwapChain->InitPlatform(this).Succeeded())
   {
@@ -132,14 +132,14 @@ ezGALSwapChain* ezGALHolographicDeviceDX11::CreateSwapChainPlatform(const ezGALS
   return pSwapChain;
 }
 
-void ezGALHolographicDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
+void ezGALMixedRealityDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
-  ezGALHolographicSwapChainDX11* pSwapChainHoloDX11 = static_cast<ezGALHolographicSwapChainDX11*>(pSwapChain);
+  ezGALMixedRealitySwapChainDX11* pSwapChainHoloDX11 = static_cast<ezGALMixedRealitySwapChainDX11*>(pSwapChain);
   pSwapChainHoloDX11->DeInitPlatform(this);
   EZ_DELETE(&m_Allocator, pSwapChainHoloDX11);
 }
 
-void ezGALHolographicDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
+void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 {
   EZ_ASSERT_DEV(m_pCurrentHolographicFrame, "There is no holographic frame.");
 
@@ -149,7 +149,7 @@ void ezGALHolographicDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
     static bool warned = false;
     if (!warned)
     {
-      ezLog::Warning("ezGALHolographicDeviceDX11 needs to present all swap chains at once. Only first Present call has an effect, all others are ignored.");
+      ezLog::Warning("ezGALMixedRealityDeviceDX11 needs to present all swap chains at once. Only first Present call has an effect, all others are ignored.");
       warned = true;
     }
     return;
@@ -174,7 +174,7 @@ void ezGALHolographicDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
   m_bPresentedCurrentFrame = true;
 }
 
-void ezGALHolographicDeviceDX11::BeginFramePlatform()
+void ezGALMixedRealityDeviceDX11::BeginFramePlatform()
 {
   EZ_ASSERT_DEV(!m_pCurrentHolographicFrame, "There is already a running holographic frame.");
 
@@ -184,7 +184,7 @@ void ezGALHolographicDeviceDX11::BeginFramePlatform()
   m_bPresentedCurrentFrame = false;
 }
 
-void ezGALHolographicDeviceDX11::EndFramePlatform()
+void ezGALMixedRealityDeviceDX11::EndFramePlatform()
 {
   EZ_ASSERT_DEV(m_pCurrentHolographicFrame, "There is no holographic frame.");
   m_pCurrentHolographicFrame.Reset();

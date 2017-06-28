@@ -1,7 +1,7 @@
 ﻿#include <PCH.h>
 #include <WindowsMixedReality/HolographicSpace.h>
-#include <WindowsMixedReality/HolographicLocationService.h>
-#include <WindowsMixedReality/Graphics/HolographicCamera.h>
+#include <WindowsMixedReality/SpatialLocationService.h>
+#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
@@ -91,7 +91,7 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator> pDefaultSpatialLocator;
     EZ_HRESULT_TO_FAILURE_LOG(pSpatialLocatorStatics->GetDefault(&pDefaultSpatialLocator));
 
-    m_pDefaultLocationService = EZ_DEFAULT_NEW(ezWindowsHolographicLocationService, pDefaultSpatialLocator);
+    m_pDefaultLocationService = EZ_DEFAULT_NEW(ezWindowsSpatialLocationService, pDefaultSpatialLocator);
   }
 
   ezLog::Info("Initialized new holographic space for main window!");
@@ -213,7 +213,7 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
   {
     for (ezUInt32 i = 0; i < m_cameras.GetCount(); ++i)
     {
-      if (m_cameras[i]->GetInternalHolographicCamera() == pCamera.Get())
+      if (m_cameras[i]->GetInternalMixedRealityCamera() == pCamera.Get())
       {
         m_cameraRemovedEvent.Broadcast(*m_cameras[i]);
 
@@ -230,7 +230,7 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
   {
     for (const auto& cameraAddition : m_pendingCameraAdditions)
     {
-      m_cameras.PushBack(EZ_DEFAULT_NEW(ezWindowsHolographicCamera, cameraAddition.m_pCamera));
+      m_cameras.PushBack(EZ_DEFAULT_NEW(ezWindowsMixedRealityCamera, cameraAddition.m_pCamera));
       cameraAddition.m_pDeferral->Complete();
     }
 
@@ -270,7 +270,7 @@ ezResult ezWindowsHolographicSpace::UpdateCameraPoses(const ComPtr<ABI::Windows:
     // There will never be a lot of cameras, so just look through all our cameras to pick the corresponding one.
     for (auto pCamera : m_cameras)
     {
-      if (pCamera->GetInternalHolographicCamera() == pCurrentHoloCamera.Get())
+      if (pCamera->GetInternalMixedRealityCamera() == pCurrentHoloCamera.Get())
       {
         ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters> pCameraRenderingParameters;
         EZ_HRESULT_TO_LOG(pHolographicFrame->GetRenderingParameters(pPose, pCameraRenderingParameters.GetAddressOf()));

@@ -1,19 +1,19 @@
 ﻿#include <PCH.h>
-#include <WindowsMixedReality/Graphics/HolographicCamera.h>
-#include <WindowsMixedReality/Graphics/HolographicSwapChainDX11.h>
+#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
+#include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 
 #include <RendererFoundation/Device/Device.h>
 #include <windows.graphics.holographic.h>
 
-ezWindowsHolographicCamera::ezWindowsHolographicCamera(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pHolographicCamera)
-  : m_pHolographicCamera(pHolographicCamera)
+ezWindowsMixedRealityCamera::ezWindowsMixedRealityCamera(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pMixedRealityCamera)
+  : m_pMixedRealityCamera(pMixedRealityCamera)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice(); // This needs to be a holographic device.
 
   // Create (holographic) swap chain for this camera.
   // Desc doesn't really matter since there isn't any *actual* swapchain. The holographic swap chain just represents the backbuffer of this camera.
   ezGALSwapChainCreationDescription desc;
-  desc.m_pWindow = &ezGALHolographicSwapChainDX11::s_mockWindow;
+  desc.m_pWindow = &ezGALMixedRealitySwapChainDX11::s_mockWindow;
   desc.m_SampleCount = ezGALMSAASampleCount::None;
   desc.m_BackBufferFormat = ezGALResourceFormat::Invalid;
   desc.m_bAllowScreenshots = false;
@@ -26,15 +26,15 @@ ezWindowsHolographicCamera::ezWindowsHolographicCamera(const ComPtr<ABI::Windows
     pDevice->SetPrimarySwapChain(m_associatedSwapChain);
 }
 
-ezWindowsHolographicCamera::~ezWindowsHolographicCamera()
+ezWindowsMixedRealityCamera::~ezWindowsMixedRealityCamera()
 {
   ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_associatedSwapChain);
 }
 
-ezUInt32 ezWindowsHolographicCamera::GetId() const
+ezUInt32 ezWindowsMixedRealityCamera::GetId() const
 {
   UINT id;
-  if (FAILED(m_pHolographicCamera->get_Id(&id)))
+  if (FAILED(m_pMixedRealityCamera->get_Id(&id)))
   {
     ezLog::Error("Failed to retrieve holographic camera's id.");
     return ezMath::BasicType<ezUInt32>::MaxValue();
@@ -43,10 +43,10 @@ ezUInt32 ezWindowsHolographicCamera::GetId() const
   return id;
 }
 
-ezRectU32 ezWindowsHolographicCamera::GetBackBufferSize() const
+ezRectU32 ezWindowsMixedRealityCamera::GetBackBufferSize() const
 {
   ABI::Windows::Foundation::Size size;
-  if (FAILED(m_pHolographicCamera->get_RenderTargetSize(&size)))
+  if (FAILED(m_pMixedRealityCamera->get_RenderTargetSize(&size)))
   {
     ezLog::Error("Failed to retrieve holographic camera backbuffer size.");
     return ezRectU32(0, 0);
@@ -55,10 +55,10 @@ ezRectU32 ezWindowsHolographicCamera::GetBackBufferSize() const
   return ezRectU32(static_cast<ezUInt32>(size.Width), static_cast<ezUInt32>(size.Height));
 }
 
-bool ezWindowsHolographicCamera::IsStereoscopic() const
+bool ezWindowsMixedRealityCamera::IsStereoscopic() const
 {
   boolean isStereo = FALSE;
-  if (FAILED(m_pHolographicCamera->get_IsStereo(&isStereo)))
+  if (FAILED(m_pMixedRealityCamera->get_IsStereo(&isStereo)))
   {
     ezLog::Error("Failed to check query holographic camera is stereo.");
     return false;
@@ -67,7 +67,7 @@ bool ezWindowsHolographicCamera::IsStereoscopic() const
   return isStereo == TRUE;
 }
 
-HRESULT ezWindowsHolographicCamera::UpdatePose(ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pPose,
+HRESULT ezWindowsMixedRealityCamera::UpdatePose(ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pPose,
                                                ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pRenderingParameters)
 {
   // Update projection.
@@ -100,7 +100,7 @@ HRESULT ezWindowsHolographicCamera::UpdatePose(ABI::Windows::Graphics::Holograph
   // Ensure swap chain is up to date.
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALHolographicSwapChainDX11* pSwapChain = const_cast<ezGALHolographicSwapChainDX11*>(static_cast<const ezGALHolographicSwapChainDX11*>(pDevice->GetSwapChain(m_associatedSwapChain)));
+    ezGALMixedRealitySwapChainDX11* pSwapChain = const_cast<ezGALMixedRealitySwapChainDX11*>(static_cast<const ezGALMixedRealitySwapChainDX11*>(pDevice->GetSwapChain(m_associatedSwapChain)));
     pSwapChain->EnsureBackBufferResources(pDevice, pRenderingParameters);
   }
 
@@ -108,5 +108,5 @@ HRESULT ezWindowsHolographicCamera::UpdatePose(ABI::Windows::Graphics::Holograph
 }
 
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_Graphics_HolographicCamera);
+EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_Graphics_MixedRealityCamera);
 

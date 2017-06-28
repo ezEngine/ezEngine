@@ -22,15 +22,15 @@ namespace ABI
 struct IDXGISwapChain;
 
 
-/// \brief Swapchain for ezGALHolographicDeviceDX11.
+/// \brief Swapchain for ezGALMixedRealityDeviceDX11.
 ///
 /// In Windows Holographic there are no swap chains, only cameras.
-/// Therefore, each swap chain is associated with a ezWindowsHolographicCamera.
+/// Therefore, each swap chain is associated with a ezWindowsMixedRealityCamera.
 ///
 /// Conceptually we're splitting the "surface part" of windows holographic camera into this object.
 ///
-/// \see ezWindowsHolographicCamera
-class ezGALHolographicSwapChainDX11 : public ezGALSwapChain
+/// \see ezWindowsMixedRealityCamera
+class ezGALMixedRealitySwapChainDX11 : public ezGALSwapChain
 {
 public:
   // TODO: Not implemented yet, keeping default plane.
@@ -42,8 +42,8 @@ public:
 
 protected:
 
-  friend class ezGALHolographicDeviceDX11;
-  friend class ezWindowsHolographicCamera;
+  friend class ezGALMixedRealityDeviceDX11;
+  friend class ezWindowsMixedRealityCamera;
   friend class ezMemoryUtils;
 
   class ezHoloMockWindow : public ezWindowBase
@@ -61,9 +61,9 @@ protected:
   static ezHoloMockWindow s_mockWindow;
 
 
-  ezGALHolographicSwapChainDX11(const ezGALSwapChainCreationDescription& Description);
+  ezGALMixedRealitySwapChainDX11(const ezGALSwapChainCreationDescription& Description);
 
-  virtual ~ezGALHolographicSwapChainDX11();
+  virtual ~ezGALMixedRealitySwapChainDX11();
 
   /// \brief Makes sure the backbuffer texture exists and has the correct size.
   ezResult EnsureBackBufferResources(ezGALDevice* pDevice, ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters);

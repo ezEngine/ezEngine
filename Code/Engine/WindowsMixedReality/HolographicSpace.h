@@ -31,8 +31,8 @@ namespace ABI
   }
 }
 
-class ezWindowsHolographicLocationService;
-class ezWindowsHolographicCamera;
+class ezWindowsSpatialLocationService;
+class ezWindowsMixedRealityCamera;
 struct IDXGIAdapter3;
 
 /// \brief Integration of Windows HolographicSpace (WinRT).
@@ -42,8 +42,8 @@ struct IDXGIAdapter3;
 /// For now however, this is entirely platform specific.
 ///
 /// The holographic space is an important entry point for:
-/// * Communication with the device (see HolographicDX11Device)
-/// * Adding/removing/updating holographic cameras (see HolographicCamera)
+/// * Communication with the device (see MixedRealityDX11Device)
+/// * Adding/removing/updating holographic cameras (see MixedRealityCamera)
 /// * General information about mixed reality hardware
 class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsHolographicSpace
 {
@@ -82,11 +82,11 @@ public:
   void ProcessAddedRemovedCameras();
 
   /// \brief Gets list of all cameras.
-  ezArrayPtr<ezWindowsHolographicCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
+  ezArrayPtr<ezWindowsMixedRealityCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
 
   // ezEvents for camera add/remove. Always fired on rendering thread.
-  ezEvent<const ezWindowsHolographicCamera&> m_cameraAddedEvent;
-  ezEvent<const ezWindowsHolographicCamera&> m_cameraRemovedEvent;
+  ezEvent<const ezWindowsMixedRealityCamera&> m_cameraAddedEvent;
+  ezEvent<const ezWindowsMixedRealityCamera&> m_cameraRemovedEvent;
 
   // Internal
 public:
@@ -119,7 +119,7 @@ private:
   /// Windows holographic space, created in init method for a specific window.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
 
-  ezUniquePtr<ezWindowsHolographicLocationService> m_pDefaultLocationService;
+  ezUniquePtr<ezWindowsSpatialLocationService> m_pDefaultLocationService;
 
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;
@@ -132,7 +132,7 @@ private:
   };
 
   ezMutex m_cameraQueueMutex;
-  ezDynamicArray<ezWindowsHolographicCamera*> m_cameras;
+  ezDynamicArray<ezWindowsMixedRealityCamera*> m_cameras;
   ezDynamicArray<ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera>> m_pendingCameraRemovals;
   ezDynamicArray<PendingCameraAddition> m_pendingCameraAdditions;
 };

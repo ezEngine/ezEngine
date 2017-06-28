@@ -23,13 +23,13 @@ namespace ABI
 
 /// \brief Represents a camera in windows holographic.
 ///
-/// Each camera is associated with a ezGALHolographicSwapChainDX11.
-/// \see ezGALHolographicSwapChainDX11
-class ezWindowsHolographicCamera
+/// Each camera is associated with a ezGALMixedRealitySwapChainDX11.
+/// \see ezGALMixedRealitySwapChainDX11
+class ezWindowsMixedRealityCamera
 {
 public:
-  ezWindowsHolographicCamera(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pHolographicCamera);
-  ~ezWindowsHolographicCamera();
+  ezWindowsMixedRealityCamera(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pMixedRealityCamera);
+  ~ezWindowsMixedRealityCamera();
 
   /// \brief Get unique identifier of this camera.
   ezUInt32 GetId() const;
@@ -66,11 +66,11 @@ public:
   HRESULT UpdatePose(ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pPose,
                      ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pRenderingParameters);
 
-  ABI::Windows::Graphics::Holographic::IHolographicCamera* GetInternalHolographicCamera() const { return m_pHolographicCamera.Get(); }
+  ABI::Windows::Graphics::Holographic::IHolographicCamera* GetInternalMixedRealityCamera() const { return m_pMixedRealityCamera.Get(); }
 
 private:
 
-  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> m_pHolographicCamera;
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> m_pMixedRealityCamera;
   ezGALSwapChainHandle m_associatedSwapChain;
 
   ezMat4 m_projectionMatrices[2];

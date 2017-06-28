@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -143,7 +143,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-void ezGameState::OnHolographicCameraAdded(const ezWindowsHolographicCamera& camera)
+void ezGameState::OnHolographicCameraAdded(const ezWindowsMixedRealityCamera& camera)
 {
   if (m_hMainSwapChain.IsInvalidated())
   {

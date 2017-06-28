@@ -29,11 +29,11 @@ enum class ezSpatialLocatability
 /// \brief Provides locations for holographic environments.
 ///
 /// See https://docs.microsoft.com/en-us/uwp/api/windows.perception.spatial.spatiallocator
-class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsHolographicLocationService
+class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsSpatialLocationService
 {
 public:
-  ezWindowsHolographicLocationService(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator>& pDefaultSpatialLocator);
-  ~ezWindowsHolographicLocationService();
+  ezWindowsSpatialLocationService(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator>& pDefaultSpatialLocator);
+  ~ezWindowsSpatialLocationService();
 
   // Notes on spatial tracking APIs from Microsoft's holographic app sample:
   // * Stationary reference frames are designed to provide a best-fit position relative to the
@@ -62,7 +62,7 @@ private:
 
 /// \brief A frame of reference on windows holographic.
 ///
-/// \see ezWindowsHolographicLocationService
+/// \see ezWindowsSpatialLocationService
 class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsHolographicReferenceFrame
 {
 public:

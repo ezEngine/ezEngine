@@ -11,7 +11,7 @@
 
 class ezWindow;
 class ezView;
-class ezWindowsHolographicCamera;
+class ezWindowsMixedRealityCamera;
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
@@ -110,7 +110,7 @@ protected:
   virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  virtual void OnHolographicCameraAdded(const ezWindowsHolographicCamera& camera);
+  virtual void OnHolographicCameraAdded(const ezWindowsMixedRealityCamera& camera);
 #endif
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering

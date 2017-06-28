@@ -34,7 +34,7 @@
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <WindowsMixedReality/Graphics/HolographicDX11Device.h>
+#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #endif
 
 
@@ -250,7 +250,7 @@ void ezGameApplication::DoSetupGraphicsDevice()
   ezGALDevice* pDevice;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   if(m_AppType == ezGameApplicationType::StandAloneMixedReality)
-    pDevice = EZ_DEFAULT_NEW(ezGALHolographicDeviceDX11, DeviceInit);
+    pDevice = EZ_DEFAULT_NEW(ezGALMixedRealityDeviceDX11, DeviceInit);
   else
 #endif
   pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);

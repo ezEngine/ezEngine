@@ -1,16 +1,16 @@
 ﻿#include <PCH.h>
-#include <WindowsMixedReality/HolographicLocationService.h>
+#include <WindowsMixedReality/SpatialLocationService.h>
 
 #include <windows.perception.spatial.h>
 
 #include <wrl/event.h>
 
-ezWindowsHolographicLocationService::ezWindowsHolographicLocationService(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator>& pSpatialLocator)
+ezWindowsSpatialLocationService::ezWindowsSpatialLocationService(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator>& pSpatialLocator)
   : m_pSpatialLocator(pSpatialLocator)
   , m_currentLocatability(ezSpatialLocatability::Unavailable)
 {
   using OnLocatabilityChangedFunc = __FITypedEventHandler_2_Windows__CPerception__CSpatial__CSpatialLocator_IInspectable;
-  if (FAILED(m_pSpatialLocator->add_LocatabilityChanged(Callback<OnLocatabilityChangedFunc>(this, &ezWindowsHolographicLocationService::OnLocatabilityChanged).Get(), &m_eventRegistrationLocatabilityChanged)))
+  if (FAILED(m_pSpatialLocator->add_LocatabilityChanged(Callback<OnLocatabilityChangedFunc>(this, &ezWindowsSpatialLocationService::OnLocatabilityChanged).Get(), &m_eventRegistrationLocatabilityChanged)))
   {
     ezLog::Error("Failed to subscribe for locatability changes on spatial locator.");
   }
@@ -19,13 +19,13 @@ ezWindowsHolographicLocationService::ezWindowsHolographicLocationService(const C
   OnLocatabilityChanged(m_pSpatialLocator.Get(), nullptr);
 }
 
-ezWindowsHolographicLocationService::~ezWindowsHolographicLocationService()
+ezWindowsSpatialLocationService::~ezWindowsSpatialLocationService()
 {
   if (m_pSpatialLocator)
     m_pSpatialLocator->remove_LocatabilityChanged(m_eventRegistrationLocatabilityChanged);
 }
 
-HRESULT ezWindowsHolographicLocationService::OnLocatabilityChanged(ABI::Windows::Perception::Spatial::ISpatialLocator* locator, IInspectable* args)
+HRESULT ezWindowsSpatialLocationService::OnLocatabilityChanged(ABI::Windows::Perception::Spatial::ISpatialLocator* locator, IInspectable* args)
 {
   ABI::Windows::Perception::Spatial::SpatialLocatability locatability;
   EZ_HRESULT_TO_FAILURE_LOG(locator->get_Locatability(&locatability));
