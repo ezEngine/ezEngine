@@ -209,6 +209,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     // now that we know which project to initialize, do the delayed project setup
     {
       DoProjectSetup();
+      DoSetupGraphicsDevice();
+      DoSetupDefaultResources();
       ezStartup::StartupEngine();
     }
 

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Collection/CollectionResource.h>
@@ -51,8 +51,6 @@ void ezGameApplication::DoProjectSetup()
   DoLoadCustomPlugins();
   DoSetupDataDirectories();
   DoLoadPluginsFromConfig();
-  DoSetupGraphicsDevice();
-  DoSetupDefaultResources();
   DoConfigureInput(false);
   DoLoadTags();
 
@@ -247,13 +245,11 @@ void ezGameApplication::DoSetupGraphicsDevice()
   DeviceInit.m_bDebugDevice = true;
 #endif
 
-  ezGALDevice* pDevice;
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  if(m_AppType == ezGameApplicationType::StandAloneMixedReality)
-    pDevice = EZ_DEFAULT_NEW(ezGALMixedRealityDeviceDX11, DeviceInit);
-  else
-#endif
-  pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
+  ezGALDevice* pDevice = nullptr;
+  if (!m_GameStates.IsEmpty())
+    pDevice = m_GameStates[0].m_pState->CreateGraphicsDevice(DeviceInit);
+  if (!pDevice)
+    pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
 
   EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
 

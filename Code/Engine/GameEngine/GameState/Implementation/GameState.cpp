@@ -1,4 +1,4 @@
-﻿
+
 #include <PCH.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -10,14 +10,11 @@
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <WindowsMixedReality/HolographicSpace.h>
-#endif
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameState);
+
 
 void ezGameState::OnActivation(ezWorld* pWorld)
 {
@@ -27,16 +24,7 @@ void ezGameState::OnActivation(ezWorld* pWorld)
   CreateMainWindow();
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-  if (pSwapChain)
-  {
-    SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
-  }
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  else if(m_pApplication->GetAppType() == ezGameApplicationType::StandAloneMixedReality)
-  {
-    ezWindowsHolographicSpace::GetSingleton()->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezGameState::OnHolographicCameraAdded, this));
-  }
-#endif
+  SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
 
   ConfigureMainCamera();
 
@@ -141,24 +129,6 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 
   ezRenderWorld::AddMainView(m_hMainView);
 }
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-void ezGameState::OnHolographicCameraAdded(const ezWindowsMixedRealityCamera& camera)
-{
-  if (m_hMainSwapChain.IsInvalidated())
-  {
-    m_hMainSwapChain = ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain();
-    EZ_ASSERT_DEBUG(!m_hMainSwapChain.IsInvalidated(), "Primary swap chain is still invalid after a holographic camera has been added.");
-
-    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-    SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
-  }
-  else
-  {
-    ezLog::Warning("New holographic camera was added but ezGameState supports currently only a single holographic camera!");
-  }
-}
-#endif
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)
 {

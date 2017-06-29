@@ -13,7 +13,6 @@ class ezGameApplication;
 enum class ezGameApplicationType
 {
   StandAlone,             ///< The application is stand-alone (e.g. ezPlayer or a custom game)
-  StandAloneMixedReality, ///< The application is stand-alone and runs on a VR headset or as an exclusive Hololens app.
   EmbeddedInTool,         ///< The application is embedded into a tool, such as the editor
 };
 

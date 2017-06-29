@@ -84,11 +84,19 @@ public:
   /// Only few applications will add zero or multiple windows.
   ezGALSwapChainHandle AddWindow(ezWindowBase* pWindow);
 
+  /// \brief Adds a top level window to the application with a custom swap chain.
+  void AddWindow(ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain);
+
   /// \brief Removes a previously added window. Destroys its swapchain. Should be called at application shutdown.
   void RemoveWindow(ezWindowBase* pWindow);
 
   /// \brief Returns the swapchain for the given window. The window must have been added via AddWindow()
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
+
+  /// \brief Sets the swapchain for a given window. The window must have been added via AddWindow()
+  ///
+  /// The previous swapchain (if any) will be destroyed.
+  void SetSwapChain(const ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain);
 
   /// \brief Activates only the game state that is linked to the given ezWorld.
   /// Not needed in a typical application. Used by the editor for selective game state handling in play-the-game mode.

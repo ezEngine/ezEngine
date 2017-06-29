@@ -26,6 +26,7 @@ SET (LINK_LIBRARIES
   System
   RendererFoundation
   RendererDX11
+  GameEngine
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

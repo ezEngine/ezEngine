@@ -29,7 +29,7 @@ void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 
-  ezGameState::OnActivation(pWorld);
+  ezParentGameState::OnActivation(pWorld);
 
   CreateGameLevel();
 }
@@ -40,7 +40,7 @@ void SimpleMeshRendererGameState::OnDeactivation()
 
   DestroyGameLevel();
 
-  ezGameState::OnDeactivation();
+  ezParentGameState::OnDeactivation();
 }
 
 float SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
@@ -126,10 +126,6 @@ void SimpleMeshRendererGameState::DestroyGameLevel()
   GetApplication()->DestroyWorld(m_pMainWorld);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAloneMixedReality, "Data/Samples/SimpleMeshRenderer");
-#else
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone, "Data/Samples/SimpleMeshRenderer");
-#endif
 
 

@@ -1,10 +1,20 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/GameState/FallbackGameState.h>
 
-class SimpleMeshRendererGameState : public ezFallbackGameState
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#include <WindowsMixedReality/MixedRealityGameState.h>
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+typedef ezMixedRealityGameState ezParentGameState;
+#else
+typedef ezFallbackGameState ezParentGameState;
+#endif
+
+class SimpleMeshRendererGameState : public ezParentGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezFallbackGameState);
+  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezParentGameState);
 
 public:
   SimpleMeshRendererGameState();

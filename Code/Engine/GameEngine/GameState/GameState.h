@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/Declarations.h>
@@ -11,7 +11,6 @@
 
 class ezWindow;
 class ezView;
-class ezWindowsMixedRealityCamera;
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
@@ -56,6 +55,12 @@ public:
 
   /// \brief Called when the game state is being shut down.
   virtual void OnDeactivation();
+
+  /// \brief Creates the graphics device.
+  ///
+  /// Called only for the first gamestate. If it returns null, the application should create a default device.
+  /// The device must be allocated with the default allocator.
+  virtual ezGALDevice* CreateGraphicsDevice(const ezGALDeviceCreationDescription& description) { return nullptr; }
 
   /// \brief Called once per game update. Should handle input updates here.
   virtual void ProcessInput() { }
@@ -108,10 +113,6 @@ protected:
 
   /// \brief Creates a default render pipeline. Unless overridden, Activate() will do this for the main window.
   virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer);
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  virtual void OnHolographicCameraAdded(const ezWindowsMixedRealityCamera& camera);
-#endif
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);

@@ -31,7 +31,6 @@ SET (LINK_LIBRARIES
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   LIST(APPEND LINK_LIBRARIES
     FileservePlugin
-    WindowsMixedReality
   )
 endif()
 

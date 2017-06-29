@@ -19,10 +19,6 @@
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 #include <Foundation/Image/Image.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <WindowsMixedReality/HolographicSpace.h>
-#endif
-
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
 
@@ -48,21 +44,23 @@ ezGameApplication::~ezGameApplication()
 
 ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
 {
-  WindowContext& windowContext = m_Windows.ExpandAndGetRef();
-  windowContext.m_pWindow = pWindow;
-
   ezGALSwapChainCreationDescription desc;
   desc.m_pWindow = pWindow;
   desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   desc.m_bAllowScreenshots = true;
+  auto hSwapChain  = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
+  
+  AddWindow(pWindow, hSwapChain);
 
-  if (m_AppType != ezGameApplicationType::StandAloneMixedReality)
-    windowContext.m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
-  else
-    windowContext.m_hSwapChain.Invalidate();
+  return hSwapChain;
+}
 
+void ezGameApplication::AddWindow(ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain)
+{
+  WindowContext& windowContext = m_Windows.ExpandAndGetRef();
+  windowContext.m_pWindow = pWindow;
+  windowContext.m_hSwapChain = hSwapChain;
   windowContext.m_bFirstFrame = true;
-  return windowContext.m_hSwapChain;
 }
 
 void ezGameApplication::RemoveWindow(ezWindowBase* pWindow)
@@ -90,6 +88,22 @@ ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow
   }
 
   return ezGALSwapChainHandle();
+}
+
+void ezGameApplication::SetSwapChain(const ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain)
+{
+  for (auto& windowContext : m_Windows)
+  {
+    if (windowContext.m_pWindow == pWindow)
+    {
+      if (!windowContext.m_hSwapChain.IsInvalidated())
+        ezGALDevice::GetDefaultDevice()->DestroySwapChain(windowContext.m_hSwapChain);
+      windowContext.m_hSwapChain = hSwapChain;
+      return;
+    }
+  }
+
+  EZ_REPORT_FAILURE("Given window is not part of the application!");
 }
 
 void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
@@ -324,36 +338,28 @@ void ezGameApplication::DestroyWorld(ezWorld* pWorld)
 
 void ezGameApplication::AfterCoreStartup()
 {
-  // Evaluate if we can actually do mixed reality.
-  if (m_AppType == ezGameApplicationType::StandAloneMixedReality)
+  DoProjectSetup();
+
+  // Create gamestate.
+  if (m_AppType == ezGameApplicationType::StandAlone)
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    if (!ezWindowsHolographicSpace::GetSingleton())
-    {
-      ezLog::Error("No holographic space available for Mixed Reality app. MixedReality plugin missing?");
-      m_AppType = ezGameApplicationType::StandAlone;
-    }
-    else if (!ezWindowsHolographicSpace::GetSingleton()->IsAvailable())
-    {
-      ezLog::Error("No headset available for Mixed Reality rendering.");
-      m_AppType = ezGameApplicationType::StandAlone;
-    }
-#else
-    ezLog::Error("Mixed reality applications require UWP platform currently");
-    m_AppType = ezGameApplicationType::StandAlone;
-#endif
+    CreateGameStateForWorld(nullptr);
+  }
+  else
+  {
+    // Special case: Must be handled by custom implementations of ezGameApplication
   }
 
-  DoProjectSetup();
+  // Gamestate determines which graphics device is used, so delay this until we have gamestates.
+  DoSetupGraphicsDevice();
+  DoSetupDefaultResources();
 
   ezStartup::StartupEngine();
 
-  if (m_AppType == ezGameApplicationType::StandAlone || m_AppType == ezGameApplicationType::StandAloneMixedReality)
+
+  // Activate gamestate
+  if (m_AppType == ezGameApplicationType::StandAlone)
   {
-    CreateGameStateForWorld(nullptr);
-
-    /// \todo Check that any state was created?
-
     ActivateAllGameStates();
   }
   else
@@ -369,8 +375,6 @@ void ezGameApplication::BeforeCoreShutdown()
 
   DeactivateAllGameStates();
 
-  DestroyAllGameStates();
-
   ezResourceManager::ClearAllResourceFallbacks();
 
   ezResourceManager::FreeUnusedResources(true);
@@ -381,6 +385,8 @@ void ezGameApplication::BeforeCoreShutdown()
   ezResourceManager::FreeUnusedResources(true);
 
   DoShutdownGraphicsDevice();
+
+  DestroyAllGameStates();
 
   ezResourceManager::FreeUnusedResources(true);
 
@@ -437,19 +443,11 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
   {
     ProcessWindowMessages();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    // Update holographic space since new views might have been added.
-    ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
-#endif
+    ezClock::GetGlobalClock()->Update();
 
-    if (ezRenderWorld::GetMainViews().GetCount() > 0)
-    {
-      ezClock::GetGlobalClock()->Update();
+    UpdateInput();
 
-      UpdateInput();
-
-      UpdateWorldsAndRender();
-    }
+    UpdateWorldsAndRender();
   }
 
   return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;
@@ -507,6 +505,10 @@ void ezGameApplication::UpdateWorldsAndRender()
       EZ_PROFILE("GameApplication.Present");
       for (auto& windowContext : m_Windows)
       {
+        // Ignore windows without swapchain
+        if (windowContext.m_hSwapChain.IsInvalidated())
+          continue;
+
         if (ezRenderWorld::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
         {
           windowContext.m_bFirstFrame = false;
