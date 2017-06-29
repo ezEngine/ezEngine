@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Basics.h>
 #include <System/Basics.h>
 #include <System/Window/Window.h>
@@ -65,8 +65,13 @@ ezResult ezWindow::Initialize()
 
   if (!RegisterClassExW(&windowClass)) /// \todo test & support for multiple windows
   {
-    ezLog::Error("Failed to create ezWindow window class!");
-    return EZ_FAILURE;
+    DWORD error = GetLastError();
+
+    if (error != ERROR_CLASS_ALREADY_EXISTS)
+    {
+      ezLog::Error("Failed to create ezWindow window class! (error code '{0}')", ezArgU(error));
+      return EZ_FAILURE;
+    }
   }
 
   // setup fullscreen mode

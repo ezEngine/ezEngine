@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <System/Window/Window.h>
 #include <System/Screen/Screen.h>
@@ -193,6 +193,10 @@ ezResult ezWindowCreationDesc::LoadFromDDL(const char* szFile)
   LoadFromDDL(reader.GetRootElement());
 
   return EZ_SUCCESS;
+}
+
+ezWindow::ezWindow()
+{
 }
 
 ezWindow::~ezWindow()

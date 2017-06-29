@@ -147,10 +147,7 @@ public:
   ///
   /// You need to call Initialize to actually create a window.
   /// \see ezWindow::Initialize
-  inline ezWindow()
-    : m_bInitialized(false), m_WindowHandle()
-  {
-  }
+  ezWindow();
 
   /// \brief Destroys the window if not already done.
   virtual ~ezWindow();
@@ -264,10 +261,10 @@ protected:
 
 private:
 
-  bool m_bInitialized;
+  bool m_bInitialized = false;
 
-  ezStandardInputDevice* m_pInputDevice;
+  ezStandardInputDevice* m_pInputDevice = nullptr;
 
-  mutable ezWindowHandle m_WindowHandle;
+  mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
 };
 
