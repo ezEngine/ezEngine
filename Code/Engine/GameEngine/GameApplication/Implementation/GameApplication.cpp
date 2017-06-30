@@ -443,11 +443,33 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
   {
     ProcessWindowMessages();
 
-    ezClock::GetGlobalClock()->Update();
+    // for plugins that need to hook into this without a link dependency on this lib
+    EZ_BROADCAST_EVENT(GameApp_BeginFrame);
 
-    UpdateInput();
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::BeginFrame;
+      m_Events.Broadcast(e);
+    }
 
-    UpdateWorldsAndRender();
+    if (ezRenderWorld::GetMainViews().GetCount() > 0)
+    {
+      ezClock::GetGlobalClock()->Update();
+
+      UpdateInput();
+
+      UpdateWorldsAndRender();
+    }
+
+    // for plugins that need to hook into this without a link dependency on this lib
+    EZ_BROADCAST_EVENT(GameApp_EndFrame);
+
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::EndFrame;
+      m_Events.Broadcast(e);
+    }
+
   }
 
   return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;
@@ -455,15 +477,6 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
 
 void ezGameApplication::UpdateWorldsAndRender()
 {
-  // for plugins that need to hook into this without a link dependency on this lib
-  EZ_BROADCAST_EVENT(GameApp_BeginFrame);
-
-  {
-    ezGameApplicationEvent e;
-    e.m_Type = ezGameApplicationEvent::Type::BeginFrame;
-    m_Events.Broadcast(e);
-  }
-
   ezRenderWorld::BeginFrame();
 
   ezTaskGroupID updateTaskID;
@@ -531,15 +544,6 @@ void ezGameApplication::UpdateWorldsAndRender()
   }
 
   ezRenderWorld::EndFrame();
-
-  // for plugins that need to hook into this without a link dependency on this lib
-  EZ_BROADCAST_EVENT(GameApp_EndFrame);
-
-  {
-    ezGameApplicationEvent e;
-    e.m_Type = ezGameApplicationEvent::Type::EndFrame;
-    m_Events.Broadcast(e);
-  }
 
   ezFrameAllocator::Swap();
 }

@@ -21,13 +21,24 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
   GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
 
-  ezWindowsHolographicSpace::GetSingleton()->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
+  {
+    ezWindowsHolographicSpace::GetSingleton()->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
+
+    // Need to handle add/remove cameras before anything else - world update won't happen without a view wich may be created/destroyed by this.
+    GetApplication()->m_Events.AddEventHandler([this](const ezGameApplicationEvent& evt)
+    {
+      if (evt.m_Type == ezGameApplicationEvent::Type::BeginFrame)
+        ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
+    });
+  }
 
   ConfigureMainCamera();
 
   ConfigureInputDevices();
 
   ConfigureInputActions();
+
+  
 }
 
 void ezMixedRealityGameState::OnDeactivation()
@@ -58,8 +69,6 @@ void ezMixedRealityGameState::ProcessInput()
 void ezMixedRealityGameState::BeforeWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetReadMarker());
-
-  ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
 }
 
 void ezMixedRealityGameState::AfterWorldUpdate()
