@@ -1,4 +1,4 @@
-﻿#include "Main.h"
+#include "Main.h"
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Threading/Lock.h>
@@ -41,6 +41,8 @@ void ezPlayerApplication::BeforeCoreStartup()
 void ezPlayerApplication::AfterCoreStartup()
 {
   DoProjectSetup();
+  DoSetupGraphicsDevice();
+  DoSetupDefaultResources();
 
   ezStartup::StartupEngine();
 
