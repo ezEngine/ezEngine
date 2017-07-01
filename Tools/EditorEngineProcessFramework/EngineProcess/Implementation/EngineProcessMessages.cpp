@@ -174,6 +174,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActivateRemoteViewMsgToEngine, 1, ezRTTIDefaultAllocator<ezActivateRemoteViewMsgToEngine>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, 1, ezRTTIDefaultAllocator<ezEntityMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES

@@ -10,6 +10,7 @@
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <InputXBox360/InputDeviceXBox.h>
@@ -23,11 +24,9 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
 
 void ezEngineProcessGameApplication::BeforeCoreStartup()
 {
-  //ezEngineProcessDocumentContext::s_Mode = ezEditorEngineProcessMode::PrimaryOwnWindow;
-
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-remote", false))
   {
-    ezEngineProcessDocumentContext::s_Mode = ezEditorEngineProcessMode::Remote;
+    ezEditorEngineProcessApp::GetSingleton()->m_Mode = ezEditorEngineProcessMode::Remote;
   }
 
   ezStartup::AddApplicationTag("editorengineprocess");
@@ -174,7 +173,7 @@ void ezEngineProcessGameApplication::SendProjectReadyMessage()
 
 void ezEngineProcessGameApplication::SendReflectionInformation()
 {
-  if (ezEngineProcessDocumentContext::s_Mode == ezEditorEngineProcessMode::Remote)
+  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
     return;
 
   ezSet<const ezRTTI*> types;
@@ -312,7 +311,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
 void ezEngineProcessGameApplication::EventHandlerTypeUpdated(const ezRTTI* pType)
 {
-  if (ezEngineProcessDocumentContext::s_Mode == ezEditorEngineProcessMode::Remote)
+  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
     return;
 
   ezUpdateReflectionTypeMsgToEditor TypeMsg;

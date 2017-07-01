@@ -16,6 +16,7 @@
 #include <GameEngine/Interfaces/SoundInterface.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -421,6 +422,12 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 
 void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 {
+  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
+  {
+    ezLog::Info("Ignored game mode messages, not supported by remote engine process.");
+    return;
+  }
+
   ezGameState* pState = GetGameState();
 
   if (pMsg->m_bEnablePTG)

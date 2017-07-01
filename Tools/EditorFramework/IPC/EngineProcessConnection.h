@@ -95,6 +95,7 @@ private:
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
   ezEditorProcessCommunicationChannel m_IPC;
+  ezEditorProcessCommunicationChannel m_RemoteProcess;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
   ezHashTable<ezUuid, ezAssetDocument*> m_DocumentByGuid;

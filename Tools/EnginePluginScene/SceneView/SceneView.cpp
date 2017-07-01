@@ -20,6 +20,7 @@
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <GameEngine/Interfaces/SoundInterface.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
   : ezEngineProcessViewContext(pSceneContext)
@@ -174,6 +175,10 @@ ezViewHandle ezSceneViewContext::CreateView()
 
 void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 {
+  // remote processes do not support picking, just ignore this
+  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
+    return;
+
   ezViewPickingResultMsgToEditor res;
 
   ezView* pView = nullptr;

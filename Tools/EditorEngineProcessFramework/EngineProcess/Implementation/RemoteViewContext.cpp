@@ -1,8 +1,18 @@
 ﻿#include <PCH.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
+#include <RendererFoundation/Device/Device.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Pipeline/View.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 
-ezWindow ezRemoteEngineProcessViewContext::s_CustomWindow;
+ezUniquePtr<ezWindow> ezRemoteEngineProcessViewContext::s_pCustomWindow;
 ezViewHandle ezRemoteEngineProcessViewContext::s_hView;
+ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
 ezInt32 ezRemoteEngineProcessViewContext::s_iWindowReferences = 0;
 
 ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
@@ -14,17 +24,22 @@ ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProce
 ezRemoteEngineProcessViewContext::~ezRemoteEngineProcessViewContext()
 {
   // make sure this isn't destroyed here
-  m_hView.Invalidate();
+  if (!m_hView.IsInvalidated())
+  {
+    m_hView.Invalidate();
 
-  DestroyWindowAndView();
+    DestroyWindowAndView();
+  }
 }
 
 void ezRemoteEngineProcessViewContext::CreateWindowAndView()
 {
   ++s_iWindowReferences;
 
-  if (s_CustomWindow.IsInitialized())
+  if (s_pCustomWindow != nullptr)
     return;
+
+  s_pCustomWindow = EZ_DEFAULT_NEW(ezWindow);
 
   ezWindowCreationDesc desc;
   desc.m_uiWindowNumber = 0;
@@ -33,11 +48,11 @@ void ezRemoteEngineProcessViewContext::CreateWindowAndView()
   desc.m_Resolution = ezSizeU32(600, 600);
   desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
   desc.m_Title = "Remote Window";
-  s_CustomWindow.Initialize(desc);
+  s_pCustomWindow->Initialize(desc);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&s_CustomWindow);
+  auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(s_pCustomWindow.Borrow());
   const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hPrimarySwapChain);
   EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
@@ -72,15 +87,17 @@ void ezRemoteEngineProcessViewContext::DestroyWindowAndView()
     ezRenderWorld::DeleteView(s_hView);
   }
 
-  if (s_CustomWindow.IsInitialized())
+  if (s_pCustomWindow->IsInitialized())
   {
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&s_CustomWindow);
+    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(s_pCustomWindow.Borrow());
+
+    s_pCustomWindow.Reset();
   }
 }
 
 void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezActivateRemoteViewMsgToEngine>())
   {
     if (m_hView.IsInvalidated())
     {
@@ -94,16 +111,21 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
       ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
       pView->SetWorld(pDocumentContext->GetWorld());
       pView->SetCamera(&m_Camera);
-    }
 
+      s_uiActiveViewID = pMsg->m_uiViewID;
+    }
+  }
+
+  // ignore all messages for views that are currently not activated
+  if (pMsg->m_uiViewID != s_uiActiveViewID)
+    return;
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+  {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
 
     SetCamera(pMsg2);
-
-    if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
-    {
-      Redraw(false);
-    }
+    Redraw(false);
   }
 }
 

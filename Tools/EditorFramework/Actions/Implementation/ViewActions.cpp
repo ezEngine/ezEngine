@@ -12,6 +12,7 @@
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;
 ezActionDescriptorHandle ezViewActions::s_hCameraUsageHint;
+ezActionDescriptorHandle ezViewActions::s_hActivateRemoteProcess;
 
 
 void ezViewActions::RegisterActions()
@@ -19,6 +20,7 @@ void ezViewActions::RegisterActions()
   s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
   s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
   s_hCameraUsageHint = EZ_REGISTER_DYNAMIC_MENU("View.CameraUsageHint", ezCameraUsageHintAction, ":/EditorFramework/Icons/Tag16.png");
+  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Document, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
 }
 
 void ezViewActions::UnregisterActions()
@@ -26,21 +28,25 @@ void ezViewActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRenderMode);
   ezActionManager::UnregisterAction(s_hPerspective);
   ezActionManager::UnregisterAction(s_hCameraUsageHint);
+  ezActionManager::UnregisterAction(s_hActivateRemoteProcess);
 }
 
-void ezViewActions::MapActions(const char* szMapping, const char* szPath, bool bPerspective, bool bRenderMode, bool bUsageHint)
+void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 flags)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
-  if (bPerspective)
+  if (flags & Flags::PerspectiveMode)
     pMap->MapAction(s_hPerspective, szPath, 1.0f);
 
-  if (bRenderMode)
+  if (flags & Flags::RenderMode)
     pMap->MapAction(s_hRenderMode, szPath, 2.0f);
 
-  if (bUsageHint)
+  if (flags & Flags::UsageHint)
     pMap->MapAction(s_hCameraUsageHint, szPath, 3.0f);
+
+  if (flags & Flags::ActivateRemoteProcess)
+    pMap->MapAction(s_hActivateRemoteProcess, szPath, 4.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -132,4 +138,43 @@ void ezCameraUsageHintAction::Execute(const ezVariant& value)
   auto newValue = (ezCameraUsageHint::Enum)value.ConvertTo<ezInt64>();
   pView->m_pViewConfig->m_CameraUsageHint = newValue;
   TriggerUpdate();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, ButtonType button)
+  : ezButtonAction(context, szName, false, "")
+{
+  m_ButtonType = button;
+
+  switch (m_ButtonType)
+  {
+  case ezViewAction::ButtonType::ActivateRemoteProcess:
+    SetIconPath(":/EditorFramework/Icons/SwitchToRemoteProcess16.png");
+    break;
+  }
+}
+
+ezViewAction::~ezViewAction()
+{
+}
+
+void ezViewAction::Execute(const ezVariant& value)
+{
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
+
+  switch (m_ButtonType)
+  {
+  case ezViewAction::ButtonType::ActivateRemoteProcess:
+    {
+      ezActivateRemoteViewMsgToEngine msg;
+      msg.m_DocumentGuid = m_Context.m_pDocument->GetGuid();
+      msg.m_uiViewID = pView->GetViewID();
+      ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+    }
+    break;
+  }
 }

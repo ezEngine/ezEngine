@@ -109,7 +109,7 @@ void OnLoadPlugin(bool bReloading)
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar");
-      ezViewActions::MapActions("MaterialAssetViewToolBar", "", false, true, false);
+      ezViewActions::MapActions("MaterialAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
     }
   }
 
@@ -157,7 +157,7 @@ void OnLoadPlugin(bool bReloading)
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("MeshAssetViewToolBar");
-      ezViewActions::MapActions("MeshAssetViewToolBar", "", false, true, false);
+      ezViewActions::MapActions("MeshAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
     }
   }
 

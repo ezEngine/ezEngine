@@ -1,12 +1,10 @@
 ﻿#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
-#include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
-
-#include <Core/World/World.h>
 #include <Foundation/Types/Uuid.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
+#include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
 class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;
@@ -14,105 +12,9 @@ class ezEditorEngineDocumentMsg;
 class ezEngineProcessViewContext;
 class ezEngineProcessCommunicationChannel;
 class ezProcessMessage;
-class ezEntityMsgToEngine;
 class ezExportDocumentMsgToEngine;
 class ezCreateThumbnailMsgToEngine;
-class ezScene;
 struct ezResourceEvent;
-
-template<typename HandleType>
-class ezEditorGuidEngineHandleMap
-{
-public:
-  void Clear()
-  {
-    m_GuidToHandle.Clear();
-    m_HandleToGuid.Clear();
-  }
-
-  void RegisterObject(ezUuid guid, HandleType handle)
-  {
-    m_GuidToHandle[guid] = handle;
-    m_HandleToGuid[handle] = guid;
-
-    // apparently this happens during undo/redo (same guid, new handle on undo)
-    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
-  }
-
-  void UnregisterObject(ezUuid guid)
-  {
-    const HandleType handle = m_GuidToHandle[guid];
-    m_GuidToHandle.Remove(guid);
-    m_HandleToGuid.Remove(handle);
-
-    // apparently this happens during undo/redo (same guid, new handle on undo)
-    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
-  }
-
-  void UnregisterObject(HandleType handle)
-  {
-    const ezUuid guid = m_HandleToGuid[handle];
-    m_GuidToHandle.Remove(guid);
-    m_HandleToGuid.Remove(handle);
-
-    // apparently this happens during undo/redo (same guid, new handle on undo)
-    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
-  }
-
-  HandleType GetHandle(ezUuid guid) const
-  {
-    HandleType res = HandleType();
-    m_GuidToHandle.TryGetValue(guid, res);
-    return res;
-  }
-
-  ezUuid GetGuid(HandleType handle) const
-  {
-    return m_HandleToGuid.GetValueOrDefault(handle, ezUuid());
-  }
-
-private:
-  ezHashTable<ezUuid, HandleType> m_GuidToHandle;
-  ezMap<HandleType, ezUuid> m_HandleToGuid;
-};
-
-/// \brief The world rtti converter context tracks created objects and is capable of also handling
-///  components / game objects. Used by the ezIPCObjectMirror to create / destroy objects.
-///
-/// Atm it does not remove owner ptr when a parent is deleted, so it will accumulate zombie entries.
-/// As requests to dead objects shouldn't generally happen this is for the time being not a problem.
-class ezWorldRttiConverterContext : public ezRttiConverterContext
-{
-public:
-  ezWorldRttiConverterContext() : m_pWorld(nullptr), m_uiNextComponentPickingID(1) {}
-
-  virtual void Clear() override;
-
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
-  virtual void DeleteObject(const ezUuid& guid) override;
-
-  virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override;
-  virtual void UnregisterObject(const ezUuid& guid) override;
-
-  virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const override;
-  virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const override;
-
-  ezWorld* m_pWorld;
-  ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;
-  ezEditorGuidEngineHandleMap<ezComponentHandle> m_ComponentMap;
-
-  ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
-  ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
-  ezUInt32 m_uiNextComponentPickingID;
-  ezUInt32 m_uiHighlightID;
-};
-
-enum class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessMode
-{
-  Primary,
-  PrimaryOwnWindow,
-  Remote,
-};
 
 /// \brief A document context is the counter part to an editor document on the engine side.
 ///
@@ -125,8 +27,6 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineProcessDocumentContext : publi
 public:
   ezEngineProcessDocumentContext();
   virtual ~ezEngineProcessDocumentContext();
-
-  static ezEditorEngineProcessMode s_Mode;
 
   void Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC);
   void Deinitialize(bool bFullDestruction);

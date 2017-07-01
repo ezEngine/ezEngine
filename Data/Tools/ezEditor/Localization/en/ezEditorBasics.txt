@@ -41,6 +41,7 @@ View.RenderMode;Render Mode
 View.RenderPerspective;Perspective
 View.CameraUsageHint;Camera Usage Hint
 View.RenderPipeline;Render Pipeline
+View.ActivateRemoteProcess;Activate Remote Process
 Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
 Asset.ResaveAll;Resave All Assets

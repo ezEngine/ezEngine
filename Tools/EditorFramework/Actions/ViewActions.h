@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <GuiFoundation/Action/BaseActions.h>
@@ -10,11 +10,20 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath, bool bPerspective, bool bRenderMode, bool bUsageHint);
+  enum Flags
+  {
+    PerspectiveMode = EZ_BIT(0),
+    RenderMode = EZ_BIT(1),
+    UsageHint = EZ_BIT(2),
+    ActivateRemoteProcess = EZ_BIT(3),
+  };
+
+  static void MapActions(const char* szMapping, const char* szPath, ezUInt32 flags);
 
   static ezActionDescriptorHandle s_hRenderMode;
   static ezActionDescriptorHandle s_hPerspective;
   static ezActionDescriptorHandle s_hCameraUsageHint;
+  static ezActionDescriptorHandle s_hActivateRemoteProcess;
 };
 
 ///
@@ -45,4 +54,22 @@ public:
   ezCameraUsageHintAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   virtual ezInt64 GetValue() const override;
   virtual void Execute(const ezVariant& value) override;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezViewAction : public ezButtonAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewAction, ezButtonAction);
+public:
+  enum class ButtonType
+  {
+    ActivateRemoteProcess,
+  };
+
+  ezViewAction(const ezActionContext& context, const char* szName, ButtonType button);
+  ~ezViewAction();
+
+  virtual void Execute(const ezVariant& value) override;
+
+private:
+  ButtonType m_ButtonType;
 };

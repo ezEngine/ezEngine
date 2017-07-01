@@ -115,6 +115,9 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   }
   else
   {
+    args << "-remote";
+    m_RemoteProcess.StartClientProcess("EditorEngineProcess.exe", args, nullptr);
+
     Event e;
     e.m_Type = Event::Type::ProcessStarted;
     s_Events.Broadcast(e);
@@ -131,6 +134,7 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
   m_IPC.CloseConnection();
+  m_RemoteProcess.CloseConnection();
 
   Event e;
   e.m_Type = Event::Type::ProcessShutdown;
@@ -140,6 +144,8 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
 void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 {
   m_IPC.SendMessage(pMessage);
+
+  m_RemoteProcess.SendMessage(pMessage);
 }
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
@@ -235,6 +241,7 @@ void ezEditorEngineProcessConnection::Update()
   }
 
   m_IPC.ProcessMessages();
+  m_RemoteProcess.ProcessMessages();
 }
 
 void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)

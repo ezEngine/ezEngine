@@ -2,6 +2,9 @@
 
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
+#include <System/Window/Window.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRemoteEngineProcessViewContext : public ezEngineProcessViewContext
 {
@@ -18,6 +21,7 @@ protected:
 
   static ezInt32 s_iWindowReferences;
   static ezViewHandle s_hView;
-  static ezWindow s_CustomWindow;
+  static ezUInt32 s_uiActiveViewID;
+  static ezUniquePtr<ezWindow> s_pCustomWindow;
 };
 

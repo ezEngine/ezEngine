@@ -95,7 +95,7 @@ void OnLoadPlugin(bool bReloading)
 
   // View Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
-  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", true, true, true);
+  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::UsageHint | ezViewActions::ActivateRemoteProcess);
   ezSceneViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers
