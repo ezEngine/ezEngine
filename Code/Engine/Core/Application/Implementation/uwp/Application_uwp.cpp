@@ -34,6 +34,10 @@ HRESULT ezUwpApplication::Initialize(ICoreApplicationView* applicationView)
 
 HRESULT ezUwpApplication::SetWindow(ABI::Windows::UI::Core::ICoreWindow * window)
 {
+  // Certain things must be initialized before SetWindow is done, otherwise it won't work correctly.
+  // The concrete, as of writing only known example, is the holographic space. If initialized any later than that we won't go into exclusive mode (app remains slate window).
+  // Any earlier and there is no known window.
+  ezRun_Startup(m_application);
   return S_OK;
 }
 
@@ -44,7 +48,8 @@ HRESULT ezUwpApplication::Load(HSTRING entryPoint)
 
 HRESULT ezUwpApplication::Run()
 {
-  ezRun(m_application);
+  ezRun_MainLoop(m_application);
+  ezRun_Shutdown(m_application);
   return S_OK;
 }
 
@@ -73,6 +78,11 @@ HRESULT ezUwpApplication::OnActivated(ICoreApplicationView* view, IActivatedEven
 
     m_application->SetCommandLineArguments(argv.GetCount(), argv.GetData());
   }
+
+  // Activate main window together with the application!
+  ComPtr<ABI::Windows::UI::Core::ICoreWindow> pCoreWindow;
+  EZ_SUCCEED_OR_RETURN(view->get_CoreWindow(pCoreWindow.GetAddressOf()));
+  EZ_SUCCEED_OR_RETURN(pCoreWindow->Activate());
 
   return S_OK;
 }
