@@ -22,6 +22,7 @@
 #include <Foundation/Image/Image.h>
 #include <Foundation/Image/ImageUtils.h>
 #include <Foundation/Memory/MemoryUtils.h>
+#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

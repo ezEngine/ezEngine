@@ -38,6 +38,7 @@ void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
 
 void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
@@ -50,6 +51,11 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
       Redraw(true);
     }
   }
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
+#elif
+#   error "Unsupported platform."
+#endif
 }
 
 void ezEngineProcessViewContext::SendViewMessage(ezEditorEngineViewMsg* pViewMsg)
@@ -232,127 +238,4 @@ ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPi
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
 {
   return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-
-ezWindow ezRemoteEngineProcessViewContext::s_CustomWindow;
-ezViewHandle ezRemoteEngineProcessViewContext::s_hView;
-ezInt32 ezRemoteEngineProcessViewContext::s_iWindowReferences = 0;
-
-ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
-  : ezEngineProcessViewContext(pContext)
-{
-
-}
-
-ezRemoteEngineProcessViewContext::~ezRemoteEngineProcessViewContext()
-{
-  // make sure this isn't destroyed here
-  m_hView.Invalidate();
-
-  DestroyWindowAndView();
-}
-
-void ezRemoteEngineProcessViewContext::CreateWindowAndView()
-{
-  ++s_iWindowReferences;
-
-  if (s_CustomWindow.IsInitialized())
-    return;
-
-  ezWindowCreationDesc desc;
-  desc.m_uiWindowNumber = 0;
-  desc.m_bClipMouseCursor = false;
-  desc.m_bShowMouseCursor = true;
-  desc.m_Resolution = ezSizeU32(600, 600);
-  desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
-  desc.m_Title = "Remote Window";
-  s_CustomWindow.Initialize(desc);
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&s_CustomWindow);
-  const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hPrimarySwapChain);
-  EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
-
-  auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-
-  ezGALRenderTagetSetup BackBufferRenderTargetSetup;
-  BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
-
-  // setup view
-  {
-    ezView* pView = nullptr;
-    s_hView = ezRenderWorld::CreateView("Remote Process - View", pView);
-
-    pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
-
-    pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
-    pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)desc.m_Resolution.width, (float)desc.m_Resolution.height));
-  }
-}
-
-
-void ezRemoteEngineProcessViewContext::DestroyWindowAndView()
-{
-  --s_iWindowReferences;
-
-  if (s_iWindowReferences > 0)
-    return;
-
-  if (!s_hView.IsInvalidated())
-  {
-    ezRenderWorld::DeleteView(s_hView);
-  }
-
-  if (s_CustomWindow.IsInitialized())
-  {
-    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&s_CustomWindow);
-  }
-}
-
-void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
-{
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
-  {
-    if (m_hView.IsInvalidated())
-    {
-      CreateWindowAndView();
-      m_hView = s_hView;
-    }
-
-    ezView* pView = nullptr;
-    if (ezRenderWorld::TryGetView(m_hView, pView))
-    {
-      ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-      pView->SetWorld(pDocumentContext->GetWorld());
-      pView->SetCamera(&m_Camera);
-    }
-
-    const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
-
-    SetCamera(pMsg2);
-
-    if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
-    {
-      //HandleWindowUpdate(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
-      Redraw(true);
-    }
-  }
-}
-
-ezViewHandle ezRemoteEngineProcessViewContext::CreateView()
-{
-  //ezView* pView = nullptr;
-  //ezRenderWorld::CreateView("Remote Process - View", pView);
-
-  //pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  //ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  //pView->SetWorld(pDocumentContext->GetWorld());
-  //pView->SetCamera(&m_Camera);
-  //return pView->GetHandle();
-  return ezViewHandle();
 }

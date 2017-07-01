@@ -25,6 +25,11 @@ void ezEngineProcessGameApplication::BeforeCoreStartup()
 {
   //ezEngineProcessDocumentContext::s_Mode = ezEditorEngineProcessMode::PrimaryOwnWindow;
 
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-remote", false))
+  {
+    ezEngineProcessDocumentContext::s_Mode = ezEditorEngineProcessMode::Remote;
+  }
+
   ezStartup::AddApplicationTag("editorengineprocess");
 
   // Make sure to disable the fileserve plugin
