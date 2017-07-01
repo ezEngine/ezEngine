@@ -60,7 +60,8 @@ ezResult ezWindow::Initialize()
   EZ_HRESULT_TO_FAILURE(mainView->get_CoreWindow(&s_uwpWindowData->m_coreWindow));
   m_WindowHandle = s_uwpWindowData->m_coreWindow.Get();
 
-  EZ_HRESULT_TO_FAILURE(s_uwpWindowData->m_coreWindow->Activate());
+  // Activation of main window already done in Uwp application implementation.
+//  EZ_HRESULT_TO_FAILURE(s_uwpWindowData->m_coreWindow->Activate());
   EZ_HRESULT_TO_FAILURE(s_uwpWindowData->m_coreWindow->get_Dispatcher(&s_uwpWindowData->m_dispatcher));
 
   {
