@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -439,7 +439,6 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
       if (data.m_Outputs[i] != nullptr)
       {
         data.m_Outputs[i]->m_Desc = outputs[i];
-        EZ_ASSERT_ALWAYS(data.m_Outputs[i]->m_Desc.m_uiArraySize == 2, "DONT COMMIT");
       }
     }
 
