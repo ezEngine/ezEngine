@@ -107,6 +107,13 @@ public:
   ezUInt32 m_uiHighlightID;
 };
 
+enum class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessMode
+{
+  Primary,
+  PrimaryOwnWindow,
+  Remote,
+};
+
 /// \brief A document context is the counter part to an editor document on the engine side.
 ///
 /// For every document in the editor that requires engine output (rendering, picking, etc.), there is a ezEngineProcessDocumentContext
@@ -118,6 +125,8 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineProcessDocumentContext : publi
 public:
   ezEngineProcessDocumentContext();
   virtual ~ezEngineProcessDocumentContext();
+
+  static ezEditorEngineProcessMode s_Mode;
 
   void Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC);
   void Deinitialize(bool bFullDestruction);

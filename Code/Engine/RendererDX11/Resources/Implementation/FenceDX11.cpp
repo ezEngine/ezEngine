@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Basics.h>
 #include <RendererDX11/Resources/FenceDX11.h>
@@ -23,8 +23,8 @@ ezResult ezGALFenceDX11::InitPlatform(ezGALDevice* pDevice)
   D3D11_QUERY_DESC QueryDesc;
   QueryDesc.Query = D3D11_QUERY_EVENT;
   QueryDesc.MiscFlags = 0;
-  
-  if(SUCCEEDED(pDXDevice->GetDXDevice()->CreateQuery(&QueryDesc, &m_pDXFence)))
+
+  if (SUCCEEDED(pDXDevice->GetDXDevice()->CreateQuery(&QueryDesc, &m_pDXFence)))
   {
     return EZ_SUCCESS;
   }

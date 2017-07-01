@@ -26,6 +26,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezEditorEngineProcessMode ezEngineProcessDocumentContext::s_Mode = ezEditorEngineProcessMode::Primary;
 ezHashTable<ezUuid, ezEngineProcessDocumentContext*> ezEngineProcessDocumentContext::s_DocumentContexts;
 
 
@@ -417,7 +418,15 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     {
       if (m_ViewContexts[pViewMsg->m_uiViewID] == nullptr)
       {
-        m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
+        if (s_Mode == ezEditorEngineProcessMode::Primary)
+        {
+          m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
+        }
+        else
+        {
+          m_ViewContexts[pViewMsg->m_uiViewID] = EZ_DEFAULT_NEW(ezRemoteEngineProcessViewContext, this);
+        }
+
         m_ViewContexts[pViewMsg->m_uiViewID]->SetViewID(pViewMsg->m_uiViewID);
       }
 
@@ -644,6 +653,8 @@ bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToE
 
 void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg)
 {
+  EZ_ASSERT_DEV(s_Mode != ezEditorEngineProcessMode::Remote, "Wrong mode for thumbnail creation");
+
   EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;

@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
@@ -21,9 +21,9 @@ ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11()
 ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
   const ezGALTextureDX11* pTexture = nullptr;
-  if(!m_Description.m_hTexture.IsInvalidated())
+  if (!m_Description.m_hTexture.IsInvalidated())
     pTexture = static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
-    
+
   if (pTexture == nullptr)
   {
     ezLog::Error("No valid texture handle given for rendertarget view creation!");
@@ -35,12 +35,12 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if (m_Description.m_OverrideViewFormat != ezGALResourceFormat::Invalid)
     viewFormat = m_Description.m_OverrideViewFormat;
-  
-  
+
+
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
   DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
-  
+
   const bool bIsDepthFormat = ezGALResourceFormat::IsDepthFormat(viewFormat);
   if (bIsDepthFormat)
   {
@@ -51,11 +51,11 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eRenderTarget;
   }
 
-  if(DXViewFormat == DXGI_FORMAT_UNKNOWN)
+  if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
   {
     ezLog::Error("Couldn't get DXGI format for view!");
     return EZ_FAILURE;
-  }  
+  }
 
   if (bIsDepthFormat)
   {
@@ -110,7 +110,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     {
       return EZ_SUCCESS;
     }
-  }      
+  }
 }
 
 ezResult ezGALRenderTargetViewDX11::DeInitPlatform(ezGALDevice* pDevice)

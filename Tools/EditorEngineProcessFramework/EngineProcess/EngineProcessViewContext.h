@@ -46,7 +46,6 @@ public:
 
   void SetViewID(ezUInt32 id);
 
-  ezEditorProcessViewWindow& GetEditorWindow() { return m_Window; }
   ezEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
@@ -78,6 +77,26 @@ protected:
   ezCamera m_Camera;
   ezViewHandle m_hView;
   ezUInt32 m_uiViewID;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRemoteEngineProcessViewContext : public ezEngineProcessViewContext
+{
+public:
+  ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext);
+  ~ezRemoteEngineProcessViewContext();
+
+protected:
+  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
+  virtual ezViewHandle CreateView() override;
+
+  static void CreateWindowAndView();
+  static void DestroyWindowAndView();
+
+  static ezInt32 s_iWindowReferences;
+  static ezViewHandle s_hView;
+  static ezWindow s_CustomWindow;
 };
 
 

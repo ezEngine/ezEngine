@@ -23,6 +23,8 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
 
 void ezEngineProcessGameApplication::BeforeCoreStartup()
 {
+  //ezEngineProcessDocumentContext::s_Mode = ezEditorEngineProcessMode::PrimaryOwnWindow;
+
   ezStartup::AddApplicationTag("editorengineprocess");
 
   // Make sure to disable the fileserve plugin
@@ -167,6 +169,9 @@ void ezEngineProcessGameApplication::SendProjectReadyMessage()
 
 void ezEngineProcessGameApplication::SendReflectionInformation()
 {
+  if (ezEngineProcessDocumentContext::s_Mode == ezEditorEngineProcessMode::Remote)
+    return;
+
   ezSet<const ezRTTI*> types;
 
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezReflectedClass>(), types, true);
@@ -302,6 +307,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
 void ezEngineProcessGameApplication::EventHandlerTypeUpdated(const ezRTTI* pType)
 {
+  if (ezEngineProcessDocumentContext::s_Mode == ezEditorEngineProcessMode::Remote)
+    return;
+
   ezUpdateReflectionTypeMsgToEditor TypeMsg;
   ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, TypeMsg.m_desc);
   m_IPC.SendMessage(&TypeMsg);

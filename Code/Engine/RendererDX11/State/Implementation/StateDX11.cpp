@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Basics.h>
 #include <RendererDX11/State/StateDX11.h>
@@ -14,7 +14,7 @@
 
 ezGALBlendStateDX11::ezGALBlendStateDX11(const ezGALBlendStateCreationDescription& Description)
   : ezGALBlendState(Description),
-    m_pDXBlendState(nullptr)
+  m_pDXBlendState(nullptr)
 {
 }
 
@@ -93,13 +93,13 @@ ezResult ezGALBlendStateDX11::InitPlatform(ezGALDevice* pDevice)
 
   for (ezInt32 i = 0; i < 8; ++i)
   {
-    DXDesc.RenderTarget[i].BlendEnable    = m_Description.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled;
-    DXDesc.RenderTarget[i].BlendOp        = ToD3DBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOp);
-    DXDesc.RenderTarget[i].BlendOpAlpha   = ToD3DBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha);
-    DXDesc.RenderTarget[i].DestBlend      = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_DestBlend);
+    DXDesc.RenderTarget[i].BlendEnable = m_Description.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled;
+    DXDesc.RenderTarget[i].BlendOp = ToD3DBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOp);
+    DXDesc.RenderTarget[i].BlendOpAlpha = ToD3DBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha);
+    DXDesc.RenderTarget[i].DestBlend = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_DestBlend);
     DXDesc.RenderTarget[i].DestBlendAlpha = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_DestBlendAlpha);
-    DXDesc.RenderTarget[i].SrcBlend       = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_SourceBlend);
-    DXDesc.RenderTarget[i].SrcBlendAlpha  = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha);
+    DXDesc.RenderTarget[i].SrcBlend = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_SourceBlend);
+    DXDesc.RenderTarget[i].SrcBlendAlpha = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha);
     DXDesc.RenderTarget[i].RenderTargetWriteMask = m_Description.m_RenderTargetBlendDescriptions[i].m_uiWriteMask & 0x0F; // D3D11: RenderTargetWriteMask can only have the least significant 4 bits set.
   }
 
@@ -121,7 +121,7 @@ ezResult ezGALBlendStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALDepthStencilStateDX11::ezGALDepthStencilStateDX11(const ezGALDepthStencilStateCreationDescription& Description)
   : ezGALDepthStencilState(Description),
-    m_pDXDepthStencilState(nullptr)
+  m_pDXDepthStencilState(nullptr)
 {
 }
 
@@ -172,7 +172,7 @@ ezResult ezGALDepthStencilStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALRasterizerStateDX11::ezGALRasterizerStateDX11(const ezGALRasterizerStateCreationDescription& Description)
   : ezGALRasterizerState(Description),
-    m_pDXRasterizerState(nullptr)
+  m_pDXRasterizerState(nullptr)
 {
 }
 
@@ -196,7 +196,7 @@ ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
   DXDesc.ScissorEnable = m_Description.m_bScissorTest;
   DXDesc.SlopeScaledDepthBias = m_Description.m_fSlopeScaledDepthBias;
 
-  if(FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateRasterizerState(&DXDesc, &m_pDXRasterizerState)))
+  if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateRasterizerState(&DXDesc, &m_pDXRasterizerState)))
   {
     return EZ_FAILURE;
   }
@@ -217,8 +217,8 @@ ezResult ezGALRasterizerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 // Sampler state
 
 ezGALSamplerStateDX11::ezGALSamplerStateDX11(const ezGALSamplerStateCreationDescription& Description)
-: ezGALSamplerState(Description),
-m_pDXSamplerState(nullptr)
+  : ezGALSamplerState(Description),
+  m_pDXSamplerState(nullptr)
 {
 }
 
@@ -266,7 +266,7 @@ ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
 
     DXDesc.Filter = GALFilterTableIndexToDX11[uiTableIndex];
   }
-  
+
   DXDesc.MaxAnisotropy = m_Description.m_uiMaxAnisotropy;
   DXDesc.MaxLOD = m_Description.m_fMaxMip;
   DXDesc.MinLOD = m_Description.m_fMinMip;

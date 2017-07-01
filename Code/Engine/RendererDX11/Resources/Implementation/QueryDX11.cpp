@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -29,7 +29,7 @@ ezResult ezGALQueryDX11::InitPlatform(ezGALDevice* pDevice)
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
   D3D11_QUERY_DESC desc;
-  if(m_Description.m_type == ezGALQueryType::AnySamplesPassed)
+  if (m_Description.m_type == ezGALQueryType::AnySamplesPassed)
     desc.MiscFlags = m_Description.m_bDrawIfUnknown ? D3D11_QUERY_MISC_PREDICATEHINT : 0;
   else
     desc.MiscFlags = 0;

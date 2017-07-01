@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererDX11/Context/ContextDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -17,7 +17,7 @@
 
 
 ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pDXContext)
-: ezGALContext(pDevice),
+  : ezGALContext(pDevice),
   m_pDXContext(pDXContext),
   m_pDXAnnotation(nullptr),
   m_pBoundDepthStencilTarget(nullptr),
@@ -121,7 +121,36 @@ void ezGALContextDX11::DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiSta
 {
   FlushDeferredStateChanges();
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   m_pDXContext->DrawIndexed(uiIndexCount, uiStartIndex, 0);
+
+  // In debug builds, with a debugger attached, the engine will break on D3D errors
+  // this can be very annoying when an error happens repeatedly
+  // you can disable it at runtime, by using the debugger to set bChangeBreakPolicy to 'true', or dragging the
+  // the instruction pointer into the if
+  volatile bool bChangeBreakPolicy = false;
+  if (bChangeBreakPolicy)
+  {
+    ezGALDeviceDX11* pDevice = static_cast<ezGALDeviceDX11*>(GetDevice());
+    if (pDevice->m_pDebug)
+    {
+      ID3D11InfoQueue* pInfoQueue = nullptr;
+      if (SUCCEEDED(pDevice->m_pDebug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&pInfoQueue)))
+      {
+        // modify these, if you want to keep certain things enabled
+        static BOOL bBreakOnCorruption = FALSE;
+        static BOOL bBreakOnError = FALSE;
+        static BOOL bBreakOnWarning = FALSE;
+
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, bBreakOnCorruption);
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, bBreakOnError);
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, bBreakOnWarning);
+      }
+    }
+  }
+#else
+  m_pDXContext->DrawIndexed(uiIndexCount, uiStartIndex, 0);
+#endif
 }
 
 void ezGALContextDX11::DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
@@ -438,7 +467,7 @@ void ezGALContextDX11::SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuf
   m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
 
   // The GAL doesn't care about stages for constant buffer, but we need to handle this internaly.
-  for(ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     m_BoundConstantBuffersRange[stage].SetToIncludeValue(uiSlot);
 }
 
@@ -474,7 +503,7 @@ void ezGALContextDX11::SetRenderTargetSetupPlatform(ezArrayPtr<const ezGALRender
 
     }
 
-    if (pDepthStencilView != nullptr )
+    if (pDepthStencilView != nullptr)
     {
       m_pBoundDepthStencilTarget = static_cast<const ezGALRenderTargetViewDX11*>(pDepthStencilView)->GetDepthStencilView();
     }
@@ -513,7 +542,7 @@ void ezGALContextDX11::SetBlendStatePlatform(const ezGALBlendState* pBlendState,
 
 void ezGALContextDX11::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
 {
-  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr, uiStencilRefValue );
+  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr, uiStencilRefValue);
 }
 
 void ezGALContextDX11::SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState)
@@ -699,8 +728,8 @@ void ezGALContextDX11::UpdateTexturePlatform(const ezGALTexture* pDestination, c
   ezUInt32 uiDepth = ezMath::Max(DestinationBox.m_vMax.z - DestinationBox.m_vMin.z, 1u);
   ezGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
 
- if (ID3D11Resource* pDXTempTexture = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempTexture(uiWidth, uiHeight, uiDepth, format))
- {
+  if (ID3D11Resource* pDXTempTexture = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempTexture(uiWidth, uiHeight, uiDepth, format))
+  {
     D3D11_MAPPED_SUBRESOURCE MapResult;
     HRESULT hRes = m_pDXContext->Map(pDXTempTexture, 0, D3D11_MAP_WRITE, 0, &MapResult);
     EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
@@ -719,10 +748,10 @@ void ezGALContextDX11::UpdateTexturePlatform(const ezGALTexture* pDestination, c
     D3D11_BOX srcBox = { 0, 0, 0, uiWidth, uiHeight, uiDepth };
     m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, DestinationBox.m_vMin.x, DestinationBox.m_vMin.y, DestinationBox.m_vMin.z, pDXTempTexture, 0, &srcBox);
   }
- else
- {
-   EZ_REPORT_FAILURE("Could not find a temp texture for update.");
- }
+  else
+  {
+    EZ_REPORT_FAILURE("Could not find a temp texture for update.");
+  }
 }
 
 void ezGALContextDX11::ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource)
@@ -767,7 +796,7 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(const ezGALTexture* pTe
   EZ_ASSERT_DEV(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
 
   D3D11_MAPPED_SUBRESOURCE Mapped;
-  if(SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))
+  if (SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))
   {
     if (Mapped.RowPitch == (*pData)[0].m_uiRowPitch)
     {

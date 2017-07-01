@@ -41,7 +41,7 @@ public:
 
   EZ_ALWAYS_INLINE const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
-// These functions need to be implemented by a render API abstraction
+  // These functions need to be implemented by a render API abstraction
 protected:
 
   // Init & shutdown functions

@@ -1,4 +1,4 @@
-
+﻿
 ID3D11Buffer* ezGALBufferDX11::GetDXBuffer() const
 {
   return m_pDXBuffer;
