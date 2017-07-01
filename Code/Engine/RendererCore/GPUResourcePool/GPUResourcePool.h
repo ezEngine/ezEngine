@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Foundation/Containers/Map.h>
@@ -20,8 +20,8 @@ public:
   ezGALTextureHandle GetRenderTarget(const ezGALTextureCreationDescription& TextureDesc);
 
   /// \brief Convenience functions which creates a texture description fit for a 2d render target without a mip chains.
-  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat,
-    ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
+  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat,                                  
+                                      ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None, ezUInt32 uiSliceColunt = 1);
 
   /// \brief Returns a render target to the pool so other consumers can use it.
   /// Note that targets which are returned to the pool are susceptible to destruction due to garbage collection.

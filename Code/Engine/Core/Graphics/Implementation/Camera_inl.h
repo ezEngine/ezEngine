@@ -70,6 +70,16 @@ EZ_ALWAYS_INLINE bool ezCamera::IsOrthographic() const
   return m_Mode == ezCameraMode::OrthoFixedWidth || m_Mode == ezCameraMode::OrthoFixedHeight;
 }
 
+EZ_ALWAYS_INLINE bool ezCamera::IsStereoscopic() const
+{
+  return m_bSteroscopic;
+}
+
+EZ_ALWAYS_INLINE void ezCamera::SetStereoscopic(bool bStereo)
+{
+  m_bSteroscopic = bStereo;
+}
+
 EZ_ALWAYS_INLINE float ezCamera::GetExposure() const
 {
   return m_fExposure;

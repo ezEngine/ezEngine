@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/AOPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -144,6 +144,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     desc.m_Format = ezGALResourceFormat::RHalf;
     desc.m_bCreateRenderTarget = true;
     desc.m_bAllowShaderResourceView = true;
+    desc.m_uiArraySize = pOutput->m_Desc.m_uiArraySize;
 
     hzbTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
 
@@ -159,6 +160,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
         desc.m_hTexture = hzbTexture;
         desc.m_uiMostDetailedMipLevel = i;
         desc.m_uiMipLevelsToUse = 1;
+        desc.m_uiArraySize = pOutput->m_Desc.m_uiArraySize;
 
         hzbResourceViews.PushBack(pDevice->CreateResourceView(desc));
       }
@@ -167,12 +169,13 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
         ezGALRenderTargetViewCreationDescription desc;
         desc.m_hTexture = hzbTexture;
         desc.m_uiMipLevel = i;
+        desc.m_uiSliceCount = pOutput->m_Desc.m_uiArraySize;
 
         hzbRenderTargetViews.PushBack(pDevice->CreateRenderTargetView(desc));
       }
     }
 
-    tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf);
+    tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None, desc.m_uiArraySize);
   }
 
   // Bind common data

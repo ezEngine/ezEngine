@@ -1,7 +1,8 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <Core/Graphics/Camera.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 2, ezRTTIDefaultAllocator<ezSourcePass>)
 {
@@ -40,6 +41,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(const ezView& view, const ezArray
   desc.m_SampleCount = m_MsaaMode;
   desc.m_Format = m_Format;
   desc.m_bCreateRenderTarget = true;
+  desc.m_uiArraySize = view.GetCamera()->IsStereoscopic() ? 2 : 1;
 
   outputs[m_PinOutput.m_uiOutputIndex] = desc;
 

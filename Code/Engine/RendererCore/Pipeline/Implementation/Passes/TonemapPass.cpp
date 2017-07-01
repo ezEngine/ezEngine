@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/TonemapPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -67,7 +67,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
         return false;
       }
 
-      outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(desc.m_uiWidth, desc.m_uiHeight, desc.m_Format);
+      outputs[m_PinOutput.m_uiOutputIndex] = desc;
     }
     else
     {

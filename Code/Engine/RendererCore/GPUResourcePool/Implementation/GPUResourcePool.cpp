@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererFoundation/Device/Device.h>
@@ -87,7 +87,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   return hNewTexture;
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat, ezGALMSAASampleCount::Enum sampleCount)
+ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceColunt)
 {
   ezGALTextureCreationDescription TextureDesc;
   TextureDesc.m_bCreateRenderTarget = true;
@@ -97,6 +97,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32
   TextureDesc.m_uiWidth = uiWidth;
   TextureDesc.m_uiHeight = uiHeight;
   TextureDesc.m_SampleCount = sampleCount;
+  TextureDesc.m_uiArraySize = uiSliceColunt;
 
   return GetRenderTarget(TextureDesc);
 }

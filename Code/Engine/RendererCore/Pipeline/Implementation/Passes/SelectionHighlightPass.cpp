@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -80,8 +80,9 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     ezUInt32 uiWidth = pColorOutput->m_Desc.m_uiWidth;
     ezUInt32 uiHeight = pColorOutput->m_Desc.m_uiHeight;
     ezGALMSAASampleCount::Enum sampleCount = pColorOutput->m_Desc.m_SampleCount;
+    ezUInt32 uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
 
-    hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount);
+    hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
 
     ezGALRenderTagetSetup renderTargetSetup;
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));

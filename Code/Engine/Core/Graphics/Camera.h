@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/Math/Mat4.h>
@@ -114,7 +114,15 @@ public:
   void GetViewMatrix(ezMat4& out_viewMatrix) const;
 
   /// \brief Calculates the projection matrix from the current camera properties and stores it in out_projectionMatrix.
+  ///
+  /// todo: Stereo-support
   void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
+
+  /// \brief Whether this is a stereoscopic camera.
+  bool IsStereoscopic() const;
+  /// \brief Sets this camera to be monoscopic (default) or steroscopic.
+  void SetStereoscopic(bool bStereo);
+
 
   float GetExposure() const;
   void SetExposure(float fExposure);
@@ -160,6 +168,8 @@ private:
 
   ezUInt32 m_uiSettingsModificationCounter;
   ezUInt32 m_uiOrientationModificationCounter;
+
+  bool m_bSteroscopic = false;
 };
 
 
