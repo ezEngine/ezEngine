@@ -83,6 +83,8 @@ void ezGameEngineTestApplication::BeforeCoreStartup()
 void ezGameEngineTestApplication::AfterCoreStartup()
 {
   DoProjectSetup();
+  DoSetupGraphicsDevice();
+  DoSetupDefaultResources();
 
   ezStartup::StartupEngine();
 
