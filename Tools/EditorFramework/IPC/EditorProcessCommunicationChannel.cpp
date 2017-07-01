@@ -82,7 +82,10 @@ void ezEditorProcessCommunicationChannel::CloseConnection()
 {
   EZ_DEFAULT_DELETE(m_pChannel);
 
-  m_pClientProcess->close();
-  delete m_pClientProcess;
-  m_pClientProcess = nullptr;
+  if (m_pClientProcess)
+  {
+    m_pClientProcess->close();
+    delete m_pClientProcess;
+    m_pClientProcess = nullptr;
+  }
 }

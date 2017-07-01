@@ -20,7 +20,7 @@ void ezViewActions::RegisterActions()
   s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
   s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
   s_hCameraUsageHint = EZ_REGISTER_DYNAMIC_MENU("View.CameraUsageHint", ezCameraUsageHintAction, ":/EditorFramework/Icons/Tag16.png");
-  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Document, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
+  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
 }
 
 void ezViewActions::UnregisterActions()
@@ -170,10 +170,7 @@ void ezViewAction::Execute(const ezVariant& value)
   {
   case ezViewAction::ButtonType::ActivateRemoteProcess:
     {
-      ezActivateRemoteViewMsgToEngine msg;
-      msg.m_DocumentGuid = m_Context.m_pDocument->GetGuid();
-      msg.m_uiViewID = pView->GetViewID();
-      ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(m_Context.m_pDocument, pView->GetViewID());
     }
     break;
   }

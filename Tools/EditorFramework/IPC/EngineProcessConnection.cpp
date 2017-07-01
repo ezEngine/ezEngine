@@ -115,12 +115,83 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   }
   else
   {
-    args << "-remote";
-    m_RemoteProcess.StartClientProcess("EditorEngineProcess.exe", args, nullptr);
-
     Event e;
     e.m_Type = Event::Type::ProcessStarted;
     s_Events.Broadcast(e);
+  }
+}
+
+void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezDocument* pDocument, ezUInt32 uiViewID)
+{
+  // make sure process is started
+  StartRemoteProcess();
+
+  // resend entire document
+  {
+    // open document message
+    {
+      ezDocumentOpenMsgToEngine msg;
+      msg.m_DocumentGuid = pDocument->GetGuid();
+      msg.m_bDocumentOpen = true;
+      msg.m_sDocumentType = pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
+      m_pRemoteProcess->SendMessage(&msg);
+    }
+
+    if (pDocument->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>())
+    {
+      ezAssetDocument* pAssetDoc = (ezAssetDocument*)pDocument;
+      ezDocumentOpenResponseMsgToEditor response;
+      response.m_DocumentGuid = pDocument->GetGuid();
+      pAssetDoc->HandleEngineMessage(&response);
+    }
+  }
+
+  // send activation message
+  {
+    ezActivateRemoteViewMsgToEngine msg;
+    msg.m_DocumentGuid = pDocument->GetGuid();
+    msg.m_uiViewID = uiViewID;
+    m_pRemoteProcess->SendMessage(&msg);
+  }
+}
+
+void ezEditorEngineProcessConnection::StartRemoteProcess()
+{
+  if (m_pRemoteProcess != nullptr)
+  {
+    if (m_pRemoteProcess->IsClientAlive())
+      return;
+
+    ShutdownRemoteProcess();
+  }
+
+  m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
+
+  QStringList args;
+  args << "-remote";
+
+  m_pRemoteProcess->StartClientProcess("EditorEngineProcess.exe", args, nullptr);
+
+  // Send project setup.
+  {
+    ezSetupProjectMsgToEngine msg;
+    msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory(); /// \todo This won't work on remote devices
+    msg.m_FileSystemConfig = m_FileSystemConfig;
+    msg.m_PluginConfig = m_PluginConfig;
+
+    m_pRemoteProcess->SendMessage(&msg);
+  }
+}
+
+
+void ezEditorEngineProcessConnection::ShutdownRemoteProcess()
+{
+  if (m_pRemoteProcess != nullptr)
+  {
+    ezLog::Info("Shutting down Remote Engine Process");
+    m_pRemoteProcess->CloseConnection();
+
+    m_pRemoteProcess.Reset();
   }
 }
 
@@ -129,12 +200,13 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   if (!m_bProcessShouldBeRunning)
     return;
 
+  ShutdownRemoteProcess();
+
   ezLog::Info("Shutting down Engine Process");
 
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
   m_IPC.CloseConnection();
-  m_RemoteProcess.CloseConnection();
 
   Event e;
   e.m_Type = Event::Type::ProcessShutdown;
@@ -145,7 +217,10 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 {
   m_IPC.SendMessage(pMessage);
 
-  m_RemoteProcess.SendMessage(pMessage);
+  if (m_pRemoteProcess)
+  {
+    m_pRemoteProcess->SendMessage(pMessage);
+  }
 }
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
@@ -241,7 +316,11 @@ void ezEditorEngineProcessConnection::Update()
   }
 
   m_IPC.ProcessMessages();
-  m_RemoteProcess.ProcessMessages();
+
+  if (m_pRemoteProcess)
+  {
+    m_pRemoteProcess->ProcessMessages();
+  }
 }
 
 void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)

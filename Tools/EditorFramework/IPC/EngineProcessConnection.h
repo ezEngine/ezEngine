@@ -6,6 +6,7 @@
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezEditorEngineConnection;
 class ezDocument;
@@ -61,6 +62,8 @@ public:
   /// Calling this will always clear the existing document on the engine side and reset the state to the editor state.
   void SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen);
 
+  void ActivateRemoteProcess(const ezDocument* pDocument, ezUInt32 uiViewID);
+
   struct Event
   {
     enum class Type
@@ -88,14 +91,15 @@ public:
 private:
   void Initialize(const ezRTTI* pFirstAllowedMessageType);
   void HandleIPCEvent(const ezProcessCommunicationChannel::Event& e);
-  
+  void StartRemoteProcess();
+  void ShutdownRemoteProcess();
 
   bool m_bProcessShouldWaitForDebugger;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
   ezEditorProcessCommunicationChannel m_IPC;
-  ezEditorProcessCommunicationChannel m_RemoteProcess;
+  ezUniquePtr<ezEditorProcessCommunicationChannel> m_pRemoteProcess;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
   ezHashTable<ezUuid, ezAssetDocument*> m_DocumentByGuid;
