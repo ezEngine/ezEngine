@@ -46,7 +46,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
-      HandleWindowUpdate(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+      HandleWindowUpdate(reinterpret_cast<ezWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
       Redraw(true);
     }
   }
