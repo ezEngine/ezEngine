@@ -62,14 +62,34 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     D3D11_DEPTH_STENCIL_VIEW_DESC DSViewDesc;
     DSViewDesc.Format = DXViewFormat;
 
-    if (pTexture->GetDescription().m_SampleCount == ezGALMSAASampleCount::None)
+    if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
     {
-      DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-      DSViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
+      if (texDesc.m_uiArraySize == 1)
+      {
+        DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        DSViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
+      }
+      else
+      {
+        DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+        DSViewDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevel;
+        DSViewDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstSlice;
+        DSViewDesc.Texture2DArray.ArraySize = m_Description.m_uiSliceCount;
+      }
     }
     else
     {
-      DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+      if (texDesc.m_uiArraySize == 1)
+      {
+        DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+        //DSViewDesc.Texture2DMS.UnusedField_NothingToDefine;
+      }
+      else
+      {
+        DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY;
+        DSViewDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstSlice;
+        DSViewDesc.Texture2DMSArray.ArraySize = m_Description.m_uiSliceCount;
+      }
     }
 
     DSViewDesc.Flags = 0;
@@ -91,14 +111,34 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     D3D11_RENDER_TARGET_VIEW_DESC RTViewDesc;
     RTViewDesc.Format = DXViewFormat;
 
-    if (pTexture->GetDescription().m_SampleCount == ezGALMSAASampleCount::None)
+    if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
     {
-      RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-      RTViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
+      if (texDesc.m_uiArraySize == 1)
+      {
+        RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+        RTViewDesc.Texture2D.MipSlice = m_Description.m_uiMipLevel;
+      }
+      else
+      {
+        RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+        RTViewDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevel;
+        RTViewDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstSlice;
+        RTViewDesc.Texture2DArray.ArraySize = m_Description.m_uiSliceCount;
+      }
     }
     else
     {
-      RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+      if (texDesc.m_uiArraySize == 1)
+      {
+        RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+        //RTViewDesc.Texture2DMS.UnusedField_NothingToDefine;
+      }
+      else
+      {
+        RTViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY;
+        RTViewDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstSlice;
+        RTViewDesc.Texture2DMSArray.ArraySize = m_Description.m_uiSliceCount;
+      }
     }
 
     if (FAILED(pDXDevice->GetDXDevice()->CreateRenderTargetView(pTexture->GetDXTexture(), &RTViewDesc, &m_pRenderTargetView)))
