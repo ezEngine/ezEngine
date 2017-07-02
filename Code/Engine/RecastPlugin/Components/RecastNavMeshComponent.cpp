@@ -80,7 +80,12 @@ void ezRcNavMeshComponent::Update()
   if (m_uiDelay > 0)
     return;
 
-  m_NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld());
+  if (m_NavMeshBuilder.Build(m_NavMeshConfig, *GetWorld()).Failed())
+    return;
+
+  // empty navmesh
+  if (m_NavMeshBuilder.m_pNavMesh == nullptr)
+    return;
 
   GetManager()->GetRecastWorldModule()->SetNavMesh(m_NavMeshBuilder.m_pNavMesh);
   GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest.ExtractInterestPointsFromMesh(*m_NavMeshBuilder.m_polyMesh, true);

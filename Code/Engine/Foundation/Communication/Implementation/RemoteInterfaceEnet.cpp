@@ -1,11 +1,16 @@
 ﻿#include <PCH.h>
-#include <FileservePlugin/Network/NetworkInterfaceEnet.h>
+#include <Foundation/Communication/RemoteInterfaceEnet.h>
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <ThirdParty/enet/enet.h>
+#include <Foundation/Logging/Log.h>
 
-bool ezNetworkInterfaceEnet::s_bEnetInitialized = false;
+bool ezRemoteInterfaceEnet::s_bEnetInitialized = false;
 
-ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress)
+ezResult ezRemoteInterfaceEnet::InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress)
 {
   if (!s_bEnetInitialized)
   {
@@ -76,7 +81,7 @@ ezResult ezNetworkInterfaceEnet::InternalCreateConnection(ezRemoteMode mode, con
   return EZ_SUCCESS;
 }
 
-void ezNetworkInterfaceEnet::InternalShutdownConnection()
+void ezRemoteInterfaceEnet::InternalShutdownConnection()
 {
   m_uiPort = 0;
 
@@ -102,7 +107,7 @@ void ezNetworkInterfaceEnet::InternalShutdownConnection()
   m_pEnetConnectionToServer = nullptr;
 }
 
-ezTime ezNetworkInterfaceEnet::InternalGetPingToServer()
+ezTime ezRemoteInterfaceEnet::InternalGetPingToServer()
 {
   EZ_ASSERT_DEV(m_pEnetConnectionToServer != nullptr, "Client has not connected to server");
 
@@ -110,7 +115,7 @@ ezTime ezNetworkInterfaceEnet::InternalGetPingToServer()
   return ezTime::Milliseconds(m_pEnetConnectionToServer->lastRoundTripTime);
 }
 
-ezResult ezNetworkInterfaceEnet::InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
+ezResult ezRemoteInterfaceEnet::InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)
 {
   if (m_pEnetHost == nullptr)
     return EZ_FAILURE;
@@ -121,7 +126,7 @@ ezResult ezNetworkInterfaceEnet::InternalTransmit(ezRemoteTransmitMode tm, const
   return EZ_SUCCESS;
 }
 
-void ezNetworkInterfaceEnet::InternalUpdateRemoteInterface()
+void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
 {
   if (!m_pEnetHost)
     return;
@@ -253,7 +258,4 @@ void ezNetworkInterfaceEnet::InternalUpdateRemoteInterface()
   }
 }
 
-
-
-EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Network_NetworkInterfaceEnet);
-
+#endif

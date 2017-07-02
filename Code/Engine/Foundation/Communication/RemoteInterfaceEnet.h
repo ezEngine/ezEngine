@@ -1,11 +1,13 @@
-#pragma once
+﻿#pragma once
 
-#include <FileservePlugin/Plugin.h>
 #include <Foundation/Communication/RemoteInterface.h>
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+
 #include <ThirdParty/enet/enet.h>
 
 /// \brief An implementation for ezRemoteInterface built on top of Enet
-class EZ_FILESERVEPLUGIN_DLL ezNetworkInterfaceEnet : public ezRemoteInterface
+class EZ_FOUNDATION_DLL ezRemoteInterfaceEnet : public ezRemoteInterface
 {
   /// \brief The port through which the connection was started
   ezUInt16 GetPort() const { return m_uiPort; }
@@ -29,4 +31,4 @@ private:
   static bool s_bEnetInitialized;
 };
 
-
+#endif

@@ -1,6 +1,6 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
-#include <FileservePlugin/Network/NetworkInterfaceEnet.h>
+#include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <FileservePlugin/Client/FileserveClient.h>
@@ -25,7 +25,7 @@ void ezFileserver::StartServer()
 
   ezStringBuilder tmp;
 
-  m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet);
+  m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet);
   m_Network->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false);
   m_Network->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
   m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
@@ -449,7 +449,7 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
   ezStringBuilder sAddress = szClientAddress;
   sAddress.Append(":2042"); // hard-coded port
 
-  ezNetworkInterfaceEnet network;
+  ezRemoteInterfaceEnet network;
   EZ_SUCCEED_OR_RETURN(network.ConnectToServer('EZIP', sAddress, false));
 
   if (network.WaitForConnectionToServer(timeout).Failed())

@@ -1,7 +1,7 @@
 ﻿#include <PCH.h>
 #include <FileservePlugin/Client/FileserveDataDir.h>
 #include <Foundation/Logging/Log.h>
-#include <FileservePlugin/Network/NetworkInterfaceEnet.h>
+#include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/Algorithm/Hashing.h>
 
 void ezDataDirectory::FileserveType::ReloadExternalConfigs()

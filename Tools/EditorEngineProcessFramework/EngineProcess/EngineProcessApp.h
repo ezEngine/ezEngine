@@ -6,7 +6,6 @@
 enum class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessMode
 {
   Primary,
-  PrimaryOwnWindow,
   Remote,
 };
 

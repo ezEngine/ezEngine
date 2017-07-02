@@ -193,6 +193,10 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
   {
+    // ignore when this is a remote process
+    if (bIsRemoteProcess)
+      return;
+
     ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     ezResourceManager::ReloadAllResources(false);
     const ezCreateThumbnailMsgToEngine* pMsg2 = static_cast<const ezCreateThumbnailMsgToEngine*>(pMsg);
@@ -249,6 +253,10 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
   {
+    // ignore when this is a remote process
+    if (bIsRemoteProcess)
+      return;
+
     const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
 
     m_Context.m_uiHighlightID = m_Context.m_ComponentPickingMap.GetHandle(pMsg2->m_HighlightObject);
