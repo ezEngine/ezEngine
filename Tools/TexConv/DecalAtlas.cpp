@@ -15,7 +15,7 @@ ezResult ezTexConv::CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, e
   ezImage atlas;
   EZ_SUCCEED_OR_RETURN(CreateDecalAtlasTexture(decals, uiTexWidth, uiTexHeight, atlas, layer));
 
-  // stores result in m_pCurrentImage 
+  // stores result in m_pCurrentImage
   EZ_SUCCEED_OR_RETURN(CreateTexture2D(&atlas, false));
 
   m_bGeneratedMipmaps = true;
@@ -57,7 +57,7 @@ ezResult ezTexConv::CreateDecalAtlas()
   const ezUInt8 uiVersion = 1;
   m_FileOut << uiVersion;
 
-  EZ_SUCCEED_OR_RETURN(CreateDecalLayerTexture(decals, DecalLayer::Diffuse, m_FileOut));
+  EZ_SUCCEED_OR_RETURN(CreateDecalLayerTexture(decals, DecalLayer::BaseColor, m_FileOut));
   EZ_SUCCEED_OR_RETURN(CreateDecalLayerTexture(decals, DecalLayer::Normal, m_FileOut));
 
   WriteDecalAtlasInfo(decals);

@@ -2319,6 +2319,20 @@ o
 }
 o
 {
+	Uuid %id{u4{4348884514781093251,5013647147276226640}}
+	s %t{"ezDecalComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{51,255,0,128}}
+		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
+		Vec3 %Extents{f{0x0000803F,0x00002041,0x00002041}}
+		f %SortOrder{0}
+	}
+}
+o
+{
 	Uuid %id{u4{7778535136705574085,5013651503297425277}}
 	s %t{"ezSpotLightComponent"}
 	u3 %v{2}
@@ -2651,7 +2665,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{2028951618893548324}
+		u4 %Hash{555241361772810551}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2663,6 +2677,7 @@ AssetInfo
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
+			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
 			s{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
@@ -2687,6 +2702,7 @@ AssetInfo
 			s{"{ e6c495bb-9dd5-43ef-9f20-618828f20781 }"}
 			s{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
+			s{"{ f8684eee-6928-40d3-bd13-24e18c5ffe91 }"}
 		}
 	}
 }
@@ -3005,6 +3021,27 @@ o
 }
 o
 {
+	Uuid %id{u4{89461557576906113,5328121027725050203}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4348884514781093251,5013647147276226640}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F841,0x00000041,0x0000C040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
 	Uuid %id{u4{7818152129666541470,5365680775113377926}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{1}
@@ -3131,6 +3168,9 @@ o
 			Uuid{u4{10002545071225242339,11908447909709046693}}
 			Uuid{u4{5089728754503442715,9649220062168832485}}
 			Uuid{u4{4621858523936149664,5105293089154959260}}
+			Uuid{u4{89461557576906113,5328121027725050203}}
+			Uuid{u4{7593464672478252038,10634335326434642243}}
+			Uuid{u4{15823310223063427115,10673754772383999055}}
 		}
 	}
 }
@@ -6210,6 +6250,20 @@ o
 }
 o
 {
+	Uuid %id{u4{11852887629682439176,10319861445985818680}}
+	s %t{"ezDecalComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Decal{"{ f8684eee-6928-40d3-bd13-24e18c5ffe91 }"}
+		Vec3 %Extents{f{0x0000803F,0x00008040,0x00008040}}
+		f %SortOrder{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{10907151527267696695,10325193248901409714}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -6264,6 +6318,20 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{"Column"}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{1635989106558062637,10359280891935175492}}
+	s %t{"ezDecalComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{0,35,255,128}}
+		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
+		Vec3 %Extents{f{0x0000803F,0x0000A041,0x00002041}}
+		f %SortOrder{0x0000803E}
 	}
 }
 o
@@ -6675,6 +6743,27 @@ o
 }
 o
 {
+	Uuid %id{u4{7593464672478252038,10634335326434642243}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11852887629682439176,10319861445985818680}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F841,0x00003041,0x0000B840}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
+	}
+}
+o
+{
 	Uuid %id{u4{16446226503311002696,10665018585747508772}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{1}
@@ -6693,6 +6782,27 @@ o
 	{
 		b %Active{1}
 		s %Prefab{"{ a2e664de-7b3e-47d8-99d3-d058896f7255 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15823310223063427115,10673754772383999055}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1635989106558062637,10359280891935175492}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F841,0x00007040,0x0000C040}}
+		Quat %LocalRotation{f{0xD7B35D3F,0,0xD8B35DB3,0xFFFFFF3E}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
+		VarArray %Tags{}
 	}
 }
 o

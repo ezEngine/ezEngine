@@ -7,7 +7,7 @@ class ezDecalAssetProperties : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetProperties, ezReflectedClass);
 
 public:
-  ezString m_sDiffuse;
+  ezString m_sBaseColor;
   ezString m_sNormal;
 };
 

@@ -20,7 +20,8 @@ public:
   ezConstantBufferStorageHandle m_hConstantBuffer;
 
   ezGALSamplerStateHandle m_hShadowSampler;
-  ezTexture2DResourceHandle m_hNoiseTexture;
+
+  ezDecalAtlasResourceHandle m_hDecalAtlas;
 
   void BindResources(ezRenderContext* pRenderContext);
 };

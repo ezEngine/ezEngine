@@ -197,13 +197,15 @@ namespace
     ezVec3 scale = ezVec3(1.0f).CompDiv(pDecalRenderData->m_GlobalTransform.m_vScale.CompMul(pDecalRenderData->m_vHalfExtents));
 
     ezMat4 lookAt; lookAt.SetLookAtMatrix(position, position + dirForwards, dirUp);
-    ezMat4 scaleMat; scaleMat.SetScalingMatrix(ezVec3(scale.y, scale.z, scale.x));
+    ezMat4 scaleMat; scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
+
+    ezColorLinearUB color = pDecalRenderData->m_Color;
 
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
-    perDecalData.atlasScale = 0;
-    perDecalData.atlasOffset = 0;
     perDecalData.textureBitmask = 0;
-    perDecalData.reserved = 0;
+    perDecalData.color = *reinterpret_cast<ezUInt32*>(&color.r);
+    perDecalData.baseAtlasScale = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasScale);
+    perDecalData.baseAtlasOffset = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasOffset);
   }
 
 

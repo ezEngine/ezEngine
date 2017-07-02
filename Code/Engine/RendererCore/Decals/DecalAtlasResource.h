@@ -24,11 +24,14 @@ public:
   struct DecalInfo
   {
     ezString m_sIdentifier;
-    ezRectU32 m_Rect;
+    ezRectU32 m_BaseColorRect;
+    ezRectU32 m_NormalRect;
   };
 
-  const ezTexture2DResourceHandle& GetDiffuseTexture() const { return m_hDiffuse; }
+  const ezTexture2DResourceHandle& GetBaseColorTexture() const { return m_hBaseColor; }
   const ezTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }
+  const ezVec2U32& GetBaseColorTextureSize() const { return m_BaseColorSize; }
+  const ezVec2U32& GetNormalTextureSize() const { return m_NormalSize; }
   const ezMap<ezUInt32, DecalInfo>& GetAllDecals() const { return m_Decals; }
 
 private:
@@ -44,6 +47,8 @@ private:
 
   ezMap<ezUInt32, DecalInfo> m_Decals;
   static ezUInt32 s_uiDecalAtlasResources;
-  ezTexture2DResourceHandle m_hDiffuse;
+  ezTexture2DResourceHandle m_hBaseColor;
   ezTexture2DResourceHandle m_hNormal;
+  ezVec2U32 m_BaseColorSize;
+  ezVec2U32 m_NormalSize;
 };

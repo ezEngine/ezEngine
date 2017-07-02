@@ -48,7 +48,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
-ezDecalAtlasResource::ezDecalAtlasResource() : ezResource<ezDecalAtlasResource, ezDecalAtlasResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezDecalAtlasResource::ezDecalAtlasResource()
+  : ezResource<ezDecalAtlasResource, ezDecalAtlasResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+  , m_BaseColorSize(ezVec2U32::ZeroVector())
+  , m_NormalSize(ezVec2U32::ZeroVector())
 {
 }
 
@@ -95,22 +98,25 @@ EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceDescription().Get
   // read the textures
   {
     ezDdsFileFormat dds;
-    ezImage diffuse, normal;
+    ezImage baseColor, normal;
 
-    if (dds.ReadImage(*Stream, diffuse, ezLog::GetThreadLocalLogSystem()).Failed())
+    if (dds.ReadImage(*Stream, baseColor, ezLog::GetThreadLocalLogSystem()).Failed())
     {
-      ezLog::Error("Failed to load diffuse image for decal atlas");
+      ezLog::Error("Failed to load baseColor image for decal atlas");
       return res;
     }
 
     if (dds.ReadImage(*Stream, normal, ezLog::GetThreadLocalLogSystem()).Failed())
     {
-      ezLog::Error("Failed to load diffuse image for decal atlas");
+      ezLog::Error("Failed to load normal image for decal atlas");
       return res;
     }
 
-    CreateLayerTexture(diffuse, true, m_hDiffuse);
+    CreateLayerTexture(baseColor, true, m_hBaseColor);
     CreateLayerTexture(normal, false, m_hNormal);
+
+    m_BaseColorSize = ezVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
+    m_NormalSize = ezVec2U32(normal.GetWidth(), normal.GetHeight());
   }
 
   ReadDecalInfo(Stream);
@@ -174,10 +180,15 @@ void ezDecalAtlasResource::ReadDecalInfo(ezStreamReader* Stream)
     auto& decal = m_Decals[uiHash];
     decal.m_sIdentifier = sIdentifier;
 
-    *Stream >> decal.m_Rect.x;
-    *Stream >> decal.m_Rect.y;
-    *Stream >> decal.m_Rect.width;
-    *Stream >> decal.m_Rect.height;
+    *Stream >> decal.m_BaseColorRect.x;
+    *Stream >> decal.m_BaseColorRect.y;
+    *Stream >> decal.m_BaseColorRect.width;
+    *Stream >> decal.m_BaseColorRect.height;
+
+    *Stream >> decal.m_NormalRect.x;
+    *Stream >> decal.m_NormalRect.y;
+    *Stream >> decal.m_NormalRect.width;
+    *Stream >> decal.m_NormalRect.height;
   }
 }
 

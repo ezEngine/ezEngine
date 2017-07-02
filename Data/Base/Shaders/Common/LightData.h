@@ -69,10 +69,11 @@ struct EZ_ALIGN_16(ezPerDecalData)
 {
   TRANSFORM(worldToDecalMatrix);
   
-  UINT1(atlasScale); // xy as 16 bit floats
-  UINT1(atlasOffset); // xy as 16 bit floats
   UINT1(textureBitmask);
-  UINT1(reserved);
+  UINT1(color);
+  
+  UINT1(baseAtlasScale); // xy as 16 bit floats
+  UINT1(baseAtlasOffset); // xy as 16 bit floats
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)
@@ -88,7 +89,8 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
   FLOAT2(InvTileSize);
 
   UINT1(NumLights);
-  UINT3(Padding);
+  UINT1(NumDecals);
+  UINT2(Padding);
 
   COLOR4F(AmbientTopColor);
   COLOR4F(AmbientBottomColor);

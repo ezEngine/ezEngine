@@ -356,8 +356,16 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
           uiDecalIndex += uiBlockIndex * 32;
 
-          auto& item = (uiDecalCount < uiLightCount) ? m_TempClusterItemList[uiOffset + uiDecalCount] : m_TempClusterItemList.ExpandAndGetRef();
-          item = PackIndex(item, uiDecalIndex);
+          if (uiDecalCount < uiLightCount)
+          {
+            auto& item = m_TempClusterItemList[uiOffset + uiDecalCount];
+            item = PackIndex(item, uiDecalIndex);
+          }
+          else
+          {
+            auto& item = m_TempClusterItemList.ExpandAndGetRef();
+            item = PackIndex(0, uiDecalIndex);
+          }
 
           ++uiDecalCount;
         }

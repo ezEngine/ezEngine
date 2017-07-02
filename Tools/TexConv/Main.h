@@ -80,7 +80,7 @@ public:
 
   enum DecalLayer
   {
-    Diffuse,
+    BaseColor,
     Normal,
     ENUM_COUNT,
   };
@@ -146,7 +146,7 @@ public:
   ezResult CreateTextureCube();
   ezResult CreateTextureCubeFromSingleFile();
   ezResult CreateTextureCubeFrom6Files();
-  
+
   ezResult PassImageThrough();
   ezResult GenerateMipmaps();
   ezResult ApplyPremultiplyAlpha();

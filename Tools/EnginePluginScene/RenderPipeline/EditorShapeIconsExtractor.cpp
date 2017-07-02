@@ -109,6 +109,8 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
       {
         pRenderData->m_color = ezColor::White;
       }
+
+      pRenderData->m_color.a = 255;
     }
 
     pExtractedRenderData->AddRenderData(pRenderData, category, uiTextureIDHash);

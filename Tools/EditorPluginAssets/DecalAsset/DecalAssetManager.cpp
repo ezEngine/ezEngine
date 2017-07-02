@@ -150,7 +150,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
         group.m_sFilepaths[0] = sAbsPath;
 
         {
-          sAbsPath = pDecalAsset->GetProperties()->m_sDiffuse;
+          sAbsPath = pDecalAsset->GetProperties()->m_sBaseColor;
           if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
           {
             return ezStatus(ezFmt("Invalid texture path '{0}'", sAbsPath));

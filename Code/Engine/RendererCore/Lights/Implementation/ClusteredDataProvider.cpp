@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
@@ -63,7 +64,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     m_hShadowSampler = pDevice->CreateSamplerState(desc);
   }
 
-  m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
+  m_hDecalAtlas = ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
 }
 
 ezClusteredDataGPU::~ezClusteredDataGPU()
@@ -98,7 +99,9 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
     pRenderContext->BindSamplerState((ezGALShaderStage::Enum)stage, "ShadowSampler", m_hShadowSampler);
   }
 
-  pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
+  ezResourceLock<ezDecalAtlasResource> pDecalAtlas(m_hDecalAtlas);
+  pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
+  pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
 
   pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
 }
@@ -156,6 +159,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->DepthSliceBias = s_fDepthSliceBias;
     pConstants->InvTileSize = ezVec2(NUM_CLUSTERS_X / viewport.width, NUM_CLUSTERS_Y / viewport.height);
     pConstants->NumLights = pData->m_LightData.GetCount();
+    pConstants->NumDecals = pData->m_DecalData.GetCount();
     pConstants->AmbientTopColor = pData->m_AmbientTopColor;
     pConstants->AmbientBottomColor = pData->m_AmbientBottomColor;
   }

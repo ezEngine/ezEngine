@@ -10,6 +10,10 @@ SamplerState PointClampSampler;
 Texture2D ShadowAtlasTexture;
 SamplerComparisonState ShadowSampler;
 
+Texture2D DecalAtlasBaseColorTexture;
+Texture2D DecalAtlasNormalTexture;
+SamplerState LinearClampSampler;
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 ezPerClusterData GetClusterData(float3 screenPosition)
@@ -354,7 +358,14 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
       float fade = 1;// saturate(dot(matData.vertexNormal, -normalize(worldToDecalMatrix[2])));
       fade *= fade;
       
-      matData.diffuseColor = lerp(matData.diffuseColor, saturate(float3(decalPosition.xy, 0.0)), fade);
+      float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
+      float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
+      
+      float4 decalBaseColor = RGBA8ToFloat4(decalData.color);
+      decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
+      fade *= decalBaseColor.a;
+      
+      matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
     }
   }
 }

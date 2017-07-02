@@ -13,9 +13,9 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 
 public:
   ezVec3 m_vHalfExtents;
-  //ezColor m_LightColor;
-  //float m_fIntensity;
-  //ezUInt32 m_uiShadowDataOffset;
+  ezColor m_Color;
+  ezVec2 m_vBaseAtlasScale;
+  ezVec2 m_vBaseAtlasOffset;
 };
 
 class EZ_RENDERERCORE_DLL ezDecalComponent : public ezRenderComponent
@@ -34,6 +34,12 @@ public:
   void SetExtents(const ezVec3& value);
   const ezVec3& GetExtents() const;
 
+  void SetColor(ezColorGammaUB color);
+  ezColorGammaUB GetColor() const;
+
+  void SetSortOrder(float fOrder);
+  float GetSortOrder() const;
+
   void SetDecal(const ezDecalResourceHandle& hResource);
   const ezDecalResourceHandle& GetDecal() const;
 
@@ -45,5 +51,7 @@ public:
 protected:
 
   ezVec3 m_vExtents;
+  ezColorGammaUB m_Color;
+  float m_fSortOrder;
   ezDecalResourceHandle m_hDecal;
 };
