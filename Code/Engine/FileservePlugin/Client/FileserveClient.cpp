@@ -1,7 +1,7 @@
 ﻿#include <PCH.h>
 #include <FileservePlugin/Client/FileserveClient.h>
 #include <Foundation/Logging/Log.h>
-#include <FileservePlugin/Network/NetworkInterfaceEnet.h>
+#include <Foundation/Communication/RemoteInterfaceEnet.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -61,7 +61,7 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
   if (m_Network == nullptr)
   {
     m_bFailedToConnect = true;
-    m_Network = EZ_DEFAULT_NEW(ezNetworkInterfaceEnet); /// \todo Somehow abstract this away ?
+    m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet); /// \todo Somehow abstract this away ?
 
     m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("ezFileserve/Cache");
     m_sFileserveCacheMetaFolder = ezOSFile::GetUserDataFolder("ezFileserve/Meta");
@@ -696,7 +696,7 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
   if (ezStringUtils::IsNullOrEmpty(szAddress))
     return EZ_FAILURE;
 
-  ezNetworkInterfaceEnet network; /// \todo Abstract this somehow ?
+  ezRemoteInterfaceEnet network; /// \todo Abstract this somehow ?
   if (network.ConnectToServer('EZFS', szAddress, false).Failed())
     return EZ_FAILURE;
 
@@ -743,7 +743,7 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
   ezHybridArray<ezStringBuilder, 4> sServerIPs;
 
   {
-    ezNetworkInterfaceEnet network; /// \todo Abstract this somehow ?
+    ezRemoteInterfaceEnet network; /// \todo Abstract this somehow ?
     network.SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& msg)
 
     {
