@@ -28,7 +28,6 @@ struct PS_IN
 #if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D SSAOTexture;
-SamplerState PointClampSampler;
 
 float CalculateDepthWeight(float depthA, float depthB, float scale)
 {

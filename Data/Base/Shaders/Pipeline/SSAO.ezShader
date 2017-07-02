@@ -32,7 +32,6 @@ Texture2D LowResDepthTexture;
 SamplerState DepthSampler;
 
 Texture2D NoiseTexture;
-SamplerState PointSampler;
 
 #define NUM_AO_SAMPLES 6
 #define SAMPLE_STEPS 1

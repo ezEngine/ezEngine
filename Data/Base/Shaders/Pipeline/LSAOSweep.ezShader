@@ -10,7 +10,6 @@ ALL
 #include "Utils.h"
 
 Texture2D<float> DepthBuffer : register(t0);
-SamplerState PointClampSampler;
 
 StructuredBuffer<LineInstruction> LineInstructions;
 RWBuffer<uint> LineSweepOutputBuffer;

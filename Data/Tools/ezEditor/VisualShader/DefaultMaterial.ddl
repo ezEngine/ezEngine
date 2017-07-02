@@ -68,6 +68,7 @@ float MaskThreshold @Default($prop0);
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
+#define USE_DECALS
 " }
 
   string %CodePixelIncludes { "

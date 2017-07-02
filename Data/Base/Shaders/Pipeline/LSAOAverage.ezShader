@@ -31,7 +31,6 @@ struct PS_IN
 
 Texture2D DepthBuffer : register(t0);
 Texture2D SSAOGatherOutput : register(t1);
-SamplerState PointClampSampler;
 
 float4 main(PS_IN input) : SV_Target
 {

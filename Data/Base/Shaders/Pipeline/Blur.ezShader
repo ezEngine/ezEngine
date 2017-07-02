@@ -32,7 +32,6 @@ struct PS_IN
 #if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D Input;
-SamplerState LinearClampSampler;
 
 float4 main(PS_IN input) : SV_Target
 {

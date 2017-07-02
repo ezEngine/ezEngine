@@ -5,14 +5,12 @@
 #include <Shaders/Common/BRDF.h>
 
 Texture2D SSAOTexture;
-SamplerState PointClampSampler;
 
 Texture2D ShadowAtlasTexture;
 SamplerComparisonState ShadowSampler;
 
 Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
-SamplerState LinearClampSampler;
 
 ///////////////////////////////////////////////////////////////////////////////////
 

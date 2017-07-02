@@ -56,9 +56,6 @@ float3 AdjustContrast(float3 x)
 Texture2D VignettingTexture;
 Texture2D NoiseTexture;
 
-SamplerState LinearClampSampler;
-SamplerState PointSampler;
-
 Texture2D SceneColorTexture;
 Texture2D BloomTexture;
 

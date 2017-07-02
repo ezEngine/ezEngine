@@ -31,7 +31,6 @@ struct PS_IN
 #include "LSAOConstants.h"
 
 Texture2D<float> DepthBuffer : register(t0);
-SamplerState PointClampSampler;
 
 StructuredBuffer<LineInstruction> LineInstructions : register(t1);
 Buffer<uint> LineSweepOutputBuffer : register(t2);

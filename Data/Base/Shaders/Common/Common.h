@@ -2,6 +2,12 @@
 
 #include "Platforms.h"
 
+// Common sampler states
+SamplerState LinearSampler;
+SamplerState LinearClampSampler;
+SamplerState PointSampler;
+SamplerState PointClampSampler;
+
 const static float PI = 3.1415926535897932f;
 
 float4 RGBA8ToFloat4(uint x)

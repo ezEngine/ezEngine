@@ -34,7 +34,6 @@ struct PS_IN
 #endif
 
 Texture2D ColorTexture;
-SamplerState LinearClampSampler;
 
 #if BLOOM_PASS_MODE == BLOOM_PASS_MODE_UPSCALE
   #define NUM_SAMPLES 9
