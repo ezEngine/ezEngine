@@ -1,0 +1,7 @@
+enum LSAO_DEPTH_COMPARE
+{
+    DEPTH,
+    NORMAL,
+    NORMAL_AND_SAMPLE_DISTANCE,
+};
+

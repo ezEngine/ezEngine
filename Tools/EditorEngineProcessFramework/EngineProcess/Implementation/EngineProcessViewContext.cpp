@@ -182,21 +182,22 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
 
+    bool bResetDefaultPipeline = true;
+
+    if (const ezCameraComponentManager* pCameraManager = pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
+    {
+      // Regardless of the rendering mode, if we have a camera with the same usage hint as the view than use the parameters of that camera.
+      if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
+      {
+        bResetDefaultPipeline = !pCamera->GetRenderPipeline().IsValid();
+        bModeFromCamera = true;
+
+        pCamera->ApplySettingsToView(pView);
+      }
+    }
+
     if (pMsg->m_uiRenderMode == ezViewRenderMode::None)
     {
-      bool bResetDefaultPipeline = true;
-
-      if (const ezCameraComponentManager* pCameraManager = pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
-      {
-        if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
-        {
-          bResetDefaultPipeline = !pCamera->GetRenderPipeline().IsValid();
-          bModeFromCamera = true;
-
-          pCamera->ApplySettingsToView(pView);
-        }
-      }
-
       if (bResetDefaultPipeline)
       {
         pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());

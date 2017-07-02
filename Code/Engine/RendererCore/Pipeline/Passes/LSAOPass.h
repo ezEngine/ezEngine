@@ -7,6 +7,22 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/LSAOConstants.h>
 
+/// \brief Defines the depth compare function to be used to decide sample weights.
+struct EZ_RENDERERCORE_DLL ezLSAODepthCompareFunction
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Depth, ///< A hard cutoff function between the linear depth values. Samples with an absolute distance greater than ezLSAOPass::SetDepthCutoffDistance are ignored.
+    Normal, ///< Samples that are on the same plane as constructed by the center position and normal will be weighted higher than those samples that are above or below the plane.
+    NormalAndSampleDistance, ///< Same as Normal, but if two samples are tested, their distance to the center position is is inversely multiplied as well, giving closer matches a higher weight.
+    Default = NormalAndSampleDistance
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLSAODepthCompareFunction);
+
 /// Screen space ambient occlusion using "line sweep ambient occlusion" by Ville Timonen
 ///
 /// Resources:
@@ -74,6 +90,7 @@ protected:
 
   ezInt32 m_uiLineToLinePixelOffset;
   ezInt32 m_uiLineSamplePixelOffsetFactor;
+  ezEnum<ezLSAODepthCompareFunction> m_DepthCompareFunction;
   bool m_bDistributedGathering;
 
   ezShaderResourceHandle m_hShaderLineSweep;

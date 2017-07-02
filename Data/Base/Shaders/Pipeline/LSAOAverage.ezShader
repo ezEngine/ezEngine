@@ -3,6 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
+LSAO_DEPTH_COMPARE
+
 [RENDERSTATE]
 
 DepthTest = false
@@ -24,22 +26,23 @@ struct PS_IN
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/Common.h>
+#include <Shaders/Pipeline/Utils.h>
 #include "LSAOConstants.h"
-#include "Utils.h"
 
 Texture2D DepthBuffer : register(t0);
 Texture2D SSAOGatherOutput : register(t1);
 SamplerState PointClampSampler;
 
-
 float4 main(PS_IN input) : SV_Target
 {
   float2 pixelSize = ViewportSize.zw;
 
-  float centerPixelDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r);
+  float centerDepth = DepthBuffer.Sample(PointClampSampler, input.TexCoord0).r;
+  float centerLinearDepth = LinearizeZBufferDepth(centerDepth);
   float totalSSAO = SSAOGatherOutput.Sample(PointClampSampler, input.TexCoord0).r;
   float totalWeight = 1.0f;
 
+#if LSAO_DEPTH_COMPARE == LSAO_DEPTH_COMPARE_DEPTH
   float2 texcoords[8] =
   {
     input.TexCoord0 + float2(pixelSize.x, pixelSize.y),
@@ -55,12 +58,66 @@ float4 main(PS_IN input) : SV_Target
   [unroll] for(int i=0; i<8; ++i)
   {
     float depth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, texcoords[i]).r);
-    if (abs(centerPixelDepth - depth) < DepthCutoffDistance)
+    if (abs(centerLinearDepth - depth) < DepthCutoffDistance)
     {
       totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, texcoords[i]).r;
       totalWeight += 1.0f;
     }
   }
+#else
+  // Separate the cross directions from the diagonal ones as we need the first ones to cumpute the normal.
+  float2 texcoords[4] =
+  {
+    input.TexCoord0 - float2(pixelSize.x, 0),
+    input.TexCoord0 + float2(pixelSize.x, 0),
+    input.TexCoord0 - float2(0, pixelSize.y),
+    input.TexCoord0 + float2(0, pixelSize.y),
+  };
+  float depthCross[4] =
+  {
+    DepthBuffer.Sample(PointClampSampler, texcoords[0]).r, // left
+    DepthBuffer.Sample(PointClampSampler, texcoords[1]).r, // right
+    DepthBuffer.Sample(PointClampSampler, texcoords[2]).r, // top
+    DepthBuffer.Sample(PointClampSampler, texcoords[3]).r, // bottom
+  };
 
-  return float4((totalSSAO / totalWeight).x, centerPixelDepth, 0, 1);
+  float2 normalizedCoords = input.TexCoord0 * 2.0f - 1.0f;
+  float3 centerPos = FastScreenCoordToViewSpaceLinear(normalizedCoords, centerLinearDepth);
+  float3 viewSpaceNormal = ReconstructViewSpaceNormal(normalizedCoords, centerDepth, depthCross[0], depthCross[1], depthCross[2], depthCross[3]);
+  
+  // Compute contribution of the cross samples.
+  [unroll] for(int i=0; i<4; ++i)
+  {
+    float sampleLinearDepth = LinearizeZBufferDepth(depthCross[i]);
+    float2 normalizedCoords = texcoords[i] * 2.0f - 1.0f;
+    float3 samplePos = FastScreenCoordToViewSpaceLinear(normalizedCoords, sampleLinearDepth);
+  
+    float weight = ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
+    totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, texcoords[i]).r * weight;
+    totalWeight += weight;
+  }
+  
+  // Now do the same for the diagonal samples.
+  float2 texcoordsDiag[4] =
+  {
+    input.TexCoord0 + float2(pixelSize.x, pixelSize.y),
+    input.TexCoord0 + float2(-pixelSize.x, pixelSize.y),
+    input.TexCoord0 + float2(-pixelSize.x, -pixelSize.y),
+    input.TexCoord0 + float2(pixelSize.x, -pixelSize.y),
+  };
+  
+  [unroll] for(int j=0; j<4; ++j)
+  {
+    float sampleLinearDepth = LinearizeZBufferDepth(DepthBuffer.Sample(PointClampSampler, texcoordsDiag[j]).r);
+    float2 normalizedCoords = texcoordsDiag[j] * 2.0f - 1.0f;
+    float3 samplePos = FastScreenCoordToViewSpaceLinear(normalizedCoords, sampleLinearDepth);
+  
+    float weight = ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
+    totalSSAO += SSAOGatherOutput.Sample(PointClampSampler, texcoordsDiag[j]).r * weight;
+    totalWeight += weight;
+  }
+#endif
+ 
+  return float4((totalSSAO / totalWeight).x, centerLinearDepth, 0, 1);
+  //return (totalSSAO / totalWeight).xxxx;
 }

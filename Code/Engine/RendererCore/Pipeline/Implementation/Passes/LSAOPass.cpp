@@ -6,6 +6,11 @@
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <Core/Graphics/Geometry.h>
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezLSAODepthCompareFunction, 1)
+EZ_ENUM_CONSTANT(ezLSAODepthCompareFunction::Depth),
+EZ_ENUM_CONSTANT(ezLSAODepthCompareFunction::Normal),
+EZ_ENUM_CONSTANT(ezLSAODepthCompareFunction::NormalAndSampleDistance),
+EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLSAOPass, 1, ezRTTIDefaultAllocator<ezLSAOPass>)
 {
@@ -13,9 +18,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLSAOPass, 1, ezRTTIDefaultAllocator<ezLSAOPass
   {
     EZ_MEMBER_PROPERTY("Depth", m_PinDepthInput),
     EZ_MEMBER_PROPERTY("AmbientObscurance", m_PinOutput),
-    EZ_ACCESSOR_PROPERTY("LineToLineDistance", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(3), new ezClampValueAttribute(1, 20)),
+    EZ_ACCESSOR_PROPERTY("LineToLineDistance", GetLineToLinePixelOffset, SetLineToLinePixelOffset)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(1, 20)),
     EZ_ACCESSOR_PROPERTY("LineSampleDistanceFactor", GetLineSamplePixelOffset, SetLineSamplePixelOffset)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 10)),
     EZ_ACCESSOR_PROPERTY("OcclusionFalloff", GetOcclusionFalloff, SetOcclusionFalloff)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.01f, 2.0f)),
+    EZ_ENUM_MEMBER_PROPERTY("DepthCompareFunction", ezLSAODepthCompareFunction, m_DepthCompareFunction),
     EZ_ACCESSOR_PROPERTY("DepthCutoffDistance", GetDepthCutoffDistance, SetDepthCutoffDistance)->AddAttributes(new ezDefaultValueAttribute(4.0f), new ezClampValueAttribute(0.1f, 100.0f)),
     EZ_MEMBER_PROPERTY("DistributedGathering", m_bDistributedGathering)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
@@ -52,7 +58,7 @@ namespace
 ezLSAOPass::ezLSAOPass()
   : ezRenderPipelinePass("LSAOPass")
   , m_uiLineToLinePixelOffset(2)
-  , m_uiLineSamplePixelOffsetFactor(2)
+  , m_uiLineSamplePixelOffsetFactor(1)
   , m_bSweepDataDirty(true)
   , m_bDistributedGathering(true)
 {
@@ -98,7 +104,7 @@ bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
     return false;
   }
 
-  // Output format maches input format but is f16.
+  // Output format matches input format but is f16.
   outputs[m_PinOutput.m_uiOutputIndex] = *inputs[m_PinDepthInput.m_uiInputIndex];
   outputs[m_PinOutput.m_uiOutputIndex].m_Format = ezGALResourceFormat::RGHalf;
 
@@ -167,6 +173,19 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     else
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("DISTRIBUTED_SSAO_GATHERING", "FALSE");
 
+    switch (m_DepthCompareFunction)
+    {
+    case ezLSAODepthCompareFunction::Depth:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "DEPTH");
+      break;
+    case ezLSAODepthCompareFunction::Normal:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL");
+      break;
+    case ezLSAODepthCompareFunction::NormalAndSampleDistance:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL_AND_SAMPLE_DISTANCE");
+      break;
+    }
+
     // Manually unbind UAV. TODO, this should be done automatically.
     pGALContext->SetUnorderedAccessView(0, ezGALUnorderedAccessViewHandle());
 
@@ -179,10 +198,23 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }
 
-  // If enabled, average distrubted gather samples and write to output.
+  // If enabled, average distributed gather samples and write to output.
   if (m_bDistributedGathering)
   {
     EZ_PROFILE_AND_MARKER(pGALContext, "Averaging");
+
+    switch (m_DepthCompareFunction)
+    {
+    case ezLSAODepthCompareFunction::Depth:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "DEPTH");
+      break;
+    case ezLSAODepthCompareFunction::Normal:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL");
+      break;
+    case ezLSAODepthCompareFunction::NormalAndSampleDistance:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL_AND_SAMPLE_DISTANCE");
+      break;
+    }
 
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
@@ -288,7 +320,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
 
   // Compute general information per direction and create line instructions.
 
-  // As long as we don't span out different line samplings accross multiple frames, the number of prepared directions here is always equal to the number of directions per frame.
+  // As long as we don't span out different line samplings across multiple frames, the number of prepared directions here is always equal to the number of directions per frame.
   // Note that if we were to do temporal sampling with a different line set every frame, we would need to precompute all *possible* sampling directions still as a whole here!
   ezVec2I32 samplingDir[NUM_SWEEP_DIRECTIONS_PER_FRAME];
   {
@@ -308,7 +340,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
       samplingDir[i*4 + 3] = -samplingDir[i * 4 + 2]; // Left
     }
 
-    // todo: Ddd debug test to check wheather any direction is duplicated. Mistakes in the equations above can easily happen!
+    // todo: Ddd debug test to check whether any direction is duplicated. Mistakes in the equations above can easily happen!
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     for (int i = 0; i < numSweepDirs-1; ++i)
     {
@@ -482,7 +514,7 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
 #undef SEC
 #undef DOM
 
-  // Now consider x/y beeing negative.
+  // Now consider x/y being negative.
   for (int c = 0; c < 2; ++c)
   {
     if (sampleDir.GetData()[c] < 0)

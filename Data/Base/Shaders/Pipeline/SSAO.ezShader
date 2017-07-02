@@ -59,14 +59,6 @@ float CalculateMipLevel(int sampleID, float scale)
   return log2(MipLevelScale * scale * sampleDist);
 }
 
-float SmallerAbsDelta(float left, float mid, float right)
-{
-  float a = mid - left;
-  float b = right - mid;
-
-  return (abs(a) < abs(b)) ? a : b;
-}
-
 float3 ReconstructScreenSpacePos(float2 normalizedCoords, float linearDepth)
 {
   return float3(normalizedCoords * linearDepth, linearDepth);
@@ -85,16 +77,8 @@ float3 ReconstructNormal(float2 texCoords, float centerDepth)
   float topDepth = SampleDepth(texCoords - float2(0, texelSize.y));
   float rightDepth = SampleDepth(texCoords + float2(texelSize.x, 0));
   float bottomDepth = SampleDepth(texCoords + float2(0, texelSize.y));
-
-  float zDDX = SmallerAbsDelta(leftDepth, centerDepth, rightDepth);
-  float zDDY = SmallerAbsDelta(topDepth, centerDepth, bottomDepth);
-
   float2 normalizedCoords = texCoords * 2.0f - 1.0f;
-  float3 centerPos = FastScreenCoordToViewSpace(normalizedCoords, centerDepth);
-  float3 rightDir =	FastScreenCoordToViewSpace(normalizedCoords + float2(texelSize.x * 2, 0), centerDepth + zDDX) - centerPos;
-  float3 downDir =	FastScreenCoordToViewSpace(normalizedCoords + float2(0, texelSize.y * 2), centerDepth + zDDY) - centerPos;
-
-  return normalize(cross(downDir, rightDir));
+  return ReconstructViewSpaceNormal(normalizedCoords, centerDepth, leftDepth, rightDepth, topDepth, bottomDepth);
 }
 
 float2 OcclusionSample(float2 normalizedCoords, float2 offset, float3 invFovCorrection, float3 centerPos, float3 viewSpaceNormal, float mipLevel)

@@ -3,6 +3,7 @@ ALL
 
 [PERMUTATIONS]
 
+LSAO_DEPTH_COMPARE
 DISTRIBUTED_SSAO_GATHERING
 
 [RENDERSTATE]
@@ -26,8 +27,8 @@ struct PS_IN
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/Common.h>
+#include <Shaders/Pipeline/Utils.h>
 #include "LSAOConstants.h"
-#include "Utils.h"
 
 Texture2D<float> DepthBuffer : register(t0);
 SamplerState PointClampSampler;
@@ -51,21 +52,91 @@ Buffer<uint> LineSweepOutputBuffer : register(t2);
 //#define ASSERT(condition) if(!(condition)) { return float4(1, 0, 1, 0); }
 #define ASSERT(condition)
 
+// Unpacks the sample at sampleIndex and returns the occlusion a its point.
+float GetLineSample(uint sampleIndex)
+{
+  uint rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
+  uint sample = rawSample >> (16 * (sampleIndex % 2 == 0));
+  sample &= 0xFFFF;
+  return f16tof32(sample);
+}
+
+float SampleDepth(float2 texCoords)
+{
+  return DepthBuffer.SampleLevel(PointClampSampler, texCoords, 0).r;
+}
+
+// View-space normal at the given location.
+float3 ReconstructNormal(float2 texCoords, float centerDepth)
+{
+  float2 texelSize = ViewportSize.zw;
+
+  float leftDepth = SampleDepth(texCoords - float2(texelSize.x, 0));
+  float topDepth = SampleDepth(texCoords - float2(0, texelSize.y));
+  float rightDepth = SampleDepth(texCoords + float2(texelSize.x, 0));
+  float bottomDepth = SampleDepth(texCoords + float2(0, texelSize.y));
+  float2 normalizedCoords = texCoords * 2.0f - 1.0f;
+  return ReconstructViewSpaceNormal(normalizedCoords, centerDepth, leftDepth, rightDepth, topDepth, bottomDepth);
+}
+
+// LSAO_DEPTH_COMPARE_DEPTH, hard cutoff at sample distance
+float ComputeDistanceCutOffWeight(float centerLinearDepth, float sampleLinearDepth)
+{
+  return abs(sampleLinearDepth - centerLinearDepth) < DepthCutoffDistance ? 1.0f : 0.0f;
+}
+
+// LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE
+// If we use two samples and the above depth compare function we addtionally weight each
+// sample by its distance to the evaluated center pixel. This gives more weight to samples that
+// are closer and thus should be more correct that a sample that was evaluated at a distant location.
+float ComputeDistanceWeight(float2 centerPixelPos, float2 samplePixelPos, float sampleDistanceInv)
+{
+  float toPixel = length(samplePixelPos - centerPixelPos);
+  float distWeight = 1.0f - toPixel * sampleDistanceInv;
+  return distWeight;
+}
+
+// Monolithic weight function and chooses from LSAO_DEPTH_COMPARE options.
+// I hope the compiler is smart enough to remove the unused variables.
+float ComputeSampleWeight(float2 centerPixelPos, float3 centerPos, float3 viewSpaceNormal, float2 samplePixelPos, float sampleDistanceInv)
+{
+  float sampleLinearDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePixelPos, 0)));
+#if LSAO_DEPTH_COMPARE == LSAO_DEPTH_COMPARE_DEPTH
+  return ComputeDistanceCutOffWeight(centerPos.z, sampleLinearDepth);
+#else
+  float2 normalizedCoords = samplePixelPos / ViewportSize.xy * 2.0f - 1.0f;
+  float3 samplePos = FastScreenCoordToViewSpaceLinear(normalizedCoords, sampleLinearDepth);
+  
+  #if LSAO_DEPTH_COMPARE == LSAO_DEPTH_COMPARE_NORMAL
+    return ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
+  #elif LSAO_DEPTH_COMPARE == LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE
+    float weight = ComputeNormalWeight(viewSpaceNormal, centerPos, samplePos, DepthCutoffDistance);
+    #ifdef TWO_SAMPLES_PER_DIR
+      weight *= ComputeDistanceWeight(centerPixelPos, samplePixelPos, sampleDistanceInv);
+    #endif
+    return weight;
+  #endif
+#endif
+}
+
 float4 main(PS_IN input) : SV_Target
 {
   float2 screenSize = ViewportSize.xy;
   float2 screenSizeSubOne = screenSize - float2(1.0f, 1.0f);
-  float2 pixelPos = input.TexCoord0 * screenSize;
-  float2 pixelPosInv = screenSizeSubOne - pixelPos;
+  float2 centerPixelPos = input.TexCoord0 * screenSize;
+  float2 pixelPosInv = screenSizeSubOne - centerPixelPos;
 
   float occlusionAccum = 0.0f;
   float totalWeight = 0.0f;
 
-  float pixelDepth = LinearizeZBufferDepth(DepthBuffer.SampleLevel(PointClampSampler, input.TexCoord0, 0.0f));
+  float centerDepth = SampleDepth(input.TexCoord0);
+  float centerLinearDepth = LinearizeZBufferDepth(centerDepth);
+  float3 centerPos = FastScreenCoordToViewSpaceLinear(input.TexCoord0 * 2.0f - 1.0f, centerLinearDepth);
+  float3 viewSpaceNormal = ReconstructNormal(input.TexCoord0, centerDepth);
 
 #if DISTRIBUTED_SSAO_GATHERING
   // Hardcoded 3x3 square.
-  const uint startDirIdx = ((uint(pixelPos.x) % 3) + (uint(pixelPos.y) % 3) * 3) * NUM_SAMPLES_PER_PIXEL;
+  const uint startDirIdx = ((uint(centerPixelPos.x) % 3) + (uint(centerPixelPos.y) % 3) * 3) * NUM_SAMPLES_PER_PIXEL;
   [unroll] for (int i = 0; i < 4; ++i)
   {
     uint dirIndex = startDirIdx + i;
@@ -74,7 +145,7 @@ float4 main(PS_IN input) : SV_Target
   {
 #endif
     float2 dir = Directions[dirIndex].Direction;
-
+    float sampleDistanceInv = 1.0f / length(dir);
     uint lineInstructionIndex = Directions[dirIndex].LineInstructionOffset;
 
     // Compute which line is closest to this pixel. See ezScreenSpaceAmbientOcclusionPass::AddLinesForDirection
@@ -88,8 +159,8 @@ float4 main(PS_IN input) : SV_Target
       float2 absDir = abs(dir);
 
       float2 virtualPixelPos;
-      virtualPixelPos.x = (absDir.x == dir.x) ? pixelPos.x : pixelPosInv.x;
-      virtualPixelPos.y = (absDir.y == dir.y) ? pixelPos.y : pixelPosInv.y;
+      virtualPixelPos.x = (absDir.x == dir.x) ? centerPixelPos.x : pixelPosInv.x;
+      virtualPixelPos.y = (absDir.y == dir.y) ? centerPixelPos.y : pixelPosInv.y;
 
       // To avoid branch and code duplication:
       uint domAxis = (absDir.x > absDir.y) ? 0 : 1; // dominant axis
@@ -99,7 +170,7 @@ float4 main(PS_IN input) : SV_Target
       float secAtBorder = virtualPixelPos[secAxis] - numStepsToLeftBorder * absDir[secAxis];
       lineInstructionIndex += uint((screenSizeSubOne[secAxis] - secAtBorder) / LineToLinePixelOffset + 0.5f);
       lineOrigin = LineInstructions[lineInstructionIndex].FirstSamplePos;
-      lineSampleNumberFloat = (pixelPos[domAxis] - lineOrigin[domAxis]) / dir[domAxis];
+      lineSampleNumberFloat = (centerPixelPos[domAxis] - lineOrigin[domAxis]) / dir[domAxis];
     }
 
     // Line instructions know the direction they belong to, use this to make sure that we're touching the right one.
@@ -119,37 +190,25 @@ float4 main(PS_IN input) : SV_Target
     uint sampleIndex = lineSampleNumberFloor + LineInstructions[lineInstructionIndex].LineSweepOutputBufferOffset;
 
     // Apply weighted with depth filter.
-    float2 samplePos = lineOrigin + lineSampleNumberFloor * dir;
-    //float toPixel = samplePos - pixelPos;
-    float sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)));
-    if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
+    float2 samplePixelPos = lineOrigin + lineSampleNumberFloor * dir;
+    float weight = ComputeSampleWeight(centerPixelPos, centerPos, viewSpaceNormal, samplePixelPos, sampleDistanceInv);   
+    // Any conditional here will only make it slower as the number of pixels that would be discarded
+    // is generally really small unless your image only contains noise and no structure.
     {
-      uint rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
-
-      uint sample = rawSample >> (16 * (sampleIndex % 2 == 0));
-      sample &= 0xFFFF;
-
-      occlusionAccum += f16tof32(sample);
-      totalWeight += 1.0f;
+      float sample = GetLineSample(sampleIndex);
+      occlusionAccum += sample * weight;
+      totalWeight += weight;
     }
-
-    // Second sample for better quality.
+    
 #ifdef TWO_SAMPLES_PER_DIR
-    samplePos += dir; // = lineOrigin + lineSampleNumberCeil * dir;
-    sampleDepth = LinearizeZBufferDepth(DepthBuffer.Load(int3(samplePos, 0)));
-    if (abs(sampleDepth - pixelDepth) < DepthCutoffDistance)
+    // Second sample for better quality.
+    samplePixelPos += dir; // = lineOrigin + lineSampleNumberCeil * dir;
+    weight = ComputeSampleWeight(centerPixelPos, centerPos, viewSpaceNormal, samplePixelPos, sampleDistanceInv);
     {
       ++sampleIndex;
-
-      // Making this a dependent read comes with a suprisingly hefty perf penalty, so we just read again.
-      //if(sampleIndex % 2 == 0 || rawSample == 0)
-      uint rawSample = LineSweepOutputBuffer.Load(sampleIndex/2);
-
-      uint sample = rawSample >> (16 * (sampleIndex % 2 == 0));
-      sample &= 0xFFFF;
-
-      occlusionAccum += f16tof32(sample);
-      totalWeight += 1.0f;
+      float sample = GetLineSample(sampleIndex);
+      occlusionAccum += sample * weight;
+      totalWeight += weight;
     }
 #endif
   }
@@ -157,5 +216,6 @@ float4 main(PS_IN input) : SV_Target
   float output = 1.0f;
   if (totalWeight > 0.0f)
      output = saturate(1.0f - occlusionAccum / totalWeight);
-  return float4(output.x, pixelDepth, 0, 1);
+  return float4(output.x, centerLinearDepth, 0, 1);
+  //return output.xxxx;
 }
