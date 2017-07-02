@@ -112,6 +112,10 @@ bool ezTexConv::CanPassThroughInput() const
   if (m_InputImages.GetCount() != 1)
     return false;
 
+  // this is a bit drastic, but not sure whether there are cases where we could still pass through
+  if (m_bPremultiplyAlpha)
+    return false;
+
   if (m_TextureType == TextureType::Cubemap)
   {
     // if it is a cubemap, but the single input file does not contain 6 faces,

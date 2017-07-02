@@ -61,11 +61,14 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   if (ValidateConfiguration().Failed())
     return ezApplication::Quit;
 
-  if (m_FileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
+  if (!m_sOutputFile.IsEmpty())
   {
-    SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
-    ezLog::Error("Could not open output file for writing: '{0}'", m_sOutputFile.GetData());
-    return ezApplication::Quit;
+    if (m_FileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
+    {
+      SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
+      ezLog::Error("Could not open output file for writing: '{0}'", m_sOutputFile.GetData());
+      return ezApplication::Quit;
+    }
   }
 
   if (m_TextureType == TextureType::DecalAtlas)
@@ -85,8 +88,11 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   {
     ezLog::Info("Input can be passed through");
 
-    if (PassImageThrough().Failed())
-      return ezApplication::Quit;
+    if (m_FileOut.IsOpen())
+    {
+      if (PassImageThrough().Failed())
+        return ezApplication::Quit;
+    }
 
     if (!m_sThumbnailFile.IsEmpty())
     {
@@ -138,11 +144,14 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
     SaveThumbnail();
 
-    if (ConvertToOutputFormat().Failed())
-      return ezApplication::Quit;
+    if (m_FileOut.IsOpen())
+    {
+      if (ConvertToOutputFormat().Failed())
+        return ezApplication::Quit;
 
-    if (SaveResultToDDS(m_FileOut).Failed())
-      return ezApplication::Quit;
+      if (SaveResultToDDS(m_FileOut).Failed())
+        return ezApplication::Quit;
+    }
   }
 
   m_pCurrentImage = nullptr;

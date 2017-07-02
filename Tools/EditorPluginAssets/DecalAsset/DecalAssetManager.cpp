@@ -39,7 +39,7 @@ ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
 
 ezBitflags<ezAssetDocumentFlags> ezDecalAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
-  return ezAssetDocumentFlags::Default;// ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 
@@ -47,15 +47,6 @@ ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubA
 {
   // means NO table entry will be written, because for decals we don't need a redirection
   return ezString();
-
-  //ezStringBuilder result = GetDecalTexturePath(szPlatform);
-
-  //ezStringBuilder sGuid;
-  //ezConversionUtils::ToString(pSubAsset->m_Data.m_Guid, sGuid);
-
-  //result.Append("|", sGuid);
-
-  //return result;
 }
 
 void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

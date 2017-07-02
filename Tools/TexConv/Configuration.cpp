@@ -474,7 +474,7 @@ ezResult ezTexConv::ValidateConfiguration()
     return EZ_FAILURE;
   }
 
-  if (m_sOutputFile.IsEmpty())
+  if (m_sOutputFile.IsEmpty() && m_sThumbnailFile.IsEmpty())
   {
     SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
     ezLog::Error("No output file is specified. Use the -out command for this");

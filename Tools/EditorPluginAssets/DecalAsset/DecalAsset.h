@@ -2,6 +2,8 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
+class ezAssetFileHeader;
+
 class ezDecalAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetProperties, ezReflectedClass);
@@ -23,4 +25,6 @@ public:
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+
+  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 };

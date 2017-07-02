@@ -30,7 +30,7 @@ ezTextureCubeAssetDocumentManager::~ezTextureCubeAssetDocumentManager()
 
 ezBitflags<ezAssetDocumentFlags> ezTextureCubeAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
-  return ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  return ezAssetDocumentFlags::AutoThumbnailOnTransform;
 }
 
 void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

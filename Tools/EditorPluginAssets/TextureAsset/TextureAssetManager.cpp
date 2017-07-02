@@ -35,7 +35,7 @@ ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
 
 ezBitflags<ezAssetDocumentFlags> ezTextureAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
-  return ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  return ezAssetDocumentFlags::AutoThumbnailOnTransform;
 }
 
 void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
