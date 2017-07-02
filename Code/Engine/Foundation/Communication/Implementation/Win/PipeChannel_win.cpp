@@ -4,6 +4,7 @@
 
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
+#include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Serialization/ReflectionSerializer.h>
 #include <Logging/Log.h>
