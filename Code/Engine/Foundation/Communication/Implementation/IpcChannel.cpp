@@ -4,10 +4,8 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Serialization/ReflectionSerializer.h>
 #include <Logging/Log.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
-#endif
+#include <Foundation/Communication/Implementation/IpcChannelEnet.h>
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
   : m_Mode(mode)
@@ -20,6 +18,8 @@ ezIpcChannel::~ezIpcChannel()
   ezDeque<ezUniquePtr<ezProcessMessage>> messages;
   SwapWorkQueue(messages);
   messages.Clear();
+
+  m_pOwner->RemoveChannel(this);
 }
 
 ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum mode)
@@ -30,8 +30,19 @@ ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum 
     return nullptr;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   return EZ_DEFAULT_NEW(ezPipeChannel_win, szAddress, mode);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return nullptr;
+#endif
+}
+
+
+ezIpcChannel* ezIpcChannel::CreateNetworkChannel(const char* szAddress, Mode::Enum mode)
+{
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+  return EZ_DEFAULT_NEW(ezIpcChannelEnet, szAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
@@ -109,9 +120,9 @@ void ezIpcChannel::WaitForMessages()
   }
 }
 
-void ezIpcChannel::ReceiveMessageData(ezArrayPtr<ezUInt8> data)
+void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
 {
-  ezArrayPtr<ezUInt8> remainingData = data;
+  ezArrayPtr<const ezUInt8> remainingData = data;
   while (true)
   {
     if (m_MessageAccumulator.GetCount() < HEADER_SIZE)
@@ -124,7 +135,7 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<ezUInt8> data)
       else
       {
         ezUInt32 uiRemainingHeaderData = HEADER_SIZE - m_MessageAccumulator.GetCount();
-        ezArrayPtr<ezUInt8> headerData = remainingData.GetSubArray(0, uiRemainingHeaderData);
+        ezArrayPtr<const ezUInt8> headerData = remainingData.GetSubArray(0, uiRemainingHeaderData);
         m_MessageAccumulator.PushBackRange(headerData);
         EZ_ASSERT_DEBUG(m_MessageAccumulator.GetCount() == HEADER_SIZE, "We should have a full header now.");
         remainingData = remainingData.GetSubArray(uiRemainingHeaderData);
@@ -148,7 +159,7 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<ezUInt8> data)
 
     // Write missing data into message accumulator
     ezUInt32 remainingMessageData = uiMessageSize - m_MessageAccumulator.GetCount();
-    ezArrayPtr<ezUInt8> messageData = remainingData.GetSubArray(0, remainingMessageData);
+    ezArrayPtr<const ezUInt8> messageData = remainingData.GetSubArray(0, remainingMessageData);
     m_MessageAccumulator.PushBackRange(messageData);
     EZ_ASSERT_DEBUG(m_MessageAccumulator.GetCount() == uiMessageSize, "");
     remainingData = remainingData.GetSubArray(remainingMessageData);

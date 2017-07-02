@@ -225,7 +225,7 @@ void ezProcessTask::StartProcess()
   args << "-project";
   args << ezToolsProject::GetSingleton()->GetProjectFile().GetData();
 
-  if (m_pIPC->StartClientProcess("EditorProcessor.exe", args, pFirstAllowedMessageType).Failed())
+  if (m_pIPC->StartClientProcess("EditorProcessor.exe", args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
   }

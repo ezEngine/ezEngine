@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/IpcChannel.h>
@@ -22,6 +22,8 @@ private:
   friend class ezMessageLoop_win;
 
   bool CreatePipe(const char* szAddress);
+
+  virtual void AddToMessageLoop(ezMessageLoop* pMsgLoop) override;
 
   // All functions from here on down are run from worker thread only
   virtual void InternalConnect() override;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -47,6 +47,8 @@ public:
   /// \param mode Whether to run in client or server mode.
   static ezIpcChannel* CreatePipeChannel(const char* szAddress, Mode::Enum mode);
 
+  static ezIpcChannel* CreateNetworkChannel(const char* szAddress, Mode::Enum mode);
+
   /// \brief Connects async. On success, m_Events will be broadcasted.
   void Connect();
   /// \brief Disconnect async. On completion, m_Events will be broadcasted.
@@ -67,6 +69,15 @@ public:
 
 protected:
   ezIpcChannel(const char* szAddress, Mode::Enum mode);
+
+  /// \brief Called by AddChannel to do platform specific registration.
+  virtual void AddToMessageLoop(ezMessageLoop* pMsgLoop) {}
+
+  /// \brief Override this and return true, if the surrounding infrastructure should call the 'Tick()' function.
+  virtual bool RequiresRegularTick() { return false; }
+  /// \brief Can implement regular updates, e.g. for polling network state.
+  virtual void Tick() {}
+
   /// \brief Called on worker thread after Connect was called.
   virtual void InternalConnect() = 0;
   /// \brief Called on worker thread after Disconnect was called.
@@ -78,7 +89,7 @@ protected:
 
   /// \brief Implementation needs to call this when new data has been received.
   ///  data can be invalidated after the function.
-  void ReceiveMessageData(ezArrayPtr<ezUInt8> data);
+  void ReceiveMessageData(ezArrayPtr<const ezUInt8> data);
   void FlushPendingOperations();
 
 private:

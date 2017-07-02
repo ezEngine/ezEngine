@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -6,7 +6,7 @@
 
 EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   #include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
 #endif
 
@@ -19,7 +19,7 @@ END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   EZ_DEFAULT_NEW(ezMessageLoop_win);
 #endif
 }
@@ -81,6 +81,17 @@ void ezMessageLoop::RunLoop()
 
   while (true)
   {
+    if (m_bCallTickFunction)
+    {
+      for (ezIpcChannel* pChannel : m_AllAddedChannels)
+      {
+        if (pChannel->RequiresRegularTick())
+        {
+          pChannel->Tick();
+        }
+      }
+    }
+
     // process all available data until all is processed and we wait for new messages.
     bool didwork = ProcessTasks();
     if (m_bShouldQuit)
@@ -97,7 +108,7 @@ void ezMessageLoop::RunLoop()
       continue;
 
     //wait until we have work again
-    WaitForMessages(-1, nullptr);
+    WaitForMessages(m_bCallTickFunction ? 50 : -1, nullptr); // timeout 20 times per second, if we need to call the tick function
   }
 }
 
@@ -131,9 +142,34 @@ void ezMessageLoop::Quit()
 
 void ezMessageLoop::AddChannel(ezIpcChannel* pChannel)
 {
+  {
+    EZ_LOCK(m_TasksMutex);
+    m_AllAddedChannels.PushBack(pChannel);
+
+    m_bCallTickFunction = false;
+    for (auto pChannel : m_AllAddedChannels)
+    {
+      if (pChannel->RequiresRegularTick())
+      {
+        m_bCallTickFunction = true;
+        break;
+      }
+    }
+  }
+
   StartUpdateThread();
   pChannel->m_pOwner = this;
-  InternalAddChannel(pChannel);
+  pChannel->AddToMessageLoop(this);
+}
+
+void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
+{
+  EZ_LOCK(m_TasksMutex);
+
+  m_AllAddedChannels.RemoveSwap(pChannel);
+  m_ConnectQueue.RemoveSwap(pChannel);
+  m_DisconnectQueue.RemoveSwap(pChannel);
+  m_SendQueue.RemoveSwap(pChannel);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);

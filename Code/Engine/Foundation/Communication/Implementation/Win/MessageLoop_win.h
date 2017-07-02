@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
@@ -25,8 +25,9 @@ public:
 	ezMessageLoop_win();
 	~ezMessageLoop_win();
 
+  HANDLE GetPort() const { return m_Port; }
+
 protected:
-  virtual void InternalAddChannel(ezIpcChannel* pChannel) override;
   virtual void WakeUp() override;
   virtual bool WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter) override;
 

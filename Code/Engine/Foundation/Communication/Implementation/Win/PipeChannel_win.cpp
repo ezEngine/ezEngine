@@ -1,6 +1,6 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
@@ -39,6 +39,8 @@ ezPipeChannel_win::~ezPipeChannel_win()
   {
     ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
+
+  m_pOwner->RemoveChannel(this);
 }
 
 bool ezPipeChannel_win::CreatePipe(const char* szAddress)
@@ -79,6 +81,15 @@ bool ezPipeChannel_win::CreatePipe(const char* szAddress)
 	}
 
 	return true;
+}
+
+void ezPipeChannel_win::AddToMessageLoop(ezMessageLoop* pMsgLoop)
+{
+  ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(pMsgLoop);
+
+  ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
+  HANDLE port = CreateIoCompletionPort(m_PipeHandle, pMsgLoopWin->GetPort(), key, 1);
+  EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
 }
 
 void ezPipeChannel_win::InternalConnect()

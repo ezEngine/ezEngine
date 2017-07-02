@@ -6,7 +6,7 @@
 #include <QCoreApplication>
 #include <QProcess>
 
-ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szProcess, const QStringList& args, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
+ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
 {
   EZ_LOG_BLOCK("ezProcessCommunicationChannel::StartClientProcess");
 
@@ -26,7 +26,15 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
   sMemName.Format("{0}", ezArgU(uiUniqueHash, 16, false, 16, true));
   ++uiUniqueHash;
 
-  m_pChannel = ezIpcChannel::CreatePipeChannel(sMemName, ezIpcChannel::Mode::Server);
+  if (bRemote)
+  {
+    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server);
+  }
+  else
+  {
+    m_pChannel = ezIpcChannel::CreatePipeChannel(sMemName, ezIpcChannel::Mode::Server);
+  }
+
   m_pChannel->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
   m_pChannel->Connect();
 

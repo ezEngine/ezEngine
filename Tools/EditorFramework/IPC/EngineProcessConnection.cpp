@@ -109,7 +109,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << sWndCfgPath.GetData();
   }
 
-  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, pFirstAllowedMessageType).Failed())
+  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
   }
@@ -170,7 +170,7 @@ void ezEditorEngineProcessConnection::StartRemoteProcess()
   QStringList args;
   args << "-remote";
 
-  m_pRemoteProcess->StartClientProcess("EditorEngineProcess.exe", args, nullptr);
+  m_pRemoteProcess->StartClientProcess("EditorEngineProcess.exe", args, true, nullptr);
 
   // Send project setup.
   {

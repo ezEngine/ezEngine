@@ -47,7 +47,7 @@ void ezRemoteEngineProcessViewContext::CreateWindowAndView()
   desc.m_bShowMouseCursor = true;
   desc.m_Resolution = ezSizeU32(600, 600);
   desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
-  desc.m_Title = "Remote Window";
+  desc.m_Title = "Engine View";
   s_pCustomWindow->Initialize(desc);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();

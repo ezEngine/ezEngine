@@ -1,6 +1,6 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
@@ -108,13 +108,6 @@ void ezMessageLoop_win::WakeUp()
 	EZ_ASSERT_DEBUG(res, "Could not PostQueuedCompletionStatus: {0}", ezArgErrorCode(GetLastError()));
 }
 
-void ezMessageLoop_win::InternalAddChannel(ezIpcChannel* pChannel)
-{
-  ezPipeChannel_win* pChannelWin = static_cast<ezPipeChannel_win*>(pChannel);
-  ULONG_PTR key = reinterpret_cast<ULONG_PTR>(pChannelWin);
-  HANDLE port = CreateIoCompletionPort(pChannelWin->m_PipeHandle, m_Port, key, 1);
-  EZ_ASSERT_DEBUG(m_Port == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
-}
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_MessageLoop_win);

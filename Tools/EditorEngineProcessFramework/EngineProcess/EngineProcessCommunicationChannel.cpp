@@ -5,6 +5,7 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Communication/IpcChannel.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 bool ezEngineProcessCommunicationChannel::IsHostAlive() const
 {
@@ -49,7 +50,16 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 
   ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-  m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
+  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Primary)
+  {
+    m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
+  }
+  else
+  {
+    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Client);
+
+  }
+
   m_pChannel->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
   m_pChannel->Connect();
 
