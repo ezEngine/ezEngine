@@ -135,6 +135,9 @@ const char* ezDecalComponent::GetDecalFile() const
 
 void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
+  if (!m_hDecal.IsValid())
+    return;
+
   // Don't extract decal render data for selection.
   if (msg.m_OverrideCategory != ezInvalidIndex)
     return;
