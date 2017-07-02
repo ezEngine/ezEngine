@@ -34,9 +34,12 @@ HRESULT ezUwpApplication::Initialize(ICoreApplicationView* applicationView)
 
 HRESULT ezUwpApplication::SetWindow(ABI::Windows::UI::Core::ICoreWindow * window)
 {
-  // Certain things must be initialized before SetWindow is done, otherwise it won't work correctly.
+  // Certain things must be initialized before SetWindow is done, otherwise they won't work correctly.
   // The concrete, as of writing only known example, is the holographic space. If initialized any later than that we won't go into exclusive mode (app remains slate window).
   // Any earlier and there is no known window.
+  //
+  // Major drawback is that we don't have launch args yet which seem to be only available on OnActivated.
+  // Maybe we need to split the startup further up?
   ezRun_Startup(m_application);
   return S_OK;
 }
