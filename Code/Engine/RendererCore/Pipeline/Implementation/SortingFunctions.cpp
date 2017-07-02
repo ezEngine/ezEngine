@@ -13,7 +13,7 @@ namespace
 
   EZ_FORCE_INLINE ezUInt32 CalculateDistance(const ezRenderData* pRenderData, const ezCamera& camera)
   {
-    ///\todo might need to use projected length instead?
+    ///\todo farplane is not enough to normalize distance
     const float fDistance = (camera.GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength();
     const float fNormalizedDistance = ezMath::Min(fDistance / camera.GetFarPlane(), 1.0f);
     return static_cast<ezUInt32>(fNormalizedDistance * 65535.0f);

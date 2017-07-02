@@ -28,6 +28,9 @@ public:
   /// \brief Returns whether this transform contains negative scaling aka mirroring.
   bool ContainsNegativeScale() const;
 
+  /// \brief Returns whether this transform contains uniform scaling.
+  bool ContainsUniformScale() const;
+
 public:
   /// \brief Equality Check with epsilon
   bool IsEqual(const ezSimdTransform& rhs, const ezSimdFloat& fEpsilon) const; // [tested]

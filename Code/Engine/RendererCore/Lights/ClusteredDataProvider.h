@@ -13,6 +13,7 @@ public:
   ~ezClusteredDataGPU();
 
   ezGALBufferHandle m_hLightDataBuffer;
+  ezGALBufferHandle m_hDecalDataBuffer;
   ezGALBufferHandle m_hClusterDataBuffer;
   ezGALBufferHandle m_hClusterItemBuffer;
 

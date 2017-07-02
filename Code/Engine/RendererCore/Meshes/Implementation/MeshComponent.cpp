@@ -122,6 +122,9 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
 
+  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
+  const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
+
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
   const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();
 
@@ -137,7 +140,6 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
     const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
-    const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
 
     // Generate batch id from mesh, material and part index.
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
@@ -149,7 +151,11 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
+
       pRenderData->m_uiPartIndex = uiPartIndex;
+      pRenderData->m_uiFlipWinding = uiFlipWinding;
+      pRenderData->m_uiUniformScale = uiUniformScale;
+
       pRenderData->m_uiUniqueID = GetUniqueID() | (uiMaterialIndex << 24);
     }
 

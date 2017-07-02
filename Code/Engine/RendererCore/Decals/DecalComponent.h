@@ -12,6 +12,7 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalRenderData, ezRenderData);
 
 public:
+  ezVec3 m_vHalfExtents;
   //ezColor m_LightColor;
   //float m_fIntensity;
   //ezUInt32 m_uiShadowDataOffset;
@@ -30,7 +31,8 @@ public:
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-  /// \todo Size properties (box?)
+  void SetExtents(const ezVec3& value);
+  const ezVec3& GetExtents() const;
 
   void SetDecal(const ezDecalResourceHandle& hResource);
   const ezDecalResourceHandle& GetDecal() const;
@@ -42,5 +44,6 @@ public:
 
 protected:
 
+  ezVec3 m_vExtents;
   ezDecalResourceHandle m_hDecal;
 };

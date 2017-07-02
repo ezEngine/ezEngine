@@ -69,6 +69,10 @@ PS_OUT main(PS_IN Input)
   
   ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
   
+  #if defined(USE_DECALS)
+    ApplyDecals(matData, clusterData);
+  #endif
+  
   #if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
     float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw);
   #else

@@ -65,6 +65,22 @@ struct EZ_ALIGN_16(ezDirShadowData)
   StructuredBuffer<float4> shadowDataBuffer;
 #endif
 
+struct EZ_ALIGN_16(ezPerDecalData)
+{
+  TRANSFORM(worldToDecalMatrix);
+  
+  UINT1(atlasScale); // xy as 16 bit floats
+  UINT1(atlasOffset); // xy as 16 bit floats
+  UINT1(textureBitmask);
+  UINT1(reserved);
+};
+
+#if EZ_ENABLED(PLATFORM_DX11)
+  StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
+#else
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 64);
+#endif
+
 CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 {
   FLOAT1(DepthSliceScale);
@@ -83,6 +99,13 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 #define NUM_CLUSTERS_Z 24
 #define NUM_CLUSTERS_XY (NUM_CLUSTERS_X * NUM_CLUSTERS_Y)
 #define NUM_CLUSTERS (NUM_CLUSTERS_X * NUM_CLUSTERS_Y * NUM_CLUSTERS_Z)
+
+#define LIGHT_BITMASK 0x3FF
+#define DECAL_SHIFT 10
+#define DECAL_BITMASK 0x3FF
+
+#define GET_LIGHT_INDEX(index) (index & LIGHT_BITMASK)
+#define GET_DECAL_INDEX(index) ((index >> DECAL_SHIFT) & DECAL_BITMASK)
 
 struct ezPerClusterData
 {

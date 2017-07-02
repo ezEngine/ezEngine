@@ -251,12 +251,13 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
   float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
 
   uint firstItemIndex = clusterData.offset;
-  uint lastItemIndex = firstItemIndex + clusterData.counts;
+  uint lastItemIndex = firstItemIndex + GET_LIGHT_INDEX(clusterData.counts);
 
   [loop]
   for (uint i = firstItemIndex; i < lastItemIndex; ++i)
   {
-    uint lightIndex = clusterItemBuffer[i];
+    uint itemIndex = clusterItemBuffer[i];
+    uint lightIndex = GET_LIGHT_INDEX(itemIndex);
 
     ezPerLightData lightData = perLightDataBuffer[lightIndex];
     uint type = (lightData.colorAndType >> 24) & 0xFF;
@@ -330,6 +331,32 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
   totalLight += matData.diffuseColor * ambientLight * occlusion;
 
   return totalLight;
+}
+
+void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
+{
+  uint firstItemIndex = clusterData.offset;
+  uint lastItemIndex = firstItemIndex + GET_DECAL_INDEX(clusterData.counts);
+
+  [loop]
+  for (uint i = firstItemIndex; i < lastItemIndex; ++i)
+  {
+    uint itemIndex = clusterItemBuffer[i];
+    uint decalIndex = GET_DECAL_INDEX(itemIndex);
+
+    ezPerDecalData decalData = perDecalDataBuffer[decalIndex];
+    
+    float4x4 worldToDecalMatrix = TransformToMatrix(decalData.worldToDecalMatrix);
+    float3 decalPosition = mul(worldToDecalMatrix, float4(matData.worldPosition, 1.0f)).xyz;
+    
+    if (all(abs(decalPosition) < 1.0f))
+    {
+      float fade = 1;// saturate(dot(matData.vertexNormal, -normalize(worldToDecalMatrix[2])));
+      fade *= fade;
+      
+      matData.diffuseColor = lerp(matData.diffuseColor, saturate(float3(decalPosition.xy, 0.0)), fade);
+    }
+  }
 }
 
 float3 ApplyFog(float3 color, float3 worldPosition)

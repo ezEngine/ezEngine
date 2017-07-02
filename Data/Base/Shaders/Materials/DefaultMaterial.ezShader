@@ -67,6 +67,7 @@ VS_OUT main(VS_IN Input)
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
+#define USE_DECALS
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>

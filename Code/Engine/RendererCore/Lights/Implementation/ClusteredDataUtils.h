@@ -1,10 +1,13 @@
 ﻿#pragma once
 
+#include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
+EZ_DEFINE_AS_POD_TYPE(ezPerLightData);
+EZ_DEFINE_AS_POD_TYPE(ezPerDecalData);
 EZ_DEFINE_AS_POD_TYPE(ezPerClusterData);
 
 #include <Core/Graphics/Camera.h>
@@ -186,6 +189,24 @@ namespace
     perLightData.direction = Float3ToRGB10(pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
   }
 
+  void FillDecalData(ezPerDecalData& perDecalData, const ezDecalRenderData* pDecalRenderData)
+  {
+    ezVec3 position = pDecalRenderData->m_GlobalTransform.m_vPosition;
+    ezVec3 dirForwards = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0, 0.0f);
+    ezVec3 dirUp = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(0.0f, 0.0, 1.0f);
+    ezVec3 scale = ezVec3(1.0f).CompDiv(pDecalRenderData->m_GlobalTransform.m_vScale.CompMul(pDecalRenderData->m_vHalfExtents));
+
+    ezMat4 lookAt; lookAt.SetLookAtMatrix(position, position + dirForwards, dirUp);
+    ezMat4 scaleMat; scaleMat.SetScalingMatrix(ezVec3(scale.y, scale.z, scale.x));
+
+    perDecalData.worldToDecalMatrix = scaleMat * lookAt;
+    perDecalData.atlasScale = 0;
+    perDecalData.atlasOffset = 0;
+    perDecalData.textureBitmask = 0;
+    perDecalData.reserved = 0;
+  }
+
+
   EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& viewMatrix, const ezSimdMat4f& projectionMatrix)
   {
     ezSimdVec4f viewSpaceCenter = viewMatrix.TransformPosition(sphere.GetCenter());
@@ -348,5 +369,53 @@ namespace
     {
       clusters[i].m_BitMask[uiBlockIndex] |= uiMask;
     }
+  }
+
+  template <typename Cluster>
+  void RasterizeDecal(const ezDecalRenderData* pDecalRenderData, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix,
+    Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+  {
+    ezSimdTransform decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform);
+    ezSimdTransform worldToDecal = decalToWorld.GetInverse();
+
+    ezVec3 corners[8];
+    ezBoundingBox(-pDecalRenderData->m_vHalfExtents, pDecalRenderData->m_vHalfExtents).GetCorners(corners);
+
+    ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld.GetAsMat4();
+    ezSimdBBox screenSpaceBounds; screenSpaceBounds.SetInvalid();
+    bool bInsideBox = false;
+    for (ezUInt32 i = 0; i < 8; ++i)
+    {
+      ezSimdVec4f corner = ezSimdConversion::ToVec3(corners[i]);
+      ezSimdVec4f screenSpaceCorner = decalToScreen.TransformPosition(corner);
+      ezSimdFloat depth = screenSpaceCorner.w();
+      bInsideBox |= depth < ezSimdFloat::Zero();
+
+      screenSpaceCorner /= depth;
+      screenSpaceCorner = screenSpaceCorner.GetCombined<ezSwizzle::XYZW>(ezSimdVec4f(depth));
+
+      screenSpaceBounds.m_Min = screenSpaceBounds.m_Min.CompMin(screenSpaceCorner);
+      screenSpaceBounds.m_Max = screenSpaceBounds.m_Max.CompMax(screenSpaceCorner);
+    }
+
+    if (bInsideBox)
+    {
+      screenSpaceBounds.m_Min = ezSimdVec4f(-1.0f).GetCombined<ezSwizzle::XYZW>(screenSpaceBounds.m_Min);
+      screenSpaceBounds.m_Max = ezSimdVec4f(1.0f).GetCombined<ezSwizzle::XYZW>(screenSpaceBounds.m_Max);
+    }
+
+    ezSimdVec4f decalHalfExtents = ezSimdConversion::ToVec3(pDecalRenderData->m_vHalfExtents);
+    ezSimdBBox localDecalBounds = ezSimdBBox(-decalHalfExtents, decalHalfExtents);
+
+    const ezUInt32 uiBlockIndex = uiDecalIndex / 32;
+    const ezUInt32 uiMask = 1 << (uiDecalIndex - uiBlockIndex * 32);
+
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
+    {
+      ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
+      clusterSphere.Transform(worldToDecal);
+
+      return localDecalBounds.Overlaps(clusterSphere);
+    });
   }
 }

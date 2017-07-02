@@ -14,7 +14,11 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 public:
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
-  ezUInt32 m_uiPartIndex;
+
+  ezUInt32 m_uiPartIndex : 30;
+  ezUInt32 m_uiFlipWinding : 1;
+  ezUInt32 m_uiUniformScale : 1;
+
   ezUInt32 m_uiUniqueID;
 };
 

@@ -4,6 +4,7 @@
 #include <Foundation/Types/UniquePtr.h>
 
 struct ezPerLightData;
+struct ezPerDecalData;
 struct ezPerClusterData;
 
 class ezClusteredDataCPU : public ezRenderData
@@ -14,10 +15,12 @@ public:
   enum
   {
     MAX_LIGHT_DATA = 1024,
-    MAX_LIGHTS_PER_CLUSTER = 256
+    MAX_DECAL_DATA = 1024,
+    MAX_ITEMS_PER_CLUSTER = 256
   };
 
   ezArrayPtr<ezPerLightData> m_LightData;
+  ezArrayPtr<ezPerDecalData> m_DecalData;
   ezArrayPtr<ezPerClusterData> m_ClusterData;
   ezArrayPtr<ezUInt32> m_ClusterItemList;
 
@@ -38,15 +41,18 @@ public:
 private:
   void FillItemListAndClusterData(ezClusteredDataCPU* pData);
 
+  template <ezUInt32 MaxData>
   struct TempCluster
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezUInt32 m_BitMask[ezClusteredDataCPU::MAX_LIGHT_DATA / 32];
+    ezUInt32 m_BitMask[MaxData / 32];
   };
 
   ezDynamicArray<ezPerLightData, ezAlignedAllocatorWrapper> m_TempLightData;
-  ezDynamicArray<TempCluster> m_TempClusters;
+  ezDynamicArray<ezPerDecalData, ezAlignedAllocatorWrapper> m_TempDecalData;
+  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_LIGHT_DATA>> m_TempLightsClusters;
+  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_DECAL_DATA>> m_TempDecalsClusters;
   ezDynamicArray<ezUInt32> m_TempClusterItemList;
 
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;

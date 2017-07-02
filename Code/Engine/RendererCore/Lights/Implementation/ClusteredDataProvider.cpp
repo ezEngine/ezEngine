@@ -26,6 +26,17 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     }
 
     {
+      desc.m_uiStructSize = sizeof(ezPerDecalData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_DECAL_DATA;
+      desc.m_BufferType = ezGALBufferType::Generic;
+      desc.m_bUseAsStructuredBuffer = true;
+      desc.m_bAllowShaderResourceView = true;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      m_hDecalDataBuffer = pDevice->CreateBuffer(desc);
+    }
+
+    {
       desc.m_uiStructSize = sizeof(ezPerClusterData);
       desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
 
@@ -34,7 +45,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
 
     {
       desc.m_uiStructSize = sizeof(ezUInt32);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_LIGHTS_PER_CLUSTER * NUM_CLUSTERS;
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_ITEMS_PER_CLUSTER * NUM_CLUSTERS;
 
       m_hClusterItemBuffer = pDevice->CreateBuffer(desc);
     }
@@ -60,6 +71,7 @@ ezClusteredDataGPU::~ezClusteredDataGPU()
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   pDevice->DestroyBuffer(m_hLightDataBuffer);
+  pDevice->DestroyBuffer(m_hDecalDataBuffer);
   pDevice->DestroyBuffer(m_hClusterDataBuffer);
   pDevice->DestroyBuffer(m_hClusterItemBuffer);
   pDevice->DestroySamplerState(m_hShadowSampler);
@@ -77,6 +89,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
+    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
     pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perClusterDataBuffer", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
     pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "clusterItemBuffer", pDevice->GetDefaultResourceView(m_hClusterItemBuffer));
 
@@ -118,7 +131,16 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     // Update buffer
     if (!pData->m_ClusterItemList.IsEmpty())
     {
-      pGALContext->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, pData->m_LightData.ToByteArray());
+      if (!pData->m_LightData.IsEmpty())
+      {
+        pGALContext->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, pData->m_LightData.ToByteArray());
+      }
+
+      if (!pData->m_DecalData.IsEmpty())
+      {
+        pGALContext->UpdateBuffer(m_Data.m_hDecalDataBuffer, 0, pData->m_DecalData.ToByteArray());
+      }
+
       pGALContext->UpdateBuffer(m_Data.m_hClusterItemBuffer, 0, pData->m_ClusterItemList.ToByteArray());
     }
 

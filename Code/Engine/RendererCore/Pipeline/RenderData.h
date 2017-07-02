@@ -53,6 +53,7 @@ static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner, ezUInt32 ui
 struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
 {
   static ezRenderData::Category Light;
+  static ezRenderData::Category Decal;
   static ezRenderData::Category Sky;
   static ezRenderData::Category LitOpaque;
   static ezRenderData::Category LitMasked;

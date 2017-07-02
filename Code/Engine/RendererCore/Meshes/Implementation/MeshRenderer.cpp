@@ -51,9 +51,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
   pInstanceData->BindResources(pContext);
 
-  const bool bFlipWinding = pRenderData->m_GlobalTransform.m_vScale.x * pRenderData->m_GlobalTransform.m_vScale.y * pRenderData->m_GlobalTransform.m_vScale.z < 0.0f;
-
-  if (bFlipWinding)
+  if (pRenderData->m_uiFlipWinding)
   {
     pContext->SetShaderPermutationVariable("FLIP_WINDING", "TRUE");
   }
@@ -109,21 +107,19 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
   {
     const ezMeshRenderData* pRenderData = it;
 
+    ezMat4 objectToWorld = pRenderData->m_GlobalTransform.GetAsMat4();
+
     auto& perInstanceData = instanceData[uiStartIndex + uiCurrentIndex];
-    perInstanceData.ObjectToWorld = pRenderData->m_GlobalTransform;
+    perInstanceData.ObjectToWorld = objectToWorld;
 
-    const ezVec3 scalingFactors = pRenderData->m_GlobalTransform.m_vScale;
-    const float fEpsilon = ezMath::BasicType<float>::DefaultEpsilon();
-    const bool bHasUniformScale = ezMath::IsEqual(scalingFactors.x, scalingFactors.y, fEpsilon) && ezMath::IsEqual(scalingFactors.x, scalingFactors.z, fEpsilon);
-
-    if (bHasUniformScale)
+    if (pRenderData->m_uiUniformScale)
     {
-      perInstanceData.ObjectToWorldNormal = pRenderData->m_GlobalTransform;
+      perInstanceData.ObjectToWorldNormal = objectToWorld;
     }
     else
     {
       ezShaderTransform shaderT;
-      shaderT = pRenderData->m_GlobalTransform.GetAsMat4().GetRotationalPart().GetInverse().GetTranspose();;
+      shaderT = objectToWorld.GetRotationalPart().GetInverse().GetTranspose();
       perInstanceData.ObjectToWorldNormal = shaderT;
     }
 
