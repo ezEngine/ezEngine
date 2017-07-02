@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/UIServices/ColorDialog.moc.h>
 #include <Foundation/Utilities/ConversionUtils.h>
@@ -294,4 +294,5 @@ void ezQtColorDialog::RecomputeHDR()
 
   // not sure whether this is better than just scaling RGB, no test data yet
   m_CurrentColor.SetHSV(m_uiHue, m_uiSaturation / 100.0, (m_uiValue / 100.0) * (1U << m_uiExposureValue));
+  m_CurrentColor.a = ezMath::ColorByteToFloat(m_Alpha);
 }
