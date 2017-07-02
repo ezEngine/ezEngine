@@ -2,7 +2,6 @@
 #include <Core/Application/Application.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>

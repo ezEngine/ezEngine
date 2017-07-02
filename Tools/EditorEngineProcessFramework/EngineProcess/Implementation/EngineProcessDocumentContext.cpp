@@ -68,7 +68,7 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
   ezEngineProcessDocumentContext* pContext = nullptr;
   if (s_DocumentContexts.Remove(guid, &pContext))
   {
-    pContext->Deinitialize(true);
+    pContext->Deinitialize();
     pContext->GetDynamicRTTI()->GetAllocator()->Deallocate(pContext);
   }
 }
@@ -130,9 +130,8 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezEn
   OnInitialize();
 }
 
-void ezEngineProcessDocumentContext::Deinitialize(bool bFullDestruction)
+void ezEngineProcessDocumentContext::Deinitialize()
 {
-  //if (bFullDestruction)
   ClearViewContexts();
   m_Mirror.Clear();
   m_Mirror.DeInit();
@@ -374,7 +373,7 @@ void ezEngineProcessDocumentContext::Reset()
   ezUuid guid = m_DocumentGuid;
   auto ipc = m_pIPC;
 
-  Deinitialize(false);
+  Deinitialize();
 
   Initialize(guid, ipc);
 }

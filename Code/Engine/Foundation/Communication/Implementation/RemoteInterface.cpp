@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
@@ -6,7 +6,7 @@ ezRemoteInterface::~ezRemoteInterface()
 {
   // unfortunately we cannot do that ourselves here, because ShutdownConnection() calls virtual functions
   // and this object is already partially destructed here (derived class is already shut down)
-  EZ_ASSERT_DEV(m_RemoteMode == ezRemoteMode::None, "ezRemoteInterface::ShutdownConnection() has be be called before destroying the interface");
+  EZ_ASSERT_DEV(m_RemoteMode == ezRemoteMode::None, "ezRemoteInterface::ShutdownConnection() has to be called before destroying the interface");
 }
 
 ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, const char* szServerAddress, bool bStartUpdateThread)

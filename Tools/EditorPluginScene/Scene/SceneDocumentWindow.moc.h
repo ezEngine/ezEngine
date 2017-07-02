@@ -2,7 +2,6 @@
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>

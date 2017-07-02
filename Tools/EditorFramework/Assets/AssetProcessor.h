@@ -2,7 +2,6 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Logging/Log.h>

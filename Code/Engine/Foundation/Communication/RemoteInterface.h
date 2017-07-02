@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Thread.h>
@@ -53,7 +53,7 @@ struct EZ_FOUNDATION_DLL ezRemoteMessageQueue
 class EZ_FOUNDATION_DLL ezRemoteInterface
 {
 public:
-  ~ezRemoteInterface();
+  virtual ~ezRemoteInterface();
 
   /// \brief Exposes the mutex that is internally used to secure multi-threaded access
   ezMutex& GetMutex() const { return m_Mutex; }

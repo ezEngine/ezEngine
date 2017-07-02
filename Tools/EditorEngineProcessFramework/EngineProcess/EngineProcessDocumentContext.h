@@ -3,7 +3,6 @@
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <Foundation/Types/Uuid.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
 class ezEditorEngineSyncObjectMsg;
@@ -29,7 +28,7 @@ public:
   virtual ~ezEngineProcessDocumentContext();
 
   void Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC);
-  void Deinitialize(bool bFullDestruction);
+  void Deinitialize();
 
   void SendProcessMessage(ezProcessMessage* pMsg = nullptr);
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg);

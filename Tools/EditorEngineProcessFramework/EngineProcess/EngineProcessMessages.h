@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
-#include <EditorEngineProcessFramework/IPC/ProcessCommunication.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <Foundation/Communication/RemoteMessage.h>
 
 ///////////////////////////////////// ezProcessMessages /////////////////////////////////////
 
