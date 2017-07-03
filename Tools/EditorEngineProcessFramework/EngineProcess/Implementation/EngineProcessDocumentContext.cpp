@@ -226,7 +226,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
         DestroyViewContext(m_ViewContexts[pViewMsg->m_uiViewID]);
         m_ViewContexts[pViewMsg->m_uiViewID] = nullptr;
 
-        ezLog::Info("Destroyed View {0}", pViewMsg->m_uiViewID);
+        ezLog::Debug("Destroyed View {0}", pViewMsg->m_uiViewID);
       }
     }
     else
