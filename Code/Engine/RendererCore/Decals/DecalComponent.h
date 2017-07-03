@@ -6,6 +6,7 @@
 
 typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
 typedef ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact> ezDecalComponentManager;
+class ezAbstractObjectNode;
 
 class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 {
@@ -47,6 +48,8 @@ public:
   const char* GetDecalFile() const;
 
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+
+  void OnObjectCreated(const ezAbstractObjectNode& node);
 
 protected:
 

@@ -325,7 +325,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     ezAbstractFunctionProperty* prop = rttiFunc[i];
     out_desc.m_Functions.PushBack(ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
     ezReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
-    desc.m_ReturnValue = ezFunctionArgumentDescriptor(prop->GetReturnType()->GetTypeName(), prop->GetReturnFlags());
+    desc.m_ReturnValue = ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
     const ezUInt32 uiArguments = prop->GetArgumentCount();
     desc.m_Arguments.Reserve(uiArguments);
     for (ezUInt32 a = 0; a < uiArguments; ++a)

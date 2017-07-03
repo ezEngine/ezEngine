@@ -6,6 +6,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -20,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 1)
     EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("FX"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::LightSteelBlue),
@@ -28,7 +29,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 1)
     new ezBoxVisualizerAttribute("Extents"),
   }
   EZ_END_ATTRIBUTES
-    EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_FUNCTIONS
+  {
+    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+  }
+  EZ_END_FUNCTIONS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
@@ -170,4 +176,9 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
 
   ezUInt32 uiSortingId = (ezUInt32)(m_fSortOrder * 65536.0f + 65536.0f);
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId);
+}
+
+void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+{
+  // TODO: do something with: node.GetGuid();
 }

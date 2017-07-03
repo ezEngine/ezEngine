@@ -56,6 +56,7 @@ private:
 
   ezHybridArray<Property, 16> m_Properties;
 };
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezAbstractObjectNode);
 
 struct EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
 {
@@ -128,7 +129,7 @@ public:
   /// \brief Remaps all node guids by adding the given seed, or if bRemapInverse is true, by subtracting it/
   ///   This is mostly used to remap prefab instance graphs to their prefab template graph.
   void ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse = false);
-  
+
   /// \brief Tries to remap the guids of this graph to those in rhsGraph by walking in both down the hierarchy, starting at root and rhsRoot.
   ///
   ///  Note that in case of array properties the remapping assumes element indices to be equal

@@ -23,6 +23,8 @@ void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pN
   {
     ApplyPropertiesToObject(pNode, pRtti, pObject);
   }
+
+  CallOnObjectCreated(pNode, pRtti, pObject);
   return pObject;
 }
 
@@ -379,6 +381,22 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
     }
     break;
+  }
+}
+
+void ezRttiConverterReader::CallOnObjectCreated(const ezAbstractObjectNode* pNode, const ezRTTI* pRtti, void* pObject)
+{
+  ezArrayPtr<ezAbstractFunctionProperty*> functions = pRtti->GetFunctions();
+  for (ezAbstractFunctionProperty* pFunc : functions)
+  {
+    // TODO: Make this compare faster
+    if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "OnObjectCreated"))
+    {
+      ezHybridArray<ezVariant, 1> params;
+      params.PushBack(pNode);
+      ezVariant ret;
+      pFunc->Execute(pObject, params, ret);
+    }
   }
 }
 

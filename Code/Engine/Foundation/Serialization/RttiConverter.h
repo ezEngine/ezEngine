@@ -83,6 +83,7 @@ public:
 
 private:
   void ApplyProperty(void* pObject, ezAbstractProperty* pProperty, const ezAbstractObjectNode::Property* pSource);
+  void CallOnObjectCreated(const ezAbstractObjectNode* pNode, const ezRTTI* pRtti, void* pObject);
 
   ezRttiConverterContext* m_pContext;
   const ezAbstractObjectGraph* m_pGraph;

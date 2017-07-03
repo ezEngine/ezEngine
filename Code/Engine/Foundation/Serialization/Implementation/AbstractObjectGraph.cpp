@@ -7,6 +7,9 @@ EZ_ENUM_CONSTANTS(ezObjectChangeType::NodeAdded, ezObjectChangeType::NodeRemoved
 EZ_ENUM_CONSTANTS(ezObjectChangeType::PropertySet, ezObjectChangeType::PropertyInserted, ezObjectChangeType::PropertyRemoved)
 EZ_END_STATIC_REFLECTED_ENUM();
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAbstractObjectNode, ezNoBase, 1, ezRTTIDefaultAllocator<ezAbstractObjectNode>)
+EZ_END_STATIC_REFLECTED_TYPE
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezDiffOperation, ezNoBase, 1, ezRTTIDefaultAllocator<ezDiffOperation>)
 {
   EZ_BEGIN_PROPERTIES

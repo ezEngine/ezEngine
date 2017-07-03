@@ -262,7 +262,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \param Function
 ///   The function to be executed in the form of CLASS::FUNCTION_NAME.
 #define EZ_CONSTRUCTOR_PROPERTY(...)                                            \
-  (new ezConstructorFunctionProperty<OwnType, __VA_ARGS__>())                   \
+  (new ezConstructorFunctionProperty<OwnType, ##__VA_ARGS__>())                   \
 
 
 // [internal] Helper macro to get the return type of a getter function.
