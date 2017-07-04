@@ -192,37 +192,40 @@ ezResult ezTexConv::CreateDecalAtlasTexture(const ezDynamicArray<DecalDesc>& dec
       *pColor = fill;
     }
   }
-  
+
 
   for (const auto& decal : decals)
   {
     if (!decal.m_sFile[layer].IsEmpty())
     {
-      ezImage img32;
-      EZ_SUCCEED_OR_RETURN(ToFloatImage(decal.m_Image[layer], img32));
+      ezImage decalImage;
+      EZ_SUCCEED_OR_RETURN(ToFloatImage(decal.m_Image[layer], decalImage));
+
+      ezUInt32 uiSourceWidth = decalImage.GetWidth();
+      ezUInt32 uiSourceHeight = decalImage.GetHeight();
 
       // fill the border of the source image with black
       {
-        for (ezUInt32 y = 0; y < uiResY; ++y)
+        for (ezUInt32 y = 0; y < uiSourceHeight; ++y)
         {
-          ezColor* pColor1 = atlas.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
-          ezColor* pColor2 = atlas.GetPixelPointer<ezColor>(0, 0, 0, uiResX - 1, y);
+          ezColor* pColor1 = decalImage.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
+          ezColor* pColor2 = decalImage.GetPixelPointer<ezColor>(0, 0, 0, uiSourceWidth - 1, y);
 
           *pColor1 = fill;
           *pColor2 = fill;
         }
 
-        for (ezUInt32 x = 0; x < uiResX; ++x)
+        for (ezUInt32 x = 0; x < uiSourceWidth; ++x)
         {
-          ezColor* pColor1 = atlas.GetPixelPointer<ezColor>(0, 0, 0, x, 0);
-          ezColor* pColor2 = atlas.GetPixelPointer<ezColor>(0, 0, 0, x, uiResY - 1);
+          ezColor* pColor1 = decalImage.GetPixelPointer<ezColor>(0, 0, 0, x, 0);
+          ezColor* pColor2 = decalImage.GetPixelPointer<ezColor>(0, 0, 0, x, uiSourceHeight - 1);
 
           *pColor1 = fill;
           *pColor2 = fill;
         }
       }
 
-      ezImageUtils::Copy(atlas, decal.m_Rect[layer].x, decal.m_Rect[layer].y, img32);
+      ezImageUtils::Copy(atlas, decal.m_Rect[layer].x, decal.m_Rect[layer].y, decalImage);
     }
   }
 
