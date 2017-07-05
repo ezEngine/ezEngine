@@ -358,15 +358,19 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
       float fade = dot(matData.vertexNormal, -normalize(worldToDecalMatrix[2].xyz));
       fade = saturate(fade * angleFadeParams.x + angleFadeParams.y);
       fade *= fade;
+      fade *= (1.0f - decalPosition.z * decalPosition.z);
       
-      float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
-      float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
-      
-      float4 decalBaseColor = decalData.color;
-      decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
-      fade *= decalBaseColor.a;
-      
-      matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
+      if (fade > 0.0f)
+      {
+        float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
+        float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
+        
+        float4 decalBaseColor = decalData.color;
+        decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
+        fade *= decalBaseColor.a;
+        
+        matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
+      }
     }
   }
 }
