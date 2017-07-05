@@ -1,11 +1,12 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 1)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 2)
 EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::SurfaceNormal, ezSurfaceInteractionAlignment::IncidentDirection, ezSurfaceInteractionAlignment::ReflectedDirection)
+EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::ReverseSurfaceNormal, ezSurfaceInteractionAlignment::ReverseIncidentDirection, ezSurfaceInteractionAlignment::ReverseReflectedDirection)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 

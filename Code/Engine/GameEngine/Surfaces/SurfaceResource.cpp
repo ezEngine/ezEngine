@@ -148,23 +148,82 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosi
   case ezSurfaceInteractionAlignment::ReflectedDirection:
     vDir = vIncomingDirection.GetReflectedVector(vSurfaceNormal);
     break;
+
+  case  ezSurfaceInteractionAlignment::ReverseSurfaceNormal:
+    vDir = -vSurfaceNormal;
+    break;
+
+  case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+    vDir = vIncomingDirection;;
+    break;
+
+  case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+    vDir = -vIncomingDirection.GetReflectedVector(vSurfaceNormal);
+    break;
+  }
+
+  vDir.Normalize();
+  ezVec3 vTangent = vDir.GetOrthogonalVector().GetNormalized();
+
+  // random rotation around the spawn direction
+  {
+    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0);
+
+    ezMat3 rotMat;
+    rotMat.SetRotationMatrix(vDir, ezAngle::Radian((float)randomAngle));
+
+    vTangent = rotMat * vTangent;
   }
 
   if (pIA->m_Deviation > ezAngle::Radian(0.0f))
   {
+    ezAngle maxDeviation;
+
     /// \todo do random deviation, make sure to clamp max deviation angle
+    switch (pIA->m_Alignment)
+    {
+    case ezSurfaceInteractionAlignment::IncidentDirection:
+    case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+      {
+        const float fCosAngle = vDir.Dot(-vSurfaceNormal);
+        const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
 
+        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
+      }
+      break;
 
+    case ezSurfaceInteractionAlignment::ReflectedDirection:
+    case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+      {
+        const float fCosAngle = vDir.Dot(vSurfaceNormal);
+        const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
+
+        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
+      }
+      break;
+
+    default:
+      maxDeviation = pIA->m_Deviation;
+      break;
+    }
+
+    const ezAngle deviation = ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
+
+    // tilt around the tangent (we don't want to compute another random rotation here)
+    ezMat3 matTilt;
+    matTilt.SetRotationMatrix(vTangent, deviation);
+
+    vDir = matTilt * vDir;
   }
 
-  vDir.Normalize();
-  const ezVec3 vTangent = vDir.GetOrthogonalVector().GetNormalized();
+
+  // finally compute the bi-tangent
   const ezVec3 vBiTangent = vDir.Cross(vTangent);
 
   ezMat3 mRot;
-  mRot.SetColumn(0, vTangent);
-  mRot.SetColumn(1, vBiTangent);
-  mRot.SetColumn(2, vDir);
+  mRot.SetColumn(0, vDir); // we always use X as the main axis, so align X with the direction
+  mRot.SetColumn(1, vTangent);
+  mRot.SetColumn(2, vBiTangent);
 
   ezTransform t;
   t.m_vPosition = vPosition;

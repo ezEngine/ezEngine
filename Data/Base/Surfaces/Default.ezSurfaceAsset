@@ -24,7 +24,7 @@ AssetInfo
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9792722692401254016,4982072354546932053}}
-		u4 %Hash{17755036167923715788}
+		u4 %Hash{10143612315149557490}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -73,8 +73,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
-		Angle %Deviation{f{0}}
+		s %Alignment{"ezSurfaceInteractionAlignment::ReverseSurfaceNormal"}
+		Angle %Deviation{f{0xDB0F493F}}
 		s %Prefab{"{ 707d012d-03fc-461f-9792-5bd128f51688 }"}
 		s %Type{"PulseImpact"}
 	}

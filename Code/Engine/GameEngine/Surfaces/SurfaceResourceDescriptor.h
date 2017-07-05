@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -17,6 +17,9 @@ struct ezSurfaceInteractionAlignment
     SurfaceNormal,
     IncidentDirection,
     ReflectedDirection,
+    ReverseSurfaceNormal,
+    ReverseIncidentDirection,
+    ReverseReflectedDirection,
 
     Default = SurfaceNormal
   };

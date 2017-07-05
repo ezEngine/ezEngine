@@ -1,5 +1,18 @@
 Objects
 {
+o
+{
+	Uuid %id{u4{4010809460085867653,5044629877910772636}}
+	s %t{"ezTimedDeathComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Time %DelayRange{d{0x0000000000004E40}}
+		Time %MinDelay{d{0x0000000000004E40}}
+		s %TimeoutPrefab{""}
+	}
+}
 AssetInfo
 {
 	Uuid %id{u4{9806294794305770135,5052761689686868269}}
@@ -11,36 +24,12 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9806294794305770135,5052761689686868269}}
-		u4 %Hash{15963865302767202078}
+		u4 %Hash{8907486809034803177}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 			s{"{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{16016417672424984713,5089822914006758983}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{665169142420398765,5511063477264213209}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0xEF0435BF,0xF0043533,0xEC0435BF}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
 		}
 	}
 }
@@ -60,7 +49,7 @@ o
 }
 o
 {
-	Uuid %id{u4{665169142420398765,5511063477264213209}}
+	Uuid %id{u4{3265851132939339666,5761399654097980371}}
 	s %t{"ezDecalComponent"}
 	u3 %v{1}
 	p
@@ -69,9 +58,9 @@ o
 		ColorGamma %Color{u1{255,255,255,255}}
 		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
-		Angle %InnerFadeAngle{f{0xF3665F3F}}
-		Angle %OuterFadeAngle{f{0xC2B8B23F}}
-		f %SortOrder{0}
+		Angle %InnerFadeAngle{f{0xDB0FC93F}}
+		Angle %OuterFadeAngle{f{0xDB0FC93F}}
+		f %SortOrder{0x0000A040}
 	}
 }
 o
@@ -81,13 +70,12 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Children
-		{
-			Uuid{u4{16016417672424984713,5089822914006758983}}
-		}
+		VarArray %Children{}
 		VarArray %Components
 		{
 			Uuid{u4{72274847284918525,18432172149644490780}}
+			Uuid{u4{3265851132939339666,5761399654097980371}}
+			Uuid{u4{4010809460085867653,5044629877910772636}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
