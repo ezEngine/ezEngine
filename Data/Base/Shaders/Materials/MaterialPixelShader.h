@@ -59,18 +59,18 @@ PS_OUT main(PS_IN Input)
 
   ezMaterialData matData = FillMaterialData(Input);
 
+  ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
+  
+  #if defined(USE_DECALS)
+    ApplyDecals(matData, clusterData);
+  #endif
+  
   #if RENDER_PASS == RENDER_PASS_EDITOR
     if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
     {
       matData.diffuseColor = 0.5;
       matData.specularColor = 0.0;
     }
-  #endif
-  
-  ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
-  
-  #if defined(USE_DECALS)
-    ApplyDecals(matData, clusterData);
   #endif
   
   #if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT

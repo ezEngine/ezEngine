@@ -17,7 +17,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 1)
   {
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder),
+    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
+    EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
   }
   EZ_END_PROPERTIES
@@ -42,10 +44,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 1)
 }
 EZ_END_COMPONENT_TYPE
 
+ezUInt16 ezDecalComponent::s_uiNextSortKey = 0;
+
 ezDecalComponent::ezDecalComponent()
   : m_vExtents(1.0f)
   , m_Color(ezColor::White)
+  , m_InnerFadeAngle(ezAngle::Degree(50.0f))
+  , m_OuterFadeAngle(ezAngle::Degree(80.0f))
   , m_fSortOrder(0.0f)
+  , m_uiInternalSortKey(s_uiNextSortKey++)
 {
 }
 
@@ -58,6 +65,12 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
+  s << m_vExtents;
+  s << m_Color;
+  s << m_InnerFadeAngle;
+  s << m_OuterFadeAngle;
+  s << m_fSortOrder;
+  s << m_uiInternalSortKey;
   s << m_hDecal;
 }
 
@@ -68,6 +81,12 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezStreamReader& s = stream.GetStream();
 
+  s >> m_vExtents;
+  s >> m_Color;
+  s >> m_InnerFadeAngle;
+  s >> m_OuterFadeAngle;
+  s >> m_fSortOrder;
+  s >> m_uiInternalSortKey;
   s >> m_hDecal;
 }
 
@@ -97,6 +116,26 @@ void ezDecalComponent::SetColor(ezColorGammaUB color)
 ezColorGammaUB ezDecalComponent::GetColor() const
 {
   return m_Color;
+}
+
+void ezDecalComponent::SetInnerFadeAngle(ezAngle spotAngle)
+{
+  m_InnerFadeAngle = ezMath::Clamp(spotAngle, ezAngle::Degree(0.0f), m_OuterFadeAngle);
+}
+
+ezAngle ezDecalComponent::GetInnerFadeAngle() const
+{
+  return m_InnerFadeAngle;
+}
+
+void ezDecalComponent::SetOuterFadeAngle(ezAngle spotAngle)
+{
+  m_OuterFadeAngle = ezMath::Clamp(spotAngle, m_InnerFadeAngle, ezAngle::Degree(90.0f));
+}
+
+ezAngle ezDecalComponent::GetOuterFadeAngle() const
+{
+  return m_OuterFadeAngle;
 }
 
 void ezDecalComponent::SetSortOrder(float fOrder)
@@ -148,6 +187,15 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
   if (msg.m_OverrideCategory != ezInvalidIndex)
     return;
 
+  float fFade = 1.0f;
+
+
+  ezColor finalColor = m_Color;
+  finalColor.a *= fFade;
+
+  if (finalColor.a <= 0.0f)
+    return;
+
   auto hDecalAtlas = ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
   ezVec2 baseAtlasScale = ezVec2(0.5f);
   ezVec2 baseAtlasOffset = ezVec2(0.5f);
@@ -170,15 +218,19 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
-  pRenderData->m_Color = m_Color;
+  pRenderData->m_Color = finalColor;
+  pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
+  pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;
   pRenderData->m_vBaseAtlasScale = baseAtlasScale;
   pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;
 
-  ezUInt32 uiSortingId = (ezUInt32)(m_fSortOrder * 65536.0f + 65536.0f);
+  ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
+  uiSortingId = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId);
 }
 
 void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
-  // TODO: do something with: node.GetGuid();
+  m_uiInternalSortKey = ezHashHelper<ezUuid>::Hash(node.GetGuid());
+  m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
 }

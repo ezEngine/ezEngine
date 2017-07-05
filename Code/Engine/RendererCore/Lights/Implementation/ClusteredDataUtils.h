@@ -199,11 +199,15 @@ namespace
     ezMat4 lookAt; lookAt.SetLookAtMatrix(position, position + dirForwards, dirUp);
     ezMat4 scaleMat; scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
 
-    ezColorLinearUB color = pDecalRenderData->m_Color;
+    const float fCosInner = ezMath::Cos(pDecalRenderData->m_InnerFadeAngle);
+    const float fCosOuter = ezMath::Cos(pDecalRenderData->m_OuterFadeAngle);
+    const float fFadeParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
+    const float fFadeParamOffset = -fCosOuter * fFadeParamScale;
 
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
+    perDecalData.color = pDecalRenderData->m_Color;
     perDecalData.textureBitmask = 0;
-    perDecalData.color = *reinterpret_cast<ezUInt32*>(&color.r);
+    perDecalData.angleFadeParams = Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
     perDecalData.baseAtlasScale = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasScale);
     perDecalData.baseAtlasOffset = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasOffset);
   }

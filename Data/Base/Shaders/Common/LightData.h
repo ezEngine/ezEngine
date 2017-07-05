@@ -68,18 +68,25 @@ struct EZ_ALIGN_16(ezDirShadowData)
 struct EZ_ALIGN_16(ezPerDecalData)
 {
   TRANSFORM(worldToDecalMatrix);
-  
+  COLOR4F(color);
+
   UINT1(textureBitmask);
-  UINT1(color);
-  
+  UINT1(angleFadeParams); // scale and offset as 16 bit floats
+
   UINT1(baseAtlasScale); // xy as 16 bit floats
   UINT1(baseAtlasOffset); // xy as 16 bit floats
+
+  UINT1(normalAtlasScale); // xy as 16 bit floats
+  UINT1(normalAtlasOffset); // xy as 16 bit floats
+
+  UINT1(auxAtlasScale); // xy as 16 bit floats
+  UINT1(auxAtlasOffset); // xy as 16 bit floats
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)
   StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
 #else
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 64);
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
 #endif
 
 CONSTANT_BUFFER(ezClusteredDataConstants, 3)

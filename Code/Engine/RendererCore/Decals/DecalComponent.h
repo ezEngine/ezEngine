@@ -15,6 +15,8 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 public:
   ezVec3 m_vHalfExtents;
   ezColor m_Color;
+  ezAngle m_InnerFadeAngle;
+  ezAngle m_OuterFadeAngle;
   ezVec2 m_vBaseAtlasScale;
   ezVec2 m_vBaseAtlasOffset;
 };
@@ -38,6 +40,12 @@ public:
   void SetColor(ezColorGammaUB color);
   ezColorGammaUB GetColor() const;
 
+  void SetInnerFadeAngle(ezAngle fFadeAngle);
+  ezAngle GetInnerFadeAngle() const;
+
+  void SetOuterFadeAngle(ezAngle fFadeAngle);
+  ezAngle GetOuterFadeAngle() const;
+
   void SetSortOrder(float fOrder);
   float GetSortOrder() const;
 
@@ -55,6 +63,12 @@ protected:
 
   ezVec3 m_vExtents;
   ezColorGammaUB m_Color;
+  ezAngle m_InnerFadeAngle;
+  ezAngle m_OuterFadeAngle;
   float m_fSortOrder;
+  ezUInt32 m_uiInternalSortKey;
+
   ezDecalResourceHandle m_hDecal;
+
+  static ezUInt16 s_uiNextSortKey;
 };

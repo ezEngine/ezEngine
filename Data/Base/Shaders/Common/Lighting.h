@@ -353,13 +353,16 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
     
     if (all(abs(decalPosition) < 1.0f))
     {
-      float fade = 1;// saturate(dot(matData.vertexNormal, -normalize(worldToDecalMatrix[2])));
+      float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
+      
+      float fade = dot(matData.vertexNormal, -normalize(worldToDecalMatrix[2].xyz));
+      fade = saturate(fade * angleFadeParams.x + angleFadeParams.y);
       fade *= fade;
       
       float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
       float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
       
-      float4 decalBaseColor = RGBA8ToFloat4(decalData.color);
+      float4 decalBaseColor = decalData.color;
       decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
       fade *= decalBaseColor.a;
       
