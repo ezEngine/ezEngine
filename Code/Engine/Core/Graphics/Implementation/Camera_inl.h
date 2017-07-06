@@ -1,43 +1,55 @@
 ﻿#pragma once
 
-EZ_ALWAYS_INLINE ezVec3 ezCamera::GetPosition() const
+EZ_ALWAYS_INLINE ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
 { 
-  return m_vPosition; 
+  return -(m_mViewMatrix[static_cast<int>(eye)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(eye)].GetTranslationVector());
 }
 
-EZ_ALWAYS_INLINE const ezVec3& ezCamera::GetDirForwards() const
+EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirForwards(ezCameraEye eye) const
 {
-  return m_vDirForwards;
+  return m_mViewMatrix[static_cast<int>(eye)].GetRow(2).GetAsVec3();
 }
 
-EZ_ALWAYS_INLINE const ezVec3& ezCamera::GetDirUp() const
+EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirUp(ezCameraEye eye) const
 {
-  return m_vDirUp;
+  return m_mViewMatrix[static_cast<int>(eye)].GetRow(1).GetAsVec3();
 }
 
-EZ_ALWAYS_INLINE const ezVec3& ezCamera::GetDirRight() const
+EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirRight(ezCameraEye eye) const
 {
-  return m_vDirRight;
+  return m_mViewMatrix[static_cast<int>(eye)].GetRow(0).GetAsVec3();
 }
 
-EZ_ALWAYS_INLINE const ezVec3& ezCamera::GetCenterPosition() const
+inline ezVec3 ezCamera::GetCenterPosition() const
 {
-  return m_vPosition;
+  if(m_Mode == ezCameraMode::Stereo)
+    return (GetPosition(ezCameraEye::Left) + GetPosition(ezCameraEye::Right)) * 0.5f;
+  else
+    return GetPosition();
 }
 
-EZ_ALWAYS_INLINE const ezVec3& ezCamera::GetCenterDirForwards() const
+inline ezVec3 ezCamera::GetCenterDirForwards() const
 {
-  return m_vDirForwards;
+  if (m_Mode == ezCameraMode::Stereo)
+    return (GetDirForwards(ezCameraEye::Left) + GetDirForwards(ezCameraEye::Right)).GetNormalized();
+  else
+    return GetDirForwards();
 }
 
-EZ_ALWAYS_INLINE const ezVec3& ezCamera::GetCenterDirUp() const
+inline ezVec3 ezCamera::GetCenterDirUp() const
 {
-  return m_vDirUp;
+  if (m_Mode == ezCameraMode::Stereo)
+    return (GetDirUp(ezCameraEye::Left) + GetDirUp(ezCameraEye::Right)).GetNormalized();
+  else
+    return GetDirUp();
 }
 
-EZ_ALWAYS_INLINE const ezVec3& ezCamera::GetCenterDirRight() const
+inline ezVec3 ezCamera::GetCenterDirRight() const
 {
-  return m_vDirRight;
+  if (m_Mode == ezCameraMode::Stereo)
+    return (GetDirRight(ezCameraEye::Left) + GetDirRight(ezCameraEye::Right)).GetNormalized();
+  else
+    return GetDirRight();
 }
 
 EZ_ALWAYS_INLINE float ezCamera::GetNearPlane() const
@@ -62,7 +74,8 @@ EZ_ALWAYS_INLINE ezCameraMode::Enum ezCamera::GetCameraMode() const
 
 EZ_ALWAYS_INLINE bool ezCamera::IsPerspective() const
 {
-  return m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY;
+  return m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY || 
+          m_Mode == ezCameraMode::Stereo; // All HMD stereo cameras are perspective!
 }
 
 EZ_ALWAYS_INLINE bool ezCamera::IsOrthographic() const
@@ -72,12 +85,7 @@ EZ_ALWAYS_INLINE bool ezCamera::IsOrthographic() const
 
 EZ_ALWAYS_INLINE bool ezCamera::IsStereoscopic() const
 {
-  return m_bSteroscopic;
-}
-
-EZ_ALWAYS_INLINE void ezCamera::SetStereoscopic(bool bStereo)
-{
-  m_bSteroscopic = bStereo;
+  return m_Mode == ezCameraMode::Stereo;
 }
 
 EZ_ALWAYS_INLINE float ezCamera::GetExposure() const
@@ -90,4 +98,7 @@ EZ_ALWAYS_INLINE void ezCamera::SetExposure(float fExposure)
   m_fExposure = fExposure;
 }
 
-
+EZ_ALWAYS_INLINE const ezMat4& ezCamera::GetViewMatrix(ezCameraEye eye) const
+{
+  return m_mViewMatrix[static_cast<int>(eye)];
+}

@@ -159,8 +159,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   ezClusteredDataCPU* pData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezClusteredDataCPU);
   pData->m_ClusterData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerClusterData, NUM_CLUSTERS);
 
-  ezMat4 tmp;
-  pCamera->GetViewMatrix(tmp);
+  ezMat4 tmp = pCamera->GetViewMatrix();
   ezSimdMat4f viewMatrix = ezSimdConversion::ToMat4(tmp);
 
   pCamera->GetProjectionMatrix(fAspectRatio, tmp);

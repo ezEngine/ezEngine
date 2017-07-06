@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
@@ -117,8 +117,7 @@ void ezView::ComputeCullingFrustum(ezFrustum& out_Frustum) const
   const ezCamera* pCamera = GetCullingCamera();
   const float fViewportAspectRatio = m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height;
 
-  ezMat4 viewMatrix;
-  pCamera->GetViewMatrix(viewMatrix);
+  ezMat4 viewMatrix = pCamera->GetViewMatrix();
 
   ezMat4 projectionMatrix;
   pCamera->GetProjectionMatrix(fViewportAspectRatio, projectionMatrix);
@@ -174,7 +173,7 @@ void ezView::UpdateCachedMatrices() const
     bUpdateVP = true;
     m_uiLastCameraOrientationModification = pCamera->GetOrientationModificationCounter();
 
-    pCamera->GetViewMatrix(m_Data.m_ViewMatrix);
+    m_Data.m_ViewMatrix = pCamera->GetViewMatrix();
 
     // Some of our matrices contain very small values so that the matrix inversion will fall below the default epsilon.
     // We pass zero as epsilon here since all view and projection matrices are invertible.

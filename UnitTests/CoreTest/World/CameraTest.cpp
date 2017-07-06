@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Graphics/Camera.h>
 
 EZ_CREATE_SIMPLE_TEST(World, Camera)
@@ -14,7 +14,7 @@ EZ_CREATE_SIMPLE_TEST(World, Camera)
     EZ_TEST_VEC3(camera.GetDirUp(), ezVec3(0, 0, 1), ezMath::BasicType<float>::DefaultEpsilon());
 
     ezMat4 mLookAt; mLookAt.SetLookAtMatrix(ezVec3(2, 3, 4), ezVec3(3, 3, 4), ezVec3(0, 0, 1));
-    camera.SetFromMatrix(mLookAt);
+    camera.SetViewMatrix(mLookAt);
 
     EZ_TEST_VEC3(camera.GetPosition(), ezVec3(2, 3, 4), ezMath::BasicType<float>::DefaultEpsilon());
     EZ_TEST_VEC3(camera.GetDirForwards(), ezVec3(1, 0, 0), ezMath::BasicType<float>::DefaultEpsilon());
