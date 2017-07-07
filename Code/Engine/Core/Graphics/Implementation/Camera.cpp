@@ -118,6 +118,7 @@ void ezCamera::LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const 
 
   m_mViewMatrix[0].SetLookAtMatrix(vCameraPos, vTargetPos, vUp);
   m_mViewMatrix[1] = m_mViewMatrix[0];
+  m_vCameraPosition[1] = m_vCameraPosition[0] = vCameraPos;
 
   CameraOrientationChanged(true, true);
 }
