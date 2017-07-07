@@ -168,10 +168,10 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_vStartPosition = GetTransformation().m_vPosition;
 
-  ezMat4 mView, mProj, mViewProj;
-  m_pCamera->GetViewMatrix(mView);
+  ezMat4 mView = m_pCamera->GetViewMatrix();
+  ezMat4 mProj;
   m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
-  mViewProj = mProj * mView;
+  ezMat4 mViewProj = mProj * mView;
   m_InvViewProj = mViewProj.GetInverse();
 
 

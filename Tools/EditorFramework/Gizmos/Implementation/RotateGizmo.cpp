@@ -100,10 +100,10 @@ ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   m_StartRotation = GetTransformation().m_qRotation;
 
-  ezMat4 mView, mProj, mViewProj;
-  m_pCamera->GetViewMatrix(mView);
+  ezMat4 mView = m_pCamera->GetViewMatrix();
+  ezMat4 mProj;
   m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
-  mViewProj = mProj * mView;
+  ezMat4 mViewProj = mProj * mView;
   m_InvViewProj = mViewProj.GetInverse();
 
   // compute screen space tangent for rotation

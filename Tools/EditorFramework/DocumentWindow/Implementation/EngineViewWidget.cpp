@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
@@ -98,7 +98,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_vDirUp = m_pViewConfig->m_Camera.GetCenterDirUp();
   cam.m_vDirRight = m_pViewConfig->m_Camera.GetCenterDirRight();
   cam.m_vPosition = m_pViewConfig->m_Camera.GetCenterPosition();
-  m_pViewConfig->m_Camera.GetViewMatrix(cam.m_ViewMatrix);
+  cam.m_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
 
   cam.m_uiHWND = (ezUInt64)(winId());
@@ -113,7 +113,7 @@ void ezQtEngineViewWidget::SyncToEngine()
 
 void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const
 {
-  m_pViewConfig->m_Camera.GetViewMatrix(out_ViewMatrix);
+  out_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), out_ProjectionMatrix);
 }
 

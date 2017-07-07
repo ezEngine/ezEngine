@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -121,12 +121,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       {
         ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(GetPickingDepthRT());
 
-        ezMat4 mProj, mView;
-
-
-
+        ezMat4 mProj;
         renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
-        renderViewContext.m_pCamera->GetViewMatrix(mView);
+        ezMat4 mView = renderViewContext.m_pCamera->GetViewMatrix();
 
         if (mProj.IsNaN())
           return;
@@ -170,10 +167,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     {
       ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(GetPickingIdRT());
 
-      ezMat4 mProj, mView;
-
+      ezMat4 mProj;
       renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
-      renderViewContext.m_pCamera->GetViewMatrix(mView);
+      ezMat4 mView = renderViewContext.m_pCamera->GetViewMatrix();
 
       if (mProj.IsNaN())
         return;
