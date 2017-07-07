@@ -149,7 +149,7 @@ public:
   /// \brief Nested prefabs are not allowed
   virtual bool ArePrefabsAllowed() const { return !IsPrefab(); }
 
-  void SetGizmoWorldSpace(bool bWorldSpace) const;
+  void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
@@ -213,7 +213,7 @@ public:
   bool GetRenderShapeIcons() const { return m_CurrentMode.m_bRenderShapeIcons; }
   void SetRenderShapeIcons(bool b);
 
-  bool GetAddAmbientLight() const { return m_CurrentMode.m_bAddAmbientLight; }
+  bool GetAddAmbientLight() const { return m_bAddAmbientLight; }
   void SetAddAmbientLight(bool b);
 
 
@@ -290,11 +290,11 @@ private:
     bool m_bRenderSelectionOverlay;
     bool m_bRenderVisualizers;
     bool m_bRenderShapeIcons;
-    bool m_bAddAmbientLight;
   };
 
   bool m_bIsPrefab;
-  mutable bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
+  bool m_bAddAmbientLight;
+  bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   GameMode::Enum m_GameMode;
   float m_fSimulationSpeed;
 

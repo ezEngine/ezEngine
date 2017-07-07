@@ -40,26 +40,23 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
   m_fSimulationSpeed = 1.0f;
   m_bGizmoWorldSpace = true;
   m_iResendSelection = 0;
+  m_bAddAmbientLight = bIsPrefab;
 
   m_CurrentMode.m_bRenderSelectionOverlay = true;
   m_CurrentMode.m_bRenderShapeIcons = true;
   m_CurrentMode.m_bRenderVisualizers = true;
-  m_CurrentMode.m_bAddAmbientLight = m_bIsPrefab;
 
   m_GameModeData[GameMode::Off].m_bRenderSelectionOverlay = true;
   m_GameModeData[GameMode::Off].m_bRenderShapeIcons = true;
   m_GameModeData[GameMode::Off].m_bRenderVisualizers = true;
-  m_GameModeData[GameMode::Off].m_bAddAmbientLight = m_bIsPrefab;
 
   m_GameModeData[GameMode::Simulate].m_bRenderSelectionOverlay = false;
   m_GameModeData[GameMode::Simulate].m_bRenderShapeIcons = false;
   m_GameModeData[GameMode::Simulate].m_bRenderVisualizers = false;
-  m_GameModeData[GameMode::Simulate].m_bAddAmbientLight = m_bIsPrefab;
 
   m_GameModeData[GameMode::Play].m_bRenderSelectionOverlay = false;
   m_GameModeData[GameMode::Play].m_bRenderShapeIcons = false;
   m_GameModeData[GameMode::Play].m_bRenderVisualizers = false;
-  m_GameModeData[GameMode::Play].m_bAddAmbientLight = m_bIsPrefab;
 }
 
 void ezSceneDocument::InitializeAfterLoading()
@@ -578,7 +575,6 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   SetRenderSelectionOverlay(m_GameModeData[m_GameMode].m_bRenderSelectionOverlay);
   SetRenderShapeIcons(m_GameModeData[m_GameMode].m_bRenderShapeIcons);
   SetRenderVisualizers(m_GameModeData[m_GameMode].m_bRenderVisualizers);
-  SetAddAmbientLight(m_GameModeData[m_GameMode].m_bAddAmbientLight);
 
   if (m_GameMode == GameMode::Off)
   {
@@ -726,10 +722,10 @@ void ezSceneDocument::SetRenderShapeIcons(bool b)
 
 void ezSceneDocument::SetAddAmbientLight(bool b)
 {
-  if (m_CurrentMode.m_bAddAmbientLight == b)
+  if (m_bAddAmbientLight == b)
     return;
 
-  m_CurrentMode.m_bAddAmbientLight = b;
+  m_bAddAmbientLight = b;
 
   ezSceneDocumentEvent e;
   e.m_Type = ezSceneDocumentEvent::Type::AddAmbientLightChanged;
@@ -758,7 +754,7 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
     m_DocumentObjectMetaData.EndModifyMetaData(uiFlags);
   });
 }
-void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace) const
+void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)
     return;

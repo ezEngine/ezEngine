@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
@@ -58,7 +58,7 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
 {
   SetCheckable(true);
   m_Type = type;
-  m_pSceneDocument = static_cast<const ezSceneDocument*>(context.m_pDocument);
+  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
   m_pSceneDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezGizmoAction::SceneEventHandler, this));
 
   switch (m_Type)

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorPluginScene/Plugin.h>
 #include <GuiFoundation/Basics.h>
@@ -51,7 +51,7 @@ private:
   void UpdateState();
   void SceneEventHandler(const ezSceneDocumentEvent& e);
 
-  const ezSceneDocument* m_pSceneDocument;
+  ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };
 
