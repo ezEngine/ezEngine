@@ -186,7 +186,7 @@ ezVec3 ezCamera::MoveLocally(float fForward, float fRight, float fUp)
 {
   ezVec3 diff(0.0f);
 
-  m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() + ezVec3(fRight, fUp, fForward));
+  m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - ezVec3(fRight, fUp, fForward));
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
   m_vCameraPosition[0] = m_vCameraPosition[1] = -(m_mViewMatrix[static_cast<int>(0)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(0)].GetTranslationVector());
@@ -235,19 +235,19 @@ void ezCamera::SetDirForwards(const ezVec3& vDirForwards)
 
 void ezCamera::SetDirRight(const ezVec3& vDirRight)
 {
-  m_mViewMatrix[1].Element(0, 1) = m_mViewMatrix[0].Element(0, 1) = vDirRight.x;
-  m_mViewMatrix[1].Element(1, 1) = m_mViewMatrix[0].Element(1, 1) = vDirRight.y;
-  m_mViewMatrix[1].Element(2, 1) = m_mViewMatrix[0].Element(2, 1) = vDirRight.z;
+  m_mViewMatrix[1].Element(0, 0) = m_mViewMatrix[0].Element(0, 0) = vDirRight.x;
+  m_mViewMatrix[1].Element(1, 0) = m_mViewMatrix[0].Element(1, 0) = vDirRight.y;
+  m_mViewMatrix[1].Element(2, 0) = m_mViewMatrix[0].Element(2, 0) = vDirRight.z;
 }
 
 void ezCamera::SetDirUp(const ezVec3& vDirUp)
 {
-  m_mViewMatrix[1].Element(0, 0) = m_mViewMatrix[0].Element(0, 0) = vDirUp.x;
-  m_mViewMatrix[1].Element(1, 0) = m_mViewMatrix[0].Element(1, 0) = vDirUp.y;
-  m_mViewMatrix[1].Element(2, 0) = m_mViewMatrix[0].Element(2, 0) = vDirUp.z;
+  m_mViewMatrix[1].Element(0, 1) = m_mViewMatrix[0].Element(0, 1) = vDirUp.x;
+  m_mViewMatrix[1].Element(1, 1) = m_mViewMatrix[0].Element(1, 1) = vDirUp.y;
+  m_mViewMatrix[1].Element(2, 1) = m_mViewMatrix[0].Element(2, 1) = vDirUp.z;
 }
 
-void ezCamera::RotateLocally (ezAngle X, ezAngle Y, ezAngle Z)
+void ezCamera::RotateLocally(ezAngle X, ezAngle Y, ezAngle Z)
 {
   ClampRotationAngles(true, X, Y, Z);
 
@@ -260,8 +260,8 @@ void ezCamera::RotateLocally (ezAngle X, ezAngle Y, ezAngle Z)
     ezMat3 m;
     m.SetRotationMatrix(vDirForwards, X);
 
-    SetDirUp(m * vDirUp);
-    SetDirRight(m * vDirRight);
+    vDirUp = m * vDirUp;
+    vDirRight = m * vDirRight;
   }
 
   if (Y.GetRadian() != 0.0f)
@@ -269,8 +269,8 @@ void ezCamera::RotateLocally (ezAngle X, ezAngle Y, ezAngle Z)
     ezMat3 m;
     m.SetRotationMatrix(vDirRight, Y);
 
-    SetDirUp(m * vDirUp);
-    SetDirForwards(m * vDirForwards);
+    vDirUp = m * vDirUp;
+    vDirForwards = m * vDirForwards;
   }
 
   if (Z.GetRadian() != 0.0f)
@@ -278,9 +278,13 @@ void ezCamera::RotateLocally (ezAngle X, ezAngle Y, ezAngle Z)
     ezMat3 m;
     m.SetRotationMatrix(vDirUp, Z);
 
-    SetDirRight(m * vDirRight);
-    SetDirForwards(m * vDirForwards);
+    vDirRight = m * vDirRight;
+    vDirForwards = m * vDirForwards;
   }
+
+  SetDirForwards(vDirForwards);
+  SetDirUp(vDirUp);
+  SetDirRight(vDirRight);
 
   CameraOrientationChanged(false, true);
 }
@@ -289,24 +293,28 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
 {
   ClampRotationAngles(false, X, Y, Z);
 
+  ezVec3 vDirForwards = GetDirForwards();
+  ezVec3 vDirUp = GetDirUp();
+  ezVec3 vDirRight = GetDirRight();
+
   if (X.GetRadian() != 0.0f)
   {
     ezMat3 m;
     m.SetRotationMatrixX(X);
 
-    SetDirRight(m * GetDirRight());
-    SetDirUp(m * GetDirUp());
-    SetDirForwards(m * GetDirForwards());
+    vDirRight = m * vDirRight;
+    vDirUp = m * vDirUp;
+    vDirForwards = m * vDirForwards;
   }
 
   if (Y.GetRadian() != 0.0f)
   {
     ezMat3 m;
     m.SetRotationMatrixY(Y);
-
-    SetDirRight(m * GetDirRight());
-    SetDirUp(m * GetDirUp());
-    SetDirForwards(m * GetDirForwards());
+    
+    vDirRight = m * vDirRight;
+    vDirUp = m * vDirUp;
+    vDirForwards = m * vDirForwards;
   }
 
   if (Z.GetRadian() != 0.0f)
@@ -314,13 +322,18 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
     ezMat3 m;
     m.SetRotationMatrixZ(Z);
 
-    SetDirRight(m * GetDirRight());
-    SetDirUp(m * GetDirUp());
-    SetDirForwards(m * GetDirForwards());
+    vDirRight = m * vDirRight;
+    vDirUp = m * vDirUp;
+    vDirForwards = m * vDirForwards;
   }
+
+  SetDirForwards(vDirForwards);
+  SetDirUp(vDirUp);
+  SetDirRight(vDirRight);
 
   CameraOrientationChanged(false, true);
 }
+
 
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Camera);
