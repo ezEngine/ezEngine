@@ -2,7 +2,7 @@
 
 EZ_ALWAYS_INLINE ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
 { 
-  return -(m_mViewMatrix[static_cast<int>(eye)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(eye)].GetTranslationVector());
+  return m_vCameraPosition[static_cast<int>(eye)];
 }
 
 EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirForwards(ezCameraEye eye) const

@@ -201,6 +201,7 @@ private:
 
   float m_fExposure;
 
+  ezVec3 m_vCameraPosition[2];
   ezMat4 m_mViewMatrix[2];
 
   /// If the camera mode is stereo and the aspect ratio given in getProjectio is close to this value, one of the stereo projection matrices is returned.

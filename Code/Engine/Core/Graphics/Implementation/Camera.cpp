@@ -17,6 +17,8 @@ ezCamera::ezCamera()
 
   m_fExposure = 1.0f;
 
+  m_vCameraPosition[0].SetZero();
+  m_vCameraPosition[1].SetZero();
   m_mViewMatrix[0].SetIdentity();
   m_mViewMatrix[1].SetIdentity();
   m_mStereoProjectionMatrix[0].SetIdentity();
@@ -125,9 +127,13 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
   const int iEyeIdx = static_cast<int>(eye);
 
   m_mViewMatrix[iEyeIdx] = mLookAtMatrix;
+  m_vCameraPosition[iEyeIdx] = -(m_mViewMatrix[static_cast<int>(eye)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(eye)].GetTranslationVector());
 
   if (m_Mode != ezCameraMode::Stereo)
-    m_mViewMatrix[1 - iEyeIdx] = mLookAtMatrix;
+  {
+    m_mViewMatrix[1 - iEyeIdx] = m_mViewMatrix[iEyeIdx];
+    m_vCameraPosition[1 - iEyeIdx] = m_vCameraPosition[iEyeIdx];
+  }
   
   CameraOrientationChanged(true, true);
 }
@@ -182,6 +188,8 @@ ezVec3 ezCamera::MoveLocally(float fForward, float fRight, float fUp)
   m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() + ezVec3(fRight, fUp, fForward));
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
+  m_vCameraPosition[0] = m_vCameraPosition[1] = -(m_mViewMatrix[static_cast<int>(0)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(0)].GetTranslationVector());
+
   CameraOrientationChanged(true, false);
 
   return diff;
@@ -191,7 +199,9 @@ void ezCamera::MoveGlobally(const ezVec3& vMove)
 {
   m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() + m_mViewMatrix[0].GetRotationalPart() * vMove);
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
-
+  
+  m_vCameraPosition[0] += vMove;   // To inaccurate?
+  m_vCameraPosition[1] = m_vCameraPosition[0];
 
   CameraOrientationChanged(true, false);
 }
