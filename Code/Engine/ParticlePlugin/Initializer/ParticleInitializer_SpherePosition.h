@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
-#include <ParticlePlugin/Util/ParticleUtils.h>
+#include <Foundation/Types/VarianceTypes.h>
 
 class ezParticleInitializerFactory_SpherePosition : public ezParticleInitializerFactory
 {

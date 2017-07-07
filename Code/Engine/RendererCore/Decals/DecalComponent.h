@@ -3,10 +3,12 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Types/VarianceTypes.h>
 
 typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
 typedef ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact> ezDecalComponentManager;
 class ezAbstractObjectNode;
+struct ezInternalComponentMessage;
 
 class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 {
@@ -29,13 +31,31 @@ public:
   ezDecalComponent();
   ~ezDecalComponent();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent Interface
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void OnSimulationStarted() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent Interface
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
+  //////////////////////////////////////////////////////////////////////////
+  // Editor Interface
+
+  void OnObjectCreated(const ezAbstractObjectNode& node);
+
+  //////////////////////////////////////////////////////////////////////////
+  // Properties
+
+public:
   void SetExtents(const ezVec3& value);
   const ezVec3& GetExtents() const;
+  float m_fSizeVariance = 0.0f;
 
   void SetColor(ezColorGammaUB color);
   ezColorGammaUB GetColor() const;
@@ -55,9 +75,9 @@ public:
   void SetDecalFile(const char* szFile);
   const char* GetDecalFile() const;
 
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
-
-  void OnObjectCreated(const ezAbstractObjectNode& node);
+  ezVarianceTypeTime m_FadeOutDelay;
+  ezTime m_FadeOutDuration;
+  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;
 
 protected:
 
@@ -66,9 +86,14 @@ protected:
   ezAngle m_InnerFadeAngle;
   ezAngle m_OuterFadeAngle;
   float m_fSortOrder;
-  ezUInt32 m_uiInternalSortKey;
-
   ezDecalResourceHandle m_hDecal;
 
+  //////////////////////////////////////////////////////////////////////////
+  // Internal
+
+  void OnTriggered(ezInternalComponentMessage& msg);
+
+  ezTime m_StartFadeOutTime;
+  ezUInt32 m_uiInternalSortKey;
   static ezUInt16 s_uiNextSortKey;
 };

@@ -2,15 +2,13 @@ Objects
 {
 o
 {
-	Uuid %id{u4{4010809460085867653,5044629877910772636}}
-	s %t{"ezTimedDeathComponent"}
-	u3 %v{2}
+	Uuid %id{u4{800467086460903338,729124739966304029}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
 	p
 	{
-		b %Active{1}
-		Time %DelayRange{d{0x0000000000004E40}}
-		Time %MinDelay{d{0x0000000000004E40}}
-		s %TimeoutPrefab{""}
+		Time %Value{d{0x0000000000000840}}
+		f %Variance{0x48E1FA3E}
 	}
 }
 AssetInfo
@@ -24,7 +22,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9806294794305770135,5052761689686868269}}
-		u4 %Hash{8907486809034803177}
+		u4 %Hash{5306865223765465357}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -51,15 +49,19 @@ o
 {
 	Uuid %id{u4{3265851132939339666,5761399654097980371}}
 	s %t{"ezDecalComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
 		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
+		Uuid %FadeOutDelay{u4{800467086460903338,729124739966304029}}
+		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0xDB0FC93F}}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteEntity"}
 		Angle %OuterFadeAngle{f{0xDB0FC93F}}
+		f %SizeVariance{0x0000803F}
 		f %SortOrder{0x0000A040}
 	}
 }
@@ -75,7 +77,6 @@ o
 		{
 			Uuid{u4{72274847284918525,18432172149644490780}}
 			Uuid{u4{3265851132939339666,5761399654097980371}}
-			Uuid{u4{4010809460085867653,5044629877910772636}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}

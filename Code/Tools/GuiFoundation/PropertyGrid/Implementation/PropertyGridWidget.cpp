@@ -1,12 +1,14 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/Types/VarianceTypes.h>
 
 #include <QLayout>
 #include <QScrollArea>
@@ -93,6 +95,11 @@ static ezQtPropertyWidget* TagSetCreator(const ezRTTI* pRtti)
   return new ezQtPropertyEditorTagSetWidget();
 }
 
+static ezQtPropertyWidget* VarianceTypeCreator(const ezRTTI* pRtti)
+{
+  return new ezQtVarianceTypeWidget();
+}
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -130,6 +137,7 @@ ON_CORE_STARTUP
   ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBitflagsBase>(), BitflagsCreator);
 
   ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
 }
 
 ON_CORE_SHUTDOWN

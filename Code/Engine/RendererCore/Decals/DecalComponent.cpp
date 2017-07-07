@@ -7,23 +7,28 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Core/Messages/TriggerMessage.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
+    EZ_MEMBER_PROPERTY("SizeVariance", m_fSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
     EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
+    EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
+    EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
+    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
   }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("FX"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::LightSteelBlue),
@@ -36,9 +41,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 1)
     EZ_FUNCTION_PROPERTY(OnObjectCreated),
   }
   EZ_END_FUNCTIONS
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -72,6 +78,15 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSortOrder;
   s << m_uiInternalSortKey;
   s << m_hDecal;
+  s << m_FadeOutDelay.m_Value;
+  s << m_FadeOutDelay.m_fVariance;
+  s << m_FadeOutDuration;
+  s << m_StartFadeOutTime;
+  s << m_fSizeVariance;
+
+  ezOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
+  s << type;
+
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -88,6 +103,16 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSortOrder;
   s >> m_uiInternalSortKey;
   s >> m_hDecal;
+  s >> m_FadeOutDelay.m_Value;
+  s >> m_FadeOutDelay.m_fVariance;
+  s >> m_FadeOutDuration;
+  s >> m_StartFadeOutTime;
+  s >> m_fSizeVariance;
+
+  ezOnComponentFinishedAction::StorageType type;
+  s >> type;
+  m_OnFinishedAction = (ezOnComponentFinishedAction::Enum) type;
+
 }
 
 ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -189,6 +214,11 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
 
   float fFade = 1.0f;
 
+  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+  if (tNow > m_StartFadeOutTime)
+  {
+    fFade -= ezMath::Min<float>(1.0f, (float)((tNow - m_StartFadeOutTime).GetSeconds() / m_FadeOutDuration.GetSeconds()));
+  }
 
   ezColor finalColor = m_Color;
   finalColor.a *= fFade;
@@ -196,6 +226,8 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
   if (finalColor.a <= 0.0f)
     return;
 
+  // TODO: LoadResource should not be done by every decal every frame!
+  // this should move into a manager and only be done once, it is a pretty heavy weight operation
   auto hDecalAtlas = ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
   ezVec2 baseAtlasScale = ezVec2(0.5f);
   ezVec2 baseAtlasOffset = ezVec2(0.5f);
@@ -233,4 +265,51 @@ void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
   m_uiInternalSortKey = ezHashHelper<ezUuid>::Hash(node.GetGuid());
   m_uiInternalSortKey = (m_uiInternalSortKey >> 16) ^ (m_uiInternalSortKey & 0xFFFF);
+}
+
+void ezDecalComponent::OnSimulationStarted()
+{
+  ezWorld* pWorld = GetWorld();
+
+  // no fade out -> fade out pretty late
+  m_StartFadeOutTime = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+    
+  if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
+  {
+    const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
+    m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
+
+    if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
+    {
+      ezInternalComponentMessage msg;
+      msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
+
+      const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
+
+      PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
+    }
+  }
+
+  if (m_fSizeVariance > 0)
+  {
+    const float scale = (float)pWorld->GetRandomNumberGenerator().DoubleVariance(1.0, m_fSizeVariance);
+    m_vExtents *= scale;
+
+    TriggerLocalBoundsUpdate();
+  }
+}
+
+void ezDecalComponent::OnTriggered(ezInternalComponentMessage& msg)
+{
+  if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
+    return;
+
+  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteEntity)
+  {
+    GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+  }
+  else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
+  {
+    GetManager()->DeleteComponent(GetHandle());
+  }
 }

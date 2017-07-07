@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
-#include <ParticlePlugin/Util/ParticleUtils.h>
+#include <Foundation/Types/VarianceTypes.h>
 
 class ezPhysicsWorldModuleInterface;
 

@@ -16,6 +16,7 @@
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/Status.h>
+#include <Foundation/Types/VarianceTypes.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Types/Uuid.h>
 

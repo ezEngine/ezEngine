@@ -87,7 +87,7 @@ public:
   void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);
   const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; }
 
-  ezOnComponentFinishedAction::Enum m_OnFinishedAction;
+  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;
 
 protected:
   bool m_bPaused;

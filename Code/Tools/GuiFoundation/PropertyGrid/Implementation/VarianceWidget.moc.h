@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
-#include <ParticlePlugin/Util/ParticleUtils.h>
+#include <Foundation/Types/VarianceTypes.h>
 
 class QSlider;
 

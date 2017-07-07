@@ -1,5 +1,5 @@
-#include <PCH.h>
-#include <EditorPluginParticle/Widgets/VarianceWidget.moc.h>
+﻿#include <PCH.h>
+#include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <QBoxLayout>
