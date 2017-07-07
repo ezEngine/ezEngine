@@ -119,7 +119,7 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
       auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
       ezMemoryUtils::ZeroFill(&gc);
 
-      m_camera->GetViewMatrix(gc.WorldToCameraMatrix);
+      gc.WorldToCameraMatrix = m_camera->GetViewMatrix();
       gc.CameraToWorldMatrix = gc.WorldToCameraMatrix.GetInverse();
       gc.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
       // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
