@@ -22,7 +22,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9806294794305770135,5052761689686868269}}
-		u4 %Hash{6403047686103311573}
+		u4 %Hash{9393881638117858775}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -49,11 +49,11 @@ o
 {
 	Uuid %id{u4{3265851132939339666,5761399654097980371}}
 	s %t{"ezDecalComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
-		ColorGamma %Color{u1{255,255,255,255}}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
 		Uuid %FadeOutDelay{u4{800467086460903338,729124739966304029}}
@@ -63,6 +63,7 @@ o
 		Angle %OuterFadeAngle{f{0xDB0FC93F}}
 		f %SizeVariance{0x0000803F}
 		f %SortOrder{0x0000A040}
+		b %WrapAround{0}
 	}
 }
 o

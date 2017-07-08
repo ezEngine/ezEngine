@@ -350,18 +350,29 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
     
     float4x4 worldToDecalMatrix = TransformToMatrix(decalData.worldToDecalMatrix);
     float3 decalPosition = mul(worldToDecalMatrix, float4(matData.worldPosition, 1.0f)).xyz;
-    
+        
     if (all(abs(decalPosition) < 1.0f))
     {
+      uint decalModeAndFlags = decalData.decalModeAndFlags;
       float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
       
-      float fade = dot(matData.vertexNormal, -normalize(worldToDecalMatrix[2].xyz));
-      fade = saturate(fade * angleFadeParams.x + angleFadeParams.y);
+      float3 decalNormal = normalize(mul((float3x3)worldToDecalMatrix, matData.vertexNormal));  
+      
+      float fade = saturate(-decalNormal.z * angleFadeParams.x + angleFadeParams.y);
       fade *= fade;
-      fade *= (1.0f - decalPosition.z * decalPosition.z);
+      
+      float3 borderFade = 1.0f - decalPosition * decalPosition;
+      //fade *= min(borderFade.x, min(borderFade.y, borderFade.z));
+      fade *= borderFade.z;
       
       if (fade > 0.0f)
       {
+        if (decalModeAndFlags & DECAL_WRAP_AROUND_FLAG)
+        {
+          decalPosition.xy += decalNormal.xy * decalPosition.z;
+          decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
+        }
+        
         float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
         float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
         

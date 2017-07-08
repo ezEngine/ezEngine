@@ -1,0 +1,59 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{17149997995182220980,5296289345857817313}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		b %Compression{1}
+		s %Input1{"Stuff/Bricks_Normal.png"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17149997995182220980,5296289345857817313}}
+		}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{342467460505339301,5406036485395523197}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Stuff/Bricks_Normal.png"}
+		}
+		Uuid %DocumentID{u4{342467460505339301,5406036485395523197}}
+		u4 %Hash{12072024202628409509}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+}
+Types{}

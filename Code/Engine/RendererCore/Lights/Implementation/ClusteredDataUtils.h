@@ -210,7 +210,7 @@ namespace
 
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     perDecalData.color = pDecalRenderData->m_Color;
-    perDecalData.textureBitmask = 0;
+    perDecalData.decalModeAndFlags = pDecalRenderData->m_uiDecalMode | (pDecalRenderData->m_bWrapAround ? DECAL_WRAP_AROUND_FLAG : 0);
     perDecalData.angleFadeParams = Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
     perDecalData.baseAtlasScale = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasScale);
     perDecalData.baseAtlasOffset = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasOffset);

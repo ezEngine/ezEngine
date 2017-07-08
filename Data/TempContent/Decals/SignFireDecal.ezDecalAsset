@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{7283393885162184066,4854345787361820657}}
+	Uuid %id{u4{10519950838261355453,4671192863200530158}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,11 +11,11 @@ AssetInfo
 		s %AssetType{"Decal"}
 		VarArray %Dependencies
 		{
-			s{"Stuff/Splatter.png"}
+			s{"Decals/SignsFire.png"}
 			s{"Textures/NeutralNormal.tga"}
 		}
-		Uuid %DocumentID{u4{7283393885162184066,4854345787361820657}}
-		u4 %Hash{13132560520196010341}
+		Uuid %DocumentID{u4{10519950838261355453,4671192863200530158}}
+		u4 %Hash{2927872631352543567}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -30,18 +30,18 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{8591771076694216859,5497759155859615588}}
+			Uuid{u4{10673022424657933447,5523533275265985665}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{8591771076694216859,5497759155859615588}}
+	Uuid %id{u4{10673022424657933447,5523533275265985665}}
 	s %t{"ezDecalAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		s %BaseColor{"Stuff/Splatter.png"}
+		s %BaseColor{"Decals/SignsFire.png"}
 		s %Normal{"Textures/NeutralNormal.tga"}
 	}
 }

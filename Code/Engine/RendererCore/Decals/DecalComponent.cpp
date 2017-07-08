@@ -26,15 +26,16 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
-    EZ_MEMBER_PROPERTY("SizeVariance", m_fSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("SizeVariance", GetSizeVariance, SetSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
+    EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
     EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
     EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
@@ -73,6 +74,7 @@ ezDecalComponent::ezDecalComponent()
   , m_InnerFadeAngle(ezAngle::Degree(50.0f))
   , m_OuterFadeAngle(ezAngle::Degree(80.0f))
   , m_fSortOrder(0.0f)
+  , m_bWrapAround(false)
   , m_uiInternalSortKey(s_uiNextSortKey++)
 {
 }
@@ -98,9 +100,8 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_FadeOutDuration;
   s << m_StartFadeOutTime;
   s << m_fSizeVariance;
-
-  ezOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
-  s << type;
+  s << m_OnFinishedAction;
+  s << m_bWrapAround;
 
 }
 
@@ -123,11 +124,12 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_FadeOutDuration;
   s >> m_StartFadeOutTime;
   s >> m_fSizeVariance;
+  s >> m_OnFinishedAction;
 
-  ezOnComponentFinishedAction::StorageType type;
-  s >> type;
-  m_OnFinishedAction = (ezOnComponentFinishedAction::Enum) type;
-
+  if (uiVersion >= 3)
+  {
+    s >> m_bWrapAround;
+  }
 }
 
 ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -148,12 +150,22 @@ const ezVec3& ezDecalComponent::GetExtents() const
   return m_vExtents;
 }
 
-void ezDecalComponent::SetColor(ezColorGammaUB color)
+void ezDecalComponent::SetSizeVariance(float fVariance)
+{
+  m_fSizeVariance = ezMath::Clamp(fVariance, 0.0f, 1.0f);
+}
+
+float ezDecalComponent::GetSizeVariance() const
+{
+  return m_fSizeVariance;
+}
+
+void ezDecalComponent::SetColor(ezColor color)
 {
   m_Color = color;
 }
 
-ezColorGammaUB ezDecalComponent::GetColor() const
+ezColor ezDecalComponent::GetColor() const
 {
   return m_Color;
 }
@@ -186,6 +198,16 @@ void ezDecalComponent::SetSortOrder(float fOrder)
 float ezDecalComponent::GetSortOrder() const
 {
   return m_fSortOrder;
+}
+
+void ezDecalComponent::SetWrapAround(bool bWrapAround)
+{
+  m_bWrapAround = bWrapAround;
+}
+
+bool ezDecalComponent::GetWrapAround() const
+{
+  return m_bWrapAround;
 }
 
 void ezDecalComponent::SetDecal(const ezDecalResourceHandle& hDecal)
@@ -263,6 +285,8 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
+  pRenderData->m_uiDecalMode = 0;
+  pRenderData->m_bWrapAround = m_bWrapAround;
   pRenderData->m_Color = finalColor;
   pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
   pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;

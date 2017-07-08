@@ -65,12 +65,19 @@ struct EZ_ALIGN_16(ezDirShadowData)
   StructuredBuffer<float4> shadowDataBuffer;
 #endif
 
+#define DECAL_MODE_ALL 0
+#define DECAL_MODE_DIFFUSE_ONLY 1
+#define DECAL_MODE_NORMAL_ONLY 2
+#define DECAL_MODE_EMISSIVE 3
+#define DECAL_MODE_MASK 0xFF
+#define DECAL_WRAP_AROUND_FLAG (1 << 8)
+
 struct EZ_ALIGN_16(ezPerDecalData)
 {
   TRANSFORM(worldToDecalMatrix);
   COLOR4F(color);
 
-  UINT1(textureBitmask);
+  UINT1(decalModeAndFlags);
   UINT1(angleFadeParams); // scale and offset as 16 bit floats
 
   UINT1(baseAtlasScale); // xy as 16 bit floats

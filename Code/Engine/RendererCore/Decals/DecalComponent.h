@@ -26,6 +26,8 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 
 public:
   ezVec3 m_vHalfExtents;
+  ezUInt8 m_uiDecalMode;
+  bool m_bWrapAround;
   ezColor m_Color;
   ezAngle m_InnerFadeAngle;
   ezAngle m_OuterFadeAngle;
@@ -65,10 +67,12 @@ public:
 public:
   void SetExtents(const ezVec3& value);
   const ezVec3& GetExtents() const;
-  float m_fSizeVariance;
 
-  void SetColor(ezColorGammaUB color);
-  ezColorGammaUB GetColor() const;
+  void SetSizeVariance(float fVariance);
+  float GetSizeVariance() const;
+
+  void SetColor(ezColor color);
+  ezColor GetColor() const;
 
   void SetInnerFadeAngle(ezAngle fFadeAngle);
   ezAngle GetInnerFadeAngle() const;
@@ -78,6 +82,9 @@ public:
 
   void SetSortOrder(float fOrder);
   float GetSortOrder() const;
+
+  void SetWrapAround(bool bWrapAround);
+  bool GetWrapAround() const;
 
   void SetDecal(const ezDecalResourceHandle& hResource);
   const ezDecalResourceHandle& GetDecal() const;
@@ -92,10 +99,12 @@ public:
 protected:
 
   ezVec3 m_vExtents;
-  ezColorGammaUB m_Color;
+  float m_fSizeVariance;
+  ezColor m_Color;
   ezAngle m_InnerFadeAngle;
   ezAngle m_OuterFadeAngle;
   float m_fSortOrder;
+  bool m_bWrapAround;
   ezDecalResourceHandle m_hDecal;
 
   //////////////////////////////////////////////////////////////////////////
