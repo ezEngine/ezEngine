@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
@@ -64,7 +64,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     m_hShadowSampler = pDevice->CreateSamplerState(desc);
   }
 
-  m_hDecalAtlas = ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
+  m_hDecalAtlas = ezDecalAtlasResource::GetDecalAtlasResource();
 }
 
 ezClusteredDataGPU::~ezClusteredDataGPU()

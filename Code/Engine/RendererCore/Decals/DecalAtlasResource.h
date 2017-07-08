@@ -28,6 +28,9 @@ public:
     ezRectU32 m_NormalRect;
   };
 
+  /// \brief Returns the one global decal atlas resource
+  static ezDecalAtlasResourceHandle GetDecalAtlasResource();
+
   const ezTexture2DResourceHandle& GetBaseColorTexture() const { return m_hBaseColor; }
   const ezTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }
   const ezVec2U32& GetBaseColorTextureSize() const { return m_BaseColorSize; }

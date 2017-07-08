@@ -18,7 +18,7 @@ ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
 
 void ezDecalComponentManager::Initialize()
 {
-  m_hDecalAtlas = ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
+  m_hDecalAtlas = ezDecalAtlasResource::GetDecalAtlasResource();
 }
 
 //////////////////////////////////////////////////////////////////////////

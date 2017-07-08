@@ -8,6 +8,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
 
@@ -55,6 +56,20 @@ ezDecalAtlasResource::ezDecalAtlasResource()
 {
 }
 
+
+ezDecalAtlasResourceHandle ezDecalAtlasResource::GetDecalAtlasResource()
+{
+  // if we don't do this check manually here, projects without decal data will print an error
+  // which will result in failed unit tests
+  if (!ezFileSystem::ExistsFile("AssetCache/PC/Decals.ezDecal"))
+  {
+    ezLog::Warning("Decal Atlas Texture is not available for this project.");
+    return ezDecalAtlasResource::GetTypeMissingResource();
+  }
+
+  return ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
+}
+
 ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;
@@ -67,7 +82,7 @@ ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
 {
-EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceDescription().GetData());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
