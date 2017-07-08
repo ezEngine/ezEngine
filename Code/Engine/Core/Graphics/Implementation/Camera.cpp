@@ -226,27 +226,6 @@ void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& X, ezAngle& Y, ezA
   }
 }
 
-void ezCamera::SetDirForwards(const ezVec3& vDirForwards)
-{
-  m_mViewMatrix[1].Element(0, 2) = m_mViewMatrix[0].Element(0, 2) = vDirForwards.x;
-  m_mViewMatrix[1].Element(1, 2) = m_mViewMatrix[0].Element(1, 2) = vDirForwards.y;
-  m_mViewMatrix[1].Element(2, 2) = m_mViewMatrix[0].Element(2, 2) = vDirForwards.z;
-}
-
-void ezCamera::SetDirRight(const ezVec3& vDirRight)
-{
-  m_mViewMatrix[1].Element(0, 0) = m_mViewMatrix[0].Element(0, 0) = vDirRight.x;
-  m_mViewMatrix[1].Element(1, 0) = m_mViewMatrix[0].Element(1, 0) = vDirRight.y;
-  m_mViewMatrix[1].Element(2, 0) = m_mViewMatrix[0].Element(2, 0) = vDirRight.z;
-}
-
-void ezCamera::SetDirUp(const ezVec3& vDirUp)
-{
-  m_mViewMatrix[1].Element(0, 1) = m_mViewMatrix[0].Element(0, 1) = vDirUp.x;
-  m_mViewMatrix[1].Element(1, 1) = m_mViewMatrix[0].Element(1, 1) = vDirUp.y;
-  m_mViewMatrix[1].Element(2, 1) = m_mViewMatrix[0].Element(2, 1) = vDirUp.z;
-}
-
 void ezCamera::RotateLocally(ezAngle X, ezAngle Y, ezAngle Z)
 {
   ClampRotationAngles(true, X, Y, Z);
@@ -282,9 +261,10 @@ void ezCamera::RotateLocally(ezAngle X, ezAngle Y, ezAngle Z)
     vDirForwards = m * vDirForwards;
   }
 
-  SetDirForwards(vDirForwards);
-  SetDirUp(vDirUp);
-  SetDirRight(vDirRight);
+  // Using SetLookAtMatrix is not only easier, it also has the advantage that we end up always with orthonormal vectors.
+  auto vPos = GetPosition();
+  m_mViewMatrix[0].SetLookAtMatrix(vPos, vPos + vDirForwards, vDirUp);
+  m_mViewMatrix[1] = m_mViewMatrix[0];
 
   CameraOrientationChanged(false, true);
 }
@@ -295,14 +275,12 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
 
   ezVec3 vDirForwards = GetDirForwards();
   ezVec3 vDirUp = GetDirUp();
-  ezVec3 vDirRight = GetDirRight();
 
   if (X.GetRadian() != 0.0f)
   {
     ezMat3 m;
     m.SetRotationMatrixX(X);
 
-    vDirRight = m * vDirRight;
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
   }
@@ -312,7 +290,6 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
     ezMat3 m;
     m.SetRotationMatrixY(Y);
     
-    vDirRight = m * vDirRight;
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
   }
@@ -322,14 +299,14 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
     ezMat3 m;
     m.SetRotationMatrixZ(Z);
 
-    vDirRight = m * vDirRight;
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
   }
 
-  SetDirForwards(vDirForwards);
-  SetDirUp(vDirUp);
-  SetDirRight(vDirRight);
+  // Using SetLookAtMatrix is not only easier, it also has the advantage that we end up always with orthonormal vectors.
+  auto vPos = GetPosition();
+  m_mViewMatrix[0].SetLookAtMatrix(vPos, vPos + vDirForwards, vDirUp);
+  m_mViewMatrix[1] = m_mViewMatrix[0];
 
   CameraOrientationChanged(false, true);
 }

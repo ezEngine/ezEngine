@@ -188,10 +188,6 @@ private:
   /// and allows to adjust them (e.g. for limiting how far the camera can rotate).
   void ClampRotationAngles(bool bLocalSpace, ezAngle& X, ezAngle& Y, ezAngle& Z);
 
-  void SetDirForwards(const ezVec3& vDirForwards);
-  void SetDirUp(const ezVec3& vDirUp);
-  void SetDirRight(const ezVec3& vDirRight);
-
   float m_fNearPlane;
   float m_fFarPlane;
 
