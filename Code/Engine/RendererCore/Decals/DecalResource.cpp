@@ -26,6 +26,9 @@ ON_CORE_STARTUP
 ON_CORE_SHUTDOWN
 {
   ezResourceManager::SetResourceTypeLoader<ezDecalResource>(nullptr);
+
+  ezDecalResource::SetTypeFallbackResource(ezDecalResourceHandle());
+  ezDecalResource::SetTypeMissingResource(ezDecalResourceHandle());
 }
 
 ON_ENGINE_STARTUP

@@ -29,6 +29,8 @@ ON_CORE_STARTUP
 
 ON_CORE_SHUTDOWN
 {
+  ezDecalAtlasResource::SetTypeFallbackResource(ezDecalAtlasResourceHandle());
+  ezDecalAtlasResource::SetTypeMissingResource(ezDecalAtlasResourceHandle());
 }
 
 ON_ENGINE_STARTUP
